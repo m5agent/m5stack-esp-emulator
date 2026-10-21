@@ -63,11 +63,16 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StopWatch | M5PM1 电源、GPIO/ADC/PWM、IRQ、唤醒、看门狗、定时器和 RTC RAM | `driver.m5pm1` | PASS |
 | Arduino Nesso N1 | 双 PI4IOE、按键中断、BQ27220 和 AW32001 | I2C + `Power` | PASS |
 | Core2 legacy | AXP192 芯片 ID、电池/VBUS/电流 ADC 与充电状态 | SoftI2C + PMIC 寄存器 | PASS |
+| AtomS3R | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
+| Cardputer-ADV | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
+| PaperColor | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
+| StackChan | GC0308 初始化、LCD_CAM/GDMA 取帧、快照和显示 | `camera.snapshot()` | PASS |
+| PaperMono | RGB 红/绿/蓝控制与 M5IOE1 PWM 回读 | `M5.Led` | PASS |
 
 汇总：
 
 ```text
-PASS    48
+PASS    53
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -505,6 +510,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ![Nesso peripherals](images/nesso-peripherals-test.png)
 
 ![Core2 AXP192](images/core2-axp192-test.png)
+
+![StackChan camera](images/stackchan-camera-test.png)
+
+![PaperMono RGB](images/papermono-rgb-test.png)
 
 ## 尚未闭环
 

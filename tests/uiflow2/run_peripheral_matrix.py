@@ -404,6 +404,31 @@ CASES = [
         ],
     },
     {
+        "id": "stackchan-camera",
+        "expected_status": "PASS",
+        "machine": "m5stackchan",
+        "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cores3_camera",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["touch:160,183"],
+        "qom": [],
+        "allow_static_frame": True,
+        "reason": (
+            "StackChan GC0308 SCCB, ESP32-S3 LCD_CAM, GDMA frame delivery, "
+            "snapshot and camera image display all pass."
+        ),
+        "checks": [
+            {"name": "stackchan_camera_init", "status": "PASS"},
+            {"name": "stackchan_camera_snapshot", "status": "PASS"},
+            {"name": "stackchan_camera_display", "status": "PASS"},
+        ],
+    },
+    {
         "id": "cores3-audio",
         "expected_status": "PASS",
         "reason": (
@@ -617,6 +642,32 @@ CASES = [
         "frame_color": {
             "x": 4, "y": 4, "label": "PaperMono PDM mic", "dark": True,
         },
+    },
+    {
+        "id": "papermono-rgb",
+        "expected_status": "PASS",
+        "reason": (
+            "M5.Led programs the PaperMono RGB LED and the RGB565 value is "
+            "read back from the M5PM1 NeoPixel RAM over I2C."
+        ),
+        "checks": [
+            {"name": "papermono_rgb_set", "status": "PASS"},
+            {"name": "papermono_m5pm1_neopixel_ram", "status": "PASS"},
+            {"name": "papermono_rgb_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papermono",
+        "base": "platform/.cache/firmware/papermono/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papermono_rgb",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "480x800",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "PaperMono RGB", "dark": True},
     },
     {
         "id": "papercolor-sd",
@@ -1126,6 +1177,96 @@ CASES = [
         "qom": [],
         "allow_static_frame": True,
         "frame_color": {"x": 64, "y": 4, "label": "LP5562"},
+    },
+    {
+        "id": "atoms3r-ir",
+        "expected_status": "PASS",
+        "reason": (
+            "AtomS3R hardware.IR sends NEC through ESP32-S3 RMT0 and the "
+            "captured symbols decode to address 0x56/command 0xA3."
+        ),
+        "checks": [{"name": "atoms3r_rmt_nec_tx", "status": "PASS"}],
+        "machine": "m5atoms3r",
+        "base": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+        "files_dir": "tests/uiflow2/sticks3_ir",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "128x128",
+        "efuse_pkg_version": "1",
+        "wait": "8",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_RMT_TX_FILE": "{out_dir}/ir.rmt",
+            "M5SW_RMT_TRACE": "1",
+        },
+        "rmt_nec": {
+            "capture": "{out_dir}/ir.rmt",
+            "address": 86,
+            "command": 163,
+        },
+    },
+    {
+        "id": "cardputer-adv-ir",
+        "expected_status": "PASS",
+        "reason": (
+            "Cardputer-ADV hardware.IR sends NEC through ESP32-S3 RMT0 and "
+            "the captured symbols decode to address 0x56/command 0xA3."
+        ),
+        "checks": [{"name": "cardputer_adv_rmt_nec_tx", "status": "PASS"}],
+        "machine": "m5cardputeradv",
+        "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "files_dir": "tests/uiflow2/sticks3_ir",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "8",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_RMT_TX_FILE": "{out_dir}/ir.rmt",
+            "M5SW_RMT_TRACE": "1",
+        },
+        "rmt_nec": {
+            "capture": "{out_dir}/ir.rmt",
+            "address": 86,
+            "command": 163,
+        },
+    },
+    {
+        "id": "papercolor-ir",
+        "expected_status": "PASS",
+        "reason": (
+            "PaperColor hardware.IR sends NEC through ESP32-S3 RMT0 and the "
+            "captured symbols decode to address 0x56/command 0xA3."
+        ),
+        "checks": [{"name": "papercolor_rmt_nec_tx", "status": "PASS"}],
+        "machine": "m5papercolor",
+        "base": "platform/.cache/firmware/papercolor/uiflow2.bin",
+        "files_dir": "tests/uiflow2/sticks3_ir",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "400x600",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_RMT_TX_FILE": "{out_dir}/ir.rmt",
+            "M5SW_RMT_TRACE": "1",
+        },
+        "rmt_nec": {
+            "capture": "{out_dir}/ir.rmt",
+            "address": 86,
+            "command": 163,
+        },
     },
     {
         "id": "core2-audio",
