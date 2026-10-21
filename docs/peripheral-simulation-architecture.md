@@ -58,6 +58,8 @@
 - **M5PM1**：电源源/配置、GPIO、ADC/温度、PWM、NeoPixel RAM、IRQ 状态与
   屏蔽、唤醒源、看门狗、定时器和 RTC RAM 均按寄存器语义工作，支持输入和
   模拟量 QOM 注入。
+- **AXP192**：Core2 legacy 选择路径验证了芯片 ID、状态、电池/VBUS/APS
+  ADC、充放电电流及 GPIO/IRQ 寄存器文件。
 - **GPIO/扩展 IO**：按键、触摸、PI4IOE 的输入/输出/上拉/中断状态，AW9523
   的输入/输出/方向/中断状态，以及 M5IOE1 的 GPIO、ADC、PWM、IRQ 和
   NeoPixel RAM 均通过真实 I2C/GPIO 路径读取。

@@ -62,11 +62,12 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StopWatch | M5IOE1 GPIO、ADC、PWM 与注入输入 | `driver.m5ioe1` | PASS |
 | StopWatch | M5PM1 电源、GPIO/ADC/PWM、IRQ、唤醒、看门狗、定时器和 RTC RAM | `driver.m5pm1` | PASS |
 | Arduino Nesso N1 | 双 PI4IOE、按键中断、BQ27220 和 AW32001 | I2C + `Power` | PASS |
+| Core2 legacy | AXP192 芯片 ID、电池/VBUS/电流 ADC 与充电状态 | SoftI2C + PMIC 寄存器 | PASS |
 
 汇总：
 
 ```text
-PASS    47
+PASS    48
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -498,6 +499,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ![StopWatch M5PM1](images/stopwatch-m5pm1-test.png)
 
 ![Nesso peripherals](images/nesso-peripherals-test.png)
+
+![Core2 AXP192](images/core2-axp192-test.png)
 
 ## 尚未闭环
 

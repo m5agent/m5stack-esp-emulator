@@ -1373,6 +1373,41 @@ CASES = [
         "frame_color": {"x": 4, "y": 4, "label": "Core2 IMU"},
     },
     {
+        "id": "core2-axp192",
+        "expected_status": "PASS",
+        "reason": (
+            "Core2 UIFlow2 auto-detects the legacy AXP192 model and reads "
+            "battery voltage, level, current and charging state through Power."
+        ),
+        "checks": [
+            {"name": "core2_axp192_detect", "status": "PASS"},
+            {"name": "core2_axp192_voltage", "status": "PASS"},
+            {"name": "core2_axp192_current", "status": "PASS"},
+            {"name": "core2_axp192_charging", "status": "PASS"},
+            {"name": "core2_axp192_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5core2",
+        "base": "platform/.cache/firmware/core2/uiflow2.bin",
+        "files_dir": "tests/uiflow2/core2_axp192",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "wait": "13",
+        "inputs": ["touch:160,183"],
+        "qom": [
+            ("/machine/axp192", "vbat-mv", "3900"),
+            ("/machine/axp192", "vin-mv", "5000"),
+            ("/machine/axp192", "battery-current-ma", "300"),
+            ("/machine/axp192", "charging", "true"),
+        ],
+        "env": {
+            "M5SW_CORE2_PMIC": "axp192",
+        },
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "Core2 AXP192"},
+    },
+    {
         "id": "stamplc-lm75",
         "expected_status": "PASS",
         "reason": (

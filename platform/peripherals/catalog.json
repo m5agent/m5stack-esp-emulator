@@ -100,9 +100,11 @@
       "kind": "pmic",
       "interface": "i2c",
       "address": "0x34",
-      "capabilities": ["battery", "charging"],
-      "status": "partial",
-      "injection": ["i2c-register"]
+      "capabilities": ["battery", "charging", "adc", "power-key", "gpio"],
+      "status": "simulated",
+      "injection": ["qom-vbat-mv", "qom-vin-mv", "qom-battery-current-ma", "qom-charging"],
+      "data_plane": "AXP192 chip ID, status, battery/VBUS/APS ADC registers, charge configuration/current and GPIO/IRQ register file over ESP32 I2C",
+      "tested_devices": ["core2"]
     },
     "axp2101": {
       "kind": "pmic",
