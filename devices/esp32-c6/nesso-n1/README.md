@@ -19,7 +19,7 @@
 | 重量 | 官方未确认 |
 | 显示 | 135×240 ips，1.14"，ST7789，触摸 |
 | 控制 | Touch, KEY1, KEY2 |
-| 外设 | imu:bmi270, lora, battery-fuel-gauge:bq27220, charger:aw32001, io-expander:pi4ioe5v6408 |
+| 外设 | imu:bmi270, lora, buzzer:gpio-ledc, ir-tx, battery-fuel-gauge:bq27220, charger:aw32001, io-expander:pi4ioe5v6408 |
 
 ## 模拟状态
 

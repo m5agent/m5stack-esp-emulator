@@ -39,6 +39,8 @@
     "sensors": [
       "imu:bmi270",
       "lora",
+      "buzzer:gpio-ledc",
+      "ir-tx",
       "battery-fuel-gauge:bq27220",
       "charger:aw32001",
       "io-expander:pi4ioe5v6408"
