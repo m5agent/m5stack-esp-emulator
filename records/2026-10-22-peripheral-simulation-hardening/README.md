@@ -49,18 +49,27 @@ validation.
 - Validate NanoC6 RGBPWR/WS2812, GPIO9 button, GPIO7 blue LED and RMT IR paths.
 - Add a StackChan combined probe for BMI270, BM8563 RTC, AW9523, INA226 and
   NEC IR TX/RX.
+- Require every runtime case to declare the exact chip models it exercises and
+  reject devices when any simulated component lacks a device-local case.
+- Replace system-only `machine.RTC` assertions with direct RX8130/PCF8563 I2C
+  register write/read and progression checks.
+- Add PaperColor power/RTC/keys, PaperMono buzzer/power-key and Core2
+  touch/RTC/power-key coverage.
+- Wire PaperMono GPIO42 buzzer output through ESP32-S3 I2S/GDMA and route QMP
+  `P` to the EPD power-key input.
+- Reject AtomS3R test images whose VFS range exceeds the selected flash size.
 
 ## Verification
 
 ```text
 platform catalog: PERIPHERAL_CATALOG_OK
-platform unit tests: 42 PASS
+platform unit tests: 47 PASS
 Core2 matching ELF: UIFlow2 release/2.5.3 + ESP-IDF v5.5.4, PASS
 Core2 IROM similarity: same load address/length, 99.49% identical bytes
 Core2 panic symbolization: `spi_flash_op_block_func` + `cache_ll_l1_disable_cache`
 runtime interface map: 60/60 simulated models covered
 per-device runtime groups: 14/14 devices covered by matching machine/probe cases
-runtime case assignment: 63/63 matrix and 7/7 external cases assigned exactly once
+runtime case assignment: 66/66 matrix and 7/7 external cases assigned exactly once
 device page peripheral contract panel: StickS3 8/8 components, PASS
 gallery completeness summary: 13/14 devices peripheral-complete, PASS
 Tab5 partial-device UI: 17 components, 15 blocker entries and dated exemption, PASS
@@ -103,11 +112,11 @@ Power.isCharging() returns charging/discharging accordingly, PASS
 Tab5 peripheral scenario runner: 2/2 PASS (charging-normal and discharging-low)
 Tab5 INA226 charging API: 8000 mV, 1248 mA, 87%, PASS
 Tab5 INA226 discharging API: 7200 mV, -501 mA, 37%, PASS
-Tab5 machine.RTC RX8130 write/readback: 2026-10-22 12:34:56, PASS
+Tab5 RX8130 direct I2C write/readback: PASS; progression and dynamic host time injection PARTIAL
 BCM2835 SPI DMAEN 32-bit FIFO + write-only panel backpressure: PASS
 CardputerZero factory UI startup to LVGL 320x170: PASS
 CardputerZero factory UI first frame: PASS (54400/54400 non-black pixels, 127 RGB565 colors)
-UIFlow2 peripheral matrix: 63/63 cases, 246/246 checks PASS
+UIFlow2 peripheral matrix: 66/66 cases, 264/264 checks PASS
 (clean final run; a separate 6-run Core2 stress check reproduced the known
 intermittent boot cache panic once)
 ```
@@ -143,6 +152,8 @@ python3 tests/uiflow2/run_nanoc6_peripherals.py
   interface snapshot for all 65 registered models.
 - `peripheral-matrix-summary-2026-10-22.json`: full 63-case peripheral matrix
   summary with 246/246 passing checks.
+- `peripheral-matrix-summary-66-2026-10-22.json`: final 66-case peripheral
+  matrix summary with 264/264 passing checks.
 - `tab5-charging-ui-2026-10-22.png`: native 1280x720 Tab5 framebuffer after
   touch, showing `CHG in:00 api:True en:1`.
 - `sticks3-peripheral-contract-2026-10-22.png`: device page showing the
@@ -180,8 +191,9 @@ python3 tests/uiflow2/run_nanoc6_peripherals.py
   state injection remain partial.
 - Tab5 INA226 bus/current register preload reaches the official Power API as
   `8000 mV / 1248 mA / 87%`. Dynamic host injection remains unavailable.
-- Tab5 `machine.RTC()` writes and reads back `2026-10-22 12:34:56` through
-  RX8130 registers; progression and dynamic host time injection remain absent.
+- Tab5 writes and reads RX8130 time registers directly through `machine.I2C`;
+  progression and dynamic host time injection remain absent. `machine.RTC()`
+  only changes the P4 system clock and is not counted as external RTC evidence.
 - Tab5: SC2356 MIPI-CSI, ES8388/ES7210 P4 I2S PCM, P4 USB Host, SDIO,
   ST7123 register-level touch and IP2326 charger remain blocked by the native
   P4 backend.
