@@ -239,6 +239,10 @@ Core2 固件 SKU 为 `K010-V11`，官方原理图对应 AXP2101 + INA3221，而�
 Core2 的 AXP192。板级模型已改为 AXP2101，扬声器使用 ESP32 I2S1，麦克风
 使用 I2S0 PDM RX。
 
+同一 `m5core2` 机器可通过 `M5SW_CORE2_PMIC=axp192` 选择 legacy PMIC；
+SoftI2C 路径已验证 AXP192 ID、状态、电池电压和充放电电流，默认 AXP2101 +
+INA3221 路径保持独立回归。
+
 QEMU 直接读取 IDF 生成的 `lldesc_t` 描述符链：
 
 - TX：逐个消费 guest DMA 描述符，触发 `OUT_EOF`，宿主抓到 32768 字节 PCM，
