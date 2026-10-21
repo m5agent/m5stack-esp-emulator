@@ -405,12 +405,20 @@
     },
     "nfc-st25r3916": {
       "kind": "nfc",
-      "interface": "i2c-spi",
+      "interface": "i2c",
       "capabilities": ["nfc", "iso14443a"],
-      "status": "partial",
+      "status": "simulated",
       "injection": ["deterministic-ntag", "i2c-command-fifo"],
-      "data_plane": "ST25R3916 command/register/FIFO protocol, ISO14443A REQA/anticollision/SELECT and NTAG page read/write over I2C; SPI transport remains planned",
+      "data_plane": "ST25R3916 I2C command/register/FIFO protocol, ISO14443A REQA/anticollision/SELECT and NTAG page read/write",
       "tested_devices": ["papermono", "stackchan"]
+    },
+    "nfc-st25r3916-spi": {
+      "kind": "nfc",
+      "interface": "spi",
+      "capabilities": ["nfc", "iso14443a"],
+      "status": "planned",
+      "injection": ["spi-command-fifo", "deterministic-ntag"],
+      "data_plane": "SPI/NFCCap transport for future Cap CC1101 and other carrier boards"
     },
     "lora-sx1262": {
       "kind": "lora",
