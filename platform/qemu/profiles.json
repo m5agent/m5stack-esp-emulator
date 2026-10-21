@@ -93,6 +93,8 @@
       ],
       "peripherals": [
         "bmi270",
+        "st25r3916-spi",
+        "cc1101",
         "audio",
         "sd"
       ],
@@ -101,9 +103,9 @@
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
-        "status": "display-keyboard-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 240x135 UI; a TCA8418 key event increments the on-screen counter."
+        "date": "2026-10-21",
+        "status": "display-keyboard-peripherals-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 240x135 UI; TCA8418 keys, shared-SPI microSD, ST25R3916 NFC Cap and CC1101 Sub-GHz Cap all pass."
       }
     },
     {

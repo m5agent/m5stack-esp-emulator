@@ -34,6 +34,7 @@ SENSOR_CAPABILITIES = {
     "servo": ("servo",),
     "nfc": ("nfc",),
     "lora": ("lora",),
+    "subghz": ("subghz",),
     "usb-host": ("usb-host",),
     "sht40": ("temperature", "humidity"),
 }
@@ -52,6 +53,7 @@ HIGH_BANDWIDTH_CAPABILITIES = {
     "ir",
     "can",
     "lora",
+    "subghz",
     "usb-host",
     "sd",
 }

@@ -44,6 +44,8 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | Cardputer-ADV | ES8311 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
 | Cardputer-ADV | SPI microSD 初始化、512B 写入/回读、原始镜像校验 | `machine.SDCard(slot=3)` | PASS |
 | Cardputer-ADV | BMI270 三轴加速度/角速度 | `Imu.getAccel()` / `getGyro()` | PASS |
+| Cardputer-ADV | ST25R3916 SPI NFC UID、页读、页写回读 | `driver.st25r3916` | PASS |
+| Cardputer-ADV | CC1101 Cap 868 MHz 配置、发送、接收回环 | `cap.CC1101Cap` | PASS |
 | PaperMono | PDM 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
 | PaperColor | ES8311/AW8737A 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
 | PaperColor | ES7210 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
@@ -77,7 +79,7 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 汇总：
 
 ```text
-PASS    57
+PASS    59
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -367,6 +369,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/cardputer_adv_mic/`
 - `tests/uiflow2/cardputer_adv_sd/`
 - `tests/uiflow2/cardputer_adv_peripherals/`
+- `tests/uiflow2/cardputer_adv_nfc/`
+- `tests/uiflow2/cardputer_adv_cc1101/`
 - `tests/uiflow2/papermono_mic/`
 - `tests/uiflow2/papercolor_audio/`
 - `tests/uiflow2/papercolor_mic/`
@@ -385,7 +389,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/nesso_imu/`
 - `tests/uiflow2/nesso_lora/`
 
-## Nesso N1 IMU 与 LoRa
+## 新增外设数据面
 
 ### BMI270
 
@@ -404,6 +408,20 @@ TX/RX FIFO 协议，不在 Python 层替换返回值。
 
 > `hardware.LoRa` 包装器会重新初始化 ST7789 已占用的硬件 SPI2；本测试使用
 > 同一官方 `lora.SX1262` 驱动和 `machine.SoftSPI` 走相同的四个物理 GPIO。
+
+### Cardputer-ADV ST25R3916 SPI
+
+Cardputer-ADV 的 SPI2 同时挂载 microSD、ST25R3916 NFC 和未来 CC1101。
+模型允许同一控制器按 CS 选择多个 SPI 从设备，并通过稳定的 MISO 缓冲
+把读数据交付给 IDF DMA 路径。NFC 测试通过 SCLK `G40`、MOSI `G14`、
+MISO `G39`、NFC CS `G6` 读取 UID `DEADBEEF`、page4 `M5N1`，写入并回读
+page8 `TEST`；同一轮 SD CS `G12` 与 BMI270 路径同时 PASS。
+
+### Cardputer-ADV CC1101 Cap
+
+CC1101 与 SD、NFC 共用 SPI2，使用 CS `G5`、GDO0 `G15`。官方
+`cap.CC1101Cap` 配置 868 MHz、2.4 kbps、25.4 kHz 频偏、58 kHz RX 带宽和
+10 dBm 输出，发送 `M5CC1101` 后通过芯片状态寄存器/FIFO 回读一致。
 
 ## 屏幕证据
 
@@ -497,6 +515,10 @@ TX/RX FIFO 协议，不在 Python 层替换返回值。
 
 ![Cardputer-ADV BMI270](images/cardputer-adv-imu-test.png)
 
+![Cardputer-ADV NFC SPI](images/cardputer-adv-nfc-test.png)
+
+![Cardputer-ADV CC1101 Cap](images/cardputer-adv-cc1101-test.png)
+
 ![PaperColor audio](images/papercolor-audio-test.png)
 
 ![PaperColor microphone](images/papercolor-mic-test.png)
@@ -554,10 +576,8 @@ TX/RX FIFO 协议，不在 Python 层替换返回值。
 ## 尚未闭环
 
 - Arduino Nesso N1 的 GPIO11 I2S 1-bit ΔΣ 蜂鸣器（M5Unified 走 C6 I2S TX）；
-- ST25R3916 SPI/NFCCap 路径；
 - USB Host 虚拟端点；
 - Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；
-- USB Host 和 Tab5 高带宽外设等尚未完成闭环的路径；
 - 所有项目的真机复测。
 
 这些项目已在 `platform/peripherals/catalog.json` 中逐器件登记，CI 会阻止新增

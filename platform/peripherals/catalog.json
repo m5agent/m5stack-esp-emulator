@@ -462,9 +462,10 @@
       "kind": "nfc",
       "interface": "spi",
       "capabilities": ["nfc", "iso14443a"],
-      "status": "planned",
+      "status": "simulated",
       "injection": ["spi-command-fifo", "deterministic-ntag"],
-      "data_plane": "SPI/NFCCap transport for future Cap CC1101 and other carrier boards"
+      "data_plane": "ST25R3916 SPI/NFCCap command/register/Space-B/FIFO transport with deterministic ISO14443A NTAG read and write over the Cardputer-ADV shared SPI2 bus",
+      "tested_devices": ["cardputer-adv"]
     },
     "lora-sx1262": {
       "kind": "lora",
@@ -474,6 +475,15 @@
       "injection": ["local-tx-rx-loopback", "spi-command-fifo"],
       "data_plane": "SX1262 SPI command/argument/status/register/TX-RX FIFO protocol, IRQ status, packet metadata and local TX-to-RX loopback over ESP32-S3 GP-SPI3/GDMA and Nesso N1 GPIO20-GPIO23 soft-SPI pins",
       "tested_devices": ["papermono", "nesso-n1"]
+    },
+    "cc1101-subghz": {
+      "kind": "subghz-radio",
+      "interface": "spi",
+      "capabilities": ["subghz"],
+      "status": "simulated",
+      "injection": ["local-tx-rx-loopback", "spi-command-fifo"],
+      "data_plane": "CC1101 configuration/status registers, command strobes, packet FIFO and local TX-to-RX loopback over the Cardputer-ADV shared SPI2 bus and GDO0 completion line",
+      "tested_devices": ["cardputer-adv"]
     },
     "sd-card": {
       "kind": "storage",
@@ -574,7 +584,9 @@
         {"id": "microphone", "model": "es8311"},
         {"id": "speaker", "model": "ns4150b"},
         {"id": "sd", "model": "sd-card-spi"},
-        {"id": "ir", "model": "ir-tx-rx"}
+        {"id": "ir", "model": "ir-tx-rx"},
+        {"id": "nfc-cap", "model": "nfc-st25r3916-spi"},
+        {"id": "subghz-cap", "model": "cc1101-subghz"}
       ]
     },
     "papercolor": {

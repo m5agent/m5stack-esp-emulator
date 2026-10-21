@@ -199,6 +199,69 @@ CASES = [
         },
     },
     {
+        "id": "cardputer-adv-nfc",
+        "expected_status": "PASS",
+        "reason": (
+            "The Cardputer-ADV ST25R3916 is reached over the shared SPI2 "
+            "bus with NFC CS G6; Type 2 UID/page reads and a page-8 write "
+            "and readback pass."
+        ),
+        "checks": [
+            {"name": "cardputer_nfc_spi_detect", "status": "PASS"},
+            {"name": "cardputer_nfc_page_read", "status": "PASS"},
+            {"name": "cardputer_nfc_page_write_verify", "status": "PASS"},
+            {"name": "cardputer_nfc_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cardputeradv",
+        "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cardputer_adv_nfc",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "12",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_SPI_XFER_TRACE": "1",
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV NFC"},
+    },
+    {
+        "id": "cardputer-adv-cc1101",
+        "expected_status": "PASS",
+        "reason": (
+            "The Cardputer-ADV CC1101 Cap configures over shared SPI2 "
+            "with CS G5, sends M5CC1101 and receives the chip FIFO "
+            "loopback through the official cap.CC1101Cap API."
+        ),
+        "checks": [
+            {"name": "cardputer_cc1101_spi_configure", "status": "PASS"},
+            {"name": "cardputer_cc1101_tx", "status": "PASS"},
+            {"name": "cardputer_cc1101_rx_loopback", "status": "PASS"},
+            {"name": "cardputer_cc1101_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cardputeradv",
+        "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cardputer_adv_cc1101",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "15",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_SPI_XFER_TRACE": "1",
+            "M5SW_CC1101_TRACE": "1",
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV CC1101"},
+    },
+    {
         "id": "cardputer-adv-audio",
         "expected_status": "PASS",
         "reason": (

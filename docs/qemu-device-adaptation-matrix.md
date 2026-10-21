@@ -21,7 +21,7 @@
 - StickS3：135x240、A/B GPIO；
 - AtomS3R：128x128、GPIO41；
 - CoreS3：320x240、FT5x06 触摸。
-- Cardputer-ADV：240x135、TCA8418 键盘事件；
+- Cardputer-ADV：240x135、TCA8418 键盘事件、SPI2 microSD、ST25R3916 NFC Cap 和 CC1101 Sub-GHz Cap；
 - StamPLC：240x135、PI4IOE 前面板按键、LM75、TWAI CAN、PWR485 UART2 和
   G44 I2S 蜂鸣器。
 - StackChan：320x240、FT5x06 触摸。
@@ -122,7 +122,8 @@ Cardputer-ADV、StamPLC、StackChan。
 - StamPLC 的 PLC IO/继电器、CAN、RS485 和蜂鸣器数据面已完成。
 - StackChan 需要舵机和音频模型。
 
-Cardputer-ADV、StamPLC 与 StackChan 已完成首帧及输入验收，测试工程位于
+Cardputer-ADV、StamPLC 与 StackChan 已完成首帧及输入验收；Cardputer-ADV
+还完成共享 SPI2 上 SD、NFC 和 Sub-GHz 的数据面验收。测试工程位于
 `tests/uiflow2/cardputer_adv_ui_test/` 和
 `tests/uiflow2/stamplc_ui_test/`、`tests/uiflow2/stackchan_ui_test/`。
 

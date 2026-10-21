@@ -76,9 +76,15 @@ Verified source baseline:
 The camera frame path is a simulation data plane, not real-camera validation.
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and
-Cardputer/PaperColor SPI SD are validated through the UIFlow2 runtime. USB
-Host, ST25R3916 SPI/NFCCap and Tab5 MIPI-CSI/ES8388 remain follow-up work and
-are tracked in the peripheral catalog. The SX1262 test still keeps CS asserted
-and splits large SPI transfers into ≤4-byte transactions for compatibility with
-the current UIFlow2 SPI driver path; the SPI SD path exercises larger block
-transfers directly.
+Cardputer/PaperColor SPI SD and Cardputer-ADV NFCCap ST25R3916 SPI plus Cap
+CC1101 Sub-GHz are validated through the UIFlow2 runtime. USB Host and Tab5
+MIPI-CSI/ES8388 remain follow-up work and are tracked in the peripheral
+catalog. The SX1262 test still keeps CS asserted and splits large SPI transfers
+into ≤4-byte transactions for compatibility with the current UIFlow2 SPI
+driver path; the SPI SD path exercises larger block transfers directly.
+
+`0003-m5stack-shared-spi-full.patch` is a standalone full snapshot against
+upstream QEMU `da100c909249926b9f4458f18e4f2d216d08f51a`. It includes the
+multi-CS ESP32-S3 GP-SPI model, ST25R3916 SPI/NFCCap and CC1101 Cap local
+loopback paths; use it when rebuilding a fresh tree without replaying the
+earlier incremental patches.
