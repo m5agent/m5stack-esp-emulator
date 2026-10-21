@@ -1,0 +1,78 @@
+{
+  "id": "cardputer-adv",
+  "name": "Cardputer-ADV",
+  "sku": "K132-Adv",
+  "group": "esp32-s3",
+  "category": "cardputer",
+  "hardware": {
+    "soc": "ESP32-S3FN8",
+    "architecture": "xtensa-lx7",
+    "flash_bytes": 8388608,
+    "psram_bytes": null,
+    "display": {
+      "type": "ips",
+      "width": 240,
+      "height": 135,
+      "shape": "rect",
+      "driver": "ST7789V2",
+      "touch": false,
+      "diagonal_in": 1.14
+    },
+    "keyboard": {
+      "keys": 56,
+      "rows": 4,
+      "cols": 14
+    },
+    "controls": [
+      {
+        "id": "keyboard",
+        "type": "keyboard",
+        "label": "56-key keyboard"
+      }
+    ],
+    "sensors": [
+      "imu:bmi270",
+      "audio:es8311",
+      "microphone",
+      "speaker"
+    ],
+    "dimensions_mm": [
+      84.0,
+      54.0,
+      19.6
+    ],
+    "weight_g": 81.0
+  },
+  "shell": {
+    "preset": "cardputer",
+    "accent": "#46c2a8",
+    "screen_scale": 1.1,
+    "body_theme": "silver",
+    "reference_image": "/platform/web/assets/reference-cutout/cardputer-adv.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "reference-ready",
+    "display_protocol": "spi-st7789v2",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "display-keyboard-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 240x135 UI，TCA8418 键盘事件后计数重绘；由统一设备矩阵验证。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000000936",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000936/2098280200634847233/bin/2098280200634847234.bin"
+    }
+  },
+  "group_label": "ESP32-S3",
+  "path": "devices/esp32-s3/cardputer-adv",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

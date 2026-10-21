@@ -1,0 +1,55 @@
+diff --git a/micropython.cmake b/micropython.cmake
+index 12f835c..3106260 100644
+--- a/micropython.cmake
++++ b/micropython.cmake
+@@ -24,9 +24,9 @@ message(STATUS "LV_CONF_PATH=${LV_CONF_PATH}")
+
+ include(${CMAKE_CURRENT_LIST_DIR}/mkrules_usermod.cmake)
+
+-# Add lv_bindings rules
+-
+-all_lv_bindings()
++# Bindings generation is owned by CMakeListsLvgl.cmake when BUILD_WITH_LVGL
++# is enabled.  Calling all_lv_bindings() here as well creates duplicate
++# custom commands for lv_mp.c in the same build directory.
+
+
+ # # # make usermod (target declared by Micropython for all user compiled modules) link to bindings
+diff --git a/mkrules.cmake b/mkrules.cmake
+index 0d0d6d7..e08ba8c 100644
+--- a/mkrules.cmake
++++ b/mkrules.cmake
+@@ -103,8 +103,9 @@ function(lv_bindings)
+         OUTPUT
+             ${LV_OUTPUT}
+         COMMAND
+-            ${Python3_EXECUTABLE} ${LV_BINDINGS_DIR}/gen/gen_mpy.py ${LV_GEN_OPTIONS} -MD ${LV_MPY_METADATA} -E ${LV_PP_FILTERED} -J ${LV_JSON} ${LV_INPUT} > ${LV_OUTPUT} || (rm -f ${LV_OUTPUT} && /bin/false)
++            bash ${LV_BINDINGS_DIR}/gen/gen_mpy_atomic.sh ${LV_OUTPUT} ${Python3_EXECUTABLE} ${LV_BINDINGS_DIR}/gen/gen_mpy.py ${LV_GEN_OPTIONS} -MD ${LV_MPY_METADATA} -E ${LV_PP_FILTERED} -J ${LV_JSON} ${LV_INPUT}
+         DEPENDS
++            ${LV_BINDINGS_DIR}/gen/gen_mpy_atomic.sh
+             ${LV_BINDINGS_DIR}/gen/gen_mpy.py
+             ${LV_PP_FILTERED}
+             ${LV_JSON}
+diff --git a/gen/gen_mpy_atomic.sh b/gen/gen_mpy_atomic.sh
+new file mode 100644
+index 0000000..b5e98dd
+--- /dev/null
++++ b/gen/gen_mpy_atomic.sh
+@@ -0,0 +1,17 @@
++#!/usr/bin/env bash
++set -u
++
++output=$1
++shift
++temporary="${output}.tmp"
++
++for attempt in 1 2 3; do
++    if "$@" > "${temporary}" && [[ -s "${temporary}" ]]; then
++        mv "${temporary}" "${output}"
++        exit 0
++    fi
++    sleep 1
++done
++
++rm -f "${temporary}"
++exit 1

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "device_id": "cardputer-zero",
+  "uiflow2": {
+    "supported": false,
+    "m5ui": false,
+    "firmware": null
+  },
+  "runtime": {
+    "backend": "external-linux-arm64",
+    "chip": "bcm2837",
+    "status": "backend-required",
+    "display_protocol": "pending",
+    "reason": "Raspberry Pi CM0/Linux, not an Espressif firmware target",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "not-run",
+      "detail": "当前仅完成设备档案与外壳；固件启动适配待执行。"
+    }
+  },
+  "cache_path": "platform/.cache/firmware/cardputer-zero/uiflow2.bin"
+}

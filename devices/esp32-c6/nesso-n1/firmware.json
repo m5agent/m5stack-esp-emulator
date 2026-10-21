@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "device_id": "nesso-n1",
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000002638",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002638/2098281060085485570/bin/2098281060085485571.bin"
+    }
+  },
+  "runtime": {
+    "backend": "qemu-esp32c6",
+    "chip": "esp32c6",
+    "status": "reference-ready",
+    "display_protocol": "spi-st7789",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "display-touch-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 ST7789 UI，QMP 触摸后计数与坐标重绘；规范 PPM stride 后截图无行对齐伪影。"
+    }
+  },
+  "cache_path": "platform/.cache/firmware/nesso-n1/uiflow2.bin"
+}

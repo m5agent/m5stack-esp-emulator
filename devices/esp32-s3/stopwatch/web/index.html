@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>M5Stack StopWatch 模拟器 (esp-emulator)</title>
+<style>
+body{margin:0;background:#1b1d22;color:#ddd;font:14px -apple-system,Segoe UI,sans-serif;display:flex;gap:24px;padding:20px;flex-wrap:wrap}
+#dev{position:relative;width:620px;height:660px;flex:none}
+#body{position:absolute;left:0;top:0;width:620px;height:620px}
+#shell{position:absolute;left:0;top:0;width:620px;height:620px;z-index:2;pointer-events:none}
+#screen{position:absolute;left:77px;top:77px;width:466px;height:466px;border-radius:50%;background:#000;cursor:crosshair;z-index:3;
+  box-shadow:0 0 0 1px #000,inset 0 0 0 1px #111}
+#glare{position:absolute;left:77px;top:77px;width:466px;height:466px;border-radius:50%;z-index:4;pointer-events:none;
+  background:radial-gradient(120% 80% at 30% 8%,rgba(255,255,255,.07),rgba(255,255,255,0) 45%)}
+/* side keys: rounded tabs that stick out of the rim; sit UNDER the shell so only the tip shows */
+.key{position:absolute;left:278px;top:290px;width:64px;height:40px;border:none;padding:0;cursor:pointer;z-index:1;
+  border-radius:16px 16px 9px 9px;transform-origin:32px 20px;transition:transform .07s,filter .07s;font-size:0;
+  transform:rotate(var(--a)) translateY(-290px)}
+.key::after{content:"";position:absolute;left:8px;right:8px;top:4px;height:7px;border-radius:6px;background:rgba(255,255,255,.35)}
+.key:hover{filter:brightness(1.08)}
+.key:active,.key.on{transform:rotate(var(--a)) translateY(-283px);filter:brightness(.78)}
+#kA{--a:-47deg;background:linear-gradient(#ffd54a,#e9a91a 70%,#b97f0c);box-shadow:inset 0 -3px 4px rgba(0,0,0,.25)}
+#kB{--a:47deg;background:linear-gradient(#7cc8ff,#3b9ff0 70%,#1f6fb8);box-shadow:inset 0 -3px 4px rgba(0,0,0,.25)}
+#kP{--a:-135deg;width:52px;left:284px;height:30px;top:295px;transform-origin:26px 15px;border-radius:8px;
+  background:linear-gradient(#ff5a4a,#d4261b 70%,#9c160f);transform:rotate(var(--a)) translateY(-284px)}
+#kP:active,#kP.on{transform:rotate(var(--a)) translateY(-279px)}
+.klabel{position:absolute;font:600 12px -apple-system,sans-serif;color:#9aa;pointer-events:none;z-index:5}
+#dev.vib #body{animation:sh .06s infinite}@keyframes sh{0%{transform:translate(1px,0)}50%{transform:translate(-1px,1px)}}
+#panel{flex:1;min-width:380px;max-width:640px}
+fieldset{border:1px solid #444;border-radius:8px;margin:0 0 10px;padding:8px 12px}legend{color:#9cf}
+label{display:inline-block;min-width:60px}input[type=range]{width:180px;vertical-align:middle}
+#log{background:#000;color:#8f8;height:220px;overflow:auto;white-space:pre-wrap;font:12px Menlo,monospace;padding:6px;border-radius:6px}
+button{background:#2d3138;color:#ddd;border:1px solid #555;border-radius:6px;padding:4px 10px;cursor:pointer}
+#status{color:#fc6}
+</style></head><body>
+<div id="dev"><div id="body">
+  <button class="key" id="kA" title="KEYA 黄色键 (G2) · 键盘 A">A</button>
+  <button class="key" id="kB" title="KEYB 蓝色键 (G1) · 键盘 B">B</button>
+  <button class="key" id="kP" title="电源键 PWR (经 M5PM1) · 键盘 P">PWR</button>
+  <svg id="shell" viewBox="0 0 620 620" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+   <defs>
+    <radialGradient id="gBody" cx="50%" cy="42%" r="58%"><stop offset="0" stop-color="#2b2e33"/><stop offset=".86" stop-color="#1c1e22"/><stop offset="1" stop-color="#0c0d0f"/></radialGradient>
+    <linearGradient id="gRim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b5f66"/><stop offset=".35" stop-color="#2a2d32"/><stop offset=".7" stop-color="#16181b"/><stop offset="1" stop-color="#3b3f45"/></linearGradient>
+    <linearGradient id="gBezel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101113"/><stop offset=".5" stop-color="#1d1f23"/><stop offset="1" stop-color="#0b0c0d"/></linearGradient>
+    <linearGradient id="gHi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".10"/></linearGradient>
+    <filter id="fTex" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+    <mask id="mRing"><circle cx="310" cy="310" r="286" fill="#fff"/><circle cx="310" cy="310" r="236" fill="#000"/></mask>
+    <filter id="fSh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-opacity=".6"/></filter>
+   </defs>
+   <!-- outer body (rubber/PC shell) -->
+   <circle cx="310" cy="310" r="286" fill="url(#gBody)" filter="url(#fSh)" style="pointer-events:auto"/>
+   <circle cx="310" cy="310" r="286" fill="#fff" filter="url(#fTex)" mask="url(#mRing)"/>
+   <!-- grip tread on the lower rim -->
+   <g stroke="#060708" stroke-width="3" stroke-linecap="round" fill="none" opacity=".85"><path d="M520.1 445.4 Q528.1 462.3 538.1 475.8"/><path d="M507.0 463.9 Q513.4 481.4 522.2 495.8"/><path d="M492.2 481.1 Q497.0 499.1 504.5 514.2"/><path d="M476.0 496.9 Q479.1 515.3 485.2 531.0"/><path d="M458.4 511.2 Q459.8 529.8 464.4 546.0"/><path d="M439.5 523.8 Q439.2 542.5 442.4 559.0"/><path d="M419.6 534.7 Q417.6 553.2 419.3 570.0"/><path d="M398.8 543.7 Q395.2 562.0 395.3 578.8"/><path d="M377.2 550.8 Q372.0 568.6 370.6 585.4"/><path d="M355.1 555.9 Q348.3 573.2 345.3 589.8"/><path d="M332.7 559.0 Q324.3 575.6 319.8 591.8"/><path d="M310.0 560.0 Q300.1 575.8 294.3 591.6"/><path d="M287.3 559.0 Q276.1 573.8 268.8 589.0"/><path d="M264.9 555.9 Q252.3 569.6 243.7 584.1"/><path d="M242.8 550.8 Q229.0 563.3 219.1 577.0"/><path d="M221.2 543.7 Q206.4 555.0 195.3 567.6"/><path d="M200.4 534.7 Q184.6 544.6 172.4 556.2"/><path d="M180.5 523.8 Q163.9 532.2 150.7 542.7"/><path d="M161.6 511.2 Q144.3 518.1 130.2 527.3"/><path d="M144.0 496.9 Q126.2 502.2 111.3 510.1"/><path d="M127.8 481.1 Q109.5 484.7 94.0 491.3"/><path d="M113.0 463.9 Q94.5 465.9 78.4 470.9"/><path d="M99.9 445.4 Q81.2 445.7 64.8 449.3"/></g>
+   <g stroke="#3a3e44" stroke-width="1" stroke-linecap="round" fill="none" opacity=".6" transform="translate(-1.2 -1.2)"><path d="M520.1 445.4 Q528.1 462.3 538.1 475.8"/><path d="M507.0 463.9 Q513.4 481.4 522.2 495.8"/><path d="M492.2 481.1 Q497.0 499.1 504.5 514.2"/><path d="M476.0 496.9 Q479.1 515.3 485.2 531.0"/><path d="M458.4 511.2 Q459.8 529.8 464.4 546.0"/><path d="M439.5 523.8 Q439.2 542.5 442.4 559.0"/><path d="M419.6 534.7 Q417.6 553.2 419.3 570.0"/><path d="M398.8 543.7 Q395.2 562.0 395.3 578.8"/><path d="M377.2 550.8 Q372.0 568.6 370.6 585.4"/><path d="M355.1 555.9 Q348.3 573.2 345.3 589.8"/><path d="M332.7 559.0 Q324.3 575.6 319.8 591.8"/><path d="M310.0 560.0 Q300.1 575.8 294.3 591.6"/><path d="M287.3 559.0 Q276.1 573.8 268.8 589.0"/><path d="M264.9 555.9 Q252.3 569.6 243.7 584.1"/><path d="M242.8 550.8 Q229.0 563.3 219.1 577.0"/><path d="M221.2 543.7 Q206.4 555.0 195.3 567.6"/><path d="M200.4 534.7 Q184.6 544.6 172.4 556.2"/><path d="M180.5 523.8 Q163.9 532.2 150.7 542.7"/><path d="M161.6 511.2 Q144.3 518.1 130.2 527.3"/><path d="M144.0 496.9 Q126.2 502.2 111.3 510.1"/><path d="M127.8 481.1 Q109.5 484.7 94.0 491.3"/><path d="M113.0 463.9 Q94.5 465.9 78.4 470.9"/><path d="M99.9 445.4 Q81.2 445.7 64.8 449.3"/></g>
+   <!-- outer edge highlight -->
+   <circle cx="310" cy="310" r="284.5" fill="none" stroke="url(#gHi)" stroke-width="3"/>
+   <!-- thick rounded bezel ring -->
+   <circle cx="310" cy="310" r="262" fill="none" stroke="url(#gRim)" stroke-width="13"/>
+   <circle cx="310" cy="310" r="268.5" fill="none" stroke="#08090a" stroke-width="1.5"/>
+   <circle cx="310" cy="310" r="255.5" fill="none" stroke="#050506" stroke-width="2"/>
+   <!-- glass / inner black border around the AMOLED -->
+   <circle cx="310" cy="310" r="245" fill="none" stroke="url(#gBezel)" stroke-width="20"/>
+   <circle cx="310" cy="310" r="234.5" fill="none" stroke="#000" stroke-width="3"/>
+   <path d="M118 210 A214 214 0 0 1 300 92" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+  <canvas id="screen" width="466" height="466"></canvas><div id="glare"></div>
+  <span class="klabel" style="left:58px;top:72px">A</span><span class="klabel" style="left:553px;top:72px">B</span><span class="klabel" style="left:40px;top:548px">PWR</span>
+</div>
+<div style="position:absolute;top:628px;left:0;width:620px;text-align:center;color:#888">点击屏幕 = 触摸 (CST820) · 键盘 A / B / P = 黄键 / 蓝键 / 电源键 · 同时长按 A+B = 回主页</div></div>
+<div id="panel">
+ <h3 style="margin:0 0 8px">M5Stack StopWatch 模拟器 <span id="status">加载中…</span></h3>
+ <div id="fwinfo" style="font:12px Menlo,monospace;color:#8cf;margin:-4px 0 8px">固件: -</div>
+ <fieldset><legend>固件</legend>
+  <select id="fwsel">
+   <option value="">等待固件：下载 UIFlow2 或选择本地镜像</option>
+  </select> <button id="reset">复位</button> <button id="pause">暂停</button><br>
+  <span style="font-size:12px;color:#888">或加载本地 merged .bin：</span><input type="file" id="fw" accept=".bin">
+  <div style="color:#888;font-size:12px">先运行 <code>python3 platform/tools/fetch_firmware.py stopwatch</code>，再用 <code>?fw=/platform/.cache/firmware/stopwatch/uiflow2.bin</code> 加载；也可直接选择本地 merged 镜像。</div></fieldset>
+ <fieldset><legend>IMU · BMI270 (加速度 g / 陀螺 dps)</legend>
+  <label>ax</label><input type="range" id="ax" min="-1" max="1" step="0.01" value="0"> <span id="axv"></span><br>
+  <label>ay</label><input type="range" id="ay" min="-1" max="1" step="0.01" value="0"> <span id="ayv"></span><br>
+  <label>az</label><input type="range" id="az" min="-1" max="1" step="0.01" value="1"> <span id="azv"></span><br>
+  <label>gz</label><input type="range" id="gz" min="-500" max="500" step="1" value="0"> <span id="gzv"></span>
+  <button id="tiltdrag" title="在屏幕上按住 Shift 拖动也可倾斜">归零</button></fieldset>
+ <fieldset><legend>电源 · M5PM1 / 450mAh 电池</legend>
+  <label>电量%</label><input type="range" id="bat" min="0" max="100" value="80"> <span id="batv"></span>
+  <label><input type="checkbox" id="chg"> 充电中</label> <label><input type="checkbox" id="vbus" checked> USB 5V</label></fieldset>
+ <fieldset><legend>RTC · RX8130CE</legend>
+  <button id="rtcsync">同步为本机时间</button> <input type="datetime-local" id="rtcset"> <button id="rtcapply">设置</button>
+  <span style="color:#888">(固件显示 UTC/本地由固件决定，本 demo 以本地时间写入)</span></fieldset>
+ <fieldset><legend>音频 · ES8311 + MEMS 麦克风 / AW8737A 喇叭</legend>
+  <button id="mic">🎤 开启电脑麦克风</button> <input type="file" id="wav" accept="audio/*"> <button id="tone">注入 440Hz 测试音</button><br>
+  <label><input type="checkbox" id="spk" checked> 喇叭输出 (WebAudio)</label> <span id="audst" style="color:#888"></span></fieldset>
+ <fieldset><legend>串口 UART0</legend><div id="log"></div>
+  <input id="cmd" style="width:75%" placeholder="发送到 UART0 (回车)"></fieldset>
+</div>
+<script src="app.js?v=20261020b"></script></body></html>

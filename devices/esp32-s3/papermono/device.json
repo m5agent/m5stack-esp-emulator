@@ -1,0 +1,89 @@
+{
+  "id": "papermono",
+  "name": "PaperMono",
+  "sku": "C153",
+  "group": "esp32-s3",
+  "category": "paper",
+  "hardware": {
+    "soc": "ESP32-S3R8",
+    "architecture": "xtensa-lx7",
+    "flash_bytes": 16777216,
+    "psram_bytes": 8388608,
+    "display": {
+      "type": "e-paper-mono",
+      "width": 480,
+      "height": 800,
+      "shape": "rect",
+      "driver": "SSD1677",
+      "touch": true,
+      "touch_driver": "FT6336G",
+      "grayscale": 4,
+      "diagonal_in": 3.97
+    },
+    "controls": [
+      {
+        "id": "key1",
+        "type": "button",
+        "label": "KEY1"
+      },
+      {
+        "id": "key2",
+        "type": "button",
+        "label": "KEY2"
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "PWR"
+      },
+      {
+        "id": "touch",
+        "type": "touch",
+        "label": "Touch"
+      }
+    ],
+    "sensors": [
+      "imu:bmi270",
+      "rtc:rx8130ce",
+      "microphone:pdm"
+    ],
+    "dimensions_mm": [
+      62.0,
+      101.0,
+      8.0
+    ],
+    "weight_g": 72.4
+  },
+  "shell": {
+    "preset": "paper",
+    "accent": "#d9d9d9",
+    "screen_scale": 0.46,
+    "body_theme": "paper-white",
+    "reference_image": "/platform/web/assets/reference-cutout/papermono.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "reference-ready",
+    "display_protocol": "epd-ssd1677",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "display-touch-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI，QMP 触摸后刷新；由统一设备矩阵验证。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "2089633464953118721",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/2089633464953118721/2098280529426337794/bin/2098280529426337795.bin"
+    }
+  },
+  "group_label": "ESP32-S3",
+  "path": "devices/esp32-s3/papermono",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

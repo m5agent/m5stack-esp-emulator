@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M5Stack simulator device profile",
+  "type": "object",
+  "required": ["id", "name", "group", "category", "hardware", "shell", "runtime", "uiflow2"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+    "name": {"type": "string"},
+    "sku": {"type": ["string", "null"]},
+    "group": {"type": "string"},
+    "category": {"type": "string"},
+    "hardware": {
+      "type": "object",
+      "required": ["soc", "architecture", "display", "controls", "sensors"],
+      "properties": {
+        "soc": {"type": "string"},
+        "architecture": {"type": "string"},
+        "flash_bytes": {"type": ["integer", "null"]},
+        "psram_bytes": {"type": ["integer", "null"]},
+        "memory_bytes": {"type": ["integer", "null"]},
+        "display": {"type": ["object", "null"]},
+        "controls": {"type": "array"},
+        "sensors": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "shell": {
+      "type": "object",
+      "required": ["preset", "accent"],
+      "properties": {
+        "preset": {"enum": ["watch-round", "stick", "core", "cardputer", "paper", "tab", "atom", "robot", "industrial", "console-only"]},
+        "accent": {"type": "string"},
+        "screen_scale": {"type": "number"}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["backend", "chip", "status"],
+      "properties": {
+        "backend": {"type": "string"},
+        "chip": {"type": "string"},
+        "status": {"enum": ["reference-ready", "boot-capable", "backend-required"]},
+        "display_protocol": {"type": "string"},
+        "execution": {"enum": ["native-qemu", "esp-emu-native", "browser-wasm", "external"]},
+        "page": {"type": "string"},
+        "fixture": {"type": "string"},
+        "reason": {"type": "string"},
+        "validation": {
+          "type": "object",
+          "properties": {
+            "date": {"type": "string"},
+            "status": {"type": "string"},
+            "detail": {"type": "string"}
+          }
+        }
+      }
+    },
+    "uiflow2": {
+      "type": "object",
+      "required": ["supported", "m5ui"],
+      "properties": {
+        "supported": {"type": "boolean"},
+        "m5ui": {"type": "boolean"},
+        "firmware": {"type": ["object", "null"]}
+      }
+    }
+  }
+}

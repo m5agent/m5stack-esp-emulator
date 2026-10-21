@@ -1,0 +1,83 @@
+{
+  "id": "tab5",
+  "name": "Tab5",
+  "sku": "C145 / K145",
+  "group": "esp32-p4",
+  "category": "tablet",
+  "hardware": {
+    "soc": "ESP32-P4NRW32",
+    "wireless_soc": "ESP32-C6-MINI-1U",
+    "architecture": "riscv32",
+    "flash_bytes": 16777216,
+    "psram_bytes": 33554432,
+    "display": {
+      "type": "ips",
+      "width": 1280,
+      "height": 720,
+      "shape": "rect",
+      "driver": "ST7121 / ST7123",
+      "touch": true,
+      "diagonal_in": 5.0
+    },
+    "controls": [
+      {
+        "id": "touch",
+        "type": "touch",
+        "label": "Touch"
+      },
+      {
+        "id": "reset",
+        "type": "button",
+        "label": "Reset/Boot"
+      }
+    ],
+    "sensors": [
+      "camera:sc2356",
+      "imu:bmi270",
+      "rtc:rx8130ce",
+      "audio",
+      "microphone",
+      "speaker",
+      "usb-host",
+      "rs485"
+    ],
+    "dimensions_mm": [
+      128.0,
+      80.0,
+      12.0
+    ],
+    "weight_g": 120.9
+  },
+  "shell": {
+    "preset": "tab",
+    "accent": "#5a8dee",
+    "screen_scale": 0.32,
+    "body_theme": "black-tablet",
+    "reference_image": "/platform/web/assets/reference-cutout/tab5.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "esp-emulator-native",
+    "chip": "esp32p4",
+    "status": "reference-ready",
+    "display_protocol": "m5gfx-psram-framebuffer",
+    "execution": "esp-emu-native",
+    "validation": {
+      "date": "2026-10-21",
+      "status": "display-touch-pass",
+      "detail": "UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. The image is esptool-written to 16 MiB virtual flash and byte-for-byte verified before boot."
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": true,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000002379",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002379/2098280943676772353/bin/2098280943676772354.bin"
+    }
+  },
+  "group_label": "ESP32-P4",
+  "path": "devices/esp32-p4/tab5",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

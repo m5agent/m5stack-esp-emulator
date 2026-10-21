@@ -1,0 +1,79 @@
+{
+  "id": "core2",
+  "name": "Core2",
+  "sku": "K010-V11",
+  "group": "esp32-lx6",
+  "category": "core",
+  "hardware": {
+    "soc": "ESP32-D0WDQ6-V3",
+    "architecture": "xtensa-lx6",
+    "flash_bytes": 16777216,
+    "psram_bytes": 8388608,
+    "display": {
+      "type": "ips",
+      "width": 320,
+      "height": 240,
+      "shape": "rect",
+      "driver": "ILI9342C / ILI9342E",
+      "touch": true,
+      "touch_driver": "FT6336U",
+      "diagonal_in": 2.0
+    },
+    "controls": [
+      {
+        "id": "touch",
+        "type": "touch",
+        "label": "Touch"
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "PWR"
+      }
+    ],
+    "sensors": [
+      "imu:mpu6886",
+      "rtc:bm8563",
+      "microphone:spm1423",
+      "speaker"
+    ],
+    "dimensions_mm": [
+      54.0,
+      54.0,
+      16.5
+    ],
+    "weight_g": 45.1
+  },
+  "shell": {
+    "preset": "core",
+    "accent": "#e05e5e",
+    "screen_scale": 0.82,
+    "body_theme": "warm-white",
+    "reference_image": "/platform/web/assets/reference-cutout/core2.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "reference-ready",
+    "display_protocol": "spi-ili9342",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-21",
+      "status": "display-touch-pass",
+      "detail": "官方 UIFlow2 v2.5.3 完成 320x240 首帧和 FT5x06 触摸重绘；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。测试镜像通过 QEMU ESP32 ROM UART 下载模式和 esptool --no-stub 写入 16 MiB 虚拟 flash，逐字节校验后从同一镜像启动。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": true,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000003470",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003470/2098280227356758018/bin/2098280227356758019.bin"
+    }
+  },
+  "group_label": "ESP32 LX6",
+  "path": "devices/esp32-lx6/core2",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

@@ -1,0 +1,1135 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-20",
+  "groups": [
+    {
+      "id": "esp32-s3",
+      "label": "ESP32-S3",
+      "path": "esp32-s3"
+    },
+    {
+      "id": "esp32-c6",
+      "label": "ESP32-C6",
+      "path": "esp32-c6"
+    },
+    {
+      "id": "esp32-p4",
+      "label": "ESP32-P4",
+      "path": "esp32-p4"
+    },
+    {
+      "id": "esp32-lx6",
+      "label": "ESP32 LX6",
+      "path": "esp32-lx6"
+    },
+    {
+      "id": "linux-arm64",
+      "label": "Linux ARM64",
+      "path": "linux-arm64"
+    }
+  ],
+  "devices": [
+    {
+      "id": "sticks3",
+      "name": "StickS3",
+      "sku": "K150",
+      "group": "esp32-s3",
+      "category": "stick",
+      "hardware": {
+        "soc": "ESP32-S3-PICO-1-N8R8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 8388608,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "ips",
+          "width": 135,
+          "height": 240,
+          "shape": "rect",
+          "driver": "ST7789P3",
+          "touch": false,
+          "diagonal_in": 1.14,
+          "effective_mm": [
+            14.864,
+            24.912
+          ]
+        },
+        "controls": [
+          {
+            "id": "a",
+            "type": "button",
+            "label": "A"
+          },
+          {
+            "id": "b",
+            "type": "button",
+            "label": "B"
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "PWR"
+          }
+        ],
+        "sensors": [
+          "imu:bmi270",
+          "audio:es8311",
+          "microphone",
+          "speaker",
+          "ir"
+        ],
+        "dimensions_mm": [
+          48.0,
+          24.0,
+          15.0
+        ],
+        "weight_g": 20.0
+      },
+      "shell": {
+        "preset": "stick",
+        "accent": "#f0b429",
+        "screen_scale": 1.05,
+        "body_theme": "graphite",
+        "reference_image": "/platform/web/assets/reference-cutout/sticks3.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "spi-st7789p3",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-button-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 UI，A 键注入后计数重绘；由统一设备矩阵验证。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000001693",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001693/2098280886097367041/bin/2098280886097367042.bin"
+        }
+      }
+    },
+    {
+      "id": "cores3",
+      "name": "CoreS3",
+      "sku": "K128",
+      "group": "esp32-s3",
+      "category": "core",
+      "hardware": {
+        "soc": "ESP32-S3",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "ips",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "driver": "ILI9342C / ILI9342E",
+          "touch": true,
+          "diagonal_in": 2.0
+        },
+        "controls": [
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "Touch"
+          }
+        ],
+        "sensors": [
+          "camera:gc0308",
+          "imu:bmi270",
+          "magnetometer:bmm150",
+          "rtc:bm8563",
+          "microphone",
+          "speaker"
+        ],
+        "dimensions_mm": [
+          54.0,
+          54.0,
+          15.5
+        ],
+        "weight_g": 37.8
+      },
+      "shell": {
+        "preset": "core",
+        "accent": "#35a7ff",
+        "screen_scale": 0.82,
+        "body_theme": "graphite",
+        "reference_image": "/platform/web/assets/reference-cutout/cores3.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "spi-ili9342",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-touch-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI，QMP 触摸后计数重绘；由统一设备矩阵验证。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": true,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000001950",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001950/2102696305989775362/bin/2102696305989775363.bin"
+        }
+      }
+    },
+    {
+      "id": "stopwatch",
+      "name": "StopWatch",
+      "sku": "C152",
+      "group": "esp32-s3",
+      "category": "wearable",
+      "hardware": {
+        "soc": "ESP32-S3R8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "amoled",
+          "width": 466,
+          "height": 466,
+          "shape": "circle",
+          "driver": "CO5300",
+          "touch": true,
+          "diagonal_in": 1.75
+        },
+        "controls": [
+          {
+            "id": "a",
+            "type": "button",
+            "label": "A"
+          },
+          {
+            "id": "b",
+            "type": "button",
+            "label": "B"
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "PWR"
+          },
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "Touch"
+          }
+        ],
+        "sensors": [
+          "imu:bmi270",
+          "rtc:rx8130ce",
+          "audio:es8311",
+          "microphone",
+          "speaker",
+          "vibration",
+          "battery"
+        ],
+        "dimensions_mm": [
+          52.0,
+          52.0,
+          15.5
+        ],
+        "weight_g": 39.0
+      },
+      "shell": {
+        "preset": "watch-round",
+        "accent": "#e6b800",
+        "screen_scale": 0.76,
+        "body_theme": "graphite",
+        "reference_image": "/platform/web/assets/reference-cutout/stopwatch.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "qspi-co5300",
+        "execution": "native-qemu",
+        "page": "/devices/esp32-s3/stopwatch/web/index.html",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "uiflow2-ui-touch-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 466x466 圆屏 UI，QMP 触摸后画面重绘；统一矩阵与 StopWatch 专项测试均通过。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": true,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000002172",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002172/2098280916376047618/bin/2098280916376047619.bin"
+        }
+      }
+    },
+    {
+      "id": "cardputer-adv",
+      "name": "Cardputer-ADV",
+      "sku": "K132-Adv",
+      "group": "esp32-s3",
+      "category": "cardputer",
+      "hardware": {
+        "soc": "ESP32-S3FN8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 8388608,
+        "psram_bytes": null,
+        "display": {
+          "type": "ips",
+          "width": 240,
+          "height": 135,
+          "shape": "rect",
+          "driver": "ST7789V2",
+          "touch": false,
+          "diagonal_in": 1.14
+        },
+        "keyboard": {
+          "keys": 56,
+          "rows": 4,
+          "cols": 14
+        },
+        "controls": [
+          {
+            "id": "keyboard",
+            "type": "keyboard",
+            "label": "56-key keyboard"
+          }
+        ],
+        "sensors": [
+          "imu:bmi270",
+          "audio:es8311",
+          "microphone",
+          "speaker"
+        ],
+        "dimensions_mm": [
+          84.0,
+          54.0,
+          19.6
+        ],
+        "weight_g": 81.0
+      },
+      "shell": {
+        "preset": "cardputer",
+        "accent": "#46c2a8",
+        "screen_scale": 1.1,
+        "body_theme": "silver",
+        "reference_image": "/platform/web/assets/reference-cutout/cardputer-adv.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "spi-st7789v2",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-keyboard-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 240x135 UI，TCA8418 键盘事件后计数重绘；由统一设备矩阵验证。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000000936",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000000936/2098280200634847233/bin/2098280200634847234.bin"
+        }
+      }
+    },
+    {
+      "id": "cardputer-zero",
+      "name": "CardputerZero",
+      "sku": "C154",
+      "group": "linux-arm64",
+      "category": "cardputer",
+      "hardware": {
+        "soc": "RP3A0 (BCM2837)",
+        "architecture": "arm64",
+        "memory_bytes": 536870912,
+        "display": {
+          "type": "lcd",
+          "width": 320,
+          "height": 170,
+          "shape": "rect",
+          "driver": "SPI LCD",
+          "touch": false,
+          "diagonal_in": 1.9
+        },
+        "keyboard": {
+          "keys": 46
+        },
+        "controls": [
+          {
+            "id": "keyboard",
+            "type": "keyboard",
+            "label": "46-key keyboard"
+          }
+        ],
+        "sensors": [
+          "camera:imx219",
+          "imu:bmi270",
+          "magnetometer:bmm150",
+          "rtc:rx8130ce",
+          "audio:es8389",
+          "microphone",
+          "speaker",
+          "ethernet",
+          "usb-host"
+        ],
+        "dimensions_mm": [
+          84.0,
+          54.0,
+          23.1
+        ],
+        "weight_g": null
+      },
+      "shell": {
+        "preset": "cardputer",
+        "accent": "#8f7cff",
+        "screen_scale": 1.0,
+        "body_theme": "silver",
+        "reference_image": "/platform/web/assets/reference-cutout/cardputer-zero.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "external-linux-arm64",
+        "chip": "bcm2837",
+        "status": "backend-required",
+        "display_protocol": "pending",
+        "reason": "Raspberry Pi CM0/Linux, not an Espressif firmware target",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "not-run",
+          "detail": "当前仅完成设备档案与外壳；固件启动适配待执行。"
+        }
+      },
+      "uiflow2": {
+        "supported": false,
+        "m5ui": false,
+        "firmware": null
+      }
+    },
+    {
+      "id": "papermono",
+      "name": "PaperMono",
+      "sku": "C153",
+      "group": "esp32-s3",
+      "category": "paper",
+      "hardware": {
+        "soc": "ESP32-S3R8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "e-paper-mono",
+          "width": 480,
+          "height": 800,
+          "shape": "rect",
+          "driver": "SSD1677",
+          "touch": true,
+          "touch_driver": "FT6336G",
+          "grayscale": 4,
+          "diagonal_in": 3.97
+        },
+        "controls": [
+          {
+            "id": "key1",
+            "type": "button",
+            "label": "KEY1"
+          },
+          {
+            "id": "key2",
+            "type": "button",
+            "label": "KEY2"
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "PWR"
+          },
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "Touch"
+          }
+        ],
+        "sensors": [
+          "imu:bmi270",
+          "rtc:rx8130ce",
+          "microphone:pdm"
+        ],
+        "dimensions_mm": [
+          62.0,
+          101.0,
+          8.0
+        ],
+        "weight_g": 72.4
+      },
+      "shell": {
+        "preset": "paper",
+        "accent": "#d9d9d9",
+        "screen_scale": 0.46,
+        "body_theme": "paper-white",
+        "reference_image": "/platform/web/assets/reference-cutout/papermono.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "epd-ssd1677",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-touch-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI，QMP 触摸后刷新；由统一设备矩阵验证。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "2089633464953118721",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/2089633464953118721/2098280529426337794/bin/2098280529426337795.bin"
+        }
+      }
+    },
+    {
+      "id": "core2",
+      "name": "Core2",
+      "sku": "K010-V11",
+      "group": "esp32-lx6",
+      "category": "core",
+      "hardware": {
+        "soc": "ESP32-D0WDQ6-V3",
+        "architecture": "xtensa-lx6",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "ips",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "driver": "ILI9342C / ILI9342E",
+          "touch": true,
+          "touch_driver": "FT6336U",
+          "diagonal_in": 2.0
+        },
+        "controls": [
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "Touch"
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "PWR"
+          }
+        ],
+        "sensors": [
+          "imu:mpu6886",
+          "rtc:bm8563",
+          "microphone:spm1423",
+          "speaker"
+        ],
+        "dimensions_mm": [
+          54.0,
+          54.0,
+          16.5
+        ],
+        "weight_g": 45.1
+      },
+      "shell": {
+        "preset": "core",
+        "accent": "#e05e5e",
+        "screen_scale": 0.82,
+        "body_theme": "warm-white",
+        "reference_image": "/platform/web/assets/reference-cutout/core2.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32lx6",
+        "chip": "esp32",
+        "status": "reference-ready",
+        "display_protocol": "spi-ili9342",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-21",
+          "status": "display-touch-pass",
+          "detail": "官方 UIFlow2 v2.5.3 完成 320x240 首帧和 FT5x06 触摸重绘；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。测试镜像通过 QEMU ESP32 ROM UART 下载模式和 esptool --no-stub 写入 16 MiB 虚拟 flash，逐字节校验后从同一镜像启动。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": true,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000003470",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003470/2098280227356758018/bin/2098280227356758019.bin"
+        }
+      }
+    },
+    {
+      "id": "papercolor",
+      "name": "PaperColor",
+      "sku": "C151",
+      "group": "esp32-s3",
+      "category": "paper",
+      "hardware": {
+        "soc": "ESP32-S3R8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "e-paper-color",
+          "width": 400,
+          "height": 600,
+          "shape": "rect",
+          "driver": "E Ink Spectra 6",
+          "touch": false,
+          "diagonal_in": 4.0
+        },
+        "controls": [
+          {
+            "id": "key1",
+            "type": "button",
+            "label": "KEY1"
+          },
+          {
+            "id": "key2",
+            "type": "button",
+            "label": "KEY2"
+          },
+          {
+            "id": "key3",
+            "type": "button",
+            "label": "KEY3"
+          },
+          {
+            "id": "power",
+            "type": "button",
+            "label": "PWR"
+          }
+        ],
+        "sensors": [
+          "sht40",
+          "rtc:rx8130ce",
+          "audio:es8311",
+          "microphone",
+          "speaker",
+          "rgb-led"
+        ],
+        "dimensions_mm": [
+          70.8,
+          103.9,
+          8.5
+        ],
+        "weight_g": 73.3
+      },
+      "shell": {
+        "preset": "paper",
+        "accent": "#f4a261",
+        "screen_scale": 0.52,
+        "body_theme": "paper-white",
+        "reference_image": "/platform/web/assets/reference-cutout/papercolor.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "epd-spectra6",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-key-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 400x600 六色电子纸 UI，GPIO 按键后刷新；由统一设备矩阵验证。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000002033",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002033/2098280498975690753/bin/2098280498975690754.bin"
+        }
+      }
+    },
+    {
+      "id": "nanoc6",
+      "name": "NanoC6",
+      "sku": "C122",
+      "group": "esp32-c6",
+      "category": "nano",
+      "hardware": {
+        "soc": "ESP32-C6FH4",
+        "architecture": "riscv32",
+        "flash_bytes": 4194304,
+        "psram_bytes": null,
+        "display": null,
+        "controls": [
+          {
+            "id": "button",
+            "type": "button",
+            "label": "GPIO9",
+            "gpio": 9
+          }
+        ],
+        "sensors": [
+          "rgb-led",
+          "ir"
+        ],
+        "dimensions_mm": [
+          23.5,
+          12.0,
+          9.5
+        ],
+        "weight_g": 2.7
+      },
+      "shell": {
+        "preset": "console-only",
+        "accent": "#7ce38b",
+        "body_theme": "cyan",
+        "reference_image": "/platform/web/assets/reference-cutout/nanoc6.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32c6",
+        "chip": "esp32c6",
+        "status": "boot-capable",
+        "display_protocol": "none",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "console-pass",
+          "detail": "官方 UIFlow2 v2.5.3 在 ESP32-C6 QEMU USB-Serial-JTAG 控制台运行替换后的 boot.py/main.py，M5.begin() 返回板型 140；无显示屏。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000001159",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001159/2098280414426910722/bin/2098280414426910723.bin"
+        }
+      }
+    },
+    {
+      "id": "stackchan",
+      "name": "StackChan",
+      "sku": "K151 / K151-R",
+      "group": "esp32-s3",
+      "category": "robot",
+      "hardware": {
+        "soc": "ESP32-S3",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 16777216,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "ips",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "driver": "ILI9342C / ILI9342E",
+          "touch": true,
+          "touch_driver": "FT6336U",
+          "diagonal_in": 2.0
+        },
+        "controls": [
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "Touch"
+          },
+          {
+            "id": "servo_yaw",
+            "type": "servo",
+            "label": "Yaw"
+          },
+          {
+            "id": "servo_pitch",
+            "type": "servo",
+            "label": "Pitch"
+          }
+        ],
+        "sensors": [
+          "camera:gc0308",
+          "imu:bmi270",
+          "magnetometer:bmm150",
+          "rtc:bm8563",
+          "audio:es7210",
+          "speaker:aw88298",
+          "touch:si12t",
+          "nfc:st25r3916",
+          "servo:yaw-feedback",
+          "servo:pitch-feedback"
+        ],
+        "dimensions_mm": [
+          54.0,
+          70.5,
+          61.5
+        ],
+        "weight_g": 187.2
+      },
+      "shell": {
+        "preset": "robot",
+        "accent": "#8bd3ff",
+        "screen_scale": 0.9,
+        "body_theme": "white",
+        "reference_image": "/platform/web/assets/reference-cutout/stackchan.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "spi-ili9342",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-touch-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI，QMP 触摸后计数重绘；由统一设备矩阵验证。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": true,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000002716",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002716/2098280583558025217/bin/2098280583558025218.bin"
+        }
+      }
+    },
+    {
+      "id": "tab5",
+      "name": "Tab5",
+      "sku": "C145 / K145",
+      "group": "esp32-p4",
+      "category": "tablet",
+      "hardware": {
+        "soc": "ESP32-P4NRW32",
+        "wireless_soc": "ESP32-C6-MINI-1U",
+        "architecture": "riscv32",
+        "flash_bytes": 16777216,
+        "psram_bytes": 33554432,
+        "display": {
+          "type": "ips",
+          "width": 1280,
+          "height": 720,
+          "shape": "rect",
+          "driver": "ST7121 / ST7123",
+          "touch": true,
+          "diagonal_in": 5.0
+        },
+        "controls": [
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "Touch"
+          },
+          {
+            "id": "reset",
+            "type": "button",
+            "label": "Reset/Boot"
+          }
+        ],
+        "sensors": [
+          "camera:sc2356",
+          "imu:bmi270",
+          "rtc:rx8130ce",
+          "audio",
+          "microphone",
+          "speaker",
+          "usb-host",
+          "rs485"
+        ],
+        "dimensions_mm": [
+          128.0,
+          80.0,
+          12.0
+        ],
+        "weight_g": 120.9
+      },
+      "shell": {
+        "preset": "tab",
+        "accent": "#5a8dee",
+        "screen_scale": 0.32,
+        "body_theme": "black-tablet",
+        "reference_image": "/platform/web/assets/reference-cutout/tab5.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "esp-emulator-native",
+        "chip": "esp32p4",
+        "status": "reference-ready",
+        "display_protocol": "m5gfx-psram-framebuffer",
+        "execution": "esp-emu-native",
+        "validation": {
+          "date": "2026-10-21",
+          "status": "display-touch-pass",
+          "detail": "UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. The image is esptool-written to 16 MiB virtual flash and byte-for-byte verified before boot."
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": true,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000002379",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002379/2098280943676772353/bin/2098280943676772354.bin"
+        }
+      }
+    },
+    {
+      "id": "atoms3r",
+      "name": "AtomS3R",
+      "sku": "C126",
+      "group": "esp32-s3",
+      "category": "atom",
+      "hardware": {
+        "soc": "ESP32-S3-PICO-1-N8R8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 8388608,
+        "psram_bytes": 8388608,
+        "display": {
+          "type": "ips",
+          "width": 128,
+          "height": 128,
+          "shape": "rect",
+          "driver": "ST7735 / GC9107",
+          "touch": false,
+          "diagonal_in": 0.85
+        },
+        "controls": [
+          {
+            "id": "button",
+            "type": "button",
+            "label": "USER",
+            "gpio": 41
+          }
+        ],
+        "sensors": [
+          "imu:bmi270",
+          "magnetometer:bmm150",
+          "rgb-led",
+          "ir"
+        ],
+        "dimensions_mm": [
+          24.0,
+          24.0,
+          12.9
+        ],
+        "weight_g": 6.8
+      },
+      "shell": {
+        "preset": "atom",
+        "accent": "#f05d5e",
+        "screen_scale": 1.15,
+        "body_theme": "white",
+        "reference_image": "/platform/web/assets/reference-cutout/atoms3r.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "spi-gc9107",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-button-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 128x128 UI，GPIO41 按键后计数重绘；由统一设备矩阵验证。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000001772",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001772/2098279973173547010/bin/2098279973173547011.bin"
+        }
+      }
+    },
+    {
+      "id": "nesso-n1",
+      "name": "Arduino Nesso N1",
+      "sku": "DK001",
+      "group": "esp32-c6",
+      "category": "core",
+      "hardware": {
+        "soc": "ESP32-C6",
+        "architecture": "riscv32",
+        "flash_bytes": 16777216,
+        "psram_bytes": null,
+        "display": {
+          "type": "ips",
+          "width": 135,
+          "height": 240,
+          "shape": "rect",
+          "driver": "ST7789",
+          "touch": true,
+          "touch_driver": "FT6336",
+          "diagonal_in": 1.14
+        },
+        "controls": [
+          {
+            "id": "touch",
+            "type": "touch",
+            "label": "Touch"
+          },
+          {
+            "id": "key1",
+            "type": "button",
+            "label": "KEY1"
+          },
+          {
+            "id": "key2",
+            "type": "button",
+            "label": "KEY2"
+          }
+        ],
+        "sensors": [
+          "imu:bmi270",
+          "lora",
+          "battery",
+          "io-expander:pi4ioe5v6408"
+        ],
+        "dimensions_mm": null,
+        "weight_g": null
+      },
+      "shell": {
+        "preset": "core",
+        "accent": "#00979d",
+        "screen_scale": 0.78,
+        "body_theme": "rugged-black",
+        "reference_image": "/platform/web/assets/reference-cutout/nesso-n1.png",
+        "cutout": true
+      },
+      "runtime": {
+        "backend": "qemu-esp32c6",
+        "chip": "esp32c6",
+        "status": "reference-ready",
+        "display_protocol": "spi-st7789",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-touch-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 ST7789 UI，QMP 触摸后计数与坐标重绘；规范 PPM stride 后截图无行对齐伪影。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000002638",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002638/2098281060085485570/bin/2098281060085485571.bin"
+        }
+      }
+    },
+    {
+      "id": "stamplc",
+      "name": "StamPLC",
+      "sku": "K141",
+      "group": "esp32-s3",
+      "category": "industrial",
+      "hardware": {
+        "soc": "ESP32-S3FN8",
+        "architecture": "xtensa-lx7",
+        "flash_bytes": 8388608,
+        "psram_bytes": null,
+        "display": {
+          "type": "ips",
+          "width": 135,
+          "height": 240,
+          "shape": "rect",
+          "driver": "ST7789V2",
+          "touch": false,
+          "diagonal_in": 1.14
+        },
+        "controls": [
+          {
+            "id": "key1",
+            "type": "button",
+            "label": "KEY1"
+          },
+          {
+            "id": "key2",
+            "type": "button",
+            "label": "KEY2"
+          },
+          {
+            "id": "key3",
+            "type": "button",
+            "label": "KEY3"
+          }
+        ],
+        "sensors": [
+          "temperature:lm75",
+          "power-monitor:ina226",
+          "rtc:rx8130ce",
+          "buzzer",
+          "can",
+          "rs485",
+          "digital-input:8",
+          "relay-output:4"
+        ],
+        "dimensions_mm": [
+          72.0,
+          80.0,
+          33.4
+        ],
+        "weight_g": 138.9
+      },
+      "shell": {
+        "preset": "industrial",
+        "accent": "#d4a72c",
+        "screen_scale": 0.88,
+        "body_theme": "industrial-black",
+        "reference_image": "/platform/web/assets/reference/stamplc.webp",
+        "cutout": false
+      },
+      "runtime": {
+        "backend": "qemu-esp32s3",
+        "chip": "esp32s3",
+        "status": "reference-ready",
+        "display_protocol": "spi-st7789v2",
+        "execution": "native-qemu",
+        "validation": {
+          "date": "2026-10-20",
+          "status": "display-key-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 240x135 UI，PI4IOE 前面板按键后计数重绘；由统一设备矩阵验证。"
+        }
+      },
+      "uiflow2": {
+        "supported": true,
+        "m5ui": false,
+        "firmware": {
+          "version": "v2.5.3",
+          "firmware_id": "1897200000000001222",
+          "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001222/2098280653347049473/bin/2098280653347049474.bin"
+        }
+      }
+    }
+  ]
+}

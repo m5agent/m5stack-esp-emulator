@@ -1,0 +1,536 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-21",
+  "note": "QEMU/board adaptation registry. Shell/UI profiles already exist for all devices; this file tracks the virtual-host runtime work.",
+  "validation_matrix": {
+    "runner": "tests/uiflow2/run_device_matrix.py",
+    "flash_runner": "tests/uiflow2/flash_device.py",
+    "date": "2026-10-21",
+    "result": "13 PASS with emulator-backed esptool virtual flash; CardputerZero is explicitly EXCLUDED as a Linux backend"
+  },
+  "backends": {
+    "qemu-esp32s3": {
+      "soc_family": "esp32s3",
+      "machine": "esp32s3",
+      "reference": "m5stopwatch",
+      "status": "reference-ready"
+    },
+    "qemu-esp32c6": {
+      "soc_family": "esp32c6",
+      "machine": "esp32c6",
+      "status": "ready"
+    },
+    "qemu-esp32p4": {
+      "soc_family": "esp32p4",
+      "machine": "esp32p4",
+      "status": "ready"
+    },
+    "qemu-esp32lx6": {
+      "soc_family": "esp32",
+      "machine": "esp32",
+      "status": "ready",
+      "flash_transport": "qemu-rom-esptool"
+    },
+    "linux-arm64": {
+      "soc_family": "bcm2837",
+      "machine": "virt",
+      "status": "separate-backend"
+    }
+  },
+  "devices": [
+    {
+      "id": "atoms3r",
+      "name": "AtomS3R",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3-PICO-1-N8R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 1,
+      "board_model": "m5atoms3r",
+      "display_model": "spi-gc9107",
+      "display": {
+        "driver": "ST7735 / GC9107",
+        "width": 128,
+        "height": 128,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "bmi270"
+      ],
+      "board_work": [
+        "IR/IMU peripheral polish"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-button-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 128x128 UI and GPIO41 button injection redraws the counter."
+      }
+    },
+    {
+      "id": "cardputer-adv",
+      "name": "Cardputer-ADV",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3FN8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 2,
+      "board_model": "m5cardputer_adv",
+      "display_model": "spi-st7789v2",
+      "display": {
+        "driver": "ST7789V2",
+        "width": 240,
+        "height": 135,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "keyboard-matrix"
+      ],
+      "peripherals": [
+        "bmi270",
+        "audio",
+        "sd"
+      ],
+      "board_work": [
+        "audio peripheral polish"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-keyboard-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 240x135 UI; a TCA8418 key event increments the on-screen counter."
+      }
+    },
+    {
+      "id": "cardputer-zero",
+      "name": "CardputerZero",
+      "group": "linux-arm64",
+      "soc": "RP3A0 (BCM2837)",
+      "backend": "linux-arm64",
+      "qemu_status": "separate-backend",
+      "priority": 5,
+      "board_model": "cardputer_zero",
+      "display_model": "spi-lcd",
+      "display": {
+        "driver": "SPI LCD",
+        "width": 320,
+        "height": 170,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "keyboard"
+      ],
+      "peripherals": [
+        "linux"
+      ],
+      "board_work": [
+        "Linux ARM64 image",
+        "SPI LCD/panel",
+        "keyboard/GPIO bridge"
+      ],
+      "blockers": [
+        "not an ESP32 firmware target"
+      ]
+    },
+    {
+      "id": "core2",
+      "name": "Core2",
+      "group": "esp32-lx6",
+      "soc": "ESP32-D0WDQ6-V3",
+      "backend": "qemu-esp32lx6",
+      "qemu_status": "ready",
+      "priority": 5,
+      "board_model": "m5core2",
+      "display_model": "spi-ili9342",
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "input": [
+        "i2c-touch"
+      ],
+      "peripherals": [
+        "axp192",
+        "ft6336",
+        "bmi270",
+        "rx8130"
+      ],
+      "board_work": [
+        "ILI9342 pixel-stream/live-frame polish",
+        "PSRAM/cache stability"
+      ],
+      "blockers": [
+        "PSRAM/cache stability and deeper peripheral coverage remain"
+      ],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-touch-pass",
+        "detail": "Official UIFlow2 v2.5.3 reaches main.py, renders the complete 320x240 frame, and QMP touch redraws the on-screen counter. QEMU -m 0 is currently required for the best PSRAM/cache stability."
+      }
+    },
+    {
+      "id": "cores3",
+      "name": "CoreS3",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 1,
+      "board_model": "m5cores3",
+      "display_model": "spi-ili9342",
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "input": [
+        "i2c-touch"
+      ],
+      "peripherals": [
+        "axp2101",
+        "aw9523",
+        "ft6336",
+        "bmi270",
+        "rx8130",
+        "es8311",
+        "camera"
+      ],
+      "board_work": [
+        "camera/audio peripheral polish"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-touch-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; QMP touch injection increments the on-screen counter."
+      }
+    },
+    {
+      "id": "nanoc6",
+      "name": "NanoC6",
+      "group": "esp32-c6",
+      "soc": "ESP32-C6FH4",
+      "backend": "qemu-esp32c6",
+      "qemu_status": "ready",
+      "priority": 4,
+      "board_model": "m5nanoc6",
+      "display_model": "none",
+      "display": {
+        "driver": null,
+        "width": null,
+        "height": null,
+        "shape": null,
+        "touch": null
+      },
+      "input": [
+        "gpio-button"
+      ],
+      "peripherals": [
+        "led",
+        "button"
+      ],
+      "board_work": [
+        "ESP32-C6 machine/board init",
+        "no display; GPIO/status LED"
+      ],
+      "blockers": [
+        "No board display; GPIO/status peripherals are still minimal"
+      ],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "console-pass",
+        "detail": "Official UIFlow2 v2.5.3 boots through ROM/bootloader on the ESP32-C6 USB-Serial-JTAG console; a replaced vfs image runs boot.py/main.py and M5.begin() reports board 140. NanoC6 has no display."
+      }
+    },
+    {
+      "id": "nesso-n1",
+      "name": "Arduino Nesso N1",
+      "group": "esp32-c6",
+      "soc": "ESP32-C6",
+      "backend": "qemu-esp32c6",
+      "qemu_status": "ready",
+      "priority": 4,
+      "board_model": "arduino_nesso_n1",
+      "display_model": "spi-st7789",
+      "display": {
+        "driver": "ST7789",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "input": [
+        "i2c-touch"
+      ],
+      "peripherals": [
+        "ft6336",
+        "bmi270"
+      ],
+      "board_work": [
+        "ESP32-C6 machine/board init",
+        "ST7789 SPI panel",
+        "FT6336 touch"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-touch-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 ST7789 UI through the ESP32-C6 SPI2 model, reports M5.getBoard()=23, and QMP touch changes both the counter and coordinates. The apparent row-alignment artifact was a QEMU PPM stride reader bug; canonical framing is now clean."
+      }
+    },
+    {
+      "id": "papercolor",
+      "name": "PaperColor",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 3,
+      "board_model": "m5papercolor",
+      "display_model": "epd-spectra6",
+      "display": {
+        "driver": "E Ink Spectra 6",
+        "width": 400,
+        "height": 600,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "gpio-buttons"
+      ],
+      "peripherals": [
+        "rtc",
+        "battery"
+      ],
+      "board_work": [
+        "Spectra 6 waveform timing polish"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-key-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 400x600 six-color UI; GPIO10 key injection redraws the on-screen counter."
+      }
+    },
+    {
+      "id": "papermono",
+      "name": "PaperMono",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 3,
+      "board_model": "m5papermono",
+      "display_model": "epd-ssd1677",
+      "display": {
+        "driver": "SSD1677",
+        "width": 480,
+        "height": 800,
+        "shape": "rect",
+        "touch": true
+      },
+      "input": [
+        "i2c-touch"
+      ],
+      "peripherals": [
+        "m5pm1",
+        "m5ioe1",
+        "rx8130"
+      ],
+      "board_work": [
+        "SSD1677 waveform timing polish"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-touch-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 480x800 four-gray UI; QMP touch injection redraws the on-screen counter."
+      }
+    },
+    {
+      "id": "stackchan",
+      "name": "StackChan",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 2,
+      "board_model": "m5stackchan",
+      "display_model": "spi-ili9342",
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "input": [
+        "i2c-touch"
+      ],
+      "peripherals": [
+        "servo",
+        "audio",
+        "bmi270"
+      ],
+      "board_work": [
+        "servo/audio and NFC functional models"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-touch-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; QMP touch injection increments the on-screen counter."
+      }
+    },
+    {
+      "id": "stamplc",
+      "name": "StamPLC",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3FN8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 2,
+      "board_model": "m5stamplc",
+      "display_model": "spi-st7789v2",
+      "display": {
+        "driver": "ST7789V2",
+        "width": 240,
+        "height": 135,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "gpio-buttons"
+      ],
+      "peripherals": [
+        "relay",
+        "digital-input",
+        "rs485"
+      ],
+      "board_work": [
+        "relay/digital-input and RS485 functional models"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-key-pass",
+        "detail": "UIFlow2 v2.5.3 renders a 240x135 UI; PI4IOE front-panel A input increments the on-screen counter."
+      }
+    },
+    {
+      "id": "sticks3",
+      "name": "StickS3",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3-PICO-1-N8R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 1,
+      "board_model": "m5sticks3",
+      "display_model": "spi-st7789p3",
+      "display": {
+        "driver": "ST7789P3",
+        "width": 135,
+        "height": 240,
+        "shape": "rect",
+        "touch": false
+      },
+      "input": [
+        "gpio-buttons"
+      ],
+      "peripherals": [
+        "bmi270"
+      ],
+      "board_work": [
+        "audio peripheral polish"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-20",
+        "status": "display-button-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 135x240 UI and A-button injection increments the counter."
+      }
+    },
+    {
+      "id": "stopwatch",
+      "name": "StopWatch",
+      "group": "esp32-s3",
+      "soc": "ESP32-S3R8",
+      "backend": "qemu-esp32s3",
+      "qemu_status": "ready",
+      "priority": 0,
+      "board_model": "m5stopwatch",
+      "display_model": "qspi-co5300",
+      "display": {
+        "driver": "CO5300",
+        "width": 466,
+        "height": 466,
+        "shape": "circle",
+        "touch": true
+      },
+      "input": [
+        "gpio-buttons",
+        "i2c-touch"
+      ],
+      "peripherals": [
+        "m5pm1",
+        "m5ioe1",
+        "cst820",
+        "bmi270",
+        "rx8130",
+        "es8311"
+      ],
+      "board_work": [],
+      "blockers": []
+    },
+    {
+      "id": "tab5",
+      "name": "Tab5",
+      "group": "esp32-p4",
+      "soc": "ESP32-P4NRW32",
+      "backend": "qemu-esp32p4",
+      "qemu_status": "ready",
+      "priority": 5,
+      "board_model": "m5tab5",
+      "display_model": "dsi-st7121",
+      "display": {
+        "driver": "ST7121 / ST7123",
+        "width": 1280,
+        "height": 720,
+        "shape": "rect",
+        "touch": true
+      },
+      "input": [
+        "i2c-touch"
+      ],
+      "peripherals": [
+        "camera",
+        "audio",
+        "c6-coprocessor"
+      ],
+      "board_work": [
+        "ESP32-P4 machine",
+        "MIPI-DSI ST7121 panel",
+        "touch",
+        "camera/audio",
+        "C6 co-processor"
+      ],
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-21",
+        "status": "display-touch-pass",
+        "detail": "UIFlow2 P4 firmware boots through esp-emu 0.50.0 with the C6 ESP-Hosted bridge, renders a 1280x720 landscape frame from the real M5GFX framebuffer, and redraws after touch. The exact image was written through esptool to a 16 MiB virtual flash and verified byte-for-byte."
+      }
+    }
+  ]
+}

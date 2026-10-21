@@ -1,0 +1,80 @@
+{
+  "id": "nesso-n1",
+  "name": "Arduino Nesso N1",
+  "sku": "DK001",
+  "group": "esp32-c6",
+  "category": "core",
+  "hardware": {
+    "soc": "ESP32-C6",
+    "architecture": "riscv32",
+    "flash_bytes": 16777216,
+    "psram_bytes": null,
+    "display": {
+      "type": "ips",
+      "width": 135,
+      "height": 240,
+      "shape": "rect",
+      "driver": "ST7789",
+      "touch": true,
+      "touch_driver": "FT6336",
+      "diagonal_in": 1.14
+    },
+    "controls": [
+      {
+        "id": "touch",
+        "type": "touch",
+        "label": "Touch"
+      },
+      {
+        "id": "key1",
+        "type": "button",
+        "label": "KEY1"
+      },
+      {
+        "id": "key2",
+        "type": "button",
+        "label": "KEY2"
+      }
+    ],
+    "sensors": [
+      "imu:bmi270",
+      "lora",
+      "battery",
+      "io-expander:pi4ioe5v6408"
+    ],
+    "dimensions_mm": null,
+    "weight_g": null
+  },
+  "shell": {
+    "preset": "core",
+    "accent": "#00979d",
+    "screen_scale": 0.78,
+    "body_theme": "rugged-black",
+    "reference_image": "/platform/web/assets/reference-cutout/nesso-n1.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "qemu-esp32c6",
+    "chip": "esp32c6",
+    "status": "reference-ready",
+    "display_protocol": "spi-st7789",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "display-touch-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 ST7789 UI，QMP 触摸后计数与坐标重绘；规范 PPM stride 后截图无行对齐伪影。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000002638",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002638/2098281060085485570/bin/2098281060085485571.bin"
+    }
+  },
+  "group_label": "ESP32-C6",
+  "path": "devices/esp32-c6/nesso-n1",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

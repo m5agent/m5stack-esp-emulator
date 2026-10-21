@@ -1,0 +1,38 @@
+# AtomS3R
+
+- SKU：`C126`
+- 分组：`ESP32-S3`
+- 外壳：`微型方块`
+- 运行时：`reference-ready`
+- UIFlow2：`支持`，m5ui：`不支持`
+- UIFlow2 固件：v2.5.3 / `1897200000000001772`
+
+## 硬件档案
+
+| 项目 | 值 |
+| --- | --- |
+| SoC | ESP32-S3-PICO-1-N8R8 |
+| 架构 | xtensa-lx7 |
+| Flash | 8 MB |
+| PSRAM | 8 MB |
+| 机身尺寸 | 24 × 24 × 12.9 mm |
+| 重量 | 6.8 g |
+| 显示 | 128×128 ips，0.85"，ST7735 / GC9107，无触摸 |
+| 控制 | USER |
+| 外设 | imu:bmi270, magnetometer:bmm150, rgb-led, ir |
+
+## 模拟状态
+
+reference-ready：真实固件、画面和输入已打通。
+
+- 验证：`display-button-pass` (2026-10-20)
+- 详情：官方 UIFlow2 v2.5.3 渲染 128x128 UI，GPIO41 按键后计数重绘；由统一设备矩阵验证。
+
+
+
+## 文件
+
+- `device.json`：设备中心与页面使用的完整档案
+- `firmware.json`：UIFlow2 固件定位与缓存约定
+- `index.html`：打开对应模拟页面
+- `web/`：仅设备专属运行时使用

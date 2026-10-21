@@ -1,0 +1,88 @@
+{
+  "id": "sticks3",
+  "name": "StickS3",
+  "sku": "K150",
+  "group": "esp32-s3",
+  "category": "stick",
+  "hardware": {
+    "soc": "ESP32-S3-PICO-1-N8R8",
+    "architecture": "xtensa-lx7",
+    "flash_bytes": 8388608,
+    "psram_bytes": 8388608,
+    "display": {
+      "type": "ips",
+      "width": 135,
+      "height": 240,
+      "shape": "rect",
+      "driver": "ST7789P3",
+      "touch": false,
+      "diagonal_in": 1.14,
+      "effective_mm": [
+        14.864,
+        24.912
+      ]
+    },
+    "controls": [
+      {
+        "id": "a",
+        "type": "button",
+        "label": "A"
+      },
+      {
+        "id": "b",
+        "type": "button",
+        "label": "B"
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "PWR"
+      }
+    ],
+    "sensors": [
+      "imu:bmi270",
+      "audio:es8311",
+      "microphone",
+      "speaker",
+      "ir"
+    ],
+    "dimensions_mm": [
+      48.0,
+      24.0,
+      15.0
+    ],
+    "weight_g": 20.0
+  },
+  "shell": {
+    "preset": "stick",
+    "accent": "#f0b429",
+    "screen_scale": 1.05,
+    "body_theme": "graphite",
+    "reference_image": "/platform/web/assets/reference-cutout/sticks3.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "reference-ready",
+    "display_protocol": "spi-st7789p3",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "display-button-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 UI，A 键注入后计数重绘；由统一设备矩阵验证。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000001693",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001693/2098280886097367041/bin/2098280886097367042.bin"
+    }
+  },
+  "group_label": "ESP32-S3",
+  "path": "devices/esp32-s3/sticks3",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

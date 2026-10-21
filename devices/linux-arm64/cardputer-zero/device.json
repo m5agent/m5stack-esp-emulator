@@ -1,0 +1,76 @@
+{
+  "id": "cardputer-zero",
+  "name": "CardputerZero",
+  "sku": "C154",
+  "group": "linux-arm64",
+  "category": "cardputer",
+  "hardware": {
+    "soc": "RP3A0 (BCM2837)",
+    "architecture": "arm64",
+    "memory_bytes": 536870912,
+    "display": {
+      "type": "lcd",
+      "width": 320,
+      "height": 170,
+      "shape": "rect",
+      "driver": "SPI LCD",
+      "touch": false,
+      "diagonal_in": 1.9
+    },
+    "keyboard": {
+      "keys": 46
+    },
+    "controls": [
+      {
+        "id": "keyboard",
+        "type": "keyboard",
+        "label": "46-key keyboard"
+      }
+    ],
+    "sensors": [
+      "camera:imx219",
+      "imu:bmi270",
+      "magnetometer:bmm150",
+      "rtc:rx8130ce",
+      "audio:es8389",
+      "microphone",
+      "speaker",
+      "ethernet",
+      "usb-host"
+    ],
+    "dimensions_mm": [
+      84.0,
+      54.0,
+      23.1
+    ],
+    "weight_g": null
+  },
+  "shell": {
+    "preset": "cardputer",
+    "accent": "#8f7cff",
+    "screen_scale": 1.0,
+    "body_theme": "silver",
+    "reference_image": "/platform/web/assets/reference-cutout/cardputer-zero.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "external-linux-arm64",
+    "chip": "bcm2837",
+    "status": "backend-required",
+    "display_protocol": "pending",
+    "reason": "Raspberry Pi CM0/Linux, not an Espressif firmware target",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "not-run",
+      "detail": "当前仅完成设备档案与外壳；固件启动适配待执行。"
+    }
+  },
+  "uiflow2": {
+    "supported": false,
+    "m5ui": false,
+    "firmware": null
+  },
+  "group_label": "Linux ARM64",
+  "path": "devices/linux-arm64/cardputer-zero",
+  "status_label": "backend-required：需要新的 CPU/系统后端"
+}

@@ -1,0 +1,87 @@
+{
+  "id": "stamplc",
+  "name": "StamPLC",
+  "sku": "K141",
+  "group": "esp32-s3",
+  "category": "industrial",
+  "hardware": {
+    "soc": "ESP32-S3FN8",
+    "architecture": "xtensa-lx7",
+    "flash_bytes": 8388608,
+    "psram_bytes": null,
+    "display": {
+      "type": "ips",
+      "width": 135,
+      "height": 240,
+      "shape": "rect",
+      "driver": "ST7789V2",
+      "touch": false,
+      "diagonal_in": 1.14
+    },
+    "controls": [
+      {
+        "id": "key1",
+        "type": "button",
+        "label": "KEY1"
+      },
+      {
+        "id": "key2",
+        "type": "button",
+        "label": "KEY2"
+      },
+      {
+        "id": "key3",
+        "type": "button",
+        "label": "KEY3"
+      }
+    ],
+    "sensors": [
+      "temperature:lm75",
+      "power-monitor:ina226",
+      "rtc:rx8130ce",
+      "buzzer",
+      "can",
+      "rs485",
+      "digital-input:8",
+      "relay-output:4"
+    ],
+    "dimensions_mm": [
+      72.0,
+      80.0,
+      33.4
+    ],
+    "weight_g": 138.9
+  },
+  "shell": {
+    "preset": "industrial",
+    "accent": "#d4a72c",
+    "screen_scale": 0.88,
+    "body_theme": "industrial-black",
+    "reference_image": "/platform/web/assets/reference/stamplc.webp",
+    "cutout": false
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "reference-ready",
+    "display_protocol": "spi-st7789v2",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "display-key-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 240x135 UI，PI4IOE 前面板按键后计数重绘；由统一设备矩阵验证。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000001222",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001222/2098280653347049473/bin/2098280653347049474.bin"
+    }
+  },
+  "group_label": "ESP32-S3",
+  "path": "devices/esp32-s3/stamplc",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

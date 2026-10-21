@@ -1,0 +1,183 @@
+# 虚拟主机适配矩阵
+
+日期：`2026-10-21`
+
+## 结论
+
+可以适配，但不能给 14 台设备各写一套 QEMU。按 SoC/显示/输入分组后：
+
+- **9 台 ESP32-S3** 共用一套 QEMU/S3 后端和 GPIO/SPI/I2C 框架，只补板级 profile、显示模型、输入和外设。
+- **2 台 ESP32-C6** 需要 C6 后端/板级模型。
+- **Tab5（ESP32-P4）** 使用 `esp-emu 0.50.0`、P4 rev0 ROM 和配套 eFuse，接入 C6 ESP-Hosted 协处理器，并以仿真 M5GFX DSI framebuffer 输出真实 UI。
+- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。
+- **CardputerZero** 是 Linux ARM64（BCM2837），不是 ESP32 固件目标，需要独立 Linux VM 后端。
+
+当前除 CardputerZero 外的 13 台 ESP32 主控均已进入统一运行时矩阵：
+12 台有显式显示/输入路径的设备完成首帧和输入重绘，NanoC6 完成无屏控制台验收。
+
+截至 2026-10-21 已验收：
+
+- StopWatch：466x466 圆屏、触摸注入；
+- StickS3：135x240、A/B GPIO；
+- AtomS3R：128x128、GPIO41；
+- CoreS3：320x240、FT5x06 触摸。
+- Cardputer-ADV：240x135、TCA8418 键盘事件；
+- StamPLC：240x135、PI4IOE 前面板按键。
+- StackChan：320x240、FT5x06 触摸。
+- PaperColor：400x600 六色电子纸、GPIO10 按键；
+- PaperMono：480x800 四阶灰度电子纸、FT5x06 触摸。
+- Core2：320x240、FT5x06 触摸；通过 QEMU ESP32 ROM UART 下载模式和
+  `esptool --no-stub` 写入 16 MiB 虚拟 flash。
+- NanoC6：无显示屏，验证 UIFlow2 控制台启动和板型探测。
+- Tab5：物理横向 1280x720、ST7123 触摸和 P4/C6 ESP-Hosted。
+
+![UIFlow2 虚拟主机验收矩阵](images/uiflow2-virtual-host-matrix.png)
+
+## S3 eFuse 包版本
+
+ESP32-S3 的 M5GFX 自动探测按 `PKG_VERSION` 分支：
+
+- QFN56（如 StopWatch/CoreS3）：`PKG_VERSION=0`；
+- PICO/LGA56（如 StickS3/AtomS3R）：`PKG_VERSION=1`。
+
+ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 使用默认 `0` 时会进入 QFN56 的 StopWatch/PaperMono 探测分支，永远到不了 StickS3 的 LGA56 分支。StickS3 测试镜像把 BLOCK1 的 `PKG_VERSION` 设为 `1`。
+
+## 设备矩阵
+
+| 设备 | SoC | 虚拟后端 | 状态 | 显示 | 首要缺口 |
+| --- | --- | --- | --- | --- | --- |
+| StopWatch (`stopwatch`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | CO5300 466x466 | 已完成 |
+| AtomS3R (`atoms3r`) | ESP32-S3-PICO-1-N8R8 | qemu-esp32s3 | `ready` | ST7735 / GC9107 128x128 | 已完成 |
+| CoreS3 (`cores3`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 已完成 |
+| StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | qemu-esp32s3 | `ready` | ST7789P3 135x240 | 已完成 |
+| Cardputer-ADV (`cardputer-adv`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 已完成 |
+| StackChan (`stackchan`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 已完成 |
+| StamPLC (`stamplc`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 已完成 |
+| PaperColor (`papercolor`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | E Ink Spectra 6 400x600 | 已完成 |
+| PaperMono (`papermono`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | SSD1677 480x800 | 已完成 |
+| NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG console |
+| Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 已完成 |
+| CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | linux-arm64 | `separate-backend` | SPI LCD 320x170 | not an ESP32 firmware target |
+| Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸已通过；PSRAM/cache 稳定性待补 |
+| Tab5 (`tab5`) | ESP32-P4NRW32 | qemu-esp32p4 | `ready` | ST7121 / ST7123 物理横向 1280x720 | 已完成；LVGL Python 绑定暂不在仿真构建中启用 |
+
+状态含义：
+
+- `ready`：已有可启动固件 + 显示/输入 + 自动化接口。
+- `shared-backend`：可复用 S3 后端，需要新增板级模型/显示/输入。
+- `backend-pending`：SoC 后端或板级模型尚未接入。
+- `blocked`：存在明确的硬阻塞；当前 ESP32 主机没有 blocked 项。
+- `separate-backend`：不是当前 QEMU/ESP32-S3 路径，需要独立后端。
+
+## 共用能力
+
+StopWatch 已经验证的部分可以直接复用：
+
+- ESP32-S3 machine、flash/PSRAM、GPIO、GP-SPI、I2C0/I2C1、UART、QMP/HTTP。
+- UIFlow2 启动所需的 SENS/regi2c/FE/PHY bring-up 模型。
+- GPIO 软件 I2C 桥、M5GFX 板型探测、M5PM1/M5IOE1 模型。
+- QMP 触摸/按键注入、`screendump`、帧轮询和截图差异断言。
+- `main.py` vfs LittleFS 测试镜像制作流程。
+
+## 每台设备需要补什么
+
+1. 板级初始化：GPIO/SPI/I2C 引脚、电源/背光/复位、Flash/PSRAM 配置。
+2. 显示模型：ST7789、ILI9342、GC9107、SSD1677、Spectra 6、ST7121 等。
+3. 输入模型：GPIO 按键、I2C 触摸、Cardputer 键盘矩阵。
+4. 外设模型：PMIC、IO expander、IMU、RTC、音频、舵机、继电器等。
+5. UIFlow2 板型探测：M5GFX/M5Unified 的板型识别路径。
+6. 官方固件：按 `firmware_id` 下载并做 8/16 MiB 对齐。
+
+## 建议批次
+
+### 第 1 批：S3 基础三台
+
+StickS3、AtomS3R、CoreS3。
+
+- 覆盖 ST7789/GC9107/ILI9342 三种常见 SPI 屏。
+- 覆盖 GPIO 按键、I2C 触摸、基础 IMU。
+- 先验证启动、首帧、按键/触摸和截图。
+
+本批三台已经完成首帧与输入验收，测试工程分别位于
+`tests/uiflow2/sticks3_ui_test/`、`tests/uiflow2/atoms3r_ui_test/`
+和 `tests/uiflow2/cores3_ui_test/`。
+
+### 第 2 批：S3 输入/工业三台
+
+Cardputer-ADV、StamPLC、StackChan。
+
+- Cardputer-ADV 需要键盘矩阵。
+- StamPLC 需要 PLC IO/继电器模型。
+- StackChan 需要舵机和音频模型。
+
+Cardputer-ADV、StamPLC 与 StackChan 已完成首帧及输入验收，测试工程位于
+`tests/uiflow2/cardputer_adv_ui_test/` 和
+`tests/uiflow2/stamplc_ui_test/`、`tests/uiflow2/stackchan_ui_test/`。
+
+### 第 3 批：S3 电子纸两台
+
+PaperMono、PaperColor。
+
+- SSD1677 单色/灰度刷新。
+- Spectra 6 六色平面和刷新时序。
+- 电子纸不适合按 60fps 截图，需要“刷新完成”断言。
+
+两台均已完成首帧及输入验收，测试工程位于
+`tests/uiflow2/papermono_ui_test/` 和
+`tests/uiflow2/papercolor_ui_test/`。电子纸测试使用较长的刷新后等待时间，
+并以刷新前后的帧差异作为输入生效断言。
+
+### 第 4 批：C6 两台
+
+Nesso N1、NanoC6。
+
+- C6 machine、SARADC 启动握手、SPI flash、USB-Serial-JTAG 和 HP I2C0 已接入。
+- Nesso N1 已完成 ST7789 135x240、PI4IOE、FT5x06 触摸和 M5GFX 板型探测；此前 screenshot 行对齐伪影是测试工具未处理 QEMU PPM 的 4 字节行对齐，修正读取后首帧、触摸和规范 PNG 均通过。
+- NanoC6 无显示屏，官方 UIFlow2 已能运行替换后的 `boot.py`/`main.py`；M5.begin 返回板型 140。
+
+### 第 5 批：高风险三台
+
+Tab5、Core2、CardputerZero。
+
+- Tab5：P4 + MIPI-DSI + 协处理器已跑通。`esp-emu 0.50.0` 配合 `esp32p4_rev0_rom.elf` 和 Tab5 eFuse 启动 UIFlow2 P4 固件；C6 侧运行 ESP-Hosted 2.12.6 网络协处理器固件。P4 侧在真实 M5GFX 绘制路径中分配 720×1280 的原始 PSRAM framebuffer，测试工具按 rotation 1 转成物理横向 1280×720 PNG；触摸邮箱使用同一坐标变换，逻辑 `(640,520)` 会写成原始 `(199,640)`，UI 计数从 0 变为 1。
+- Tab5 烧录：为避免 `esp-emu` P4 下载模式的高位地址回卷限制，仿真专用分区表把 `factory/sys/vfs/storage` 全部放在 8 MiB 以下；应用与 VFS 分块通过真实 `esptool` 写入同一份 16 MiB 虚拟 Flash，逐字节校验通过后再启动。生产分区布局不变。
+- Tab5 当前边界：仿真构建关闭 LVGL Python 绑定，验收覆盖官方 M5GFX/UIFlow2 原生绘制、显示和触摸；这不等于真机 PASS。
+- Core2：ESP32 LX6 已接入同一 QEMU 源码树，官方 UIFlow2 已进入 `main.py`，M5GFX 识别 320x240、AXP192 与 FT5x06；完整帧和触摸重绘已通过。测试用 `-m 0` 规避 PSRAM/cache 稳定性问题，并通过 QEMU UART `baud-scale=16` + `esptool --no-stub` 将完整镜像写入虚拟 flash 后从同一份镜像启动。补丁见 `patches/qemu-core2-qemu-esptool/`。
+- CardputerZero：Linux ARM64 VM，不是 ESP32 固件。
+
+Tab5 验收帧：
+
+![Tab5 UIFlow2 before touch](images/tab5-uiflow2-ui-test-before.png)
+![Tab5 UIFlow2 after touch](images/tab5-uiflow2-ui-test-after.png)
+
+## 使用注册表
+
+```bash
+python3 platform/tools/qemu_profiles.py --list
+python3 platform/tools/qemu_profiles.py --group esp32-s3
+python3 platform/tools/qemu_profiles.py --device sticks3
+python3 platform/tools/qemu_profiles.py --check
+python3 platform/tests/test_qemu_profiles.py
+```
+
+注册表在 `platform/qemu/profiles.json`，设备档案在 `devices/**/device.json`。
+
+## 统一回归矩阵
+
+`tests/uiflow2/device_matrix.json` 按设备记录 QEMU 后端、机器名、VFS 区间、
+期望分辨率、输入事件和串口标记。执行：
+
+```bash
+python3 tests/uiflow2/run_device_matrix.py \
+  --out-dir /tmp/m5-uiflow2-device-matrix
+```
+
+有屏设备只有在目标分辨率首帧成功、注入输入后画面变化、并生成规范
+`before.png`/`after.png` 时才记为 `PASS`。NanoC6 使用 USB-Serial-JTAG
+标记验收；Tab5 从 `esptool` 写后的同一份 16 MiB 虚拟 Flash 启动，并校验物理横向
+`1280x720` 首帧和触摸后像素变化。
+
+矩阵通过 `esp-emu` 或 QEMU ESP32 ROM 的 UART 下载模式执行真实
+`esptool write-flash`，并在启动前逐字节校验虚拟 flash。ESP32-S3/C6/P4
+使用 `esp-emu-esptool`；Core2 使用 `qemu-esptool`。结果记录在
+`summary.json` 的 `flash.transport`、`flash.verified` 和可选参数中。

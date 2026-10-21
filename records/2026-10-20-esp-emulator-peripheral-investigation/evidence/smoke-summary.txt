@@ -1,0 +1,12 @@
+Emulator: esp-emu 0.49.0
+Binary SHA256: dea564e36990fcea727eb11e33c5430eccdfe673fc5462c0604e0001d25d84a0
+ESP-IDF image: espressif/idf:v5.5.5
+
+esp32c3 RESULT_SUMMARY: passed=32 failed=0 target=esp32c3
+esp32p4 RESULT_SUMMARY: passed=36 failed=0 target=esp32p4
+esp32s3 RESULT_SUMMARY: passed=34 failed=0 target=esp32s3
+
+UART peripheral peer proof:
+peer_rx=b'PING\n'
+emulator RX: PONG\n
+emulator marker: UART_PEER_OK

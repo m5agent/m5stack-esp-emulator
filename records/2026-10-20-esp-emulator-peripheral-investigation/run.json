@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-20",
+  "kind": "report",
+  "overall_status": "PASS",
+  "title": "esp-emulator 外设模拟与纯软件测试能力调查",
+  "source": {
+    "issue": "https://github.com/espressif/esp-emulator/issues/5",
+    "pull_request": "",
+    "repository": "https://github.com/espressif/esp-emulator",
+    "base_commit": "017d587c590abee41488abaa43dffeb867694ade"
+  },
+  "hardware": {},
+  "firmware": {},
+  "execution": {
+    "environment": "macOS Apple Silicon; esp-emu 0.49.0; espressif/idf:v5.5.5",
+    "task_id": "",
+    "session_id": ""
+  },
+  "checks": [
+    {"name": "esp32c3 smoke", "status": "PASS", "detail": "passed=32 failed=0"},
+    {"name": "esp32p4 smoke", "status": "PASS", "detail": "passed=36 failed=0"},
+    {"name": "esp32s3 smoke", "status": "PASS", "detail": "passed=34 failed=0"},
+    {"name": "uart1 external peer", "status": "PASS", "detail": "PING/PONG over --uart1-tcp; UART_PEER_OK marker"},
+    {"name": "generic SPI/I2C/GPIO device bridge", "status": "NOT RUN", "detail": "not implemented by esp-emu 0.49.0; upstream issue #5 remains open"},
+    {"name": "display/camera/audio/power simulation", "status": "NOT RUN", "detail": "no board-level models or documented bridges"}
+  ],
+  "evidence": [
+    "evidence/upstream-findings.md",
+    "evidence/smoke-summary.txt",
+    "evidence/smoke-esp32c3.log",
+    "evidence/smoke-esp32p4.log",
+    "evidence/smoke-esp32s3.log",
+    "evidence/uart-peer-emulator.log",
+    "evidence/uart-peer-host.log"
+  ],
+  "notes": [
+    "UART1 external device scripting works today.",
+    "I2C currently exposes only a built-in 24Cxx-style EEPROM at address 0x50.",
+    "The emulator source is not published; upstream issue #10 says publication is undecided.",
+    "Hardware behavior must remain separately validated."
+  ]
+}

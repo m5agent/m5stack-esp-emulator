@@ -1,0 +1,1721 @@
+diff --git a/hw/block/m25p80.c b/hw/block/m25p80.c
+index 46dbe7c..e3666fe 100644
+--- a/hw/block/m25p80.c
++++ b/hw/block/m25p80.c
+@@ -512,6 +512,7 @@ struct Flash {
+     bool wp_level;
+     bool write_enable;
+     bool four_bytes_address_mode;
++    bool force_four_bytes_address;
+     bool reset_enable;
+     bool quad_enable;
+     bool aai_enable;
+@@ -959,6 +960,9 @@ static void reset_memory(Flash *s)
+         break;
+     }
+ 
++    if (s->force_four_bytes_address) {
++        s->four_bytes_address_mode = true;
++    }
+     trace_m25p80_reset_done(s);
+ }
+ 
+@@ -1732,6 +1736,7 @@ static int m25p80_pre_save(void *opaque)
+ static Property m25p80_properties[] = {
+     /* This is default value for Micron flash */
+     DEFINE_PROP_BOOL("write-enable", Flash, write_enable, false),
++    DEFINE_PROP_BOOL("four-bytes-address", Flash, force_four_bytes_address, false),
+     DEFINE_PROP_UINT32("nonvolatile-cfg", Flash, nonvolatile_cfg, 0x8FFF),
+     DEFINE_PROP_UINT8("spansion-cr1nv", Flash, spansion_cr1nv, 0x0),
+     DEFINE_PROP_UINT8("spansion-cr2nv", Flash, spansion_cr2nv, 0x8),
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+index 4fea1f5..befd8b3 100644
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -1,5 +1,5 @@
+ /*
+- * ESP32 GPIO emulation
++ * ESP32/C3/C6 GPIO emulation
+  *
+  * Copyright (c) 2019 Espressif Systems (Shanghai) Co. Ltd.
+  *
+@@ -19,30 +19,205 @@
+ #include "hw/qdev-properties.h"
+ #include "hw/gpio/esp32_gpio.h"
+ 
++#define GPIO_NPINS 54
+ 
++static uint64_t g_ext_in = ~0ULL;
++static uint32_t g_regs[0x200];
++static uint64_t g_open_drain;
++static uint64_t g_force_mask;
++static uint64_t g_force_level;
++static struct {
++    esp32_gpio_out_cb cb;
++    void *opaque;
++} g_listeners[GPIO_NPINS];
++
++static uint64_t gpio_line64(void);
++
++void esp32_gpio_set_input(int pin, int level)
++{
++    if (pin < 0 || pin >= GPIO_NPINS) {
++        return;
++    }
++    if (level) {
++        g_ext_in |= 1ULL << pin;
++    } else {
++        g_ext_in &= ~(1ULL << pin);
++    }
++}
++
++void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque)
++{
++    if (pin >= 0 && pin < GPIO_NPINS) {
++        g_listeners[pin].cb = cb;
++        g_listeners[pin].opaque = opaque;
++    }
++}
++
++void esp32_gpio_set_open_drain(int pin, bool enable)
++{
++    if (pin < 0 || pin >= GPIO_NPINS) {
++        return;
++    }
++    if (enable) {
++        g_open_drain |= 1ULL << pin;
++    } else {
++        g_open_drain &= ~(1ULL << pin);
++    }
++}
++
++void esp32_gpio_force_line(int pin, int level)
++{
++    if (pin < 0 || pin >= GPIO_NPINS) {
++        return;
++    }
++    g_force_mask |= 1ULL << pin;
++    if (level) {
++        g_force_level |= 1ULL << pin;
++    } else {
++        g_force_level &= ~(1ULL << pin);
++    }
++}
++
++int esp32_gpio_get_line(int pin)
++{
++    if (pin < 0 || pin >= GPIO_NPINS) {
++        return 1;
++    }
++    return (gpio_line64() >> pin) & 1;
++}
++
++static uint64_t gpio_out64(void)
++{
++    return (uint64_t)g_regs[0x04 / 4] |
++           ((uint64_t)g_regs[0x10 / 4] << 32);
++}
++
++static uint64_t gpio_en64(void)
++{
++    return (uint64_t)g_regs[0x20 / 4] |
++           ((uint64_t)g_regs[0x2c / 4] << 32);
++}
++
++static uint64_t gpio_line64(void)
++{
++    uint64_t out = gpio_out64();
++    uint64_t en = gpio_en64();
++    uint64_t driven = out & en;
++    uint64_t line = (driven & ~g_open_drain)
++                  | ((driven & g_ext_in) & g_open_drain)
++                  | (~en & g_ext_in);
++
++    return (line & ~g_force_mask) | (g_force_level & g_force_mask);
++}
++
++static void gpio_notify(uint64_t before, uint64_t after)
++{
++    uint64_t diff = before ^ after;
++
++    for (int i = 0; diff && i < GPIO_NPINS; i++) {
++        if ((diff >> i) & 1) {
++            if (g_listeners[i].cb) {
++                g_listeners[i].cb(g_listeners[i].opaque, i,
++                                  (after >> i) & 1);
++            }
++        }
++    }
++}
+ 
+ static uint64_t esp32_gpio_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32GpioState *s = ESP32_GPIO(opaque);
+-    uint64_t r = 0;
++    uint64_t in = gpio_line64();
++
+     switch (addr) {
+     case A_GPIO_STRAP:
+-        r = s->strap_mode;
+-        break;
+-
++        return s->strap_mode;
++    case 0x3c:
++        return (uint32_t)in;
++    case 0x40:
++        return (uint32_t)(in >> 32) & 0x3fffff;
++    case 0x08:
++    case 0x0c:
++    case 0x14:
++    case 0x18:
++    case 0x24:
++    case 0x28:
++    case 0x30:
++    case 0x34:
++        return 0;
+     default:
+-        break;
++        if (addr < sizeof(g_regs)) {
++            return g_regs[addr / 4];
++        }
++        return 0;
+     }
+-    return r;
+ }
+ 
+ static void esp32_gpio_write(void *opaque, hwaddr addr,
+-                       uint64_t value, unsigned int size)
++                             uint64_t value, unsigned int size)
+ {
++    uint64_t before = gpio_line64();
++
++    switch (addr) {
++    case 0x08:
++        g_regs[0x04 / 4] |= value;
++        break;
++    case 0x0c:
++        g_regs[0x04 / 4] &= ~value;
++        break;
++    case 0x14:
++        g_regs[0x10 / 4] |= value;
++        break;
++    case 0x18:
++        g_regs[0x10 / 4] &= ~value;
++        break;
++    case 0x24:
++        g_regs[0x20 / 4] |= value;
++        break;
++    case 0x28:
++        g_regs[0x20 / 4] &= ~value;
++        break;
++    case 0x30:
++        g_regs[0x2c / 4] |= value;
++        break;
++    case 0x34:
++        g_regs[0x2c / 4] &= ~value;
++        break;
++    case 0x48:
++        g_regs[0x44 / 4] |= value;
++        break;
++    case 0x4c:
++        g_regs[0x44 / 4] &= ~value;
++        break;
++    case 0x54:
++        g_regs[0x50 / 4] |= value;
++        break;
++    case 0x58:
++        g_regs[0x50 / 4] &= ~value;
++        break;
++    case A_GPIO_STRAP:
++    case 0x3c:
++    case 0x40:
++        break;
++    default:
++        if (addr < sizeof(g_regs)) {
++            g_regs[addr / 4] = value;
++            if (addr >= 0x74 && addr < 0x74 + GPIO_NPINS * 4) {
++                uint64_t bit = 1ULL << ((addr - 0x74) / 4);
++                if (value & (1u << 2)) {
++                    g_open_drain |= bit;
++                } else {
++                    g_open_drain &= ~bit;
++                }
++            }
++        }
++        break;
++    }
++    gpio_notify(before, gpio_line64());
+ }
+ 
+-static const MemoryRegionOps uart_ops = {
+-    .read =  esp32_gpio_read,
++static const MemoryRegionOps esp32_gpio_ops = {
++    .read = esp32_gpio_read,
+     .write = esp32_gpio_write,
+     .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+@@ -60,18 +235,15 @@ static void esp32_gpio_init(Object *obj)
+     Esp32GpioState *s = ESP32_GPIO(obj);
+     SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
+ 
+-    /* Set the default value for the strap_mode property */
+-    object_property_set_int(obj, "strap_mode", ESP32_STRAP_MODE_FLASH_BOOT, &error_fatal);
+-
+-    memory_region_init_io(&s->iomem, obj, &uart_ops, s,
++    object_property_set_int(obj, "strap_mode", ESP32_STRAP_MODE_FLASH_BOOT,
++                            &error_fatal);
++    memory_region_init_io(&s->iomem, obj, &esp32_gpio_ops, s,
+                           TYPE_ESP32_GPIO, 0x1000);
+     sysbus_init_mmio(sbd, &s->iomem);
+     sysbus_init_irq(sbd, &s->irq);
+ }
+ 
+ static Property esp32_gpio_properties[] = {
+-    /* The strap_mode needs to be explicitly set in the instance init, thus, set
+-     * the default value to 0. */
+     DEFINE_PROP_UINT32("strap_mode", Esp32GpioState, strap_mode, 0),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+diff --git a/hw/i2c/esp32_i2c.c b/hw/i2c/esp32_i2c.c
+index 5f4022f..abd89fd 100644
+--- a/hw/i2c/esp32_i2c.c
++++ b/hw/i2c/esp32_i2c.c
+@@ -100,6 +100,11 @@ static void esp32_i2c_write(void * opaque, hwaddr addr, uint64_t value, unsigned
+ {
+     Esp32I2CState * s = Esp32_I2C(opaque);
+ 
++    if (getenv("M5SW_I2C_REG_TRACE")) {
++        fprintf(stderr, "[esp32-i2c] wr 0x%03" HWADDR_PRIx " = 0x%08" PRIx64 "\n",
++                addr, value);
++    }
++
+     switch(addr) {
+     case A_I2C_CTR:
+         if (FIELD_EX32(value, I2C_CTR, MS_MODE) != 1) {
+diff --git a/hw/i2c/meson.build b/hw/i2c/meson.build
+index e72dca0..d8fd45c 100644
+--- a/hw/i2c/meson.build
++++ b/hw/i2c/meson.build
+@@ -17,6 +17,7 @@ i2c_ss.add(when: 'CONFIG_OMAP', if_true: files('omap_i2c.c'))
+ i2c_ss.add(when: 'CONFIG_PPC4XX', if_true: files('ppc4xx_i2c.c'))
+ i2c_ss.add(when: 'CONFIG_XTENSA_ESP32', if_true: files('esp32_i2c.c'))
+ i2c_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files('esp32_i2c.c'))
++i2c_ss.add(when: 'CONFIG_RISCV_ESP32C6', if_true: files('esp32_i2c.c'))
+ i2c_ss.add(when: 'CONFIG_PCA954X', if_true: files('i2c_mux_pca954x.c'))
+ i2c_ss.add(when: 'CONFIG_PMBUS', if_true: files('pmbus_device.c'))
+ i2c_ss.add(when: 'CONFIG_BCM2835_I2C', if_true: files('bcm2835_i2c.c'))
+diff --git a/hw/misc/esp32c6_board_i2c.c b/hw/misc/esp32c6_board_i2c.c
+new file mode 100644
+index 0000000..437bd3e
+--- /dev/null
++++ b/hw/misc/esp32c6_board_i2c.c
+@@ -0,0 +1,192 @@
++/*
++ * Minimal I2C devices used by the Arduino Nesso N1 board.
++ *
++ * The board detector needs PI4IOE1/PI4IOE2 ACKs and the board's
++ * FT5x06-compatible touch controller.  The models are deliberately
++ * register-level rather than full peripheral emulations so firmware can
++ * complete autodetection and UI input without a physical board.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/log.h"
++#include "qemu/module.h"
++#include "qapi/error.h"
++#include "hw/i2c/i2c.h"
++#include "hw/qdev-properties.h"
++#include "hw/gpio/esp32_gpio.h"
++#include "hw/misc/esp32c6_board_i2c.h"
++
++enum {
++    C6_DEV_GENERIC,
++    C6_DEV_FT5X06,
++    C6_DEV_PI4IOE,
++    C6_DEV_BMI270,
++};
++
++typedef struct C6BoardI2CDev {
++    I2CSlave parent_obj;
++    char *model_name;
++    int model;
++    uint8_t regs[256];
++    uint8_t ptr;
++    bool ptr_set;
++} C6BoardI2CDev;
++
++OBJECT_DECLARE_SIMPLE_TYPE(C6BoardI2CDev, ESP32C6_BOARD_I2C_DEV)
++
++static C6BoardI2CDev *g_ft;
++static int g_touch_pressed;
++static int g_touch_x;
++static int g_touch_y;
++static uint8_t g_buttons = 0x03;
++
++void esp32c6_ft_touch_set(int pressed, int x, int y)
++{
++    g_touch_pressed = pressed;
++    g_touch_x = x;
++    g_touch_y = y;
++    if (g_ft) {
++        g_ft->regs[0x02] = pressed ? 1 : 0;
++        g_ft->regs[0x03] = (x >> 8) & 0x0f;
++        g_ft->regs[0x04] = x & 0xff;
++        g_ft->regs[0x05] = (y >> 8) & 0x0f;
++        g_ft->regs[0x06] = y & 0xff;
++    }
++    esp32_gpio_force_line(3, !pressed);
++}
++
++void esp32c6_pi4ioe_button_set(int button, bool pressed)
++{
++    if (button < 0 || button > 1) {
++        return;
++    }
++    if (pressed) {
++        g_buttons &= ~(1u << button);
++    } else {
++        g_buttons |= 1u << button;
++    }
++}
++
++static uint8_t c6_i2c_read(C6BoardI2CDev *s, uint8_t reg)
++{
++    if (getenv("M5SW_C6_I2C_TRACE")) {
++        fprintf(stderr, "[c6-i2c] read model=%d reg=%02x\n", s->model, reg);
++    }
++    if (s->model == C6_DEV_FT5X06) {
++        switch (reg) {
++        case 0x02:
++            return g_touch_pressed ? 1 : 0;
++        case 0x03:
++            return (g_touch_x >> 8) & 0x0f;
++        case 0x04:
++            return g_touch_x & 0xff;
++        case 0x05:
++            return (g_touch_y >> 8) & 0x0f;
++        case 0x06:
++            return g_touch_y & 0xff;
++        case 0xA3:
++            return 0x51;
++        case 0xA6:
++            return 0x10;
++        case 0xA8:
++            return 0x11;
++        default:
++            break;
++        }
++    } else if (s->model == C6_DEV_PI4IOE) {
++        if (reg == 0x01) {
++            return 0x01;
++        }
++        if (reg == 0x0f) {
++            return g_buttons;
++        }
++    } else if (s->model == C6_DEV_BMI270 && reg == 0x00) {
++        return 0x24;
++    }
++    return s->regs[reg];
++}
++
++static int c6_i2c_event(I2CSlave *i2c, enum i2c_event event)
++{
++    C6BoardI2CDev *s = (C6BoardI2CDev *)i2c;
++
++    if (event == I2C_START_SEND) {
++        s->ptr_set = false;
++    }
++    return 0;
++}
++
++static uint8_t c6_i2c_recv(I2CSlave *i2c)
++{
++    C6BoardI2CDev *s = (C6BoardI2CDev *)i2c;
++    uint8_t value = c6_i2c_read(s, s->ptr++);
++    return value;
++}
++
++static int c6_i2c_send(I2CSlave *i2c, uint8_t data)
++{
++    C6BoardI2CDev *s = (C6BoardI2CDev *)i2c;
++
++    if (!s->ptr_set) {
++        s->ptr = data;
++        s->ptr_set = true;
++        return 0;
++    }
++    if (getenv("M5SW_C6_I2C_TRACE")) {
++        fprintf(stderr, "[c6-i2c] write model=%d reg=%02x data=%02x\n",
++                s->model, s->ptr, data);
++    }
++    s->regs[s->ptr++] = data;
++    return 0;
++}
++
++static void c6_i2c_realize(DeviceState *dev, Error **errp)
++{
++    C6BoardI2CDev *s = (C6BoardI2CDev *)dev;
++    const char *model = s->model_name ? s->model_name : "generic";
++
++    s->model = C6_DEV_GENERIC;
++    if (!strcmp(model, "ft5x06")) {
++        s->model = C6_DEV_FT5X06;
++        g_ft = s;
++    } else if (!strcmp(model, "pi4ioe")) {
++        s->model = C6_DEV_PI4IOE;
++    } else if (!strcmp(model, "bmi270")) {
++        s->model = C6_DEV_BMI270;
++        s->regs[0x00] = 0x24;
++        s->regs[0x03] = 0xc0;
++        s->regs[0x1d] = 0xc0;
++    }
++}
++
++static Property c6_i2c_props[] = {
++    DEFINE_PROP_STRING("model", C6BoardI2CDev, model_name),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
++static void c6_i2c_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    I2CSlaveClass *k = I2C_SLAVE_CLASS(klass);
++
++    dc->realize = c6_i2c_realize;
++    device_class_set_props(dc, c6_i2c_props);
++    k->event = c6_i2c_event;
++    k->recv = c6_i2c_recv;
++    k->send = c6_i2c_send;
++}
++
++static const TypeInfo c6_i2c_info = {
++    .name = TYPE_ESP32C6_BOARD_I2C_DEV,
++    .parent = TYPE_I2C_SLAVE,
++    .instance_size = sizeof(C6BoardI2CDev),
++    .class_init = c6_i2c_class_init,
++};
++
++static void c6_i2c_register_types(void)
++{
++    type_register_static(&c6_i2c_info);
++}
++
++type_init(c6_i2c_register_types)
+diff --git a/hw/misc/esp32c6_nesso_panel.c b/hw/misc/esp32c6_nesso_panel.c
+new file mode 100644
+index 0000000..f6bcbe3
+--- /dev/null
++++ b/hw/misc/esp32c6_nesso_panel.c
+@@ -0,0 +1,341 @@
++/*
++ * Arduino Nesso N1 ST7789 panel model.
++ *
++ * The board's display is a 135x240 ST7789 behind a 52/40 controller
++ * offset.  This model implements the DCS subset used by M5GFX, keeps an
++ * RGB565 framebuffer, and exposes it through a QEMU console so screendump
++ * and the device-center preview path can consume it.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/main-loop.h"
++#include "qapi/error.h"
++#include "hw/qdev-core.h"
++#include "hw/qdev-properties.h"
++#include "ui/console.h"
++#include "ui/input.h"
++#include "hw/misc/esp32c6_nesso_panel.h"
++#include "hw/misc/esp32c6_board_i2c.h"
++
++#define PANEL_W 135
++#define PANEL_H 240
++#define PANEL_OFF_X 52
++#define PANEL_OFF_Y 40
++#define MEM_W 240
++#define MEM_H 320
++
++struct ESP32C6NessoPanelState {
++    DeviceState parent_obj;
++    QemuConsole *con;
++    QEMUBH *refresh_bh;
++    uint16_t *mem;
++    uint8_t madctl;
++    uint8_t cmd;
++    uint8_t params[4];
++    unsigned pidx;
++    uint16_t xs;
++    uint16_t xe;
++    uint16_t ys;
++    uint16_t ye;
++    uint16_t cx;
++    uint16_t cy;
++    bool pixel_half;
++    uint8_t pix_hi;
++    bool disp_on;
++    bool sleep;
++    bool dirty;
++    unsigned trace_count;
++    bool saw_nonzero;
++    int mouse_x;
++    int mouse_y;
++    bool mouse_down;
++};
++
++static void nesso_panel_reset_window(ESP32C6NessoPanelState *s)
++{
++    s->cx = s->xs;
++    s->cy = s->ys;
++}
++
++static void nesso_panel_put_pixel(ESP32C6NessoPanelState *s, uint16_t px)
++{
++    int x = s->cx;
++    int y = s->cy;
++    if (getenv("M5SW_NESSO_PANEL_PIXEL_TRACE") && s->trace_count++ < 8) {
++        fprintf(stderr, "[nesso-pixel] (%d,%d) window x=%u..%u y=%u..%u\n",
++                x, y, s->xs, s->xe, s->ys, s->ye);
++    }
++    static int row_trace;
++    static int last_y = -1;
++    if (getenv("M5SW_NESSO_ROW_TRACE") && y != last_y && px != 0 &&
++        row_trace < 8) {
++        fprintf(stderr, "[nesso-row] first y=%d x=%d px=%04x\n", y, x, px);
++        last_y = y;
++        row_trace++;
++    }
++    if (px == 0xf800) {
++        s->saw_nonzero = true;
++    } else if (px == 0 && s->saw_nonzero &&
++               getenv("M5SW_NESSO_PANEL_BLACK_TRACE")) {
++        fprintf(stderr, "[nesso-black] x=%d y=%d\n", x, y);
++    }
++
++    /*
++     * M5GFX already applies the board rotation and the 52/40 controller
++     * offset when it programs CASET/RASET.  Apply MADCTL a second time
++     * here and the 135-wide stream is transposed into a diagonal pattern.
++     */
++    if (x >= 0 && x < MEM_W && y >= 0 && y < MEM_H) {
++        s->mem[y * MEM_W + x] = px;
++    }
++    if (++s->cx > s->xe) {
++        s->cx = s->xs;
++        if (++s->cy > s->ye) {
++            s->cy = s->ys;
++        }
++    }
++}
++
++void esp32c6_nesso_panel_write(void *opaque, const uint8_t *buf, uint32_t len,
++                               bool command_phase)
++{
++    ESP32C6NessoPanelState *s = opaque;
++    static unsigned dump_count;
++    if (getenv("M5SW_NESSO_PANEL_DUMP") && s->cmd == 0x2c &&
++        !command_phase) {
++        dump_count++;
++    }
++    if (getenv("M5SW_NESSO_PANEL_DUMP") && s->cmd == 0x2c &&
++        (dump_count <= 2 || (dump_count >= 1000 && dump_count <= 1005)) &&
++        !command_phase) {
++        fprintf(stderr, "[nesso-dump] len=%u first:", len);
++        for (uint32_t i = 0; i < MIN(len, 32u); i++) {
++            fprintf(stderr, " %02x", buf[i]);
++        }
++        fprintf(stderr, "\n");
++    }
++    for (uint32_t i = 0; i < len; i++) {
++        uint8_t b = buf[i];
++
++        if (command_phase) {
++            s->cmd = b;
++            s->pidx = 0;
++            s->pixel_half = false;
++            if (getenv("M5SW_NESSO_PANEL_TRACE")) {
++                fprintf(stderr, "[nesso-panel] CMD %02x\n", b);
++            }
++            switch (b) {
++            case 0x28:
++                s->disp_on = false;
++                s->dirty = true;
++                break;
++            case 0x29:
++                s->disp_on = true;
++                s->dirty = true;
++                break;
++            case 0x10:
++                s->sleep = true;
++                s->dirty = true;
++                break;
++            case 0x11:
++                s->sleep = false;
++                s->dirty = true;
++                break;
++            case 0x01:
++                s->disp_on = false;
++                s->sleep = true;
++                s->madctl = 0;
++                break;
++            case 0x2C:
++            case 0x3C:
++                nesso_panel_reset_window(s);
++                s->trace_count = 0;
++                break;
++            default:
++                break;
++            }
++            continue;
++        }
++
++        if (i == 0 && getenv("M5SW_NESSO_PANEL_TRACE")) {
++            fprintf(stderr, "[nesso-panel] DATA cmd=%02x len=%u first=%02x\n",
++                    s->cmd, len, b);
++        }
++        switch (s->cmd) {
++        case 0x2A:
++            if (s->pidx < 4) {
++                s->params[s->pidx++] = b;
++            }
++            if (s->pidx == 4) {
++                s->xs = (s->params[0] << 8) | s->params[1];
++                s->xe = (s->params[2] << 8) | s->params[3];
++                if (getenv("M5SW_NESSO_PANEL_TRACE")) {
++                    fprintf(stderr, "[nesso-panel] CASET %u..%u\n", s->xs, s->xe);
++                }
++            }
++            break;
++        case 0x2B:
++            if (s->pidx < 4) {
++                s->params[s->pidx++] = b;
++            }
++            if (s->pidx == 4) {
++                s->ys = (s->params[0] << 8) | s->params[1];
++                s->ye = (s->params[2] << 8) | s->params[3];
++                if (getenv("M5SW_NESSO_PANEL_TRACE")) {
++                    fprintf(stderr, "[nesso-panel] RASET %u..%u\n", s->ys, s->ye);
++                }
++            }
++            break;
++        case 0x2C:
++        case 0x3C:
++            if (!s->pixel_half) {
++                s->pix_hi = b;
++                s->pixel_half = true;
++            } else {
++                nesso_panel_put_pixel(s, (s->pix_hi << 8) | b);
++                s->pixel_half = false;
++                s->dirty = true;
++            }
++            break;
++        case 0x36:
++            s->madctl = b;
++            s->dirty = true;
++            break;
++        default:
++            break;
++        }
++    }
++    if (s->dirty && s->refresh_bh) {
++        qemu_bh_schedule(s->refresh_bh);
++    }
++}
++
++static void nesso_panel_update(void *opaque)
++{
++    ESP32C6NessoPanelState *s = opaque;
++    DisplaySurface *surf;
++    uint32_t *dst;
++    int stride;
++
++    if (!s->dirty) {
++        return;
++    }
++    s->dirty = false;
++    surf = qemu_console_surface(s->con);
++    if (!surf || surface_bits_per_pixel(surf) != 32 ||
++        surface_width(surf) != PANEL_W ||
++        surface_height(surf) != PANEL_H) {
++        surf = qemu_create_displaysurface(PANEL_W, PANEL_H);
++        dpy_gfx_replace_surface(s->con, surf);
++    }
++    if (getenv("M5SW_NESSO_UPDATE_TRACE")) {
++        fprintf(stderr, "[nesso-update] surface=%ux%u stride=%d dirty-sample=%04x\n",
++                surface_width(surf), surface_height(surf), surface_stride(surf),
++                s->mem[(PANEL_OFF_Y + 20) * MEM_W + PANEL_OFF_X + 20]);
++    }
++    dst = (uint32_t *)surface_data(surf);
++    stride = surface_stride(surf) / 4;
++    for (int py = 0; py < PANEL_H; py++) {
++        for (int px = 0; px < PANEL_W; px++) {
++            uint16_t p = s->mem[(py + PANEL_OFF_Y) * MEM_W +
++                                (px + PANEL_OFF_X)];
++            uint32_t r = ((p >> 11) & 0x1f) * 255 / 31;
++            uint32_t g = ((p >> 5) & 0x3f) * 255 / 63;
++            uint32_t b = (p & 0x1f) * 255 / 31;
++            if (!s->disp_on || s->sleep) {
++                r = g = b = 0;
++            }
++            dst[py * stride + px] = 0xff000000u | (r << 16) | (g << 8) | b;
++        }
++    }
++    dpy_gfx_update(s->con, 0, 0, PANEL_W, PANEL_H);
++}
++
++static void nesso_panel_refresh(void *opaque)
++{
++    nesso_panel_update(opaque);
++}
++
++static void nesso_panel_input(DeviceState *dev, QemuConsole *src, InputEvent *evt)
++{
++    ESP32C6NessoPanelState *s = (ESP32C6NessoPanelState *)dev;
++
++    switch (evt->type) {
++    case INPUT_EVENT_KIND_ABS: {
++        InputMoveEvent *m = evt->u.abs.data;
++        if (m->axis == INPUT_AXIS_X) {
++            s->mouse_x = qemu_input_scale_axis(m->value, INPUT_EVENT_ABS_MIN,
++                                               INPUT_EVENT_ABS_MAX, 0,
++                                               PANEL_W - 1);
++        } else if (m->axis == INPUT_AXIS_Y) {
++            s->mouse_y = qemu_input_scale_axis(m->value, INPUT_EVENT_ABS_MIN,
++                                               INPUT_EVENT_ABS_MAX, 0,
++                                               PANEL_H - 1);
++        }
++        break;
++    }
++    case INPUT_EVENT_KIND_BTN: {
++        InputBtnEvent *b = evt->u.btn.data;
++        if (b->button == INPUT_BUTTON_LEFT) {
++            s->mouse_down = b->down;
++        }
++        break;
++    }
++    default:
++        break;
++    }
++}
++
++static void nesso_panel_input_sync(DeviceState *dev)
++{
++    ESP32C6NessoPanelState *s = (ESP32C6NessoPanelState *)dev;
++    esp32c6_ft_touch_set(s->mouse_down, s->mouse_x, s->mouse_y);
++}
++
++static const QemuInputHandler nesso_panel_input_handler = {
++    .name = "Nesso N1 touch",
++    .mask = INPUT_EVENT_MASK_BTN | INPUT_EVENT_MASK_ABS,
++    .event = nesso_panel_input,
++    .sync = nesso_panel_input_sync,
++};
++
++static const GraphicHwOps nesso_panel_ops = {
++    .gfx_update = nesso_panel_update,
++};
++
++static void nesso_panel_realize(DeviceState *dev, Error **errp)
++{
++    ESP32C6NessoPanelState *s = (ESP32C6NessoPanelState *)dev;
++    QemuInputHandlerState *hs;
++
++    s->mem = g_new0(uint16_t, MEM_W * MEM_H);
++    s->disp_on = true;
++    s->sleep = false;
++    s->con = graphic_console_init(dev, 0, &nesso_panel_ops, s);
++    qemu_console_resize(s->con, PANEL_W, PANEL_H);
++    s->refresh_bh = qemu_bh_new(nesso_panel_refresh, s);
++    hs = qemu_input_handler_register(dev, &nesso_panel_input_handler);
++    qemu_input_handler_activate(hs);
++    qemu_bh_schedule(s->refresh_bh);
++}
++
++static void nesso_panel_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    dc->realize = nesso_panel_realize;
++}
++
++static const TypeInfo nesso_panel_info = {
++    .name = TYPE_ESP32C6_NESSO_PANEL,
++    .parent = TYPE_DEVICE,
++    .instance_size = sizeof(ESP32C6NessoPanelState),
++    .class_init = nesso_panel_class_init,
++};
++
++static void nesso_panel_register_types(void)
++{
++    type_register_static(&nesso_panel_info);
++}
++
++type_init(nesso_panel_register_types)
+diff --git a/hw/misc/esp32c6_soft_i2c.c b/hw/misc/esp32c6_soft_i2c.c
+new file mode 100644
+index 0000000..3ffeafb
+--- /dev/null
++++ b/hw/misc/esp32c6_soft_i2c.c
+@@ -0,0 +1,221 @@
++/*
++ * Software-I2C bridge for ESP32-C6 board autodetection.
++ *
++ * M5GFX bit-bangs SDA/SCL before it knows which board it is running on.
++ * Decode that GPIO waveform and forward complete transfers to QEMU's I2C
++ * bus, so the same PI4IOE/FT5x06 models answer both the probe and the
++ * hardware-I2C path after handover.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/gpio/esp32_gpio.h"
++#include "hw/i2c/i2c.h"
++#include "hw/misc/esp32c6_soft_i2c.h"
++
++typedef enum {
++    C6_SOFT_I2C_IDLE,
++    C6_SOFT_I2C_ADDR,
++    C6_SOFT_I2C_TX,
++    C6_SOFT_I2C_RX,
++    C6_SOFT_I2C_ACK_ADDR,
++    C6_SOFT_I2C_ACK_TX,
++    C6_SOFT_I2C_ACK_RX,
++} C6SoftI2CState;
++
++typedef struct C6SoftI2C {
++    I2CBus *bus;
++    int sda_pin;
++    int scl_pin;
++    int sda;
++    int scl;
++    bool active;
++    bool in_xfer;
++    bool read;
++    C6SoftI2CState state;
++    bool ack_pending;
++    bool master_ack;
++    bool ack_step;
++    unsigned bit;
++    uint8_t shift;
++    uint8_t rx;
++} C6SoftI2C;
++
++static void c6_soft_i2c_drive_sda(C6SoftI2C *s, int level)
++{
++    esp32_gpio_set_input(s->sda_pin, level ? 1 : 0);
++    s->sda = esp32_gpio_get_line(s->sda_pin);
++}
++
++static void c6_soft_i2c_release_sda(C6SoftI2C *s)
++{
++    esp32_gpio_set_input(s->sda_pin, 1);
++    s->sda = esp32_gpio_get_line(s->sda_pin);
++}
++
++static void c6_soft_i2c_end(C6SoftI2C *s)
++{
++    if (s->in_xfer) {
++        i2c_end_transfer(s->bus);
++        s->in_xfer = false;
++    }
++    c6_soft_i2c_release_sda(s);
++}
++
++static void c6_soft_i2c_line(void *opaque, int pin, int level)
++{
++    C6SoftI2C *s = opaque;
++    int old_sda = s->sda;
++    int old_scl = s->scl;
++
++    if (pin == s->sda_pin) {
++        s->sda = level;
++    } else if (pin == s->scl_pin) {
++        s->scl = level;
++    } else {
++        return;
++    }
++
++    if (getenv("M5SW_C6_I2C_TRACE")) {
++        fprintf(stderr, "[c6-soft-i2c] pin=%d level=%d sda=%d scl=%d state=%d\n",
++                pin, level, s->sda, s->scl, s->state);
++    }
++
++    if (old_scl && old_sda && !s->sda && s->scl) {
++        c6_soft_i2c_end(s);
++        s->active = true;
++        s->state = C6_SOFT_I2C_ADDR;
++        s->bit = 0;
++        s->shift = 0;
++        s->ack_step = false;
++        c6_soft_i2c_release_sda(s);
++        return;
++    }
++
++    if (old_scl && !old_sda && s->sda && s->scl) {
++        c6_soft_i2c_end(s);
++        s->active = false;
++        s->state = C6_SOFT_I2C_IDLE;
++        return;
++    }
++
++    if (!s->active) {
++        return;
++    }
++
++    if (!old_scl && s->scl) {
++        switch (s->state) {
++        case C6_SOFT_I2C_ADDR:
++        case C6_SOFT_I2C_TX:
++            s->shift = (s->shift << 1) | (s->sda ? 1 : 0);
++            if (++s->bit == 8) {
++                if (s->state == C6_SOFT_I2C_ADDR) {
++                    uint8_t addr = s->shift >> 1;
++                    s->read = s->shift & 1;
++                    s->in_xfer = i2c_start_transfer(s->bus, addr,
++                                                    s->read) == 0;
++                    s->ack_pending = s->in_xfer;
++                    s->ack_step = false;
++                    c6_soft_i2c_release_sda(s);
++                    s->state = C6_SOFT_I2C_ACK_ADDR;
++                } else {
++                    bool ack = s->in_xfer &&
++                               i2c_send(s->bus, s->shift) == 0;
++                    s->ack_pending = ack;
++                    s->ack_step = false;
++                    c6_soft_i2c_release_sda(s);
++                    s->state = C6_SOFT_I2C_ACK_TX;
++                }
++                s->bit = 0;
++            }
++            break;
++        case C6_SOFT_I2C_RX:
++            s->shift = (s->shift << 1) | (s->sda ? 1 : 0);
++            if (++s->bit == 8) {
++                s->state = C6_SOFT_I2C_ACK_RX;
++                s->ack_step = false;
++            }
++            break;
++        case C6_SOFT_I2C_ACK_RX:
++            if (s->ack_step) {
++                s->master_ack = s->sda;
++                s->ack_step = false;
++                s->bit = 0;
++            }
++            break;
++        default:
++            break;
++        }
++        return;
++    }
++
++    if (old_scl && !s->scl) {
++        switch (s->state) {
++        case C6_SOFT_I2C_ACK_ADDR:
++            if (!s->ack_step) {
++                c6_soft_i2c_drive_sda(s, s->ack_pending ? 0 : 1);
++                s->ack_step = true;
++            } else {
++                c6_soft_i2c_release_sda(s);
++                if (s->read) {
++                    s->rx = s->in_xfer ? i2c_recv(s->bus) : 0xff;
++                    s->state = C6_SOFT_I2C_RX;
++                    s->bit = 0;
++                    c6_soft_i2c_drive_sda(s, (s->rx >> 7) & 1);
++                } else {
++                    s->state = C6_SOFT_I2C_TX;
++                    s->bit = 0;
++                }
++            }
++            break;
++        case C6_SOFT_I2C_ACK_TX:
++            if (!s->ack_step) {
++                c6_soft_i2c_drive_sda(s, s->ack_pending ? 0 : 1);
++                s->ack_step = true;
++            } else {
++                c6_soft_i2c_release_sda(s);
++                s->state = C6_SOFT_I2C_TX;
++                s->bit = 0;
++            }
++            break;
++        case C6_SOFT_I2C_RX:
++            if (s->bit > 0 && s->bit < 8) {
++                c6_soft_i2c_drive_sda(s, (s->rx >> (7 - s->bit)) & 1);
++            }
++            break;
++        case C6_SOFT_I2C_ACK_RX:
++            if (!s->ack_step) {
++                c6_soft_i2c_release_sda(s);
++                s->ack_step = true;
++            } else if (s->master_ack && s->in_xfer) {
++                i2c_nack(s->bus);
++                s->state = C6_SOFT_I2C_IDLE;
++            } else if (s->in_xfer) {
++                s->rx = i2c_recv(s->bus);
++                s->state = C6_SOFT_I2C_RX;
++                s->bit = 0;
++                c6_soft_i2c_drive_sda(s, (s->rx >> 7) & 1);
++            } else {
++                s->state = C6_SOFT_I2C_IDLE;
++            }
++            break;
++        default:
++            break;
++        }
++    }
++}
++
++void esp32c6_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin)
++{
++    C6SoftI2C *s = g_new0(C6SoftI2C, 1);
++
++    s->bus = bus;
++    s->sda_pin = sda_pin;
++    s->scl_pin = scl_pin;
++    s->sda = 1;
++    s->scl = 1;
++    esp32_gpio_set_open_drain(sda_pin, true);
++    esp32_gpio_set_open_drain(scl_pin, true);
++    esp32_gpio_add_out_listener(sda_pin, c6_soft_i2c_line, s);
++    esp32_gpio_add_out_listener(scl_pin, c6_soft_i2c_line, s);
++}
+diff --git a/hw/misc/meson.build b/hw/misc/meson.build
+index 0ac4b77..950b19c 100644
+--- a/hw/misc/meson.build
++++ b/hw/misc/meson.build
+@@ -170,6 +170,9 @@ system_ss.add(when: 'CONFIG_RISCV_ESP32C6', if_true: files(
+   'esp_sha.c',
+   'esp32c3_sha.c',
+   'esp32c6_sha.c',
++  'esp32c6_board_i2c.c',
++  'esp32c6_nesso_panel.c',
++  'esp32c6_soft_i2c.c',
+ ))
+ 
+ system_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+index f8b5d9c..f16cef2 100644
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -45,9 +45,14 @@
+ #include "hw/riscv/esp32c6_intmatrix.h"
+ #include "hw/misc/esp32c6_intpri.h"
+ #include "hw/misc/esp32c6_sha.h"
++#include "hw/i2c/esp32_i2c.h"
++#include "hw/misc/esp32c6_board_i2c.h"
++#include "hw/misc/esp32c6_nesso_panel.h"
++#include "hw/misc/esp32c6_soft_i2c.h"
+ #include "hw/timer/esp32c6_timg.h"
+ #include "hw/timer/esp32c6_systimer.h"
+ #include "hw/ssi/esp32c6_spi.h"
++#include "hw/ssi/esp32c3_spi.h"
+ #include "hw/dma/esp32c6_gdma.h"
+ 
+ #define ESP32C6_RESET_ADDRESS       0x40000000
+@@ -57,6 +62,8 @@
+ #define ESP32C6_IRAM_SIZE           (512 * 1024)
+ #define ESP32C6_RTC_SIZE            (16 * 1024)
+ #define ESP32C6_IROM_SIZE           (320 * 1024)
++#define ESP32C6_APB_SARADC_SIZE    0x100
++#define ESP32C6_APB_SARADC_BASE    0x6000e000
+ 
+ struct Esp32C6MachineState {
+     MachineState parent;
+@@ -85,6 +92,10 @@ struct Esp32C6MachineState {
+     ESP32C6SpiMemState spi_mem;
+     ESP32C6I2cAnaMstState i2c_ana_mst;
+     ESP32C6ModemState modem;
++    DeviceState *i2c0;
++    DeviceState *spi2;
++    uint32_t saradc_regs[ESP32C6_APB_SARADC_SIZE / sizeof(uint32_t)];
++    MemoryRegion saradc_iomem;
+ };
+ 
+ #define TYPE_ESP32C6_MACHINE MACHINE_TYPE_NAME("esp32c6")
+@@ -142,6 +153,7 @@ static void esp32c6_init_spi_flash(Esp32C6MachineState *ms, BlockBackend *blk)
+     DeviceState *flash_dev = qdev_new(flash_model);
+     qdev_prop_set_drive(flash_dev, "drive", blk);
+     qdev_prop_set_uint8(flash_dev, "cs", 1);
++    qdev_prop_set_bit(flash_dev, "four-bytes-address", true);
+     qdev_realize(flash_dev, spi_bus, &error_fatal);
+     qdev_connect_gpio_out_named(spi_master, SSI_GPIO_CS, 0,
+                                 qdev_get_gpio_in_named(flash_dev, SSI_GPIO_CS, 0));
+@@ -230,6 +242,52 @@ static void esp32c6_load_firmware(MachineState *machine)
+     }
+ }
+ 
++/*
++ * The C6 bootloader calibrates the temperature sensor through the APB
++ * SARADC and spins on APB_SARADC_INT_RAW[31] after starting a one-shot
++ * ADC1 sample.  The real conversion latency is not relevant to firmware
++ * boot, so report the done bit as soon as the start bit is written.
++ */
++static uint64_t esp32c6_saradc_read(void *opaque, hwaddr addr,
++                                     unsigned int size)
++{
++    Esp32C6MachineState *s = opaque;
++    uint32_t value;
++
++    if (addr >= ESP32C6_APB_SARADC_SIZE || (addr & 3)) {
++        return 0;
++    }
++    value = s->saradc_regs[addr / 4];
++    if (addr == 0x44 && (s->saradc_regs[0x20 / 4] & (1u << 31))) {
++        value |= 1u << 31;
++    }
++    return value;
++}
++
++static void esp32c6_saradc_write(void *opaque, hwaddr addr,
++                                 uint64_t value, unsigned int size)
++{
++    Esp32C6MachineState *s = opaque;
++
++    if (addr >= ESP32C6_APB_SARADC_SIZE || (addr & 3)) {
++        return;
++    }
++    if (addr == 0x44) {
++        s->saradc_regs[addr / 4] &= ~(uint32_t)value;
++        return;
++    }
++    s->saradc_regs[addr / 4] = (uint32_t)value;
++    if (addr == 0x20 && (value & (1u << 31))) {
++        s->saradc_regs[0x44 / 4] |= 1u << 31;
++    }
++}
++
++static const MemoryRegionOps esp32c6_saradc_ops = {
++    .read = esp32c6_saradc_read,
++    .write = esp32c6_saradc_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++};
++
+ static void esp32c6_machine_init(MachineState *machine)
+ {
+     BlockBackend *blk = NULL;
+@@ -355,6 +413,22 @@ static void esp32c6_machine_init(MachineState *machine)
+         }
+     }
+ 
++    /* HP SPI2: display bus on Nesso N1. */
++    {
++        ms->spi2 = qdev_new(TYPE_ESP32C3_SPI);
++        qdev_prop_set_bit(ms->spi2, "m5-spi2", true);
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(ms->spi2), &error_fatal);
++        MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(ms->spi2), 0);
++        memory_region_add_subregion_overlap(sys_mem, 0x60081000, mr, 0);
++
++        DeviceState *panel = qdev_new(TYPE_ESP32C6_NESSO_PANEL);
++        object_property_add_child(qdev_get_machine(), "nesso-panel",
++                                  OBJECT(panel));
++        qdev_realize(panel, NULL, &error_fatal);
++        esp32c3_spi_set_m5_sink(ms->spi2, panel,
++                                esp32c6_nesso_panel_write);
++    }
++
+     /* UARTs */
+     for (int i = 0; i < ESP32C6_UART_COUNT; ++i) {
+         const hwaddr uart_base[] = { DR_REG_UART_BASE, DR_REG_UART1_BASE };
+@@ -372,6 +446,51 @@ static void esp32c6_machine_init(MachineState *machine)
+         memory_region_add_subregion_overlap(sys_mem, DR_REG_GPIO_BASE, mr, 0);
+     }
+ 
++    /*
++     * ESP32-C6 HP I2C0.  Nesso N1 exposes its PI4IOE expanders and FT5x06
++     * touch controller through this bus.  The same bus is also attached to
++     * the software-I2C bridge used by M5GFX's pre-board-detect probe.
++     */
++    {
++        ms->i2c0 = qdev_new(TYPE_ESP32_I2C);
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(ms->i2c0), &error_fatal);
++        MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(ms->i2c0), 0);
++        memory_region_add_subregion_overlap(sys_mem, DR_REG_I2C_EXT_BASE, mr, 0);
++        sysbus_connect_irq(SYS_BUS_DEVICE(ms->i2c0), 0,
++                           qdev_get_gpio_in(intmatrix_dev,
++                                            C6_ETS_I2C_EXT0_INTR_SOURCE));
++
++        I2CBus *i2c_bus = (I2CBus *)qdev_get_child_bus(ms->i2c0, "i2c");
++        static const struct {
++            const char *name;
++            const char *model;
++            uint8_t address;
++        } board_i2c_devs[] = {
++            { "nesso-pi4ioe1", "pi4ioe", 0x43 },
++            { "nesso-pi4ioe2", "pi4ioe", 0x44 },
++            { "nesso-ft5x06", "ft5x06", 0x38 },
++            { "nesso-bmi270", "bmi270", 0x68 },
++        };
++        for (int i = 0; i < ARRAY_SIZE(board_i2c_devs); i++) {
++            DeviceState *dev = qdev_new(TYPE_ESP32C6_BOARD_I2C_DEV);
++            qdev_prop_set_string(dev, "model", board_i2c_devs[i].model);
++            qdev_prop_set_uint8(dev, "address", board_i2c_devs[i].address);
++            object_property_add_child(qdev_get_machine(), board_i2c_devs[i].name,
++                                      OBJECT(dev));
++            qdev_realize_and_unref(dev, (BusState *)i2c_bus, &error_fatal);
++        }
++        esp32c6_soft_i2c_init_pins(i2c_bus, 10, 8);
++    }
++
++    /*
++     * Nesso N1 strap topology seen by M5GFX: GPIO18 is tied low and the
++     * SYS I2C pads are pulled high.  The touch controller owns GPIO3.
++     */
++    esp32_gpio_set_input(18, 0);
++    esp32_gpio_set_input(8, 1);
++    esp32_gpio_set_input(10, 1);
++    esp32_gpio_force_line(3, 1);
++
+     /* Cache (EXTMEM) */
+     {
+         if (blk) {
+@@ -427,6 +546,16 @@ static void esp32c6_machine_init(MachineState *machine)
+         memory_region_add_subregion_overlap(sys_mem, ESP32C6_I2C_ANA_MST_BASE, mr, 0);
+     }
+ 
++    /* APB SARADC: bootloader temperature-sensor calibration handshake. */
++    {
++        memory_region_init_io(&ms->saradc_iomem, OBJECT(machine),
++                              &esp32c6_saradc_ops, ms,
++                              "esp32c6.apb_saradc",
++                              ESP32C6_APB_SARADC_SIZE);
++        memory_region_add_subregion_overlap(sys_mem, ESP32C6_APB_SARADC_BASE,
++                                            &ms->saradc_iomem, 0);
++    }
++
+     /* GDMA */
+     {
+         object_property_set_link(OBJECT(&ms->gdma), "soc_mr", OBJECT(dram), &error_abort);
+diff --git a/hw/riscv/esp32c6_intmatrix.c b/hw/riscv/esp32c6_intmatrix.c
+index 74c36a9..bcff67a 100644
+--- a/hw/riscv/esp32c6_intmatrix.c
++++ b/hw/riscv/esp32c6_intmatrix.c
+@@ -70,6 +70,19 @@ static bool line_should_assert(ESP32C6IntMatrixState *s, int line)
+            (s->irq_prio[line] >= s->irq_thres);
+ }
+ 
++static void trace_irq_line(ESP32C6IntMatrixState *s, int line)
++{
++    if (!getenv("M5SW_C6_IRQ_TRACE")) {
++        return;
++    }
++    for (int i = 0; i < ESP32C6_INT_MATRIX_INPUTS; i++) {
++        if (s->irq_map[i] == line && LEVELS_SET(s->irq_levels, i)) {
++            fprintf(stderr, "[c6-irq] line=%d source=%d\n", line, i);
++            return;
++        }
++    }
++}
++
+ static void update_line(ESP32C6IntMatrixState *s, int line)
+ {
+     if (line == 0) {
+@@ -77,6 +90,7 @@ static void update_line(ESP32C6IntMatrixState *s, int line)
+     }
+ 
+     if (line_should_assert(s, line)) {
++        trace_irq_line(s, line);
+         qemu_irq_raise(s->out_irqs[line]);
+     } else {
+         qemu_irq_lower(s->out_irqs[line]);
+diff --git a/hw/ssi/esp32c3_spi.c b/hw/ssi/esp32c3_spi.c
+index e8bd33a..6d9c661 100644
+--- a/hw/ssi/esp32c3_spi.c
++++ b/hw/ssi/esp32c3_spi.c
+@@ -19,6 +19,7 @@
+ #include "hw/qdev-properties.h"
+ #include "hw/ssi/ssi.h"
+ #include "hw/ssi/esp32c3_spi.h"
++#include "hw/gpio/esp32_gpio.h"
+ #include "qemu/error-report.h"
+ 
+ #define SPI1_DEBUG      0
+@@ -48,6 +49,8 @@ typedef struct ESP32C3SpiTransaction {
+ 
+     uint32_t addr;
+     uint32_t addr_bytes;
++    uint8_t mode_byte;
++    bool has_mode_byte;
+ 
+     uint32_t dummy_bytes;
+ 
+@@ -76,22 +79,26 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+             r = s->mem_ctrl1;
+             break;
+         case A_SPI_MEM_CTRL2:
++            if (s->m5_spi2) {
++                r = s->mem_user;
++                break;
++            }
+             r = s->mem_ctrl2;
+             break;
+         case A_SPI_MEM_CLOCK:
+-            r = s->mem_clock;
++            r = s->m5_spi2 ? s->mem_user1 : s->mem_clock;
+             break;
+         case A_SPI_MEM_USER:
+             r = s->mem_user;
+             break;
+         case A_SPI_MEM_USER1:
+-            r = s->mem_user1;
++            r = s->m5_spi2 ? s->mem_mosi_len : s->mem_user1;
+             break;
+         case A_SPI_MEM_USER2:
+             r = s->mem_user2;
+             break;
+         case A_SPI_MEM_MISO_DLEN:
+-            r = s->mem_miso_len;
++            r = s->m5_spi2 ? s->mem_mosi_len : s->mem_miso_len;
+             break;
+         case A_SPI_MEM_MOSI_DLEN:
+             r = s->mem_mosi_len;
+@@ -101,6 +108,15 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+             break;
+         case A_SPI_MEM_W0...A_SPI_MEM_W15:
+             r = s->data_reg[(addr - A_SPI_MEM_W0) / sizeof(uint32_t)];
++            /*
++             * Nesso N1's ST7789 returns 0x00000081 for the RDDID
++             * transaction used by M5GFX's autodetect.  The generic SPI
++             * model has no panel attached, so provide that one-board ID
++             * explicitly for the C6 display port.
++             */
++            if (s->m5_spi2 && addr == A_SPI_MEM_W0) {
++                r = 0x00000081;
++            }
+             break;
+         case A_SPI_MEM_SUS_STATUS:
+             r = s->mem_sus_st;
+@@ -112,6 +128,24 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+             break;
+     }
+ 
++    /*
++     * The M5GFX SPI driver uses the plain SPI_W0..W15 register window at
++     * 0x98 on the C6 HP SPI2 port, while the flash-facing SPI_MEM window
++     * lives at 0x58.  Aliasing the data window for the board display port
++     * lets the generic bus return the ST7789 RDDID value and pixel FIFO.
++     */
++    if (s->m5_spi2 && addr >= 0x98 && addr < 0xd8) {
++        r = s->data_reg[(addr - 0x98) / sizeof(uint32_t)];
++        if (addr == 0x98) {
++            r = 0x00000081;
++        }
++    }
++
++    if (s->m5_spi2 && getenv("M5SW_C6_SPI2_TRACE")) {
++        fprintf(stderr, "[c6-spi2] rd 0x%03" HWADDR_PRIx " = 0x%08" PRIx64 "\n",
++                addr, r);
++    }
++
+ #if SPI1_DEBUG
+     info_report("[SPI1] Reading 0x%lx (0x%lx)", addr, r);
+ #endif
+@@ -127,11 +161,11 @@ static void esp32c3_spi_txrx_buffer(ESP32C3SpiState *s,
+     int bytes = MAX(tx_bytes, rx_bytes);
+     for (int i = 0; i < bytes; ++i) {
+         uint8_t byte = 0;
+-        if (byte < tx_bytes) {
++        if (i < tx_bytes) {
+             memcpy(&byte, tx + i, 1);
+         }
+         uint32_t res = ssi_transfer(s->spi, byte);
+-        if (byte < rx_bytes) {
++        if (i < rx_bytes) {
+             memcpy(rx + i, &res, 1);
+         }
+     }
+@@ -157,8 +191,24 @@ static void esp32c3_spi_perform_transaction(ESP32C3SpiState *s, ESP32C3SpiTransa
+     qemu_set_irq(s->cs_gpio[0], 0);
+     esp32c3_spi_txrx_buffer(s, &t->cmd, t->cmd_bytes, NULL, 0);
+     esp32c3_spi_txrx_buffer(s, &t->addr, t->addr_bytes, NULL, 0);
++    if (t->has_mode_byte) {
++        esp32c3_spi_txrx_buffer(s, &t->mode_byte, 1, NULL, 0);
++    }
+     esp32c3_spi_dummy_cycles(s, t->dummy_bytes);
+     esp32c3_spi_txrx_buffer(s, t->data, t->tx_bytes, t->data, t->rx_bytes);
++    if (s->m5_sink && t->tx_bytes) {
++        s->m5_sink(s->m5_sink_opaque, t->data, t->tx_bytes,
++                   !esp32_gpio_get_line(16));
++    }
++    if (getenv("M5SW_SPI_DATA_TRACE") && t->rx_bytes) {
++        const uint8_t *p = t->data;
++        fprintf(stderr, "[c6-spi] data cmd=0x%02x addr=0x%08x:",
++                t->cmd, t->addr);
++        for (unsigned i = 0; i < MIN(t->rx_bytes, 16u); i++) {
++            fprintf(stderr, " %02x", p[i]);
++        }
++        fprintf(stderr, "\n");
++    }
+     qemu_set_irq(s->cs_gpio[0], 1);
+ }
+ 
+@@ -228,6 +278,34 @@ static void esp32c3_spi_begin_transaction(ESP32C3SpiState *s)
+         }
+     }
+ 
++    /*
++     * C6's FREAD_DIO/FREAD_QIO path uses four address bytes followed by a
++     * mode byte.  The generic SPI helper only models the address phase, so
++     * append the mode byte explicitly when the controller omitted USR_DUMMY.
++     */
++    if ((t.cmd == 0xbb || t.cmd == 0xeb) && t.dummy_bytes == 0) {
++        t.mode_byte = 0;
++        t.has_mode_byte = true;
++    }
++
++    if (s->m5_spi2 && getenv("M5SW_C6_SPI2_TRACE")) {
++        fprintf(stderr,
++                "[c6-spi2-xfer] cmd=0x%02x addr_bytes=%u tx=%u rx=%u "
++                "user=0x%08x first=%02x dc=%d\n",
++                t.cmd, t.addr_bytes, t.tx_bytes, t.rx_bytes, s->mem_user,
++                t.tx_bytes ? ((uint8_t *)t.data)[0] : 0,
++                esp32_gpio_get_line(16));
++    }
++
++    if (getenv("M5SW_SPI_TRACE")) {
++        fprintf(stderr,
++                "[c6-spi] tx cmd=0x%02x cmd_bytes=%u addr=0x%08x "
++                "addr_bytes=%u dummy=%u tx=%u rx=%u usr=0x%08x "
++                "mem_addr=0x%08x user1=0x%08x\n",
++                t.cmd, t.cmd_bytes, t.addr, t.addr_bytes, t.dummy_bytes,
++                t.tx_bytes, t.rx_bytes, s->mem_user, s->mem_addr, s->mem_user1);
++    }
++
+     esp32c3_spi_perform_transaction(s, &t);
+ }
+ 
+@@ -329,6 +407,12 @@ static void esp32c3_spi_special_command(ESP32C3SpiState *s, uint32_t command)
+ #endif
+             return;
+     }
++    if (getenv("M5SW_SPI_TRACE")) {
++        fprintf(stderr,
++                "[c6-spi] special=0x%08x cmd=0x%02x addr=0x%08x "
++                "addr_bytes=%u tx=%u rx=%u\n",
++                command, t.cmd, t.addr, t.addr_bytes, t.tx_bytes, t.rx_bytes);
++    }
+     esp32c3_spi_perform_transaction(s, &t);
+ }
+ 
+@@ -339,13 +423,19 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+     ESP32C3SpiState *s = ESP32C3_SPI(opaque);
+     uint32_t wvalue = (uint32_t) value;
+ 
++    if (s->m5_spi2 && getenv("M5SW_C6_SPI2_TRACE")) {
++        fprintf(stderr, "[c6-spi2] wr 0x%03" HWADDR_PRIx " = 0x%08x\n",
++                addr, wvalue);
++    }
++
+ #if SPI1_DEBUG
+     info_report("[SPI1] Writing 0x%lx = %08lx", addr, value);
+ #endif
+ 
+     switch (addr) {
+         case A_SPI_MEM_CMD:
+-            if(wvalue & R_SPI_MEM_CMD_USR_MASK) {
++            if ((wvalue & R_SPI_MEM_CMD_USR_MASK) ||
++                (s->m5_spi2 && (wvalue & (1u << 24)))) {
+                 esp32c3_spi_begin_transaction(s);
+             } else {
+                 esp32c3_spi_special_command(s, wvalue);
+@@ -361,22 +451,40 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+             s->mem_ctrl1 = wvalue;
+             break;
+         case A_SPI_MEM_CTRL2:
+-            s->mem_ctrl2 = wvalue;
++            if (s->m5_spi2) {
++                s->mem_user = wvalue;
++            } else {
++                s->mem_ctrl2 = wvalue;
++            }
+             break;
+         case A_SPI_MEM_CLOCK:
+-            s->mem_clock = wvalue;
++            if (s->m5_spi2) {
++                s->mem_user1 = wvalue;
++            } else {
++                s->mem_clock = wvalue;
++            }
+             break;
+         case A_SPI_MEM_USER:
+             s->mem_user = wvalue;
+             break;
+         case A_SPI_MEM_USER1:
+-            s->mem_user1 = wvalue;
++            if (s->m5_spi2) {
++                s->mem_mosi_len = wvalue;
++                s->mem_miso_len = wvalue;
++            } else {
++                s->mem_user1 = wvalue;
++            }
+             break;
+         case A_SPI_MEM_USER2:
+             s->mem_user2 = wvalue;
+             break;
+         case A_SPI_MEM_MISO_DLEN:
+-            s->mem_miso_len = wvalue;
++            if (s->m5_spi2) {
++                s->mem_mosi_len = wvalue;
++                s->mem_miso_len = wvalue;
++            } else {
++                s->mem_miso_len = wvalue;
++            }
+             break;
+         case A_SPI_MEM_MOSI_DLEN:
+             s->mem_mosi_len = wvalue;
+@@ -397,6 +505,10 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+             break;
+     }
+ 
++    if (s->m5_spi2 && addr >= 0x98 && addr < 0xd8) {
++        s->data_reg[(addr - 0x98) / sizeof(uint32_t)] = wvalue;
++    }
++
+ }
+ 
+ 
+@@ -453,7 +565,18 @@ static void esp32c3_spi_init(Object *obj)
+     qdev_init_gpio_out_named(DEVICE(s), &s->cs_gpio[0], SSI_GPIO_CS, ESP32C3_SPI_CS_COUNT);
+ }
+ 
++void esp32c3_spi_set_m5_sink(DeviceState *dev, void *opaque,
++                             void (*sink)(void *, const uint8_t *, uint32_t,
++                                          bool))
++{
++    ESP32C3SpiState *s = ESP32C3_SPI(dev);
++
++    s->m5_sink_opaque = opaque;
++    s->m5_sink = sink;
++}
++
+ static Property esp32c3_spi_properties[] = {
++    DEFINE_PROP_BOOL("m5-spi2", ESP32C3SpiState, m5_spi2, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/include/hw/gpio/esp32_gpio.h b/include/hw/gpio/esp32_gpio.h
+index 163b41a..465fd71 100644
+--- a/include/hw/gpio/esp32_gpio.h
++++ b/include/hw/gpio/esp32_gpio.h
+@@ -25,3 +25,10 @@ typedef struct Esp32GpioState {
+ typedef struct Esp32GpioClass {
+     SysBusDeviceClass parent_class;
+ } Esp32GpioClass;
++
++typedef void (*esp32_gpio_out_cb)(void *opaque, int pin, int level);
++void esp32_gpio_set_input(int pin, int level);
++void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque);
++void esp32_gpio_set_open_drain(int pin, bool enable);
++void esp32_gpio_force_line(int pin, int level);
++int esp32_gpio_get_line(int pin);
+diff --git a/include/hw/i2c/esp32_i2c.h b/include/hw/i2c/esp32_i2c.h
+index b17dc75..b12ba7e 100644
+--- a/include/hw/i2c/esp32_i2c.h
++++ b/include/hw/i2c/esp32_i2c.h
+@@ -99,10 +99,11 @@ REG32(I2C_CMD, 0x58);
+ 
+ /* I2C_CMD.OPCODE values */
+ typedef enum {
+-    I2C_OPCODE_RSTART = 0,
++    /* ESP32-C6 uses the same 3-bit field with the C6 opcode values. */
++    I2C_OPCODE_RSTART = 6,
+     I2C_OPCODE_WRITE  = 1,
+-    I2C_OPCODE_READ   = 2,
+-    I2C_OPCODE_STOP   = 3,
++    I2C_OPCODE_READ   = 3,
++    I2C_OPCODE_STOP   = 2,
+     I2C_OPCODE_END    = 4,
+ } i2c_opcode_t;
+ 
+diff --git a/include/hw/misc/esp32c6_board_i2c.h b/include/hw/misc/esp32c6_board_i2c.h
+new file mode 100644
+index 0000000..abba40a
+--- /dev/null
++++ b/include/hw/misc/esp32c6_board_i2c.h
+@@ -0,0 +1,13 @@
++/*
++ * Minimal M5Stack C6 board I2C devices.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#pragma once
++
++#include "hw/i2c/i2c.h"
++
++#define TYPE_ESP32C6_BOARD_I2C_DEV "esp32c6.board-i2c-dev"
++
++void esp32c6_ft_touch_set(int pressed, int x, int y);
++void esp32c6_pi4ioe_button_set(int button, bool pressed);
+diff --git a/include/hw/misc/esp32c6_nesso_panel.h b/include/hw/misc/esp32c6_nesso_panel.h
+new file mode 100644
+index 0000000..5dfe809
+--- /dev/null
++++ b/include/hw/misc/esp32c6_nesso_panel.h
+@@ -0,0 +1,14 @@
++/*
++ * Arduino Nesso N1 ST7789 panel model.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#pragma once
++
++#include "hw/qdev-core.h"
++
++#define TYPE_ESP32C6_NESSO_PANEL "esp32c6.nesso-panel"
++OBJECT_DECLARE_SIMPLE_TYPE(ESP32C6NessoPanelState, ESP32C6_NESSO_PANEL)
++
++void esp32c6_nesso_panel_write(void *opaque, const uint8_t *buf, uint32_t len,
++                               bool command_phase);
+diff --git a/include/hw/misc/esp32c6_reg.h b/include/hw/misc/esp32c6_reg.h
+index 44273a5..d5aa1c1 100644
+--- a/include/hw/misc/esp32c6_reg.h
++++ b/include/hw/misc/esp32c6_reg.h
+@@ -12,6 +12,7 @@
+ /* Peripheral register base addresses (from ESP-IDF soc/esp32c6/register/soc/reg_base.h) */
+ #define DR_REG_UART_BASE                        0x60000000
+ #define DR_REG_UART1_BASE                       0x60001000
++#define DR_REG_I2C_EXT_BASE                     0x60004000
+ #define DR_REG_SPI1_BASE                        0x60003000
+ #define DR_REG_TIMERGROUP0_BASE                 0x60008000
+ #define DR_REG_TIMERGROUP1_BASE                 0x60009000
+@@ -50,6 +51,7 @@
+ #define C6_ETS_GPIO_INTR_SOURCE                 30
+ #define C6_ETS_UART0_INTR_SOURCE                43
+ #define C6_ETS_UART1_INTR_SOURCE                44
++#define C6_ETS_I2C_EXT0_INTR_SOURCE             50
+ #define C6_ETS_USB_SERIAL_JTAG_INTR_SOURCE      48
+ #define C6_ETS_TG0_T0_LEVEL_INTR_SOURCE         51
+ #define C6_ETS_TG0_WDT_LEVEL_INTR_SOURCE        53
+diff --git a/include/hw/misc/esp32c6_soft_i2c.h b/include/hw/misc/esp32c6_soft_i2c.h
+new file mode 100644
+index 0000000..224a6aa
+--- /dev/null
++++ b/include/hw/misc/esp32c6_soft_i2c.h
+@@ -0,0 +1,10 @@
++/*
++ * Software-I2C bridge for ESP32-C6 board probing.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#pragma once
++
++#include "hw/i2c/i2c.h"
++
++void esp32c6_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin);
+diff --git a/include/hw/ssi/esp32c3_spi.h b/include/hw/ssi/esp32c3_spi.h
+index 3a6e666..34d8968 100644
+--- a/include/hw/ssi/esp32c3_spi.h
++++ b/include/hw/ssi/esp32c3_spi.h
+@@ -45,8 +45,16 @@ typedef struct ESP32C3SpiState {
+     uint32_t data_reg[ESP32C3_SPI_BUF_WORDS];
+     uint32_t mem_sus_st;
+     ESP32C3XtsAesState *xts_aes;
++    bool m5_spi2;
++    void *m5_sink_opaque;
++    void (*m5_sink)(void *opaque, const uint8_t *buf, uint32_t len,
++                    bool command_phase);
+ } ESP32C3SpiState;
+ 
++void esp32c3_spi_set_m5_sink(DeviceState *dev, void *opaque,
++                             void (*sink)(void *, const uint8_t *, uint32_t,
++                                          bool));
++
+ 
+ REG32(SPI_MEM_CMD, 0x000)
+     FIELD(SPI_MEM_CMD, FLASH_READ, 31, 1)

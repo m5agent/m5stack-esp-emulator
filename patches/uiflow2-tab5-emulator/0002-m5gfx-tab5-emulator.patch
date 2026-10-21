@@ -1,0 +1,267 @@
+diff --git a/src/M5GFX.cpp b/src/M5GFX.cpp
+index a37aa7e..b4cf2cf 100644
+--- a/src/M5GFX.cpp
++++ b/src/M5GFX.cpp
+@@ -3122,6 +3122,74 @@ The usage of each pin is as follows.
+
+       if (board == 0 || board == board_t::board_M5Tab5 || board == board_t::board_M5Tab5X)
+       {
++#if defined(M5STACK_EMULATOR)
++        if (board == 0) {
++          board = board_t::board_M5Tab5;
++        }
++
++        auto bus_dsi = new Bus_DSI();
++        _bus_last.reset(bus_dsi);
++        auto bus_cfg = bus_dsi->config();
++        bus_cfg.bus_id = 0;
++        bus_cfg.lane_num = 2;
++        bus_cfg.lane_mbps = 900;
++        bus_cfg.ldo_chan_id = 3;
++        bus_cfg.ldo_voltage_mv = 2500;
++        bus_dsi->config(bus_cfg);
++        if (!bus_dsi->init()) {
++          goto init_clear;
++        }
++
++        _touch_last.reset(new Touch_ST7123());
++        auto p = new Panel_ST7121();
++        _panel_last.reset(p);
++        auto det = p->config_detail();
++        det.dpi_freq_mhz = 70;
++        det.hsync_back_porch = 40;
++        det.hsync_pulse_width = 2;
++        det.hsync_front_porch = 40;
++        det.vsync_back_porch = 24;
++        det.vsync_pulse_width = 20;
++        det.vsync_front_porch = 200;
++        p->config_detail(det);
++
++        auto cfg = p->config();
++        cfg.memory_width = 720;
++        cfg.memory_height = 1280;
++        cfg.panel_width = 720;
++        cfg.panel_height = 1280;
++        cfg.readable = true;
++        cfg.rgb_order = true;
++        cfg.bus_shared = false;
++        cfg.offset_x = 0;
++        cfg.offset_y = 0;
++        cfg.offset_rotation = 0;
++        cfg.pin_cs = GPIO_NUM_NC;
++        cfg.pin_rst = GPIO_NUM_NC;
++        p->config(cfg);
++        p->setBus(bus_dsi);
++
++        auto t = _touch_last.get();
++        if (t) {
++          auto tcfg = t->config();
++          tcfg.pin_rst = -1;
++          tcfg.pin_sda = GPIO_NUM_31;
++          tcfg.pin_scl = GPIO_NUM_32;
++          tcfg.pin_int = GPIO_NUM_23;
++          tcfg.freq = 400000;
++          tcfg.x_min = 0;
++          tcfg.x_max = 719;
++          tcfg.y_min = 0;
++          tcfg.y_max = 1279;
++          tcfg.i2c_port = 1;
++          tcfg.bus_shared = false;
++          tcfg.offset_rotation = 0;
++          t->config(tcfg);
++          p->setTouch(t);
++        }
++        _set_pwm_backlight(GPIO_NUM_22, 7, 44100);
++        goto init_clear;
++#else
+         // SDA = GPIO_NUM_31
+         // SCL = GPIO_NUM_32
+         // TP INT = GPIO_NUM_23
+@@ -3358,6 +3426,7 @@ The usage of each pin is as follows.
+         }
+         // ボード不成立時のみここへ来る。プローブに使ったソフトウェアポートを返す
+         probe.release();
++#endif
+       }
+     }
+
+diff --git a/src/lgfx/v1/platforms/esp32p4/Bus_DSI.cpp b/src/lgfx/v1/platforms/esp32p4/Bus_DSI.cpp
+index 7daf8ce..9f1dfa1 100644
+--- a/src/lgfx/v1/platforms/esp32p4/Bus_DSI.cpp
++++ b/src/lgfx/v1/platforms/esp32p4/Bus_DSI.cpp
+@@ -28,6 +28,9 @@ namespace lgfx
+
+   bool Bus_DSI::init(void)
+   {
++#if defined(M5STACK_EMULATOR)
++    return true;
++#else
+     if (_mipi_dsi_bus) {
+       return true;
+     }
+@@ -54,6 +57,7 @@ namespace lgfx
+     }
+     release();
+     return false;
++#endif
+   }
+
+   void Bus_DSI::release(void)
+@@ -74,12 +78,27 @@ namespace lgfx
+
+   bool Bus_DSI::writeParams(uint32_t cmd, const uint8_t* param, size_t param_length)
+   {
++#if defined(M5STACK_EMULATOR)
++    (void)cmd;
++    (void)param;
++    (void)param_length;
++    return true;
++#else
+     return (_io_dbi != nullptr) && (ESP_OK == esp_lcd_panel_io_tx_param(_io_dbi, cmd, param, param_length));
++#endif
+   }
+
+   bool Bus_DSI::readParams(uint32_t cmd, uint8_t* param, size_t param_length)
+   {
++#if defined(M5STACK_EMULATOR)
++    (void)cmd;
++    if (param && param_length) {
++      memset(param, 0, param_length);
++    }
++    return true;
++#else
+     return (_io_dbi != nullptr) && (ESP_OK == esp_lcd_panel_io_rx_param(_io_dbi, cmd, param, param_length));
++#endif
+   }
+
+ //----------------------------------------------------------------------------
+diff --git a/src/lgfx/v1/platforms/esp32p4/Panel_DSI.cpp b/src/lgfx/v1/platforms/esp32p4/Panel_DSI.cpp
+index 58ce42d..b1188f0 100644
+--- a/src/lgfx/v1/platforms/esp32p4/Panel_DSI.cpp
++++ b/src/lgfx/v1/platforms/esp32p4/Panel_DSI.cpp
+@@ -24,6 +24,9 @@ Contributors:
+
+ #include <esp_lcd_panel_ops.h>
+ #include <esp_lcd_panel_io.h>
++#if defined(M5STACK_EMULATOR)
++ #include <esp_heap_caps.h>
++#endif
+ #if __has_include(<esp_idf_version.h>)
+  #include <esp_idf_version.h>
+ #endif
+@@ -33,6 +36,14 @@ namespace lgfx
+  inline namespace v1
+  {
+ //----------------------------------------------------------------------------
++#if defined(M5STACK_EMULATOR)
++  extern "C" {
++  extern uint8_t* m5_emu_framebuffer;
++  extern uint32_t m5_emu_framebuffer_width;
++  extern uint32_t m5_emu_framebuffer_height;
++  }
++#endif
++
+   bool Panel_DSI::init_panel(void)
+   {
+     auto bus = getBusDSI();
+@@ -128,6 +139,23 @@ namespace lgfx
+       return false;
+     }
+
++#if defined(M5STACK_EMULATOR)
++    const size_t framebuffer_bytes =
++      static_cast<size_t>(_cfg.panel_width) * _cfg.panel_height * sizeof(uint16_t);
++    if (m5_emu_framebuffer == nullptr)
++    {
++      m5_emu_framebuffer = static_cast<uint8_t*>(
++        heap_caps_aligned_alloc(64, framebuffer_bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
++    }
++    if (m5_emu_framebuffer == nullptr)
++    {
++      return false;
++    }
++    memset(m5_emu_framebuffer, 0, framebuffer_bytes);
++    _config_detail.buffer = m5_emu_framebuffer;
++    m5_emu_framebuffer_width = _cfg.panel_width;
++    m5_emu_framebuffer_height = _cfg.panel_height;
++#else
+     auto bus = getBusDSI();
+     if (bus == nullptr) { return false; }
+     const size_t reset_delay = getResetDelayBeforeDpi();
+@@ -143,9 +171,8 @@ namespace lgfx
+         esp_lcd_dpi_panel_get_frame_buffer(_disp_panel_handle, 1, &(_config_detail.buffer));
+     }
+
+-    auto ptr = (uint8_t*)_config_detail.buffer;
+-// printf ("ptr : %08x \n", (uintptr_t)ptr);
+-    if (ptr == nullptr) { return false; }
++    if (_config_detail.buffer == nullptr) { return false; }
++#endif
+
+
+ //--------------------------------------------------------------------------------
+@@ -163,6 +190,7 @@ namespace lgfx
+
+     _lines_buffer = lineArray;
+
++    auto ptr = static_cast<uint8_t*>(_config_detail.buffer);
+     for (int y = 0; y < height; y ++)
+     {
+       lineArray[y] = ptr;
+diff --git a/src/lgfx/v1/platforms/esp32p4/Touch_ST7123.cpp b/src/lgfx/v1/platforms/esp32p4/Touch_ST7123.cpp
+index db04069..e931d5a 100644
+--- a/src/lgfx/v1/platforms/esp32p4/Touch_ST7123.cpp
++++ b/src/lgfx/v1/platforms/esp32p4/Touch_ST7123.cpp
+@@ -25,6 +25,11 @@ namespace lgfx
+  inline namespace v1
+  {
+ //----------------------------------------------------------------------------
++#if defined(M5STACK_EMULATOR)
++  extern "C" {
++  extern volatile uint32_t m5_emu_touch_state[8];
++  }
++#endif
+
+   static constexpr uint16_t ST7123_FW_VERSION_REG     = 0x0000;
+   static constexpr uint16_t ST7123_FW_REVISION_REG    = 0x000C;
+@@ -76,6 +81,10 @@ namespace lgfx
+   {
+     if (_inited) return true;
+
++#if defined(M5STACK_EMULATOR)
++    _inited = true;
++    return true;
++#else
+     if (isSPI()) return false;
+
+     if (_cfg.pin_rst >= 0)
+@@ -101,10 +110,21 @@ namespace lgfx
+       }
+     }
+     return false;
++#endif
+   }
+
+   uint_fast8_t Touch_ST7123::getTouchRaw(touch_point_t *tp, uint_fast8_t count)
+   {
++#if defined(M5STACK_EMULATOR)
++    if (tp == nullptr || count == 0 || m5_emu_touch_state[0] == 0) {
++      return 0;
++    }
++    tp[0].id = m5_emu_touch_state[3];
++    tp[0].x = m5_emu_touch_state[1];
++    tp[0].y = m5_emu_touch_state[2];
++    tp[0].size = m5_emu_touch_state[4];
++    return 1;
++#else
+     struct touch_report_t {
+         uint8_t x_h: 6;
+         uint8_t reserved_6: 1;
+@@ -151,6 +171,7 @@ namespace lgfx
+ // printf("count:%d\n", valid_count);
+
+     return valid_count;
++#endif
+   }
+
+ //----------------------------------------------------------------------------

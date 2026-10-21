@@ -1,0 +1,92 @@
+{
+  "id": "stopwatch",
+  "name": "StopWatch",
+  "sku": "C152",
+  "group": "esp32-s3",
+  "category": "wearable",
+  "hardware": {
+    "soc": "ESP32-S3R8",
+    "architecture": "xtensa-lx7",
+    "flash_bytes": 16777216,
+    "psram_bytes": 8388608,
+    "display": {
+      "type": "amoled",
+      "width": 466,
+      "height": 466,
+      "shape": "circle",
+      "driver": "CO5300",
+      "touch": true,
+      "diagonal_in": 1.75
+    },
+    "controls": [
+      {
+        "id": "a",
+        "type": "button",
+        "label": "A"
+      },
+      {
+        "id": "b",
+        "type": "button",
+        "label": "B"
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "PWR"
+      },
+      {
+        "id": "touch",
+        "type": "touch",
+        "label": "Touch"
+      }
+    ],
+    "sensors": [
+      "imu:bmi270",
+      "rtc:rx8130ce",
+      "audio:es8311",
+      "microphone",
+      "speaker",
+      "vibration",
+      "battery"
+    ],
+    "dimensions_mm": [
+      52.0,
+      52.0,
+      15.5
+    ],
+    "weight_g": 39.0
+  },
+  "shell": {
+    "preset": "watch-round",
+    "accent": "#e6b800",
+    "screen_scale": 0.76,
+    "body_theme": "graphite",
+    "reference_image": "/platform/web/assets/reference-cutout/stopwatch.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "reference-ready",
+    "display_protocol": "qspi-co5300",
+    "execution": "native-qemu",
+    "page": "/devices/esp32-s3/stopwatch/web/index.html",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "uiflow2-ui-touch-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 466x466 圆屏 UI，QMP 触摸后画面重绘；统一矩阵与 StopWatch 专项测试均通过。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": true,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000002172",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002172/2098280916376047618/bin/2098280916376047619.bin"
+    }
+  },
+  "group_label": "ESP32-S3",
+  "path": "devices/esp32-s3/stopwatch",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

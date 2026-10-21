@@ -1,0 +1,417 @@
+diff --git a/m5stack/CMakeListsLvgl.cmake b/m5stack/CMakeListsLvgl.cmake
+index 91d81179..6e0fcce1 100644
+--- a/m5stack/CMakeListsLvgl.cmake
++++ b/m5stack/CMakeListsLvgl.cmake
+@@ -12,6 +12,24 @@ if(NOT MICROPY_PORT_DIR)
+     get_filename_component(MICROPY_PORT_DIR ${MICROPY_DIR}/ports/esp32 ABSOLUTE)
+ endif()
+
++# RISC-V-specific GC helper implementation.
++if(CONFIG_IDF_TARGET_ARCH_RISCV)
++    list(APPEND MICROPY_SOURCE_LIB
++        ${MICROPY_DIR}/shared/runtime/gchelper_native.c
++        ${MICROPY_DIR}/shared/runtime/gchelper_rv32i.s
++    )
++endif()
++
++if(NOT DEFINED MICROPY_PY_TINYUSB)
++    if(CONFIG_IDF_TARGET_ESP32S2 OR CONFIG_IDF_TARGET_ESP32S3 OR CONFIG_IDF_TARGET_ESP32P4)
++        set(MICROPY_PY_TINYUSB ON)
++    endif()
++endif()
++
++if(NOT MICROPY_ROM_TEXT_COMPRESSION)
++    set(MICROPY_ROM_TEXT_COMPRESSION ON)
++endif()
++
+ # Include core source components.
+ include(${MICROPY_DIR}/py/py.cmake)
+
+@@ -58,6 +76,9 @@ list(APPEND MICROPY_SOURCE_DRIVERS
+ )
+
+ string(CONCAT GIT_SUBMODULES "${GIT_SUBMODULES} " lib/tinyusb)
++list(APPEND MICROPY_INC_TINYUSB
++    ${MICROPY_DIR}/shared/tinyusb/
++)
+ if(MICROPY_PY_TINYUSB)
+     set(TINYUSB_SRC "${MICROPY_DIR}/lib/tinyusb/src")
+     string(TOUPPER OPT_MCU_${IDF_TARGET} tusb_mcu)
+@@ -81,14 +102,26 @@ if(MICROPY_PY_TINYUSB)
+
+     list(APPEND MICROPY_INC_TINYUSB
+         ${TINYUSB_SRC}
+-        ${MICROPY_DIR}/shared/tinyusb/
+     )
+
+     list(APPEND MICROPY_LINK_TINYUSB
+         -Wl,--wrap=dcd_event_handler
+     )
++
++    # Build the Espressif tinyusb component with MicroPython's tusb_config.h.
++    idf_component_get_property(tusb_lib espressif__tinyusb COMPONENT_LIB)
++    target_include_directories(${tusb_lib} PRIVATE
++        ${MICROPY_DIR}/shared/tinyusb
++        ${MICROPY_DIR}
++        ${MICROPY_PORT_DIR}
++        ${MICROPY_BOARD_DIR})
+ endif()
+
++# TinyUSB may also be pulled in by board components (for example ESP-Hosted
++# Bluetooth) even when MicroPython's TinyUSB module is disabled. Its
++# tusb_config.h still comes from the MicroPython shared port.
++idf_build_set_property(INCLUDE_DIRS "${MICROPY_DIR}/shared/tinyusb" APPEND)
++
+ list(APPEND MICROPY_SOURCE_PORT
+     ${PROJECT_DIR}/board.cpp
+     ${PROJECT_DIR}/../micropython/ports/esp32/panichandler.c
+@@ -126,6 +159,8 @@ list(APPEND MICROPY_SOURCE_PORT
+     ${PROJECT_DIR}/machine_rtc.c
+     # ${PROJECT_DIR}/../micropython/ports/esp32/machine_sdcard.c
+     ${PROJECT_DIR}/../micropython/ports/esp32/modespnow.c
++    ${PROJECT_DIR}/../micropython/ports/esp32/esp32_pcnt.c
++    ${PROJECT_DIR}/_vfs_stream.c
+ )
+
+ if (
+@@ -152,9 +187,9 @@ endif()
+ # list(TRANSFORM MICROPY_SOURCE_PORT PREPEND ${MICROPY_PORT_DIR}/)
+ list(APPEND MICROPY_SOURCE_PORT ${CMAKE_BINARY_DIR}/pins.c)
+
+-# Include LVGL bindings rules
+-if(NOT CMAKE_BUILD_EARLY_EXPANSION)
+-    include(${PROJECT_DIR}/components/lv_bindings/mkrules.cmake)
++# Include LVGL bindings rules only when the Python LVGL module is enabled.
++if(NOT CMAKE_BUILD_EARLY_EXPANSION AND MICROPY_PY_LVGL)
++    include(${PROJECT_DIR}/cmodules/lv_binding_micropython/mkrules.cmake)
+ endif()
+
+ set(MICROPY_SOURCE_M5UNIFIED
+@@ -310,7 +345,7 @@ target_compile_definitions(${MICROPY_TARGET} PUBLIC
+     LFS2_NO_MALLOC LFS2_NO_DEBUG LFS2_NO_WARN LFS2_NO_ERROR LFS2_NO_ASSERT
+     BOARD_ID=${BOARD_ID}
+     LV_KCONFIG_IGNORE
+-    MICROPY_PY_LVGL=1
++    MICROPY_PY_LVGL=${MICROPY_PY_LVGL}
+ )
+
+ # Disable some warnings to keep the build output clean.
+@@ -330,7 +365,7 @@ target_include_directories(${MICROPY_TARGET} PUBLIC
+ )
+
+ # Add additional extmod and usermod components.
+-target_link_libraries(${MICROPY_TARGET} micropy_extmod_btree)
++target_link_libraries(${MICROPY_TARGET} $<TARGET_OBJECTS:micropy_extmod_btree>)
+ target_link_libraries(${MICROPY_TARGET} usermod)
+
+ # Collect all of the include directories and compile definitions for the IDF components,
+@@ -370,5 +405,6 @@ add_custom_command(
+     COMMAND_EXPAND_LISTS
+ )
+
+-# Add lv_bindings rules
+-all_lv_bindings()
++if(MICROPY_PY_LVGL)
++    all_lv_bindings()
++endif()
+diff --git a/m5stack/board.cpp b/m5stack/board.cpp
+index 1d3f855d..72719ce3 100644
+--- a/m5stack/board.cpp
++++ b/m5stack/board.cpp
+@@ -104,6 +104,9 @@ extern "C" {
+
+     void board_init()
+     {
++#if defined(M5STACK_EMULATOR)
++        ESP_LOGI("TAB5_EMU", "board_init: M5.begin start");
++#endif
+         auto cfg = M5.config();
+         cfg.output_power = false;
+         // Refresh display
+@@ -111,9 +114,18 @@ extern "C" {
+         cfg.clear_display = false;
+ #endif
+         M5.begin(cfg);
++#if defined(M5STACK_EMULATOR)
++        ESP_LOGI("TAB5_EMU", "board_init: M5.begin done board=%d", (int)M5.getBoard());
++#endif
+         if (M5.getBoard() != m5::board_t::board_M5ToughC5) {
+             M5.In_I2C.release();
++#if defined(M5STACK_EMULATOR)
++            ESP_LOGI("TAB5_EMU", "board_init: I2C release done");
++#endif
+             in_i2c_init();
++#if defined(M5STACK_EMULATOR)
++            ESP_LOGI("TAB5_EMU", "board_init: I2C init done");
++#endif
+         }
+     }
+
+diff --git a/m5stack/boards/M5STACK_Tab5/mpconfigboard.cmake b/m5stack/boards/M5STACK_Tab5/mpconfigboard.cmake
+index 3c3b33c7..6771deff 100644
+--- a/m5stack/boards/M5STACK_Tab5/mpconfigboard.cmake
++++ b/m5stack/boards/M5STACK_Tab5/mpconfigboard.cmake
+@@ -7,7 +7,20 @@ set(WEB_REPL_ENABLE 1)
+
+ # https://github.com/m5stack/m5stack-board-id/blob/main/board.csv#L12
+ set(BOARD_ID 22)
+-set(MICROPY_PY_LVGL 1)
++if(M5STACK_EMULATOR)
++    # Headless virtual hosts only need the native M5GFX/UIFlow UI path.
++    # Keep LVGL out of this test build until its P4 bindings are stable.
++    set(MICROPY_PY_LVGL 0)
++else()
++    set(MICROPY_PY_LVGL 1)
++endif()
++set(MICROPY_PY_TINYUSB ON)
++if(M5STACK_EMULATOR)
++    # The display emulator build does not exercise the physical USB device
++    # stack. Avoid linking MicroPython and ESP-IDF TinyUSB implementations
++    # together while retaining the production Tab5 USB configuration.
++    set(MICROPY_PY_TINYUSB OFF)
++endif()
+
+ # Font Support
+ set(FONT_MONTSERRAT_12 1)
+@@ -29,13 +42,19 @@ set(FONT_ALIBABASANS_KR24 1)
+ # Enable camera module
+ # set(M5_CAMERA_MODULE_ENABLE TRUE)
+
++if(M5STACK_EMULATOR)
++    set(TAB5_FLASH_CONFIG boards/sdkconfig.flash_16mb_emulator)
++else()
++    set(TAB5_FLASH_CONFIG boards/sdkconfig.flash_16mb_omv)
++endif()
++
+ set(SDKCONFIG_DEFAULTS
+     boards/sdkconfig.base
+     boards/sdkconfig.p4
+     boards/M5STACK_Tab5/sdkconfig.p4
+     boards/sdkconfig.p4_wifi_common
+     boards/sdkconfig.p4_wifi_c6
+-    boards/sdkconfig.flash_16mb_omv
++    ${TAB5_FLASH_CONFIG}
+     boards/sdkconfig.flash_qio
+     boards/sdkconfig.freertos
+     boards/sdkconfig.spiram_hex
+@@ -48,6 +67,13 @@ list(APPEND MICROPY_DEF_BOARD
+     MICROPY_PY_NETWORK_WLAN=1
+     MICROPY_PY_BLUETOOTH=1
+ )
++if(M5STACK_EMULATOR)
++    list(APPEND MICROPY_DEF_BOARD
++        M5STACK_EMULATOR=1
++        MICROPY_HW_ENABLE_USBDEV=0
++        MICROPY_HW_ENABLE_USB_RUNTIME_DEVICE=0
++    )
++endif()
+
+ # If not enable LVGL, ignore this...
+ set(LV_CFLAGS
+diff --git a/m5stack/boards/M5STACK_Tab5/mpconfigboard.h b/m5stack/boards/M5STACK_Tab5/mpconfigboard.h
+index bce4e873..c21d81b5 100644
+--- a/m5stack/boards/M5STACK_Tab5/mpconfigboard.h
++++ b/m5stack/boards/M5STACK_Tab5/mpconfigboard.h
+@@ -9,6 +9,10 @@
+ #define MICROPY_HW_MCU_NAME "ESP32P4"
+ #endif
+
++#if defined(M5STACK_EMULATOR)
++#define MICROPY_HW_ENABLE_UART_REPL (1)
++#endif
++
+ #define MICROPY_HW_USB_VID 0x303A
+ #define MICROPY_HW_USB_PID 0x817A
+ #define MICROPY_HW_USB_MANUFACTURER_STRING "M5Stack"
+diff --git a/m5stack/components/M5Unified/CMakeLists.txt b/m5stack/components/M5Unified/CMakeLists.txt
+index c53f1e68..7bac2ee1 100644
+--- a/m5stack/components/M5Unified/CMakeLists.txt
++++ b/m5stack/components/M5Unified/CMakeLists.txt
+@@ -50,8 +50,12 @@ endif()
+ register_component()
+ target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format")
+ target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-array-bounds")
++target_include_directories(${COMPONENT_LIB} PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../..")
+ target_compile_definitions(${COMPONENT_LIB} PRIVATE BOARD_ID=${BOARD_ID})
+ target_compile_definitions(${COMPONENT_LIB} PRIVATE M5GFX_BOARD=${BOARD_ID})
++if (M5STACK_EMULATOR)
++    target_compile_definitions(${COMPONENT_LIB} PRIVATE M5STACK_EMULATOR=1)
++endif()
+ if (MONOCHROME_FONT)
+     target_compile_definitions(${COMPONENT_LIB} PRIVATE MONOCHROME_FONT=1)
+ endif()
+diff --git a/m5stack/main.c b/m5stack/main.c
+index 87cb0569..549e5bbd 100644
+--- a/m5stack/main.c
++++ b/m5stack/main.c
+@@ -180,8 +180,18 @@ soft_reset:
+     if (ret & PYEXEC_FORCED_EXIT) {
+         goto soft_reset_exit;
+     }
++#if defined(M5STACK_EMULATOR)
++    printf("TAB5_EMU boot complete, boot_ret=%d\n", ret);
++    fflush(stdout);
++    if (pyexec_mode_kind == PYEXEC_MODE_FRIENDLY_REPL) {
++#else
+     if (pyexec_mode_kind == PYEXEC_MODE_FRIENDLY_REPL && ret != 0 && uiflow_should_run_main()) {
++#endif
+         int ret = pyexec_file_if_exists("main.py");
++#if defined(M5STACK_EMULATOR)
++        printf("TAB5_EMU main returned, main_ret=%d\n", ret);
++        fflush(stdout);
++#endif
+         if (ret & PYEXEC_FORCED_EXIT) {
+             goto soft_reset_exit;
+         }
+@@ -262,6 +272,9 @@ soft_reset_exit:
+ void boardctrl_startup(void) {
+     // Start of modification section, by M5Stack
+     board_init();
++#if defined(M5STACK_EMULATOR)
++    ESP_LOGI("TAB5_EMU", "app_main: board_init complete");
++#endif
+     // End of modification section, by M5Stack
+
+     esp_err_t ret = nvs_flash_init();
+@@ -310,6 +323,9 @@ void MICROPY_ESP_IDF_ENTRY(void) {
+
+     // Create and transfer control to the MicroPython task.
+     xTaskCreatePinnedToCore(mp_task, "mp_task", MICROPY_TASK_STACK_SIZE / sizeof(StackType_t), NULL, MP_TASK_PRIORITY, &mp_main_task_handle, MP_TASK_COREID);
++#if defined(M5STACK_EMULATOR)
++    ESP_LOGI("TAB5_EMU", "app_main: mp_task created");
++#endif
+     // Create m5 task for remote control.
+     xTaskCreatePinnedToCore(m5thing_task, "m5thing_task", 6000, NULL, MP_TASK_PRIORITY + 1, &m5thing_task_handle, MP_TASK_COREID);
+     #if WEB_REPL_ENABLE
+diff --git a/m5stack/modules/_boot.py b/m5stack/modules/_boot.py
+index 48bf7d66..608f8bf4 100644
+--- a/m5stack/modules/_boot.py
++++ b/m5stack/modules/_boot.py
+@@ -23,11 +23,15 @@ del uiflow_str
+ # monut flash file system
+ try:
+     if sys_bdev:
+-        # fs_sys = os.VfsLfs2(sys_bdev, progsize=32, readsize=128, lookahead=128)
+-        vfs.mount(sys_bdev, "/system")
++        fs_sys = os.VfsLfs2(sys_bdev, progsize=32, readsize=128, lookahead=128)
++        vfs.mount(fs_sys, "/system")
++except OSError:
++    pass
++
++try:
+     if vfs_bdev:
+-        # fs_vfs = os.VfsLfs2(vfs_bdev, progsize=32, readsize=128, lookahead=128)
+-        vfs.mount(vfs_bdev, "/flash")
++        fs_vfs = os.VfsLfs2(vfs_bdev, progsize=32, readsize=128, lookahead=128)
++        vfs.mount(fs_vfs, "/flash")
+ except OSError:
+     import inisetup
+
+diff --git a/m5stack/boards/manifest_emulator.py b/m5stack/boards/manifest_emulator.py
+new file mode 100644
+index 00000000..e92ba190
+--- /dev/null
++++ b/m5stack/boards/manifest_emulator.py
+@@ -0,0 +1,5 @@
++# Minimal frozen manifest for the Tab5 virtual-host test build.
++#
++# Boot helpers mount the sys/vfs LittleFS partitions. User test scripts are
++# loaded from the virtual LittleFS VFS rather than frozen into the image.
++include("$(MPY_DIR)/../m5stack/modules/manifest_boot.py")
+diff --git a/m5stack/modules/manifest_boot.py b/m5stack/modules/manifest_boot.py
+new file mode 100644
+index 00000000..666626c8
+--- /dev/null
++++ b/m5stack/modules/manifest_boot.py
+@@ -0,0 +1,8 @@
++# SPDX-FileCopyrightText: 2026 M5Stack Technology CO LTD
++#
++# SPDX-License-Identifier: MIT
++
++module("_boot.py")
++module("flashbdev.py")
++module("inisetup.py")
++freeze("$(MPY_DIR)/../m5stack/modules/emulator_runtime")
+diff --git a/m5stack/modules/emulator_runtime/boot.py b/m5stack/modules/emulator_runtime/boot.py
+new file mode 100644
+index 00000000..3d033e6b
+--- /dev/null
++++ b/m5stack/modules/emulator_runtime/boot.py
+@@ -0,0 +1,4 @@
++# Minimal Tab5 emulator boot marker. The UIFlow main script is loaded from
++# /flash after _boot.py mounts the virtual filesystem.
++_uiflow_run_main = True
++print("TAB5_BOOT_FLAG")
+diff --git a/m5stack/boards/sdkconfig.flash_16mb_emulator b/m5stack/boards/sdkconfig.flash_16mb_emulator
+new file mode 100644
+index 00000000..4e1b6152
+--- /dev/null
++++ b/m5stack/boards/sdkconfig.flash_16mb_emulator
+@@ -0,0 +1,9 @@
++# SPDX-FileCopyrightText: Copyright (c) 2014 Damien P. George
++#
++# SPDX-License-Identifier: MIT
++
++# Emulator-only layout keeps every populated partition below the 8 MiB
++# esp-emu download-mode address limit.
++CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
++CONFIG_PARTITION_TABLE_CUSTOM=y
++CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions_16mb_emulator.csv"
+diff --git a/m5stack/partitions_16mb_emulator.csv b/m5stack/partitions_16mb_emulator.csv
+new file mode 100644
+index 00000000..18ddfc3e
+--- /dev/null
++++ b/m5stack/partitions_16mb_emulator.csv
+@@ -0,0 +1,7 @@
++# Name,   Type, SubType, Offset,  Size, Flags
++nvs,      data, nvs,     0x9000,  0x6000,
++phy_init, data, phy,     0xf000,  0x1000,
++factory,  app,  factory, 0x10000, 0x500000,
++sys,      data, fat,     0x510000, 0x100000,
++vfs,      data, fat,     0x610000, 0x1e0000,
++storage,  data, spiffs,  0x7f0000, 0x10000,
+diff --git a/m5stack/components/M5Unified/emulator_hooks.cpp b/m5stack/components/M5Unified/emulator_hooks.cpp
+new file mode 100644
+index 00000000..64461711
+--- /dev/null
++++ b/m5stack/components/M5Unified/emulator_hooks.cpp
+@@ -0,0 +1,29 @@
++/*
++ * Host-visible display and touch mailbox for the UIFlow2 ESP32-P4
++ * emulator test build.
++ *
++ * The symbols stay in the firmware ELF so a GDB client can read the
++ * framebuffer pointer and inject touch state without modifying the
++ * public USB/esptool download path.
++ */
++#include <stdint.h>
++
++extern "C" {
++
++uint8_t *m5_emu_framebuffer = nullptr;
++uint32_t m5_emu_framebuffer_width = 0;
++uint32_t m5_emu_framebuffer_height = 0;
++
++/*
++ * [0] down, [1] x, [2] y, [3] touch id, [4] pressure, [5] sequence
++ */
++volatile uint32_t m5_emu_touch_state[8] = {};
++
++/*
++ * Tab5 has no wired Ethernet path, but the shared M5Things/WebREPL sources
++ * still reference this symbol. Keep the emulator build linkable without
++ * changing the production network behavior.
++ */
++bool lan_connected = false;
++
++}
+diff --git a/m5stack/main/linker.lf b/m5stack/main/linker.lf
+new file mode 100644
+index 00000000..ad495dc9
+--- /dev/null
++++ b/m5stack/main/linker.lf
+@@ -0,0 +1,4 @@
++# Empty linker fragment for the M5Stack IDF component.
++#
++# The shared IDF build still registers a linker fragment, while the
++# workaround-specific fragment lives in third-party/main/linker.lf.

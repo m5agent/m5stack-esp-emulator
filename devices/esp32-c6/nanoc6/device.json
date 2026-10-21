@@ -1,0 +1,63 @@
+{
+  "id": "nanoc6",
+  "name": "NanoC6",
+  "sku": "C122",
+  "group": "esp32-c6",
+  "category": "nano",
+  "hardware": {
+    "soc": "ESP32-C6FH4",
+    "architecture": "riscv32",
+    "flash_bytes": 4194304,
+    "psram_bytes": null,
+    "display": null,
+    "controls": [
+      {
+        "id": "button",
+        "type": "button",
+        "label": "GPIO9",
+        "gpio": 9
+      }
+    ],
+    "sensors": [
+      "rgb-led",
+      "ir"
+    ],
+    "dimensions_mm": [
+      23.5,
+      12.0,
+      9.5
+    ],
+    "weight_g": 2.7
+  },
+  "shell": {
+    "preset": "console-only",
+    "accent": "#7ce38b",
+    "body_theme": "cyan",
+    "reference_image": "/platform/web/assets/reference-cutout/nanoc6.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "qemu-esp32c6",
+    "chip": "esp32c6",
+    "status": "boot-capable",
+    "display_protocol": "none",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "console-pass",
+      "detail": "官方 UIFlow2 v2.5.3 在 ESP32-C6 QEMU USB-Serial-JTAG 控制台运行替换后的 boot.py/main.py，M5.begin() 返回板型 140；无显示屏。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000001159",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000001159/2098280414426910722/bin/2098280414426910723.bin"
+    }
+  },
+  "group_label": "ESP32-C6",
+  "path": "devices/esp32-c6/nanoc6",
+  "status_label": "boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/外设仍在收口"
+}

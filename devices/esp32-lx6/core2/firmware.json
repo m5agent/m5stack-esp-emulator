@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "device_id": "core2",
+  "uiflow2": {
+    "supported": true,
+    "m5ui": true,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000003470",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000003470/2098280227356758018/bin/2098280227356758019.bin"
+    }
+  },
+  "runtime": {
+    "backend": "qemu-esp32lx6",
+    "chip": "esp32",
+    "status": "reference-ready",
+    "display_protocol": "spi-ili9342",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-21",
+      "status": "display-touch-pass",
+      "detail": "官方 UIFlow2 v2.5.3 完成 320x240 首帧和 FT5x06 触摸重绘；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。测试镜像通过 QEMU ESP32 ROM UART 下载模式和 esptool --no-stub 写入 16 MiB 虚拟 flash，逐字节校验后从同一镜像启动。"
+    }
+  },
+  "cache_path": "platform/.cache/firmware/core2/uiflow2.bin"
+}

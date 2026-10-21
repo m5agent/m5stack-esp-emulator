@@ -1,0 +1,893 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+index 4a7faf2..9da4ec7 100644
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -30,8 +30,11 @@
+ #define GPIO_NPINS 54
+ static uint64_t g_ext_in = ~0ULL;      /* externally driven input levels */
+ static uint32_t g_regs[0x200];         /* 0x000..0x7ff */
++static uint64_t g_open_drain;          /* pins whose output stage is open-drain */
+ static struct { esp32_gpio_out_cb cb; void *opaque; } g_listeners[GPIO_NPINS];
+ 
++static uint64_t gpio_line64(void);
++
+ void esp32_gpio_set_input(int pin, int level)
+ {
+     if (pin < 0 || pin >= GPIO_NPINS) {
+@@ -52,6 +55,26 @@ void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque)
+     }
+ }
+ 
++void esp32_gpio_set_open_drain(int pin, bool enable)
++{
++    if (pin < 0 || pin >= GPIO_NPINS) {
++        return;
++    }
++    if (enable) {
++        g_open_drain |= 1ULL << pin;
++    } else {
++        g_open_drain &= ~(1ULL << pin);
++    }
++}
++
++int esp32_gpio_get_line(int pin)
++{
++    if (pin < 0 || pin >= GPIO_NPINS) {
++        return 1;
++    }
++    return (gpio_line64() >> pin) & 1;
++}
++
+ static uint64_t gpio_out64(void)
+ {
+     return (uint64_t)g_regs[0x04 / 4] | ((uint64_t)g_regs[0x10 / 4] << 32);
+@@ -62,6 +85,29 @@ static uint64_t gpio_en64(void)
+     return (uint64_t)g_regs[0x20 / 4] | ((uint64_t)g_regs[0x2c / 4] << 32);
+ }
+ 
++/*
++ * Effective pin level: driven output when the pin is enabled, otherwise
++ * the board's external pull-up.  Software-I2C listeners need this rather
++ * than the raw OUT register, because switching a pin between output-low
++ * and input is a real bus transition.
++ */
++static uint64_t gpio_line64(void)
++{
++    uint64_t out = gpio_out64();
++    uint64_t en = gpio_en64();
++    uint64_t driven = out & en;
++
++    /*
++     * An open-drain output can only pull low: when its latch is high the
++     * actual line level is determined by the external pull-up/devices.
++     * This is what makes software-I2C acknowledge bits visible to the
++     * master while it is releasing SDA.
++     */
++    return (driven & ~g_open_drain)
++         | ((driven & g_ext_in) & g_open_drain)
++         | (~en & g_ext_in);
++}
++
+ static void gpio_notify(uint64_t before, uint64_t after)
+ {
+     uint64_t diff = before ^ after;
+@@ -77,8 +123,7 @@ static void gpio_notify(uint64_t before, uint64_t after)
+ static uint64_t esp32_gpio_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32GpioState *s = ESP32_GPIO(opaque);
+-    uint64_t en = gpio_en64();
+-    uint64_t in = (gpio_out64() & en) | (g_ext_in & ~en);
++    uint64_t in = gpio_line64();
+     switch (addr) {
+     case A_GPIO_STRAP:
+         return s->strap_mode;
+@@ -100,7 +145,7 @@ static uint64_t esp32_gpio_read(void *opaque, hwaddr addr, unsigned int size)
+ static void esp32_gpio_write(void *opaque, hwaddr addr,
+                        uint64_t value, unsigned int size)
+ {
+-    uint64_t before = gpio_out64();
++    uint64_t before = gpio_line64();
+     switch (addr) {
+     case 0x08: g_regs[0x04 / 4] |= value; break;
+     case 0x0c: g_regs[0x04 / 4] &= ~value; break;
+@@ -122,7 +167,7 @@ static void esp32_gpio_write(void *opaque, hwaddr addr,
+         }
+         break;
+     }
+-    gpio_notify(before, gpio_out64());
++    gpio_notify(before, gpio_line64());
+ }
+ 
+ static const MemoryRegionOps uart_ops = {
+diff --git a/hw/m5stopwatch/co5300.c b/hw/m5stopwatch/co5300.c
+index 1f17ebc..4a3d461 100644
+--- a/hw/m5stopwatch/co5300.c
++++ b/hw/m5stopwatch/co5300.c
+@@ -210,10 +210,23 @@ static void co_update(void *opaque)
+     uint32_t br = s->bright;
+     int vw = want_w, vh = want_h;
+     int x0 = s->full ? 0 : VIS_X0, y0 = s->full ? 0 : VIS_Y0;
++    /*
++     * The CO5300 controller has a square 466x466 framebuffer, but the
++     * StopWatch glass is circular.  Mask the corners in the QEMU console
++     * output so screendumps show the same visible area as the real panel.
++     * The memory dump itself remains untouched.
++     */
++    int cx = vw / 2, cy = vh / 2;
++    int radius2 = (vw / 2) * (vw / 2);
+     for (int y = 0; y < vh; y++) {
+         const uint16_t *src = &s->mem[(y + y0) * MEM_W + x0];
+         uint32_t *d = dst + y * stride;
+         for (int x = 0; x < vw; x++) {
++            int dx = x - cx, dy = y - cy;
++            if (!s->full && dx * dx + dy * dy > radius2) {
++                d[x] = 0xff000000u;
++                continue;
++            }
+             uint16_t p = src[x];
+             if (s->invert) {
+                 p = ~p;
+diff --git a/hw/m5stopwatch/esp32s3_fe.c b/hw/m5stopwatch/esp32s3_fe.c
+new file mode 100644
+index 0000000..4068f0e
+--- /dev/null
++++ b/hw/m5stopwatch/esp32s3_fe.c
+@@ -0,0 +1,72 @@
++/*
++ * ESP32-S3 front-end (FE) bring-up stub.
++ *
++ * The UIFlow2 bootloader waits for the PHY front-end to signal completion
++ * through FE offset 0x174, bit 16, before it continues with the rest of
++ * the system startup.  The upstream ESP32-S3 machine has no RF/PHY model,
++ * so that bit never changes and the bootloader spins in its polling loop.
++ *
++ * Keep the register file for writes and report the front-end as ready.
++ * This is intentionally a boot-progress stub, not an RF model.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/memory.h"
++#include "m5stopwatch.h"
++
++#define FE_BASE       0x60006000
++#define FE_SIZE       0x1000
++#define FE_STATUS     0x174
++#define FE_READY      (1u << 16)
++
++typedef struct M5StopwatchFeState {
++    uint32_t regs[FE_SIZE / sizeof(uint32_t)];
++} M5StopwatchFeState;
++
++static uint64_t fe_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5StopwatchFeState *s = opaque;
++    uint32_t value;
++
++    if (addr + size > FE_SIZE || size != 4) {
++        return 0;
++    }
++
++    value = s->regs[addr / 4];
++    if (addr == FE_STATUS) {
++        value |= FE_READY;
++    }
++    return value;
++}
++
++static void fe_write(void *opaque, hwaddr addr, uint64_t value64,
++                     unsigned size)
++{
++    M5StopwatchFeState *s = opaque;
++
++    if (addr + size > FE_SIZE || size != 4) {
++        return;
++    }
++
++    s->regs[addr / 4] = value64;
++}
++
++static const MemoryRegionOps fe_ops = {
++    .read = fe_read,
++    .write = fe_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++void m5stopwatch_fe_init(MemoryRegion *sys_mem)
++{
++    M5StopwatchFeState *s = g_new0(M5StopwatchFeState, 1);
++    MemoryRegion *mr = g_new(MemoryRegion, 1);
++
++    memory_region_init_io(mr, NULL, &fe_ops, s, "esp32s3.fe", FE_SIZE);
++    memory_region_add_subregion_overlap(sys_mem, FE_BASE, mr, 1);
++}
+diff --git a/hw/m5stopwatch/esp32s3_gpspi.c b/hw/m5stopwatch/esp32s3_gpspi.c
+index 418e161..171c0d7 100644
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -240,14 +240,35 @@ type_init(gpspi_register)
+ void m5stopwatch_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                             ESPGdmaState *gdma)
+ {
++    m5stopwatch_sens_init(sys_mem);
++    m5stopwatch_regi2c_init(sys_mem);
++    m5stopwatch_fe_init(sys_mem);
++    m5stopwatch_phy_init(sys_mem);
++
+     /* I2C0 @ 0x60013000 with the board's sensors/PMIC/expander */
+-    DeviceState *i2c = qdev_new(TYPE_ESP32S3_I2C);
+-    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c), &error_fatal);
++    DeviceState *i2c0 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c0), &error_fatal);
++    MemoryRegion *i2c0_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c0), 0);
+     memory_region_add_subregion_overlap(sys_mem, 0x60013000,
+-        sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c), 0), 1);
+-    sysbus_connect_irq(SYS_BUS_DEVICE(i2c), 0,
++        i2c0_mr, 1);
++
++    /*
++     * I2C1 @ 0x60027000. M5Unified uses port 1 for the on-board bus,
++     * while other firmwares (including the factory UserDemo) use port 0.
++     * Give each port its own register file and interrupt source, but let
++     * both controllers address the same device bus.
++     */
++    DeviceState *i2c1 = qdev_new(TYPE_ESP32S3_I2C);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(i2c1), &error_fatal);
++    MemoryRegion *i2c1_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c1), 0);
++    memory_region_add_subregion_overlap(sys_mem, 0x60027000,
++        i2c1_mr, 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c0), 0,
+                        qdev_get_gpio_in(intmatrix, ETS_I2C_EXT0_INTR_SOURCE));
+-    I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c, "i2c");
++    sysbus_connect_irq(SYS_BUS_DEVICE(i2c1), 0,
++                       qdev_get_gpio_in(intmatrix, ETS_I2C_EXT1_INTR_SOURCE));
++    I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
++    esp32s3_i2c_set_bus(i2c1, bus);
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+         { "m5pm1", 0x6E }, { "m5ioe1", 0x4F }, { "cst820", 0x15 },
+         { "bmi270", 0x68 }, { "rx8130", 0x32 }, { "es8311", 0x18 },
+@@ -260,6 +281,7 @@ void m5stopwatch_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         object_property_add_child(qdev_get_machine(), devs[i].model, OBJECT(d));
+         qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
+     }
++    m5stopwatch_soft_i2c_init(bus);
+ 
+     /* GP-SPI2 @ 0x60024000 driving the CO5300 AMOLED */
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+diff --git a/hw/m5stopwatch/esp32s3_i2c.c b/hw/m5stopwatch/esp32s3_i2c.c
+index 862f2a9..bf451a8 100644
+--- a/hw/m5stopwatch/esp32s3_i2c.c
++++ b/hw/m5stopwatch/esp32s3_i2c.c
+@@ -273,6 +273,11 @@ static void s3i2c_init(Object *obj)
+     s->bus = i2c_init_bus(DEVICE(obj), "i2c");
+ }
+ 
++void esp32s3_i2c_set_bus(DeviceState *dev, I2CBus *bus)
++{
++    ESP32S3_I2C(dev)->bus = bus;
++}
++
+ static void s3i2c_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+diff --git a/hw/m5stopwatch/esp32s3_phy.c b/hw/m5stopwatch/esp32s3_phy.c
+new file mode 100644
+index 0000000..afb6de7
+--- /dev/null
++++ b/hw/m5stopwatch/esp32s3_phy.c
+@@ -0,0 +1,76 @@
++/*
++ * ESP32-S3 internal PHY/modem register-window stub.
++ *
++ * The UIFlow2 boot ROM's PHY setup touches the undocumented internal
++ * window at 0x6002f000..0x60037fff.  One of its ready handshakes is the
++ * bit-0 poll of 0x60033d14; without a model that bit stays zero and the
++ * bootloader never reaches the application.
++ *
++ * This is a bring-up register-file stub, not an RF or PHY simulation.
++ * It preserves writes and reports the specific ready bit at 0x60033d14.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/memory.h"
++#include "m5stopwatch.h"
++
++#define PHY_BASE       0x6002f000
++#define PHY_SIZE       0x9000
++#define PHY_READY_REG  0x4d14
++#define PHY_READY      (1u << 0)
++#define PHY_COUNTER_REG 0x607c
++
++typedef struct M5StopwatchPhyState {
++    uint32_t regs[PHY_SIZE / sizeof(uint32_t)];
++    uint32_t counter;
++} M5StopwatchPhyState;
++
++static uint64_t phy_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5StopwatchPhyState *s = opaque;
++    uint32_t value;
++
++    if (addr + size > PHY_SIZE || size != 4) {
++        return 0;
++    }
++
++    value = s->regs[addr / 4];
++    if (addr == PHY_READY_REG) {
++        value |= PHY_READY;
++    } else if (addr == PHY_COUNTER_REG) {
++        value = s->counter++;
++    }
++    return value;
++}
++
++static void phy_write(void *opaque, hwaddr addr, uint64_t value64,
++                      unsigned size)
++{
++    M5StopwatchPhyState *s = opaque;
++
++    if (addr + size > PHY_SIZE || size != 4) {
++        return;
++    }
++
++    s->regs[addr / 4] = value64;
++}
++
++static const MemoryRegionOps phy_ops = {
++    .read = phy_read,
++    .write = phy_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++void m5stopwatch_phy_init(MemoryRegion *sys_mem)
++{
++    M5StopwatchPhyState *s = g_new0(M5StopwatchPhyState, 1);
++    MemoryRegion *mr = g_new(MemoryRegion, 1);
++
++    memory_region_init_io(mr, NULL, &phy_ops, s, "esp32s3.phy", PHY_SIZE);
++    memory_region_add_subregion_overlap(sys_mem, PHY_BASE, mr, 1);
++}
+diff --git a/hw/m5stopwatch/esp32s3_regi2c.c b/hw/m5stopwatch/esp32s3_regi2c.c
+new file mode 100644
+index 0000000..9542722
+--- /dev/null
++++ b/hw/m5stopwatch/esp32s3_regi2c.c
+@@ -0,0 +1,98 @@
++/*
++ * ESP32-S3 ROM analog-I2C ("regi2c") compatibility model.
++ *
++ * The ESP32-S3 boot ROM uses the word-indexed register window at
++ * 0x6000e000 to talk to the on-chip analog blocks (BOD, BBPLL, APLL and
++ * SAR ADC).  The window is not described in the public peripheral address
++ * map, but the ROM and ESP-IDF's S2 regi2c implementation use the same
++ * layout:
++ *
++ *   word[host_id] = block | (data << 8) | I2C_RTC_WR_CNTL
++ *   word[host_id].bit25 = busy
++ *
++ * The master-reset path additionally polls the RTC-I2C state field in
++ * word 20 (0x6000e050), bits [26:24], until it reads 7 (idle).
++ *
++ * This model keeps the register file and reports every transaction as
++ * immediately idle.  It is a bring-up model: it does not emulate the
++ * analog blocks or their calibration values, but it lets the ROM finish
++ * its clock/PHY setup instead of spinning forever on an unimplemented
++ * address.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/memory.h"
++#include "m5stopwatch.h"
++
++#define REGI2C_BASE       0x6000e000
++#define REGI2C_SIZE       0x100
++#define REGI2C_WR_CNTL    (1u << 24)
++#define REGI2C_BUSY       (1u << 25)
++#define REGI2C_STATE_MASK (7u << 24)
++#define REGI2C_STATE_IDLE (7u << 24)
++
++typedef struct M5StopwatchRegi2cState {
++    uint32_t regs[REGI2C_SIZE / sizeof(uint32_t)];
++} M5StopwatchRegi2cState;
++
++static uint64_t regi2c_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5StopwatchRegi2cState *s = opaque;
++    uint32_t value;
++
++    if (addr + size > REGI2C_SIZE || size != 4) {
++        return 0;
++    }
++
++    value = s->regs[addr / 4];
++
++    /*
++     * Data-host words use bit 25 as the transaction-busy flag.  Word 20
++     * (0x6000e050) is the RTC-I2C master-state register instead: its
++     * bits [26:24] read 7 when the master is idle.  Keep the two
++     * semantics separate so the ROM's busy-wait and state-wait loops
++     * both terminate.
++     */
++    value &= ~REGI2C_BUSY;
++    if (addr == 0x4c) {
++        /* Analog-block command/status word: report completion. */
++        value |= (1u << 24);
++    } else if (addr == 0x50) {
++        value &= ~REGI2C_STATE_MASK;
++        value |= REGI2C_STATE_IDLE;
++    }
++    return value;
++}
++
++static void regi2c_write(void *opaque, hwaddr addr, uint64_t value64,
++                         unsigned size)
++{
++    M5StopwatchRegi2cState *s = opaque;
++
++    if (addr + size > REGI2C_SIZE || size != 4) {
++        return;
++    }
++
++    s->regs[addr / 4] = value64;
++}
++
++static const MemoryRegionOps regi2c_ops = {
++    .read = regi2c_read,
++    .write = regi2c_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++void m5stopwatch_regi2c_init(MemoryRegion *sys_mem)
++{
++    M5StopwatchRegi2cState *s = g_new0(M5StopwatchRegi2cState, 1);
++    MemoryRegion *mr = g_new(MemoryRegion, 1);
++
++    memory_region_init_io(mr, NULL, &regi2c_ops, s,
++                          "esp32s3.regi2c", REGI2C_SIZE);
++    memory_region_add_subregion_overlap(sys_mem, REGI2C_BASE, mr, 1);
++}
+diff --git a/hw/m5stopwatch/esp32s3_sens.c b/hw/m5stopwatch/esp32s3_sens.c
+new file mode 100644
+index 0000000..b8bf3a1
+--- /dev/null
++++ b/hw/m5stopwatch/esp32s3_sens.c
+@@ -0,0 +1,113 @@
++/*
++ * ESP32-S3 SENS/SAR-ADC compatibility model.
++ *
++ * UIFlow2's early boot path starts an SAR conversion and waits for
++ * SENS_MEAS1_DONE_SAR (SAR_MEAS1_CTRL2[16]).  The upstream ESP32-S3
++ * model leaves this address unimplemented, so the read returns zero and
++ * the firmware spins forever before reaching the application.
++ *
++ * This is intentionally a small register-file model: it preserves writes,
++ * reports conversion completion after a software start, and returns a
++ * neutral ADC sample.  It is sufficient for firmware bring-up and does not
++ * claim calibrated ADC accuracy.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "exec/memory.h"
++#include "m5stopwatch.h"
++
++#define SENS_SIZE       0x200
++#define SENS_MEAS1_CTRL2 0x0c
++#define SENS_MEAS2_CTRL2 0x30
++#define SENS_TSENS_CTRL  0x50
++#define MEAS_START_SAR  (1u << 17)
++#define MEAS_DONE_SAR   (1u << 16)
++#define MEAS_DATA_MASK  0xffffu
++#define MEAS_NEUTRAL    0x0800u
++#define TSENS_DUMP_OUT  (1u << 24)
++#define TSENS_POWER_UP  (1u << 22)
++#define TSENS_READY     (1u << 8)
++#define TSENS_DATA_MASK 0xffu
++#define TSENS_NEUTRAL   0x80u
++
++typedef struct M5StopwatchSensState {
++    uint32_t regs[SENS_SIZE / sizeof(uint32_t)];
++    bool meas1_started;
++    bool meas2_started;
++} M5StopwatchSensState;
++
++static bool sens_started(M5StopwatchSensState *s, hwaddr addr)
++{
++    if (addr == SENS_MEAS1_CTRL2) {
++        return s->meas1_started;
++    }
++    if (addr == SENS_MEAS2_CTRL2) {
++        return s->meas2_started;
++    }
++    return false;
++}
++
++static uint64_t sens_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5StopwatchSensState *s = opaque;
++    uint32_t value;
++
++    if (addr + size > SENS_SIZE || size != 4) {
++        return 0;
++    }
++
++    value = s->regs[addr / 4];
++    if (sens_started(s, addr)) {
++        value |= MEAS_DONE_SAR;
++        if (!(value & MEAS_DATA_MASK)) {
++            value |= MEAS_NEUTRAL;
++        }
++    }
++    if (addr == SENS_TSENS_CTRL &&
++        (value & (TSENS_DUMP_OUT | TSENS_POWER_UP))) {
++        value |= TSENS_READY;
++        if (!(value & TSENS_DATA_MASK)) {
++            value |= TSENS_NEUTRAL;
++        }
++    }
++    return value;
++}
++
++static void sens_write(void *opaque, hwaddr addr, uint64_t value64,
++                       unsigned size)
++{
++    M5StopwatchSensState *s = opaque;
++    uint32_t value = value64;
++
++    if (addr + size > SENS_SIZE || size != 4) {
++        return;
++    }
++
++    if (addr == SENS_MEAS1_CTRL2 && (value & MEAS_START_SAR)) {
++        s->meas1_started = true;
++    }
++    if (addr == SENS_MEAS2_CTRL2 && (value & MEAS_START_SAR)) {
++        s->meas2_started = true;
++    }
++    s->regs[addr / 4] = value;
++}
++
++static const MemoryRegionOps sens_ops = {
++    .read = sens_read,
++    .write = sens_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++void m5stopwatch_sens_init(MemoryRegion *sys_mem)
++{
++    M5StopwatchSensState *s = g_new0(M5StopwatchSensState, 1);
++    MemoryRegion *mr = g_new(MemoryRegion, 1);
++
++    memory_region_init_io(mr, NULL, &sens_ops, s, "esp32s3.sens", SENS_SIZE);
++    memory_region_add_subregion_overlap(sys_mem, 0x60008800, mr, 1);
++}
+diff --git a/hw/m5stopwatch/esp32s3_soft_i2c.c b/hw/m5stopwatch/esp32s3_soft_i2c.c
+new file mode 100644
+index 0000000..7465d28
+--- /dev/null
++++ b/hw/m5stopwatch/esp32s3_soft_i2c.c
+@@ -0,0 +1,240 @@
++/*
++ * Software-I2C bridge for the M5Stack StopWatch board.
++ *
++ * M5GFX identifies the StopWatch before it opens the hardware I2C
++ * controller.  Its autodetect path bit-bangs SDA/SCL on GPIO47/GPIO48
++ * (probe_i2c_port == -1) and only hands the pins over to the ESP32-S3
++ * I2C1 controller after the board has been identified.
++ *
++ * QEMU's GPIO model only tracks pin levels; it does not connect a
++ * bit-banged bus to the I2C device models.  Without this bridge the
++ * autodetect probes all miss, M5GFX never selects board_M5StopWatch,
++ * and the AMOLED power/reset sequence is never run.
++ *
++ * This module decodes the GPIO-level I2C waveform and forwards complete
++ * bytes to the real QEMU I2CBus, so the existing M5PM1/M5IOE1/RX8130/
++ * BMI270/CST820 models answer the probe exactly as they do on hardware.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/i2c/i2c.h"
++#include "m5stopwatch.h"
++
++#define SOFT_I2C_SDA 47
++#define SOFT_I2C_SCL 48
++
++typedef enum {
++    SOFT_I2C_IDLE,
++    SOFT_I2C_ADDR,
++    SOFT_I2C_TX,
++    SOFT_I2C_RX,
++    SOFT_I2C_ACK_ADDR,
++    SOFT_I2C_ACK_TX,
++    SOFT_I2C_ACK_RX,
++} SoftI2CState;
++
++typedef struct M5StopwatchSoftI2C {
++    I2CBus *bus;
++    int sda;
++    int scl;
++    bool active;
++    bool in_xfer;
++    bool read;
++    SoftI2CState state;
++    bool ack_pending;
++    bool master_ack;
++    unsigned ack_step;
++    unsigned bit;
++    uint8_t shift;
++    uint8_t rx;
++} M5StopwatchSoftI2C;
++
++static void soft_i2c_release_sda(M5StopwatchSoftI2C *s)
++{
++    esp32_gpio_set_input(SOFT_I2C_SDA, 1);
++    s->sda = esp32_gpio_get_line(SOFT_I2C_SDA);
++}
++
++static void soft_i2c_drive_sda(M5StopwatchSoftI2C *s, int level)
++{
++    esp32_gpio_set_input(SOFT_I2C_SDA, level ? 1 : 0);
++    s->sda = esp32_gpio_get_line(SOFT_I2C_SDA);
++}
++
++static void soft_i2c_end(M5StopwatchSoftI2C *s)
++{
++    if (s->in_xfer) {
++        i2c_end_transfer(s->bus);
++        s->in_xfer = false;
++    }
++    soft_i2c_release_sda(s);
++}
++
++static void soft_i2c_line(void *opaque, int pin, int level)
++{
++    M5StopwatchSoftI2C *s = opaque;
++    int old_sda = s->sda;
++    int old_scl = s->scl;
++
++    if (pin == SOFT_I2C_SDA) {
++        s->sda = level;
++    } else if (pin == SOFT_I2C_SCL) {
++        s->scl = level;
++    } else {
++        return;
++    }
++
++    /* START: SDA falls while SCL is high. */
++    if (old_scl && old_sda && !s->sda && s->scl) {
++        soft_i2c_end(s);
++        s->active = true;
++        s->state = SOFT_I2C_ADDR;
++        s->bit = 0;
++        s->shift = 0;
++        s->ack_step = false;
++        soft_i2c_release_sda(s);
++        return;
++    }
++
++    /* STOP: SDA rises while SCL is high. */
++    if (old_scl && !old_sda && s->sda && s->scl) {
++        soft_i2c_end(s);
++        s->active = false;
++        s->state = SOFT_I2C_IDLE;
++        return;
++    }
++
++    if (!s->active) {
++        return;
++    }
++
++    if (!old_scl && s->scl) {
++        /* Rising edge: master samples SDA. */
++        switch (s->state) {
++        case SOFT_I2C_ADDR:
++        case SOFT_I2C_TX:
++            s->shift = (s->shift << 1) | (s->sda ? 1 : 0);
++            if (++s->bit == 8) {
++                if (s->state == SOFT_I2C_ADDR) {
++                    uint8_t addr = s->shift >> 1;
++                    s->read = s->shift & 1;
++                    s->in_xfer = (i2c_start_transfer(s->bus, addr,
++                                                     s->read) == 0);
++                    s->ack_pending = s->in_xfer;
++                    s->ack_step = false;
++                    soft_i2c_release_sda(s);
++                    s->state = SOFT_I2C_ACK_ADDR;
++                } else {
++                    bool ack = s->in_xfer &&
++                               i2c_send(s->bus, s->shift) == 0;
++                    s->ack_pending = ack;
++                    s->ack_step = false;
++                    soft_i2c_release_sda(s);
++                    s->state = SOFT_I2C_ACK_TX;
++                }
++                s->bit = 0;
++            }
++            break;
++        case SOFT_I2C_RX:
++            s->shift = (s->shift << 1) | (s->sda ? 1 : 0);
++            if (++s->bit == 8) {
++                s->state = SOFT_I2C_ACK_RX;
++                s->ack_step = false;
++            }
++            break;
++        case SOFT_I2C_ACK_RX:
++            /* Ninth clock: sample the master's ACK/NACK. */
++            if (s->ack_step == 1) {
++                s->master_ack = s->sda;
++                s->ack_step = 2;
++                s->bit = 0;
++            }
++            break;
++        default:
++            break;
++        }
++        return;
++    }
++
++    if (old_scl && !s->scl) {
++        /* Falling edge: slave changes SDA for the next bit / ACK phase. */
++        switch (s->state) {
++        case SOFT_I2C_ACK_ADDR:
++            if (!s->ack_step) {
++                /* First falling edge after the address: drive ACK/NACK. */
++                soft_i2c_drive_sda(s, s->ack_pending ? 0 : 1);
++                s->ack_step = true;
++            } else {
++                /* Falling edge of the ACK clock: enter data phase. */
++                soft_i2c_release_sda(s);
++                if (s->read) {
++                    s->rx = s->in_xfer ? i2c_recv(s->bus) : 0xff;
++                    s->state = SOFT_I2C_RX;
++                    s->bit = 0;
++                    soft_i2c_drive_sda(s, (s->rx >> 7) & 1);
++                } else {
++                    s->state = SOFT_I2C_TX;
++                    s->bit = 0;
++                }
++            }
++            break;
++        case SOFT_I2C_ACK_TX:
++            if (!s->ack_step) {
++                soft_i2c_drive_sda(s, s->ack_pending ? 0 : 1);
++                s->ack_step = true;
++            } else {
++                soft_i2c_release_sda(s);
++                s->state = SOFT_I2C_TX;
++                s->bit = 0;
++            }
++            break;
++        case SOFT_I2C_RX:
++            if (s->bit > 0 && s->bit < 8) {
++                soft_i2c_drive_sda(s, (s->rx >> (7 - s->bit)) & 1);
++            }
++            break;
++        case SOFT_I2C_ACK_RX:
++            if (s->ack_step == 0) {
++                /*
++                 * The master has sampled the last data bit; release SDA
++                 * only now so the final bit is not lost on the rising
++                 * edge.  The master drives ACK/NACK on this phase.
++                 */
++                soft_i2c_release_sda(s);
++                s->ack_step = 1;
++                break;
++            }
++            if (s->ack_step != 2) {
++                break;
++            }
++            if (!s->master_ack && s->in_xfer) {
++                s->rx = i2c_recv(s->bus);
++                s->state = SOFT_I2C_RX;
++                s->bit = 0;
++                soft_i2c_drive_sda(s, (s->rx >> 7) & 1);
++            } else {
++                if (s->master_ack && s->in_xfer) {
++                    i2c_nack(s->bus);
++                }
++                s->state = SOFT_I2C_IDLE;
++            }
++            break;
++        default:
++            break;
++        }
++    }
++}
++
++void m5stopwatch_soft_i2c_init(I2CBus *bus)
++{
++    M5StopwatchSoftI2C *s = g_new0(M5StopwatchSoftI2C, 1);
++
++    s->bus = bus;
++    s->sda = 1;
++    s->scl = 1;
++    esp32_gpio_set_open_drain(SOFT_I2C_SDA, true);
++    esp32_gpio_set_open_drain(SOFT_I2C_SCL, true);
++    esp32_gpio_add_out_listener(SOFT_I2C_SDA, soft_i2c_line, s);
++    esp32_gpio_add_out_listener(SOFT_I2C_SCL, soft_i2c_line, s);
++}
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 6ab919d..ec883c2 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -1,10 +1,12 @@
+ /* M5Stack StopWatch board models for the Espressif QEMU esp32s3 machine */
+ #pragma once
+ #include "hw/sysbus.h"
++#include "hw/i2c/i2c.h"
+ #include "ui/console.h"
+ 
+ #define TYPE_ESP32S3_I2C "esp32s3.i2c"
+ OBJECT_DECLARE_SIMPLE_TYPE(Esp32s3I2CState, ESP32S3_I2C)
++void esp32s3_i2c_set_bus(DeviceState *dev, I2CBus *bus);
+ 
+ #define TYPE_ESP32S3_GPSPI "esp32s3.gpspi"
+ OBJECT_DECLARE_SIMPLE_TYPE(Esp32s3GpspiState, ESP32S3_GPSPI)
+@@ -17,6 +19,8 @@ OBJECT_DECLARE_SIMPLE_TYPE(Co5300State, CO5300)
+ typedef void (*esp32_gpio_out_cb)(void *opaque, int pin, int level);
+ void esp32_gpio_set_input(int pin, int level);
+ void esp32_gpio_add_out_listener(int pin, esp32_gpio_out_cb cb, void *opaque);
++void esp32_gpio_set_open_drain(int pin, bool enable);
++int esp32_gpio_get_line(int pin);
+ 
+ /* Display byte sink interface used by GP-SPI2 */
+ void co5300_cs(Co5300State *s, int level);
+@@ -30,3 +34,8 @@ void m5sw_pwr_button(int pressed);
+ struct ESPGdmaState;
+ void m5stopwatch_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                             struct ESPGdmaState *gdma);
++void m5stopwatch_sens_init(MemoryRegion *sys_mem);
++void m5stopwatch_regi2c_init(MemoryRegion *sys_mem);
++void m5stopwatch_fe_init(MemoryRegion *sys_mem);
++void m5stopwatch_phy_init(MemoryRegion *sys_mem);
++void m5stopwatch_soft_i2c_init(I2CBus *bus);
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 1344705..aa80cfd 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -269,8 +269,8 @@ static void dev_realize(DeviceState *dev, Error **errp)
+     s->trace = getenv("M5SW_I2C_TRACE") != NULL;
+     if (!strcmp(m, "m5pm1")) {
+         s->model = M_PM1;
+-        s->regs[0x00] = 0x50;   /* device id */
+-        s->regs[0x01] = 0x01;   /* model */
++        s->regs[0x00] = 0x50;   /* device id (little-endian 0x2050) */
++        s->regs[0x01] = 0x20;
+         s->regs[0x02] = 0x01;   /* hw rev */
+         s->regs[0x03] = 'A';    /* sw rev */
+         s->regs[0x20] = 3300 & 0xff; s->regs[0x21] = 3300 >> 8;   /* VREF mV */
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index f12c2ae..960f227 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -14,6 +14,11 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   'esp32s3.c',
+   '../m5stopwatch/esp32s3_i2c.c',
+   '../m5stopwatch/esp32s3_gpspi.c',
++  '../m5stopwatch/esp32s3_sens.c',
++  '../m5stopwatch/esp32s3_regi2c.c',
++  '../m5stopwatch/esp32s3_fe.c',
++  '../m5stopwatch/esp32s3_phy.c',
++  '../m5stopwatch/esp32s3_soft_i2c.c',
+   '../m5stopwatch/co5300.c',
+   '../m5stopwatch/m5sw_i2c_devs.c',
+ ))

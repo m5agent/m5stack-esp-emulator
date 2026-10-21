@@ -1,0 +1,90 @@
+{
+  "id": "papercolor",
+  "name": "PaperColor",
+  "sku": "C151",
+  "group": "esp32-s3",
+  "category": "paper",
+  "hardware": {
+    "soc": "ESP32-S3R8",
+    "architecture": "xtensa-lx7",
+    "flash_bytes": 16777216,
+    "psram_bytes": 8388608,
+    "display": {
+      "type": "e-paper-color",
+      "width": 400,
+      "height": 600,
+      "shape": "rect",
+      "driver": "E Ink Spectra 6",
+      "touch": false,
+      "diagonal_in": 4.0
+    },
+    "controls": [
+      {
+        "id": "key1",
+        "type": "button",
+        "label": "KEY1"
+      },
+      {
+        "id": "key2",
+        "type": "button",
+        "label": "KEY2"
+      },
+      {
+        "id": "key3",
+        "type": "button",
+        "label": "KEY3"
+      },
+      {
+        "id": "power",
+        "type": "button",
+        "label": "PWR"
+      }
+    ],
+    "sensors": [
+      "sht40",
+      "rtc:rx8130ce",
+      "audio:es8311",
+      "microphone",
+      "speaker",
+      "rgb-led"
+    ],
+    "dimensions_mm": [
+      70.8,
+      103.9,
+      8.5
+    ],
+    "weight_g": 73.3
+  },
+  "shell": {
+    "preset": "paper",
+    "accent": "#f4a261",
+    "screen_scale": 0.52,
+    "body_theme": "paper-white",
+    "reference_image": "/platform/web/assets/reference-cutout/papercolor.png",
+    "cutout": true
+  },
+  "runtime": {
+    "backend": "qemu-esp32s3",
+    "chip": "esp32s3",
+    "status": "reference-ready",
+    "display_protocol": "epd-spectra6",
+    "execution": "native-qemu",
+    "validation": {
+      "date": "2026-10-20",
+      "status": "display-key-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 400x600 六色电子纸 UI，GPIO 按键后刷新；由统一设备矩阵验证。"
+    }
+  },
+  "uiflow2": {
+    "supported": true,
+    "m5ui": false,
+    "firmware": {
+      "version": "v2.5.3",
+      "firmware_id": "1897200000000002033",
+      "download_url": "https://m5burner-cdn.m5stack.com/community/1/1897200000000002033/2098280498975690753/bin/2098280498975690754.bin"
+    }
+  },
+  "group_label": "ESP32-S3",
+  "path": "devices/esp32-s3/papercolor",
+  "status_label": "reference-ready：真实固件、画面和输入已打通"
+}

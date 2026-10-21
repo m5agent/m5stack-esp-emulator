@@ -1,0 +1,48 @@
+diff --git a/hw/char/esp32_uart.c b/hw/char/esp32_uart.c
+index 41de9cf..baa0392 100644
+--- a/hw/char/esp32_uart.c
++++ b/hw/char/esp32_uart.c
+@@ -58,7 +58,10 @@ void esp32_uart_set_rx_timeout(ESP32UARTState *s)
+ {
+     if (s->rx_tout_ena) {
+         int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+-        int64_t rx_timeout_ns = now + s->rx_tout_thres * NANOSECONDS_PER_SECOND / s->baud_rate;
++        uint64_t effective_baud_rate = (uint64_t)s->baud_rate * s->baud_scale;
++        int64_t rx_timeout_ns =
++            now + s->rx_tout_thres * NANOSECONDS_PER_SECOND /
++            effective_baud_rate;
+         /* If throttling is done, make sure timeout doesn't happen before more data
+          * is allowed to come. Offset it by 1ms.
+          */
+@@ -270,7 +273,10 @@ static void uart_receive(void *opaque, const uint8_t *buf, int size)
+     if (fifo8_is_full(&s->rx_fifo)) {
+         s->throttle_rx = true;
+         const int bits_per_symbol = 10;
+-        int64_t throttle_time_ns = (int64_t) UART_FIFO_LENGTH * bits_per_symbol * NANOSECONDS_PER_SECOND / s->baud_rate;
++        uint64_t effective_baud_rate = (uint64_t)s->baud_rate * s->baud_scale;
++        int64_t throttle_time_ns =
++            (int64_t) UART_FIFO_LENGTH * bits_per_symbol *
++            NANOSECONDS_PER_SECOND / effective_baud_rate;
+         timer_mod_ns(&s->throttle_timer,
+                      qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+                      throttle_time_ns);
+@@ -372,6 +378,7 @@ static void esp32_uart_init(Object *obj)
+ 
+ static Property esp32_uart_properties[] = {
+     DEFINE_PROP_CHR("chardev", ESP32UARTState, chr),
++    DEFINE_PROP_UINT32("baud-scale", ESP32UARTState, baud_scale, 1),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/include/hw/char/esp32_uart.h b/include/hw/char/esp32_uart.h
+index 3a84fe9..cee56e0 100644
+--- a/include/hw/char/esp32_uart.h
++++ b/include/hw/char/esp32_uart.h
+@@ -88,6 +88,7 @@ typedef struct ESPUARTState {
+     bool throttle_rx;
+     bool rxfifo_tout;
+     unsigned baud_rate;
++    uint32_t baud_scale;
+ 
+     Fifo8 rx_fifo;
+     Fifo8 tx_fifo;
