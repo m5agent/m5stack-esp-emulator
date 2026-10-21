@@ -149,7 +149,7 @@ CASES = [
             "address": 0x56,
             "command": 0xA3,
         },
-        "frame_color": {"x": 4, "y": 4},
+        "frame_color": {"x": 4, "y": 4, "label": "IR RX"},
     },
     {
         "id": "cores3-peripherals",
@@ -319,6 +319,62 @@ CASES = [
         ],
         "sd_image": True,
     },
+    {
+        "id": "papermono-nfc",
+        "expected_status": "PASS",
+        "reason": (
+            "The official hardware.NFC API drives ST25R3916 I2C registers and "
+            "FIFO commands, detects a deterministic NTAG, reads page 4, writes "
+            "page 8 with TEST, and reads the same value back."
+        ),
+        "checks": [
+            {"name": "nfc_detect", "status": "PASS"},
+            {"name": "nfc_page_read", "status": "PASS"},
+            {"name": "nfc_page_write_verify", "status": "PASS"},
+            {"name": "nfc_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papermono",
+        "base": "platform/.cache/firmware/papermono/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papermono_nfc",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "480x800",
+        "efuse_pkg_version": "0",
+        "wait": "25",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "NFC", "dark": True},
+    },
+    {
+        "id": "stackchan-nfc",
+        "expected_status": "PASS",
+        "reason": (
+            "The same official hardware.NFC and ST25R3916 I2C model detects "
+            "the deterministic NTAG on StackChan and verifies a page-12 write."
+        ),
+        "checks": [
+            {"name": "nfc_detect", "status": "PASS"},
+            {"name": "nfc_page_read", "status": "PASS"},
+            {"name": "nfc_page_write_verify", "status": "PASS"},
+            {"name": "nfc_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stackchan",
+        "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stackchan_nfc",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "25",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "min_unique_colors": 1,
+        "frame_color": {"x": 4, "y": 4, "label": "NFC", "dark": True},
+    },
 ]
 
 
@@ -350,6 +406,9 @@ def command_for(case: dict, out_dir: Path,
         command.append("--allow-static-frame")
     if sd_image:
         command.extend(["--sd-image", str(sd_image)])
+    if case.get("min_unique_colors"):
+        command.extend(["--min-unique-colors",
+                        str(case["min_unique_colors"])])
     return command
 
 
@@ -436,14 +495,18 @@ def main() -> None:
             validation_ok = validation.returncode == 0
         frame_color = case.get("frame_color")
         if frame_color and process.returncode == 0:
+            frame_command = [
+                sys.executable,
+                str(ROOT / "tests/uiflow2/check_frame_marker.py"),
+                str(case_out / "after.ppm"),
+                "--label", frame_color.get("label", case["id"]),
+                "--x", str(frame_color["x"]),
+                "--y", str(frame_color["y"]),
+            ]
+            if frame_color.get("dark"):
+                frame_command.append("--dark")
             validation = subprocess.run(
-                [
-                    sys.executable,
-                    str(ROOT / "tests/uiflow2/check_ir_rx_frame.py"),
-                    str(case_out / "after.ppm"),
-                    "--x", str(frame_color["x"]),
-                    "--y", str(frame_color["y"]),
-                ],
+                frame_command,
                 cwd=ROOT,
                 env=env,
                 text=True,

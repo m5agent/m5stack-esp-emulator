@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the UIFlow2 StickS3 IR RX success marker in a screendump."""
+"""Check a colored success marker in a QEMU PPM screendump."""
 from __future__ import annotations
 
 import argparse
@@ -45,8 +45,10 @@ def ppm_rgb(path: Path) -> tuple[int, int, bytes]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("frame", type=Path)
+    parser.add_argument("--label", default="frame")
     parser.add_argument("--x", type=int, default=4)
     parser.add_argument("--y", type=int, default=4)
+    parser.add_argument("--dark", action="store_true")
     args = parser.parse_args()
 
     width, height, pixels = ppm_rgb(args.frame)
@@ -54,11 +56,15 @@ def main() -> None:
         raise SystemExit("sample coordinate outside frame")
     offset = (args.y * width + args.x) * 3
     red, green, blue = pixels[offset:offset + 3]
-    if green <= red * 2 or green <= blue * 2:
+    if args.dark:
+        valid = max(red, green, blue) < 64
+    else:
+        valid = green > red * 2 and green > blue * 2
+    if not valid:
         raise SystemExit(
-            f"IR RX success marker missing: rgb=({red},{green},{blue})"
+            f"{args.label} success marker missing: rgb=({red},{green},{blue})"
         )
-    print(f"PASS IR RX marker rgb=({red},{green},{blue})")
+    print(f"PASS {args.label} marker rgb=({red},{green},{blue})")
 
 
 if __name__ == "__main__":

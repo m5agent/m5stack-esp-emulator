@@ -332,10 +332,12 @@
     },
     "nfc-st25r3916": {
       "kind": "nfc",
-      "interface": "spi",
-      "capabilities": ["nfc"],
+      "interface": "i2c-spi",
+      "capabilities": ["nfc", "iso14443a"],
       "status": "partial",
-      "injection": ["qom-nfc-tag"]
+      "injection": ["deterministic-ntag", "i2c-command-fifo"],
+      "data_plane": "ST25R3916 command/register/FIFO protocol, ISO14443A REQA/anticollision/SELECT and NTAG page read/write over I2C; SPI transport remains planned",
+      "tested_devices": ["papermono", "stackchan"]
     },
     "lora-sx1262": {
       "kind": "lora",
@@ -514,7 +516,7 @@
         {"id": "audio-amplifier", "model": "aw88298"},
         {"id": "microphone", "model": "es7210"},
         {"id": "speaker", "model": "aw88298"},
-        {"id": "nfc", "model": "nfc-st25r3916", "address": "0x50"},
+        {"id": "nfc", "model": "nfc-st25r3916", "address": "0x50", "qom_path": "/machine/st25r3916"},
         {"id": "body-touch", "model": "touch-si12t", "address": "0x68"},
         {"id": "ir", "model": "ir-tx-rx"},
         {"id": "rgb-led", "model": "rgb-led"},

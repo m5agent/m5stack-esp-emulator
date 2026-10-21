@@ -24,11 +24,13 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | PaperMono | BMI270、M5PM1、RX8130、FT6336、按键、SDMMC | IMU / Power / RTC / Touch / Button / SDCard | PASS |
 | StickS3 | RMT0 NEC 38 kHz 红外发送 | `hardware.IR.tx()` | PASS |
 | StickS3 | RMT4 NEC 红外接收与回调 | `hardware.IR.rx_cb()` | PASS |
+| PaperMono | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
+| StackChan | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
 
 汇总：
 
 ```text
-PASS    8
+PASS    10
 PARTIAL 1
 ```
 
@@ -98,6 +100,22 @@ M5SW_RMT_RX_FILE=/tmp/nec-56-a3.rmt
 
 NEC 捕获/注入格式为小端 `rmt_symbol_word_t` 序列。
 
+### ST25R3916 I2C NFC
+
+PaperMono 与 StackChan 的 NFC 使用 ST25R3916 I2C 模式（地址 `0x50`）。模型
+实现命令/寄存器/FIFO 协议和 ISO14443A 标签交互，而不是在 Python 中伪造
+`detect()`：
+
+- REQA/WUPA 返回 ATQA；
+- anticollision 返回 UID + BCC；
+- SELECT 返回 SAK；
+- GET_VERSION 识别 Type 2/NTAG；
+- Type 2 READ 从标签页返回数据和 CRC 占位；
+- WRITE_PAGE 更新标签页，随后 READ 回读一致。
+
+两台设备均检测到 UID `DEADBEEF`，PaperMono 写入/回读 page 8 的 `TEST`，
+StackChan 写入/回读 page 12 的 `CHAN`。
+
 ## 运行
 
 ```bash
@@ -115,6 +133,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/stopwatch_peripherals/`
 - `tests/uiflow2/sticks3_ir/`
 - `tests/uiflow2/sticks3_ir_rx/`
+- `tests/uiflow2/papermono_nfc/`
+- `tests/uiflow2/stackchan_nfc/`
 
 ## 屏幕证据
 
@@ -154,11 +174,19 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![StickS3 IR RX probe](images/sticks3-ir-rx-test.png)
 
+### PaperMono NFC
+
+![PaperMono NFC probe](images/papermono-nfc-test.png)
+
+### StackChan NFC
+
+![StackChan NFC probe](images/stackchan-nfc-test.png)
+
 ## 尚未闭环
 
 - 音频 I2S/PDM 的 PCM 注入与扬声器 PCM 抓取；
 - ESP32-C6 RMT/IR 路径（StickS3 的 ESP32-S3 RMT 已闭环）；
-- SX1262 LoRa、ST25R3916 NFC 完整包级协议；
+- SX1262 LoRa、ST25R3916 SPI/NFCCap 路径；
 - Cardputer/PaperColor 的 SPI SD 路径、USB Host 虚拟端点；
 - Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；
 - 所有项目的真机复测。

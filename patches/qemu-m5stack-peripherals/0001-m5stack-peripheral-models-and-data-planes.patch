@@ -1497,7 +1497,7 @@ index e9cc3e3..4e2128e 100644
                     struct ESPGdmaState *gdma);
  void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
 diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
-index aefe5e9..acecb85 100644
+index aefe5e9..48d49a9 100644
 --- a/hw/m5stopwatch/m5sw_i2c_devs.c
 +++ b/hw/m5stopwatch/m5sw_i2c_devs.c
 @@ -22,14 +22,24 @@ enum {
@@ -1525,7 +1525,7 @@ index aefe5e9..acecb85 100644
  };
  
  typedef struct M5swI2CDev {
-@@ -44,7 +54,18 @@ typedef struct M5swI2CDev {
+@@ -44,8 +54,28 @@ typedef struct M5swI2CDev {
      /* live, QOM-settable sensor state (qom-set /machine/bmi270 accel-x 0.5 ...) */
      double accel[3];       /* g   (BMI270 sensor frame) */
      double gyro[3];        /* dps */
@@ -1542,9 +1542,19 @@ index aefe5e9..acecb85 100644
 +    uint8_t command;
 +    uint8_t read_start;
      bool charging;         /* M5PM1 G2 CHG_STAT low = charging */
++    uint8_t st25_space_b[64];
++    uint8_t st25_fifo[512];
++    uint32_t st25_fifo_len;
++    uint32_t st25_fifo_pos;
++    uint8_t st25_tx[64];
++    uint32_t st25_tx_len;
++    uint8_t st25_mode;
++    bool st25_read_space_b;
++    uint8_t st25_tag[180];
  } M5swI2CDev;
  
-@@ -53,6 +74,8 @@ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+@@ -53,6 +83,8 @@ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
  static M5swI2CDev *g_touch;
  static M5swI2CDev *g_ft_touch;
  static M5swI2CDev *g_pm1;
@@ -1553,7 +1563,7 @@ index aefe5e9..acecb85 100644
  static M5swI2CDev *g_keyboard;
  static uint8_t g_key_events[16];
  static unsigned g_key_event_head;
-@@ -61,12 +84,22 @@ static uint8_t g_plc_keys = 0x07;
+@@ -61,12 +93,22 @@ static uint8_t g_plc_keys = 0x07;
  
  void m5sw_pwr_button(int pressed)
  {
@@ -1576,7 +1586,7 @@ index aefe5e9..acecb85 100644
      }
  }
  static int g_touch_pressed, g_touch_x, g_touch_y;
-@@ -132,6 +165,37 @@ void m5sw_plc_key_set(int key, bool pressed)
+@@ -132,6 +174,37 @@ void m5sw_plc_key_set(int key, bool pressed)
  static inline uint8_t bcd(int v) { return ((v / 10) << 4) | (v % 10); }
  static inline int unbcd(uint8_t v) { return (v >> 4) * 10 + (v & 0xf); }
  
@@ -1614,7 +1624,7 @@ index aefe5e9..acecb85 100644
  static void rx8130_fill_time(M5swI2CDev *s)
  {
      time_t t = time(NULL) + s->rtc_offset;
-@@ -159,6 +223,33 @@ static void rx8130_time_written(M5swI2CDev *s)
+@@ -159,6 +232,129 @@ static void rx8130_time_written(M5swI2CDev *s)
      s->rtc_offset = (int64_t)t - (int64_t)time(NULL);
  }
  
@@ -1645,10 +1655,106 @@ index aefe5e9..acecb85 100644
 +    s->rtc_offset = (int64_t)t - (int64_t)time(NULL);
 +}
 +
++static void st25_set_fifo(M5swI2CDev *s, const uint8_t *data, uint32_t size)
++{
++    size = MIN(size, sizeof(s->st25_fifo));
++    if (size) {
++        memcpy(s->st25_fifo, data, size);
++    }
++    s->st25_fifo_len = size;
++    s->st25_fifo_pos = 0;
++}
++
++static void st25_set_fifo_byte(M5swI2CDev *s, uint8_t value)
++{
++    st25_set_fifo(s, &value, 1);
++}
++
++static void st25_init_tag(M5swI2CDev *s)
++{
++    static const uint8_t uid[4] = { 0xde, 0xad, 0xbe, 0xef };
++    static const uint8_t page4[4] = { 'M', '5', 'N', '1' };
++
++    memset(s->st25_tag, 0, sizeof(s->st25_tag));
++    memcpy(s->st25_tag, uid, sizeof(uid));
++    s->st25_tag[4] = uid[0] ^ uid[1] ^ uid[2] ^ uid[3];
++    s->st25_tag[5] = 0x48;
++    s->st25_tag[6] = 0x00;
++    s->st25_tag[7] = 0x00;
++    s->st25_tag[12] = 0xe1;  /* NDEF capability container */
++    s->st25_tag[13] = 0x10;
++    s->st25_tag[14] = 0x12;  /* NTAG213 user memory */
++    s->st25_tag[15] = 0x00;
++    memcpy(&s->st25_tag[16], page4, sizeof(page4));
++}
++
++static void st25_execute_command(M5swI2CDev *s, uint8_t command)
++{
++    static const uint8_t atqa[2] = { 0x44, 0x00 };
++    static const uint8_t version[10] = {
++        0x00, 0x04, 0x04, 0x02, 0x02, 0x01, 0x0b, 0x03, 0x00, 0x00,
++    };
++    uint8_t response[18] = { 0 };
++
++    switch (command) {
++    case 0xc1: /* SET_DEFAULT */
++        memset(s->regs, 0, sizeof(s->regs));
++        memset(s->st25_space_b, 0, sizeof(s->st25_space_b));
++        s->regs[0x3f] = 0x2a;
++        st25_set_fifo(s, NULL, 0);
++        break;
++    case 0xc6: /* TRANSMIT_REQA */
++    case 0xc7: /* TRANSMIT_WUPA */
++        st25_set_fifo(s, atqa, sizeof(atqa));
++        break;
++    case 0xc5: /* TRANSMIT_WITHOUT_CRC */
++        if (s->st25_tx_len >= 1 && s->st25_tx[0] == 0x93) {
++            response[0] = s->st25_tag[0];
++            response[1] = s->st25_tag[1];
++            response[2] = s->st25_tag[2];
++            response[3] = s->st25_tag[3];
++            response[4] = s->st25_tag[4];
++            st25_set_fifo(s, response, 5);
++        }
++        break;
++    case 0xc4: /* TRANSMIT_WITH_CRC */
++        if (s->st25_tx_len >= 2 && s->st25_tx[0] == 0x93) {
++            response[0] = 0x00; /* SAK: MIFARE Ultralight / NTAG */
++            st25_set_fifo(s, response, 1);
++        } else if (s->st25_tx_len >= 1 && s->st25_tx[0] == 0x60) {
++            st25_set_fifo(s, version, sizeof(version));
++        } else if (s->st25_tx_len >= 2 && s->st25_tx[0] == 0x30) {
++            uint32_t base = (s->st25_tx[1] & ~3u) * 4;
++            uint32_t available = sizeof(s->st25_tag) - MIN(base,
++                                                         sizeof(s->st25_tag));
++            uint32_t copy = MIN(available, 16);
++            memcpy(response, &s->st25_tag[base], copy);
++            st25_set_fifo(s, response, copy + 2);
++        } else if (s->st25_tx_len >= 6 && s->st25_tx[0] == 0xa2) {
++            uint32_t page = s->st25_tx[1] & 0x3f;
++            uint32_t offset = page * 4;
++            if (offset + 4 <= sizeof(s->st25_tag)) {
++                memcpy(&s->st25_tag[offset], &s->st25_tx[2], 4);
++            }
++            st25_set_fifo_byte(s, 0x0a);
++        } else if (s->st25_tx_len >= 1 && s->st25_tx[0] == 0x50) {
++            st25_set_fifo(s, NULL, 0);
++        }
++        break;
++    case 0xdb: /* CLEAR_FIFO */
++        st25_set_fifo(s, NULL, 0);
++        s->st25_tx_len = 0;
++        break;
++    default:
++        break;
++    }
++    s->regs[0x1a] = command == 0xc8 ? 0x80 : s->regs[0x1a];
++}
++
  static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
  {
      switch (s->model) {
-@@ -185,18 +276,16 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+@@ -185,18 +381,16 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
          }
          break;
      case M_AW9523:
@@ -1673,7 +1779,7 @@ index aefe5e9..acecb85 100644
      case M_FT5X06:
          if (r == 0xA3) {
              return 0x51;
-@@ -231,6 +320,11 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+@@ -231,6 +425,11 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
          }
          break;
      case M_PM1:
@@ -1685,7 +1791,7 @@ index aefe5e9..acecb85 100644
          if (r == 0x12) {                                 /* GPIO_IN: G2 = CHG_STAT (active low) */
              return (s->regs[0x12] & ~0x04) | (s->charging ? 0 : 0x04);
          }
-@@ -240,22 +334,160 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+@@ -240,22 +439,183 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
              return (r & 1) ? (v >> 8) & 0xff : v & 0xff;
          }
          break;
@@ -1800,10 +1906,33 @@ index aefe5e9..acecb85 100644
 +        }
 +        break;
 +    case M_ST25R3916:
-+        if (r == 0x3F) {
++    {
++        uint8_t rr = r & 0x3f;
++        if (s->read_start == 0x9f) {
++            return s->st25_fifo_pos < s->st25_fifo_len
++                 ? s->st25_fifo[s->st25_fifo_pos++] : 0;
++        }
++        if (s->st25_read_space_b) {
++            return s->st25_space_b[rr];
++        }
++        if (rr == 0x3f) {
 +            return 0x2A;  /* IC type 0x05, revision 0x02 */
 +        }
-+        break;
++        if (rr == 0x31) {
++            return 0x10;  /* auxiliary display: OSC_OK */
++        }
++        if (rr >= 0x1a && rr <= 0x1d) {
++            return rr == 0x1a ? 0x80 : 0;
++        }
++        if (rr == 0x1e || rr == 0x1f) {
++            uint32_t count = MIN(s->st25_fifo_len, 0x3ff);
++            if (rr == 0x1e) {
++                return count & 0xff;
++            }
++            return ((count >> 8) & 0x03) << 6;
++        }
++        return s->regs[rr];
++    }
 +    case M_SHT40:
 +        if (s->command == 0xFD || s->command == 0xF6 || s->command == 0xE0) {
 +            double t_max = s->command == 0xE0 ? 125.0 : 175.0;
@@ -1852,11 +1981,17 @@ index aefe5e9..acecb85 100644
          }
          if (r == 0x21) {                                 /* INTERNAL_STATUS */
              return s->regs[0x59] & 1 ? 0x01 : 0x00;      /* init OK after INIT_CTRL=1 */
-@@ -276,8 +508,11 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+@@ -275,9 +635,17 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
      if (ev == I2C_START_SEND) {
          s->ptr_set = false;
++        s->st25_mode = 0;
++        s->st25_read_space_b = false;
      } else if (ev == I2C_START_RECV) {
 +        s->read_start = s->ptr;
++        if (s->model == M_ST25R3916) {
++            s->st25_read_space_b = s->st25_mode == 3;
++        }
          if (s->model == M_RX8130) {
              rx8130_fill_time(s);
 +        } else if (s->model == M_PCF8563) {
@@ -1864,10 +1999,14 @@ index aefe5e9..acecb85 100644
          }
      } else if (ev == I2C_FINISH) {
          if (s->model == M_RX8130 && s->ptr_set) {
-@@ -295,12 +530,22 @@ static uint8_t dev_recv(I2CSlave *i2c)
+@@ -294,13 +662,68 @@ static uint8_t dev_recv(I2CSlave *i2c)
+     if (s->trace) {
          qemu_log("[%s] rd %02x -> %02x\n", s->model_name, s->ptr, v);
      }
-     s->ptr++;
+-    s->ptr++;
++    if (!(s->model == M_ST25R3916 && s->read_start == 0x9f)) {
++        s->ptr++;
++    }
 +    if (s->model == M_SHT40 && s->command && s->ptr >= 6) {
 +        s->command = 0;
 +        s->ptr = 0;
@@ -1878,6 +2017,49 @@ index aefe5e9..acecb85 100644
  static int dev_send(I2CSlave *i2c, uint8_t data)
  {
      M5swI2CDev *s = M5SW_I2C_DEV(i2c);
++    if (s->model == M_ST25R3916) {
++        if (s->trace) {
++            qemu_log("[st25r3916] tx mode=%u data=%02x\n",
++                     s->st25_mode, data);
++        }
++        switch (s->st25_mode) {
++        case 0:
++            if (data == 0xfb) {
++                s->st25_mode = 2;
++            } else if (data == 0x80) {
++                s->st25_tx_len = 0;
++                s->st25_mode = 4;
++            } else if (data >= 0xc0) {
++                st25_execute_command(s, data);
++                s->st25_mode = 5;
++            } else {
++                s->ptr = data;
++                s->ptr_set = true;
++                s->st25_mode = 1;
++            }
++            return 0;
++        case 1:
++            s->regs[s->ptr] = data;
++            s->ptr++;
++            return 0;
++        case 2:
++            s->ptr = data & 0x3f;
++            s->ptr_set = true;
++            s->st25_mode = 3;
++            return 0;
++        case 3:
++            s->st25_space_b[s->ptr & 0x3f] = data;
++            s->st25_mode = 0;
++            return 0;
++        case 4:
++            if (s->st25_tx_len < sizeof(s->st25_tx)) {
++                s->st25_tx[s->st25_tx_len++] = data;
++            }
++            return 0;
++        default:
++            return 0;
++        }
++    }
 +    if (s->model == M_SHT40 && !s->ptr_set) {
 +        s->command = data;
 +        s->ptr = 0;
@@ -1887,7 +2069,7 @@ index aefe5e9..acecb85 100644
      if (!s->ptr_set) {
          s->ptr = data;
          s->ptr_set = true;
-@@ -316,9 +561,6 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+@@ -316,9 +739,6 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
              return 0;
          }
          if (r == 0x7E && data == 0xB6) {  /* soft reset */
@@ -1897,7 +2079,7 @@ index aefe5e9..acecb85 100644
              s->regs[0x7C] = 0x03;
              s->ptr++;
              return 0;
-@@ -327,6 +569,16 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+@@ -327,6 +747,16 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
      case M_IOE1:
          if (r == 0x07 || r == 0x08) { s->ptr++; return 0; }  /* RO */
          break;
@@ -1914,7 +2096,7 @@ index aefe5e9..acecb85 100644
      case M_RX8130:
          s->regs[r] = data;
          if (r >= 0x10 && r <= 0x16) {
-@@ -336,6 +588,13 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+@@ -336,6 +766,13 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
          }
          s->ptr++;
          return 0;
@@ -1928,7 +2110,7 @@ index aefe5e9..acecb85 100644
      default:
          break;
      }
-@@ -423,15 +682,78 @@ static void dev_realize(DeviceState *dev, Error **errp)
+@@ -423,15 +860,79 @@ static void dev_realize(DeviceState *dev, Error **errp)
              object_property_add(OBJECT(s), an[i], "number", prop_get_num, prop_set_num, NULL, &s->accel[i]);
              object_property_add(OBJECT(s), gn[i], "number", prop_get_num, prop_set_num, NULL, &s->gyro[i]);
          }
@@ -1981,6 +2163,7 @@ index aefe5e9..acecb85 100644
 +    } else if (!strcmp(m, "st25r3916")) {
 +        s->model = M_ST25R3916;
 +        s->regs[0x3F] = 0x2A;
++        st25_init_tag(s);
 +    } else if (!strcmp(m, "sht40")) {
 +        s->model = M_SHT40;
 +        s->temperature_c = 25.0;
@@ -2007,7 +2190,7 @@ index aefe5e9..acecb85 100644
      } else if (!strcmp(m, "axp192")) {
          s->model = M_AXP192;
          s->regs[0x03] = 0x03;   /* AXP192 chip ID */
-@@ -440,12 +762,26 @@ static void dev_realize(DeviceState *dev, Error **errp)
+@@ -440,12 +941,26 @@ static void dev_realize(DeviceState *dev, Error **errp)
          s->model = M_AXP2101;
          s->regs[0x03] = 0x4A;   /* chip id required by AXP2101_Class::begin */
          s->regs[0x00] = 0x28;   /* battery present + VBUS good */
