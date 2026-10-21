@@ -1525,6 +1525,44 @@ CASES = [
         "frame_color": {"x": 233, "y": 4, "label": "StopWatch M5IOE1"},
     },
     {
+        "id": "stopwatch-m5pm1-full",
+        "expected_status": "PASS",
+        "reason": (
+            "The official M5PM1 driver exercises power, GPIO, ADC, PWM, "
+            "NeoPixel RAM, IRQ, wake, watchdog, timer and RTC RAM registers."
+        ),
+        "checks": [
+            {"name": "m5pm1_device_info_uid", "status": "PASS"},
+            {"name": "m5pm1_power_and_hold", "status": "PASS"},
+            {"name": "m5pm1_gpio_input_irq", "status": "PASS"},
+            {"name": "m5pm1_adc_and_temperature", "status": "PASS"},
+            {"name": "m5pm1_pwm", "status": "PASS"},
+            {"name": "m5pm1_neopixel_ram", "status": "PASS"},
+            {"name": "m5pm1_wake_watchdog_timer_rtc", "status": "PASS"},
+            {"name": "m5pm1_button_irq", "status": "PASS"},
+            {"name": "m5pm1_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stopwatch",
+        "base": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stopwatch_m5pm1_full",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "466x466",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a", "key:p"],
+        "qom": [
+            ("/machine/m5pm1", "gpio-input-bits", "29"),
+            ("/machine/m5pm1", "adc1-mv", "1650"),
+            ("/machine/m5pm1", "adc2-mv", "1200"),
+            ("/machine/m5pm1", "temperature-c", "30"),
+            ("/machine/m5pm1", "wake-source", "4"),
+        ],
+        "allow_static_frame": True,
+        "frame_color": {"x": 233, "y": 4, "label": "StopWatch M5PM1"},
+    },
+    {
         "id": "nesso-peripherals",
         "expected_status": "PASS",
         "reason": (

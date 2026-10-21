@@ -90,9 +90,11 @@
       "kind": "pmic",
       "interface": "i2c",
       "address": "0x6e",
-      "capabilities": ["battery", "charging", "power-key"],
-      "status": "partial",
-      "injection": ["qom-vbat-mv", "qom-vin-mv", "qom-charging"]
+      "capabilities": ["battery", "charging", "power-key", "gpio", "adc", "pwm", "irq", "wake", "watchdog", "timer", "neopixel"],
+      "status": "simulated",
+      "injection": ["qom-vbat-mv", "qom-vin-mv", "qom-charging", "qom-gpio-input-bits", "qom-adc-mv", "qom-wake-source"],
+      "data_plane": "M5PM1 power, GPIO, ADC, PWM, NeoPixel RAM, IRQ status/mask, wake source, watchdog, timer and RTC RAM registers over the device I2C bus",
+      "tested_devices": ["sticks3", "stopwatch", "papermono", "papercolor"]
     },
     "axp192": {
       "kind": "pmic",

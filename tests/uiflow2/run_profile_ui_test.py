@@ -35,8 +35,11 @@ def build_image(args) -> Path:
             temp_root = Path(tmp)
             source = temp_root / "files"
             source.mkdir()
-            for name in ("boot.py", "main.py"):
-                shutil.copyfile(args.files_dir / name, source / name)
+            for path in args.files_dir.rglob("*.py"):
+                relative = path.relative_to(args.files_dir)
+                target = source / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(path, target)
             vfs_path = temp_root / "vfs.bin"
             subprocess.run([
                 str(args.mklittlefs),
@@ -71,9 +74,10 @@ def build_image(args) -> Path:
         if not args.preserve_vfs:
             fs.format()
         fs.mount()
-        for name in ("boot.py", "main.py"):
-            with fs.open("/" + name, "w") as f:
-                f.write((args.files_dir / name).read_text())
+        for path in args.files_dir.rglob("*.py"):
+            relative = path.relative_to(args.files_dir).as_posix()
+            with fs.open("/" + relative, "w") as f:
+                f.write(path.read_text())
         fs.unmount()
     image[args.vfs_offset:args.vfs_offset + args.vfs_size] = vfs
 

@@ -60,12 +60,13 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StamPLC | AW9523 四路继电器/八路输入与 PI4IOE RGB | `stamplc.StamPLC` | PASS |
 | CoreS3 | AW9523 输出锁存、方向切换和注入输入 | `driver.aw9523` | PASS |
 | StopWatch | M5IOE1 GPIO、ADC、PWM 与注入输入 | `driver.m5ioe1` | PASS |
+| StopWatch | M5PM1 电源、GPIO/ADC/PWM、IRQ、唤醒、看门狗、定时器和 RTC RAM | `driver.m5pm1` | PASS |
 | Arduino Nesso N1 | 双 PI4IOE、按键中断、BQ27220 和 AW32001 | I2C + `Power` | PASS |
 
 汇总：
 
 ```text
-PASS    46
+PASS    47
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -493,6 +494,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ![CoreS3 AW9523](images/cores3-aw9523-test.png)
 
 ![StopWatch M5IOE1](images/stopwatch-m5ioe1-test.png)
+
+![StopWatch M5PM1](images/stopwatch-m5pm1-test.png)
 
 ![Nesso peripherals](images/nesso-peripherals-test.png)
 

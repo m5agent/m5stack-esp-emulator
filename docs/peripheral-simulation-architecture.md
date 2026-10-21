@@ -55,6 +55,9 @@
 - **I2C 传感器/电源**：BMI270、BMM150、AXP2101、M5PM1、BQ27220、AW32001、
   PCF8563、RX8130、INA226、INA3221、LTR553、LM75、SHT40、ST25R3916 等均有
   总线级模型和 QOM 注入。
+- **M5PM1**：电源源/配置、GPIO、ADC/温度、PWM、NeoPixel RAM、IRQ 状态与
+  屏蔽、唤醒源、看门狗、定时器和 RTC RAM 均按寄存器语义工作，支持输入和
+  模拟量 QOM 注入。
 - **GPIO/扩展 IO**：按键、触摸、PI4IOE 的输入/输出/上拉/中断状态，AW9523
   的输入/输出/方向/中断状态，以及 M5IOE1 的 GPIO、ADC、PWM、IRQ 和
   NeoPixel RAM 均通过真实 I2C/GPIO 路径读取。
