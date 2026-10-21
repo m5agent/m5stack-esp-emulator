@@ -26,7 +26,7 @@
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-key-pass` (2026-10-20)
-- 详情：官方 UIFlow2 v2.5.3 渲染 240x135 UI，PI4IOE 前面板按键后计数重绘；由统一设备矩阵验证。
+- 详情：官方 UIFlow2 v2.5.3 渲染 240x135 UI；PI4IOE 按键/继电器/输入、RGB 和 INA226 电压/电流闭环通过。
 
 
 

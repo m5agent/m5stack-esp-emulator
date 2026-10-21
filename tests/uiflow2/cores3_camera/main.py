@@ -50,7 +50,15 @@ except Exception as error:
         status = "camera error"
         detail = "init failed: " + repr(error)[:55]
     print("CORES3_CAMERA_ERR", repr(error))
-draw()
+
+if image is None:
+    draw()
+else:
+    d = M5.Display
+    d.setTextColor(d.COLOR.WHITE, d.COLOR.BLACK)
+    d.setTextSize(1)
+    d.setCursor(8, 220)
+    d.print(status + " " + detail)
 
 while True:
     M5.update()

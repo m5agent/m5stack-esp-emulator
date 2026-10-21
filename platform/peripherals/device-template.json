@@ -1,0 +1,25 @@
+{
+  "device-id": {
+    "board_model": "m5-board",
+    "components": [
+      {
+        "id": "pmic",
+        "model": "m5pm1",
+        "qom_path": "/machine/m5pm1"
+      },
+      {
+        "id": "imu",
+        "model": "bmi270",
+        "qom_path": "/machine/bmi270"
+      },
+      {
+        "id": "buttons",
+        "model": "gpio-button"
+      },
+      {
+        "id": "audio-codec",
+        "model": "es8311"
+      }
+    ]
+  }
+}

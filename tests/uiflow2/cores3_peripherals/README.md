@@ -14,5 +14,5 @@ Observed result:
 - touch and PWR: PASS;
 - AXP2101 battery/charging telemetry: PASS;
 - PCF8563 RTC: PASS;
-- BMI270 values: PARTIAL;
-- BMM150 magnetometer: FAIL, returns an untrusted all-zero vector.
+- BMI270 values: PASS;
+- BMM150 magnetometer: PASS through the BMI270 Sensor Hub aux path.

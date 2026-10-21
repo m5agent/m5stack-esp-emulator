@@ -12,6 +12,7 @@ state = {
     "type": -1,
     "power": (0, 0, 0),
     "rtc": (0, 0, 0, 0, 0, 0),
+    "als": 0,
 }
 last_imu = None
 last_print = 0
@@ -47,10 +48,13 @@ def draw(message):
     d.print("bat:%d%% %dmV c:%d" % state["power"])
     d.setCursor(10, 196)
     d.print("rtc:%04d-%02d-%02d %02d:%02d:%02d" % state["rtc"])
-    d.fillRect(62, 206, 196, 30, d.COLOR.BLUE)
+    d.setCursor(10, 214)
+    d.print("als:%d" % state["als"])
+    d.fillRect(62, 224, 196, 14, d.COLOR.BLUE)
     d.setTextColor(d.COLOR.WHITE)
     d.setTextSize(2)
-    d.setCursor(120, 210)
+    d.setCursor(150, 223)
+    d.setTextSize(1)
     d.print("TOUCH")
 
 
@@ -117,6 +121,14 @@ while True:
             emit("CORES3_MAG_ERR", repr(error))
 
     now = time.ticks_ms()
+    try:
+        light = M5.Als.getLightSensorData()
+        if light != state["als"]:
+            state["als"] = light
+            emit("CORES3_ALS", light)
+            changed = True
+    except Exception as error:
+        emit("CORES3_ALS_ERR", repr(error))
     if last_imu != (accel, gyro) or time.ticks_diff(now, last_print) >= 1000:
         last_imu = (accel, gyro)
         last_print = now

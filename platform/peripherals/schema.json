@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M5Stack peripheral simulation catalog",
+  "type": "object",
+  "required": ["schema_version", "status_values", "models", "devices"],
+  "properties": {
+    "schema_version": {"type": "integer"},
+    "status_values": {
+      "type": "array",
+      "items": {"enum": ["simulated", "partial", "planned", "not-applicable"]}
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["kind", "interface", "capabilities", "status", "injection"],
+        "properties": {
+          "kind": {"type": "string"},
+          "interface": {"type": "string"},
+          "address": {"type": "string"},
+          "capabilities": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "status": {"enum": ["simulated", "partial", "planned", "not-applicable"]},
+          "data_plane": {"type": "string"},
+          "injection": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "devices": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["board_model", "evidence", "components"],
+        "properties": {
+          "board_model": {"type": "string"},
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string"}
+          },
+          "status": {"enum": ["simulated", "partial", "planned", "not-applicable"]},
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "model"],
+              "properties": {
+                "id": {"type": "string"},
+                "model": {"type": "string"},
+                "qom_path": {"type": "string"},
+                "address": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

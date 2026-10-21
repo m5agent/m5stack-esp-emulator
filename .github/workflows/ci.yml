@@ -19,7 +19,9 @@ jobs:
         run: |
           python3 platform/tests/test_catalog.py
           python3 platform/tests/test_qemu_profiles.py
+          python3 platform/tests/test_peripheral_catalog.py
           python3 platform/tools/qemu_profiles.py --check
+          python3 platform/tools/peripheral_catalog.py --check
       - name: Compile Python entry points
         run: |
           python3 -m compileall -q platform tests

@@ -1,0 +1,576 @@
+{
+  "schema_version": 1,
+  "status_values": [
+    "simulated",
+    "partial",
+    "planned",
+    "not-applicable"
+  ],
+  "models": {
+    "gpio-button": {
+      "kind": "button",
+      "interface": "gpio",
+      "capabilities": ["button"],
+      "status": "simulated",
+      "injection": ["qmp-key"]
+    },
+    "pwr-button": {
+      "kind": "button",
+      "interface": "pmic",
+      "capabilities": ["power-key"],
+      "status": "simulated",
+      "injection": ["qmp-key"]
+    },
+    "battery": {
+      "kind": "battery",
+      "interface": "virtual",
+      "capabilities": ["battery", "charging"],
+      "status": "partial",
+      "injection": ["qom-battery-level", "qom-charging"]
+    },
+    "esp32c6-hosted": {
+      "kind": "wireless-coprocessor",
+      "interface": "sdio-hosted",
+      "capabilities": ["wifi", "ble"],
+      "status": "simulated",
+      "injection": ["hosted-bridge"]
+    },
+    "touch-ft5x06": {
+      "kind": "touch",
+      "interface": "i2c",
+      "capabilities": ["touch"],
+      "status": "simulated",
+      "injection": ["qmp-touch"]
+    },
+    "touch-si12t": {
+      "kind": "touch",
+      "interface": "i2c",
+      "address": "0x68",
+      "capabilities": ["touch"],
+      "status": "planned",
+      "injection": ["qom-touch"]
+    },
+    "touch-cst820": {
+      "kind": "touch",
+      "interface": "i2c",
+      "capabilities": ["touch"],
+      "status": "simulated",
+      "injection": ["qmp-touch"]
+    },
+    "touch-st7123": {
+      "kind": "touch",
+      "interface": "dsi-i2c",
+      "capabilities": ["touch"],
+      "status": "simulated",
+      "injection": ["gdb-mailbox"]
+    },
+    "keyboard-tca8418": {
+      "kind": "keyboard",
+      "interface": "i2c",
+      "capabilities": ["keyboard"],
+      "status": "simulated",
+      "injection": ["qmp-key"]
+    },
+    "m5pm1": {
+      "kind": "pmic",
+      "interface": "i2c",
+      "address": "0x6e",
+      "capabilities": ["battery", "charging", "power-key"],
+      "status": "partial",
+      "injection": ["qom-vbat-mv", "qom-vin-mv", "qom-charging"]
+    },
+    "axp192": {
+      "kind": "pmic",
+      "interface": "i2c",
+      "address": "0x34",
+      "capabilities": ["battery", "charging"],
+      "status": "partial",
+      "injection": ["i2c-register"]
+    },
+    "axp2101": {
+      "kind": "pmic",
+      "interface": "i2c",
+      "address": "0x34",
+      "capabilities": ["battery", "charging", "power-key"],
+      "status": "simulated",
+      "injection": ["qom-battery-level", "qom-vbat-mv", "qom-vin-mv", "qom-charging"]
+    },
+    "m5ioe1": {
+      "kind": "io-expander",
+      "interface": "i2c",
+      "address": "0x4f",
+      "capabilities": ["io-expander", "vibration"],
+      "status": "partial",
+      "injection": ["qom-digital-input"]
+    },
+    "aw9523": {
+      "kind": "io-expander",
+      "interface": "i2c",
+      "address": "0x58",
+      "capabilities": ["io-expander", "usb-power"],
+      "status": "partial",
+      "injection": ["i2c-register"]
+    },
+    "pi4ioe5v6408": {
+      "kind": "io-expander",
+      "interface": "i2c",
+      "address": "0x43",
+      "capabilities": ["io-expander", "digital-input", "relay-output", "button"],
+      "status": "partial",
+      "injection": ["qmp-key", "i2c-register"]
+    },
+    "rx8130": {
+      "kind": "rtc",
+      "interface": "i2c",
+      "address": "0x32",
+      "capabilities": ["rtc"],
+      "status": "simulated",
+      "injection": ["qom-rtc-offset"]
+    },
+    "pcf8563": {
+      "kind": "rtc",
+      "interface": "i2c",
+      "address": "0x51",
+      "capabilities": ["rtc"],
+      "status": "simulated",
+      "injection": ["qom-rtc-offset"]
+    },
+    "bmi270": {
+      "kind": "imu",
+      "interface": "i2c",
+      "address": "0x68",
+      "capabilities": ["accel", "gyro"],
+      "status": "simulated",
+      "injection": ["qom-accel", "qom-gyro"]
+    },
+    "bmm150": {
+      "kind": "magnetometer",
+      "interface": "i2c-aux",
+      "address": "0x10",
+      "capabilities": ["magnetometer"],
+      "status": "simulated",
+      "injection": ["qom-mag"]
+    },
+    "mpu6886": {
+      "kind": "imu",
+      "interface": "i2c",
+      "address": "0x68",
+      "capabilities": ["accel", "gyro"],
+      "status": "partial",
+      "injection": ["qom-accel", "qom-gyro"]
+    },
+    "es8311": {
+      "kind": "audio-codec",
+      "interface": "i2c-i2s",
+      "address": "0x18",
+      "capabilities": ["audio-codec", "microphone", "speaker"],
+      "status": "partial",
+      "injection": ["qom-pcm"]
+    },
+    "es7210": {
+      "kind": "audio-adc",
+      "interface": "i2c-i2s",
+      "address": "0x40",
+      "capabilities": ["audio-codec", "microphone"],
+      "status": "partial",
+      "injection": ["qom-pcm"]
+    },
+    "es8388": {
+      "kind": "audio-codec",
+      "interface": "i2c-i2s",
+      "address": "0x10",
+      "capabilities": ["audio-codec", "microphone", "speaker"],
+      "status": "planned",
+      "injection": ["qom-pcm"]
+    },
+    "aw88298": {
+      "kind": "audio-amplifier",
+      "interface": "i2c-i2s",
+      "address": "0x36",
+      "capabilities": ["speaker"],
+      "status": "partial",
+      "injection": ["qom-pcm"]
+    },
+    "aw8737a": {
+      "kind": "audio-amplifier",
+      "interface": "gpio",
+      "capabilities": ["speaker"],
+      "status": "planned",
+      "injection": ["qom-pcm"]
+    },
+    "ns4168": {
+      "kind": "audio-amplifier",
+      "interface": "i2s",
+      "capabilities": ["speaker"],
+      "status": "planned",
+      "injection": ["qom-pcm"]
+    },
+    "spm1423": {
+      "kind": "pdm-microphone",
+      "interface": "pdm",
+      "capabilities": ["microphone"],
+      "status": "planned",
+      "injection": ["qom-pcm"]
+    },
+    "pdm-microphone": {
+      "kind": "pdm-microphone",
+      "interface": "pdm",
+      "capabilities": ["microphone"],
+      "status": "planned",
+      "injection": ["qom-pcm"]
+    },
+    "gc0308": {
+      "kind": "camera",
+      "interface": "dvp-sccb",
+      "address": "0x21",
+      "capabilities": ["camera"],
+      "status": "simulated",
+      "injection": ["qom-frame"],
+      "data_plane": "ESP32-S3 LCD_CAM + GDMA RGB565 frame chunks; M5SW_CAMERA_FRAME file injection"
+    },
+    "lp5562": {
+      "kind": "led-controller",
+      "interface": "i2c",
+      "address": "0x30",
+      "capabilities": ["rgb-led", "display-backlight"],
+      "status": "planned",
+      "injection": ["qom-rgb"]
+    },
+    "ns4150b": {
+      "kind": "audio-amplifier",
+      "interface": "gpio-analog",
+      "capabilities": ["speaker"],
+      "status": "planned",
+      "injection": ["qom-pcm"]
+    },
+    "sc2356": {
+      "kind": "camera",
+      "interface": "mipi-csi-sccb",
+      "capabilities": ["camera"],
+      "status": "planned",
+      "injection": ["qom-frame"]
+    },
+    "sht40": {
+      "kind": "temperature-humidity",
+      "interface": "i2c",
+      "address": "0x44",
+      "capabilities": ["temperature", "humidity"],
+      "status": "partial",
+      "injection": ["qom-temperature", "qom-humidity"]
+    },
+    "lm75": {
+      "kind": "temperature",
+      "interface": "i2c",
+      "capabilities": ["temperature"],
+      "status": "partial",
+      "injection": ["qom-temperature"]
+    },
+    "ina226": {
+      "kind": "power-monitor",
+      "interface": "i2c",
+      "capabilities": ["power-monitor"],
+      "status": "simulated",
+      "injection": ["qom-bus-voltage", "qom-current"]
+    },
+    "ltr-553als-wa": {
+      "kind": "light-proximity",
+      "interface": "i2c",
+      "capabilities": ["ambient-light", "proximity"],
+      "status": "partial",
+      "injection": ["qom-light-level"]
+    },
+    "ir-tx-rx": {
+      "kind": "infrared",
+      "interface": "gpio",
+      "capabilities": ["ir"],
+      "status": "planned",
+      "injection": ["qom-ir-packet"]
+    },
+    "rgb-led": {
+      "kind": "led",
+      "interface": "rmt",
+      "capabilities": ["rgb-led"],
+      "status": "planned",
+      "injection": ["qom-rgb"]
+    },
+    "vibration": {
+      "kind": "actuator",
+      "interface": "gpio-expander",
+      "capabilities": ["vibration"],
+      "status": "planned",
+      "injection": ["qom-vibration"]
+    },
+    "buzzer": {
+      "kind": "actuator",
+      "interface": "gpio-pwm",
+      "capabilities": ["buzzer"],
+      "status": "planned",
+      "injection": ["qom-tone"]
+    },
+    "can": {
+      "kind": "fieldbus",
+      "interface": "twai",
+      "capabilities": ["can"],
+      "status": "planned",
+      "injection": ["qom-can-frame"]
+    },
+    "rs485": {
+      "kind": "fieldbus",
+      "interface": "uart",
+      "capabilities": ["rs485"],
+      "status": "planned",
+      "injection": ["uart-peer"]
+    },
+    "servo": {
+      "kind": "servo",
+      "interface": "pwm",
+      "capabilities": ["servo"],
+      "status": "planned",
+      "injection": ["qom-servo-angle"]
+    },
+    "nfc-st25r3916": {
+      "kind": "nfc",
+      "interface": "spi",
+      "capabilities": ["nfc"],
+      "status": "partial",
+      "injection": ["qom-nfc-tag"]
+    },
+    "lora-sx1262": {
+      "kind": "lora",
+      "interface": "spi",
+      "capabilities": ["lora"],
+      "status": "planned",
+      "injection": ["qom-lora-packet"]
+    },
+    "sd-card": {
+      "kind": "storage",
+      "interface": "sdmmc",
+      "capabilities": ["sd"],
+      "status": "planned",
+      "injection": ["qom-sd-image"]
+    },
+    "usb-host": {
+      "kind": "usb-host",
+      "interface": "usb",
+      "capabilities": ["usb-host"],
+      "status": "planned",
+      "injection": ["qom-usb-device"]
+    }
+  },
+  "devices": {
+    "sticks3": {
+      "board_model": "m5sticks3",
+      "evidence": ["https://docs.m5stack.com/en/core/StickS3"],
+      "components": [
+        {"id": "pmic", "model": "m5pm1", "qom_path": "/machine/m5pm1"},
+        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "audio-codec", "model": "es8311", "qom_path": "/machine/es8311"},
+        {"id": "buttons", "model": "gpio-button"},
+        {"id": "power-key", "model": "pwr-button"},
+        {"id": "microphone", "model": "es8311"},
+        {"id": "speaker", "model": "aw8737a"},
+        {"id": "ir", "model": "ir-tx-rx"}
+      ]
+    },
+    "stopwatch": {
+      "board_model": "m5stopwatch",
+      "evidence": ["https://docs.m5stack.com/en/core/StopWatch"],
+      "components": [
+        {"id": "pmic", "model": "m5pm1", "qom_path": "/machine/m5pm1"},
+        {"id": "io-expander", "model": "m5ioe1", "qom_path": "/machine/m5ioe1"},
+        {"id": "touch", "model": "touch-cst820", "qom_path": "/machine/cst820"},
+        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "rtc", "model": "rx8130", "qom_path": "/machine/rx8130"},
+        {"id": "audio-codec", "model": "es8311", "qom_path": "/machine/es8311"},
+        {"id": "buttons", "model": "gpio-button"},
+        {"id": "power-key", "model": "pwr-button"},
+        {"id": "microphone", "model": "es8311"},
+        {"id": "speaker", "model": "aw8737a"},
+        {"id": "vibration", "model": "vibration"},
+        {"id": "battery", "model": "m5pm1"}
+      ]
+    },
+    "atoms3r": {
+      "board_model": "m5atoms3r",
+      "evidence": ["https://docs.m5stack.com/en/core/AtomS3R"],
+      "components": [
+        {"id": "imu", "model": "bmi270"},
+        {"id": "magnetometer", "model": "bmm150", "qom_path": "/machine/bmm150"},
+        {"id": "button", "model": "gpio-button"},
+        {"id": "rgb-led", "model": "lp5562", "address": "0x30"},
+        {"id": "ir", "model": "ir-tx-rx"}
+      ]
+    },
+    "cores3": {
+      "board_model": "m5cores3",
+      "evidence": ["https://docs.m5stack.com/en/core/CoreS3"],
+      "components": [
+        {"id": "pmic", "model": "axp2101", "qom_path": "/machine/axp2101"},
+        {"id": "io-expander", "model": "aw9523", "qom_path": "/machine/aw9523"},
+        {"id": "touch", "model": "touch-ft5x06", "qom_path": "/machine/ft5x06"},
+        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "magnetometer", "model": "bmm150", "qom_path": "/machine/bmm150"},
+        {"id": "rtc", "model": "pcf8563", "qom_path": "/machine/pcf8563"},
+        {"id": "camera", "model": "gc0308", "qom_path": "/machine/gc0308"},
+        {"id": "audio-adc", "model": "es7210", "address": "0x40"},
+        {"id": "audio-amplifier", "model": "aw88298", "address": "0x36"},
+        {"id": "microphone", "model": "es7210"},
+        {"id": "speaker", "model": "aw88298"},
+        {"id": "power-key", "model": "pwr-button"},
+        {"id": "light-proximity", "model": "ltr-553als-wa", "qom_path": "/machine/ltr553"}
+      ]
+    },
+    "cardputer-adv": {
+      "board_model": "m5cardputeradv",
+      "evidence": ["https://docs.m5stack.com/en/core/Cardputer-Adv"],
+      "components": [
+        {"id": "keyboard", "model": "keyboard-tca8418", "qom_path": "/machine/tca8418"},
+        {"id": "imu", "model": "bmi270", "address": "0x69", "qom_path": "/machine/bmi270"},
+        {"id": "audio-codec", "model": "es8311", "address": "0x18"},
+        {"id": "microphone", "model": "es8311"},
+        {"id": "speaker", "model": "ns4150b"},
+        {"id": "sd", "model": "sd-card"},
+        {"id": "ir", "model": "ir-tx-rx"}
+      ]
+    },
+    "papercolor": {
+      "board_model": "m5papercolor",
+      "evidence": ["https://docs.m5stack.com/en/core/PaperColor"],
+      "components": [
+        {"id": "pmic", "model": "m5pm1", "qom_path": "/machine/m5pm1"},
+        {"id": "rtc", "model": "rx8130", "qom_path": "/machine/rx8130"},
+        {"id": "temperature-humidity", "model": "sht40", "qom_path": "/machine/sht40"},
+        {"id": "audio-adc", "model": "es7210", "address": "0x40"},
+        {"id": "audio-codec", "model": "es8311", "address": "0x18"},
+        {"id": "audio-amplifier", "model": "aw8737a"},
+        {"id": "microphone", "model": "es7210"},
+        {"id": "speaker", "model": "aw8737a"},
+        {"id": "buttons", "model": "gpio-button"},
+        {"id": "power-key", "model": "pwr-button"},
+        {"id": "rgb-led", "model": "rgb-led"},
+        {"id": "ir", "model": "ir-tx-rx"},
+        {"id": "sd", "model": "sd-card"}
+      ]
+    },
+    "papermono": {
+      "board_model": "m5papermono",
+      "evidence": ["https://docs.m5stack.com/en/core/PaperMono"],
+      "components": [
+        {"id": "pmic", "model": "m5pm1", "qom_path": "/machine/m5pm1"},
+        {"id": "io-expander", "model": "m5ioe1", "qom_path": "/machine/m5ioe1"},
+        {"id": "touch", "model": "touch-ft5x06", "qom_path": "/machine/ft5x06"},
+        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "rtc", "model": "rx8130", "qom_path": "/machine/rx8130"},
+        {"id": "buttons", "model": "gpio-button"},
+        {"id": "power-key", "model": "pwr-button"},
+        {"id": "microphone", "model": "pdm-microphone"},
+        {"id": "nfc", "model": "nfc-st25r3916", "address": "0x50", "qom_path": "/machine/st25r3916"},
+        {"id": "lora", "model": "lora-sx1262"},
+        {"id": "buzzer", "model": "buzzer"},
+        {"id": "rgb-led", "model": "rgb-led"},
+        {"id": "sd", "model": "sd-card"}
+      ]
+    },
+    "stamplc": {
+      "board_model": "m5stamplc",
+      "evidence": ["https://docs.m5stack.com/en/core/StampPLC"],
+      "components": [
+        {"id": "io-expander", "model": "pi4ioe5v6408", "qom_path": "/machine/pi4ioe"},
+        {"id": "io-expander-aw9523", "model": "aw9523", "address": "0x59"},
+        {"id": "rtc", "model": "rx8130", "address": "0x32"},
+        {"id": "temperature", "model": "lm75", "qom_path": "/machine/lm75"},
+        {"id": "power-monitor", "model": "ina226", "qom_path": "/machine/ina226"},
+        {"id": "buttons", "model": "gpio-button"},
+        {"id": "buzzer", "model": "buzzer"},
+        {"id": "can", "model": "can"},
+        {"id": "rs485", "model": "rs485"},
+        {"id": "digital-input", "model": "pi4ioe5v6408"},
+        {"id": "relay-output", "model": "pi4ioe5v6408"}
+      ]
+    },
+    "stackchan": {
+      "board_model": "m5stackchan",
+      "evidence": ["https://docs.m5stack.com/en/core/StackChan"],
+      "components": [
+        {"id": "pmic", "model": "axp2101", "qom_path": "/machine/axp2101"},
+        {"id": "io-expander", "model": "aw9523", "qom_path": "/machine/aw9523"},
+        {"id": "io-expander-2", "model": "m5ioe1", "qom_path": "/machine/m5ioe1_v4"},
+        {"id": "touch", "model": "touch-ft5x06", "qom_path": "/machine/ft5x06"},
+        {"id": "camera", "model": "gc0308", "qom_path": "/machine/gc0308"},
+        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "magnetometer", "model": "bmm150", "qom_path": "/machine/bmm150"},
+        {"id": "rtc", "model": "rx8130", "qom_path": "/machine/rx8130"},
+        {"id": "audio-adc", "model": "es7210"},
+        {"id": "audio-amplifier", "model": "aw88298"},
+        {"id": "microphone", "model": "es7210"},
+        {"id": "speaker", "model": "aw88298"},
+        {"id": "nfc", "model": "nfc-st25r3916", "address": "0x50"},
+        {"id": "body-touch", "model": "touch-si12t", "address": "0x68"},
+        {"id": "ir", "model": "ir-tx-rx"},
+        {"id": "rgb-led", "model": "rgb-led"},
+        {"id": "power-monitor-body", "model": "ina226", "address": "0x41"},
+        {"id": "servo-yaw", "model": "servo"},
+        {"id": "servo-pitch", "model": "servo"}
+      ]
+    },
+    "core2": {
+      "board_model": "m5core2",
+      "evidence": ["https://docs.m5stack.com/en/core/Core2"],
+      "components": [
+        {"id": "pmic", "model": "axp192", "qom_path": "/machine/axp192"},
+        {"id": "touch", "model": "touch-ft5x06", "qom_path": "/machine/core2-ft5x06"},
+        {"id": "imu", "model": "mpu6886", "qom_path": "/machine/mpu6886"},
+        {"id": "rtc", "model": "pcf8563", "address": "0x51"},
+        {"id": "microphone", "model": "spm1423"},
+        {"id": "speaker", "model": "ns4168"},
+        {"id": "power-key", "model": "pwr-button"}
+      ]
+    },
+    "nesso-n1": {
+      "board_model": "esp32c6",
+      "evidence": ["https://docs.m5stack.com/en/core/Arduino_Nesso_N1"],
+      "components": [
+        {"id": "imu", "model": "bmi270"},
+        {"id": "lora", "model": "lora-sx1262"},
+        {"id": "battery", "model": "battery"},
+        {"id": "io-expander", "model": "pi4ioe5v6408"},
+        {"id": "touch", "model": "touch-ft5x06"},
+        {"id": "buttons", "model": "gpio-button"}
+      ]
+    },
+    "nanoc6": {
+      "board_model": "esp32c6",
+      "evidence": ["https://docs.m5stack.com/en/core/NanoC6"],
+      "components": [
+        {"id": "button", "model": "gpio-button"},
+        {"id": "rgb-led", "model": "rgb-led"},
+        {"id": "ir", "model": "ir-tx-rx"}
+      ]
+    },
+    "tab5": {
+      "board_model": "tab5",
+      "evidence": ["https://docs.m5stack.com/en/core/Tab5"],
+      "components": [
+        {"id": "hosted-coprocessor", "model": "esp32c6-hosted"},
+        {"id": "camera", "model": "sc2356"},
+        {"id": "imu", "model": "bmi270"},
+        {"id": "rtc", "model": "rx8130"},
+        {"id": "power-monitor", "model": "ina226"},
+        {"id": "io-expander", "model": "pi4ioe5v6408"},
+        {"id": "audio-adc", "model": "es7210"},
+        {"id": "audio-codec", "model": "es8388"},
+        {"id": "microphone", "model": "es7210"},
+        {"id": "speaker", "model": "es8388"},
+        {"id": "touch", "model": "touch-st7123"},
+        {"id": "usb-host", "model": "usb-host"},
+        {"id": "rs485", "model": "rs485"}
+      ]
+    },
+    "cardputer-zero": {
+      "board_model": "cardputer_zero",
+      "status": "not-applicable",
+      "evidence": ["https://docs.m5stack.com/en/core/CardputerZero"],
+      "components": []
+    }
+  }
+}

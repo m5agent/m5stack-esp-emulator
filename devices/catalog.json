@@ -210,7 +210,7 @@
         "validation": {
           "date": "2026-10-20",
           "status": "display-button-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 128x128 UI，GPIO41 按键后计数重绘；由统一设备矩阵验证。"
+          "detail": "官方 UIFlow2 v2.5.3 渲染 128x128 UI；GPIO41 按键、BMI270 和 BMM150 数据闭环通过。"
         }
       },
       "uiflow2": {
@@ -290,7 +290,7 @@
         "validation": {
           "date": "2026-10-21",
           "status": "display-touch-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电和 RTC 通过。BMI270 数值更新、BMM150 磁力计和 camera.snapshot() 帧采集仍待补齐。"
+          "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电、RTC、BMI270、BMM150 和 GC0308 camera.snapshot() 通过。LTR553 环境光 API 仍为 partial。"
         }
       },
       "uiflow2": {
@@ -453,7 +453,7 @@
         "validation": {
           "date": "2026-10-20",
           "status": "display-key-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 240x135 UI，PI4IOE 前面板按键后计数重绘；由统一设备矩阵验证。"
+          "detail": "官方 UIFlow2 v2.5.3 渲染 240x135 UI；PI4IOE 按键/继电器/输入、RGB 和 INA226 电压/电流闭环通过。"
         }
       },
       "uiflow2": {
@@ -497,7 +497,7 @@
         "validation": {
           "date": "2026-10-21",
           "status": "display-button-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 UI；A/B/P 按键、电池百分比/电压/充电状态通过。BMI270 可识别并启用，但加速度计和陀螺仪数值更新仍待补齐。"
+          "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 UI；A/B/P 按键、电池/充电、BMI270 加速度计和陀螺仪数据闭环通过。"
         }
       },
       "uiflow2": {
@@ -538,7 +538,7 @@
         "validation": {
           "date": "2026-10-20",
           "status": "uiflow2-ui-touch-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 466x466 圆屏 UI，QMP 触摸后画面重绘；统一矩阵与 StopWatch 专项测试均通过。"
+          "detail": "官方 UIFlow2 v2.5.3 渲染 466x466 圆屏 UI；BMI270、CST820 触摸、M5PM1 电源、RX8130 RTC 和 A/B/PWR 按键闭环通过。"
         }
       },
       "uiflow2": {

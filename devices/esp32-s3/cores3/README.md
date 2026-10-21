@@ -26,7 +26,7 @@
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-touch-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电和 RTC 通过。BMI270 数值更新、BMM150 磁力计和 camera.snapshot() 帧采集仍待补齐。
+- 详情：官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电、RTC、BMI270、BMM150 和 GC0308 camera.snapshot() 通过。LTR553 环境光 API 仍为 partial。
 
 
 

@@ -4,8 +4,8 @@ import argparse
 import hashlib
 from pathlib import Path
 
-VFS_OFFSET = 0x651000
-VFS_SIZE = 0x1AE000
+VFS_OFFSET = 0x641000
+VFS_SIZE = 0x1BE000
 
 
 def main():

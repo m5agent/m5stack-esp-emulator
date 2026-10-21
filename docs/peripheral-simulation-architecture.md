@@ -1,0 +1,64 @@
+# 外设仿真架构
+
+设备仿真被拆成四层：
+
+1. **设备档案**
+   `devices/catalog.source.json` 声明真实的 SoC、屏幕、按键和传感器能力。
+2. **外设契约**
+   `platform/peripherals/catalog.json` 把能力映射到具体芯片、总线、地址、
+   QOM 路径、注入接口和仿真状态。
+3. **QEMU/虚拟后端**
+   为 I2C、GPIO、PMIC、RTC、音频、摄像头等提供协议模型；高带宽数据通过
+   QOM、共享内存或 GDB 邮箱注入。
+4. **UIFlow2 测试**
+   `tests/uiflow2/` 使用官方 UIFlow2 API 读取外设、注入输入并验证屏幕/串口/
+   API 返回行为。
+
+## 状态语义
+
+- `simulated`：初始化、状态注入、读取回放和 API 闭环均已通过。
+- `partial`：芯片能被识别，或只有部分寄存器和数据通路可用。
+- `planned`：仅登记硬件能力，尚无可用模型。
+- `not-applicable`：不属于 ESP32 仿真范围。
+
+`reference-ready` 只代表显示和输入闭环；外设状态必须以本目录状态为准。
+
+## 新增设备
+
+新增设备必须先补 `platform/peripherals/catalog.json`。CI 会检查：
+
+- 设备是否存在于外设清单；
+- 每个 `hardware.sensors` 是否至少有一个组件覆盖；
+- 每个控制类型是否有对应输入模型；
+- 组件引用的模型是否存在；
+- 模型状态是否合法。
+
+因此后续设备不会只凭一张设备外壳和显示屏就进入 `reference-ready`。
+
+## 高带宽外设
+
+摄像头、麦克风、扬声器和 USB 不适合只用寄存器模型表达。推荐接口：
+
+- Camera：QOM frame source 或共享 framebuffer 邮箱；
+- Audio：PCM ring buffer，输入/输出分别注入和抓取；
+- USB Host：QEMU USB device 或虚拟端点；
+- SD：虚拟块设备镜像。
+
+这些接口必须保持为芯片/控制器之后的数据面，不能在 Python 测试代码里直接
+伪造返回值，否则无法发现驱动和板级接线问题。
+
+## 当前数据面实现
+
+- **Camera**：CoreS3 的 GC0308 SCCB + ESP32-S3 LCD_CAM + GDMA RX 描述符已
+  闭环。模型以半缓冲连续事件生成 RGB565 帧，支持 `camera.snapshot()` 和
+  `M5.Display.show()`；宿主可通过 `M5SW_CAMERA_FRAME` 注入原始 RGB565 帧。
+- **I2C 传感器/电源**：BMI270、BMM150、AXP2101、M5PM1、PCF8563、RX8130、
+  INA226、LTR553、LM75、SHT40、ST25R3916 等均有总线级模型和 QOM 注入。
+- **GPIO/扩展 IO**：按键、触摸、PI4IOE 输入/继电器、AW9523 输入、M5IOE1
+  输出状态均通过真实 I2C/GPIO 路径读取。
+
+## 仍需高带宽数据面的器件
+
+音频编解码器、PDM 麦克风、扬声器功放、IR、SX1262、SD、USB Host 和 Tab5
+摄像头不能仅以“芯片可识别”标记为完成。它们必须在后续实现 PCM ring buffer、
+packet mailbox、虚拟块设备或 USB 端点，并加入 UIFlow2 API 闭环测试。

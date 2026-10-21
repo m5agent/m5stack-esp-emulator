@@ -104,6 +104,10 @@ class QMP:
                 raise RuntimeError("QMP connection closed")
             reply = json.loads(line)
             if "event" not in reply:
+                if "error" in reply:
+                    raise RuntimeError(
+                        f"QMP {name} failed: {reply['error'].get('desc', reply['error'])}"
+                    )
                 return reply
 
     def close(self):
@@ -298,7 +302,15 @@ def main():
         nargs=3,
         metavar=("PATH", "PROPERTY", "VALUE"),
         default=[],
-        help="set a QOM property before taking the before frame",
+        help="set a QOM property after boot and before taking the before frame",
+    )
+    parser.add_argument(
+        "--qom-set-boot",
+        action="append",
+        nargs=3,
+        metavar=("PATH", "PROPERTY", "VALUE"),
+        default=[],
+        help="set a QOM property immediately after QMP starts, before firmware boot",
     )
     parser.add_argument("--qom-settle", type=float, default=0.5)
     parser.add_argument("--wait", type=float, default=6.0)
@@ -395,6 +407,17 @@ def main():
     proc = subprocess.Popen(command)
     try:
         qmp = wait_qmp(qmp_path)
+        for path, prop, raw_value in args.qom_set_boot:
+            try:
+                value = json.loads(raw_value)
+            except json.JSONDecodeError:
+                value = raw_value
+            qmp.cmd("qom-set", path=path, property=prop, value=value)
+            if os.environ.get("M5_QOM_DEBUG"):
+                current = qmp.cmd("qom-get", path=path, property=prop)
+                print(f"qom-boot {path} {prop}={current['return']}")
+        if args.qom_set_boot:
+            time.sleep(args.qom_settle)
         time.sleep(args.wait)
         for path, prop, raw_value in args.qom_set:
             try:
@@ -402,6 +425,9 @@ def main():
             except json.JSONDecodeError:
                 value = raw_value
             qmp.cmd("qom-set", path=path, property=prop, value=value)
+            if os.environ.get("M5_QOM_DEBUG"):
+                current = qmp.cmd("qom-get", path=path, property=prop)
+                print(f"qom {path} {prop}={current['return']}")
         if args.qom_set:
             time.sleep(args.qom_settle)
         qmp.cmd("screendump", filename=str(before))

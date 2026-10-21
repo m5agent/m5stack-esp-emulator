@@ -26,7 +26,7 @@
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-button-pass` (2026-10-20)
-- 详情：官方 UIFlow2 v2.5.3 渲染 128x128 UI，GPIO41 按键后计数重绘；由统一设备矩阵验证。
+- 详情：官方 UIFlow2 v2.5.3 渲染 128x128 UI；GPIO41 按键、BMI270 和 BMM150 数据闭环通过。
 
 
 
