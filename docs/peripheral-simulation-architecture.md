@@ -53,14 +53,17 @@
   闭环。模型以半缓冲连续事件生成 RGB565 帧，支持 `camera.snapshot()` 和
   `M5.Display.show()`；宿主可通过 `M5SW_CAMERA_FRAME` 注入原始 RGB565 帧。
 - **I2C 传感器/电源**：BMI270、BMM150、AXP2101、M5PM1、PCF8563、RX8130、
-  INA226、LTR553、LM75、SHT40、ST25R3916 等均有总线级模型和 QOM 注入。
+  INA226、INA3221、LTR553、LM75、SHT40、ST25R3916 等均有总线级模型和
+  QOM 注入。
 - **GPIO/扩展 IO**：按键、触摸、PI4IOE 输入/继电器、AW9523 输入、M5IOE1
   输出状态均通过真实 I2C/GPIO 路径读取。
 - **串行执行器**：StackChan 的 SCS 舵机通过真实 UART1 字节流解析
   `PING/READ/WRITE/SYNC_WRITE` 帧，位置、扭矩和遥测状态由舵机模型回包。
 - **音频**：ES8311、ES7210、AW88298、AW8737A 和 PDM 麦克风通过
   ESP32-S3 I2S 与循环 GDMA 工作；宿主文件可抓取扬声器 PCM，也可向麦克风
-  RX 描述符注入 PCM。
+  RX 描述符注入 PCM。Core2 v1.1 使用独立的 ESP32 classic I2S 控制器模型，
+  直接消费 IDF `lldesc_t` 描述符链，NS4168 与 SPM1423 已分别完成 TX/RX
+  数据面。
 - **SPI 存储**：Cardputer-ADV 与 PaperColor 的 microSD 走 GP-SPI SD
   command/data 协议，并使用原始块镜像作为后端。
 

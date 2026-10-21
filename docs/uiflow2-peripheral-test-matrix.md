@@ -48,11 +48,14 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | PaperColor | ES7210 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
 | PaperColor | SPI microSD 初始化、512B 写入/回读、原始镜像校验 | `machine.SDCard(slot=2)` | PASS |
 | PaperColor | SHT4X 温度/湿度命令、转换和 CRC8 | `hardware.SHT4X` | PASS |
+| Core2 | NS4168 扬声器、ESP32 I2S1 linked-list DMA、AXP2101 ALDO3 使能 | `Speaker.tone()` | PASS |
+| Core2 | SPM1423 PDM 麦克风、ESP32 I2S0 linked-list DMA | `Mic.record()` | PASS |
+| Core2 | INA3221 ID、总线电压和分流电压寄存器 | ESP32 I2C0 | PASS |
 
 汇总：
 
 ```text
-PASS    33
+PASS    36
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -218,6 +221,30 @@ Cardputer-ADV 使用 `SCK=G40 / MOSI=G14 / MISO=G39 / CS=G12`，PaperColor
 SHT4X 通过 ESP32-S3 I2C 完成测量命令、温度/湿度转换和两段 CRC8 校验；
 官方 `hardware.SHT4X.measure()` 返回默认注入的 `25 °C / 50 %RH` 范围值。
 
+### Core2 v1.1 NS4168 与 SPM1423
+
+Core2 固件 SKU 为 `K010-V11`，官方原理图对应 AXP2101 + INA3221，而不是旧版
+Core2 的 AXP192。板级模型已改为 AXP2101，扬声器使用 ESP32 I2S1，麦克风
+使用 I2S0 PDM RX。
+
+QEMU 直接读取 IDF 生成的 `lldesc_t` 描述符链：
+
+- TX：逐个消费 guest DMA 描述符，触发 `OUT_EOF`，宿主抓到 32768 字节 PCM，
+  非零样本 16356，峰峰值 46091；
+- RX：向 guest RX 描述符写入确定性 PCM，触发 `IN_SUC_EOF`，官方
+  `Mic.record()` 录到非静音数据；
+- NS4168 功放使能由 AXP2101 ALDO3 控制，QOM 断言
+  `/machine/axp2101 speaker-enabled=true` 通过。
+
+### Core2 v1.1 INA3221
+
+INA3221 在 ESP32 I2C0 的 `0x40/0x41` 地址上提供三通道电源监控。测试注入
+CH1 `4800 mV / 240 mA`，固件通过真实 I2C 传输读取：
+
+- die ID `0x3220`；
+- bus voltage raw `600`，对应 `4800 mV / 8 mV`；
+- shunt voltage raw `60`，对应 `240 mA × 10 mΩ / 40 uV`。
+
 ### StopWatch 振动马达
 
 `Power.setVibration(128)` 写入 M5IOE1 PWM1 的 12 位占空比和 enable 位，
@@ -270,6 +297,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/papercolor_mic/`
 - `tests/uiflow2/papercolor_sd/`
 - `tests/uiflow2/papercolor_sht4x/`
+- `tests/uiflow2/core2_audio/`
+- `tests/uiflow2/core2_mic/`
+- `tests/uiflow2/core2_power_monitor/`
 
 ## 屏幕证据
 
@@ -375,13 +405,19 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![StackChan microphone](images/stackchan-mic-test.png)
 
+![Core2 audio](images/core2-audio-test.png)
+
+![Core2 microphone](images/core2-mic-test.png)
+
+![Core2 INA3221](images/core2-ina3221-test.png)
+
 ## 尚未闭环
 
 - ESP32-C6 RMT/IR 路径（StickS3 的 ESP32-S3 RMT 已闭环）；
 - ST25R3916 SPI/NFCCap 路径；
 - USB Host 虚拟端点；
 - Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；
-- CAN/RS485、蜂鸣器，以及 Core2 NS4168/SPM1423 等尚未完成闭环的路径；
+- CAN/RS485、蜂鸣器等尚未完成闭环的路径；
 - 所有项目的真机复测。
 
 这些项目已在 `platform/peripherals/catalog.json` 中逐器件登记，CI 会阻止新增

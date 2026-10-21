@@ -18,8 +18,8 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-21",
-      "status": "display-touch-pass",
-      "detail": "官方 UIFlow2 v2.5.3 完成 320x240 首帧和 FT5x06 触摸重绘；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。测试镜像通过 QEMU ESP32 ROM UART 下载模式和 esptool --no-stub 写入 16 MiB 虚拟 flash，逐字节校验后从同一镜像启动。"
+      "status": "display-touch-audio-pass",
+      "detail": "官方 UIFlow2 v2.5.3 完成 320x240 首帧、FT5x06 触摸重绘、NS4168 扬声器 PCM 抓取和 SPM1423 PDM 麦克风 PCM 注入。板级已修正为 Core2 v1.1 的 AXP2101 + INA3221 硬件；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。"
     }
   },
   "cache_path": "platform/.cache/firmware/core2/uiflow2.bin"

@@ -1125,6 +1125,119 @@ CASES = [
         "allow_static_frame": True,
         "frame_color": {"x": 64, "y": 4, "label": "LP5562"},
     },
+    {
+        "id": "core2-audio",
+        "expected_status": "PASS",
+        "reason": (
+            "Core2 v1.1 Speaker drives ESP32 I2S1 and NS4168 through real "
+            "IDF DMA descriptors, with AXP2101 ALDO3 enabled and host PCM "
+            "containing the generated tone."
+        ),
+        "checks": [
+            {"name": "speaker_tone", "status": "PASS"},
+            {"name": "esp32_i2s_dma_capture", "status": "PASS"},
+            {"name": "axp2101_ns4168_enable", "status": "PASS"},
+            {"name": "speaker_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5core2",
+        "base": "platform/.cache/firmware/core2/uiflow2.bin",
+        "files_dir": "tests/uiflow2/core2_audio",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "wait": "10",
+        "inputs": ["touch:160,183"],
+        "qom": [],
+        "allow_static_frame": True,
+        "efuse_driver": "none",
+        "memory": "0",
+        "retries": 2,
+        "env": {
+            "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
+        },
+        "qom_expect": [
+            ("/machine/axp2101", "speaker-enabled", "true"),
+        ],
+        "pcm": {
+            "capture": "{out_dir}/speaker.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 1000,
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Core2 audio"},
+    },
+    {
+        "id": "core2-mic",
+        "expected_status": "PASS",
+        "reason": (
+            "Core2 v1.1 Mic uses ESP32 I2S0 PDM RX and the legacy I2S "
+            "linked-list DMA engine; deterministic host PCM reaches the "
+            "official UIFlow2 microphone buffer."
+        ),
+        "checks": [
+            {"name": "mic_record", "status": "PASS"},
+            {"name": "esp32_i2s_rx_pcm_injection", "status": "PASS"},
+            {"name": "mic_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5core2",
+        "base": "platform/.cache/firmware/core2/uiflow2.bin",
+        "files_dir": "tests/uiflow2/core2_mic",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "wait": "10",
+        "inputs": ["touch:160,183"],
+        "qom": [],
+        "allow_static_frame": True,
+        "efuse_driver": "none",
+        "memory": "0",
+        "retries": 2,
+        "pcm_tone_source": {
+            "output": "{out_dir}/microphone.pcm",
+            "frequency": "440",
+            "sample_rate": "16000",
+            "seconds": "1",
+            "amplitude": "12000",
+        },
+        "env": {
+            "M5SW_I2S_RX_PCM_FILE": "{out_dir}/microphone.pcm",
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Core2 mic"},
+    },
+    {
+        "id": "core2-power-monitor",
+        "expected_status": "PASS",
+        "reason": (
+            "Core2 v1.1 INA3221 is read over ESP32 I2C0; QOM-injected "
+            "physical channel values are converted through the documented "
+            "INA3221 bus-voltage and shunt-voltage register encodings."
+        ),
+        "checks": [
+            {"name": "ina3221_device_id", "status": "PASS"},
+            {"name": "ina3221_bus_voltage", "status": "PASS"},
+            {"name": "ina3221_shunt_voltage", "status": "PASS"},
+            {"name": "ina3221_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5core2",
+        "base": "platform/.cache/firmware/core2/uiflow2.bin",
+        "files_dir": "tests/uiflow2/core2_power_monitor",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "wait": "10",
+        "inputs": ["touch:160,183"],
+        "qom_set_boot": [
+            ("/machine/ina3221-40", "bus1-mv", "4800"),
+            ("/machine/ina3221-40", "current1-ma", "240"),
+        ],
+        "allow_static_frame": True,
+        "efuse_driver": "none",
+        "memory": "0",
+        "retries": 2,
+        "frame_color": {"x": 4, "y": 4, "label": "Core2 INA3221"},
+    },
 ]
 
 
@@ -1142,16 +1255,21 @@ def command_for(case: dict, out_dir: Path,
         "--expected-size", case["expected_size"],
         "--wait", case["wait"],
         "--post-input-wait", "1",
-        "--efuse-driver", "nvram.esp32s3.efuse",
-        "--efuse-pkg-version", case["efuse_pkg_version"],
+        "--efuse-driver", case.get("efuse_driver", "nvram.esp32s3.efuse"),
         "--qemu", str(QEMU),
         "--rom-dir", str(ROM_DIR),
         "--out-dir", str(out_dir),
     ]
+    if "efuse_pkg_version" in case:
+        command.extend(["--efuse-pkg-version", case["efuse_pkg_version"]])
+    if "memory" in case:
+        command.extend(["--memory", case["memory"]])
     for input_spec in case["inputs"]:
         command.extend(["--input", input_spec])
-    for path, prop, value in case["qom"]:
+    for path, prop, value in case.get("qom", []):
         command.extend(["--qom-set", path, prop, value])
+    for path, prop, value in case.get("qom_set_boot", []):
+        command.extend(["--qom-set-boot", path, prop, value])
     for path, prop, value in case.get("qom_expect", []):
         command.extend(["--qom-expect", path, prop, value])
     if case.get("qom_settle"):
@@ -1233,15 +1351,29 @@ def main() -> None:
             case_env[key] = value.format(out_dir=case_out)
         stdout_path = args.out_dir / f"{case['id']}.stdout"
         stderr_path = args.out_dir / f"{case['id']}.stderr"
-        with stdout_path.open("wb") as stdout, stderr_path.open("wb") as stderr:
-            process = subprocess.run(
-                command,
-                cwd=ROOT,
-                env=case_env,
-                stdout=stdout,
-                stderr=stderr,
-                check=False,
-            )
+        for attempt in range(case.get("retries", 0) + 1):
+            mode = "wb" if attempt == 0 else "ab"
+            with stdout_path.open(mode) as stdout, \
+                    stderr_path.open(mode) as stderr:
+                if attempt:
+                    stdout.write(
+                        f"\n--- retry {attempt} ---\n".encode()
+                    )
+                    stderr.write(
+                        f"\n--- retry {attempt} ---\n".encode()
+                    )
+                    stdout.flush()
+                    stderr.flush()
+                process = subprocess.run(
+                    command,
+                    cwd=ROOT,
+                    env=case_env,
+                    stdout=stdout,
+                    stderr=stderr,
+                    check=False,
+                )
+            if process.returncode == 0:
+                break
         validation_output = ""
         validation_ok = True
         rmt_nec = case.get("rmt_nec")

@@ -28,6 +28,11 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   over ESP32-S3 GP-SPI3 and GDMA;
 - cyclic I2S/GDMA TX PCM capture and RX PCM injection, including ES8311,
   ES7210, AW88298, AW8737A, NS4150B and PDM paths;
+- ESP32 classic I2S0/I2S1 linked-list DMA model for Core2 v1.1, with NS4168
+  speaker PCM capture, SPM1423 PDM microphone injection and AXP2101 ALDO3
+  amplifier-enable tracking;
+- INA3221 three-channel power-monitor model with chip-native bus/shunt register
+  scaling and QOM physical-value injection;
 - GP-SPI SD SPI command/data model with ACMD/CMD support, CRC16 and raw image
   backing for Cardputer-ADV and PaperColor;
 - byte-accurate GP-SPI register access plus GDMA TX/RX completion for
@@ -56,10 +61,10 @@ Verified source baseline:
 
 The camera frame path is a simulation data plane, not real-camera validation.
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
-StackChan SCS servo, audio PCM capture/injection and Cardputer/PaperColor SPI
-SD are validated through the UIFlow2 runtime. USB Host, ST25R3916 SPI/NFCCap,
-Tab5 MIPI-CSI/ES8388 and CAN/RS485 remain follow-up work and are tracked in
-the peripheral catalog. The SX1262 test still keeps CS asserted and splits
-large SPI transfers into ≤4-byte transactions for compatibility with the
-current UIFlow2 SPI driver path; the SPI SD path exercises larger block
-transfers directly.
+StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and
+Cardputer/PaperColor SPI SD are validated through the UIFlow2 runtime. USB
+Host, ST25R3916 SPI/NFCCap, Tab5 MIPI-CSI/ES8388, CAN/RS485 and buzzer remain
+follow-up work and are tracked in the peripheral catalog. The SX1262 test still
+keeps CS asserted and splits large SPI transfers into ≤4-byte transactions for
+compatibility with the current UIFlow2 SPI driver path; the SPI SD path
+exercises larger block transfers directly.

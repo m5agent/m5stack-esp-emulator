@@ -160,22 +160,25 @@
         "pwr-button"
       ],
       "peripherals": [
-        "axp192",
+        "axp2101",
+        "ina3221",
         "ft6336",
-        "bmi270",
-        "rx8130"
+        "mpu6886",
+        "pcf8563",
+        "ns4168",
+        "spm1423"
       ],
       "board_work": [
         "ILI9342 pixel-stream/live-frame polish",
         "PSRAM/cache stability"
       ],
       "blockers": [
-        "PSRAM/cache stability and deeper peripheral coverage remain"
+        "PSRAM/cache stability remains"
       ],
       "validation": {
-        "date": "2026-10-20",
-        "status": "display-touch-pass",
-        "detail": "Official UIFlow2 v2.5.3 reaches main.py, renders the complete 320x240 frame, and QMP touch redraws the on-screen counter. QEMU -m 0 is currently required for the best PSRAM/cache stability."
+        "date": "2026-10-21",
+        "status": "display-touch-audio-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders 320x240, accepts touch, captures nonzero NS4168 speaker PCM through ESP32 I2S1, injects SPM1423 PCM through I2S0 PDM RX, and reads INA3221 power telemetry through I2C0. The board uses the documented Core2 v1.1 AXP2101 + INA3221 hardware. QEMU -m 0 is still required for best PSRAM/cache stability."
       }
     },
     {

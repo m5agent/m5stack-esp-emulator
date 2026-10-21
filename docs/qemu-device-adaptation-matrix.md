@@ -151,7 +151,7 @@ Tab5、Core2、CardputerZero。
 - Tab5：P4 + MIPI-DSI + 协处理器已跑通。`esp-emu 0.50.0` 配合 `esp32p4_rev0_rom.elf` 和 Tab5 eFuse 启动 UIFlow2 P4 固件；C6 侧运行 ESP-Hosted 2.12.6 网络协处理器固件。P4 侧在真实 M5GFX 绘制路径中分配 720×1280 的原始 PSRAM framebuffer，测试工具按 rotation 1 转成物理横向 1280×720 PNG；触摸邮箱使用同一坐标变换，逻辑 `(640,520)` 会写成原始 `(199,640)`，UI 计数从 0 变为 1。
 - Tab5 烧录：为避免 `esp-emu` P4 下载模式的高位地址回卷限制，仿真专用分区表把 `factory/sys/vfs/storage` 全部放在 8 MiB 以下；应用与 VFS 分块通过真实 `esptool` 写入同一份 16 MiB 虚拟 Flash，逐字节校验通过后再启动。生产分区布局不变。
 - Tab5 当前边界：仿真构建关闭 LVGL Python 绑定，验收覆盖官方 M5GFX/UIFlow2 原生绘制、显示和触摸；这不等于真机 PASS。
-- Core2：ESP32 LX6 已接入同一 QEMU 源码树，官方 UIFlow2 已进入 `main.py`，M5GFX 识别 320x240、AXP192 与 FT5x06；完整帧和触摸重绘已通过。测试用 `-m 0` 规避 PSRAM/cache 稳定性问题，并通过 QEMU UART `baud-scale=16` + `esptool --no-stub` 将完整镜像写入虚拟 flash 后从同一份镜像启动。补丁见 `patches/qemu-core2-qemu-esptool/`。
+- Core2 v1.1：ESP32 LX6 已接入同一 QEMU 源码树，官方 UIFlow2 已进入 `main.py`，M5GFX 识别 320x240、AXP2101 与 FT5x06；完整帧和触摸重绘已通过。ESP32 classic I2S0/I2S1 模型直接消费 IDF `lldesc_t` 链，NS4168 扬声器可抓取非静音 PCM，SPM1423 PDM 麦克风可注入 PCM，ALDO3 功放使能断言通过。测试用 `-m 0` 规避 PSRAM/cache 稳定性问题，并通过 QEMU UART `baud-scale=16` + `esptool --no-stub` 将完整镜像写入虚拟 flash 后从同一份镜像启动。补丁见 `patches/qemu-core2-qemu-esptool/`。
 - CardputerZero：Linux ARM64 VM，不是 ESP32 固件。
 
 Tab5 验收帧：

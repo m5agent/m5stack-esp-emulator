@@ -19,14 +19,14 @@
 | 重量 | 45.1 g |
 | 显示 | 320×240 ips，2"，ILI9342C / ILI9342E，触摸 |
 | 控制 | Touch, PWR |
-| 外设 | imu:mpu6886, rtc:bm8563, microphone:spm1423, speaker |
+| 外设 | imu:mpu6886, rtc:bm8563, microphone:spm1423, speaker:ns4168, power-monitor:ina3221 |
 
 ## 模拟状态
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 完成 320x240 首帧和 FT5x06 触摸重绘；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。测试镜像通过 QEMU ESP32 ROM UART 下载模式和 esptool --no-stub 写入 16 MiB 虚拟 flash，逐字节校验后从同一镜像启动。
+- 验证：`display-touch-audio-pass` (2026-10-21)
+- 详情：官方 UIFlow2 v2.5.3 完成 320x240 首帧、FT5x06 触摸重绘、NS4168 扬声器 PCM 抓取和 SPM1423 PDM 麦克风 PCM 注入。板级已修正为 Core2 v1.1 的 AXP2101 + INA3221 硬件；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。
 
 
 

@@ -212,15 +212,19 @@
       "kind": "audio-amplifier",
       "interface": "i2s",
       "capabilities": ["speaker"],
-      "status": "planned",
-      "injection": ["qom-pcm"]
+      "status": "simulated",
+      "injection": ["qom-pcm"],
+      "data_plane": "Core2 v1.1 ESP32 I2S1 linked-list DMA with AXP2101 ALDO3 amplifier enable; host PCM capture",
+      "tested_devices": ["core2"]
     },
     "spm1423": {
       "kind": "pdm-microphone",
       "interface": "pdm",
       "capabilities": ["microphone"],
-      "status": "planned",
-      "injection": ["qom-pcm"]
+      "status": "simulated",
+      "injection": ["qom-pcm"],
+      "data_plane": "Core2 v1.1 ESP32 I2S0 PDM RX and legacy linked-list DMA; deterministic PCM injection reaches the UIFlow2 microphone buffer",
+      "tested_devices": ["core2"]
     },
     "pdm-microphone": {
       "kind": "pdm-microphone",
@@ -289,6 +293,16 @@
       "capabilities": ["power-monitor"],
       "status": "simulated",
       "injection": ["qom-bus-voltage", "qom-current"]
+    },
+    "ina3221": {
+      "kind": "power-monitor",
+      "interface": "i2c",
+      "address": "0x40",
+      "capabilities": ["bus-voltage", "current"],
+      "status": "simulated",
+      "injection": ["qom-bus-voltage", "qom-current"],
+      "data_plane": "INA3221 three-channel register model over ESP32 I2C0; manufacturer/die ID, 8 mV bus-voltage LSB and 40 uV shunt-voltage LSB with QOM physical-value injection",
+      "tested_devices": ["core2"]
     },
     "ltr-553als-wa": {
       "kind": "light-proximity",
@@ -558,14 +572,18 @@
     },
     "core2": {
       "board_model": "m5core2",
-      "evidence": ["https://docs.m5stack.com/en/core/Core2"],
+      "evidence": [
+        "https://docs.m5stack.com/en/core/Core2%20v1.1",
+        "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/486/Sch_Core2_v1.1_2023-07-20.pdf"
+      ],
       "components": [
-        {"id": "pmic", "model": "axp192", "qom_path": "/machine/axp192"},
+        {"id": "pmic", "model": "axp2101", "qom_path": "/machine/axp2101"},
+        {"id": "power-monitor", "model": "ina3221", "address": "0x40"},
         {"id": "touch", "model": "touch-ft5x06", "qom_path": "/machine/core2-ft5x06"},
         {"id": "imu", "model": "mpu6886", "qom_path": "/machine/mpu6886"},
         {"id": "rtc", "model": "pcf8563", "address": "0x51"},
-        {"id": "microphone", "model": "spm1423"},
-        {"id": "speaker", "model": "ns4168"},
+        {"id": "microphone", "model": "spm1423", "interface": "i2s0-pdm"},
+        {"id": "speaker", "model": "ns4168", "interface": "i2s1"},
         {"id": "power-key", "model": "pwr-button"}
       ]
     },
