@@ -19,14 +19,14 @@
 | 重量 | 官方未确认 |
 | 显示 | 135×240 ips，1.14"，ST7789，触摸 |
 | 控制 | Touch, KEY1, KEY2 |
-| 外设 | imu:bmi270, lora, buzzer:gpio-ledc, ir-tx, battery-fuel-gauge:bq27220, charger:aw32001, io-expander:pi4ioe5v6408 |
+| 外设 | imu:bmi270, lora, buzzer:i2s-gpio, ir-tx, battery-fuel-gauge:bq27220, charger:aw32001, io-expander:pi4ioe5v6408 |
 
 ## 模拟状态
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-power-io-ir-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 135x240 UI；触摸/按键、双 PI4IOE、BQ27220、AW32001 和 ESP32-C6 RMT NEC 红外均完成总线闭环。
+- 验证：`display-touch-power-io-ir-imu-lora-pass` (2026-10-21)
+- 详情：官方 UIFlow2 v2.5.3 渲染 135x240 UI；触摸/按键、双 PI4IOE、BQ27220、AW32001、ESP32-C6 RMT NEC 红外、BMI270 加速度/角速度和 SX1262 LoRa 收发均完成总线闭环。
 
 
 

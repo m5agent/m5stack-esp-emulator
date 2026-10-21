@@ -50,7 +50,7 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual("reference-ready", by_id["nesso-n1"]["runtime"]["status"])
         self.assertEqual("qemu-esp32s3", by_id["sticks3"]["runtime"]["backend"])
         self.assertEqual(
-            "display-touch-power-io-ir-pass",
+            "display-touch-power-io-ir-imu-lora-pass",
             by_id["nesso-n1"]["runtime"]["validation"]["status"],
         )
         self.assertEqual("backend-required", by_id["cardputer-zero"]["runtime"]["status"])

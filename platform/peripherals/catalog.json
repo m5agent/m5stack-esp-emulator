@@ -166,7 +166,9 @@
       "address": "0x68",
       "capabilities": ["accel", "gyro"],
       "status": "simulated",
-      "injection": ["qom-accel", "qom-gyro"]
+      "injection": ["qom-accel", "qom-gyro"],
+      "data_plane": "BMI270 CHIP_ID, soft reset, INIT_DATA/INIT_CTRL, data-ready status and little-endian accel/gyro sample registers over the board I2C bus; QOM physical values reach the UIFlow2 Imu API",
+      "tested_devices": ["sticks3", "atoms3r", "cores3", "stopwatch", "papermono", "cardputer-adv", "nesso-n1"]
     },
     "bmm150": {
       "kind": "magnetometer",
@@ -412,13 +414,13 @@
       "data_plane": "StamPLC Speaker buzzer mode generates a 1-bit delta-sigma I2S TX stream on G44; host PCM capture verifies firmware output",
       "tested_devices": ["stamplc"]
     },
-    "gpio-buzzer-c6": {
+    "i2s-buzzer-c6": {
       "kind": "actuator",
-      "interface": "ledc-gpio",
+      "interface": "i2s-gpio",
       "capabilities": ["buzzer"],
       "status": "planned",
-      "injection": ["pwm-capture"],
-      "data_plane": "ESP32-C6 LEDC/GPIO buzzer output used by Nesso N1 GPIO11"
+      "injection": ["qom-pcm"],
+      "data_plane": "ESP32-C6 I2S TX carrying the M5Unified 1-bit delta-sigma buzzer waveform on Nesso N1 GPIO11"
     },
     "can": {
       "kind": "fieldbus",
@@ -470,8 +472,8 @@
       "capabilities": ["lora"],
       "status": "simulated",
       "injection": ["local-tx-rx-loopback", "spi-command-fifo"],
-      "data_plane": "SX1262 SPI command/argument/status/register/TX-RX FIFO protocol, IRQ status, packet metadata and local TX-to-RX loopback over ESP32-S3 GP-SPI3 and GDMA",
-      "tested_devices": ["papermono"]
+      "data_plane": "SX1262 SPI command/argument/status/register/TX-RX FIFO protocol, IRQ status, packet metadata and local TX-to-RX loopback over ESP32-S3 GP-SPI3/GDMA and Nesso N1 GPIO20-GPIO23 soft-SPI pins",
+      "tested_devices": ["papermono", "nesso-n1"]
     },
     "sd-card": {
       "kind": "storage",
@@ -679,9 +681,9 @@
       "board_model": "esp32c6",
       "evidence": ["https://docs.m5stack.com/en/core/Arduino_Nesso_N1"],
       "components": [
-        {"id": "imu", "model": "bmi270"},
+        {"id": "imu", "model": "bmi270", "qom_path": "/machine/nesso-bmi270"},
         {"id": "lora", "model": "lora-sx1262"},
-        {"id": "buzzer", "model": "gpio-buzzer-c6"},
+        {"id": "buzzer", "model": "i2s-buzzer-c6"},
         {"id": "ir", "model": "ir-tx-c6"},
         {"id": "battery-gauge", "model": "bq27220", "qom_path": "/machine/nesso-bq27220"},
         {"id": "charger", "model": "aw32001", "qom_path": "/machine/nesso-aw32001"},

@@ -163,6 +163,42 @@ CASES = [
         "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV SD"},
     },
     {
+        "id": "cardputer-adv-imu",
+        "expected_status": "PASS",
+        "reason": (
+            "The Cardputer-ADV BMI270 at I2C 0x69 is initialized by "
+            "M5Unified and QOM physical values reach Imu.getAccel/getGyro."
+        ),
+        "checks": [
+            {"name": "cardputer_bmi270_init", "status": "PASS"},
+            {"name": "cardputer_bmi270_accel", "status": "PASS"},
+            {"name": "cardputer_bmi270_gyro", "status": "PASS"},
+            {"name": "cardputer_imu_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cardputeradv",
+        "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cardputer_adv_peripherals",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [
+            ("/machine/bmi270", "accel-x", "0.25"),
+            ("/machine/bmi270", "accel-y", "-0.50"),
+            ("/machine/bmi270", "accel-z", "0.75"),
+            ("/machine/bmi270", "gyro-x", "10"),
+            ("/machine/bmi270", "gyro-y", "-20"),
+            ("/machine/bmi270", "gyro-z", "30"),
+        ],
+        "allow_static_frame": True,
+        "frame_color": {
+            "x": 4, "y": 4, "label": "Cardputer-ADV BMI270",
+        },
+    },
+    {
         "id": "cardputer-adv-audio",
         "expected_status": "PASS",
         "reason": (
@@ -1774,6 +1810,41 @@ CASES = [
         "frame_color": {"x": 4, "y": 4, "label": "Nesso peripherals"},
     },
     {
+        "id": "nesso-imu",
+        "expected_status": "PASS",
+        "reason": (
+            "The Nesso N1 BMI270 at I2C 0x68 is initialized by M5Unified; "
+            "QOM values are encoded in the chip sample registers and read "
+            "through the official Imu API."
+        ),
+        "checks": [
+            {"name": "nesso_bmi270_init", "status": "PASS"},
+            {"name": "nesso_bmi270_accel", "status": "PASS"},
+            {"name": "nesso_bmi270_gyro", "status": "PASS"},
+            {"name": "nesso_imu_ui_marker", "status": "PASS"},
+        ],
+        "machine": "esp32c6",
+        "backend": "qemu-esp32c6",
+        "base": "platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "files_dir": "tests/uiflow2/nesso_imu",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "135x240",
+        "wait": "15",
+        "inputs": ["touch:67,160"],
+        "qom": [
+            ("/machine/nesso-bmi270", "accel-x", "0.25"),
+            ("/machine/nesso-bmi270", "accel-y", "-0.50"),
+            ("/machine/nesso-bmi270", "accel-z", "0.75"),
+            ("/machine/nesso-bmi270", "gyro-x", "10"),
+            ("/machine/nesso-bmi270", "gyro-y", "-20"),
+            ("/machine/nesso-bmi270", "gyro-z", "30"),
+        ],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "Nesso BMI270"},
+    },
+    {
         "id": "nesso-ir",
         "expected_status": "PASS",
         "reason": (
@@ -1806,6 +1877,37 @@ CASES = [
             "command": 163,
         },
         "frame_color": {"x": 4, "y": 4, "label": "Nesso IR"},
+    },
+    {
+        "id": "nesso-lora",
+        "expected_status": "PASS",
+        "reason": (
+            "The Nesso SX1262 shares ESP32-C6 SPI2 with the display; the "
+            "hardware.LoRa driver configures the modem and receives the "
+            "packet sent through the chip packet FIFO."
+        ),
+        "checks": [
+            {"name": "nesso_pi4ioe_radio_rails", "status": "PASS"},
+            {"name": "sx1262_spi2_configure", "status": "PASS"},
+            {"name": "sx1262_tx_rx_loopback", "status": "PASS"},
+            {"name": "nesso_lora_ui_marker", "status": "PASS"},
+        ],
+        "machine": "esp32c6",
+        "backend": "qemu-esp32c6",
+        "base": "platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "files_dir": "tests/uiflow2/nesso_lora",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "135x240",
+        "wait": "15",
+        "inputs": ["touch:67,160"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_SX1262_TRACE": "1",
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Nesso SX1262"},
     },
 ]
 

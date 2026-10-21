@@ -285,22 +285,23 @@
       "peripherals": [
         "ft6336",
         "bmi270",
+        "sx1262",
         "pi4ioe5v6408",
         "bq27220",
-    "aw32001",
-    "ir"
+        "aw32001",
+        "ir"
       ],
       "board_work": [
         "ESP32-C6 machine/board init",
         "ST7789 SPI panel",
         "FT6336 touch",
-    "PI4IOE expanders, power telemetry and ESP32-C6 IR"
+        "PI4IOE expanders, power telemetry, BMI270 and ESP32-C6 IR/LoRa"
       ],
       "blockers": [],
       "validation": {
         "date": "2026-10-21",
-    "status": "display-touch-power-io-ir-pass",
-    "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI, QMP touch and button input pass, both PI4IOE expanders retain state, BQ27220/AW32001 injection reaches the Power API, and ESP32-C6 RMT captures a valid NEC 0x56/0xA3 frame."
+        "status": "display-touch-power-io-ir-imu-lora-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, both PI4IOE expanders, BQ27220/AW32001, C6 RMT NEC 0x56/0xA3, BMI270 accel/gyro and SX1262 LoRa TX/RX all pass through their controller and chip data planes."
       }
     },
     {

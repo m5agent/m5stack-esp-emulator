@@ -67,7 +67,8 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 - StickS3：A/B/P、电源 telemetry、BMI270 数值、ES8311 音频、IR 和电量计路径通过。
 - CoreS3：触摸、PWR、AXP2101、PCF8563、BMI270/BMM150、ALS、AW9523
   和 GC0308 相机路径通过。
-- Nesso N1：触摸、双 PI4IOE、BQ27220 电池遥测和 AW32001 充电状态通过。
+- Nesso N1：触摸、双 PI4IOE、BQ27220 电池遥测、AW32001 充电状态、
+  BMI270 加速度/角速度和 SX1262 LoRa 收发通过。
 
 详细矩阵和截图见
 [`uiflow2-peripheral-test-matrix.md`](uiflow2-peripheral-test-matrix.md)。
@@ -143,7 +144,10 @@ PaperMono、PaperColor。
 Nesso N1、NanoC6。
 
 - C6 machine、SARADC 启动握手、SPI flash、USB-Serial-JTAG 和 HP I2C0 已接入。
-- Nesso N1 已完成 ST7789 135x240、PI4IOE、FT5x06 触摸和 M5GFX 板型探测；此前 screenshot 行对齐伪影是测试工具未处理 QEMU PPM 的 4 字节行对齐，修正读取后首帧、触摸和规范 PNG 均通过。
+- Nesso N1 已完成 ST7789 135x240、PI4IOE、FT5x06 触摸、M5GFX 板型探测、
+  BMI270 采样和共享 SPI2 上的 SX1262 收发；此前 screenshot 行对齐伪影是
+  测试工具未处理 QEMU PPM 的 4 字节行对齐，修正读取后首帧、触摸和规范 PNG
+  均通过。
 - NanoC6 无显示屏，官方 UIFlow2 已能运行替换后的 `boot.py`/`main.py`；M5.begin 返回板型 140。
 
 ### 第 5 批：高风险三台

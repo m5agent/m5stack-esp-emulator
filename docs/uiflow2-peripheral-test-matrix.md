@@ -43,6 +43,7 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | Cardputer-ADV | ES8311/NS4150B 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
 | Cardputer-ADV | ES8311 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
 | Cardputer-ADV | SPI microSD 初始化、512B 写入/回读、原始镜像校验 | `machine.SDCard(slot=3)` | PASS |
+| Cardputer-ADV | BMI270 三轴加速度/角速度 | `Imu.getAccel()` / `getGyro()` | PASS |
 | PaperMono | PDM 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
 | PaperColor | ES8311/AW8737A 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
 | PaperColor | ES7210 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
@@ -62,6 +63,8 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StopWatch | M5IOE1 GPIO、ADC、PWM 与注入输入 | `driver.m5ioe1` | PASS |
 | StopWatch | M5PM1 电源、GPIO/ADC/PWM、IRQ、唤醒、看门狗、定时器和 RTC RAM | `driver.m5pm1` | PASS |
 | Arduino Nesso N1 | 双 PI4IOE、按键中断、BQ27220 和 AW32001 | I2C + `Power` | PASS |
+| Arduino Nesso N1 | BMI270 三轴加速度/角速度 | `Imu.getAccel()` / `getGyro()` | PASS |
+| Arduino Nesso N1 | SX1262 LoRa 配置、发送、接收回环 | `lora.SX1262` | PASS |
 | Core2 legacy | AXP192 芯片 ID、电池/VBUS/电流 ADC 与充电状态 | SoftI2C + PMIC 寄存器 | PASS |
 | AtomS3R | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | Cardputer-ADV | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
@@ -74,7 +77,7 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 汇总：
 
 ```text
-PASS    55
+PASS    57
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -363,6 +366,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/cardputer_adv_audio/`
 - `tests/uiflow2/cardputer_adv_mic/`
 - `tests/uiflow2/cardputer_adv_sd/`
+- `tests/uiflow2/cardputer_adv_peripherals/`
 - `tests/uiflow2/papermono_mic/`
 - `tests/uiflow2/papercolor_audio/`
 - `tests/uiflow2/papercolor_mic/`
@@ -378,6 +382,28 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/stamplc_lm75/`
 - `tests/uiflow2/papercolor_rgb/`
 - `tests/uiflow2/stamplc_onboard_io/`
+- `tests/uiflow2/nesso_imu/`
+- `tests/uiflow2/nesso_lora/`
+
+## Nesso N1 IMU 与 LoRa
+
+### BMI270
+
+Nesso N1 的 BMI270 位于 I2C `0x68`。模型实现 `CHIP_ID`、软复位、
+`INIT_DATA/INIT_CTRL`、数据就绪状态和 little-endian accel/gyro 采样寄存器；
+QOM 注入 `0.25 / -0.50 / 0.75 g` 和 `10 / -20 / 30 dps` 后，官方
+`Imu.getAccel()` / `Imu.getGyro()` 返回一致值。
+
+### SX1262 LoRa
+
+Nesso N1 的 ST7789 和 SX1262 共用 `G20/G21/G22`，分别由 `G17/G23` 选通。
+测试通过 `lora.SX1262` 驱动完成 868 MHz/SF7/125 kHz 配置、发送 `M5LORA`
+并从芯片 packet FIFO 回读相同数据。C6 SPI2 控制器补齐 DMA `TRANS_DONE`
+状态；SX1262 模型在 GPIO 位流上实现命令、参数、状态、寄存器、IRQ 和
+TX/RX FIFO 协议，不在 Python 层替换返回值。
+
+> `hardware.LoRa` 包装器会重新初始化 ST7789 已占用的硬件 SPI2；本测试使用
+> 同一官方 `lora.SX1262` 驱动和 `machine.SoftSPI` 走相同的四个物理 GPIO。
 
 ## 屏幕证据
 
@@ -469,6 +495,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![Cardputer-ADV SD](images/cardputer-adv-sd-test.png)
 
+![Cardputer-ADV BMI270](images/cardputer-adv-imu-test.png)
+
 ![PaperColor audio](images/papercolor-audio-test.png)
 
 ![PaperColor microphone](images/papercolor-mic-test.png)
@@ -519,9 +547,13 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![Nesso IR](images/nesso-ir-test.png)
 
+![Nesso BMI270](images/nesso-imu-test.png)
+
+![Nesso SX1262 LoRa](images/nesso-lora-test.png)
+
 ## 尚未闭环
 
-- ESP32-C6 RMT/IR 路径（StickS3 的 ESP32-S3 RMT 已闭环）；
+- Arduino Nesso N1 的 GPIO11 I2S 1-bit ΔΣ 蜂鸣器（M5Unified 走 C6 I2S TX）；
 - ST25R3916 SPI/NFCCap 路径；
 - USB Host 虚拟端点；
 - Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；

@@ -28,6 +28,122 @@ index 46dbe7c..e3666fe 100644
      DEFINE_PROP_UINT32("nonvolatile-cfg", Flash, nonvolatile_cfg, 0x8FFF),
      DEFINE_PROP_UINT8("spansion-cr1nv", Flash, spansion_cr1nv, 0x0),
      DEFINE_PROP_UINT8("spansion-cr2nv", Flash, spansion_cr2nv, 0x8),
+diff --git a/hw/dma/esp32c6_gdma.c b/hw/dma/esp32c6_gdma.c
+index fe18085..48e31f7 100644
+--- a/hw/dma/esp32c6_gdma.c
++++ b/hw/dma/esp32c6_gdma.c
+@@ -12,6 +12,9 @@
+ 
+ static void esp32c6_gdma_init(Object *obj)
+ {
++    ESP32C6GdmaState *s = ESP32C6_GDMA(obj);
++
++    s->parent.parent.ram_addr = 0x40800000;
+ }
+ 
+ static const TypeInfo esp32c6_gdma_info = {
+diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+index 6640fca..08a6e9b 100644
+--- a/hw/dma/esp_gdma.c
++++ b/hw/dma/esp_gdma.c
+@@ -252,7 +252,7 @@ static void esp_gdma_get_restart_buffer(ESPGdmaState *s, uint32_t chan, uint32_t
+     DmaConfigState* state = &s->ch_conf[dir][chan];
+     // GdmaLinkedList* list = NULL;
+     /* The next node to use is taken from state->state's lowest 18 bit. Append it to the DRAM address */
+-    const uint32_t dram_upper_bits = ESP_GDMA_RAM_ADDR & (~R_GDMA_OUT_STATE_LINK_DSCR_ADDR_MASK);
++    const uint32_t dram_upper_bits = s->ram_addr & (~R_GDMA_OUT_STATE_LINK_DSCR_ADDR_MASK);
+     const uint32_t guest_addr = dram_upper_bits | FIELD_EX32(state->state, GDMA_OUT_STATE, LINK_DSCR_ADDR);
+ 
+     *out = guest_addr;
+@@ -304,7 +304,8 @@ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint
+                                              R_GDMA_INTERRUPT_OUT_EOF_MASK);
+ 
+     /* Get the guest DRAM address */
+-    uint32_t out_addr = ((ESP_GDMA_RAM_ADDR >> 20) << 20) | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++    uint32_t out_addr = ((s->ram_addr >> 20) << 20) |
++                        FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
+ 
+     /* Boolean to mark whether we need to check the owner for in and out buffers */
+     const bool owner_check_out = FIELD_EX32(state->conf1, GDMA_OUT_CONF1, CHECK_OWNER);
+@@ -400,6 +401,51 @@ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint
+     return !error;
+ }
+ 
++uint32_t esp32c6_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
++                                           uint8_t *buffer, uint32_t size)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
++    const uint32_t high = (s->ram_addr >> 20) << 20;
++    uint32_t addr = high | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++    const uint32_t start = addr;
++    uint32_t consumed = 0;
++
++    for (int i = 0; addr && i < 256 && consumed < size; i++) {
++        GdmaLinkedList desc;
++        uint32_t copy;
++
++        if (!esp_gdma_read_descr(s, addr, &desc)) {
++            break;
++        }
++        copy = MIN(desc.config.length, size - consumed);
++        if (getenv("M5SW_GDMA_SNAPSHOT_TRACE")) {
++            uint8_t head[16] = { 0 };
++            uint32_t head_len = MIN(copy, sizeof(head));
++            if (head_len) {
++                esp_gdma_read_guest(s, desc.buf_addr, head, head_len);
++            }
++            fprintf(stderr,
++                    "[c6-gdma-snapshot] dscr=%08x buf=%08x len=%u owner=%u eof=%u head=",
++                    addr, desc.buf_addr, desc.config.length,
++                    desc.config.owner, desc.config.suc_eof);
++            for (uint32_t i = 0; i < head_len; i++) {
++                fprintf(stderr, "%02x", head[i]);
++            }
++            fprintf(stderr, "\n");
++        }
++        if (copy && !esp_gdma_read_guest(s, desc.buf_addr,
++                                         buffer + consumed, copy)) {
++            break;
++        }
++        consumed += copy;
++        if (!desc.next_addr || desc.next_addr == start) {
++            break;
++        }
++        addr = desc.next_addr;
++    }
++    return consumed;
++}
++
+ 
+ /**
+  * @brief Write data to the guest RAM pointed by the linked list configured in the given DmaConfigState index.
+@@ -417,7 +463,8 @@ bool esp_gdma_write_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uin
+                                              R_GDMA_INTERRUPT_IN_SUC_EOF_MASK);
+ 
+     /* Get highest 12 bits of the DRAM address */
+-    uint32_t in_addr = ((ESP_GDMA_RAM_ADDR >> 20) << 20) | FIELD_EX32(state->link, GDMA_IN_LINK, ADDR);
++    uint32_t in_addr = ((s->ram_addr >> 20) << 20) |
++                       FIELD_EX32(state->link, GDMA_IN_LINK, ADDR);
+ 
+     /* Boolean to mark whether we need to check the owner for in buffers */
+     const bool owner_check_in = FIELD_EX32(state->conf1, GDMA_IN_CONF1, CHECK_OWNER);
+@@ -563,7 +610,7 @@ static void esp_gdma_check_and_start_mem_transfer(ESPGdmaState *s, uint32_t chan
+                               R_GDMA_INTERRUPT_OUT_EOF_MASK  );
+ 
+         /* Get highest 12 bits of the DRAM address */
+-        const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
++        const uint32_t high = (s->ram_addr >> 20) << 20;
+ 
+         /* TODO: in an inlink, when burst mode is enabled, size and buffer address must be word-aligned. */
+         /* If a start was performed, the first descriptor address to process is in DMA_OUT_LINK_CHn register,
+@@ -978,6 +1025,7 @@ static void esp_gdma_init(Object *obj)
+     if (klass->m_channel_count == 0 || klass->m_channel_count > 16) {
+         error_report("[GDMA] %s: invalid number of DMA channels (%zu)", __func__, klass->m_channel_count);
+     }
++    s->ram_addr = ESP_GDMA_RAM_ADDR;
+ 
+     /* Initialize the DmaConfigState arrays */
+     for (int dir = 0; dir < ESP_GDMA_CONF_COUNT; dir++) {
 diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
 index 4fea1f5..befd8b3 100644
 --- a/hw/gpio/esp32_gpio.c
@@ -306,10 +422,10 @@ index e72dca0..d8fd45c 100644
  i2c_ss.add(when: 'CONFIG_BCM2835_I2C', if_true: files('bcm2835_i2c.c'))
 diff --git a/hw/misc/esp32c6_board_i2c.c b/hw/misc/esp32c6_board_i2c.c
 new file mode 100644
-index 0000000..d134a1b
+index 0000000..434fc03
 --- /dev/null
 +++ b/hw/misc/esp32c6_board_i2c.c
-@@ -0,0 +1,352 @@
+@@ -0,0 +1,416 @@
 +/*
 + * Minimal I2C devices used by the Arduino Nesso N1 board.
 + *
@@ -323,6 +439,7 @@ index 0000000..d134a1b
 +#include "qemu/osdep.h"
 +#include "qemu/log.h"
 +#include "qemu/module.h"
++#include <math.h>
 +#include "qapi/error.h"
 +#include "qapi/visitor.h"
 +#include "hw/i2c/i2c.h"
@@ -352,6 +469,8 @@ index 0000000..d134a1b
 +    int64_t battery_mv;
 +    int64_t battery_current_ma;
 +    int64_t battery_level;
++    double accel[3];
++    double gyro[3];
 +    bool charging;
 +} C6BoardI2CDev;
 +
@@ -452,8 +571,26 @@ index 0000000..d134a1b
 +            nesso_pi4ioe_update_irq(s);
 +            return value;
 +        }
-+    } else if (s->model == C6_DEV_BMI270 && reg == 0x00) {
-+        return 0x24;
++    } else if (s->model == C6_DEV_BMI270) {
++        if (reg >= 0x0c && reg <= 0x17) {
++            int index = (reg - 0x0c) / 2;
++            double value = index < 3
++                ? s->accel[index] * 32768.0 / 8.0
++                : s->gyro[index - 3] * 32768.0 / 2000.0;
++            int32_t raw = (int32_t)lrint(value);
++            raw = MAX(-32768, MIN(raw, 32767));
++            return ((reg - 0x0c) & 1)
++                ? ((uint16_t)raw >> 8) : ((uint16_t)raw & 0xff);
++        }
++        if (reg == 0x1d) {
++            return 0xc0;                    /* ACC and GYR data ready */
++        }
++        if (reg == 0x21) {
++            return s->regs[0x59] & 1 ? 1 : 0;
++        }
++        if (reg == 0x03) {
++            return 0xc0;
++        }
 +    } else if (s->model == C6_DEV_BQ27220) {
 +        if (s->read_start == 0x3e) {
 +            unsigned offset = reg - 0x3e;
@@ -535,6 +672,16 @@ index 0000000..d134a1b
 +        fprintf(stderr, "[c6-i2c] write model=%d reg=%02x data=%02x\n",
 +                s->model, s->ptr, data);
 +    }
++    if (s->model == C6_DEV_BMI270) {
++        if (s->ptr == 0x5e) {
++            return 0;                       /* INIT_DATA burst */
++        }
++        if (s->ptr == 0x7e && data == 0xb6) {
++            s->regs[0x7c] = 0x03;
++            s->ptr++;
++            return 0;
++        }
++    }
 +    if (s->model == C6_DEV_PI4IOE && s->ptr == 0x01 && (data & BIT(0))) {
 +        memset(s->regs, 0, sizeof(s->regs));
 +        s->regs[0x01] = 0xa2;
@@ -556,6 +703,22 @@ index 0000000..d134a1b
 +                            void *op, Error **errp)
 +{
 +    visit_type_int64(v, name, (int64_t *)op, errp);
++}
++
++static void c6_prop_get_num(Object *o, Visitor *v, const char *name,
++                            void *op, Error **errp)
++{
++    visit_type_number(v, name, (double *)op, errp);
++}
++
++static void c6_prop_set_num(Object *o, Visitor *v, const char *name,
++                            void *op, Error **errp)
++{
++    double value;
++
++    if (visit_type_number(v, name, &value, errp)) {
++        *(double *)op = value;
++    }
 +}
 +
 +static void c6_prop_set_i64(Object *o, Visitor *v, const char *name,
@@ -604,10 +767,27 @@ index 0000000..d134a1b
 +            g_nesso_pi4ioe[1] = s;
 +        }
 +    } else if (!strcmp(model, "bmi270")) {
++        static const char *accel_names[] = {
++            "accel-x", "accel-y", "accel-z"
++        };
++        static const char *gyro_names[] = {
++            "gyro-x", "gyro-y", "gyro-z"
++        };
++
 +        s->model = C6_DEV_BMI270;
 +        s->regs[0x00] = 0x24;
 +        s->regs[0x03] = 0xc0;
++        s->regs[0x7c] = 0x03;
 +        s->regs[0x1d] = 0xc0;
++        s->accel[2] = 1.0;
++        for (int i = 0; i < 3; i++) {
++            object_property_add(OBJECT(s), accel_names[i], "number",
++                                c6_prop_get_num, c6_prop_set_num,
++                                NULL, &s->accel[i]);
++            object_property_add(OBJECT(s), gyro_names[i], "number",
++                                c6_prop_get_num, c6_prop_set_num,
++                                NULL, &s->gyro[i]);
++        }
 +    } else if (!strcmp(model, "bq27220")) {
 +        s->model = C6_DEV_BQ27220;
 +        s->battery_mv = 4000;
@@ -662,6 +842,346 @@ index 0000000..d134a1b
 +}
 +
 +type_init(c6_i2c_register_types)
+diff --git a/hw/misc/esp32c6_i2s.c b/hw/misc/esp32c6_i2s.c
+new file mode 100644
+index 0000000..75fe83c
+--- /dev/null
++++ b/hw/misc/esp32c6_i2s.c
+@@ -0,0 +1,334 @@
++/*
++ * ESP32-C6 I2S register, GDMA and PCM data-plane model.
++ *
++ * The controller exposes the same I2S register front-end used by the
++ * ESP-IDF std driver, while the actual buffers are consumed from the C6
++ * AHB GDMA descriptor chain. TX PCM is captured from the guest buffer;
++ * RX PCM can be injected from M5SW_I2S_RX_PCM_FILE.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "qapi/error.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/irq.h"
++#include "hw/sysbus.h"
++#include "hw/misc/esp32c6_i2s.h"
++
++#define ESP32C6_I2S_BASE       0x6000c000
++#define ESP32C6_I2S_IRQ_SOURCE 41
++#define TYPE_ESP32C6_I2S "esp32c6.i2s"
++
++#define R_INT_RAW  0x0c
++#define R_INT_ST   0x10
++#define R_INT_ENA  0x14
++#define R_INT_CLR  0x18
++#define R_RX_CONF  0x20
++#define R_TX_CONF  0x24
++#define RX_START   BIT(2)
++#define TX_START   BIT(2)
++#define I2S_PCM_MAX_WRITES 128
++
++typedef struct Esp32C6I2SState {
++    SysBusDevice parent_obj;
++    MemoryRegion iomem;
++    qemu_irq irq;
++    ESPGdmaState *gdma;
++    uint32_t regs[0x1000 / 4];
++    uint32_t int_ena;
++    uint32_t int_raw;
++    bool trace;
++    bool tx_started;
++    bool tx_active;
++    uint32_t tx_channel;
++    uint32_t tx_events;
++    QEMUTimer *tx_timer;
++    FILE *pcm_file;
++    uint32_t pcm_writes;
++    uint32_t pcm_limit;
++    uint64_t pcm_bytes;
++    bool rx_started;
++    bool rx_active;
++    uint32_t rx_channel;
++    uint8_t *rx_pcm;
++    uint32_t rx_pcm_size;
++    uint32_t rx_pcm_pos;
++    QEMUTimer *rx_timer;
++} Esp32C6I2SState;
++
++OBJECT_DECLARE_SIMPLE_TYPE(Esp32C6I2SState, ESP32C6_I2S)
++
++static void i2s_update_irq(Esp32C6I2SState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
++}
++
++static uint64_t i2s_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C6I2SState *s = opaque;
++
++    switch (addr) {
++    case R_INT_RAW:
++        return s->int_raw;
++    case R_INT_ST:
++        return s->int_raw & s->int_ena;
++    case R_INT_ENA:
++        return s->int_ena;
++    default:
++        return addr < sizeof(s->regs) ? s->regs[addr / 4] : 0;
++    }
++}
++
++static void i2s_capture_pcm(Esp32C6I2SState *s)
++{
++    uint8_t buffer[4096];
++    uint32_t bytes;
++    bool nonzero = false;
++
++    if (!s->gdma || !s->tx_active ||
++        s->pcm_writes >= I2S_PCM_MAX_WRITES) {
++        return;
++    }
++    if (!esp_gdma_get_channel_periph(s->gdma, GDMA_I2S0,
++                                     ESP_GDMA_OUT_IDX, &s->tx_channel)) {
++        return;
++    }
++    bytes = esp32c6_gdma_snapshot_out_channel(
++        s->gdma, s->tx_channel, buffer, sizeof(buffer));
++    if (!bytes) {
++        if (s->trace) {
++            fprintf(stderr, "[c6-i2s] gdma read channel=%u failed\n",
++                    s->tx_channel);
++        }
++        return;
++    }
++    for (uint32_t i = 0; i < bytes; i++) {
++        if (buffer[i]) {
++            nonzero = true;
++            break;
++        }
++    }
++    if (!nonzero) {
++        return;
++    }
++    if (!s->pcm_file) {
++        const char *path = getenv("M5SW_I2S_PCM_FILE");
++        if (!path) {
++            return;
++        }
++        s->pcm_file = fopen(path, "wb");
++        if (!s->pcm_file) {
++            return;
++        }
++    }
++    uint32_t write_size = MIN(bytes, s->pcm_limit - s->pcm_bytes);
++    if (write_size) {
++        fwrite(buffer, 1, write_size, s->pcm_file);
++        fflush(s->pcm_file);
++        s->pcm_bytes += write_size;
++        s->pcm_writes++;
++    }
++    if (s->trace) {
++        fprintf(stderr, "[c6-i2s] capture bytes=%u total=%" PRIu64 "\n",
++                bytes, s->pcm_bytes);
++    }
++}
++
++static void i2s_tx_timer(void *opaque)
++{
++    Esp32C6I2SState *s = opaque;
++
++    if (!s->tx_started || !s->tx_active) {
++        return;
++    }
++    i2s_capture_pcm(s);
++    s->int_raw |= BIT(1);
++    i2s_update_irq(s);
++    if (s->pcm_writes >= I2S_PCM_MAX_WRITES) {
++        return;
++    }
++    timer_mod(s->tx_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 10);
++}
++
++static void i2s_load_rx_pcm(Esp32C6I2SState *s)
++{
++    const char *path = getenv("M5SW_I2S_RX_PCM_FILE");
++    g_autofree char *contents = NULL;
++    gsize length = 0;
++
++    if (!path || s->rx_pcm ||
++        !g_file_get_contents(path, &contents, &length, NULL)) {
++        return;
++    }
++    s->rx_pcm = (uint8_t *)g_memdup2(contents, length);
++    s->rx_pcm_size = length;
++    s->rx_pcm_pos = 0;
++}
++
++static void i2s_rx_timer(void *opaque)
++{
++    Esp32C6I2SState *s = opaque;
++    uint8_t buffer[4096];
++    uint32_t available;
++    uint32_t chunk;
++
++    if (!s->rx_started || !s->rx_active || !s->gdma ||
++        !s->rx_pcm || !s->rx_pcm_size) {
++        return;
++    }
++    available = s->rx_pcm_size - s->rx_pcm_pos;
++    if (!available) {
++        s->rx_pcm_pos = 0;
++        available = s->rx_pcm_size;
++    }
++    chunk = MIN(available, sizeof(buffer));
++    memcpy(buffer, s->rx_pcm + s->rx_pcm_pos, chunk);
++    s->rx_pcm_pos = (s->rx_pcm_pos + chunk) % s->rx_pcm_size;
++    esp_gdma_write_channel(s->gdma, s->rx_channel, buffer, chunk);
++    s->int_raw |= BIT(0);
++    i2s_update_irq(s);
++    timer_mod(s->rx_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 10);
++}
++
++static void i2s_write(void *opaque, hwaddr addr, uint64_t value,
++                      unsigned size)
++{
++    Esp32C6I2SState *s = opaque;
++    uint32_t v = value;
++
++    if (s->trace) {
++        fprintf(stderr, "[c6-i2s] wr %03x <- %08x\n",
++                (unsigned)addr, v);
++    }
++    switch (addr) {
++    case R_INT_ENA:
++        s->int_ena = v;
++        i2s_update_irq(s);
++        break;
++    case R_INT_CLR:
++        s->int_raw &= ~v;
++        i2s_update_irq(s);
++        break;
++    case R_RX_CONF:
++        if ((v & RX_START) && !s->rx_started && s->gdma &&
++            esp_gdma_get_channel_periph(s->gdma, GDMA_I2S0,
++                                        ESP_GDMA_IN_IDX, &s->rx_channel)) {
++            s->rx_active = true;
++            s->rx_pcm_pos = 0;
++            i2s_load_rx_pcm(s);
++            timer_mod(s->rx_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 2);
++        }
++        s->rx_started = !!(v & RX_START);
++        s->regs[addr / 4] = v & ~BIT(8);
++        break;
++    case R_TX_CONF:
++        if ((v & TX_START) && !s->tx_started) {
++            bool found = s->gdma &&
++                esp_gdma_get_channel_periph(s->gdma, GDMA_I2S0,
++                                            ESP_GDMA_OUT_IDX,
++                                            &s->tx_channel);
++            if (s->trace) {
++                fprintf(stderr, "[c6-i2s] tx start gdma=%p found=%d chan=%u\n",
++                        (void *)s->gdma, found, s->tx_channel);
++            }
++            if (found) {
++                s->tx_active = true;
++                s->pcm_writes = 0;
++                s->pcm_bytes = 0;
++                s->pcm_limit = 4 << 20;
++                s->tx_events = 0;
++                timer_mod(s->tx_timer,
++                          qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1);
++            }
++        }
++        s->tx_started = !!(v & TX_START);
++        s->regs[addr / 4] = v & ~BIT(8);
++        break;
++    default:
++        if (addr < sizeof(s->regs)) {
++            s->regs[addr / 4] = v;
++        }
++        break;
++    }
++}
++
++static const MemoryRegionOps i2s_ops = {
++    .read = i2s_read,
++    .write = i2s_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static void i2s_reset(DeviceState *dev)
++{
++    Esp32C6I2SState *s = ESP32C6_I2S(dev);
++
++    memset(s->regs, 0, sizeof(s->regs));
++    s->int_ena = 0;
++    s->int_raw = 0;
++    s->tx_started = false;
++    s->tx_active = false;
++    s->rx_started = false;
++    s->rx_active = false;
++    if (s->tx_timer) {
++        timer_del(s->tx_timer);
++    }
++    if (s->rx_timer) {
++        timer_del(s->rx_timer);
++    }
++}
++
++static void i2s_init(Object *obj)
++{
++    Esp32C6I2SState *s = ESP32C6_I2S(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++
++    memory_region_init_io(&s->iomem, obj, &i2s_ops, s,
++                          "esp32c6.i2s", 0x1000);
++    sysbus_init_mmio(sbd, &s->iomem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->trace = getenv("M5SW_I2S_TRACE") != NULL;
++    s->tx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, i2s_tx_timer, s);
++    s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, i2s_rx_timer, s);
++}
++
++static void i2s_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    device_class_set_legacy_reset(dc, i2s_reset);
++}
++
++static const TypeInfo esp32c6_i2s_info = {
++    .name = TYPE_ESP32C6_I2S,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(Esp32C6I2SState),
++    .instance_init = i2s_init,
++    .class_init = i2s_class_init,
++};
++
++static void esp32c6_i2s_register_types(void)
++{
++    type_register_static(&esp32c6_i2s_info);
++}
++
++type_init(esp32c6_i2s_register_types)
++
++void esp32c6_i2s_board_init(MemoryRegion *sys_mem, ESP32C6GdmaState *gdma,
++                            DeviceState *intmatrix)
++{
++    DeviceState *dev = qdev_new(TYPE_ESP32C6_I2S);
++
++    object_property_add_child(qdev_get_machine(), "i2s0", OBJECT(dev));
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
++    Esp32C6I2SState *s = ESP32C6_I2S(dev);
++    s->gdma = &gdma->parent.parent;
++    memory_region_add_subregion_overlap(
++        sys_mem, ESP32C6_I2S_BASE,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 0), 1);
++    sysbus_connect_irq(
++        SYS_BUS_DEVICE(dev), 0,
++        qdev_get_gpio_in(intmatrix, ESP32C6_I2S_IRQ_SOURCE));
++}
 diff --git a/hw/misc/esp32c6_nesso_panel.c b/hw/misc/esp32c6_nesso_panel.c
 new file mode 100644
 index 0000000..1cdedce
@@ -1536,16 +2056,355 @@ index 0000000..3ffeafb
 +    esp32_gpio_add_out_listener(sda_pin, c6_soft_i2c_line, s);
 +    esp32_gpio_add_out_listener(scl_pin, c6_soft_i2c_line, s);
 +}
+diff --git a/hw/misc/esp32c6_sx1262.c b/hw/misc/esp32c6_sx1262.c
+new file mode 100644
+index 0000000..75f9cce
+--- /dev/null
++++ b/hw/misc/esp32c6_sx1262.c
+@@ -0,0 +1,331 @@
++/*
++ * Semtech SX1262 SPI modem model for the Arduino Nesso N1.
++ *
++ * This implements the command/status/register/FIFO protocol and a local TX
++ * loopback packet path. RF propagation and multi-device airtime are out of
++ * scope; bytes still pass through the ESP32-C6 SPI2 controller on the board
++ * MOSI/MISO/SCK pins and GPIO23 chip select.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/log.h"
++#include "hw/gpio/esp32_gpio.h"
++#include "hw/misc/esp32c6_sx1262.h"
++
++#define SX1262_MAX_PACKET 255
++
++typedef enum {
++    SX_IDLE,
++    SX_ARGS,
++    SX_RESPONSE,
++    SX_WRITE_BUFFER,
++    SX_READ_BUFFER,
++} Sx1262Mode;
++
++typedef struct Esp32C6Sx1262State {
++    Sx1262Mode mode;
++    uint8_t opcode;
++    uint8_t args[16];
++    uint8_t arg_count;
++    uint8_t expected_args;
++    uint8_t response[264];
++    uint16_t response_len;
++    uint16_t response_pos;
++    uint8_t tx_packet[SX1262_MAX_PACKET];
++    uint8_t rx_packet[SX1262_MAX_PACKET];
++    uint16_t tx_len;
++    uint16_t rx_len;
++    uint16_t rx_pos;
++    uint16_t irq_status;
++    uint16_t registers[16];
++    int soft_cs;
++    int soft_sck;
++    int soft_mosi;
++    int soft_miso;
++    bool soft_selected;
++    int soft_sck_level;
++    uint8_t soft_tx_byte;
++    uint8_t soft_rx_byte;
++    uint8_t soft_bit_count;
++} Esp32C6Sx1262State;
++
++static uint8_t sx1262_status(void)
++{
++    return 0x20; /* STDBY_RC, command status OK */
++}
++
++static void sx1262_set_response(Esp32C6Sx1262State *s,
++                                const uint8_t *data, uint16_t size)
++{
++    memcpy(s->response, data, MIN(size, sizeof(s->response)));
++    s->response_len = MIN(size, sizeof(s->response));
++    s->response_pos = 0;
++    s->mode = SX_RESPONSE;
++}
++
++static void sx1262_command(Esp32C6Sx1262State *s)
++{
++    uint8_t response[4] = { sx1262_status(), 0, 0, 0 };
++
++    switch (s->opcode) {
++    case 0x02: /* CLR_IRQ_STATUS */
++        s->irq_status &= ~(((uint16_t)s->args[0] << 8) | s->args[1]);
++        s->mode = SX_IDLE;
++        break;
++    case 0x07: /* CLR_ERRORS */
++        s->mode = SX_IDLE;
++        break;
++    case 0x08: /* CFG_DIO_IRQ */
++        s->mode = SX_IDLE;
++        break;
++    case 0x0d: { /* WRITE_REGISTER */
++        uint16_t addr = ((uint16_t)s->args[0] << 8) | s->args[1];
++        s->registers[(addr >> 4) & 0xf] = s->args[2];
++        s->mode = SX_IDLE;
++        break;
++    }
++    case 0x0e: /* WRITE_BUFFER */
++        s->tx_len = 0;
++        s->mode = SX_WRITE_BUFFER;
++        break;
++    case 0x12: /* GET_IRQ_STATUS */
++        response[1] = s->irq_status >> 8;
++        response[2] = s->irq_status;
++        sx1262_set_response(s, response, 3);
++        break;
++    case 0x13: /* GET_RX_BUFFER_STATUS */
++        response[1] = s->rx_len;
++        response[2] = 0;
++        sx1262_set_response(s, response, 3);
++        break;
++    case 0x14: /* GET_PACKET_STATUS */
++        response[1] = 0xb0;
++        response[2] = 0x08;
++        response[3] = 0xb0;
++        sx1262_set_response(s, response, 4);
++        break;
++    case 0x17: /* GET_ERROR */
++        sx1262_set_response(s, response, 3);
++        break;
++    case 0x1d: { /* READ_REGISTER */
++        uint16_t addr = ((uint16_t)s->args[0] << 8) | s->args[1];
++        response[0] = s->registers[(addr >> 4) & 0xf];
++        sx1262_set_response(s, response, 1);
++        break;
++    }
++    case 0x1e: /* READ_BUFFER */
++        s->rx_pos = 0;
++        response[0] = sx1262_status();
++        sx1262_set_response(s, response, 1);
++        s->mode = SX_READ_BUFFER;
++        break;
++    case 0x80: /* SET_STANDBY */
++    case 0x84: /* SET_SLEEP */
++    case 0x82: /* SET_RX */
++    case 0x83: /* SET_TX */
++    case 0x86: /* SET_RF_FREQUENCY */
++    case 0x89: /* CALIBRATE */
++    case 0x8a: /* SET_PACKET_TYPE */
++    case 0x8b: /* SET_MODULATION_PARAMS */
++    case 0x8c: /* SET_PACKET_PARAMS */
++    case 0x8e: /* SET_TX_PARAMS */
++    case 0x8f: /* SET_BUFFER_BASE_ADDRESS */
++    case 0x95: /* SET_PA_CONFIG */
++    case 0x97: /* SET_DIO3_AS_TCXO_CTRL */
++    case 0x98: /* CALIBRATE_IMAGE */
++    case 0x9d: /* SET_DIO2_AS_RF_SWITCH_CTRL */
++        if (s->opcode == 0x83) {
++            memcpy(s->rx_packet, s->tx_packet, s->tx_len);
++            s->rx_len = s->tx_len;
++            s->irq_status = 1; /* TX_DONE */
++        } else if (s->opcode == 0x82 && s->rx_len) {
++            s->irq_status = 2; /* RX_DONE */
++        }
++        s->mode = SX_IDLE;
++        break;
++    case 0xc0: /* GET_STATUS */
++        response[0] = sx1262_status();
++        sx1262_set_response(s, response, 1);
++        break;
++    default:
++        s->mode = SX_IDLE;
++        break;
++    }
++}
++
++static uint8_t sx1262_transfer(void *opaque, uint8_t value)
++{
++    Esp32C6Sx1262State *s = opaque;
++
++    if (getenv("M5SW_SX1262_TRACE")) {
++        fprintf(stderr, "[c6-sx1262] mode=%d tx=%02x\n", s->mode, value);
++    }
++
++    switch (s->mode) {
++    case SX_IDLE:
++        s->opcode = value;
++        s->arg_count = 0;
++        s->expected_args = 0;
++        s->response_pos = 0;
++        s->response_len = 0;
++        switch (value) {
++        case 0x02: s->expected_args = 2; break;
++        case 0x07: s->expected_args = 1; break;
++        case 0x08: s->expected_args = 8; break;
++        case 0x0d: s->expected_args = 3; break;
++        case 0x0e: s->expected_args = 1; break;
++        case 0x1d: s->expected_args = 3; break;
++        case 0x1e: s->expected_args = 1; break;
++        case 0x80: s->expected_args = 1; break;
++        case 0x82: s->expected_args = 3; break;
++        case 0x83: s->expected_args = 3; break;
++        case 0x84: s->expected_args = 1; break;
++        case 0x86: s->expected_args = 4; break;
++        case 0x89: s->expected_args = 1; break;
++        case 0x8a: s->expected_args = 1; break;
++        case 0x8b: s->expected_args = 4; break;
++        case 0x8c: s->expected_args = 6; break;
++        case 0x8e: s->expected_args = 2; break;
++        case 0x8f: s->expected_args = 2; break;
++        case 0x95: s->expected_args = 4; break;
++        case 0x97: s->expected_args = 4; break;
++        case 0x98: s->expected_args = 2; break;
++        case 0x9d: s->expected_args = 1; break;
++        default: break;
++        }
++        if (s->expected_args == 0) {
++            sx1262_command(s);
++        } else {
++            s->mode = SX_ARGS;
++        }
++        return sx1262_status();
++    case SX_ARGS:
++        if (s->arg_count < sizeof(s->args)) {
++            s->args[s->arg_count] = value;
++        }
++        s->arg_count++;
++        if (s->arg_count >= s->expected_args) {
++            sx1262_command(s);
++        }
++        return sx1262_status();
++    case SX_RESPONSE:
++        if (s->response_pos < s->response_len) {
++            return s->response[s->response_pos++];
++        }
++        return sx1262_status();
++    case SX_WRITE_BUFFER:
++        if (s->tx_len < SX1262_MAX_PACKET) {
++            s->tx_packet[s->tx_len++] = value;
++        }
++        return sx1262_status();
++    case SX_READ_BUFFER:
++        if (!s->response_pos) {
++            s->response_pos++;
++            return sx1262_status();
++        }
++        if (s->rx_pos < s->rx_len) {
++            return s->rx_packet[s->rx_pos++];
++        }
++        return 0;
++    default:
++        return sx1262_status();
++    }
++}
++
++static void sx1262_soft_prepare_next(Esp32C6Sx1262State *s)
++{
++    if (s->mode == SX_RESPONSE &&
++        s->response_pos < s->response_len) {
++        s->soft_rx_byte = s->response[s->response_pos];
++    } else if (s->mode == SX_READ_BUFFER &&
++               s->response_pos > 0 && s->rx_pos < s->rx_len) {
++        s->soft_rx_byte = s->rx_packet[s->rx_pos];
++    } else {
++        s->soft_rx_byte = sx1262_status();
++    }
++}
++
++static void sx1262_cs_changed(void *opaque, int pin, int level)
++{
++    Esp32C6Sx1262State *s = opaque;
++
++    if (getenv("M5SW_SX1262_TRACE")) {
++        fprintf(stderr, "[c6-sx1262] cs pin=%d level=%d\n", pin, level);
++    }
++    if (level) {
++        s->mode = SX_IDLE;
++        s->response_pos = 0;
++        s->response_len = 0;
++    }
++}
++
++static void sx1262_soft_pin_changed(void *opaque, int pin, int level)
++{
++    Esp32C6Sx1262State *s = opaque;
++
++    if (pin == s->soft_cs) {
++        sx1262_cs_changed(opaque, pin, level);
++        s->soft_selected = !level;
++        s->soft_bit_count = 0;
++        s->soft_tx_byte = 0;
++        s->soft_rx_byte = sx1262_status();
++        esp32_gpio_force_line(s->soft_miso,
++                              !!(s->soft_rx_byte & 0x80));
++        return;
++    }
++    if (pin != s->soft_sck || !s->soft_selected) {
++        return;
++    }
++    if (level && !s->soft_sck_level) {
++        s->soft_tx_byte = (s->soft_tx_byte << 1) |
++                          esp32_gpio_get_line(s->soft_mosi);
++        s->soft_bit_count++;
++        if (s->soft_bit_count == 8) {
++            sx1262_transfer(s, s->soft_tx_byte);
++            sx1262_soft_prepare_next(s);
++            s->soft_tx_byte = 0;
++            s->soft_bit_count = 0;
++        }
++    } else if (!level) {
++        esp32_gpio_force_line(s->soft_miso,
++                              !!(s->soft_rx_byte & 0x80));
++        s->soft_rx_byte <<= 1;
++    }
++    s->soft_sck_level = level;
++}
++
++void esp32c6_sx1262_attach(DeviceState *spi, int cs_pin,
++                           int busy_pin, int dio1_pin)
++{
++    Esp32C6Sx1262State *s = g_new0(Esp32C6Sx1262State, 1);
++
++    esp32c3_spi_set_m5_slave(spi, cs_pin, s, sx1262_transfer);
++    esp32_gpio_add_out_listener(cs_pin, sx1262_cs_changed, s);
++    esp32_gpio_set_input(busy_pin, 0);
++    esp32_gpio_force_line(busy_pin, 0);
++    esp32_gpio_set_input(dio1_pin, 0);
++    esp32_gpio_force_line(dio1_pin, 0);
++}
++
++void esp32c6_sx1262_attach_soft_spi(int cs_pin, int sck_pin,
++                                   int mosi_pin, int miso_pin,
++                                   int busy_pin, int dio1_pin)
++{
++    Esp32C6Sx1262State *s = g_new0(Esp32C6Sx1262State, 1);
++
++    s->soft_cs = cs_pin;
++    s->soft_sck = sck_pin;
++    s->soft_mosi = mosi_pin;
++    s->soft_miso = miso_pin;
++    s->soft_rx_byte = sx1262_status();
++    esp32_gpio_add_out_listener(cs_pin, sx1262_soft_pin_changed, s);
++    esp32_gpio_add_out_listener(sck_pin, sx1262_soft_pin_changed, s);
++    esp32_gpio_add_out_listener(mosi_pin, sx1262_soft_pin_changed, s);
++    esp32_gpio_set_input(busy_pin, 0);
++    esp32_gpio_force_line(busy_pin, 0);
++    esp32_gpio_set_input(dio1_pin, 0);
++    esp32_gpio_force_line(dio1_pin, 0);
++    esp32_gpio_set_input(miso_pin, 1);
++    esp32_gpio_force_line(miso_pin, 1);
++}
 diff --git a/hw/misc/meson.build b/hw/misc/meson.build
-index 0ac4b77..5afb4ea 100644
+index 0ac4b77..f99c722 100644
 --- a/hw/misc/meson.build
 +++ b/hw/misc/meson.build
-@@ -166,10 +166,14 @@ system_ss.add(when: 'CONFIG_RISCV_ESP32C6', if_true: files(
+@@ -166,10 +166,16 @@ system_ss.add(when: 'CONFIG_RISCV_ESP32C6', if_true: files(
    'esp32c6_lp.c',
    'esp32c6_modem.c',
    'esp32c6_pcr.c',
 +  'esp32c6_rmt.c',
++  'esp32c6_i2s.c',
    'esp32c6_spi_mem.c',
++  'esp32c6_sx1262.c',
    'esp_sha.c',
    'esp32c3_sha.c',
    'esp32c6_sha.c',
@@ -1556,10 +2415,10 @@ index 0ac4b77..5afb4ea 100644
  
  system_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
 diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
-index f8b5d9c..7da7ab4 100644
+index f8b5d9c..0c76a05 100644
 --- a/hw/riscv/esp32c6.c
 +++ b/hw/riscv/esp32c6.c
-@@ -45,9 +45,15 @@
+@@ -45,9 +45,17 @@
  #include "hw/riscv/esp32c6_intmatrix.h"
  #include "hw/misc/esp32c6_intpri.h"
  #include "hw/misc/esp32c6_sha.h"
@@ -1568,6 +2427,8 @@ index f8b5d9c..7da7ab4 100644
 +#include "hw/misc/esp32c6_nesso_panel.h"
 +#include "hw/misc/esp32c6_rmt.h"
 +#include "hw/misc/esp32c6_soft_i2c.h"
++#include "hw/misc/esp32c6_sx1262.h"
++#include "hw/misc/esp32c6_i2s.h"
  #include "hw/timer/esp32c6_timg.h"
  #include "hw/timer/esp32c6_systimer.h"
  #include "hw/ssi/esp32c6_spi.h"
@@ -1575,7 +2436,7 @@ index f8b5d9c..7da7ab4 100644
  #include "hw/dma/esp32c6_gdma.h"
  
  #define ESP32C6_RESET_ADDRESS       0x40000000
-@@ -57,6 +63,8 @@
+@@ -57,6 +65,8 @@
  #define ESP32C6_IRAM_SIZE           (512 * 1024)
  #define ESP32C6_RTC_SIZE            (16 * 1024)
  #define ESP32C6_IROM_SIZE           (320 * 1024)
@@ -1584,7 +2445,7 @@ index f8b5d9c..7da7ab4 100644
  
  struct Esp32C6MachineState {
      MachineState parent;
-@@ -85,6 +93,10 @@ struct Esp32C6MachineState {
+@@ -85,6 +95,10 @@ struct Esp32C6MachineState {
      ESP32C6SpiMemState spi_mem;
      ESP32C6I2cAnaMstState i2c_ana_mst;
      ESP32C6ModemState modem;
@@ -1595,7 +2456,7 @@ index f8b5d9c..7da7ab4 100644
  };
  
  #define TYPE_ESP32C6_MACHINE MACHINE_TYPE_NAME("esp32c6")
-@@ -142,6 +154,7 @@ static void esp32c6_init_spi_flash(Esp32C6MachineState *ms, BlockBackend *blk)
+@@ -142,6 +156,7 @@ static void esp32c6_init_spi_flash(Esp32C6MachineState *ms, BlockBackend *blk)
      DeviceState *flash_dev = qdev_new(flash_model);
      qdev_prop_set_drive(flash_dev, "drive", blk);
      qdev_prop_set_uint8(flash_dev, "cs", 1);
@@ -1603,7 +2464,7 @@ index f8b5d9c..7da7ab4 100644
      qdev_realize(flash_dev, spi_bus, &error_fatal);
      qdev_connect_gpio_out_named(spi_master, SSI_GPIO_CS, 0,
                                  qdev_get_gpio_in_named(flash_dev, SSI_GPIO_CS, 0));
-@@ -230,6 +243,52 @@ static void esp32c6_load_firmware(MachineState *machine)
+@@ -230,6 +245,52 @@ static void esp32c6_load_firmware(MachineState *machine)
      }
  }
  
@@ -1656,7 +2517,7 @@ index f8b5d9c..7da7ab4 100644
  static void esp32c6_machine_init(MachineState *machine)
  {
      BlockBackend *blk = NULL;
-@@ -355,6 +414,22 @@ static void esp32c6_machine_init(MachineState *machine)
+@@ -355,6 +416,23 @@ static void esp32c6_machine_init(MachineState *machine)
          }
      }
  
@@ -1674,12 +2535,13 @@ index f8b5d9c..7da7ab4 100644
 +        qdev_realize(panel, NULL, &error_fatal);
 +        esp32c3_spi_set_m5_sink(ms->spi2, panel,
 +                                esp32c6_nesso_panel_write);
++        esp32c6_sx1262_attach_soft_spi(23, 20, 21, 22, 19, 15);
 +    }
 +
      /* UARTs */
      for (int i = 0; i < ESP32C6_UART_COUNT; ++i) {
          const hwaddr uart_base[] = { DR_REG_UART_BASE, DR_REG_UART1_BASE };
-@@ -372,6 +447,67 @@ static void esp32c6_machine_init(MachineState *machine)
+@@ -372,6 +450,67 @@ static void esp32c6_machine_init(MachineState *machine)
          memory_region_add_subregion_overlap(sys_mem, DR_REG_GPIO_BASE, mr, 0);
      }
  
@@ -1747,7 +2609,7 @@ index f8b5d9c..7da7ab4 100644
      /* Cache (EXTMEM) */
      {
          if (blk) {
-@@ -427,6 +563,16 @@ static void esp32c6_machine_init(MachineState *machine)
+@@ -427,6 +566,16 @@ static void esp32c6_machine_init(MachineState *machine)
          memory_region_add_subregion_overlap(sys_mem, ESP32C6_I2C_ANA_MST_BASE, mr, 0);
      }
  
@@ -1764,6 +2626,16 @@ index f8b5d9c..7da7ab4 100644
      /* GDMA */
      {
          object_property_set_link(OBJECT(&ms->gdma), "soc_mr", OBJECT(dram), &error_abort);
+@@ -441,6 +590,9 @@ static void esp32c6_machine_init(MachineState *machine)
+         }
+     }
+ 
++    /* I2S0: Nesso N1 GPIO11 1-bit delta-sigma buzzer output. */
++    esp32c6_i2s_board_init(sys_mem, &ms->gdma, intmatrix_dev);
++
+     /* SHA */
+     {
+         ms->sha.parent.parent.gdma = ESP_GDMA(&ms->gdma);
 diff --git a/hw/riscv/esp32c6_intmatrix.c b/hw/riscv/esp32c6_intmatrix.c
 index 74c36a9..bcff67a 100644
 --- a/hw/riscv/esp32c6_intmatrix.c
@@ -1797,7 +2669,7 @@ index 74c36a9..bcff67a 100644
      } else {
          qemu_irq_lower(s->out_irqs[line]);
 diff --git a/hw/ssi/esp32c3_spi.c b/hw/ssi/esp32c3_spi.c
-index e8bd33a..6d9c661 100644
+index e8bd33a..08546c9 100644
 --- a/hw/ssi/esp32c3_spi.c
 +++ b/hw/ssi/esp32c3_spi.c
 @@ -19,6 +19,7 @@
@@ -1847,8 +2719,22 @@ index e8bd33a..6d9c661 100644
              break;
          case A_SPI_MEM_MOSI_DLEN:
              r = s->mem_mosi_len;
-@@ -101,6 +108,15 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+@@ -99,8 +106,29 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+         case A_SPI_MEM_RD_STATUS:
+             r = s->mem_rd_st;
              break;
++        case 0x34:
++            r = s->dma_int_ena;
++            break;
++        case 0x38:
++            r = 0;
++            break;
++        case 0x3c:
++            r = s->dma_int_raw;
++            break;
++        case 0x44:
++            r = 0;
++            break;
          case A_SPI_MEM_W0...A_SPI_MEM_W15:
              r = s->data_reg[(addr - A_SPI_MEM_W0) / sizeof(uint32_t)];
 +            /*
@@ -1863,7 +2749,7 @@ index e8bd33a..6d9c661 100644
              break;
          case A_SPI_MEM_SUS_STATUS:
              r = s->mem_sus_st;
-@@ -112,6 +128,24 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+@@ -112,6 +140,24 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
              break;
      }
  
@@ -1888,21 +2774,42 @@ index e8bd33a..6d9c661 100644
  #if SPI1_DEBUG
      info_report("[SPI1] Reading 0x%lx (0x%lx)", addr, r);
  #endif
-@@ -127,11 +161,11 @@ static void esp32c3_spi_txrx_buffer(ESP32C3SpiState *s,
+@@ -127,11 +173,17 @@ static void esp32c3_spi_txrx_buffer(ESP32C3SpiState *s,
      int bytes = MAX(tx_bytes, rx_bytes);
      for (int i = 0; i < bytes; ++i) {
          uint8_t byte = 0;
 -        if (byte < tx_bytes) {
++        uint32_t res;
 +        if (i < tx_bytes) {
              memcpy(&byte, tx + i, 1);
          }
-         uint32_t res = ssi_transfer(s->spi, byte);
+-        uint32_t res = ssi_transfer(s->spi, byte);
 -        if (byte < rx_bytes) {
++        if (s->m5_slave_transfer &&
++            !esp32_gpio_get_line(s->m5_slave_cs)) {
++            res = s->m5_slave_transfer(s->m5_slave_opaque, byte);
++        } else {
++            res = ssi_transfer(s->spi, byte);
++        }
 +        if (i < rx_bytes) {
              memcpy(rx + i, &res, 1);
          }
      }
-@@ -157,8 +191,24 @@ static void esp32c3_spi_perform_transaction(ESP32C3SpiState *s, ESP32C3SpiTransa
+@@ -139,7 +191,12 @@ static void esp32c3_spi_txrx_buffer(ESP32C3SpiState *s,
+ 
+ static void esp32c3_spi_dummy_cycles(ESP32C3SpiState *s, uint32_t dummy_bytes) {
+     for (int i = 0; i < dummy_bytes; i++) {
+-        ssi_transfer(s->spi, 0);
++        if (s->m5_slave_transfer &&
++            !esp32_gpio_get_line(s->m5_slave_cs)) {
++            s->m5_slave_transfer(s->m5_slave_opaque, 0);
++        } else {
++            ssi_transfer(s->spi, 0);
++        }
+     }
+ }
+ 
+@@ -157,9 +214,28 @@ static void esp32c3_spi_perform_transaction(ESP32C3SpiState *s, ESP32C3SpiTransa
      qemu_set_irq(s->cs_gpio[0], 0);
      esp32c3_spi_txrx_buffer(s, &t->cmd, t->cmd_bytes, NULL, 0);
      esp32c3_spi_txrx_buffer(s, &t->addr, t->addr_bytes, NULL, 0);
@@ -1911,7 +2818,9 @@ index e8bd33a..6d9c661 100644
 +    }
      esp32c3_spi_dummy_cycles(s, t->dummy_bytes);
      esp32c3_spi_txrx_buffer(s, t->data, t->tx_bytes, t->data, t->rx_bytes);
-+    if (s->m5_sink && t->tx_bytes) {
++    if (s->m5_sink && t->tx_bytes &&
++        (!s->m5_slave_transfer ||
++         esp32_gpio_get_line(s->m5_slave_cs))) {
 +        s->m5_sink(s->m5_sink_opaque, t->data, t->tx_bytes,
 +                   !esp32_gpio_get_line(16));
 +    }
@@ -1925,9 +2834,11 @@ index e8bd33a..6d9c661 100644
 +        fprintf(stderr, "\n");
 +    }
      qemu_set_irq(s->cs_gpio[0], 1);
++    s->dma_int_raw |= BIT(0);
  }
  
-@@ -228,6 +278,34 @@ static void esp32c3_spi_begin_transaction(ESP32C3SpiState *s)
+ 
+@@ -228,6 +304,35 @@ static void esp32c3_spi_begin_transaction(ESP32C3SpiState *s)
          }
      }
  
@@ -1944,10 +2855,11 @@ index e8bd33a..6d9c661 100644
 +    if (s->m5_spi2 && getenv("M5SW_C6_SPI2_TRACE")) {
 +        fprintf(stderr,
 +                "[c6-spi2-xfer] cmd=0x%02x addr_bytes=%u tx=%u rx=%u "
-+                "user=0x%08x first=%02x dc=%d\n",
++                "user=0x%08x first=%02x dc=%d cs17=%d cs23=%d\n",
 +                t.cmd, t.addr_bytes, t.tx_bytes, t.rx_bytes, s->mem_user,
 +                t.tx_bytes ? ((uint8_t *)t.data)[0] : 0,
-+                esp32_gpio_get_line(16));
++                esp32_gpio_get_line(16), esp32_gpio_get_line(17),
++                esp32_gpio_get_line(23));
 +    }
 +
 +    if (getenv("M5SW_SPI_TRACE")) {
@@ -1962,7 +2874,7 @@ index e8bd33a..6d9c661 100644
      esp32c3_spi_perform_transaction(s, &t);
  }
  
-@@ -329,6 +407,12 @@ static void esp32c3_spi_special_command(ESP32C3SpiState *s, uint32_t command)
+@@ -329,6 +434,12 @@ static void esp32c3_spi_special_command(ESP32C3SpiState *s, uint32_t command)
  #endif
              return;
      }
@@ -1975,7 +2887,7 @@ index e8bd33a..6d9c661 100644
      esp32c3_spi_perform_transaction(s, &t);
  }
  
-@@ -339,13 +423,19 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+@@ -339,18 +450,36 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
      ESP32C3SpiState *s = ESP32C3_SPI(opaque);
      uint32_t wvalue = (uint32_t) value;
  
@@ -1993,10 +2905,27 @@ index e8bd33a..6d9c661 100644
 -            if(wvalue & R_SPI_MEM_CMD_USR_MASK) {
 +            if ((wvalue & R_SPI_MEM_CMD_USR_MASK) ||
 +                (s->m5_spi2 && (wvalue & (1u << 24)))) {
++                s->dma_int_raw &= ~BIT(0);
                  esp32c3_spi_begin_transaction(s);
              } else {
                  esp32c3_spi_special_command(s, wvalue);
-@@ -361,22 +451,40 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+             }
+             break;
++        case 0x34:
++            s->dma_int_ena = wvalue;
++            break;
++        case 0x38:
++            s->dma_int_raw &= ~wvalue;
++            break;
++        case 0x3c:
++            break;
++        case 0x44:
++            s->dma_int_raw |= wvalue;
++            break;
+         case A_SPI_MEM_ADDR:
+             s->mem_addr = wvalue;
+             break;
+@@ -361,22 +490,40 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
              s->mem_ctrl1 = wvalue;
              break;
          case A_SPI_MEM_CTRL2:
@@ -2041,7 +2970,7 @@ index e8bd33a..6d9c661 100644
              break;
          case A_SPI_MEM_MOSI_DLEN:
              s->mem_mosi_len = wvalue;
-@@ -397,6 +505,10 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+@@ -397,6 +544,10 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
              break;
      }
  
@@ -2052,7 +2981,16 @@ index e8bd33a..6d9c661 100644
  }
  
  
-@@ -453,7 +565,18 @@ static void esp32c3_spi_init(Object *obj)
+@@ -421,6 +572,8 @@ static void esp32c3_spi_reset_hold(Object *obj, ResetType type)
+     s->mem_user1 = FIELD_DP32(s->mem_user1, SPI_MEM_USER1, USR_DUMMY_CYCLELEN, 7);
+ 
+     s->mem_user2 = FIELD_DP32(s->mem_user2, SPI_MEM_USER2, USR_COMMAND_BITLEN, 7);
++    s->dma_int_ena = 0;
++    s->dma_int_raw = 0;
+ 
+     /* In case more registers are supported in the future (MEM_MISC, MEM_TX_CRC, ...)
+      * update this function with their default values */
+@@ -453,7 +606,28 @@ static void esp32c3_spi_init(Object *obj)
      qdev_init_gpio_out_named(DEVICE(s), &s->cs_gpio[0], SSI_GPIO_CS, ESP32C3_SPI_CS_COUNT);
  }
  
@@ -2066,11 +3004,42 @@ index e8bd33a..6d9c661 100644
 +    s->m5_sink = sink;
 +}
 +
++void esp32c3_spi_set_m5_slave(DeviceState *dev, int cs_pin, void *opaque,
++                              uint8_t (*transfer)(void *, uint8_t))
++{
++    ESP32C3SpiState *s = ESP32C3_SPI(dev);
++
++    s->m5_slave_cs = cs_pin;
++    s->m5_slave_opaque = opaque;
++    s->m5_slave_transfer = transfer;
++}
++
  static Property esp32c3_spi_properties[] = {
 +    DEFINE_PROP_BOOL("m5-spi2", ESP32C3SpiState, m5_spi2, false),
      DEFINE_PROP_END_OF_LIST(),
  };
  
+diff --git a/include/hw/dma/esp_gdma.h b/include/hw/dma/esp_gdma.h
+index d555249..ae398a7 100644
+--- a/include/hw/dma/esp_gdma.h
++++ b/include/hw/dma/esp_gdma.h
+@@ -118,6 +118,7 @@ typedef struct ESPGdmaState {
+     DmaConfigState* ch_conf[ESP_GDMA_CONF_COUNT];
+     /* Use this register mainly for enabling and disabling priorities */
+     uint32_t misc_conf;
++    uint32_t ram_addr;
+     /* Keep a pointer to the SoC DRAM */
+     MemoryRegion* soc_mr;
+     AddressSpace dma_as;
+@@ -157,6 +158,8 @@ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir
+ 
+ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint32_t size);
+ bool esp_gdma_write_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint32_t size);
++uint32_t esp32c6_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
++                                           uint8_t *buffer, uint32_t size);
+ 
+ 
+ /**
 diff --git a/include/hw/gpio/esp32_gpio.h b/include/hw/gpio/esp32_gpio.h
 index 163b41a..465fd71 100644
 --- a/include/hw/gpio/esp32_gpio.h
@@ -2124,6 +3093,24 @@ index 0000000..abba40a
 +
 +void esp32c6_ft_touch_set(int pressed, int x, int y);
 +void esp32c6_pi4ioe_button_set(int button, bool pressed);
+diff --git a/include/hw/misc/esp32c6_i2s.h b/include/hw/misc/esp32c6_i2s.h
+new file mode 100644
+index 0000000..1eea710
+--- /dev/null
++++ b/include/hw/misc/esp32c6_i2s.h
+@@ -0,0 +1,12 @@
++/*
++ * ESP32-C6 I2S controller helper.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#pragma once
++
++#include "hw/sysbus.h"
++#include "hw/dma/esp32c6_gdma.h"
++
++void esp32c6_i2s_board_init(MemoryRegion *sys_mem, ESP32C6GdmaState *gdma,
++                            DeviceState *intmatrix);
 diff --git a/include/hw/misc/esp32c6_nesso_panel.h b/include/hw/misc/esp32c6_nesso_panel.h
 new file mode 100644
 index 0000000..5dfe809
@@ -2166,10 +3153,10 @@ index 44273a5..d5aa1c1 100644
  #define C6_ETS_TG0_WDT_LEVEL_INTR_SOURCE        53
 diff --git a/include/hw/misc/esp32c6_rmt.h b/include/hw/misc/esp32c6_rmt.h
 new file mode 100644
-index 0000000..36795f3
+index 0000000..9603e3e
 --- /dev/null
 +++ b/include/hw/misc/esp32c6_rmt.h
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,10 @@
 +/*
 + * ESP32-C6 RMT controller.
 + *
@@ -2180,7 +3167,6 @@ index 0000000..36795f3
 +#include "hw/sysbus.h"
 +
 +#define TYPE_ESP32C6_RMT "esp32c6.rmt"
-+
 diff --git a/include/hw/misc/esp32c6_soft_i2c.h b/include/hw/misc/esp32c6_soft_i2c.h
 new file mode 100644
 index 0000000..224a6aa
@@ -2197,11 +3183,36 @@ index 0000000..224a6aa
 +#include "hw/i2c/i2c.h"
 +
 +void esp32c6_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin);
+diff --git a/include/hw/misc/esp32c6_sx1262.h b/include/hw/misc/esp32c6_sx1262.h
+new file mode 100644
+index 0000000..38c1b84
+--- /dev/null
++++ b/include/hw/misc/esp32c6_sx1262.h
+@@ -0,0 +1,14 @@
++/*
++ * ESP32-C6 board helper for the Arduino Nesso N1 SX1262.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#pragma once
++
++#include "hw/ssi/esp32c3_spi.h"
++
++void esp32c6_sx1262_attach(DeviceState *spi, int cs_pin,
++                           int busy_pin, int dio1_pin);
++void esp32c6_sx1262_attach_soft_spi(int cs_pin, int sck_pin,
++                                   int mosi_pin, int miso_pin,
++                                   int busy_pin, int dio1_pin);
 diff --git a/include/hw/ssi/esp32c3_spi.h b/include/hw/ssi/esp32c3_spi.h
-index 3a6e666..34d8968 100644
+index 3a6e666..2d02526 100644
 --- a/include/hw/ssi/esp32c3_spi.h
 +++ b/include/hw/ssi/esp32c3_spi.h
-@@ -45,8 +45,16 @@ typedef struct ESP32C3SpiState {
+@@ -42,11 +42,26 @@ typedef struct ESP32C3SpiState {
+     uint32_t mem_miso_len;
+     uint32_t mem_mosi_len;
+     uint32_t mem_rd_st;
++    uint32_t dma_int_ena;
++    uint32_t dma_int_raw;
      uint32_t data_reg[ESP32C3_SPI_BUF_WORDS];
      uint32_t mem_sus_st;
      ESP32C3XtsAesState *xts_aes;
@@ -2209,11 +3220,16 @@ index 3a6e666..34d8968 100644
 +    void *m5_sink_opaque;
 +    void (*m5_sink)(void *opaque, const uint8_t *buf, uint32_t len,
 +                    bool command_phase);
++    void *m5_slave_opaque;
++    uint8_t (*m5_slave_transfer)(void *opaque, uint8_t value);
++    int m5_slave_cs;
  } ESP32C3SpiState;
  
 +void esp32c3_spi_set_m5_sink(DeviceState *dev, void *opaque,
 +                             void (*sink)(void *, const uint8_t *, uint32_t,
 +                                          bool));
++void esp32c3_spi_set_m5_slave(DeviceState *dev, int cs_pin, void *opaque,
++                              uint8_t (*transfer)(void *, uint8_t));
 +
  
  REG32(SPI_MEM_CMD, 0x000)
