@@ -25,15 +25,17 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StickS3 | RMT0 NEC 38 kHz 红外发送 | `hardware.IR.tx()` | PASS |
 | StickS3 | RMT4 NEC 红外接收与回调 | `hardware.IR.rx_cb()` | PASS |
 | PaperMono | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
+| PaperMono | SX1262 868 MHz 配置、TX、RX 回环 | `lora.SX1262` | PASS |
 | StackChan | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
 | StackChan | Si12T 三点身体触摸 | `driver.si12t.Si12T` | PASS |
 | StackChan | M5IOE1 12 路 NeoPixel RGB 写入/回读 | `driver.m5ioe1.RGB` | PASS |
 | StopWatch | M5IOE1 PWM1 振动马达开关与占空比 | `Power.setVibration()` | PASS |
+| AtomS3R | LP5562 三通道 RGB PWM 写入/回读 | I2C `0x30` | PASS |
 
 汇总：
 
 ```text
-PASS    13
+PASS    15
 PARTIAL 1
 ```
 
@@ -119,6 +121,23 @@ PaperMono 与 StackChan 的 NFC 使用 ST25R3916 I2C 模式（地址 `0x50`）�
 两台设备均检测到 UID `DEADBEEF`，PaperMono 写入/回读 page 8 的 `TEST`，
 StackChan 写入/回读 page 12 的 `CHAN`。
 
+### PaperMono SX1262 LoRa
+
+PaperMono 使用独立 SPI3 控制器连接 SX1262。模型实现命令状态、参数、寄存器、
+TX/RX FIFO、IRQ、RSSI/SNR 和本地 TX 到 RX 的回环数据面。测试通过 native
+`lora.SX1262` 完成：
+
+- `SET_STANDBY`、TCXO、DIO2 RF switch 和 IRQ 配置；
+- 868 MHz、SF7、125 kHz、CR 4/5 调制配置；
+- `WRITE_BUFFER("M5LORA")` 与 `SET_TX`；
+- `SET_RX`、`GET_IRQ_STATUS`、`GET_RX_BUFFER_STATUS` 和 `READ_BUFFER`；
+- UI 回读 `packet=b'M5LORA' / status=ok`。
+
+测试适配层保持 CS 连续，并把单次 SPI 传输切成不超过 4 字节。这个适配绕过
+了当前仿真中尚未闭环的 IDF `spi_device_acquire_bus()` 大于 4 字节事务路径；
+数据仍经过真实 GP-SPI 寄存器、GDMA 和 SX1262 模型，不是在 Python 中直接构造
+LoRa 返回值。
+
 ### StackChan Si12T 身体触摸
 
 Si12T 在 `0x68` 上完成寄存器配置，QOM `touch-bits` 注入后，
@@ -133,6 +152,11 @@ Si12T 在 `0x68` 上完成寄存器配置，QOM `touch-bits` 注入后，
 
 `Power.setVibration(128)` 写入 M5IOE1 PWM1 的 12 位占空比和 enable 位，
 模型回读 duty `2055`；再次调用 `setVibration(0)` 后 enable 清零。
+
+### AtomS3R LP5562
+
+LP5562 在 I2C `0x30` 上完成 enable/mode 配置，独立写入 R/G/B PWM
+`0x80/0x40/0x20` 后逐寄存器回读一致。
 
 ## 运行
 
@@ -152,10 +176,13 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/sticks3_ir/`
 - `tests/uiflow2/sticks3_ir_rx/`
 - `tests/uiflow2/papermono_nfc/`
+- `tests/uiflow2/papermono_lora/`
+- `tests/uiflow2/papermono_spi_probe/`
 - `tests/uiflow2/stackchan_nfc/`
 - `tests/uiflow2/stackchan_touch/`
 - `tests/uiflow2/stackchan_rgb/`
 - `tests/uiflow2/stopwatch_vibration/`
+- `tests/uiflow2/atoms3r_lp5562/`
 
 ## 屏幕证据
 
@@ -199,6 +226,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![PaperMono NFC probe](images/papermono-nfc-test.png)
 
+### PaperMono SX1262 LoRa
+
+![PaperMono LoRa probe](images/papermono-lora-test.png)
+
 ### StackChan NFC
 
 ![StackChan NFC probe](images/stackchan-nfc-test.png)
@@ -215,11 +246,16 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![StopWatch vibration probe](images/stopwatch-vibration-test.png)
 
+### AtomS3R LP5562
+
+![AtomS3R LP5562 probe](images/atoms3r-lp5562-test.png)
+
 ## 尚未闭环
 
 - 音频 I2S/PDM 的 PCM 注入与扬声器 PCM 抓取；
 - ESP32-C6 RMT/IR 路径（StickS3 的 ESP32-S3 RMT 已闭环）；
-- SX1262 LoRa、ST25R3916 SPI/NFCCap 路径；
+- ST25R3916 SPI/NFCCap 路径；
+- MicroPython/IDF 大于 4 字节 SPI 的总线锁路径；
 - Cardputer/PaperColor 的 SPI SD 路径、USB Host 虚拟端点；
 - Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；
 - 所有项目的真机复测。

@@ -235,8 +235,10 @@
       "interface": "i2c",
       "address": "0x30",
       "capabilities": ["rgb-led", "display-backlight"],
-      "status": "planned",
-      "injection": ["qom-rgb"]
+      "status": "simulated",
+      "injection": ["i2c-pwm-registers", "qom-rgb"],
+      "data_plane": "LP5562 enable/mode and independent R/G/B PWM registers over ESP32-S3 I2C",
+      "tested_devices": ["atoms3r"]
     },
     "ns4150b": {
       "kind": "audio-amplifier",
@@ -349,8 +351,10 @@
       "kind": "lora",
       "interface": "spi",
       "capabilities": ["lora"],
-      "status": "planned",
-      "injection": ["qom-lora-packet"]
+      "status": "simulated",
+      "injection": ["local-tx-rx-loopback", "spi-command-fifo"],
+      "data_plane": "SX1262 SPI command/argument/status/register/TX-RX FIFO protocol, IRQ status, packet metadata and local TX-to-RX loopback over ESP32-S3 GP-SPI3 and GDMA",
+      "tested_devices": ["papermono"]
     },
     "sd-card": {
       "kind": "storage",
@@ -415,7 +419,7 @@
         {"id": "imu", "model": "bmi270"},
         {"id": "magnetometer", "model": "bmm150", "qom_path": "/machine/bmm150"},
         {"id": "button", "model": "gpio-button"},
-        {"id": "rgb-led", "model": "lp5562", "address": "0x30"},
+        {"id": "rgb-led", "model": "lp5562", "address": "0x30", "qom_path": "/machine/lp5562"},
         {"id": "ir", "model": "ir-tx-rx"}
       ]
     },

@@ -4,6 +4,8 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
 `qemu-core2-qemu-esptool`. It adds:
 
 - a corrected ESP32-S3 I2C FIFO and repeated-start model;
+- level-triggered ESP32-S3 interrupt-matrix retriggering and the special
+  disconnected interrupt line used by the IDF SPI bus lock;
 - a software/hardware I2C hand-off guard used by board autodetection;
 - BMI270 configuration upload, accel/gyro data and BMM150 Sensor Hub data;
 - MPU6886, PCF8563, BM8563/RX8130, AXP192/AXP2101, M5PM1, AW9523,
@@ -19,6 +21,11 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   SELECT and deterministic NTAG page read/write;
 - Si12T three-point body-touch register model with QOM touch-bit injection;
 - M5IOE1 NeoPixel configuration and RGB565 LED RAM readback for StackChan;
+- LP5562 RGB controller enable/mode and independent PWM registers on AtomS3R;
+- SX1262 command/register/FIFO, IRQ, packet metadata and local TX/RX loopback
+  over ESP32-S3 GP-SPI3 and GDMA;
+- byte-accurate GP-SPI register access plus GDMA TX/RX completion for
+  MicroPython `machine.SPI` transactions;
 - optional raw camera frame injection through `M5SW_CAMERA_FRAME`;
 - Cardputer-Adv, AtomS3R, Core2, PaperColor, PaperMono, StackChan and StamPLC
   peripheral attachment updates.
@@ -30,6 +37,7 @@ cd "$QEMU_ROOT/build/qemu"
 git apply /path/to/qemu-multi-board-uiflow2/0001-qemu-m5stack-multiboard-uiflow2.patch
 git apply /path/to/qemu-core2-qemu-esptool/0001-esp32-uart-configurable-rx-baud-scale.patch
 git apply /path/to/0001-m5stack-peripheral-models-and-data-planes.patch
+git apply /path/to/0002-m5stack-peripheral-data-paths.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -37,10 +45,13 @@ Verified source baseline:
 
 - `espressif/qemu` base `da100c909249926b9f4458f18e4f2d216d08f51a`;
 - QEMU `9.2.2`;
-- `git apply --check` passes on a clean tree after both prerequisite patches.
+- `git apply --check` passes for `0001` on a clean tree after both prerequisite
+  patches, and for `0002` immediately after `0001`.
 
 The camera frame path is a simulation data plane, not real-camera validation.
-StickS3 IR TX/RX and PaperMono/StackChan I2C NFC are validated through the
-official UIFlow2 hardware APIs. Audio PCM and microphone injection, USB Host,
-SX1262, ST25R3916 SPI/NFCCap and the Tab5 MIPI-CSI path remain follow-up work
-and are tracked in the peripheral catalog.
+StickS3 IR TX/RX, PaperMono/StackChan I2C NFC and PaperMono SX1262 LoRa are
+validated through the UIFlow2 runtime. Audio PCM and microphone injection,
+USB Host, ST25R3916 SPI/NFCCap and the Tab5 MIPI-CSI path remain follow-up work
+and are tracked in the peripheral catalog. The emulator still has a known
+MicroPython/IDF `spi_device_acquire_bus()` stall for single transactions larger
+than four bytes; the LoRa test keeps CS asserted and splits those transfers.

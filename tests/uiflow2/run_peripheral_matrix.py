@@ -348,6 +348,34 @@ CASES = [
         "frame_color": {"x": 4, "y": 4, "label": "NFC", "dark": True},
     },
     {
+        "id": "papermono-lora",
+        "expected_status": "PASS",
+        "reason": (
+            "The native lora.SX1262 driver configures an 868 MHz LoRa modem "
+            "through SPI command/register/FIFO transfers, sends M5LORA and "
+            "receives the same packet through the SX1262 data plane."
+        ),
+        "checks": [
+            {"name": "lora_configure", "status": "PASS"},
+            {"name": "lora_tx", "status": "PASS"},
+            {"name": "lora_rx_loopback", "status": "PASS"},
+            {"name": "lora_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papermono",
+        "base": "platform/.cache/firmware/papermono/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papermono_lora",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "480x800",
+        "efuse_pkg_version": "0",
+        "wait": "25",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "LoRa", "dark": True},
+    },
+    {
         "id": "stackchan-nfc",
         "expected_status": "PASS",
         "reason": (
@@ -453,6 +481,32 @@ CASES = [
         "qom": [],
         "allow_static_frame": True,
         "frame_color": {"x": 233, "y": 5, "label": "vibration"},
+    },
+    {
+        "id": "atoms3r-lp5562",
+        "expected_status": "PASS",
+        "reason": (
+            "The LP5562 I2C RGB controller accepts enable/mode/PWM writes and "
+            "returns the three independent channel values over the real bus."
+        ),
+        "checks": [
+            {"name": "lp5562_enable", "status": "PASS"},
+            {"name": "lp5562_pwm_readback", "status": "PASS"},
+            {"name": "lp5562_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5atoms3r",
+        "base": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+        "files_dir": "tests/uiflow2/atoms3r_lp5562",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "128x128",
+        "efuse_pkg_version": "1",
+        "wait": "8",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "frame_color": {"x": 64, "y": 4, "label": "LP5562"},
     },
 ]
 
