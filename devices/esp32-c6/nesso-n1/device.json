@@ -39,7 +39,8 @@
     "sensors": [
       "imu:bmi270",
       "lora",
-      "battery",
+      "battery-fuel-gauge:bq27220",
+      "charger:aw32001",
       "io-expander:pi4ioe5v6408"
     ],
     "dimensions_mm": null,
@@ -60,9 +61,9 @@
     "display_protocol": "spi-st7789",
     "execution": "native-qemu",
     "validation": {
-      "date": "2026-10-20",
-      "status": "display-touch-pass",
-      "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 ST7789 UI，QMP 触摸后计数与坐标重绘；规范 PPM stride 后截图无行对齐伪影。"
+      "date": "2026-10-21",
+      "status": "display-touch-power-io-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 UI；QMP 触摸和按键输入通过，双 PI4IOE5V6408 输出/中断状态、BQ27220 电池遥测和 AW32001 充电状态均完成总线闭环。"
     }
   },
   "uiflow2": {

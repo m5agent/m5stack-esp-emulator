@@ -64,9 +64,10 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 
 外设 API 的当前结果：
 
-- StickS3：A/B/P、电源 telemetry 通过；BMI270 可识别并启用，但 accel/gyro 数值更新待补。
-- CoreS3：触摸、PWR、AXP2101 电源 telemetry、PCF8563 RTC 通过；BMI270
-  数值、BMM150 磁力计和相机取帧待补。
+- StickS3：A/B/P、电源 telemetry、BMI270 数值、ES8311 音频、IR 和电量计路径通过。
+- CoreS3：触摸、PWR、AXP2101、PCF8563、BMI270/BMM150、ALS、AW9523
+  和 GC0308 相机路径通过。
+- Nesso N1：触摸、双 PI4IOE、BQ27220 电池遥测和 AW32001 充电状态通过。
 
 详细矩阵和截图见
 [`uiflow2-peripheral-test-matrix.md`](uiflow2-peripheral-test-matrix.md)。

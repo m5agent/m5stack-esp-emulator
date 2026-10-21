@@ -56,11 +56,16 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StamPLC | G44 I2S 1-bit ΔΣ 蜂鸣器输出 | `Speaker.tone()` + PCM 抓取 | PASS |
 | Core2 | MPU6886 加速度/角速度寄存器与 `Imu` API | `Imu.getAccel()` / `getGyro()` | PASS |
 | StamPLC | LM75BDP 11-bit 温度寄存器 | ESP32 I2C0 `0x48` | PASS |
+| PaperColor | 两颗 WS2812/GRB RGB LED、ESP32-S3 RMT 比特流 | `M5.Led` | PASS |
+| StamPLC | AW9523 四路继电器/八路输入与 PI4IOE RGB | `stamplc.StamPLC` | PASS |
+| CoreS3 | AW9523 输出锁存、方向切换和注入输入 | `driver.aw9523` | PASS |
+| StopWatch | M5IOE1 GPIO、ADC、PWM 与注入输入 | `driver.m5ioe1` | PASS |
+| Arduino Nesso N1 | 双 PI4IOE、按键中断、BQ27220 和 AW32001 | I2C + `Power` | PASS |
 
 汇总：
 
 ```text
-PASS    41
+PASS    46
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -279,6 +284,25 @@ MPU6886 的 14 字节 accel/temp/gyro burst 使用大端 16 位样本。原模�
 LM75BDP 在 StamPLC I2C0 `0x48` 上注入 `37.5 °C`，原始寄存器为
 `0x2580`，按 11-bit 二进制补码和 `1/8 °C` LSB 解码为 `37.5 °C`。
 
+### PaperColor RGB LED
+
+PaperColor 的两颗板载 RGB LED 使用 ESP32-S3 RMT 输出 WS2812/GRB 波形。
+官方 `M5.Led.setColor()` 设置第一颗红色、第二颗绿色后，QEMU 从 RMTMEM
+抓取 48 个 symbol，宿主按高电平宽度区分 T0H/T1H，解码出：
+
+```text
+00 ff 00  ff 00 00
+```
+
+对应 GRB 线上的红、绿两色，而不是在 Python 中直接伪造 LED 状态。
+
+### StamPLC AW9523 与 PI4IOE 分工
+
+官方原理图确认继电器和光耦输入由 AW9523B `0x59` 控制，前面板按键和
+RGB LED 由 PI4IOE5V6408 `0x43` 控制。测试通过 AW9523 写入 relay 1
+并回读，QOM 注入 `input-bits=0xF0F0` 后八路输入全部为高；PI4IOE 的红色
+通道写入后同样回读一致。
+
 ### StopWatch 振动马达
 
 `Power.setVibration(128)` 写入 M5IOE1 PWM1 的 12 位占空比和 enable 位，
@@ -339,6 +363,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/stamplc_buzzer/`
 - `tests/uiflow2/core2_imu/`
 - `tests/uiflow2/stamplc_lm75/`
+- `tests/uiflow2/papercolor_rgb/`
+- `tests/uiflow2/stamplc_onboard_io/`
 
 ## 屏幕证据
 
@@ -459,6 +485,16 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ![Core2 IMU](images/core2-imu-test.png)
 
 ![StamPLC LM75](images/stamplc-lm75-test.png)
+
+![PaperColor RGB](images/papercolor-rgb-test.png)
+
+![StamPLC onboard IO](images/stamplc-onboard-io-test.png)
+
+![CoreS3 AW9523](images/cores3-aw9523-test.png)
+
+![StopWatch M5IOE1](images/stopwatch-m5ioe1-test.png)
+
+![Nesso peripherals](images/nesso-peripherals-test.png)
 
 ## 尚未闭环
 

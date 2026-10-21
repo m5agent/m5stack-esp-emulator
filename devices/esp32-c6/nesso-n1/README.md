@@ -19,14 +19,14 @@
 | 重量 | 官方未确认 |
 | 显示 | 135×240 ips，1.14"，ST7789，触摸 |
 | 控制 | Touch, KEY1, KEY2 |
-| 外设 | imu:bmi270, lora, battery, io-expander:pi4ioe5v6408 |
+| 外设 | imu:bmi270, lora, battery-fuel-gauge:bq27220, charger:aw32001, io-expander:pi4ioe5v6408 |
 
 ## 模拟状态
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-pass` (2026-10-20)
-- 详情：官方 UIFlow2 v2.5.3 渲染 135x240 ST7789 UI，QMP 触摸后计数与坐标重绘；规范 PPM stride 后截图无行对齐伪影。
+- 验证：`display-touch-power-io-pass` (2026-10-21)
+- 详情：官方 UIFlow2 v2.5.3 渲染 135x240 UI；QMP 触摸和按键输入通过，双 PI4IOE5V6408 输出/中断状态、BQ27220 电池遥测和 AW32001 充电状态均完成总线闭环。
 
 
 

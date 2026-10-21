@@ -21,12 +21,25 @@
       "status": "simulated",
       "injection": ["qmp-key"]
     },
-    "battery": {
-      "kind": "battery",
-      "interface": "virtual",
-      "capabilities": ["battery", "charging"],
-      "status": "partial",
-      "injection": ["qom-battery-level", "qom-charging"]
+    "bq27220": {
+      "kind": "battery-fuel-gauge",
+      "interface": "i2c",
+      "address": "0x55",
+      "capabilities": ["battery", "battery-level", "current-monitor"],
+      "status": "simulated",
+      "injection": ["qom-battery-mv", "qom-current-ma", "qom-battery-level"],
+      "data_plane": "BQ27220 standard command registers and muxed block reads over ESP32-C6 I2C; voltage, current and state-of-charge injection reaches the UIFlow2 Power API",
+      "tested_devices": ["nesso-n1"]
+    },
+    "aw32001": {
+      "kind": "pmic",
+      "interface": "i2c",
+      "address": "0x49",
+      "capabilities": ["charging", "charge-current", "charge-voltage"],
+      "status": "simulated",
+      "injection": ["qom-charging"],
+      "data_plane": "AW32001 charger configuration and status registers over ESP32-C6 I2C",
+      "tested_devices": ["nesso-n1"]
     },
     "esp32c6-hosted": {
       "kind": "wireless-coprocessor",
@@ -101,25 +114,31 @@
       "kind": "io-expander",
       "interface": "i2c",
       "address": "0x4f",
-      "capabilities": ["io-expander", "vibration"],
-      "status": "partial",
-      "injection": ["qom-digital-input"]
+      "capabilities": ["io-expander", "digital-input", "adc", "pwm", "vibration", "neopixel"],
+      "status": "simulated",
+      "injection": ["qom-input-bits", "qom-adc-mv"],
+      "data_plane": "M5IOE1 GPIO direction/output/input, pulls, drive mode, ADC, temperature, PWM, IRQ status and NeoPixel RAM over the device I2C bus",
+      "tested_devices": ["stopwatch", "papermono", "stackchan"]
     },
     "aw9523": {
       "kind": "io-expander",
       "interface": "i2c",
-      "address": "0x58",
-      "capabilities": ["io-expander", "usb-power"],
-      "status": "partial",
-      "injection": ["i2c-register"]
+      "address": "0x58/0x59",
+      "capabilities": ["io-expander", "digital-input", "relay-output", "usb-power", "led-pwm"],
+      "status": "simulated",
+      "injection": ["qom-input-bits", "i2c-register"],
+      "data_plane": "AW9523B input/output/direction/interrupt registers, GPIO mode outputs and injected input banks over ESP32-S3 I2C",
+      "tested_devices": ["cores3", "stamplc"]
     },
     "pi4ioe5v6408": {
       "kind": "io-expander",
       "interface": "i2c",
-      "address": "0x43",
+      "address": "0x43/0x44",
       "capabilities": ["io-expander", "digital-input", "relay-output", "button"],
-      "status": "partial",
-      "injection": ["qmp-key", "i2c-register"]
+      "status": "simulated",
+      "injection": ["qmp-key", "qom-input-bits", "i2c-register"],
+      "data_plane": "PI4IOE5V6408 direction, output, high-impedance, pull, input-default, input-status, interrupt-mask and interrupt-status registers with QMP button injection",
+      "tested_devices": ["nesso-n1", "stamplc"]
     },
     "rx8130": {
       "kind": "rtc",
@@ -330,10 +349,10 @@
       "kind": "led",
       "interface": "rmt",
       "capabilities": ["rgb-led"],
-      "status": "partial",
+      "status": "simulated",
       "injection": ["i2c-neopixel-ram", "qom-rgb"],
-      "data_plane": "M5IOE1 I2C NeoPixel configuration and RGB565 LED RAM; additional RMT/WS2812 and PMIC LED implementations remain planned",
-      "tested_devices": ["stackchan"]
+      "data_plane": "M5IOE1 I2C NeoPixel RGB565 RAM and ESP32-S3 RMT WS2812/GRB symbol capture with host-side wire decoding",
+      "tested_devices": ["stackchan", "papercolor"]
     },
     "vibration": {
       "kind": "actuator",
@@ -554,8 +573,8 @@
         {"id": "buzzer", "model": "buzzer"},
         {"id": "can", "model": "can"},
         {"id": "rs485", "model": "rs485"},
-        {"id": "digital-input", "model": "pi4ioe5v6408"},
-        {"id": "relay-output", "model": "pi4ioe5v6408"}
+        {"id": "digital-input", "model": "aw9523", "address": "0x59"},
+        {"id": "relay-output", "model": "aw9523", "address": "0x59"}
       ]
     },
     "stackchan": {
@@ -606,8 +625,10 @@
       "components": [
         {"id": "imu", "model": "bmi270"},
         {"id": "lora", "model": "lora-sx1262"},
-        {"id": "battery", "model": "battery"},
-        {"id": "io-expander", "model": "pi4ioe5v6408"},
+        {"id": "battery-gauge", "model": "bq27220", "qom_path": "/machine/nesso-bq27220"},
+        {"id": "charger", "model": "aw32001", "qom_path": "/machine/nesso-aw32001"},
+        {"id": "io-expander-1", "model": "pi4ioe5v6408", "address": "0x43", "qom_path": "/machine/nesso-pi4ioe1"},
+        {"id": "io-expander-2", "model": "pi4ioe5v6408", "address": "0x44", "qom_path": "/machine/nesso-pi4ioe2"},
         {"id": "touch", "model": "touch-ft5x06"},
         {"id": "buttons", "model": "gpio-button"}
       ]

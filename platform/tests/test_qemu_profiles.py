@@ -65,7 +65,9 @@ class QemuProfileTest(unittest.TestCase):
 
     def test_nesso_visual_validation_is_complete(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "nesso-n1")
-        self.assertEqual(row["validation"]["status"], "display-touch-pass")
+        self.assertEqual(
+            row["validation"]["status"], "display-touch-power-io-pass"
+        )
         self.assertEqual(row["blockers"], [])
 
     def test_tab5_visual_validation_is_complete(self):

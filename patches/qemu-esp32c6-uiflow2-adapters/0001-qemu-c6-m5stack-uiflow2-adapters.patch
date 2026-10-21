@@ -306,10 +306,10 @@ index e72dca0..d8fd45c 100644
  i2c_ss.add(when: 'CONFIG_BCM2835_I2C', if_true: files('bcm2835_i2c.c'))
 diff --git a/hw/misc/esp32c6_board_i2c.c b/hw/misc/esp32c6_board_i2c.c
 new file mode 100644
-index 0000000..437bd3e
+index 0000000..d134a1b
 --- /dev/null
 +++ b/hw/misc/esp32c6_board_i2c.c
-@@ -0,0 +1,192 @@
+@@ -0,0 +1,352 @@
 +/*
 + * Minimal I2C devices used by the Arduino Nesso N1 board.
 + *
@@ -324,6 +324,7 @@ index 0000000..437bd3e
 +#include "qemu/log.h"
 +#include "qemu/module.h"
 +#include "qapi/error.h"
++#include "qapi/visitor.h"
 +#include "hw/i2c/i2c.h"
 +#include "hw/qdev-properties.h"
 +#include "hw/gpio/esp32_gpio.h"
@@ -334,6 +335,8 @@ index 0000000..437bd3e
 +    C6_DEV_FT5X06,
 +    C6_DEV_PI4IOE,
 +    C6_DEV_BMI270,
++    C6_DEV_BQ27220,
++    C6_DEV_AW32001,
 +};
 +
 +typedef struct C6BoardI2CDev {
@@ -342,7 +345,14 @@ index 0000000..437bd3e
 +    int model;
 +    uint8_t regs[256];
 +    uint8_t ptr;
++    uint8_t read_start;
 +    bool ptr_set;
++    uint8_t bq_write_count;
++    uint16_t bq_subreg;
++    int64_t battery_mv;
++    int64_t battery_current_ma;
++    int64_t battery_level;
++    bool charging;
 +} C6BoardI2CDev;
 +
 +OBJECT_DECLARE_SIMPLE_TYPE(C6BoardI2CDev, ESP32C6_BOARD_I2C_DEV)
@@ -352,6 +362,21 @@ index 0000000..437bd3e
 +static int g_touch_x;
 +static int g_touch_y;
 +static uint8_t g_buttons = 0x03;
++static C6BoardI2CDev *g_nesso_pi4ioe[2];
++static C6BoardI2CDev *g_nesso_aw32001;
++
++static uint8_t nesso_pi4ioe_input(C6BoardI2CDev *s)
++{
++    uint8_t external = (s == g_nesso_pi4ioe[0]) ? g_buttons : 0xff;
++    return external & ~s->regs[0x03];
++}
++
++static void nesso_pi4ioe_update_irq(C6BoardI2CDev *s)
++{
++    if (s == g_nesso_pi4ioe[0]) {
++        esp32_gpio_force_line(3, s->regs[0x13] == 0);
++    }
++}
 +
 +void esp32c6_ft_touch_set(int pressed, int x, int y)
 +{
@@ -370,13 +395,19 @@ index 0000000..437bd3e
 +
 +void esp32c6_pi4ioe_button_set(int button, bool pressed)
 +{
++    uint8_t old;
++
 +    if (button < 0 || button > 1) {
 +        return;
 +    }
++    old = g_buttons;
 +    if (pressed) {
 +        g_buttons &= ~(1u << button);
 +    } else {
 +        g_buttons |= 1u << button;
++    }
++    if (g_nesso_pi4ioe[0] && old != g_buttons) {
++        g_nesso_pi4ioe[0]->regs[0x13] |= old ^ g_buttons;
 +    }
 +}
 +
@@ -408,13 +439,43 @@ index 0000000..437bd3e
 +        }
 +    } else if (s->model == C6_DEV_PI4IOE) {
 +        if (reg == 0x01) {
-+            return 0x01;
++            uint8_t value = s->regs[reg];
++            s->regs[reg] &= ~0x02;
++            return value;
 +        }
 +        if (reg == 0x0f) {
-+            return g_buttons;
++            return nesso_pi4ioe_input(s);
++        }
++        if (reg == 0x13) {
++            uint8_t value = s->regs[reg];
++            s->regs[reg] = 0;
++            nesso_pi4ioe_update_irq(s);
++            return value;
 +        }
 +    } else if (s->model == C6_DEV_BMI270 && reg == 0x00) {
 +        return 0x24;
++    } else if (s->model == C6_DEV_BQ27220) {
++        if (s->read_start == 0x3e) {
++            unsigned offset = reg - 0x3e;
++            static const uint8_t device_type[4] = { 0x20, 0x00, 0x00, 0x00 };
++            return offset < sizeof(device_type) ? device_type[offset] : 0;
++        }
++        if (reg == 0x08 || reg == 0x09) {
++            uint16_t value = s->battery_mv;
++            return reg == 0x08 ? value & 0xff : value >> 8;
++        }
++        if (reg == 0x14 || reg == 0x15) {
++            uint16_t value = (int16_t)s->battery_current_ma;
++            return reg == 0x14 ? value & 0xff : value >> 8;
++        }
++        if (reg == 0x2c || reg == 0x2d) {
++            uint16_t value = s->battery_level;
++            return reg == 0x2c ? value & 0xff : value >> 8;
++        }
++    } else if (s->model == C6_DEV_AW32001) {
++        if (reg == 0x08) {
++            return s->charging ? 0x10 : 0x00;
++        }
 +    }
 +    return s->regs[reg];
 +}
@@ -425,6 +486,9 @@ index 0000000..437bd3e
 +
 +    if (event == I2C_START_SEND) {
 +        s->ptr_set = false;
++        s->bq_write_count = 0;
++    } else if (event == I2C_START_RECV) {
++        s->read_start = s->ptr;
 +    }
 +    return 0;
 +}
@@ -432,7 +496,14 @@ index 0000000..437bd3e
 +static uint8_t c6_i2c_recv(I2CSlave *i2c)
 +{
 +    C6BoardI2CDev *s = (C6BoardI2CDev *)i2c;
-+    uint8_t value = c6_i2c_read(s, s->ptr++);
++    uint8_t value;
++
++    if (s->model == C6_DEV_BQ27220 && s->read_start == 0x3e
++        && s->ptr < 0x40) {
++        value = c6_i2c_read(s, s->ptr++);
++        return value;
++    }
++    value = c6_i2c_read(s, s->ptr++);
 +    return value;
 +}
 +
@@ -440,6 +511,21 @@ index 0000000..437bd3e
 +{
 +    C6BoardI2CDev *s = (C6BoardI2CDev *)i2c;
 +
++    if (s->model == C6_DEV_BQ27220) {
++        if (s->bq_write_count == 0) {
++            s->ptr = data;
++            s->ptr_set = true;
++            if (data != 0x3e) {
++                s->bq_subreg = 0;
++            }
++        } else if (s->bq_write_count == 1) {
++            s->bq_subreg = data;
++        } else if (s->bq_write_count == 2) {
++            s->bq_subreg |= data << 8;
++        }
++        s->bq_write_count++;
++        return 0;
++    }
 +    if (!s->ptr_set) {
 +        s->ptr = data;
 +        s->ptr_set = true;
@@ -449,8 +535,53 @@ index 0000000..437bd3e
 +        fprintf(stderr, "[c6-i2c] write model=%d reg=%02x data=%02x\n",
 +                s->model, s->ptr, data);
 +    }
++    if (s->model == C6_DEV_PI4IOE && s->ptr == 0x01 && (data & BIT(0))) {
++        memset(s->regs, 0, sizeof(s->regs));
++        s->regs[0x01] = 0xa2;
++        s->regs[0x07] = 0xff;
++        s->regs[0x0b] = 0xff;
++        s->ptr++;
++        nesso_pi4ioe_update_irq(s);
++        return 0;
++    }
++    if (s->model == C6_DEV_PI4IOE && (s->ptr == 0x0f || s->ptr == 0x13)) {
++        s->ptr++;
++        return 0;
++    }
 +    s->regs[s->ptr++] = data;
 +    return 0;
++}
++
++static void c6_prop_get_i64(Object *o, Visitor *v, const char *name,
++                            void *op, Error **errp)
++{
++    visit_type_int64(v, name, (int64_t *)op, errp);
++}
++
++static void c6_prop_set_i64(Object *o, Visitor *v, const char *name,
++                            void *op, Error **errp)
++{
++    int64_t value;
++
++    if (visit_type_int64(v, name, &value, errp)) {
++        *(int64_t *)op = value;
++    }
++}
++
++static void c6_prop_get_bool(Object *o, Visitor *v, const char *name,
++                             void *op, Error **errp)
++{
++    visit_type_bool(v, name, (bool *)op, errp);
++}
++
++static void c6_prop_set_bool(Object *o, Visitor *v, const char *name,
++                             void *op, Error **errp)
++{
++    bool value;
++
++    if (visit_type_bool(v, name, &value, errp)) {
++        *(bool *)op = value;
++    }
 +}
 +
 +static void c6_i2c_realize(DeviceState *dev, Error **errp)
@@ -464,11 +595,40 @@ index 0000000..437bd3e
 +        g_ft = s;
 +    } else if (!strcmp(model, "pi4ioe")) {
 +        s->model = C6_DEV_PI4IOE;
++        s->regs[0x01] = 0xa2;
++        s->regs[0x07] = 0xff;
++        s->regs[0x0b] = 0xff;
++        if (s->parent_obj.address == 0x43) {
++            g_nesso_pi4ioe[0] = s;
++        } else if (s->parent_obj.address == 0x44) {
++            g_nesso_pi4ioe[1] = s;
++        }
 +    } else if (!strcmp(model, "bmi270")) {
 +        s->model = C6_DEV_BMI270;
 +        s->regs[0x00] = 0x24;
 +        s->regs[0x03] = 0xc0;
 +        s->regs[0x1d] = 0xc0;
++    } else if (!strcmp(model, "bq27220")) {
++        s->model = C6_DEV_BQ27220;
++        s->battery_mv = 4000;
++        s->battery_current_ma = 250;
++        s->battery_level = 87;
++        object_property_add(OBJECT(s), "battery-mv", "int", c6_prop_get_i64,
++                            c6_prop_set_i64, NULL, &s->battery_mv);
++        object_property_add(OBJECT(s), "current-ma", "int", c6_prop_get_i64,
++                            c6_prop_set_i64, NULL, &s->battery_current_ma);
++        object_property_add(OBJECT(s), "battery-level", "int", c6_prop_get_i64,
++                            c6_prop_set_i64, NULL, &s->battery_level);
++    } else if (!strcmp(model, "aw32001")) {
++        s->model = C6_DEV_AW32001;
++        s->regs[0x01] = 0;
++        s->regs[0x02] = 11;                         /* 100 mA */
++        s->regs[0x04] = 39;                         /* 4200 mV */
++        s->regs[0x0a] = 0x49;
++        s->charging = true;
++        object_property_add(OBJECT(s), "charging", "bool", c6_prop_get_bool,
++                            c6_prop_set_bool, NULL, &s->charging);
++        g_nesso_aw32001 = s;
 +    }
 +}
 +
@@ -504,10 +664,10 @@ index 0000000..437bd3e
 +type_init(c6_i2c_register_types)
 diff --git a/hw/misc/esp32c6_nesso_panel.c b/hw/misc/esp32c6_nesso_panel.c
 new file mode 100644
-index 0000000..f6bcbe3
+index 0000000..1cdedce
 --- /dev/null
 +++ b/hw/misc/esp32c6_nesso_panel.c
-@@ -0,0 +1,341 @@
+@@ -0,0 +1,354 @@
 +/*
 + * Arduino Nesso N1 ST7789 panel model.
 + *
@@ -772,6 +932,19 @@ index 0000000..f6bcbe3
 +    ESP32C6NessoPanelState *s = (ESP32C6NessoPanelState *)dev;
 +
 +    switch (evt->type) {
++    case INPUT_EVENT_KIND_KEY: {
++        InputKeyEvent *key = evt->u.key.data;
++        int q = qemu_input_key_value_to_qcode(key->key);
++        if (getenv("M5SW_INPUT_TRACE")) {
++            fprintf(stderr, "[nesso-input] key=%d down=%d\n", q, key->down);
++        }
++        if (q == Q_KEY_CODE_A || q == Q_KEY_CODE_1) {
++            esp32c6_pi4ioe_button_set(0, key->down);
++        } else if (q == Q_KEY_CODE_B || q == Q_KEY_CODE_2) {
++            esp32c6_pi4ioe_button_set(1, key->down);
++        }
++        break;
++    }
 +    case INPUT_EVENT_KIND_ABS: {
 +        InputMoveEvent *m = evt->u.abs.data;
 +        if (m->axis == INPUT_AXIS_X) {
@@ -805,7 +978,7 @@ index 0000000..f6bcbe3
 +
 +static const QemuInputHandler nesso_panel_input_handler = {
 +    .name = "Nesso N1 touch",
-+    .mask = INPUT_EVENT_MASK_BTN | INPUT_EVENT_MASK_ABS,
++    .mask = INPUT_EVENT_MASK_KEY | INPUT_EVENT_MASK_BTN | INPUT_EVENT_MASK_ABS,
 +    .event = nesso_panel_input,
 +    .sync = nesso_panel_input_sync,
 +};
@@ -1091,7 +1264,7 @@ index 0ac4b77..950b19c 100644
  
  system_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
 diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
-index f8b5d9c..f16cef2 100644
+index f8b5d9c..fa04b7d 100644
 --- a/hw/riscv/esp32c6.c
 +++ b/hw/riscv/esp32c6.c
 @@ -45,9 +45,14 @@
@@ -1213,7 +1386,7 @@ index f8b5d9c..f16cef2 100644
      /* UARTs */
      for (int i = 0; i < ESP32C6_UART_COUNT; ++i) {
          const hwaddr uart_base[] = { DR_REG_UART_BASE, DR_REG_UART1_BASE };
-@@ -372,6 +446,51 @@ static void esp32c6_machine_init(MachineState *machine)
+@@ -372,6 +446,53 @@ static void esp32c6_machine_init(MachineState *machine)
          memory_region_add_subregion_overlap(sys_mem, DR_REG_GPIO_BASE, mr, 0);
      }
  
@@ -1241,6 +1414,8 @@ index f8b5d9c..f16cef2 100644
 +            { "nesso-pi4ioe2", "pi4ioe", 0x44 },
 +            { "nesso-ft5x06", "ft5x06", 0x38 },
 +            { "nesso-bmi270", "bmi270", 0x68 },
++            { "nesso-bq27220", "bq27220", 0x55 },
++            { "nesso-aw32001", "aw32001", 0x49 },
 +        };
 +        for (int i = 0; i < ARRAY_SIZE(board_i2c_devs); i++) {
 +            DeviceState *dev = qdev_new(TYPE_ESP32C6_BOARD_I2C_DEV);
@@ -1265,7 +1440,7 @@ index f8b5d9c..f16cef2 100644
      /* Cache (EXTMEM) */
      {
          if (blk) {
-@@ -427,6 +546,16 @@ static void esp32c6_machine_init(MachineState *machine)
+@@ -427,6 +548,16 @@ static void esp32c6_machine_init(MachineState *machine)
          memory_region_add_subregion_overlap(sys_mem, ESP32C6_I2C_ANA_MST_BASE, mr, 0);
      }
  

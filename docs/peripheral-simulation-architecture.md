@@ -52,11 +52,12 @@
 - **Camera**：CoreS3 的 GC0308 SCCB + ESP32-S3 LCD_CAM + GDMA RX 描述符已
   闭环。模型以半缓冲连续事件生成 RGB565 帧，支持 `camera.snapshot()` 和
   `M5.Display.show()`；宿主可通过 `M5SW_CAMERA_FRAME` 注入原始 RGB565 帧。
-- **I2C 传感器/电源**：BMI270、BMM150、AXP2101、M5PM1、PCF8563、RX8130、
-  INA226、INA3221、LTR553、LM75、SHT40、ST25R3916 等均有总线级模型和
-  QOM 注入。
-- **GPIO/扩展 IO**：按键、触摸、PI4IOE 输入/继电器、AW9523 输入、M5IOE1
-  输出状态均通过真实 I2C/GPIO 路径读取。
+- **I2C 传感器/电源**：BMI270、BMM150、AXP2101、M5PM1、BQ27220、AW32001、
+  PCF8563、RX8130、INA226、INA3221、LTR553、LM75、SHT40、ST25R3916 等均有
+  总线级模型和 QOM 注入。
+- **GPIO/扩展 IO**：按键、触摸、PI4IOE 的输入/输出/上拉/中断状态，AW9523
+  的输入/输出/方向/中断状态，以及 M5IOE1 的 GPIO、ADC、PWM、IRQ 和
+  NeoPixel RAM 均通过真实 I2C/GPIO 路径读取。
 - **串行执行器**：StackChan 的 SCS 舵机通过真实 UART1 字节流解析
   `PING/READ/WRITE/SYNC_WRITE` 帧，位置、扭矩和遥测状态由舵机模型回包。
 - **音频**：ES8311、ES7210、AW88298、AW8737A 和 PDM 麦克风通过
@@ -71,6 +72,8 @@
   TX/RX。
 - **蜂鸣器**：StamPLC 的 G44 由 M5Unified 生成为 I2S 1-bit ΔΣ 流，宿主
   从真实 I2S TX DMA 描述符抓取比特流。
+- **RGB LED**：StackChan 的 M5IOE1 RGB RAM 和 PaperColor 的 ESP32-S3 RMT
+  WS2812/GRB 波形都已闭环；RMT 抓取结果可在宿主按真实 T0H/T1H 解码。
 
 ## 仍需高带宽数据面的器件
 

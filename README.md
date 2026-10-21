@@ -210,9 +210,10 @@ StopWatch 页面接口。设置 `M5_STOPWATCH_FIXTURE_URL` 后可额外验证真
 ## 外设 API 测试
 
 StickS3、AtomS3R、CoreS3、StopWatch、StamPLC、StackChan、Cardputer-ADV、
-PaperMono 与 PaperColor 的 IMU、磁力计、按键、触摸、电源、RTC、继电器、
-INA226/INA3221、SDMMC、SPI SD、RMT/NEC 红外、I2C NFC、音频 PCM、
-PDM 麦克风、舵机和摄像头探测结果见
+PaperMono、PaperColor、Core2 与 Nesso N1 的 IMU、磁力计、按键、触摸、
+电源、RTC、继电器、IO 扩展器、电量计、充电器、INA226/INA3221、SDMMC、
+SPI SD、RMT/NEC 红外、I2C NFC、音频 PCM、PDM 麦克风、舵机和摄像头探测
+结果见
 [`docs/uiflow2-peripheral-test-matrix.md`](docs/uiflow2-peripheral-test-matrix.md)。
 
 ```bash
@@ -225,7 +226,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 RMT/NEC 红外收发、ST25R3916 NFC、ESP32-S3 与 ESP32 classic I2S/PDM
 音频注入与抓取、SCS 舵机，以及 GC0308 + LCD_CAM + GDMA 的
 `camera.snapshot()` 和屏幕显示闭环。StamPLC 的 TWAI CAN、PWR485 和
-I2S 蜂鸣器也已通过虚拟对端双向验收。USB Host、Tab5 MIPI-CSI/ES8388
+I2S 蜂鸣器也已通过虚拟对端双向验收；Nesso N1 的 BQ27220 电量计、
+AW32001 充电器与双 PI4IOE 也已闭环。USB Host、Tab5 MIPI-CSI/ES8388
 等尚未闭环的外设仍按器件登记，不会用 Python 假数据冒充完成。
 
 ## 参考项目与致谢

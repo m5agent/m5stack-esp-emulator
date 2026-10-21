@@ -1,182 +1,6 @@
---- a/hw/char/esp32_uart.c
-+++ b/hw/char/esp32_uart.c
-@@ -138,7 +138,14 @@
-         if (fifo8_num_free(&s->tx_fifo) == 0) {
-             error_report("esp_uart: write to UART FIFO while it is full");
-         } else {
--            fifo8_push(&s->tx_fifo, (uint8_t) (value & 0xff));
-+            uint8_t byte = value & 0xff;
-+            fifo8_push(&s->tx_fifo, byte);
-+            if (getenv("M5SW_UART_TRACE")) {
-+                fprintf(stderr, "[uart-tx] %02x\n", byte);
-+            }
-+            if (s->tx_byte_cb) {
-+                s->tx_byte_cb(s->tx_byte_opaque, byte);
-+            }
-             uart_transmit(NULL, G_IO_OUT, s);
-         }
-         break;
-@@ -249,6 +256,13 @@
-     if (size == 0) {
-         return;
-     }
-+    if (getenv("M5SW_UART_TRACE")) {
-+        fprintf(stderr, "[uart-rx]");
-+        for (int i = 0; i < size; i++) {
-+            fprintf(stderr, " %02x", buf[i]);
-+        }
-+        fprintf(stderr, "\n");
-+    }
- 
-     /* If we can receive anything: cancel any pending RX timeout timer,
-      * and clear the receive timeout flag.
-@@ -286,6 +300,19 @@
-     esp32_uart_update_irq(s);
- }
- 
-+void esp32_uart_set_tx_byte_callback(ESP32UARTState *s,
-+                                     void (*cb)(void *opaque, uint8_t byte),
-+                                     void *opaque)
-+{
-+    s->tx_byte_cb = cb;
-+    s->tx_byte_opaque = opaque;
-+}
-+
-+void esp32_uart_inject_rx(ESP32UARTState *s, const uint8_t *buf, int size)
-+{
-+    uart_receive(s, buf, size);
-+}
-+
- static int uart_can_receive(void *opaque)
- {
-     ESP32UARTState *s = ESP32_UART(opaque);
---- a/hw/dma/esp_gdma.c
-+++ b/hw/dma/esp_gdma.c
-@@ -204,6 +204,7 @@
-     DmaConfigState* state = &s->ch_conf[dir][chan];
- 
-     /* Assign the current descriptor address to the state register */
-+    state->current_desc_addr = current;
-     state->state = current & R_GDMA_OUT_STATE_LINK_DSCR_ADDR_MASK;
- 
-     /* On real hardware, if the former address is incorrect, the current address is copied to this
-@@ -446,6 +447,21 @@
-             break;
-         }
-         copy = MIN(desc.config.length, size - consumed);
-+        if (getenv("M5SW_GDMA_SNAPSHOT_TRACE")) {
-+            uint8_t head[16] = { 0 };
-+            uint32_t head_len = MIN(copy, sizeof(head));
-+            if (head_len) {
-+                esp_gdma_read_guest(s, desc.buf_addr, head, head_len);
-+            }
-+            fprintf(stderr,
-+                    "[gdma-snapshot] dscr=%08x buf=%08x len=%u owner=%u eof=%u head=",
-+                    addr, desc.buf_addr, desc.config.length,
-+                    desc.config.owner, desc.config.suc_eof);
-+            for (uint32_t i = 0; i < head_len; i++) {
-+                fprintf(stderr, "%02x", head[i]);
-+            }
-+            fprintf(stderr, "\n");
-+        }
-         if (copy && !esp_gdma_read_guest(s, desc.buf_addr,
-                                          buffer + consumed, copy)) {
-             break;
-@@ -459,7 +475,92 @@
-     return consumed;
- }
- 
-+/*
-+ * Consume one descriptor from a running peripheral-to-memory OUT channel
-+ * without clearing START. Cyclic DMA keeps advancing through the linked ring;
-+ * peripheral models use this to expose each completed buffer and raise OUT_EOF
-+ * exactly as the controller does at the end of a descriptor.
-+ */
-+uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
-+                                          uint8_t *buffer, uint32_t size)
-+{
-+    DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
-+    const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
-+    uint32_t addr = state->current_desc_addr
-+                  ? state->current_desc_addr
-+                  : high | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
-+    GdmaLinkedList desc;
-+    uint32_t copy;
-+    uint32_t next;
- 
-+    if (!addr || !esp_gdma_read_descr(s, addr, &desc)) {
-+        esp_gdma_set_status(&state->int_state,
-+                            R_GDMA_INTERRUPT_OUT_DSCR_ERR_MASK);
-+        return 0;
-+    }
-+    copy = MIN(desc.config.length, size);
-+    if (copy && !esp_gdma_read_guest(s, desc.buf_addr, buffer, copy)) {
-+        esp_gdma_set_status(&state->int_state,
-+                            R_GDMA_INTERRUPT_OUT_DSCR_ERR_MASK);
-+        return 0;
-+    }
-+    state->suc_eof_desc_addr = addr;
-+    next = desc.next_addr;
-+    if (next) {
-+        esp_gdma_push_descriptor(s, chan, ESP_GDMA_OUT_IDX, next);
-+    }
-+    esp_gdma_set_status(&state->int_state,
-+                        R_GDMA_INTERRUPT_OUT_EOF_MASK);
-+    return copy;
-+}
-+
-+/*
-+ * Deliver one descriptor worth of data to a running peripheral-to-memory IN
-+ * channel and advance through its cyclic linked ring.
-+ */
-+uint32_t esp_gdma_complete_in_descriptor(ESPGdmaState *s, uint32_t chan,
-+                                         const uint8_t *buffer, uint32_t size)
-+{
-+    DmaConfigState *state = &s->ch_conf[ESP_GDMA_IN_IDX][chan];
-+    const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
-+    uint32_t addr = state->current_desc_addr
-+                  ? state->current_desc_addr
-+                  : high | FIELD_EX32(state->link, GDMA_IN_LINK, ADDR);
-+    GdmaLinkedList desc;
-+    uint32_t copy;
-+    uint32_t next;
-+
-+    if (!addr || !esp_gdma_read_descr(s, addr, &desc)) {
-+        esp_gdma_set_status(&state->int_state,
-+                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
-+        return 0;
-+    }
-+    copy = MIN(desc.config.size, size);
-+    if (copy && !esp_gdma_write_guest(s, desc.buf_addr, (void *)buffer,
-+                                      copy)) {
-+        esp_gdma_set_status(&state->int_state,
-+                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
-+        return 0;
-+    }
-+    desc.config.length = copy;
-+    desc.config.owner = 0;
-+    if (!esp_gdma_write_descr(s, addr, &desc)) {
-+        esp_gdma_set_status(&state->int_state,
-+                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
-+        return 0;
-+    }
-+    state->suc_eof_desc_addr = addr;
-+    next = desc.next_addr;
-+    if (next) {
-+        esp_gdma_push_descriptor(s, chan, ESP_GDMA_IN_IDX, next);
-+    }
-+    esp_gdma_set_status(&state->int_state,
-+                        R_GDMA_INTERRUPT_IN_SUC_EOF_MASK |
-+                        R_GDMA_INTERRUPT_IN_DONE_MASK);
-+    return copy;
-+}
-+
-+
- /**
-  * @brief Write data to the guest RAM pointed by the linked list configured in the given DmaConfigState index.
-  *        `size` bytes from `buffer` will be written to guest machine's RAM.
---- a/hw/m5stopwatch/esp32s3_gpspi.c
-+++ b/hw/m5stopwatch/esp32s3_gpspi.c
+diff -ruN a/hw/m5stopwatch/esp32s3_gpspi.c b/hw/m5stopwatch/esp32s3_gpspi.c
+--- a/hw/m5stopwatch/esp32s3_gpspi.c	2026-10-21 12:51:49
++++ b/hw/m5stopwatch/esp32s3_gpspi.c	2026-10-21 13:18:14
 @@ -50,14 +50,16 @@
      M5EpdPanelState *epd_panel;
      uint32_t gdma_periph;
@@ -252,20 +76,77 @@
  }
  
  static const TypeInfo gpspi_info = {
-@@ -456,6 +469,11 @@
+@@ -454,6 +467,11 @@
+ void esp32s3_gpspi_set_dc_pin(DeviceState *dev, int pin)
+ {
      ESP32S3_GPSPI(dev)->dc_pin = pin;
- }
- 
++}
++
 +void esp32s3_gpspi_set_panel_cs_pin(DeviceState *dev, int pin)
 +{
 +    ESP32S3_GPSPI(dev)->panel_cs_pin = pin;
+ }
+ 
+ void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
+diff -ruN a/hw/m5stopwatch/m5_can_peer.c b/hw/m5stopwatch/m5_can_peer.c
+--- a/hw/m5stopwatch/m5_can_peer.c	1970-01-01 08:00:00
++++ b/hw/m5stopwatch/m5_can_peer.c	2026-10-21 14:46:58
+@@ -0,0 +1,52 @@
++/*
++ * Virtual CAN peer for M5Stack board models.
++ *
++ * The peer is a real client on QEMU's CAN bus.  When enabled, it echoes every
++ * frame back to the controller, allowing the unmodified guest TWAI driver to
++ * exercise TX, RX, filtering, interrupts and its receive FIFOs.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "net/can_emu.h"
++#include "qom/object.h"
++#include "m5stopwatch.h"
++
++typedef struct M5CanPeer {
++    CanBusClientState client;
++    bool echo;
++} M5CanPeer;
++
++static bool m5_can_peer_can_receive(CanBusClientState *client)
++{
++    return true;
 +}
 +
- void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
-                                     const M5SpiSlaveOps *ops,
-                                     void *opaque, int cs_pin)
---- /dev/null
-+++ b/hw/m5stopwatch/m5_i2s.c
++static ssize_t m5_can_peer_receive(CanBusClientState *client,
++                                   const struct qemu_can_frame *frames,
++                                   size_t frames_cnt)
++{
++    M5CanPeer *peer = container_of(client, M5CanPeer, client);
++
++    if (peer->echo && frames_cnt) {
++        can_bus_client_send(client, frames, frames_cnt);
++    }
++    return frames_cnt;
++}
++
++static CanBusClientInfo m5_can_peer_info = {
++    .can_receive = m5_can_peer_can_receive,
++    .receive = m5_can_peer_receive,
++};
++
++struct CanBusState *m5_can_bus_create(void)
++{
++    CanBusState *bus = CAN_BUS(object_new(TYPE_CAN_BUS));
++    M5CanPeer *peer = g_new0(M5CanPeer, 1);
++
++    object_property_add_child(qdev_get_machine(), "m5-canbus", OBJECT(bus));
++    peer->echo = getenv("M5SW_CAN_ECHO") != NULL;
++    peer->client.info = &m5_can_peer_info;
++    can_bus_insert_client(bus, &peer->client);
++    return bus;
++}
+diff -ruN a/hw/m5stopwatch/m5_i2s.c b/hw/m5stopwatch/m5_i2s.c
+--- a/hw/m5stopwatch/m5_i2s.c	1970-01-01 08:00:00
++++ b/hw/m5stopwatch/m5_i2s.c	2026-10-21 13:09:30
 @@ -0,0 +1,458 @@
 +/*
 + * ESP32-S3 I2S register front-end.
@@ -725,1290 +606,9 @@
 +            qdev_get_gpio_in(intmatrix, ports[i].irq_source));
 +    }
 +}
---- /dev/null
-+++ b/hw/m5stopwatch/m5_lcd_cam.c
-@@ -0,0 +1,269 @@
-+/*
-+ * Minimal ESP32-S3 LCD_CAM camera front-end.
-+ *
-+ * The camera sensor is configured through SCCB by the guest.  This model
-+ * supplies deterministic RGB565 frames through the real LCD_CAM interrupt
-+ * and GDMA RX descriptor path used by esp32-camera.
-+ *
-+ * SPDX-License-Identifier: GPL-2.0-or-later
-+ */
-+#include "qemu/osdep.h"
-+#include "qemu/timer.h"
-+#include "hw/dma/esp_gdma.h"
-+#include "hw/irq.h"
-+#include "hw/sysbus.h"
-+#include "m5stopwatch.h"
-+
-+#define R_CAM_CTRL   0x04
-+#define R_CAM_CTRL1  0x08
-+#define R_CAM_RGB    0x0c
-+#define R_INT_ENA    0x64
-+#define R_INT_RAW    0x68
-+#define R_INT_ST     0x6c
-+#define R_INT_CLR    0x70
-+#define CAM_UPDATE   (1u << 4)
-+#define CAM_START    (1u << 29)
-+#define CAM_RESET    (1u << 30)
-+#define CAM_AFIFO_RST (1u << 31)
-+#define CAM_VSYNC_INT (1u << 2)
-+
-+struct M5LcdCamState {
-+    SysBusDevice parent_obj;
-+    MemoryRegion iomem;
-+    qemu_irq irq;
-+    ESPGdmaState *gdma;
-+    uint32_t regs[0x100 / 4];
-+    uint32_t int_ena;
-+    uint32_t int_raw;
-+    uint32_t width;
-+    uint32_t height;
-+    uint32_t frame_offset;
-+    uint32_t frame_bytes;
-+    uint32_t chunk_len;
-+    uint32_t chunks_left;
-+    uint8_t *frame_data;
-+    uint32_t frame_data_size;
-+    bool started;
-+    QEMUTimer *capture_timer;
-+};
-+
-+static void lcd_cam_update_irq(M5LcdCamState *s)
-+{
-+    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
-+}
-+
-+static uint16_t camera_pattern_pixel(M5LcdCamState *s, uint32_t pixel)
-+{
-+    uint32_t area = MAX(1u, s->width * s->height);
-+    uint32_t p = pixel % area;
-+    uint32_t x = p % MAX(1u, s->width);
-+    uint32_t y = p / MAX(1u, s->width);
-+    uint8_t r, g, b;
-+
-+    if (y < MAX(1u, s->height / 4)) {
-+        r = 235; g = 48; b = 48;
-+    } else if (y < MAX(1u, s->height / 2)) {
-+        r = 235; g = 190; b = 35;
-+    } else if (y < MAX(1u, (s->height * 3) / 4)) {
-+        r = 40; g = 190; b = 80;
-+    } else {
-+        r = 35; g = 105; b = 235;
-+    }
-+    if ((x % 40) < 2 || (y % 40) < 2) {
-+        r = g = b = 245;
-+    }
-+    return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
-+}
-+
-+static void lcd_cam_fill_frame(M5LcdCamState *s, uint8_t *data, uint32_t len)
-+{
-+    uint32_t frame_bytes = MAX(2u, s->width * s->height * 2);
-+    if (s->frame_data && s->frame_data_size >= frame_bytes) {
-+        for (uint32_t i = 0; i < len; i++) {
-+            data[i] = s->frame_data[(s->frame_offset + i) % frame_bytes];
-+        }
-+        s->frame_offset = (s->frame_offset + len) % frame_bytes;
-+        return;
-+    }
-+    for (uint32_t i = 0; i < len; i += 2) {
-+        uint32_t offset = (s->frame_offset + i) % frame_bytes;
-+        uint16_t pixel = camera_pattern_pixel(s, offset / 2);
-+        data[i] = pixel & 0xff;
-+        if (i + 1 < len) {
-+            data[i + 1] = pixel >> 8;
-+        }
-+    }
-+    s->frame_offset = (s->frame_offset + len) % frame_bytes;
-+}
-+
-+static void lcd_cam_capture(M5LcdCamState *s)
-+{
-+    uint32_t channel;
-+    uint32_t len = s->chunk_len;
-+    g_autofree uint8_t *data = g_malloc0(len);
-+
-+    if (!(s->int_ena & CAM_VSYNC_INT)) {
-+        timer_mod(s->capture_timer,
-+                  qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
-+        return;
-+    }
-+
-+    lcd_cam_fill_frame(s, data, len);
-+    if (s->gdma) {
-+        bool found = esp_gdma_get_channel_periph(
-+            s->gdma, GDMA_LCDCAM, ESP_GDMA_IN_IDX, &channel);
-+        if (!found) {
-+            if (getenv("M5SW_CAMERA_TRACE")) {
-+                fprintf(stderr, "[lcd-cam] waiting for camera GDMA channel\n");
-+            }
-+            timer_mod(s->capture_timer,
-+                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
-+            return;
-+        }
-+        if (s->chunks_left) {
-+            esp_gdma_write_channel(s->gdma, channel, data, len);
-+            esp_gdma_set_chan_interrupt(s->gdma, ESP_GDMA_IN_IDX, channel,
-+                                        R_GDMA_INTERRUPT_IN_SUC_EOF_MASK);
-+            s->chunks_left--;
-+            timer_mod(s->capture_timer,
-+                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
-+        } else {
-+            s->int_raw |= CAM_VSYNC_INT;
-+            lcd_cam_update_irq(s);
-+            if (getenv("M5SW_CAMERA_TRACE")) {
-+                fprintf(stderr, "[lcd-cam] frame complete bytes=%u\n",
-+                        s->frame_bytes);
-+            }
-+        }
-+    }
-+}
-+
-+static uint64_t lcd_cam_read(void *opaque, hwaddr addr, unsigned size)
-+{
-+    M5LcdCamState *s = opaque;
-+    switch (addr) {
-+    case R_INT_ENA:
-+        return s->int_ena;
-+    case R_INT_RAW:
-+        return s->int_raw;
-+    case R_INT_ST:
-+        return s->int_raw & s->int_ena;
-+    default:
-+        return addr < sizeof(s->regs) ? s->regs[addr / 4] : 0;
-+    }
-+}
-+
-+static void lcd_cam_write(void *opaque, hwaddr addr, uint64_t value,
-+                          unsigned size)
-+{
-+    M5LcdCamState *s = opaque;
-+    uint32_t v = value;
-+
-+    switch (addr) {
-+    case R_CAM_CTRL:
-+        s->regs[addr / 4] = v & ~CAM_UPDATE;
-+        break;
-+    case R_CAM_CTRL1: {
-+        bool start = !!(v & CAM_START);
-+        bool rising = start && !s->started;
-+        s->regs[addr / 4] = v & ~(CAM_RESET | CAM_AFIFO_RST);
-+        s->started = start;
-+        if (rising) {
-+            s->frame_bytes = MAX(2u, s->width * s->height * 2);
-+            s->chunk_len = (v & 0xffff) + 1;
-+            s->chunks_left = (s->frame_bytes + s->chunk_len - 1)
-+                           / s->chunk_len;
-+            s->frame_offset = 0;
-+            lcd_cam_capture(s);
-+        }
-+        break;
-+    }
-+    case R_INT_ENA:
-+        s->int_ena = v;
-+        lcd_cam_update_irq(s);
-+        break;
-+    case R_INT_CLR:
-+        s->int_raw &= ~v;
-+        lcd_cam_update_irq(s);
-+        break;
-+    default:
-+        if (addr < sizeof(s->regs)) {
-+            s->regs[addr / 4] = v;
-+        }
-+        break;
-+    }
-+}
-+
-+static const MemoryRegionOps lcd_cam_ops = {
-+    .read = lcd_cam_read,
-+    .write = lcd_cam_write,
-+    .endianness = DEVICE_LITTLE_ENDIAN,
-+    .valid.min_access_size = 1,
-+    .valid.max_access_size = 4,
-+    .impl.min_access_size = 4,
-+    .impl.max_access_size = 4,
-+};
-+
-+static void lcd_cam_reset(DeviceState *dev)
-+{
-+    M5LcdCamState *s = M5_LCD_CAM(dev);
-+    memset(s->regs, 0, sizeof(s->regs));
-+    s->int_ena = 0;
-+    s->int_raw = 0;
-+    s->frame_offset = 0;
-+    s->frame_bytes = 0;
-+    s->chunk_len = 0;
-+    s->chunks_left = 0;
-+    s->started = false;
-+}
-+
-+static void lcd_cam_init(Object *obj)
-+{
-+    M5LcdCamState *s = M5_LCD_CAM(obj);
-+    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
-+    memory_region_init_io(&s->iomem, obj, &lcd_cam_ops, s,
-+                          TYPE_M5_LCD_CAM, 0x1000);
-+    sysbus_init_mmio(sbd, &s->iomem);
-+    sysbus_init_irq(sbd, &s->irq);
-+    s->capture_timer = timer_new_ms(QEMU_CLOCK_VIRTUAL,
-+                                    (QEMUTimerCB *)lcd_cam_capture, s);
-+}
-+
-+static void lcd_cam_class_init(ObjectClass *klass, void *data)
-+{
-+    DeviceClass *dc = DEVICE_CLASS(klass);
-+    device_class_set_legacy_reset(dc, lcd_cam_reset);
-+}
-+
-+static const TypeInfo lcd_cam_info = {
-+    .name = TYPE_M5_LCD_CAM,
-+    .parent = TYPE_SYS_BUS_DEVICE,
-+    .instance_size = sizeof(M5LcdCamState),
-+    .instance_init = lcd_cam_init,
-+    .class_init = lcd_cam_class_init,
-+};
-+
-+static void lcd_cam_register(void)
-+{
-+    type_register_static(&lcd_cam_info);
-+}
-+type_init(lcd_cam_register)
-+
-+void m5_lcd_cam_attach(DeviceState *dev, ESPGdmaState *gdma,
-+                       uint32_t width, uint32_t height)
-+{
-+    M5LcdCamState *s = M5_LCD_CAM(dev);
-+    s->gdma = gdma;
-+    s->width = width;
-+    s->height = height;
-+    const char *frame_path = getenv("M5SW_CAMERA_FRAME");
-+    if (frame_path) {
-+        gsize size = 0;
-+        if (!g_file_get_contents(frame_path, (gchar **)&s->frame_data,
-+                                 &size, NULL)) {
-+            s->frame_data = NULL;
-+            size = 0;
-+        }
-+        s->frame_data_size = MIN(size, UINT32_MAX);
-+    }
-+}
---- /dev/null
-+++ b/hw/m5stopwatch/m5_rmt.c
-@@ -0,0 +1,284 @@
-+/*
-+ * ESP32-S3 RMT APB and hardware-memory model.
-+ *
-+ * The UIFlow2 IR stack uses the new RMT driver in non-DMA mode: the encoder
-+ * writes rmt_symbol_word_t entries into RMTMEM, starts the channel through
-+ * CHnCONF0, and waits for the TX_END interrupt. This model implements that
-+ * data path and records transmitted symbols for host-side assertions.
-+ *
-+ * SPDX-License-Identifier: GPL-2.0-or-later
-+ */
-+#include "qemu/osdep.h"
-+#include "qemu/timer.h"
-+#include "hw/irq.h"
-+#include "hw/misc/esp32s3_reg.h"
-+#include "hw/sysbus.h"
-+#include "hw/xtensa/esp32s3_intc.h"
-+#include "m5stopwatch.h"
-+
-+#define RMT_MEM_OFFSET      0x800
-+#define RMT_MEM_SIZE        0x800
-+#define RMT_TX_CHANNELS     4
-+#define RMT_SYMBOLS_PER_CH  48
-+
-+#define RMT_CH0CONF0        0x20
-+#define RMT_CH4CONF0        0x30
-+#define RMT_CH4STATUS       0x60
-+#define RMT_INT_RAW         0x70
-+#define RMT_INT_ST          0x74
-+#define RMT_INT_ENA         0x78
-+#define RMT_INT_CLR         0x7c
-+
-+struct M5RmtState {
-+    SysBusDevice parent_obj;
-+    MemoryRegion mmio;
-+    MemoryRegion mem;
-+    qemu_irq irq;
-+    uint32_t regs[RMT_MEM_OFFSET / 4];
-+    uint32_t symbols[RMT_MEM_SIZE / 4];
-+    uint32_t int_ena;
-+    uint32_t int_raw;
-+    QEMUTimer *tx_timer;
-+    QEMUTimer *rx_timer;
-+    FILE *tx_file;
-+    uint32_t pending_mask;
-+    uint32_t rx_pending_mask;
-+    bool rx_injected[4];
-+    bool trace;
-+};
-+
-+static void rmt_update_irq(M5RmtState *s)
-+{
-+    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
-+}
-+
-+static void rmt_capture_tx(M5RmtState *s, uint32_t channel)
-+{
-+    uint32_t conf = s->regs[(RMT_CH0CONF0 + channel * 4) / 4];
-+    uint32_t blocks = MAX((conf >> 16) & 0xf, 1);
-+    uint32_t count = 0;
-+    uint32_t limit = MIN(blocks * RMT_SYMBOLS_PER_CH,
-+                         RMT_SYMBOLS_PER_CH);
-+    uint32_t base = channel * RMT_SYMBOLS_PER_CH;
-+
-+    for (uint32_t i = 0; i < limit; i++) {
-+        uint32_t symbol = s->symbols[base + i];
-+        if ((symbol & 0x7fff) == 0
-+            && ((symbol >> 16) & 0x7fff) == 0) {
-+            break;
-+        }
-+        count++;
-+    }
-+    if (!s->tx_file) {
-+        const char *path = getenv("M5SW_RMT_TX_FILE");
-+        if (path) {
-+            s->tx_file = fopen(path, "wb");
-+        }
-+    }
-+    if (s->tx_file && count) {
-+        fwrite(&s->symbols[base], sizeof(uint32_t), count, s->tx_file);
-+        fflush(s->tx_file);
-+    }
-+    if (s->trace) {
-+        fprintf(stderr, "[rmt] tx channel=%u symbols=%u blocks=%u\n",
-+                channel, count, blocks);
-+    }
-+
-+    s->int_raw |= 1u << channel;
-+    rmt_update_irq(s);
-+}
-+
-+static void rmt_tx_timer(void *opaque)
-+{
-+    M5RmtState *s = opaque;
-+    uint32_t pending = s->pending_mask;
-+    s->pending_mask = 0;
-+
-+    for (uint32_t channel = 0; channel < RMT_TX_CHANNELS; channel++) {
-+        if (pending & (1u << channel)) {
-+            rmt_capture_tx(s, channel);
-+        }
-+    }
-+}
-+
-+static void rmt_rx_timer(void *opaque)
-+{
-+    M5RmtState *s = opaque;
-+    uint32_t pending = s->rx_pending_mask;
-+    s->rx_pending_mask = 0;
-+
-+    for (uint32_t channel = 0; channel < 4; channel++) {
-+        if (pending & (1u << channel)) {
-+            s->int_raw |= 1u << (16 + channel);
-+        }
-+    }
-+    rmt_update_irq(s);
-+}
-+
-+static void rmt_inject_rx(M5RmtState *s, uint32_t channel)
-+{
-+    const char *path = getenv("M5SW_RMT_RX_FILE");
-+    g_autofree uint8_t *data = NULL;
-+    gsize size = 0;
-+    uint32_t count;
-+
-+    if (!path || s->rx_injected[channel]) {
-+        return;
-+    }
-+    if (!g_file_get_contents(path, (gchar **)&data, &size, NULL)) {
-+        return;
-+    }
-+    count = MIN(size / sizeof(uint32_t), RMT_SYMBOLS_PER_CH);
-+    memcpy(&s->symbols[(4 + channel) * RMT_SYMBOLS_PER_CH],
-+           data, count * sizeof(uint32_t));
-+    /* mem_waddr_ex is an absolute RMTMEM word address; each channel
-+     * occupies 48 words on ESP32-S3 and starts at (channel + 4) * 48. */
-+    s->regs[(RMT_CH4STATUS + channel * 4) / 4] =
-+        (channel + 4) * 48 + count;
-+    s->rx_injected[channel] = true;
-+    s->rx_pending_mask |= 1u << channel;
-+    timer_mod(s->rx_timer,
-+              qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20);
-+    if (s->trace) {
-+        fprintf(stderr, "[rmt] rx inject channel=%u symbols=%u\n",
-+                channel, count);
-+    }
-+}
-+
-+static uint64_t rmt_read(void *opaque, hwaddr addr, unsigned size)
-+{
-+    M5RmtState *s = opaque;
-+
-+    if (addr == RMT_INT_RAW) {
-+        return s->int_raw;
-+    }
-+    if (addr == RMT_INT_ST) {
-+        return s->int_raw & s->int_ena;
-+    }
-+    if (addr == RMT_INT_ENA) {
-+        return s->int_ena;
-+    }
-+    return addr < RMT_MEM_OFFSET ? s->regs[addr / 4] : 0;
-+}
-+
-+static void rmt_write(void *opaque, hwaddr addr, uint64_t value,
-+                      unsigned size)
-+{
-+    M5RmtState *s = opaque;
-+    uint32_t v = value;
-+
-+    if (s->trace) {
-+        fprintf(stderr, "[rmt] wr %03x <- %08x\n", (unsigned)addr, v);
-+    }
-+    if (addr == RMT_INT_ENA) {
-+        s->int_ena = v;
-+        rmt_update_irq(s);
-+        return;
-+    }
-+    if (addr == RMT_INT_CLR) {
-+        s->int_raw &= ~v;
-+        rmt_update_irq(s);
-+        return;
-+    }
-+    if (addr >= RMT_CH0CONF0 && addr < RMT_CH0CONF0 + RMT_TX_CHANNELS * 4) {
-+        uint32_t channel = (addr - RMT_CH0CONF0) / 4;
-+        s->regs[addr / 4] = v & ~1u;
-+        if (v & 1u) {
-+            s->pending_mask |= 1u << channel;
-+            timer_mod(s->tx_timer,
-+                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 2);
-+        }
-+        return;
-+    }
-+    if (addr >= RMT_CH4CONF0 && addr < RMT_CH4CONF0 + 4 * 8) {
-+        uint32_t offset = addr - RMT_CH4CONF0;
-+        uint32_t channel = offset / 8;
-+        if ((offset % 8) == 4) {
-+            bool was_enabled = s->regs[addr / 4] & 1u;
-+            s->regs[addr / 4] = v;
-+            if (!was_enabled && (v & 1u)) {
-+                rmt_inject_rx(s, channel);
-+            }
-+            return;
-+        }
-+    }
-+    if (addr < RMT_MEM_OFFSET) {
-+        s->regs[addr / 4] = v;
-+    }
-+}
-+
-+static const MemoryRegionOps rmt_ops = {
-+    .read = rmt_read,
-+    .write = rmt_write,
-+    .endianness = DEVICE_LITTLE_ENDIAN,
-+    .valid.min_access_size = 4,
-+    .valid.max_access_size = 4,
-+    .impl.min_access_size = 4,
-+    .impl.max_access_size = 4,
-+};
-+
-+static void rmt_reset(DeviceState *dev)
-+{
-+    M5RmtState *s = M5_RMT(dev);
-+    memset(s->regs, 0, sizeof(s->regs));
-+    memset(s->symbols, 0, sizeof(s->symbols));
-+    s->int_ena = 0;
-+    s->int_raw = 0;
-+    s->pending_mask = 0;
-+    s->rx_pending_mask = 0;
-+    memset(s->rx_injected, 0, sizeof(s->rx_injected));
-+    timer_del(s->tx_timer);
-+    timer_del(s->rx_timer);
-+}
-+
-+static void rmt_init(Object *obj)
-+{
-+    M5RmtState *s = M5_RMT(obj);
-+    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
-+
-+    memory_region_init_io(&s->mmio, obj, &rmt_ops, s, TYPE_M5_RMT,
-+                          RMT_MEM_OFFSET);
-+    memory_region_init_ram_ptr(&s->mem, obj, TYPE_M5_RMT ".mem",
-+                               RMT_MEM_SIZE, s->symbols);
-+    sysbus_init_mmio(sbd, &s->mmio);
-+    sysbus_init_mmio(sbd, &s->mem);
-+    sysbus_init_irq(sbd, &s->irq);
-+    s->trace = getenv("M5SW_RMT_TRACE") != NULL;
-+    s->tx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, rmt_tx_timer, s);
-+    s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, rmt_rx_timer, s);
-+}
-+
-+static void rmt_class_init(ObjectClass *klass, void *data)
-+{
-+    DeviceClass *dc = DEVICE_CLASS(klass);
-+    device_class_set_legacy_reset(dc, rmt_reset);
-+}
-+
-+static const TypeInfo rmt_info = {
-+    .name = TYPE_M5_RMT,
-+    .parent = TYPE_SYS_BUS_DEVICE,
-+    .instance_size = sizeof(M5RmtState),
-+    .instance_init = rmt_init,
-+    .class_init = rmt_class_init,
-+};
-+
-+static void rmt_register(void)
-+{
-+    type_register_static(&rmt_info);
-+}
-+type_init(rmt_register)
-+
-+void esp32s3_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix)
-+{
-+    DeviceState *dev = qdev_new(TYPE_M5_RMT);
-+    object_property_add_child(qdev_get_machine(), "rmt0", OBJECT(dev));
-+    sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
-+    memory_region_add_subregion_overlap(
-+        sys_mem, DR_REG_RMT_BASE,
-+        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 0), 1);
-+    memory_region_add_subregion_overlap(
-+        sys_mem, DR_REG_RMT_BASE + RMT_MEM_OFFSET,
-+        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 1), 1);
-+    sysbus_connect_irq(SYS_BUS_DEVICE(dev), 0,
-+                       qdev_get_gpio_in(intmatrix, ETS_RMT_INTR_SOURCE));
-+}
---- a/hw/m5stopwatch/m5cardputeradv.c
-+++ b/hw/m5stopwatch/m5cardputeradv.c
-@@ -53,10 +53,6 @@
-     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
-     MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
-     memory_region_add_subregion_overlap(sys_mem, 0x60025000, spi_mr, 1);
--    MemoryRegion *spi2_alias = g_new(MemoryRegion, 1);
--    memory_region_init_alias(spi2_alias, NULL, "m5cardputeradv.spi2-alias",
--                             spi_mr, 0, memory_region_size(spi_mr));
--    memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi2_alias, 1);
-     esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
-                                 ETS_SPI3_INTR_SOURCE);
- 
-@@ -74,4 +70,17 @@
-     qdev_realize_and_unref(panel, NULL, &error_fatal);
-     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
-     esp32s3_gpspi_set_dc_pin(spi, 34);
-+    esp32s3_gpspi_set_panel_cs_pin(spi, 37);
-+
-+    DeviceState *sd_spi = qdev_new(TYPE_ESP32S3_GPSPI);
-+    sysbus_realize_and_unref(SYS_BUS_DEVICE(sd_spi), &error_fatal);
-+    memory_region_add_subregion_overlap(
-+        sys_mem, 0x60024000,
-+        sysbus_mmio_get_region(SYS_BUS_DEVICE(sd_spi), 0), 1);
-+    esp32s3_gpspi_connect_irqs(sd_spi, intmatrix, ETS_SPI2_INTR_SOURCE,
-+                                ETS_SPI3_INTR_SOURCE);
-+    esp32s3_gpspi_attach(sd_spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI2);
-+    esp32s3_gpspi_set_dc_pin(sd_spi, 34);
-+    esp32s3_gpspi_set_panel_cs_pin(sd_spi, 37);
-+    m5_spi_sd_attach(sd_spi, 12);
- }
---- a/hw/m5stopwatch/m5core2.c
-+++ b/hw/m5stopwatch/m5core2.c
-@@ -16,11 +16,22 @@
-     I2CBus *bus1 = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[1]), "i2c");
- 
-     DeviceState *axp = qdev_new(TYPE_M5SW_I2C_DEV);
--    qdev_prop_set_string(axp, "model", "axp192");
-+    qdev_prop_set_string(axp, "model", "axp2101");
-     qdev_prop_set_uint8(axp, "address", 0x34);
--    object_property_add_child(qdev_get_machine(), "axp192", OBJECT(axp));
-+    object_property_add_child(qdev_get_machine(), "axp2101", OBJECT(axp));
-     qdev_realize_and_unref(axp, (BusState *)bus0, &error_fatal);
- 
-+    for (uint8_t address = 0x40; address <= 0x41; address++) {
-+        DeviceState *ina = qdev_new(TYPE_M5SW_I2C_DEV);
-+        char *path = g_strdup_printf("ina3221-%02x", address);
-+
-+        qdev_prop_set_string(ina, "model", "ina3221");
-+        qdev_prop_set_uint8(ina, "address", address);
-+        object_property_add_child(qdev_get_machine(), path, OBJECT(ina));
-+        qdev_realize_and_unref(ina, (BusState *)bus0, &error_fatal);
-+        g_free(path);
-+    }
-+
-     static const struct { const char *model; uint8_t addr; const char *path; } devs[] = {
-         { "ft5x06", 0x38, "core2-ft5x06" },
-         { "mpu6886", 0x68, "mpu6886" },
---- a/hw/m5stopwatch/m5papercolor.c
-+++ b/hw/m5stopwatch/m5papercolor.c
-@@ -56,10 +56,6 @@
-     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
-     MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
-     memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi_mr, 1);
--    MemoryRegion *spi3_alias = g_new(MemoryRegion, 1);
--    memory_region_init_alias(spi3_alias, NULL, "m5papercolor.spi3-alias",
--                             spi_mr, 0, memory_region_size(spi_mr));
--    memory_region_add_subregion_overlap(sys_mem, 0x60025000, spi3_alias, 1);
-     esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
-                                 ETS_SPI3_INTR_SOURCE);
- 
-@@ -76,4 +72,14 @@
-     qdev_realize_and_unref(panel, NULL, &error_fatal);
-     esp32s3_gpspi_attach_epd(spi, gdma, M5_EPD_PANEL(panel), GDMA_SPI2);
-     esp32s3_gpspi_set_dc_pin(spi, 43);
-+
-+    DeviceState *sd_spi = qdev_new(TYPE_ESP32S3_GPSPI);
-+    sysbus_realize_and_unref(SYS_BUS_DEVICE(sd_spi), &error_fatal);
-+    memory_region_add_subregion_overlap(
-+        sys_mem, 0x60025000,
-+        sysbus_mmio_get_region(SYS_BUS_DEVICE(sd_spi), 0), 1);
-+    esp32s3_gpspi_connect_irqs(sd_spi, intmatrix, ETS_SPI2_INTR_SOURCE,
-+                                ETS_SPI3_INTR_SOURCE);
-+    esp32s3_gpspi_attach(sd_spi, gdma, NULL, NULL, GDMA_SPI3);
-+    m5_spi_sd_attach(sd_spi, 47);
- }
---- a/hw/m5stopwatch/m5stackchan.c
-+++ b/hw/m5stopwatch/m5stackchan.c
-@@ -59,6 +59,7 @@
-         qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
-     }
-     m5stopwatch_soft_i2c_init_pins(bus, 12, 11);
-+    m5_scs_servo_attach(m5soc_get_uart_device(1));
- 
-     DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
-     m5_lcd_cam_attach(cam, gdma, 320, 240);
---- a/hw/m5stopwatch/m5stamplc.c
-+++ b/hw/m5stopwatch/m5stamplc.c
-@@ -76,4 +76,7 @@
-     qdev_realize_and_unref(panel, NULL, &error_fatal);
-     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
-     esp32s3_gpspi_set_dc_pin(spi, 6);
-+
-+    /* PWR-485 is UART2: TX/BOOT G0, RX G39, direction G46. */
-+    m5_uart_echo_attach(m5soc_get_uart_device(2), "M5SW_RS485_ECHO");
- }
---- a/hw/m5stopwatch/m5stopwatch.h
-+++ b/hw/m5stopwatch/m5stopwatch.h
-@@ -27,6 +27,9 @@
- #define TYPE_M5_I2S "m5.i2s"
- OBJECT_DECLARE_SIMPLE_TYPE(M5I2SState, M5_I2S)
- 
-+#define TYPE_M5_ESP32_I2S "m5.esp32-i2s"
-+OBJECT_DECLARE_SIMPLE_TYPE(M5Esp32I2SState, M5_ESP32_I2S)
-+
- #define TYPE_M5_RMT "m5.rmt"
- OBJECT_DECLARE_SIMPLE_TYPE(M5RmtState, M5_RMT)
- 
-@@ -73,17 +76,25 @@
- void m5_i2s_attach(DeviceState *dev, struct ESPGdmaState *gdma, uint32_t port);
- void m5_i2s_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
-                        struct ESPGdmaState *gdma);
-+void m5_esp32_i2s_board_init(MemoryRegion *sys_mem, BusState *periph_bus,
-+                             DeviceState *intmatrix);
- void esp32s3_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix);
- void esp32s3_gpspi_attach(DeviceState *dev, struct ESPGdmaState *gdma,
-                           Co5300State *co, M5SpiPanelState *spi,
-                           uint32_t gdma_periph);
- void esp32s3_gpspi_set_dc_pin(DeviceState *dev, int pin);
-+void esp32s3_gpspi_set_panel_cs_pin(DeviceState *dev, int pin);
- void esp32s3_gpspi_connect_irqs(DeviceState *dev, DeviceState *intmatrix,
-                                 int irq_a, int irq_b);
- void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
-                                     const M5SpiSlaveOps *ops,
-                                     void *opaque, int cs_pin);
- void m5_sx1262_attach(DeviceState *spi, int cs_pin);
-+void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
-+void m5_scs_servo_attach(DeviceState *uart);
-+void m5_uart_echo_attach(DeviceState *uart, const char *enable_env);
-+DeviceState *m5soc_get_uart_device(int index);
-+struct CanBusState *m5_can_bus_create(void);
- void esp32s3_gpspi_attach_epd(DeviceState *dev, struct ESPGdmaState *gdma,
-                               M5EpdPanelState *panel, uint32_t gdma_periph);
- 
---- a/hw/m5stopwatch/m5sw_i2c_devs.c
-+++ b/hw/m5stopwatch/m5sw_i2c_devs.c
-@@ -39,6 +39,7 @@
-     M_PI4IOE,
-     M_LM75,
-     M_INA226,
-+    M_INA3221,
-     M_SHT40,
-     M_SI12T,
-     M_LP5562,
-@@ -64,12 +65,19 @@
-     double bus_voltage_mv;
-     double current_ma;
-     double shunt_ohms;
-+    double ina3221_bus_mv[3];
-+    double ina3221_current_ma[3];
-+    double ina3221_shunt_ohms;
-+    uint8_t ina3221_read_index;
-     int64_t light_level;
-     int64_t aw9523_input_bits;
-     int64_t si12t_touch_bits;
-     int64_t lp5562_r_pwm;
-     int64_t lp5562_g_pwm;
-     int64_t lp5562_b_pwm;
-+    bool pm1_pa_enabled;
-+    bool axp192_speaker_enabled;
-+    bool axp2101_speaker_enabled;
-     uint8_t command;
-     uint8_t read_start;
-     bool charging;         /* M5PM1 G2 CHG_STAT low = charging */
-@@ -180,6 +188,19 @@
- static inline uint8_t bcd(int v) { return ((v / 10) << 4) | (v % 10); }
- static inline int unbcd(uint8_t v) { return (v >> 4) * 10 + (v & 0xf); }
- 
-+static uint8_t sht4x_crc8(const uint8_t *data, int size)
-+{
-+    uint8_t crc = 0xff;
-+    for (int i = 0; i < size; i++) {
-+        crc ^= data[i];
-+        for (int bit = 0; bit < 8; bit++) {
-+            crc = (crc & 0x80) ? (uint8_t)((crc << 1) ^ 0x31)
-+                               : (uint8_t)(crc << 1);
-+        }
-+    }
-+    return crc;
-+}
-+
- static uint16_t encode_be16(double value, double resolution)
- {
-     int32_t raw = (int32_t)lrint(value / resolution);
-@@ -193,6 +214,42 @@
-     return (uint16_t)MAX(0, MIN(raw, 65535));
- }
- 
-+static uint16_t ina3221_u16(double value)
-+{
-+    int64_t raw = (int64_t)lrint(value);
-+    return (uint16_t)MAX(0, MIN(raw, 65535));
-+}
-+
-+static uint16_t ina3221_reg16(M5swI2CDev *s, uint8_t reg)
-+{
-+    double shunt_mv;
-+
-+    switch (reg) {
-+    case 0x00:
-+        return 0x7127;                         /* continuous all channels */
-+    case 0x01:
-+    case 0x03:
-+    case 0x05: {
-+        uint32_t channel = (reg - 0x01) / 2;
-+        shunt_mv = s->ina3221_current_ma[channel]
-+                   * s->ina3221_shunt_ohms;
-+        return ina3221_u16(shunt_mv / 0.04);   /* 40 uV/LSB */
-+    }
-+    case 0x02:
-+    case 0x04:
-+    case 0x06: {
-+        uint32_t channel = (reg - 0x02) / 2;
-+        return ina3221_u16(s->ina3221_bus_mv[channel] / 8.0);
-+    }
-+    case 0xFE:
-+        return 0x5449;                         /* TI manufacturer ID */
-+    case 0xFF:
-+        return 0x3220;                         /* INA3221 die ID */
-+    default:
-+        return 0;
-+    }
-+}
-+
- static uint16_t ina226_current_raw(M5swI2CDev *s)
- {
-     uint16_t cal = ((uint16_t)s->regs[0x05] << 8) | s->regs[0x06];
-@@ -504,7 +561,7 @@
-         if (r >= 0x3B && r <= 0x40) {
-             int index = (r - 0x3B) / 2;
-             uint16_t raw = encode_be16(s->accel[index], 8.0 / 32768.0);
--            return (r & 1) ? raw & 0xff : raw >> 8;
-+            return (r & 1) ? raw >> 8 : raw & 0xff;
-         }
-         if (r == 0x41 || r == 0x42) {
-             uint16_t raw = encode_be16((s->temperature_c - 25.0) * 326.8, 1.0);
-@@ -513,7 +570,7 @@
-         if (r >= 0x43 && r <= 0x48) {
-             int index = (r - 0x43) / 2;
-             uint16_t raw = encode_be16(s->gyro[index], 2000.0 / 32768.0);
--            return (r & 1) ? raw & 0xff : raw >> 8;
-+            return (r & 1) ? raw >> 8 : raw & 0xff;
-         }
-         break;
-     case M_LM75:
-@@ -604,19 +661,39 @@
-     }
-     case M_SHT40:
-         if (s->command == 0xFD || s->command == 0xF6 || s->command == 0xE0) {
--            double t_max = s->command == 0xE0 ? 125.0 : 175.0;
--            double t_min = s->command == 0xE0 ? -40.0 : -45.0;
-+            double t_max = 130.0;
-+            double t_min = -45.0;
-             uint16_t traw = (uint16_t)lrint(
-                 (s->temperature_c - t_min) * 65535.0 / (t_max - t_min));
-             uint16_t hraw = (uint16_t)lrint(
-                 (s->humidity_pct + 6.0) * 65535.0 / 125.0);
--            uint8_t data[6] = {
--                traw >> 8, traw & 0xff,
--                hraw >> 8, hraw & 0xff,
--                0x00, 0x00,
--            };
-+            uint8_t data[6];
-+            data[0] = traw >> 8;
-+            data[1] = traw & 0xff;
-+            data[2] = 0;
-+            data[3] = hraw >> 8;
-+            data[4] = hraw & 0xff;
-+            data[5] = 0;
-+            if (s->trace) {
-+                fprintf(stderr,
-+                        "[sht40] cmd=%02x temp=%.2f hum=%.2f raw=%04x/%04x\n",
-+                        s->command, s->temperature_c, s->humidity_pct,
-+                        traw, hraw);
-+            }
-+            data[2] = sht4x_crc8(data, 2);
-+            data[5] = sht4x_crc8(&data[3], 2);
-+            if (s->trace) {
-+                fprintf(stderr, "[sht40] data=%02x %02x %02x %02x %02x %02x\n",
-+                        data[0], data[1], data[2], data[3], data[4], data[5]);
-+            }
-             return data[r % 6];
-         }
-+        if (s->command == 0x89) {
-+            uint8_t data[6] = { 0x12, 0x34, 0x00, 0x56, 0x78, 0x00 };
-+            data[2] = sht4x_crc8(data, 2);
-+            data[5] = sht4x_crc8(&data[3], 2);
-+            return data[r % 6];
-+        }
-         break;
-     case M_BMI270:
-         if (r >= 0x04 && r <= 0x09 && g_bmm150) {
-@@ -664,6 +741,7 @@
-         s->st25_read_space_b = false;
-     } else if (ev == I2C_START_RECV) {
-         s->read_start = s->ptr;
-+        s->ina3221_read_index = 0;
-         if (s->model == M_ST25R3916) {
-             s->st25_read_space_b = s->st25_mode == 3;
-         }
-@@ -683,6 +761,17 @@
- static uint8_t dev_recv(I2CSlave *i2c)
- {
-     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
-+    if (s->model == M_INA3221) {
-+        uint16_t value = ina3221_reg16(s, s->read_start);
-+        uint8_t raw = s->ina3221_read_index & 1
-+                      ? value & 0xff : value >> 8;
-+        s->ina3221_read_index++;
-+        if (s->trace) {
-+            qemu_log("[ina3221] rd16 %02x[%u] -> %02x\n",
-+                     s->read_start, s->ina3221_read_index - 1, raw);
-+        }
-+        return raw;
-+    }
-     uint8_t v = dev_read_reg(s, s->ptr);
-     if (s->trace) {
-         qemu_log("[%s] rd %02x -> %02x\n", s->model_name, s->ptr, v);
-@@ -774,14 +863,29 @@
-         break;
-     case M_PM1:
-         if (r == 0x42) { s->ptr++; return 0; }  /* IRQ status is driven by input events */
-+        if (r == 0x11) {
-+            s->pm1_pa_enabled = !!(data & 0x08);
-+        }
-         break;
-     case M_AXP2101:
-+        if (r == 0x90) {
-+            /* Core2 v1.1 uses ALDO3 (bit 3) as the NS4168 enable rail. */
-+            s->axp2101_speaker_enabled = !!(data & BIT(3));
-+        }
-         if (r == 0x49) {
-             s->regs[r] &= ~data;
-             s->ptr++;
-             return 0;
-         }
-         break;
-+    case M_INA3221:
-+        /* Configuration/limit registers are stored for write/readback. */
-+        break;
-+    case M_AXP192:
-+        if (r == 0x93) {
-+            s->axp192_speaker_enabled = ((data & 0x06) == 0x06);
-+        }
-+        break;
-     case M_RX8130:
-         s->regs[r] = data;
-         if (r >= 0x10 && r <= 0x16) {
-@@ -871,6 +975,7 @@
-         object_property_add(OBJECT(s), "vin-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vin_mv);
-         object_property_add(OBJECT(s), "vinout-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vinout_mv);
-         object_property_add(OBJECT(s), "charging", "bool", prop_get_bool, prop_set_bool, NULL, &s->charging);
-+        object_property_add(OBJECT(s), "pa-enabled", "bool", prop_get_bool, NULL, NULL, &s->pm1_pa_enabled);
-         g_pm1 = s;
-     } else if (!strcmp(m, "m5ioe1")) {
-         s->model = M_IOE1;
-@@ -935,6 +1040,32 @@
-                             prop_get_num, prop_set_num, NULL, &s->current_ma);
-         object_property_add(OBJECT(s), "shunt-ohms", "number",
-                             prop_get_num, prop_set_num, NULL, &s->shunt_ohms);
-+    } else if (!strcmp(m, "ina3221")) {
-+        s->model = M_INA3221;
-+        s->ina3221_bus_mv[0] = 5000.0;
-+        s->ina3221_bus_mv[1] = 3300.0;
-+        s->ina3221_bus_mv[2] = 5000.0;
-+        s->ina3221_current_ma[0] = 500.0;
-+        s->ina3221_current_ma[1] = 200.0;
-+        s->ina3221_current_ma[2] = 100.0;
-+        s->ina3221_shunt_ohms = 0.010;
-+        static const char *ina_bus_props[] = {
-+            "bus1-mv", "bus2-mv", "bus3-mv"
-+        };
-+        static const char *ina_current_props[] = {
-+            "current1-ma", "current2-ma", "current3-ma"
-+        };
-+        for (int i = 0; i < 3; i++) {
-+            object_property_add(OBJECT(s), ina_bus_props[i], "number",
-+                                prop_get_num, prop_set_num, NULL,
-+                                &s->ina3221_bus_mv[i]);
-+            object_property_add(OBJECT(s), ina_current_props[i], "number",
-+                                prop_get_num, prop_set_num, NULL,
-+                                &s->ina3221_current_ma[i]);
-+        }
-+        object_property_add(OBJECT(s), "shunt-ohms", "number",
-+                            prop_get_num, prop_set_num, NULL,
-+                            &s->ina3221_shunt_ohms);
-     } else if (!strcmp(m, "ltr553")) {
-         s->model = M_LTR553;
-         s->light_level = 320;
-@@ -991,6 +1122,9 @@
-         s->model = M_AXP192;
-         s->regs[0x03] = 0x03;   /* AXP192 chip ID */
-         s->regs[0x00] = 0x28;
-+        object_property_add(OBJECT(s), "speaker-enabled", "bool",
-+                            prop_get_bool, NULL, NULL,
-+                            &s->axp192_speaker_enabled);
-     } else if (!strcmp(m, "axp2101")) {
-         s->model = M_AXP2101;
-         s->regs[0x03] = 0x4A;   /* chip id required by AXP2101_Class::begin */
-@@ -1007,6 +1141,9 @@
-         object_property_add(OBJECT(s), "vin-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vin_mv);
-         object_property_add(OBJECT(s), "charging", "bool", prop_get_bool, prop_set_bool, NULL, &s->charging);
-         object_property_add(OBJECT(s), "battery-level", "int", prop_get_i64, prop_set_i64, NULL, &s->battery_level);
-+        object_property_add(OBJECT(s), "speaker-enabled", "bool",
-+                            prop_get_bool, NULL, NULL,
-+                            &s->axp2101_speaker_enabled);
-         g_axp2101 = s;
-     } else if (!strcmp(m, "aw9523")) {
-         s->model = M_AW9523;
---- a/hw/xtensa/esp32.c
-+++ b/hw/xtensa/esp32.c
-@@ -512,6 +512,8 @@
-     esp32_soc_add_periph_device(sys_mem, &s->sdmmc, DR_REG_SDMMC_BASE);
-     sysbus_connect_irq(SYS_BUS_DEVICE(&s->sdmmc), 0,
-                        qdev_get_gpio_in(intmatrix_dev, ETS_SDIO_HOST_INTR_SOURCE));
-+
-+    m5_esp32_i2s_board_init(sys_mem, &s->periph_bus, intmatrix_dev);
- 
-     if (m5_board == M5_BOARD_NONE) {
-         /* Provide internal RAM MemoryRegion to the standalone RGB display. */
-@@ -531,8 +533,6 @@
-     esp32_soc_add_unimp_device(sys_mem, "esp32.slc", DR_REG_SLC_BASE, 0x1000);
-     esp32_soc_add_unimp_device(sys_mem, "esp32.slchost", DR_REG_SLCHOST_BASE, 0x1000);
-     esp32_soc_add_unimp_device(sys_mem, "esp32.apbctrl", DR_REG_APB_CTRL_BASE, 0x1000);
--    esp32_soc_add_unimp_device(sys_mem, "esp32.i2s0", DR_REG_I2S_BASE, 0x1000);
--    esp32_soc_add_unimp_device(sys_mem, "esp32.i2s1", DR_REG_I2S1_BASE, 0x1000);
-     esp32_soc_add_unimp_device(sys_mem, "esp32.rmt", DR_REG_RMT_BASE, 0x1000);
-     esp32_soc_add_unimp_device(sys_mem, "esp32.pcnt", DR_REG_PCNT_BASE, 0x1000);
- 
---- a/hw/xtensa/esp32s3.c
-+++ b/hw/xtensa/esp32s3.c
-@@ -43,6 +43,7 @@
- #include "sysemu/block-backend.h"
- #include "exec/exec-all.h"
- #include "net/net.h"
-+#include "net/can_emu.h"
- #include "elf.h"
- 
- #include "hw/ssi/esp32s3_spi.h"
-@@ -159,6 +160,16 @@
- 
-     uint32_t requested_reset;
- } Esp32s3SocState;
-+
-+static Esp32s3SocState *g_esp32s3_soc;
-+
-+DeviceState *m5soc_get_uart_device(int index)
-+{
-+    if (!g_esp32s3_soc || index < 0 || index >= ESP32S3_UART_COUNT) {
-+        return NULL;
-+    }
-+    return DEVICE(&g_esp32s3_soc->uart[index]);
-+}
- 
- 
- /* Temporary macro to mark the CPU as in non-debugging mode */
-@@ -457,6 +468,10 @@
- 
-     /* TWAI realization */
-     {
-+        CanBusState *canbus = m5_can_bus_create();
-+
-+        object_property_set_link(OBJECT(&s->twai), "canbus",
-+                                 OBJECT(canbus), &error_fatal);
-         /* Initialize and realize the TWAI device */
-         sysbus_realize(SYS_BUS_DEVICE(&s->twai), &error_fatal);
-         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->twai), 0);
-@@ -626,6 +641,7 @@
-     Esp32s3MachineState *ms = ESP32S3_MACHINE(machine);
-     object_initialize_child(OBJECT(ms), "soc", &ms->esp32s3, TYPE_ESP32S3_SOC);
-     Esp32s3SocState *ss = ESP32S3_SOC(&ms->esp32s3);
-+    g_esp32s3_soc = ss;
- 
-     MemoryRegion *dram = g_new(MemoryRegion, 1);
-     const struct MemmapEntry *memmap = esp32s3_memmap;
---- a/hw/xtensa/esp32s3_clk.c
-+++ b/hw/xtensa/esp32s3_clk.c
-@@ -61,6 +61,18 @@
-         case A_SYSTEM_SYSCLK_CONF:
-             r = s->sysclk;
-             break;
-+        case A_SYSTEM_PERIP_CLK_EN0:
-+            r = s->perip_clk_en0;
-+            break;
-+        case A_SYSTEM_PERIP_CLK_EN1:
-+            r = s->perip_clk_en1;
-+            break;
-+        case A_SYSTEM_PERIP_RST_EN0:
-+            r = s->perip_rst_en0;
-+            break;
-+        case A_SYSTEM_PERIP_RST_EN1:
-+            r = s->perip_rst_en1;
-+            break;
-         case A_SYSTEM_CPU_INTR_FROM_CPU_0:
-         case A_SYSTEM_CPU_INTR_FROM_CPU_1:
-         case A_SYSTEM_CPU_INTR_FROM_CPU_2:
-@@ -84,10 +96,53 @@
- {
-     ESP32S3ClockState *s = ESP32S3_CLOCK(opaque);
- 
-+    if (getenv("M5SW_CLK_TRACE")
-+        && (addr == A_SYSTEM_PERIP_CLK_EN0
-+            || addr == A_SYSTEM_PERIP_CLK_EN1
-+            || addr == A_SYSTEM_PERIP_RST_EN0
-+            || addr == A_SYSTEM_PERIP_RST_EN1)) {
-+        fprintf(stderr, "[clk] wr %03" HWADDR_PRIx " <- %08" PRIx64 "\n",
-+                addr, value);
-+    }
-     switch(addr) {
-         case A_SYSTEM_CORE_1_CONTROL_1_REG:
-                 s->app_cpu_addr = (uint32_t)value;
-             break;
-+        case A_SYSTEM_PERIP_CLK_EN0:
-+            s->perip_clk_en0 = (uint32_t)value;
-+            if (s->perip_clk_en1 & BIT(9)) {
-+                s->perip_clk_en0 |= BIT(9);
-+            }
-+            break;
-+        case A_SYSTEM_PERIP_CLK_EN1:
-+            s->perip_clk_en1 = (uint32_t)value;
-+            /*
-+             * ESP-IDF v5.5.4's uart_ll_is_enabled() checks UART2 through the
-+             * EN0 register even though the real gate is EN1 bit 9.  Mirror the
-+             * gate so the unmodified driver can validate the port.
-+             */
-+            if (s->perip_clk_en1 & BIT(9)) {
-+                s->perip_clk_en0 |= BIT(9);
-+            } else {
-+                s->perip_clk_en0 &= ~BIT(9);
-+            }
-+            break;
-+        case A_SYSTEM_PERIP_RST_EN0:
-+            s->perip_rst_en0 = (uint32_t)value;
-+            if (s->perip_rst_en1 & BIT(9)) {
-+                s->perip_rst_en0 |= BIT(9);
-+            } else {
-+                s->perip_rst_en0 &= ~BIT(9);
-+            }
-+            break;
-+        case A_SYSTEM_PERIP_RST_EN1:
-+            s->perip_rst_en1 = (uint32_t)value;
-+            if (s->perip_rst_en1 & BIT(9)) {
-+                s->perip_rst_en0 |= BIT(9);
-+            } else {
-+                s->perip_rst_en0 &= ~BIT(9);
-+            }
-+            break;
-         case A_SYSTEM_CPU_INTR_FROM_CPU_0:
-         case A_SYSTEM_CPU_INTR_FROM_CPU_1:
-         case A_SYSTEM_CPU_INTR_FROM_CPU_2:
-@@ -124,6 +179,22 @@
-     s->cpuperconf = (ESP32S3_PERIOD_SEL_80 << R_SYSTEM_CPU_PER_CONF_CPUPERIOD_SEL_SHIFT) |
-                     (ESP32S3_FREQ_SEL_PLL_480 << R_SYSTEM_CPU_PER_CONF_PLL_FREQ_SEL_SHIFT);
- 
-+    /* Peripheral clock/reset gate reset values, including UART0/1/2. */
-+    s->perip_clk_en0 = 0xffffffffU;
-+    s->perip_clk_en0 &= ~((1U << 26) | (1U << 25) | (1U << 21) |
-+                          (1U << 20) | (1U << 19) | (1U << 18) |
-+                          (1U << 17) | (1U << 12) | (1U << 11) |
-+                          (1U << 10) | (1U << 8) |
-+                          (1U << 7) | (1U << 4));
-+    /* Keep the EN0 bit used by IDF's UART2 enabled check readable. */
-+    s->perip_clk_en0 |= BIT(9);
-+    s->perip_clk_en1 = (1U << 10) | (1U << 9);
-+    s->perip_rst_en0 = 0;
-+    s->perip_rst_en1 = (1U << 10) | (1U << 8) | (1U << 7) |
-+                       (1U << 6) | (1U << 5) | (1U << 4) |
-+                       (1U << 3) | (1U << 2) | (1U << 1) |
-+                       (1U << 0);
-+
-     /* Initialize the IRQs */
-     s->levels = 0;
-     for (int i = 0 ; i < ESP32S3_SYSTEM_CPU_INTR_COUNT; i++) {
---- a/hw/xtensa/meson.build
-+++ b/hw/xtensa/meson.build
-@@ -4,8 +4,12 @@
-   'pic_cpu.c',
-   'xtensa_memory.c',
-   '../m5stopwatch/m5_board.c',
-+  '../m5stopwatch/m5_can_peer.c',
-   '../m5stopwatch/m5_rmt.c',
-+  '../m5stopwatch/m5_scs_servo.c',
-+  '../m5stopwatch/m5_uart_peer.c',
-   '../m5stopwatch/m5_sx1262.c',
-+  '../m5stopwatch/m5_spi_sd.c',
-   '../m5stopwatch/m5_spi_panel.c',
-   '../m5stopwatch/m5sw_i2c_devs.c',
-   '../m5stopwatch/esp32s3_soft_i2c.c',
-@@ -17,6 +21,7 @@
-   'esp32.c',
-   'esp32_intc.c',
-   '../m5stopwatch/m5core2.c',
-+  '../m5stopwatch/m5_i2s_esp32.c',
- ))
- xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
-   'esp32s3_clk.c',
---- a/include/hw/char/esp32_uart.h
-+++ b/include/hw/char/esp32_uart.h
-@@ -94,6 +94,9 @@
-     Fifo8 tx_fifo;
-     guint tx_watch_handle;
- 
-+    void (*tx_byte_cb)(void *opaque, uint8_t byte);
-+    void *tx_byte_opaque;
-+
-     uint32_t reg[UART_REG_CNT];
-     MemoryRegionOps uart_ops;
- 
-@@ -127,3 +130,15 @@
-  * the configured threshold.
-  */
- void esp32_uart_update_irq(ESP32UARTState *s);
-+
-+/**
-+ * Observe bytes written by the guest to the UART TX FIFO.
-+ */
-+void esp32_uart_set_tx_byte_callback(ESP32UARTState *s,
-+                                     void (*cb)(void *opaque, uint8_t byte),
-+                                     void *opaque);
-+
-+/**
-+ * Inject bytes into the UART RX FIFO as if they arrived from the peer.
-+ */
-+void esp32_uart_inject_rx(ESP32UARTState *s, const uint8_t *buf, int size);
---- a/include/hw/dma/esp_gdma.h
-+++ b/include/hw/dma/esp_gdma.h
-@@ -103,6 +103,7 @@
-     uint32_t suc_eof_desc_addr; // Address of descriptor when EOF bit is 1
-     uint32_t err_eof_desc_addr; // Address of descriptor when error occurs (UHCI0 only)
-     uint32_t desc_addr;         // Address of the next descriptor (n + 1)
-+    uint32_t current_desc_addr; // Address of the descriptor currently processed
-     uint32_t bfr_desc_addr;     // Address of the current descriptor (n)
-     uint32_t bfr_bfr_desc_addr; // Address of the previous descriptor (n - 1)
-     uint32_t priority;
-@@ -161,6 +162,10 @@
-                                         uint32_t max_size);
- uint32_t esp_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
-                                        uint8_t *buffer, uint32_t size);
-+uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
-+                                          uint8_t *buffer, uint32_t size);
-+uint32_t esp_gdma_complete_in_descriptor(ESPGdmaState *s, uint32_t chan,
-+                                         const uint8_t *buffer, uint32_t size);
- 
- 
- /**
---- a/include/hw/xtensa/esp32s3_clk.h
-+++ b/include/hw/xtensa/esp32s3_clk.h
-@@ -48,6 +48,10 @@
-     /* Registers for clocks configuration and frequency dividers */
-     uint32_t cpuperconf;
-     uint32_t sysclk;
-+    uint32_t perip_clk_en0;
-+    uint32_t perip_clk_en1;
-+    uint32_t perip_rst_en0;
-+    uint32_t perip_rst_en1;
- 
- 
-     /* IRQs for crosscore interrupts */
---- /dev/null
-+++ b/hw/m5stopwatch/m5_can_peer.c
-@@ -0,0 +1,52 @@
-+/*
-+ * Virtual CAN peer for M5Stack board models.
-+ *
-+ * The peer is a real client on QEMU's CAN bus.  When enabled, it echoes every
-+ * frame back to the controller, allowing the unmodified guest TWAI driver to
-+ * exercise TX, RX, filtering, interrupts and its receive FIFOs.
-+ *
-+ * SPDX-License-Identifier: GPL-2.0-or-later
-+ */
-+#include "qemu/osdep.h"
-+#include "net/can_emu.h"
-+#include "qom/object.h"
-+#include "m5stopwatch.h"
-+
-+typedef struct M5CanPeer {
-+    CanBusClientState client;
-+    bool echo;
-+} M5CanPeer;
-+
-+static bool m5_can_peer_can_receive(CanBusClientState *client)
-+{
-+    return true;
-+}
-+
-+static ssize_t m5_can_peer_receive(CanBusClientState *client,
-+                                   const struct qemu_can_frame *frames,
-+                                   size_t frames_cnt)
-+{
-+    M5CanPeer *peer = container_of(client, M5CanPeer, client);
-+
-+    if (peer->echo && frames_cnt) {
-+        can_bus_client_send(client, frames, frames_cnt);
-+    }
-+    return frames_cnt;
-+}
-+
-+static CanBusClientInfo m5_can_peer_info = {
-+    .can_receive = m5_can_peer_can_receive,
-+    .receive = m5_can_peer_receive,
-+};
-+
-+struct CanBusState *m5_can_bus_create(void)
-+{
-+    CanBusState *bus = CAN_BUS(object_new(TYPE_CAN_BUS));
-+    M5CanPeer *peer = g_new0(M5CanPeer, 1);
-+
-+    object_property_add_child(qdev_get_machine(), "m5-canbus", OBJECT(bus));
-+    peer->echo = getenv("M5SW_CAN_ECHO") != NULL;
-+    peer->client.info = &m5_can_peer_info;
-+    can_bus_insert_client(bus, &peer->client);
-+    return bus;
-+}
---- /dev/null
-+++ b/hw/m5stopwatch/m5_i2s_esp32.c
+diff -ruN a/hw/m5stopwatch/m5_i2s_esp32.c b/hw/m5stopwatch/m5_i2s_esp32.c
+--- a/hw/m5stopwatch/m5_i2s_esp32.c	1970-01-01 08:00:00
++++ b/hw/m5stopwatch/m5_i2s_esp32.c	2026-10-21 14:07:29
 @@ -0,0 +1,563 @@
 +/*
 + * ESP32 classic I2S controller model.
@@ -2573,8 +1173,570 @@
 +                           qdev_get_gpio_in(intmatrix, ports[i].irq));
 +    }
 +}
---- /dev/null
-+++ b/hw/m5stopwatch/m5_scs_servo.c
+diff -ruN a/hw/m5stopwatch/m5_lcd_cam.c b/hw/m5stopwatch/m5_lcd_cam.c
+--- a/hw/m5stopwatch/m5_lcd_cam.c	1970-01-01 08:00:00
++++ b/hw/m5stopwatch/m5_lcd_cam.c	2026-10-21 10:33:48
+@@ -0,0 +1,269 @@
++/*
++ * Minimal ESP32-S3 LCD_CAM camera front-end.
++ *
++ * The camera sensor is configured through SCCB by the guest.  This model
++ * supplies deterministic RGB565 frames through the real LCD_CAM interrupt
++ * and GDMA RX descriptor path used by esp32-camera.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/irq.h"
++#include "hw/sysbus.h"
++#include "m5stopwatch.h"
++
++#define R_CAM_CTRL   0x04
++#define R_CAM_CTRL1  0x08
++#define R_CAM_RGB    0x0c
++#define R_INT_ENA    0x64
++#define R_INT_RAW    0x68
++#define R_INT_ST     0x6c
++#define R_INT_CLR    0x70
++#define CAM_UPDATE   (1u << 4)
++#define CAM_START    (1u << 29)
++#define CAM_RESET    (1u << 30)
++#define CAM_AFIFO_RST (1u << 31)
++#define CAM_VSYNC_INT (1u << 2)
++
++struct M5LcdCamState {
++    SysBusDevice parent_obj;
++    MemoryRegion iomem;
++    qemu_irq irq;
++    ESPGdmaState *gdma;
++    uint32_t regs[0x100 / 4];
++    uint32_t int_ena;
++    uint32_t int_raw;
++    uint32_t width;
++    uint32_t height;
++    uint32_t frame_offset;
++    uint32_t frame_bytes;
++    uint32_t chunk_len;
++    uint32_t chunks_left;
++    uint8_t *frame_data;
++    uint32_t frame_data_size;
++    bool started;
++    QEMUTimer *capture_timer;
++};
++
++static void lcd_cam_update_irq(M5LcdCamState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
++}
++
++static uint16_t camera_pattern_pixel(M5LcdCamState *s, uint32_t pixel)
++{
++    uint32_t area = MAX(1u, s->width * s->height);
++    uint32_t p = pixel % area;
++    uint32_t x = p % MAX(1u, s->width);
++    uint32_t y = p / MAX(1u, s->width);
++    uint8_t r, g, b;
++
++    if (y < MAX(1u, s->height / 4)) {
++        r = 235; g = 48; b = 48;
++    } else if (y < MAX(1u, s->height / 2)) {
++        r = 235; g = 190; b = 35;
++    } else if (y < MAX(1u, (s->height * 3) / 4)) {
++        r = 40; g = 190; b = 80;
++    } else {
++        r = 35; g = 105; b = 235;
++    }
++    if ((x % 40) < 2 || (y % 40) < 2) {
++        r = g = b = 245;
++    }
++    return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
++}
++
++static void lcd_cam_fill_frame(M5LcdCamState *s, uint8_t *data, uint32_t len)
++{
++    uint32_t frame_bytes = MAX(2u, s->width * s->height * 2);
++    if (s->frame_data && s->frame_data_size >= frame_bytes) {
++        for (uint32_t i = 0; i < len; i++) {
++            data[i] = s->frame_data[(s->frame_offset + i) % frame_bytes];
++        }
++        s->frame_offset = (s->frame_offset + len) % frame_bytes;
++        return;
++    }
++    for (uint32_t i = 0; i < len; i += 2) {
++        uint32_t offset = (s->frame_offset + i) % frame_bytes;
++        uint16_t pixel = camera_pattern_pixel(s, offset / 2);
++        data[i] = pixel & 0xff;
++        if (i + 1 < len) {
++            data[i + 1] = pixel >> 8;
++        }
++    }
++    s->frame_offset = (s->frame_offset + len) % frame_bytes;
++}
++
++static void lcd_cam_capture(M5LcdCamState *s)
++{
++    uint32_t channel;
++    uint32_t len = s->chunk_len;
++    g_autofree uint8_t *data = g_malloc0(len);
++
++    if (!(s->int_ena & CAM_VSYNC_INT)) {
++        timer_mod(s->capture_timer,
++                  qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
++        return;
++    }
++
++    lcd_cam_fill_frame(s, data, len);
++    if (s->gdma) {
++        bool found = esp_gdma_get_channel_periph(
++            s->gdma, GDMA_LCDCAM, ESP_GDMA_IN_IDX, &channel);
++        if (!found) {
++            if (getenv("M5SW_CAMERA_TRACE")) {
++                fprintf(stderr, "[lcd-cam] waiting for camera GDMA channel\n");
++            }
++            timer_mod(s->capture_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
++            return;
++        }
++        if (s->chunks_left) {
++            esp_gdma_write_channel(s->gdma, channel, data, len);
++            esp_gdma_set_chan_interrupt(s->gdma, ESP_GDMA_IN_IDX, channel,
++                                        R_GDMA_INTERRUPT_IN_SUC_EOF_MASK);
++            s->chunks_left--;
++            timer_mod(s->capture_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++        } else {
++            s->int_raw |= CAM_VSYNC_INT;
++            lcd_cam_update_irq(s);
++            if (getenv("M5SW_CAMERA_TRACE")) {
++                fprintf(stderr, "[lcd-cam] frame complete bytes=%u\n",
++                        s->frame_bytes);
++            }
++        }
++    }
++}
++
++static uint64_t lcd_cam_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5LcdCamState *s = opaque;
++    switch (addr) {
++    case R_INT_ENA:
++        return s->int_ena;
++    case R_INT_RAW:
++        return s->int_raw;
++    case R_INT_ST:
++        return s->int_raw & s->int_ena;
++    default:
++        return addr < sizeof(s->regs) ? s->regs[addr / 4] : 0;
++    }
++}
++
++static void lcd_cam_write(void *opaque, hwaddr addr, uint64_t value,
++                          unsigned size)
++{
++    M5LcdCamState *s = opaque;
++    uint32_t v = value;
++
++    switch (addr) {
++    case R_CAM_CTRL:
++        s->regs[addr / 4] = v & ~CAM_UPDATE;
++        break;
++    case R_CAM_CTRL1: {
++        bool start = !!(v & CAM_START);
++        bool rising = start && !s->started;
++        s->regs[addr / 4] = v & ~(CAM_RESET | CAM_AFIFO_RST);
++        s->started = start;
++        if (rising) {
++            s->frame_bytes = MAX(2u, s->width * s->height * 2);
++            s->chunk_len = (v & 0xffff) + 1;
++            s->chunks_left = (s->frame_bytes + s->chunk_len - 1)
++                           / s->chunk_len;
++            s->frame_offset = 0;
++            lcd_cam_capture(s);
++        }
++        break;
++    }
++    case R_INT_ENA:
++        s->int_ena = v;
++        lcd_cam_update_irq(s);
++        break;
++    case R_INT_CLR:
++        s->int_raw &= ~v;
++        lcd_cam_update_irq(s);
++        break;
++    default:
++        if (addr < sizeof(s->regs)) {
++            s->regs[addr / 4] = v;
++        }
++        break;
++    }
++}
++
++static const MemoryRegionOps lcd_cam_ops = {
++    .read = lcd_cam_read,
++    .write = lcd_cam_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 1,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++static void lcd_cam_reset(DeviceState *dev)
++{
++    M5LcdCamState *s = M5_LCD_CAM(dev);
++    memset(s->regs, 0, sizeof(s->regs));
++    s->int_ena = 0;
++    s->int_raw = 0;
++    s->frame_offset = 0;
++    s->frame_bytes = 0;
++    s->chunk_len = 0;
++    s->chunks_left = 0;
++    s->started = false;
++}
++
++static void lcd_cam_init(Object *obj)
++{
++    M5LcdCamState *s = M5_LCD_CAM(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++    memory_region_init_io(&s->iomem, obj, &lcd_cam_ops, s,
++                          TYPE_M5_LCD_CAM, 0x1000);
++    sysbus_init_mmio(sbd, &s->iomem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->capture_timer = timer_new_ms(QEMU_CLOCK_VIRTUAL,
++                                    (QEMUTimerCB *)lcd_cam_capture, s);
++}
++
++static void lcd_cam_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    device_class_set_legacy_reset(dc, lcd_cam_reset);
++}
++
++static const TypeInfo lcd_cam_info = {
++    .name = TYPE_M5_LCD_CAM,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(M5LcdCamState),
++    .instance_init = lcd_cam_init,
++    .class_init = lcd_cam_class_init,
++};
++
++static void lcd_cam_register(void)
++{
++    type_register_static(&lcd_cam_info);
++}
++type_init(lcd_cam_register)
++
++void m5_lcd_cam_attach(DeviceState *dev, ESPGdmaState *gdma,
++                       uint32_t width, uint32_t height)
++{
++    M5LcdCamState *s = M5_LCD_CAM(dev);
++    s->gdma = gdma;
++    s->width = width;
++    s->height = height;
++    const char *frame_path = getenv("M5SW_CAMERA_FRAME");
++    if (frame_path) {
++        gsize size = 0;
++        if (!g_file_get_contents(frame_path, (gchar **)&s->frame_data,
++                                 &size, NULL)) {
++            s->frame_data = NULL;
++            size = 0;
++        }
++        s->frame_data_size = MIN(size, UINT32_MAX);
++    }
++}
+diff -ruN a/hw/m5stopwatch/m5_rmt.c b/hw/m5stopwatch/m5_rmt.c
+--- a/hw/m5stopwatch/m5_rmt.c	1970-01-01 08:00:00
++++ b/hw/m5stopwatch/m5_rmt.c	2026-10-21 11:16:42
+@@ -0,0 +1,284 @@
++/*
++ * ESP32-S3 RMT APB and hardware-memory model.
++ *
++ * The UIFlow2 IR stack uses the new RMT driver in non-DMA mode: the encoder
++ * writes rmt_symbol_word_t entries into RMTMEM, starts the channel through
++ * CHnCONF0, and waits for the TX_END interrupt. This model implements that
++ * data path and records transmitted symbols for host-side assertions.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/irq.h"
++#include "hw/misc/esp32s3_reg.h"
++#include "hw/sysbus.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "m5stopwatch.h"
++
++#define RMT_MEM_OFFSET      0x800
++#define RMT_MEM_SIZE        0x800
++#define RMT_TX_CHANNELS     4
++#define RMT_SYMBOLS_PER_CH  48
++
++#define RMT_CH0CONF0        0x20
++#define RMT_CH4CONF0        0x30
++#define RMT_CH4STATUS       0x60
++#define RMT_INT_RAW         0x70
++#define RMT_INT_ST          0x74
++#define RMT_INT_ENA         0x78
++#define RMT_INT_CLR         0x7c
++
++struct M5RmtState {
++    SysBusDevice parent_obj;
++    MemoryRegion mmio;
++    MemoryRegion mem;
++    qemu_irq irq;
++    uint32_t regs[RMT_MEM_OFFSET / 4];
++    uint32_t symbols[RMT_MEM_SIZE / 4];
++    uint32_t int_ena;
++    uint32_t int_raw;
++    QEMUTimer *tx_timer;
++    QEMUTimer *rx_timer;
++    FILE *tx_file;
++    uint32_t pending_mask;
++    uint32_t rx_pending_mask;
++    bool rx_injected[4];
++    bool trace;
++};
++
++static void rmt_update_irq(M5RmtState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
++}
++
++static void rmt_capture_tx(M5RmtState *s, uint32_t channel)
++{
++    uint32_t conf = s->regs[(RMT_CH0CONF0 + channel * 4) / 4];
++    uint32_t blocks = MAX((conf >> 16) & 0xf, 1);
++    uint32_t count = 0;
++    uint32_t limit = MIN(blocks * RMT_SYMBOLS_PER_CH,
++                         RMT_SYMBOLS_PER_CH);
++    uint32_t base = channel * RMT_SYMBOLS_PER_CH;
++
++    for (uint32_t i = 0; i < limit; i++) {
++        uint32_t symbol = s->symbols[base + i];
++        if ((symbol & 0x7fff) == 0
++            && ((symbol >> 16) & 0x7fff) == 0) {
++            break;
++        }
++        count++;
++    }
++    if (!s->tx_file) {
++        const char *path = getenv("M5SW_RMT_TX_FILE");
++        if (path) {
++            s->tx_file = fopen(path, "wb");
++        }
++    }
++    if (s->tx_file && count) {
++        fwrite(&s->symbols[base], sizeof(uint32_t), count, s->tx_file);
++        fflush(s->tx_file);
++    }
++    if (s->trace) {
++        fprintf(stderr, "[rmt] tx channel=%u symbols=%u blocks=%u\n",
++                channel, count, blocks);
++    }
++
++    s->int_raw |= 1u << channel;
++    rmt_update_irq(s);
++}
++
++static void rmt_tx_timer(void *opaque)
++{
++    M5RmtState *s = opaque;
++    uint32_t pending = s->pending_mask;
++    s->pending_mask = 0;
++
++    for (uint32_t channel = 0; channel < RMT_TX_CHANNELS; channel++) {
++        if (pending & (1u << channel)) {
++            rmt_capture_tx(s, channel);
++        }
++    }
++}
++
++static void rmt_rx_timer(void *opaque)
++{
++    M5RmtState *s = opaque;
++    uint32_t pending = s->rx_pending_mask;
++    s->rx_pending_mask = 0;
++
++    for (uint32_t channel = 0; channel < 4; channel++) {
++        if (pending & (1u << channel)) {
++            s->int_raw |= 1u << (16 + channel);
++        }
++    }
++    rmt_update_irq(s);
++}
++
++static void rmt_inject_rx(M5RmtState *s, uint32_t channel)
++{
++    const char *path = getenv("M5SW_RMT_RX_FILE");
++    g_autofree uint8_t *data = NULL;
++    gsize size = 0;
++    uint32_t count;
++
++    if (!path || s->rx_injected[channel]) {
++        return;
++    }
++    if (!g_file_get_contents(path, (gchar **)&data, &size, NULL)) {
++        return;
++    }
++    count = MIN(size / sizeof(uint32_t), RMT_SYMBOLS_PER_CH);
++    memcpy(&s->symbols[(4 + channel) * RMT_SYMBOLS_PER_CH],
++           data, count * sizeof(uint32_t));
++    /* mem_waddr_ex is an absolute RMTMEM word address; each channel
++     * occupies 48 words on ESP32-S3 and starts at (channel + 4) * 48. */
++    s->regs[(RMT_CH4STATUS + channel * 4) / 4] =
++        (channel + 4) * 48 + count;
++    s->rx_injected[channel] = true;
++    s->rx_pending_mask |= 1u << channel;
++    timer_mod(s->rx_timer,
++              qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20);
++    if (s->trace) {
++        fprintf(stderr, "[rmt] rx inject channel=%u symbols=%u\n",
++                channel, count);
++    }
++}
++
++static uint64_t rmt_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5RmtState *s = opaque;
++
++    if (addr == RMT_INT_RAW) {
++        return s->int_raw;
++    }
++    if (addr == RMT_INT_ST) {
++        return s->int_raw & s->int_ena;
++    }
++    if (addr == RMT_INT_ENA) {
++        return s->int_ena;
++    }
++    return addr < RMT_MEM_OFFSET ? s->regs[addr / 4] : 0;
++}
++
++static void rmt_write(void *opaque, hwaddr addr, uint64_t value,
++                      unsigned size)
++{
++    M5RmtState *s = opaque;
++    uint32_t v = value;
++
++    if (s->trace) {
++        fprintf(stderr, "[rmt] wr %03x <- %08x\n", (unsigned)addr, v);
++    }
++    if (addr == RMT_INT_ENA) {
++        s->int_ena = v;
++        rmt_update_irq(s);
++        return;
++    }
++    if (addr == RMT_INT_CLR) {
++        s->int_raw &= ~v;
++        rmt_update_irq(s);
++        return;
++    }
++    if (addr >= RMT_CH0CONF0 && addr < RMT_CH0CONF0 + RMT_TX_CHANNELS * 4) {
++        uint32_t channel = (addr - RMT_CH0CONF0) / 4;
++        s->regs[addr / 4] = v & ~1u;
++        if (v & 1u) {
++            s->pending_mask |= 1u << channel;
++            timer_mod(s->tx_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 2);
++        }
++        return;
++    }
++    if (addr >= RMT_CH4CONF0 && addr < RMT_CH4CONF0 + 4 * 8) {
++        uint32_t offset = addr - RMT_CH4CONF0;
++        uint32_t channel = offset / 8;
++        if ((offset % 8) == 4) {
++            bool was_enabled = s->regs[addr / 4] & 1u;
++            s->regs[addr / 4] = v;
++            if (!was_enabled && (v & 1u)) {
++                rmt_inject_rx(s, channel);
++            }
++            return;
++        }
++    }
++    if (addr < RMT_MEM_OFFSET) {
++        s->regs[addr / 4] = v;
++    }
++}
++
++static const MemoryRegionOps rmt_ops = {
++    .read = rmt_read,
++    .write = rmt_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++static void rmt_reset(DeviceState *dev)
++{
++    M5RmtState *s = M5_RMT(dev);
++    memset(s->regs, 0, sizeof(s->regs));
++    memset(s->symbols, 0, sizeof(s->symbols));
++    s->int_ena = 0;
++    s->int_raw = 0;
++    s->pending_mask = 0;
++    s->rx_pending_mask = 0;
++    memset(s->rx_injected, 0, sizeof(s->rx_injected));
++    timer_del(s->tx_timer);
++    timer_del(s->rx_timer);
++}
++
++static void rmt_init(Object *obj)
++{
++    M5RmtState *s = M5_RMT(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++
++    memory_region_init_io(&s->mmio, obj, &rmt_ops, s, TYPE_M5_RMT,
++                          RMT_MEM_OFFSET);
++    memory_region_init_ram_ptr(&s->mem, obj, TYPE_M5_RMT ".mem",
++                               RMT_MEM_SIZE, s->symbols);
++    sysbus_init_mmio(sbd, &s->mmio);
++    sysbus_init_mmio(sbd, &s->mem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->trace = getenv("M5SW_RMT_TRACE") != NULL;
++    s->tx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, rmt_tx_timer, s);
++    s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, rmt_rx_timer, s);
++}
++
++static void rmt_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    device_class_set_legacy_reset(dc, rmt_reset);
++}
++
++static const TypeInfo rmt_info = {
++    .name = TYPE_M5_RMT,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(M5RmtState),
++    .instance_init = rmt_init,
++    .class_init = rmt_class_init,
++};
++
++static void rmt_register(void)
++{
++    type_register_static(&rmt_info);
++}
++type_init(rmt_register)
++
++void esp32s3_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix)
++{
++    DeviceState *dev = qdev_new(TYPE_M5_RMT);
++    object_property_add_child(qdev_get_machine(), "rmt0", OBJECT(dev));
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, DR_REG_RMT_BASE,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 0), 1);
++    memory_region_add_subregion_overlap(
++        sys_mem, DR_REG_RMT_BASE + RMT_MEM_OFFSET,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 1), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(dev), 0,
++                       qdev_get_gpio_in(intmatrix, ETS_RMT_INTR_SOURCE));
++}
+diff -ruN a/hw/m5stopwatch/m5_scs_servo.c b/hw/m5stopwatch/m5_scs_servo.c
+--- a/hw/m5stopwatch/m5_scs_servo.c	1970-01-01 08:00:00
++++ b/hw/m5stopwatch/m5_scs_servo.c	2026-10-21 12:56:41
 @@ -0,0 +1,205 @@
 +/*
 + * Minimal SCS serial servo bus peer for StackChan.
@@ -2781,8 +1943,9 @@
 +    scs_init_mem(s);
 +    esp32_uart_set_tx_byte_callback(s->uart, scs_uart_byte, s);
 +}
---- /dev/null
-+++ b/hw/m5stopwatch/m5_spi_sd.c
+diff -ruN a/hw/m5stopwatch/m5_spi_sd.c b/hw/m5stopwatch/m5_spi_sd.c
+--- a/hw/m5stopwatch/m5_spi_sd.c	1970-01-01 08:00:00
++++ b/hw/m5stopwatch/m5_spi_sd.c	2026-10-21 13:29:54
 @@ -0,0 +1,372 @@
 +/*
 + * SPI-mode SD card protocol model backed by a raw sector image.
@@ -3156,8 +2319,9 @@
 +    sd_set_identity(s, s->image_size);
 +    esp32s3_gpspi_attach_spi_slave(spi, &sd_spi_ops, s, cs_pin);
 +}
---- /dev/null
-+++ b/hw/m5stopwatch/m5_uart_peer.c
+diff -ruN a/hw/m5stopwatch/m5_uart_peer.c b/hw/m5stopwatch/m5_uart_peer.c
+--- a/hw/m5stopwatch/m5_uart_peer.c	1970-01-01 08:00:00
++++ b/hw/m5stopwatch/m5_uart_peer.c	2026-10-21 14:46:58
 @@ -0,0 +1,31 @@
 +/*
 + * Byte-level UART peer used by RS485 and other half-duplex board buses.
@@ -3190,3 +2354,1350 @@
 +    peer->echo = enable_env && getenv(enable_env) != NULL;
 +    esp32_uart_set_tx_byte_callback(peer->uart, m5_uart_peer_tx, peer);
 +}
+diff -ruN a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+--- a/hw/m5stopwatch/m5cardputeradv.c	2026-10-21 12:51:49
++++ b/hw/m5stopwatch/m5cardputeradv.c	2026-10-21 13:16:44
+@@ -53,10 +53,6 @@
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+     MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
+     memory_region_add_subregion_overlap(sys_mem, 0x60025000, spi_mr, 1);
+-    MemoryRegion *spi2_alias = g_new(MemoryRegion, 1);
+-    memory_region_init_alias(spi2_alias, NULL, "m5cardputeradv.spi2-alias",
+-                             spi_mr, 0, memory_region_size(spi_mr));
+-    memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi2_alias, 1);
+     esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
+                                 ETS_SPI3_INTR_SOURCE);
+ 
+@@ -74,4 +70,17 @@
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+     esp32s3_gpspi_set_dc_pin(spi, 34);
++    esp32s3_gpspi_set_panel_cs_pin(spi, 37);
++
++    DeviceState *sd_spi = qdev_new(TYPE_ESP32S3_GPSPI);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(sd_spi), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, 0x60024000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(sd_spi), 0), 1);
++    esp32s3_gpspi_connect_irqs(sd_spi, intmatrix, ETS_SPI2_INTR_SOURCE,
++                                ETS_SPI3_INTR_SOURCE);
++    esp32s3_gpspi_attach(sd_spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI2);
++    esp32s3_gpspi_set_dc_pin(sd_spi, 34);
++    esp32s3_gpspi_set_panel_cs_pin(sd_spi, 37);
++    m5_spi_sd_attach(sd_spi, 12);
+ }
+diff -ruN a/hw/m5stopwatch/m5core2.c b/hw/m5stopwatch/m5core2.c
+--- a/hw/m5stopwatch/m5core2.c	2026-10-21 12:51:49
++++ b/hw/m5stopwatch/m5core2.c	2026-10-21 14:16:47
+@@ -16,10 +16,21 @@
+     I2CBus *bus1 = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[1]), "i2c");
+ 
+     DeviceState *axp = qdev_new(TYPE_M5SW_I2C_DEV);
+-    qdev_prop_set_string(axp, "model", "axp192");
++    qdev_prop_set_string(axp, "model", "axp2101");
+     qdev_prop_set_uint8(axp, "address", 0x34);
+-    object_property_add_child(qdev_get_machine(), "axp192", OBJECT(axp));
++    object_property_add_child(qdev_get_machine(), "axp2101", OBJECT(axp));
+     qdev_realize_and_unref(axp, (BusState *)bus0, &error_fatal);
++
++    for (uint8_t address = 0x40; address <= 0x41; address++) {
++        DeviceState *ina = qdev_new(TYPE_M5SW_I2C_DEV);
++        char *path = g_strdup_printf("ina3221-%02x", address);
++
++        qdev_prop_set_string(ina, "model", "ina3221");
++        qdev_prop_set_uint8(ina, "address", address);
++        object_property_add_child(qdev_get_machine(), path, OBJECT(ina));
++        qdev_realize_and_unref(ina, (BusState *)bus0, &error_fatal);
++        g_free(path);
++    }
+ 
+     static const struct { const char *model; uint8_t addr; const char *path; } devs[] = {
+         { "ft5x06", 0x38, "core2-ft5x06" },
+diff -ruN a/hw/m5stopwatch/m5papercolor.c b/hw/m5stopwatch/m5papercolor.c
+--- a/hw/m5stopwatch/m5papercolor.c	2026-10-21 12:51:49
++++ b/hw/m5stopwatch/m5papercolor.c	2026-10-21 13:14:15
+@@ -56,10 +56,6 @@
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+     MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
+     memory_region_add_subregion_overlap(sys_mem, 0x60024000, spi_mr, 1);
+-    MemoryRegion *spi3_alias = g_new(MemoryRegion, 1);
+-    memory_region_init_alias(spi3_alias, NULL, "m5papercolor.spi3-alias",
+-                             spi_mr, 0, memory_region_size(spi_mr));
+-    memory_region_add_subregion_overlap(sys_mem, 0x60025000, spi3_alias, 1);
+     esp32s3_gpspi_connect_irqs(spi, intmatrix, ETS_SPI2_INTR_SOURCE,
+                                 ETS_SPI3_INTR_SOURCE);
+ 
+@@ -76,4 +72,14 @@
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+     esp32s3_gpspi_attach_epd(spi, gdma, M5_EPD_PANEL(panel), GDMA_SPI2);
+     esp32s3_gpspi_set_dc_pin(spi, 43);
++
++    DeviceState *sd_spi = qdev_new(TYPE_ESP32S3_GPSPI);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(sd_spi), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, 0x60025000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(sd_spi), 0), 1);
++    esp32s3_gpspi_connect_irqs(sd_spi, intmatrix, ETS_SPI2_INTR_SOURCE,
++                                ETS_SPI3_INTR_SOURCE);
++    esp32s3_gpspi_attach(sd_spi, gdma, NULL, NULL, GDMA_SPI3);
++    m5_spi_sd_attach(sd_spi, 47);
+ }
+diff -ruN a/hw/m5stopwatch/m5stackchan.c b/hw/m5stopwatch/m5stackchan.c
+--- a/hw/m5stopwatch/m5stackchan.c	2026-10-21 12:51:49
++++ b/hw/m5stopwatch/m5stackchan.c	2026-10-21 12:55:55
+@@ -59,6 +59,7 @@
+         qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
+     }
+     m5stopwatch_soft_i2c_init_pins(bus, 12, 11);
++    m5_scs_servo_attach(m5soc_get_uart_device(1));
+ 
+     DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
+     m5_lcd_cam_attach(cam, gdma, 320, 240);
+diff -ruN a/hw/m5stopwatch/m5stamplc.c b/hw/m5stopwatch/m5stamplc.c
+--- a/hw/m5stopwatch/m5stamplc.c	2026-10-21 12:51:49
++++ b/hw/m5stopwatch/m5stamplc.c	2026-10-21 14:46:58
+@@ -76,4 +76,7 @@
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+     esp32s3_gpspi_set_dc_pin(spi, 6);
++
++    /* PWR-485 is UART2: TX/BOOT G0, RX G39, direction G46. */
++    m5_uart_echo_attach(m5soc_get_uart_device(2), "M5SW_RS485_ECHO");
+ }
+diff -ruN a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h	2026-10-21 12:51:49
++++ b/hw/m5stopwatch/m5stopwatch.h	2026-10-21 14:46:58
+@@ -27,6 +27,9 @@
+ #define TYPE_M5_I2S "m5.i2s"
+ OBJECT_DECLARE_SIMPLE_TYPE(M5I2SState, M5_I2S)
+ 
++#define TYPE_M5_ESP32_I2S "m5.esp32-i2s"
++OBJECT_DECLARE_SIMPLE_TYPE(M5Esp32I2SState, M5_ESP32_I2S)
++
+ #define TYPE_M5_RMT "m5.rmt"
+ OBJECT_DECLARE_SIMPLE_TYPE(M5RmtState, M5_RMT)
+ 
+@@ -73,17 +76,25 @@
+ void m5_i2s_attach(DeviceState *dev, struct ESPGdmaState *gdma, uint32_t port);
+ void m5_i2s_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                        struct ESPGdmaState *gdma);
++void m5_esp32_i2s_board_init(MemoryRegion *sys_mem, BusState *periph_bus,
++                             DeviceState *intmatrix);
+ void esp32s3_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix);
+ void esp32s3_gpspi_attach(DeviceState *dev, struct ESPGdmaState *gdma,
+                           Co5300State *co, M5SpiPanelState *spi,
+                           uint32_t gdma_periph);
+ void esp32s3_gpspi_set_dc_pin(DeviceState *dev, int pin);
++void esp32s3_gpspi_set_panel_cs_pin(DeviceState *dev, int pin);
+ void esp32s3_gpspi_connect_irqs(DeviceState *dev, DeviceState *intmatrix,
+                                 int irq_a, int irq_b);
+ void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
+                                     const M5SpiSlaveOps *ops,
+                                     void *opaque, int cs_pin);
+ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
++void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
++void m5_scs_servo_attach(DeviceState *uart);
++void m5_uart_echo_attach(DeviceState *uart, const char *enable_env);
++DeviceState *m5soc_get_uart_device(int index);
++struct CanBusState *m5_can_bus_create(void);
+ void esp32s3_gpspi_attach_epd(DeviceState *dev, struct ESPGdmaState *gdma,
+                               M5EpdPanelState *panel, uint32_t gdma_periph);
+ 
+diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c	2026-10-21 12:51:49
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c	2026-10-21 16:07:07
+@@ -39,6 +39,7 @@
+     M_PI4IOE,
+     M_LM75,
+     M_INA226,
++    M_INA3221,
+     M_SHT40,
+     M_SI12T,
+     M_LP5562,
+@@ -64,12 +65,24 @@
+     double bus_voltage_mv;
+     double current_ma;
+     double shunt_ohms;
++    double ina3221_bus_mv[3];
++    double ina3221_current_ma[3];
++    double ina3221_shunt_ohms;
++    uint8_t ina3221_read_index;
+     int64_t light_level;
+     int64_t aw9523_input_bits;
++    int64_t pi4ioe_input_bits;
++    int64_t m5ioe1_input_bits;
++    int64_t m5pm1_input_bits;
++    int64_t m5ioe1_adc_mv[4];
++    int64_t m5ioe1_temp_raw;
+     int64_t si12t_touch_bits;
+     int64_t lp5562_r_pwm;
+     int64_t lp5562_g_pwm;
+     int64_t lp5562_b_pwm;
++    bool pm1_pa_enabled;
++    bool axp192_speaker_enabled;
++    bool axp2101_speaker_enabled;
+     uint8_t command;
+     uint8_t read_start;
+     bool charging;         /* M5PM1 G2 CHG_STAT low = charging */
+@@ -82,6 +95,8 @@
+     uint8_t st25_mode;
+     bool st25_read_space_b;
+     uint8_t st25_tag[180];
++    uint8_t aw9523_irq_bits;
++    uint8_t pi4ioe_irq_bits;
+ } M5swI2CDev;
+ 
+ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+@@ -92,11 +107,100 @@
+ static M5swI2CDev *g_axp2101;
+ static M5swI2CDev *g_bmm150;
+ static M5swI2CDev *g_keyboard;
++static M5swI2CDev *g_aw9523;
+ static uint8_t g_key_events[16];
+ static unsigned g_key_event_head;
+ static unsigned g_key_event_count;
+ static uint8_t g_plc_keys = 0x07;
+ 
++static uint8_t aw9523_input_read(M5swI2CDev *s, int bank)
++{
++    uint8_t config = s->regs[0x04 + bank];
++    uint8_t external = (s->aw9523_input_bits >> (bank * 8)) & 0xff;
++    uint8_t output = s->regs[0x02 + bank];
++
++    return (config & external) | (~config & output);
++}
++
++static void aw9523_update_irq(M5swI2CDev *s)
++{
++    uint8_t level = s->aw9523_irq_bits != 0;
++
++    if (s->parent_obj.address == 0x58) {
++        esp32_gpio_force_line(21, !level);
++    }
++}
++
++static void aw9523_set_input_bits(M5swI2CDev *s, int64_t value)
++{
++    uint16_t old = s->aw9523_input_bits;
++    uint16_t now = value;
++    uint16_t changed = old ^ now;
++    uint16_t enabled = s->regs[0x06] | (s->regs[0x07] << 8);
++
++    s->aw9523_input_bits = now;
++    s->aw9523_irq_bits |= changed & enabled;
++    aw9523_update_irq(s);
++}
++
++static uint8_t pi4ioe_input_read(M5swI2CDev *s)
++{
++    uint8_t direction = s->regs[0x03];
++    uint8_t external = s->pi4ioe_input_bits;
++
++    /*
++     * StamPLC uses P0..P2 for active-low front-panel keys while the
++     * remaining inputs are provided by the industrial input bank.
++     */
++    if (s->parent_obj.address == 0x43) {
++        external = (external & 0xf8) | g_plc_keys;
++    }
++    return external & ~direction;
++}
++
++static void pi4ioe_update_irq(M5swI2CDev *s)
++{
++    if (s->parent_obj.address == 0x43) {
++        esp32_gpio_force_line(21, s->pi4ioe_irq_bits == 0);
++    }
++}
++
++static void pi4ioe_set_input_bits(M5swI2CDev *s, int64_t value)
++{
++    uint8_t now = value;
++    uint8_t default_state = s->regs[0x09];
++    uint8_t active;
++
++    s->pi4ioe_input_bits = now;
++    active = pi4ioe_input_read(s);
++    s->pi4ioe_irq_bits |= (active ^ default_state) & ~s->regs[0x03];
++    pi4ioe_update_irq(s);
++}
++
++static uint8_t m5ioe1_input_read(M5swI2CDev *s, int bank)
++{
++    uint16_t mode = s->regs[0x03] | (s->regs[0x04] << 8);
++    uint16_t output = s->regs[0x05] | (s->regs[0x06] << 8);
++    uint16_t external = s->m5ioe1_input_bits;
++
++    return ((mode & output) | (~mode & external)) >> (bank * 8);
++}
++
++static void m5ioe1_set_input_bits(M5swI2CDev *s, int64_t value)
++{
++    uint16_t old = s->m5ioe1_input_bits;
++    uint16_t now = value & 0x3fff;
++    uint16_t changed = old ^ now;
++    uint16_t enabled = s->regs[0x0d] | (s->regs[0x0e] << 8);
++    uint16_t polarity = s->regs[0x0f] | (s->regs[0x10] << 8);
++    uint16_t active = (changed & now & polarity)
++                      | (changed & ~now & ~polarity);
++
++    s->m5ioe1_input_bits = now;
++    s->regs[0x11] |= active & enabled;
++    s->regs[0x12] |= (active & enabled) >> 8;
++}
++
+ void m5sw_pwr_button(int pressed)
+ {
+     if (getenv("M5SW_INPUT_TRACE")) {
+@@ -180,6 +284,19 @@
+ static inline uint8_t bcd(int v) { return ((v / 10) << 4) | (v % 10); }
+ static inline int unbcd(uint8_t v) { return (v >> 4) * 10 + (v & 0xf); }
+ 
++static uint8_t sht4x_crc8(const uint8_t *data, int size)
++{
++    uint8_t crc = 0xff;
++    for (int i = 0; i < size; i++) {
++        crc ^= data[i];
++        for (int bit = 0; bit < 8; bit++) {
++            crc = (crc & 0x80) ? (uint8_t)((crc << 1) ^ 0x31)
++                               : (uint8_t)(crc << 1);
++        }
++    }
++    return crc;
++}
++
+ static uint16_t encode_be16(double value, double resolution)
+ {
+     int32_t raw = (int32_t)lrint(value / resolution);
+@@ -187,12 +304,60 @@
+     return (uint16_t)raw;
+ }
+ 
++static uint16_t axp192_adc12(double value)
++{
++    int64_t raw = (int64_t)lrint(value);
++    return (uint16_t)MAX(0, MIN(raw, 0x0fff));
++}
++
++static uint16_t axp192_adc13(double value)
++{
++    int64_t raw = (int64_t)lrint(value);
++    return (uint16_t)MAX(0, MIN(raw, 0x1fff));
++}
++
+ static uint16_t ina226_u16(M5swI2CDev *s, double value)
+ {
+     int64_t raw = (int64_t)lrint(value);
+     return (uint16_t)MAX(0, MIN(raw, 65535));
+ }
+ 
++static uint16_t ina3221_u16(double value)
++{
++    int64_t raw = (int64_t)lrint(value);
++    return (uint16_t)MAX(0, MIN(raw, 65535));
++}
++
++static uint16_t ina3221_reg16(M5swI2CDev *s, uint8_t reg)
++{
++    double shunt_mv;
++
++    switch (reg) {
++    case 0x00:
++        return 0x7127;                         /* continuous all channels */
++    case 0x01:
++    case 0x03:
++    case 0x05: {
++        uint32_t channel = (reg - 0x01) / 2;
++        shunt_mv = s->ina3221_current_ma[channel]
++                   * s->ina3221_shunt_ohms;
++        return ina3221_u16(shunt_mv / 0.04);   /* 40 uV/LSB */
++    }
++    case 0x02:
++    case 0x04:
++    case 0x06: {
++        uint32_t channel = (reg - 0x02) / 2;
++        return ina3221_u16(s->ina3221_bus_mv[channel] / 8.0);
++    }
++    case 0xFE:
++        return 0x5449;                         /* TI manufacturer ID */
++    case 0xFF:
++        return 0x3220;                         /* INA3221 die ID */
++    default:
++        return 0;
++    }
++}
++
+ static uint16_t ina226_current_raw(M5swI2CDev *s)
+ {
+     uint16_t cal = ((uint16_t)s->regs[0x05] << 8) | s->regs[0x06];
+@@ -376,13 +541,23 @@
+         }
+         break;
+     case M_IOE1:
+-        /* GPIO_IN mirrors GPIO_OUT for outputs, inputs read high (pull-ups) */
+         if (r == 0x07) {
+-            return (s->regs[0x05] & s->regs[0x03]) | (~s->regs[0x03]);
++            return m5ioe1_input_read(s, 0);
+         }
+         if (r == 0x08) {
+-            return ((s->regs[0x06] & s->regs[0x04]) | (~s->regs[0x04])) & 0x3f;
++            return m5ioe1_input_read(s, 1) & 0x3f;
+         }
++        if (r == 0x16 || r == 0x17) {
++            int channel = (s->regs[0x15] & 0x03) - 1;
++            channel = MAX(0, MIN(channel, 3));
++            uint16_t raw = (s->m5ioe1_adc_mv[channel] * 0x0fff
++                            + 1650) / 3300;
++            return r == 0x16 ? raw & 0xff : raw >> 8;
++        }
++        if (r == 0x19 || r == 0x1a) {
++            return r == 0x19 ? s->m5ioe1_temp_raw & 0xff
++                             : (s->m5ioe1_temp_raw >> 8) & 0x0f;
++        }
+         break;
+     case M_CST820:
+         if (r <= 0x06) {
+@@ -399,10 +574,16 @@
+         break;
+     case M_AW9523:
+         if (r == 0x00) {
+-            return s->aw9523_input_bits & 0xff;
++            uint8_t value = aw9523_input_read(s, 0);
++            s->aw9523_irq_bits &= 0xff00;
++            aw9523_update_irq(s);
++            return value;
+         }
+         if (r == 0x01) {
+-            return (s->aw9523_input_bits >> 8) & 0xff;
++            uint8_t value = aw9523_input_read(s, 1);
++            s->aw9523_irq_bits &= 0x00ff;
++            aw9523_update_irq(s);
++            return value;
+         }
+         if (r == 0x10) {
+             return 0x23;
+@@ -443,11 +624,19 @@
+         break;
+     case M_PI4IOE:
+         if (r == 0x01) {
+-            return 0x01;
++            uint8_t value = s->regs[r];
++            s->regs[r] &= ~0x02;
++            return value;
+         }
+         if (r == 0x0F) {
+-            return g_plc_keys;
++            return pi4ioe_input_read(s);
+         }
++        if (r == 0x13) {
++            uint8_t value = s->pi4ioe_irq_bits;
++            s->pi4ioe_irq_bits = 0;
++            pi4ioe_update_irq(s);
++            return value;
++        }
+         break;
+     case M_PM1:
+         if (r == 0x42) {                                 /* IRQ_STATUS3: latched, read-to-clear */
+@@ -455,15 +644,72 @@
+             s->regs[r] = 0;
+             return v;
+         }
+-        if (r == 0x12) {                                 /* GPIO_IN: G2 = CHG_STAT (active low) */
+-            return (s->regs[0x12] & ~0x04) | (s->charging ? 0 : 0x04);
++        if (r == 0x04) {
++            uint8_t value = 0;
++            if (s->vin_mv > 1000) {
++                value |= BIT(0) | BIT(2);                /* VIN + VBAT node */
++            }
++            if (s->vinout_mv > 1000 && !(s->regs[0x06] & BIT(3))) {
++                value |= BIT(1);                         /* 5VOUT valid */
++            }
++            return value;
+         }
++        if (r == 0x12) {
++            uint8_t mode = s->regs[0x10];
++            uint8_t output = s->regs[0x11];
++            uint8_t external = s->m5pm1_input_bits;
++            return ((mode & output) | (~mode & external)) & 0x1f;
++        }
+         if (r >= 0x22 && r <= 0x27) {
+             int64_t v = r < 0x24 ? s->vbat_mv : r < 0x26 ? s->vin_mv : s->vinout_mv;
+             v = MAX(0, MIN(v, 65535));
+             return (r & 1) ? (v >> 8) & 0xff : v & 0xff;
+         }
+         break;
++    case M_AXP192:
++        if (r == 0x00) {
++            return 0x24;                              /* VBUS + charging */
++        }
++        if (r == 0x01) {
++            return 0x20;                              /* battery present */
++        }
++        if (r == 0x56 || r == 0x57) {
++            uint16_t raw = axp192_adc12(s->vin_mv / 1.7);
++            return r == 0x56 ? raw >> 4 : (raw & 0x0f) << 4;
++        }
++        if (r == 0x58 || r == 0x59) {
++            uint16_t raw = axp192_adc13(500.0 / 0.625);
++            return r == 0x58 ? raw >> 5 : (raw & 0x1f) << 3;
++        }
++        if (r == 0x5A || r == 0x5B) {
++            uint16_t raw = axp192_adc12(s->vin_mv / 1.7);
++            return r == 0x5A ? raw >> 4 : (raw & 0x0f) << 4;
++        }
++        if (r == 0x5C || r == 0x5D) {
++            uint16_t raw = axp192_adc13(500.0 / 0.375);
++            return r == 0x5C ? raw >> 5 : (raw & 0x1f) << 3;
++        }
++        if (r == 0x5E || r == 0x5F) {
++            uint16_t raw = axp192_adc12((s->temperature_c + 144.7) * 10.0);
++            return r == 0x5E ? raw >> 4 : (raw & 0x0f) << 4;
++        }
++        if (r == 0x78 || r == 0x79) {
++            uint16_t raw = axp192_adc12(s->vbat_mv / 1.1);
++            return r == 0x78 ? raw >> 4 : (raw & 0x0f) << 4;
++        }
++        if (r == 0x7A || r == 0x7B) {
++            uint16_t raw = axp192_adc13(s->charging ? 500.0 / 0.5 : 0);
++            return r == 0x7A ? raw >> 5 : (raw & 0x1f) << 3;
++        }
++        if (r == 0x7C || r == 0x7D) {
++            uint16_t raw = axp192_adc13(s->charging ? 0 : 500.0 / 0.5);
++            return r == 0x7C ? raw >> 5 : (raw & 0x1f) << 3;
++        }
++        if (r == 0x7E || r == 0x7F) {
++            uint16_t raw = axp192_adc12(s->vinout_mv / 1.4);
++            return r == 0x7E ? raw >> 4 : (raw & 0x0f) << 4;
++        }
++        break;
+     case M_AXP2101:
+         if (r == 0x00) {
+             return 0x28;  /* battery present + VBUS good */
+@@ -504,7 +750,7 @@
+         if (r >= 0x3B && r <= 0x40) {
+             int index = (r - 0x3B) / 2;
+             uint16_t raw = encode_be16(s->accel[index], 8.0 / 32768.0);
+-            return (r & 1) ? raw & 0xff : raw >> 8;
++            return (r & 1) ? raw >> 8 : raw & 0xff;
+         }
+         if (r == 0x41 || r == 0x42) {
+             uint16_t raw = encode_be16((s->temperature_c - 25.0) * 326.8, 1.0);
+@@ -513,7 +759,7 @@
+         if (r >= 0x43 && r <= 0x48) {
+             int index = (r - 0x43) / 2;
+             uint16_t raw = encode_be16(s->gyro[index], 2000.0 / 32768.0);
+-            return (r & 1) ? raw & 0xff : raw >> 8;
++            return (r & 1) ? raw >> 8 : raw & 0xff;
+         }
+         break;
+     case M_LM75:
+@@ -604,19 +850,39 @@
+     }
+     case M_SHT40:
+         if (s->command == 0xFD || s->command == 0xF6 || s->command == 0xE0) {
+-            double t_max = s->command == 0xE0 ? 125.0 : 175.0;
+-            double t_min = s->command == 0xE0 ? -40.0 : -45.0;
++            double t_max = 130.0;
++            double t_min = -45.0;
+             uint16_t traw = (uint16_t)lrint(
+                 (s->temperature_c - t_min) * 65535.0 / (t_max - t_min));
+             uint16_t hraw = (uint16_t)lrint(
+                 (s->humidity_pct + 6.0) * 65535.0 / 125.0);
+-            uint8_t data[6] = {
+-                traw >> 8, traw & 0xff,
+-                hraw >> 8, hraw & 0xff,
+-                0x00, 0x00,
+-            };
++            uint8_t data[6];
++            data[0] = traw >> 8;
++            data[1] = traw & 0xff;
++            data[2] = 0;
++            data[3] = hraw >> 8;
++            data[4] = hraw & 0xff;
++            data[5] = 0;
++            if (s->trace) {
++                fprintf(stderr,
++                        "[sht40] cmd=%02x temp=%.2f hum=%.2f raw=%04x/%04x\n",
++                        s->command, s->temperature_c, s->humidity_pct,
++                        traw, hraw);
++            }
++            data[2] = sht4x_crc8(data, 2);
++            data[5] = sht4x_crc8(&data[3], 2);
++            if (s->trace) {
++                fprintf(stderr, "[sht40] data=%02x %02x %02x %02x %02x %02x\n",
++                        data[0], data[1], data[2], data[3], data[4], data[5]);
++            }
+             return data[r % 6];
+         }
++        if (s->command == 0x89) {
++            uint8_t data[6] = { 0x12, 0x34, 0x00, 0x56, 0x78, 0x00 };
++            data[2] = sht4x_crc8(data, 2);
++            data[5] = sht4x_crc8(&data[3], 2);
++            return data[r % 6];
++        }
+         break;
+     case M_BMI270:
+         if (r >= 0x04 && r <= 0x09 && g_bmm150) {
+@@ -664,6 +930,7 @@
+         s->st25_read_space_b = false;
+     } else if (ev == I2C_START_RECV) {
+         s->read_start = s->ptr;
++        s->ina3221_read_index = 0;
+         if (s->model == M_ST25R3916) {
+             s->st25_read_space_b = s->st25_mode == 3;
+         }
+@@ -683,6 +950,17 @@
+ static uint8_t dev_recv(I2CSlave *i2c)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
++    if (s->model == M_INA3221) {
++        uint16_t value = ina3221_reg16(s, s->read_start);
++        uint8_t raw = s->ina3221_read_index & 1
++                      ? value & 0xff : value >> 8;
++        s->ina3221_read_index++;
++        if (s->trace) {
++            qemu_log("[ina3221] rd16 %02x[%u] -> %02x\n",
++                     s->read_start, s->ina3221_read_index - 1, raw);
++        }
++        return raw;
++    }
+     uint8_t v = dev_read_reg(s, s->ptr);
+     if (s->trace) {
+         qemu_log("[%s] rd %02x -> %02x\n", s->model_name, s->ptr, v);
+@@ -771,17 +1049,92 @@
+         break;
+     case M_IOE1:
+         if (r == 0x07 || r == 0x08) { s->ptr++; return 0; }  /* RO */
++        if (r == 0x15) {
++            s->regs[r] = data & 0x83;
++        } else if (r == 0x18) {
++            s->regs[r] = data & 0x80;
++        } else if (r == 0x11 || r == 0x12) {
++            s->regs[r] &= data;
++            s->ptr++;
++            return 0;
++        } else if (r == 0x29 && data == 0x3a) {
++            memset(s->regs, 0, sizeof(s->regs));
++            s->regs[0x00] = 0x34;
++            s->regs[0x01] = 0x12;
++            s->regs[0x02] = s->parent_obj.address == 0x6f ? 0x04 : 0x01;
++            s->regs[0x27] = 3300 & 0xff;
++            s->regs[0x28] = 3300 >> 8;
++            s->m5ioe1_input_bits = 0x3fff;
++            s->ptr++;
++            return 0;
++        }
+         break;
+     case M_PM1:
+         if (r == 0x42) { s->ptr++; return 0; }  /* IRQ status is driven by input events */
++        if (r >= 0x40 && r <= 0x42) {
++            s->regs[r] &= data;
++            s->ptr++;
++            return 0;
++        }
++        if (r == 0x11) {
++            s->pm1_pa_enabled = !!(data & 0x08);
++        }
+         break;
+     case M_AXP2101:
++        if (r == 0x90) {
++            /* Core2 v1.1 uses ALDO3 (bit 3) as the NS4168 enable rail. */
++            s->axp2101_speaker_enabled = !!(data & BIT(3));
++        }
+         if (r == 0x49) {
+             s->regs[r] &= ~data;
+             s->ptr++;
+             return 0;
+         }
+         break;
++    case M_INA3221:
++        /* Configuration/limit registers are stored for write/readback. */
++        break;
++    case M_AXP192:
++        if (r == 0x93) {
++            s->axp192_speaker_enabled = ((data & 0x06) == 0x06);
++        }
++        break;
++    case M_AW9523:
++        if (r == 0x7f) {
++            memset(s->regs, 0, sizeof(s->regs));
++            s->regs[0x10] = 0x23;
++            s->aw9523_irq_bits = 0;
++            aw9523_update_irq(s);
++            s->ptr++;
++            return 0;
++        }
++        if (r == 0x06 || r == 0x07) {
++            s->regs[r] = data;
++            aw9523_update_irq(s);
++            s->ptr++;
++            return 0;
++        }
++        break;
++    case M_PI4IOE:
++        if (r == 0x01) {
++            if (data & BIT(0)) {
++                memset(s->regs, 0, sizeof(s->regs));
++                s->regs[0x01] = 0xa2;
++                s->regs[0x07] = 0xff;
++                s->regs[0x0b] = 0xff;
++                s->pi4ioe_irq_bits = 0;
++                pi4ioe_update_irq(s);
++            } else {
++                s->regs[r] = data & 0xfe;
++            }
++            s->ptr++;
++            return 0;
++        }
++        if (r == 0x0f || r == 0x13) {
++            s->ptr++;
++            return 0;
++        }
++        break;
+     case M_RX8130:
+         s->regs[r] = data;
+         if (r >= 0x10 && r <= 0x16) {
+@@ -837,6 +1190,46 @@
+         *(int64_t *)op = d;
+     }
+ }
++static void prop_set_aw9523_input(Object *o, Visitor *v, const char *name,
++                                  void *op, Error **errp)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(o);
++    int64_t value;
++
++    if (visit_type_int64(v, name, &value, errp)) {
++        aw9523_set_input_bits(s, value & 0xffff);
++    }
++}
++static void prop_set_pi4ioe_input(Object *o, Visitor *v, const char *name,
++                                  void *op, Error **errp)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(o);
++    int64_t value;
++
++    if (visit_type_int64(v, name, &value, errp)) {
++        pi4ioe_set_input_bits(s, value & 0xff);
++    }
++}
++static void prop_set_m5ioe1_input(Object *o, Visitor *v, const char *name,
++                                  void *op, Error **errp)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(o);
++    int64_t value;
++
++    if (visit_type_int64(v, name, &value, errp)) {
++        m5ioe1_set_input_bits(s, value);
++    }
++}
++static void prop_set_m5pm1_input(Object *o, Visitor *v, const char *name,
++                                 void *op, Error **errp)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(o);
++    int64_t value;
++
++    if (visit_type_int64(v, name, &value, errp)) {
++        s->m5pm1_input_bits = value & 0x1f;
++    }
++}
+ static void prop_get_bool(Object *o, Visitor *v, const char *name, void *op, Error **errp)
+ {
+     visit_type_bool(v, name, (bool *)op, errp);
+@@ -867,16 +1260,35 @@
+         s->regs[0x26] = 5000 & 0xff; s->regs[0x27] = 5000 >> 8;
+         s->regs[0x12] = 0x04;   /* GPIO_IN: CHG_STAT (G2) high = not charging */
+         s->vbat_mv = 4000; s->vin_mv = 5000; s->vinout_mv = 5000; s->charging = false;
++        s->m5pm1_input_bits = 0x1f;
+         object_property_add(OBJECT(s), "vbat-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vbat_mv);
+         object_property_add(OBJECT(s), "vin-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vin_mv);
+         object_property_add(OBJECT(s), "vinout-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vinout_mv);
+         object_property_add(OBJECT(s), "charging", "bool", prop_get_bool, prop_set_bool, NULL, &s->charging);
++        object_property_add(OBJECT(s), "gpio-input-bits", "int", prop_get_i64,
++                            prop_set_m5pm1_input, NULL,
++                            &s->m5pm1_input_bits);
++        object_property_add(OBJECT(s), "pa-enabled", "bool", prop_get_bool, NULL, NULL, &s->pm1_pa_enabled);
+         g_pm1 = s;
+     } else if (!strcmp(m, "m5ioe1")) {
+         s->model = M_IOE1;
+         s->regs[0x00] = 0x34; s->regs[0x01] = 0x12;   /* UID */
+         s->regs[0x02] = 0x01;                          /* FW rev */
+         s->regs[0x27] = 3300 & 0xff; s->regs[0x28] = 3300 >> 8;
++        s->m5ioe1_input_bits = 0x3fff;
++        s->m5ioe1_adc_mv[0] = 1650;
++        s->m5ioe1_temp_raw = 850;
++        object_property_add(OBJECT(s), "input-bits", "int", prop_get_i64,
++                            prop_set_m5ioe1_input, NULL,
++                            &s->m5ioe1_input_bits);
++        object_property_add(OBJECT(s), "adc1-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->m5ioe1_adc_mv[0]);
++        object_property_add(OBJECT(s), "adc2-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->m5ioe1_adc_mv[1]);
++        object_property_add(OBJECT(s), "adc3-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->m5ioe1_adc_mv[2]);
++        object_property_add(OBJECT(s), "adc4-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->m5ioe1_adc_mv[3]);
+     } else if (!strcmp(m, "cst820")) {
+         s->model = M_CST820;
+         s->regs[0xA7] = 0xB7;   /* chip id */
+@@ -935,6 +1347,32 @@
+                             prop_get_num, prop_set_num, NULL, &s->current_ma);
+         object_property_add(OBJECT(s), "shunt-ohms", "number",
+                             prop_get_num, prop_set_num, NULL, &s->shunt_ohms);
++    } else if (!strcmp(m, "ina3221")) {
++        s->model = M_INA3221;
++        s->ina3221_bus_mv[0] = 5000.0;
++        s->ina3221_bus_mv[1] = 3300.0;
++        s->ina3221_bus_mv[2] = 5000.0;
++        s->ina3221_current_ma[0] = 500.0;
++        s->ina3221_current_ma[1] = 200.0;
++        s->ina3221_current_ma[2] = 100.0;
++        s->ina3221_shunt_ohms = 0.010;
++        static const char *ina_bus_props[] = {
++            "bus1-mv", "bus2-mv", "bus3-mv"
++        };
++        static const char *ina_current_props[] = {
++            "current1-ma", "current2-ma", "current3-ma"
++        };
++        for (int i = 0; i < 3; i++) {
++            object_property_add(OBJECT(s), ina_bus_props[i], "number",
++                                prop_get_num, prop_set_num, NULL,
++                                &s->ina3221_bus_mv[i]);
++            object_property_add(OBJECT(s), ina_current_props[i], "number",
++                                prop_get_num, prop_set_num, NULL,
++                                &s->ina3221_current_ma[i]);
++        }
++        object_property_add(OBJECT(s), "shunt-ohms", "number",
++                            prop_get_num, prop_set_num, NULL,
++                            &s->ina3221_shunt_ohms);
+     } else if (!strcmp(m, "ltr553")) {
+         s->model = M_LTR553;
+         s->light_level = 320;
+@@ -991,6 +1429,29 @@
+         s->model = M_AXP192;
+         s->regs[0x03] = 0x03;   /* AXP192 chip ID */
+         s->regs[0x00] = 0x28;
++        s->regs[0x33] = 0x08;
++        s->vbat_mv = 4000;
++        s->vin_mv = 5000;
++        s->vinout_mv = 5000;
++        s->temperature_c = 25.0;
++        s->charging = true;
++        s->battery_level = 87;
++        object_property_add(OBJECT(s), "vbat-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->vbat_mv);
++        object_property_add(OBJECT(s), "vin-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->vin_mv);
++        object_property_add(OBJECT(s), "vinout-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->vinout_mv);
++        object_property_add(OBJECT(s), "temperature-c", "number",
++                            prop_get_num, prop_set_num, NULL,
++                            &s->temperature_c);
++        object_property_add(OBJECT(s), "charging", "bool", prop_get_bool,
++                            prop_set_bool, NULL, &s->charging);
++        object_property_add(OBJECT(s), "battery-level", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->battery_level);
++        object_property_add(OBJECT(s), "speaker-enabled", "bool",
++                            prop_get_bool, NULL, NULL,
++                            &s->axp192_speaker_enabled);
+     } else if (!strcmp(m, "axp2101")) {
+         s->model = M_AXP2101;
+         s->regs[0x03] = 0x4A;   /* chip id required by AXP2101_Class::begin */
+@@ -1007,14 +1468,22 @@
+         object_property_add(OBJECT(s), "vin-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vin_mv);
+         object_property_add(OBJECT(s), "charging", "bool", prop_get_bool, prop_set_bool, NULL, &s->charging);
+         object_property_add(OBJECT(s), "battery-level", "int", prop_get_i64, prop_set_i64, NULL, &s->battery_level);
++        object_property_add(OBJECT(s), "speaker-enabled", "bool",
++                            prop_get_bool, NULL, NULL,
++                            &s->axp2101_speaker_enabled);
+         g_axp2101 = s;
+     } else if (!strcmp(m, "aw9523")) {
+         s->model = M_AW9523;
+         s->regs[0x10] = 0x23;   /* M5GFX CoreS3 identity */
+-        s->aw9523_input_bits = 0;
+-        object_property_add(OBJECT(s), "input-bits", "int",
+-                            prop_get_i64, prop_set_i64, NULL,
++        s->regs[0x04] = 0xff;
++        s->regs[0x05] = 0xff;
++        s->regs[0x06] = 0xff;
++        s->regs[0x07] = 0xff;
++        s->aw9523_input_bits = 0xffff;
++        object_property_add(OBJECT(s), "input-bits", "int", prop_get_i64,
++                            prop_set_aw9523_input, NULL,
+                             &s->aw9523_input_bits);
++        g_aw9523 = s;
+     } else if (!strcmp(m, "ft5x06")) {
+         s->model = M_FT5X06;
+         s->regs[0xA3] = 0x51;
+@@ -1029,8 +1498,13 @@
+         g_keyboard = s;
+     } else if (!strcmp(m, "pi4ioe")) {
+         s->model = M_PI4IOE;
+-        s->regs[0x01] = 0x01;
+-        s->regs[0x0F] = g_plc_keys;
++        s->regs[0x01] = 0xa2;
++        s->regs[0x07] = 0xff;
++        s->regs[0x0b] = 0xff;
++        s->pi4ioe_input_bits = 0xff;
++        object_property_add(OBJECT(s), "input-bits", "int", prop_get_i64,
++                            prop_set_pi4ioe_input, NULL,
++                            &s->pi4ioe_input_bits);
+     } else if (!strcmp(m, "gc0308")) {
+         s->model = M_GENERIC;
+         s->regs[0x00] = 0x9B;
+@@ -1041,6 +1515,20 @@
+         s->regs[0x02] = 0x04;
+         s->regs[0x27] = 3300 & 0xff;
+         s->regs[0x28] = 3300 >> 8;
++        s->m5ioe1_input_bits = 0x3fff;
++        s->m5ioe1_adc_mv[0] = 1650;
++        s->m5ioe1_temp_raw = 850;
++        object_property_add(OBJECT(s), "input-bits", "int", prop_get_i64,
++                            prop_set_m5ioe1_input, NULL,
++                            &s->m5ioe1_input_bits);
++        object_property_add(OBJECT(s), "adc1-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->m5ioe1_adc_mv[0]);
++        object_property_add(OBJECT(s), "adc2-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->m5ioe1_adc_mv[1]);
++        object_property_add(OBJECT(s), "adc3-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->m5ioe1_adc_mv[2]);
++        object_property_add(OBJECT(s), "adc4-mv", "int", prop_get_i64,
++                            prop_set_i64, NULL, &s->m5ioe1_adc_mv[3]);
+     } else {
+         s->model = M_GENERIC;
+     }
+diff -ruN a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+--- a/hw/xtensa/esp32.c	2026-10-20 20:42:13
++++ b/hw/xtensa/esp32.c	2026-10-21 14:06:00
+@@ -513,6 +513,8 @@
+     sysbus_connect_irq(SYS_BUS_DEVICE(&s->sdmmc), 0,
+                        qdev_get_gpio_in(intmatrix_dev, ETS_SDIO_HOST_INTR_SOURCE));
+ 
++    m5_esp32_i2s_board_init(sys_mem, &s->periph_bus, intmatrix_dev);
++
+     if (m5_board == M5_BOARD_NONE) {
+         /* Provide internal RAM MemoryRegion to the standalone RGB display. */
+         s->rgb.intram = dram;
+@@ -531,8 +533,6 @@
+     esp32_soc_add_unimp_device(sys_mem, "esp32.slc", DR_REG_SLC_BASE, 0x1000);
+     esp32_soc_add_unimp_device(sys_mem, "esp32.slchost", DR_REG_SLCHOST_BASE, 0x1000);
+     esp32_soc_add_unimp_device(sys_mem, "esp32.apbctrl", DR_REG_APB_CTRL_BASE, 0x1000);
+-    esp32_soc_add_unimp_device(sys_mem, "esp32.i2s0", DR_REG_I2S_BASE, 0x1000);
+-    esp32_soc_add_unimp_device(sys_mem, "esp32.i2s1", DR_REG_I2S1_BASE, 0x1000);
+     esp32_soc_add_unimp_device(sys_mem, "esp32.rmt", DR_REG_RMT_BASE, 0x1000);
+     esp32_soc_add_unimp_device(sys_mem, "esp32.pcnt", DR_REG_PCNT_BASE, 0x1000);
+ 
+diff -ruN a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+--- a/hw/xtensa/esp32s3.c	2026-10-21 12:51:49
++++ b/hw/xtensa/esp32s3.c	2026-10-21 14:46:58
+@@ -43,6 +43,7 @@
+ #include "sysemu/block-backend.h"
+ #include "exec/exec-all.h"
+ #include "net/net.h"
++#include "net/can_emu.h"
+ #include "elf.h"
+ 
+ #include "hw/ssi/esp32s3_spi.h"
+@@ -160,7 +161,17 @@
+     uint32_t requested_reset;
+ } Esp32s3SocState;
+ 
++static Esp32s3SocState *g_esp32s3_soc;
+ 
++DeviceState *m5soc_get_uart_device(int index)
++{
++    if (!g_esp32s3_soc || index < 0 || index >= ESP32S3_UART_COUNT) {
++        return NULL;
++    }
++    return DEVICE(&g_esp32s3_soc->uart[index]);
++}
++
++
+ /* Temporary macro to mark the CPU as in non-debugging mode */
+ #define A_ASSIST_DEBUG_CORE_0_DEBUG_MODE_REG    0x098
+ 
+@@ -457,6 +468,10 @@
+ 
+     /* TWAI realization */
+     {
++        CanBusState *canbus = m5_can_bus_create();
++
++        object_property_set_link(OBJECT(&s->twai), "canbus",
++                                 OBJECT(canbus), &error_fatal);
+         /* Initialize and realize the TWAI device */
+         sysbus_realize(SYS_BUS_DEVICE(&s->twai), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->twai), 0);
+@@ -626,6 +641,7 @@
+     Esp32s3MachineState *ms = ESP32S3_MACHINE(machine);
+     object_initialize_child(OBJECT(ms), "soc", &ms->esp32s3, TYPE_ESP32S3_SOC);
+     Esp32s3SocState *ss = ESP32S3_SOC(&ms->esp32s3);
++    g_esp32s3_soc = ss;
+ 
+     MemoryRegion *dram = g_new(MemoryRegion, 1);
+     const struct MemmapEntry *memmap = esp32s3_memmap;
+diff -ruN a/hw/xtensa/esp32s3_clk.c b/hw/xtensa/esp32s3_clk.c
+--- a/hw/xtensa/esp32s3_clk.c	2026-10-20 16:31:16
++++ b/hw/xtensa/esp32s3_clk.c	2026-10-21 14:49:53
+@@ -61,6 +61,18 @@
+         case A_SYSTEM_SYSCLK_CONF:
+             r = s->sysclk;
+             break;
++        case A_SYSTEM_PERIP_CLK_EN0:
++            r = s->perip_clk_en0;
++            break;
++        case A_SYSTEM_PERIP_CLK_EN1:
++            r = s->perip_clk_en1;
++            break;
++        case A_SYSTEM_PERIP_RST_EN0:
++            r = s->perip_rst_en0;
++            break;
++        case A_SYSTEM_PERIP_RST_EN1:
++            r = s->perip_rst_en1;
++            break;
+         case A_SYSTEM_CPU_INTR_FROM_CPU_0:
+         case A_SYSTEM_CPU_INTR_FROM_CPU_1:
+         case A_SYSTEM_CPU_INTR_FROM_CPU_2:
+@@ -84,10 +96,53 @@
+ {
+     ESP32S3ClockState *s = ESP32S3_CLOCK(opaque);
+ 
++    if (getenv("M5SW_CLK_TRACE")
++        && (addr == A_SYSTEM_PERIP_CLK_EN0
++            || addr == A_SYSTEM_PERIP_CLK_EN1
++            || addr == A_SYSTEM_PERIP_RST_EN0
++            || addr == A_SYSTEM_PERIP_RST_EN1)) {
++        fprintf(stderr, "[clk] wr %03" HWADDR_PRIx " <- %08" PRIx64 "\n",
++                addr, value);
++    }
+     switch(addr) {
+         case A_SYSTEM_CORE_1_CONTROL_1_REG:
+                 s->app_cpu_addr = (uint32_t)value;
+             break;
++        case A_SYSTEM_PERIP_CLK_EN0:
++            s->perip_clk_en0 = (uint32_t)value;
++            if (s->perip_clk_en1 & BIT(9)) {
++                s->perip_clk_en0 |= BIT(9);
++            }
++            break;
++        case A_SYSTEM_PERIP_CLK_EN1:
++            s->perip_clk_en1 = (uint32_t)value;
++            /*
++             * ESP-IDF v5.5.4's uart_ll_is_enabled() checks UART2 through the
++             * EN0 register even though the real gate is EN1 bit 9.  Mirror the
++             * gate so the unmodified driver can validate the port.
++             */
++            if (s->perip_clk_en1 & BIT(9)) {
++                s->perip_clk_en0 |= BIT(9);
++            } else {
++                s->perip_clk_en0 &= ~BIT(9);
++            }
++            break;
++        case A_SYSTEM_PERIP_RST_EN0:
++            s->perip_rst_en0 = (uint32_t)value;
++            if (s->perip_rst_en1 & BIT(9)) {
++                s->perip_rst_en0 |= BIT(9);
++            } else {
++                s->perip_rst_en0 &= ~BIT(9);
++            }
++            break;
++        case A_SYSTEM_PERIP_RST_EN1:
++            s->perip_rst_en1 = (uint32_t)value;
++            if (s->perip_rst_en1 & BIT(9)) {
++                s->perip_rst_en0 |= BIT(9);
++            } else {
++                s->perip_rst_en0 &= ~BIT(9);
++            }
++            break;
+         case A_SYSTEM_CPU_INTR_FROM_CPU_0:
+         case A_SYSTEM_CPU_INTR_FROM_CPU_1:
+         case A_SYSTEM_CPU_INTR_FROM_CPU_2:
+@@ -123,6 +178,22 @@
+     /* Divider for PLL clock and APB  frequency */
+     s->cpuperconf = (ESP32S3_PERIOD_SEL_80 << R_SYSTEM_CPU_PER_CONF_CPUPERIOD_SEL_SHIFT) |
+                     (ESP32S3_FREQ_SEL_PLL_480 << R_SYSTEM_CPU_PER_CONF_PLL_FREQ_SEL_SHIFT);
++
++    /* Peripheral clock/reset gate reset values, including UART0/1/2. */
++    s->perip_clk_en0 = 0xffffffffU;
++    s->perip_clk_en0 &= ~((1U << 26) | (1U << 25) | (1U << 21) |
++                          (1U << 20) | (1U << 19) | (1U << 18) |
++                          (1U << 17) | (1U << 12) | (1U << 11) |
++                          (1U << 10) | (1U << 8) |
++                          (1U << 7) | (1U << 4));
++    /* Keep the EN0 bit used by IDF's UART2 enabled check readable. */
++    s->perip_clk_en0 |= BIT(9);
++    s->perip_clk_en1 = (1U << 10) | (1U << 9);
++    s->perip_rst_en0 = 0;
++    s->perip_rst_en1 = (1U << 10) | (1U << 8) | (1U << 7) |
++                       (1U << 6) | (1U << 5) | (1U << 4) |
++                       (1U << 3) | (1U << 2) | (1U << 1) |
++                       (1U << 0);
+ 
+     /* Initialize the IRQs */
+     s->levels = 0;
+diff -ruN a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+--- a/hw/xtensa/meson.build	2026-10-21 12:51:49
++++ b/hw/xtensa/meson.build	2026-10-21 14:46:58
+@@ -4,8 +4,12 @@
+   'pic_cpu.c',
+   'xtensa_memory.c',
+   '../m5stopwatch/m5_board.c',
++  '../m5stopwatch/m5_can_peer.c',
+   '../m5stopwatch/m5_rmt.c',
++  '../m5stopwatch/m5_scs_servo.c',
++  '../m5stopwatch/m5_uart_peer.c',
+   '../m5stopwatch/m5_sx1262.c',
++  '../m5stopwatch/m5_spi_sd.c',
+   '../m5stopwatch/m5_spi_panel.c',
+   '../m5stopwatch/m5sw_i2c_devs.c',
+   '../m5stopwatch/esp32s3_soft_i2c.c',
+@@ -17,6 +21,7 @@
+   'esp32.c',
+   'esp32_intc.c',
+   '../m5stopwatch/m5core2.c',
++  '../m5stopwatch/m5_i2s_esp32.c',
+ ))
+ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   'esp32s3_clk.c',
+diff -ruN a/hw/char/esp32_uart.c b/hw/char/esp32_uart.c
+--- a/hw/char/esp32_uart.c	2026-10-21 01:15:30
++++ b/hw/char/esp32_uart.c	2026-10-21 12:56:38
+@@ -138,7 +138,14 @@
+         if (fifo8_num_free(&s->tx_fifo) == 0) {
+             error_report("esp_uart: write to UART FIFO while it is full");
+         } else {
+-            fifo8_push(&s->tx_fifo, (uint8_t) (value & 0xff));
++            uint8_t byte = value & 0xff;
++            fifo8_push(&s->tx_fifo, byte);
++            if (getenv("M5SW_UART_TRACE")) {
++                fprintf(stderr, "[uart-tx] %02x\n", byte);
++            }
++            if (s->tx_byte_cb) {
++                s->tx_byte_cb(s->tx_byte_opaque, byte);
++            }
+             uart_transmit(NULL, G_IO_OUT, s);
+         }
+         break;
+@@ -249,6 +256,13 @@
+     if (size == 0) {
+         return;
+     }
++    if (getenv("M5SW_UART_TRACE")) {
++        fprintf(stderr, "[uart-rx]");
++        for (int i = 0; i < size; i++) {
++            fprintf(stderr, " %02x", buf[i]);
++        }
++        fprintf(stderr, "\n");
++    }
+ 
+     /* If we can receive anything: cancel any pending RX timeout timer,
+      * and clear the receive timeout flag.
+@@ -284,6 +298,19 @@
+ 
+     esp32_uart_set_rx_timeout(s);
+     esp32_uart_update_irq(s);
++}
++
++void esp32_uart_set_tx_byte_callback(ESP32UARTState *s,
++                                     void (*cb)(void *opaque, uint8_t byte),
++                                     void *opaque)
++{
++    s->tx_byte_cb = cb;
++    s->tx_byte_opaque = opaque;
++}
++
++void esp32_uart_inject_rx(ESP32UARTState *s, const uint8_t *buf, int size)
++{
++    uart_receive(s, buf, size);
+ }
+ 
+ static int uart_can_receive(void *opaque)
+diff -ruN a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+--- a/hw/dma/esp_gdma.c	2026-10-21 12:51:49
++++ b/hw/dma/esp_gdma.c	2026-10-21 13:09:28
+@@ -204,6 +204,7 @@
+     DmaConfigState* state = &s->ch_conf[dir][chan];
+ 
+     /* Assign the current descriptor address to the state register */
++    state->current_desc_addr = current;
+     state->state = current & R_GDMA_OUT_STATE_LINK_DSCR_ADDR_MASK;
+ 
+     /* On real hardware, if the former address is incorrect, the current address is copied to this
+@@ -446,6 +447,21 @@
+             break;
+         }
+         copy = MIN(desc.config.length, size - consumed);
++        if (getenv("M5SW_GDMA_SNAPSHOT_TRACE")) {
++            uint8_t head[16] = { 0 };
++            uint32_t head_len = MIN(copy, sizeof(head));
++            if (head_len) {
++                esp_gdma_read_guest(s, desc.buf_addr, head, head_len);
++            }
++            fprintf(stderr,
++                    "[gdma-snapshot] dscr=%08x buf=%08x len=%u owner=%u eof=%u head=",
++                    addr, desc.buf_addr, desc.config.length,
++                    desc.config.owner, desc.config.suc_eof);
++            for (uint32_t i = 0; i < head_len; i++) {
++                fprintf(stderr, "%02x", head[i]);
++            }
++            fprintf(stderr, "\n");
++        }
+         if (copy && !esp_gdma_read_guest(s, desc.buf_addr,
+                                          buffer + consumed, copy)) {
+             break;
+@@ -457,6 +473,91 @@
+         addr = desc.next_addr;
+     }
+     return consumed;
++}
++
++/*
++ * Consume one descriptor from a running peripheral-to-memory OUT channel
++ * without clearing START. Cyclic DMA keeps advancing through the linked ring;
++ * peripheral models use this to expose each completed buffer and raise OUT_EOF
++ * exactly as the controller does at the end of a descriptor.
++ */
++uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
++                                          uint8_t *buffer, uint32_t size)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
++    const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
++    uint32_t addr = state->current_desc_addr
++                  ? state->current_desc_addr
++                  : high | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++    GdmaLinkedList desc;
++    uint32_t copy;
++    uint32_t next;
++
++    if (!addr || !esp_gdma_read_descr(s, addr, &desc)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_OUT_DSCR_ERR_MASK);
++        return 0;
++    }
++    copy = MIN(desc.config.length, size);
++    if (copy && !esp_gdma_read_guest(s, desc.buf_addr, buffer, copy)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_OUT_DSCR_ERR_MASK);
++        return 0;
++    }
++    state->suc_eof_desc_addr = addr;
++    next = desc.next_addr;
++    if (next) {
++        esp_gdma_push_descriptor(s, chan, ESP_GDMA_OUT_IDX, next);
++    }
++    esp_gdma_set_status(&state->int_state,
++                        R_GDMA_INTERRUPT_OUT_EOF_MASK);
++    return copy;
++}
++
++/*
++ * Deliver one descriptor worth of data to a running peripheral-to-memory IN
++ * channel and advance through its cyclic linked ring.
++ */
++uint32_t esp_gdma_complete_in_descriptor(ESPGdmaState *s, uint32_t chan,
++                                         const uint8_t *buffer, uint32_t size)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_IN_IDX][chan];
++    const uint32_t high = (ESP_GDMA_RAM_ADDR >> 20) << 20;
++    uint32_t addr = state->current_desc_addr
++                  ? state->current_desc_addr
++                  : high | FIELD_EX32(state->link, GDMA_IN_LINK, ADDR);
++    GdmaLinkedList desc;
++    uint32_t copy;
++    uint32_t next;
++
++    if (!addr || !esp_gdma_read_descr(s, addr, &desc)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
++        return 0;
++    }
++    copy = MIN(desc.config.size, size);
++    if (copy && !esp_gdma_write_guest(s, desc.buf_addr, (void *)buffer,
++                                      copy)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
++        return 0;
++    }
++    desc.config.length = copy;
++    desc.config.owner = 0;
++    if (!esp_gdma_write_descr(s, addr, &desc)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
++        return 0;
++    }
++    state->suc_eof_desc_addr = addr;
++    next = desc.next_addr;
++    if (next) {
++        esp_gdma_push_descriptor(s, chan, ESP_GDMA_IN_IDX, next);
++    }
++    esp_gdma_set_status(&state->int_state,
++                        R_GDMA_INTERRUPT_IN_SUC_EOF_MASK |
++                        R_GDMA_INTERRUPT_IN_DONE_MASK);
++    return copy;
+ }
+ 
+ 
+diff -ruN a/include/hw/char/esp32_uart.h b/include/hw/char/esp32_uart.h
+--- a/include/hw/char/esp32_uart.h	2026-10-21 01:06:44
++++ b/include/hw/char/esp32_uart.h	2026-10-21 12:55:02
+@@ -94,6 +94,9 @@
+     Fifo8 tx_fifo;
+     guint tx_watch_handle;
+ 
++    void (*tx_byte_cb)(void *opaque, uint8_t byte);
++    void *tx_byte_opaque;
++
+     uint32_t reg[UART_REG_CNT];
+     MemoryRegionOps uart_ops;
+ 
+@@ -127,3 +130,15 @@
+  * the configured threshold.
+  */
+ void esp32_uart_update_irq(ESP32UARTState *s);
++
++/**
++ * Observe bytes written by the guest to the UART TX FIFO.
++ */
++void esp32_uart_set_tx_byte_callback(ESP32UARTState *s,
++                                     void (*cb)(void *opaque, uint8_t byte),
++                                     void *opaque);
++
++/**
++ * Inject bytes into the UART RX FIFO as if they arrived from the peer.
++ */
++void esp32_uart_inject_rx(ESP32UARTState *s, const uint8_t *buf, int size);
+diff -ruN a/include/hw/dma/esp_gdma.h b/include/hw/dma/esp_gdma.h
+--- a/include/hw/dma/esp_gdma.h	2026-10-21 12:51:49
++++ b/include/hw/dma/esp_gdma.h	2026-10-21 13:09:28
+@@ -103,6 +103,7 @@
+     uint32_t suc_eof_desc_addr; // Address of descriptor when EOF bit is 1
+     uint32_t err_eof_desc_addr; // Address of descriptor when error occurs (UHCI0 only)
+     uint32_t desc_addr;         // Address of the next descriptor (n + 1)
++    uint32_t current_desc_addr; // Address of the descriptor currently processed
+     uint32_t bfr_desc_addr;     // Address of the current descriptor (n)
+     uint32_t bfr_bfr_desc_addr; // Address of the previous descriptor (n - 1)
+     uint32_t priority;
+@@ -161,6 +162,10 @@
+                                         uint32_t max_size);
+ uint32_t esp_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
+                                        uint8_t *buffer, uint32_t size);
++uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
++                                          uint8_t *buffer, uint32_t size);
++uint32_t esp_gdma_complete_in_descriptor(ESPGdmaState *s, uint32_t chan,
++                                         const uint8_t *buffer, uint32_t size);
+ 
+ 
+ /**
+diff -ruN a/include/hw/xtensa/esp32s3_clk.h b/include/hw/xtensa/esp32s3_clk.h
+--- a/include/hw/xtensa/esp32s3_clk.h	2026-10-20 16:31:16
++++ b/include/hw/xtensa/esp32s3_clk.h	2026-10-21 12:59:12
+@@ -48,6 +48,10 @@
+     /* Registers for clocks configuration and frequency dividers */
+     uint32_t cpuperconf;
+     uint32_t sysclk;
++    uint32_t perip_clk_en0;
++    uint32_t perip_clk_en1;
++    uint32_t perip_rst_en0;
++    uint32_t perip_rst_en1;
+ 
+ 
+     /* IRQs for crosscore interrupts */

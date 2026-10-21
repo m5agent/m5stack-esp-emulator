@@ -278,22 +278,27 @@
         "touch": true
       },
       "input": [
-        "i2c-touch"
+        "i2c-touch",
+        "io-expander-button"
       ],
       "peripherals": [
         "ft6336",
-        "bmi270"
+        "bmi270",
+        "pi4ioe5v6408",
+        "bq27220",
+        "aw32001"
       ],
       "board_work": [
         "ESP32-C6 machine/board init",
         "ST7789 SPI panel",
-        "FT6336 touch"
+        "FT6336 touch",
+        "PI4IOE expanders and power telemetry"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
-        "status": "display-touch-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 ST7789 UI through the ESP32-C6 SPI2 model, reports M5.getBoard()=23, and QMP touch changes both the counter and coordinates. The apparent row-alignment artifact was a QEMU PPM stride reader bug; canonical framing is now clean."
+        "date": "2026-10-21",
+        "status": "display-touch-power-io-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI, QMP touch changes the counter, both PI4IOE5V6408 expanders retain output state, a QMP button raises the interrupt-status bit, and BQ27220/AW32001 injection reaches the Power API as 4000 mV, 87% and charging."
       }
     },
     {
@@ -318,16 +323,21 @@
       ],
       "peripherals": [
         "rtc",
-        "battery"
+        "battery",
+        "sht40",
+        "audio",
+        "sd",
+        "rgb-led",
+        "ir"
       ],
       "board_work": [
         "Spectra 6 waveform timing polish"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
-        "status": "display-key-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 400x600 six-color UI; GPIO10 key injection redraws the on-screen counter."
+        "date": "2026-10-21",
+        "status": "display-peripherals-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders 400x600; key input, SHT4X, ES8311/ES7210 audio, SPI microSD and two RMT WS2812 RGB LEDs pass automated checks."
       }
     },
     {

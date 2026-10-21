@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
 QEMU = ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
 ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
+QEMU_C6 = ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32"
+ROM_DIR_C6 = ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/pc-bios"
 
 CASES = [
     {
@@ -1398,11 +1400,177 @@ CASES = [
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "StamPLC LM75"},
     },
+    {
+        "id": "papercolor-rgb",
+        "expected_status": "PASS",
+        "reason": (
+            "PaperColor M5.Led drives two GRB LEDs through ESP32-S3 RMT; "
+            "captured RMT symbols decode to the expected red and green "
+            "WS2812 wire bytes."
+        ),
+        "checks": [
+            {"name": "rmt_led_init", "status": "PASS"},
+            {"name": "ws2812_wire_decode", "status": "PASS"},
+            {"name": "rgb_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papercolor",
+        "base": "platform/.cache/firmware/papercolor/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papercolor_rgb",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "400x600",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_RMT_TX_FILE": "{out_dir}/rgb.rmt",
+            "M5SW_RMT_TRACE": "1",
+        },
+        "rmt_ws2812": {
+            "capture": "{out_dir}/rgb.rmt",
+            "leds": ["0,255,0", "255,0,0"],
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "PaperColor RGB"},
+    },
+    {
+        "id": "stamplc-onboard-io",
+        "expected_status": "PASS",
+        "reason": (
+            "StamPLC AW9523B controls relay/input banks at 0x59 while "
+            "PI4IOE5V6408 controls front-panel keys/RGB at 0x43; both are "
+            "validated through their register paths."
+        ),
+        "checks": [
+            {"name": "aw9523_relay_readback", "status": "PASS"},
+            {"name": "aw9523_input_injection", "status": "PASS"},
+            {"name": "pi4ioe_rgb_readback", "status": "PASS"},
+            {"name": "onboard_io_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stamplc",
+        "base": "platform/.cache/firmware/stamplc/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stamplc_onboard_io",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "5",
+        "inputs": ["key:a"],
+        "qom": [
+            ("/machine/aw9523", "input-bits", "61680"),
+        ],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "StamPLC onboard IO"},
+    },
+    {
+        "id": "cores3-aw9523-full",
+        "expected_status": "PASS",
+        "reason": (
+            "The official AW9523 driver exercises output direction and "
+            "readback plus a QOM-injected input on the CoreS3 system bus."
+        ),
+        "checks": [
+            {"name": "aw9523_output_readback", "status": "PASS"},
+            {"name": "aw9523_input_injection", "status": "PASS"},
+            {"name": "aw9523_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cores3",
+        "base": "platform/.cache/firmware/cores3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cores3_aw9523_full",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["touch:160,183"],
+        "qom": [
+            ("/machine/aw9523", "input-bits", "61439"),
+        ],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "CoreS3 AW9523"},
+    },
+    {
+        "id": "stopwatch-m5ioe1-full",
+        "expected_status": "PASS",
+        "reason": (
+            "The official M5IOE1 driver exercises GPIO, ADC and PWM registers "
+            "on the StopWatch system bus, including QOM input injection."
+        ),
+        "checks": [
+            {"name": "m5ioe1_gpio_output_readback", "status": "PASS"},
+            {"name": "m5ioe1_input_injection", "status": "PASS"},
+            {"name": "m5ioe1_adc_conversion", "status": "PASS"},
+            {"name": "m5ioe1_pwm_readback", "status": "PASS"},
+            {"name": "m5ioe1_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stopwatch",
+        "base": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stopwatch_m5ioe1_full",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "466x466",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [
+            ("/machine/m5ioe1", "input-bits", "16382"),
+            ("/machine/m5ioe1", "adc1-mv", "1650"),
+        ],
+        "allow_static_frame": True,
+        "frame_color": {"x": 233, "y": 4, "label": "StopWatch M5IOE1"},
+    },
+    {
+        "id": "nesso-peripherals",
+        "expected_status": "PASS",
+        "reason": (
+            "Both PI4IOE expanders, a button input, the BQ27220 battery "
+            "gauge and AW32001 charger status are visible through the Nesso "
+            "UIFlow2 firmware."
+        ),
+        "checks": [
+            {"name": "nesso_pi4ioe_e0", "status": "PASS"},
+            {"name": "nesso_pi4ioe_e1", "status": "PASS"},
+            {"name": "nesso_button_input", "status": "PASS"},
+            {"name": "nesso_battery_voltage", "status": "PASS"},
+            {"name": "nesso_charging_status", "status": "PASS"},
+            {"name": "nesso_ui_marker", "status": "PASS"},
+        ],
+        "machine": "esp32c6",
+        "backend": "qemu-esp32c6",
+        "base": "platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "files_dir": "tests/uiflow2/nesso_peripherals",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "135x240",
+        "wait": "15",
+        "inputs": ["touch:67,160", "key:a"],
+        "qom": [
+            ("/machine/nesso-bq27220", "battery-mv", "4000"),
+            ("/machine/nesso-bq27220", "current-ma", "250"),
+            ("/machine/nesso-bq27220", "battery-level", "87"),
+            ("/machine/nesso-aw32001", "charging", "true"),
+        ],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "Nesso peripherals"},
+    },
 ]
 
 
 def command_for(case: dict, out_dir: Path,
                 sd_image: Path | None = None) -> list[str]:
+    backend = case.get("backend", "qemu-esp32s3")
+    qemu = QEMU_C6 if backend == "qemu-esp32c6" else QEMU
+    rom_dir = ROM_DIR_C6 if backend == "qemu-esp32c6" else ROM_DIR
+    efuse_driver = case.get(
+        "efuse_driver",
+        "none" if backend == "qemu-esp32c6" else "nvram.esp32s3.efuse",
+    )
     command = [
         sys.executable,
         str(RUNNER),
@@ -1415,9 +1583,9 @@ def command_for(case: dict, out_dir: Path,
         "--expected-size", case["expected_size"],
         "--wait", case["wait"],
         "--post-input-wait", "1",
-        "--efuse-driver", case.get("efuse_driver", "nvram.esp32s3.efuse"),
-        "--qemu", str(QEMU),
-        "--rom-dir", str(ROM_DIR),
+        "--efuse-driver", efuse_driver,
+        "--qemu", str(qemu),
+        "--rom-dir", str(rom_dir),
         "--out-dir", str(out_dir),
     ]
     if "efuse_pkg_version" in case:
@@ -1566,6 +1734,26 @@ def main() -> None:
                     "--min-peak-to-peak",
                     str(pcm.get("min_peak_to_peak", 1000)),
                 ],
+                cwd=ROOT,
+                env=case_env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            validation_output += validation.stdout
+            validation_ok = validation_ok and validation.returncode == 0
+        rmt_ws2812 = case.get("rmt_ws2812")
+        if rmt_ws2812 and process.returncode == 0:
+            command = [
+                sys.executable,
+                str(ROOT / "tests/uiflow2/check_rmt_ws2812.py"),
+                str(rmt_ws2812["capture"]).format(out_dir=case_out),
+            ]
+            for led in rmt_ws2812["leds"]:
+                command.extend(["--led", led])
+            validation = subprocess.run(
+                command,
                 cwd=ROOT,
                 env=case_env,
                 text=True,

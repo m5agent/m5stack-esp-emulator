@@ -23,6 +23,12 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   SELECT and deterministic NTAG page read/write;
 - Si12T three-point body-touch register model with QOM touch-bit injection;
 - M5IOE1 NeoPixel configuration and RGB565 LED RAM readback for StackChan;
+- complete M5IOE1 GPIO direction/pull/drive/input, ADC and temperature,
+  write-zero-to-clear IRQ status, PWM and reset-key semantics;
+- AW9523 input/output/direction/interrupt registers with QOM input-bank
+  injection and GPIO-mode output readback;
+- PI4IOE5V6408 direction, output, high-impedance, pull, input-default,
+  input-status and read-to-clear interrupt-status semantics;
 - LP5562 RGB controller enable/mode and independent PWM registers on AtomS3R;
 - SX1262 command/register/FIFO, IRQ, packet metadata and local TX/RX loopback
   over ESP32-S3 GP-SPI3 and GDMA;

@@ -19,7 +19,7 @@
 | 重量 | 138.9 g |
 | 显示 | 135×240 ips，1.14"，ST7789V2，无触摸 |
 | 控制 | KEY1, KEY2, KEY3 |
-| 外设 | temperature:lm75, power-monitor:ina226, rtc:rx8130ce, buzzer:i2s-delta-sigma, can:twai, rs485:uart2-half-duplex, digital-input:8, relay-output:4 |
+| 外设 | temperature:lm75, power-monitor:ina226, rtc:rx8130ce, buzzer:i2s-delta-sigma, can:twai, rs485:uart2-half-duplex, digital-input:aw9523x8, relay-output:aw9523x4 |
 
 ## 模拟状态
 
