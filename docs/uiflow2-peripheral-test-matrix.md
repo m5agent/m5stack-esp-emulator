@@ -21,11 +21,14 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | CoreS3 | GC0308 初始化、LCD_CAM 采集、GDMA 帧、拍照 | `camera.init()` / `camera.snapshot()` | PASS |
 | StopWatch | BMI270、CST820、M5PM1、RX8130、A/B/PWR | IMU / Touch / Power / RTC / Button | PASS |
 | StamPLC | PI4IOE 继电器/输入、RGB、INA226 | StamPLC / INA226Unit | PASS |
+| PaperMono | BMI270、M5PM1、RX8130、FT6336、按键、SDMMC | IMU / Power / RTC / Touch / Button / SDCard | PASS |
+| StickS3 | RMT0 NEC 38 kHz 红外发送 | `hardware.IR.tx()` | PASS |
+| StickS3 | RMT4 NEC 红外接收与回调 | `hardware.IR.rx_cb()` | PASS |
 
 汇总：
 
 ```text
-PASS    5
+PASS    8
 PARTIAL 1
 ```
 
@@ -76,6 +79,25 @@ M5SW_CAMERA_FRAME=/path/frame-320x240-rgb565.raw \
 PYTHONPATH=.work/py python3 tests/uiflow2/run_profile_ui_test.py ...
 ```
 
+### ESP32-S3 RMT / NEC 红外
+
+此前 SoC 中的 RMT 是 unimplemented。现在补了 RMT APB 配置寄存器、
+`RMTMEM` 硬件符号内存、通道状态和 `TX_END/RX_END` 中断：
+
+- TX：UIFlow2 `hardware.IR.tx()` 编码到 RMT0，QEMU 从 RMTMEM 读取 34 个
+  NEC 符号，解码回地址 `0x56`、命令 `0xA3`；
+- RX：宿主把 34 个 NEC 符号写入 RMT4 硬件内存并触发 RX_END，
+  `hardware.IR.rx_cb()` 收到 `address=0x56 / data=0xA3`，UI 成功标记变绿。
+
+相关文件：
+
+```bash
+M5SW_RMT_TX_FILE=/tmp/ir.rmt
+M5SW_RMT_RX_FILE=/tmp/nec-56-a3.rmt
+```
+
+NEC 捕获/注入格式为小端 `rmt_symbol_word_t` 序列。
+
 ## 运行
 
 ```bash
@@ -91,6 +113,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/cores3_camera/`
 - `tests/uiflow2/stamplc_peripherals/`
 - `tests/uiflow2/stopwatch_peripherals/`
+- `tests/uiflow2/sticks3_ir/`
+- `tests/uiflow2/sticks3_ir_rx/`
 
 ## 屏幕证据
 
@@ -118,12 +142,24 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![StopWatch peripheral probe](images/stopwatch-peripheral-test.png)
 
+### PaperMono
+
+![PaperMono peripheral probe](images/papermono-peripheral-test.png)
+
+### StickS3 IR TX
+
+![StickS3 IR TX probe](images/sticks3-ir-tx-test.png)
+
+### StickS3 IR RX
+
+![StickS3 IR RX probe](images/sticks3-ir-rx-test.png)
+
 ## 尚未闭环
 
 - 音频 I2S/PDM 的 PCM 注入与扬声器 PCM 抓取；
-- IR 原始脉冲注入/捕获；
+- ESP32-C6 RMT/IR 路径（StickS3 的 ESP32-S3 RMT 已闭环）；
 - SX1262 LoRa、ST25R3916 NFC 完整包级协议；
-- SD 卡块设备矩阵、USB Host 虚拟端点；
+- Cardputer/PaperColor 的 SPI SD 路径、USB Host 虚拟端点；
 - Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；
 - 所有项目的真机复测。
 

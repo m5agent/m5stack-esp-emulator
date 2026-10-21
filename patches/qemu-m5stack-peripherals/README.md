@@ -11,6 +11,10 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   register-level models;
 - INA226 calibration-aware voltage/current/power conversion;
 - CoreS3 GC0308 identity plus an ESP32-S3 LCD_CAM + GDMA RGB565 frame path;
+- PaperMono SSD1677 e-paper refresh, GPIO keys and DWC SDMMC block I/O;
+- ESP32-S3 I2S APB register front-end and PCM observation hooks;
+- ESP32-S3 RMT APB/RMTMEM model with NEC TX symbol capture and RX symbol
+  injection through real `TX_END`/`RX_END` interrupts;
 - optional raw camera frame injection through `M5SW_CAMERA_FRAME`;
 - Cardputer-Adv, AtomS3R, Core2, PaperColor, PaperMono, StackChan and StamPLC
   peripheral attachment updates.
@@ -32,6 +36,6 @@ Verified source baseline:
 - `git apply --check` passes on a clean tree after both prerequisite patches.
 
 The camera frame path is a simulation data plane, not real-camera validation.
-Audio PCM, IR packets, SD, USB Host, SX1262 and the Tab5 MIPI-CSI path remain
-separate follow-up work and are tracked as `partial`/`planned` in the peripheral
-catalog.
+StickS3 IR TX/RX is validated through the UIFlow2 `hardware.IR` API. Audio PCM
+and microphone injection, USB Host, SX1262, ST25R3916 and the Tab5 MIPI-CSI
+path remain follow-up work and are tracked in the peripheral catalog.

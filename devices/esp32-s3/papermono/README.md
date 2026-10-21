@@ -25,8 +25,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-pass` (2026-10-20)
-- 详情：官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI，QMP 触摸后刷新；由统一设备矩阵验证。
+- 验证：`display-touch-pass` (2026-10-21)
+- 详情：官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI；BMI270、电源、RX8130 RTC、触摸、按键和 SDMMC 块读写闭环通过。
 
 
 

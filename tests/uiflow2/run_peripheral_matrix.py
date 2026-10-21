@@ -84,6 +84,74 @@ CASES = [
         ],
     },
     {
+        "id": "sticks3-ir",
+        "expected_status": "PASS",
+        "reason": (
+            "The official hardware.IR UIFlow2 API sends NEC address/command "
+            "through RMT channel 0 and the transmitted RMT symbols decode back "
+            "to the expected packet."
+        ),
+        "checks": [
+            {"name": "rmt_nec_tx", "status": "PASS"},
+        ],
+        "machine": "m5sticks3",
+        "base": "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/sticks3_ir",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "135x240",
+        "efuse_pkg_version": "1",
+        "wait": "8",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_RMT_TX_FILE": "{out_dir}/ir.rmt",
+            "M5SW_RMT_TRACE": "1",
+        },
+        "rmt_nec": {
+            "capture": "{out_dir}/ir.rmt",
+            "address": 0x56,
+            "command": 0xA3,
+        },
+    },
+    {
+        "id": "sticks3-ir-rx",
+        "expected_status": "PASS",
+        "reason": (
+            "QEMU injects a NEC packet into RMT channel 4 hardware memory; "
+            "the official hardware.IR callback receives address 0x56 and "
+            "command 0xA3, and the UIFlow2 UI draws its success marker."
+        ),
+        "checks": [
+            {"name": "rmt_nec_rx", "status": "PASS"},
+            {"name": "ir_rx_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5sticks3",
+        "base": "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/sticks3_ir_rx",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "135x240",
+        "efuse_pkg_version": "1",
+        "wait": "8",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_RMT_RX_FILE": "{out_dir}/nec-56-a3.rmt",
+            "M5SW_RMT_TRACE": "1",
+        },
+        "rmt_nec_source": {
+            "output": "{out_dir}/nec-56-a3.rmt",
+            "address": 0x56,
+            "command": 0xA3,
+        },
+        "frame_color": {"x": 4, "y": 4},
+    },
+    {
         "id": "cores3-peripherals",
         "expected_status": "PARTIAL",
         "reason": (
@@ -214,10 +282,48 @@ CASES = [
             ("/machine/m5pm1", "charging", "true"),
         ],
     },
+    {
+        "id": "papermono-peripherals",
+        "expected_status": "PASS",
+        "reason": (
+            "BMI270, M5PM1 power, RX8130 RTC, touch, user key and SDMMC "
+            "block read/write are verified on PaperMono."
+        ),
+        "checks": [
+            {"name": "imu_identity", "status": "PASS"},
+            {"name": "imu_values", "status": "PASS"},
+            {"name": "power", "status": "PASS"},
+            {"name": "rtc_write_read", "status": "PASS"},
+            {"name": "touch", "status": "PASS"},
+            {"name": "user_key", "status": "PASS"},
+            {"name": "sd_block_read_write", "status": "PASS"},
+        ],
+        "machine": "m5papermono",
+        "base": "platform/.cache/firmware/papermono/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papermono_peripherals",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "480x800",
+        "efuse_pkg_version": "0",
+        "wait": "12",
+        "inputs": ["touch:240,650", "key:a"],
+        "qom": [
+            ("/machine/bmi270", "accel-x", "0.25"),
+            ("/machine/bmi270", "accel-y", "-0.50"),
+            ("/machine/bmi270", "accel-z", "0.75"),
+            ("/machine/bmi270", "gyro-x", "10"),
+            ("/machine/bmi270", "gyro-y", "-20"),
+            ("/machine/bmi270", "gyro-z", "30"),
+            ("/machine/m5pm1", "charging", "true"),
+        ],
+        "sd_image": True,
+    },
 ]
 
 
-def command_for(case: dict, out_dir: Path) -> list[str]:
+def command_for(case: dict, out_dir: Path,
+                sd_image: Path | None = None) -> list[str]:
     command = [
         sys.executable,
         str(RUNNER),
@@ -242,6 +348,8 @@ def command_for(case: dict, out_dir: Path) -> list[str]:
         command.extend(["--qom-set", path, prop, value])
     if case.get("allow_static_frame"):
         command.append("--allow-static-frame")
+    if sd_image:
+        command.extend(["--sd-image", str(sd_image)])
     return command
 
 
@@ -252,6 +360,12 @@ def main() -> None:
         type=Path,
         default=Path("/tmp/m5-uiflow2-peripheral-matrix"),
     )
+    parser.add_argument(
+        "--case",
+        action="append",
+        default=[],
+        help="run only the named case; repeat for multiple cases",
+    )
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
@@ -261,20 +375,85 @@ def main() -> None:
 
     results = {}
     for case in CASES:
+        if args.case and case["id"] not in args.case:
+            continue
         case_out = args.out_dir / case["id"]
-        command = command_for(case, case_out)
+        case_out.mkdir(parents=True, exist_ok=True)
+        sd_image = None
+        if case.get("sd_image"):
+            sd_image = case_out / "sd.img"
+            with sd_image.open("wb") as image_file:
+                image_file.truncate(8 * 1024 * 1024)
+        rmt_nec_source = case.get("rmt_nec_source")
+        if rmt_nec_source:
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tests/uiflow2/make_rmt_nec.py"),
+                    str(rmt_nec_source["output"]).format(out_dir=case_out),
+                    "--address", hex(rmt_nec_source["address"]),
+                    "--command", hex(rmt_nec_source["command"]),
+                ],
+                cwd=ROOT,
+                env=env,
+                check=True,
+            )
+        command = command_for(case, case_out, sd_image)
+        case_env = env.copy()
+        for key, value in case.get("env", {}).items():
+            case_env[key] = value.format(out_dir=case_out)
         stdout_path = args.out_dir / f"{case['id']}.stdout"
         stderr_path = args.out_dir / f"{case['id']}.stderr"
         with stdout_path.open("wb") as stdout, stderr_path.open("wb") as stderr:
             process = subprocess.run(
                 command,
                 cwd=ROOT,
-                env=env,
+                env=case_env,
                 stdout=stdout,
                 stderr=stderr,
                 check=False,
             )
-        executed = process.returncode == 0
+        validation_output = ""
+        validation_ok = True
+        rmt_nec = case.get("rmt_nec")
+        if rmt_nec and process.returncode == 0:
+            validation = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tests/uiflow2/check_rmt_nec.py"),
+                    str(rmt_nec["capture"]).format(out_dir=case_out),
+                    "--address", hex(rmt_nec["address"]),
+                    "--command", hex(rmt_nec["command"]),
+                ],
+                cwd=ROOT,
+                env=case_env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            validation_output = validation.stdout
+            validation_ok = validation.returncode == 0
+        frame_color = case.get("frame_color")
+        if frame_color and process.returncode == 0:
+            validation = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tests/uiflow2/check_ir_rx_frame.py"),
+                    str(case_out / "after.ppm"),
+                    "--x", str(frame_color["x"]),
+                    "--y", str(frame_color["y"]),
+                ],
+                cwd=ROOT,
+                env=env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            validation_output += validation.stdout
+            validation_ok = validation_ok and validation.returncode == 0
+        executed = process.returncode == 0 and validation_ok
         status = case["expected_status"] if executed else "FAIL"
         results[case["id"]] = {
             "status": status,
@@ -284,6 +463,8 @@ def main() -> None:
             "before": str(case_out / "before.png"),
             "after": str(case_out / "after.png"),
             "checks": case["checks"],
+            **({"validation": validation_output}
+               if validation_output else {}),
             **({"reason": case["reason"]} if case.get("reason") else {}),
         }
 

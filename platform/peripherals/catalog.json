@@ -281,10 +281,12 @@
     },
     "ir-tx-rx": {
       "kind": "infrared",
-      "interface": "gpio",
+      "interface": "rmt-gpio",
       "capabilities": ["ir"],
-      "status": "planned",
-      "injection": ["qom-ir-packet"]
+      "status": "simulated",
+      "injection": ["rmt-symbol-file"],
+      "data_plane": "ESP32-S3 RMT APB registers + RMTMEM symbols; TX_END/RX_END interrupts; NEC packet capture and injection",
+      "tested_devices": ["sticks3"]
     },
     "rgb-led": {
       "kind": "led",
@@ -346,6 +348,14 @@
       "kind": "storage",
       "interface": "sdmmc",
       "capabilities": ["sd"],
+      "status": "simulated",
+      "injection": ["qom-sd-image"],
+      "data_plane": "QEMU SD card block backend attached with -drive if=sd; raw image read/write sectors"
+    },
+    "sd-card-spi": {
+      "kind": "storage",
+      "interface": "spi",
+      "capabilities": ["sd"],
       "status": "planned",
       "injection": ["qom-sd-image"]
     },
@@ -369,7 +379,7 @@
         {"id": "power-key", "model": "pwr-button"},
         {"id": "microphone", "model": "es8311"},
         {"id": "speaker", "model": "aw8737a"},
-        {"id": "ir", "model": "ir-tx-rx"}
+        {"id": "ir", "model": "ir-tx-rx", "qom_path": "/machine/rmt0"}
       ]
     },
     "stopwatch": {
@@ -429,7 +439,7 @@
         {"id": "audio-codec", "model": "es8311", "address": "0x18"},
         {"id": "microphone", "model": "es8311"},
         {"id": "speaker", "model": "ns4150b"},
-        {"id": "sd", "model": "sd-card"},
+        {"id": "sd", "model": "sd-card-spi"},
         {"id": "ir", "model": "ir-tx-rx"}
       ]
     },
@@ -449,7 +459,7 @@
         {"id": "power-key", "model": "pwr-button"},
         {"id": "rgb-led", "model": "rgb-led"},
         {"id": "ir", "model": "ir-tx-rx"},
-        {"id": "sd", "model": "sd-card"}
+        {"id": "sd", "model": "sd-card-spi"}
       ]
     },
     "papermono": {

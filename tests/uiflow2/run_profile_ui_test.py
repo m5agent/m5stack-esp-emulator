@@ -358,6 +358,15 @@ def main():
         default=PROJECT_ROOT / ".work/M5StopWatch-QEMU/bin/Darwin-arm64/qemu-system-xtensa",
     )
     parser.add_argument(
+        "--qemu-log",
+        help="optional QEMU -d log mask, for example unimp or unimp,guest_errors",
+    )
+    parser.add_argument(
+        "--sd-image",
+        type=Path,
+        help="raw SD card image to attach as the first QEMU SD drive",
+    )
+    parser.add_argument(
         "--rom-dir",
         type=Path,
         default=PROJECT_ROOT / ".work/M5StopWatch-QEMU/bin/Darwin-arm64",
@@ -395,8 +404,14 @@ def main():
         "-serial", f"file:{serial1}",
         "-qmp", f"unix:{qmp_path},server=on,wait=off",
     ]
+    if args.sd_image:
+        command.extend([
+            "-drive", f"file={args.sd_image},if=sd,format=raw",
+        ])
     if args.memory:
         command[1:1] = ["-m", args.memory]
+    if args.qemu_log:
+        command.extend(["-d", args.qemu_log])
     efuse_driver = args.efuse_driver
     if efuse_driver is None:
         efuse_driver = "nvram.esp32s3.efuse"
