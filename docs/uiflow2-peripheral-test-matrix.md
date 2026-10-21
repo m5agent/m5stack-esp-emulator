@@ -28,11 +28,12 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StackChan | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
 | StackChan | Si12T 三点身体触摸 | `driver.si12t.Si12T` | PASS |
 | StackChan | M5IOE1 12 路 NeoPixel RGB 写入/回读 | `driver.m5ioe1.RGB` | PASS |
+| StopWatch | M5IOE1 PWM1 振动马达开关与占空比 | `Power.setVibration()` | PASS |
 
 汇总：
 
 ```text
-PASS    12
+PASS    13
 PARTIAL 1
 ```
 
@@ -128,6 +129,11 @@ Si12T 在 `0x68` 上完成寄存器配置，QOM `touch-bits` 注入后，
 官方 M5IOE1 NeoPixel 驱动通过 I2C 配置 12 颗 RGB，写入红色后从 LED RAM
 读回 RGB565 `0xF800`，验证的是扩展器寄存器数据面。
 
+### StopWatch 振动马达
+
+`Power.setVibration(128)` 写入 M5IOE1 PWM1 的 12 位占空比和 enable 位，
+模型回读 duty `2055`；再次调用 `setVibration(0)` 后 enable 清零。
+
 ## 运行
 
 ```bash
@@ -149,6 +155,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/stackchan_nfc/`
 - `tests/uiflow2/stackchan_touch/`
 - `tests/uiflow2/stackchan_rgb/`
+- `tests/uiflow2/stopwatch_vibration/`
 
 ## 屏幕证据
 
@@ -203,6 +210,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ### StackChan RGB
 
 ![StackChan RGB probe](images/stackchan-rgb-test.png)
+
+### StopWatch vibration
+
+![StopWatch vibration probe](images/stopwatch-vibration-test.png)
 
 ## 尚未闭环
 

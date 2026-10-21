@@ -303,8 +303,10 @@
       "kind": "actuator",
       "interface": "gpio-expander",
       "capabilities": ["vibration"],
-      "status": "planned",
-      "injection": ["qom-vibration"]
+      "status": "simulated",
+      "injection": ["power-set-vibration"],
+      "data_plane": "M5IOE1 PWM1 12-bit duty and enable registers driving the StopWatch motor output",
+      "tested_devices": ["stopwatch"]
     },
     "buzzer": {
       "kind": "actuator",

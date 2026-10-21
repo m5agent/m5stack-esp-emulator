@@ -428,6 +428,32 @@ CASES = [
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "StackChan RGB"},
     },
+    {
+        "id": "stopwatch-vibration",
+        "expected_status": "PASS",
+        "reason": (
+            "Power.setVibration drives M5IOE1 PWM1 on the StopWatch; the PWM "
+            "duty and enable bit are read back from the expander registers."
+        ),
+        "checks": [
+            {"name": "vibration_pwm_on", "status": "PASS"},
+            {"name": "vibration_pwm_off", "status": "PASS"},
+            {"name": "vibration_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stopwatch",
+        "base": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stopwatch_vibration",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "466x466",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "frame_color": {"x": 233, "y": 5, "label": "vibration"},
+    },
 ]
 
 
