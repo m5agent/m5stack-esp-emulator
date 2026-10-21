@@ -28,6 +28,8 @@ def draw_ui():
     d.setTextSize(3)
     d.setCursor(170, 635)
     d.print("TOUCH")
+    if touches:
+        d.fillRect(430, 20, 24, 24, d.COLOR.BLACK)
 
 
 print("PAPERMONO_MAIN_START")

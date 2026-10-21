@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "device": "tab5",
+  "base": ".work/uiflow2-tab5/tab5-emulator-merged.bin",
+  "elf": ".work/uiflow2-tab5/micropython.elf",
+  "files_dir": "tests/uiflow2/tab5_peripherals",
+  "ready_marker": "TAB5_UI_DRAWN",
+  "common_i2c": [
+    "1:0x43,fill=0,reg=0x01=0xA2",
+    "1:0x32,fill=0",
+    "1:0x68,fill=0,reg=0x00=0x24"
+  ],
+  "scenarios": [
+    {
+      "id": "charging-normal",
+      "description": "IP2326 CHG_STAT low, 8.0 V pack, +1248 mA charge current, 87 percent",
+      "i2c": [
+        "1:0x41,fill=0,reg=0xFE=0x54,reg=0xFF=0x49,reg=0x02=0x19,reg=0x03=0x00,reg=0x04=0xB0",
+        "1:0x44,fill=0,reg=0x01=0xA2,reg=0x0F=0x00"
+      ],
+      "serial_expect": [
+        "TAB5_BATTERY 8000 1248 87",
+        "TAB5_CHARGE_INPUT=0x00",
+        "TAB5_CHARGING True",
+        "TAB5_CHARGE_ENABLE 1"
+      ]
+    },
+    {
+      "id": "discharging-low",
+      "description": "IP2326 CHG_STAT high, 7.2 V pack, -501 mA discharge current, 37 percent",
+      "i2c": [
+        "1:0x41,fill=0,reg=0xFE=0x54,reg=0xFF=0x49,reg=0x02=0x16,reg=0x03=0x80,reg=0x04=0x20",
+        "1:0x44,fill=0,reg=0x01=0xA2,reg=0x0F=0x40"
+      ],
+      "serial_expect": [
+        "TAB5_BATTERY 7200 -501 37",
+        "TAB5_CHARGE_INPUT=0x40",
+        "TAB5_CHARGING False"
+      ]
+    }
+  ]
+}

@@ -23,6 +23,8 @@ def draw_ui():
     d.fillRect(12, 102, 216, 22, d.COLOR.BLUE)
     d.setCursor(59, 108)
     d.print("INDUSTRIAL TEST")
+    if count:
+        d.fillRect(1, 1, 4, 4, d.COLOR.GREEN)
 
 
 print("STAMPLC_MAIN_START")

@@ -1,0 +1,723 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-22T06:31:56.478623+08:00",
+  "case_count": 63,
+  "status_counts": {
+    "PASS": 63
+  },
+  "check_status_counts": {
+    "PASS": 246
+  },
+  "cases": [
+    {
+      "id": "atoms3r-ir",
+      "status": "PASS",
+      "checks": {
+        "PASS": 1
+      },
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "reason": "AtomS3R hardware.IR sends NEC through ESP32-S3 RMT0 and the captured symbols decode to address 0x56/command 0xA3."
+    },
+    {
+      "id": "atoms3r-lp5562",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The LP5562 I2C RGB controller accepts enable/mode/PWM writes and returns the three independent channel values over the real bus."
+    },
+    {
+      "id": "atoms3r-peripherals",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "reason": "BMI270 accel/gyro, BMM150 magnetometer and the user button are verified through UIFlow2."
+    },
+    {
+      "id": "cardputer-adv-audio",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "The official Speaker API drives ES8311 and NS4150B through I2S TX and cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    {
+      "id": "cardputer-adv-cc1101",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The Cardputer-ADV CC1101 Cap configures over shared SPI2 with CS G5, sends M5CC1101 and receives the chip FIFO loopback through the official cap.CC1101Cap API."
+    },
+    {
+      "id": "cardputer-adv-imu",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The Cardputer-ADV BMI270 at I2C 0x69 is initialized by M5Unified and QOM physical values reach Imu.getAccel/getGyro."
+    },
+    {
+      "id": "cardputer-adv-ir",
+      "status": "PASS",
+      "checks": {
+        "PASS": 1
+      },
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "reason": "Cardputer-ADV hardware.IR sends NEC through ESP32-S3 RMT0 and the captured symbols decode to address 0x56/command 0xA3."
+    },
+    {
+      "id": "cardputer-adv-keyboard",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "A QMP key event enters the TCA8418 matrix-controller FIFO, raises the controller interrupt path, and is decoded by the official UIFlow2 KeyboardI2C API."
+    },
+    {
+      "id": "cardputer-adv-mic",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official Mic API records through ES8311, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    {
+      "id": "cardputer-adv-nfc",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The Cardputer-ADV ST25R3916 is reached over the shared SPI2 bus with NFC CS G6; Type 2 UID/page reads and a page-8 write and readback pass."
+    },
+    {
+      "id": "cardputer-adv-sd",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "disk",
+        "frame-marker"
+      ],
+      "reason": "The documented Cardputer-ADV SPI SD pins are used with the machine.SDCard block API; a 512-byte write and readback match the raw QEMU SD image."
+    },
+    {
+      "id": "core2-audio",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "Core2 v1.1 Speaker drives ESP32 I2S1 and NS4168 through real IDF DMA descriptors, with AXP2101 ALDO3 enabled and host PCM containing the generated tone."
+    },
+    {
+      "id": "core2-axp192",
+      "status": "PASS",
+      "checks": {
+        "PASS": 5
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "Core2 UIFlow2 auto-detects the legacy AXP192 model and reads battery voltage, level, current and charging state through Power."
+    },
+    {
+      "id": "core2-imu",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "Core2 MPU6886 accel/gyro values are injected through QOM and read through the official UIFlow2 Imu API and ESP32 I2C0 path."
+    },
+    {
+      "id": "core2-mic",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "Core2 v1.1 Mic uses ESP32 I2S0 PDM RX and the legacy I2S linked-list DMA engine; deterministic host PCM reaches the official UIFlow2 microphone buffer."
+    },
+    {
+      "id": "core2-power-monitor",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "Core2 v1.1 INA3221 is read over ESP32 I2C0; QOM-injected physical channel values are converted through the documented INA3221 bus-voltage and shunt-voltage register encodings."
+    },
+    {
+      "id": "cores3-audio",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "Speaker.begin(), AW88298 setup, I2S TX, cyclic GDMA descriptor completion and host PCM capture all pass."
+    },
+    {
+      "id": "cores3-aw9523-full",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official AW9523 driver exercises output direction and readback plus a QOM-injected input on the CoreS3 system bus."
+    },
+    {
+      "id": "cores3-camera",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "reason": "GC0308 init, ESP32-S3 LCD_CAM capture, GDMA frame delivery, camera.snapshot(), and camera image display all pass."
+    },
+    {
+      "id": "cores3-mic",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official Mic API records through ES7210, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    {
+      "id": "cores3-peripherals",
+      "status": "PASS",
+      "checks": {
+        "PASS": 9
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "reason": "IMU, magnetometer, touch, PWR, power, RTC and LTR553 ambient light/proximity all pass through their real buses."
+    },
+    {
+      "id": "cores3-usb-hid",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "qom"
+      ],
+      "reason": "The official module.USBModule enumerates a MAX3421E HID device over the CoreS3 M-Bus SPI register/FIFO path and returns the QOM-injected mouse report."
+    },
+    {
+      "id": "nesso-buzzer",
+      "status": "PASS",
+      "checks": {
+        "PASS": 5
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "The Nesso N1 GPIO11 buzzer is driven through the official Speaker API, ESP32-C6 I2S TX and cyclic AHB GDMA OUT descriptors; host PCM contains the firmware-generated 1-bit delta-sigma tone."
+    },
+    {
+      "id": "nesso-imu",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The Nesso N1 BMI270 at I2C 0x68 is initialized by M5Unified; QOM values are encoded in the chip sample registers and read through the official Imu API."
+    },
+    {
+      "id": "nesso-ir",
+      "status": "PASS",
+      "checks": {
+        "PASS": 2
+      },
+      "evidence_sources": [
+        "rmt-nec",
+        "frame-marker"
+      ],
+      "reason": "Nesso N1 hardware.IR sends NEC through ESP32-C6 RMT0 GPIO9 and the captured symbols decode to address 0x56/command 0xA3."
+    },
+    {
+      "id": "nesso-lora",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The Nesso SX1262 shares ESP32-C6 SPI2 with the display; the hardware.LoRa driver configures the modem and receives the packet sent through the chip packet FIFO."
+    },
+    {
+      "id": "nesso-peripherals",
+      "status": "PASS",
+      "checks": {
+        "PASS": 6
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "Both PI4IOE expanders, a button input, the BQ27220 battery gauge and AW32001 charger status are visible through the Nesso UIFlow2 firmware."
+    },
+    {
+      "id": "papercolor-audio",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "The official Speaker API drives ES8311/AW8737A through I2S TX and cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    {
+      "id": "papercolor-ir",
+      "status": "PASS",
+      "checks": {
+        "PASS": 1
+      },
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "reason": "PaperColor hardware.IR sends NEC through ESP32-S3 RMT0 and the captured symbols decode to address 0x56/command 0xA3."
+    },
+    {
+      "id": "papercolor-mic",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official Mic API records through ES7210, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    {
+      "id": "papercolor-rgb",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "rmt-ws2812",
+        "frame-marker"
+      ],
+      "reason": "PaperColor M5.Led drives two GRB LEDs through ESP32-S3 RMT; captured RMT symbols decode to the expected red and green WS2812 wire bytes."
+    },
+    {
+      "id": "papercolor-sd",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "disk",
+        "frame-marker"
+      ],
+      "reason": "The documented PaperColor SPI SD pins are used with machine.SDCard; a 512-byte block write/readback and raw image sector contents both match."
+    },
+    {
+      "id": "papercolor-sht4x",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The onboard SHT4X sensor responds to the official hardware.SHT4X API through I2C; temperature/humidity decoding and CRCs pass."
+    },
+    {
+      "id": "papermono-lora",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The native lora.SX1262 driver configures an 868 MHz LoRa modem through SPI command/register/FIFO transfers, sends M5LORA and receives the same packet through the SX1262 data plane."
+    },
+    {
+      "id": "papermono-nfc",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official hardware.NFC API drives ST25R3916 I2C registers and FIFO commands, detects a deterministic NTAG, reads page 4, writes page 8 with TEST, and reads the same value back."
+    },
+    {
+      "id": "papermono-pdm-mic",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The built-in PDM microphone records through I2S RX and cyclic GDMA; deterministic host PCM injection reaches the UIFlow2 buffer."
+    },
+    {
+      "id": "papermono-peripherals",
+      "status": "PASS",
+      "checks": {
+        "PASS": 7
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "reason": "BMI270, M5PM1 power, RX8130 RTC, touch, user key and SDMMC block read/write are verified on PaperMono."
+    },
+    {
+      "id": "papermono-rgb",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "M5.Led programs the PaperMono RGB LED and the RGB565 value is read back from the M5PM1 NeoPixel RAM over I2C."
+    },
+    {
+      "id": "stackchan-audio",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "The official Speaker API drives AW88298 and I2S TX through cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    {
+      "id": "stackchan-camera",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "reason": "StackChan GC0308 SCCB, ESP32-S3 LCD_CAM, GDMA frame delivery, snapshot and camera image display all pass."
+    },
+    {
+      "id": "stackchan-mic",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official Mic API records through ES7210, I2S RX and cyclic GDMA; host PCM injection reaches the UIFlow2 buffer."
+    },
+    {
+      "id": "stackchan-nfc",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The same official hardware.NFC and ST25R3916 I2C model detects the deterministic NTAG on StackChan and verifies a page-12 write."
+    },
+    {
+      "id": "stackchan-peripherals",
+      "status": "PASS",
+      "checks": {
+        "PASS": 7
+      },
+      "evidence_sources": [
+        "serial.log",
+        "rmt-nec",
+        "frame-marker"
+      ],
+      "reason": "BMI270 samples, AW9523 output/input registers, INA226 battery telemetry, LTR553 ambient light, the BM8563-compatible PCF8563 RTC and NEC IR TX/RX all pass through the StackChan board controllers and data planes."
+    },
+    {
+      "id": "stackchan-rgb",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official M5IOE1 NeoPixel driver writes 12 RGB565 values through I2C and reads the LED RAM back from the expander model."
+    },
+    {
+      "id": "stackchan-servo",
+      "status": "PASS",
+      "checks": {
+        "PASS": 5
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official SCS servo driver uses UART1 to ping, enable torque and write/read back both StackChan servo positions through the SCSCL protocol model."
+    },
+    {
+      "id": "stackchan-touch",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official Si12T driver configures the body touch controller over I2C; QOM injects touch bits and UIFlow2 decodes point 0."
+    },
+    {
+      "id": "stamplc-buzzer",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "StamPLC buzzer output is generated by the official Speaker path as a 1-bit delta-sigma I2S stream on G44; host capture verifies non-silent firmware output."
+    },
+    {
+      "id": "stamplc-can",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "StamPLC CAN uses G42/G43 with the ESP32-S3 TWAI controller and a virtual CAN peer; the official UIFlow2 CAN API transmits and receives the same frame through the SJA1000-compatible path."
+    },
+    {
+      "id": "stamplc-lm75",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "StamPLC LM75BDP is read over I2C0 G15/G13 at 0x48; QOM temperature injection is encoded in the chip-native register."
+    },
+    {
+      "id": "stamplc-onboard-io",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "StamPLC AW9523B controls relay/input banks at 0x59 while PI4IOE5V6408 controls front-panel keys/RGB at 0x43; both are validated through their register paths."
+    },
+    {
+      "id": "stamplc-peripherals",
+      "status": "PASS",
+      "checks": {
+        "PASS": 6
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "reason": "Relay, digital inputs, RGB LED state and INA226 bus/current telemetry are exercised through UIFlow2 libraries."
+    },
+    {
+      "id": "stamplc-rs485",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "StamPLC PWR485 uses UART2 with G0/G39/G46 and the official half-duplex API; a byte-level peer verifies TX and RX through the UART controller."
+    },
+    {
+      "id": "sticks3-audio",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "Speaker.begin(), ES8311 I2C setup, I2S TX, cyclic GDMA descriptor completion and host PCM capture all pass."
+    },
+    {
+      "id": "sticks3-ir",
+      "status": "PASS",
+      "checks": {
+        "PASS": 1
+      },
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "reason": "The official hardware.IR UIFlow2 API sends NEC address/command through RMT channel 0 and the transmitted RMT symbols decode back to the expected packet."
+    },
+    {
+      "id": "sticks3-ir-rx",
+      "status": "PASS",
+      "checks": {
+        "PASS": 2
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "QEMU injects a NEC packet into RMT channel 4 hardware memory; the official hardware.IR callback receives address 0x56 and command 0xA3, and the UIFlow2 UI draws its success marker."
+    },
+    {
+      "id": "sticks3-mic",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official Mic API records through I2S RX and cyclic GDMA; host PCM injection is returned non-silent to the UIFlow2 buffer."
+    },
+    {
+      "id": "sticks3-peripherals",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "reason": "BMI270 accel/gyro, A/B/P buttons and M5PM1 power telemetry are all visible through the UIFlow2 API."
+    },
+    {
+      "id": "stopwatch-audio",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "reason": "The official Speaker API drives ES8311/AW8737A through I2S TX and cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    {
+      "id": "stopwatch-m5ioe1-full",
+      "status": "PASS",
+      "checks": {
+        "PASS": 5
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official M5IOE1 driver exercises GPIO, ADC and PWM registers on the StopWatch system bus, including QOM input injection."
+    },
+    {
+      "id": "stopwatch-m5pm1-full",
+      "status": "PASS",
+      "checks": {
+        "PASS": 9
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official M5PM1 driver exercises power, GPIO, ADC, PWM, NeoPixel RAM, IRQ, wake, watchdog, timer and RTC RAM registers."
+    },
+    {
+      "id": "stopwatch-mic",
+      "status": "PASS",
+      "checks": {
+        "PASS": 4
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "The official Mic API records through ES8311, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    {
+      "id": "stopwatch-peripherals",
+      "status": "PASS",
+      "checks": {
+        "PASS": 6
+      },
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "reason": "BMI270, M5PM1 power, RX8130 RTC, CST820 touch and A/B/PWR keys are verified through the StopWatch UIFlow2 firmware."
+    },
+    {
+      "id": "stopwatch-vibration",
+      "status": "PASS",
+      "checks": {
+        "PASS": 3
+      },
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "reason": "Power.setVibration drives M5IOE1 PWM1 on the StopWatch; the PWM duty and enable bit are read back from the expander registers."
+    }
+  ]
+}

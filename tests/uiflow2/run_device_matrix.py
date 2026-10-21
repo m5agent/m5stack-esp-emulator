@@ -72,6 +72,13 @@ def ui_command(
         command.extend(["--efuse-pkg-version", str(device["efuse_pkg_version"])])
     if "memory" in device:
         command.extend(["--memory", device["memory"]])
+    if "post_frame_color" in device:
+        command.extend(["--post-frame-color", device["post_frame_color"]])
+    serial_expect = device.get("serial_expect", [])
+    if isinstance(serial_expect, str):
+        serial_expect = [serial_expect]
+    for marker in serial_expect:
+        command.extend(["--serial-expect", marker])
     return command
 
 
@@ -201,6 +208,7 @@ def run_console(
     device_out.mkdir(parents=True, exist_ok=True)
     image = build_console_image(device, device_out, env)
     case_env = env.copy()
+    case_env.update(device.get("env", {}))
     rmt_nec = device.get("rmt_nec")
     rmt_capture = None
     if rmt_nec:

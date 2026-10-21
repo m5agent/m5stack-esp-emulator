@@ -151,6 +151,9 @@
           "imu:bmi270",
           "magnetometer:bmm150",
           "rtc:bm8563",
+          "light-proximity:ltr553",
+          "io-expander:aw9523",
+          "usb-host:max3421e",
           "microphone",
           "speaker"
         ],
@@ -176,9 +179,9 @@
         "display_protocol": "spi-ili9342",
         "execution": "native-qemu",
         "validation": {
-          "date": "2026-10-21",
-          "status": "display-touch-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电、RTC、BMI270、BMM150 和 GC0308 camera.snapshot() 通过。LTR553 环境光 API 仍为 partial。"
+      "date": "2026-10-22",
+      "status": "display-touch-peripherals-simulated",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电、RTC、BMI270、BMM150、LTR553 环境光/接近、AW9523、扬声器、麦克风、GC0308 camera.snapshot() 和 MAX3421E USB Host 通过。"
         }
       },
       "uiflow2": {
@@ -318,6 +321,7 @@
           "microphone",
           "speaker",
           "sd:spi",
+          "ir",
           "nfc:st25r3916-spi",
           "subghz:cc1101"
         ],
@@ -373,7 +377,7 @@
           "width": 320,
           "height": 170,
           "shape": "rect",
-          "driver": "SPI LCD",
+          "driver": "ST7789v3",
           "touch": false,
           "diagonal_in": 1.9
         },
@@ -393,10 +397,15 @@
           "magnetometer:bmm150",
           "rtc:rx8130ce",
           "audio:es8389",
-          "microphone",
-          "speaker",
-          "ethernet",
-          "usb-host"
+          "microphone:es8389",
+          "speaker:aw8737a",
+          "battery:bq27220",
+          "charger:ip2315",
+          "io-expander:m5ioe1",
+          "ethernet:ethernet-sr9900a",
+          "usb-host:usb-hub-gl852g",
+          "ir",
+          "storage:sd"
         ],
         "dimensions_mm": [
           84.0,
@@ -417,12 +426,14 @@
         "backend": "external-linux-arm64",
         "chip": "bcm2837",
         "status": "backend-required",
-        "display_protocol": "pending",
-        "reason": "Raspberry Pi CM0/Linux, not an Espressif firmware target",
+        "peripheral_status": "simulated",
+        "display_protocol": "panel-mipi-dbi-spi",
+        "reason": "Raspberry Pi CM0/Linux, not an Espressif/UIFlow2 firmware target",
+        "blockers": [],
         "validation": {
-          "date": "2026-10-20",
-          "status": "not-run",
-          "detail": "当前仅完成设备档案与外壳；固件启动适配待执行。"
+          "date": "2026-10-22",
+          "status": "linux-display-input-i2c-audio-power-usb-camera-pass",
+          "detail": "官方 CardputerZero ARM64 镜像以 512 MiB RAM 启动；ST7789v3 的 DRM/fb1 路径输出 320x170 RGB565 帧，QMP TCA8418 事件经 BCM GPIO27 中断进入 Linux input。TCA8418、M5IOE1、BMI270、BMM150、RX8130、BQ27220 和 ES8389 均绑定到 Linux 驱动；ES8389 I2C ID/状态、ALSA 播放 PCM、麦克风 PCM 逐字节回放和 AW8737A GPIO24 使能通过；IP2315 QOM 电源路径注入使 BQ27220/Linux status 从 Charging 切换为 Discharging；GL852G MTT 兼容路径同时完成 SR9900A Full-Speed 以太网帧回环和 Low-Speed HID 枚举/输入，r8152 创建 eth0；QMP GPIO13 波形经 Linux LIRC 收到 mode2 数据，GPIO12 NEC 发送边沿可抓取；IMX219 寄存器驱动 Unicam CSI1 完成 640x480 RG10 V4L2 实帧与 V4L2 控制项验证；官方 factory_test 的 LVGL 320x170 首帧通过 fb1 验证，54400/54400 个像素非黑、127 种 RGB565 颜色，画面哈希在 UI 启动后发生变化。"
         }
       },
       "uiflow2": {
@@ -478,7 +489,15 @@
         "sensors": [
           "imu:bmi270",
           "rtc:rx8130ce",
-          "microphone:pdm"
+          "battery:m5pm1",
+          "io-expander:m5ioe1",
+          "charger:ip2315",
+          "microphone:pdm",
+          "nfc:st25r3916",
+          "lora:sx1262",
+          "buzzer",
+          "rgb-led",
+          "storage:sd"
         ],
         "dimensions_mm": [
           62.0,
@@ -504,7 +523,7 @@
         "validation": {
           "date": "2026-10-21",
           "status": "display-touch-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI；BMI270、电源、RX8130 RTC、触摸、按键和 SDMMC 块读写闭环通过。"
+          "detail": "官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI；BMI270、M5PM1、IP2315 充电状态、RX8130 RTC、触摸、按键和 SDMMC 块读写闭环通过。"
         }
       },
       "uiflow2": {
@@ -643,6 +662,7 @@
           "microphone:es7210",
           "speaker:aw8737a",
           "rgb-led:ws2812-rmt",
+          "ir",
           "storage:sd-spi"
         ],
         "dimensions_mm": [
@@ -704,6 +724,7 @@
         ],
         "sensors": [
           "rgb-led",
+        "led-output:blue",
           "ir"
         ],
         "dimensions_mm": [
@@ -726,11 +747,11 @@
         "status": "boot-capable",
         "display_protocol": "none",
         "execution": "native-qemu",
-        "validation": {
-      "date": "2026-10-21",
-      "status": "console-ir-pass",
-      "detail": "官方 UIFlow2 v2.5.3 在 ESP32-C6 QEMU USB-Serial-JTAG 控制台运行，M5.begin() 返回板型 140；hardware.IR TX 经 ESP32-C6 RMT 捕获并解码为 NEC 0x56/0xA3。"
-        }
+      "validation": {
+        "date": "2026-10-22",
+        "status": "console-rgb-button-led-ir-pass",
+        "detail": "官方 UIFlow2 v2.5.3 在独立 NanoC6 板级 C6 后端运行，M5.begin() 返回板型 140；hardware.RGB 打开 GPIO19 RGBPWR，GPIO20 RMT WS2812 GRB 数据捕获为 00FF00；GPIO9 经 QOM 注入按下/释放并由 machine.Pin 读取；GPIO7 蓝色 LED 开关状态通过 GPIO 输出寄存器验证；hardware.IR TX 捕获并解码为 NEC 0x56/0xA3。"
+      }
       },
       "uiflow2": {
         "supported": true,
@@ -785,10 +806,17 @@
           "imu:bmi270",
           "magnetometer:bmm150",
           "rtc:bm8563",
+          "light-proximity:ltr553",
+          "battery:axp2101",
+          "io-expander:aw9523",
+          "io-expander:m5ioe1",
+          "power-monitor:ina226",
           "audio:es7210",
           "speaker:aw88298",
           "touch:si12t",
           "nfc:st25r3916",
+          "ir",
+          "rgb-led",
           "servo:yaw-feedback",
           "servo:pitch-feedback"
         ],
@@ -811,12 +839,14 @@
         "backend": "qemu-esp32s3",
         "chip": "esp32s3",
         "status": "reference-ready",
+        "peripheral_status": "simulated",
         "display_protocol": "spi-ili9342",
         "execution": "native-qemu",
+        "blockers": [],
         "validation": {
-          "date": "2026-10-20",
-          "status": "display-touch-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI，QMP 触摸后计数重绘；由统一设备矩阵验证。"
+          "date": "2026-10-22",
+          "status": "display-touch-peripherals-simulated",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI 并接受触摸；BMI270 加速度与陀螺仪 API、BM8563 RTC、LTR553 环境光/接近、AW9523 输出/输入、INA226 电压/电流/功率、RMT NEC IR TX/RX 均通过 StackChan 板级数据面。全设备 8/8 外设用例通过。"
         }
       },
       "uiflow2": {
@@ -863,14 +893,19 @@
           }
         ],
         "sensors": [
+          "wireless:esp32c6-mini",
           "camera:sc2356",
           "imu:bmi270",
           "rtc:rx8130ce",
-          "audio",
-          "microphone",
-          "speaker",
-          "usb-host",
-          "rs485"
+          "power-monitor:ina226",
+          "io-expander:pi4ioe5v6408",
+          "audio:es8388",
+          "microphone:es7210",
+          "speaker:es8388",
+          "usb-host:usb-host-p4-dwc",
+          "rs485",
+          "storage:sd",
+          "charger:ip2326"
         ],
         "dimensions_mm": [
           128.0,
@@ -891,12 +926,21 @@
         "backend": "esp-emulator-native",
         "chip": "esp32p4",
         "status": "reference-ready",
+        "peripheral_status": "partial",
         "display_protocol": "m5gfx-psram-framebuffer",
         "execution": "esp-emu-native",
+        "blockers": [
+          "SC2356 MIPI CSI-2 controller/frame path is absent from esp-emu 0.50.0",
+          "ES8388/ES7210 I2S register and PCM endpoints are absent from esp-emu 0.50.0",
+          "ESP32-P4 USB Host controller and endpoint attachment are absent",
+          "ST7123 touch is currently a firmware GDB mailbox, not an I2C chip model",
+      "Tab5 SDIO storage is not wired to a host block backend",
+      "Tab5 PI4IOE CHG_STAT/CHG_EN and Power.isCharging() decode pass for charging and discharging, but IP2326 analog current/termination behavior and hot state injection remain partial; BMI270 identity, dynamic sensor values, GPIO side effects and interrupts also remain partial"
+        ],
         "validation": {
-          "date": "2026-10-21",
-          "status": "display-touch-pass",
-          "detail": "UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. The image is esptool-written to 16 MiB virtual flash and byte-for-byte verified before boot."
+      "date": "2026-10-22",
+      "status": "display-touch-rs485-pass-peripherals-partial",
+      "detail": "UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. Tab5 I2C reaches G31/G32 through the P4 controller: INA226 preload reaches Power as 8000mV/1248mA/87%, machine.RTC writes and reads RX8130, both PI4IOE IDs/output writeback pass, and CHG_STAT=0x00/0x40 reaches Power.isCharging() as charging/discharging. SIT3088 RS-485 passes through UART1 G20/G21 and direction G34. BMI270 identity, dynamic I2C/time injection, IP2326 analog current/termination behavior and the remaining native P4 data planes remain partial."
         }
       },
       "uiflow2": {

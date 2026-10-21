@@ -10,7 +10,10 @@
 - **2 台 ESP32-C6** 需要 C6 后端/板级模型。
 - **Tab5（ESP32-P4）** 使用 `esp-emu 0.50.0`、P4 rev0 ROM 和配套 eFuse，接入 C6 ESP-Hosted 协处理器，并以仿真 M5GFX DSI framebuffer 输出真实 UI。
 - **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。
-- **CardputerZero** 是 Linux ARM64（BCM2837），不是 ESP32 固件目标，需要独立 Linux VM 后端。
+- **CardputerZero** 是 Linux ARM64（BCM2837），不是 ESP32 固件目标；独立
+  QEMU Linux 后端已可启动官方镜像、输出 320x170 帧、注入键盘事件和
+  I2S 双向 PCM，注入 IP2315 充放电状态，并以 MTT 兼容路径枚举 GL852G Hub
+  及其 Full/Low-Speed 下游设备。
 
 当前除 CardputerZero 外的 13 台 ESP32 主控均已进入统一运行时矩阵：
 12 台有显式显示/输入路径的设备完成首帧和输入重绘，NanoC6 完成无屏控制台验收。
@@ -24,13 +27,18 @@
 - Cardputer-ADV：240x135、TCA8418 键盘事件、SPI2 microSD、ST25R3916 NFC Cap 和 CC1101 Sub-GHz Cap；
 - StamPLC：240x135、PI4IOE 前面板按键、LM75、TWAI CAN、PWR485 UART2 和
   G44 I2S 蜂鸣器。
-- StackChan：320x240、FT5x06 触摸。
+- StackChan：320x240、FT5x06 触摸、BMI270 加速度/陀螺仪、BM8563 RTC、
+  AW9523、INA226、IR、音频、RGB、NFC 和双舵机均已闭环。
 - PaperColor：400x600 六色电子纸、GPIO10 按键；
-- PaperMono：480x800 四阶灰度电子纸、FT5x06 触摸。
+- PaperMono：480x800 四阶灰度电子纸、FT5x06 触摸、IP2315 充电状态。
 - Core2：320x240、FT5x06 触摸；通过 QEMU ESP32 ROM UART 下载模式和
   `esptool --no-stub` 写入 16 MiB 虚拟 flash。
-- NanoC6：无显示屏，验证 UIFlow2 控制台启动和板型探测。
+- NanoC6：无显示屏，验证 UIFlow2 控制台启动、板型探测、GPIO19/20 WS2812、
+  GPIO9 按键、GPIO7 蓝色 LED 和红外发送。
 - Tab5：物理横向 1280x720、ST7123 触摸和 P4/C6 ESP-Hosted。
+- CardputerZero（Linux）：官方 ARM64 镜像、512 MiB RAM、ST7789v3 DRM、
+  TCA8418 Linux input、BMI270/BMM150/RX8130/BQ27220/M5IOE1/ES8389，
+  播放/麦克风 PCM 和 IP2315 充放电状态。
 
 ![UIFlow2 虚拟主机验收矩阵](images/uiflow2-virtual-host-matrix.png)
 
@@ -52,15 +60,15 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | CoreS3 (`cores3`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 已完成 |
 | StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | qemu-esp32s3 | `ready` | ST7789P3 135x240 | 已完成 |
 | Cardputer-ADV (`cardputer-adv`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 已完成 |
-| StackChan (`stackchan`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 已完成 |
+| StackChan (`stackchan`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 已完成；含 BMI270 加速度/陀螺仪、BM8563 RTC、AW9523/INA226/IR/音频/舵机/NFC |
 | StamPLC (`stamplc`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 显示/IO/CAN/RS485/蜂鸣器已完成 |
 | PaperColor (`papercolor`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | E Ink Spectra 6 400x600 | 已完成 |
-| PaperMono (`papermono`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | SSD1677 480x800 | 已完成 |
-| NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG console |
+| PaperMono (`papermono`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | SSD1677 480x800 | 已完成，含 IP2315 充电状态 |
+| NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG、RGB、按键、蓝灯和 IR |
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 已完成 |
-| CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | linux-arm64 | `separate-backend` | SPI LCD 320x170 | not an ESP32 firmware target |
+| CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | linux-arm64 | `separate-backend` | ST7789v3 SPI LCD 320x170 | Linux/非黑 LVGL 首帧/输入/I2C/IR/双向 PCM/充电状态/寄存器驱动 IMX219/GL852G MTT FS+LS/SR9900A 帧回环已通 |
 | Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸已通过；PSRAM/cache 稳定性待补 |
-| Tab5 (`tab5`) | ESP32-P4NRW32 | qemu-esp32p4 | `ready` | ST7121 / ST7123 物理横向 1280x720 | 已完成；LVGL Python 绑定暂不在仿真构建中启用 |
+| Tab5 (`tab5`) | ESP32-P4NRW32 | esp-emulator-native | `ready` | ST7121 / ST7123 物理横向 1280x720 | 显示/触摸、C6 Hosted、I2C 寄存器探测和 SIT3088 RS-485 已通；CSI/I2S/USB/SDIO 等仍 partial |
 
 外设 API 的当前结果：
 
@@ -120,12 +128,14 @@ Cardputer-ADV、StamPLC、StackChan。
 
 - Cardputer-ADV 需要键盘矩阵。
 - StamPLC 的 PLC IO/继电器、CAN、RS485 和蜂鸣器数据面已完成。
-- StackChan 需要舵机和音频模型。
+- StackChan 的舵机、音频、RGB、NFC、AW9523、INA226 和 IR 模型已完成。
 
 Cardputer-ADV、StamPLC 与 StackChan 已完成首帧及输入验收；Cardputer-ADV
 还完成共享 SPI2 上 SD、NFC 和 Sub-GHz 的数据面验收。测试工程位于
 `tests/uiflow2/cardputer_adv_ui_test/` 和
 `tests/uiflow2/stamplc_ui_test/`、`tests/uiflow2/stackchan_ui_test/`。
+StackChan 的 IMU/AW9523/INA226/IR 联合探针位于
+`tests/uiflow2/stackchan_peripherals/`。
 
 ### 第 3 批：S3 电子纸两台
 
@@ -149,17 +159,33 @@ Nesso N1、NanoC6。
   BMI270 采样和共享 SPI2 上的 SX1262 收发；此前 screenshot 行对齐伪影是
   测试工具未处理 QEMU PPM 的 4 字节行对齐，修正读取后首帧、触摸和规范 PNG
   均通过。
-- NanoC6 无显示屏，官方 UIFlow2 已能运行替换后的 `boot.py`/`main.py`；M5.begin 返回板型 140。
+- NanoC6 无显示屏，官方 UIFlow2 已能运行替换后的 `boot.py`/`main.py`；
+  M5.begin 返回板型 140。C6 后端通过 `M5SW_C6_BOARD=nanoc6` 与 Nesso 板级
+  外设隔离，GPIO19/20 WS2812、GPIO9 按键、GPIO7 蓝灯和 RMT 红外均已验证。
 
 ### 第 5 批：高风险三台
 
 Tab5、Core2、CardputerZero。
 
-- Tab5：P4 + MIPI-DSI + 协处理器已跑通。`esp-emu 0.50.0` 配合 `esp32p4_rev0_rom.elf` 和 Tab5 eFuse 启动 UIFlow2 P4 固件；C6 侧运行 ESP-Hosted 2.12.6 网络协处理器固件。P4 侧在真实 M5GFX 绘制路径中分配 720×1280 的原始 PSRAM framebuffer，测试工具按 rotation 1 转成物理横向 1280×720 PNG；触摸邮箱使用同一坐标变换，逻辑 `(640,520)` 会写成原始 `(199,640)`，UI 计数从 0 变为 1。
+- Tab5：P4 + MIPI-DSI + 协处理器已跑通。`esp-emu 0.50.0` 配合 `esp32p4_rev0_rom.elf` 和 Tab5 eFuse 启动 UIFlow2 P4 固件；C6 侧运行 ESP-Hosted 2.12.6 网络协处理器固件。P4 侧在真实 M5GFX 绘制路径中分配 720×1280 的原始 PSRAM framebuffer，测试工具按 rotation 1 转成物理横向 1280×720 PNG；触摸邮箱使用同一坐标变换，逻辑 `(640,520)` 会写成原始 `(199,640)`，UI 计数从 0 变为 1。framebuffer 采集优先使用原生 `riscv64-elf-gdb`，Docker 仅作 fallback；RS-485 全路径已验证 `tx=15/rx=15/touch=1` 且截图重绘通过。
 - Tab5 烧录：为避免 `esp-emu` P4 下载模式的高位地址回卷限制，仿真专用分区表把 `factory/sys/vfs/storage` 全部放在 8 MiB 以下；应用与 VFS 分块通过真实 `esptool` 写入同一份 16 MiB 虚拟 Flash，逐字节校验通过后再启动。生产分区布局不变。
-- Tab5 当前边界：仿真构建关闭 LVGL Python 绑定，验收覆盖官方 M5GFX/UIFlow2 原生绘制、显示和触摸；这不等于真机 PASS。
+- Tab5 当前边界：仿真构建关闭 LVGL Python 绑定，验收覆盖官方
+  M5GFX/UIFlow2 原生绘制、显示和触摸；这不等于全外设闭环或真机 PASS。
+  `esp-emu 0.50.0` 没有 P4 I2S、MIPI-CSI、USB Host、可写 I2C 器件/QOM
+  等接口，因此 SC2356、ES8388/ES7210、P4 USB Host 和 SDIO 仍 blocked；
+  SIT3088 RS-485 已通过 UART1 主机字节对端与 framebuffer 验收；ST7123
+  目前是固件 GDB 邮箱，不是真实 I2C 触摸控制器。PI4IOE 的 CHG_STAT/
+  CHG_EN 寄存器路径已打通，`0x0F=0x00/0x40` 分别让
+  `Power.isCharging()` 返回充电/放电。IP2326 的模拟电流、充满终止和运行中
+  状态热切换仍未闭环。
 - Core2 v1.1：ESP32 LX6 已接入同一 QEMU 源码树，官方 UIFlow2 已进入 `main.py`，M5GFX 识别 320x240、AXP2101 与 FT5x06；完整帧和触摸重绘已通过。ESP32 classic I2S0/I2S1 模型直接消费 IDF `lldesc_t` 链，NS4168 扬声器可抓取非静音 PCM，SPM1423 PDM 麦克风可注入 PCM，ALDO3 功放使能断言通过。测试用 `-m 0` 规避 PSRAM/cache 稳定性问题，并通过 QEMU UART `baud-scale=16` + `esptool --no-stub` 将完整镜像写入虚拟 flash 后从同一份镜像启动。补丁见 `patches/qemu-core2-qemu-esptool/`。
-- CardputerZero：Linux ARM64 VM，不是 ESP32 固件。
+- CardputerZero：Linux ARM64 VM，不是 ESP32 固件。BCM2837 机器、M5Stack
+  DT overlay、SPI 显示/键盘、ES8389 I2C/ALSA 双向 PCM、IP2315 充放电状态、
+  IMX219 CCI 寄存器驱动 + Unicam CSI1 的 640×480 RG10 V4L2 实帧、
+  GL852G MTT 兼容 Full/Low-Speed 路由、SR9900A/r8152 以太网帧回环、
+  GPIO IR 与 I2C 外设已闭环；Full-Speed SR9900A 和 Low-Speed HID 均在
+  GL852G 下游通过。官方 factory UI 的 320x170 fb1 首帧也已验证为非黑。
+  TT 为功能等价路由，不模拟逐包 split timing。
 
 Tab5 验收帧：
 

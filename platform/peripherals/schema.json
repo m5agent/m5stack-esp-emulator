@@ -2,9 +2,33 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "M5Stack peripheral simulation catalog",
   "type": "object",
-  "required": ["schema_version", "status_values", "models", "devices"],
+  "required": [
+    "schema_version",
+    "completion_policy",
+    "status_values",
+    "models",
+    "devices"
+  ],
   "properties": {
     "schema_version": {"type": "integer"},
+    "completion_policy": {
+      "type": "object",
+      "required": ["rule"],
+      "properties": {
+        "rule": {"type": "string"},
+        "incomplete_device_allowlist": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["reason", "review_by"],
+            "properties": {
+              "reason": {"type": "string"},
+              "review_by": {"type": "string", "format": "date"}
+            }
+          }
+        }
+      }
+    },
     "status_values": {
       "type": "array",
       "items": {"enum": ["simulated", "partial", "planned", "not-applicable"]}
@@ -24,6 +48,10 @@
           },
           "status": {"enum": ["simulated", "partial", "planned", "not-applicable"]},
           "data_plane": {"type": "string"},
+          "evidence": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
           "injection": {
             "type": "array",
             "items": {"type": "string"}

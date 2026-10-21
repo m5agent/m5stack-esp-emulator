@@ -4,6 +4,7 @@
 - 分组：`ESP32-C6`
 - 外壳：`核心主控`
 - 运行时：`reference-ready`
+- 外设仿真：`simulated`
 - UIFlow2：`支持`，m5ui：`不支持`
 - UIFlow2 固件：v2.5.3 / `1897200000000002638`
 
@@ -27,6 +28,8 @@ reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-touch-power-io-ir-imu-lora-pass` (2026-10-21)
 - 详情：官方 UIFlow2 v2.5.3 渲染 135x240 UI；触摸/按键、双 PI4IOE、BQ27220、AW32001、ESP32-C6 RMT NEC 红外、BMI270 加速度/角速度和 SX1262 LoRa 收发均完成总线闭环。
+
+
 
 
 

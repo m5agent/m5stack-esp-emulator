@@ -8,6 +8,12 @@ detail = ""
 image = None
 input_count = 0
 stage = "init"
+log_uart = None
+
+
+def emit(*parts):
+    if log_uart:
+        log_uart.write(" ".join(str(part) for part in parts) + "\n")
 
 
 def draw():
@@ -28,6 +34,11 @@ def draw():
 
 print("CORES3_CAMERA_MAIN")
 M5.begin()
+try:
+    from hardware import UART
+    log_uart = UART(0, baudrate=115200, tx=43, rx=44)
+except Exception:
+    log_uart = None
 draw()
 try:
     stage = "init"
@@ -41,6 +52,7 @@ try:
     detail = "%dx%d %d bytes" % (image.width(), image.height(), image.size())
     image.draw_string(8, 8, "M5 EMU", color=(0, 255, 0), scale=2)
     M5.Display.show(image, 0, 0)
+    emit("CORES3_CAMERA_PASS", detail)
     status = "snapshot ok"
 except Exception as error:
     if stage == "snapshot":
@@ -49,7 +61,7 @@ except Exception as error:
     else:
         status = "camera error"
         detail = "init failed: " + repr(error)[:55]
-    print("CORES3_CAMERA_ERR", repr(error))
+    emit("CORES3_CAMERA_ERR", repr(error))
 
 if image is None:
     draw()

@@ -30,6 +30,8 @@ def draw_ui():
     d.setTextSize(2)
     d.setCursor(111, 171)
     d.print("TOUCH")
+    if touches:
+        d.fillRect(1, 1, 4, 4, d.COLOR.GREEN)
 
 
 print("CORE2_MAIN_START")
@@ -37,7 +39,8 @@ M5.begin()
 print("CORE2_BOARD", M5.getBoard())
 print("CORE2_DISPLAY", M5.Display.width(), M5.Display.height())
 print("CORE2_SET_ROTATION")
-M5.Display.setRotation(0)
+# ILI9342 uses offset_rotation=3; rotation 1 is landscape 320x240.
+M5.Display.setRotation(1)
 print("CORE2_SET_BRIGHTNESS")
 M5.Display.setBrightness(255)
 print("CORE2_DRAW")

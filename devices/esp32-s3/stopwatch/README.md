@@ -4,6 +4,7 @@
 - 分组：`ESP32-S3`
 - 外壳：`圆屏手表`
 - 运行时：`reference-ready`
+- 外设仿真：`simulated`
 - UIFlow2：`支持`，m5ui：`支持`
 - UIFlow2 固件：v2.5.3 / `1897200000000002172`
 
@@ -27,6 +28,8 @@ reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`uiflow2-ui-touch-pass` (2026-10-20)
 - 详情：官方 UIFlow2 v2.5.3 渲染 466x466 圆屏 UI；BMI270、CST820 触摸、M5PM1 电源、RX8130 RTC 和 A/B/PWR 按键闭环通过。
+
+
 
 
 

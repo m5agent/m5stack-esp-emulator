@@ -30,6 +30,8 @@ def draw_ui():
     d.setTextSize(2)
     d.setCursor(38, 168)
     d.print("TOUCH")
+    if touches:
+        d.fillRect(1, 1, 4, 4, d.COLOR.GREEN)
 
 
 print("NESSO_N1_MAIN_START")

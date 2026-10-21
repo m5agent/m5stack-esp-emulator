@@ -41,10 +41,17 @@
       "imu:bmi270",
       "magnetometer:bmm150",
       "rtc:bm8563",
+      "light-proximity:ltr553",
+      "battery:axp2101",
+      "io-expander:aw9523",
+      "io-expander:m5ioe1",
+      "power-monitor:ina226",
       "audio:es7210",
       "speaker:aw88298",
       "touch:si12t",
       "nfc:st25r3916",
+      "ir",
+      "rgb-led",
       "servo:yaw-feedback",
       "servo:pitch-feedback"
     ],
@@ -67,12 +74,14 @@
     "backend": "qemu-esp32s3",
     "chip": "esp32s3",
     "status": "reference-ready",
+    "peripheral_status": "simulated",
     "display_protocol": "spi-ili9342",
     "execution": "native-qemu",
+    "blockers": [],
     "validation": {
-      "date": "2026-10-20",
-      "status": "display-touch-pass",
-      "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI，QMP 触摸后计数重绘；由统一设备矩阵验证。"
+      "date": "2026-10-22",
+      "status": "display-touch-peripherals-simulated",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI 并接受触摸；BMI270 加速度与陀螺仪 API、BM8563 RTC、LTR553 环境光/接近、AW9523 输出/输入、INA226 电压/电流/功率、RMT NEC IR TX/RX 均通过 StackChan 板级数据面。全设备 8/8 外设用例通过。"
     }
   },
   "uiflow2": {

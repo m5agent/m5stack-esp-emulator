@@ -33,6 +33,7 @@
       "flash_size": "0x1000000",
       "expected_size": "466x466",
       "input": "touch:233,348",
+      "post_frame_color": "233,233,00FF00",
       "wait": 10,
       "post_input_wait": 0.6
     },
@@ -48,6 +49,7 @@
       "flash_size": "0x800000",
       "expected_size": "135x240",
       "input": "key:a",
+      "post_frame_color": "3,3,00FF00",
       "efuse_pkg_version": 1
     },
     {
@@ -62,6 +64,7 @@
       "flash_size": "0x800000",
       "expected_size": "128x128",
       "input": "key:a",
+      "post_frame_color": "3,3,00FF00",
       "efuse_pkg_version": 1
     },
     {
@@ -75,7 +78,9 @@
       "vfs_size": "0x4C0000",
       "flash_size": "0x1000000",
       "expected_size": "320x240",
-      "input": "touch:160,183",
+      "input": "longpress:160,183,1.0",
+      "post_input_wait": 0.8,
+      "post_frame_color": "2,2,00FF00",
       "efuse_pkg_version": 0
     },
     {
@@ -90,6 +95,7 @@
       "flash_size": "0x800000",
       "expected_size": "240x135",
       "input": "key:a",
+      "post_frame_color": "2,2,00FF00",
       "efuse_pkg_version": 0
     },
     {
@@ -104,6 +110,7 @@
       "flash_size": "0x800000",
       "expected_size": "240x135",
       "input": "key:a",
+      "post_frame_color": "2,2,00FF00",
       "efuse_pkg_version": 0
     },
     {
@@ -117,7 +124,9 @@
       "vfs_size": "0x4C0000",
       "flash_size": "0x1000000",
       "expected_size": "320x240",
-      "input": "touch:160,183",
+      "input": "longpress:160,183,1.0",
+      "post_input_wait": 0.8,
+      "post_frame_color": "2,2,00FF00",
       "efuse_pkg_version": 0
     },
     {
@@ -132,6 +141,8 @@
       "flash_size": "0x1000000",
       "expected_size": "400x600",
       "input": "key:a",
+      "post_input_wait": 2,
+      "post_frame_color": "270,160,000000",
       "efuse_pkg_version": 0,
       "wait": 10,
       "post_input_wait": 2
@@ -147,7 +158,9 @@
       "vfs_size": "0x7DF000",
       "flash_size": "0x1000000",
       "expected_size": "480x800",
-      "input": "touch:240,650",
+      "input": "longpress:240,650,1.0",
+      "post_input_wait": 0.8,
+      "post_frame_color": "440,30,000000",
       "efuse_pkg_version": 0,
       "wait": 10,
       "post_input_wait": 2
@@ -163,7 +176,9 @@
       "vfs_size": "0x7DF000",
       "flash_size": "0x1000000",
       "expected_size": "320x240",
-      "input": "touch:160,183",
+      "input": "longpress:160,183,1.0",
+      "post_input_wait": 0.8,
+      "post_frame_color": "2,2,00FF00",
       "memory": "0",
       "retries": 2
     },
@@ -178,7 +193,9 @@
       "vfs_size": "0x7DF000",
       "flash_size": "0x1000000",
       "expected_size": "135x240",
-      "input": "touch:67,160",
+      "input": "longpress:67,160,1.0",
+      "post_input_wait": 0.8,
+      "post_frame_color": "2,2,00FF00",
       "wait": 15,
       "post_input_wait": 2
     },
@@ -187,6 +204,9 @@
       "backend": "qemu-esp32c6",
       "mode": "console",
       "machine": "esp32c6",
+      "env": {
+        "M5SW_C6_BOARD": "nanoc6"
+      },
       "base": "platform/.cache/firmware/nanoc6/uiflow2.bin",
       "files_dir": "tests/uiflow2/nanoc6_console_test",
       "vfs_offset": "0x371000",

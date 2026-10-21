@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-22",
+  "device": "tab5",
+  "backend": "esp-emu-0.50.0-esp32p4",
+  "scope": "QEMU/emulator simulation only; not real-hardware validation",
+  "interface": {
+    "controller": "ESP32-P4 UART1",
+    "transceiver": "SIT3088EEUA",
+    "tx_gpio": 20,
+    "rx_gpio": 21,
+    "direction_gpio": 34,
+    "mode": "RS485 half duplex"
+  },
+  "host_peer": {
+    "request_hex": "544142355f52533438355f50494e47",
+    "response_hex": "544142355f52533438355f504f4e47",
+    "guest_tx_bytes": 15,
+    "guest_rx_bytes": 15
+  },
+  "display": {
+    "size": "1280x720",
+    "touch_logical": [640, 520],
+    "changed_channels": 33048,
+    "capture": "native riscv64-elf-gdb framebuffer"
+  },
+  "result": "PASS"
+}

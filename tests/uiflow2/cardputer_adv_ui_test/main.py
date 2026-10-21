@@ -28,6 +28,8 @@ def draw_ui():
     d.fillRect(12, 102, 216, 22, d.COLOR.BLUE)
     d.setCursor(65, 108)
     d.print("KEYBOARD TEST")
+    if count:
+        d.fillRect(1, 1, 4, 4, d.COLOR.GREEN)
 
 
 print("CARDPUTER_ADV_MAIN_START")

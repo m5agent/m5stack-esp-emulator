@@ -6,7 +6,8 @@
 2. ESP32-S3/C6/P4 通过 `esp-emu`、Core2 通过 QEMU ESP32 ROM 下载模式执行真实 `esptool write-flash`；
 3. 将写后的虚拟 flash 与期望镜像逐字节校验；
 4. QEMU 从同一份虚拟 flash 启动；
-5. 校验目标分辨率首帧、非空画面、输入后像素变化；
+5. 校验目标分辨率首帧、非空画面、输入后像素变化；配置了
+   `post_frame_color` 的输入设备还必须命中 UI 写入的固定像素标记；
 6. 输出规范 `before.png`、`after.png`、串口和命令日志。
 
 全量回归：
@@ -24,6 +25,38 @@ python3 tests/uiflow2/run_device_matrix.py --device core2
 python3 tests/uiflow2/run_device_matrix.py --device tab5
 ```
 
+输入验收不能只看截图哈希。Core2 曾出现触摸实际未计数、但半帧重绘仍改变
+哈希而误判 PASS；现在触摸和按键测试会在识别到输入后写固定颜色标记，
+矩阵直接读取该像素。墨水屏只做局部状态刷新，避免把 Spectra 6 长时间卡在
+未完成的整帧写入。
+
+本轮跨设备问题、修复和证据见
+[`docs/uiflow2-cross-device-regression-audit.md`](../../docs/uiflow2-cross-device-regression-audit.md)。
+
+## I2S 音频捕获
+
+`run_profile_ui_test.py` 支持 `longpress`、`drag` 和多帧/逐输入截图。
+带 Speaker 的用例可设置：
+
+```bash
+M5SW_I2S_DMA_IRQ=1 \
+M5SW_I2S_PCM_FILE=/tmp/speaker.pcm \
+python3 tests/uiflow2/run_profile_ui_test.py ...
+```
+
+采集从首个非静音 DMA 描述符开始，之后连续写入，包括中间静音；不再按哈希
+跳过重复块，也不会混入整段 snapshot。CoreS3 的 Speaker 输出是 48 kHz、
+16-bit、mono，导出 WAV 时必须使用该格式。
+
+`cores3_audio_fidelity` 用确定性的 1 kHz 方波验证采集链；已知输入应在
+200 ms 内产生约 400 次符号翻转。仅检查“非零样本和峰峰值”无法发现
+重复块、采样率错误或波形损坏。
+
+```bash
+python3 tests/uiflow2/check_pcm_square.py /tmp/live.pcm \
+  --sample-rate 48000 --frequency 1000 --duration-ms 200
+```
+
 外设 API 探测：
 
 ```bash
@@ -31,9 +64,55 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   --out-dir /tmp/m5-uiflow2-peripheral-matrix
 ```
 
+设备中心可以按设备直接调度同一份运行时用例组：
+
+```bash
+python3 tests/uiflow2/run_peripheral_matrix.py \
+  --device stackchan \
+  --out-dir /tmp/m5-stackchan-peripherals
+python3 tests/uiflow2/run_peripheral_matrix.py \
+  --device stackchan --list-json
+```
+
+纯外部后端设备（例如 Tab5）在外设运行组中返回空矩阵列表，其 external
+probe 由 `/api/peripherals/<device>.runtime_cases` 单独调度。
+
 覆盖 StickS3 的 IMU、A/B/P 按键和电源，以及 CoreS3 的 IMU、触摸、PWR、
 电源、RTC 和摄像头初始化/取帧。结果和边界见
 [`docs/uiflow2-peripheral-test-matrix.md`](../../docs/uiflow2-peripheral-test-matrix.md)。
+
+NanoC6 无显示屏，单独使用板级外设 runner：
+
+```bash
+python3 tests/uiflow2/run_nanoc6_peripherals.py
+```
+
+它验证 GPIO19 RGBPWR、GPIO20 WS2812 GRB 波形、GPIO9 按键按下/释放和
+GPIO7 蓝色 LED。C6 后端通过 `M5SW_C6_BOARD=nanoc6` 与 Nesso N1 板级外设
+隔离，不再把 Nesso 的屏幕、SX1262 或强制 GPIO 状态挂到 NanoC6。
+
+StackChan 的 IMU/AW9523/INA226/IR 联合探针：
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
+  --case stackchan-peripherals
+```
+
+该用例会同时验证 BMI270 加速度/陀螺仪、BM8563 RTC 走时校验、
+AW9523 输入输出、INA226 电压/电流/功率，以及 NEC IR 的 TX 抓取和
+RX 注入。固件启动后注入动态角速度，避免触发 M5Unified 的启动零偏校准。
+外部 RTC 通过 `machine.I2C` 直接读写器件 BCD 寄存器；`machine.RTC`
+只修改 ESP32 系统时间，不计为 RX8130/PCF8563 验证。
+
+矩阵 runner 不接受“QEMU 没崩就算 PASS”。每个用例必须至少配置一种运行时
+证据源（串口成功标记、QOM 状态、PCM、RMT 波形、磁盘 sector 或固定 UI
+像素）；缺少证据源的用例会直接拒绝执行。guest 串口中的
+`Guru Meditation Error`、Traceback、`status=error` 或 `FAIL` 也会把用例
+判为失败。`summary.json` 中的每个 check 状态在运行时生成，并记录对应的
+`evidence`，不再使用静态 PASS 元数据。
+每个 matrix/external case 还在 `runtime-coverage.json` 的 `case_models`
+中声明实际覆盖的芯片模型。设备上的每个 `simulated` 组件必须有本机用例，
+不能从其他设备的同型号芯片测试中继承完成状态。
 
 Tab5 需要先构建仿真固件和 16 MiB merged image：
 
@@ -47,6 +126,42 @@ python3 tests/uiflow2/build_tab5_emulator.py \
 输出位于 `.work/uiflow2-tab5/`，包括 `micropython.elf` 和
 `tab5-emulator-merged.bin`。Tab5 构建使用原生 M5GFX/UIFlow2 绘制路径，
 仿真构建暂不启用 LVGL Python 绑定。
+
+Tab5 的 SIT3088 RS-485 使用 `machine.UART` 半双工模式和
+`esp-emu --uart1-tcp` 主机字节对端验证：
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/run_tab5_ui_test.py \
+  --base .work/uiflow2-tab5/tab5-emulator-merged.bin \
+  --elf .work/uiflow2-tab5/micropython.elf \
+  --files-dir tests/uiflow2/tab5_rs485 \
+  --timeout 60 --probe-only --uart1-peer \
+  --ready-marker 'TAB5_RS485_DONE PASS'
+```
+
+该路径从 UART1 G20 发送、G21 接收，G34 作为 RS-485 方向控制；证据见
+`tests/uiflow2/tab5_rs485/evidence-2026-10-22.json`。
+
+Tab5 的充电/放电状态通过 PI4IOE2 `0x0F` 主动低电平输入验证，并由场景清单
+固定下来：
+
+```bash
+python3 tests/uiflow2/run_tab5_peripheral_scenarios.py
+```
+
+`0x0F=0x00` 要求 `Power.isCharging()` 为 `True`，`0x0F=0x40` 要求为
+`False`。当前实现支持每次启动时选择一个状态；IP2326 模拟电流、充满终止和
+运行中热切换仍依赖后续 `esp-emu` 动态 I2C API。
+
+Tab5 framebuffer 默认优先使用原生 `riscv64-elf-gdb`：
+
+```bash
+brew install riscv64-elf-gdb
+python3 tests/uiflow2/run_tab5_rs485.py
+```
+
+原生 GDB 会直接抓取真实 1280×720 framebuffer 并注入触摸；Docker 仅在原生
+GDB 不存在时作为 fallback。
 
 只生成可启动虚拟 flash：
 

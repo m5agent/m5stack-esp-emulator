@@ -28,6 +28,109 @@ index 46dbe7c..e3666fe 100644
      DEFINE_PROP_UINT32("nonvolatile-cfg", Flash, nonvolatile_cfg, 0x8FFF),
      DEFINE_PROP_UINT8("spansion-cr1nv", Flash, spansion_cr1nv, 0x0),
      DEFINE_PROP_UINT8("spansion-cr2nv", Flash, spansion_cr2nv, 0x8),
+diff --git a/hw/dma/esp32c3_gdma.c b/hw/dma/esp32c3_gdma.c
+index 20bee36..a467319 100644
+--- a/hw/dma/esp32c3_gdma.c
++++ b/hw/dma/esp32c3_gdma.c
+@@ -10,12 +10,21 @@
+ #include "qemu/osdep.h"
+ #include "qemu/error-report.h"
+ #include "hw/dma/esp32c3_gdma.h"
++#include "hw/dma/esp32c6_gdma.h"
+ 
+ 
+ #define DIM(arr) (sizeof(arr)/sizeof(*arr))
+ #define ESP32C3_GDMA_WARNING    0
+ #define ESP32C3_GDMA_DEBUG      0
+ 
++#define ESP32C6_GDMA_INT_IN_COUNT       3
++#define ESP32C6_GDMA_INT_OUT_START      \
++    (ESP32C6_GDMA_INT_IN_COUNT * DMA_INT_CHAN_REGS_SIZE)
++#define ESP32C6_GDMA_INT_BLOCK_END      \
++    (ESP32C6_GDMA_INT_OUT_START + \
++     ESP32C6_GDMA_INT_IN_COUNT * DMA_INT_CHAN_REGS_SIZE)
++#define ESP32C6_GDMA_MISC_CONF          0x64
++
+ 
+ typedef struct {
+     uint32_t specific;
+@@ -154,6 +163,19 @@ static uint32_t esp32c3_read_int_register(ESP32C3GdmaState *s, hwaddr addr)
+     return esp32c3_from_int_bitmask(in_value, out_value);
+ }
+ 
++static uint32_t esp32c6_read_int_register(ESP32C3GdmaState *s, hwaddr addr)
++{
++    const bool out = addr >= ESP32C6_GDMA_INT_OUT_START;
++    const uint32_t block = out ? addr - ESP32C6_GDMA_INT_OUT_START : addr;
++    const uint32_t chan = block / DMA_INT_CHAN_REGS_SIZE;
++    const uint32_t reg = block % DMA_INT_CHAN_REGS_SIZE;
++    const DmaRegister generic_reg = esp32c3_generic_int_reg(reg);
++
++    return esp_gdma_read_chan_register(
++        &s->parent, out ? ESP_GDMA_OUT_IDX : ESP_GDMA_IN_IDX,
++        chan, generic_reg);
++}
++
+ 
+ static uint32_t esp32c3_read_chan_register(ESP32C3GdmaState *s, hwaddr addr)
+ {
+@@ -172,7 +194,14 @@ static uint64_t esp32c3_gdma_read(void *opaque, hwaddr addr, unsigned int size)
+     ESP32C3GdmaState *s = ESP32C3_GDMA(opaque);
+     ESPGdmaState *parent = &s->parent;
+     uint64_t r = 0;
++    const bool c6 = object_dynamic_cast(OBJECT(s), TYPE_ESP32C6_GDMA) != NULL;
+ 
++    if (c6 && addr < ESP32C6_GDMA_INT_BLOCK_END) {
++        return esp32c6_read_int_register(s, addr);
++    }
++    if (c6 && addr == ESP32C6_GDMA_MISC_CONF) {
++        return esp_gdma_read_register(parent, GDMA_MISC_REG);
++    }
+ 
+     /* The registers on the ESP32-C3 start with the interrupt registers, then come the misc registers, and
+      * finally the channels configurtaion registers */
+@@ -216,6 +245,24 @@ static void esp32c3_write_int_register(ESP32C3GdmaState *s, hwaddr addr, uint32_
+     esp_gdma_write_chan_register(&s->parent, ESP_GDMA_OUT_IDX, chan, esp32c3_generic_int_reg(reg), out_value);
+ }
+ 
++static void esp32c6_write_int_register(ESP32C3GdmaState *s, hwaddr addr,
++                                       uint32_t value)
++{
++    const bool out = addr >= ESP32C6_GDMA_INT_OUT_START;
++    const uint32_t block = out ? addr - ESP32C6_GDMA_INT_OUT_START : addr;
++    const uint32_t chan = block / DMA_INT_CHAN_REGS_SIZE;
++    const uint32_t reg = block % DMA_INT_CHAN_REGS_SIZE;
++
++    if (getenv("M5SW_GDMA_TRACE")) {
++        fprintf(stderr,
++                "[c6-gdma] int %s chan=%u reg=%u value=%08x\n",
++                out ? "out" : "in", chan, reg, value);
++    }
++    esp_gdma_write_chan_register(
++        &s->parent, out ? ESP_GDMA_OUT_IDX : ESP_GDMA_IN_IDX,
++        chan, esp32c3_generic_int_reg(reg), value);
++}
++
+ 
+ static void esp32c3_write_chan_register(ESP32C3GdmaState *s, hwaddr addr, uint32_t value)
+ {
+@@ -234,6 +281,16 @@ static void esp32c3_gdma_write(void *opaque, hwaddr addr,
+ {
+     ESP32C3GdmaState *s = ESP32C3_GDMA(opaque);
+     ESPGdmaState *parent = &s->parent;
++    const bool c6 = object_dynamic_cast(OBJECT(s), TYPE_ESP32C6_GDMA) != NULL;
++
++    if (c6 && addr < ESP32C6_GDMA_INT_BLOCK_END) {
++        esp32c6_write_int_register(s, addr, value);
++        return;
++    }
++    if (c6 && addr == ESP32C6_GDMA_MISC_CONF) {
++        esp_gdma_write_register(parent, GDMA_MISC_REG, value);
++        return;
++    }
+ 
+ #if ESP32C3_GDMA_DEBUG
+     info_report("[C3][GDMA] Writing to %08lx (%08lx)", addr, value);
 diff --git a/hw/dma/esp32c6_gdma.c b/hw/dma/esp32c6_gdma.c
 index fe18085..48e31f7 100644
 --- a/hw/dma/esp32c6_gdma.c
@@ -43,10 +146,18 @@ index fe18085..48e31f7 100644
  
  static const TypeInfo esp32c6_gdma_info = {
 diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
-index 6640fca..08a6e9b 100644
+index 6640fca..3f3053b 100644
 --- a/hw/dma/esp_gdma.c
 +++ b/hw/dma/esp_gdma.c
-@@ -252,7 +252,7 @@ static void esp_gdma_get_restart_buffer(ESPGdmaState *s, uint32_t chan, uint32_t
+@@ -203,6 +203,7 @@ static void esp_gdma_push_descriptor(ESPGdmaState *s, uint32_t chan, uint32_t di
+     uint32_t next = 0;
+     DmaConfigState* state = &s->ch_conf[dir][chan];
+ 
++    state->current_desc_addr = current;
+     /* Assign the current descriptor address to the state register */
+     state->state = current & R_GDMA_OUT_STATE_LINK_DSCR_ADDR_MASK;
+ 
+@@ -252,7 +253,7 @@ static void esp_gdma_get_restart_buffer(ESPGdmaState *s, uint32_t chan, uint32_t
      DmaConfigState* state = &s->ch_conf[dir][chan];
      // GdmaLinkedList* list = NULL;
      /* The next node to use is taken from state->state's lowest 18 bit. Append it to the DRAM address */
@@ -55,7 +166,7 @@ index 6640fca..08a6e9b 100644
      const uint32_t guest_addr = dram_upper_bits | FIELD_EX32(state->state, GDMA_OUT_STATE, LINK_DSCR_ADDR);
  
      *out = guest_addr;
-@@ -304,7 +304,8 @@ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint
+@@ -304,7 +305,8 @@ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint
                                               R_GDMA_INTERRUPT_OUT_EOF_MASK);
  
      /* Get the guest DRAM address */
@@ -65,7 +176,7 @@ index 6640fca..08a6e9b 100644
  
      /* Boolean to mark whether we need to check the owner for in and out buffers */
      const bool owner_check_out = FIELD_EX32(state->conf1, GDMA_OUT_CONF1, CHECK_OWNER);
-@@ -400,6 +401,51 @@ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint
+@@ -400,6 +402,165 @@ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint
      return !error;
  }
  
@@ -114,10 +225,124 @@ index 6640fca..08a6e9b 100644
 +    return consumed;
 +}
 +
++uint32_t esp_gdma_get_out_transfer_size(ESPGdmaState *s, uint32_t chan,
++                                        uint32_t max_size)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
++    uint32_t addr = ((s->ram_addr >> 20) << 20) |
++                    FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++    uint32_t total = 0;
++
++    for (int i = 0; addr && i < 256 && total < max_size; i++) {
++        GdmaLinkedList desc;
++
++        if (!esp_gdma_read_descr(s, addr, &desc)) {
++            break;
++        }
++        total += MIN(desc.config.length, max_size - total);
++        if (desc.config.suc_eof || !desc.next_addr) {
++            break;
++        }
++        addr = desc.next_addr;
++    }
++    return total;
++}
++
++/*
++ * Complete one descriptor from a running peripheral-to-memory OUT channel.
++ * Peripheral controllers call this to expose the buffer and raise OUT_EOF
++ * without clearing I2S/GDMA START, matching cyclic DMA behavior.
++ */
++uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
++                                          uint8_t *buffer, uint32_t size)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
++    const uint32_t high = (s->ram_addr >> 20) << 20;
++    uint32_t addr = state->current_desc_addr
++                  ? state->current_desc_addr
++                  : high | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++    GdmaLinkedList desc;
++    uint32_t copy;
++    uint32_t next;
++
++    if (!addr || !esp_gdma_read_descr(s, addr, &desc)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_OUT_DSCR_ERR_MASK);
++        return 0;
++    }
++    copy = MIN(desc.config.length, size);
++    if (copy && !esp_gdma_read_guest(s, desc.buf_addr, buffer, copy)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_OUT_DSCR_ERR_MASK);
++        return 0;
++    }
++    state->suc_eof_desc_addr = addr;
++    next = desc.next_addr;
++    if (next) {
++        esp_gdma_push_descriptor(s, chan, ESP_GDMA_OUT_IDX, next);
++    }
++    esp_gdma_set_status(&state->int_state,
++                        R_GDMA_INTERRUPT_OUT_EOF_MASK);
++    if (getenv("M5SW_GDMA_TRACE")) {
++        fprintf(stderr,
++                "[c6-gdma] out complete chan=%u desc=%08x bytes=%u "
++                "raw=%08x ena=%08x st=%08x\n",
++                chan, addr, copy, state->int_state.raw,
++                state->int_state.ena, state->int_state.st);
++    }
++    return copy;
++}
++
++/*
++ * Deliver one descriptor worth of injected data to a running
++ * peripheral-to-memory IN channel and advance through its linked ring.
++ */
++uint32_t esp_gdma_complete_in_descriptor(ESPGdmaState *s, uint32_t chan,
++                                         const uint8_t *buffer, uint32_t size)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_IN_IDX][chan];
++    const uint32_t high = (s->ram_addr >> 20) << 20;
++    uint32_t addr = state->current_desc_addr
++                  ? state->current_desc_addr
++                  : high | FIELD_EX32(state->link, GDMA_IN_LINK, ADDR);
++    GdmaLinkedList desc;
++    uint32_t copy;
++    uint32_t next;
++
++    if (!addr || !esp_gdma_read_descr(s, addr, &desc)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
++        return 0;
++    }
++    copy = MIN(desc.config.size, size);
++    if (copy && !esp_gdma_write_guest(s, desc.buf_addr, (void *)buffer,
++                                      copy)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
++        return 0;
++    }
++    desc.config.length = copy;
++    desc.config.owner = 0;
++    if (!esp_gdma_write_descr(s, addr, &desc)) {
++        esp_gdma_set_status(&state->int_state,
++                            R_GDMA_INTERRUPT_IN_DSCR_ERR_MASK);
++        return 0;
++    }
++    state->suc_eof_desc_addr = addr;
++    next = desc.next_addr;
++    if (next) {
++        esp_gdma_push_descriptor(s, chan, ESP_GDMA_IN_IDX, next);
++    }
++    esp_gdma_set_status(&state->int_state,
++                        R_GDMA_INTERRUPT_IN_SUC_EOF_MASK |
++                        R_GDMA_INTERRUPT_IN_DONE_MASK);
++    return copy;
++}
++
  
  /**
   * @brief Write data to the guest RAM pointed by the linked list configured in the given DmaConfigState index.
-@@ -417,7 +463,8 @@ bool esp_gdma_write_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uin
+@@ -417,7 +578,8 @@ bool esp_gdma_write_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uin
                                               R_GDMA_INTERRUPT_IN_SUC_EOF_MASK);
  
      /* Get highest 12 bits of the DRAM address */
@@ -127,7 +352,7 @@ index 6640fca..08a6e9b 100644
  
      /* Boolean to mark whether we need to check the owner for in buffers */
      const bool owner_check_in = FIELD_EX32(state->conf1, GDMA_IN_CONF1, CHECK_OWNER);
-@@ -563,7 +610,7 @@ static void esp_gdma_check_and_start_mem_transfer(ESPGdmaState *s, uint32_t chan
+@@ -563,7 +725,7 @@ static void esp_gdma_check_and_start_mem_transfer(ESPGdmaState *s, uint32_t chan
                                R_GDMA_INTERRUPT_OUT_EOF_MASK  );
  
          /* Get highest 12 bits of the DRAM address */
@@ -136,7 +361,15 @@ index 6640fca..08a6e9b 100644
  
          /* TODO: in an inlink, when burst mode is enabled, size and buffer address must be word-aligned. */
          /* If a start was performed, the first descriptor address to process is in DMA_OUT_LINK_CHn register,
-@@ -978,6 +1025,7 @@ static void esp_gdma_init(Object *obj)
+@@ -874,7 +1036,6 @@ void esp_gdma_write_register(ESPGdmaState* s, DmaRegister reg, uint32_t value)
+     }
+ }
+ 
+-
+ /**
+  * @brief Read a virtual register of a channel. This function can be called by the child classes.
+  */
+@@ -978,6 +1139,7 @@ static void esp_gdma_init(Object *obj)
      if (klass->m_channel_count == 0 || klass->m_channel_count > 16) {
          error_report("[GDMA] %s: invalid number of DMA channels (%zu)", __func__, klass->m_channel_count);
      }
@@ -844,10 +1077,10 @@ index 0000000..434fc03
 +type_init(c6_i2c_register_types)
 diff --git a/hw/misc/esp32c6_i2s.c b/hw/misc/esp32c6_i2s.c
 new file mode 100644
-index 0000000..75fe83c
+index 0000000..25d07df
 --- /dev/null
 +++ b/hw/misc/esp32c6_i2s.c
-@@ -0,0 +1,334 @@
+@@ -0,0 +1,366 @@
 +/*
 + * ESP32-C6 I2S register, GDMA and PCM data-plane model.
 + *
@@ -878,7 +1111,8 @@ index 0000000..75fe83c
 +#define R_TX_CONF  0x24
 +#define RX_START   BIT(2)
 +#define TX_START   BIT(2)
-+#define I2S_PCM_MAX_WRITES 128
++#define I2S_PCM_MAX_BYTES (4 << 20)
++#define I2S_DMA_PERIOD_MS 10
 +
 +typedef struct Esp32C6I2SState {
 +    SysBusDevice parent_obj;
@@ -896,8 +1130,11 @@ index 0000000..75fe83c
 +    QEMUTimer *tx_timer;
 +    FILE *pcm_file;
 +    uint32_t pcm_writes;
-+    uint32_t pcm_limit;
 +    uint64_t pcm_bytes;
++    bool pcm_started;
++    int64_t capture_until_ms;
++    int64_t dma_due_ms;
++    bool dma_active;
 +    bool rx_started;
 +    bool rx_active;
 +    uint32_t rx_channel;
@@ -937,21 +1174,29 @@ index 0000000..75fe83c
 +    bool nonzero = false;
 +
 +    if (!s->gdma || !s->tx_active ||
-+        s->pcm_writes >= I2S_PCM_MAX_WRITES) {
++        s->pcm_bytes >= I2S_PCM_MAX_BYTES) {
 +        return;
 +    }
 +    if (!esp_gdma_get_channel_periph(s->gdma, GDMA_I2S0,
 +                                     ESP_GDMA_OUT_IDX, &s->tx_channel)) {
 +        return;
 +    }
-+    bytes = esp32c6_gdma_snapshot_out_channel(
++    bytes = esp_gdma_complete_out_descriptor(
 +        s->gdma, s->tx_channel, buffer, sizeof(buffer));
 +    if (!bytes) {
 +        if (s->trace) {
-+            fprintf(stderr, "[c6-i2s] gdma read channel=%u failed\n",
++            fprintf(stderr, "[c6-i2s] gdma complete channel=%u empty\n",
 +                    s->tx_channel);
 +        }
 +        return;
++    }
++    if (s->trace) {
++        fprintf(stderr, "[c6-i2s] dma channel=%u bytes=%u head=",
++                s->tx_channel, bytes);
++        for (uint32_t i = 0; i < MIN(bytes, 16); i++) {
++            fprintf(stderr, "%02x", buffer[i]);
++        }
++        fprintf(stderr, "\n");
 +    }
 +    for (uint32_t i = 0; i < bytes; i++) {
 +        if (buffer[i]) {
@@ -962,7 +1207,7 @@ index 0000000..75fe83c
 +    if (!nonzero) {
 +        return;
 +    }
-+    if (!s->pcm_file) {
++    if (!s->pcm_started) {
 +        const char *path = getenv("M5SW_I2S_PCM_FILE");
 +        if (!path) {
 +            return;
@@ -971,8 +1216,9 @@ index 0000000..75fe83c
 +        if (!s->pcm_file) {
 +            return;
 +        }
++        s->pcm_started = true;
 +    }
-+    uint32_t write_size = MIN(bytes, s->pcm_limit - s->pcm_bytes);
++    uint32_t write_size = MIN(bytes, I2S_PCM_MAX_BYTES - s->pcm_bytes);
 +    if (write_size) {
 +        fwrite(buffer, 1, write_size, s->pcm_file);
 +        fflush(s->pcm_file);
@@ -988,17 +1234,33 @@ index 0000000..75fe83c
 +static void i2s_tx_timer(void *opaque)
 +{
 +    Esp32C6I2SState *s = opaque;
++    uint32_t channel;
 +
-+    if (!s->tx_started || !s->tx_active) {
++    if (!s->tx_started || !s->tx_active ||
++        qemu_clock_get_ms(QEMU_CLOCK_REALTIME) >= s->capture_until_ms ||
++        s->pcm_bytes >= I2S_PCM_MAX_BYTES) {
++        return;
++    }
++    timer_mod(s->tx_timer,
++              qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1);
++    if (!s->dma_active) {
++        if (!s->gdma ||
++            !esp_gdma_get_channel_periph(s->gdma, GDMA_I2S0,
++                                         ESP_GDMA_OUT_IDX, &channel)) {
++            return;
++        }
++        s->tx_channel = channel;
++        s->dma_active = true;
++        s->dma_due_ms = qemu_clock_get_ms(QEMU_CLOCK_REALTIME)
++                      + I2S_DMA_PERIOD_MS;
++    }
++    if (qemu_clock_get_ms(QEMU_CLOCK_REALTIME) < s->dma_due_ms) {
 +        return;
 +    }
 +    i2s_capture_pcm(s);
-+    s->int_raw |= BIT(1);
-+    i2s_update_irq(s);
-+    if (s->pcm_writes >= I2S_PCM_MAX_WRITES) {
-+        return;
-+    }
-+    timer_mod(s->tx_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 10);
++    s->dma_active = false;
++    s->dma_due_ms = qemu_clock_get_ms(QEMU_CLOCK_REALTIME)
++                  + I2S_DMA_PERIOD_MS;
 +}
 +
 +static void i2s_load_rx_pcm(Esp32C6I2SState *s)
@@ -1035,10 +1297,9 @@ index 0000000..75fe83c
 +    chunk = MIN(available, sizeof(buffer));
 +    memcpy(buffer, s->rx_pcm + s->rx_pcm_pos, chunk);
 +    s->rx_pcm_pos = (s->rx_pcm_pos + chunk) % s->rx_pcm_size;
-+    esp_gdma_write_channel(s->gdma, s->rx_channel, buffer, chunk);
-+    s->int_raw |= BIT(0);
-+    i2s_update_irq(s);
-+    timer_mod(s->rx_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 10);
++    esp_gdma_complete_in_descriptor(s->gdma, s->rx_channel, buffer, chunk);
++    timer_mod(s->rx_timer,
++              qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + I2S_DMA_PERIOD_MS);
 +}
 +
 +static void i2s_write(void *opaque, hwaddr addr, uint64_t value,
@@ -1086,11 +1347,13 @@ index 0000000..75fe83c
 +            if (found) {
 +                s->tx_active = true;
 +                s->pcm_writes = 0;
-+                s->pcm_bytes = 0;
-+                s->pcm_limit = 4 << 20;
 +                s->tx_events = 0;
++                s->dma_active = false;
++                s->capture_until_ms =
++                    qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000;
 +                timer_mod(s->tx_timer,
-+                          qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1);
++                          qemu_clock_get_ms(QEMU_CLOCK_REALTIME)
++                          + I2S_DMA_PERIOD_MS);
 +            }
 +        }
 +        s->tx_started = !!(v & TX_START);
@@ -1121,8 +1384,10 @@ index 0000000..75fe83c
 +    s->int_raw = 0;
 +    s->tx_started = false;
 +    s->tx_active = false;
++    s->dma_active = false;
 +    s->rx_started = false;
 +    s->rx_active = false;
++    s->pcm_started = false;
 +    if (s->tx_timer) {
 +        timer_del(s->tx_timer);
 +    }
@@ -3020,10 +3285,18 @@ index e8bd33a..08546c9 100644
  };
  
 diff --git a/include/hw/dma/esp_gdma.h b/include/hw/dma/esp_gdma.h
-index d555249..ae398a7 100644
+index d555249..5acaaf9 100644
 --- a/include/hw/dma/esp_gdma.h
 +++ b/include/hw/dma/esp_gdma.h
-@@ -118,6 +118,7 @@ typedef struct ESPGdmaState {
+@@ -103,6 +103,7 @@ typedef struct {
+     uint32_t suc_eof_desc_addr; // Address of descriptor when EOF bit is 1
+     uint32_t err_eof_desc_addr; // Address of descriptor when error occurs (UHCI0 only)
+     uint32_t desc_addr;         // Address of the next descriptor (n + 1)
++    uint32_t current_desc_addr; // Address of the descriptor currently processed
+     uint32_t bfr_desc_addr;     // Address of the current descriptor (n)
+     uint32_t bfr_bfr_desc_addr; // Address of the previous descriptor (n - 1)
+     uint32_t priority;
+@@ -118,6 +119,7 @@ typedef struct ESPGdmaState {
      DmaConfigState* ch_conf[ESP_GDMA_CONF_COUNT];
      /* Use this register mainly for enabling and disabling priorities */
      uint32_t misc_conf;
@@ -3031,12 +3304,18 @@ index d555249..ae398a7 100644
      /* Keep a pointer to the SoC DRAM */
      MemoryRegion* soc_mr;
      AddressSpace dma_as;
-@@ -157,6 +158,8 @@ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir
+@@ -157,6 +159,14 @@ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir
  
  bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint32_t size);
  bool esp_gdma_write_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint32_t size);
 +uint32_t esp32c6_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
 +                                           uint8_t *buffer, uint32_t size);
++uint32_t esp_gdma_get_out_transfer_size(ESPGdmaState *s, uint32_t chan,
++                                        uint32_t max_size);
++uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
++                                          uint8_t *buffer, uint32_t size);
++uint32_t esp_gdma_complete_in_descriptor(ESPGdmaState *s, uint32_t chan,
++                                         const uint8_t *buffer, uint32_t size);
  
  
  /**

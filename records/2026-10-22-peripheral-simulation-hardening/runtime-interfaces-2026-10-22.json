@@ -1,0 +1,5490 @@
+{
+  "schema_version": 1,
+  "model_count": 65,
+  "models_with_interfaces": 60,
+  "device_count": 14,
+  "devices": {
+    "sticks3": {
+      "models": [
+        "m5pm1",
+        "bmi270",
+        "es8311",
+        "gpio-button",
+        "pwr-button",
+        "aw8737a",
+        "ir-tx-rx"
+      ],
+      "matrix": [
+        {
+          "id": "sticks3-peripherals",
+          "machine": "m5sticks3"
+        },
+        {
+          "id": "sticks3-audio",
+          "machine": "m5sticks3"
+        },
+        {
+          "id": "sticks3-mic",
+          "machine": "m5sticks3"
+        },
+        {
+          "id": "sticks3-ir",
+          "machine": "m5sticks3"
+        },
+        {
+          "id": "sticks3-ir-rx",
+          "machine": "m5sticks3"
+        }
+      ],
+      "external": []
+    },
+    "stopwatch": {
+      "models": [
+        "m5pm1",
+        "m5ioe1",
+        "touch-cst820",
+        "bmi270",
+        "rx8130",
+        "es8311",
+        "gpio-button",
+        "pwr-button",
+        "aw8737a",
+        "vibration"
+      ],
+      "matrix": [
+        {
+          "id": "stopwatch-peripherals",
+          "machine": "m5stopwatch"
+        },
+        {
+          "id": "stopwatch-vibration",
+          "machine": "m5stopwatch"
+        },
+        {
+          "id": "stopwatch-audio",
+          "machine": "m5stopwatch"
+        },
+        {
+          "id": "stopwatch-mic",
+          "machine": "m5stopwatch"
+        },
+        {
+          "id": "stopwatch-m5ioe1-full",
+          "machine": "m5stopwatch"
+        },
+        {
+          "id": "stopwatch-m5pm1-full",
+          "machine": "m5stopwatch"
+        }
+      ],
+      "external": []
+    },
+    "atoms3r": {
+      "models": [
+        "bmi270",
+        "bmm150",
+        "gpio-button",
+        "lp5562",
+        "ir-tx-rx"
+      ],
+      "matrix": [
+        {
+          "id": "atoms3r-peripherals",
+          "machine": "m5atoms3r"
+        },
+        {
+          "id": "atoms3r-lp5562",
+          "machine": "m5atoms3r"
+        },
+        {
+          "id": "atoms3r-ir",
+          "machine": "m5atoms3r"
+        }
+      ],
+      "external": []
+    },
+    "cores3": {
+      "models": [
+        "axp2101",
+        "aw9523",
+        "touch-ft5x06",
+        "bmi270",
+        "bmm150",
+        "pcf8563",
+        "gc0308",
+        "es7210",
+        "aw88298",
+        "pwr-button",
+        "ltr-553als-wa",
+        "usb-host"
+      ],
+      "matrix": [
+        {
+          "id": "cores3-peripherals",
+          "machine": "m5cores3"
+        },
+        {
+          "id": "cores3-usb-hid",
+          "machine": "m5cores3"
+        },
+        {
+          "id": "cores3-camera",
+          "machine": "m5cores3"
+        },
+        {
+          "id": "cores3-audio",
+          "machine": "m5cores3"
+        },
+        {
+          "id": "cores3-mic",
+          "machine": "m5cores3"
+        },
+        {
+          "id": "cores3-aw9523-full",
+          "machine": "m5cores3"
+        }
+      ],
+      "external": []
+    },
+    "cardputer-adv": {
+      "models": [
+        "keyboard-tca8418",
+        "bmi270",
+        "es8311",
+        "ns4150b",
+        "sd-card-spi",
+        "ir-tx-rx",
+        "nfc-st25r3916-spi",
+        "cc1101-subghz"
+      ],
+      "matrix": [
+        {
+          "id": "cardputer-adv-sd",
+          "machine": "m5cardputeradv"
+        },
+        {
+          "id": "cardputer-adv-imu",
+          "machine": "m5cardputeradv"
+        },
+        {
+          "id": "cardputer-adv-keyboard",
+          "machine": "m5cardputeradv"
+        },
+        {
+          "id": "cardputer-adv-nfc",
+          "machine": "m5cardputeradv"
+        },
+        {
+          "id": "cardputer-adv-cc1101",
+          "machine": "m5cardputeradv"
+        },
+        {
+          "id": "cardputer-adv-audio",
+          "machine": "m5cardputeradv"
+        },
+        {
+          "id": "cardputer-adv-mic",
+          "machine": "m5cardputeradv"
+        },
+        {
+          "id": "cardputer-adv-ir",
+          "machine": "m5cardputeradv"
+        }
+      ],
+      "external": []
+    },
+    "papercolor": {
+      "models": [
+        "m5pm1",
+        "rx8130",
+        "sht40",
+        "es7210",
+        "es8311",
+        "aw8737a",
+        "gpio-button",
+        "pwr-button",
+        "rgb-led",
+        "ir-tx-rx",
+        "sd-card-spi"
+      ],
+      "matrix": [
+        {
+          "id": "papercolor-sd",
+          "machine": "m5papercolor"
+        },
+        {
+          "id": "papercolor-audio",
+          "machine": "m5papercolor"
+        },
+        {
+          "id": "papercolor-sht4x",
+          "machine": "m5papercolor"
+        },
+        {
+          "id": "papercolor-mic",
+          "machine": "m5papercolor"
+        },
+        {
+          "id": "papercolor-ir",
+          "machine": "m5papercolor"
+        },
+        {
+          "id": "papercolor-rgb",
+          "machine": "m5papercolor"
+        }
+      ],
+      "external": []
+    },
+    "papermono": {
+      "models": [
+        "m5pm1",
+        "m5ioe1",
+        "touch-ft5x06",
+        "bmi270",
+        "rx8130",
+        "gpio-button",
+        "pwr-button",
+        "ip2315",
+        "pdm-microphone",
+        "nfc-st25r3916",
+        "lora-sx1262",
+        "buzzer",
+        "rgb-led",
+        "sd-card"
+      ],
+      "matrix": [
+        {
+          "id": "papermono-peripherals",
+          "machine": "m5papermono"
+        },
+        {
+          "id": "papermono-pdm-mic",
+          "machine": "m5papermono"
+        },
+        {
+          "id": "papermono-rgb",
+          "machine": "m5papermono"
+        },
+        {
+          "id": "papermono-nfc",
+          "machine": "m5papermono"
+        },
+        {
+          "id": "papermono-lora",
+          "machine": "m5papermono"
+        }
+      ],
+      "external": []
+    },
+    "stamplc": {
+      "models": [
+        "pi4ioe5v6408",
+        "aw9523",
+        "rx8130",
+        "lm75",
+        "ina226",
+        "gpio-button",
+        "buzzer",
+        "can",
+        "rs485"
+      ],
+      "matrix": [
+        {
+          "id": "stamplc-peripherals",
+          "machine": "m5stamplc"
+        },
+        {
+          "id": "stamplc-onboard-io",
+          "machine": "m5stamplc"
+        },
+        {
+          "id": "stamplc-can",
+          "machine": "m5stamplc"
+        },
+        {
+          "id": "stamplc-rs485",
+          "machine": "m5stamplc"
+        },
+        {
+          "id": "stamplc-buzzer",
+          "machine": "m5stamplc"
+        },
+        {
+          "id": "stamplc-lm75",
+          "machine": "m5stamplc"
+        }
+      ],
+      "external": []
+    },
+    "stackchan": {
+      "models": [
+        "axp2101",
+        "aw9523",
+        "m5ioe1",
+        "touch-ft5x06",
+        "gc0308",
+        "ltr-553als-wa",
+        "bmi270",
+        "bmm150",
+        "pcf8563",
+        "es7210",
+        "aw88298",
+        "nfc-st25r3916",
+        "touch-si12t",
+        "ir-tx-rx",
+        "rgb-led",
+        "ina226",
+        "servo"
+      ],
+      "matrix": [
+        {
+          "id": "stackchan-camera",
+          "machine": "m5stackchan"
+        },
+        {
+          "id": "stackchan-nfc",
+          "machine": "m5stackchan"
+        },
+        {
+          "id": "stackchan-touch",
+          "machine": "m5stackchan"
+        },
+        {
+          "id": "stackchan-rgb",
+          "machine": "m5stackchan"
+        },
+        {
+          "id": "stackchan-audio",
+          "machine": "m5stackchan"
+        },
+        {
+          "id": "stackchan-mic",
+          "machine": "m5stackchan"
+        },
+        {
+          "id": "stackchan-peripherals",
+          "machine": "m5stackchan"
+        },
+        {
+          "id": "stackchan-servo",
+          "machine": "m5stackchan"
+        }
+      ],
+      "external": []
+    },
+    "core2": {
+      "models": [
+        "axp2101",
+        "ina3221",
+        "touch-ft5x06",
+        "mpu6886",
+        "pcf8563",
+        "spm1423",
+        "ns4168",
+        "pwr-button",
+        "axp192"
+      ],
+      "matrix": [
+        {
+          "id": "core2-audio",
+          "machine": "m5core2"
+        },
+        {
+          "id": "core2-mic",
+          "machine": "m5core2"
+        },
+        {
+          "id": "core2-power-monitor",
+          "machine": "m5core2"
+        },
+        {
+          "id": "core2-imu",
+          "machine": "m5core2"
+        },
+        {
+          "id": "core2-axp192",
+          "machine": "m5core2"
+        }
+      ],
+      "external": []
+    },
+    "nesso-n1": {
+      "models": [
+        "bmi270",
+        "lora-sx1262",
+        "i2s-buzzer-c6",
+        "ir-tx-c6",
+        "bq27220",
+        "aw32001",
+        "pi4ioe5v6408",
+        "touch-ft5x06",
+        "gpio-button"
+      ],
+      "matrix": [
+        {
+          "id": "nesso-peripherals",
+          "machine": "esp32c6"
+        },
+        {
+          "id": "nesso-imu",
+          "machine": "esp32c6"
+        },
+        {
+          "id": "nesso-ir",
+          "machine": "esp32c6"
+        },
+        {
+          "id": "nesso-lora",
+          "machine": "esp32c6"
+        },
+        {
+          "id": "nesso-buzzer",
+          "machine": "esp32c6"
+        }
+      ],
+      "external": []
+    },
+    "nanoc6": {
+      "models": [
+        "gpio-button",
+        "gpio-led",
+        "rgb-led",
+        "ir-tx-c6"
+      ],
+      "matrix": [],
+      "external": [
+        {
+          "id": "nanoc6-peripherals",
+          "device": "nanoc6",
+          "test": "tests/uiflow2/run_nanoc6_peripherals.py",
+          "evidence": "tests/uiflow2/nanoc6_peripherals/evidence-2026-10-22.json"
+        }
+      ]
+    },
+    "tab5": {
+      "models": [
+        "esp32c6-hosted",
+        "rs485"
+      ],
+      "matrix": [],
+      "external": [
+        {
+          "id": "tab5-hosted-peripherals",
+          "device": "tab5",
+          "test": "tests/uiflow2/run_tab5_ui_test.py",
+          "evidence": "tests/uiflow2/tab5_peripherals/evidence-2026-10-22.json"
+        },
+        {
+          "id": "tab5-rs485",
+          "device": "tab5",
+          "test": "tests/uiflow2/run_tab5_rs485.py",
+          "evidence": "tests/uiflow2/tab5_rs485/evidence-2026-10-22.json"
+        },
+        {
+          "id": "tab5-peripheral-scenarios",
+          "device": "tab5",
+          "test": "tests/uiflow2/run_tab5_peripheral_scenarios.py",
+          "evidence": "tests/uiflow2/tab5_peripherals/evidence-2026-10-22.json"
+        }
+      ]
+    },
+    "cardputer-zero": {
+      "models": [
+        "keyboard-tca8418",
+        "m5ioe1",
+        "bmi270",
+        "bmm150",
+        "rx8130",
+        "bq27220",
+        "ip2315",
+        "es8389",
+        "aw8737a-bcm2837",
+        "camera-imx219",
+        "ethernet-sr9900a",
+        "usb-hub-gl852g",
+        "ir-tx-rx-bcm2837",
+        "sd-card",
+        "linux-bcm2837"
+      ],
+      "matrix": [],
+      "external": [
+        {
+          "id": "cardputer-zero-full",
+          "device": "cardputer-zero",
+          "test": "tests/cardputer_zero/run_full_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        },
+        {
+          "id": "cardputer-zero-camera",
+          "device": "cardputer-zero",
+          "test": "tests/cardputer_zero/run_camera_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        },
+        {
+          "id": "cardputer-zero-ethernet",
+          "device": "cardputer-zero",
+          "test": "tests/cardputer_zero/run_usb_ethernet_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        }
+      ]
+    }
+  },
+  "models": {
+    "gpio-button": {
+      "status": "simulated",
+      "kind": "button",
+      "interface": "gpio",
+      "capabilities": [
+        "button"
+      ],
+      "evidence_cases": [
+        "sticks3-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:b",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_IMU_TYPE 6",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BATTERY 87 4000 0",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_A 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_B 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_PWR 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_IMU 0.250 -0.500 0.750",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "pwr-button": {
+      "status": "simulated",
+      "kind": "button",
+      "interface": "pmic",
+      "capabilities": [
+        "power-key"
+      ],
+      "evidence_cases": [
+        "sticks3-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:b",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_IMU_TYPE 6",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BATTERY 87 4000 0",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_A 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_B 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_PWR 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_IMU 0.250 -0.500 0.750",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "bq27220": {
+      "status": "simulated",
+      "kind": "battery-fuel-gauge",
+      "interface": "i2c",
+      "capabilities": [
+        "battery",
+        "battery-level",
+        "current-monitor",
+        "battery-fuel-gauge"
+      ],
+      "evidence_cases": [
+        "nesso-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "4000",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "battery-mv",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "250",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "current-ma",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "87",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "battery-level",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "true",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-aw32001",
+          "property": "charging",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:67,160",
+          "capability": "touch keyboard button pointer",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "aw32001": {
+      "status": "simulated",
+      "kind": "pmic",
+      "interface": "i2c",
+      "capabilities": [
+        "charging",
+        "charge-current",
+        "charge-voltage"
+      ],
+      "evidence_cases": [
+        "nesso-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "4000",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "battery-mv",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "250",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "current-ma",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "87",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "battery-level",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "true",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-aw32001",
+          "property": "charging",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:67,160",
+          "capability": "touch keyboard button pointer",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "ip2326": {
+      "status": "partial",
+      "kind": "charger",
+      "interface": "gpio",
+      "capabilities": [
+        "charging"
+      ],
+      "evidence_cases": [],
+      "interfaces": []
+    },
+    "ip2315": {
+      "status": "simulated",
+      "kind": "charger",
+      "interface": "power-path",
+      "capabilities": [
+        "charging"
+      ],
+      "evidence_cases": [
+        "papermono-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "true",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ip2315",
+          "property": "charging",
+          "phase": "boot",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:240,650",
+          "capability": "touch keyboard button pointer",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_IMU_TYPE 6",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_POWER 87 4000 1",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_RTC 2026-10-21 03:04:05",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_SD rw ok",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_TOUCH",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_KEY 1",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_ACCEL 0.25 -0.50 0.75",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "esp32c6-hosted": {
+      "status": "simulated",
+      "kind": "wireless-coprocessor",
+      "interface": "sdio-hosted",
+      "capabilities": [
+        "wifi",
+        "ble"
+      ],
+      "evidence_cases": [
+        "tab5-hosted-peripherals"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "tab5-hosted-peripherals",
+          "device": "tab5",
+          "backend": "external",
+          "test": "tests/uiflow2/run_tab5_ui_test.py",
+          "evidence": "tests/uiflow2/tab5_peripherals/evidence-2026-10-22.json"
+        }
+      ]
+    },
+    "touch-ft5x06": {
+      "status": "simulated",
+      "kind": "touch",
+      "interface": "i2c",
+      "capabilities": [
+        "touch"
+      ],
+      "evidence_cases": [
+        "stackchan-touch"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "2",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/si12t",
+          "property": "touch-bits",
+          "phase": "runtime",
+          "case": "stackchan-touch",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stackchan-touch",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stackchan-touch",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "touch-si12t": {
+      "status": "simulated",
+      "kind": "touch",
+      "interface": "i2c",
+      "capabilities": [
+        "touch"
+      ],
+      "evidence_cases": [
+        "stackchan-touch"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "2",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/si12t",
+          "property": "touch-bits",
+          "phase": "runtime",
+          "case": "stackchan-touch",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stackchan-touch",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stackchan-touch",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "touch-cst820": {
+      "status": "simulated",
+      "kind": "touch",
+      "interface": "i2c",
+      "capabilities": [
+        "touch"
+      ],
+      "evidence_cases": [
+        "stopwatch-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "true",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "charging",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:233,348",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:b",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_IMU_TYPE 6",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_POWER 87 4000 1",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_RTC 2026-10-21 02:12:34",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_TOUCH",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_BTN_A 1",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_BTN_B 1",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_BTN_PWR 1",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_ACCEL 0.25 -0.50 0.75",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "touch-st7123": {
+      "status": "partial",
+      "kind": "touch",
+      "interface": "dsi-i2c",
+      "capabilities": [
+        "touch"
+      ],
+      "evidence_cases": [],
+      "interfaces": []
+    },
+    "keyboard-tca8418": {
+      "status": "simulated",
+      "kind": "keyboard",
+      "interface": "i2c",
+      "capabilities": [
+        "keyboard"
+      ],
+      "evidence_cases": [
+        "cardputer-adv-keyboard"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "cardputer-adv-keyboard",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "cardputer-adv-keyboard",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "m5pm1": {
+      "status": "simulated",
+      "kind": "pmic",
+      "interface": "i2c",
+      "capabilities": [
+        "battery",
+        "charging",
+        "power-key",
+        "gpio",
+        "adc",
+        "pwm",
+        "irq",
+        "wake",
+        "watchdog",
+        "timer",
+        "neopixel"
+      ],
+      "evidence_cases": [
+        "stopwatch-m5pm1-full"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "29",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "gpio-input-bits",
+          "phase": "runtime",
+          "case": "stopwatch-m5pm1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "1650",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "adc1-mv",
+          "phase": "runtime",
+          "case": "stopwatch-m5pm1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "1200",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "adc2-mv",
+          "phase": "runtime",
+          "case": "stopwatch-m5pm1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "temperature-c",
+          "phase": "runtime",
+          "case": "stopwatch-m5pm1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "4",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "wake-source",
+          "phase": "runtime",
+          "case": "stopwatch-m5pm1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-m5pm1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-m5pm1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stopwatch-m5pm1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "axp192": {
+      "status": "simulated",
+      "kind": "pmic",
+      "interface": "i2c",
+      "capabilities": [
+        "battery",
+        "charging",
+        "adc",
+        "power-key",
+        "gpio"
+      ],
+      "evidence_cases": [
+        "core2-axp192"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "3900",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/axp192",
+          "property": "vbat-mv",
+          "phase": "runtime",
+          "case": "core2-axp192",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "5000",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/axp192",
+          "property": "vin-mv",
+          "phase": "runtime",
+          "case": "core2-axp192",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "300",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/axp192",
+          "property": "battery-current-ma",
+          "phase": "runtime",
+          "case": "core2-axp192",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "true",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/axp192",
+          "property": "charging",
+          "phase": "runtime",
+          "case": "core2-axp192",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:160,183",
+          "capability": "touch keyboard button pointer",
+          "case": "core2-axp192",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "core2-axp192",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "axp2101": {
+      "status": "simulated",
+      "kind": "pmic",
+      "interface": "i2c",
+      "capabilities": [
+        "battery",
+        "charging",
+        "power-key"
+      ],
+      "evidence_cases": [
+        "cores3-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-x",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-y",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "45",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-z",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "640",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ltr553",
+          "property": "light-level",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "321",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ltr553",
+          "property": "proximity-level",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:160,183",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_IMU_TYPE 6",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_POWER 87 4000 1",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_ALS 640 321",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_MAG",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_TOUCH",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_BTN_PWR 1",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_IMU 0.250 -0.500 0.750",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "m5ioe1": {
+      "status": "simulated",
+      "kind": "io-expander",
+      "interface": "i2c",
+      "capabilities": [
+        "io-expander",
+        "digital-input",
+        "adc",
+        "pwm",
+        "vibration",
+        "neopixel"
+      ],
+      "evidence_cases": [
+        "stopwatch-m5ioe1-full"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "16382",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5ioe1",
+          "property": "input-bits",
+          "phase": "runtime",
+          "case": "stopwatch-m5ioe1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "1650",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5ioe1",
+          "property": "adc1-mv",
+          "phase": "runtime",
+          "case": "stopwatch-m5ioe1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-m5ioe1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stopwatch-m5ioe1-full",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "aw9523": {
+      "status": "simulated",
+      "kind": "io-expander",
+      "interface": "i2c",
+      "capabilities": [
+        "io-expander",
+        "digital-input",
+        "relay-output",
+        "usb-power",
+        "led-pwm"
+      ],
+      "evidence_cases": [
+        "cores3-aw9523-full"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "61439",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/aw9523",
+          "property": "input-bits",
+          "phase": "runtime",
+          "case": "cores3-aw9523-full",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:160,183",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-aw9523-full",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "cores3-aw9523-full",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "pi4ioe5v6408": {
+      "status": "simulated",
+      "kind": "io-expander",
+      "interface": "i2c",
+      "capabilities": [
+        "io-expander",
+        "digital-input",
+        "relay-output",
+        "button"
+      ],
+      "evidence_cases": [
+        "nesso-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "4000",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "battery-mv",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "250",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "current-ma",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "87",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-bq27220",
+          "property": "battery-level",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "true",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/nesso-aw32001",
+          "property": "charging",
+          "phase": "runtime",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:67,160",
+          "capability": "touch keyboard button pointer",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "nesso-peripherals",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "rx8130": {
+      "status": "simulated",
+      "kind": "rtc",
+      "interface": "i2c",
+      "capabilities": [
+        "rtc"
+      ],
+      "evidence_cases": [
+        "stopwatch-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "true",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "charging",
+          "phase": "runtime",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:233,348",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:b",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_IMU_TYPE 6",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_POWER 87 4000 1",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_RTC 2026-10-21 02:12:34",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_TOUCH",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_BTN_A 1",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_BTN_B 1",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_BTN_PWR 1",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STOPWATCH_ACCEL 0.25 -0.50 0.75",
+          "case": "stopwatch-peripherals",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "pcf8563": {
+      "status": "simulated",
+      "kind": "rtc",
+      "interface": "i2c",
+      "capabilities": [
+        "rtc"
+      ],
+      "evidence_cases": [
+        "stackchan-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "61439",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/aw9523",
+          "property": "input-bits",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "4000",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ina226",
+          "property": "bus-voltage-mv",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "250",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ina226",
+          "property": "current-ma",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.08",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ina226",
+          "property": "shunt-ohms",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "1792630923",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/pcf8563",
+          "property": "unix-time",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "640",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ltr553",
+          "property": "light-level",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "321",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ltr553",
+          "property": "proximity-level",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_IMU_TYPE 6",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_IMU_ACCEL 0.25 -0.50 0.75",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_IMU_GYRO 10.0 -20.0 30.0",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_AW9523 1 0",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_POWER 4.00 0.25 1.00",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_ALS 640 321",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_RTC_INIT 2026 10 22",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_RTC 2026 10 22",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_IR_RX 86 163",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_CHECKS 1 1 1 1 1 1",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_PERIPHERAL_DONE PASS",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "capability": "RMT TX symbol capture",
+          "env": "M5SW_RMT_TX_FILE",
+          "path": "{out_dir}/ir.rmt",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "rmt-symbols",
+          "capability": "RMT RX symbol injection",
+          "env": "M5SW_RMT_RX_FILE",
+          "path": "{out_dir}/nec-56-a3.rmt",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "path": "{out_dir}/ir.rmt",
+          "capability": "NEC IR capture",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "rmt-symbols",
+          "path": "{out_dir}/nec-56-a3.rmt",
+          "capability": "NEC IR injection",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "bmi270": {
+      "status": "simulated",
+      "kind": "imu",
+      "interface": "i2c",
+      "capabilities": [
+        "accel",
+        "gyro"
+      ],
+      "evidence_cases": [
+        "sticks3-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:b",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_IMU_TYPE 6",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BATTERY 87 4000 0",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_A 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_B 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_BTN_PWR 1",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STICKS3_IMU 0.250 -0.500 0.750",
+          "case": "sticks3-peripherals",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "bmm150": {
+      "status": "simulated",
+      "kind": "magnetometer",
+      "interface": "i2c-aux",
+      "capabilities": [
+        "magnetometer"
+      ],
+      "evidence_cases": [
+        "atoms3r-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-x",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-y",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "45",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-z",
+          "phase": "runtime",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "ATOMS3R_IMU_TYPE 6",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "ATOMS3R_BTN 1",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "ATOMS3R_ACCEL -0.50 -0.25 0.75",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "ATOMS3R_GYRO -20.02 -10.01 30.03",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "ATOMS3R_MAG -29.99 -19.49 -89.96",
+          "case": "atoms3r-peripherals",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "mpu6886": {
+      "status": "simulated",
+      "kind": "imu",
+      "interface": "i2c",
+      "capabilities": [
+        "accel",
+        "gyro"
+      ],
+      "evidence_cases": [
+        "core2-imu"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/mpu6886",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "core2-imu",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/mpu6886",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "core2-imu",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/mpu6886",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "core2-imu",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/mpu6886",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "core2-imu",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/mpu6886",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "core2-imu",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/mpu6886",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "core2-imu",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:160,183",
+          "capability": "touch keyboard button pointer",
+          "case": "core2-imu",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "core2-imu",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "es8311": {
+      "status": "simulated",
+      "kind": "audio-codec",
+      "interface": "i2c-i2s",
+      "capabilities": [
+        "audio-codec",
+        "microphone",
+        "speaker"
+      ],
+      "evidence_cases": [
+        "sticks3-audio"
+      ],
+      "interfaces": [
+        {
+          "direction": "output",
+          "expected": "true",
+          "value_type": "qom",
+          "capability": "device state readback",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "pa-enabled",
+          "phase": "runtime",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "capability": "speaker PCM capture",
+          "env": "M5SW_I2S_PCM_FILE",
+          "path": "{out_dir}/speaker.pcm",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/speaker.pcm",
+          "capability": "speaker PCM verification",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "es7210": {
+      "status": "simulated",
+      "kind": "audio-adc",
+      "interface": "i2c-i2s",
+      "capabilities": [
+        "audio-codec",
+        "microphone"
+      ],
+      "evidence_cases": [
+        "cores3-mic"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-mic",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "pcm-s16le",
+          "capability": "microphone PCM injection",
+          "env": "M5SW_I2S_RX_PCM_FILE",
+          "path": "{out_dir}/microphone.pcm",
+          "case": "cores3-mic",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/microphone.pcm",
+          "capability": "microphone PCM source",
+          "case": "cores3-mic",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "cores3-mic",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "es8388": {
+      "status": "planned",
+      "kind": "audio-codec",
+      "interface": "i2c-i2s",
+      "capabilities": [
+        "audio-codec",
+        "microphone",
+        "speaker"
+      ],
+      "evidence_cases": [],
+      "interfaces": []
+    },
+    "es8389": {
+      "status": "simulated",
+      "kind": "audio-codec",
+      "interface": "i2c-i2s",
+      "capabilities": [
+        "audio-codec",
+        "microphone",
+        "speaker"
+      ],
+      "evidence_cases": [
+        "cardputer-zero-full"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "cardputer-zero-full",
+          "device": "cardputer-zero",
+          "backend": "external",
+          "test": "tests/cardputer_zero/run_full_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        }
+      ]
+    },
+    "aw88298": {
+      "status": "simulated",
+      "kind": "audio-amplifier",
+      "interface": "i2c-i2s",
+      "capabilities": [
+        "speaker"
+      ],
+      "evidence_cases": [
+        "cores3-audio"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-audio",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "capability": "speaker PCM capture",
+          "env": "M5SW_I2S_PCM_FILE",
+          "path": "{out_dir}/speaker.pcm",
+          "case": "cores3-audio",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/speaker.pcm",
+          "capability": "speaker PCM verification",
+          "case": "cores3-audio",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "cores3-audio",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "aw8737a": {
+      "status": "simulated",
+      "kind": "audio-amplifier",
+      "interface": "gpio",
+      "capabilities": [
+        "speaker"
+      ],
+      "evidence_cases": [
+        "sticks3-audio"
+      ],
+      "interfaces": [
+        {
+          "direction": "output",
+          "expected": "true",
+          "value_type": "qom",
+          "capability": "device state readback",
+          "adapter": "qmp-qom",
+          "path": "/machine/m5pm1",
+          "property": "pa-enabled",
+          "phase": "runtime",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "capability": "speaker PCM capture",
+          "env": "M5SW_I2S_PCM_FILE",
+          "path": "{out_dir}/speaker.pcm",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/speaker.pcm",
+          "capability": "speaker PCM verification",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "sticks3-audio",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "aw8737a-bcm2837": {
+      "status": "simulated",
+      "kind": "audio-amplifier",
+      "interface": "gpio-pcm",
+      "capabilities": [
+        "speaker"
+      ],
+      "evidence_cases": [
+        "cardputer-zero-full"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "cardputer-zero-full",
+          "device": "cardputer-zero",
+          "backend": "external",
+          "test": "tests/cardputer_zero/run_full_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        }
+      ]
+    },
+    "ns4168": {
+      "status": "simulated",
+      "kind": "audio-amplifier",
+      "interface": "i2s",
+      "capabilities": [
+        "speaker"
+      ],
+      "evidence_cases": [
+        "core2-audio"
+      ],
+      "interfaces": [
+        {
+          "direction": "output",
+          "expected": "true",
+          "value_type": "qom",
+          "capability": "device state readback",
+          "adapter": "qmp-qom",
+          "path": "/machine/axp2101",
+          "property": "speaker-enabled",
+          "phase": "runtime",
+          "case": "core2-audio",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:160,183",
+          "capability": "touch keyboard button pointer",
+          "case": "core2-audio",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "capability": "speaker PCM capture",
+          "env": "M5SW_I2S_PCM_FILE",
+          "path": "{out_dir}/speaker.pcm",
+          "case": "core2-audio",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/speaker.pcm",
+          "capability": "speaker PCM verification",
+          "case": "core2-audio",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "core2-audio",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "spm1423": {
+      "status": "simulated",
+      "kind": "pdm-microphone",
+      "interface": "pdm",
+      "capabilities": [
+        "microphone"
+      ],
+      "evidence_cases": [
+        "core2-mic"
+      ],
+      "interfaces": [
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "pcm-s16le",
+          "capability": "microphone PCM injection",
+          "env": "M5SW_I2S_RX_PCM_FILE",
+          "path": "{out_dir}/microphone.pcm",
+          "case": "core2-mic",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/microphone.pcm",
+          "capability": "microphone PCM source",
+          "case": "core2-mic",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "core2-mic",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "pdm-microphone": {
+      "status": "simulated",
+      "kind": "pdm-microphone",
+      "interface": "pdm",
+      "capabilities": [
+        "microphone"
+      ],
+      "evidence_cases": [
+        "papermono-pdm-mic"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "papermono-pdm-mic",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "pcm-s16le",
+          "capability": "microphone PCM injection",
+          "env": "M5SW_I2S_RX_PCM_FILE",
+          "path": "{out_dir}/microphone.pcm",
+          "case": "papermono-pdm-mic",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/microphone.pcm",
+          "capability": "microphone PCM source",
+          "case": "papermono-pdm-mic",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "papermono-pdm-mic",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "gc0308": {
+      "status": "simulated",
+      "kind": "camera",
+      "interface": "dvp-sccb",
+      "capabilities": [
+        "camera"
+      ],
+      "evidence_cases": [
+        "cores3-camera"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-camera",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_CAMERA_PASS 320x240 153600 bytes",
+          "case": "cores3-camera",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "lp5562": {
+      "status": "simulated",
+      "kind": "led-controller",
+      "interface": "i2c",
+      "capabilities": [
+        "rgb-led",
+        "display-backlight"
+      ],
+      "evidence_cases": [
+        "atoms3r-lp5562"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "atoms3r-lp5562",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "atoms3r-lp5562",
+          "device": "atoms3r",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "ns4150b": {
+      "status": "simulated",
+      "kind": "audio-amplifier",
+      "interface": "gpio-analog",
+      "capabilities": [
+        "speaker"
+      ],
+      "evidence_cases": [
+        "cardputer-adv-audio"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "cardputer-adv-audio",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "capability": "speaker PCM capture",
+          "env": "M5SW_I2S_PCM_FILE",
+          "path": "{out_dir}/speaker.pcm",
+          "case": "cardputer-adv-audio",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/speaker.pcm",
+          "capability": "speaker PCM verification",
+          "case": "cardputer-adv-audio",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "cardputer-adv-audio",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "sc2356": {
+      "status": "planned",
+      "kind": "camera",
+      "interface": "mipi-csi-sccb",
+      "capabilities": [
+        "camera"
+      ],
+      "evidence_cases": [],
+      "interfaces": []
+    },
+    "camera-imx219": {
+      "status": "simulated",
+      "kind": "camera",
+      "interface": "mipi-csi-sccb",
+      "capabilities": [
+        "camera"
+      ],
+      "evidence_cases": [
+        "cardputer-zero-camera"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "cardputer-zero-camera",
+          "device": "cardputer-zero",
+          "backend": "external",
+          "test": "tests/cardputer_zero/run_camera_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        }
+      ]
+    },
+    "ethernet-sr9900a": {
+      "status": "simulated",
+      "kind": "ethernet-controller",
+      "interface": "usb",
+      "capabilities": [
+        "ethernet"
+      ],
+      "evidence_cases": [
+        "cardputer-zero-ethernet"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "cardputer-zero-ethernet",
+          "device": "cardputer-zero",
+          "backend": "external",
+          "test": "tests/cardputer_zero/run_usb_ethernet_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        }
+      ]
+    },
+    "sht40": {
+      "status": "simulated",
+      "kind": "temperature-humidity",
+      "interface": "i2c",
+      "capabilities": [
+        "temperature",
+        "humidity"
+      ],
+      "evidence_cases": [
+        "papercolor-sht4x"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "papercolor-sht4x",
+          "device": "papercolor",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "papercolor-sht4x",
+          "device": "papercolor",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "lm75": {
+      "status": "simulated",
+      "kind": "temperature",
+      "interface": "i2c",
+      "capabilities": [
+        "temperature"
+      ],
+      "evidence_cases": [
+        "stamplc-lm75"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "37.5",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/lm75",
+          "property": "temperature-c",
+          "phase": "boot",
+          "case": "stamplc-lm75",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stamplc-lm75",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stamplc-lm75",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "ina226": {
+      "status": "simulated",
+      "kind": "power-monitor",
+      "interface": "i2c",
+      "capabilities": [
+        "power-monitor"
+      ],
+      "evidence_cases": [
+        "stackchan-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "61439",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/aw9523",
+          "property": "input-bits",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "4000",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ina226",
+          "property": "bus-voltage-mv",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "250",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ina226",
+          "property": "current-ma",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.08",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ina226",
+          "property": "shunt-ohms",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "1792630923",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/pcf8563",
+          "property": "unix-time",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "640",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ltr553",
+          "property": "light-level",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "321",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ltr553",
+          "property": "proximity-level",
+          "phase": "boot",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_IMU_TYPE 6",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_IMU_ACCEL 0.25 -0.50 0.75",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_IMU_GYRO 10.0 -20.0 30.0",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_AW9523 1 0",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_POWER 4.00 0.25 1.00",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_ALS 640 321",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_RTC_INIT 2026 10 22",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_RTC 2026 10 22",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_IR_RX 86 163",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_CHECKS 1 1 1 1 1 1",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "STACKCHAN_PERIPHERAL_DONE PASS",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "capability": "RMT TX symbol capture",
+          "env": "M5SW_RMT_TX_FILE",
+          "path": "{out_dir}/ir.rmt",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "rmt-symbols",
+          "capability": "RMT RX symbol injection",
+          "env": "M5SW_RMT_RX_FILE",
+          "path": "{out_dir}/nec-56-a3.rmt",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "path": "{out_dir}/ir.rmt",
+          "capability": "NEC IR capture",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "input",
+          "format": "rmt-symbols",
+          "path": "{out_dir}/nec-56-a3.rmt",
+          "capability": "NEC IR injection",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stackchan-peripherals",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "ina3221": {
+      "status": "simulated",
+      "kind": "power-monitor",
+      "interface": "i2c",
+      "capabilities": [
+        "bus-voltage",
+        "current",
+        "power-monitor"
+      ],
+      "evidence_cases": [
+        "core2-power-monitor"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "4800",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ina3221-40",
+          "property": "bus1-mv",
+          "phase": "runtime",
+          "case": "core2-power-monitor",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "240",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ina3221-40",
+          "property": "current1-ma",
+          "phase": "runtime",
+          "case": "core2-power-monitor",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:160,183",
+          "capability": "touch keyboard button pointer",
+          "case": "core2-power-monitor",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "core2-power-monitor",
+          "device": "core2",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "ltr-553als-wa": {
+      "status": "simulated",
+      "kind": "light-proximity",
+      "interface": "i2c",
+      "capabilities": [
+        "ambient-light",
+        "proximity"
+      ],
+      "evidence_cases": [
+        "cores3-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-x",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-y",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "45",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmm150",
+          "property": "mag-z",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "640",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ltr553",
+          "property": "light-level",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "321",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ltr553",
+          "property": "proximity-level",
+          "phase": "runtime",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:160,183",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:p",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_IMU_TYPE 6",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_POWER 87 4000 1",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_ALS 640 321",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_MAG",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_TOUCH",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_BTN_PWR 1",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "CORES3_IMU 0.250 -0.500 0.750",
+          "case": "cores3-peripherals",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "ir-tx-rx": {
+      "status": "simulated",
+      "kind": "infrared",
+      "interface": "rmt-gpio",
+      "capabilities": [
+        "ir"
+      ],
+      "evidence_cases": [
+        "sticks3-ir"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "sticks3-ir",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "capability": "RMT TX symbol capture",
+          "env": "M5SW_RMT_TX_FILE",
+          "path": "{out_dir}/ir.rmt",
+          "case": "sticks3-ir",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "path": "{out_dir}/ir.rmt",
+          "capability": "NEC IR capture",
+          "case": "sticks3-ir",
+          "device": "sticks3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "ir-tx-rx-bcm2837": {
+      "status": "simulated",
+      "kind": "infrared",
+      "interface": "gpio-ir",
+      "capabilities": [
+        "ir"
+      ],
+      "evidence_cases": [
+        "cardputer-zero-full"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "cardputer-zero-full",
+          "device": "cardputer-zero",
+          "backend": "external",
+          "test": "tests/cardputer_zero/run_full_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        }
+      ]
+    },
+    "ir-tx-c6": {
+      "status": "simulated",
+      "kind": "infrared",
+      "interface": "rmt-gpio",
+      "capabilities": [
+        "ir",
+        "ir-tx"
+      ],
+      "evidence_cases": [
+        "nesso-ir"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:67,160",
+          "capability": "touch keyboard button pointer",
+          "case": "nesso-ir",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "capability": "RMT TX symbol capture",
+          "env": "M5SW_RMT_TX_FILE",
+          "path": "{out_dir}/ir.rmt",
+          "case": "nesso-ir",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "path": "{out_dir}/ir.rmt",
+          "capability": "NEC IR capture",
+          "case": "nesso-ir",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "nesso-ir",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "rgb-led": {
+      "status": "simulated",
+      "kind": "led",
+      "interface": "rmt",
+      "capabilities": [
+        "rgb-led"
+      ],
+      "evidence_cases": [
+        "papercolor-rgb"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "papercolor-rgb",
+          "device": "papercolor",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "capability": "RMT TX symbol capture",
+          "env": "M5SW_RMT_TX_FILE",
+          "path": "{out_dir}/rgb.rmt",
+          "case": "papercolor-rgb",
+          "device": "papercolor",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "rmt-symbols",
+          "path": "{out_dir}/rgb.rmt",
+          "capability": "WS2812 waveform capture",
+          "case": "papercolor-rgb",
+          "device": "papercolor",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "papercolor-rgb",
+          "device": "papercolor",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "gpio-led": {
+      "status": "simulated",
+      "kind": "led",
+      "interface": "gpio",
+      "capabilities": [
+        "led-output"
+      ],
+      "evidence_cases": [
+        "nanoc6-peripherals"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "nanoc6-peripherals",
+          "device": "nanoc6",
+          "backend": "external",
+          "test": "tests/uiflow2/run_nanoc6_peripherals.py",
+          "evidence": "tests/uiflow2/nanoc6_peripherals/evidence-2026-10-22.json"
+        }
+      ]
+    },
+    "vibration": {
+      "status": "simulated",
+      "kind": "actuator",
+      "interface": "gpio-expander",
+      "capabilities": [
+        "vibration"
+      ],
+      "evidence_cases": [
+        "stopwatch-vibration"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stopwatch-vibration",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stopwatch-vibration",
+          "device": "stopwatch",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "buzzer": {
+      "status": "simulated",
+      "kind": "actuator",
+      "interface": "i2s-gpio",
+      "capabilities": [
+        "buzzer"
+      ],
+      "evidence_cases": [
+        "stamplc-buzzer"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stamplc-buzzer",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "capability": "speaker PCM capture",
+          "env": "M5SW_I2S_PCM_FILE",
+          "path": "{out_dir}/buzzer.pcm",
+          "case": "stamplc-buzzer",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/buzzer.pcm",
+          "capability": "speaker PCM verification",
+          "case": "stamplc-buzzer",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stamplc-buzzer",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "i2s-buzzer-c6": {
+      "status": "simulated",
+      "kind": "actuator",
+      "interface": "i2s-gpio",
+      "capabilities": [
+        "buzzer"
+      ],
+      "evidence_cases": [
+        "nesso-buzzer"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:67,160",
+          "capability": "touch keyboard button pointer",
+          "case": "nesso-buzzer",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "capability": "speaker PCM capture",
+          "env": "M5SW_I2S_PCM_FILE",
+          "path": "{out_dir}/buzzer.pcm",
+          "case": "nesso-buzzer",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "host-file",
+          "direction": "output",
+          "format": "pcm-s16le",
+          "path": "{out_dir}/buzzer.pcm",
+          "capability": "speaker PCM verification",
+          "case": "nesso-buzzer",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "nesso-buzzer",
+          "device": "nesso-n1",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "can": {
+      "status": "simulated",
+      "kind": "fieldbus",
+      "interface": "twai",
+      "capabilities": [
+        "can"
+      ],
+      "evidence_cases": [
+        "stamplc-can"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stamplc-can",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stamplc-can",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "rs485": {
+      "status": "simulated",
+      "kind": "fieldbus",
+      "interface": "uart",
+      "capabilities": [
+        "rs485"
+      ],
+      "evidence_cases": [
+        "stamplc-rs485"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stamplc-rs485",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stamplc-rs485",
+          "device": "stamplc",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "servo": {
+      "status": "simulated",
+      "kind": "servo",
+      "interface": "uart",
+      "capabilities": [
+        "servo"
+      ],
+      "evidence_cases": [
+        "stackchan-servo"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "stackchan-servo",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "stackchan-servo",
+          "device": "stackchan",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "nfc-st25r3916": {
+      "status": "simulated",
+      "kind": "nfc",
+      "interface": "i2c",
+      "capabilities": [
+        "nfc",
+        "iso14443a"
+      ],
+      "evidence_cases": [
+        "papermono-nfc"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "papermono-nfc",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "papermono-nfc",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "nfc-st25r3916-spi": {
+      "status": "simulated",
+      "kind": "nfc",
+      "interface": "spi",
+      "capabilities": [
+        "nfc",
+        "iso14443a"
+      ],
+      "evidence_cases": [
+        "cardputer-adv-nfc"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "cardputer-adv-nfc",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "cardputer-adv-nfc",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "lora-sx1262": {
+      "status": "simulated",
+      "kind": "lora",
+      "interface": "spi",
+      "capabilities": [
+        "lora"
+      ],
+      "evidence_cases": [
+        "papermono-lora"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "papermono-lora",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "papermono-lora",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "cc1101-subghz": {
+      "status": "simulated",
+      "kind": "subghz-radio",
+      "interface": "spi",
+      "capabilities": [
+        "subghz"
+      ],
+      "evidence_cases": [
+        "cardputer-adv-cc1101"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "cardputer-adv-cc1101",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "cardputer-adv-cc1101",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "sd-card": {
+      "status": "simulated",
+      "kind": "storage",
+      "interface": "sdmmc",
+      "capabilities": [
+        "sd"
+      ],
+      "evidence_cases": [
+        "papermono-peripherals"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "true",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/ip2315",
+          "property": "charging",
+          "phase": "boot",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.25",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-x",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-0.50",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-y",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "0.75",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "accel-z",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "10",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-x",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-20",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-y",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "30",
+          "value_type": "qom",
+          "capability": "runtime physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/bmi270",
+          "property": "gyro-z",
+          "phase": "runtime",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:240,650",
+          "capability": "touch keyboard button pointer",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_IMU_TYPE 6",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_POWER 87 4000 1",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_RTC 2026-10-21 03:04:05",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_SD rw ok",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_TOUCH",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_KEY 1",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "serial",
+          "direction": "output",
+          "channel": "uart0",
+          "expect": "PAPERMONO_ACCEL 0.25 -0.50 0.75",
+          "case": "papermono-peripherals",
+          "device": "papermono",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "sd-card-spi": {
+      "status": "simulated",
+      "kind": "storage",
+      "interface": "spi",
+      "capabilities": [
+        "sd"
+      ],
+      "evidence_cases": [
+        "cardputer-adv-sd"
+      ],
+      "interfaces": [
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "key:a",
+          "capability": "touch keyboard button pointer",
+          "case": "cardputer-adv-sd",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "block-device",
+          "direction": "input-output",
+          "format": "raw",
+          "path": "{out_dir}/sd.img",
+          "sector": 100,
+          "capability": "SD block read/write",
+          "case": "cardputer-adv-sd",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "framebuffer",
+          "direction": "output",
+          "capability": "rendered display capture",
+          "case": "cardputer-adv-sd",
+          "device": "cardputer-adv",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "usb-host": {
+      "status": "simulated",
+      "kind": "usb-host",
+      "interface": "usb",
+      "capabilities": [
+        "usb-host"
+      ],
+      "evidence_cases": [
+        "cores3-usb-hid"
+      ],
+      "interfaces": [
+        {
+          "direction": "input",
+          "value": "5",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/max3421e-usb",
+          "property": "mouse-x",
+          "phase": "boot",
+          "case": "cores3-usb-hid",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "-3",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/max3421e-usb",
+          "property": "mouse-y",
+          "phase": "boot",
+          "case": "cores3-usb-hid",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "input",
+          "value": "1",
+          "value_type": "qom",
+          "capability": "boot-time physical state",
+          "adapter": "qmp-qom",
+          "path": "/machine/max3421e-usb",
+          "property": "mouse-buttons",
+          "phase": "boot",
+          "case": "cores3-usb-hid",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "output",
+          "expected": "1",
+          "value_type": "qom",
+          "capability": "device state readback",
+          "adapter": "qmp-qom",
+          "path": "/machine/max3421e-usb",
+          "property": "enumerated",
+          "phase": "runtime",
+          "case": "cores3-usb-hid",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "direction": "output",
+          "expected": "1",
+          "value_type": "qom",
+          "capability": "device state readback",
+          "adapter": "qmp-qom",
+          "path": "/machine/max3421e-usb",
+          "property": "last-report",
+          "phase": "runtime",
+          "case": "cores3-usb-hid",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        },
+        {
+          "adapter": "qmp-input",
+          "direction": "input",
+          "control": "touch:160,183",
+          "capability": "touch keyboard button pointer",
+          "case": "cores3-usb-hid",
+          "device": "cores3",
+          "backend": "qemu-runtime"
+        }
+      ]
+    },
+    "usb-host-p4-dwc": {
+      "status": "planned",
+      "kind": "usb-host",
+      "interface": "usb",
+      "capabilities": [
+        "usb-host"
+      ],
+      "evidence_cases": [],
+      "interfaces": []
+    },
+    "usb-hub-gl852g": {
+      "status": "simulated",
+      "kind": "usb-hub",
+      "interface": "usb",
+      "capabilities": [
+        "usb-host"
+      ],
+      "evidence_cases": [
+        "cardputer-zero-ethernet"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "cardputer-zero-ethernet",
+          "device": "cardputer-zero",
+          "backend": "external",
+          "test": "tests/cardputer_zero/run_usb_ethernet_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        }
+      ]
+    },
+    "linux-bcm2837": {
+      "status": "simulated",
+      "kind": "platform",
+      "interface": "linux-arm64",
+      "capabilities": [
+        "display-output",
+        "framebuffer-capture",
+        "input-event"
+      ],
+      "evidence_cases": [
+        "cardputer-zero-full"
+      ],
+      "interfaces": [
+        {
+          "adapter": "external-probe",
+          "direction": "input-output",
+          "case": "cardputer-zero-full",
+          "device": "cardputer-zero",
+          "backend": "external",
+          "test": "tests/cardputer_zero/run_full_probe.py",
+          "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+        }
+      ]
+    }
+  }
+}

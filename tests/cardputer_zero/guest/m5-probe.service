@@ -1,0 +1,13 @@
+[Unit]
+Description=CardputerZero emulator hardware probe
+After=systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/m5-probe
+StandardOutput=journal+console
+StandardError=journal+console
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

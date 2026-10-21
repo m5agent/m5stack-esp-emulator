@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-21",
+  "updated": "2026-10-22",
+  "device": "cardputer-zero",
+  "scope": "QEMU/Linux simulation only; not real-hardware validation",
+  "image": {
+    "release": "cardputerzero-trixie-arm64-stable",
+    "kernel": "6.18.39+rpt-rpi-v8",
+    "memory": "512M",
+    "boot_marker": "M5_CZ_PROBE_DONE"
+  },
+  "display": {
+    "drm_card": "card0-SPI-1",
+    "framebuffer": "/dev/fb1",
+    "width": 320,
+    "height": 170,
+    "bits_per_pixel": 16,
+    "stride": 640,
+    "frame_bytes": 108800,
+    "frame_before_sha256": "8a444883de6eed72f39d80695e67c237575365e3712bb6ff61b8b6ec9454596c",
+    "frame_after_sha256": "8a444883de6eed72f39d80695e67c237575365e3712bb6ff61b8b6ec9454596c",
+    "note": "The registered 320x170 framebuffer was captured before and after input; both frames were identical and black. No application UI redraw was asserted in this run."
+  },
+  "keyboard": {
+    "controller": "TCA8418",
+    "gpio": 27,
+    "linux_driver": "tca8418_keypad",
+    "qmp_event": "0x81",
+    "linux_input_hex": "98bfd86a00000000d7d70100000000000400040000000000",
+    "event_read_rc": 0
+  },
+  "i2c": {
+    "tca8418": "tca8418_keypad",
+    "m5ioe1": "m5ioe1-gpio",
+    "bmi270": "bmi270_i2c",
+    "bmm150": "bmm150",
+    "rx8130": "rtc-ds1307",
+    "bq27220": "bq27xxx-battery"
+  },
+  "camera": {
+    "sensor": "Sony IMX219",
+    "sensor_driver": "imx219",
+    "receiver": "BCM2837 Unicam CSI1",
+    "receiver_driver": "unicam",
+    "media_device": "/dev/media0",
+    "video_device": "/dev/video0",
+    "format": "RG10",
+    "width": 640,
+    "height": 480,
+    "stride": 1280,
+    "frame_bytes": 614400,
+    "frame_sha256": "5568cf027da59228168e211e27283adaad4eaf6c299a4ad44026b0b703f7af4c",
+    "runner": "tests/cardputer_zero/run_camera_probe.py",
+    "note": "Linux programmed the Unicam DMA address, size and stride; QEMU generated the frame from the IMX219 mode/window/timing/exposure/gain/test-pattern registers, wrote it into the guest V4L2 buffer and raised CAM1 frame-start/frame-end interrupts."
+  },
+  "camera_controls": {
+    "runner": "tests/cardputer_zero/run_camera_probe.py --controls",
+    "sensor_subdevice": "/dev/v4l-subdev0",
+    "test_pattern_menu_index": 2,
+    "test_pattern_register": 1,
+    "exposure_control": 1000,
+    "exposure_register": 500,
+    "analogue_gain_register": 64,
+    "digital_gain_register": 320,
+    "output": "640x480 RG10",
+    "frame_interval_ms": 17,
+    "frame_sha256": "d837dbbc02798310b0f7f940cc5e1c6e469ef5a7ffbe7feb8d92f0c8a8f5bcbe",
+    "status": "PASS"
+  },
+  "factory_ui": {
+    "runner": "tests/cardputer_zero/run_factory_ui_probe.py",
+    "startup": "PASS",
+    "frame": "PASS",
+    "confirmed": [
+      "using /dev/fb1",
+      "TCA8418 Linux input discovery",
+      "asset root /usr/share/factory_test",
+      "LVGL app started at 320x170"
+    ],
+    "frame_hash": "3c224d79a3ffd6ef5d0f5d8b489e7163b2e28cc3bfa17e33942fff7bf26aa9a2",
+    "changed": true,
+    "pixels": 54400,
+    "nonblack_pixels": 54400,
+    "unique_rgb565": 127,
+    "note": "The framebuffer became non-black after LVGL startup; the SPI panel sink did not emit a separate PPM in this run."
+  },
+  "power": {
+    "voltage_now_uv": 4000000,
+    "current_now_ua": 250000,
+    "capacity_percent": 87,
+    "charge_full_design_uah": 1750000,
+    "charger_model": "ip2315",
+    "qmp_initial_charging": true,
+    "qmp_injected_charging": false,
+    "power_status_before": "Charging",
+    "power_status_after": "Discharging",
+    "current_before_ua": 250000,
+    "current_after_ua": -250000,
+    "note": "IP2315 is autonomous in the schematic; its power-path state is injected through /machine/peripheral/m5-ip2315 and observed through the BQ27220 signed-current path in Linux."
+  },
+  "usb": {
+    "controller": "bcm2835-dwc2",
+    "hub_model": "gl852g",
+    "hub_id": "05e3:0610",
+    "hub_product": "GL852G USB 2.0 Hub",
+    "hub_manufacturer": "Genesys Logic, Inc.",
+    "linux_device": "1-1",
+    "downstream_ports": 4,
+    "speed": "high-speed",
+    "direct_root_probe": {
+      "speed": "high-speed",
+      "driver": "r8152",
+      "interface": "eth0",
+      "carrier": true,
+    "note": "Both direct root-port attachment and the GL852G downstream path enumerate SR9900A at High-Speed."
+    },
+  "hub_downstream_speed": "TT-compatible high-speed upstream presentation",
+  "hub_full_speed_tt_probe": {
+    "status": "PASS",
+    "child_speed_forced": "full-speed",
+    "qom_tt_active_port_mask": 1,
+    "ethernet_roundtrip": "PASS",
+    "note": "The hub retains the Full-Speed SR9900A child model while presenting the TT-compatible upstream port to DWC2."
+  },
+  "hub_low_speed_tt_probe": {
+    "status": "PASS",
+    "runner": "tests/cardputer_zero/run_usb_low_speed_probe.py",
+    "child": "usb-mouse, low-speed-only",
+    "usb_id": "0627:0001",
+    "qom_tt_active_port_mask": 2,
+    "linux_input": "QEMU QEMU USB Mouse"
+  },
+    "ethernet": {
+      "model": "SR9900A",
+      "usb_id": "0fe6:9900",
+      "driver": "r8152",
+      "interface": "eth0",
+      "carrier": true,
+      "tx_frame": "02000000990102000000990088b54d352d535239393030412d5458000000000000000000000000000000000000000000000000000000000000000000",
+      "rx_frame": "02000000990002000000990188b54d352d535239393030412d5258000000000000000000000000000000000000000000000000000000000000000000",
+      "roundtrip": "PASS",
+      "limit": "TT packet timing is functional, not cycle-accurate"
+    }
+  },
+  "audio": {
+    "alsa_card": "0 [ES8388Audio]: simple-card - ES8388-Audio",
+    "codec_driver": "es8389",
+    "codec_chip_id": "0x83:0x89",
+    "codec_state_register": "0x0d",
+    "playback_rc": 0,
+    "captured_pcm_file": "/tmp/cardputerzero-audio-gpio24-final.pcm",
+    "captured_bytes": 1048576,
+    "captured_samples_s16": 524288,
+    "nonzero_samples": 211178,
+    "peak_abs": 2896,
+    "rms": 1299.6,
+    "amplifier_enable_gpio": 24,
+    "amplifier_enable_level": 1,
+    "microphone_capture": "PASS",
+    "microphone_capture_rc": 0,
+    "microphone_capture_bytes": 64044,
+    "microphone_capture_sha256": "4817989dbf19ea4425435d4549d4f3b5f4077385e5f52eeb105df66aabefec1c",
+    "microphone_source": "2 s, 16 kHz, stereo, S16_LE, 440 Hz sine; first 64000 bytes injected through the BCM2835 I2S RX FIFO",
+    "microphone_note": "The captured WAV is byte-identical to the injected PCM payload after a canonical 44-byte RIFF header.",
+    "dma_path": "DREQ control blocks advance one period per virtual timer tick; cyclic ALSA descriptors no longer spin or force an abort"
+  },
+  "infrared": {
+    "receiver_device": "/dev/lirc1",
+    "transmitter_device": "/dev/lirc0",
+    "qmp_injection": "PASS",
+    "received_mode2_bytes": 773,
+    "receive_timeout_rc": 124,
+    "transmit_rc": 0,
+    "transmit_captured_edges": 2136,
+    "gpio": {
+      "receiver": 13,
+      "transmitter": 12
+    }
+  },
+  "esp_regressions": [
+    "cardputer-adv-keyboard: PASS",
+    "cardputer-adv-imu: PASS",
+    "nesso-peripherals: PASS",
+    "nesso-buzzer: PASS",
+    "cores3-usb-hid: PASS"
+  ],
+  "combined_final_validation": {
+    "runner": "tests/cardputer_zero/run_full_probe.py",
+    "elapsed_seconds": 137.287,
+    "keyboard": "PASS",
+    "audio_capture": "PASS",
+    "audio_capture_sha256": "3dd193afb1f01af2126fb644161a2c3b8ec401906dd2fa602f71c653e310c72f",
+    "charging_transition": "PASS",
+    "gl852g_hub": "PASS",
+    "sr9900a_ethernet_roundtrip": "PASS",
+    "usb_ethernet_speed": "high",
+    "usb_tt_active_port_mask": 1,
+    "imx219_v4l2_frame_sha256": "5568cf027da59228168e211e27283adaad4eaf6c299a4ad44026b0b703f7af4c",
+    "peripheral_bindings": "PASS"
+  },
+  "usb_ethernet_validation": {
+    "runner": "tests/cardputer_zero/run_usb_ethernet_probe.py",
+    "elapsed_seconds": 106.489,
+    "path": "direct-root-port",
+    "usb_id": "0fe6:9900",
+    "driver": "r8152",
+    "network_interface": "eth0",
+    "speed": "full-speed",
+    "carrier": "PASS",
+    "tx_frame": "PASS",
+    "rx_frame": "PASS",
+    "roundtrip": "PASS",
+    "limit": "Direct-root Full-Speed passes; the GL852G TT-compatible downstream path also passes its isolated round-trip probe"
+  },
+  "unresolved": [
+    "Tab5 still requires native P4 CSI, I2S, USB Host, SDIO and register-level ST7123 support"
+  ]
+}

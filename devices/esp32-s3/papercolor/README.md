@@ -4,6 +4,7 @@
 - 分组：`ESP32-S3`
 - 外壳：`电子纸`
 - 运行时：`reference-ready`
+- 外设仿真：`simulated`
 - UIFlow2：`支持`，m5ui：`不支持`
 - UIFlow2 固件：v2.5.3 / `1897200000000002033`
 
@@ -19,7 +20,7 @@
 | 重量 | 73.3 g |
 | 显示 | 400×600 e-paper-color，4"，E Ink Spectra 6，无触摸 |
 | 控制 | KEY1, KEY2, KEY3, PWR |
-| 外设 | temperature-humidity:sht40, rtc:rx8130ce, audio:es7210, microphone:es7210, speaker:aw8737a, rgb-led:ws2812-rmt, storage:sd-spi |
+| 外设 | temperature-humidity:sht40, rtc:rx8130ce, audio:es7210, microphone:es7210, speaker:aw8737a, rgb-led:ws2812-rmt, ir, storage:sd-spi |
 
 ## 模拟状态
 
@@ -27,6 +28,8 @@ reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-peripherals-pass` (2026-10-21)
 - 详情：官方 UIFlow2 v2.5.3 渲染 400x600 六色电子纸 UI；按键、SHT4X、ES8311/ES7210 音频、SPI microSD 和两颗 RMT WS2812 RGB LED 均已闭环。
+
+
 
 
 

@@ -1,6 +1,6 @@
 # UIFlow2 外设 API 测试矩阵
 
-日期：`2026-10-21`
+日期：`2026-10-22`
 
 本矩阵验证的是 QEMU 中的完整控制器/总线路径，而不是在 Python 测试代码里伪造
 API 返回值。当前结果只代表仿真验收，不是实机验收。
@@ -17,11 +17,11 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | AtomS3R | 用户按键 | `BtnA` | PASS |
 | CoreS3 | BMI270 + BMM150 | `Imu.getAccel/getGyro/getMag()` | PASS |
 | CoreS3 | FT6336、PWR、AXP2101、BM8563 | Touch / Button / Power / RTC | PASS |
-| CoreS3 | LTR553 环境光 | `M5.Als` | PASS |
+| CoreS3 / StackChan | LTR553 环境光与接近 | `M5.Als` | PASS |
 | CoreS3 | GC0308 初始化、LCD_CAM 采集、GDMA 帧、拍照 | `camera.init()` / `camera.snapshot()` | PASS |
 | StopWatch | BMI270、CST820、M5PM1、RX8130、A/B/PWR | IMU / Touch / Power / RTC / Button | PASS |
 | StamPLC | PI4IOE 继电器/输入、RGB、INA226 | StamPLC / INA226Unit | PASS |
-| PaperMono | BMI270、M5PM1、RX8130、FT6336、按键、SDMMC | IMU / Power / RTC / Touch / Button / SDCard | PASS |
+| PaperMono | BMI270、M5PM1、IP2315、RX8130、FT6336、按键、SDMMC | IMU / Power / RTC / Touch / Button / SDCard | PASS |
 | StickS3 | RMT0 NEC 38 kHz 红外发送 | `hardware.IR.tx()` | PASS |
 | StickS3 | RMT4 NEC 红外接收与回调 | `hardware.IR.rx_cb()` | PASS |
 | PaperMono | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
@@ -30,6 +30,11 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StackChan | Si12T 三点身体触摸 | `driver.si12t.Si12T` | PASS |
 | StackChan | M5IOE1 12 路 NeoPixel RGB 写入/回读 | `driver.m5ioe1.RGB` | PASS |
 | StackChan | SCS 总线双舵机 PING、扭矩、位置写入/回读 | `driver.scs_servo.Scscl` | PASS |
+| StackChan | BMI270 加速度与陀螺仪 | `Imu.getAccel()` / `Imu.getGyro()` + I2C burst | PASS |
+| StackChan | BM8563 RTC 写入、回读与走时 | `machine.I2C` 访问 PCF8563 寄存器 + QOM `unix-time` | PASS |
+| StackChan | AW9523B 输出回读与注入输入 | `driver.aw9523` | PASS |
+| StackChan | INA226 电压/电流/功率 | `StackChan.get_battery_*()` | PASS |
+| StackChan | NEC IR TX 抓取与 RX 注入 | `hardware.IR` + RMT | PASS |
 | StopWatch | M5IOE1 PWM1 振动马达开关与占空比 | `Power.setVibration()` | PASS |
 | AtomS3R | LP5562 三通道 RGB PWM 写入/回读 | I2C `0x30` | PASS |
 | StickS3 | ES8311/AW8737A 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
@@ -44,6 +49,7 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | Cardputer-ADV | ES8311 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
 | Cardputer-ADV | SPI microSD 初始化、512B 写入/回读、原始镜像校验 | `machine.SDCard(slot=3)` | PASS |
 | Cardputer-ADV | BMI270 三轴加速度/角速度 | `Imu.getAccel()` / `getGyro()` | PASS |
+| Cardputer-ADV | TCA8418 矩阵事件 FIFO、中断和按键解码 | `KeyboardI2C` | PASS |
 | Cardputer-ADV | ST25R3916 SPI NFC UID、页读、页写回读 | `driver.st25r3916` | PASS |
 | Cardputer-ADV | CC1101 Cap 868 MHz 配置、发送、接收回环 | `cap.CC1101Cap` | PASS |
 | PaperMono | PDM 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
@@ -62,28 +68,55 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | PaperColor | 两颗 WS2812/GRB RGB LED、ESP32-S3 RMT 比特流 | `M5.Led` | PASS |
 | StamPLC | AW9523 四路继电器/八路输入与 PI4IOE RGB | `stamplc.StamPLC` | PASS |
 | CoreS3 | AW9523 输出锁存、方向切换和注入输入 | `driver.aw9523` | PASS |
+| CoreS3 | M-Bus SPI MAX3421E USB Host、Chapter 9 枚举、HID 中断端点 | `module.USBModule` | PASS |
+| Tab5 | SIT3088 RS-485 半双工 TX/RX、UART1 G20/G21、方向 G34 | `machine.UART` RS-485 mode | PASS |
+| Tab5 | INA226 寄存器预载进入 Power API：8000 mV / 1248 mA / 87% | `Power.getBattery*()` | PASS |
+| Tab5 | RX8130 I2C 写入/回读 | `machine.I2C` 直接访问寄存器 | PARTIAL：走时和动态注入未闭环；`machine.RTC` 只改系统时间，不计为外部 RTC 证据 |
 | StopWatch | M5IOE1 GPIO、ADC、PWM 与注入输入 | `driver.m5ioe1` | PASS |
 | StopWatch | M5PM1 电源、GPIO/ADC/PWM、IRQ、唤醒、看门狗、定时器和 RTC RAM | `driver.m5pm1` | PASS |
 | Arduino Nesso N1 | 双 PI4IOE、按键中断、BQ27220 和 AW32001 | I2C + `Power` | PASS |
 | Arduino Nesso N1 | BMI270 三轴加速度/角速度 | `Imu.getAccel()` / `getGyro()` | PASS |
 | Arduino Nesso N1 | SX1262 LoRa 配置、发送、接收回环 | `lora.SX1262` | PASS |
+| Arduino Nesso N1 | C6 I2S TX、循环 GDMA OUT EOF、GPIO11 1-bit ΔΣ 蜂鸣器 | `Speaker.tone()` + PCM 抓取 | PASS |
 | Core2 legacy | AXP192 芯片 ID、电池/VBUS/电流 ADC 与充电状态 | SoftI2C + PMIC 寄存器 | PASS |
 | AtomS3R | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | Cardputer-ADV | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | PaperColor | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | NanoC6 | ESP32-C6 RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
+| NanoC6 | GPIO19 电源使能 + GPIO20 WS2812 GRB | `hardware.RGB()` + RMT 解码 | PASS |
+| NanoC6 | GPIO9 低有效按键按下/释放 | `machine.Pin` + QOM GPIO 注入 | PASS |
+| NanoC6 | GPIO7 蓝色 LED 开关 | GPIO 输出寄存器 + QOM 电平观测 | PASS |
+
 | Arduino Nesso N1 | ESP32-C6 RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | StackChan | GC0308 初始化、LCD_CAM/GDMA 取帧、快照和显示 | `camera.snapshot()` | PASS |
 | PaperMono | RGB 红/绿/蓝控制与 M5IOE1 PWM 回读 | `M5.Led` | PASS |
 
+StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 M5Unified
+启动时的零偏校准误判为模型故障；官方 `Imu.getGyro()` 返回
+`10.0 / -20.0 / 30.0 dps`，原始 BMI270 寄存器同步一致。RTC 通过
+`machine.I2C` 直接访问 PCF8563 的 BCD 时间寄存器，验证写入、回读和走时；
+`machine.RTC` 仅修改 SoC 系统时钟，不能作为外部 RTC 证据。
+
 汇总：
 
 ```text
-PASS    59
+cases   66
+checks  264
+PASS    66
 ```
 
+最终全量运行 66/66 用例、264/264 检查清洁通过。另做 6 次 Core2
+启动压力复跑时命中 1 次已知 MicroPython cache panic，重启后通过；失败
+串口保留为 `serial.attempt-1.log`。该启动稳定性问题单独记录，不归因或
+掩盖 AXP192 外设数据面。
+
+NanoC6 无显示屏，额外使用 `run_nanoc6_peripherals.py` 验证 RGB、按键和蓝灯，
+不计入上述需要截图的 peripheral matrix 统计。上述汇总来自全量矩阵运行；
+失败重试的原始串口日志会作为 `serial.attempt-N.log` 保留。
+
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
-屏幕/帧输出”的闭环。
+屏幕/帧输出”的闭环。每个 check 的 PASS 状态由本次运行的串口、QOM、PCM、
+RMT、磁盘或帧像素证据生成；没有运行时证据源的用例会被 runner 直接拒绝。
 
 ## 关键修复
 
@@ -100,11 +133,12 @@ BMM150 原始数据、轴向转换和 QOM 注入已经闭环。测试输入为
 `30 / -20 / 45 uT`，AtomS3R 经板级轴变换后显示 `-30 / -19.5 / -90 uT`，
 与 M5Unified 的固定轴映射一致。
 
-### LTR553 ALS
+### LTR553 ALS / proximity
 
-CoreS3 的 LTR553 在 I2C `0x23` 上返回 part ID `0x92` 和 manufacturer ID
-`0x05`；四字节 ALS 通道数据由 QOM `light-level` 注入，`M5.Als` 从
-`0x88..0x8B` 读取并正确回传环境光值。
+CoreS3 与 StackChan 的 LTR553 在 I2C `0x23` 上返回 part ID `0x92` 和
+manufacturer ID `0x05`；四字节 ALS 通道数据由 QOM `light-level` 注入，
+11-bit PS 数据由 QOM `proximity-level` 注入。`M5.Als` 分别从
+`0x88..0x8B` 和 `0x8D..0x8E` 读取，环境光 `640`、接近值 `321` 均通过。
 
 ### INA226
 
@@ -124,8 +158,20 @@ CoreS3 的 LTR553 在 I2C `0x23` 上返回 part ID `0x92` 和 manufacturer ID
 ### GC0308 / ESP32-S3 LCD_CAM / GDMA
 
 新增 LCD_CAM 模型，按 `esp32-camera` 使用的 VSYNC 中断、GDMA RX 描述符和
-半缓冲事件交付 RGB565 帧。`camera.snapshot()` 返回
-`320x240 / 153600 bytes`，并能通过 `M5.Display.show()` 显示。
+半缓冲事件交付 RGB565 帧。官方驱动先等待 VSYNC、再写 DMA link，因此模型
+增加 GDMA peripheral-start callback：VSYNC 在 DMA idle 时持续产生，link
+`START` 写入时立即 arming，后续用 `esp_gdma_complete_in_descriptor()` 沿
+循环描述符交付数据，而不是清除 START 后重新起链。CoreS3 与 StackChan 的
+`camera.snapshot()` 均返回 `320x240 / 153600 bytes`，并通过
+`M5.Display.show()` 显示；串口必须出现
+`CORES3_CAMERA_PASS 320x240 153600 bytes` 才判定 PASS。
+
+### PaperMono IP2315 充电状态
+
+M5Unified 在 PaperMono 上不是用 M5PM1 G2 判断充电，而是临时使能 IP2315，
+再读取 I2C `0x75` 的 `REG_CHG_STAT(0xC7)`：bit7 为充电中。QEMU 模型实现
+充电使能位、`0x82` 充电中、`0x45` 充满/未充状态和 QOM `charging` 注入；
+测试必须在串口输出 `PAPERMONO_POWER 87 4000 1`。
 
 高带宽帧可通过宿主文件注入：
 
@@ -221,11 +267,18 @@ QEMU 的 I2S 模型现在区分 TX/RX，并按真实 GDMA 循环描述的语义�
 - RX：宿主通过 `M5SW_I2S_RX_PCM_FILE` 注入 16-bit PCM，模型写入 I2S RX
   的 GDMA 描述符并产生 `IN_SUC_EOF`，UIFlow2 `Mic.record()` 可以读到真实
   非静音数据；
+- C6：GDMA 使用和 C3 不同的 `IN[3] + OUT[3]` 独立中断寄存器布局；模型按
+  `OUT_CH1.INT_ENA`、`OUT_CH1.INT_CLR` 和 `OUT_EOF` 的真实偏移推进循环
+  描述符，并调用 I2S TX 完成回调，不能用只读快照代替 DMA 轮转；
 - 设备覆盖 StickS3、StopWatch、CoreS3、StackChan、Cardputer-ADV 和
-  PaperColor；PaperMono 的 PDM RX 路径走同一 I2S/GDMA 数据面。
+  PaperColor；PaperMono 的 PDM RX 路径走同一 I2S/GDMA 数据面；Nesso N1
+  的 GPIO11 1-bit ΔΣ 蜂鸣器走 C6 I2S TX 与 AHB GDMA。
 
 StickS3 扬声器抓取的 64 KiB PCM 有 18410 个非零样本，峰峰值 2881；
 CoreS3 扬声器抓取峰峰值 11523，均来自固件实际 I2S 写入而不是 Python 伪造。
+
+Nesso N1 蜂鸣器抓取 48128 字节 PCM，非零样本 12866，峰峰值 65535；测试同时
+要求 `Speaker.isPlaying()` 为真，避免只验证任务启动。
 
 ### SPI microSD
 
@@ -573,12 +626,43 @@ CC1101 与 SD、NFC 共用 SPI2，使用 CS `G5`、GDO0 `G15`。官方
 
 ![Nesso SX1262 LoRa](images/nesso-lora-test.png)
 
+![Nesso buzzer](images/nesso-buzzer-test.png)
+
+![CoreS3 MAX3421E USB HID](images/cores3-usb-hid-test.png)
+
+![Tab5 RS-485 and touch](images/tab5-rs485-test.png)
+
+![Tab5 I2C peripheral probe](images/tab5-peripherals-test.png)
+
+## 设备级调度
+
+`runtime-coverage.json` 的 `device_case_groups` 把 66 个 matrix case 和
+7 个 external probe 分别绑定到 14 台设备，并声明每组覆盖的模拟模型。
+每个 case 必须且只能归属一个设备组。
+
+```bash
+python3 tests/uiflow2/run_peripheral_matrix.py \
+  --device stackchan --out-dir /tmp/m5-stackchan-peripherals
+python3 tests/uiflow2/run_peripheral_matrix.py \
+  --device stackchan --list-json
+```
+
+设备中心还可以从 `GET /api/peripherals/<device>` 的 `runtime_cases` 和
+`GET /api/peripheral-interfaces` 直接取得调度用例、QOM/QMP 属性和数据通道。
+
 ## 尚未闭环
 
-- Arduino Nesso N1 的 GPIO11 I2S 1-bit ΔΣ 蜂鸣器（M5Unified 走 C6 I2S TX）；
-- USB Host 虚拟端点；
-- Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；
+- Tab5 BMI270 动态模型、SC2356/MIPI-CSI、ES8388/ES7210 I2S/PCM、
+  P4 USB Host、SDIO 和 ST7123 真实寄存器数据面；其
+  INA226、两颗 PI4IOE 和 RX8130 已完成 P4 I2C 寄存器读写验证，但动态注入
+  与 GPIO/中断副作用仍未闭环。SIT3088 RS-485 已通过；
+- CardputerZero 剩余 AW8737A 模拟电气链路和 USB split transaction
+  逐包时序精度；ES8389、IP2315、GL852G MTT、SR9900A/r8152、IMX219
+  Unicam 和 GPIO IR 数据面均已通过；
 - 所有项目的真机复测。
 
-这些项目已在 `platform/peripherals/catalog.json` 中逐器件登记，CI 会阻止新增
-设备只做显示/触摸而漏掉传感器、总线或执行器。
+这些项目已在 `platform/peripherals/catalog.json` 中逐器件登记。每个
+`simulated` 模型必须有数据面、注入接口和已验证设备；每个 `partial/planned`
+模型和设备阻塞必须一一对应。CI 会阻止新增设备只做显示/触摸而漏掉传感器、
+总线、执行器或数据端点，也会阻止把其他板型上的芯片模型直接冒充当前板型
+闭环。

@@ -67,15 +67,75 @@ class QemuProfileTest(unittest.TestCase):
         row = next(row for row in self.registry["devices"] if row["id"] == "nesso-n1")
         self.assertEqual(
             row["validation"]["status"],
-            "display-touch-power-io-ir-imu-lora-pass",
+            "display-touch-power-io-ir-imu-lora-buzzer-pass",
         )
         self.assertEqual(row["blockers"], [])
 
     def test_tab5_visual_validation_is_complete(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "tab5")
         self.assertEqual(row["qemu_status"], "ready")
-        self.assertEqual(row["validation"]["status"], "display-touch-pass")
+        self.assertEqual(row["backend"], "esp-emulator-native")
+        self.assertEqual(
+            row["validation"]["status"],
+            "display-touch-rs485-pass-peripherals-partial",
+        )
+        self.assertEqual(row["peripheral_status"], "partial")
+        blockers = " ".join(row["blockers"])
+        self.assertIn("ES8388/ES7210", blockers)
+        self.assertNotIn("RS-485", blockers)
+        self.assertIn("SC2356", blockers)
+        self.assertIn("USB Host", blockers)
+
+    def test_cardputer_zero_declares_backend_blockers(self):
+        row = next(
+            row for row in self.registry["devices"]
+            if row["id"] == "cardputer-zero"
+        )
+        self.assertEqual(row["qemu_status"], "separate-backend")
+        self.assertEqual(row["peripheral_status"], "simulated")
+        joined = "\n".join(row["blockers"])
+        self.assertNotIn("no BCM2837 ARM64 Linux machine", joined)
+        self.assertNotIn("ES8389", joined)
+        self.assertNotIn("IP2315", joined)
+        self.assertNotIn("GL852G", joined)
+        self.assertTrue(
+            any("ES8389" in item for item in row["board_work"])
+        )
+        self.assertTrue(
+            any("IP2315" in item for item in row["board_work"])
+        )
+        self.assertTrue(
+            any("GL852G" in item for item in row["board_work"])
+        )
+        self.assertTrue(
+            any("SR9900A" in item for item in row["board_work"])
+        )
+        self.assertTrue(
+            any("IMX219" in item for item in row["board_work"])
+        )
+        blockers = " ".join(row["blockers"])
+        self.assertNotIn("IMX219", blockers)
+
+    def test_nanoc6_peripherals_are_board_isolated(self):
+        row = next(
+            row for row in self.registry["devices"]
+            if row["id"] == "nanoc6"
+        )
+        self.assertEqual(row["peripheral_status"], "simulated")
         self.assertEqual(row["blockers"], [])
+        self.assertIn("rgb-led", row["peripherals"])
+        self.assertIn("gpio-led", row["peripherals"])
+        self.assertIn("button", row["peripherals"])
+        self.assertIn("ir", row["peripherals"])
+
+    def test_stackchan_peripherals_are_simulated(self):
+        row = next(
+            row for row in self.registry["devices"]
+            if row["id"] == "stackchan"
+        )
+        self.assertEqual(row["peripheral_status"], "simulated")
+        self.assertEqual(row["blockers"], [])
+        self.assertIn("pcf8563", row["peripherals"])
 
     def test_validation_matrix_covers_esp32_hosts(self):
         matrix_path = ROOT / self.registry["validation_matrix"]["runner"]

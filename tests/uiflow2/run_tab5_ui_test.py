@@ -7,9 +7,12 @@ import hashlib
 import json
 import os
 import signal
+import shutil
 import socket
 import struct
 import subprocess
+import sys
+import threading
 import time
 import zlib
 from pathlib import Path
@@ -24,6 +27,9 @@ DEFAULT_EMU = (
 DEFAULT_ROM = ROOT / ".work/roms/esp32p4_rev0_rom.elf"
 DEFAULT_EFUSE = ROOT / ".work/efuse/tab5-p4-1.0.efuse"
 DEFAULT_C6 = ROOT / "platform/.cache/firmware/tab5-c6/network_adapter-v2.12.6.bin"
+NATIVE_GDB = shutil.which("riscv64-elf-gdb")
+UART1_PING = b"TAB5_RS485_PING"
+UART1_PONG = b"TAB5_RS485_PONG"
 
 
 def wait_for_path(path: Path, proc: subprocess.Popen, timeout: float) -> None:
@@ -65,6 +71,56 @@ def wait_for_text(path: Path, marker: str, proc: subprocess.Popen,
     raise RuntimeError(f"timed out waiting for serial marker: {marker}")
 
 
+def free_tcp_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+
+def start_uart1_peer(port: int, log_path: Path, stop: threading.Event):
+    state = {"connected": False, "rx": b"", "tx": b""}
+
+    def run() -> None:
+        deadline = time.time() + 30
+        while time.time() < deadline and not stop.is_set():
+            try:
+                connection = socket.create_connection(
+                    ("127.0.0.1", port), timeout=0.5
+                )
+                break
+            except OSError:
+                time.sleep(0.1)
+        else:
+            log_path.write_text("uart peer did not connect\n")
+            return
+
+        state["connected"] = True
+        connection.settimeout(0.2)
+        with connection:
+            while time.time() < deadline and not stop.is_set():
+                try:
+                    data = connection.recv(4096)
+                except socket.timeout:
+                    continue
+                except OSError:
+                    break
+                if not data:
+                    break
+                state["rx"] += data
+                if UART1_PING in state["rx"] and not state["tx"]:
+                    state["tx"] = UART1_PONG
+                    connection.sendall(UART1_PONG)
+                    break
+        log_path.write_text(
+            "connected=%d\nrx=%s\ntx=%s\n"
+            % (state["connected"], state["rx"].hex(), state["tx"].hex())
+        )
+
+    thread = threading.Thread(target=run, name="tab5-uart1-peer", daemon=True)
+    thread.start()
+    return thread, state
+
+
 def run_gdb(
     *,
     elf: Path,
@@ -74,12 +130,13 @@ def run_gdb(
     commands: list[str],
 ) -> str:
     script = out_dir / f"{name}.gdb"
+    remote_host = "127.0.0.1" if NATIVE_GDB else "host.docker.internal"
     script.write_text(
         "\n".join(
             [
                 "set pagination off",
                 "set confirm off",
-                f"target remote host.docker.internal:{gdb_port}",
+                f"target remote {remote_host}:{gdb_port}",
                 *commands,
                 "detach",
                 "quit",
@@ -87,27 +144,37 @@ def run_gdb(
         )
         + "\n"
     )
-    command = [
-        "docker",
-        "run",
-        "--rm",
-        "--add-host=host.docker.internal:host-gateway",
-        "-v",
-        f"{ROOT}:/workspace:ro",
-        "-v",
-        f"{elf.parent}:/elfdir:ro",
-        "-v",
-        f"{out_dir}:/out",
-        "-w",
-        "/workspace",
-        "uiflow-idf:v5.5.4",
-        "bash",
-        "-lc",
-        (
-            "riscv32-esp-elf-gdb -q -batch "
-            f"-x /out/{script.name} /elfdir/{elf.name}"
-        ),
-    ]
+    if NATIVE_GDB:
+        command = [
+            NATIVE_GDB,
+            "-q",
+            "-batch",
+            "-x",
+            str(script),
+            str(elf),
+        ]
+    else:
+        command = [
+            "docker",
+            "run",
+            "--rm",
+            "--add-host=host.docker.internal:host-gateway",
+            "-v",
+            f"{ROOT}:/workspace:ro",
+            "-v",
+            f"{elf.parent}:/elfdir:ro",
+            "-v",
+            f"{out_dir}:/out",
+            "-w",
+            "/workspace",
+            "uiflow-idf:v5.5.4",
+            "bash",
+            "-lc",
+            (
+                "riscv32-esp-elf-gdb -q -batch "
+                f"-x /out/{script.name} /elfdir/{elf.name}"
+            ),
+        ]
     result = subprocess.run(
         command,
         cwd=ROOT,
@@ -130,6 +197,7 @@ def capture_framebuffer(
     elf: Path, gdb_port: int, out_dir: Path, name: str
 ) -> tuple[int, int, bytes, str]:
     dump = out_dir / f"{name}.rgb565"
+    dump_path = str(dump) if NATIVE_GDB else f"/out/{dump.name}"
     stdout = run_gdb(
         elf=elf,
         gdb_port=gdb_port,
@@ -140,7 +208,7 @@ def capture_framebuffer(
             "set $w = m5_emu_framebuffer_width",
             "set $h = m5_emu_framebuffer_height",
             'printf "TAB5_GDB_FRAMEBUFFER %p %u %u\\n", $fb, $w, $h',
-            f"dump binary memory /out/{dump.name} $fb ($fb + $w * $h * 2)",
+            f"dump binary memory {dump_path} $fb ($fb + $w * $h * 2)",
         ],
     )
     line = next(
@@ -301,6 +369,27 @@ def main() -> None:
     parser.add_argument("--expected-size", default="1280x720")
     parser.add_argument("--touch", default="640,520")
     parser.add_argument("--timeout", type=float, default=90)
+    parser.add_argument(
+        "--ready-marker",
+        default="TAB5_UI_DRAWN",
+        help="serial marker indicating that the injected main.py is ready",
+    )
+    parser.add_argument(
+        "--probe-only",
+        action="store_true",
+        help="run a serial-only probe without framebuffer/touch assertions",
+    )
+    parser.add_argument(
+        "--i2c-dev",
+        action="append",
+        default=[],
+        help="esp-emu I2C register device specification; repeat as needed",
+    )
+    parser.add_argument(
+        "--uart1-peer",
+        action="store_true",
+        help="serve a UART1 peer that answers TAB5_RS485_PING with PONG",
+    )
     args = parser.parse_args()
 
     required_paths = [
@@ -324,7 +413,7 @@ def main() -> None:
         )
         subprocess.run(
             [
-                "python3",
+                sys.executable,
                 str(args.files_dir / "make_image.py"),
                 "--base", str(args.base),
                 "--out", str(image),
@@ -378,31 +467,81 @@ def main() -> None:
     )
     p4 = None
     p4_handle = None
+    uart1_thread = None
+    uart1_state = None
+    uart1_stop = threading.Event()
+    uart1_port = free_tcp_port() if args.uart1_peer else None
+    uart1_log = args.out_dir / "uart1-peer.log"
     try:
+        if uart1_port:
+            uart1_thread, uart1_state = start_uart1_peer(
+                uart1_port, uart1_log, uart1_stop
+            )
         wait_for_path(socket_path, c6, 20)
         p4_handle = p4_log.open("wb")
+        p4_command = [
+            str(args.emulator),
+            "--chip", "esp32p4",
+            "--firmware", str(run_image),
+            "--elf", str(args.elf),
+            "--rom", str(args.rom),
+            "--efuse", str(args.efuse),
+            "--hosted", f"bridge:host:{socket_path}",
+            "--hosted-reset-gpio", "15",
+            "--hosted-reset-active-high",
+            "--psram-size", "32M",
+            "--console", "uart0",
+            "--gdb", str(args.gdb_port),
+            "--timeout", f"{int(args.timeout)}s",
+        ]
+        for device in args.i2c_dev:
+            p4_command.extend(["--i2c-dev", device])
+        if uart1_port:
+            p4_command.extend(
+                ["--uart1-tcp", f"127.0.0.1:{uart1_port}"]
+            )
         p4 = subprocess.Popen(
-            [
-                str(args.emulator),
-                "--chip", "esp32p4",
-                "--firmware", str(run_image),
-                "--elf", str(args.elf),
-                "--rom", str(args.rom),
-                "--efuse", str(args.efuse),
-                "--hosted", f"bridge:host:{socket_path}",
-                "--hosted-reset-gpio", "15",
-                "--hosted-reset-active-high",
-                "--psram-size", "32M",
-                "--console", "uart0",
-                "--gdb", str(args.gdb_port),
-                "--timeout", f"{int(args.timeout)}s",
-            ],
+            p4_command,
             cwd=ROOT,
             stdout=p4_handle,
             stderr=subprocess.STDOUT,
         )
         wait_for_port(args.gdb_port, p4, 20)
-        wait_for_text(p4_log, "TAB5_UI_DRAWN", p4, args.timeout)
+        wait_for_text(p4_log, args.ready_marker, p4, args.timeout)
+
+        if args.probe_only:
+            time.sleep(0.5)
+            serial = p4_log.read_text(errors="replace")
+            if uart1_thread:
+                uart1_thread.join(timeout=2)
+                if UART1_PING.hex() not in uart1_log.read_text(errors="replace"):
+                    raise RuntimeError(
+                        "UART1 peer did not receive the Tab5 RS-485 request"
+                    )
+            result = {
+                "status": "PASS",
+                "machine": "tab5-esp-emu-probe",
+                "ready_marker": args.ready_marker,
+                "image": str(image),
+                "image_sha256": hashlib.sha256(image.read_bytes()).hexdigest(),
+                "flash": flash_info,
+                "i2c_dev": args.i2c_dev,
+                "uart1_peer": (
+                    {
+                        "connected": uart1_state["connected"],
+                        "rx": uart1_state["rx"].hex(),
+                        "tx": uart1_state["tx"].hex(),
+                    }
+                    if uart1_state
+                    else None
+                ),
+                "serial": serial,
+            }
+            (args.out_dir / "result.json").write_text(
+                json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+            )
+            print(f"PASS machine=tab5-esp-emu-probe marker={args.ready_marker}")
+            return
 
         raw_width, raw_height, raw_before565, address = capture_framebuffer(
             args.elf, args.gdb_port, args.out_dir, "before"
@@ -469,7 +608,12 @@ def main() -> None:
             "image": str(image),
             "image_sha256": hashlib.sha256(image.read_bytes()).hexdigest(),
             "flash": flash_info,
-            "serial_markers": ["TAB5_UI_DRAWN", "TAB5_DRAW_AFTER_TOUCH"],
+            "i2c_dev": args.i2c_dev,
+            "serial_markers": [
+                "TAB5_I2C_PORT",
+                "TAB5_UI_DRAWN",
+                "TAB5_DRAW_AFTER_TOUCH",
+            ],
         }
         (args.out_dir / "result.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n"
@@ -479,6 +623,9 @@ def main() -> None:
             f"touch={x},{y} changed={changed}"
         )
     finally:
+        uart1_stop.set()
+        if uart1_thread:
+            uart1_thread.join(timeout=2)
         for proc in (p4, c6):
             if proc and proc.poll() is None:
                 proc.send_signal(signal.SIGINT)

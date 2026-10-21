@@ -5,10 +5,40 @@
 ```http
 GET /api/devices
 GET /api/devices/<chip-group>/<device>
+GET /api/peripherals
+GET /api/peripherals/<device>
+GET /api/peripheral-interfaces
+GET /api/peripheral-interfaces/<model>
 GET /health
 ```
 
 设备目录字段以 `platform/schema/device.schema.json` 为准。
+外设接口直接返回 `platform/tools/peripheral_inventory.py` 生成的清单，包括：
+
+- 设备真实硬件需求及覆盖它的组件；
+- 芯片、总线、地址、QOM 路径、注入接口和数据面；
+- 模型状态、板级状态、evidence 和具体 blocker；
+- `complete`、`blocked_models` 和 `coverage_gaps`。
+- `runtime_coverage`，包含 simulated 模型数、已覆盖模型数和矩阵/external
+  case 数量。
+- `completion_exemption`，仅用于已有的临时后端豁免，并带原因和复查日期；
+  新设备不应出现该字段。
+- `runtime_cases`，包含在该设备上实际执行的 matrix/external case、
+  `case_models` 明细和 `measured_models` 本机实测模型列表；每个组件的
+  `runtime_cases` 进一步给出覆盖它的具体 case，可直接作为设备中心调度入口。
+
+设备中心应优先读取该接口，而不是自行解析 QEMU 源码或补丁。
+
+`/api/peripheral-interfaces` 从运行时证据矩阵生成可执行控制描述，包含：
+
+- QMP QOM 输入/输出路径、属性、启动期或运行期阶段；
+- QMP 触摸、按键和拖拽输入；
+- PCM、RMT、摄像头和 SD 镜像的文件方向及格式；
+- UART0/UART1 输出断言和 framebuffer 捕获；
+- external probe 的测试入口和证据文件。
+
+新增设备或芯片模型时，先让 runtime coverage 指向真实矩阵用例，接口清单会
+自动包含它；不要在设备中心复制一份手写 property 映射。
 
 ## 设备状态
 

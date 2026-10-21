@@ -14,12 +14,21 @@
     "backend": "esp-emulator-native",
     "chip": "esp32p4",
     "status": "reference-ready",
+    "peripheral_status": "partial",
     "display_protocol": "m5gfx-psram-framebuffer",
     "execution": "esp-emu-native",
+    "blockers": [
+      "SC2356 MIPI CSI-2 controller/frame path is absent from esp-emu 0.50.0",
+      "ES8388/ES7210 I2S register and PCM endpoints are absent from esp-emu 0.50.0",
+      "ESP32-P4 USB Host controller and endpoint attachment are absent",
+      "ST7123 touch is currently a firmware GDB mailbox, not an I2C chip model",
+      "Tab5 SDIO storage is not wired to a host block backend",
+      "Tab5 PI4IOE CHG_STAT/CHG_EN and Power.isCharging() decode pass for charging and discharging, but IP2326 analog current/termination behavior and hot state injection remain partial; BMI270 identity, dynamic sensor values, GPIO side effects and interrupts also remain partial"
+    ],
     "validation": {
-      "date": "2026-10-21",
-      "status": "display-touch-pass",
-      "detail": "UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. The image is esptool-written to 16 MiB virtual flash and byte-for-byte verified before boot."
+      "date": "2026-10-22",
+      "status": "display-touch-rs485-pass-peripherals-partial",
+      "detail": "UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. Tab5 I2C reaches G31/G32 through the P4 controller: INA226 preload reaches Power as 8000mV/1248mA/87%, machine.RTC writes and reads RX8130, both PI4IOE IDs/output writeback pass, and CHG_STAT=0x00/0x40 reaches Power.isCharging() as charging/discharging. SIT3088 RS-485 passes through UART1 G20/G21 and direction G34. BMI270 identity, dynamic I2C/time injection, IP2326 analog current/termination behavior and the remaining native P4 data planes remain partial."
     }
   },
   "cache_path": "platform/.cache/firmware/tab5/uiflow2.bin"

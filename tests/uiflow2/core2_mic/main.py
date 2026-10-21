@@ -36,6 +36,8 @@ except Exception as exc:
 d.setCursor(6, 36)
 d.print("status=%s" % status)
 
+# Keep the verified frame static after Mic.end().  Re-entering the full
+# M5.update() loop can race the legacy I2S teardown in QEMU and obscure the
+# microphone result with a post-test cache panic.
 while True:
-    M5.update()
     time.sleep_ms(100)

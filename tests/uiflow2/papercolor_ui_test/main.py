@@ -33,6 +33,16 @@ def draw_ui():
     d.print("COLOR TEST")
 
 
+def draw_key_state():
+    d = M5.Display
+    d.fillRect(28, 140, 252, 58, d.COLOR.WHITE)
+    d.setTextColor(d.COLOR.RED)
+    d.setTextSize(4)
+    d.setCursor(28, 145)
+    d.print("keys: %d" % count)
+    d.fillRect(260, 150, 20, 20, d.COLOR.BLACK)
+
+
 print("PAPERCOLOR_MAIN_START")
 M5.begin()
 print("PAPERCOLOR_BOARD", M5.getBoard())
@@ -47,6 +57,6 @@ while True:
     if pressed and not was:
         count += 1
         print("PAPERCOLOR_BTN_A", count)
-        draw_ui()
+        draw_key_state()
     was = pressed
     time.sleep(0.05)

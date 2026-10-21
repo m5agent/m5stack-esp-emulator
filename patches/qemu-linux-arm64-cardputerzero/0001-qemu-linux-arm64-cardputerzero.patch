@@ -1,0 +1,1079 @@
+diff --git a/hw/arm/bcm2835_peripherals.c b/hw/arm/bcm2835_peripherals.c
+index ac153a9..9059fce 100644
+--- a/hw/arm/bcm2835_peripherals.c
++++ b/hw/arm/bcm2835_peripherals.c
+@@ -12,6 +12,7 @@
+ #include "qemu/osdep.h"
+ #include "qapi/error.h"
+ #include "qemu/module.h"
++#include "qemu/units.h"
+ #include "hw/arm/bcm2835_peripherals.h"
+ #include "hw/misc/bcm2835_mbox_defs.h"
+ #include "hw/arm/raspi_platform.h"
+@@ -33,6 +34,141 @@
+ /* All three I2C controllers share the same IRQ */
+ #define ORGATED_I2C_IRQ_COUNT 3
+ 
++#define BCM2835_ASB_REQ_STOP BIT(0)
++#define BCM2835_ASB_ACK BIT(1)
++#define BCM2835_ASB_BRDG_ID 0x62726467
++#define BCM2835_ASB_BRDG_ID_OFFSET 0x20
++
++static uint64_t bcm2835_asb_read(void *opaque, hwaddr offset, unsigned size)
++{
++    BCM2835PeripheralState *s = BCM2835_PERIPHERALS(opaque);
++
++    if (offset == BCM2835_ASB_BRDG_ID_OFFSET) {
++        return BCM2835_ASB_BRDG_ID;
++    }
++    if (offset >= sizeof(s->asb_regs) || (offset & 3)) {
++        return 0;
++    }
++    return s->asb_regs[offset / sizeof(uint32_t)];
++}
++
++static void bcm2835_asb_write(void *opaque, hwaddr offset, uint64_t value,
++                              unsigned size)
++{
++    BCM2835PeripheralState *s = BCM2835_PERIPHERALS(opaque);
++    uint32_t val = value;
++
++    if (offset >= sizeof(s->asb_regs) || (offset & 3) ||
++        offset == BCM2835_ASB_BRDG_ID_OFFSET) {
++        return;
++    }
++
++    val &= ~0xff000000;
++    if (val & BCM2835_ASB_REQ_STOP) {
++        val &= ~BCM2835_ASB_ACK;
++    } else {
++        val |= BCM2835_ASB_ACK;
++    }
++    s->asb_regs[offset / sizeof(uint32_t)] = val;
++}
++
++static const MemoryRegionOps bcm2835_asb_ops = {
++    .read = bcm2835_asb_read,
++    .write = bcm2835_asb_write,
++    .endianness = DEVICE_NATIVE_ENDIAN,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++#define BCM2835_I2S_CS_RXF BIT(22)
++#define BCM2835_I2S_CS_TXE BIT(21)
++#define BCM2835_I2S_CS_RXD BIT(20)
++#define BCM2835_I2S_CS_TXD BIT(19)
++
++static void bcm2835_i2s_abort_dma(BCM2835PeripheralState *s)
++{
++    int i;
++
++    for (i = 0; i < BCM2835_DMA_NCHANS; i++) {
++        BCM2835DMAChan *ch = &s->parent_obj.dma.chan[i];
++
++        if (ch->cs & BIT(0)) {
++            ch->conblk_ad = 0;
++            ch->nextconbk = 0;
++        }
++    }
++}
++
++static uint64_t bcm2835_i2s_read(void *opaque, hwaddr offset, unsigned size)
++{
++    BCM2835PeripheralState *s = BCM2835_PERIPHERALS(opaque);
++
++    if (offset >= sizeof(s->i2s_regs) || (offset & 3)) {
++        return 0;
++    }
++    if (offset == 0x04) {
++        uint32_t value = 0;
++        bool read_ok = s->i2s_rx_file &&
++                       fread(&value, sizeof(value), 1,
++                             s->i2s_rx_file) == 1;
++        if (read_ok) {
++            s->i2s_rx_words++;
++            s->i2s_rx_bytes += sizeof(value);
++        }
++        if (!read_ok ||
++            (s->i2s_rx_limit && s->i2s_rx_bytes >= s->i2s_rx_limit)) {
++            bcm2835_i2s_abort_dma(s);
++        }
++        return value;
++    }
++    if (offset == 0x00) {
++        uint32_t value = s->i2s_regs[0] | BCM2835_I2S_CS_TXE;
++        if (s->i2s_rx_file && !feof(s->i2s_rx_file)) {
++            value |= BCM2835_I2S_CS_RXD;
++        }
++        return value;
++    }
++    return s->i2s_regs[offset / sizeof(uint32_t)];
++}
++
++static void bcm2835_i2s_write(void *opaque, hwaddr offset, uint64_t value,
++                              unsigned size)
++{
++    BCM2835PeripheralState *s = BCM2835_PERIPHERALS(opaque);
++    uint32_t val = value;
++
++    if (offset >= sizeof(s->i2s_regs) || (offset & 3)) {
++        return;
++    }
++    if (offset == 0x04) {
++        if (!s->i2s_tx_limit ||
++            s->i2s_tx_bytes + sizeof(val) <= s->i2s_tx_limit) {
++            if (s->i2s_tx_file) {
++                fwrite(&val, sizeof(val), 1, s->i2s_tx_file);
++            }
++            s->i2s_tx_words++;
++            s->i2s_tx_bytes += sizeof(val);
++        }
++        if (s->i2s_tx_limit &&
++            s->i2s_tx_bytes >= s->i2s_tx_limit) {
++            if (s->i2s_tx_file) {
++                fflush(s->i2s_tx_file);
++            }
++            bcm2835_i2s_abort_dma(s);
++        }
++        return;
++    }
++    s->i2s_regs[offset / sizeof(uint32_t)] = val;
++}
++
++static const MemoryRegionOps bcm2835_i2s_ops = {
++    .read = bcm2835_i2s_read,
++    .write = bcm2835_i2s_write,
++    .endianness = DEVICE_NATIVE_ENDIAN,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
+ void create_unimp(BCMSocPeripheralBaseState *ps,
+                   UnimplementedDeviceState *uds,
+                   const char *name, hwaddr ofs, hwaddr size)
+@@ -63,6 +199,22 @@ static void bcm2835_peripherals_init(Object *obj)
+                                    OBJECT(&s_base->sdhci.sdbus));
+     object_property_add_const_link(OBJECT(&s->gpio), "sdbus-sdhost",
+                                    OBJECT(&s_base->sdhost.sdbus));
++    memory_region_init_io(&s->asb_iomem, obj, &bcm2835_asb_ops, s,
++                          "bcm2835-asb", 0x24);
++    memory_region_init_io(&s->i2s_iomem, obj, &bcm2835_i2s_ops, s,
++                          "bcm2835-i2s", 0x24);
++    if (getenv("M5SW_I2S_TX_FILE")) {
++        s->i2s_tx_file = fopen(getenv("M5SW_I2S_TX_FILE"), "wb");
++    }
++    s->i2s_tx_limit = getenv("M5SW_I2S_TX_LIMIT_BYTES")
++                      ? strtoull(getenv("M5SW_I2S_TX_LIMIT_BYTES"), NULL, 0)
++                      : 16 * MiB;
++    if (getenv("M5SW_I2S_RX_FILE")) {
++        s->i2s_rx_file = fopen(getenv("M5SW_I2S_RX_FILE"), "rb");
++    }
++    s->i2s_rx_limit = getenv("M5SW_I2S_RX_LIMIT_BYTES")
++                      ? strtoull(getenv("M5SW_I2S_RX_LIMIT_BYTES"), NULL, 0)
++                      : 1024 * 1024;
+ 
+     /* Gated DMA interrupts */
+     object_initialize_child(obj, "orgated-dma-irq",
+@@ -179,6 +331,7 @@ static void raspi_peripherals_base_init(Object *obj)
+                             &s->orgated_i2c_irq, TYPE_OR_IRQ);
+     object_property_set_int(OBJECT(&s->orgated_i2c_irq), "num-lines",
+                             ORGATED_I2C_IRQ_COUNT, &error_abort);
++
+ }
+ 
+ static void bcm2835_peripherals_realize(DeviceState *dev, Error **errp)
+@@ -242,6 +395,14 @@ static void bcm2835_peripherals_realize(DeviceState *dev, Error **errp)
+     memory_region_add_subregion(
+         &s_base->peri_mr, GPIO_OFFSET,
+         sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->gpio), 0));
++    memory_region_add_subregion(&s_base->peri_mr, BRDG_OFFSET,
++                                &s->asb_iomem);
++    memory_region_add_subregion(&s_base->peri_mr, I2S_OFFSET,
++                                &s->i2s_iomem);
++    qdev_connect_gpio_out_named(
++        DEVICE(&s->gpio), "irq", 0,
++        qdev_get_gpio_in_named(DEVICE(&s_base->ic), BCM2835_IC_GPU_IRQ,
++                               INTERRUPT_GPIO0));
+ 
+     object_property_add_alias(OBJECT(s), "sd-bus", OBJECT(&s->gpio), "sd-bus");
+ }
+@@ -511,7 +672,6 @@ void bcm_soc_peripherals_common_realize(DeviceState *dev, Error **errp)
+ 
+     create_unimp(s, &s->txp, "bcm2835-txp", TXP_OFFSET, 0x1000);
+     create_unimp(s, &s->armtmr, "bcm2835-sp804", ARMCTRL_TIMER0_1_OFFSET, 0x40);
+-    create_unimp(s, &s->i2s, "bcm2835-i2s", I2S_OFFSET, 0x100);
+     create_unimp(s, &s->smi, "bcm2835-smi", SMI_OFFSET, 0x100);
+     create_unimp(s, &s->bscsl, "bcm2835-spis", BSC_SL_OFFSET, 0x100);
+     create_unimp(s, &s->dbus, "bcm2835-dbus", DBUS_OFFSET, 0x8000);
+diff --git a/hw/arm/m5sw_gpio_stubs.c b/hw/arm/m5sw_gpio_stubs.c
+new file mode 100644
+index 0000000..943a5d5
+--- /dev/null
++++ b/hw/arm/m5sw_gpio_stubs.c
+@@ -0,0 +1,33 @@
++/*
++ * ARM-side compatibility stubs for the shared M5 peripheral register models.
++ * BCM2837 board glue will replace these with real GPIO wiring as the
++ * CardputerZero machine is brought up.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/gpio/bcm2835_gpio.h"
++#include "hw/m5stopwatch/m5stopwatch.h"
++
++void esp32_gpio_set_input(int pin, int level)
++{
++    /*
++     * Shared M5 peripheral models use ESP32 GPIO 11 for the TCA8418
++     * active-low interrupt. CardputerZero routes that line to BCM GPIO27.
++     */
++    if (pin == 11) {
++        bcm2835_gpio_set_input(27, level);
++    }
++}
++
++void esp32_gpio_force_line(int pin, int level)
++{
++    if (pin == 11) {
++        bcm2835_gpio_set_input(27, level);
++    }
++}
++
++void m5sw_ir_rx_start(void)
++{
++    bcm2835_gpio_ir_rx_start();
++}
+diff --git a/hw/arm/meson.build b/hw/arm/meson.build
+index 490234b..fa44e16 100644
+--- a/hw/arm/meson.build
++++ b/hw/arm/meson.build
+@@ -27,6 +27,10 @@ arm_ss.add(when: 'CONFIG_ALLWINNER_A10', if_true: files('allwinner-a10.c', 'cubi
+ arm_ss.add(when: 'CONFIG_ALLWINNER_H3', if_true: files('allwinner-h3.c', 'orangepi.c'))
+ arm_ss.add(when: 'CONFIG_ALLWINNER_R40', if_true: files('allwinner-r40.c', 'bananapi_m2u.c'))
+ arm_ss.add(when: 'CONFIG_RASPI', if_true: files('bcm2836.c', 'raspi.c'))
++arm_ss.add(when: 'CONFIG_RASPI', if_true: files(
++  'm5sw_gpio_stubs.c',
++  '../m5stopwatch/m5sw_i2c_devs.c',
++))
+ arm_ss.add(when: ['CONFIG_RASPI', 'TARGET_AARCH64'], if_true: files('bcm2838.c', 'raspi4b.c'))
+ arm_ss.add(when: 'CONFIG_STM32F100_SOC', if_true: files('stm32f100_soc.c'))
+ arm_ss.add(when: 'CONFIG_STM32F205_SOC', if_true: files('stm32f205_soc.c'))
+diff --git a/hw/arm/raspi.c b/hw/arm/raspi.c
+index a7a662f..bba5ed2 100644
+--- a/hw/arm/raspi.c
++++ b/hw/arm/raspi.c
+@@ -248,7 +248,8 @@ void raspi_base_machine_init(MachineState *machine,
+ {
+     RaspiBaseMachineClass *mc = RASPI_BASE_MACHINE_GET_CLASS(machine);
+     uint32_t board_rev = mc->board_rev;
+-    uint64_t ram_size = board_ram_size(board_rev);
++    uint64_t board_max_ram = board_ram_size(board_rev);
++    uint64_t ram_size = machine->ram_size;
+     uint32_t vcram_base, vcram_size;
+     size_t boot_ram_size;
+     DriveInfo *di;
+@@ -256,10 +257,18 @@ void raspi_base_machine_init(MachineState *machine,
+     BusState *bus;
+     DeviceState *carddev;
+ 
+-    if (machine->ram_size != ram_size) {
++    /*
++     * Some M5Stack products use a smaller LPDDR2 package than the retail
++     * Raspberry Pi board that shares the same SoC.  QEMU's retail-machine
++     * revision otherwise rejects the physical 512 MiB CardputerZero size.
++     */
++    if (machine->ram_size < 256 * MiB || machine->ram_size > board_max_ram) {
+         char *size_str = size_to_str(ram_size);
+-        error_report("Invalid RAM size, should be %s", size_str);
++        char *max_size_str = size_to_str(board_max_ram);
++        error_report("Invalid RAM size %s, expected 256 MiB-%s",
++                     size_str, max_size_str);
+         g_free(size_str);
++        g_free(max_size_str);
+         exit(1);
+     }
+ 
+diff --git a/hw/gpio/bcm2835_gpio.c b/hw/gpio/bcm2835_gpio.c
+index 5a5f1df..03d751f 100644
+--- a/hw/gpio/bcm2835_gpio.c
++++ b/hw/gpio/bcm2835_gpio.c
+@@ -52,6 +52,119 @@
+ #define GPPUDCLK0 0x98
+ #define GPPUDCLK1 0x9C
+ 
++static BCM2835GpioState *g_bcm2835_gpio;
++
++static void bcm2835_gpio_record_ir_tx(BCM2835GpioState *s, int level)
++{
++    uint64_t now;
++
++    if (!s->ir_tx_file) {
++        return;
++    }
++    now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    if (!s->ir_tx_start_ns) {
++        s->ir_tx_start_ns = now;
++    }
++    fprintf(s->ir_tx_file, "%" PRIu64 ",%d\n", now - s->ir_tx_start_ns,
++            level);
++    fflush(s->ir_tx_file);
++}
++
++static void bcm2835_gpio_ir_rx_next(void *opaque)
++{
++    BCM2835GpioState *s = opaque;
++    unsigned delta_us;
++    int level;
++
++    if (!s->ir_rx_file ||
++        fscanf(s->ir_rx_file, "%u,%d", &delta_us, &level) != 2) {
++        if (s->ir_rx_file) {
++            fclose(s->ir_rx_file);
++            s->ir_rx_file = NULL;
++        }
++        return;
++    }
++    timer_mod(s->ir_rx_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++              (uint64_t)delta_us * 1000);
++    bcm2835_gpio_set_input(13, level);
++}
++
++void bcm2835_gpio_ir_rx_start(void)
++{
++    BCM2835GpioState *s = g_bcm2835_gpio;
++
++    if (!s || !s->ir_rx_file) {
++        return;
++    }
++    rewind(s->ir_rx_file);
++    timer_mod(s->ir_rx_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000);
++}
++
++static void bcm2835_gpio_update_irq(BCM2835GpioState *s)
++{
++    qemu_set_irq(s->irq, (s->eds0 | s->eds1) != 0);
++}
++
++static void bcm2835_gpio_record_event(BCM2835GpioState *s, int pin,
++                                      bool rising, bool falling)
++{
++    uint32_t bit = BIT(pin & 31);
++    uint32_t *eds = pin < 32 ? &s->eds0 : &s->eds1;
++    uint32_t *ren = pin < 32 ? &s->ren0 : &s->ren1;
++    uint32_t *fen = pin < 32 ? &s->fen0 : &s->fen1;
++    uint32_t *hen = pin < 32 ? &s->hen0 : &s->hen1;
++    uint32_t *len = pin < 32 ? &s->len0 : &s->len1;
++    uint32_t *aren = pin < 32 ? &s->aren0 : &s->aren1;
++    uint32_t *afen = pin < 32 ? &s->afen0 : &s->afen1;
++
++    if ((rising && ((*ren | *aren) & bit)) ||
++        (falling && ((*fen | *afen) & bit)) ||
++        (*hen & bit) || (*len & bit)) {
++        *eds |= bit;
++        bcm2835_gpio_update_irq(s);
++    }
++}
++
++void bcm2835_gpio_set_input(int pin, int level)
++{
++    BCM2835GpioState *s = g_bcm2835_gpio;
++    uint32_t bit;
++    uint32_t *lev;
++    bool old_level;
++
++    if (!s || pin < 0 || pin >= 54) {
++        return;
++    }
++    if (getenv("M5SW_GPIO_TRACE")) {
++        fprintf(stderr, "[bcm2835-gpio] input pin=%d level=%d\n", pin, level);
++    }
++
++    bit = BIT(pin & 31);
++    lev = pin < 32 ? &s->lev0 : &s->lev1;
++    old_level = (*lev & bit) != 0;
++    level = !!level;
++    if (old_level == level) {
++        return;
++    }
++
++    if (level) {
++        *lev |= bit;
++    } else {
++        *lev &= ~bit;
++    }
++    bcm2835_gpio_record_event(s, pin, level && !old_level,
++                              !level && old_level);
++    if (getenv("M5SW_GPIO_TRACE")) {
++        fprintf(stderr,
++                "[bcm2835-gpio] irq=%d eds0=%08x ren0=%08x fen0=%08x "
++                "hen0=%08x len0=%08x\n",
++                (s->eds0 | s->eds1) != 0, s->eds0, s->ren0, s->fen0,
++                s->hen0, s->len0);
++    }
++}
++
+ static uint32_t gpfsel_get(BCM2835GpioState *s, uint8_t reg)
+ {
+     int i;
+@@ -120,6 +233,13 @@ static void gpset(BCM2835GpioState *s,
+     for (i = 0; i < count; i++) {
+         if ((changes & cur) && (gpfsel_is_out(s, start + i))) {
+             qemu_set_irq(s->out[start + i], 1);
++            if (getenv("M5SW_GPIO_TRACE")) {
++                fprintf(stderr, "[bcm2835-gpio] output pin=%d level=1\n",
++                        start + i);
++            }
++            if (start + i == 12) {
++                bcm2835_gpio_record_ir_tx(s, 1);
++            }
+         }
+         cur <<= 1;
+     }
+@@ -137,6 +257,13 @@ static void gpclr(BCM2835GpioState *s,
+     for (i = 0; i < count; i++) {
+         if ((changes & cur) && (gpfsel_is_out(s, start + i))) {
+             qemu_set_irq(s->out[start + i], 0);
++            if (getenv("M5SW_GPIO_TRACE")) {
++                fprintf(stderr, "[bcm2835-gpio] output pin=%d level=0\n",
++                        start + i);
++            }
++            if (start + i == 12) {
++                bcm2835_gpio_record_ir_tx(s, 0);
++            }
+         }
+         cur <<= 1;
+     }
+@@ -169,20 +296,34 @@ static uint64_t bcm2835_gpio_read(void *opaque, hwaddr offset,
+         return s->lev0;
+     case GPLEV1:
+         return s->lev1;
+-    case GPEDS0:
+-    case GPEDS1:
+     case GPREN0:
++        return s->ren0;
+     case GPREN1:
++        return s->ren1;
+     case GPFEN0:
++        return s->fen0;
+     case GPFEN1:
++        return s->fen1;
+     case GPHEN0:
++        return s->hen0;
+     case GPHEN1:
++        return s->hen1;
+     case GPLEN0:
++        return s->len0;
+     case GPLEN1:
++        return s->len1;
+     case GPAREN0:
++        return s->aren0;
+     case GPAREN1:
++        return s->aren1;
+     case GPAFEN0:
++        return s->afen0;
+     case GPAFEN1:
++        return s->afen1;
++    case GPEDS0:
++        return s->eds0;
++    case GPEDS1:
++        return s->eds1;
+     case GPPUD:
+     case GPPUDCLK0:
+     case GPPUDCLK1:
+@@ -228,19 +369,49 @@ static void bcm2835_gpio_write(void *opaque, hwaddr offset,
+         /* Read Only */
+         break;
+     case GPEDS0:
++        s->eds0 &= ~value;
++        bcm2835_gpio_update_irq(s);
++        break;
+     case GPEDS1:
++        s->eds1 &= ~value;
++        bcm2835_gpio_update_irq(s);
++        break;
+     case GPREN0:
++        s->ren0 = value;
++        break;
+     case GPREN1:
++        s->ren1 = value;
++        break;
+     case GPFEN0:
++        s->fen0 = value;
++        break;
+     case GPFEN1:
++        s->fen1 = value;
++        break;
+     case GPHEN0:
++        s->hen0 = value;
++        break;
+     case GPHEN1:
++        s->hen1 = value;
++        break;
+     case GPLEN0:
++        s->len0 = value;
++        break;
+     case GPLEN1:
++        s->len1 = value;
++        break;
+     case GPAREN0:
++        s->aren0 = value;
++        break;
+     case GPAREN1:
++        s->aren1 = value;
++        break;
+     case GPAFEN0:
++        s->afen0 = value;
++        break;
+     case GPAFEN1:
++        s->afen1 = value;
++        break;
+     case GPPUD:
+     case GPPUDCLK0:
+     case GPPUDCLK1:
+@@ -272,6 +443,17 @@ static void bcm2835_gpio_reset(DeviceState *dev)
+ 
+     s->lev0 = 0;
+     s->lev1 = 0;
++    s->lev0 |= BIT(13);  /* CardputerZero IR receiver idles active-high. */
++    s->eds0 = s->eds1 = 0;
++    s->ren0 = s->ren1 = 0;
++    s->fen0 = s->fen1 = 0;
++    s->hen0 = s->hen1 = 0;
++    s->len0 = s->len1 = 0;
++    s->aren0 = s->aren1 = 0;
++    s->afen0 = s->afen1 = 0;
++    qemu_set_irq(s->irq, 0);
++    s->ir_tx_start_ns = 0;
++    timer_del(s->ir_rx_timer);
+ }
+ 
+ static const MemoryRegionOps bcm2835_gpio_ops = {
+@@ -288,6 +470,20 @@ static const VMStateDescription vmstate_bcm2835_gpio = {
+         VMSTATE_UINT8_ARRAY(fsel, BCM2835GpioState, 54),
+         VMSTATE_UINT32(lev0, BCM2835GpioState),
+         VMSTATE_UINT32(lev1, BCM2835GpioState),
++        VMSTATE_UINT32(eds0, BCM2835GpioState),
++        VMSTATE_UINT32(eds1, BCM2835GpioState),
++        VMSTATE_UINT32(ren0, BCM2835GpioState),
++        VMSTATE_UINT32(ren1, BCM2835GpioState),
++        VMSTATE_UINT32(fen0, BCM2835GpioState),
++        VMSTATE_UINT32(fen1, BCM2835GpioState),
++        VMSTATE_UINT32(hen0, BCM2835GpioState),
++        VMSTATE_UINT32(hen1, BCM2835GpioState),
++        VMSTATE_UINT32(len0, BCM2835GpioState),
++        VMSTATE_UINT32(len1, BCM2835GpioState),
++        VMSTATE_UINT32(aren0, BCM2835GpioState),
++        VMSTATE_UINT32(aren1, BCM2835GpioState),
++        VMSTATE_UINT32(afen0, BCM2835GpioState),
++        VMSTATE_UINT32(afen1, BCM2835GpioState),
+         VMSTATE_UINT8(sd_fsel, BCM2835GpioState),
+         VMSTATE_END_OF_LIST()
+     }
+@@ -305,6 +501,16 @@ static void bcm2835_gpio_init(Object *obj)
+             &bcm2835_gpio_ops, s, "bcm2835_gpio", 0x1000);
+     sysbus_init_mmio(sbd, &s->iomem);
+     qdev_init_gpio_out(dev, s->out, 54);
++    qdev_init_gpio_out_named(dev, &s->irq, "irq", 1);
++    s->ir_rx_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                  bcm2835_gpio_ir_rx_next, s);
++    if (getenv("M5SW_IR_TX_FILE")) {
++        s->ir_tx_file = fopen(getenv("M5SW_IR_TX_FILE"), "w");
++    }
++    if (getenv("M5SW_IR_RX_FILE")) {
++        s->ir_rx_file = fopen(getenv("M5SW_IR_RX_FILE"), "r");
++    }
++    g_bcm2835_gpio = s;
+ }
+ 
+ static void bcm2835_gpio_realize(DeviceState *dev, Error **errp)
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index 1807ce0..7539d4d 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -93,6 +93,7 @@ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
+ void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
++void m5_max3421e_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_scs_servo_attach(DeviceState *uart);
+ void m5_uart_echo_attach(DeviceState *uart, const char *enable_env);
+ DeviceState *m5soc_get_uart_device(int index);
+@@ -105,6 +106,7 @@ void m5sw_touch_set(int pressed, int x, int y);
+ void m5sw_ft_touch_set(int pressed, int x, int y);
+ void m5sw_ft_touch_set_pin(int pressed, int x, int y, int int_pin);
+ void m5sw_keyboard_event(uint8_t event);
++void m5sw_ir_rx_start(void);
+ void m5sw_plc_key_set(int key, bool pressed);
+ void m5sw_pwr_button(int pressed);
+ 
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 084b496..cfd3849 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -43,6 +43,7 @@ enum {
+     M_SHT40,
+     M_SI12T,
+     M_LP5562,
++    M_BQ27220,
+ };
+ 
+ typedef struct M5swI2CDev {
+@@ -104,6 +105,16 @@ typedef struct M5swI2CDev {
+     uint8_t st25_tag[180];
+     uint8_t aw9523_irq_bits;
+     uint8_t pi4ioe_irq_bits;
++    uint8_t key_event;
++    int64_t bq_battery_mv;
++    int64_t bq_current_ma;
++    int64_t bq_level;
++    int64_t bq_design_capacity_mah;
++    uint16_t bq_ctrl_word;
++    uint8_t bq_ctrl_byte_index;
++    uint8_t bq_unseal_matches;
++    bool bq_sealed;
++    bool bq_unsealed;
+ } M5swI2CDev;
+ 
+ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+@@ -276,9 +287,16 @@ void m5sw_keyboard_event(uint8_t event)
+     }
+     g_key_events[(g_key_event_head + g_key_event_count) % ARRAY_SIZE(g_key_events)] = event;
+     g_key_event_count++;
++    if (g_keyboard) {
++        g_keyboard->regs[0x02] |= 0x01;  /* INT_STAT: key event */
++    }
+     esp32_gpio_set_input(11, 0);
+ }
+ 
++__attribute__((weak)) void m5sw_ir_rx_start(void)
++{
++}
++
+ void m5sw_plc_key_set(int key, bool pressed)
+ {
+     if (key < 0 || key > 2) {
+@@ -921,6 +939,64 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+             return data[r % 6];
+         }
+         break;
++    case M_BQ27220:
++    {
++        /*
++         * BQ27220 standard commands are 16-bit little-endian words.  Linux
++         * reads them with a register write followed by a two-byte read, so
++         * the second byte must be derived from read_start rather than from
++         * another absolute register address.
++         */
++        uint16_t word;
++        uint8_t offset = r - s->read_start;
++
++        switch (s->read_start) {
++        case 0x00:                                      /* Control/status */
++            word = s->bq_sealed ? 0x0000 : 0x0000;
++            break;
++        case 0x06:                                      /* Temperature, 0.1 K */
++            word = 2981;
++            break;
++        case 0x08:                                      /* Voltage, mV */
++            word = s->bq_battery_mv;
++            break;
++        case 0x0a:                                      /* Battery status */
++            word = BIT(3);                              /* BATTPRES */
++            break;
++        case 0x0c:                                      /* Current, mA */
++        case 0x14:                                      /* Average current, mA */
++            word = (uint16_t)(int16_t)s->bq_current_ma;
++            break;
++        case 0x10:                                      /* Remaining capacity */
++            word = s->bq_level * s->bq_design_capacity_mah / 100;
++            break;
++        case 0x12:                                      /* Full capacity */
++        case 0x3c:                                      /* Design capacity */
++            word = s->bq_design_capacity_mah;
++            break;
++        case 0x28:                                      /* Internal temperature */
++            word = 2981;
++            break;
++        case 0x2a:                                      /* Cycle count */
++            word = 0;
++            break;
++        case 0x2c:                                      /* Relative SOC */
++            word = MAX(0, MIN(s->bq_level, 100));
++            break;
++        case 0x2e:                                      /* State of health */
++            word = 100;
++            break;
++        case 0x30:                                      /* Charging voltage */
++            word = 4200;
++            break;
++        case 0x3a:                                      /* Operation status */
++            word = BIT(2) | (s->bq_sealed ? 0x3 : 0x2);
++            break;
++        default:
++            return s->regs[r];
++        }
++        return offset ? (word >> 8) & 0xff : word & 0xff;
++    }
+     case M_BMI270:
+         if (r >= 0x04 && r <= 0x09 && g_bmm150) {
+             int index = (r - 0x04) / 2;
+@@ -965,6 +1041,7 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+         s->ptr_set = false;
+         s->st25_mode = 0;
+         s->st25_read_space_b = false;
++        s->bq_ctrl_byte_index = 0;
+     } else if (ev == I2C_START_RECV) {
+         s->read_start = s->ptr;
+         s->ina3221_read_index = 0;
+@@ -1084,6 +1161,13 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+             return 0;
+         }
+         break;
++    case M_TCA8418:
++        if (r == 0x02) {          /* INT_STAT is write-one-to-clear */
++            s->regs[r] &= ~data;
++            s->ptr++;
++            return 0;
++        }
++        break;
+     case M_IOE1:
+         if (r == 0x07 || r == 0x08) { s->ptr++; return 0; }  /* RO */
+         if (r == 0x15) {
+@@ -1234,6 +1318,37 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+             s->lp5562_r_pwm = data;
+         }
+         break;
++    case M_BQ27220:
++        if (r == 0x00 || r == 0x01) {
++            if (s->bq_ctrl_byte_index == 0) {
++                s->bq_ctrl_word = data;
++                s->bq_ctrl_byte_index = 1;
++                s->ptr++;
++                return 0;
++            }
++            s->bq_ctrl_word |= data << 8;
++            s->bq_ctrl_byte_index = 0;
++
++            if (s->bq_sealed && s->bq_ctrl_word == 0x8000) {
++                if (++s->bq_unseal_matches >= 2) {
++                    s->bq_sealed = false;
++                    s->bq_unsealed = true;
++                    s->bq_unseal_matches = 0;
++                }
++            } else {
++                s->bq_unseal_matches = 0;
++                if (s->bq_ctrl_word == 0x0030 && !s->bq_sealed) {
++                    s->bq_sealed = true;
++                    s->bq_unsealed = false;
++                } else if (s->bq_ctrl_word == 0x0041) {
++                    s->bq_sealed = false;
++                    s->bq_unsealed = true;
++                }
++            }
++            s->ptr++;
++            return 0;
++        }
++        break;
+     default:
+         break;
+     }
+@@ -1264,6 +1379,34 @@ static void prop_set_i64(Object *o, Visitor *v, const char *name, void *op, Erro
+         *(int64_t *)op = d;
+     }
+ }
++static void prop_get_u8(Object *o, Visitor *v, const char *name, void *op,
++                        Error **errp)
++{
++    visit_type_uint8(v, name, (uint8_t *)op, errp);
++}
++static void prop_set_key_event(Object *o, Visitor *v, const char *name,
++                               void *op, Error **errp)
++{
++    uint8_t value;
++
++    if (visit_type_uint8(v, name, &value, errp)) {
++        *(uint8_t *)op = value;
++        if (getenv("M5SW_I2C_TRACE")) {
++            fprintf(stderr, "[tca8418] inject key-event=%02x\n", value);
++        }
++        m5sw_keyboard_event(value);
++    }
++}
++
++static void prop_set_ir_rx_start(Object *o, Visitor *v, const char *name,
++                                 void *op, Error **errp)
++{
++    uint8_t value;
++
++    if (visit_type_uint8(v, name, &value, errp) && value) {
++        m5sw_ir_rx_start();
++    }
++}
+ static void prop_set_aw9523_input(Object *o, Visitor *v, const char *name,
+                                   void *op, Error **errp)
+ {
+@@ -1505,6 +1648,24 @@ static void dev_realize(DeviceState *dev, Error **errp)
+         object_property_add(OBJECT(s), "blue-pwm", "int",
+                             prop_get_i64, prop_set_i64, NULL,
+                             &s->lp5562_b_pwm);
++    } else if (!strcmp(m, "bq27220")) {
++        s->model = M_BQ27220;
++        s->bq_battery_mv = 4000;
++        s->bq_current_ma = 250;
++        s->bq_level = 87;
++        s->bq_design_capacity_mah = 1750;
++        object_property_add(OBJECT(s), "battery-mv", "int",
++                            prop_get_i64, prop_set_i64, NULL,
++                            &s->bq_battery_mv);
++        object_property_add(OBJECT(s), "current-ma", "int",
++                            prop_get_i64, prop_set_i64, NULL,
++                            &s->bq_current_ma);
++        object_property_add(OBJECT(s), "battery-level", "int",
++                            prop_get_i64, prop_set_i64, NULL,
++                            &s->bq_level);
++        object_property_add(OBJECT(s), "design-capacity-mah", "int",
++                            prop_get_i64, prop_set_i64, NULL,
++                            &s->bq_design_capacity_mah);
+     } else if (!strcmp(m, "rx8130")) {
+         s->model = M_RX8130;
+         s->regs[0x1E] = 0x00;
+@@ -1595,7 +1756,14 @@ static void dev_realize(DeviceState *dev, Error **errp)
+         s->model = M_TCA8418;
+         s->regs[0x03] = 0;
+         s->regs[0x04] = 0;
++        object_property_add(OBJECT(s), "key-event", "uint8",
++                            prop_get_u8, prop_set_key_event, NULL,
++                            &s->key_event);
++        object_property_add(OBJECT(s), "ir-rx-start", "uint8",
++                            prop_get_u8, prop_set_ir_rx_start, NULL,
++                            &s->key_event);
+         g_keyboard = s;
++        esp32_gpio_set_input(11, 1);  /* active-low IRQ idles high */
+     } else if (!strcmp(m, "pi4ioe")) {
+         s->model = M_PI4IOE;
+         s->regs[0x01] = 0xa2;
+@@ -1639,11 +1807,23 @@ static Property dev_props[] = {
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
++static void dev_reset(DeviceState *dev)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(dev);
++
++    if (s->model == M_TCA8418) {
++        g_key_event_head = 0;
++        g_key_event_count = 0;
++        esp32_gpio_set_input(11, 1);
++    }
++}
++
+ static void dev_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     I2CSlaveClass *k = I2C_SLAVE_CLASS(klass);
+     dc->realize = dev_realize;
++    device_class_set_legacy_reset(dc, dev_reset);
+     k->event = dev_event;
+     k->recv = dev_recv;
+     k->send = dev_send;
+diff --git a/hw/misc/bcm2835_powermgt.c b/hw/misc/bcm2835_powermgt.c
+index d88689a..028627b 100644
+--- a/hw/misc/bcm2835_powermgt.c
++++ b/hw/misc/bcm2835_powermgt.c
+@@ -12,6 +12,7 @@
+ #include "qemu/log.h"
+ #include "qemu/module.h"
+ #include "hw/misc/bcm2835_powermgt.h"
++#include "hw/qdev-properties.h"
+ #include "migration/vmstate.h"
+ #include "sysemu/runstate.h"
+ 
+@@ -23,6 +24,37 @@
+ #define R_RSTS 0x20
+ #define V_RSTS_POWEROFF 0x555 /* Linux uses partition 63 to indicate halt. */
+ #define R_WDOG 0x24
++#define WDOG_TICKS_PER_SECOND 65536
++
++static void bcm2835_watchdog_expire(void *opaque)
++{
++    BCM2835PowerMgtState *s = opaque;
++
++    if (s->ignore_reset) {
++        qemu_log_mask(LOG_GUEST_ERROR,
++                      "bcm2835_powermgt: watchdog expiry ignored\n");
++        return;
++    }
++    if ((s->rsts & 0xfff) == V_RSTS_POWEROFF) {
++        qemu_system_shutdown_request(SHUTDOWN_CAUSE_GUEST_SHUTDOWN);
++    } else {
++        qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
++    }
++}
++
++static void bcm2835_watchdog_arm(BCM2835PowerMgtState *s)
++{
++    uint64_t ticks = s->wdog & 0x000fffff;
++    uint64_t timeout_ns;
++
++    if (!(s->rstc & V_RSTC_RESET) || ticks == 0) {
++        timer_del(s->watchdog_timer);
++        return;
++    }
++    timeout_ns = ticks * NANOSECONDS_PER_SECOND / WDOG_TICKS_PER_SECOND;
++    timer_mod(s->watchdog_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + MAX(timeout_ns, 1));
++}
+ 
+ static uint64_t bcm2835_powermgt_read(void *opaque, hwaddr offset,
+                                       unsigned size)
+@@ -70,13 +102,7 @@ static void bcm2835_powermgt_write(void *opaque, hwaddr offset,
+     switch (offset) {
+     case R_RSTC:
+         s->rstc = value;
+-        if (value & V_RSTC_RESET) {
+-            if ((s->rsts & 0xfff) == V_RSTS_POWEROFF) {
+-                qemu_system_shutdown_request(SHUTDOWN_CAUSE_GUEST_SHUTDOWN);
+-            } else {
+-                qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
+-            }
+-        }
++        bcm2835_watchdog_arm(s);
+         break;
+     case R_RSTS:
+         qemu_log_mask(LOG_UNIMP,
+@@ -84,9 +110,8 @@ static void bcm2835_powermgt_write(void *opaque, hwaddr offset,
+         s->rsts = value;
+         break;
+     case R_WDOG:
+-        qemu_log_mask(LOG_UNIMP,
+-                      "bcm2835_powermgt_write: WDOG\n");
+         s->wdog = value;
++        bcm2835_watchdog_arm(s);
+         break;
+ 
+     default:
+@@ -117,6 +142,12 @@ static const VMStateDescription vmstate_bcm2835_powermgt = {
+     }
+ };
+ 
++static Property bcm2835_powermgt_props[] = {
++    DEFINE_PROP_BOOL("ignore-reset", BCM2835PowerMgtState, ignore_reset,
++                     false),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
+ static void bcm2835_powermgt_init(Object *obj)
+ {
+     BCM2835PowerMgtState *s = BCM2835_POWERMGT(obj);
+@@ -124,6 +155,8 @@ static void bcm2835_powermgt_init(Object *obj)
+     memory_region_init_io(&s->iomem, obj, &bcm2835_powermgt_ops, s,
+                           TYPE_BCM2835_POWERMGT, 0x200);
+     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->iomem);
++    s->watchdog_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                    bcm2835_watchdog_expire, s);
+ }
+ 
+ static void bcm2835_powermgt_reset(DeviceState *dev)
+@@ -134,6 +167,7 @@ static void bcm2835_powermgt_reset(DeviceState *dev)
+     s->rstc = 0x00000102;
+     s->rsts = 0x00001000;
+     s->wdog = 0x00000000;
++    timer_del(s->watchdog_timer);
+ }
+ 
+ static void bcm2835_powermgt_class_init(ObjectClass *klass, void *data)
+@@ -141,6 +175,7 @@ static void bcm2835_powermgt_class_init(ObjectClass *klass, void *data)
+     DeviceClass *dc = DEVICE_CLASS(klass);
+ 
+     device_class_set_legacy_reset(dc, bcm2835_powermgt_reset);
++    device_class_set_props(dc, bcm2835_powermgt_props);
+     dc->vmsd = &vmstate_bcm2835_powermgt;
+ }
+ 
+diff --git a/include/hw/arm/bcm2835_peripherals.h b/include/hw/arm/bcm2835_peripherals.h
+index 1eeaeec..28f0333 100644
+--- a/include/hw/arm/bcm2835_peripherals.h
++++ b/include/hw/arm/bcm2835_peripherals.h
+@@ -96,6 +96,18 @@ struct BCM2835PeripheralState {
+     BCM2835RngState rng;
+     Bcm2835ThermalState thermal;
+     BCM2835GpioState gpio;
++    MemoryRegion asb_iomem;
++    uint32_t asb_regs[0x24 / sizeof(uint32_t)];
++    MemoryRegion i2s_iomem;
++    uint32_t i2s_regs[9];
++    FILE *i2s_tx_file;
++    FILE *i2s_rx_file;
++    uint64_t i2s_tx_words;
++    uint64_t i2s_rx_words;
++    uint64_t i2s_tx_bytes;
++    uint64_t i2s_tx_limit;
++    uint64_t i2s_rx_bytes;
++    uint64_t i2s_rx_limit;
+ };
+ 
+ void create_unimp(BCMSocPeripheralBaseState *ps,
+diff --git a/include/hw/gpio/bcm2835_gpio.h b/include/hw/gpio/bcm2835_gpio.h
+index 1c53a05..ab19af3 100644
+--- a/include/hw/gpio/bcm2835_gpio.h
++++ b/include/hw/gpio/bcm2835_gpio.h
+@@ -16,6 +16,7 @@
+ 
+ #include "hw/sd/sd.h"
+ #include "hw/sysbus.h"
++#include "qemu/timer.h"
+ #include "qom/object.h"
+ 
+ struct BCM2835GpioState {
+@@ -30,11 +31,26 @@ struct BCM2835GpioState {
+ 
+     uint8_t fsel[54];
+     uint32_t lev0, lev1;
++    uint32_t eds0, eds1;
++    uint32_t ren0, ren1;
++    uint32_t fen0, fen1;
++    uint32_t hen0, hen1;
++    uint32_t len0, len1;
++    uint32_t aren0, aren1;
++    uint32_t afen0, afen1;
+     uint8_t sd_fsel;
+     qemu_irq out[54];
++    qemu_irq irq;
++    FILE *ir_tx_file;
++    FILE *ir_rx_file;
++    QEMUTimer *ir_rx_timer;
++    uint64_t ir_tx_start_ns;
+ };
+ 
+ #define TYPE_BCM2835_GPIO "bcm2835_gpio"
+ OBJECT_DECLARE_SIMPLE_TYPE(BCM2835GpioState, BCM2835_GPIO)
+ 
++void bcm2835_gpio_set_input(int pin, int level);
++void bcm2835_gpio_ir_rx_start(void);
++
+ #endif
+diff --git a/include/hw/misc/bcm2835_powermgt.h b/include/hw/misc/bcm2835_powermgt.h
+index 303b9a6..0c4859a 100644
+--- a/include/hw/misc/bcm2835_powermgt.h
++++ b/include/hw/misc/bcm2835_powermgt.h
+@@ -12,6 +12,7 @@
+ #define BCM2835_POWERMGT_H
+ 
+ #include "hw/sysbus.h"
++#include "qemu/timer.h"
+ #include "qom/object.h"
+ 
+ #define TYPE_BCM2835_POWERMGT "bcm2835-powermgt"
+@@ -24,6 +25,8 @@ struct BCM2835PowerMgtState {
+     uint32_t rstc;
+     uint32_t rsts;
+     uint32_t wdog;
++    bool ignore_reset;
++    QEMUTimer *watchdog_timer;
+ };
+ 
+ #endif

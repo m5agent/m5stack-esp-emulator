@@ -4,6 +4,7 @@
 - 分组：`ESP32-S3`
 - 外壳：`工业控制器`
 - 运行时：`reference-ready`
+- 外设仿真：`simulated`
 - UIFlow2：`支持`，m5ui：`不支持`
 - UIFlow2 固件：v2.5.3 / `1897200000000001222`
 
@@ -27,6 +28,8 @@ reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-key-bus-actuator-pass` (2026-10-21)
 - 详情：官方 UIFlow2 v2.5.3 渲染 240x135 UI；PI4IOE 按键/继电器/输入、RGB、INA226、LM75、TWAI CAN G42/G43、PWR485 UART2 G0/G39/G46 和 G44 I2S 蜂鸣器闭环通过。
+
+
 
 
 

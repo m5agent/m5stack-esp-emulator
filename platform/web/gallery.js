@@ -1,7 +1,14 @@
 import { M5DeviceShell } from './device-shell.js?v=20261020a';
 
 const $ = id => document.getElementById(id);
-const state = { catalog: null, selected: null, shell: null, filter: '' };
+const state = {
+  catalog: null,
+  peripheralById: {},
+  inventory: null,
+  selected: null,
+  shell: null,
+  filter: ''
+};
 
 function humanBytes(value) {
   if (value == null) return '未确认';
@@ -20,11 +27,21 @@ function dimensionsText(dimensions) {
 }
 
 async function init() {
-  state.catalog = await fetch('/devices/catalog.json', { cache: 'no-store' }).then(response => {
-    if (!response.ok) throw new Error(`catalog HTTP ${response.status}`);
-    return response.json();
-  });
-  $('catalogChip').textContent = `${state.catalog.devices.length} devices`;
+  [state.catalog, state.inventory] = await Promise.all([
+    fetch('/devices/catalog.json', { cache: 'no-store' }).then(response => {
+      if (!response.ok) throw new Error(`catalog HTTP ${response.status}`);
+      return response.json();
+    }),
+    fetch('/api/peripherals', { cache: 'no-store' }).then(response => {
+      if (!response.ok) throw new Error(`peripherals HTTP ${response.status}`);
+      return response.json();
+    })
+  ]);
+  state.peripheralById = Object.fromEntries(
+    state.inventory.devices.map(device => [device.id, device])
+  );
+  $('catalogChip').textContent =
+    `${state.catalog.devices.length} devices · ${state.inventory.complete_devices}/${state.inventory.device_count} peripheral-complete`;
   $('search').addEventListener('input', event => {
     state.filter = event.target.value.trim().toLowerCase();
     renderNav();
@@ -51,6 +68,7 @@ function renderNav() {
     section.className = 'nav-group';
     section.innerHTML = `<h3 class="nav-group-title">${group.label}</h3>`;
     for (const device of devices) {
+      const peripheral = state.peripheralById[device.id];
       const button = document.createElement('button');
       button.className = 'device-card' + (state.selected?.path === device.path ? ' active' : '');
       button.innerHTML = `
@@ -58,7 +76,10 @@ function renderNav() {
           <span class="device-card-name">${device.name}</span>
           <span class="status-chip ${device.runtime.status}"></span>
         </div>
-        <div class="device-card-sku">${device.sku || ''} · ${device.runtime.status}</div>`;
+        <div class="device-card-sku">${device.sku || ''} · ${device.runtime.status}</div>
+        <div class="peripheral-badge ${peripheral?.complete ? 'ok' : 'partial'}">
+          外设 ${peripheral?.complete ? '完整' : `${peripheral?.blocked_models?.length || '?'} 项待补`}
+        </div>`;
       button.addEventListener('click', () => selectDevice(device.path));
       section.append(button);
     }
@@ -97,6 +118,7 @@ async function selectDevice(path) {
 
 function renderDetails(device) {
   const firmware = device.uiflow2?.firmware;
+  const peripheral = state.peripheralById[device.id];
   $('detailName').textContent = device.name;
   $('detailSub').textContent = `${device.sku || 'SKU 未确认'} · ${device.runtime.status}`;
   const runtimeClass = device.runtime.status === 'reference-ready' ? 'ok' : device.runtime.status === 'backend-required' ? 'danger' : '';
@@ -127,6 +149,14 @@ function renderDetails(device) {
         <dt>m5ui</dt><dd>${device.uiflow2?.m5ui ? '支持' : '不支持'}</dd>
         <dt>固件</dt><dd>${firmware ? `${firmware.version}<br><code>${firmware.firmware_id}</code>` : '无'}</dd>
       </dl>
+    </div>
+    <div class="section">
+      <div class="section-title">Peripheral contract</div>
+      <div class="notice ${peripheral?.complete ? 'ok' : 'danger'}">
+        ${peripheral?.complete
+          ? `${peripheral.components.length} 个外设组件全部闭环。`
+          : `${peripheral?.blocked_models?.length || 0} 个阻断模型：${peripheral?.blocked_models?.join(', ') || '未知'}`}
+      </div>
     </div>
     <div class="section">
       <div class="section-title">Runtime contract</div>

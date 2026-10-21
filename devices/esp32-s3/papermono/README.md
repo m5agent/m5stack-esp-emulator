@@ -4,6 +4,7 @@
 - 分组：`ESP32-S3`
 - 外壳：`电子纸`
 - 运行时：`reference-ready`
+- 外设仿真：`simulated`
 - UIFlow2：`支持`，m5ui：`不支持`
 - UIFlow2 固件：v2.5.3 / `2089633464953118721`
 
@@ -19,14 +20,16 @@
 | 重量 | 72.4 g |
 | 显示 | 480×800 e-paper-mono，3.97"，SSD1677，触摸 |
 | 控制 | KEY1, KEY2, PWR, Touch |
-| 外设 | imu:bmi270, rtc:rx8130ce, microphone:pdm |
+| 外设 | imu:bmi270, rtc:rx8130ce, battery:m5pm1, io-expander:m5ioe1, charger:ip2315, microphone:pdm, nfc:st25r3916, lora:sx1262, buzzer, rgb-led, storage:sd |
 
 ## 模拟状态
 
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-touch-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI；BMI270、电源、RX8130 RTC、触摸、按键和 SDMMC 块读写闭环通过。
+- 详情：官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI；BMI270、M5PM1、IP2315 充电状态、RX8130 RTC、触摸、按键和 SDMMC 块读写闭环通过。
+
+
 
 
 

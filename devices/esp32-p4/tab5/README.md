@@ -4,6 +4,7 @@
 - 分组：`ESP32-P4`
 - 外壳：`平板终端`
 - 运行时：`reference-ready`
+- 外设仿真：`partial`
 - UIFlow2：`支持`，m5ui：`支持`
 - UIFlow2 固件：v2.5.3 / `1897200000000002379`
 
@@ -19,16 +20,25 @@
 | 重量 | 120.9 g |
 | 显示 | 1280×720 ips，5"，ST7121 / ST7123，触摸 |
 | 控制 | Touch, Reset/Boot |
-| 外设 | camera:sc2356, imu:bmi270, rtc:rx8130ce, audio, microphone, speaker, usb-host, rs485 |
+| 外设 | wireless:esp32c6-mini, camera:sc2356, imu:bmi270, rtc:rx8130ce, power-monitor:ina226, io-expander:pi4ioe5v6408, audio:es8388, microphone:es7210, speaker:es8388, usb-host:usb-host-p4-dwc, rs485, storage:sd, charger:ip2326 |
 
 ## 模拟状态
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-pass` (2026-10-21)
-- 详情：UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. The image is esptool-written to 16 MiB virtual flash and byte-for-byte verified before boot.
+- 验证：`display-touch-rs485-pass-peripherals-partial` (2026-10-22)
+- 详情：UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. Tab5 I2C reaches G31/G32 through the P4 controller: INA226 preload reaches Power as 8000mV/1248mA/87%, machine.RTC writes and reads RX8130, both PI4IOE IDs/output writeback pass, and CHG_STAT=0x00/0x40 reaches Power.isCharging() as charging/discharging. SIT3088 RS-485 passes through UART1 G20/G21 and direction G34. BMI270 identity, dynamic I2C/time injection, IP2326 analog current/termination behavior and the remaining native P4 data planes remain partial.
 
 
+
+## 未完成的板级数据面
+
+- SC2356 MIPI CSI-2 controller/frame path is absent from esp-emu 0.50.0
+- ES8388/ES7210 I2S register and PCM endpoints are absent from esp-emu 0.50.0
+- ESP32-P4 USB Host controller and endpoint attachment are absent
+- ST7123 touch is currently a firmware GDB mailbox, not an I2C chip model
+- Tab5 SDIO storage is not wired to a host block backend
+- Tab5 PI4IOE CHG_STAT/CHG_EN and Power.isCharging() decode pass for charging and discharging, but IP2326 analog current/termination behavior and hot state injection remain partial; BMI270 identity, dynamic sensor values, GPIO side effects and interrupts also remain partial
 
 ## 文件
 

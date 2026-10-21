@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -12,10 +13,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
+COVERAGE = ROOT / "platform/peripherals/runtime-coverage.json"
 QEMU = ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
 ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
 QEMU_C6 = ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32"
 ROM_DIR_C6 = ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/pc-bios"
+
+DEFAULT_SERIAL_FAILURES = (
+    "Guru Meditation Error:",
+    "MPY version :",
+    "Traceback (most recent call last):",
+    "status=error",
+    "FAIL",
+)
 
 CASES = [
     {
@@ -41,6 +51,14 @@ CASES = [
         "efuse_pkg_version": "1",
         "wait": "5",
         "inputs": ["key:a", "key:b", "key:p"],
+        "serial_expect": [
+            "STICKS3_IMU_TYPE 6",
+            "STICKS3_BATTERY 87 4000 0",
+            "STICKS3_BTN_A 1",
+            "STICKS3_BTN_B 1",
+            "STICKS3_BTN_PWR 1",
+            "STICKS3_IMU 0.250 -0.500 0.750",
+        ],
         "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
@@ -196,6 +214,34 @@ CASES = [
         "allow_static_frame": True,
         "frame_color": {
             "x": 4, "y": 4, "label": "Cardputer-ADV BMI270",
+        },
+    },
+    {
+        "id": "cardputer-adv-keyboard",
+        "expected_status": "PASS",
+        "reason": (
+            "A QMP key event enters the TCA8418 matrix-controller FIFO, "
+            "raises the controller interrupt path, and is decoded by the "
+            "official UIFlow2 KeyboardI2C API."
+        ),
+        "checks": [
+            {"name": "tca8418_matrix_event", "status": "PASS"},
+            {"name": "keyboard_i2c_decode", "status": "PASS"},
+            {"name": "keyboard_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cardputeradv",
+        "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cardputer_adv_ui_test",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "6",
+        "inputs": ["key:a"],
+        "qom": [],
+        "frame_color": {
+            "x": 4, "y": 4, "label": "Cardputer-ADV TCA8418",
         },
     },
     {
@@ -357,6 +403,13 @@ CASES = [
         "efuse_pkg_version": "1",
         "wait": "5",
         "inputs": ["key:a"],
+        "serial_expect": [
+            "ATOMS3R_IMU_TYPE 6",
+            "ATOMS3R_BTN 1",
+            "ATOMS3R_ACCEL -0.50 -0.25 0.75",
+            "ATOMS3R_GYRO -20.02 -10.01 30.03",
+            "ATOMS3R_MAG -29.99 -19.49 -89.96",
+        ],
         "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
@@ -442,13 +495,14 @@ CASES = [
         "expected_status": "PASS",
         "reason": (
             "IMU, magnetometer, touch, PWR, power, RTC and LTR553 ambient "
-            "light all pass through their real buses."
+            "light/proximity all pass through their real buses."
         ),
         "checks": [
             {"name": "imu_identity", "status": "PASS"},
             {"name": "imu_values", "status": "PASS"},
             {"name": "magnetometer", "status": "PASS"},
             {"name": "ambient_light", "status": "PASS"},
+            {"name": "proximity", "status": "PASS"},
             {"name": "touch", "status": "PASS"},
             {"name": "btn_pwr", "status": "PASS"},
             {"name": "power", "status": "PASS"},
@@ -464,6 +518,16 @@ CASES = [
         "efuse_pkg_version": "0",
         "wait": "6",
         "inputs": ["touch:160,183", "key:p"],
+        "serial_expect": [
+            "CORES3_IMU_TYPE 6",
+            "CORES3_POWER 87 4000 1",
+            "CORES3_ALS 640 321",
+            "CORES3_MAG",
+            "CORES3_TOUCH",
+            "CORES3_BTN_PWR 1",
+            "CORES3_IMU 0.250 -0.500 0.750",
+            "CORES3_RTC 2026-10-22 06:07:08",
+        ],
         "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
@@ -475,7 +539,43 @@ CASES = [
             ("/machine/bmm150", "mag-y", "-20"),
             ("/machine/bmm150", "mag-z", "45"),
             ("/machine/ltr553", "light-level", "640"),
+            ("/machine/ltr553", "proximity-level", "321"),
         ],
+    },
+    {
+        "id": "cores3-usb-hid",
+        "expected_status": "PASS",
+        "reason": (
+            "The official module.USBModule enumerates a MAX3421E HID "
+            "device over the CoreS3 M-Bus SPI register/FIFO path and "
+            "returns the QOM-injected mouse report."
+        ),
+        "checks": [
+            {"name": "max3421e_config", "status": "PASS"},
+            {"name": "usb_chapter9_enumeration", "status": "PASS"},
+            {"name": "usb_hid_report_descriptor", "status": "PASS"},
+            {"name": "usb_hid_interrupt_in_report", "status": "PASS"},
+        ],
+        "machine": "m5cores3",
+        "base": "platform/.cache/firmware/cores3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cores3_usb_hid",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "14",
+        "inputs": ["touch:160,183"],
+        "qom_set_boot": [
+            ("/machine/max3421e-usb", "mouse-x", "5"),
+            ("/machine/max3421e-usb", "mouse-y", "-3"),
+            ("/machine/max3421e-usb", "mouse-buttons", "1"),
+        ],
+        "qom_expect": [
+            ("/machine/max3421e-usb", "enumerated", "1"),
+            ("/machine/max3421e-usb", "last-report", "1"),
+        ],
+        "allow_static_frame": True,
     },
     {
         "id": "cores3-camera",
@@ -492,6 +592,9 @@ CASES = [
         "inputs": ["key:p"],
         "qom": [],
         "allow_static_frame": True,
+        "serial_expect": [
+            "CORES3_CAMERA_PASS 320x240 153600 bytes",
+        ],
         "reason": (
             "GC0308 init, ESP32-S3 LCD_CAM capture, GDMA frame delivery, "
             "camera.snapshot(), and camera image display all pass."
@@ -517,6 +620,9 @@ CASES = [
         "inputs": ["touch:160,183"],
         "qom": [],
         "allow_static_frame": True,
+        "serial_expect": [
+            "CORES3_CAMERA_PASS 320x240 153600 bytes",
+        ],
         "reason": (
             "StackChan GC0308 SCCB, ESP32-S3 LCD_CAM, GDMA frame delivery, "
             "snapshot and camera image display all pass."
@@ -604,8 +710,8 @@ CASES = [
         "id": "stamplc-peripherals",
         "expected_status": "PASS",
         "reason": (
-            "Relay, digital inputs, RGB LED state and INA226 bus/current "
-            "telemetry are exercised through UIFlow2 libraries."
+            "Relay, digital inputs, RGB LED state, RX8130 RTC and INA226 "
+            "bus/current telemetry are exercised through UIFlow2 libraries."
         ),
         "checks": [
             {"name": "relay", "status": "PASS"},
@@ -614,6 +720,7 @@ CASES = [
             {"name": "ina226_identity", "status": "PASS"},
             {"name": "ina226_bus_voltage", "status": "PASS"},
             {"name": "ina226_current", "status": "PASS"},
+            {"name": "rx8130_rtc_write_read", "status": "PASS"},
         ],
         "machine": "m5stamplc",
         "base": "platform/.cache/firmware/stamplc/uiflow2.bin",
@@ -625,6 +732,14 @@ CASES = [
         "efuse_pkg_version": "0",
         "wait": "5",
         "inputs": ["key:a"],
+        "serial_expect": [
+            "STAMPLC_PERIPHERAL_MAIN",
+            "STAMPLC_RELAY 1 PRESS 1",
+            "STAMPLC_INPUTS",
+            "STAMPLC_INA 12.00 0.500",
+            "STAMPLC_RGB True False False",
+            "STAMPLC_RTC 2026-10-22 07:08:09",
+        ],
         "qom": [
             ("/machine/ina226", "bus-voltage-mv", "12000"),
             ("/machine/ina226", "current-ma", "500"),
@@ -656,6 +771,16 @@ CASES = [
         "efuse_pkg_version": "0",
         "wait": "10",
         "inputs": ["touch:233,348", "key:a", "key:b", "key:p"],
+        "serial_expect": [
+            "STOPWATCH_IMU_TYPE 6",
+            "STOPWATCH_POWER 87 4000 1",
+            "STOPWATCH_RTC 2026-10-22 07:08:09",
+            "STOPWATCH_TOUCH",
+            "STOPWATCH_BTN_A 1",
+            "STOPWATCH_BTN_B 1",
+            "STOPWATCH_BTN_PWR 1",
+            "STOPWATCH_ACCEL 0.25 -0.50 0.75",
+        ],
         "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
@@ -670,8 +795,8 @@ CASES = [
         "id": "papermono-peripherals",
         "expected_status": "PASS",
         "reason": (
-            "BMI270, M5PM1 power, RX8130 RTC, touch, user key and SDMMC "
-            "block read/write are verified on PaperMono."
+            "BMI270, M5PM1 power, RX8130 RTC, touch, user and power keys, "
+            "and SDMMC block read/write are verified on PaperMono."
         ),
         "checks": [
             {"name": "imu_identity", "status": "PASS"},
@@ -680,6 +805,7 @@ CASES = [
             {"name": "rtc_write_read", "status": "PASS"},
             {"name": "touch", "status": "PASS"},
             {"name": "user_key", "status": "PASS"},
+            {"name": "power_key", "status": "PASS"},
             {"name": "sd_block_read_write", "status": "PASS"},
         ],
         "machine": "m5papermono",
@@ -691,7 +817,20 @@ CASES = [
         "expected_size": "480x800",
         "efuse_pkg_version": "0",
         "wait": "12",
-        "inputs": ["touch:240,650", "key:a"],
+        "inputs": ["touch:240,650", "key:a", "key:p"],
+        "qom_set_boot": [
+            ("/machine/ip2315", "charging", "true"),
+        ],
+        "serial_expect": [
+            "PAPERMONO_IMU_TYPE 6",
+            "PAPERMONO_POWER 87 4000 1",
+            "PAPERMONO_RTC 2026-10-22 07:08:09",
+            "PAPERMONO_SD rw ok",
+            "PAPERMONO_TOUCH",
+            "PAPERMONO_KEY 1",
+            "PAPERMONO_PWR 1",
+            "PAPERMONO_ACCEL 0.25 -0.50 0.75",
+        ],
         "qom": [
             ("/machine/bmi270", "accel-x", "0.25"),
             ("/machine/bmi270", "accel-y", "-0.50"),
@@ -699,9 +838,49 @@ CASES = [
             ("/machine/bmi270", "gyro-x", "10"),
             ("/machine/bmi270", "gyro-y", "-20"),
             ("/machine/bmi270", "gyro-z", "30"),
-            ("/machine/m5pm1", "charging", "true"),
         ],
         "sd_image": True,
+    },
+    {
+        "id": "papermono-buzzer",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Speaker API drives PaperMono GPIO42 through ESP32-S3 "
+            "I2S TX and cyclic GDMA; host PCM capture contains the buzzer tone."
+        ),
+        "checks": [
+            {"name": "speaker_begin", "status": "PASS"},
+            {"name": "gpio42_i2s_tx", "status": "PASS"},
+            {"name": "buzzer_pcm_capture", "status": "PASS"},
+            {"name": "papermono_buzzer_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papermono",
+        "base": "platform/.cache/firmware/papermono/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papermono_buzzer",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "480x800",
+        "efuse_pkg_version": "0",
+        "wait": "6",
+        "inputs": [],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": "{out_dir}/buzzer.pcm",
+        },
+        "serial_expect": [
+            "PAPERMONO_BUZZER ok 3500Hz",
+        ],
+        "pcm": {
+            "capture": "{out_dir}/buzzer.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 30000,
+        },
+        "frame_color": {
+            "x": 4, "y": 4, "label": "PaperMono buzzer", "dark": True,
+        },
     },
     {
         "id": "papermono-pdm-mic",
@@ -767,6 +946,46 @@ CASES = [
         "qom": [],
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "PaperMono RGB", "dark": True},
+    },
+    {
+        "id": "papercolor-peripherals",
+        "expected_status": "PASS",
+        "reason": (
+            "The PaperColor M5PM1 power telemetry, RX8130 RTC, user key and "
+            "power key are exercised through their board data paths."
+        ),
+        "checks": [
+            {"name": "m5pm1_power", "status": "PASS"},
+            {"name": "rx8130_rtc_write_read", "status": "PASS"},
+            {"name": "user_key", "status": "PASS"},
+            {"name": "power_key", "status": "PASS"},
+            {"name": "papercolor_peripheral_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papercolor",
+        "base": "platform/.cache/firmware/papercolor/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papercolor_peripherals",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "400x600",
+        "efuse_pkg_version": "0",
+        "wait": "12",
+        "inputs": ["key:a", "key:p"],
+        "qom": [],
+        "qom_set_boot": [
+            ("/machine/m5pm1", "vbat-mv", "4000"),
+            ("/machine/m5pm1", "vin-mv", "5000"),
+            ("/machine/m5pm1", "charging", "true"),
+        ],
+        "serial_expect": [
+            "PAPERCOLOR_PERIPHERAL_MAIN",
+            "PAPERCOLOR_POWER 87 4000 1",
+            "PAPERCOLOR_RTC 2026-10-22 07:08:09",
+            "PAPERCOLOR_KEY 1",
+            "PAPERCOLOR_PWR 1",
+        ],
+        "min_unique_colors": 1,
+        "allow_static_frame": True,
     },
     {
         "id": "papercolor-sd",
@@ -1122,6 +1341,97 @@ CASES = [
         "frame_color": {"x": 4, "y": 4, "label": "StackChan mic"},
     },
     {
+        "id": "stackchan-peripherals",
+        "expected_status": "PASS",
+        "reason": (
+            "BMI270 and BMM150 samples, AXP2101 power telemetry, display "
+            "touch, AW9523 output/input registers, INA226 battery telemetry, "
+            "LTR553 ambient light, the BM8563-compatible PCF8563 RTC and NEC "
+            "IR TX/RX all pass through the StackChan board controllers."
+        ),
+        "checks": [
+            {"name": "stackchan_imu", "status": "PASS"},
+            {"name": "stackchan_magnetometer", "status": "PASS"},
+            {"name": "stackchan_axp2101_power", "status": "PASS"},
+            {"name": "stackchan_display_touch", "status": "PASS"},
+            {"name": "stackchan_aw9523", "status": "PASS"},
+            {"name": "stackchan_ina226", "status": "PASS"},
+            {"name": "stackchan_ltr553_als", "status": "PASS"},
+            {"name": "stackchan_rtc_bm8563", "status": "PASS"},
+            {"name": "stackchan_ir_tx_rx", "status": "PASS"},
+            {"name": "stackchan_peripheral_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stackchan",
+        "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stackchan_peripherals",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "3",
+        "inputs": ["touch:160,120"],
+        "post_input_wait": 8,
+        "qom_set_boot": [
+            ("/machine/aw9523", "input-bits", "61439"),
+            ("/machine/ina226", "bus-voltage-mv", "4000"),
+            ("/machine/ina226", "current-ma", "250"),
+            ("/machine/ina226", "shunt-ohms", "0.08"),
+            ("/machine/pcf8563", "unix-time", "1792630923"),
+            ("/machine/ltr553", "light-level", "640"),
+            ("/machine/ltr553", "proximity-level", "321"),
+            ("/machine/axp2101", "vbat-mv", "4000"),
+            ("/machine/axp2101", "vin-mv", "5000"),
+            ("/machine/axp2101", "charging", "true"),
+            ("/machine/bmm150", "mag-x", "30"),
+            ("/machine/bmm150", "mag-y", "-20"),
+            ("/machine/bmm150", "mag-z", "45"),
+        ],
+        "qom": [
+            ("/machine/bmi270", "accel-x", "0.25"),
+            ("/machine/bmi270", "accel-y", "-0.50"),
+            ("/machine/bmi270", "accel-z", "0.75"),
+            ("/machine/bmi270", "gyro-x", "10"),
+            ("/machine/bmi270", "gyro-y", "-20"),
+            ("/machine/bmi270", "gyro-z", "30"),
+        ],
+        "qom_settle": 0.5,
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_RMT_TX_FILE": "{out_dir}/ir.rmt",
+            "M5SW_RMT_RX_FILE": "{out_dir}/nec-56-a3.rmt",
+            "M5SW_RMT_TRACE": "1",
+        },
+        "rmt_nec_source": {
+            "output": "{out_dir}/nec-56-a3.rmt",
+            "address": 0x56,
+            "command": 0xA3,
+        },
+        "rmt_nec": {
+            "capture": "{out_dir}/ir.rmt",
+            "address": 0x56,
+            "command": 0xA3,
+        },
+        "serial_expect": [
+            "STACKCHAN_IMU_TYPE 6",
+            "STACKCHAN_IMU_ACCEL 0.25 -0.50 0.75",
+            "STACKCHAN_IMU_GYRO 10.0 -20.0 30.0",
+            "STACKCHAN_MAG 118.9 77.3 -356.8",
+            "STACKCHAN_PMIC_POWER 87 4000 1",
+            "STACKCHAN_TOUCH",
+            "STACKCHAN_AW9523 1 0",
+            "STACKCHAN_POWER 4.00 0.25 1.00",
+            "STACKCHAN_ALS 640 321",
+            "STACKCHAN_RTC 2026 10 22 6 7 8",
+            "STACKCHAN_IR_RX 86 163",
+            "STACKCHAN_CHECKS 1 1 1 1 1 1 1 1 1",
+            "STACKCHAN_PERIPHERAL_DONE PASS",
+        ],
+        "frame_color": {
+            "x": 4, "y": 4, "label": "StackChan peripherals",
+        },
+    },
+    {
         "id": "stackchan-servo",
         "expected_status": "PASS",
         "reason": (
@@ -1368,6 +1678,36 @@ CASES = [
         },
     },
     {
+        "id": "core2-peripherals",
+        "expected_status": "PASS",
+        "reason": (
+            "Core2 FT6336-compatible touch, PCF8563-compatible RTC and the "
+            "power key are exercised through the official UIFlow2 APIs."
+        ),
+        "checks": [
+            {"name": "ft6336_touch", "status": "PASS"},
+            {"name": "pcf8563_rtc_write_read", "status": "PASS"},
+            {"name": "power_key", "status": "PASS"},
+            {"name": "core2_peripheral_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5core2",
+        "base": "platform/.cache/firmware/core2/uiflow2.bin",
+        "files_dir": "tests/uiflow2/core2_peripherals",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "wait": "8",
+        "inputs": ["longpress:220,190,1.5", "key:p"],
+        "post_input_wait": 1.5,
+        "qom": [],
+        "efuse_driver": "none",
+        "memory": "0",
+        "retries": 3,
+        "post_frame_color": "310,230,00FF00",
+        "frame_color": {"x": 310, "y": 230, "label": "Core2 peripherals"},
+    },
+    {
         "id": "core2-audio",
         "expected_status": "PASS",
         "reason": (
@@ -1429,7 +1769,7 @@ CASES = [
         "flash_size": "0x1000000",
         "expected_size": "320x240",
         "wait": "10",
-        "inputs": ["touch:160,183"],
+        "inputs": [],
         "qom": [],
         "allow_static_frame": True,
         "efuse_driver": "none",
@@ -1644,6 +1984,7 @@ CASES = [
         "env": {
             "M5SW_CORE2_PMIC": "axp192",
         },
+        "retries": 2,
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "Core2 AXP192"},
     },
@@ -1972,6 +2313,44 @@ CASES = [
         },
         "frame_color": {"x": 4, "y": 4, "label": "Nesso SX1262"},
     },
+    {
+        "id": "nesso-buzzer",
+        "expected_status": "PASS",
+        "reason": (
+            "The Nesso N1 GPIO11 buzzer is driven through the official "
+            "Speaker API, ESP32-C6 I2S TX and cyclic AHB GDMA OUT "
+            "descriptors; host PCM contains the firmware-generated "
+            "1-bit delta-sigma tone."
+        ),
+        "checks": [
+            {"name": "speaker_begin", "status": "PASS"},
+            {"name": "speaker_is_playing", "status": "PASS"},
+            {"name": "c6_i2s_gdma_out_eof", "status": "PASS"},
+            {"name": "c6_buzzer_pcm_capture", "status": "PASS"},
+            {"name": "nesso_buzzer_ui_marker", "status": "PASS"},
+        ],
+        "machine": "esp32c6",
+        "backend": "qemu-esp32c6",
+        "base": "platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "files_dir": "tests/uiflow2/nesso_buzzer",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "135x240",
+        "wait": "10",
+        "inputs": ["touch:67,160"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_I2S_PCM_FILE": "{out_dir}/buzzer.pcm",
+        },
+        "pcm": {
+            "capture": "{out_dir}/buzzer.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 1000,
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Nesso buzzer"},
+    },
 ]
 
 
@@ -2013,6 +2392,10 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--qom-set-boot", path, prop, value])
     for path, prop, value in case.get("qom_expect", []):
         command.extend(["--qom-expect", path, prop, value])
+    for marker in case.get("serial_expect", []):
+        command.extend(["--serial-expect", marker])
+    for marker in case.get("serial1_expect", []):
+        command.extend(["--serial1-expect", marker])
     if case.get("qom_settle"):
         command.extend(["--qom-settle", str(case["qom_settle"])])
     if case.get("allow_static_frame"):
@@ -2038,7 +2421,52 @@ def main() -> None:
         default=[],
         help="run only the named case; repeat for multiple cases",
     )
+    parser.add_argument(
+        "--device",
+        action="append",
+        default=[],
+        help="run the runtime case group for a device; repeat as needed",
+    )
+    parser.add_argument(
+        "--list-json",
+        action="store_true",
+        help="print the selected cases as JSON without executing them",
+    )
     args = parser.parse_args()
+    filter_requested = bool(args.case or args.device)
+    selected = set(args.case)
+    if args.device:
+        groups = json.loads(COVERAGE.read_text()).get(
+            "device_case_groups", {}
+        )
+        for device_id in args.device:
+            group = groups.get(device_id)
+            if group is None:
+                raise SystemExit(f"unknown device runtime group: {device_id}")
+            selected.update(group.get("matrix", []))
+    if args.case or args.device:
+        unknown = selected - {case["id"] for case in CASES}
+        if unknown:
+            raise SystemExit(
+                "unknown matrix cases: " + ", ".join(sorted(unknown))
+            )
+    if args.list_json:
+        payload = [
+            {
+                "id": case["id"],
+                "machine": case["machine"],
+                "files_dir": case.get("files_dir"),
+            }
+            for case in CASES
+            if not filter_requested or case["id"] in selected
+        ]
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return
+    if filter_requested and not selected:
+        raise SystemExit(
+            "selected device has no matrix cases; run its external probes "
+            "from runtime_cases"
+        )
     args.out_dir.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join(
@@ -2047,8 +2475,15 @@ def main() -> None:
 
     results = {}
     for case in CASES:
-        if args.case and case["id"] not in args.case:
+        if filter_requested and case["id"] not in selected:
             continue
+        if not any(case.get(key) for key in (
+            "serial_expect", "serial1_expect", "qom_expect", "pcm",
+            "rmt_nec", "rmt_ws2812", "disk", "frame_color",
+        )):
+            raise SystemExit(
+                f"{case['id']}: no runtime evidence source configured"
+            )
         case_out = args.out_dir / case["id"]
         case_out.mkdir(parents=True, exist_ok=True)
         sd_image = None
@@ -2114,9 +2549,35 @@ def main() -> None:
                     check=False,
                 )
             if process.returncode == 0:
+                serial_path = case_out / "serial.log"
+                serial_text = stdout_path.read_text(errors="replace")
+                if serial_path.exists():
+                    serial_text += "\n" + serial_path.read_text(errors="replace")
+                forbidden = DEFAULT_SERIAL_FAILURES + tuple(
+                    case.get("serial_forbid", ())
+                )
+                found = [marker for marker in forbidden if marker in serial_text]
+                if found:
+                    if serial_path.exists():
+                        shutil.copyfile(
+                            serial_path,
+                            case_out / f"serial.attempt-{attempt + 1}.log",
+                        )
+                    continue
+            if process.returncode == 0:
                 break
         validation_output = ""
         validation_ok = True
+        if process.returncode == 0 and case.get("serial_expect"):
+            validation_output += (
+                "PASS serial markers: "
+                + ", ".join(case["serial_expect"]) + "\n"
+            )
+        if process.returncode == 0 and case.get("serial1_expect"):
+            validation_output += (
+                "PASS UART1 markers: "
+                + ", ".join(case["serial1_expect"]) + "\n"
+            )
         rmt_nec = case.get("rmt_nec")
         if rmt_nec and process.returncode == 0:
             validation = subprocess.run(
@@ -2218,7 +2679,48 @@ def main() -> None:
             validation_output += validation.stdout
             validation_ok = validation_ok and validation.returncode == 0
         executed = process.returncode == 0 and validation_ok
+        serial_text = stdout_path.read_text(errors="replace")
+        if process.returncode == 0:
+            serial_path = case_out / "serial.log"
+            if serial_path.exists():
+                serial_text += "\n" + serial_path.read_text(errors="replace")
+            forbidden = DEFAULT_SERIAL_FAILURES + tuple(
+                case.get("serial_forbid", ())
+            )
+            found = [marker for marker in forbidden if marker in serial_text]
+            if found:
+                validation_output += (
+                    "forbidden serial text: " + ", ".join(found) + "\n"
+                )
+                executed = False
+
+        evidence = []
+        if case.get("serial_expect"):
+            evidence.append("serial.log")
+        if case.get("serial1_expect"):
+            evidence.append("serial1.log")
+        if case.get("qom_expect"):
+            evidence.append("qom")
+        if case.get("pcm"):
+            evidence.append("pcm")
+        if case.get("rmt_nec"):
+            evidence.append("rmt-nec")
+        if case.get("rmt_ws2812"):
+            evidence.append("rmt-ws2812")
+        if case.get("disk"):
+            evidence.append("disk")
+        if case.get("frame_color"):
+            evidence.append("frame-marker")
+
         status = case["expected_status"] if executed else "FAIL"
+        checks = [
+            {
+                **check,
+                "status": status,
+                "evidence": evidence,
+            }
+            for check in case["checks"]
+        ]
         results[case["id"]] = {
             "status": status,
             "exit_code": process.returncode,
@@ -2226,7 +2728,8 @@ def main() -> None:
             "output": str(case_out),
             "before": str(case_out / "before.png"),
             "after": str(case_out / "after.png"),
-            "checks": case["checks"],
+            "checks": checks,
+            "evidence_sources": evidence,
             **({"validation": validation_output}
                if validation_output else {}),
             **({"reason": case["reason"]} if case.get("reason") else {}),

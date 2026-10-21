@@ -17,9 +17,9 @@
     "display_protocol": "none",
     "execution": "native-qemu",
     "validation": {
-      "date": "2026-10-21",
-      "status": "console-ir-pass",
-      "detail": "官方 UIFlow2 v2.5.3 在 ESP32-C6 QEMU USB-Serial-JTAG 控制台运行，M5.begin() 返回板型 140；hardware.IR TX 经 ESP32-C6 RMT 捕获并解码为 NEC 0x56/0xA3。"
+      "date": "2026-10-22",
+      "status": "console-rgb-button-led-ir-pass",
+      "detail": "官方 UIFlow2 v2.5.3 在独立 NanoC6 板级 C6 后端运行，M5.begin() 返回板型 140；hardware.RGB 打开 GPIO19 RGBPWR，GPIO20 RMT WS2812 GRB 数据捕获为 00FF00；GPIO9 经 QOM 注入按下/释放并由 machine.Pin 读取；GPIO7 蓝色 LED 开关状态通过 GPIO 输出寄存器验证；hardware.IR TX 捕获并解码为 NEC 0x56/0xA3。"
     }
   },
   "cache_path": "platform/.cache/firmware/nanoc6/uiflow2.bin"

@@ -31,13 +31,16 @@ def draw_ui():
     d.setTextSize(2)
     d.setCursor(111, 171)
     d.print("TAP")
+    if touches:
+        d.fillRect(1, 1, 4, 4, d.COLOR.GREEN)
 
 
 print("CORES3_MAIN_START")
 M5.begin()
 print("CORES3_BOARD", M5.getBoard())
 print("CORES3_DISPLAY", M5.Display.width(), M5.Display.height())
-M5.Display.setRotation(0)
+# CoreS3's M5GFX panel uses offset_rotation=3, so rotation 1 is landscape 320x240.
+M5.Display.setRotation(1)
 M5.Display.setBrightness(255)
 draw_ui()
 

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Build and exercise a UIFlow2 board image in M5Stack QEMU.
 
-The runner replaces only the user LittleFS files, injects one QMP input
-event, and requires a non-empty screendump whose canonical pixels change.
-It honors QEMU's 4-byte-aligned PPM rows and is intentionally profile
-driven so additional ESP32 boards do not need a new bespoke runner.
+The runner replaces only the user LittleFS files, injects QMP key/touch
+click, drag, or long-press sequences, and requires a non-empty screendump
+whose canonical pixels change. It can also capture animation frames and
+the frame after every input. It honors QEMU's 4-byte-aligned PPM rows and
+is intentionally profile driven so additional ESP32 boards do not need a
+new bespoke runner.
 """
 from __future__ import annotations
 
@@ -24,6 +26,17 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
+def runtime_files(files_dir: Path) -> dict[Path, Path]:
+    files = {}
+    common_dir = PROJECT_ROOT / "tests/uiflow2/lib"
+    if common_dir.is_dir():
+        for path in common_dir.rglob("*.py"):
+            files[path.relative_to(common_dir)] = path
+    for path in files_dir.rglob("*.py"):
+        files[path.relative_to(files_dir)] = path
+    return files
+
+
 def build_image(args) -> Path:
     image = bytearray(args.base.read_bytes())
     if len(image) > args.flash_size:
@@ -35,8 +48,7 @@ def build_image(args) -> Path:
             temp_root = Path(tmp)
             source = temp_root / "files"
             source.mkdir()
-            for path in args.files_dir.rglob("*.py"):
-                relative = path.relative_to(args.files_dir)
+            for relative, path in runtime_files(args.files_dir).items():
                 target = source / relative
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(path, target)
@@ -74,8 +86,8 @@ def build_image(args) -> Path:
         if not args.preserve_vfs:
             fs.format()
         fs.mount()
-        for path in args.files_dir.rglob("*.py"):
-            relative = path.relative_to(args.files_dir).as_posix()
+        for relative_path, path in runtime_files(args.files_dir).items():
+            relative = relative_path.as_posix()
             with fs.open("/" + relative, "w") as f:
                 f.write(path.read_text())
         fs.unmount()
@@ -239,6 +251,33 @@ def frame_stats(pixels: bytes) -> tuple[int, int]:
     return nonblack, len(colors)
 
 
+def pointer_events(
+    x: int, y: int, frame_size: tuple[int, int], down: bool | None = None
+) -> list[dict]:
+    width, height = frame_size
+    events = [
+        {
+            "type": "abs",
+            "data": {
+                "axis": "x",
+                "value": int(x * 32767 / max(width - 1, 1)),
+            },
+        },
+        {
+            "type": "abs",
+            "data": {
+                "axis": "y",
+                "value": int(y * 32767 / max(height - 1, 1)),
+            },
+        },
+    ]
+    if down is not None:
+        events.append(
+            {"type": "btn", "data": {"down": down, "button": "left"}}
+        )
+    return events
+
+
 def send_input(
     qmp: QMP, spec: str, frame_size: tuple[int, int], settle: float
 ) -> None:
@@ -258,18 +297,39 @@ def send_input(
         return
     if kind == "touch":
         x, y = map(int, value.split(","))
-        width, height = frame_size
-        events = [
-            {"type": "abs", "data": {"axis": "x",
-                                     "value": int(x * 32767 / max(width - 1, 1))}},
-            {"type": "abs", "data": {"axis": "y",
-                                     "value": int(y * 32767 / max(height - 1, 1))}},
-            {"type": "btn", "data": {"down": True, "button": "left"}},
-        ]
-        qmp.cmd("input-send-event", events=events)
+        qmp.cmd("input-send-event", events=pointer_events(x, y, frame_size, True))
         time.sleep(0.45)
-        events[-1] = {"type": "btn", "data": {"down": False, "button": "left"}}
-        qmp.cmd("input-send-event", events=events)
+        qmp.cmd("input-send-event", events=pointer_events(x, y, frame_size, False))
+        time.sleep(settle)
+        return
+    if kind == "longpress":
+        parts = value.split(",")
+        if len(parts) != 3:
+            raise SystemExit(f"longpress expects x,y,seconds: {spec}")
+        x, y = map(int, parts[:2])
+        hold = float(parts[2])
+        qmp.cmd("input-send-event", events=pointer_events(x, y, frame_size, True))
+        time.sleep(hold)
+        qmp.cmd("input-send-event", events=pointer_events(x, y, frame_size, False))
+        time.sleep(settle)
+        return
+    if kind == "drag":
+        parts = list(map(int, value.split(",")))
+        if len(parts) != 4:
+            raise SystemExit(f"drag expects x1,y1,x2,y2: {spec}")
+        x1, y1, x2, y2 = parts
+        qmp.cmd(
+            "input-send-event", events=pointer_events(x1, y1, frame_size, True)
+        )
+        time.sleep(0.15)
+        for step in range(1, 7):
+            x = x1 + (x2 - x1) * step // 6
+            y = y1 + (y2 - y1) * step // 6
+            qmp.cmd("input-send-event", events=pointer_events(x, y, frame_size))
+            time.sleep(0.08)
+        qmp.cmd(
+            "input-send-event", events=pointer_events(x2, y2, frame_size, False)
+        )
         time.sleep(settle)
         return
     raise SystemExit(f"unsupported input spec: {spec}")
@@ -297,8 +357,11 @@ def main():
     parser.add_argument(
         "--input",
         action="append",
-        required=True,
-        help="key:a or touch:X,Y; repeat for multiple input events",
+        default=[],
+        help=(
+            "key:a, touch:X,Y, drag:X1,Y1,X2,Y2, or "
+            "longpress:X,Y,SECONDS; repeat for multiple input events"
+        ),
     )
     parser.add_argument(
         "--qom-set",
@@ -327,6 +390,32 @@ def main():
     )
     parser.add_argument("--wait", type=float, default=6.0)
     parser.add_argument("--post-input-wait", type=float, default=0.6)
+    parser.add_argument(
+        "--capture-frames",
+        type=int,
+        default=0,
+        help="capture this many extra animation frames after the before frame",
+    )
+    parser.add_argument(
+        "--capture-interval",
+        type=float,
+        default=0.12,
+        help="seconds between extra animation frame captures",
+    )
+    parser.add_argument(
+        "--capture-dir",
+        type=Path,
+        help="directory for extra animation frame PNGs",
+    )
+    parser.add_argument(
+        "--capture-each-input",
+        action="store_true",
+        help="save a PNG after every injected touch, drag, hold, or key",
+    )
+    parser.add_argument(
+        "--post-frame-color",
+        help="require pixel X,Y=RRGGBB in the final frame",
+    )
     parser.add_argument("--min-nonblack-pixels", type=int, default=16)
     parser.add_argument("--min-unique-colors", type=int, default=2)
     parser.add_argument(
@@ -367,7 +456,10 @@ def main():
     parser.add_argument(
         "--qemu",
         type=Path,
-        default=PROJECT_ROOT / ".work/M5StopWatch-QEMU/bin/Darwin-arm64/qemu-system-xtensa",
+        default=(
+            PROJECT_ROOT
+            / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
+        ),
     )
     parser.add_argument(
         "--qemu-log",
@@ -381,7 +473,7 @@ def main():
     parser.add_argument(
         "--rom-dir",
         type=Path,
-        default=PROJECT_ROOT / ".work/M5StopWatch-QEMU/bin/Darwin-arm64",
+        default=PROJECT_ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios",
     )
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -399,6 +491,9 @@ def main():
     serial1 = args.out_dir / "serial1.log"
     before = args.out_dir / "before.ppm"
     after = args.out_dir / "after.ppm"
+    capture_dir = args.capture_dir or (args.out_dir / "frames")
+    if args.capture_frames or args.capture_each_input:
+        capture_dir.mkdir(parents=True, exist_ok=True)
     qmp_path = Path("/tmp") / f"m5-profile-{os.getpid()}.sock"
     try:
         qmp_path.unlink()
@@ -462,8 +557,53 @@ def main():
         actual = read_ppm(before)[:2]
         if actual != expected:
             raise RuntimeError(f"frame size {actual} != expected {expected}")
-        for input_spec in args.input:
+        captured = []
+        for index in range(args.capture_frames):
+            time.sleep(args.capture_interval)
+            frame_path = capture_dir / f"frame-{index:03d}.ppm"
+            qmp.cmd("screendump", filename=str(frame_path))
+            frame = canonicalize_screendump(frame_path)
+            if frame[:2] != actual:
+                raise RuntimeError(
+                    f"animation frame {index} size {frame[:2]} != {actual}"
+                )
+            nonblack, unique_colors = frame_stats(frame[2])
+            if nonblack < args.min_nonblack_pixels:
+                raise RuntimeError(
+                    f"animation frame {index} is blank: "
+                    f"{nonblack} non-black pixels"
+                )
+            if unique_colors < args.min_unique_colors:
+                raise RuntimeError(
+                    f"animation frame {index} has too few colors: "
+                    f"{unique_colors}"
+                )
+            captured.append(frame[2])
+        if captured:
+            hashes = {hashlib.sha256(frame).digest() for frame in captured}
+            if len(hashes) < 2:
+                raise RuntimeError("captured animation frames did not change")
+        for index, input_spec in enumerate(args.input):
             send_input(qmp, input_spec, actual, args.post_input_wait)
+            if args.capture_each_input:
+                input_path = capture_dir / f"input-{index:03d}.ppm"
+                qmp.cmd("screendump", filename=str(input_path))
+                input_frame = canonicalize_screendump(input_path)
+                if input_frame[:2] != actual:
+                    raise RuntimeError(
+                        f"input frame {index} size {input_frame[:2]} != {actual}"
+                    )
+                nonblack, unique_colors = frame_stats(input_frame[2])
+                if nonblack < args.min_nonblack_pixels:
+                    raise RuntimeError(
+                        f"input frame {index} is blank: "
+                        f"{nonblack} non-black pixels"
+                    )
+                if unique_colors < args.min_unique_colors:
+                    raise RuntimeError(
+                        f"input frame {index} has too few colors: "
+                        f"{unique_colors}"
+                    )
         qmp.cmd("screendump", filename=str(after))
         for path, prop, raw_expected in args.qom_expect:
             try:
@@ -494,6 +634,35 @@ def main():
             if unique_colors < args.min_unique_colors:
                 raise RuntimeError(
                     f"{label} frame has too few colors: {unique_colors}"
+                )
+        if args.post_frame_color:
+            try:
+                x_raw, y_raw, color_raw = args.post_frame_color.split(",", 2)
+                x = int(x_raw)
+                y = int(y_raw)
+                expected_color = int(color_raw, 16)
+            except ValueError as error:
+                raise RuntimeError(
+                    f"invalid --post-frame-color {args.post_frame_color!r}"
+                ) from error
+            width, height = after_frame[:2]
+            if not (0 <= x < width and 0 <= y < height):
+                raise RuntimeError(
+                    f"post-frame pixel ({x},{y}) is outside {width}x{height}"
+                )
+            offset = (y * width + x) * 3
+            actual_color = after_frame[2][offset:offset + 3]
+            expected_rgb = bytes(
+                (
+                    (expected_color >> 16) & 0xff,
+                    (expected_color >> 8) & 0xff,
+                    expected_color & 0xff,
+                )
+            )
+            if actual_color != expected_rgb:
+                raise RuntimeError(
+                    f"post-frame pixel ({x},{y}) is "
+                    f"{actual_color.hex()}, expected {expected_rgb.hex()}"
                 )
         if (not args.allow_static_frame
                 and hashlib.sha256(before_frame[2]).digest()

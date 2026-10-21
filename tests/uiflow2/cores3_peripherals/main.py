@@ -1,6 +1,8 @@
 import M5
 import time
 from M5 import *
+from machine import I2C, Pin
+from rtc_probe import check_pcf8563
 
 
 state = {
@@ -13,6 +15,7 @@ state = {
     "power": (0, 0, 0),
     "rtc": (0, 0, 0, 0, 0, 0),
     "als": 0,
+    "proximity": 0,
 }
 last_imu = None
 last_print = 0
@@ -49,7 +52,7 @@ def draw(message):
     d.setCursor(10, 196)
     d.print("rtc:%04d-%02d-%02d %02d:%02d:%02d" % state["rtc"])
     d.setCursor(10, 214)
-    d.print("als:%d" % state["als"])
+    d.print("als:%d prox:%d" % (state["als"], state["proximity"]))
     d.fillRect(62, 224, 196, 14, d.COLOR.BLUE)
     d.setTextColor(d.COLOR.WHITE)
     d.setTextSize(2)
@@ -83,7 +86,9 @@ try:
 except Exception as error:
     emit("CORES3_POWER_ERR", repr(error))
 try:
-    state["rtc"] = time.localtime()[:6]
+    rtc_i2c = I2C(1, scl=Pin(11), sda=Pin(12), freq=100000)
+    state["rtc"] = check_pcf8563(rtc_i2c)
+    emit("CORES3_RTC", "2026-10-22 06:07:08")
 except Exception as error:
     emit("CORES3_RTC_ERR", repr(error))
 
@@ -123,9 +128,11 @@ while True:
     now = time.ticks_ms()
     try:
         light = M5.Als.getLightSensorData()
-        if light != state["als"]:
+        proximity = M5.Als.getProximitySensorData()
+        if light != state["als"] or proximity != state["proximity"]:
             state["als"] = light
-            emit("CORES3_ALS", light)
+            state["proximity"] = proximity
+            emit("CORES3_ALS", light, proximity)
             changed = True
     except Exception as error:
         emit("CORES3_ALS_ERR", repr(error))

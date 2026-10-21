@@ -22,6 +22,8 @@ def draw():
     d.setTextSize(1)
     d.setCursor(13, 101)
     d.print("BTN A REDRAW")
+    if count:
+        d.fillRect(1, 1, 4, 4, d.COLOR.GREEN)
 
 
 print("ATOMS3R_MAIN_START")

@@ -1,0 +1,162 @@
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -14,6 +14,7 @@
+ #include "qemu/units.h"
+ #include "qemu/datadir.h"
+ #include "qapi/error.h"
++#include "qapi/visitor.h"
+ #include "hw/hw.h"
+ #include "hw/boards.h"
+ #include "hw/loader.h"
+@@ -120,7 +121,29 @@
+     [ESP32C6_MEMREGION_IRAM]    = { 0x40800000,  ESP32C6_IRAM_SIZE },
+     [ESP32C6_MEMREGION_RTCFAST] = { 0x50000000,  ESP32C6_RTC_SIZE },
+ };
++
++static void esp32c6_button_gpio9_set(Object *obj, Visitor *v,
++                                     const char *name, void *opaque,
++                                     Error **errp)
++{
++    bool pressed;
++
++    if (visit_type_bool(v, name, &pressed, errp)) {
++        /* Schematic: GPIO9 is active-low with an external 10 kOhm pull-up. */
++        esp32_gpio_set_input(9, pressed ? 0 : 1);
++    }
++}
++
++static void esp32c6_gpio_level_get(Object *obj, Visitor *v,
++                                   const char *name, void *opaque,
++                                   Error **errp)
++{
++    int pin = GPOINTER_TO_INT(opaque);
++    bool level = esp32_gpio_get_line(pin) != 0;
+ 
++    visit_type_bool(v, name, &level, errp);
++}
++
+ static void esp32c6_reset_request(void *opaque, int n, int level)
+ {
+     if (level) {
+@@ -303,6 +326,12 @@
+     }
+ 
+     Esp32C6MachineState *ms = ESP32C6_MACHINE(machine);
++    const char *m5_board = getenv("M5SW_C6_BOARD");
++    if (!m5_board || !m5_board[0]) {
++        m5_board = "nesso-n1";
++    }
++    bool board_nesso = !strcmp(m5_board, "nesso-n1");
++    bool board_nanoc6 = !strcmp(m5_board, "nanoc6");
+ 
+     object_initialize_child(OBJECT(ms), "soc", &ms->soc, TYPE_ESP_RISCV_CPU);
+     qdev_prop_set_uint64(DEVICE(&ms->soc), "resetvec", ESP32C6_RESET_ADDRESS);
+@@ -416,8 +445,8 @@
+         }
+     }
+ 
+-    /* HP SPI2: display bus on Nesso N1. */
+-    {
++    /* HP SPI2: display and SX1262 buses on Nesso N1. */
++    if (board_nesso) {
+         ms->spi2 = qdev_new(TYPE_ESP32C3_SPI);
+         qdev_prop_set_bit(ms->spi2, "m5-spi2", true);
+         sysbus_realize_and_unref(SYS_BUS_DEVICE(ms->spi2), &error_fatal);
+@@ -465,11 +494,11 @@
+     }
+ 
+     /*
+-     * ESP32-C6 HP I2C0.  Nesso N1 exposes its PI4IOE expanders and FT5x06
+-     * touch controller through this bus.  The same bus is also attached to
++     * ESP32-C6 HP I2C0. Nesso N1 exposes its PI4IOE expanders and FT5x06
++     * touch controller through this bus. The same bus is also attached to
+      * the software-I2C bridge used by M5GFX's pre-board-detect probe.
+      */
+-    {
++    if (board_nesso) {
+         ms->i2c0 = qdev_new(TYPE_ESP32_I2C);
+         sysbus_realize_and_unref(SYS_BUS_DEVICE(ms->i2c0), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(ms->i2c0), 0);
+@@ -502,14 +531,22 @@
+         esp32c6_soft_i2c_init_pins(i2c_bus, 10, 8);
+     }
+ 
+-    /*
+-     * Nesso N1 strap topology seen by M5GFX: GPIO18 is tied low and the
+-     * SYS I2C pads are pulled high.  The touch controller owns GPIO3.
+-     */
+-    esp32_gpio_set_input(18, 0);
+-    esp32_gpio_set_input(8, 1);
+-    esp32_gpio_set_input(10, 1);
+-    esp32_gpio_force_line(3, 1);
++    if (board_nesso) {
++        /*
++         * Nesso N1 strap topology seen by M5GFX: GPIO18 is tied low and the
++         * SYS I2C pads are pulled high. The touch controller owns GPIO3.
++         */
++        esp32_gpio_set_input(18, 0);
++        esp32_gpio_set_input(8, 1);
++        esp32_gpio_set_input(10, 1);
++        esp32_gpio_force_line(3, 1);
++    } else if (board_nanoc6) {
++        /* NanoC6: GPIO9 button, GPIO7 blue LED, GPIO19 RGB power, GPIO20 data. */
++        esp32_gpio_set_input(9, 1);
++    } else {
++        error_report("unknown ESP32-C6 M5 board: %s", m5_board);
++        exit(1);
++    }
+ 
+     /* Cache (EXTMEM) */
+     {
+@@ -661,6 +698,19 @@
+         }
+     }
+ 
++    esp32_gpio_set_input(9, 1);
++    object_property_add(OBJECT(machine), "button-gpio9", "bool",
++                        NULL, esp32c6_button_gpio9_set, NULL, NULL);
++    object_property_add(OBJECT(machine), "gpio7-level", "bool",
++                        esp32c6_gpio_level_get, NULL, NULL,
++                        GINT_TO_POINTER(7));
++    object_property_add(OBJECT(machine), "gpio9-level", "bool",
++                        esp32c6_gpio_level_get, NULL, NULL,
++                        GINT_TO_POINTER(9));
++    object_property_add(OBJECT(machine), "gpio19-level", "bool",
++                        esp32c6_gpio_level_get, NULL, NULL,
++                        GINT_TO_POINTER(19));
++
+     /* Catch-all for the entire peripheral address space (priority -1000).
+      * Specific devices mapped above at priority 0 take precedence. */
+     create_unimplemented_device("esp32c6.peripherals", ESP32C6_IO_START_ADDR, 0x100000);
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -157,6 +157,7 @@
+                              uint64_t value, unsigned int size)
+ {
+     uint64_t before = gpio_line64();
++    uint64_t after;
+ 
+     switch (addr) {
+     case 0x08:
+@@ -213,7 +214,20 @@
+         }
+         break;
+     }
+-    gpio_notify(before, gpio_line64());
++    after = gpio_line64();
++    if (getenv("M5SW_GPIO_TRACE") &&
++        addr >= 0x04 && addr <= 0x58) {
++        fprintf(stderr,
++                "[c6-gpio] wr %02" HWADDR_PRIx " <- %016" PRIx64
++                " out=%016" PRIx64 " en=%016" PRIx64
++                " od=%016" PRIx64 " in=%016" PRIx64
++                " fm=%016" PRIx64 " fl=%016" PRIx64
++                " line=%016" PRIx64 "->%016" PRIx64
++                "\n",
++                addr, value, gpio_out64(), gpio_en64(), g_open_drain,
++                g_ext_in, g_force_mask, g_force_level, before, after);
++    }
++    gpio_notify(before, after);
+ }
+ 
+ static const MemoryRegionOps esp32_gpio_ops = {

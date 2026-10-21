@@ -1,24 +1,56 @@
 {
   "device-id": {
     "board_model": "m5-board",
+    "status": "partial",
+    "peripheral_status": "partial",
+    "evidence": [
+      "https://docs.m5stack.com/en/core/Product"
+    ],
+    "peripheral_blockers": [
+      {
+        "model": "m5pm1",
+        "reason": "Replace after the board I2C and UIFlow2 power path passes"
+      },
+      {
+        "model": "bmi270",
+        "reason": "Replace after QOM samples reach the board Imu API"
+      },
+      {
+        "model": "gpio-button",
+        "reason": "Replace after QMP input reaches the board button state"
+      },
+      {
+        "model": "es8311",
+        "reason": "Replace after the board I2S controller and PCM endpoint pass"
+      }
+    ],
     "components": [
       {
         "id": "pmic",
         "model": "m5pm1",
-        "qom_path": "/machine/m5pm1"
+        "address": "0x6e",
+        "bus": "i2c1",
+        "status": "planned"
       },
       {
         "id": "imu",
         "model": "bmi270",
-        "qom_path": "/machine/bmi270"
+        "address": "0x68",
+        "bus": "i2c1",
+        "status": "partial"
       },
       {
         "id": "buttons",
-        "model": "gpio-button"
+        "model": "gpio-button",
+        "bus": "gpio",
+        "status": "planned"
       },
       {
         "id": "audio-codec",
-        "model": "es8311"
+        "model": "es8311",
+        "address": "0x18",
+        "bus": "i2c1-i2s0",
+        "status": "planned"
       }
     ]
   }

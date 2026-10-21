@@ -18,6 +18,22 @@ platform/
 - `qemu-esp32lx6`：Core2 使用经典 ESP32 QEMU machine、ROM UART 下载和
   `esptool --no-stub` 虚拟烧录。
 
+## 设备中心 API
+
+`platform/tools/serve.py` 除设备目录外还暴露：
+
+```text
+GET /api/peripherals
+GET /api/peripherals/<device>
+GET /api/peripheral-interfaces
+GET /api/peripheral-interfaces/<model>
+```
+
+接口内容来自 `peripheral_inventory.py`，可直接取得硬件需求、组件芯片、
+总线、地址、注入方式、数据面、evidence、blocker、完成状态和该设备需要执行
+的 `runtime_cases`。`runtime_interfaces.py` 进一步把 QOM/QMP/PCM/RMT/SD/
+UART/framebuffer 操作展开为机器可读接口。
+
 ## 显示协议
 
 `m5emu-shared-v1`：

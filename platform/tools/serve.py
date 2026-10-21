@@ -14,6 +14,9 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
+from peripheral_inventory import build_inventory
+from runtime_interfaces import build_interfaces
+
 ROOT = Path(__file__).resolve().parents[2]
 DEVICES = ROOT / "devices"
 
@@ -41,6 +44,38 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/devices":
             self._send_file(DEVICES / "catalog.json")
+            return
+        if path in {"/api/peripherals", "/api/peripheral-inventory"}:
+            self._json(build_inventory())
+            return
+        if path.startswith("/api/peripherals/"):
+            parts = [
+                part
+                for part in path.removeprefix("/api/peripherals/").split("/")
+                if part
+            ]
+            if len(parts) == 1:
+                devices = {
+                    row["id"]: row
+                    for row in build_inventory()["devices"]
+                }
+                if parts[0] in devices:
+                    self._json(devices[parts[0]])
+                    return
+                self._json({"error": "unknown device"}, 404)
+                return
+            self._json({"error": "expected /api/peripherals/<device>"}, 404)
+            return
+        if path in {"/api/peripheral-interfaces", "/api/runtime-interfaces"}:
+            self._json(build_interfaces())
+            return
+        if path.startswith("/api/peripheral-interfaces/"):
+            model_id = path.removeprefix("/api/peripheral-interfaces/")
+            model = build_interfaces()["models"].get(model_id)
+            if model is None:
+                self._json({"error": "unknown model"}, 404)
+                return
+            self._json(model)
             return
         if path.startswith("/api/devices/"):
             parts = [part for part in path.removeprefix("/api/devices/").split("/") if part]
@@ -81,6 +116,11 @@ def main() -> None:
     server = ThreadingHTTPServer((args.bind, args.port), Handler)
     print(f"M5Stack simulated devices: http://{args.bind}:{args.port}/platform/web/")
     print(f"Device API: http://{args.bind}:{args.port}/api/devices")
+    print(f"Peripheral API: http://{args.bind}:{args.port}/api/peripherals")
+    print(
+        "Peripheral interfaces: "
+        f"http://{args.bind}:{args.port}/api/peripheral-interfaces"
+    )
     server.serve_forever()
 
 

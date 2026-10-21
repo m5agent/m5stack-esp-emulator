@@ -36,6 +36,8 @@ def draw_ui():
     d.setTextSize(3)
     d.setCursor(195, 285)
     d.print("TAP")
+    if touches:
+        d.fillRect(231, 231, 4, 4, d.COLOR.GREEN)
 
 
 M5.begin()
@@ -58,6 +60,7 @@ while True:
             else:
                 last = "TOUCH %d,%d" % (x, y)
                 last_color = M5.Display.COLOR.YELLOW
+            print("STOPWATCH_TOUCH", x, y, touches)
             draw_ui()
         M5.Display.fillCircle(x, y, 10, last_color)
     was_pressed = pressed

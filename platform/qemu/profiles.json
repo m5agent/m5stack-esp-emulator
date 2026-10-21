@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-10-21",
-    "result": "13 PASS with emulator-backed esptool virtual flash; CardputerZero is explicitly EXCLUDED as a Linux backend"
+    "result": "13 ESP32 display/input PASS with emulator-backed esptool virtual flash; Tab5 external peripherals remain partial; CardputerZero uses a separate ARM64 Linux backend"
   },
   "backends": {
     "qemu-esp32s3": {
@@ -20,10 +20,11 @@
       "machine": "esp32c6",
       "status": "ready"
     },
-    "qemu-esp32p4": {
+    "esp-emulator-native": {
       "soc_family": "esp32p4",
-      "machine": "esp32p4",
-      "status": "ready"
+      "machine": "esp-emu-native",
+      "status": "display-touch-hosted-ready",
+      "peripheral_status": "partial"
     },
     "qemu-esp32lx6": {
       "soc_family": "esp32",
@@ -31,10 +32,11 @@
       "status": "ready",
       "flash_transport": "qemu-rom-esptool"
     },
-    "linux-arm64": {
+    "external-linux-arm64": {
       "soc_family": "bcm2837",
-      "machine": "virt",
-      "status": "separate-backend"
+      "machine": "qemu-system-aarch64:raspi3b",
+      "status": "boot-display-input-peripherals-partial",
+      "peripheral_status": "partial"
     }
   },
   "devices": [
@@ -113,13 +115,14 @@
       "name": "CardputerZero",
       "group": "linux-arm64",
       "soc": "RP3A0 (BCM2837)",
-      "backend": "linux-arm64",
+      "backend": "external-linux-arm64",
       "qemu_status": "separate-backend",
+      "peripheral_status": "simulated",
       "priority": 5,
       "board_model": "cardputer_zero",
       "display_model": "spi-lcd",
       "display": {
-        "driver": "SPI LCD",
+        "driver": "ST7789v3 panel-mipi-dbi",
         "width": 320,
         "height": 170,
         "shape": "rect",
@@ -132,13 +135,26 @@
         "linux"
       ],
       "board_work": [
-        "Linux ARM64 image",
-        "SPI LCD/panel",
-        "keyboard/GPIO bridge"
+        "official ARM64 image boots with physical 512 MiB RAM",
+        "320x170 ST7789v3 DRM framebuffer capture",
+        "TCA8418 FIFO to BCM GPIO27 to Linux input",
+        "BMI270/BMM150/RX8130/M5IOE1/BQ27220 Linux driver bindings",
+        "ES8389 I2C identity/state plus BCM2835 I2S DREQ playback and microphone PCM",
+        "IP2315 QOM power-path state through BQ27220 charging/discharging status",
+      "register-driven IMX219 plus BCM2837 Unicam CSI1 RG10 V4L2 frame capture and V4L2 controls",
+        "DWC2 host enumerates GL852G and SR9900A at High-Speed",
+      "SR9900A r8152 eth0 bidirectional Full-Speed Ethernet frame round-trip through GL852G MTT",
+      "low-speed USB HID enumeration and Linux input through GL852G MTT",
+        "BCM GPIO13 LIRC receive injection and GPIO12 NEC transmit capture"
       ],
       "blockers": [
-        "not an ESP32 firmware target"
-      ]
+    "not an ESP32 firmware target"
+      ],
+      "validation": {
+        "date": "2026-10-22",
+    "status": "linux-display-input-i2c-audio-power-usb-camera-partial",
+    "detail": "Official ARM64 image boots with 512 MiB RAM and no reset workaround; 320x170 DRM frame capture, TCA8418 Linux input, BQ27220/BMI270/BMM150/RX8130/M5IOE1/ES8389 bindings, ES8389 identity/state, byte-exact ALSA playback and microphone PCM, IP2315 charging/discharging injection, register-driven IMX219 Unicam 640x480 RG10 V4L2 frames and V4L2 controls, GL852G MTT-compatible Full-Speed SR9900A and Low-Speed HID paths, and GPIO13/GPIO12 LIRC transport pass. factory_test completes fbdev, input, asset and LVGL 320x170 startup; its fb1 frame is fully non-black with 127 RGB565 colors and a changed frame hash."
+      }
     },
     {
       "id": "core2",
@@ -210,19 +226,22 @@
         "bmi270",
         "pcf8563",
         "es8311",
-        "gc0308"
+        "gc0308",
+        "ltr553",
+        "usb-host"
       ],
       "board_work": [
         "BMI270 data path",
         "BMM150 magnetometer",
         "LCD_CAM camera frames",
-        "audio peripheral polish"
+        "audio peripheral polish",
+        "MAX3421E USB host on M-Bus SPI"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-21",
-        "status": "display-touch-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; touch, PWR, AXP2101 power telemetry and PCF8563 RTC pass. BMI270 values, BMM150 and camera frame capture remain partial."
+        "date": "2026-10-22",
+        "status": "display-touch-peripherals-simulated",
+        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; touch, PWR, AXP2101 power telemetry, PCF8563 RTC, BMI270/BMM150, LTR553 ALS/proximity, audio, camera capture and MAX3421E USB host all pass through their board data planes."
       }
     },
     {
@@ -232,6 +251,7 @@
       "soc": "ESP32-C6FH4",
       "backend": "qemu-esp32c6",
       "qemu_status": "ready",
+      "peripheral_status": "simulated",
       "priority": 4,
       "board_model": "m5nanoc6",
       "display_model": "none",
@@ -246,21 +266,21 @@
         "gpio-button"
       ],
       "peripherals": [
-        "led",
-    "button",
-    "ir"
+        "rgb-led",
+        "gpio-led",
+        "button",
+        "ir"
       ],
       "board_work": [
-        "ESP32-C6 machine/board init",
-        "no display; GPIO/status LED"
+        "NanoC6-specific ESP32-C6 board assembly without Nesso peripherals",
+        "no display; GPIO7 blue LED, GPIO9 button, GPIO19 RGBPWR and GPIO20 WS2812",
+        "ESP32-C6 RMT IR transmitter"
       ],
-      "blockers": [
-    "No board display; RGB and buzzer capture remain to be validated"
-      ],
+      "blockers": [],
       "validation": {
-    "date": "2026-10-21",
-    "status": "console-ir-pass",
-    "detail": "Official UIFlow2 v2.5.3 boots on the ESP32-C6 USB-Serial/JTAG console, reports board 140, and hardware.IR TX reaches the ESP32-C6 RMT model; captured NEC symbols decode to 0x56/0xA3."
+        "date": "2026-10-22",
+        "status": "console-rgb-button-led-ir-pass",
+        "detail": "Official UIFlow2 v2.5.3 boots on the dedicated NanoC6 C6 board profile and reports board 140. hardware.RGB enables GPIO19 RGBPWR and drives GPIO20; RMT captures decode to WS2812 GRB 00FF00. GPIO9 press/release is injected through the machine GPIO property and read by machine.Pin, GPIO7 blue LED on/off is observed from the GPIO output registers, and hardware.IR TX decodes to NEC 0x56/0xA3."
       }
     },
     {
@@ -291,19 +311,20 @@
         "pi4ioe5v6408",
         "bq27220",
         "aw32001",
-        "ir"
+        "ir",
+        "i2s-buzzer-c6"
       ],
       "board_work": [
         "ESP32-C6 machine/board init",
         "ST7789 SPI panel",
         "FT6336 touch",
-        "PI4IOE expanders, power telemetry, BMI270 and ESP32-C6 IR/LoRa"
+        "PI4IOE expanders, power telemetry, BMI270, ESP32-C6 IR/LoRa and GPIO11 I2S buzzer"
       ],
       "blockers": [],
       "validation": {
         "date": "2026-10-21",
-        "status": "display-touch-power-io-ir-imu-lora-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, both PI4IOE expanders, BQ27220/AW32001, C6 RMT NEC 0x56/0xA3, BMI270 accel/gyro and SX1262 LoRa TX/RX all pass through their controller and chip data planes."
+        "status": "display-touch-power-io-ir-imu-lora-buzzer-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, both PI4IOE expanders, BQ27220/AW32001, C6 RMT NEC 0x56/0xA3, BMI270 accel/gyro, SX1262 LoRa TX/RX and the GPIO11 1-bit delta-sigma I2S buzzer all pass through their controller and chip data planes."
       }
     },
     {
@@ -387,6 +408,7 @@
       "soc": "ESP32-S3",
       "backend": "qemu-esp32s3",
       "qemu_status": "ready",
+      "peripheral_status": "simulated",
       "priority": 2,
       "board_model": "m5stackchan",
       "display_model": "spi-ili9342",
@@ -403,16 +425,28 @@
       "peripherals": [
         "servo",
         "audio",
-        "bmi270"
+        "bmi270",
+        "bmm150",
+        "aw9523",
+        "m5ioe1",
+        "ina226",
+        "pcf8563",
+        "ltr553",
+        "ir",
+        "nfc",
+        "rgb-led",
+        "camera"
       ],
       "board_work": [
-        "servo/audio and NFC functional models"
+        "servo/audio and NFC functional models",
+        "BMI270/AW9523/INA226 peripheral closure",
+        "RMT NEC IR TX/RX closure"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
-        "status": "display-touch-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; QMP touch injection increments the on-screen counter."
+        "date": "2026-10-22",
+        "status": "display-touch-peripherals-simulated",
+        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI and accepts touch. BMI270 accel/gyro APIs, BM8563 RTC, LTR553 ALS/proximity, AW9523 output/input, INA226 voltage/current/power, and RMT NEC IR TX/RX all pass through StackChan board data paths. All 8 StackChan peripheral cases pass."
       }
     },
     {
@@ -488,9 +522,9 @@
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-21",
-        "status": "display-button-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 135x240 UI; A/B/P buttons and M5PM1 power telemetry pass. BMI270 is detected but its data path remains partial."
+        "date": "2026-10-22",
+        "status": "display-input-peripherals-simulated",
+        "detail": "Official UIFlow2 v2.5.3 renders a 135x240 UI; A/B/P buttons, M5PM1 power telemetry, BMI270 accel/gyro, ES8311 audio, microphone PCM, IR and RGB paths all pass through their controller data planes."
       }
     },
     {
@@ -530,8 +564,9 @@
       "name": "Tab5",
       "group": "esp32-p4",
       "soc": "ESP32-P4NRW32",
-      "backend": "qemu-esp32p4",
+      "backend": "esp-emulator-native",
       "qemu_status": "ready",
+      "peripheral_status": "partial",
       "priority": 5,
       "board_model": "m5tab5",
       "display_model": "dsi-st7121",
@@ -548,20 +583,40 @@
       "peripherals": [
         "camera",
         "audio",
-        "c6-coprocessor"
+        "c6-coprocessor",
+        "imu",
+        "rtc",
+        "power-monitor",
+        "io-expanders",
+        "touch",
+        "usb-host",
+        "rs485",
+        "sdio-storage"
       ],
       "board_work": [
         "ESP32-P4 machine",
         "MIPI-DSI ST7121 panel",
-        "touch",
-        "camera/audio",
-        "C6 co-processor"
+        "C6 co-processor",
+        "ST7123 I2C touch model",
+        "SC2356 MIPI-CSI",
+        "ES8388/ES7210 I2S",
+        "P4 USB Host",
+    "SDIO storage bridge",
+    "UART1 SIT3088 RS-485 peer",
+        "P4 I2C register probes for INA226, PI4IOE and RX8130"
       ],
-      "blockers": [],
+      "blockers": [
+        "SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0",
+        "ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0",
+        "ESP32-P4 USB Host controller and endpoint attachment missing",
+        "Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model",
+    "Tab5 SDIO storage is not wired to a host block backend",
+        "Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial"
+      ],
       "validation": {
-        "date": "2026-10-21",
-        "status": "display-touch-pass",
-        "detail": "UIFlow2 P4 firmware boots through esp-emu 0.50.0 with the C6 ESP-Hosted bridge, renders a 1280x720 landscape frame from the real M5GFX framebuffer, and redraws after touch. The exact image was written through esptool to a 16 MiB virtual flash and verified byte-for-byte."
+    "date": "2026-10-22",
+    "status": "display-touch-rs485-pass-peripherals-partial",
+    "detail": "UIFlow2 P4 firmware boots through esp-emu 0.50.0 with the C6 ESP-Hosted bridge, renders a 1280x720 landscape frame from the real M5GFX framebuffer, and redraws after touch. P4 I2C scans Tab5 devices; INA226 preload reaches Power as 8000mV/1248mA/87%, direct machine.I2C write/read reaches RX8130 registers, PI4IOE output writeback passes, and CHG_STAT=0x00/0x40 reaches Power.isCharging() as charging/discharging. UART1 RS-485 half-duplex TX/RX passes against a host peer on G20/G21 with direction G34. RTC progression, dynamic BMI270/time/I2C injection, IP2326 analog current/termination behavior and the remaining native P4 data planes remain partial."
       }
     }
   ]

@@ -1,0 +1,578 @@
+diff --git a/hw/arm/bcm2835_peripherals.c b/hw/arm/bcm2835_peripherals.c
+--- a/hw/arm/bcm2835_peripherals.c
++++ b/hw/arm/bcm2835_peripherals.c
+@@ -114,10 +114,20 @@
+         if (read_ok) {
+             s->i2s_rx_words++;
+             s->i2s_rx_bytes += sizeof(value);
++        } else {
++            /*
++             * The I2S clock keeps running after a finite RX source is
++             * exhausted.  Return digital silence instead of terminating an
++             * unrelated DMA channel: the Linux ALSA driver owns the DMA
++             * lifecycle and treats a forced descriptor abort as EIO.
++             */
++            value = 0;
+         }
+-        if (!read_ok ||
+-            (s->i2s_rx_limit && s->i2s_rx_bytes >= s->i2s_rx_limit)) {
+-            bcm2835_i2s_abort_dma(s);
++        if (s->i2s_rx_file &&
++            s->i2s_rx_limit &&
++            s->i2s_rx_bytes >= s->i2s_rx_limit) {
++            fclose(s->i2s_rx_file);
++            s->i2s_rx_file = NULL;
+         }
+         return value;
+     }
+diff --git a/hw/dma/bcm2835_dma.c b/hw/dma/bcm2835_dma.c
+--- a/hw/dma/bcm2835_dma.c
++++ b/hw/dma/bcm2835_dma.c
+@@ -53,85 +53,133 @@
+ 
+ #define BCM2708_DMA_CS_RW_MASK  0x30ff0001 /* All RW bits in DMA_CS */
+ 
+-static void bcm2835_dma_update(BCM2835DMAState *s, unsigned c)
++static bool bcm2835_dma_chan_uses_dreq(BCM2835DMAChan *ch)
++{
++    return ch->ti & (BCM2708_DMA_D_DREQ | BCM2708_DMA_S_DREQ);
++}
++
++static void bcm2835_dma_update(BCM2835DMAState *s, unsigned c);
++
++static void bcm2835_dma_dreq_tick(void *opaque)
++{
++    BCM2835DMAChan *ch = opaque;
++    BCM2835DMAState *s = ch->parent;
++    unsigned c = ch - s->chan;
++
++    if ((s->enable & (1 << c)) && (ch->cs & BCM2708_DMA_ACTIVE) &&
++        ch->conblk_ad) {
++        bcm2835_dma_update(s, c);
++    }
++}
++
++static void bcm2835_dma_run_control_block(BCM2835DMAState *s, unsigned c)
+ {
+     BCM2835DMAChan *ch = &s->chan[c];
+     uint32_t data, xlen, xlen_td, ylen;
+     int16_t dst_stride, src_stride;
+ 
+-    if (!(s->enable & (1 << c))) {
+-        return;
++    /* CB fetch */
++    ch->ti = ldl_le_phys(&s->dma_as, ch->conblk_ad);
++    ch->source_ad = ldl_le_phys(&s->dma_as, ch->conblk_ad + 4);
++    ch->dest_ad = ldl_le_phys(&s->dma_as, ch->conblk_ad + 8);
++    ch->txfr_len = ldl_le_phys(&s->dma_as, ch->conblk_ad + 12);
++    ch->stride = ldl_le_phys(&s->dma_as, ch->conblk_ad + 16);
++    ch->nextconbk = ldl_le_phys(&s->dma_as, ch->conblk_ad + 20);
++
++    ylen = 1;
++    if (ch->ti & BCM2708_DMA_TDMODE) {
++        /* 2D transfer mode */
++        ylen += (ch->txfr_len >> 16) & 0x3fff;
++        xlen = ch->txfr_len & 0xffff;
++        dst_stride = ch->stride >> 16;
++        src_stride = ch->stride & 0xffff;
++    } else {
++        xlen = ch->txfr_len;
++        dst_stride = 0;
++        src_stride = 0;
+     }
++    xlen_td = xlen;
++
++    while (ylen != 0) {
++        /* Normal transfer mode */
++        while (xlen != 0) {
++            if (ch->ti & BCM2708_DMA_S_IGNORE) {
++                /* Ignore reads */
++                data = 0;
++            } else {
++                data = ldl_le_phys(&s->dma_as, ch->source_ad);
++            }
++            if (ch->ti & BCM2708_DMA_S_INC) {
++                ch->source_ad += 4;
++            }
+ 
+-    while ((s->enable & (1 << c)) && (ch->conblk_ad != 0)) {
+-        /* CB fetch */
+-        ch->ti = ldl_le_phys(&s->dma_as, ch->conblk_ad);
+-        ch->source_ad = ldl_le_phys(&s->dma_as, ch->conblk_ad + 4);
+-        ch->dest_ad = ldl_le_phys(&s->dma_as, ch->conblk_ad + 8);
+-        ch->txfr_len = ldl_le_phys(&s->dma_as, ch->conblk_ad + 12);
+-        ch->stride = ldl_le_phys(&s->dma_as, ch->conblk_ad + 16);
+-        ch->nextconbk = ldl_le_phys(&s->dma_as, ch->conblk_ad + 20);
+-
+-        ylen = 1;
+-        if (ch->ti & BCM2708_DMA_TDMODE) {
+-            /* 2D transfer mode */
+-            ylen += (ch->txfr_len >> 16) & 0x3fff;
+-            xlen = ch->txfr_len & 0xffff;
+-            dst_stride = ch->stride >> 16;
+-            src_stride = ch->stride & 0xffff;
+-        } else {
+-            xlen = ch->txfr_len;
+-            dst_stride = 0;
+-            src_stride = 0;
+-        }
+-        xlen_td = xlen;
+-
+-        while (ylen != 0) {
+-            /* Normal transfer mode */
+-            while (xlen != 0) {
+-                if (ch->ti & BCM2708_DMA_S_IGNORE) {
+-                    /* Ignore reads */
+-                    data = 0;
+-                } else {
+-                    data = ldl_le_phys(&s->dma_as, ch->source_ad);
+-                }
+-                if (ch->ti & BCM2708_DMA_S_INC) {
+-                    ch->source_ad += 4;
+-                }
+-
+-                if (ch->ti & BCM2708_DMA_D_IGNORE) {
+-                    /* Ignore writes */
+-                } else {
+-                    stl_le_phys(&s->dma_as, ch->dest_ad, data);
+-                }
+-                if (ch->ti & BCM2708_DMA_D_INC) {
+-                    ch->dest_ad += 4;
+-                }
+-
+-                /* update remaining transfer length */
+-                xlen -= 4;
+-                if (ch->ti & BCM2708_DMA_TDMODE) {
+-                    ch->txfr_len = (ylen << 16) | xlen;
+-                } else {
+-                    ch->txfr_len = xlen;
+-                }
++            if (ch->ti & BCM2708_DMA_D_IGNORE) {
++                /* Ignore writes */
++            } else {
++                stl_le_phys(&s->dma_as, ch->dest_ad, data);
++            }
++            if (ch->ti & BCM2708_DMA_D_INC) {
++                ch->dest_ad += 4;
+             }
+ 
+-            if (--ylen != 0) {
+-                ch->source_ad += src_stride;
+-                ch->dest_ad += dst_stride;
+-                xlen = xlen_td;
++            /* update remaining transfer length */
++            xlen -= 4;
++            if (ch->ti & BCM2708_DMA_TDMODE) {
++                ch->txfr_len = (ylen << 16) | xlen;
++            } else {
++                ch->txfr_len = xlen;
+             }
+         }
+-        ch->cs |= BCM2708_DMA_END;
+-        if (ch->ti & BCM2708_DMA_INT_EN) {
+-            ch->cs |= BCM2708_DMA_INT;
+-            s->int_status |= (1 << c);
+-            qemu_set_irq(ch->irq, 1);
++
++        if (--ylen != 0) {
++            ch->source_ad += src_stride;
++            ch->dest_ad += dst_stride;
++            xlen = xlen_td;
+         }
++    }
++    ch->cs |= BCM2708_DMA_END;
++    if (ch->ti & BCM2708_DMA_INT_EN) {
++        ch->cs |= BCM2708_DMA_INT;
++        s->int_status |= (1 << c);
++        qemu_set_irq(ch->irq, 1);
++    }
++
++    if (s->trace) {
++        qemu_log("[bcm2835-dma] ch%u cb=0x%08x next=0x%08x "
++                 "src=0x%08x dst=0x%08x len=%u ti=0x%08x%s\n",
++                 c, ch->conblk_ad, ch->nextconbk, ch->source_ad,
++                 ch->dest_ad, ch->txfr_len, ch->ti,
++                 bcm2835_dma_chan_uses_dreq(ch) ? " dreq" : "");
++    }
++
++    /* Process next CB */
++    ch->conblk_ad = ch->nextconbk;
++}
++
++static void bcm2835_dma_update(BCM2835DMAState *s, unsigned c)
++{
++    BCM2835DMAChan *ch = &s->chan[c];
+ 
+-        /* Process next CB */
+-        ch->conblk_ad = ch->nextconbk;
++    if (!(s->enable & (1 << c))) {
++        return;
++    }
++
++    while ((s->enable & (1 << c)) && (ch->conblk_ad != 0)) {
++        bool dreq;
++
++        bcm2835_dma_run_control_block(s, c);
++        dreq = bcm2835_dma_chan_uses_dreq(ch);
++        if (dreq && ch->conblk_ad != 0) {
++            /*
++             * A DREQ channel such as I2S is cyclic.  Completing the whole
++             * linked list synchronously would spin forever when the last CB
++             * points back to the first.  Emit one period, then advance the
++             * controller after a bounded interval.
++             */
++            timer_mod_ns(ch->dreq_timer,
++                         qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000000);
++            return;
++        }
+     }
+ 
+     ch->cs &= ~BCM2708_DMA_ACTIVE;
+@@ -206,10 +254,11 @@ static void bcm2835_dma_write(BCM2835DMAState *s, hwaddr offset,
+     case BCM2708_DMA_CS:
+         oldcs = ch->cs;
+         if (value & BCM2708_DMA_RESET) {
++            timer_del(ch->dreq_timer);
+             bcm2835_dma_chan_reset(ch);
+         }
+         if (value & BCM2708_DMA_ABORT) {
+-            /* abort is a no-op, since we always run to completion */
++            timer_del(ch->dreq_timer);
+         }
+         if (value & BCM2708_DMA_END) {
+             ch->cs &= ~BCM2708_DMA_END;
+@@ -275,6 +324,11 @@ static void bcm2835_dma0_write(void *opaque, hwaddr offset, uint64_t value,
+         case BCM2708_DMA_INT_STATUS:
+             break;
+         case BCM2708_DMA_ENABLE:
++            for (int n = 0; n < BCM2835_DMA_NCHANS; n++) {
++                if (!(value & (1 << n))) {
++                    timer_del(s->chan[n].dreq_timer);
++                }
++            }
+             s->enable = (value & 0xffff);
+             break;
+         default:
+@@ -357,6 +411,10 @@ static void bcm2835_dma_init(Object *obj)
+     sysbus_init_mmio(SYS_BUS_DEVICE(s), &s->iomem15);
+ 
+     for (n = 0; n < 16; n++) {
++        s->chan[n].parent = s;
++        s->chan[n].dreq_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                             bcm2835_dma_dreq_tick,
++                                             &s->chan[n]);
+         sysbus_init_irq(SYS_BUS_DEVICE(s), &s->chan[n].irq);
+     }
+ }
+@@ -369,6 +427,7 @@ static void bcm2835_dma_reset(DeviceState *dev)
+     s->enable = 0xffff;
+     s->int_status = 0;
+     for (n = 0; n < BCM2835_DMA_NCHANS; n++) {
++        timer_del(s->chan[n].dreq_timer);
+         bcm2835_dma_chan_reset(&s->chan[n]);
+     }
+ }
+@@ -381,6 +440,7 @@ static void bcm2835_dma_realize(DeviceState *dev, Error **errp)
+     obj = object_property_get_link(OBJECT(dev), "dma-mr", &error_abort);
+     s->dma_mr = MEMORY_REGION(obj);
+     address_space_init(&s->dma_as, s->dma_mr, TYPE_BCM2835_DMA "-memory");
++    s->trace = getenv("M5SW_DMA_TRACE") != NULL;
+ 
+     bcm2835_dma_reset(dev);
+ }
+diff --git a/include/hw/dma/bcm2835_dma.h b/include/hw/dma/bcm2835_dma.h
+--- a/include/hw/dma/bcm2835_dma.h
++++ b/include/hw/dma/bcm2835_dma.h
+@@ -10,6 +10,9 @@
+ 
+ #include "hw/sysbus.h"
+ #include "qom/object.h"
++#include "qemu/timer.h"
++
++typedef struct BCM2835DMAState BCM2835DMAState;
+ 
+ typedef struct {
+     uint32_t cs;
+@@ -23,6 +26,8 @@ typedef struct {
+     uint32_t debug;
+ 
+     qemu_irq irq;
++    BCM2835DMAState *parent;
++    QEMUTimer *dreq_timer;
+ } BCM2835DMAChan;
+ 
+ #define TYPE_BCM2835_DMA "bcm2835-dma"
+@@ -42,6 +47,7 @@ struct BCM2835DMAState {
+     BCM2835DMAChan chan[BCM2835_DMA_NCHANS];
+     uint32_t int_status;
+     uint32_t enable;
++    bool trace;
+ };
+ 
+ #endif
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -12,6 +12,7 @@
+ OBJECT_DECLARE_SIMPLE_TYPE(Esp32s3GpspiState, ESP32S3_GPSPI)
+ 
+ #define TYPE_M5SW_I2C_DEV "m5sw-i2c-dev"
++#define TYPE_M5SW_IP2315 "m5sw-ip2315"
+ #define TYPE_CO5300 "co5300"
+ OBJECT_DECLARE_SIMPLE_TYPE(Co5300State, CO5300)
+ 
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -44,6 +44,7 @@
+     M_SI12T,
+     M_LP5562,
+     M_BQ27220,
++    M_ES8389,
+ };
+ 
+ typedef struct M5swI2CDev {
+@@ -118,6 +119,15 @@
+ } M5swI2CDev;
+ 
+ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
++
++typedef struct M5swIP2315 {
++    DeviceState parent_obj;
++    bool charging;
++    int64_t vbus_mv;
++    int64_t ntc_ohms;
++} M5swIP2315;
++
++OBJECT_DECLARE_SIMPLE_TYPE(M5swIP2315, M5SW_IP2315)
+ 
+ static M5swI2CDev *g_touch;
+ static M5swI2CDev *g_ft_touch;
+@@ -127,6 +137,7 @@
+ static M5swI2CDev *g_bmm150;
+ static M5swI2CDev *g_keyboard;
+ static M5swI2CDev *g_aw9523;
++static M5swI2CDev *g_bq27220;
+ static uint8_t g_key_events[16];
+ static unsigned g_key_event_head;
+ static unsigned g_key_event_count;
+@@ -1028,6 +1039,11 @@
+             return 0xC0;
+         }
+         break;
++    case M_ES8389:
++        if (r == 0xF1) {                                 /* CSM_STATE1 */
++            return 0x0D;                                 /* ES8389_STATE_ON */
++        }
++        break;
+     default:
+         break;
+     }
+@@ -1460,7 +1476,112 @@
+     if (visit_type_bool(v, name, &d, errp)) {
+         *(bool *)op = d;
+     }
++}
++
++static void ip2315_apply_state(M5swIP2315 *s)
++{
++    int64_t current_ma;
++
++    if (!g_bq27220) {
++        return;
++    }
++    current_ma = llabs(g_bq27220->bq_current_ma);
++    if (!current_ma) {
++        current_ma = 250;
++    }
++    /*
++     * Linux bq27xxx derives power_supply status from the signed current:
++     * positive is charging and negative is discharging.
++     */
++    g_bq27220->bq_current_ma = s->charging ? current_ma : -current_ma;
++}
++
++static void ip2315_set_charging(Object *obj, Visitor *v,
++                                const char *name, void *opaque,
++                                Error **errp)
++{
++    M5swIP2315 *s = M5SW_IP2315(obj);
++    bool value;
++
++    if (visit_type_bool(v, name, &value, errp)) {
++        s->charging = value;
++        ip2315_apply_state(s);
++    }
++}
++
++static void ip2315_get_charging(Object *obj, Visitor *v,
++                                const char *name, void *opaque,
++                                Error **errp)
++{
++    M5swIP2315 *s = M5SW_IP2315(obj);
++
++    visit_type_bool(v, name, &s->charging, errp);
++}
++
++static void ip2315_get_vbus(Object *obj, Visitor *v,
++                            const char *name, void *opaque,
++                            Error **errp)
++{
++    M5swIP2315 *s = M5SW_IP2315(obj);
++
++    visit_type_int64(v, name, &s->vbus_mv, errp);
++}
++
++static void ip2315_set_vbus(Object *obj, Visitor *v,
++                            const char *name, void *opaque,
++                            Error **errp)
++{
++    M5swIP2315 *s = M5SW_IP2315(obj);
++
++    visit_type_int64(v, name, &s->vbus_mv, errp);
++}
++
++static void ip2315_get_ntc(Object *obj, Visitor *v,
++                           const char *name, void *opaque,
++                           Error **errp)
++{
++    M5swIP2315 *s = M5SW_IP2315(obj);
++
++    visit_type_int64(v, name, &s->ntc_ohms, errp);
++}
++
++static void ip2315_set_ntc(Object *obj, Visitor *v,
++                           const char *name, void *opaque,
++                           Error **errp)
++{
++    M5swIP2315 *s = M5SW_IP2315(obj);
++
++    visit_type_int64(v, name, &s->ntc_ohms, errp);
++}
++
++static void ip2315_realize(DeviceState *dev, Error **errp)
++{
++    ip2315_apply_state(M5SW_IP2315(dev));
++}
++
++static void ip2315_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++
++    dc->realize = ip2315_realize;
++    dc->user_creatable = true;
++    object_class_property_add(klass, "charging", "bool",
++                              ip2315_get_charging, ip2315_set_charging,
++                              NULL, NULL);
++    object_class_property_add(klass, "vbus-mv", "int",
++                              ip2315_get_vbus, ip2315_set_vbus,
++                              NULL, NULL);
++    object_class_property_add(klass, "ntc-ohms", "int",
++                              ip2315_get_ntc, ip2315_set_ntc,
++                              NULL, NULL);
+ }
++
++static const TypeInfo ip2315_info = {
++    .name = TYPE_M5SW_IP2315,
++    .parent = TYPE_DEVICE,
++    .instance_size = sizeof(M5swIP2315),
++    .class_init = ip2315_class_init,
++};
+ 
+ static void dev_realize(DeviceState *dev, Error **errp)
+ {
+@@ -1666,6 +1787,18 @@
+         object_property_add(OBJECT(s), "design-capacity-mah", "int",
+                             prop_get_i64, prop_set_i64, NULL,
+                             &s->bq_design_capacity_mah);
++        g_bq27220 = s;
++    } else if (!strcmp(m, "es8389")) {
++        /*
++         * ES8389 has an 8-bit register map at I2C 0x10.  The open-source
++         * Linux and ESP codec drivers use the same FD/FE identity registers;
++         * FE is checked as 0x89 by Espressif's ESP codec layer.  CSM_STATE1
++         * reports the powered/on state expected after codec initialization.
++         */
++        s->model = M_ES8389;
++        s->regs[0xFD] = 0x83;
++        s->regs[0xFE] = 0x89;
++        s->regs[0xF1] = 0x0D;
+     } else if (!strcmp(m, "rx8130")) {
+         s->model = M_RX8130;
+         s->regs[0x1E] = 0x00;
+@@ -1840,5 +1973,6 @@
+ static void dev_register(void)
+ {
+     type_register_static(&dev_info);
++    type_register_static(&ip2315_info);
+ }
+ type_init(dev_register)
+diff --git a/hw/usb/dev-hub.c b/hw/usb/dev-hub.c
+--- a/hw/usb/dev-hub.c
++++ b/hw/usb/dev-hub.c
+@@ -52,6 +52,7 @@ struct USBHubState {
+ };
+ 
+ #define TYPE_USB_HUB "usb-hub"
++#define TYPE_M5SW_GL852G "m5sw-gl852g"
+ OBJECT_DECLARE_SIMPLE_TYPE(USBHubState, USB_HUB)
+ 
+ #define ClearHubFeature         (0x2000 | USB_REQ_CLEAR_FEATURE)
+@@ -153,6 +154,31 @@ static const USBDesc desc_hub = {
+     .str  = desc_strings,
+ };
+ 
++enum {
++    STR_GL852G_MANUFACTURER = 1,
++    STR_GL852G_PRODUCT,
++    STR_GL852G_SERIALNUMBER,
++};
++
++static const USBDescStrings desc_strings_gl852g = {
++    [STR_GL852G_MANUFACTURER] = "Genesys Logic, Inc.",
++    [STR_GL852G_PRODUCT]      = "GL852G USB 2.0 Hub",
++    [STR_GL852G_SERIALNUMBER] = "GL852G",
++};
++
++static const USBDesc desc_gl852g = {
++    .id = {
++        .idVendor          = 0x05e3,
++        .idProduct         = 0x0610,
++        .bcdDevice         = 0x0100,
++        .iManufacturer     = STR_GL852G_MANUFACTURER,
++        .iProduct          = STR_GL852G_PRODUCT,
++        .iSerialNumber     = STR_GL852G_SERIALNUMBER,
++    },
++    .full = &desc_device_hub,
++    .str  = desc_strings_gl852g,
++};
++
+ static const uint8_t qemu_hub_hub_descriptor[] =
+ {
+         0x00,                   /*  u8  bLength; patched in later */
+@@ -697,9 +723,25 @@ static const TypeInfo hub_info = {
+     .class_init    = usb_hub_class_initfn,
+ };
+ 
++static void gl852g_class_init(ObjectClass *klass, void *data)
++{
++    USBDeviceClass *uc = USB_DEVICE_CLASS(klass);
++
++    uc->product_desc = "GL852G USB 2.0 Hub";
++    uc->usb_desc = &desc_gl852g;
++}
++
++static const TypeInfo gl852g_info = {
++    .name          = TYPE_M5SW_GL852G,
++    .parent        = TYPE_USB_HUB,
++    .instance_size = sizeof(USBHubState),
++    .class_init    = gl852g_class_init,
++};
++
+ static void usb_hub_register_types(void)
+ {
+     type_register_static(&hub_info);
++    type_register_static(&gl852g_info);
+ }
+ 
+ type_init(usb_hub_register_types)

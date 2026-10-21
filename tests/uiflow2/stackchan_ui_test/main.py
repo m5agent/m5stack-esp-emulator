@@ -31,13 +31,16 @@ def draw_ui():
     d.setTextSize(2)
     d.setCursor(95, 171)
     d.print("TOUCH")
+    if touches:
+        d.fillRect(1, 1, 4, 4, d.COLOR.GREEN)
 
 
 print("STACKCHAN_MAIN_START")
 M5.begin()
 print("STACKCHAN_BOARD", M5.getBoard())
 print("STACKCHAN_DISPLAY", M5.Display.width(), M5.Display.height())
-M5.Display.setRotation(0)
+# StackChan shares CoreS3's ILI9342 offset_rotation=3; rotation 1 is 320x240.
+M5.Display.setRotation(1)
 M5.Display.setBrightness(255)
 draw_ui()
 

@@ -16,11 +16,15 @@ ok = False
 try:
     if not Speaker.begin():
         raise RuntimeError("speaker begin failed")
+    Speaker.setVolume(255)
     Speaker.tone(3500, 250)
-    time.sleep_ms(300)
+    time.sleep_ms(100)
+    if not Speaker.isPlaying():
+        raise RuntimeError("buzzer not playing")
     if not Speaker.isRunning():
         raise RuntimeError("buzzer stopped")
-    status = "ok 3500Hz"
+    time.sleep_ms(250)
+    status = "ok 3500Hz play=1"
     ok = True
 except Exception as exc:
     status = repr(exc)[:58]

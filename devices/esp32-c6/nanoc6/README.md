@@ -4,6 +4,7 @@
 - 分组：`ESP32-C6`
 - 外壳：`无屏控制台`
 - 运行时：`boot-capable`
+- 外设仿真：`simulated`
 - UIFlow2：`支持`，m5ui：`不支持`
 - UIFlow2 固件：v2.5.3 / `1897200000000001159`
 
@@ -19,14 +20,16 @@
 | 重量 | 2.7 g |
 | 显示 | 无板载显示屏 |
 | 控制 | GPIO9 |
-| 外设 | rgb-led, ir |
+| 外设 | rgb-led, led-output:blue, ir |
 
 ## 模拟状态
 
 boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/外设仍在收口。
 
-- 验证：`console-ir-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 在 ESP32-C6 QEMU USB-Serial-JTAG 控制台运行，M5.begin() 返回板型 140；hardware.IR TX 经 ESP32-C6 RMT 捕获并解码为 NEC 0x56/0xA3。
+- 验证：`console-rgb-button-led-ir-pass` (2026-10-22)
+- 详情：官方 UIFlow2 v2.5.3 在独立 NanoC6 板级 C6 后端运行，M5.begin() 返回板型 140；hardware.RGB 打开 GPIO19 RGBPWR，GPIO20 RMT WS2812 GRB 数据捕获为 00FF00；GPIO9 经 QOM 注入按下/释放并由 machine.Pin 读取；GPIO7 蓝色 LED 开关状态通过 GPIO 输出寄存器验证；hardware.IR TX 捕获并解码为 NEC 0x56/0xA3。
+
+
 
 
 

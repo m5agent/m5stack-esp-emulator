@@ -17,9 +17,9 @@
     "display_protocol": "spi-ili9342",
     "execution": "native-qemu",
     "validation": {
-      "date": "2026-10-21",
-      "status": "display-touch-pass",
-      "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电、RTC、BMI270、BMM150 和 GC0308 camera.snapshot() 通过。LTR553 环境光 API 仍为 partial。"
+      "date": "2026-10-22",
+      "status": "display-touch-peripherals-simulated",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电、RTC、BMI270、BMM150、LTR553 环境光/接近、AW9523、扬声器、麦克风、GC0308 camera.snapshot() 和 MAX3421E USB Host 通过。"
     }
   },
   "cache_path": "platform/.cache/firmware/cores3/uiflow2.bin"

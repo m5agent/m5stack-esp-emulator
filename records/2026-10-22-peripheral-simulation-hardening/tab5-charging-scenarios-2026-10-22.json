@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-22T06:17:35.994482+08:00",
+  "device": "tab5",
+  "scenario_manifest": "tests/uiflow2/tab5_peripherals/scenarios.json",
+  "scenario_manifest_sha256": "b51c84b42c49cb354107a4ef2a74d86a31f3b8940a74042849607c040c9fcdef",
+  "results": {
+    "charging-normal": {
+      "status": "PASS",
+      "description": "IP2326 CHG_STAT low, 8.0 V pack, +1248 mA charge current, 87 percent",
+      "serial_expect": [
+        "TAB5_BATTERY 8000 1248 87",
+        "TAB5_CHARGE_INPUT=0x00",
+        "TAB5_CHARGING True",
+        "TAB5_CHARGE_ENABLE 1"
+      ],
+      "missing_markers": []
+    },
+    "discharging-low": {
+      "status": "PASS",
+      "description": "IP2326 CHG_STAT high, 7.2 V pack, -501 mA discharge current, 37 percent",
+      "serial_expect": [
+        "TAB5_BATTERY 7200 -501 37",
+        "TAB5_CHARGE_INPUT=0x40",
+        "TAB5_CHARGING False"
+      ],
+      "missing_markers": []
+    }
+  }
+}

@@ -10,6 +10,7 @@ const state = {
   worker: null,
   firmware: null,
   firmwareName: null,
+  peripheral: null,
   running: false,
   log: ''
 };
@@ -64,7 +65,12 @@ async function loadDevice() {
     if (!response.ok) throw new Error(`device: ${response.status}`);
     return response.json();
   });
+  const peripheral = await fetch(`/api/peripherals/${encodeURIComponent(device.id)}`, { cache: 'no-store' }).then(response => {
+    if (!response.ok) throw new Error(`peripherals: ${response.status}`);
+    return response.json();
+  });
   state.device = device;
+  state.peripheral = peripheral;
   render(device);
 }
 
@@ -159,12 +165,48 @@ function render(device) {
   ].map(([key, value]) => `<dt>${key}</dt><dd>${value}</dd>`).join('');
 
   renderSensors(device);
+  renderPeripherals(state.peripheral);
   $('firmwareFile').addEventListener('change', onFirmwareFile);
   $('fetchBtn').addEventListener('click', fetchUIFlow2);
   $('resetBtn').addEventListener('click', () => state.firmware && startFirmware(state.firmware, state.firmwareName));
   $('pauseBtn').addEventListener('click', togglePause);
   installAutomationApi();
   window.parent?.postMessage({ type: 'm5emu:ready', deviceId: device.id, status: runtime.status }, location.origin);
+}
+
+function renderPeripherals(peripheral) {
+  const summary = $('peripheralSummary');
+  const list = $('peripheralList');
+  if (!peripheral) {
+    summary.className = 'notice danger';
+    summary.textContent = '外设契约不可用。';
+    list.innerHTML = '';
+    return;
+  }
+  const blocked = peripheral.blocked_models || [];
+  const caseCount = (peripheral.runtime_cases?.matrix?.length || 0) +
+    (peripheral.runtime_cases?.external?.length || 0);
+  summary.className = `notice ${peripheral.complete ? 'ok' : 'danger'}`;
+  summary.textContent = peripheral.complete
+    ? `外设闭环：${peripheral.components.length} 个组件全部通过，${caseCount} 个运行时用例。`
+    : `外设未闭环：${blocked.length} 个阻断项，${caseCount} 个运行时用例；${peripheral.completion_exemption
+      ? `临时豁免至 ${peripheral.completion_exemption.review_by}`
+      : '无豁免'}`;
+  list.innerHTML = (peripheral.components || []).map(component => {
+    const status = component.device_status || component.model_status || 'planned';
+    const bus = [component.interface, component.address].filter(Boolean).join(' · ');
+    return `<div class="peripheral-item ${status}">
+      <div class="peripheral-item-top">
+        <span class="peripheral-item-name">${component.id}</span>
+        <span class="peripheral-item-model">${status}</span>
+      </div>
+      <div><span class="peripheral-item-model">${component.model}</span></div>
+      ${bus ? `<div class="peripheral-item-bus">${bus}</div>` : ''}
+      ${status !== 'simulated' && component.blocker
+        ? `<div class="peripheral-item-blocker">${component.blocker}</div>`
+        : ''}
+    </div>`;
+  }).join('');
 }
 
 function hasSensor(device, prefix) {

@@ -13,7 +13,7 @@ CATALOG = ROOT / "devices" / "catalog.json"
 STATUS_LABEL = {
     "reference-ready": "reference-ready：真实固件、画面和输入已打通",
     "boot-capable": "boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/外设仍在收口",
-    "backend-required": "backend-required：需要新的 CPU/系统后端",
+    "backend-required": "backend-required：UIFlow2 不适用，独立架构后端按外设状态单独验收",
 }
 
 PRESET_LABEL = {
@@ -94,6 +94,7 @@ def write_device(device: dict, groups: dict[str, dict]) -> dict:
 - 分组：`{group['label']}`
 - 外壳：`{PRESET_LABEL.get(device['shell']['preset'], device['shell']['preset'])}`
 - 运行时：`{device['runtime']['status']}`
+- 外设仿真：`{device['runtime'].get('peripheral_status', 'simulated')}`
 - UIFlow2：`{'支持' if uiflow.get('supported') else '不支持'}`，m5ui：`{'支持' if uiflow.get('m5ui') else '不支持'}`
 - UIFlow2 固件：{firmware_text}
 
@@ -118,6 +119,8 @@ def write_device(device: dict, groups: dict[str, dict]) -> dict:
 {validation_readme(device['runtime'])}
 
 {device['runtime'].get('reason', '')}
+
+{blockers_readme(device['runtime'])}
 
 ## 文件
 
@@ -159,6 +162,14 @@ def validation_readme(runtime: dict) -> str:
         f"({validation.get('date', 'date unknown')})\n"
         f"- 详情：{validation.get('detail', '')}"
     )
+
+
+def blockers_readme(runtime: dict) -> str:
+    blockers = runtime.get("blockers") or []
+    if not blockers:
+        return ""
+    rows = "\n".join(f"- {blocker}" for blocker in blockers)
+    return f"## 未完成的板级数据面\n\n{rows}"
 
 
 def main() -> None:

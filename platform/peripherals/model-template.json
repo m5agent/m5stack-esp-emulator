@@ -1,0 +1,14 @@
+{
+  "model-id": {
+    "kind": "sensor",
+    "interface": "i2c",
+    "address": "0x00",
+    "capabilities": ["capability"],
+    "status": "planned",
+    "injection": ["qom-physical-value"],
+    "evidence": ["https://official-datasheet-or-driver/"],
+    "data_plane": "Datasheet register/protocol path followed by the SoC controller, DMA and UIFlow2 buffer path",
+    "tested_devices": [],
+    "blocker": "Required until a controller-level model and UIFlow2 board test pass"
+  }
+}

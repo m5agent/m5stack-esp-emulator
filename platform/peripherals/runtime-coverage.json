@@ -1,0 +1,534 @@
+{
+  "schema_version": 2,
+  "machine_devices": {
+    "esp32c6": "nesso-n1",
+    "m5cardputeradv": "cardputer-adv"
+  },
+  "external_cases": {
+    "cardputer-zero-full": {
+      "device": "cardputer-zero",
+      "test": "tests/cardputer_zero/run_full_probe.py",
+      "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+    },
+    "cardputer-zero-camera": {
+      "device": "cardputer-zero",
+      "test": "tests/cardputer_zero/run_camera_probe.py",
+      "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+    },
+    "cardputer-zero-ethernet": {
+      "device": "cardputer-zero",
+      "test": "tests/cardputer_zero/run_usb_ethernet_probe.py",
+      "evidence": "tests/cardputer_zero/evidence/2026-10-21-linux-backend.json"
+    },
+    "nanoc6-peripherals": {
+      "device": "nanoc6",
+      "test": "tests/uiflow2/run_nanoc6_peripherals.py",
+      "evidence": "tests/uiflow2/nanoc6_peripherals/evidence-2026-10-22.json"
+    },
+    "tab5-hosted-peripherals": {
+      "device": "tab5",
+      "test": "tests/uiflow2/run_tab5_ui_test.py",
+      "evidence": "tests/uiflow2/tab5_peripherals/evidence-2026-10-22.json"
+    },
+    "tab5-rs485": {
+      "device": "tab5",
+      "test": "tests/uiflow2/run_tab5_rs485.py",
+      "evidence": "tests/uiflow2/tab5_rs485/evidence-2026-10-22.json"
+    },
+    "tab5-peripheral-scenarios": {
+      "device": "tab5",
+      "test": "tests/uiflow2/run_tab5_peripheral_scenarios.py",
+      "evidence": "tests/uiflow2/tab5_peripherals/evidence-2026-10-22.json"
+    }
+  },
+  "case_models": {
+    "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
+    "sticks3-audio": ["es8311", "aw8737a"],
+    "sticks3-mic": ["es8311"],
+    "sticks3-ir": ["ir-tx-rx"],
+    "sticks3-ir-rx": ["ir-tx-rx"],
+    "cardputer-adv-sd": ["sd-card-spi"],
+    "cardputer-adv-imu": ["bmi270"],
+    "cardputer-adv-keyboard": ["keyboard-tca8418"],
+    "cardputer-adv-nfc": ["nfc-st25r3916-spi"],
+    "cardputer-adv-cc1101": ["cc1101-subghz"],
+    "cardputer-adv-audio": ["es8311", "ns4150b"],
+    "cardputer-adv-mic": ["es8311"],
+    "cardputer-adv-ir": ["ir-tx-rx"],
+    "atoms3r-peripherals": ["bmi270", "bmm150", "gpio-button"],
+    "atoms3r-lp5562": ["lp5562"],
+    "atoms3r-ir": ["ir-tx-rx"],
+    "cores3-peripherals": [
+      "axp2101",
+      "touch-ft5x06",
+      "bmi270",
+      "bmm150",
+      "pcf8563",
+      "ltr-553als-wa",
+      "pwr-button"
+    ],
+    "cores3-usb-hid": ["usb-host"],
+    "cores3-camera": ["gc0308"],
+    "cores3-audio": ["aw88298"],
+    "cores3-mic": ["es7210"],
+    "cores3-aw9523-full": ["aw9523"],
+    "stackchan-camera": ["gc0308"],
+    "stackchan-nfc": ["nfc-st25r3916"],
+    "stackchan-touch": ["touch-si12t"],
+    "stackchan-rgb": ["m5ioe1", "rgb-led"],
+    "stackchan-audio": ["aw88298"],
+    "stackchan-mic": ["es7210"],
+    "stackchan-peripherals": [
+      "axp2101",
+      "bmi270",
+      "bmm150",
+      "touch-ft5x06",
+      "aw9523",
+      "ina226",
+      "ltr-553als-wa",
+      "pcf8563",
+      "ir-tx-rx"
+    ],
+    "stackchan-servo": ["servo"],
+    "stamplc-peripherals": [
+      "aw9523",
+      "rx8130",
+      "ina226",
+      "gpio-button"
+    ],
+    "stamplc-onboard-io": ["aw9523", "pi4ioe5v6408"],
+    "stamplc-can": ["can"],
+    "stamplc-rs485": ["rs485"],
+    "stamplc-buzzer": ["buzzer"],
+    "stamplc-lm75": ["lm75"],
+    "stopwatch-peripherals": [
+      "m5pm1",
+      "touch-cst820",
+      "bmi270",
+      "rx8130",
+      "gpio-button",
+      "pwr-button"
+    ],
+    "stopwatch-vibration": ["vibration"],
+    "stopwatch-audio": ["es8311", "aw8737a"],
+    "stopwatch-mic": ["es8311"],
+    "stopwatch-m5ioe1-full": ["m5ioe1"],
+    "stopwatch-m5pm1-full": ["m5pm1"],
+    "papermono-peripherals": [
+      "m5pm1",
+      "m5ioe1",
+      "touch-ft5x06",
+      "bmi270",
+      "rx8130",
+      "gpio-button",
+      "pwr-button",
+      "ip2315",
+      "sd-card"
+    ],
+    "papermono-buzzer": ["buzzer"],
+    "papermono-pdm-mic": ["pdm-microphone"],
+    "papermono-rgb": ["m5pm1", "rgb-led"],
+    "papermono-nfc": ["nfc-st25r3916"],
+    "papermono-lora": ["lora-sx1262"],
+    "papercolor-sd": ["sd-card-spi"],
+    "papercolor-peripherals": [
+      "m5pm1",
+      "rx8130",
+      "gpio-button",
+      "pwr-button"
+    ],
+    "papercolor-audio": ["es8311", "aw8737a"],
+    "papercolor-sht4x": ["sht40"],
+    "papercolor-mic": ["es7210"],
+    "papercolor-ir": ["ir-tx-rx"],
+    "papercolor-rgb": ["rgb-led"],
+    "core2-audio": ["axp2101", "ns4168"],
+    "core2-peripherals": ["touch-ft5x06", "pcf8563", "pwr-button"],
+    "core2-mic": ["spm1423"],
+    "core2-power-monitor": ["ina3221"],
+    "core2-imu": ["mpu6886"],
+    "core2-axp192": ["axp192"],
+    "nesso-peripherals": [
+      "pi4ioe5v6408",
+      "bq27220",
+      "aw32001",
+      "touch-ft5x06",
+      "gpio-button"
+    ],
+    "nesso-imu": ["bmi270"],
+    "nesso-ir": ["ir-tx-c6"],
+    "nesso-lora": ["lora-sx1262", "pi4ioe5v6408"],
+    "nesso-buzzer": ["i2s-buzzer-c6"],
+    "cardputer-zero-full": [
+      "keyboard-tca8418",
+      "m5ioe1",
+      "bmi270",
+      "bmm150",
+      "rx8130",
+      "bq27220",
+      "ip2315",
+      "es8389",
+      "aw8737a-bcm2837",
+      "ir-tx-rx-bcm2837",
+      "sd-card",
+      "linux-bcm2837"
+    ],
+    "cardputer-zero-camera": ["camera-imx219"],
+    "cardputer-zero-ethernet": ["ethernet-sr9900a", "usb-hub-gl852g"],
+    "nanoc6-peripherals": ["gpio-button", "gpio-led", "rgb-led", "ir-tx-c6"],
+    "tab5-hosted-peripherals": ["esp32c6-hosted"],
+    "tab5-rs485": ["rs485"],
+    "tab5-peripheral-scenarios": []
+  },
+  "device_case_groups": {
+    "sticks3": {
+      "matrix": [
+        "sticks3-peripherals",
+        "sticks3-audio",
+        "sticks3-mic",
+        "sticks3-ir",
+        "sticks3-ir-rx"
+      ],
+      "models": [
+        "m5pm1",
+        "bmi270",
+        "es8311",
+        "gpio-button",
+        "pwr-button",
+        "aw8737a",
+        "ir-tx-rx"
+      ]
+    },
+    "stopwatch": {
+      "matrix": [
+        "stopwatch-peripherals",
+        "stopwatch-vibration",
+        "stopwatch-audio",
+        "stopwatch-mic",
+        "stopwatch-m5ioe1-full",
+        "stopwatch-m5pm1-full"
+      ],
+      "models": [
+        "m5pm1",
+        "m5ioe1",
+        "touch-cst820",
+        "bmi270",
+        "rx8130",
+        "es8311",
+        "gpio-button",
+        "pwr-button",
+        "aw8737a",
+        "vibration"
+      ]
+    },
+    "atoms3r": {
+      "matrix": [
+        "atoms3r-peripherals",
+        "atoms3r-lp5562",
+        "atoms3r-ir"
+      ],
+      "models": [
+        "bmi270",
+        "bmm150",
+        "gpio-button",
+        "lp5562",
+        "ir-tx-rx"
+      ]
+    },
+    "cores3": {
+      "matrix": [
+        "cores3-peripherals",
+        "cores3-usb-hid",
+        "cores3-camera",
+        "cores3-audio",
+        "cores3-mic",
+        "cores3-aw9523-full"
+      ],
+      "models": [
+        "axp2101",
+        "aw9523",
+        "touch-ft5x06",
+        "bmi270",
+        "bmm150",
+        "pcf8563",
+        "gc0308",
+        "es7210",
+        "aw88298",
+        "pwr-button",
+        "ltr-553als-wa",
+        "usb-host"
+      ]
+    },
+    "cardputer-adv": {
+      "matrix": [
+        "cardputer-adv-sd",
+        "cardputer-adv-imu",
+        "cardputer-adv-keyboard",
+        "cardputer-adv-nfc",
+        "cardputer-adv-cc1101",
+        "cardputer-adv-audio",
+        "cardputer-adv-mic",
+        "cardputer-adv-ir"
+      ],
+      "models": [
+        "keyboard-tca8418",
+        "bmi270",
+        "es8311",
+        "ns4150b",
+        "sd-card-spi",
+        "ir-tx-rx",
+        "nfc-st25r3916-spi",
+        "cc1101-subghz"
+      ]
+    },
+    "papercolor": {
+      "matrix": [
+        "papercolor-peripherals",
+        "papercolor-sd",
+        "papercolor-audio",
+        "papercolor-sht4x",
+        "papercolor-mic",
+        "papercolor-ir",
+        "papercolor-rgb"
+      ],
+      "models": [
+        "m5pm1",
+        "rx8130",
+        "sht40",
+        "es7210",
+        "es8311",
+        "aw8737a",
+        "gpio-button",
+        "pwr-button",
+        "rgb-led",
+        "ir-tx-rx",
+        "sd-card-spi"
+      ]
+    },
+    "papermono": {
+      "matrix": [
+        "papermono-peripherals",
+        "papermono-buzzer",
+        "papermono-pdm-mic",
+        "papermono-rgb",
+        "papermono-nfc",
+        "papermono-lora"
+      ],
+      "models": [
+        "m5pm1",
+        "m5ioe1",
+        "touch-ft5x06",
+        "bmi270",
+        "rx8130",
+        "gpio-button",
+        "pwr-button",
+        "ip2315",
+        "pdm-microphone",
+        "nfc-st25r3916",
+        "lora-sx1262",
+        "buzzer",
+        "rgb-led",
+        "sd-card"
+      ]
+    },
+    "stamplc": {
+      "matrix": [
+        "stamplc-peripherals",
+        "stamplc-onboard-io",
+        "stamplc-can",
+        "stamplc-rs485",
+        "stamplc-buzzer",
+        "stamplc-lm75"
+      ],
+      "models": [
+        "pi4ioe5v6408",
+        "aw9523",
+        "rx8130",
+        "lm75",
+        "ina226",
+        "gpio-button",
+        "buzzer",
+        "can",
+        "rs485"
+      ]
+    },
+    "stackchan": {
+      "matrix": [
+        "stackchan-camera",
+        "stackchan-nfc",
+        "stackchan-touch",
+        "stackchan-rgb",
+        "stackchan-audio",
+        "stackchan-mic",
+        "stackchan-peripherals",
+        "stackchan-servo"
+      ],
+      "models": [
+        "axp2101",
+        "aw9523",
+        "m5ioe1",
+        "touch-ft5x06",
+        "gc0308",
+        "ltr-553als-wa",
+        "bmi270",
+        "bmm150",
+        "pcf8563",
+        "es7210",
+        "aw88298",
+        "nfc-st25r3916",
+        "touch-si12t",
+        "ir-tx-rx",
+        "rgb-led",
+        "ina226",
+        "servo"
+      ]
+    },
+    "core2": {
+      "matrix": [
+        "core2-peripherals",
+        "core2-audio",
+        "core2-mic",
+        "core2-power-monitor",
+        "core2-imu",
+        "core2-axp192"
+      ],
+      "models": [
+        "axp2101",
+        "ina3221",
+        "touch-ft5x06",
+        "mpu6886",
+        "pcf8563",
+        "spm1423",
+        "ns4168",
+        "pwr-button",
+        "axp192"
+      ]
+    },
+    "nesso-n1": {
+      "matrix": [
+        "nesso-peripherals",
+        "nesso-imu",
+        "nesso-ir",
+        "nesso-lora",
+        "nesso-buzzer"
+      ],
+      "models": [
+        "bmi270",
+        "lora-sx1262",
+        "i2s-buzzer-c6",
+        "ir-tx-c6",
+        "bq27220",
+        "aw32001",
+        "pi4ioe5v6408",
+        "touch-ft5x06",
+        "gpio-button"
+      ]
+    },
+    "nanoc6": {
+      "external": ["nanoc6-peripherals"],
+      "models": [
+        "gpio-button",
+        "gpio-led",
+        "rgb-led",
+        "ir-tx-c6"
+      ]
+    },
+    "tab5": {
+      "external": [
+        "tab5-hosted-peripherals",
+        "tab5-rs485",
+        "tab5-peripheral-scenarios"
+      ],
+      "models": [
+        "esp32c6-hosted",
+        "rs485"
+      ]
+    },
+    "cardputer-zero": {
+      "external": [
+        "cardputer-zero-full",
+        "cardputer-zero-camera",
+        "cardputer-zero-ethernet"
+      ],
+      "models": [
+        "keyboard-tca8418",
+        "m5ioe1",
+        "bmi270",
+        "bmm150",
+        "rx8130",
+        "bq27220",
+        "ip2315",
+        "es8389",
+        "aw8737a-bcm2837",
+        "camera-imx219",
+        "ethernet-sr9900a",
+        "usb-hub-gl852g",
+        "ir-tx-rx-bcm2837",
+        "sd-card",
+        "linux-bcm2837"
+      ]
+    }
+  },
+  "models": {
+    "gpio-button": {"matrix": ["sticks3-peripherals"]},
+    "pwr-button": {"matrix": ["sticks3-peripherals"]},
+    "bq27220": {"matrix": ["nesso-peripherals"]},
+    "aw32001": {"matrix": ["nesso-peripherals"]},
+    "ip2315": {"matrix": ["papermono-peripherals"]},
+    "esp32c6-hosted": {"external": ["tab5-hosted-peripherals"]},
+    "touch-ft5x06": {"matrix": ["cores3-peripherals", "stackchan-touch"]},
+    "touch-si12t": {"matrix": ["stackchan-touch"]},
+    "touch-cst820": {"matrix": ["stopwatch-peripherals"]},
+    "keyboard-tca8418": {"matrix": ["cardputer-adv-keyboard"]},
+    "m5pm1": {"matrix": ["stopwatch-m5pm1-full"]},
+    "axp192": {"matrix": ["core2-axp192"]},
+    "axp2101": {"matrix": ["cores3-peripherals"]},
+    "m5ioe1": {"matrix": ["stopwatch-m5ioe1-full"]},
+    "aw9523": {"matrix": ["cores3-aw9523-full"]},
+    "pi4ioe5v6408": {"matrix": ["nesso-peripherals"]},
+    "rx8130": {"matrix": ["stopwatch-peripherals"]},
+    "pcf8563": {"matrix": ["stackchan-peripherals"]},
+    "bmi270": {"matrix": ["sticks3-peripherals"]},
+    "bmm150": {"matrix": ["atoms3r-peripherals"]},
+    "mpu6886": {"matrix": ["core2-imu"]},
+    "es8311": {"matrix": ["sticks3-audio"]},
+    "es7210": {"matrix": ["cores3-mic"]},
+    "es8389": {"external": ["cardputer-zero-full"]},
+    "aw88298": {"matrix": ["cores3-audio"]},
+    "aw8737a": {"matrix": ["sticks3-audio"]},
+    "aw8737a-bcm2837": {"external": ["cardputer-zero-full"]},
+    "ns4168": {"matrix": ["core2-audio"]},
+    "spm1423": {"matrix": ["core2-mic"]},
+    "pdm-microphone": {"matrix": ["papermono-pdm-mic"]},
+    "gc0308": {"matrix": ["cores3-camera"]},
+    "lp5562": {"matrix": ["atoms3r-lp5562"]},
+    "ns4150b": {"matrix": ["cardputer-adv-audio"]},
+    "camera-imx219": {"external": ["cardputer-zero-camera"]},
+    "ethernet-sr9900a": {"external": ["cardputer-zero-ethernet"]},
+    "sht40": {"matrix": ["papercolor-sht4x"]},
+    "lm75": {"matrix": ["stamplc-lm75"]},
+    "ina226": {"matrix": ["stackchan-peripherals"]},
+    "ina3221": {"matrix": ["core2-power-monitor"]},
+    "ltr-553als-wa": {"matrix": ["cores3-peripherals"]},
+    "ir-tx-rx": {"matrix": ["sticks3-ir"]},
+    "ir-tx-rx-bcm2837": {"external": ["cardputer-zero-full"]},
+    "ir-tx-c6": {"matrix": ["nesso-ir"]},
+    "rgb-led": {"matrix": ["papercolor-rgb"]},
+    "gpio-led": {"external": ["nanoc6-peripherals"]},
+    "vibration": {"matrix": ["stopwatch-vibration"]},
+    "buzzer": {"matrix": ["stamplc-buzzer"]},
+    "i2s-buzzer-c6": {"matrix": ["nesso-buzzer"]},
+    "can": {"matrix": ["stamplc-can"]},
+    "rs485": {"matrix": ["stamplc-rs485"]},
+    "servo": {"matrix": ["stackchan-servo"]},
+    "nfc-st25r3916": {"matrix": ["papermono-nfc"]},
+    "nfc-st25r3916-spi": {"matrix": ["cardputer-adv-nfc"]},
+    "lora-sx1262": {"matrix": ["papermono-lora"]},
+    "cc1101-subghz": {"matrix": ["cardputer-adv-cc1101"]},
+    "sd-card": {"matrix": ["papermono-peripherals"]},
+    "sd-card-spi": {"matrix": ["cardputer-adv-sd"]},
+    "usb-host": {"matrix": ["cores3-usb-hid"]},
+    "usb-hub-gl852g": {"external": ["cardputer-zero-ethernet"]},
+    "linux-bcm2837": {"external": ["cardputer-zero-full"]}
+  }
+}

@@ -1,7 +1,8 @@
 import M5
 import time
 from M5 import *
-from machine import RTC, SDCard
+from machine import I2C, Pin, SDCard
+from rtc_probe import check_rx8130
 
 
 state = {
@@ -13,7 +14,16 @@ state = {
     "sd": "pending",
     "touch": 0,
     "key": 0,
+    "pwr": 0,
 }
+last_imu = None
+last_power = None
+log_uart = None
+
+
+def emit(*parts):
+    if log_uart:
+        log_uart.write(" ".join(str(part) for part in parts) + "\n")
 
 
 def draw():
@@ -25,8 +35,8 @@ def draw():
     d.print("PaperMono peripherals")
     d.setTextSize(2)
     d.setCursor(24, 110)
-    d.print("IMU:%d  touch:%d key:%d" % (
-        state["imu_type"], state["touch"], state["key"],
+    d.print("IMU:%d touch:%d key:%d pwr:%d" % (
+        state["imu_type"], state["touch"], state["key"], state["pwr"],
     ))
     d.setCursor(24, 150)
     d.print("acc %.2f %.2f %.2f" % state["accel"])
@@ -42,7 +52,14 @@ def draw():
 
 M5.begin()
 try:
+    from hardware import UART
+    log_uart = UART(0, baudrate=115200, tx=43, rx=44)
+except Exception:
+    log_uart = None
+emit("PAPERMONO_PERIPHERAL_MAIN")
+try:
     state["imu_type"] = Imu.getType()
+    emit("PAPERMONO_IMU_TYPE", state["imu_type"])
 except Exception:
     pass
 try:
@@ -51,12 +68,17 @@ try:
         Power.getBatteryVoltage(),
         1 if Power.isCharging() else 0,
     )
+    if state["power"] != last_power:
+        last_power = state["power"]
+        emit("PAPERMONO_POWER", *state["power"])
+        changed = True
+    emit("PAPERMONO_POWER", *state["power"])
 except Exception:
     pass
 try:
-    rtc = RTC()
-    rtc.datetime((2026, 10, 21, 3, 4, 5, 6, 0))
-    state["rtc"] = rtc.datetime()[:6]
+    i2c = I2C(1, scl=Pin(48), sda=Pin(47), freq=100000)
+    state["rtc"] = check_rx8130(i2c)
+    emit("PAPERMONO_RTC", "2026-10-22 07:08:09")
 except Exception:
     pass
 try:
@@ -68,8 +90,10 @@ try:
     read_buf = bytearray(512)
     sd.readblocks(100, read_buf)
     state["sd"] = "rw ok" if bytes(read_buf) == bytes(write_buf) else "mismatch"
+    emit("PAPERMONO_SD", state["sd"])
 except Exception as error:
     state["sd"] = "ERR " + repr(error)[:40]
+    emit("PAPERMONO_SD", state["sd"])
 draw()
 
 while True:
@@ -77,12 +101,28 @@ while True:
     changed = False
     if BtnA.wasPressed():
         state["key"] += 1
+        emit("PAPERMONO_KEY", state["key"])
+        changed = True
+    if ((hasattr(BtnPWR, "wasPressed") and BtnPWR.wasPressed())
+            or (hasattr(BtnPWR, "wasClicked") and BtnPWR.wasClicked())
+            or (hasattr(BtnPWR, "wasHold") and BtnPWR.wasHold())):
+        state["pwr"] += 1
+        emit("PAPERMONO_PWR", state["pwr"])
         changed = True
     if M5.Touch.getCount() > 0 and state["touch"] == 0:
         state["touch"] = 1
+        emit("PAPERMONO_TOUCH", M5.Touch.getX(), M5.Touch.getY())
         changed = True
     state["accel"] = Imu.getAccel()
     state["gyro"] = Imu.getGyro()
+    sample = (state["accel"], state["gyro"])
+    if sample != last_imu:
+        last_imu = sample
+        emit("PAPERMONO_ACCEL", "%.2f" % state["accel"][0],
+             "%.2f" % state["accel"][1], "%.2f" % state["accel"][2])
+        emit("PAPERMONO_GYRO", "%.2f" % state["gyro"][0],
+             "%.2f" % state["gyro"][1], "%.2f" % state["gyro"][2])
+        changed = True
     state["power"] = (
         Power.getBatteryLevel(),
         Power.getBatteryVoltage(),

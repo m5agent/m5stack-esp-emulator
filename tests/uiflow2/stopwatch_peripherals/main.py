@@ -1,6 +1,8 @@
 import M5
 import time
 from M5 import *
+from machine import I2C, Pin
+from rtc_probe import check_rx8130
 
 
 state = {
@@ -14,6 +16,14 @@ state = {
     "power": (0, 0, 0),
     "rtc": (0, 0, 0, 0, 0, 0),
 }
+last_imu = None
+last_power = None
+log_uart = None
+
+
+def emit(*parts):
+    if log_uart:
+        log_uart.write(" ".join(str(part) for part in parts) + "\n")
 
 
 def draw():
@@ -45,7 +55,14 @@ def draw():
 
 M5.begin()
 try:
+    from hardware import UART
+    log_uart = UART(0, baudrate=115200, tx=43, rx=44)
+except Exception:
+    log_uart = None
+emit("STOPWATCH_PERIPHERAL_MAIN")
+try:
     state["type"] = Imu.getType()
+    emit("STOPWATCH_IMU_TYPE", state["type"])
 except Exception:
     pass
 try:
@@ -54,13 +71,13 @@ try:
         Power.getBatteryVoltage(),
         1 if Power.isCharging() else 0,
     )
+    emit("STOPWATCH_POWER", *state["power"])
 except Exception:
     pass
 try:
-    from machine import RTC
-    rtc = RTC()
-    rtc.datetime((2026, 10, 21, 2, 12, 34, 56, 0))
-    state["rtc"] = rtc.datetime()[:6]
+    rtc_i2c = I2C(1, scl=Pin(48), sda=Pin(47), freq=100000)
+    state["rtc"] = check_rx8130(rtc_i2c)
+    emit("STOPWATCH_RTC", "2026-10-22 07:08:09")
 except Exception:
     pass
 draw()
@@ -70,23 +87,41 @@ while True:
     changed = False
     if BtnA.wasPressed():
         state["a"] += 1
+        emit("STOPWATCH_BTN_A", state["a"])
         changed = True
     if BtnB.wasPressed():
         state["b"] += 1
+        emit("STOPWATCH_BTN_B", state["b"])
         changed = True
-    if hasattr(BtnPWR, "wasPressed") and BtnPWR.wasPressed():
+    if ((hasattr(BtnPWR, "wasPressed") and BtnPWR.wasPressed())
+            or (hasattr(BtnPWR, "wasClicked") and BtnPWR.wasClicked())
+            or (hasattr(BtnPWR, "wasHold") and BtnPWR.wasHold())):
         state["pwr"] += 1
+        emit("STOPWATCH_BTN_PWR", state["pwr"])
         changed = True
     if M5.Touch.getCount() > 0 and state["touch"] == 0:
         state["touch"] = 1
+        emit("STOPWATCH_TOUCH", M5.Touch.getX(), M5.Touch.getY())
         changed = True
     state["accel"] = Imu.getAccel()
     state["gyro"] = Imu.getGyro()
+    sample = (state["accel"], state["gyro"])
+    if sample != last_imu:
+        last_imu = sample
+        emit("STOPWATCH_ACCEL", "%.2f" % state["accel"][0],
+             "%.2f" % state["accel"][1], "%.2f" % state["accel"][2])
+        emit("STOPWATCH_GYRO", "%.2f" % state["gyro"][0],
+             "%.2f" % state["gyro"][1], "%.2f" % state["gyro"][2])
+        changed = True
     state["power"] = (
         Power.getBatteryLevel(),
         Power.getBatteryVoltage(),
         1 if Power.isCharging() else 0,
     )
+    if state["power"] != last_power:
+        last_power = state["power"]
+        emit("STOPWATCH_POWER", *state["power"])
+        changed = True
     if changed:
         draw()
     time.sleep_ms(20)

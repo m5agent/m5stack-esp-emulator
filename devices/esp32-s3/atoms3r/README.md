@@ -4,6 +4,7 @@
 - 分组：`ESP32-S3`
 - 外壳：`微型方块`
 - 运行时：`reference-ready`
+- 外设仿真：`simulated`
 - UIFlow2：`支持`，m5ui：`不支持`
 - UIFlow2 固件：v2.5.3 / `1897200000000001772`
 
@@ -27,6 +28,8 @@ reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-button-pass` (2026-10-20)
 - 详情：官方 UIFlow2 v2.5.3 渲染 128x128 UI；GPIO41 按键、BMI270 和 BMM150 数据闭环通过。
+
+
 
 
 

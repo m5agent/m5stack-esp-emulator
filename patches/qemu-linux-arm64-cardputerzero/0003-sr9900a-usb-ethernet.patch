@@ -1,0 +1,584 @@
+--- a/hw/arm/meson.build
++++ b/hw/arm/meson.build
+@@ -30,6 +30,7 @@
+ arm_ss.add(when: 'CONFIG_RASPI', if_true: files(
+   'm5sw_gpio_stubs.c',
+   '../m5stopwatch/m5sw_i2c_devs.c',
++  '../m5stopwatch/m5_sr9900a.c',
+ ))
+ arm_ss.add(when: ['CONFIG_RASPI', 'TARGET_AARCH64'], if_true: files('bcm2838.c', 'raspi4b.c'))
+ arm_ss.add(when: 'CONFIG_STM32F100_SOC', if_true: files('stm32f100_soc.c'))
+--- a/hw/usb/dev-hub.c
++++ b/hw/usb/dev-hub.c
+@@ -47,6 +47,7 @@
+     USBEndpoint *intr;
+     uint32_t num_ports;
+     bool port_power;
++    bool high_speed;
+     QEMUTimer *port_timer;
+     USBHubPort ports[MAX_PORTS];
+ };
+@@ -166,6 +167,24 @@
+     [STR_GL852G_SERIALNUMBER] = "GL852G",
+ };
+ 
++static const USBDescDevice desc_device_gl852g = {
++    .bcdUSB                        = 0x0200,
++    .bDeviceClass                  = USB_CLASS_HUB,
++    .bDeviceProtocol               = 1, /* single transaction translator */
++    .bMaxPacketSize0               = 64,
++    .bNumConfigurations            = 1,
++    .confs = (USBDescConfig[]) {
++        {
++            .bNumInterfaces        = 1,
++            .bConfigurationValue   = 1,
++            .bmAttributes          = USB_CFG_ATT_ONE | USB_CFG_ATT_SELFPOWER |
++                                     USB_CFG_ATT_WAKEUP,
++            .nif = 1,
++            .ifs = &desc_iface_hub,
++        },
++    },
++};
++
+ static const USBDesc desc_gl852g = {
+     .id = {
+         .idVendor          = 0x05e3,
+@@ -175,7 +194,8 @@
+         .iProduct          = STR_GL852G_PRODUCT,
+         .iSerialNumber     = STR_GL852G_SERIALNUMBER,
+     },
+-    .full = &desc_device_hub,
++    .high = &desc_device_gl852g,
++    .full = &desc_device_gl852g,
+     .str  = desc_strings_gl852g,
+ };
+ 
+@@ -232,6 +252,11 @@
+         } else {
+             usb_hub_port_clear(port, PORT_STAT_LOW_SPEED);
+         }
++        if (port->port.dev->speed == USB_SPEED_HIGH) {
++            usb_hub_port_set(port, PORT_STAT_HIGH_SPEED);
++        } else {
++            usb_hub_port_clear(port, PORT_STAT_HIGH_SPEED);
++        }
+     }
+     return notify;
+ }
+@@ -637,10 +662,15 @@
+                                  usb_hub_port_update_timer, s);
+     s->intr = usb_ep_get(dev, USB_TOKEN_IN, 1);
+     for (i = 0; i < s->num_ports; i++) {
++        int speedmask = USB_SPEED_MASK_LOW | USB_SPEED_MASK_FULL;
++
++        if (s->high_speed) {
++            speedmask |= USB_SPEED_MASK_HIGH;
++        }
+         port = &s->ports[i];
+         usb_register_port(usb_bus_from_device(dev),
+                           &port->port, s, i, &usb_hub_port_ops,
+-                          USB_SPEED_MASK_LOW | USB_SPEED_MASK_FULL);
++                          speedmask);
+         usb_port_location(&port->port, dev->port, i+1);
+     }
+     usb_hub_handle_reset(dev);
+@@ -694,6 +724,7 @@
+ static Property usb_hub_properties[] = {
+     DEFINE_PROP_UINT32("ports", USBHubState, num_ports, 8),
+     DEFINE_PROP_BOOL("port-power", USBHubState, port_power, false),
++    DEFINE_PROP_BOOL("high-speed", USBHubState, high_speed, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/hw/m5stopwatch/m5_sr9900a.c b/hw/m5stopwatch/m5_sr9900a.c
+new file mode 100644
+index 0000000..5d7bda1
+--- /dev/null
++++ b/hw/m5stopwatch/m5_sr9900a.c
+@@ -0,0 +1,486 @@
++/*
++ * CoreChips SR9900A USB 2.0 Ethernet adapter model.
++ *
++ * The SR9900A is register-compatible with the Realtek RTL8152B programming
++ * model used by Linux r8152.  This model implements the vendor register
++ * requests, RTL8152 TX/RX descriptors and QEMU net backend wiring needed by
++ * that driver.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qapi/error.h"
++#include "hw/qdev-properties.h"
++#include "hw/usb.h"
++#include "migration/vmstate.h"
++#include "hw/usb/desc.h"
++#include "net/net.h"
++#include "qemu/iov.h"
++#include "qemu/module.h"
++#include "qemu/queue.h"
++#include "qom/object.h"
++#include "sysemu/sysemu.h"
++
++#define TYPE_M5SW_SR9900A "m5sw-sr9900a"
++OBJECT_DECLARE_SIMPLE_TYPE(M5Sr9900AState, M5SW_SR9900A)
++
++#define SR9900A_VENDOR_ID 0x0fe6
++#define SR9900A_PRODUCT_ID 0x9900
++
++#define PLA_IDR 0xc000
++#define PLA_PHYSTATUS 0xe908
++#define PLA_TCR0 0xe610
++#define OCP_MII_BASE 0xb400
++
++#define TX_FS BIT(31)
++#define TX_LS BIT(30)
++#define TX_LEN_MAX 0x3ffff
++#define RX_LEN_MASK 0x7fff
++#define INTR_LINK 0x0004
++
++enum {
++    STR_SR9900A_MANUFACTURER = 1,
++    STR_SR9900A_PRODUCT,
++    STR_SR9900A_SERIAL,
++};
++
++static const USBDescStrings sr9900a_strings = {
++    [STR_SR9900A_MANUFACTURER] = "CoreChips",
++    [STR_SR9900A_PRODUCT] = "SR9900A USB 2.0 Ethernet",
++    [STR_SR9900A_SERIAL] = "SR9900A",
++};
++
++static const USBDescIface sr9900a_iface_high = {
++    .bInterfaceNumber = 0,
++    .bNumEndpoints = 3,
++    .bInterfaceClass = USB_CLASS_VENDOR_SPEC,
++    .bInterfaceSubClass = 0xff,
++    .bInterfaceProtocol = 0,
++    .eps = (USBDescEndpoint[]) {
++        {
++            .bEndpointAddress = USB_DIR_IN | 1,
++            .bmAttributes = USB_ENDPOINT_XFER_BULK,
++            .wMaxPacketSize = 512,
++        },
++        {
++            .bEndpointAddress = USB_DIR_OUT | 2,
++            .bmAttributes = USB_ENDPOINT_XFER_BULK,
++            .wMaxPacketSize = 512,
++        },
++        {
++            .bEndpointAddress = USB_DIR_IN | 3,
++            .bmAttributes = USB_ENDPOINT_XFER_INT,
++            .wMaxPacketSize = 2,
++            .bInterval = 1,
++        },
++    },
++};
++
++static const USBDescIface sr9900a_iface_full = {
++    .bInterfaceNumber = 0,
++    .bNumEndpoints = 3,
++    .bInterfaceClass = USB_CLASS_VENDOR_SPEC,
++    .bInterfaceSubClass = 0xff,
++    .bInterfaceProtocol = 0,
++    .eps = (USBDescEndpoint[]) {
++        {
++            .bEndpointAddress = USB_DIR_IN | 1,
++            .bmAttributes = USB_ENDPOINT_XFER_BULK,
++            .wMaxPacketSize = 64,
++        },
++        {
++            .bEndpointAddress = USB_DIR_OUT | 2,
++            .bmAttributes = USB_ENDPOINT_XFER_BULK,
++            .wMaxPacketSize = 64,
++        },
++        {
++            .bEndpointAddress = USB_DIR_IN | 3,
++            .bmAttributes = USB_ENDPOINT_XFER_INT,
++            .wMaxPacketSize = 2,
++            .bInterval = 1,
++        },
++    },
++};
++
++static const USBDescDevice sr9900a_device_high = {
++    .bcdUSB = 0x0200,
++    .bDeviceClass = 0,
++    .bMaxPacketSize0 = 64,
++    .bNumConfigurations = 1,
++    .confs = (USBDescConfig[]) {
++        {
++            .bNumInterfaces = 1,
++            .bConfigurationValue = 1,
++            .bmAttributes = USB_CFG_ATT_ONE | USB_CFG_ATT_SELFPOWER,
++            .nif = 1,
++            .ifs = &sr9900a_iface_high,
++        },
++    },
++};
++
++static const USBDescDevice sr9900a_device_full = {
++    .bcdUSB = 0x0200,
++    .bDeviceClass = 0,
++    .bMaxPacketSize0 = 64,
++    .bNumConfigurations = 1,
++    .confs = (USBDescConfig[]) {
++        {
++            .bNumInterfaces = 1,
++            .bConfigurationValue = 1,
++            .bmAttributes = USB_CFG_ATT_ONE | USB_CFG_ATT_SELFPOWER,
++            .nif = 1,
++            .ifs = &sr9900a_iface_full,
++        },
++    },
++};
++
++static const USBDesc sr9900a_desc = {
++    .id = {
++        .idVendor = SR9900A_VENDOR_ID,
++        .idProduct = SR9900A_PRODUCT_ID,
++        .bcdDevice = 0x0100,
++        .iManufacturer = STR_SR9900A_MANUFACTURER,
++        .iProduct = STR_SR9900A_PRODUCT,
++        .iSerialNumber = STR_SR9900A_SERIAL,
++    },
++    .high = &sr9900a_device_high,
++    .full = &sr9900a_device_full,
++    .str = sr9900a_strings,
++};
++
++struct M5Sr9900AState {
++    USBDevice dev;
++    USBEndpoint *bulk_in;
++    USBEndpoint *bulk_out;
++    USBEndpoint *intr;
++    NICState *nic;
++    NICConf conf;
++    uint8_t pla[0x10000];
++    uint8_t usb[0x10000];
++    uint8_t out_buf[0x10000];
++    size_t out_len;
++    uint8_t in_buf[0x10000];
++    size_t in_len;
++    size_t in_pos;
++    bool full_speed_only;
++};
++
++static void sr9900a_put_le16(uint8_t *regs, uint16_t address, uint16_t value)
++{
++    stl_le_p(regs + address, value);
++}
++
++static void sr9900a_init_regs(M5Sr9900AState *s)
++{
++    uint8_t *mac = s->pla + PLA_IDR;
++
++    memset(s->pla, 0, sizeof(s->pla));
++    memset(s->usb, 0, sizeof(s->usb));
++
++    memcpy(mac, s->conf.macaddr.a, 6);
++    s->pla[PLA_PHYSTATUS] = 0x0b; /* link + 100 Mbps + full duplex */
++    s->pla[PLA_TCR0 + 3] = 0x4c; /* RTL8152B-compatible version */
++
++    sr9900a_put_le16(s->pla, OCP_MII_BASE + 0x00, 0x3100);
++    sr9900a_put_le16(s->pla, OCP_MII_BASE + 0x02, 0x796d);
++    sr9900a_put_le16(s->pla, OCP_MII_BASE + 0x08, 0x01e1);
++    sr9900a_put_le16(s->pla, OCP_MII_BASE + 0x0a, 0x45e1);
++    sr9900a_put_le16(s->pla, OCP_MII_BASE + 0x18, 0x0300);
++    sr9900a_put_le16(s->pla, OCP_MII_BASE + 0x1a, 0x0200);
++    sr9900a_put_le16(s->pla, 0xb420, 0x0003); /* OCP PHY status: LAN on */
++    sr9900a_put_le16(s->pla, 0xb424, 0x0004); /* link interrupt enable */
++}
++
++static uint8_t *sr9900a_register_space(M5Sr9900AState *s, uint16_t index,
++                                       uint16_t address, size_t length)
++{
++    uint8_t *regs = (index & 0x0100) ? s->pla : s->usb;
++
++    if ((uint32_t)address + length > 0x10000) {
++        return NULL;
++    }
++    return regs + address;
++}
++
++static void sr9900a_apply_byte_enable(uint8_t *target, const uint8_t *source,
++                                      size_t length, uint8_t byte_enable)
++{
++    for (size_t i = 0; i < length; i++) {
++        unsigned lane = (i & 3) * 2;
++
++        if ((byte_enable >> lane) & 0x3) {
++            target[i] = source[i];
++        }
++    }
++}
++
++static void sr9900a_handle_control(USBDevice *dev, USBPacket *p,
++                                   int request, int value, int index,
++                                   int length, uint8_t *data)
++{
++    M5Sr9900AState *s = M5SW_SR9900A(dev);
++    uint8_t *regs;
++    int ret;
++
++    if (getenv("M5SW_SR9900A_TRACE")) {
++        fprintf(stderr, "[sr9900a] control request=%#x value=%#x "
++                "index=%#x len=%d\n", request, value, index, length);
++    }
++    ret = usb_desc_handle_control(dev, p, request, value, index, length, data);
++    if (ret >= 0) {
++        return;
++    }
++
++    if ((request & 0xff) == 0x05 && length <= 0x10000) {
++        regs = sr9900a_register_space(s, index, value, length);
++        if (!regs) {
++            p->status = USB_RET_STALL;
++            return;
++        }
++        if ((request & 0x8000) && (request & 0x6000) == 0x4000) {
++            if (getenv("M5SW_SR9900A_TRACE")) {
++                fprintf(stderr, "[sr9900a] read type=%#x reg=%#x len=%d "
++                        "bytes=%02x %02x %02x %02x\n",
++                        index & 0xff00, value, length,
++                        regs[0], length > 1 ? regs[1] : 0,
++                        length > 2 ? regs[2] : 0,
++                        length > 3 ? regs[3] : 0);
++            }
++            memcpy(data, regs, length);
++            p->actual_length = length;
++            return;
++        }
++        if (!(request & 0x8000) && (request & 0x6000) == 0x4000) {
++            if (getenv("M5SW_SR9900A_TRACE")) {
++                fprintf(stderr, "[sr9900a] write type=%#x reg=%#x len=%d "
++                        "byteen=%02x\n",
++                        index & 0xff00, value, length, index & 0xff);
++            }
++            sr9900a_apply_byte_enable(regs, data, length, index & 0xff);
++            p->actual_length = length;
++            return;
++        }
++    }
++
++    p->status = USB_RET_STALL;
++}
++
++static void sr9900a_handle_reset(USBDevice *dev)
++{
++    M5Sr9900AState *s = M5SW_SR9900A(dev);
++
++    sr9900a_init_regs(s);
++}
++
++static void sr9900a_handle_intr(M5Sr9900AState *s, USBPacket *p)
++{
++    uint8_t status[2] = { INTR_LINK & 0xff, INTR_LINK >> 8 };
++
++    if (p->iov.size < sizeof(status)) {
++        p->status = USB_RET_STALL;
++        return;
++    }
++    usb_packet_copy(p, status, sizeof(status));
++}
++
++static void sr9900a_handle_bulk_in(M5Sr9900AState *s, USBPacket *p)
++{
++    size_t length;
++
++    if (!s->in_len) {
++        p->status = USB_RET_NAK;
++        return;
++    }
++    length = MIN(s->in_len - s->in_pos, p->iov.size);
++    usb_packet_copy(p, s->in_buf + s->in_pos, length);
++    s->in_pos += length;
++    if (s->in_pos == s->in_len) {
++        s->in_pos = 0;
++        s->in_len = 0;
++        qemu_flush_queued_packets(qemu_get_queue(s->nic));
++    }
++}
++
++static void sr9900a_send_tx_aggregate(M5Sr9900AState *s)
++{
++    size_t position = 0;
++
++    if (getenv("M5SW_SR9900A_TRACE")) {
++        fprintf(stderr, "[sr9900a] tx aggregate len=%zu\n", s->out_len);
++    }
++    while (position + 8 <= s->out_len) {
++        uint32_t opts1 = ldl_le_p(s->out_buf + position);
++        uint32_t packet_length = opts1 & TX_LEN_MAX;
++        size_t packet_offset = position + 8;
++
++        if (!(opts1 & TX_FS) || !(opts1 & TX_LS) ||
++            !packet_length || packet_offset + packet_length > s->out_len) {
++            if (getenv("M5SW_SR9900A_TRACE")) {
++                fprintf(stderr, "[sr9900a] tx parse stop pos=%zu opts1=%#x "
++                        "len=%u total=%zu\n", position, opts1,
++                        packet_length, s->out_len);
++            }
++            break;
++        }
++        if (getenv("M5SW_SR9900A_TRACE")) {
++            fprintf(stderr, "[sr9900a] tx frame pos=%zu len=%u\n",
++                    position, packet_length);
++        }
++        ssize_t sent = qemu_send_packet(qemu_get_queue(s->nic),
++                                        s->out_buf + packet_offset,
++                                        packet_length);
++        if (getenv("M5SW_SR9900A_TRACE")) {
++            fprintf(stderr, "[sr9900a] qemu_send_packet ret=%zd link_down=%d\n",
++                    sent, qemu_get_queue(s->nic)->link_down);
++        }
++        position = ROUND_UP(packet_offset + packet_length, 4);
++    }
++    s->out_len = 0;
++}
++
++static void sr9900a_handle_bulk_out(M5Sr9900AState *s, USBPacket *p)
++{
++    size_t length = MIN(p->iov.size, sizeof(s->out_buf) - s->out_len);
++    size_t max_packet = s->bulk_out->max_packet_size ?
++                        s->bulk_out->max_packet_size : 64;
++
++    if (getenv("M5SW_SR9900A_TRACE")) {
++        fprintf(stderr, "[sr9900a] bulk out iov=%zu current=%zu\n",
++                p->iov.size, s->out_len);
++    }
++    usb_packet_copy(p, s->out_buf + s->out_len, length);
++    s->out_len += length;
++    if (length < p->iov.size || p->iov.size == 0 ||
++        p->iov.size < max_packet) {
++        sr9900a_send_tx_aggregate(s);
++    }
++}
++
++static void sr9900a_handle_data(USBDevice *dev, USBPacket *p)
++{
++    M5Sr9900AState *s = M5SW_SR9900A(dev);
++
++    if (p->pid == USB_TOKEN_IN && p->ep->nr == 1) {
++        sr9900a_handle_bulk_in(s, p);
++    } else if (p->pid == USB_TOKEN_IN && p->ep->nr == 3) {
++        sr9900a_handle_intr(s, p);
++    } else if (p->pid == USB_TOKEN_OUT && p->ep->nr == 2) {
++        sr9900a_handle_bulk_out(s, p);
++    } else {
++        p->status = USB_RET_STALL;
++    }
++}
++
++static ssize_t sr9900a_receive(NetClientState *nc, const uint8_t *buf,
++                               size_t size)
++{
++    M5Sr9900AState *s = qemu_get_nic_opaque(nc);
++    uint8_t *rx;
++    size_t total = 24 + size + 4;
++
++    if (!s->dev.config || s->in_len || total > sizeof(s->in_buf)) {
++        return 0;
++    }
++
++    rx = s->in_buf;
++    memset(rx, 0, 24);
++    stl_le_p(rx, size + 4); /* RX descriptor packet length includes FCS */
++    memcpy(rx + 24, buf, size);
++    memset(rx + 24 + size, 0, 4);
++    s->in_len = total;
++    s->in_pos = 0;
++    usb_wakeup(s->bulk_in, 0);
++    return size;
++}
++
++static void sr9900a_cleanup(NetClientState *nc)
++{
++    M5Sr9900AState *s = qemu_get_nic_opaque(nc);
++
++    s->nic = NULL;
++}
++
++static NetClientInfo sr9900a_net_info = {
++    .type = NET_CLIENT_DRIVER_NIC,
++    .size = sizeof(NICState),
++    .receive = sr9900a_receive,
++    .cleanup = sr9900a_cleanup,
++};
++
++static void sr9900a_realize(USBDevice *dev, Error **errp)
++{
++    M5Sr9900AState *s = M5SW_SR9900A(dev);
++
++    usb_desc_init(dev);
++    if (s->full_speed_only) {
++        dev->speed = USB_SPEED_FULL;
++        dev->speedmask = USB_SPEED_MASK_FULL;
++    }
++    if (getenv("M5SW_SR9900A_TRACE")) {
++        fprintf(stderr, "[sr9900a] realize speed=%d speedmask=%#x "
++                "portmask=%#x\n", dev->speed, dev->speedmask,
++                dev->port ? dev->port->speedmask : 0);
++    }
++    qemu_macaddr_default_if_unset(&s->conf.macaddr);
++    sr9900a_init_regs(s);
++    s->bulk_in = usb_ep_get(dev, USB_TOKEN_IN, 1);
++    s->bulk_out = usb_ep_get(dev, USB_TOKEN_OUT, 2);
++    s->intr = usb_ep_get(dev, USB_TOKEN_IN, 3);
++    s->nic = qemu_new_nic(&sr9900a_net_info, &s->conf,
++                          object_get_typename(OBJECT(s)), s->dev.qdev.id,
++                          &s->dev.qdev.mem_reentrancy_guard, s);
++}
++
++static void sr9900a_unrealize(USBDevice *dev)
++{
++    M5Sr9900AState *s = M5SW_SR9900A(dev);
++
++    qemu_del_nic(s->nic);
++}
++
++static void sr9900a_instance_init(Object *obj)
++{
++    M5Sr9900AState *s = M5SW_SR9900A(obj);
++
++    device_add_bootindex_property(obj, &s->conf.bootindex,
++                                  "bootindex", "/ethernet-phy@0",
++                                  &s->dev.qdev);
++}
++
++static Property sr9900a_properties[] = {
++    DEFINE_NIC_PROPERTIES(M5Sr9900AState, conf),
++    DEFINE_PROP_BOOL("full-speed-only", M5Sr9900AState, full_speed_only, false),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
++static void sr9900a_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    USBDeviceClass *uc = USB_DEVICE_CLASS(klass);
++
++    uc->realize = sr9900a_realize;
++    uc->unrealize = sr9900a_unrealize;
++    uc->handle_reset = sr9900a_handle_reset;
++    uc->handle_control = sr9900a_handle_control;
++    uc->handle_data = sr9900a_handle_data;
++    uc->product_desc = "CoreChips SR9900A USB Ethernet";
++    uc->usb_desc = &sr9900a_desc;
++    set_bit(DEVICE_CATEGORY_NETWORK, dc->categories);
++    dc->fw_name = "network";
++    device_class_set_props(dc, sr9900a_properties);
++}
++
++static const TypeInfo sr9900a_info = {
++    .name = TYPE_M5SW_SR9900A,
++    .parent = TYPE_USB_DEVICE,
++    .instance_size = sizeof(M5Sr9900AState),
++    .instance_init = sr9900a_instance_init,
++    .class_init = sr9900a_class_init,
++};
++
++static void sr9900a_register_types(void)
++{
++    type_register_static(&sr9900a_info);
++}
++
++type_init(sr9900a_register_types)

@@ -25,6 +25,8 @@ def draw():
     d.setTextSize(2)
     d.setCursor(8, 90)
     d.print("count: %d" % count)
+    if count:
+        d.fillRect(1, 1, 4, 4, d.COLOR.GREEN)
 
 
 print("STICKS3_MAIN_START")

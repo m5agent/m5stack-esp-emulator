@@ -1,5 +1,14 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "completion_policy": {
+    "rule": "A simulated model must declare its bus/controller data plane, an injection interface and at least one device on which the UIFlow2 path was exercised. A partial or planned model must declare a concrete blocker. Device manifests must expose the same blocker set. Hardware requirements and modeled components are checked in both directions so a new device cannot hide a peripheral outside its inventory. Every runtime case must declare the exact models it covers, and every simulated component must have a device-local case. A device with any unfinished component must be explicitly allowlisted for temporary backend work; all new devices must be peripheral-complete.",
+    "incomplete_device_allowlist": {
+      "tab5": {
+        "reason": "The native ESP32-P4 backend still lacks dynamic I2C, I2S/PCM, MIPI-CSI, USB Host and SDIO data planes.",
+        "review_by": "2026-12-31"
+      }
+    }
+  },
   "status_values": [
     "simulated",
     "partial",
@@ -12,24 +21,28 @@
       "interface": "gpio",
       "capabilities": ["button"],
       "status": "simulated",
-      "injection": ["qmp-key"]
+      "injection": ["qmp-key", "qom-gpio-input"],
+      "data_plane": "Board GPIO input state changes through the ESP32 GPIO register model; QMP key events or the NanoC6 machine button property drive the physical pin level consumed by the M5Unified button state machine or machine.Pin",
+      "tested_devices": ["sticks3", "atoms3r", "stamplc", "papercolor", "papermono", "stopwatch", "nesso-n1", "nanoc6"]
     },
     "pwr-button": {
       "kind": "button",
       "interface": "pmic",
       "capabilities": ["power-key"],
       "status": "simulated",
-      "injection": ["qmp-key"]
+      "injection": ["qmp-key"],
+      "data_plane": "QMP key:p pulses the board power-key wire or PMIC power-key interrupt; M5Unified reads the resulting GPIO/register state through the normal board path",
+      "tested_devices": ["sticks3", "cores3", "stopwatch", "papercolor", "papermono", "core2"]
     },
     "bq27220": {
       "kind": "battery-fuel-gauge",
       "interface": "i2c",
       "address": "0x55",
-      "capabilities": ["battery", "battery-level", "current-monitor"],
+      "capabilities": ["battery", "battery-level", "current-monitor", "battery-fuel-gauge"],
       "status": "simulated",
       "injection": ["qom-battery-mv", "qom-current-ma", "qom-battery-level"],
-      "data_plane": "BQ27220 standard command registers and muxed block reads over ESP32-C6 I2C; voltage, current and state-of-charge injection reaches the UIFlow2 Power API",
-      "tested_devices": ["nesso-n1"]
+      "data_plane": "BQ27220 standard 16-bit command words, byte ordering, seal/unseal control and block reads over ESP32-C6 I2C or BCM2837 Linux i2c-bcm2835; QOM voltage, current and SOC reach Linux power_supply and the UIFlow2 Power API",
+      "tested_devices": ["nesso-n1", "cardputer-zero"]
     },
     "aw32001": {
       "kind": "pmic",
@@ -41,19 +54,42 @@
       "data_plane": "AW32001 charger configuration and status registers over ESP32-C6 I2C",
       "tested_devices": ["nesso-n1"]
     },
+    "ip2326": {
+      "kind": "charger",
+      "interface": "gpio",
+      "capabilities": ["charging"],
+      "status": "partial",
+      "injection": ["i2c-register"],
+      "data_plane": "Tab5 PI4IOE5V6408 active-low CHG_STAT input and CHG_EN output over the P4 I2C controller; charging (0x0F=0x00) and discharging (0x0F=0x40) both reach Power.isCharging(), while IP2326 current and termination behavior are not yet modelled",
+      "blocker": "PI4IOE CHG_STAT/CHG_EN and Power.isCharging() decode pass for charging and discharging, but no IP2326 analog current/termination state machine or hot state injection exists; changing state requires a new emulator launch"
+    },
+    "ip2315": {
+      "kind": "charger",
+      "interface": "power-path",
+      "capabilities": ["charging"],
+      "status": "simulated",
+      "injection": ["qom-charging"],
+      "data_plane": "Autonomous IP2315 power path represented by a QOM charger object with VBUS/NTC state; CardputerZero charge/discharge injection flips the BQ27220 signed-current register, while PaperMono exposes the IP2315 I2C charge-enable and REG_CHG_STAT(0xC7) state consumed by M5Unified Power.isCharging()",
+      "tested_devices": ["cardputer-zero", "papermono"]
+    },
     "esp32c6-hosted": {
       "kind": "wireless-coprocessor",
       "interface": "sdio-hosted",
       "capabilities": ["wifi", "ble"],
       "status": "simulated",
-      "injection": ["hosted-bridge"]
+      "injection": ["hosted-bridge"],
+      "data_plane": "ESP32-P4 SDIO2 host and ESP32-C6 slave are coupled through an esp-emu Unix stream; the C6 network-adapter firmware executes the WiFi/BLE control and packet paths",
+      "tested_devices": ["tab5"]
     },
     "touch-ft5x06": {
       "kind": "touch",
       "interface": "i2c",
+      "address": "0x38",
       "capabilities": ["touch"],
       "status": "simulated",
-      "injection": ["qmp-touch"]
+      "injection": ["qmp-touch"],
+      "data_plane": "FT5x06 I2C configuration and touch-report registers; QMP pointer events update controller reports consumed by the M5GFX touch driver",
+      "tested_devices": ["core2", "cores3", "papermono", "stackchan", "nesso-n1"]
     },
     "touch-si12t": {
       "kind": "touch",
@@ -68,23 +104,32 @@
     "touch-cst820": {
       "kind": "touch",
       "interface": "i2c",
+      "address": "0x15",
       "capabilities": ["touch"],
       "status": "simulated",
-      "injection": ["qmp-touch"]
+      "injection": ["qmp-touch"],
+      "data_plane": "CST820 I2C touch-report registers; QMP pointer events update the controller report consumed by the M5GFX touch driver",
+      "tested_devices": ["stopwatch"]
     },
     "touch-st7123": {
       "kind": "touch",
       "interface": "dsi-i2c",
       "capabilities": ["touch"],
-      "status": "simulated",
-      "injection": ["gdb-mailbox"]
+      "status": "partial",
+      "injection": ["gdb-mailbox"],
+      "data_plane": "Firmware-side GDB mailbox feeds the M5GFX Touch_ST7123 raw-read hook; the native esp-emu P4 backend does not expose the ST7123 I2C controller transactions or DSI touch data plane",
+      "blocker": "Add an ST7123 I2C model plus a native P4 I2C/QOM bridge, then inject touch through controller registers instead of the M5GFX raw-read hook",
+      "tested_devices": ["tab5"]
     },
     "keyboard-tca8418": {
       "kind": "keyboard",
       "interface": "i2c",
+      "address": "0x34",
       "capabilities": ["keyboard"],
       "status": "simulated",
-      "injection": ["qmp-key"]
+      "injection": ["qmp-key"],
+      "data_plane": "TCA8418 matrix-controller config, write-one-to-clear interrupt status and FIFO; QMP events drive BCM GPIO27 or ESP32 GPIO11 and are decoded by Linux tca8418_keypad or UIFlow2 KeyboardI2C",
+      "tested_devices": ["cardputer-adv", "cardputer-zero"]
     },
     "m5pm1": {
       "kind": "pmic",
@@ -112,7 +157,9 @@
       "address": "0x34",
       "capabilities": ["battery", "charging", "power-key"],
       "status": "simulated",
-      "injection": ["qom-battery-level", "qom-vbat-mv", "qom-vin-mv", "qom-charging"]
+      "injection": ["qom-battery-level", "qom-vbat-mv", "qom-vin-mv", "qom-charging"],
+      "data_plane": "AXP2101 battery, VBUS, charge-status, ADC and power-key registers over the board I2C bus; QOM electrical values are decoded by the UIFlow2 Power API",
+      "tested_devices": ["cores3", "stackchan", "core2"]
     },
     "m5ioe1": {
       "kind": "io-expander",
@@ -121,8 +168,8 @@
       "capabilities": ["io-expander", "digital-input", "adc", "pwm", "vibration", "neopixel"],
       "status": "simulated",
       "injection": ["qom-input-bits", "qom-adc-mv"],
-      "data_plane": "M5IOE1 GPIO direction/output/input, pulls, drive mode, ADC, temperature, PWM, IRQ status and NeoPixel RAM over the device I2C bus",
-      "tested_devices": ["stopwatch", "papermono", "stackchan"]
+      "data_plane": "M5IOE1 GPIO direction/output/input, pulls, drive mode, ADC, temperature, PWM, IRQ status and NeoPixel RAM over the device I2C bus; Linux binds pinctrl, PWM and ADC children",
+      "tested_devices": ["stopwatch", "papermono", "stackchan", "cardputer-zero"]
     },
     "aw9523": {
       "kind": "io-expander",
@@ -132,7 +179,7 @@
       "status": "simulated",
       "injection": ["qom-input-bits", "i2c-register"],
       "data_plane": "AW9523B input/output/direction/interrupt registers, GPIO mode outputs and injected input banks over ESP32-S3 I2C",
-      "tested_devices": ["cores3", "stamplc"]
+      "tested_devices": ["cores3", "stamplc", "stackchan"]
     },
     "pi4ioe5v6408": {
       "kind": "io-expander",
@@ -150,7 +197,9 @@
       "address": "0x32",
       "capabilities": ["rtc"],
       "status": "simulated",
-      "injection": ["qom-rtc-offset"]
+      "injection": ["qom-rtc-offset", "qom-unix-time"],
+      "data_plane": "RX8130CE BCD date/time and control registers over the board I2C bus; UIFlow2 tests use raw I2C register transactions because machine.RTC only controls the SoC system clock, while QOM absolute/relative time injection drives the same controller-visible registers",
+      "tested_devices": ["stopwatch", "papercolor", "papermono", "stamplc", "cardputer-zero"]
     },
     "pcf8563": {
       "kind": "rtc",
@@ -158,7 +207,9 @@
       "address": "0x51",
       "capabilities": ["rtc"],
       "status": "simulated",
-      "injection": ["qom-rtc-offset"]
+      "injection": ["qom-rtc-offset", "qom-unix-time"],
+      "data_plane": "PCF8563/BM8563 BCD date/time and control registers over the board I2C bus; UIFlow2 tests use raw I2C register transactions because machine.RTC only controls the SoC system clock, while QOM absolute/relative time injection drives the same controller-visible registers",
+      "tested_devices": ["cores3", "core2", "stackchan"]
     },
     "bmi270": {
       "kind": "imu",
@@ -167,8 +218,8 @@
       "capabilities": ["accel", "gyro"],
       "status": "simulated",
       "injection": ["qom-accel", "qom-gyro"],
-      "data_plane": "BMI270 CHIP_ID, soft reset, INIT_DATA/INIT_CTRL, data-ready status and little-endian accel/gyro sample registers over the board I2C bus; QOM physical values reach the UIFlow2 Imu API",
-      "tested_devices": ["sticks3", "atoms3r", "cores3", "stopwatch", "papermono", "cardputer-adv", "nesso-n1"]
+      "data_plane": "BMI270 CHIP_ID, soft reset, INIT_DATA/INIT_CTRL, data-ready status and little-endian accel/gyro sample registers over the board I2C bus; QOM physical values reach Linux IIO or the UIFlow2 Imu API",
+      "tested_devices": ["sticks3", "atoms3r", "cores3", "stopwatch", "papermono", "cardputer-adv", "nesso-n1", "cardputer-zero", "stackchan"]
     },
     "bmm150": {
       "kind": "magnetometer",
@@ -176,7 +227,9 @@
       "address": "0x10",
       "capabilities": ["magnetometer"],
       "status": "simulated",
-      "injection": ["qom-mag"]
+      "injection": ["qom-mag"],
+      "data_plane": "BMM150 sensor-hub registers reached through the BMI270 auxiliary-I2C interface; QOM magnetic-field values are encoded into little-endian sample registers read by Linux IIO or UIFlow2 Imu",
+      "tested_devices": ["atoms3r", "cores3", "stackchan", "cardputer-zero"]
     },
     "mpu6886": {
       "kind": "imu",
@@ -214,16 +267,19 @@
       "address": "0x10",
       "capabilities": ["audio-codec", "microphone", "speaker"],
       "status": "planned",
-      "injection": ["qom-pcm"]
+      "injection": ["qom-pcm"],
+      "data_plane": "Target: ES8388 I2C control registers plus ESP32-P4 I2S TX/RX descriptor and PCM endpoints",
+      "blocker": "esp-emu 0.50.0 has no I2S register or PCM data plane and no writable I2C-device/QOM bridge for ES8388; a QEMU P4 backend or a native I2S/I2C extension is required"
     },
     "es8389": {
       "kind": "audio-codec",
       "interface": "i2c-i2s",
       "address": "0x10",
       "capabilities": ["audio-codec", "microphone", "speaker"],
-      "status": "planned",
+      "status": "simulated",
       "injection": ["qom-pcm"],
-      "data_plane": "CardputerZero Linux SPI/I2C audio path; implementation awaits the ARM64 backend"
+      "data_plane": "ES8389 8-bit I2C register map, identity registers 0x83/0x89 and CSM_STATE1=0x0D, plus BCM2835 I2S MMIO/FIFO and DREQ-driven cyclic DMA; ALSA playback is captured from TX and deterministic RX PCM is returned byte-exactly through arecord",
+      "tested_devices": ["cardputer-zero"]
     },
     "aw88298": {
       "kind": "audio-amplifier",
@@ -243,6 +299,15 @@
       "injection": ["qom-pcm"],
       "data_plane": "AW8737A PA enable path with ESP32-S3 I2S TX and cyclic GDMA; host PCM capture",
       "tested_devices": ["sticks3", "stopwatch", "papercolor"]
+    },
+    "aw8737a-bcm2837": {
+      "kind": "audio-amplifier",
+      "interface": "gpio-pcm",
+      "capabilities": ["speaker"],
+      "status": "simulated",
+      "injection": ["i2s-pcm"],
+      "data_plane": "ES8389/BCM2835 I2S playback PCM reaches the codec DAI while Linux DAPM enables the AW8737A path through BCM GPIO24; QEMU records the GPIO24 assertion and captures the DMA PCM stream",
+      "tested_devices": ["cardputer-zero"]
     },
     "ns4168": {
       "kind": "audio-amplifier",
@@ -297,7 +362,7 @@
       "capabilities": ["speaker"],
       "status": "simulated",
       "injection": ["qom-pcm"],
-      "data_plane": "Cardputer-ADV ES8311 + NS4150B speaker path through I2S TX and cyclic GDMA; host PCM capture",
+      "data_plane": "NS4150B GPIO enable plus the upstream I2S TX and cyclic GDMA PCM path; host capture verifies speaker data",
       "tested_devices": ["cardputer-adv"]
     },
     "sc2356": {
@@ -305,24 +370,32 @@
       "interface": "mipi-csi-sccb",
       "capabilities": ["camera"],
       "status": "planned",
-      "injection": ["qom-frame"]
+      "injection": ["qom-frame"],
+      "data_plane": "Target: SC2356 SCCB register model and two-lane MIPI CSI-2 frame stream into the ESP32-P4 CSI controller",
+      "blocker": "The native esp-emu P4 backend exposes no MIPI CSI-2 controller or frame endpoint; Tab5 camera is therefore not simulated"
     },
     "camera-imx219": {
       "kind": "camera",
       "interface": "mipi-csi-sccb",
       "address": "0x10",
       "capabilities": ["camera"],
-      "status": "planned",
-      "injection": ["qom-frame"],
-      "data_plane": "CardputerZero CM0 four-lane MIPI CSI camera path; implementation awaits the ARM64 backend"
+      "status": "simulated",
+      "injection": ["qom-pattern-seed", "v4l2-controls", "v4l2-stream"],
+      "evidence": [
+        "https://github.com/torvalds/linux/blob/master/drivers/media/i2c/imx219.c",
+        "https://www.raspberrypi.com/documentation/accessories/camera.html"
+      ],
+      "data_plane": "IMX219 CCI stores the mode-select, lane mode, output window, frame/line length, exposure, analogue/digital gain, orientation and test-pattern registers written by the Linux driver. BCM2837 Unicam CSI1 consumes the programmed format/stride/DMA addresses and generates RG10 frames from those sensor registers before raising CAM1 frame-start/frame-end interrupts",
+      "tested_devices": ["cardputer-zero"]
     },
     "ethernet-sr9900a": {
       "kind": "ethernet-controller",
       "interface": "usb",
       "capabilities": ["ethernet"],
-      "status": "planned",
+      "status": "simulated",
       "injection": ["usb-endpoint", "packet-bridge"],
-      "data_plane": "CardputerZero GL852G downstream USB to SR9900A 10/100 Ethernet path"
+      "data_plane": "SR9900A vendor registers implement the RTL8152B programming model; Linux r8152 binds at USB High-Speed, creates eth0 and exchanges RTL8152 TX/RX descriptors through GL852G, USB bulk endpoints and a host socket packet bridge",
+      "tested_devices": ["cardputer-zero"]
     },
     "sht40": {
       "kind": "temperature-humidity",
@@ -337,6 +410,7 @@
     "lm75": {
       "kind": "temperature",
       "interface": "i2c",
+      "address": "0x48",
       "capabilities": ["temperature"],
       "status": "simulated",
       "injection": ["qom-temperature"],
@@ -346,15 +420,18 @@
     "ina226": {
       "kind": "power-monitor",
       "interface": "i2c",
+      "address": "0x40/0x41/0x45",
       "capabilities": ["power-monitor"],
       "status": "simulated",
-      "injection": ["qom-bus-voltage", "qom-current"]
+      "injection": ["qom-bus-voltage", "qom-current"],
+      "data_plane": "INA226 configuration, calibration, shunt-voltage, bus-voltage, current and power registers over the board I2C bus; QOM electrical values reach the UIFlow2 power path",
+      "tested_devices": ["stamplc", "stackchan"]
     },
     "ina3221": {
       "kind": "power-monitor",
       "interface": "i2c",
       "address": "0x40",
-      "capabilities": ["bus-voltage", "current"],
+      "capabilities": ["bus-voltage", "current", "power-monitor"],
       "status": "simulated",
       "injection": ["qom-bus-voltage", "qom-current"],
       "data_plane": "INA3221 three-channel register model over ESP32 I2C0; manufacturer/die ID, 8 mV bus-voltage LSB and 40 uV shunt-voltage LSB with QOM physical-value injection",
@@ -363,11 +440,12 @@
     "ltr-553als-wa": {
       "kind": "light-proximity",
       "interface": "i2c",
+      "address": "0x23",
       "capabilities": ["ambient-light", "proximity"],
       "status": "simulated",
-      "injection": ["qom-light-level"],
-      "data_plane": "LTR553ALS-WA identity, ALS control and four-byte ambient-light register burst over ESP32-S3 I2C",
-      "tested_devices": ["cores3"]
+      "injection": ["qom-light-level", "qom-proximity-level"],
+      "data_plane": "LTR553ALS-WA identity, ALS control, four-byte ambient-light burst and 11-bit proximity registers over ESP32-S3 I2C",
+      "tested_devices": ["cores3", "stackchan"]
     },
     "ir-tx-rx": {
       "kind": "infrared",
@@ -376,12 +454,21 @@
       "status": "simulated",
       "injection": ["rmt-symbol-file"],
       "data_plane": "ESP32-S3 RMT APB registers + RMTMEM symbols; TX_END/RX_END interrupts; NEC packet capture and injection",
-      "tested_devices": ["sticks3", "atoms3r", "cardputer-adv", "papercolor"]
+      "tested_devices": ["sticks3", "atoms3r", "cardputer-adv", "papercolor", "stackchan"]
+    },
+    "ir-tx-rx-bcm2837": {
+      "kind": "infrared",
+      "interface": "gpio-ir",
+      "capabilities": ["ir"],
+      "status": "simulated",
+      "injection": ["qmp-ir-waveform"],
+      "data_plane": "BCM GPIO13 active-low receiver edges feed Linux gpio-ir-receiver/LIRC mode2; Linux gpio-ir-tx drives BCM GPIO12 and QEMU captures timestamped output edges for NEC sends",
+      "tested_devices": ["cardputer-zero"]
     },
     "ir-tx-c6": {
       "kind": "infrared",
       "interface": "rmt-gpio",
-      "capabilities": ["ir-tx"],
+      "capabilities": ["ir", "ir-tx"],
       "status": "simulated",
       "injection": ["rmt-symbol-file"],
       "data_plane": "ESP32-C6 RMT TX channels, APB FIFO and hardware symbol RAM with host symbol capture; NanoC6 GPIO3 and Nesso N1 GPIO9",
@@ -393,8 +480,17 @@
       "capabilities": ["rgb-led"],
       "status": "simulated",
       "injection": ["i2c-neopixel-ram", "qom-rgb"],
-      "data_plane": "M5IOE1 I2C NeoPixel RGB565 RAM, PaperMono M5PM1 red rail + M5IOE1 green/blue PWM, and ESP32-S3 RMT WS2812/GRB symbol capture with host-side wire decoding",
-      "tested_devices": ["stackchan", "papercolor", "papermono"]
+      "data_plane": "M5IOE1 I2C NeoPixel RGB565 RAM, PaperMono M5PM1 red rail + M5IOE1 green/blue PWM, and ESP32-S3/C6 RMT WS2812/GRB symbol capture with host-side wire decoding; NanoC6 also verifies GPIO19 RGBPWR and GPIO20 data",
+      "tested_devices": ["stackchan", "papercolor", "papermono", "nanoc6"]
+    },
+    "gpio-led": {
+      "kind": "led",
+      "interface": "gpio",
+      "capabilities": ["led-output"],
+      "status": "simulated",
+      "injection": ["gpio-output-capture"],
+      "data_plane": "GPIO output enable and level registers drive the board LED wire; the NanoC6 machine exposes GPIO7 level through QOM so the test can verify on/off transitions",
+      "tested_devices": ["nanoc6"]
     },
     "vibration": {
       "kind": "actuator",
@@ -410,17 +506,18 @@
       "interface": "i2s-gpio",
       "capabilities": ["buzzer"],
       "status": "simulated",
-      "injection": ["qom-tone"],
-      "data_plane": "StamPLC Speaker buzzer mode generates a 1-bit delta-sigma I2S TX stream on G44; host PCM capture verifies firmware output",
-      "tested_devices": ["stamplc"]
+      "injection": ["qom-tone", "host-pcm-capture"],
+      "data_plane": "PaperMono GPIO42 and StamPLC G44 Speaker buzzer modes generate 1-bit delta-sigma I2S TX streams; cyclic GDMA and host PCM capture verify firmware output",
+      "tested_devices": ["papermono", "stamplc"]
     },
     "i2s-buzzer-c6": {
       "kind": "actuator",
       "interface": "i2s-gpio",
       "capabilities": ["buzzer"],
-      "status": "planned",
-      "injection": ["qom-pcm"],
-      "data_plane": "ESP32-C6 I2S TX carrying the M5Unified 1-bit delta-sigma buzzer waveform on Nesso N1 GPIO11"
+      "status": "simulated",
+      "injection": ["host-pcm-capture"],
+      "data_plane": "ESP32-C6 I2S TX, cyclic AHB GDMA OUT descriptors, OUT_EOF interrupt delivery and host PCM capture carrying the M5Unified 1-bit delta-sigma buzzer waveform on Nesso N1 GPIO11",
+      "tested_devices": ["nesso-n1"]
     },
     "can": {
       "kind": "fieldbus",
@@ -437,8 +534,8 @@
       "capabilities": ["rs485"],
       "status": "simulated",
       "injection": ["uart-peer"],
-      "data_plane": "StamPLC UART2 half-duplex PWR485 path on G0/G39/G46 with byte-level UART peer TX/RX",
-      "tested_devices": ["stamplc"]
+      "data_plane": "Half-duplex UART RS-485 mode with byte-level host peer TX/RX; exercised on StamPLC UART2 G0/G39/G46 and Tab5 UART1 G20/G21 with direction GPIO34",
+      "tested_devices": ["stamplc", "tab5"]
     },
     "servo": {
       "kind": "servo",
@@ -492,7 +589,7 @@
       "status": "simulated",
       "injection": ["qom-sd-image"],
       "data_plane": "QEMU SD card block backend attached with -drive if=sd; raw image read/write sectors",
-      "tested_devices": ["papermono"]
+      "tested_devices": ["papermono", "cardputer-zero"]
     },
     "sd-card-spi": {
       "kind": "storage",
@@ -507,8 +604,41 @@
       "kind": "usb-host",
       "interface": "usb",
       "capabilities": ["usb-host"],
+      "status": "simulated",
+      "injection": ["qom-usb-hid-report"],
+      "data_plane": "CoreS3 M-Bus SPI MAX3421E register/FIFO model with USB Chapter 9 enumeration and interrupt-IN HID mouse reports; QOM injects x/y/buttons",
+      "tested_devices": ["cores3"]
+    },
+    "usb-host-p4-dwc": {
+      "kind": "usb-host",
+      "interface": "usb",
+      "capabilities": ["usb-host"],
       "status": "planned",
-      "injection": ["qom-usb-device"]
+      "injection": ["usb-endpoint"],
+      "data_plane": "Target: ESP32-P4 DWC USB 2.0 host controller, root port, HID/CDC endpoint models and host-side packet bridge",
+      "blocker": "The native esp-emu P4 backend exposes no USB host controller or endpoint attachment API"
+    },
+    "usb-hub-gl852g": {
+      "kind": "usb-hub",
+      "interface": "usb",
+      "capabilities": ["usb-host"],
+      "status": "simulated",
+      "injection": ["usb-endpoint"],
+      "evidence": [
+        "https://www.usb.org/document-library/usb-20-specification",
+        "https://github.com/torvalds/linux/blob/master/drivers/usb/core/hub.c"
+      ],
+      "data_plane": "BCM2837 DWC2 enumerates a GL852G-compatible MTT hub with VID:PID 05e3:0610 and four downstream ports. The TT compatibility path keeps the child model at its real full/low speed while exposing a high-speed upstream port to the HCD, then forwards control, bulk and interrupt traffic through the hub; SR9900A and a low-speed USB HID both enumerate and reach Linux through that path",
+      "tested_devices": ["cardputer-zero"]
+    },
+    "linux-bcm2837": {
+      "kind": "platform",
+      "interface": "linux-arm64",
+      "capabilities": ["display-output", "framebuffer-capture", "input-event"],
+      "status": "simulated",
+      "injection": ["framebuffer-read", "qmp-key"],
+      "data_plane": "Official CardputerZero ARM64 image boots on QEMU BCM2837 with the physical 512 MiB RAM, M5Stack DTB overlays, panel-mipi-dbi ST7789v3 DRM framebuffer and Linux input events",
+      "tested_devices": ["cardputer-zero"]
     }
   },
   "devices": {
@@ -517,7 +647,7 @@
       "evidence": ["https://docs.m5stack.com/en/core/StickS3"],
       "components": [
         {"id": "pmic", "model": "m5pm1", "qom_path": "/machine/m5pm1"},
-        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "imu", "model": "bmi270", "address": "0x68", "qom_path": "/machine/bmi270"},
         {"id": "audio-codec", "model": "es8311", "qom_path": "/machine/es8311"},
         {"id": "buttons", "model": "gpio-button"},
         {"id": "power-key", "model": "pwr-button"},
@@ -561,8 +691,8 @@
       "components": [
         {"id": "pmic", "model": "axp2101", "qom_path": "/machine/axp2101"},
         {"id": "io-expander", "model": "aw9523", "qom_path": "/machine/aw9523"},
-        {"id": "touch", "model": "touch-ft5x06", "qom_path": "/machine/ft5x06"},
-        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "touch", "model": "touch-ft5x06", "address": "0x38", "qom_path": "/machine/ft5x06"},
+        {"id": "imu", "model": "bmi270", "address": "0x69", "qom_path": "/machine/bmi270"},
         {"id": "magnetometer", "model": "bmm150", "qom_path": "/machine/bmm150"},
         {"id": "rtc", "model": "pcf8563", "qom_path": "/machine/pcf8563"},
         {"id": "camera", "model": "gc0308", "qom_path": "/machine/gc0308"},
@@ -571,14 +701,15 @@
         {"id": "microphone", "model": "es7210"},
         {"id": "speaker", "model": "aw88298"},
         {"id": "power-key", "model": "pwr-button"},
-        {"id": "light-proximity", "model": "ltr-553als-wa", "qom_path": "/machine/ltr553"}
+        {"id": "light-proximity", "model": "ltr-553als-wa", "address": "0x23", "qom_path": "/machine/ltr553"},
+        {"id": "usb-host", "model": "usb-host", "qom_path": "/machine/max3421e-usb"}
       ]
     },
     "cardputer-adv": {
       "board_model": "m5cardputeradv",
       "evidence": ["https://docs.m5stack.com/en/core/Cardputer-Adv"],
       "components": [
-        {"id": "keyboard", "model": "keyboard-tca8418", "qom_path": "/machine/tca8418"},
+        {"id": "keyboard", "model": "keyboard-tca8418", "address": "0x34", "qom_path": "/machine/tca8418"},
         {"id": "imu", "model": "bmi270", "address": "0x69", "qom_path": "/machine/bmi270"},
         {"id": "audio-codec", "model": "es8311", "address": "0x18"},
         {"id": "microphone", "model": "es8311"},
@@ -614,11 +745,12 @@
       "components": [
         {"id": "pmic", "model": "m5pm1", "qom_path": "/machine/m5pm1"},
         {"id": "io-expander", "model": "m5ioe1", "qom_path": "/machine/m5ioe1"},
-        {"id": "touch", "model": "touch-ft5x06", "qom_path": "/machine/ft5x06"},
-        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "touch", "model": "touch-ft5x06", "address": "0x38", "qom_path": "/machine/ft5x06"},
+        {"id": "imu", "model": "bmi270", "address": "0x68", "qom_path": "/machine/bmi270"},
         {"id": "rtc", "model": "rx8130", "qom_path": "/machine/rx8130"},
         {"id": "buttons", "model": "gpio-button"},
         {"id": "power-key", "model": "pwr-button"},
+        {"id": "charger", "model": "ip2315", "address": "0x75", "qom_path": "/machine/ip2315"},
         {"id": "microphone", "model": "pdm-microphone"},
         {"id": "nfc", "model": "nfc-st25r3916", "address": "0x50", "qom_path": "/machine/st25r3916"},
         {"id": "lora", "model": "lora-sx1262"},
@@ -637,8 +769,8 @@
         {"id": "io-expander", "model": "pi4ioe5v6408", "qom_path": "/machine/pi4ioe"},
         {"id": "io-expander-aw9523", "model": "aw9523", "address": "0x59"},
         {"id": "rtc", "model": "rx8130", "address": "0x32"},
-        {"id": "temperature", "model": "lm75", "qom_path": "/machine/lm75"},
-        {"id": "power-monitor", "model": "ina226", "qom_path": "/machine/ina226"},
+        {"id": "temperature", "model": "lm75", "address": "0x48", "qom_path": "/machine/lm75"},
+        {"id": "power-monitor", "model": "ina226", "address": "0x40", "qom_path": "/machine/ina226"},
         {"id": "buttons", "model": "gpio-button"},
         {"id": "buzzer", "model": "buzzer"},
         {"id": "can", "model": "can"},
@@ -649,16 +781,19 @@
     },
     "stackchan": {
       "board_model": "m5stackchan",
+      "peripheral_status": "simulated",
       "evidence": ["https://docs.m5stack.com/en/core/StackChan"],
+      "peripheral_blockers": [],
       "components": [
         {"id": "pmic", "model": "axp2101", "qom_path": "/machine/axp2101"},
         {"id": "io-expander", "model": "aw9523", "qom_path": "/machine/aw9523"},
         {"id": "io-expander-2", "model": "m5ioe1", "qom_path": "/machine/m5ioe1_v4"},
-        {"id": "touch", "model": "touch-ft5x06", "qom_path": "/machine/ft5x06"},
+        {"id": "touch", "model": "touch-ft5x06", "address": "0x38", "qom_path": "/machine/ft5x06"},
         {"id": "camera", "model": "gc0308", "qom_path": "/machine/gc0308"},
-        {"id": "imu", "model": "bmi270", "qom_path": "/machine/bmi270"},
+        {"id": "light-proximity", "model": "ltr-553als-wa", "address": "0x23", "qom_path": "/machine/ltr553"},
+        {"id": "imu", "model": "bmi270", "address": "0x69", "qom_path": "/machine/bmi270"},
         {"id": "magnetometer", "model": "bmm150", "qom_path": "/machine/bmm150"},
-        {"id": "rtc", "model": "rx8130", "qom_path": "/machine/rx8130"},
+        {"id": "rtc", "model": "pcf8563", "address": "0x51", "qom_path": "/machine/pcf8563"},
         {"id": "audio-adc", "model": "es7210"},
         {"id": "audio-amplifier", "model": "aw88298"},
         {"id": "microphone", "model": "es7210"},
@@ -686,7 +821,8 @@
         {"id": "rtc", "model": "pcf8563", "address": "0x51"},
         {"id": "microphone", "model": "spm1423", "interface": "i2s0-pdm"},
         {"id": "speaker", "model": "ns4168", "interface": "i2s1"},
-        {"id": "power-key", "model": "pwr-button"}
+        {"id": "power-key", "model": "pwr-button"},
+        {"id": "legacy-pmic-compat", "model": "axp192", "compatibility": true, "qom_path": "/machine/axp192", "status": "simulated"}
       ]
     },
     "nesso-n1": {
@@ -710,48 +846,79 @@
       "evidence": ["https://docs.m5stack.com/en/core/NanoC6"],
       "components": [
         {"id": "button", "model": "gpio-button"},
+        {"id": "blue-led", "model": "gpio-led", "pin": "gpio7"},
         {"id": "rgb-led", "model": "rgb-led"},
-        {"id": "ir", "model": "ir-tx-rx"}
+        {"id": "ir", "model": "ir-tx-c6"}
       ]
     },
     "tab5": {
       "board_model": "tab5",
-      "evidence": ["https://docs.m5stack.com/en/core/Tab5"],
+      "status": "partial",
+      "peripheral_status": "partial",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/Tab5",
+        "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/Tab5_Schematics_PDF.pdf"
+      ],
+      "peripheral_blockers": [
+        {"model": "sc2356", "reason": "No P4 MIPI CSI-2 controller or SCCB/frame bridge in esp-emu 0.50.0"},
+        {"model": "bmi270", "reason": "Tab5 I2C reaches BMI270 and can store CHIP_ID=0x24 when written from main.py, but the UIFlow2 boot sequence clears the preloaded identity and the P4 backend has no BMI270 reset/init state machine or dynamic sample injection"},
+        {"model": "rx8130", "reason": "Tab5 direct machine.I2C write/read reaches RX8130 registers, but time progression and dynamic host time injection remain absent. machine.RTC changes only the P4 system clock and is not counted as external RTC evidence"},
+        {"model": "ina226", "reason": "Tab5 INA226 register preload reaches the official Power API as 8000 mV / 1248 mA / 87%, but dynamic host injection, alert and GPIO/IRQ side effects remain absent"},
+        {"model": "pi4ioe5v6408", "reason": "Both U6/U7 device IDs 0xA2 and output-register write/readback pass, but GPIO side effects and interrupt injection remain absent"},
+        {"model": "es7210", "reason": "No P4 I2S RX/GDMA or PCM injection endpoint exists in esp-emu 0.50.0"},
+        {"model": "es8388", "reason": "No ES8388 I2C model or P4 I2S TX/PCM capture endpoint exists"},
+        {"model": "ns4150b", "reason": "PA enable is known, but the Tab5 ES8388-to-NS4150B PCM path cannot be captured without P4 I2S"},
+        {"model": "touch-st7123", "reason": "Touch is visible only through a firmware GDB hook, not ST7123 controller/I2C transactions"},
+        {"model": "usb-host-p4-dwc", "reason": "No ESP32-P4 USB host controller or endpoint attachment model"},
+        {"model": "sd-card", "reason": "No Tab5 SDIO1 block-device attachment has been exercised on the native P4 backend"},
+        {"model": "ip2326", "reason": "PI4IOE CHG_STAT/CHG_EN and Power.isCharging() decode pass for charging (0x00) and discharging (0x40), but no IP2326 analog current/termination state machine or hot state injection exists; changing state requires a new emulator launch"}
+      ],
       "components": [
-        {"id": "hosted-coprocessor", "model": "esp32c6-hosted"},
-        {"id": "camera", "model": "sc2356"},
-        {"id": "imu", "model": "bmi270"},
-        {"id": "rtc", "model": "rx8130"},
-        {"id": "power-monitor", "model": "ina226"},
-        {"id": "io-expander", "model": "pi4ioe5v6408"},
-        {"id": "audio-adc", "model": "es7210"},
-        {"id": "audio-codec", "model": "es8388"},
-        {"id": "microphone", "model": "es7210"},
-        {"id": "speaker", "model": "es8388"},
-        {"id": "touch", "model": "touch-st7123"},
-        {"id": "usb-host", "model": "usb-host"},
-        {"id": "rs485", "model": "rs485"}
+        {"id": "hosted-coprocessor", "model": "esp32c6-hosted", "status": "simulated"},
+        {"id": "camera", "model": "sc2356", "status": "planned", "bus": "mipi-csi-2l-sccb"},
+        {"id": "imu", "model": "bmi270", "address": "0x68", "bus": "i2c1", "status": "partial"},
+        {"id": "rtc", "model": "rx8130", "address": "0x32", "bus": "i2c1", "status": "partial"},
+        {"id": "power-monitor", "model": "ina226", "address": "0x41", "bus": "i2c1", "status": "partial"},
+        {"id": "io-expander-1", "model": "pi4ioe5v6408", "address": "0x43", "bus": "i2c1", "status": "partial"},
+        {"id": "io-expander-2", "model": "pi4ioe5v6408", "address": "0x44", "bus": "i2c1", "status": "partial"},
+        {"id": "audio-adc", "model": "es7210", "address": "0x40", "bus": "i2c1-i2s0", "status": "partial"},
+        {"id": "audio-codec", "model": "es8388", "address": "0x10", "bus": "i2c1-i2s0", "status": "planned"},
+        {"id": "microphone", "model": "es7210", "status": "partial"},
+        {"id": "speaker", "model": "es8388", "status": "planned"},
+        {"id": "audio-amplifier", "model": "ns4150b", "gpio": "SPK_EN", "status": "partial"},
+        {"id": "touch", "model": "touch-st7123", "address": "0x55", "bus": "i2c1-dsi", "status": "partial"},
+        {"id": "usb-host", "model": "usb-host-p4-dwc", "status": "planned"},
+        {"id": "rs485", "model": "rs485", "pins": "gpio20/tx,gpio21/rx,gpio34/dir"},
+        {"id": "storage", "model": "sd-card", "bus": "sdio1", "status": "partial"},
+        {"id": "charger", "model": "ip2326", "status": "partial"}
       ]
     },
     "cardputer-zero": {
       "board_model": "cardputer_zero",
       "status": "not-applicable",
-      "evidence": ["https://docs.m5stack.com/en/core/CardputerZero"],
+      "peripheral_status": "simulated",
+      "evidence": [
+        "https://docs.m5stack.com/en/core/CardputerZero",
+        "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZERO_SCH_V0.6.1_20260702.pdf"
+      ],
+      "peripheral_blockers": [],
       "components": [
-        {"id": "keyboard", "model": "keyboard-tca8418", "address": "0x34"},
-        {"id": "io-expander", "model": "m5ioe1", "address": "0x4f"},
-        {"id": "imu", "model": "bmi270", "address": "0x68"},
-        {"id": "magnetometer", "model": "bmm150"},
-        {"id": "rtc", "model": "rx8130", "address": "0x32"},
-        {"id": "battery-gauge", "model": "bq27220", "address": "0x55"},
-        {"id": "audio-codec", "model": "es8389", "address": "0x10"},
-        {"id": "microphone", "model": "es8389"},
-        {"id": "speaker", "model": "aw8737a"},
-        {"id": "camera", "model": "camera-imx219", "address": "0x10"},
-        {"id": "ethernet", "model": "ethernet-sr9900a"},
-        {"id": "usb-host", "model": "usb-host"},
-        {"id": "ir", "model": "ir-tx-rx"},
-        {"id": "storage", "model": "sd-card"}
+        {"id": "keyboard", "model": "keyboard-tca8418", "address": "0x34", "bus": "i2c1-gpio27-irq", "status": "simulated"},
+        {"id": "io-expander", "model": "m5ioe1", "address": "0x4f", "bus": "i2c1-gpio16-reset", "status": "simulated"},
+        {"id": "imu", "model": "bmi270", "address": "0x68", "bus": "i2c1", "status": "simulated"},
+        {"id": "magnetometer", "model": "bmm150", "address": "0x10", "bus": "bmi270-aux", "status": "simulated"},
+        {"id": "rtc", "model": "rx8130", "address": "0x32", "bus": "i2c1", "status": "simulated"},
+        {"id": "battery-gauge", "model": "bq27220", "address": "0x55", "bus": "i2c1", "status": "simulated"},
+        {"id": "charger", "model": "ip2315", "qom_path": "/machine/peripheral/m5-ip2315", "status": "simulated"},
+        {"id": "audio-codec", "model": "es8389", "address": "0x10", "bus": "i2c1-i2s0", "status": "simulated"},
+        {"id": "microphone", "model": "es8389", "status": "simulated"},
+        {"id": "speaker", "model": "aw8737a-bcm2837", "gpio": "gpio24/spk-en", "status": "simulated"},
+        {"id": "camera", "model": "camera-imx219", "address": "0x10", "bus": "i2c0-csi2-4l", "status": "simulated"},
+        {"id": "ethernet", "model": "ethernet-sr9900a", "bus": "usb-hub-port1", "status": "simulated"},
+        {"id": "usb-host", "model": "usb-hub-gl852g", "qom_path": "/machine/peripheral/m5-gl852g", "status": "simulated"},
+        {"id": "ir", "model": "ir-tx-rx-bcm2837", "pins": "gpio12/tx,gpio13/rx", "status": "simulated"},
+        {"id": "storage", "model": "sd-card", "bus": "sdio", "status": "simulated"},
+        {"id": "display", "model": "linux-bcm2837", "bus": "spi0", "status": "simulated"}
       ]
     }
   }
