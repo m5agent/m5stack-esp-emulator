@@ -17,7 +17,7 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | AtomS3R | 用户按键 | `BtnA` | PASS |
 | CoreS3 | BMI270 + BMM150 | `Imu.getAccel/getGyro/getMag()` | PASS |
 | CoreS3 | FT6336、PWR、AXP2101、BM8563 | Touch / Button / Power / RTC | PASS |
-| CoreS3 | LTR553 环境光 | `M5.Als` | PARTIAL |
+| CoreS3 | LTR553 环境光 | `M5.Als` | PASS |
 | CoreS3 | GC0308 初始化、LCD_CAM 采集、GDMA 帧、拍照 | `camera.init()` / `camera.snapshot()` | PASS |
 | StopWatch | BMI270、CST820、M5PM1、RX8130、A/B/PWR | IMU / Touch / Power / RTC / Button | PASS |
 | StamPLC | PI4IOE 继电器/输入、RGB、INA226 | StamPLC / INA226Unit | PASS |
@@ -29,19 +29,34 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StackChan | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
 | StackChan | Si12T 三点身体触摸 | `driver.si12t.Si12T` | PASS |
 | StackChan | M5IOE1 12 路 NeoPixel RGB 写入/回读 | `driver.m5ioe1.RGB` | PASS |
+| StackChan | SCS 总线双舵机 PING、扭矩、位置写入/回读 | `driver.scs_servo.Scscl` | PASS |
 | StopWatch | M5IOE1 PWM1 振动马达开关与占空比 | `Power.setVibration()` | PASS |
 | AtomS3R | LP5562 三通道 RGB PWM 写入/回读 | I2C `0x30` | PASS |
+| StickS3 | ES8311/AW8737A 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
+| StickS3 | ES8311 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
+| StopWatch | ES8311/AW8737A 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
+| StopWatch | ES8311 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
+| CoreS3 | AW88298 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
+| CoreS3 | ES7210 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
+| StackChan | AW88298 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
+| StackChan | ES7210 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
+| Cardputer-ADV | ES8311/NS4150B 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
+| Cardputer-ADV | ES8311 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
+| Cardputer-ADV | SPI microSD 初始化、512B 写入/回读、原始镜像校验 | `machine.SDCard(slot=3)` | PASS |
+| PaperMono | PDM 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
+| PaperColor | ES8311/AW8737A 扬声器 I2S TX、GDMA、PCM 抓取 | `Speaker.tone()` | PASS |
+| PaperColor | ES7210 麦克风 I2S RX、GDMA、PCM 注入 | `Mic.record()` | PASS |
+| PaperColor | SPI microSD 初始化、512B 写入/回读、原始镜像校验 | `machine.SDCard(slot=2)` | PASS |
+| PaperColor | SHT4X 温度/湿度命令、转换和 CRC8 | `hardware.SHT4X` | PASS |
 
 汇总：
 
 ```text
-PASS    15
-PARTIAL 1
+PASS    33
 ```
 
-唯一的 `PARTIAL` 是 CoreS3 的 LTR553：芯片 ID 和寄存器读取路径已存在，但
-当前 UIFlow2 `M5.Als` 板上初始化路径仍返回 0。其余本轮覆盖项均完成
-“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API -> 屏幕/帧输出”的闭环。
+本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
+屏幕/帧输出”的闭环。
 
 ## 关键修复
 
@@ -57,6 +72,12 @@ RESTART 前结束上一次 QEMU I2C 事务，StickS3、AtomS3R 和 CoreS3 的 BM
 BMM150 原始数据、轴向转换和 QOM 注入已经闭环。测试输入为
 `30 / -20 / 45 uT`，AtomS3R 经板级轴变换后显示 `-30 / -19.5 / -90 uT`，
 与 M5Unified 的固定轴映射一致。
+
+### LTR553 ALS
+
+CoreS3 的 LTR553 在 I2C `0x23` 上返回 part ID `0x92` 和 manufacturer ID
+`0x05`；四字节 ALS 通道数据由 QOM `light-level` 注入，`M5.Als` 从
+`0x88..0x8B` 读取并正确回传环境光值。
 
 ### INA226
 
@@ -148,6 +169,55 @@ Si12T 在 `0x68` 上完成寄存器配置，QOM `touch-bits` 注入后，
 官方 M5IOE1 NeoPixel 驱动通过 I2C 配置 12 颗 RGB，写入红色后从 LED RAM
 读回 RGB565 `0xF800`，验证的是扩展器寄存器数据面。
 
+### StackChan SCS 舵机
+
+UIFlow2 通过 UART1（TX GPIO6、RX GPIO7、1 Mbps）使用官方
+`driver.scs_servo.Scscl`。QEMU 的 SCSCL 模型从真实 UART TX 字节流解析
+`PING`、`WRITE` 和 `READ` 帧，并校验帧尾 checksum：
+
+- ID 1/2 PING 分别返回自身 ID；
+- torque enable 写入寄存器 40；
+- X/Y 目标位置写入 `500/300`；
+- present position 从寄存器 56 回读 `500/300`；
+- UI 显示 `status=ok`。
+
+为使该路径可通过，ESP32-S3 系统时钟模型同时补齐了 UART0/1/2 的
+`PERIP_CLK_EN` 和 `PERIP_RST_EN` 复位值及读写语义。
+
+### I2S/GDMA 音频数据面
+
+QEMU 的 I2S 模型现在区分 TX/RX，并按真实 GDMA 循环描述的语义逐缓冲区完成：
+
+- TX：ES8311/AW88298/AW8737A 配置完成后，扬声器驱动写入 I2S DMA；
+  模型逐个描述符产生 `OUT_EOF`，宿主将实际 PCM 写到
+  `M5SW_I2S_PCM_FILE`；
+- RX：宿主通过 `M5SW_I2S_RX_PCM_FILE` 注入 16-bit PCM，模型写入 I2S RX
+  的 GDMA 描述符并产生 `IN_SUC_EOF`，UIFlow2 `Mic.record()` 可以读到真实
+  非静音数据；
+- 设备覆盖 StickS3、StopWatch、CoreS3、StackChan、Cardputer-ADV 和
+  PaperColor；PaperMono 的 PDM RX 路径走同一 I2S/GDMA 数据面。
+
+StickS3 扬声器抓取的 64 KiB PCM 有 18410 个非零样本，峰峰值 2881；
+CoreS3 扬声器抓取峰峰值 11523，均来自固件实际 I2S 写入而不是 Python 伪造。
+
+### SPI microSD
+
+GP-SPI 从设备模型实现了 SD SPI 命令状态机：
+
+- CMD0/8/9/10/13/16/17/24/51/55/58/59；
+- ACMD41、ACMD13、ACMD51；
+- R1/R2/R3/R7、数据 token、CRC16 和 512 字节单块读写；
+- `M5SW_SPI_SD_IMAGE` 指定原始 SD 镜像，写入后主机可直接校验扇区内容。
+
+Cardputer-ADV 使用 `SCK=G40 / MOSI=G14 / MISO=G39 / CS=G12`，PaperColor
+使用 `SCK=G15 / MOSI=G13 / MISO=G14 / CS=G47`，两者都通过
+`machine.SDCard` 完成写入和回读，未在 Python 侧伪造块数据。
+
+### PaperColor SHT4X
+
+SHT4X 通过 ESP32-S3 I2C 完成测量命令、温度/湿度转换和两段 CRC8 校验；
+官方 `hardware.SHT4X.measure()` 返回默认注入的 `25 °C / 50 %RH` 范围值。
+
 ### StopWatch 振动马达
 
 `Power.setVibration(128)` 写入 M5IOE1 PWM1 的 12 位占空比和 enable 位，
@@ -181,8 +251,25 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/stackchan_nfc/`
 - `tests/uiflow2/stackchan_touch/`
 - `tests/uiflow2/stackchan_rgb/`
+- `tests/uiflow2/stackchan_servo/`
 - `tests/uiflow2/stopwatch_vibration/`
 - `tests/uiflow2/atoms3r_lp5562/`
+- `tests/uiflow2/sticks3_audio/`
+- `tests/uiflow2/sticks3_mic/`
+- `tests/uiflow2/cores3_audio/`
+- `tests/uiflow2/cores3_mic/`
+- `tests/uiflow2/stackchan_audio/`
+- `tests/uiflow2/stackchan_mic/`
+- `tests/uiflow2/stopwatch_audio/`
+- `tests/uiflow2/stopwatch_mic/`
+- `tests/uiflow2/cardputer_adv_audio/`
+- `tests/uiflow2/cardputer_adv_mic/`
+- `tests/uiflow2/cardputer_adv_sd/`
+- `tests/uiflow2/papermono_mic/`
+- `tests/uiflow2/papercolor_audio/`
+- `tests/uiflow2/papercolor_mic/`
+- `tests/uiflow2/papercolor_sd/`
+- `tests/uiflow2/papercolor_sht4x/`
 
 ## 屏幕证据
 
@@ -242,6 +329,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![StackChan RGB probe](images/stackchan-rgb-test.png)
 
+### StackChan SCS servo
+
+![StackChan SCS servo probe](images/stackchan-servo-test.png)
+
 ### StopWatch vibration
 
 ![StopWatch vibration probe](images/stopwatch-vibration-test.png)
@@ -250,14 +341,47 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![AtomS3R LP5562 probe](images/atoms3r-lp5562-test.png)
 
+### Audio and SD data planes
+
+![StickS3 audio](images/sticks3-audio-test.png)
+
+![StickS3 microphone](images/sticks3-mic-test.png)
+
+![CoreS3 audio](images/cores3-audio-test.png)
+
+![CoreS3 microphone](images/cores3-mic-test.png)
+
+![StopWatch audio](images/stopwatch-audio-test.png)
+
+![StopWatch microphone](images/stopwatch-mic-test.png)
+
+![Cardputer-ADV audio](images/cardputer-adv-audio-test.png)
+
+![Cardputer-ADV microphone](images/cardputer-adv-mic-test.png)
+
+![Cardputer-ADV SD](images/cardputer-adv-sd-test.png)
+
+![PaperColor audio](images/papercolor-audio-test.png)
+
+![PaperColor microphone](images/papercolor-mic-test.png)
+
+![PaperColor SD](images/papercolor-sd-test.png)
+
+![PaperColor SHT4X](images/papercolor-sht4x-test.png)
+
+![PaperMono PDM microphone](images/papermono-pdm-mic-test.png)
+
+![StackChan audio](images/stackchan-audio-test.png)
+
+![StackChan microphone](images/stackchan-mic-test.png)
+
 ## 尚未闭环
 
-- 音频 I2S/PDM 的 PCM 注入与扬声器 PCM 抓取；
 - ESP32-C6 RMT/IR 路径（StickS3 的 ESP32-S3 RMT 已闭环）；
 - ST25R3916 SPI/NFCCap 路径；
-- MicroPython/IDF 大于 4 字节 SPI 的总线锁路径；
-- Cardputer/PaperColor 的 SPI SD 路径、USB Host 虚拟端点；
+- USB Host 虚拟端点；
 - Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；
+- CAN/RS485、蜂鸣器，以及 Core2 NS4168/SPM1423 等尚未完成闭环的路径；
 - 所有项目的真机复测。
 
 这些项目已在 `platform/peripherals/catalog.json` 中逐器件登记，CI 会阻止新增

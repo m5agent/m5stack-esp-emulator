@@ -17,6 +17,8 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
 - ESP32-S3 I2S APB register front-end and PCM observation hooks;
 - ESP32-S3 RMT APB/RMTMEM model with NEC TX symbol capture and RX symbol
   injection through real `TX_END`/`RX_END` interrupts;
+- ESP32-S3 system UART clock/reset gates for IDF UART1 bring-up;
+- StackChan SCSCL UART servo model with PING/READ/WRITE/SYNC_WRITE framing;
 - ST25R3916 I2C command/register/FIFO model with ISO14443A anticollision,
   SELECT and deterministic NTAG page read/write;
 - Si12T three-point body-touch register model with QOM touch-bit injection;
@@ -24,6 +26,10 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
 - LP5562 RGB controller enable/mode and independent PWM registers on AtomS3R;
 - SX1262 command/register/FIFO, IRQ, packet metadata and local TX/RX loopback
   over ESP32-S3 GP-SPI3 and GDMA;
+- cyclic I2S/GDMA TX PCM capture and RX PCM injection, including ES8311,
+  ES7210, AW88298, AW8737A, NS4150B and PDM paths;
+- GP-SPI SD SPI command/data model with ACMD/CMD support, CRC16 and raw image
+  backing for Cardputer-ADV and PaperColor;
 - byte-accurate GP-SPI register access plus GDMA TX/RX completion for
   MicroPython `machine.SPI` transactions;
 - optional raw camera frame injection through `M5SW_CAMERA_FRAME`;
@@ -49,9 +55,11 @@ Verified source baseline:
   patches, and for `0002` immediately after `0001`.
 
 The camera frame path is a simulation data plane, not real-camera validation.
-StickS3 IR TX/RX, PaperMono/StackChan I2C NFC and PaperMono SX1262 LoRa are
-validated through the UIFlow2 runtime. Audio PCM and microphone injection,
-USB Host, ST25R3916 SPI/NFCCap and the Tab5 MIPI-CSI path remain follow-up work
-and are tracked in the peripheral catalog. The emulator still has a known
-MicroPython/IDF `spi_device_acquire_bus()` stall for single transactions larger
-than four bytes; the LoRa test keeps CS asserted and splits those transfers.
+StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
+StackChan SCS servo, audio PCM capture/injection and Cardputer/PaperColor SPI
+SD are validated through the UIFlow2 runtime. USB Host, ST25R3916 SPI/NFCCap,
+Tab5 MIPI-CSI/ES8388 and CAN/RS485 remain follow-up work and are tracked in
+the peripheral catalog. The SX1262 test still keeps CS asserted and splits
+large SPI transfers into ≤4-byte transactions for compatibility with the
+current UIFlow2 SPI driver path; the SPI SD path exercises larger block
+transfers directly.

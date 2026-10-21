@@ -166,16 +166,20 @@
       "interface": "i2c-i2s",
       "address": "0x18",
       "capabilities": ["audio-codec", "microphone", "speaker"],
-      "status": "partial",
-      "injection": ["qom-pcm"]
+      "status": "simulated",
+      "injection": ["qom-pcm"],
+      "data_plane": "ES8311 I2C configuration plus ESP32-S3 I2S TX/RX and cyclic GDMA; host PCM capture and deterministic RX PCM injection",
+      "tested_devices": ["sticks3", "stopwatch", "cardputer-adv", "papercolor"]
     },
     "es7210": {
       "kind": "audio-adc",
       "interface": "i2c-i2s",
       "address": "0x40",
       "capabilities": ["audio-codec", "microphone"],
-      "status": "partial",
-      "injection": ["qom-pcm"]
+      "status": "simulated",
+      "injection": ["qom-pcm"],
+      "data_plane": "ES7210 I2C configuration plus ESP32-S3 I2S RX and cyclic GDMA; deterministic host PCM injection reaches the UIFlow2 microphone buffer",
+      "tested_devices": ["cores3", "stackchan", "papercolor"]
     },
     "es8388": {
       "kind": "audio-codec",
@@ -190,15 +194,19 @@
       "interface": "i2c-i2s",
       "address": "0x36",
       "capabilities": ["speaker"],
-      "status": "partial",
-      "injection": ["qom-pcm"]
+      "status": "simulated",
+      "injection": ["qom-pcm"],
+      "data_plane": "AW88298 I2C control plus ESP32-S3 I2S TX and cyclic GDMA; host PCM capture",
+      "tested_devices": ["cores3", "stackchan"]
     },
     "aw8737a": {
       "kind": "audio-amplifier",
       "interface": "gpio",
       "capabilities": ["speaker"],
-      "status": "planned",
-      "injection": ["qom-pcm"]
+      "status": "simulated",
+      "injection": ["qom-pcm"],
+      "data_plane": "AW8737A PA enable path with ESP32-S3 I2S TX and cyclic GDMA; host PCM capture",
+      "tested_devices": ["sticks3", "stopwatch", "papercolor"]
     },
     "ns4168": {
       "kind": "audio-amplifier",
@@ -218,8 +226,10 @@
       "kind": "pdm-microphone",
       "interface": "pdm",
       "capabilities": ["microphone"],
-      "status": "planned",
-      "injection": ["qom-pcm"]
+      "status": "simulated",
+      "injection": ["qom-pcm"],
+      "data_plane": "PDM RX through the ESP32-S3 I2S/GDMA path; deterministic host PCM injection",
+      "tested_devices": ["papermono"]
     },
     "gc0308": {
       "kind": "camera",
@@ -244,8 +254,10 @@
       "kind": "audio-amplifier",
       "interface": "gpio-analog",
       "capabilities": ["speaker"],
-      "status": "planned",
-      "injection": ["qom-pcm"]
+      "status": "simulated",
+      "injection": ["qom-pcm"],
+      "data_plane": "Cardputer-ADV ES8311 + NS4150B speaker path through I2S TX and cyclic GDMA; host PCM capture",
+      "tested_devices": ["cardputer-adv"]
     },
     "sc2356": {
       "kind": "camera",
@@ -259,8 +271,10 @@
       "interface": "i2c",
       "address": "0x44",
       "capabilities": ["temperature", "humidity"],
-      "status": "partial",
-      "injection": ["qom-temperature", "qom-humidity"]
+      "status": "simulated",
+      "injection": ["qom-temperature", "qom-humidity"],
+      "data_plane": "SHT4x command measurements, temperature/humidity conversion and per-word CRC8 over ESP32-S3 I2C",
+      "tested_devices": ["papercolor"]
     },
     "lm75": {
       "kind": "temperature",
@@ -280,8 +294,10 @@
       "kind": "light-proximity",
       "interface": "i2c",
       "capabilities": ["ambient-light", "proximity"],
-      "status": "partial",
-      "injection": ["qom-light-level"]
+      "status": "simulated",
+      "injection": ["qom-light-level"],
+      "data_plane": "LTR553ALS-WA identity, ALS control and four-byte ambient-light register burst over ESP32-S3 I2C",
+      "tested_devices": ["cores3"]
     },
     "ir-tx-rx": {
       "kind": "infrared",
@@ -333,10 +349,12 @@
     },
     "servo": {
       "kind": "servo",
-      "interface": "pwm",
+      "interface": "uart",
       "capabilities": ["servo"],
-      "status": "planned",
-      "injection": ["qom-servo-angle"]
+      "status": "simulated",
+      "injection": ["uart-packet"],
+      "data_plane": "StackChan SCS serial-bus model with PING, READ, WRITE/REG_WRITE and SYNC_WRITE packets, position/torque telemetry, and UART1 TX/RX injection",
+      "tested_devices": ["stackchan"]
     },
     "nfc-st25r3916": {
       "kind": "nfc",
@@ -362,14 +380,17 @@
       "capabilities": ["sd"],
       "status": "simulated",
       "injection": ["qom-sd-image"],
-      "data_plane": "QEMU SD card block backend attached with -drive if=sd; raw image read/write sectors"
+      "data_plane": "QEMU SD card block backend attached with -drive if=sd; raw image read/write sectors",
+      "tested_devices": ["papermono"]
     },
     "sd-card-spi": {
       "kind": "storage",
       "interface": "spi",
       "capabilities": ["sd"],
-      "status": "planned",
-      "injection": ["qom-sd-image"]
+      "status": "simulated",
+      "injection": ["qom-sd-image"],
+      "data_plane": "GP-SPI SD SPI command/data model with CMD0/8/9/10/13/16/17/24/51/55/58/59 and ACMD41/SD_STATUS; raw image sector backing and CRC16",
+      "tested_devices": ["cardputer-adv", "papercolor"]
     },
     "usb-host": {
       "kind": "usb-host",

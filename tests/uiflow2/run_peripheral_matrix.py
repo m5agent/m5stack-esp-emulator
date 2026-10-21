@@ -49,6 +49,191 @@ CASES = [
         ],
     },
     {
+        "id": "sticks3-audio",
+        "expected_status": "PASS",
+        "reason": (
+            "Speaker.begin(), ES8311 I2C setup, I2S TX, cyclic GDMA "
+            "descriptor completion and host PCM capture all pass."
+        ),
+        "checks": [
+            {"name": "es8311_configure", "status": "PASS"},
+            {"name": "speaker_tone", "status": "PASS"},
+            {"name": "i2s_gdma_capture", "status": "PASS"},
+            {"name": "speaker_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5sticks3",
+        "base": "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/sticks3_audio",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "135x240",
+        "efuse_pkg_version": "1",
+        "wait": "4",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
+        },
+        "qom_expect": [
+            ("/machine/m5pm1", "pa-enabled", "true"),
+        ],
+        "pcm": {
+            "capture": "{out_dir}/speaker.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 1000,
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "StickS3 audio"},
+    },
+    {
+        "id": "sticks3-mic",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Mic API records through I2S RX and cyclic GDMA; "
+            "host PCM injection is returned non-silent to the UIFlow2 buffer."
+        ),
+        "checks": [
+            {"name": "es8311_configure", "status": "PASS"},
+            {"name": "mic_record", "status": "PASS"},
+            {"name": "i2s_rx_pcm_injection", "status": "PASS"},
+            {"name": "mic_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5sticks3",
+        "base": "platform/.cache/firmware/sticks3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/sticks3_mic",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "135x240",
+        "efuse_pkg_version": "1",
+        "wait": "5",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "pcm_tone_source": {
+            "output": "{out_dir}/microphone.pcm",
+            "frequency": "440",
+            "sample_rate": "16000",
+            "seconds": "1",
+            "amplitude": "12000",
+        },
+        "env": {
+            "M5SW_I2S_RX_PCM_FILE": "{out_dir}/microphone.pcm",
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "StickS3 mic"},
+    },
+    {
+        "id": "cardputer-adv-sd",
+        "expected_status": "PASS",
+        "reason": (
+            "The documented Cardputer-ADV SPI SD pins are used with the "
+            "machine.SDCard block API; a 512-byte write and readback match "
+            "the raw QEMU SD image."
+        ),
+        "checks": [
+            {"name": "sdspi_init", "status": "PASS"},
+            {"name": "sdspi_write_block", "status": "PASS"},
+            {"name": "sdspi_readback", "status": "PASS"},
+            {"name": "sd_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cardputeradv",
+        "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cardputer_adv_sd",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "22",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "sd_image": True,
+        "env": {
+            "M5SW_SPI_SD_IMAGE": "{out_dir}/sd.img",
+        },
+        "disk": {
+            "image": "{out_dir}/sd.img",
+            "sector": 100,
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV SD"},
+    },
+    {
+        "id": "cardputer-adv-audio",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Speaker API drives ES8311 and NS4150B through I2S "
+            "TX and cyclic GDMA; host PCM capture contains the generated tone."
+        ),
+        "checks": [
+            {"name": "es8311_configure", "status": "PASS"},
+            {"name": "speaker_tone", "status": "PASS"},
+            {"name": "i2s_gdma_capture", "status": "PASS"},
+            {"name": "speaker_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cardputeradv",
+        "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cardputer_adv_audio",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "8",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
+        },
+        "pcm": {
+            "capture": "{out_dir}/speaker.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 1000,
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV audio"},
+    },
+    {
+        "id": "cardputer-adv-mic",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Mic API records through ES8311, I2S RX and cyclic "
+            "GDMA; deterministic host PCM injection reaches the buffer."
+        ),
+        "checks": [
+            {"name": "es8311_configure", "status": "PASS"},
+            {"name": "mic_record", "status": "PASS"},
+            {"name": "i2s_rx_pcm_injection", "status": "PASS"},
+            {"name": "mic_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cardputeradv",
+        "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cardputer_adv_mic",
+        "vfs_offset": "0x641000",
+        "vfs_size": "0x1BE000",
+        "flash_size": "0x800000",
+        "expected_size": "240x135",
+        "efuse_pkg_version": "0",
+        "wait": "9",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "pcm_tone_source": {
+            "output": "{out_dir}/microphone.pcm",
+            "frequency": "440",
+            "sample_rate": "16000",
+            "seconds": "1",
+            "amplitude": "12000",
+        },
+        "env": {
+            "M5SW_I2S_RX_PCM_FILE": "{out_dir}/microphone.pcm",
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Cardputer-ADV mic"},
+    },
+    {
         "id": "atoms3r-peripherals",
         "expected_status": "PASS",
         "reason": (
@@ -153,16 +338,16 @@ CASES = [
     },
     {
         "id": "cores3-peripherals",
-        "expected_status": "PARTIAL",
+        "expected_status": "PASS",
         "reason": (
-            "IMU, magnetometer, touch, PWR, power and RTC pass; LTR553 "
-            "identity is modeled but M5.Als still returns zero in this firmware path."
+            "IMU, magnetometer, touch, PWR, power, RTC and LTR553 ambient "
+            "light all pass through their real buses."
         ),
         "checks": [
             {"name": "imu_identity", "status": "PASS"},
             {"name": "imu_values", "status": "PASS"},
             {"name": "magnetometer", "status": "PASS"},
-            {"name": "ambient_light", "status": "PARTIAL"},
+            {"name": "ambient_light", "status": "PASS"},
             {"name": "touch", "status": "PASS"},
             {"name": "btn_pwr", "status": "PASS"},
             {"name": "power", "status": "PASS"},
@@ -215,6 +400,79 @@ CASES = [
             {"name": "camera_snapshot", "status": "PASS"},
             {"name": "camera_display", "status": "PASS"},
         ],
+    },
+    {
+        "id": "cores3-audio",
+        "expected_status": "PASS",
+        "reason": (
+            "Speaker.begin(), AW88298 setup, I2S TX, cyclic GDMA "
+            "descriptor completion and host PCM capture all pass."
+        ),
+        "checks": [
+            {"name": "aw88298_configure", "status": "PASS"},
+            {"name": "speaker_tone", "status": "PASS"},
+            {"name": "i2s_gdma_capture", "status": "PASS"},
+            {"name": "speaker_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cores3",
+        "base": "platform/.cache/firmware/cores3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cores3_audio",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "4",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
+        },
+        "pcm": {
+            "capture": "{out_dir}/speaker.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 1000,
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "CoreS3 audio"},
+    },
+    {
+        "id": "cores3-mic",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Mic API records through ES7210, I2S RX and cyclic "
+            "GDMA; deterministic host PCM injection reaches the buffer."
+        ),
+        "checks": [
+            {"name": "es7210_configure", "status": "PASS"},
+            {"name": "mic_record", "status": "PASS"},
+            {"name": "i2s_rx_pcm_injection", "status": "PASS"},
+            {"name": "mic_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5cores3",
+        "base": "platform/.cache/firmware/cores3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cores3_mic",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "6",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "pcm_tone_source": {
+            "output": "{out_dir}/microphone.pcm",
+            "frequency": "440",
+            "sample_rate": "16000",
+            "seconds": "1",
+            "amplitude": "12000",
+        },
+        "env": {
+            "M5SW_I2S_RX_PCM_FILE": "{out_dir}/microphone.pcm",
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "CoreS3 mic"},
     },
     {
         "id": "stamplc-peripherals",
@@ -318,6 +576,188 @@ CASES = [
             ("/machine/m5pm1", "charging", "true"),
         ],
         "sd_image": True,
+    },
+    {
+        "id": "papermono-pdm-mic",
+        "expected_status": "PASS",
+        "reason": (
+            "The built-in PDM microphone records through I2S RX and cyclic "
+            "GDMA; deterministic host PCM injection reaches the UIFlow2 buffer."
+        ),
+        "checks": [
+            {"name": "pdm_mic_begin", "status": "PASS"},
+            {"name": "pdm_mic_record", "status": "PASS"},
+            {"name": "pdm_i2s_rx_injection", "status": "PASS"},
+            {"name": "pdm_mic_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papermono",
+        "base": "platform/.cache/firmware/papermono/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papermono_mic",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "480x800",
+        "efuse_pkg_version": "0",
+        "wait": "6",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "pcm_tone_source": {
+            "output": "{out_dir}/microphone.pcm",
+            "frequency": "440",
+            "sample_rate": "16000",
+            "seconds": "1",
+            "amplitude": "12000",
+        },
+        "env": {
+            "M5SW_I2S_RX_PCM_FILE": "{out_dir}/microphone.pcm",
+        },
+        "frame_color": {
+            "x": 4, "y": 4, "label": "PaperMono PDM mic", "dark": True,
+        },
+    },
+    {
+        "id": "papercolor-sd",
+        "expected_status": "PASS",
+        "reason": (
+            "The documented PaperColor SPI SD pins are used with "
+            "machine.SDCard; a 512-byte block write/readback and raw image "
+            "sector contents both match."
+        ),
+        "checks": [
+            {"name": "sdspi_init", "status": "PASS"},
+            {"name": "sdspi_write_block", "status": "PASS"},
+            {"name": "sdspi_readback", "status": "PASS"},
+            {"name": "sd_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papercolor",
+        "base": "platform/.cache/firmware/papercolor/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papercolor_sd",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "400x600",
+        "efuse_pkg_version": "0",
+        "wait": "22",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "sd_image": True,
+        "env": {
+            "M5SW_SPI_SD_IMAGE": "{out_dir}/sd.img",
+        },
+        "disk": {
+            "image": "{out_dir}/sd.img",
+            "sector": 100,
+        },
+        "frame_color": {
+            "x": 4, "y": 4, "label": "PaperColor SD", "dark": True,
+        },
+    },
+    {
+        "id": "papercolor-audio",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Speaker API drives ES8311/AW8737A through I2S TX "
+            "and cyclic GDMA; host PCM capture contains the generated tone."
+        ),
+        "checks": [
+            {"name": "es8311_configure", "status": "PASS"},
+            {"name": "speaker_tone", "status": "PASS"},
+            {"name": "i2s_gdma_capture", "status": "PASS"},
+            {"name": "speaker_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papercolor",
+        "base": "platform/.cache/firmware/papercolor/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papercolor_audio",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "400x600",
+        "efuse_pkg_version": "0",
+        "wait": "11",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
+        },
+        "pcm": {
+            "capture": "{out_dir}/speaker.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 1000,
+        },
+        "frame_color": {
+            "x": 4, "y": 4, "label": "PaperColor audio", "dark": True,
+        },
+    },
+    {
+        "id": "papercolor-sht4x",
+        "expected_status": "PASS",
+        "reason": (
+            "The onboard SHT4X sensor responds to the official hardware."
+            "SHT4X API through I2C; temperature/humidity decoding and CRCs pass."
+        ),
+        "checks": [
+            {"name": "sht4x_measure", "status": "PASS"},
+            {"name": "sht4x_crc", "status": "PASS"},
+            {"name": "sht4x_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papercolor",
+        "base": "platform/.cache/firmware/papercolor/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papercolor_sht4x",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "400x600",
+        "efuse_pkg_version": "0",
+        "wait": "8",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "frame_color": {
+            "x": 4, "y": 4, "label": "PaperColor SHT4X", "dark": True,
+        },
+    },
+    {
+        "id": "papercolor-mic",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Mic API records through ES7210, I2S RX and cyclic "
+            "GDMA; deterministic host PCM injection reaches the buffer."
+        ),
+        "checks": [
+            {"name": "es7210_configure", "status": "PASS"},
+            {"name": "mic_record", "status": "PASS"},
+            {"name": "i2s_rx_pcm_injection", "status": "PASS"},
+            {"name": "mic_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5papercolor",
+        "base": "platform/.cache/firmware/papercolor/uiflow2.bin",
+        "files_dir": "tests/uiflow2/papercolor_mic",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "400x600",
+        "efuse_pkg_version": "0",
+        "wait": "11",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "pcm_tone_source": {
+            "output": "{out_dir}/microphone.pcm",
+            "frequency": "440",
+            "sample_rate": "16000",
+            "seconds": "1",
+            "amplitude": "12000",
+        },
+        "env": {
+            "M5SW_I2S_RX_PCM_FILE": "{out_dir}/microphone.pcm",
+        },
+        "frame_color": {
+            "x": 4, "y": 4, "label": "PaperColor mic", "dark": True,
+        },
     },
     {
         "id": "papermono-nfc",
@@ -457,6 +897,108 @@ CASES = [
         "frame_color": {"x": 4, "y": 4, "label": "StackChan RGB"},
     },
     {
+        "id": "stackchan-audio",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Speaker API drives AW88298 and I2S TX through "
+            "cyclic GDMA; host PCM capture contains the generated tone."
+        ),
+        "checks": [
+            {"name": "aw88298_configure", "status": "PASS"},
+            {"name": "speaker_tone", "status": "PASS"},
+            {"name": "i2s_gdma_capture", "status": "PASS"},
+            {"name": "speaker_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stackchan",
+        "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stackchan_audio",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "4",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
+        },
+        "pcm": {
+            "capture": "{out_dir}/speaker.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 1000,
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "StackChan audio"},
+    },
+    {
+        "id": "stackchan-mic",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Mic API records through ES7210, I2S RX and cyclic "
+            "GDMA; host PCM injection reaches the UIFlow2 buffer."
+        ),
+        "checks": [
+            {"name": "es7210_configure", "status": "PASS"},
+            {"name": "mic_record", "status": "PASS"},
+            {"name": "i2s_rx_pcm_injection", "status": "PASS"},
+            {"name": "mic_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stackchan",
+        "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stackchan_mic",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "6",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "pcm_tone_source": {
+            "output": "{out_dir}/microphone.pcm",
+            "frequency": "440",
+            "sample_rate": "16000",
+            "seconds": "1",
+            "amplitude": "12000",
+        },
+        "env": {
+            "M5SW_I2S_RX_PCM_FILE": "{out_dir}/microphone.pcm",
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "StackChan mic"},
+    },
+    {
+        "id": "stackchan-servo",
+        "expected_status": "PASS",
+        "reason": (
+            "The official SCS servo driver uses UART1 to ping, enable torque "
+            "and write/read back both StackChan servo positions through the "
+            "SCSCL protocol model."
+        ),
+        "checks": [
+            {"name": "servo_ping", "status": "PASS"},
+            {"name": "servo_torque", "status": "PASS"},
+            {"name": "servo_write", "status": "PASS"},
+            {"name": "servo_readback", "status": "PASS"},
+            {"name": "servo_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stackchan",
+        "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stackchan_servo",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "12",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "StackChan servo"},
+    },
+    {
         "id": "stopwatch-vibration",
         "expected_status": "PASS",
         "reason": (
@@ -481,6 +1023,81 @@ CASES = [
         "qom": [],
         "allow_static_frame": True,
         "frame_color": {"x": 233, "y": 5, "label": "vibration"},
+    },
+    {
+        "id": "stopwatch-audio",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Speaker API drives ES8311/AW8737A through I2S TX "
+            "and cyclic GDMA; host PCM capture contains the generated tone."
+        ),
+        "checks": [
+            {"name": "es8311_configure", "status": "PASS"},
+            {"name": "speaker_tone", "status": "PASS"},
+            {"name": "i2s_gdma_capture", "status": "PASS"},
+            {"name": "speaker_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stopwatch",
+        "base": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stopwatch_audio",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "466x466",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "min_unique_colors": 1,
+        "env": {
+            "M5SW_I2S_DMA_IRQ": "1",
+            "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
+        },
+        "pcm": {
+            "capture": "{out_dir}/speaker.pcm",
+            "min_nonzero": 1000,
+            "min_peak_to_peak": 1000,
+        },
+        "frame_color": {"x": 233, "y": 5, "label": "StopWatch audio"},
+    },
+    {
+        "id": "stopwatch-mic",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Mic API records through ES8311, I2S RX and cyclic "
+            "GDMA; deterministic host PCM injection reaches the buffer."
+        ),
+        "checks": [
+            {"name": "es8311_configure", "status": "PASS"},
+            {"name": "mic_record", "status": "PASS"},
+            {"name": "i2s_rx_pcm_injection", "status": "PASS"},
+            {"name": "mic_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stopwatch",
+        "base": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stopwatch_mic",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "466x466",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "min_unique_colors": 1,
+        "pcm_tone_source": {
+            "output": "{out_dir}/microphone.pcm",
+            "frequency": "440",
+            "sample_rate": "16000",
+            "seconds": "1",
+            "amplitude": "12000",
+        },
+        "env": {
+            "M5SW_I2S_RX_PCM_FILE": "{out_dir}/microphone.pcm",
+        },
+        "frame_color": {"x": 233, "y": 5, "label": "StopWatch mic"},
     },
     {
         "id": "atoms3r-lp5562",
@@ -535,6 +1152,8 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--input", input_spec])
     for path, prop, value in case["qom"]:
         command.extend(["--qom-set", path, prop, value])
+    for path, prop, value in case.get("qom_expect", []):
+        command.extend(["--qom-expect", path, prop, value])
     if case.get("qom_settle"):
         command.extend(["--qom-settle", str(case["qom_settle"])])
     if case.get("allow_static_frame"):
@@ -592,6 +1211,22 @@ def main() -> None:
                 env=env,
                 check=True,
             )
+        pcm_tone_source = case.get("pcm_tone_source")
+        if pcm_tone_source:
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tests/uiflow2/make_pcm_tone.py"),
+                    str(pcm_tone_source["output"]).format(out_dir=case_out),
+                    "--frequency", pcm_tone_source["frequency"],
+                    "--sample-rate", pcm_tone_source["sample_rate"],
+                    "--seconds", pcm_tone_source["seconds"],
+                    "--amplitude", pcm_tone_source["amplitude"],
+                ],
+                cwd=ROOT,
+                env=env,
+                check=True,
+            )
         command = command_for(case, case_out, sd_image)
         case_env = env.copy()
         for key, value in case.get("env", {}).items():
@@ -628,6 +1263,44 @@ def main() -> None:
             )
             validation_output = validation.stdout
             validation_ok = validation.returncode == 0
+        pcm = case.get("pcm")
+        if pcm and process.returncode == 0:
+            validation = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tests/uiflow2/check_pcm.py"),
+                    str(pcm["capture"]).format(out_dir=case_out),
+                    "--min-nonzero", str(pcm.get("min_nonzero", 1000)),
+                    "--min-peak-to-peak",
+                    str(pcm.get("min_peak_to_peak", 1000)),
+                ],
+                cwd=ROOT,
+                env=case_env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            validation_output += validation.stdout
+            validation_ok = validation_ok and validation.returncode == 0
+        disk = case.get("disk")
+        if disk and process.returncode == 0:
+            validation = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tests/uiflow2/check_disk_sector.py"),
+                    str(disk["image"]).format(out_dir=case_out),
+                    "--sector", str(disk["sector"]),
+                ],
+                cwd=ROOT,
+                env=case_env,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            validation_output += validation.stdout
+            validation_ok = validation_ok and validation.returncode == 0
         frame_color = case.get("frame_color")
         if frame_color and process.returncode == 0:
             frame_command = [

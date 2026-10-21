@@ -56,9 +56,16 @@
   INA226、LTR553、LM75、SHT40、ST25R3916 等均有总线级模型和 QOM 注入。
 - **GPIO/扩展 IO**：按键、触摸、PI4IOE 输入/继电器、AW9523 输入、M5IOE1
   输出状态均通过真实 I2C/GPIO 路径读取。
+- **串行执行器**：StackChan 的 SCS 舵机通过真实 UART1 字节流解析
+  `PING/READ/WRITE/SYNC_WRITE` 帧，位置、扭矩和遥测状态由舵机模型回包。
+- **音频**：ES8311、ES7210、AW88298、AW8737A 和 PDM 麦克风通过
+  ESP32-S3 I2S 与循环 GDMA 工作；宿主文件可抓取扬声器 PCM，也可向麦克风
+  RX 描述符注入 PCM。
+- **SPI 存储**：Cardputer-ADV 与 PaperColor 的 microSD 走 GP-SPI SD
+  command/data 协议，并使用原始块镜像作为后端。
 
 ## 仍需高带宽数据面的器件
 
-音频编解码器、PDM 麦克风、扬声器功放、IR、SX1262、SD、USB Host 和 Tab5
-摄像头不能仅以“芯片可识别”标记为完成。它们必须在后续实现 PCM ring buffer、
-packet mailbox、虚拟块设备或 USB 端点，并加入 UIFlow2 API 闭环测试。
+USB Host、Tab5 摄像头/音频、核心传感器的一些剩余寄存器语义和现场总线
+仍不能仅以“芯片可识别”标记为完成。它们必须继续实现端点、帧数据面或
+总线级模型，并加入 UIFlow2 API 闭环测试。

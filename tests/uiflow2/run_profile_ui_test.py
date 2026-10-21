@@ -313,6 +313,14 @@ def main():
         help="set a QOM property immediately after QMP starts, before firmware boot",
     )
     parser.add_argument("--qom-settle", type=float, default=0.5)
+    parser.add_argument(
+        "--qom-expect",
+        action="append",
+        nargs=3,
+        metavar=("PATH", "PROPERTY", "VALUE"),
+        default=[],
+        help="require a QOM property value after inputs; repeat as needed",
+    )
     parser.add_argument("--wait", type=float, default=6.0)
     parser.add_argument("--post-input-wait", type=float, default=0.6)
     parser.add_argument("--min-nonblack-pixels", type=int, default=16)
@@ -453,6 +461,19 @@ def main():
         for input_spec in args.input:
             send_input(qmp, input_spec, actual, args.post_input_wait)
         qmp.cmd("screendump", filename=str(after))
+        for path, prop, raw_expected in args.qom_expect:
+            try:
+                expected = json.loads(raw_expected)
+            except json.JSONDecodeError:
+                expected = raw_expected
+            current = qmp.cmd(
+                "qom-get", path=path, property=prop
+            )["return"]
+            print(f"qom-expect {path} {prop}={current}")
+            if current != expected:
+                raise RuntimeError(
+                    f"QOM {path}.{prop}={current!r}, expected {expected!r}"
+                )
         qmp.close()
         before_frame = canonicalize_screendump(before)
         after_frame = canonicalize_screendump(after)
