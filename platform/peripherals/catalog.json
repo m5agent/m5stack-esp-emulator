@@ -47,8 +47,10 @@
       "interface": "i2c",
       "address": "0x68",
       "capabilities": ["touch"],
-      "status": "planned",
-      "injection": ["qom-touch"]
+      "status": "simulated",
+      "injection": ["qom-touch-bits"],
+      "data_plane": "Si12T register configuration and OUTPUT1 touch-bit decoding over ESP32-S3 I2C",
+      "tested_devices": ["stackchan"]
     },
     "touch-cst820": {
       "kind": "touch",
@@ -292,8 +294,10 @@
       "kind": "led",
       "interface": "rmt",
       "capabilities": ["rgb-led"],
-      "status": "planned",
-      "injection": ["qom-rgb"]
+      "status": "partial",
+      "injection": ["i2c-neopixel-ram", "qom-rgb"],
+      "data_plane": "M5IOE1 I2C NeoPixel configuration and RGB565 LED RAM; additional RMT/WS2812 and PMIC LED implementations remain planned",
+      "tested_devices": ["stackchan"]
     },
     "vibration": {
       "kind": "actuator",
@@ -517,7 +521,7 @@
         {"id": "microphone", "model": "es7210"},
         {"id": "speaker", "model": "aw88298"},
         {"id": "nfc", "model": "nfc-st25r3916", "address": "0x50", "qom_path": "/machine/st25r3916"},
-        {"id": "body-touch", "model": "touch-si12t", "address": "0x68"},
+        {"id": "body-touch", "model": "touch-si12t", "address": "0x68", "qom_path": "/machine/si12t"},
         {"id": "ir", "model": "ir-tx-rx"},
         {"id": "rgb-led", "model": "rgb-led"},
         {"id": "power-monitor-body", "model": "ina226", "address": "0x41"},

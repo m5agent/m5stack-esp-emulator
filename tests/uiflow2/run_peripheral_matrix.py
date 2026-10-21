@@ -375,6 +375,59 @@ CASES = [
         "min_unique_colors": 1,
         "frame_color": {"x": 4, "y": 4, "label": "NFC", "dark": True},
     },
+    {
+        "id": "stackchan-touch",
+        "expected_status": "PASS",
+        "reason": (
+            "The official Si12T driver configures the body touch controller "
+            "over I2C; QOM injects touch bits and UIFlow2 decodes point 0."
+        ),
+        "checks": [
+            {"name": "si12t_config", "status": "PASS"},
+            {"name": "si12t_touch", "status": "PASS"},
+            {"name": "si12t_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stackchan",
+        "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stackchan_touch",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "10",
+        "inputs": ["key:a"],
+        "qom": [("/machine/si12t", "touch-bits", "2")],
+        "qom_settle": 1,
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "Si12T touch"},
+    },
+    {
+        "id": "stackchan-rgb",
+        "expected_status": "PASS",
+        "reason": (
+            "The official M5IOE1 NeoPixel driver writes 12 RGB565 values "
+            "through I2C and reads the LED RAM back from the expander model."
+        ),
+        "checks": [
+            {"name": "m5ioe1_led_cfg", "status": "PASS"},
+            {"name": "neopixel_ram", "status": "PASS"},
+            {"name": "rgb_ui_marker", "status": "PASS"},
+        ],
+        "machine": "m5stackchan",
+        "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
+        "files_dir": "tests/uiflow2/stackchan_rgb",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "12",
+        "inputs": ["key:a"],
+        "qom": [],
+        "allow_static_frame": True,
+        "frame_color": {"x": 4, "y": 4, "label": "StackChan RGB"},
+    },
 ]
 
 
@@ -402,6 +455,8 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--input", input_spec])
     for path, prop, value in case["qom"]:
         command.extend(["--qom-set", path, prop, value])
+    if case.get("qom_settle"):
+        command.extend(["--qom-settle", str(case["qom_settle"])])
     if case.get("allow_static_frame"):
         command.append("--allow-static-frame")
     if sd_image:

@@ -26,11 +26,13 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | StickS3 | RMT4 NEC 红外接收与回调 | `hardware.IR.rx_cb()` | PASS |
 | PaperMono | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
 | StackChan | ST25R3916 I2C NFC 检测、读页、写页回读 | `hardware.NFC` | PASS |
+| StackChan | Si12T 三点身体触摸 | `driver.si12t.Si12T` | PASS |
+| StackChan | M5IOE1 12 路 NeoPixel RGB 写入/回读 | `driver.m5ioe1.RGB` | PASS |
 
 汇总：
 
 ```text
-PASS    10
+PASS    12
 PARTIAL 1
 ```
 
@@ -116,6 +118,16 @@ PaperMono 与 StackChan 的 NFC 使用 ST25R3916 I2C 模式（地址 `0x50`）�
 两台设备均检测到 UID `DEADBEEF`，PaperMono 写入/回读 page 8 的 `TEST`，
 StackChan 写入/回读 page 12 的 `CHAN`。
 
+### StackChan Si12T 身体触摸
+
+Si12T 在 `0x68` 上完成寄存器配置，QOM `touch-bits` 注入后，
+`get_touch_status()` 解码出 `[2, 0, 0]`，屏幕绘制成功标记。
+
+### StackChan M5IOE1 RGB
+
+官方 M5IOE1 NeoPixel 驱动通过 I2C 配置 12 颗 RGB，写入红色后从 LED RAM
+读回 RGB565 `0xF800`，验证的是扩展器寄存器数据面。
+
 ## 运行
 
 ```bash
@@ -135,6 +147,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/sticks3_ir_rx/`
 - `tests/uiflow2/papermono_nfc/`
 - `tests/uiflow2/stackchan_nfc/`
+- `tests/uiflow2/stackchan_touch/`
+- `tests/uiflow2/stackchan_rgb/`
 
 ## 屏幕证据
 
@@ -181,6 +195,14 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ### StackChan NFC
 
 ![StackChan NFC probe](images/stackchan-nfc-test.png)
+
+### StackChan Si12T touch
+
+![StackChan Si12T touch probe](images/stackchan-touch-test.png)
+
+### StackChan RGB
+
+![StackChan RGB probe](images/stackchan-rgb-test.png)
 
 ## 尚未闭环
 

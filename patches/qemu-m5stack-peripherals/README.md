@@ -17,6 +17,8 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   injection through real `TX_END`/`RX_END` interrupts;
 - ST25R3916 I2C command/register/FIFO model with ISO14443A anticollision,
   SELECT and deterministic NTAG page read/write;
+- Si12T three-point body-touch register model with QOM touch-bit injection;
+- M5IOE1 NeoPixel configuration and RGB565 LED RAM readback for StackChan;
 - optional raw camera frame injection through `M5SW_CAMERA_FRAME`;
 - Cardputer-Adv, AtomS3R, Core2, PaperColor, PaperMono, StackChan and StamPLC
   peripheral attachment updates.

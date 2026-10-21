@@ -1363,10 +1363,10 @@ index 2a5b82b..34cbb8e 100644
      qdev_prop_set_bit(panel, "busy-ready-level", false);
      qdev_realize_and_unref(panel, NULL, &error_fatal);
 diff --git a/hw/m5stopwatch/m5stackchan.c b/hw/m5stopwatch/m5stackchan.c
-index d0afee8..d13b9cd 100644
+index d0afee8..003b352 100644
 --- a/hw/m5stopwatch/m5stackchan.c
 +++ b/hw/m5stopwatch/m5stackchan.c
-@@ -39,12 +39,16 @@ void m5stackchan_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+@@ -39,12 +39,17 @@ void m5stackchan_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
      static const struct { const char *model; uint8_t addr; } devs[] = {
          { "axp2101", 0x34 },
          { "aw9523", 0x58 },
@@ -1382,10 +1382,11 @@ index d0afee8..d13b9cd 100644
 -        { "es8311", 0x18 },
 +        { "ina226", 0x41 },
 +        { "st25r3916", 0x50 },
++        { "si12t", 0x68 },
      };
      for (int i = 0; i < ARRAY_SIZE(devs); i++) {
          DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
-@@ -55,6 +59,16 @@ void m5stackchan_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+@@ -55,6 +60,16 @@ void m5stackchan_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
      }
      m5stopwatch_soft_i2c_init_pins(bus, 12, 11);
  
@@ -1497,10 +1498,10 @@ index e9cc3e3..4e2128e 100644
                     struct ESPGdmaState *gdma);
  void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
 diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
-index aefe5e9..48d49a9 100644
+index aefe5e9..55005f2 100644
 --- a/hw/m5stopwatch/m5sw_i2c_devs.c
 +++ b/hw/m5stopwatch/m5sw_i2c_devs.c
-@@ -22,14 +22,24 @@ enum {
+@@ -22,14 +22,25 @@ enum {
      M_IOE1,
      M_CST820,
      M_BMI270,
@@ -1522,10 +1523,11 @@ index aefe5e9..48d49a9 100644
 +    M_LM75,
 +    M_INA226,
 +    M_SHT40,
++    M_SI12T,
  };
  
  typedef struct M5swI2CDev {
-@@ -44,8 +54,28 @@ typedef struct M5swI2CDev {
+@@ -44,8 +55,29 @@ typedef struct M5swI2CDev {
      /* live, QOM-settable sensor state (qom-set /machine/bmi270 accel-x 0.5 ...) */
      double accel[3];       /* g   (BMI270 sensor frame) */
      double gyro[3];        /* dps */
@@ -1539,6 +1541,7 @@ index aefe5e9..48d49a9 100644
 +    double shunt_ohms;
 +    int64_t light_level;
 +    int64_t aw9523_input_bits;
++    int64_t si12t_touch_bits;
 +    uint8_t command;
 +    uint8_t read_start;
      bool charging;         /* M5PM1 G2 CHG_STAT low = charging */
@@ -1554,7 +1557,7 @@ index aefe5e9..48d49a9 100644
  } M5swI2CDev;
  
  OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
-@@ -53,6 +83,8 @@ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+@@ -53,6 +85,8 @@ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
  static M5swI2CDev *g_touch;
  static M5swI2CDev *g_ft_touch;
  static M5swI2CDev *g_pm1;
@@ -1563,7 +1566,7 @@ index aefe5e9..48d49a9 100644
  static M5swI2CDev *g_keyboard;
  static uint8_t g_key_events[16];
  static unsigned g_key_event_head;
-@@ -61,12 +93,22 @@ static uint8_t g_plc_keys = 0x07;
+@@ -61,12 +95,22 @@ static uint8_t g_plc_keys = 0x07;
  
  void m5sw_pwr_button(int pressed)
  {
@@ -1586,7 +1589,7 @@ index aefe5e9..48d49a9 100644
      }
  }
  static int g_touch_pressed, g_touch_x, g_touch_y;
-@@ -132,6 +174,37 @@ void m5sw_plc_key_set(int key, bool pressed)
+@@ -132,6 +176,37 @@ void m5sw_plc_key_set(int key, bool pressed)
  static inline uint8_t bcd(int v) { return ((v / 10) << 4) | (v % 10); }
  static inline int unbcd(uint8_t v) { return (v >> 4) * 10 + (v & 0xf); }
  
@@ -1624,7 +1627,7 @@ index aefe5e9..48d49a9 100644
  static void rx8130_fill_time(M5swI2CDev *s)
  {
      time_t t = time(NULL) + s->rtc_offset;
-@@ -159,6 +232,129 @@ static void rx8130_time_written(M5swI2CDev *s)
+@@ -159,6 +234,129 @@ static void rx8130_time_written(M5swI2CDev *s)
      s->rtc_offset = (int64_t)t - (int64_t)time(NULL);
  }
  
@@ -1754,7 +1757,7 @@ index aefe5e9..48d49a9 100644
  static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
  {
      switch (s->model) {
-@@ -185,18 +381,16 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+@@ -185,16 +383,22 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
          }
          break;
      case M_AW9523:
@@ -1774,12 +1777,16 @@ index aefe5e9..48d49a9 100644
 -            uint8_t v = s->regs[r];
 -            s->regs[r] = 0;
 -            return v;
--        }
--        break;
++    case M_SI12T:
++        if (r == 0x10) {
++            return s->si12t_touch_bits & 0xff;
++        }
++        if (r == 0x11 || r == 0x12) {
++            return 0;
+         }
+         break;
      case M_FT5X06:
-         if (r == 0xA3) {
-             return 0x51;
-@@ -231,6 +425,11 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+@@ -231,6 +435,11 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
          }
          break;
      case M_PM1:
@@ -1791,7 +1798,7 @@ index aefe5e9..48d49a9 100644
          if (r == 0x12) {                                 /* GPIO_IN: G2 = CHG_STAT (active low) */
              return (s->regs[0x12] & ~0x04) | (s->charging ? 0 : 0x04);
          }
-@@ -240,22 +439,183 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+@@ -240,22 +449,183 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
              return (r & 1) ? (v >> 8) & 0xff : v & 0xff;
          }
          break;
@@ -1981,7 +1988,7 @@ index aefe5e9..48d49a9 100644
          }
          if (r == 0x21) {                                 /* INTERNAL_STATUS */
              return s->regs[0x59] & 1 ? 0x01 : 0x00;      /* init OK after INIT_CTRL=1 */
-@@ -275,9 +635,17 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+@@ -275,9 +645,17 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
      M5swI2CDev *s = M5SW_I2C_DEV(i2c);
      if (ev == I2C_START_SEND) {
          s->ptr_set = false;
@@ -1999,7 +2006,7 @@ index aefe5e9..48d49a9 100644
          }
      } else if (ev == I2C_FINISH) {
          if (s->model == M_RX8130 && s->ptr_set) {
-@@ -294,13 +662,68 @@ static uint8_t dev_recv(I2CSlave *i2c)
+@@ -294,13 +672,68 @@ static uint8_t dev_recv(I2CSlave *i2c)
      if (s->trace) {
          qemu_log("[%s] rd %02x -> %02x\n", s->model_name, s->ptr, v);
      }
@@ -2069,7 +2076,7 @@ index aefe5e9..48d49a9 100644
      if (!s->ptr_set) {
          s->ptr = data;
          s->ptr_set = true;
-@@ -316,9 +739,6 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+@@ -316,9 +749,6 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
              return 0;
          }
          if (r == 0x7E && data == 0xB6) {  /* soft reset */
@@ -2079,7 +2086,7 @@ index aefe5e9..48d49a9 100644
              s->regs[0x7C] = 0x03;
              s->ptr++;
              return 0;
-@@ -327,6 +747,16 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+@@ -327,6 +757,16 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
      case M_IOE1:
          if (r == 0x07 || r == 0x08) { s->ptr++; return 0; }  /* RO */
          break;
@@ -2096,7 +2103,7 @@ index aefe5e9..48d49a9 100644
      case M_RX8130:
          s->regs[r] = data;
          if (r >= 0x10 && r <= 0x16) {
-@@ -336,6 +766,13 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+@@ -336,6 +776,13 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
          }
          s->ptr++;
          return 0;
@@ -2110,7 +2117,7 @@ index aefe5e9..48d49a9 100644
      default:
          break;
      }
-@@ -423,15 +860,79 @@ static void dev_realize(DeviceState *dev, Error **errp)
+@@ -423,15 +870,86 @@ static void dev_realize(DeviceState *dev, Error **errp)
              object_property_add(OBJECT(s), an[i], "number", prop_get_num, prop_set_num, NULL, &s->accel[i]);
              object_property_add(OBJECT(s), gn[i], "number", prop_get_num, prop_set_num, NULL, &s->gyro[i]);
          }
@@ -2172,6 +2179,13 @@ index aefe5e9..48d49a9 100644
 +                            prop_get_num, prop_set_num, NULL, &s->temperature_c);
 +        object_property_add(OBJECT(s), "humidity-pct", "number",
 +                            prop_get_num, prop_set_num, NULL, &s->humidity_pct);
++    } else if (!strcmp(m, "si12t")) {
++        s->model = M_SI12T;
++        s->regs[0x08] = 0x22;
++        s->regs[0x09] = 0x07;
++        object_property_add(OBJECT(s), "touch-bits", "int",
++                            prop_get_i64, prop_set_i64, NULL,
++                            &s->si12t_touch_bits);
      } else if (!strcmp(m, "rx8130")) {
          s->model = M_RX8130;
          s->regs[0x1E] = 0x00;
@@ -2190,7 +2204,7 @@ index aefe5e9..48d49a9 100644
      } else if (!strcmp(m, "axp192")) {
          s->model = M_AXP192;
          s->regs[0x03] = 0x03;   /* AXP192 chip ID */
-@@ -440,12 +941,26 @@ static void dev_realize(DeviceState *dev, Error **errp)
+@@ -440,12 +958,26 @@ static void dev_realize(DeviceState *dev, Error **errp)
          s->model = M_AXP2101;
          s->regs[0x03] = 0x4A;   /* chip id required by AXP2101_Class::begin */
          s->regs[0x00] = 0x28;   /* battery present + VBUS good */
