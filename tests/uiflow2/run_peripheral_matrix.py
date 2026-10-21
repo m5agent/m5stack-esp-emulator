@@ -1773,6 +1773,40 @@ CASES = [
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "Nesso peripherals"},
     },
+    {
+        "id": "nesso-ir",
+        "expected_status": "PASS",
+        "reason": (
+            "Nesso N1 hardware.IR sends NEC through ESP32-C6 RMT0 GPIO9 and "
+            "the captured symbols decode to address 0x56/command 0xA3."
+        ),
+        "checks": [
+            {"name": "nesso_c6_rmt_nec_tx", "status": "PASS"},
+            {"name": "nesso_ir_ui_marker", "status": "PASS"},
+        ],
+        "machine": "esp32c6",
+        "backend": "qemu-esp32c6",
+        "base": "platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "files_dir": "tests/uiflow2/nesso_ir",
+        "vfs_offset": "0x820000",
+        "vfs_size": "0x7DF000",
+        "flash_size": "0x1000000",
+        "expected_size": "135x240",
+        "wait": "15",
+        "inputs": ["touch:67,160"],
+        "qom": [],
+        "allow_static_frame": True,
+        "env": {
+            "M5SW_RMT_TX_FILE": "{out_dir}/ir.rmt",
+            "M5SW_RMT_TRACE": "1",
+        },
+        "rmt_nec": {
+            "capture": "{out_dir}/ir.rmt",
+            "address": 86,
+            "command": 163,
+        },
+        "frame_color": {"x": 4, "y": 4, "label": "Nesso IR"},
+    },
 ]
 
 

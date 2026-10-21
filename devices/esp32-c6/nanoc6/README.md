@@ -25,8 +25,8 @@
 
 boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/外设仍在收口。
 
-- 验证：`console-pass` (2026-10-20)
-- 详情：官方 UIFlow2 v2.5.3 在 ESP32-C6 QEMU USB-Serial-JTAG 控制台运行替换后的 boot.py/main.py，M5.begin() 返回板型 140；无显示屏。
+- 验证：`console-ir-pass` (2026-10-21)
+- 详情：官方 UIFlow2 v2.5.3 在 ESP32-C6 QEMU USB-Serial-JTAG 控制台运行，M5.begin() 返回板型 140；hardware.IR TX 经 ESP32-C6 RMT 捕获并解码为 NEC 0x56/0xA3。
 
 
 

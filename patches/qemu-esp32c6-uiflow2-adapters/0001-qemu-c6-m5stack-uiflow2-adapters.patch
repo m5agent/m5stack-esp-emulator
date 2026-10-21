@@ -1022,6 +1022,293 @@ index 0000000..1cdedce
 +}
 +
 +type_init(nesso_panel_register_types)
+diff --git a/hw/misc/esp32c6_rmt.c b/hw/misc/esp32c6_rmt.c
+new file mode 100644
+index 0000000..4c6ff88
+--- /dev/null
++++ b/hw/misc/esp32c6_rmt.c
+@@ -0,0 +1,281 @@
++/*
++ * ESP32-C6 RMT APB, FIFO and hardware-memory model.
++ *
++ * The UIFlow2 IR stack uses the new RMT TX encoder in non-DMA mode.  This
++ * model accepts both direct memory writes and APB FIFO writes, captures the
++ * resulting rmt_symbol_word_t stream, and raises the channel TX_END interrupt.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/irq.h"
++#include "hw/qdev-properties.h"
++#include "hw/misc/esp32c6_rmt.h"
++
++#define RMT_MEM_OFFSET      0x400
++#define RMT_MEM_SIZE        0x800
++#define RMT_TX_CHANNELS     2
++#define RMT_SYMBOLS_PER_CH  48
++
++#define RMT_CH_DATA(ch)     (0x00 + (ch) * 4)
++#define RMT_CH_TX_CONF0(ch) (0x10 + (ch) * 4)
++#define RMT_CH_RX_CONF0(ch) (0x18 + (ch) * 8)
++#define RMT_CH_RX_CONF1(ch) (0x1c + (ch) * 8)
++#define RMT_RX_STATUS(ch)   (0x30 + (ch) * 4)
++#define RMT_INT_RAW         0x38
++#define RMT_INT_ST          0x3c
++#define RMT_INT_ENA         0x40
++#define RMT_INT_CLR         0x44
++
++typedef struct Esp32C6RmtState {
++    SysBusDevice parent_obj;
++    MemoryRegion mmio;
++    MemoryRegion mem;
++    qemu_irq irq;
++    uint32_t regs[RMT_MEM_OFFSET / 4];
++    uint32_t symbols[RMT_MEM_SIZE / 4];
++    uint32_t int_ena;
++    uint32_t int_raw;
++    uint32_t pending_tx;
++    uint32_t pending_rx;
++    uint32_t fifo_index[2];
++    bool rx_injected[2];
++    bool trace;
++    QEMUTimer *tx_timer;
++    QEMUTimer *rx_timer;
++    FILE *tx_file;
++} Esp32C6RmtState;
++
++OBJECT_DECLARE_SIMPLE_TYPE(Esp32C6RmtState, ESP32C6_RMT)
++
++static void rmt_update_irq(Esp32C6RmtState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
++}
++
++static void rmt_capture_tx(Esp32C6RmtState *s, uint32_t channel)
++{
++    uint32_t conf = s->regs[RMT_CH_TX_CONF0(channel) / 4];
++    uint32_t blocks = MAX((conf >> 16) & 0x7, 1);
++    uint32_t limit = MIN(blocks * RMT_SYMBOLS_PER_CH,
++                         RMT_SYMBOLS_PER_CH);
++    uint32_t base = channel * RMT_SYMBOLS_PER_CH;
++    uint32_t count = 0;
++
++    for (uint32_t i = 0; i < limit; i++) {
++        uint32_t symbol = s->symbols[base + i];
++        if ((symbol & 0x7fff) == 0 &&
++            ((symbol >> 16) & 0x7fff) == 0) {
++            break;
++        }
++        count++;
++    }
++    if (!s->tx_file) {
++        const char *path = getenv("M5SW_RMT_TX_FILE");
++        if (path) {
++            s->tx_file = fopen(path, "wb");
++        }
++    }
++    if (s->tx_file && count) {
++        fwrite(&s->symbols[base], sizeof(uint32_t), count, s->tx_file);
++        fflush(s->tx_file);
++    }
++    if (s->trace) {
++        fprintf(stderr,
++                "[c6-rmt] tx channel=%u symbols=%u blocks=%u fifo=%u\n",
++                channel, count, blocks, s->fifo_index[channel]);
++    }
++    s->int_raw |= 1u << channel;
++    rmt_update_irq(s);
++}
++
++static void rmt_tx_timer(void *opaque)
++{
++    Esp32C6RmtState *s = opaque;
++    uint32_t pending = s->pending_tx;
++    s->pending_tx = 0;
++
++    for (uint32_t channel = 0; channel < RMT_TX_CHANNELS; channel++) {
++        if (pending & (1u << channel)) {
++            rmt_capture_tx(s, channel);
++        }
++    }
++}
++
++static void rmt_rx_timer(void *opaque)
++{
++    Esp32C6RmtState *s = opaque;
++    uint32_t pending = s->pending_rx;
++    s->pending_rx = 0;
++
++    for (uint32_t channel = 0; channel < 2; channel++) {
++        if (pending & (1u << channel)) {
++            s->int_raw |= 1u << (2 + channel);
++        }
++    }
++    rmt_update_irq(s);
++}
++
++static void rmt_inject_rx(Esp32C6RmtState *s, uint32_t channel)
++{
++    const char *path = getenv("M5SW_RMT_RX_FILE");
++    g_autofree uint8_t *data = NULL;
++    gsize size = 0;
++    uint32_t count;
++    uint32_t base = (2 + channel) * RMT_SYMBOLS_PER_CH;
++
++    if (!path || s->rx_injected[channel] ||
++        !g_file_get_contents(path, (gchar **)&data, &size, NULL)) {
++        return;
++    }
++    count = MIN(size / sizeof(uint32_t), RMT_SYMBOLS_PER_CH);
++    memcpy(&s->symbols[base], data, count * sizeof(uint32_t));
++    s->regs[RMT_RX_STATUS(channel) / 4] = count;
++    s->rx_injected[channel] = true;
++    s->pending_rx |= 1u << channel;
++    timer_mod(s->rx_timer,
++              qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20);
++    if (s->trace) {
++        fprintf(stderr, "[c6-rmt] rx channel=%u symbols=%u\n",
++                channel, count);
++    }
++}
++
++static uint64_t rmt_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C6RmtState *s = opaque;
++
++    if (addr == RMT_INT_RAW) {
++        return s->int_raw;
++    }
++    if (addr == RMT_INT_ST) {
++        return s->int_raw & s->int_ena;
++    }
++    if (addr == RMT_INT_ENA) {
++        return s->int_ena;
++    }
++    return addr < RMT_MEM_OFFSET ? s->regs[addr / 4] : 0;
++}
++
++static void rmt_write(void *opaque, hwaddr addr, uint64_t value,
++                      unsigned size)
++{
++    Esp32C6RmtState *s = opaque;
++    uint32_t v = value;
++
++    if (s->trace) {
++        fprintf(stderr, "[c6-rmt] wr %03x <- %08x\n",
++                (unsigned)addr, v);
++    }
++    if (addr == RMT_INT_ENA) {
++        s->int_ena = v;
++        rmt_update_irq(s);
++        return;
++    }
++    if (addr == RMT_INT_CLR) {
++        s->int_raw &= ~v;
++        rmt_update_irq(s);
++        return;
++    }
++    if (addr < RMT_TX_CHANNELS * 4) {
++        uint32_t channel = addr / 4;
++        uint32_t index = s->fifo_index[channel];
++        if (index < RMT_SYMBOLS_PER_CH) {
++            s->symbols[channel * RMT_SYMBOLS_PER_CH + index] = v;
++            s->fifo_index[channel]++;
++        }
++        s->regs[addr / 4] = v;
++        return;
++    }
++    if (addr >= RMT_CH_TX_CONF0(0) &&
++        addr <= RMT_CH_TX_CONF0(RMT_TX_CHANNELS - 1)) {
++        uint32_t channel = (addr - RMT_CH_TX_CONF0(0)) / 4;
++        if (v & BIT(2)) {
++            s->fifo_index[channel] = 0;
++        }
++        s->regs[addr / 4] = v & ~1u;
++        if (v & BIT(0)) {
++            s->pending_tx |= 1u << channel;
++            timer_mod(s->tx_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 2);
++        }
++        return;
++    }
++    if (addr == RMT_CH_RX_CONF1(0) || addr == RMT_CH_RX_CONF1(1)) {
++        uint32_t channel = (addr - RMT_CH_RX_CONF1(0)) / 8;
++        bool was_enabled = s->regs[addr / 4] & BIT(0);
++        s->regs[addr / 4] = v;
++        if (!was_enabled && (v & BIT(0))) {
++            rmt_inject_rx(s, channel);
++        }
++        return;
++    }
++    if (addr < RMT_MEM_OFFSET) {
++        s->regs[addr / 4] = v;
++    }
++}
++
++static const MemoryRegionOps rmt_ops = {
++    .read = rmt_read,
++    .write = rmt_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++static void rmt_reset(DeviceState *dev)
++{
++    Esp32C6RmtState *s = ESP32C6_RMT(dev);
++
++    memset(s->regs, 0, sizeof(s->regs));
++    memset(s->symbols, 0, sizeof(s->symbols));
++    memset(s->fifo_index, 0, sizeof(s->fifo_index));
++    memset(s->rx_injected, 0, sizeof(s->rx_injected));
++    s->int_ena = 0;
++    s->int_raw = 0;
++    s->pending_tx = 0;
++    s->pending_rx = 0;
++    timer_del(s->tx_timer);
++    timer_del(s->rx_timer);
++}
++
++static void rmt_init(Object *obj)
++{
++    Esp32C6RmtState *s = ESP32C6_RMT(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++
++    memory_region_init_io(&s->mmio, obj, &rmt_ops, s, TYPE_ESP32C6_RMT,
++                          RMT_MEM_OFFSET);
++    memory_region_init_ram_ptr(&s->mem, obj, TYPE_ESP32C6_RMT ".mem",
++                               RMT_MEM_SIZE, s->symbols);
++    sysbus_init_mmio(sbd, &s->mmio);
++    sysbus_init_mmio(sbd, &s->mem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->trace = getenv("M5SW_RMT_TRACE") != NULL;
++    s->tx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, rmt_tx_timer, s);
++    s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, rmt_rx_timer, s);
++}
++
++static void rmt_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    device_class_set_legacy_reset(dc, rmt_reset);
++}
++
++static const TypeInfo rmt_info = {
++    .name = TYPE_ESP32C6_RMT,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(Esp32C6RmtState),
++    .instance_init = rmt_init,
++    .class_init = rmt_class_init,
++};
++
++static void rmt_register_types(void)
++{
++    type_register_static(&rmt_info);
++}
++
++type_init(rmt_register_types)
 diff --git a/hw/misc/esp32c6_soft_i2c.c b/hw/misc/esp32c6_soft_i2c.c
 new file mode 100644
 index 0000000..3ffeafb
@@ -1250,10 +1537,15 @@ index 0000000..3ffeafb
 +    esp32_gpio_add_out_listener(scl_pin, c6_soft_i2c_line, s);
 +}
 diff --git a/hw/misc/meson.build b/hw/misc/meson.build
-index 0ac4b77..950b19c 100644
+index 0ac4b77..5afb4ea 100644
 --- a/hw/misc/meson.build
 +++ b/hw/misc/meson.build
-@@ -170,6 +170,9 @@ system_ss.add(when: 'CONFIG_RISCV_ESP32C6', if_true: files(
+@@ -166,10 +166,14 @@ system_ss.add(when: 'CONFIG_RISCV_ESP32C6', if_true: files(
+   'esp32c6_lp.c',
+   'esp32c6_modem.c',
+   'esp32c6_pcr.c',
++  'esp32c6_rmt.c',
+   'esp32c6_spi_mem.c',
    'esp_sha.c',
    'esp32c3_sha.c',
    'esp32c6_sha.c',
@@ -1264,16 +1556,17 @@ index 0ac4b77..950b19c 100644
  
  system_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
 diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
-index f8b5d9c..fa04b7d 100644
+index f8b5d9c..7da7ab4 100644
 --- a/hw/riscv/esp32c6.c
 +++ b/hw/riscv/esp32c6.c
-@@ -45,9 +45,14 @@
+@@ -45,9 +45,15 @@
  #include "hw/riscv/esp32c6_intmatrix.h"
  #include "hw/misc/esp32c6_intpri.h"
  #include "hw/misc/esp32c6_sha.h"
 +#include "hw/i2c/esp32_i2c.h"
 +#include "hw/misc/esp32c6_board_i2c.h"
 +#include "hw/misc/esp32c6_nesso_panel.h"
++#include "hw/misc/esp32c6_rmt.h"
 +#include "hw/misc/esp32c6_soft_i2c.h"
  #include "hw/timer/esp32c6_timg.h"
  #include "hw/timer/esp32c6_systimer.h"
@@ -1282,7 +1575,7 @@ index f8b5d9c..fa04b7d 100644
  #include "hw/dma/esp32c6_gdma.h"
  
  #define ESP32C6_RESET_ADDRESS       0x40000000
-@@ -57,6 +62,8 @@
+@@ -57,6 +63,8 @@
  #define ESP32C6_IRAM_SIZE           (512 * 1024)
  #define ESP32C6_RTC_SIZE            (16 * 1024)
  #define ESP32C6_IROM_SIZE           (320 * 1024)
@@ -1291,7 +1584,7 @@ index f8b5d9c..fa04b7d 100644
  
  struct Esp32C6MachineState {
      MachineState parent;
-@@ -85,6 +92,10 @@ struct Esp32C6MachineState {
+@@ -85,6 +93,10 @@ struct Esp32C6MachineState {
      ESP32C6SpiMemState spi_mem;
      ESP32C6I2cAnaMstState i2c_ana_mst;
      ESP32C6ModemState modem;
@@ -1302,7 +1595,7 @@ index f8b5d9c..fa04b7d 100644
  };
  
  #define TYPE_ESP32C6_MACHINE MACHINE_TYPE_NAME("esp32c6")
-@@ -142,6 +153,7 @@ static void esp32c6_init_spi_flash(Esp32C6MachineState *ms, BlockBackend *blk)
+@@ -142,6 +154,7 @@ static void esp32c6_init_spi_flash(Esp32C6MachineState *ms, BlockBackend *blk)
      DeviceState *flash_dev = qdev_new(flash_model);
      qdev_prop_set_drive(flash_dev, "drive", blk);
      qdev_prop_set_uint8(flash_dev, "cs", 1);
@@ -1310,7 +1603,7 @@ index f8b5d9c..fa04b7d 100644
      qdev_realize(flash_dev, spi_bus, &error_fatal);
      qdev_connect_gpio_out_named(spi_master, SSI_GPIO_CS, 0,
                                  qdev_get_gpio_in_named(flash_dev, SSI_GPIO_CS, 0));
-@@ -230,6 +242,52 @@ static void esp32c6_load_firmware(MachineState *machine)
+@@ -230,6 +243,52 @@ static void esp32c6_load_firmware(MachineState *machine)
      }
  }
  
@@ -1363,7 +1656,7 @@ index f8b5d9c..fa04b7d 100644
  static void esp32c6_machine_init(MachineState *machine)
  {
      BlockBackend *blk = NULL;
-@@ -355,6 +413,22 @@ static void esp32c6_machine_init(MachineState *machine)
+@@ -355,6 +414,22 @@ static void esp32c6_machine_init(MachineState *machine)
          }
      }
  
@@ -1386,10 +1679,24 @@ index f8b5d9c..fa04b7d 100644
      /* UARTs */
      for (int i = 0; i < ESP32C6_UART_COUNT; ++i) {
          const hwaddr uart_base[] = { DR_REG_UART_BASE, DR_REG_UART1_BASE };
-@@ -372,6 +446,53 @@ static void esp32c6_machine_init(MachineState *machine)
+@@ -372,6 +447,67 @@ static void esp32c6_machine_init(MachineState *machine)
          memory_region_add_subregion_overlap(sys_mem, DR_REG_GPIO_BASE, mr, 0);
      }
  
++    /* RMT: TX channels 0/1, RX channels 2/3, plus hardware symbol RAM. */
++    {
++        DeviceState *rmt = qdev_new(TYPE_ESP32C6_RMT);
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(rmt), &error_fatal);
++        memory_region_add_subregion_overlap(
++            sys_mem, 0x60006000,
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(rmt), 0), 1);
++        memory_region_add_subregion_overlap(
++            sys_mem, 0x60006400,
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(rmt), 1), 1);
++        sysbus_connect_irq(SYS_BUS_DEVICE(rmt), 0,
++                           qdev_get_gpio_in(intmatrix_dev, 49));
++    }
++
 +    /*
 +     * ESP32-C6 HP I2C0.  Nesso N1 exposes its PI4IOE expanders and FT5x06
 +     * touch controller through this bus.  The same bus is also attached to
@@ -1440,7 +1747,7 @@ index f8b5d9c..fa04b7d 100644
      /* Cache (EXTMEM) */
      {
          if (blk) {
-@@ -427,6 +548,16 @@ static void esp32c6_machine_init(MachineState *machine)
+@@ -427,6 +563,16 @@ static void esp32c6_machine_init(MachineState *machine)
          memory_region_add_subregion_overlap(sys_mem, ESP32C6_I2C_ANA_MST_BASE, mr, 0);
      }
  
@@ -1857,6 +2164,23 @@ index 44273a5..d5aa1c1 100644
  #define C6_ETS_USB_SERIAL_JTAG_INTR_SOURCE      48
  #define C6_ETS_TG0_T0_LEVEL_INTR_SOURCE         51
  #define C6_ETS_TG0_WDT_LEVEL_INTR_SOURCE        53
+diff --git a/include/hw/misc/esp32c6_rmt.h b/include/hw/misc/esp32c6_rmt.h
+new file mode 100644
+index 0000000..36795f3
+--- /dev/null
++++ b/include/hw/misc/esp32c6_rmt.h
+@@ -0,0 +1,11 @@
++/*
++ * ESP32-C6 RMT controller.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#pragma once
++
++#include "hw/sysbus.h"
++
++#define TYPE_ESP32C6_RMT "esp32c6.rmt"
++
 diff --git a/include/hw/misc/esp32c6_soft_i2c.h b/include/hw/misc/esp32c6_soft_i2c.h
 new file mode 100644
 index 0000000..224a6aa

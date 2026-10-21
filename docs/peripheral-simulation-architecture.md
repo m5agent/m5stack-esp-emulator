@@ -79,6 +79,8 @@
   从真实 I2S TX DMA 描述符抓取比特流。
 - **RGB LED**：StackChan 的 M5IOE1 RGB RAM 和 PaperColor 的 ESP32-S3 RMT
   WS2812/GRB 波形都已闭环；RMT 抓取结果可在宿主按真实 T0H/T1H 解码。
+- **ESP32-C6 RMT**：TX/RX 通道、APB FIFO、硬件符号内存和完成中断已建模；
+  NanoC6 与 Nesso N1 的 `hardware.IR.tx()` 可抓取并解码 NEC 帧。
 
 ## 仍需高带宽数据面的器件
 

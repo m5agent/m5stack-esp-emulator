@@ -66,13 +66,15 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | AtomS3R | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | Cardputer-ADV | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | PaperColor | RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
+| NanoC6 | ESP32-C6 RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
+| Arduino Nesso N1 | ESP32-C6 RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | StackChan | GC0308 初始化、LCD_CAM/GDMA 取帧、快照和显示 | `camera.snapshot()` | PASS |
 | PaperMono | RGB 红/绿/蓝控制与 M5IOE1 PWM 回读 | `M5.Led` | PASS |
 
 汇总：
 
 ```text
-PASS    53
+PASS    55
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -514,6 +516,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ![StackChan camera](images/stackchan-camera-test.png)
 
 ![PaperMono RGB](images/papermono-rgb-test.png)
+
+![Nesso IR](images/nesso-ir-test.png)
 
 ## 尚未闭环
 

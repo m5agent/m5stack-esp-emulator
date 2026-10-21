@@ -18,8 +18,8 @@
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-21",
-      "status": "display-touch-power-io-pass",
-      "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 UI；QMP 触摸和按键输入通过，双 PI4IOE5V6408 输出/中断状态、BQ27220 电池遥测和 AW32001 充电状态均完成总线闭环。"
+      "status": "display-touch-power-io-ir-pass",
+      "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 UI；触摸/按键、双 PI4IOE、BQ27220、AW32001 和 ESP32-C6 RMT NEC 红外均完成总线闭环。"
     }
   },
   "cache_path": "platform/.cache/firmware/nesso-n1/uiflow2.bin"

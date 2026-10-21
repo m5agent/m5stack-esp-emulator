@@ -245,19 +245,20 @@
       ],
       "peripherals": [
         "led",
-        "button"
+    "button",
+    "ir"
       ],
       "board_work": [
         "ESP32-C6 machine/board init",
         "no display; GPIO/status LED"
       ],
       "blockers": [
-        "No board display; GPIO/status peripherals are still minimal"
+    "No board display; RGB and buzzer capture remain to be validated"
       ],
       "validation": {
-        "date": "2026-10-20",
-        "status": "console-pass",
-        "detail": "Official UIFlow2 v2.5.3 boots through ROM/bootloader on the ESP32-C6 USB-Serial-JTAG console; a replaced vfs image runs boot.py/main.py and M5.begin() reports board 140. NanoC6 has no display."
+    "date": "2026-10-21",
+    "status": "console-ir-pass",
+    "detail": "Official UIFlow2 v2.5.3 boots on the ESP32-C6 USB-Serial/JTAG console, reports board 140, and hardware.IR TX reaches the ESP32-C6 RMT model; captured NEC symbols decode to 0x56/0xA3."
       }
     },
     {
@@ -286,19 +287,20 @@
         "bmi270",
         "pi4ioe5v6408",
         "bq27220",
-        "aw32001"
+    "aw32001",
+    "ir"
       ],
       "board_work": [
         "ESP32-C6 machine/board init",
         "ST7789 SPI panel",
         "FT6336 touch",
-        "PI4IOE expanders and power telemetry"
+    "PI4IOE expanders, power telemetry and ESP32-C6 IR"
       ],
       "blockers": [],
       "validation": {
         "date": "2026-10-21",
-        "status": "display-touch-power-io-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI, QMP touch changes the counter, both PI4IOE5V6408 expanders retain output state, a QMP button raises the interrupt-status bit, and BQ27220/AW32001 injection reaches the Power API as 4000 mV, 87% and charging."
+    "status": "display-touch-power-io-ir-pass",
+    "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI, QMP touch and button input pass, both PI4IOE expanders retain state, BQ27220/AW32001 injection reaches the Power API, and ESP32-C6 RMT captures a valid NEC 0x56/0xA3 frame."
       }
     },
     {

@@ -196,8 +196,14 @@
         "NANOC6_BOOT_FLAG",
         "NANOC6_MAIN_START",
         "NANOC6_BOARD 140",
+        "NANOC6_IR_TX 0x56 0xA3",
         "NANOC6_LOOP"
       ],
+      "rmt_nec": {
+        "capture": "ir.rmt",
+        "address": 86,
+        "command": 163
+      },
       "timeout": 20
     },
     {

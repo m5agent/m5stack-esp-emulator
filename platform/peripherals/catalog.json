@@ -376,13 +376,14 @@
       "data_plane": "ESP32-S3 RMT APB registers + RMTMEM symbols; TX_END/RX_END interrupts; NEC packet capture and injection",
       "tested_devices": ["sticks3", "atoms3r", "cardputer-adv", "papercolor"]
     },
-    "ir-tx-rx-c6": {
+    "ir-tx-c6": {
       "kind": "infrared",
       "interface": "rmt-gpio",
       "capabilities": ["ir-tx"],
-      "status": "planned",
+      "status": "simulated",
       "injection": ["rmt-symbol-file"],
-      "data_plane": "ESP32-C6 RMT carrier and GPIO matrix path used by NanoC6 and Nesso N1"
+      "data_plane": "ESP32-C6 RMT TX channels, APB FIFO and hardware symbol RAM with host symbol capture; NanoC6 GPIO3 and Nesso N1 GPIO9",
+      "tested_devices": ["nanoc6", "nesso-n1"]
     },
     "rgb-led": {
       "kind": "led",
@@ -681,7 +682,7 @@
         {"id": "imu", "model": "bmi270"},
         {"id": "lora", "model": "lora-sx1262"},
         {"id": "buzzer", "model": "gpio-buzzer-c6"},
-        {"id": "ir", "model": "ir-tx-rx-c6"},
+        {"id": "ir", "model": "ir-tx-c6"},
         {"id": "battery-gauge", "model": "bq27220", "qom_path": "/machine/nesso-bq27220"},
         {"id": "charger", "model": "aw32001", "qom_path": "/machine/nesso-aw32001"},
         {"id": "io-expander-1", "model": "pi4ioe5v6408", "address": "0x43", "qom_path": "/machine/nesso-pi4ioe1"},

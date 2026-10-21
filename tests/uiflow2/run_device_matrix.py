@@ -200,6 +200,15 @@ def run_console(
     device_out = out_dir / device["id"]
     device_out.mkdir(parents=True, exist_ok=True)
     image = build_console_image(device, device_out, env)
+    case_env = env.copy()
+    rmt_nec = device.get("rmt_nec")
+    rmt_capture = None
+    if rmt_nec:
+        rmt_capture = Path(rmt_nec["capture"]).with_name(
+            f"{device['id']}-{Path(rmt_nec['capture']).name}"
+        )
+        rmt_capture = device_out / rmt_capture.name
+        case_env["M5SW_RMT_TX_FILE"] = str(rmt_capture)
     flash_info = {"transport": "host-image", "verified": True}
     esp_emu_chip = backend.get("esp_emu_chip")
     if flash_transport == "esp-emu" and esp_emu_chip:
@@ -209,7 +218,7 @@ def run_console(
                 image=image,
                 flash_size=int(device["flash_size"], 0),
                 out_dir=device_out / "flash",
-                env=env,
+                env=case_env,
                 timeout=max(device.get("timeout", 20), 120),
             )
             image = Path(flash_info["virtual_flash"])
@@ -238,21 +247,17 @@ def run_console(
     ]
     deadline = time.time() + device.get("timeout", 20)
     proc = subprocess.Popen(
-        command, cwd=ROOT, env=env,
+        command, cwd=ROOT, env=case_env,
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
     expected = device["serial_expect"]
+    matched = False
     try:
         while time.time() < deadline:
             text = serial.read_text(errors="replace") if serial.exists() else ""
             if all(marker in text for marker in expected):
-                return {
-                    "status": "PASS",
-                    "exit_code": 0,
-                    "command": command,
-                    "output": str(device_out),
-                    "flash": flash_info,
-                }
+                matched = True
+                break
             if proc.poll() is not None:
                 break
             time.sleep(0.1)
@@ -264,6 +269,40 @@ def run_console(
             proc.kill()
     text = serial.read_text(errors="replace") if serial.exists() else ""
     missing = [marker for marker in expected if marker not in text]
+    if matched and rmt_nec and rmt_capture:
+        validation = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tests/uiflow2/check_rmt_nec.py"),
+                str(rmt_capture),
+                "--address", hex(int(rmt_nec["address"])),
+                "--command", hex(int(rmt_nec["command"])),
+            ],
+            cwd=ROOT,
+            env=case_env,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        if validation.returncode == 0:
+            return {
+                "status": "PASS",
+                "exit_code": 0,
+                "command": command,
+                "output": str(device_out),
+                "flash": flash_info,
+                "rmt_nec": validation.stdout.strip(),
+            }
+        missing.append("RMT validation: " + validation.stdout.strip())
+    elif matched:
+        return {
+            "status": "PASS",
+            "exit_code": 0,
+            "command": command,
+            "output": str(device_out),
+            "flash": flash_info,
+        }
     return {
         "status": "FAIL",
         "exit_code": 1,

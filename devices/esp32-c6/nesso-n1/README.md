@@ -25,8 +25,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-power-io-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 135x240 UI；QMP 触摸和按键输入通过，双 PI4IOE5V6408 输出/中断状态、BQ27220 电池遥测和 AW32001 充电状态均完成总线闭环。
+- 验证：`display-touch-power-io-ir-pass` (2026-10-21)
+- 详情：官方 UIFlow2 v2.5.3 渲染 135x240 UI；触摸/按键、双 PI4IOE、BQ27220、AW32001 和 ESP32-C6 RMT NEC 红外均完成总线闭环。
 
 
 
