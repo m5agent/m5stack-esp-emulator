@@ -2388,27 +2388,35 @@ diff -ruN a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
  }
 diff -ruN a/hw/m5stopwatch/m5core2.c b/hw/m5stopwatch/m5core2.c
 --- a/hw/m5stopwatch/m5core2.c	2026-10-21 12:51:49
-+++ b/hw/m5stopwatch/m5core2.c	2026-10-21 14:16:47
-@@ -16,10 +16,21 @@
++++ b/hw/m5stopwatch/m5core2.c	2026-10-21 16:34:57
+@@ -14,12 +14,29 @@
+ {
+     I2CBus *bus0 = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
      I2CBus *bus1 = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[1]), "i2c");
++    const char *pmic_override = getenv("M5SW_CORE2_PMIC");
++    bool legacy_axp192 = pmic_override && !strcmp(pmic_override, "axp192");
  
      DeviceState *axp = qdev_new(TYPE_M5SW_I2C_DEV);
 -    qdev_prop_set_string(axp, "model", "axp192");
-+    qdev_prop_set_string(axp, "model", "axp2101");
++    qdev_prop_set_string(axp, "model", legacy_axp192 ? "axp192" : "axp2101");
      qdev_prop_set_uint8(axp, "address", 0x34);
 -    object_property_add_child(qdev_get_machine(), "axp192", OBJECT(axp));
-+    object_property_add_child(qdev_get_machine(), "axp2101", OBJECT(axp));
++    object_property_add_child(qdev_get_machine(),
++                              legacy_axp192 ? "axp192" : "axp2101",
++                              OBJECT(axp));
      qdev_realize_and_unref(axp, (BusState *)bus0, &error_fatal);
 +
-+    for (uint8_t address = 0x40; address <= 0x41; address++) {
-+        DeviceState *ina = qdev_new(TYPE_M5SW_I2C_DEV);
-+        char *path = g_strdup_printf("ina3221-%02x", address);
++    if (!legacy_axp192) {
++        for (uint8_t address = 0x40; address <= 0x41; address++) {
++            DeviceState *ina = qdev_new(TYPE_M5SW_I2C_DEV);
++            char *path = g_strdup_printf("ina3221-%02x", address);
 +
-+        qdev_prop_set_string(ina, "model", "ina3221");
-+        qdev_prop_set_uint8(ina, "address", address);
-+        object_property_add_child(qdev_get_machine(), path, OBJECT(ina));
-+        qdev_realize_and_unref(ina, (BusState *)bus0, &error_fatal);
-+        g_free(path);
++            qdev_prop_set_string(ina, "model", "ina3221");
++            qdev_prop_set_uint8(ina, "address", address);
++            object_property_add_child(qdev_get_machine(), path, OBJECT(ina));
++            qdev_realize_and_unref(ina, (BusState *)bus0, &error_fatal);
++            g_free(path);
++        }
 +    }
  
      static const struct { const char *model; uint8_t addr; const char *path; } devs[] = {
@@ -2505,7 +2513,7 @@ diff -ruN a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
  
 diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
 --- a/hw/m5stopwatch/m5sw_i2c_devs.c	2026-10-21 12:51:49
-+++ b/hw/m5stopwatch/m5sw_i2c_devs.c	2026-10-21 16:28:40
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c	2026-10-21 16:38:47
 @@ -39,6 +39,7 @@
      M_PI4IOE,
      M_LM75,
@@ -2514,7 +2522,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      M_SHT40,
      M_SI12T,
      M_LP5562,
-@@ -64,12 +65,30 @@
+@@ -64,12 +65,31 @@
      double bus_voltage_mv;
      double current_ma;
      double shunt_ohms;
@@ -2533,6 +2541,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
 +    int64_t pm1_wake_source;
 +    uint8_t pm1_wdt_timeout;
 +    uint8_t pm1_uid[12];
++    double axp192_battery_current_ma;
 +    int64_t m5ioe1_adc_mv[4];
 +    int64_t m5ioe1_temp_raw;
      int64_t si12t_touch_bits;
@@ -2545,7 +2554,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      uint8_t command;
      uint8_t read_start;
      bool charging;         /* M5PM1 G2 CHG_STAT low = charging */
-@@ -82,6 +101,8 @@
+@@ -82,6 +102,8 @@
      uint8_t st25_mode;
      bool st25_read_space_b;
      uint8_t st25_tag[180];
@@ -2554,8 +2563,11 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
  } M5swI2CDev;
  
  OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
-@@ -92,11 +113,100 @@
+@@ -90,13 +112,103 @@
+ static M5swI2CDev *g_ft_touch;
+ static M5swI2CDev *g_pm1;
  static M5swI2CDev *g_axp2101;
++static M5swI2CDev *g_axp192;
  static M5swI2CDev *g_bmm150;
  static M5swI2CDev *g_keyboard;
 +static M5swI2CDev *g_aw9523;
@@ -2655,7 +2667,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
  void m5sw_pwr_button(int pressed)
  {
      if (getenv("M5SW_INPUT_TRACE")) {
-@@ -105,9 +215,9 @@
+@@ -105,9 +217,9 @@
      }
      if (g_pm1) {
          if (pressed) {
@@ -2667,7 +2679,17 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          }
          if (pressed) {
              g_pm1->regs[0x42] |= 0x01;      /* IRQ_STATUS3: short press */
-@@ -180,6 +290,19 @@
+@@ -116,6 +228,9 @@
+     if (g_axp2101 && pressed) {
+         g_axp2101->regs[0x49] |= 0x04;      /* AXP2101 short press */
+     }
++    if (g_axp192 && pressed) {
++        g_axp192->regs[0x46] |= 0x02;       /* AXP192 short press */
++    }
+ }
+ static int g_touch_pressed, g_touch_x, g_touch_y;
+ 
+@@ -180,6 +295,19 @@
  static inline uint8_t bcd(int v) { return ((v / 10) << 4) | (v % 10); }
  static inline int unbcd(uint8_t v) { return (v >> 4) * 10 + (v & 0xf); }
  
@@ -2687,7 +2709,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
  static uint16_t encode_be16(double value, double resolution)
  {
      int32_t raw = (int32_t)lrint(value / resolution);
-@@ -187,12 +310,60 @@
+@@ -187,12 +315,60 @@
      return (uint16_t)raw;
  }
  
@@ -2748,7 +2770,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
  static uint16_t ina226_current_raw(M5swI2CDev *s)
  {
      uint16_t cal = ((uint16_t)s->regs[0x05] << 8) | s->regs[0x06];
-@@ -376,13 +547,23 @@
+@@ -376,13 +552,23 @@
          }
          break;
      case M_IOE1:
@@ -2775,7 +2797,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          break;
      case M_CST820:
          if (r <= 0x06) {
-@@ -399,10 +580,16 @@
+@@ -399,10 +585,16 @@
          break;
      case M_AW9523:
          if (r == 0x00) {
@@ -2794,7 +2816,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          }
          if (r == 0x10) {
              return 0x23;
-@@ -443,27 +630,107 @@
+@@ -443,27 +635,118 @@
          break;
      case M_PI4IOE:
          if (r == 0x01) {
@@ -2865,52 +2887,63 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          break;
 +    case M_AXP192:
 +        if (r == 0x00) {
-+            return 0x24;                              /* VBUS + charging */
++            return (s->vin_mv > 1000 ? BIT(5) : 0)
++                   | (s->charging ? BIT(2) : 0);
 +        }
 +        if (r == 0x01) {
-+            return 0x20;                              /* battery present */
++            return s->vbat_mv > 1000 ? BIT(5) : 0;
 +        }
 +        if (r == 0x56 || r == 0x57) {
 +            uint16_t raw = axp192_adc12(s->vin_mv / 1.7);
-+            return r == 0x56 ? raw >> 4 : (raw & 0x0f) << 4;
++            return r == 0x56 ? raw >> 4 : raw & 0x0f;
 +        }
 +        if (r == 0x58 || r == 0x59) {
 +            uint16_t raw = axp192_adc13(500.0 / 0.625);
-+            return r == 0x58 ? raw >> 5 : (raw & 0x1f) << 3;
++            return r == 0x58 ? raw >> 5 : raw & 0x1f;
 +        }
 +        if (r == 0x5A || r == 0x5B) {
 +            uint16_t raw = axp192_adc12(s->vin_mv / 1.7);
-+            return r == 0x5A ? raw >> 4 : (raw & 0x0f) << 4;
++            return r == 0x5A ? raw >> 4 : raw & 0x0f;
 +        }
 +        if (r == 0x5C || r == 0x5D) {
 +            uint16_t raw = axp192_adc13(500.0 / 0.375);
-+            return r == 0x5C ? raw >> 5 : (raw & 0x1f) << 3;
++            return r == 0x5C ? raw >> 5 : raw & 0x1f;
 +        }
 +        if (r == 0x5E || r == 0x5F) {
 +            uint16_t raw = axp192_adc12((s->temperature_c + 144.7) * 10.0);
-+            return r == 0x5E ? raw >> 4 : (raw & 0x0f) << 4;
++            return r == 0x5E ? raw >> 4 : raw & 0x0f;
++        }
++        if (r >= 0x70 && r <= 0x72) {
++            double power_w = (s->vbat_mv / 1000.0)
++                             * (s->axp192_battery_current_ma / 1000.0);
++            uint32_t raw = MAX(0, MIN((int64_t)lrint(power_w / 0.00055),
++                                      0xffffff));
++            int shift = (0x72 - r) * 8;
++            return (raw >> shift) & 0xff;
 +        }
 +        if (r == 0x78 || r == 0x79) {
 +            uint16_t raw = axp192_adc12(s->vbat_mv / 1.1);
-+            return r == 0x78 ? raw >> 4 : (raw & 0x0f) << 4;
++            return r == 0x78 ? raw >> 4 : raw & 0x0f;
 +        }
 +        if (r == 0x7A || r == 0x7B) {
-+            uint16_t raw = axp192_adc13(s->charging ? 500.0 / 0.5 : 0);
-+            return r == 0x7A ? raw >> 5 : (raw & 0x1f) << 3;
++            uint16_t raw = axp192_adc13(
++                s->charging ? s->axp192_battery_current_ma / 0.5 : 0);
++            return r == 0x7A ? raw >> 5 : raw & 0x1f;
 +        }
 +        if (r == 0x7C || r == 0x7D) {
-+            uint16_t raw = axp192_adc13(s->charging ? 0 : 500.0 / 0.5);
-+            return r == 0x7C ? raw >> 5 : (raw & 0x1f) << 3;
++            uint16_t raw = axp192_adc13(
++                s->charging ? 0 : s->axp192_battery_current_ma / 0.5);
++            return r == 0x7C ? raw >> 5 : raw & 0x1f;
 +        }
 +        if (r == 0x7E || r == 0x7F) {
 +            uint16_t raw = axp192_adc12(s->vinout_mv / 1.4);
-+            return r == 0x7E ? raw >> 4 : (raw & 0x0f) << 4;
++            return r == 0x7E ? raw >> 4 : raw & 0x0f;
 +        }
 +        break;
      case M_AXP2101:
          if (r == 0x00) {
              return 0x28;  /* battery present + VBUS good */
-@@ -504,7 +771,7 @@
+@@ -504,7 +787,7 @@
          if (r >= 0x3B && r <= 0x40) {
              int index = (r - 0x3B) / 2;
              uint16_t raw = encode_be16(s->accel[index], 8.0 / 32768.0);
@@ -2919,7 +2952,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          }
          if (r == 0x41 || r == 0x42) {
              uint16_t raw = encode_be16((s->temperature_c - 25.0) * 326.8, 1.0);
-@@ -513,7 +780,7 @@
+@@ -513,7 +796,7 @@
          if (r >= 0x43 && r <= 0x48) {
              int index = (r - 0x43) / 2;
              uint16_t raw = encode_be16(s->gyro[index], 2000.0 / 32768.0);
@@ -2928,7 +2961,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          }
          break;
      case M_LM75:
-@@ -604,19 +871,39 @@
+@@ -604,19 +887,39 @@
      }
      case M_SHT40:
          if (s->command == 0xFD || s->command == 0xF6 || s->command == 0xE0) {
@@ -2975,7 +3008,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          break;
      case M_BMI270:
          if (r >= 0x04 && r <= 0x09 && g_bmm150) {
-@@ -664,6 +951,7 @@
+@@ -664,6 +967,7 @@
          s->st25_read_space_b = false;
      } else if (ev == I2C_START_RECV) {
          s->read_start = s->ptr;
@@ -2983,7 +3016,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
          if (s->model == M_ST25R3916) {
              s->st25_read_space_b = s->st25_mode == 3;
          }
-@@ -683,6 +971,17 @@
+@@ -683,6 +987,17 @@
  static uint8_t dev_recv(I2CSlave *i2c)
  {
      M5swI2CDev *s = M5SW_I2C_DEV(i2c);
@@ -3001,7 +3034,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      uint8_t v = dev_read_reg(s, s->ptr);
      if (s->trace) {
          qemu_log("[%s] rd %02x -> %02x\n", s->model_name, s->ptr, v);
-@@ -771,17 +1070,129 @@
+@@ -771,17 +1086,129 @@
          break;
      case M_IOE1:
          if (r == 0x07 || r == 0x08) { s->ptr++; return 0; }  /* RO */
@@ -3132,7 +3165,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      case M_RX8130:
          s->regs[r] = data;
          if (r >= 0x10 && r <= 0x16) {
-@@ -837,6 +1248,49 @@
+@@ -837,6 +1264,49 @@
          *(int64_t *)op = d;
      }
  }
@@ -3182,7 +3215,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
  static void prop_get_bool(Object *o, Visitor *v, const char *name, void *op, Error **errp)
  {
      visit_type_bool(v, name, (bool *)op, errp);
-@@ -865,18 +1319,55 @@
+@@ -865,18 +1335,55 @@
          s->regs[0x22] = 4000 & 0xff; s->regs[0x23] = 4000 >> 8;   /* VBAT 4.0 V */
          s->regs[0x24] = 5000 & 0xff; s->regs[0x25] = 5000 >> 8;   /* VIN 5.0 V (USB) */
          s->regs[0x26] = 5000 & 0xff; s->regs[0x27] = 5000 >> 8;
@@ -3238,7 +3271,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      } else if (!strcmp(m, "cst820")) {
          s->model = M_CST820;
          s->regs[0xA7] = 0xB7;   /* chip id */
-@@ -935,6 +1426,32 @@
+@@ -935,6 +1442,32 @@
                              prop_get_num, prop_set_num, NULL, &s->current_ma);
          object_property_add(OBJECT(s), "shunt-ohms", "number",
                              prop_get_num, prop_set_num, NULL, &s->shunt_ohms);
@@ -3271,7 +3304,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      } else if (!strcmp(m, "ltr553")) {
          s->model = M_LTR553;
          s->light_level = 320;
-@@ -991,6 +1508,29 @@
+@@ -991,6 +1524,34 @@
          s->model = M_AXP192;
          s->regs[0x03] = 0x03;   /* AXP192 chip ID */
          s->regs[0x00] = 0x28;
@@ -3282,6 +3315,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
 +        s->temperature_c = 25.0;
 +        s->charging = true;
 +        s->battery_level = 87;
++        s->axp192_battery_current_ma = 300.0;
 +        object_property_add(OBJECT(s), "vbat-mv", "int", prop_get_i64,
 +                            prop_set_i64, NULL, &s->vbat_mv);
 +        object_property_add(OBJECT(s), "vin-mv", "int", prop_get_i64,
@@ -3295,13 +3329,17 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
 +                            prop_set_bool, NULL, &s->charging);
 +        object_property_add(OBJECT(s), "battery-level", "int", prop_get_i64,
 +                            prop_set_i64, NULL, &s->battery_level);
++        object_property_add(OBJECT(s), "battery-current-ma", "number",
++                            prop_get_num, prop_set_num, NULL,
++                            &s->axp192_battery_current_ma);
 +        object_property_add(OBJECT(s), "speaker-enabled", "bool",
 +                            prop_get_bool, NULL, NULL,
 +                            &s->axp192_speaker_enabled);
++        g_axp192 = s;
      } else if (!strcmp(m, "axp2101")) {
          s->model = M_AXP2101;
          s->regs[0x03] = 0x4A;   /* chip id required by AXP2101_Class::begin */
-@@ -1007,14 +1547,22 @@
+@@ -1007,14 +1568,22 @@
          object_property_add(OBJECT(s), "vin-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vin_mv);
          object_property_add(OBJECT(s), "charging", "bool", prop_get_bool, prop_set_bool, NULL, &s->charging);
          object_property_add(OBJECT(s), "battery-level", "int", prop_get_i64, prop_set_i64, NULL, &s->battery_level);
@@ -3327,7 +3365,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      } else if (!strcmp(m, "ft5x06")) {
          s->model = M_FT5X06;
          s->regs[0xA3] = 0x51;
-@@ -1029,8 +1577,13 @@
+@@ -1029,8 +1598,13 @@
          g_keyboard = s;
      } else if (!strcmp(m, "pi4ioe")) {
          s->model = M_PI4IOE;
@@ -3343,7 +3381,7 @@ diff -ruN a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
      } else if (!strcmp(m, "gc0308")) {
          s->model = M_GENERIC;
          s->regs[0x00] = 0x9B;
-@@ -1041,6 +1594,20 @@
+@@ -1041,6 +1615,20 @@
          s->regs[0x02] = 0x04;
          s->regs[0x27] = 3300 & 0xff;
          s->regs[0x28] = 3300 >> 8;
