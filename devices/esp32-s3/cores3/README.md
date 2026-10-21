@@ -18,15 +18,15 @@
 | 机身尺寸 | 54 × 54 × 15.5 mm |
 | 重量 | 37.8 g |
 | 显示 | 320×240 ips，2"，ILI9342C / ILI9342E，触摸 |
-| 控制 | Touch |
+| 控制 | Touch, PWR |
 | 外设 | camera:gc0308, imu:bmi270, magnetometer:bmm150, rtc:bm8563, microphone, speaker |
 
 ## 模拟状态
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-pass` (2026-10-20)
-- 详情：官方 UIFlow2 v2.5.3 渲染 320x240 UI，QMP 触摸后计数重绘；由统一设备矩阵验证。
+- 验证：`display-touch-pass` (2026-10-21)
+- 详情：官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电和 RTC 通过。BMI270 数值更新、BMM150 磁力计和 camera.snapshot() 帧采集仍待补齐。
 
 
 

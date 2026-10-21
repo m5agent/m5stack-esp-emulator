@@ -19,6 +19,10 @@
 
 `catalog.source.json` 是设备档案的权威源；运行 `python3 platform/tools/generate_catalog.py` 重新生成目录和每个设备的 JSON/README。
 
+> `reference-ready` 当前表示显示和输入重绘闭环。IMU、摄像头、音频等外设 API
+> 的完整度以 [`docs/uiflow2-peripheral-test-matrix.md`](../docs/uiflow2-peripheral-test-matrix.md)
+> 为准。
+
 ## 统一虚拟主机回归
 
 运行全部 ESP32 虚拟主机：

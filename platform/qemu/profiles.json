@@ -156,7 +156,8 @@
         "touch": true
       },
       "input": [
-        "i2c-touch"
+        "i2c-touch",
+        "pwr-button"
       ],
       "peripherals": [
         "axp192",
@@ -202,18 +203,21 @@
         "aw9523",
         "ft6336",
         "bmi270",
-        "rx8130",
+        "pcf8563",
         "es8311",
-        "camera"
+        "gc0308"
       ],
       "board_work": [
-        "camera/audio peripheral polish"
+        "BMI270 data path",
+        "BMM150 magnetometer",
+        "LCD_CAM camera frames",
+        "audio peripheral polish"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
+        "date": "2026-10-21",
         "status": "display-touch-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; QMP touch injection increments the on-screen counter."
+        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; touch, PWR, AXP2101 power telemetry and PCF8563 RTC pass. BMI270 values, BMM150 and camera frame capture remain partial."
       }
     },
     {
@@ -446,19 +450,25 @@
         "touch": false
       },
       "input": [
-        "gpio-buttons"
+        "gpio-buttons",
+        "pwr-button"
       ],
       "peripherals": [
-        "bmi270"
+        "m5pm1",
+        "bmi270",
+        "es8311",
+        "ir"
       ],
       "board_work": [
+        "BMI270 data path",
+        "IR/audio data path",
         "audio peripheral polish"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
+        "date": "2026-10-21",
         "status": "display-button-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 135x240 UI and A-button injection increments the counter."
+        "detail": "Official UIFlow2 v2.5.3 renders a 135x240 UI; A/B/P buttons and M5PM1 power telemetry pass. BMI270 is detected but its data path remains partial."
       }
     },
     {

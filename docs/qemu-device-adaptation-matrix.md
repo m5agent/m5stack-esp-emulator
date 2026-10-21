@@ -61,6 +61,15 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸已通过；PSRAM/cache 稳定性待补 |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | qemu-esp32p4 | `ready` | ST7121 / ST7123 物理横向 1280x720 | 已完成；LVGL Python 绑定暂不在仿真构建中启用 |
 
+外设 API 的当前结果：
+
+- StickS3：A/B/P、电源 telemetry 通过；BMI270 可识别并启用，但 accel/gyro 数值更新待补。
+- CoreS3：触摸、PWR、AXP2101 电源 telemetry、PCF8563 RTC 通过；BMI270
+  数值、BMM150 磁力计和相机取帧待补。
+
+详细矩阵和截图见
+[`uiflow2-peripheral-test-matrix.md`](uiflow2-peripheral-test-matrix.md)。
+
 状态含义：
 
 - `ready`：已有可启动固件 + 显示/输入 + 自动化接口。

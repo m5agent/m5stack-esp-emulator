@@ -286,11 +286,42 @@ def main():
     parser.add_argument("--vfs-size", required=True, type=lambda x: int(x, 0))
     parser.add_argument("--flash-size", required=True, type=lambda x: int(x, 0))
     parser.add_argument("--expected-size", required=True, help="WIDTHxHEIGHT")
-    parser.add_argument("--input", required=True, help="key:a or touch:X,Y")
+    parser.add_argument(
+        "--input",
+        action="append",
+        required=True,
+        help="key:a or touch:X,Y; repeat for multiple input events",
+    )
+    parser.add_argument(
+        "--qom-set",
+        action="append",
+        nargs=3,
+        metavar=("PATH", "PROPERTY", "VALUE"),
+        default=[],
+        help="set a QOM property before taking the before frame",
+    )
+    parser.add_argument("--qom-settle", type=float, default=0.5)
     parser.add_argument("--wait", type=float, default=6.0)
     parser.add_argument("--post-input-wait", type=float, default=0.6)
     parser.add_argument("--min-nonblack-pixels", type=int, default=16)
     parser.add_argument("--min-unique-colors", type=int, default=2)
+    parser.add_argument(
+        "--allow-static-frame",
+        action="store_true",
+        help="do not require the injected input to change the frame",
+    )
+    parser.add_argument(
+        "--serial-expect",
+        action="append",
+        default=[],
+        help="required serial marker; repeat for multiple markers",
+    )
+    parser.add_argument(
+        "--serial1-expect",
+        action="append",
+        default=[],
+        help="required UART1 marker; repeat for multiple markers",
+    )
     parser.add_argument(
         "--preserve-vfs",
         action="store_true",
@@ -332,6 +363,7 @@ def main():
     efuse.write_bytes(efuse_data)
 
     serial = args.out_dir / "serial.log"
+    serial1 = args.out_dir / "serial1.log"
     before = args.out_dir / "before.ppm"
     after = args.out_dir / "after.ppm"
     qmp_path = Path("/tmp") / f"m5-profile-{os.getpid()}.sock"
@@ -348,6 +380,7 @@ def main():
         "-L", str(args.rom_dir),
         "-display", "none",
         "-serial", f"file:{serial}",
+        "-serial", f"file:{serial1}",
         "-qmp", f"unix:{qmp_path},server=on,wait=off",
     ]
     if args.memory:
@@ -363,12 +396,21 @@ def main():
     try:
         qmp = wait_qmp(qmp_path)
         time.sleep(args.wait)
+        for path, prop, raw_value in args.qom_set:
+            try:
+                value = json.loads(raw_value)
+            except json.JSONDecodeError:
+                value = raw_value
+            qmp.cmd("qom-set", path=path, property=prop, value=value)
+        if args.qom_set:
+            time.sleep(args.qom_settle)
         qmp.cmd("screendump", filename=str(before))
         expected = tuple(map(int, args.expected_size.lower().split("x")))
         actual = read_ppm(before)[:2]
         if actual != expected:
             raise RuntimeError(f"frame size {actual} != expected {expected}")
-        send_input(qmp, args.input, actual, args.post_input_wait)
+        for input_spec in args.input:
+            send_input(qmp, input_spec, actual, args.post_input_wait)
         qmp.cmd("screendump", filename=str(after))
         qmp.close()
         before_frame = canonicalize_screendump(before)
@@ -387,13 +429,31 @@ def main():
                 raise RuntimeError(
                     f"{label} frame has too few colors: {unique_colors}"
                 )
-        if hashlib.sha256(before_frame[2]).digest() == hashlib.sha256(
-            after_frame[2]
-        ).digest():
+        if (not args.allow_static_frame
+                and hashlib.sha256(before_frame[2]).digest()
+                == hashlib.sha256(after_frame[2]).digest()):
             raise RuntimeError("input did not change the UIFlow2 frame")
+        serial_text = serial.read_text(errors="replace")
+        missing = [
+            marker for marker in args.serial_expect
+            if marker not in serial_text
+        ]
+        if missing:
+            raise RuntimeError(
+                f"missing serial markers: {', '.join(missing)}"
+            )
+        serial1_text = serial1.read_text(errors="replace")
+        missing = [
+            marker for marker in args.serial1_expect
+            if marker not in serial1_text
+        ]
+        if missing:
+            raise RuntimeError(
+                f"missing UART1 markers: {', '.join(missing)}"
+            )
         print(
             f"PASS machine={args.machine} size={actual[0]}x{actual[1]} "
-            f"input={args.input}"
+            f"inputs={','.join(args.input)}"
         )
     finally:
         proc.terminate()

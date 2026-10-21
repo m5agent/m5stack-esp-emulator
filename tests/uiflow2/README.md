@@ -24,6 +24,17 @@ python3 tests/uiflow2/run_device_matrix.py --device core2
 python3 tests/uiflow2/run_device_matrix.py --device tab5
 ```
 
+外设 API 探测：
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
+  --out-dir /tmp/m5-uiflow2-peripheral-matrix
+```
+
+覆盖 StickS3 的 IMU、A/B/P 按键和电源，以及 CoreS3 的 IMU、触摸、PWR、
+电源、RTC 和摄像头初始化/取帧。结果和边界见
+[`docs/uiflow2-peripheral-test-matrix.md`](../../docs/uiflow2-peripheral-test-matrix.md)。
+
 Tab5 需要先构建仿真固件和 16 MiB merged image：
 
 ```bash

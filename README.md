@@ -202,6 +202,19 @@ M5_SIM_BASE=http://127.0.0.1:8080 npm test
 StopWatch 页面接口。设置 `M5_STOPWATCH_FIXTURE_URL` 后可额外验证真实固件出帧；
 2026-10-21 本机已用 Playwright Chromium 通过完整固件测试。
 
+## 外设 API 测试
+
+StickS3 与 CoreS3 的 IMU、按键、触摸、电源、RTC 和摄像头探测结果见
+[`docs/uiflow2-peripheral-test-matrix.md`](docs/uiflow2-peripheral-test-matrix.md)。
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
+  --out-dir /tmp/m5-uiflow2-peripheral-matrix
+```
+
+当前已确认 StickS3 A/B/P、CoreS3 触摸/PWR、两台的电源 API 和 CoreS3 RTC；
+BMI270 数值更新、BMM150 磁力计和 CoreS3 摄像头取帧仍需要继续补外设模型。
+
 ## 参考项目与致谢
 
 本项目的多主控适配和验证流程参考了以下公开项目：
