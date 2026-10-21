@@ -578,7 +578,7 @@
         "validation": {
           "date": "2026-10-21",
           "status": "display-touch-audio-pass",
-          "detail": "官方 UIFlow2 v2.5.3 完成 320x240 首帧、FT5x06 触摸重绘、NS4168 扬声器 PCM 抓取和 SPM1423 PDM 麦克风 PCM 注入。板级已修正为 Core2 v1.1 的 AXP2101 + INA3221 硬件；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。"
+          "detail": "官方 UIFlow2 v2.5.3 完成 320x240 首帧、FT5x06 触摸重绘、MPU6886 IMU、NS4168 扬声器 PCM 抓取、SPM1423 PDM 麦克风 PCM 注入和 INA3221 电源监控。板级已修正为 Core2 v1.1 的 AXP2101 + INA3221 硬件；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。"
         }
       },
       "uiflow2": {
@@ -1094,9 +1094,9 @@
           "temperature:lm75",
           "power-monitor:ina226",
           "rtc:rx8130ce",
-          "buzzer",
-          "can",
-          "rs485",
+          "buzzer:i2s-delta-sigma",
+          "can:twai",
+          "rs485:uart2-half-duplex",
           "digital-input:8",
           "relay-output:4"
         ],
@@ -1122,9 +1122,9 @@
         "display_protocol": "spi-st7789v2",
         "execution": "native-qemu",
         "validation": {
-          "date": "2026-10-20",
-          "status": "display-key-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 240x135 UI；PI4IOE 按键/继电器/输入、RGB 和 INA226 电压/电流闭环通过。"
+          "date": "2026-10-21",
+          "status": "display-key-bus-actuator-pass",
+          "detail": "官方 UIFlow2 v2.5.3 渲染 240x135 UI；PI4IOE 按键/继电器/输入、RGB、INA226、LM75、TWAI CAN G42/G43、PWR485 UART2 G0/G39/G46 和 G44 I2S 蜂鸣器闭环通过。"
         }
       },
       "uiflow2": {

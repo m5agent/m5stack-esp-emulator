@@ -22,7 +22,8 @@
 - AtomS3R：128x128、GPIO41；
 - CoreS3：320x240、FT5x06 触摸。
 - Cardputer-ADV：240x135、TCA8418 键盘事件；
-- StamPLC：240x135、PI4IOE 前面板按键。
+- StamPLC：240x135、PI4IOE 前面板按键、LM75、TWAI CAN、PWR485 UART2 和
+  G44 I2S 蜂鸣器。
 - StackChan：320x240、FT5x06 触摸。
 - PaperColor：400x600 六色电子纸、GPIO10 按键；
 - PaperMono：480x800 四阶灰度电子纸、FT5x06 触摸。
@@ -52,7 +53,7 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | qemu-esp32s3 | `ready` | ST7789P3 135x240 | 已完成 |
 | Cardputer-ADV (`cardputer-adv`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 已完成 |
 | StackChan (`stackchan`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 已完成 |
-| StamPLC (`stamplc`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 已完成 |
+| StamPLC (`stamplc`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 显示/IO/CAN/RS485/蜂鸣器已完成 |
 | PaperColor (`papercolor`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | E Ink Spectra 6 400x600 | 已完成 |
 | PaperMono (`papermono`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | SSD1677 480x800 | 已完成 |
 | NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG console |
@@ -116,7 +117,7 @@ StickS3、AtomS3R、CoreS3。
 Cardputer-ADV、StamPLC、StackChan。
 
 - Cardputer-ADV 需要键盘矩阵。
-- StamPLC 需要 PLC IO/继电器模型。
+- StamPLC 的 PLC IO/继电器、CAN、RS485 和蜂鸣器数据面已完成。
 - StackChan 需要舵机和音频模型。
 
 Cardputer-ADV、StamPLC 与 StackChan 已完成首帧及输入验收，测试工程位于

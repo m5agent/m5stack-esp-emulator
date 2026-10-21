@@ -26,7 +26,7 @@
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-touch-audio-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 完成 320x240 首帧、FT5x06 触摸重绘、NS4168 扬声器 PCM 抓取和 SPM1423 PDM 麦克风 PCM 注入。板级已修正为 Core2 v1.1 的 AXP2101 + INA3221 硬件；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。
+- 详情：官方 UIFlow2 v2.5.3 完成 320x240 首帧、FT5x06 触摸重绘、MPU6886 IMU、NS4168 扬声器 PCM 抓取、SPM1423 PDM 麦克风 PCM 注入和 INA3221 电源监控。板级已修正为 Core2 v1.1 的 AXP2101 + INA3221 硬件；QEMU 暂用 -m 0 规避 PSRAM/cache 稳定性问题。
 
 
 

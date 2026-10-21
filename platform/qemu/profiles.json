@@ -178,7 +178,7 @@
       "validation": {
         "date": "2026-10-21",
         "status": "display-touch-audio-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders 320x240, accepts touch, captures nonzero NS4168 speaker PCM through ESP32 I2S1, injects SPM1423 PCM through I2S0 PDM RX, and reads INA3221 power telemetry through I2C0. The board uses the documented Core2 v1.1 AXP2101 + INA3221 hardware. QEMU -m 0 is still required for best PSRAM/cache stability."
+        "detail": "Official UIFlow2 v2.5.3 renders 320x240, accepts touch, reads MPU6886 accel/gyro, captures nonzero NS4168 speaker PCM through ESP32 I2S1, injects SPM1423 PCM through I2S0 PDM RX, and reads INA3221 power telemetry through I2C0. The board uses the documented Core2 v1.1 AXP2101 + INA3221 hardware. QEMU -m 0 is still required for best PSRAM/cache stability."
       }
     },
     {
@@ -423,16 +423,20 @@
       "peripherals": [
         "relay",
         "digital-input",
-        "rs485"
+        "rs485",
+        "can",
+        "buzzer",
+        "ina226"
       ],
       "board_work": [
-        "relay/digital-input and RS485 functional models"
+        "Relay/digital-input and INA226 closure",
+        "CAN/RS485 virtual peer and buzzer data paths"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
-        "status": "display-key-pass",
-        "detail": "UIFlow2 v2.5.3 renders a 240x135 UI; PI4IOE front-panel A input increments the on-screen counter."
+        "date": "2026-10-21",
+        "status": "display-key-bus-actuator-pass",
+        "detail": "UIFlow2 v2.5.3 renders 240x135; PI4IOE input/relay, INA226, LM75, TWAI CAN G42/G43, PWR485 UART2 G0/G39/G46, and the G44 I2S buzzer path all pass automated checks."
       }
     },
     {

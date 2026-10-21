@@ -1380,6 +1380,16 @@
  
      DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
      m5_lcd_cam_attach(cam, gdma, 320, 240);
+--- a/hw/m5stopwatch/m5stamplc.c
++++ b/hw/m5stopwatch/m5stamplc.c
+@@ -76,4 +76,7 @@
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+     esp32s3_gpspi_set_dc_pin(spi, 6);
++
++    /* PWR-485 is UART2: TX/BOOT G0, RX G39, direction G46. */
++    m5_uart_echo_attach(m5soc_get_uart_device(2), "M5SW_RS485_ECHO");
+ }
 --- a/hw/m5stopwatch/m5stopwatch.h
 +++ b/hw/m5stopwatch/m5stopwatch.h
 @@ -27,6 +27,9 @@
@@ -1392,7 +1402,7 @@
  #define TYPE_M5_RMT "m5.rmt"
  OBJECT_DECLARE_SIMPLE_TYPE(M5RmtState, M5_RMT)
  
-@@ -73,17 +76,23 @@
+@@ -73,17 +76,25 @@
  void m5_i2s_attach(DeviceState *dev, struct ESPGdmaState *gdma, uint32_t port);
  void m5_i2s_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
                         struct ESPGdmaState *gdma);
@@ -1412,7 +1422,9 @@
  void m5_sx1262_attach(DeviceState *spi, int cs_pin);
 +void m5_spi_sd_attach(DeviceState *spi, int cs_pin);
 +void m5_scs_servo_attach(DeviceState *uart);
++void m5_uart_echo_attach(DeviceState *uart, const char *enable_env);
 +DeviceState *m5soc_get_uart_device(int index);
++struct CanBusState *m5_can_bus_create(void);
  void esp32s3_gpspi_attach_epd(DeviceState *dev, struct ESPGdmaState *gdma,
                                M5EpdPanelState *panel, uint32_t gdma_periph);
  
@@ -1509,6 +1521,24 @@
  static uint16_t ina226_current_raw(M5swI2CDev *s)
  {
      uint16_t cal = ((uint16_t)s->regs[0x05] << 8) | s->regs[0x06];
+@@ -504,7 +561,7 @@
+         if (r >= 0x3B && r <= 0x40) {
+             int index = (r - 0x3B) / 2;
+             uint16_t raw = encode_be16(s->accel[index], 8.0 / 32768.0);
+-            return (r & 1) ? raw & 0xff : raw >> 8;
++            return (r & 1) ? raw >> 8 : raw & 0xff;
+         }
+         if (r == 0x41 || r == 0x42) {
+             uint16_t raw = encode_be16((s->temperature_c - 25.0) * 326.8, 1.0);
+@@ -513,7 +570,7 @@
+         if (r >= 0x43 && r <= 0x48) {
+             int index = (r - 0x43) / 2;
+             uint16_t raw = encode_be16(s->gyro[index], 2000.0 / 32768.0);
+-            return (r & 1) ? raw & 0xff : raw >> 8;
++            return (r & 1) ? raw >> 8 : raw & 0xff;
+         }
+         break;
+     case M_LM75:
 @@ -604,19 +661,39 @@
      }
      case M_SHT40:
@@ -1695,12 +1725,21 @@
  
 --- a/hw/xtensa/esp32s3.c
 +++ b/hw/xtensa/esp32s3.c
-@@ -160,7 +160,17 @@
+@@ -43,6 +43,7 @@
+ #include "sysemu/block-backend.h"
+ #include "exec/exec-all.h"
+ #include "net/net.h"
++#include "net/can_emu.h"
+ #include "elf.h"
+ 
+ #include "hw/ssi/esp32s3_spi.h"
+@@ -159,6 +160,16 @@
+ 
      uint32_t requested_reset;
  } Esp32s3SocState;
- 
++
 +static Esp32s3SocState *g_esp32s3_soc;
- 
++
 +DeviceState *m5soc_get_uart_device(int index)
 +{
 +    if (!g_esp32s3_soc || index < 0 || index >= ESP32S3_UART_COUNT) {
@@ -1708,12 +1747,21 @@
 +    }
 +    return DEVICE(&g_esp32s3_soc->uart[index]);
 +}
-+
-+
- /* Temporary macro to mark the CPU as in non-debugging mode */
- #define A_ASSIST_DEBUG_CORE_0_DEBUG_MODE_REG    0x098
  
-@@ -626,6 +636,7 @@
+ 
+ /* Temporary macro to mark the CPU as in non-debugging mode */
+@@ -457,6 +468,10 @@
+ 
+     /* TWAI realization */
+     {
++        CanBusState *canbus = m5_can_bus_create();
++
++        object_property_set_link(OBJECT(&s->twai), "canbus",
++                                 OBJECT(canbus), &error_fatal);
+         /* Initialize and realize the TWAI device */
+         sysbus_realize(SYS_BUS_DEVICE(&s->twai), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->twai), 0);
+@@ -626,6 +641,7 @@
      Esp32s3MachineState *ms = ESP32S3_MACHINE(machine);
      object_initialize_child(OBJECT(ms), "soc", &ms->esp32s3, TYPE_ESP32S3_SOC);
      Esp32s3SocState *ss = ESP32S3_SOC(&ms->esp32s3);
@@ -1742,26 +1790,61 @@
          case A_SYSTEM_CPU_INTR_FROM_CPU_0:
          case A_SYSTEM_CPU_INTR_FROM_CPU_1:
          case A_SYSTEM_CPU_INTR_FROM_CPU_2:
-@@ -88,6 +100,18 @@
+@@ -84,10 +96,53 @@
+ {
+     ESP32S3ClockState *s = ESP32S3_CLOCK(opaque);
+ 
++    if (getenv("M5SW_CLK_TRACE")
++        && (addr == A_SYSTEM_PERIP_CLK_EN0
++            || addr == A_SYSTEM_PERIP_CLK_EN1
++            || addr == A_SYSTEM_PERIP_RST_EN0
++            || addr == A_SYSTEM_PERIP_RST_EN1)) {
++        fprintf(stderr, "[clk] wr %03" HWADDR_PRIx " <- %08" PRIx64 "\n",
++                addr, value);
++    }
+     switch(addr) {
          case A_SYSTEM_CORE_1_CONTROL_1_REG:
                  s->app_cpu_addr = (uint32_t)value;
              break;
 +        case A_SYSTEM_PERIP_CLK_EN0:
 +            s->perip_clk_en0 = (uint32_t)value;
++            if (s->perip_clk_en1 & BIT(9)) {
++                s->perip_clk_en0 |= BIT(9);
++            }
 +            break;
 +        case A_SYSTEM_PERIP_CLK_EN1:
 +            s->perip_clk_en1 = (uint32_t)value;
++            /*
++             * ESP-IDF v5.5.4's uart_ll_is_enabled() checks UART2 through the
++             * EN0 register even though the real gate is EN1 bit 9.  Mirror the
++             * gate so the unmodified driver can validate the port.
++             */
++            if (s->perip_clk_en1 & BIT(9)) {
++                s->perip_clk_en0 |= BIT(9);
++            } else {
++                s->perip_clk_en0 &= ~BIT(9);
++            }
 +            break;
 +        case A_SYSTEM_PERIP_RST_EN0:
 +            s->perip_rst_en0 = (uint32_t)value;
++            if (s->perip_rst_en1 & BIT(9)) {
++                s->perip_rst_en0 |= BIT(9);
++            } else {
++                s->perip_rst_en0 &= ~BIT(9);
++            }
 +            break;
 +        case A_SYSTEM_PERIP_RST_EN1:
 +            s->perip_rst_en1 = (uint32_t)value;
++            if (s->perip_rst_en1 & BIT(9)) {
++                s->perip_rst_en0 |= BIT(9);
++            } else {
++                s->perip_rst_en0 &= ~BIT(9);
++            }
 +            break;
          case A_SYSTEM_CPU_INTR_FROM_CPU_0:
          case A_SYSTEM_CPU_INTR_FROM_CPU_1:
          case A_SYSTEM_CPU_INTR_FROM_CPU_2:
-@@ -124,6 +148,20 @@
+@@ -124,6 +179,22 @@
      s->cpuperconf = (ESP32S3_PERIOD_SEL_80 << R_SYSTEM_CPU_PER_CONF_CPUPERIOD_SEL_SHIFT) |
                      (ESP32S3_FREQ_SEL_PLL_480 << R_SYSTEM_CPU_PER_CONF_PLL_FREQ_SEL_SHIFT);
  
@@ -1770,8 +1853,10 @@
 +    s->perip_clk_en0 &= ~((1U << 26) | (1U << 25) | (1U << 21) |
 +                          (1U << 20) | (1U << 19) | (1U << 18) |
 +                          (1U << 17) | (1U << 12) | (1U << 11) |
-+                          (1U << 10) | (1U << 9) | (1U << 8) |
++                          (1U << 10) | (1U << 8) |
 +                          (1U << 7) | (1U << 4));
++    /* Keep the EN0 bit used by IDF's UART2 enabled check readable. */
++    s->perip_clk_en0 |= BIT(9);
 +    s->perip_clk_en1 = (1U << 10) | (1U << 9);
 +    s->perip_rst_en0 = 0;
 +    s->perip_rst_en1 = (1U << 10) | (1U << 8) | (1U << 7) |
@@ -1784,17 +1869,20 @@
      for (int i = 0 ; i < ESP32S3_SYSTEM_CPU_INTR_COUNT; i++) {
 --- a/hw/xtensa/meson.build
 +++ b/hw/xtensa/meson.build
-@@ -5,7 +5,9 @@
+@@ -4,8 +4,12 @@
+   'pic_cpu.c',
    'xtensa_memory.c',
    '../m5stopwatch/m5_board.c',
++  '../m5stopwatch/m5_can_peer.c',
    '../m5stopwatch/m5_rmt.c',
 +  '../m5stopwatch/m5_scs_servo.c',
++  '../m5stopwatch/m5_uart_peer.c',
    '../m5stopwatch/m5_sx1262.c',
 +  '../m5stopwatch/m5_spi_sd.c',
    '../m5stopwatch/m5_spi_panel.c',
    '../m5stopwatch/m5sw_i2c_devs.c',
    '../m5stopwatch/esp32s3_soft_i2c.c',
-@@ -17,6 +19,7 @@
+@@ -17,6 +21,7 @@
    'esp32.c',
    'esp32_intc.c',
    '../m5stopwatch/m5core2.c',
@@ -1864,6 +1952,61 @@
  
  
      /* IRQs for crosscore interrupts */
+--- /dev/null
++++ b/hw/m5stopwatch/m5_can_peer.c
+@@ -0,0 +1,52 @@
++/*
++ * Virtual CAN peer for M5Stack board models.
++ *
++ * The peer is a real client on QEMU's CAN bus.  When enabled, it echoes every
++ * frame back to the controller, allowing the unmodified guest TWAI driver to
++ * exercise TX, RX, filtering, interrupts and its receive FIFOs.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "net/can_emu.h"
++#include "qom/object.h"
++#include "m5stopwatch.h"
++
++typedef struct M5CanPeer {
++    CanBusClientState client;
++    bool echo;
++} M5CanPeer;
++
++static bool m5_can_peer_can_receive(CanBusClientState *client)
++{
++    return true;
++}
++
++static ssize_t m5_can_peer_receive(CanBusClientState *client,
++                                   const struct qemu_can_frame *frames,
++                                   size_t frames_cnt)
++{
++    M5CanPeer *peer = container_of(client, M5CanPeer, client);
++
++    if (peer->echo && frames_cnt) {
++        can_bus_client_send(client, frames, frames_cnt);
++    }
++    return frames_cnt;
++}
++
++static CanBusClientInfo m5_can_peer_info = {
++    .can_receive = m5_can_peer_can_receive,
++    .receive = m5_can_peer_receive,
++};
++
++struct CanBusState *m5_can_bus_create(void)
++{
++    CanBusState *bus = CAN_BUS(object_new(TYPE_CAN_BUS));
++    M5CanPeer *peer = g_new0(M5CanPeer, 1);
++
++    object_property_add_child(qdev_get_machine(), "m5-canbus", OBJECT(bus));
++    peer->echo = getenv("M5SW_CAN_ECHO") != NULL;
++    peer->client.info = &m5_can_peer_info;
++    can_bus_insert_client(bus, &peer->client);
++    return bus;
++}
 --- /dev/null
 +++ b/hw/m5stopwatch/m5_i2s_esp32.c
 @@ -0,0 +1,563 @@
@@ -3012,4 +3155,38 @@
 +    }
 +    sd_set_identity(s, s->image_size);
 +    esp32s3_gpspi_attach_spi_slave(spi, &sd_spi_ops, s, cs_pin);
++}
+--- /dev/null
++++ b/hw/m5stopwatch/m5_uart_peer.c
+@@ -0,0 +1,31 @@
++/*
++ * Byte-level UART peer used by RS485 and other half-duplex board buses.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "hw/char/esp32_uart.h"
++#include "m5stopwatch.h"
++
++typedef struct M5UartPeer {
++    ESP32UARTState *uart;
++    bool echo;
++} M5UartPeer;
++
++static void m5_uart_peer_tx(void *opaque, uint8_t byte)
++{
++    M5UartPeer *peer = opaque;
++
++    if (peer->echo) {
++        esp32_uart_inject_rx(peer->uart, &byte, 1);
++    }
++}
++
++void m5_uart_echo_attach(DeviceState *uart, const char *enable_env)
++{
++    M5UartPeer *peer = g_new0(M5UartPeer, 1);
++
++    peer->uart = ESP32_UART(uart);
++    peer->echo = enable_env && getenv(enable_env) != NULL;
++    esp32_uart_set_tx_byte_callback(peer->uart, m5_uart_peer_tx, peer);
 +}

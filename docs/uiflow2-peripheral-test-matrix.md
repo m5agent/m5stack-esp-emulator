@@ -51,11 +51,16 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | Core2 | NS4168 扬声器、ESP32 I2S1 linked-list DMA、AXP2101 ALDO3 使能 | `Speaker.tone()` | PASS |
 | Core2 | SPM1423 PDM 麦克风、ESP32 I2S0 linked-list DMA | `Mic.record()` | PASS |
 | Core2 | INA3221 ID、总线电压和分流电压寄存器 | ESP32 I2C0 | PASS |
+| StamPLC | TWAI CAN G42/G43、虚拟 CAN 对端收发 | `hardware.CAN` | PASS |
+| StamPLC | PWR485 UART2 G0/G39/G46、半双工 UART 对端收发 | `hardware.PWR485` | PASS |
+| StamPLC | G44 I2S 1-bit ΔΣ 蜂鸣器输出 | `Speaker.tone()` + PCM 抓取 | PASS |
+| Core2 | MPU6886 加速度/角速度寄存器与 `Imu` API | `Imu.getAccel()` / `getGyro()` | PASS |
+| StamPLC | LM75BDP 11-bit 温度寄存器 | ESP32 I2C0 `0x48` | PASS |
 
 汇总：
 
 ```text
-PASS    36
+PASS    41
 ```
 
 本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
@@ -245,6 +250,35 @@ CH1 `4800 mV / 240 mA`，固件通过真实 I2C 传输读取：
 - bus voltage raw `600`，对应 `4800 mV / 8 mV`；
 - shunt voltage raw `60`，对应 `240 mA × 10 mΩ / 40 uV`。
 
+### StamPLC CAN、RS485 与蜂鸣器
+
+官方 StamPLC 资料确认：
+
+- PWR-CAN：`CAN_TX=G42`、`CAN_RX=G43`，由 ESP32-S3 TWAI 控制；
+- PWR-485：`RS485_TX/BOOT=G0`、`RS485_RX=G39`、`RS485_DIR=G46`，使用
+  UART2 半双工模式；
+- 蜂鸣器：`G44`，M5Unified 使用 I2S 1-bit ΔΣ 数据流，而不是普通 GPIO
+  PWM。
+
+QEMU 为 TWAI 连接一个真实 CAN-bus 虚拟节点。官方 `hardware.CAN` 发送
+标准帧 `ID=0x123 / data=M5CAN!`，对端回送后 UIFlow2 成功接收同一帧。
+
+PWR485 通过 UART2 的 TX 字节回调连接虚拟 RS485 节点，`PWR485.write()` 的
+`M5RS485` 经 UART 控制器发出并回注 RX，`read()` 回读一致。
+
+蜂鸣器测试由官方 `Speaker.tone(3500, 250)` 生成 I2S 数据，宿主抓到 65536
+字节 PCM，非零样本 18432，峰峰值 60855。
+
+### Core2 MPU6886 与 StamPLC LM75
+
+MPU6886 的 14 字节 accel/temp/gyro burst 使用大端 16 位样本。原模型把高低
+字节顺序返回反了，修复后 QOM 注入
+`accel=(0.25,-0.50,0.75) g / gyro=(10,-20,30) dps`，官方
+`Imu.getAccel()/getGyro()` 精确回读。
+
+LM75BDP 在 StamPLC I2C0 `0x48` 上注入 `37.5 °C`，原始寄存器为
+`0x2580`，按 11-bit 二进制补码和 `1/8 °C` LSB 解码为 `37.5 °C`。
+
 ### StopWatch 振动马达
 
 `Power.setVibration(128)` 写入 M5IOE1 PWM1 的 12 位占空比和 enable 位，
@@ -300,6 +334,11 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `tests/uiflow2/core2_audio/`
 - `tests/uiflow2/core2_mic/`
 - `tests/uiflow2/core2_power_monitor/`
+- `tests/uiflow2/stamplc_can/`
+- `tests/uiflow2/stamplc_rs485/`
+- `tests/uiflow2/stamplc_buzzer/`
+- `tests/uiflow2/core2_imu/`
+- `tests/uiflow2/stamplc_lm75/`
 
 ## 屏幕证据
 
@@ -411,13 +450,23 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ![Core2 INA3221](images/core2-ina3221-test.png)
 
+![StamPLC CAN](images/stamplc-can-test.png)
+
+![StamPLC RS485](images/stamplc-rs485-test.png)
+
+![StamPLC buzzer](images/stamplc-buzzer-test.png)
+
+![Core2 IMU](images/core2-imu-test.png)
+
+![StamPLC LM75](images/stamplc-lm75-test.png)
+
 ## 尚未闭环
 
 - ESP32-C6 RMT/IR 路径（StickS3 的 ESP32-S3 RMT 已闭环）；
 - ST25R3916 SPI/NFCCap 路径；
 - USB Host 虚拟端点；
 - Tab5 SC2356/MIPI-CSI、ES8388 音频和 ST7123 完整数据面；
-- CAN/RS485、蜂鸣器等尚未完成闭环的路径；
+- USB Host 和 Tab5 高带宽外设等尚未完成闭环的路径；
 - 所有项目的真机复测。
 
 这些项目已在 `platform/peripherals/catalog.json` 中逐器件登记，CI 会阻止新增

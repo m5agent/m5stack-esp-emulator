@@ -66,6 +66,11 @@
   数据面。
 - **SPI 存储**：Cardputer-ADV 与 PaperColor 的 microSD 走 GP-SPI SD
   command/data 协议，并使用原始块镜像作为后端。
+- **CAN/RS485**：StamPLC 的 TWAI 控制器连接 QEMU CAN-bus 虚拟节点；
+  PWR485 使用 UART2 字节级虚拟对端。两者均通过官方 UIFlow2 驱动完成双向
+  TX/RX。
+- **蜂鸣器**：StamPLC 的 G44 由 M5Unified 生成为 I2S 1-bit ΔΣ 流，宿主
+  从真实 I2S TX DMA 描述符抓取比特流。
 
 ## 仍需高带宽数据面的器件
 

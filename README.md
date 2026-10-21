@@ -224,9 +224,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 电源与 RTC、GPIO 扩展器、INA226/INA3221、SDMMC/SPI SD 块读写、
 RMT/NEC 红外收发、ST25R3916 NFC、ESP32-S3 与 ESP32 classic I2S/PDM
 音频注入与抓取、SCS 舵机，以及 GC0308 + LCD_CAM + GDMA 的
-`camera.snapshot()` 和屏幕显示闭环。USB Host、CAN/RS485、蜂鸣器、
-Tab5 MIPI-CSI/ES8388 等尚未闭环的外设仍按器件登记，不会用 Python 假数据
-冒充完成。
+`camera.snapshot()` 和屏幕显示闭环。StamPLC 的 TWAI CAN、PWR485 和
+I2S 蜂鸣器也已通过虚拟对端双向验收。USB Host、Tab5 MIPI-CSI/ES8388
+等尚未闭环的外设仍按器件登记，不会用 Python 假数据冒充完成。
 
 ## 参考项目与致谢
 

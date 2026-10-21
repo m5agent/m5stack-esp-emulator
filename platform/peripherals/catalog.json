@@ -158,8 +158,10 @@
       "interface": "i2c",
       "address": "0x68",
       "capabilities": ["accel", "gyro"],
-      "status": "partial",
-      "injection": ["qom-accel", "qom-gyro"]
+      "status": "simulated",
+      "injection": ["qom-accel", "qom-gyro"],
+      "data_plane": "MPU6886 configuration and big-endian accel/gyro sample registers over ESP32 I2C0; QOM physical-value injection reaches the UIFlow2 Imu API",
+      "tested_devices": ["core2"]
     },
     "es8311": {
       "kind": "audio-codec",
@@ -284,8 +286,10 @@
       "kind": "temperature",
       "interface": "i2c",
       "capabilities": ["temperature"],
-      "status": "partial",
-      "injection": ["qom-temperature"]
+      "status": "simulated",
+      "injection": ["qom-temperature"],
+      "data_plane": "LM75BDP pointer-register read and 11-bit two's-complement temperature encoding over StamPLC I2C0 at 0x48",
+      "tested_devices": ["stamplc"]
     },
     "ina226": {
       "kind": "power-monitor",
@@ -342,24 +346,30 @@
     },
     "buzzer": {
       "kind": "actuator",
-      "interface": "gpio-pwm",
+      "interface": "i2s-gpio",
       "capabilities": ["buzzer"],
-      "status": "planned",
-      "injection": ["qom-tone"]
+      "status": "simulated",
+      "injection": ["qom-tone"],
+      "data_plane": "StamPLC Speaker buzzer mode generates a 1-bit delta-sigma I2S TX stream on G44; host PCM capture verifies firmware output",
+      "tested_devices": ["stamplc"]
     },
     "can": {
       "kind": "fieldbus",
       "interface": "twai",
       "capabilities": ["can"],
-      "status": "planned",
-      "injection": ["qom-can-frame"]
+      "status": "simulated",
+      "injection": ["qom-can-frame"],
+      "data_plane": "ESP32-S3 TWAI/SJA1000 controller on StamPLC G42/G43 with a QEMU CAN-bus peer for TX/RX echo and interrupt delivery",
+      "tested_devices": ["stamplc"]
     },
     "rs485": {
       "kind": "fieldbus",
       "interface": "uart",
       "capabilities": ["rs485"],
-      "status": "planned",
-      "injection": ["uart-peer"]
+      "status": "simulated",
+      "injection": ["uart-peer"],
+      "data_plane": "StamPLC UART2 half-duplex PWR485 path on G0/G39/G46 with byte-level UART peer TX/RX",
+      "tested_devices": ["stamplc"]
     },
     "servo": {
       "kind": "servo",
@@ -530,7 +540,10 @@
     },
     "stamplc": {
       "board_model": "m5stamplc",
-      "evidence": ["https://docs.m5stack.com/en/core/StampPLC"],
+      "evidence": [
+        "https://docs.m5stack.com/en/core/StamPLC",
+        "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/pdf/static/en/core/StamPLC.pdf"
+      ],
       "components": [
         {"id": "io-expander", "model": "pi4ioe5v6408", "qom_path": "/machine/pi4ioe"},
         {"id": "io-expander-aw9523", "model": "aw9523", "address": "0x59"},
