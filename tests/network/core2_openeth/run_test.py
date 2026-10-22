@@ -53,6 +53,13 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
 def build_firmware(timeout: float) -> Path:
     toolchain = (
         Path.home()
@@ -143,11 +150,14 @@ def main() -> int:
     if not IDF_PATH.is_dir() or not QEMU.is_file():
         raise SystemExit("ESP-IDF or QEMU runtime is missing")
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    firmware = (
+    built_firmware = (
         TEST_DIR / "build_esp32/merged.bin"
         if args.skip_build
         else build_firmware(args.build_timeout)
     )
+    firmware = args.out_dir / "firmware-under-test.bin"
+    shutil.copyfile(built_firmware, firmware)
+    firmware_sha256 = sha256(firmware)
 
     server = ThreadingHTTPServer(("127.0.0.1", 8070), Handler)
     server.daemon_threads = True
@@ -185,9 +195,11 @@ def main() -> int:
             "stderr": qemu_stderr[-4000:],
         },
         "firmware": {
-            "path": str(firmware.relative_to(ROOT)),
+            "path": display_path(firmware),
             "bytes": firmware.stat().st_size,
-            "sha256": sha256(firmware),
+            "sha256": firmware_sha256,
+            "build_output_sha256": sha256(built_firmware),
+            "isolated_copy": True,
         },
         "http": {
             "expected_bytes": len(PAYLOAD),

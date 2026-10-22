@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import signal
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -136,18 +137,24 @@ def main() -> int:
     prefix = "WIFI" if args.probe == "wifi" else "BLE"
     terminal_marker = f"CORE2_{prefix}_RESULT:"
 
-    image = (
+    built_image = (
         args.out_dir / "uiflow2-ui-test.bin"
         if args.skip_build
         else build_image(probe_dir, args.out_dir)
     )
+    image = args.out_dir / "firmware-under-test.bin"
+    shutil.copyfile(built_image, image)
+    firmware_sha256 = sha256(image)
     attempts = []
     selected = None
     for attempt_index in range(1, args.attempts + 1):
         attempt_dir = args.out_dir / f"attempt-{attempt_index}"
         attempt_dir.mkdir(parents=True, exist_ok=True)
+        attempt_image = attempt_dir / "firmware-under-test.bin"
+        shutil.copyfile(image, attempt_image)
+        attempt_input_sha256 = sha256(attempt_image)
         qemu_exit, serial, qemu_stderr = run_qemu(
-            image,
+            attempt_image,
             attempt_dir,
             args.timeout,
             terminal_marker,
@@ -161,6 +168,8 @@ def main() -> int:
                 "serial_path": str(serial_path),
                 "serial_bytes": serial_path.stat().st_size,
                 "serial_sha256": sha256(serial_path),
+                "firmware_sha256_before": attempt_input_sha256,
+                "firmware_sha256_after": sha256(attempt_image),
                 "qemu_exit_code": qemu_exit,
                 "qemu_stderr": qemu_stderr[-2000:],
             }
@@ -218,7 +227,9 @@ def main() -> int:
         "firmware": {
             "path": display_path(image),
             "bytes": image.stat().st_size,
-            "sha256": sha256(image),
+            "sha256": firmware_sha256,
+            "build_output_sha256": sha256(built_image),
+            "isolated_copy": True,
             "base_sha256": sha256(BASE),
         },
         "qemu": {
