@@ -62,7 +62,9 @@ function sessionCard(session) {
   const frameUrl = state.frames.get(session.session_id);
   const warning = (device.warnings || []).join(' ');
   const frameText = hasDisplay
-    ? (session.last_frame_available ? '加载最后一帧…' : '等待应用首帧…')
+    ? (session.last_frame_available
+        ? '加载最后一帧…'
+        : (['stopped', 'failed'].includes(session.state) ? '该历史会话未保存最后一帧' : '等待应用首帧…'))
     : '该设备无 framebuffer';
   return `
     <article class="panel session-card" data-session-id="${escapeHtml(session.session_id)}">
@@ -144,10 +146,12 @@ async function refreshSessions() {
     const recentCutoff = Date.now() - 30 * 60 * 1000;
     state.sessions = state.showHistory
       ? allSessions
-      : allSessions.filter(session =>
-          !['stopped', 'failed'].includes(session.state)
-          || Date.parse(session.completed_at || session.created_at) >= recentCutoff
-        );
+      : allSessions.filter(session => {
+          if (!['stopped', 'failed'].includes(session.state)) return true;
+          const recent = Date.parse(session.completed_at || session.created_at) >= recentCutoff;
+          const canRenderHistory = session.last_frame_available || !session.display?.width;
+          return recent && canRenderHistory;
+        });
     renderCapacity(capacity);
     render();
     showError('');

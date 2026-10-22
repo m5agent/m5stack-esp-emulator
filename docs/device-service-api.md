@@ -409,7 +409,8 @@ session is removed from the active capacity count immediately.
 - stopped/failed sessions remain queryable until the service restarts;
 - `GET /sessions?include_stopped=0` hides stopped/failed history from a UI;
 - the web dashboard shows active leases plus sessions completed in the last
-  30 minutes by default; “显示全部历史” expands the list;
+  30 minutes when a last-known frame or serial-only view is available;
+  “显示全部历史” expands the list;
 - `DELETE /sessions?state=stopped&purge=1` removes old sessions and their
   per-session flash copies;
 - a guest reset does not make a session safe for a different tenant;
