@@ -39,6 +39,9 @@ Implemented on 2026-10-22:
 - AtomS3R UIFlow2 source rebuilt with UART REPL enabled; the same instance and
   Device Service both pass WiFi association/DHCP and BLE GATT write with guest
   delivery;
+- StackChan, PaperColor, PaperMono and StamPLC UIFlow2 sources rebuilt with
+  UART REPL enabled; each passes WiFi association/DHCP and BLE GATT write with
+  guest delivery in both the direct runner and Device Service;
 - C6 WiFi stays active during external Bumble scan/connect/GATT
   write/readback;
 - host-forwarder DNS plus controlled UDP request/reply;
@@ -51,8 +54,6 @@ Implemented on 2026-10-22:
 Still open:
 
 - isolated DNS policy and host packet summaries;
-- stock UIFlow2 same-instance network runs for the remaining S3 models using an
-  observable UART-REPL test build;
 - combined board-peripheral plus network guest.
 
 Rough effort:

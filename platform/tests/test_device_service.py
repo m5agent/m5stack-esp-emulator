@@ -72,18 +72,14 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertTrue(rows["cardputer-adv"]["features"]["network"])
         self.assertEqual(rows["atoms3r"]["network_status"], "validated")
         self.assertTrue(rows["atoms3r"]["features"]["network"])
-        for blocked in (
+        for validated_s3 in (
             "papercolor",
             "papermono",
             "stackchan",
             "stamplc",
         ):
-            self.assertEqual(
-                rows[blocked]["network_status"],
-                "board-init-blocked",
-            )
-            self.assertFalse(rows[blocked]["features"]["network"])
-            self.assertTrue(rows[blocked]["network_profiles"])
+            self.assertEqual(rows[validated_s3]["network_status"], "validated")
+            self.assertTrue(rows[validated_s3]["features"]["network"])
         for unsupported in ("core2", "tab5"):
             self.assertEqual(
                 rows[unsupported]["network_status"],

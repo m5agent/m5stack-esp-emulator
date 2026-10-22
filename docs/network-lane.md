@@ -154,14 +154,14 @@ external Bumble NUS connect/discover/subscribe/write followed by the guest-side
 session API.
 
 The Device Service catalog exposes this evidence boundary as `network_status`.
-StickS3, AtomS3R, CoreS3, StopWatch, Cardputer ADV, NanoC6 and Nesso N1
-currently use `validated`. AtomS3R, CoreS3, StopWatch and Cardputer ADV passed
-after rebuilding the same UIFlow2 source with UART REPL enabled; the stock
-images disable the REPL, so their UART0 I2C logs are not evidence that the apps
-failed to start. The stock UIFlow2 boot path remains `board-init-blocked` on
-StackChan, PaperColor, PaperMono and StamPLC until an equivalent observable
-REPL build and same-instance probe pass. Core2 and Tab5 are `not-supported`.
-A board in this state must not be reported as a WiFi/BLE regression.
+All modeled ESP32-S3 devices (StickS3, AtomS3R, CoreS3, StopWatch, Cardputer
+ADV, StackChan, PaperColor, PaperMono and StamPLC) and C6 devices (NanoC6 and
+Nesso N1) currently use `validated`. The S3 results use observable UART-REPL
+test builds; the stock images disable the REPL, so their UART0 I2C logs are not
+evidence that the apps failed to start. Core2 and Tab5 are `not-supported`.
+Public firmware can still stop in a separate board-detection or peripheral
+self-test path before networking; that blocker must not be reported as a
+WiFi/BLE regression.
 
 The fixture hashes and machine-readable checks are stored with the run evidence
 and work record rather than copied into this document.
