@@ -9,7 +9,7 @@
 - **9 台 ESP32-S3** 共用一套 QEMU/S3 后端和 GPIO/SPI/I2C 框架，只补板级 profile、显示模型、输入和外设。
 - **2 台 ESP32-C6** 需要 C6 后端/板级模型。
 - **Tab5（ESP32-P4）** 使用 `esp-emu 0.50.0`、P4 rev0 ROM 和配套 eFuse，接入 C6 ESP-Hosted 协处理器，并以仿真 M5GFX DSI framebuffer 输出真实 UI。
-- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 QEMU 补丁已让 stock UIFlow2 完成 WiFi 扫描、关联、DHCP/IP、受控 HTTP，以及 BLE controller 激活和 advertising enable；外网 DNS、外部 BLE peer/GATT 仍未完成。
+- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 QEMU 补丁已让 stock UIFlow2 完成 WiFi 扫描、关联、DHCP/IP、受控 HTTP，以及 BLE controller 激活和 advertising enable。另有一条可重复的 HCI-offload 测试构建：NimBLE 经 UART1 H4 连接外部 Bumble controller，外部 peer 已完成扫描、连接、NUS GATT 发现、订阅、写入和 notify 回读；外网 DNS 和原生 ESP32 controller 的外部 peer/GATT 仍未完成。
 - **CardputerZero** 是 Linux ARM64（BCM2837），不是 ESP32 固件目标；独立
   QEMU Linux 后端已可启动官方镜像、输出 320x170 帧、注入键盘事件和
   I2S 双向 PCM，注入 IP2315 充放电状态，并以 MTT 兼容路径枚举 GL852G Hub
@@ -36,8 +36,10 @@
 - Core2 网络边界：OpenETH 的 DHCP 与 1 MiB HTTP 数据面已单独通过；可选
   OpenMAC/BT bootstrap 补丁下，stock UIFlow2 WiFi 已完成 scan、association、
   DHCP 和受控 HTTP，BLE 已完成 controller reset、`active(True)`、
-  GAP 配置和 `gap_advertise()`。外部 BLE 扫描、连接和 GATT 数据面仍为
-  `NOT RUN`，不得把 controller/advertising 证据算作完整 BLE 数据面。
+  GAP 配置和 `gap_advertise()`。HCI-offload 测试构建通过 QEMU UART1 和
+  Bumble controller 完成外部扫描、连接、NUS GATT 发现、订阅、写入、
+  guest 接收和 notify 回读，连续 5/5 PASS。它不等同于原生 ESP32
+  controller 射频模型，也不覆盖 RF、配对/安全、共存或真机行为。
 - NanoC6：无显示屏，验证 UIFlow2 控制台启动、板型探测、GPIO19/20 WS2812、
   GPIO9 按键、GPIO7 蓝色 LED 和红外发送。
 - Tab5：物理横向 1280x720、ST7123 触摸和 P4/C6 ESP-Hosted。
@@ -72,7 +74,7 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG、RGB、按键、蓝灯和 IR |
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 已完成 |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | linux-arm64 | `separate-backend` | ST7789v3 SPI LCD 320x170 | Linux/非黑 LVGL 首帧/输入/I2C/IR/双向 PCM/充电状态/寄存器驱动 IMX219/GL852G MTT FS+LS/SR9900A 帧回环已通 |
-| Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸已通过；PSRAM/cache 稳定性待补 |
+| Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸、WiFi 受控 HTTP 和 HCI-offload BLE GATT 已通过；原生 BT 射频、DNS、PSRAM/cache 稳定性待补 |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | esp-emulator-native | `ready` | ST7121 / ST7123 物理横向 1280x720 | 显示/触摸、C6 Hosted、I2C 寄存器探测和 SIT3088 RS-485 已通；CSI/I2S/USB/SDIO 等仍 partial |
 
 外设 API 的当前结果：
@@ -184,7 +186,7 @@ Tab5、Core2、CardputerZero。
   CHG_EN 寄存器路径已打通，`0x0F=0x00/0x40` 分别让
   `Power.isCharging()` 返回充电/放电。IP2326 的模拟电流、充满终止和运行中
   状态热切换仍未闭环。
-- Core2 v1.1：ESP32 LX6 已接入同一 QEMU 源码树，官方 UIFlow2 已进入 `main.py`，M5GFX 识别 320x240、AXP2101 与 FT5x06；完整帧和触摸重绘已通过。ESP32 classic I2S0/I2S1 模型直接消费 IDF `lldesc_t` 链，NS4168 扬声器可抓取非静音 PCM，SPM1423 PDM 麦克风可注入 PCM，ALDO3 功放使能断言通过。测试用 `-m 0` 规避 PSRAM/cache 稳定性问题，并通过 QEMU UART `baud-scale=16` + `esptool --no-stub` 将完整镜像写入虚拟 flash 后从同一份镜像启动。补丁见 `patches/qemu-core2-qemu-esptool/`。
+- Core2 v1.1：ESP32 LX6 已接入同一 QEMU 源码树，官方 UIFlow2 已进入 `main.py`，M5GFX 识别 320x240、AXP2101 与 FT5x06；完整帧和触摸重绘已通过。ESP32 classic I2S0/I2S1 模型直接消费 IDF `lldesc_t` 链，NS4168 扬声器可抓取非静音 PCM，SPM1423 PDM 麦克风可注入 PCM，ALDO3 功放使能断言通过。测试用 `-m 0` 规避 PSRAM/cache 稳定性问题，并通过 QEMU UART `baud-scale=16` + `esptool --no-stub` 将完整镜像写入虚拟 flash 后从同一份镜像启动。HCI-offload lane 使用 QEMU 的真实 UART1 FIFO/chardev，把 guest H4 字节交给 Bumble controller，再由第二个 Bumble peer 完成双向 GATT；5/5 PASS。补丁见 `patches/qemu-core2-qemu-esptool/`，runner 见 `tests/uiflow2/core2_hci_ble/`。
 - CardputerZero：Linux ARM64 VM，不是 ESP32 固件。BCM2837 机器、M5Stack
   DT overlay、SPI 显示/键盘、ES8389 I2C/ALSA 双向 PCM、IP2315 充放电状态、
   IMX219 CCI 寄存器驱动 + Unicam CSI1 的 640×480 RG10 V4L2 实帧、

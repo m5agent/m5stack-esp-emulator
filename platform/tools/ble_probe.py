@@ -29,6 +29,88 @@ def advertisement_name(advertisement: Any) -> str:
     return ""
 
 
+def install_controller_compatibility(controller_class: Any, hci_module: Any) -> None:
+    """Fill standard controller handlers that this Bumble revision omits."""
+
+    if hasattr(
+        controller_class,
+        "on_hci_read_remote_version_information_command",
+    ):
+        return
+
+    def read_remote_version_information(
+        controller: Any, command: Any
+    ) -> None:
+        connection = controller.find_connection_by_handle(
+            command.connection_handle
+        )
+        if connection is None:
+            controller._send_hci_command_status(
+                hci_module.HCI_ErrorCode.UNKNOWN_CONNECTION_IDENTIFIER_ERROR,
+                command.op_code,
+            )
+            return
+
+        controller._send_hci_command_status(
+            hci_module.HCI_Command_Status_Event.PENDING,
+            command.op_code,
+        )
+        controller.send_hci_packet(
+            hci_module.HCI_Read_Remote_Version_Information_Complete_Event(
+                status=hci_module.HCI_ErrorCode.SUCCESS,
+                connection_handle=command.connection_handle,
+                version=hci_module.HCI_VERSION_BLUETOOTH_CORE_5_0,
+                manufacturer_name=controller.manufacturer_company_identifier,
+                subversion=controller.lmp_subversion,
+            )
+        )
+
+    controller_class.on_hci_read_remote_version_information_command = (
+        read_remote_version_information
+    )
+
+
+def install_controller_command_compatibility(
+    controller_class: Any, hci_module: Any
+) -> None:
+    """Handle standard commands with defined no-op/controller semantics."""
+
+    if not hasattr(controller_class, "on_hci_le_set_data_length_command"):
+
+        def set_data_length(controller: Any, command: Any) -> Any:
+            connection = controller.find_le_connection_by_handle(
+                command.connection_handle
+            )
+            if connection is None:
+                return hci_module.HCI_StatusAndConnectionHandleReturnParameters(
+                    status=(
+                        hci_module.HCI_ErrorCode.UNKNOWN_CONNECTION_IDENTIFIER_ERROR
+                    ),
+                    connection_handle=command.connection_handle,
+                )
+            return hci_module.HCI_StatusAndConnectionHandleReturnParameters(
+                status=hci_module.HCI_ErrorCode.SUCCESS,
+                connection_handle=command.connection_handle,
+            )
+
+        controller_class.on_hci_le_set_data_length_command = set_data_length
+
+    if not hasattr(
+        controller_class,
+        "on_hci_host_number_of_completed_packets_command",
+    ):
+
+        def host_completed_packets(controller: Any, command: Any) -> None:
+            controller._send_hci_command_status(
+                hci_module.HCI_ErrorCode.SUCCESS,
+                command.op_code,
+            )
+
+        controller_class.on_hci_host_number_of_completed_packets_command = (
+            host_completed_packets
+        )
+
+
 async def observe(args: argparse.Namespace) -> int:
     try:
         from bumble import hci
@@ -50,6 +132,8 @@ async def observe(args: argparse.Namespace) -> int:
         link=link,
         public_address="00:11:22:33:44:55",
     )
+    install_controller_compatibility(Controller, hci)
+    install_controller_command_compatibility(Controller, hci)
 
     def ack_ok(controller: Controller, command: Any) -> Any:
         parameters = hci.HCI_GenericReturnParameters(data=bytes([0]))
@@ -148,10 +232,18 @@ async def observe(args: argparse.Namespace) -> int:
         return 1
 
     emit("BLE_BUMBLE_GATT_DISCOVERED", args.service_uuid)
+    notification_future: asyncio.Future[bytes] | None = None
     if args.subscribe:
         tx = target_characteristics["tx"]
         await tx.discover_descriptors()
-        await tx.subscribe()
+        notification_future = asyncio.get_running_loop().create_future()
+
+        def on_notification(value: bytes) -> None:
+            emit("BLE_BUMBLE_NOTIFICATION", value.hex())
+            if not notification_future.done():
+                notification_future.set_result(value)
+
+        await tx.subscribe(on_notification)
         emit("BLE_BUMBLE_SUBSCRIBED", args.tx_uuid)
 
     if args.write_delay > 0:
@@ -159,6 +251,26 @@ async def observe(args: argparse.Namespace) -> int:
     rx = target_characteristics["rx"]
     await rx.write_value(args.payload.encode("utf-8"))
     emit("BLE_BUMBLE_WRITE", args.payload)
+    if args.expect_notification_prefix:
+        assert notification_future is not None
+        try:
+            notification = await asyncio.wait_for(
+                notification_future,
+                args.notification_timeout,
+            )
+        except asyncio.TimeoutError:
+            emit("BLE_BUMBLE_FAIL", "notification timeout")
+            await connection.disconnect()
+            return 1
+        expected = args.expect_notification_prefix.encode("utf-8")
+        if not notification.startswith(expected):
+            emit(
+                "BLE_BUMBLE_FAIL",
+                f"notification prefix mismatch: {notification.hex()}",
+            )
+            await connection.disconnect()
+            return 1
+        emit("BLE_BUMBLE_NOTIFICATION_OK", notification.decode(errors="replace"))
     if args.readback:
         value = await rx.read_value()
         emit("BLE_BUMBLE_READBACK", value.hex())
@@ -189,6 +301,8 @@ def main() -> int:
         default=True,
     )
     parser.add_argument("--readback", action="store_true")
+    parser.add_argument("--expect-notification-prefix")
+    parser.add_argument("--notification-timeout", type=float, default=10)
     parser.add_argument("--timeout", type=float, default=35)
     parser.add_argument("--write-delay", type=float, default=10)
     parser.add_argument("--linger", type=float, default=15)

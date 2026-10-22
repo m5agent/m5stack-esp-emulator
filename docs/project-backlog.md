@@ -54,14 +54,17 @@ Implemented on 2026-10-22:
   HTTP `200 OK`;
 - a following classic-ESP32 BT bootstrap lets stock Core2 UIFlow2 activate
   NimBLE, configure GAP and return successfully from `gap_advertise()`;
-- external observation, BLE connection and GATT data-plane evidence for
-  Core2 remain `NOT RUN`.
+- a Core2 HCI-UART test build moves NimBLE onto an external Bumble controller
+  through QEMU UART1. An external peer passes scan, connection, NUS discovery,
+  subscription, write, guest receive and notify readback in 5/5 runs. This is
+  HCI offload, not a native ESP32 radio/controller model.
 
 Still open:
 
 - isolated DNS policy and host packet summaries;
 - combined board-peripheral plus network guest.
-- Core2 DNS, external internet request coverage and external BLE peer/GATT.
+- Core2 DNS, external internet request coverage, native-controller external
+  BLE peer/GATT, RF/coexistence and production payload-size behavior.
 
 Rough effort:
 

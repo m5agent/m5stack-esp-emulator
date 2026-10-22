@@ -32,9 +32,11 @@ complete simulated device or as a unified-device PASS.
   completes scan, association, DHCP and controlled HTTP in the same guest.
   A following BT bootstrap exposes the 64 KiB BT RAM/control page and lets
   stock UIFlow2 activate NimBLE and enable advertising.
-- The QEMU BLE path does not yet expose an external peer or GATT data plane;
-  the remaining boundary is the classic ESP32 controller's radio/timer/HCI
-  data path, not UIFlow2's Python BLE API.
+- The native QEMU Core2 BT bootstrap does not yet expose an external peer.
+  A separate HCI-offload build now routes NimBLE's H4 traffic through QEMU
+  UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
+  The remaining native boundary is still the classic ESP32
+  controller/radio/timer path, not UIFlow2's Python BLE API.
 
 ## Integration rule
 
@@ -59,8 +61,9 @@ finished chip model.
   documented exception unless QEMU reaches equivalent P4/C6 coverage.
 - **Core2 classic ESP32:** extend QEMU with the missing MAC/PHY and Bluetooth
   controller blocks; OpenETH is not a substitute for stock `network.WLAN`.
-  Current optional patches cover WiFi user-net and BLE advertising control;
-  external BLE peer/GATT remains the next vertical slice.
+  Current optional patches cover WiFi user-net and BLE advertising control.
+  The HCI-offload lane closes host-side link/GATT behavior for a test build,
+  but does not replace the native controller/radio model.
 
 ## Acceptance milestone
 

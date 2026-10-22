@@ -46,6 +46,10 @@ Validated on `2026-10-22`:
   controlled HTTP `200 OK`.
 - the classic ESP32 BT bootstrap patch lets the same stock Core2 UIFlow2 image
   activate NimBLE, configure its GAP name and return from `gap_advertise()`.
+- a Core2 UIFlow2 HCI-UART test build connects NimBLE through the QEMU UART1
+  FIFO/chardev to a Bumble controller; a second peer passes scan, connect, NUS
+  discovery, subscription, write, guest receive and notify readback in 5/5
+  repeated runs.
 
 What is not yet proven:
 
@@ -58,9 +62,10 @@ What is not yet proven:
 - stock Core2 UIFlow2 DNS and external internet access: the optional OpenMAC
   patch completes scan, association, DHCP and controlled HTTP, but DNS and
   external internet behavior remain unverified;
-- stock Core2 UIFlow2 BLE beyond advertising enable: no external peer has
-  observed an over-the-air advertisement, connection, GATT service or ACL
-  exchange yet;
+- stock Core2 UIFlow2 BLE beyond advertising enable through the native ESP32
+  controller: no external peer has observed that controller's advertisement,
+  connection, GATT service or ACL exchange yet. The separate HCI-offload lane
+  above is complete, but it is not a native radio/controller model;
 - security conclusions about untrusted firmware based only on network traffic.
 
 The QEMU ESP32-S3/LX6 board path currently contains PHY bring-up stubs, not an
@@ -74,7 +79,7 @@ does not mean the device is online.
 | All modeled ESP32-S3 boards | `esp-emu` WiFi SoftAP + user/TAP backend | All nine S3 devices pass UIFlow2 WiFi+BLE on same-instance UART-REPL test builds |
 | ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | Device-local UIFlow2 WiFi+BLE PASS on same-source NanoC6 and Nesso N1 builds; ESP-IDF coexist also PASS |
 | ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
-| ESP32 LX6 Core2 | Optional OpenMAC WiFi and BT bootstrap QEMU models; separate OpenETH fixture | Stock UIFlow2 WiFi scan + association + DHCP/IP + controlled HTTP PASS; BLE active/config/advertising-enable PASS; external BLE peer/GATT, DNS and external internet `NOT RUN` |
+| ESP32 LX6 Core2 | Optional OpenMAC WiFi and BT bootstrap QEMU models; separate OpenETH fixture; HCI-UART offload lane | Stock UIFlow2 WiFi scan + association + DHCP/IP + controlled HTTP PASS; native BLE active/config/advertising-enable PASS; HCI-offload external scan/connect/GATT write/notify `PASS 5/5`; native-controller peer/GATT, DNS and external internet `NOT RUN` |
 | CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |
 
 Therefore “all simulated devices online” needs two scopes:
@@ -182,8 +187,8 @@ itself. For untrusted firmware:
 | N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | 3–5 working days |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |
-| N5 | Core2 ESP32 LX6 WiFi/PHY and BLE controller path or alternative runtime | WiFi data path DONE; BLE controller/advertising DONE; external peer/GATT, DNS and external network remain open |
-| N6 | Optional same-instance QEMU board + WiFi/radio model | Core2 WiFi data plane and BLE advertising control path are available behind optional patches; full BLE data-plane closure remains open |
+| N5 | Core2 ESP32 LX6 WiFi/PHY and BLE controller path or alternative runtime | WiFi data path DONE; native controller/advertising DONE; HCI-offload external GATT DONE 5/5; native-controller peer/GATT, DNS and external network remain open |
+| N6 | Optional same-instance QEMU board + WiFi/radio model | Core2 WiFi data plane and BLE HCI-offload data plane are available; native ESP32 BT radio/controller closure remains open |
 
 N0–N3 are the recommended scope before claiming “all S3/C6/P4 simulated
 devices can go online.” N5 extends the claim to Core2. N6 is only needed if a
