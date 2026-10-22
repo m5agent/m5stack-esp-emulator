@@ -33,6 +33,9 @@ Implemented on 2026-10-22:
 - StopWatch UIFlow2 source rebuilt with UART REPL enabled; the same instance
   and Device Service both pass WiFi association/DHCP and BLE GATT write with
   guest delivery;
+- Cardputer ADV UIFlow2 source rebuilt with UART REPL enabled; the same
+  instance and Device Service both pass WiFi association/DHCP and BLE GATT
+  write with guest delivery;
 - C6 WiFi stays active during external Bumble scan/connect/GATT
   write/readback;
 - host-forwarder DNS plus controlled UDP request/reply;
