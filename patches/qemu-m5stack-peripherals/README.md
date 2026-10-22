@@ -70,6 +70,8 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
 - ESP32-S3 Bluetooth low-power clock register readback, the RWIP busy/ID/time
   handshake used by precompiled BLE controller firmware, and both validated
   CO5300 QSPI command byte layouts used by UIFlow2 and MotoNav.
+- GigaDevice GD25Qxx status-register-2 QIO enable/readback, fixing firmware
+  that aborts in `esp_flash_init_default_chip()` after a failed QIE write.
 
 Historical incremental replay uses `0001` then `0002`. For a fresh upstream
 tree, use the current standalone snapshot `0003` followed by the PCM capture
@@ -90,6 +92,7 @@ git apply /path/to/0012-stackchan-correct-bm8563-rtc.patch
 git apply /path/to/0013-papermono-buzzer-and-power-key.patch
 git apply /path/to/0014-m5-lcd-cam-runtime-frame-seed.patch
 git apply /path/to/0015-motonav-rwip-and-co5300-framing.patch
+git apply /path/to/0016-gigadevice-status2-qio.patch
 ninja -C build qemu-system-xtensa
 ```
 
