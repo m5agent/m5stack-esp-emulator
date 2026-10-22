@@ -5,6 +5,7 @@ import json
 import io
 import os
 import socket
+import struct
 import sys
 import tempfile
 import threading
@@ -129,6 +130,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             capacity["modes"]["network"],
             "enabled-separate-lane",
         )
+        self.assertEqual(capacity["modes"]["qemu-wifi"], "disabled")
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
     def test_default_capacity_matches_measured_workstation_profile(self):
@@ -268,6 +270,68 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 },
             )
         self.assertEqual(invalid_console.exception.code, "invalid_network")
+
+    def test_experimental_qemu_wifi_is_core2_only_and_env_gated(self):
+        with self.assertRaises(ServiceError) as unavailable:
+            device_service_module.parse_qemu_wifi_execution(
+                self.service.specs["core2"],
+                {},
+            )
+        self.assertEqual(
+            unavailable.exception.code,
+            "qemu_wifi_backend_unavailable",
+        )
+        fake_qemu = Path(self.tmp.name) / "qemu-core2-wifi"
+        fake_qemu.write_bytes(b"fake")
+        fake_qemu.chmod(0o755)
+        old = os.environ.get("M5_CORE2_WIFI_QEMU")
+        os.environ["M5_CORE2_WIFI_QEMU"] = str(fake_qemu)
+        try:
+            parsed = device_service_module.parse_qemu_wifi_execution(
+                self.service.specs["core2"],
+                {
+                    "profile": "core2-openmac",
+                    "expected_markers": ["CORE2_WIFI_RESULT: PASSED"],
+                },
+            )
+            self.assertEqual(parsed["net_mode"], "user")
+            self.assertEqual(parsed["nic"], "misc.esp32_wifi")
+            with self.assertRaises(ServiceError) as wrong_device:
+                device_service_module.parse_qemu_wifi_execution(
+                    self.service.specs["sticks3"],
+                    {},
+                )
+            self.assertEqual(
+                wrong_device.exception.code,
+                "qemu_wifi_not_supported",
+            )
+            with self.assertRaises(ServiceError) as restricted:
+                device_service_module.parse_qemu_wifi_execution(
+                    self.service.specs["core2"],
+                    {"net_mode": "user,restrict=on"},
+                )
+            self.assertEqual(restricted.exception.code, "invalid_network")
+            gated = DeviceService(
+                state_dir=Path(self.tmp.name) / "qemu-wifi-service",
+                max_sessions=1,
+                max_per_device=1,
+            )
+            try:
+                row = gated.get_device("core2")
+                self.assertEqual(row["network_profiles"], ["core2-openmac"])
+                self.assertEqual(row["network_status"], "unverified")
+                self.assertFalse(row["features"]["network"])
+                self.assertEqual(
+                    gated.capacity()["modes"]["qemu-wifi"],
+                    "enabled-core2-experimental",
+                )
+            finally:
+                gated.close_all()
+        finally:
+            if old is None:
+                os.environ.pop("M5_CORE2_WIFI_QEMU", None)
+            else:
+                os.environ["M5_CORE2_WIFI_QEMU"] = old
 
     def test_network_session_runs_isolated_lane_and_retains_evidence(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
@@ -454,6 +518,114 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(result["state"], "stopped")
         self.assertGreaterEqual(session.calls, 3)
+
+    def test_qemu_wifi_network_evidence_and_bundle(self):
+        spec = self.service.specs["core2"]
+        firmware_path = Path(self.tmp.name) / "core2-firmware.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="b" * 32,
+            spec=spec,
+            firmware_id="c" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="c" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="CORE2_WIFI_RESULT: PASSED",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-wifi",
+            network_config={
+                "profile": "core2-openmac",
+                "net_mode": "user",
+                "nic": "misc.esp32_wifi",
+                "expected_markers": [
+                    "CORE2_WIFI_SCAN_OK 3",
+                    "CORE2_WIFI_RESULT: PASSED",
+                ],
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "CORE2_WIFI_SCAN_OK 3\n"
+            "CORE2_WIFI_RESULT: PASSED\n"
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertTrue(session.snapshot()["display_available"])
+        bundle = session.evidence_bundle({"manifest", "serial", "network"})
+        with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+            self.assertIn("network/evidence.json", archive.namelist())
+            self.assertIn("serial.log", archive.namelist())
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_qemu_wifi_requires_and_directly_uses_complete_flash_image(self):
+        spec = self.service.specs["core2"]
+        image = bytearray(b"\xff" * spec.flash_size)
+
+        def write_test_esp_image(offset: int) -> None:
+            image[offset] = 0xE9
+            image[offset + 1] = 0
+            struct.pack_into("<I", image, offset + 4, 0x40000000)
+            struct.pack_into("<H", image, offset + 12, 0)
+
+        write_test_esp_image(0x1000)
+        write_test_esp_image(0x10000)
+        struct.pack_into(
+            "<HBBII16sI",
+            image,
+            0x8000,
+            0x50AA,
+            0,
+            0x10,
+            0x10000,
+            0x1000,
+            b"factory",
+            0,
+        )
+        firmware = Path(self.tmp.name) / "core2-complete.bin"
+        firmware.write_bytes(image)
+        firmware_sha = device_service_module.hashlib.sha256(image).hexdigest()
+
+        def unexpected_flash_preparer(*args, **kwargs):
+            raise AssertionError("qemu-wifi must not invoke esptool")
+
+        self.service.flash_preparer = unexpected_flash_preparer
+        prepared = self.service.prepare_flash(
+            spec,
+            firmware,
+            firmware_sha,
+            runtime="qemu-wifi",
+        )
+        self.assertEqual(prepared["path"], firmware)
+        self.assertEqual(
+            prepared["info"]["transport"],
+            "direct-complete-flash-image",
+        )
+        self.assertEqual(prepared["info"]["bootloader_offset"], 0x1000)
+        self.assertEqual(prepared["info"]["app_partitions"][0]["label"], "factory")
+
+        partial = Path(self.tmp.name) / "core2-partial.bin"
+        partial.write_bytes(image[:0x11000])
+        with self.assertRaises(ServiceError) as incomplete:
+            self.service.prepare_flash(
+                spec,
+                partial,
+                device_service_module.hashlib.sha256(
+                    partial.read_bytes()
+                ).hexdigest(),
+                runtime="qemu-wifi",
+            )
+        self.assertEqual(
+            incomplete.exception.code,
+            "complete_flash_image_required",
+        )
 
     def _stopped_session(self, firmware: bytes = b"\xff" * 1024):
         spec = self.service.specs["sticks3"]

@@ -946,7 +946,7 @@ components:
             type: string
         runtime:
           type: string
-          enum: [qemu, network]
+          enum: [qemu, network, qemu-wifi]
           default: qemu
         network:
           $ref: "#/components/schemas/NetworkExecution"
@@ -956,7 +956,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+          enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe, core2-openmac]
         wifi:
           type: boolean
         ble:
@@ -982,6 +982,7 @@ components:
           description: >
             Guest network backend. generic-observe defaults to
             user,restrict=yes; validated profiles default to user.
+            core2-openmac currently supports user only.
         console_mode:
           type: string
           enum: [auto, uart0, usb-jtag]
@@ -1003,6 +1004,14 @@ components:
             type: string
             minLength: 1
             maxLength: 200
+        attempts:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 5
+          description: >
+            Core2 QEMU WiFi startup attempts. The existing intermittent Core2
+            cache panic can occur before WiFi activation.
         i2c_devices:
           type: array
           maxItems: 32

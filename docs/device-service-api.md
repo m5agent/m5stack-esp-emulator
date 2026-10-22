@@ -210,9 +210,37 @@ A session is one exclusive emulator lease. It has one device profile, one
 immutable source firmware, one private flash copy, one QEMU process and one
 serial log set.
 
-`runtime` is `qemu` by default. Set it to `network` to run the firmware through
-the separate network/BLE lane. Network sessions do not expose framebuffer,
-input, QOM or same-instance board state; those remain in the QEMU lane.
+`runtime` is `qemu` by default. Set it to `network` to run S3/C6 firmware
+through the separate `esp-emu` network/BLE lane. Network sessions do not expose
+framebuffer, input, QOM or same-instance board state; those remain in the QEMU
+lane.
+
+Core2 has an explicit experimental `qemu-wifi` runtime when the service starts
+with `M5_CORE2_WIFI_QEMU` pointing at a QEMU build containing the
+`misc.esp32_wifi` model:
+
+```json
+{
+  "device_id": "core2",
+  "runtime": "qemu-wifi",
+  "network": {
+    "profile": "core2-openmac",
+    "expected_markers": ["CORE2_WIFI_RESULT: PASSED"],
+    "attempts": 5
+  }
+}
+```
+
+This is the same QEMU instance as the Core2 board lane, so framebuffer, serial,
+QMP and QOM remain available while the stock WiFi driver runs. The model uses
+the fixed test AP `myssid` and QEMU user networking. `attempts` retries the
+known intermittent Core2 cache panic only when it occurs before readiness.
+The input must already be a complete, flash-sized merged image. The service
+validates its SHA256, bootloader, partition table, app partitions and ESP32 chip
+ID, then mounts that exact copy as the QEMU MTD drive without invoking esptool.
+A partial image is rejected instead of being silently padded in this lane.
+This runtime remains `unverified` in the catalog and is not enabled without the
+environment-selected patched QEMU.
 
 State machine:
 
@@ -583,7 +611,8 @@ after a service restart.
 
 - network sessions are a separate lane and do not combine board peripherals
   with the same guest instance;
-- Core2 has no `esp-emu` network/PHY path yet;
+- Core2 WiFi is limited to the environment-gated experimental `qemu-wifi`
+  runtime; Core2 BLE is not implemented;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the

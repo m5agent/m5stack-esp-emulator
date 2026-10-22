@@ -52,7 +52,12 @@ from run_tab5_ui_test import (  # noqa: E402
     wait_for_port as wait_for_tcp_port,
     write_png as write_tab5_png,
 )
-from firmware_analysis import analyze_firmware, expected_chip_id  # noqa: E402
+from firmware_analysis import (  # noqa: E402
+    analyze_esp_image,
+    analyze_firmware,
+    expected_chip_id,
+    parse_partition_table,
+)
 from network_lane import normalize_i2c_device  # noqa: E402
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
@@ -91,6 +96,8 @@ NETWORK_STATUSES = {
     "board-init-blocked",
     "not-supported",
 }
+CORE2_WIFI_PROFILE = "core2-openmac"
+QEMU_WIFI_RUNTIME = "qemu-wifi"
 
 
 def iso_now() -> str:
@@ -327,6 +334,84 @@ def parse_network_execution(
     }
 
 
+def core2_wifi_qemu_path() -> Path:
+    raw_path = os.environ.get("M5_CORE2_WIFI_QEMU")
+    if not raw_path:
+        raise ServiceError(
+            "qemu_wifi_backend_unavailable",
+            "M5_CORE2_WIFI_QEMU must point to a QEMU build with "
+            "misc.esp32_wifi support",
+            503,
+        )
+    path = Path(raw_path)
+    if not path.is_file() or not os.access(path, os.X_OK):
+        raise ServiceError(
+            "qemu_wifi_backend_unavailable",
+            "M5_CORE2_WIFI_QEMU does not point to an executable file",
+            503,
+        )
+    return path
+
+
+def parse_qemu_wifi_execution(
+    spec: DeviceSpec,
+    value: Any,
+) -> dict:
+    if spec.id != "core2":
+        raise ServiceError(
+            "qemu_wifi_not_supported",
+            "qemu-wifi is currently limited to Core2 classic ESP32",
+            409,
+        )
+    if value is None:
+        value = {}
+    if not isinstance(value, dict):
+        raise ServiceError("invalid_network", "network must be an object", 400)
+    profile = value.get("profile", CORE2_WIFI_PROFILE)
+    if profile != CORE2_WIFI_PROFILE:
+        raise ServiceError(
+            "unsupported_network_profile",
+            f"unsupported qemu-wifi profile: {profile!r}",
+            400,
+        )
+    net_mode = value.get("net_mode", "user")
+    if net_mode != "user":
+        raise ServiceError(
+            "invalid_network",
+            "qemu-wifi currently supports only net_mode=user",
+            400,
+        )
+    expected_markers = value.get("expected_markers", [])
+    if (
+        not isinstance(expected_markers, list)
+        or len(expected_markers) > 16
+        or any(
+            not isinstance(marker, str) or not 1 <= len(marker) <= 200
+            for marker in expected_markers
+        )
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.expected_markers must contain at most 16 short strings",
+            400,
+        )
+    attempts = value.get("attempts", 5)
+    if not isinstance(attempts, int) or not 1 <= attempts <= 10:
+        raise ServiceError(
+            "invalid_network",
+            "network.attempts must be an integer from 1 to 10",
+            400,
+        )
+    core2_wifi_qemu_path()
+    return {
+        "profile": profile,
+        "net_mode": net_mode,
+        "nic": "misc.esp32_wifi",
+        "expected_markers": expected_markers,
+        "attempts": attempts,
+    }
+
+
 class ServiceError(Exception):
     def __init__(self, code: str, message: str, status: int = 400, **extra):
         super().__init__(message)
@@ -484,6 +569,13 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             )
             if device_id == "sticks3" and network_chip:
                 network_profiles.insert(0, "uiflow2-sticks3")
+            if (
+                device_id == "core2"
+                and os.environ.get("M5_CORE2_WIFI_QEMU")
+            ):
+                core2_wifi_qemu_path()
+                network_profiles = [CORE2_WIFI_PROFILE]
+                network_status = "unverified"
             reason = excluded_reason
             if not backend and reason is None:
                 reason = (
@@ -1061,12 +1153,14 @@ class DeviceSession:
                 "error": self.error,
                 "display": self.spec.display,
                 "display_available": (
-                    self.runtime == "qemu" and self.spec.has_display
+                    self.runtime in {"qemu", QEMU_WIFI_RUNTIME}
+                    and self.spec.has_display
                 ),
                 "last_frame_available": self.last_frame_path.is_file(),
                 "last_frame_captured_at": frame_meta.get("captured_at"),
                 "device_state_supported": bool(
-                    self.runtime == "qemu" and self.spec.state_probes
+                    self.runtime in {"qemu", QEMU_WIFI_RUNTIME}
+                    and self.spec.state_probes
                 ),
                 "last_device_state_available": self.device_state_path.is_file(),
                 "last_device_state_at": state_meta.get("captured_at"),
@@ -1098,11 +1192,63 @@ class DeviceSession:
             self._record_event("state", **{"from": previous, "to": state})
             self._persist_session()
 
+    def network_evidence(self) -> dict:
+        if self.runtime != QEMU_WIFI_RUNTIME:
+            raise ServiceError(
+                "network_evidence_not_supported",
+                "network evidence is available only for qemu-wifi sessions",
+                409,
+            )
+        serial = (
+            self.serial0.read_text(errors="replace")
+            if self.serial0.is_file()
+            else ""
+        )
+        markers = [
+            str(marker)
+            for marker in self.network_config.get("expected_markers", [])
+        ]
+        checks = {
+            f"marker:{index + 1}": marker in serial
+            for index, marker in enumerate(markers)
+        }
+        if markers and all(checks.values()):
+            status = "PASS"
+        elif serial.strip():
+            status = "PARTIAL"
+        else:
+            status = "RUNNING" if self.state in ACTIVE_STATES else "FAIL"
+        return {
+            "schema_version": 1,
+            "kind": "m5stack-qemu-wifi-proof",
+            "scope": "simulation-only-not-hardware-validation",
+            "status": status,
+            "session_id": self.id,
+            "profile": self.network_config.get("profile"),
+            "runtime": {
+                "name": "qemu",
+                "nic": self.network_config.get("nic"),
+                "net_mode": self.network_config.get("net_mode"),
+            },
+            "checks": checks,
+            "expected_markers": markers,
+            "serial_bytes": len(serial.encode()),
+            "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
+            "not_claimed": [
+                "real-hardware behavior",
+                "BLE",
+                "malware sandboxing",
+            ],
+        }
+
     def _provision(self) -> None:
         try:
             self._set_state("flashing")
             prepared = self.service.prepare_flash(
-                self.spec, self.firmware_path, self.firmware_sha
+                self.spec,
+                self.firmware_path,
+                self.firmware_sha,
+                runtime=self.runtime,
             )
             self.virtual_flash = self.dir / "virtual-flash.bin"
             shutil.copyfile(prepared["path"], self.virtual_flash)
@@ -1113,16 +1259,19 @@ class DeviceSession:
             self._record_event("flash_prepared", **self.flash_info)
             self._persist_session()
             self._set_state("booting")
-            self._launch()
-            if self.ready_conditions:
-                self.wait_ready(
-                    {
-                        "timeout_seconds": self.ready_timeout,
-                        **self.ready_conditions,
-                    }
-                )
-            elif self.ready_marker:
-                self.wait_for_marker(self.ready_marker, self.ready_timeout)
+            if self.runtime == QEMU_WIFI_RUNTIME:
+                self._provision_qemu_wifi(prepared["path"])
+            else:
+                self._launch()
+                if self.ready_conditions:
+                    self.wait_ready(
+                        {
+                            "timeout_seconds": self.ready_timeout,
+                            **self.ready_conditions,
+                        }
+                    )
+                elif self.ready_marker:
+                    self.wait_for_marker(self.ready_marker, self.ready_timeout)
             self._set_state("running")
         except Exception as error:
             with self._lock:
@@ -1132,6 +1281,60 @@ class DeviceSession:
                 self._record_event("failed", error=str(error))
                 self._persist_session()
             self._terminate_process()
+
+    def _provision_qemu_wifi(self, clean_flash: Path) -> None:
+        attempts = int(self.network_config.get("attempts", 5))
+        last_error: ServiceError | None = None
+        for attempt in range(1, attempts + 1):
+            if attempt > 1:
+                shutil.copyfile(clean_flash, self.virtual_flash)
+            try:
+                self._launch()
+                if self.ready_conditions:
+                    self.wait_ready(
+                        {
+                            "timeout_seconds": self.ready_timeout,
+                            **self.ready_conditions,
+                        }
+                    )
+                elif self.ready_marker:
+                    self.wait_for_marker(
+                        self.ready_marker,
+                        self.ready_timeout,
+                    )
+                self.network_result = self.network_evidence()
+                self._record_event(
+                    "qemu_wifi_attempt",
+                    attempt=attempt,
+                    status="PASS",
+                )
+                return
+            except ServiceError as error:
+                last_error = error
+                self._record_event(
+                    "qemu_wifi_attempt",
+                    attempt=attempt,
+                    status="FAIL",
+                    error=error.message,
+                )
+                self._terminate_process()
+                if error.code not in {
+                    "ready_timeout",
+                    "session_exited",
+                    "qmp_timeout",
+                }:
+                    raise
+                if attempt == attempts:
+                    raise
+                for path in (self.serial0, self.stdout_path, self.stderr_path):
+                    if path.is_file():
+                        path.replace(
+                            path.with_name(
+                                f"{path.stem}-attempt-{attempt}{path.suffix}"
+                            )
+                        )
+        if last_error is not None:
+            raise last_error
 
     def _launch(self) -> None:
         assert self.virtual_flash is not None
@@ -1147,8 +1350,13 @@ class DeviceSession:
             self.qmp_path.unlink()
         except FileNotFoundError:
             pass
+        qemu_path = (
+            core2_wifi_qemu_path()
+            if self.runtime == QEMU_WIFI_RUNTIME
+            else self.spec.qemu
+        )
         command = [
-            str(self.spec.qemu),
+            str(qemu_path),
             "-M", self.spec.machine,
             "-drive", f"file={self.virtual_flash},if=mtd,format=raw",
             "-L", str(self.spec.rom_dir),
@@ -1157,6 +1365,13 @@ class DeviceSession:
             "-serial", f"file:{self.serial1}",
             "-qmp", f"unix:{self.qmp_path},server=on,wait=off",
         ]
+        if self.runtime == QEMU_WIFI_RUNTIME:
+            command.extend(
+                [
+                    "-nic",
+                    "user,model=misc.esp32_wifi,id=wifi0",
+                ]
+            )
         if self.spec.efuse_driver != "none":
             command.extend(
                 [
@@ -1185,7 +1400,14 @@ class DeviceSession:
             stderr.close()
         self.pid = self._proc.pid
         self._persist_session()
-        self._qmp = wait_qmp(self.qmp_path, timeout=20)
+        try:
+            self._qmp = wait_qmp(self.qmp_path, timeout=20)
+        except RuntimeError as error:
+            raise ServiceError(
+                "qmp_timeout",
+                f"QEMU QMP socket did not become ready: {error}",
+                504,
+            ) from error
         self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
 
     def _qmp_call(self, name: str, **arguments):
@@ -1867,7 +2089,7 @@ class DeviceSession:
         if (
             "frames" in include
             and self.spec.has_display
-            and self.runtime == "qemu"
+            and self.runtime in {"qemu", QEMU_WIFI_RUNTIME}
         ):
             try:
                 frame = self.frame_metrics()
@@ -1880,7 +2102,7 @@ class DeviceSession:
         if (
             "qom" in include
             and self.spec.service_kind == "qemu"
-            and self.runtime == "qemu"
+            and self.runtime in {"qemu", QEMU_WIFI_RUNTIME}
         ):
             try:
                 snapshot = self.qom_snapshot(path="/machine", depth=2, max_nodes=500)
@@ -1906,6 +2128,12 @@ class DeviceSession:
                 if path.is_file():
                     files[name] = path.read_bytes()
             manifest["network"] = self.network_evidence()
+        elif self.runtime == QEMU_WIFI_RUNTIME:
+            network_payload = self.network_evidence()
+            files["network/evidence.json"] = (
+                json.dumps(network_payload, ensure_ascii=False, indent=2) + "\n"
+            ).encode()
+            manifest["network"] = network_payload
         if self.virtual_flash and self.virtual_flash.is_file():
             flash_data = self.virtual_flash.read_bytes()
             manifest["flash"] = {
@@ -2653,7 +2881,11 @@ class DeviceService:
                 continue
             runtime = (
                 record.get("runtime")
-                if record.get("runtime") in {"qemu", "network"}
+                if record.get("runtime") in {
+                    "qemu",
+                    "network",
+                    QEMU_WIFI_RUNTIME,
+                }
                 else "qemu"
             )
             network_config = (
@@ -2879,8 +3111,25 @@ class DeviceService:
         return target
 
     def prepare_flash(
-        self, spec: DeviceSpec, image: Path, firmware_sha: str
+        self,
+        spec: DeviceSpec,
+        image: Path,
+        firmware_sha: str,
+        *,
+        runtime: str = "qemu",
     ) -> dict:
+        if runtime == QEMU_WIFI_RUNTIME:
+            data = image.read_bytes()
+            info = validate_complete_flash_image(
+                data,
+                flash_size=spec.flash_size,
+                firmware_sha=firmware_sha,
+                expected_chip_id_value=expected_chip_id(spec.soc),
+            )
+            return {
+                "path": image,
+                "info": _public_flash_info(info),
+            }
         cache_dir = self.state_dir / "flash-cache" / spec.id
         cache_dir.mkdir(parents=True, exist_ok=True)
         cache_path = cache_dir / f"{firmware_sha}.bin"
@@ -2972,10 +3221,10 @@ class DeviceService:
             source_artifacts = []
 
         runtime = payload.get("runtime", "qemu")
-        if runtime not in {"qemu", "network"}:
+        if runtime not in {"qemu", "network", QEMU_WIFI_RUNTIME}:
             raise ServiceError(
                 "unsupported_runtime",
-                "runtime must be qemu or network",
+                "runtime must be qemu, network or qemu-wifi",
                 400,
             )
         network_config = None
@@ -2987,6 +3236,11 @@ class DeviceService:
             elf_artifact_id = network_config.get("elf_artifact_id")
             if elf_artifact_id:
                 self.artifacts.get(str(elf_artifact_id))
+        elif runtime == QEMU_WIFI_RUNTIME:
+            network_config = parse_qemu_wifi_execution(
+                spec,
+                payload.get("network"),
+            )
 
         with self._lock:
             active = [
@@ -3153,6 +3407,12 @@ class DeviceService:
                     )
                     else "disabled"
                 ),
+                "qemu-wifi": (
+                    "enabled-core2-experimental"
+                    if CORE2_WIFI_PROFILE
+                    in self.specs["core2"].network_profiles
+                    else "disabled"
+                ),
                 "tab5": "enabled-partial",
                 "flash": "prepared-cache + exact artifact",
             },
@@ -3197,6 +3457,125 @@ def _padded(data: bytes, size: int) -> bytes:
             413,
         )
     return data + b"\xff" * (size - len(data))
+
+
+def validate_complete_flash_image(
+    data: bytes,
+    *,
+    flash_size: int,
+    firmware_sha: str,
+    expected_chip_id_value: int | None,
+) -> dict:
+    """Validate a complete flash image without rewriting it.
+
+    The qemu-wifi lane accepts images that are already merged for direct use as
+    an MTD drive. It must not invoke esptool or silently pad a partial image:
+    doing either would make the resulting boot behavior differ from the exact
+    bytes the caller submitted.
+    """
+
+    if len(data) != flash_size:
+        raise ServiceError(
+            "complete_flash_image_required",
+            f"qemu-wifi requires a complete {flash_size}-byte flash image; "
+            f"received {len(data)} bytes",
+            400,
+        )
+    actual_sha = hashlib.sha256(data).hexdigest()
+    if actual_sha != firmware_sha:
+        raise ServiceError(
+            "firmware_sha256_mismatch",
+            "firmware bytes do not match the expected SHA256",
+            409,
+        )
+
+    bootloader_offset = next(
+        (
+            offset
+            for offset in (0, 0x1000)
+            if offset + 24 <= len(data) and data[offset] == 0xE9
+        ),
+        None,
+    )
+    if bootloader_offset is None:
+        raise ServiceError(
+            "direct_flash_layout_invalid",
+            "no ESP bootloader image found at flash offset 0 or 0x1000",
+            422,
+        )
+    bootloader = analyze_esp_image(data, bootloader_offset)
+    if not bootloader["valid"]:
+        raise ServiceError(
+            "direct_flash_layout_invalid",
+            "bootloader image is invalid: "
+            + "; ".join(bootloader.get("errors", [])),
+            422,
+        )
+    if (
+        expected_chip_id_value is not None
+        and bootloader.get("chip_id") != expected_chip_id_value
+    ):
+        raise ServiceError(
+            "firmware_chip_mismatch",
+            f"bootloader chip {bootloader.get('chip')} does not match "
+            f"expected chip id 0x{expected_chip_id_value:04x}",
+            422,
+        )
+
+    partition_table = parse_partition_table(data)
+    if not partition_table["valid"]:
+        raise ServiceError(
+            "direct_flash_layout_invalid",
+            "partition table is invalid: "
+            + "; ".join(partition_table.get("errors", [])),
+            422,
+        )
+    app_images = []
+    for partition in partition_table["partitions"]:
+        if partition["type"] != 0:
+            continue
+        image = analyze_esp_image(data, partition["offset"])
+        if not image["valid"]:
+            raise ServiceError(
+                "direct_flash_layout_invalid",
+                f"app partition {partition['label']!r} is invalid: "
+                + "; ".join(image.get("errors", [])),
+                422,
+            )
+        if (
+            expected_chip_id_value is not None
+            and image.get("chip_id") != expected_chip_id_value
+        ):
+            raise ServiceError(
+                "firmware_chip_mismatch",
+                f"app partition {partition['label']!r} chip "
+                f"{image.get('chip')} does not match expected chip id "
+                f"0x{expected_chip_id_value:04x}",
+                422,
+            )
+        app_images.append(
+            {
+                "label": partition["label"],
+                "offset": partition["offset"],
+                "size": partition["size"],
+                "chip": image.get("chip"),
+            }
+        )
+    if not app_images:
+        raise ServiceError(
+            "direct_flash_layout_invalid",
+            "partition table contains no valid app image",
+            422,
+        )
+    return {
+        "transport": "direct-complete-flash-image",
+        "verified": True,
+        "flash_size": flash_size,
+        "firmware_sha256": actual_sha,
+        "bootloader_offset": bootloader_offset,
+        "bootloader_chip": bootloader.get("chip"),
+        "app_partitions": app_images,
+    }
 
 
 def _public_flash_info(info: dict) -> dict:
