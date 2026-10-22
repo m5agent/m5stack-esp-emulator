@@ -27,10 +27,37 @@ served at `/api/v1/openapi.yaml`.
 ```bash
 python3 platform/tools/serve.py 8787 \
   --state-dir platform/.cache/service \
-  --max-sessions 4 \
-  --max-per-device 2 \
+  --max-sessions 8 \
+  --max-per-device 6 \
   --session-ttl 1800
 ```
+
+The defaults can also be overridden without changing the command line:
+
+```bash
+M5_SERVICE_MAX_SESSIONS=12 \
+M5_SERVICE_MAX_PER_DEVICE=8 \
+./start.sh
+```
+
+### Capacity sizing
+
+The default of `8` global sessions and `6` sessions per model is a
+workstation profile, not a protocol limit. It was measured on the current
+Apple M4 host with 10 CPU cores and 32 GB RAM:
+
+- six running StickS3 QEMU sessions used roughly 1.4 CPU cores and 715 MiB RSS
+  in an averaged process sample;
+- six StickS3 sessions plus two CoreS3 sessions reached the eight-session cap;
+- six concurrent frame captures completed in about 46 ms wall time;
+- during the eight-session test, `/capacity` remained responsive with a median
+  latency of about 0.4 ms.
+
+Per-device resource use varies with firmware activity and device backend. Use
+the environment variables or CLI flags to tune the limits for the host and
+workload. Capacity exhaustion still returns `429` with `Retry-After`; a durable
+batch queue is not implemented yet, so large bursts should retry or schedule
+leases within the advertised capacity.
 
 For LAN access with a shared token:
 
@@ -405,6 +432,8 @@ session is removed from the active capacity count immediately.
 - a session cannot be shared by two leases;
 - `max_sessions` is global;
 - `max_per_device` applies to each device model;
+- capacity limits can be changed with `--max-sessions`, `--max-per-device`,
+  `M5_SERVICE_MAX_SESSIONS`, or `M5_SERVICE_MAX_PER_DEVICE`;
 - expired sessions are stopped by a janitor thread;
 - stopped/failed sessions remain queryable until the service restarts;
 - `GET /sessions?include_stopped=0` hides stopped/failed history from a UI;

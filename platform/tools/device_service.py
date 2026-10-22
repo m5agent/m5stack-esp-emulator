@@ -55,6 +55,9 @@ from run_tab5_ui_test import (  # noqa: E402
 from firmware_analysis import analyze_firmware, expected_chip_id  # noqa: E402
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
+DEFAULT_MAX_SESSIONS = 8
+DEFAULT_MAX_PER_DEVICE = 6
+QMP_COMMAND_TIMEOUT = 10
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
@@ -792,6 +795,7 @@ class DeviceSession:
             stderr.close()
         self.pid = self._proc.pid
         self._qmp = wait_qmp(self.qmp_path, timeout=20)
+        self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
 
     def _qmp_call(self, name: str, **arguments):
         with self._lock:
@@ -799,11 +803,21 @@ class DeviceSession:
                 raise ServiceError("session_not_running", "device process is not running", 409)
             if self._qmp is None:
                 self._qmp = wait_qmp(self.qmp_path, timeout=5)
+                self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
             try:
+                self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
                 return self._qmp.cmd(name, **arguments)
             except (OSError, RuntimeError) as error:
+                try:
+                    self._qmp.close()
+                except OSError:
+                    pass
+                self._qmp = None
+                timeout = isinstance(error, TimeoutError)
                 raise ServiceError(
-                    "qmp_error", f"QMP command failed: {error}", 503
+                    "qmp_timeout" if timeout else "qmp_error",
+                    f"QMP command {'timed out' if timeout else 'failed'}: {error}",
+                    504 if timeout else 503,
                 ) from error
 
     def wait_for_marker(self, marker: str, timeout: float) -> dict:
@@ -1729,8 +1743,8 @@ class DeviceService:
         self,
         *,
         state_dir: Path = DEFAULT_STATE_DIR,
-        max_sessions: int = 4,
-        max_per_device: int = 2,
+        max_sessions: int = DEFAULT_MAX_SESSIONS,
+        max_per_device: int = DEFAULT_MAX_PER_DEVICE,
         default_ttl: int = 1800,
         api_token: str | None = None,
         flash_preparer=None,
@@ -2045,11 +2059,11 @@ class DeviceService:
     def list_sessions(self, include_stopped: bool = True) -> dict:
         with self._lock:
             sessions = [
-                session.snapshot()
+                session
                 for session in self._sessions.values()
                 if include_stopped or session.state in ACTIVE_STATES
             ]
-        return {"sessions": sessions}
+        return {"sessions": [session.snapshot() for session in sessions]}
 
     def delete_session(self, session_id: str, purge: bool = False) -> dict:
         session = self.get_session(session_id)

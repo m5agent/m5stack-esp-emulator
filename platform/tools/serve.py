@@ -18,7 +18,13 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
-from device_service import DEFAULT_STATE_DIR, DeviceService, ServiceError
+from device_service import (
+    DEFAULT_MAX_PER_DEVICE,
+    DEFAULT_MAX_SESSIONS,
+    DEFAULT_STATE_DIR,
+    DeviceService,
+    ServiceError,
+)
 from peripheral_inventory import build_inventory
 from runtime_interfaces import build_interfaces
 
@@ -144,9 +150,15 @@ class Handler(SimpleHTTPRequestHandler):
     def _get_service(self) -> DeviceService:
         if self.service is None:
             type(self).service = DeviceService(
-                max_sessions=int(os.environ.get("M5_SERVICE_MAX_SESSIONS", "4")),
+                max_sessions=int(
+                    os.environ.get(
+                        "M5_SERVICE_MAX_SESSIONS", str(DEFAULT_MAX_SESSIONS)
+                    )
+                ),
                 max_per_device=int(
-                    os.environ.get("M5_SERVICE_MAX_PER_DEVICE", "2")
+                    os.environ.get(
+                        "M5_SERVICE_MAX_PER_DEVICE", str(DEFAULT_MAX_PER_DEVICE)
+                    )
                 ),
                 default_ttl=int(os.environ.get("M5_SERVICE_DEFAULT_TTL", "1800")),
                 api_token=os.environ.get("M5_SERVICE_API_TOKEN") or None,
@@ -582,8 +594,20 @@ def main() -> None:
     parser.add_argument("port", nargs="?", type=int, default=8787)
     parser.add_argument("--bind", default="127.0.0.1")
     parser.add_argument("--state-dir", type=Path, default=None)
-    parser.add_argument("--max-sessions", type=int, default=4)
-    parser.add_argument("--max-per-device", type=int, default=2)
+    parser.add_argument(
+        "--max-sessions",
+        type=int,
+        default=int(
+            os.environ.get("M5_SERVICE_MAX_SESSIONS", str(DEFAULT_MAX_SESSIONS))
+        ),
+    )
+    parser.add_argument(
+        "--max-per-device",
+        type=int,
+        default=int(
+            os.environ.get("M5_SERVICE_MAX_PER_DEVICE", str(DEFAULT_MAX_PER_DEVICE))
+        ),
+    )
     parser.add_argument("--session-ttl", type=int, default=1800)
     parser.add_argument("--api-token", default=os.environ.get("M5_SERVICE_API_TOKEN"))
     args = parser.parse_args()

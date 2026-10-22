@@ -76,6 +76,10 @@ curl -sS -H 'Content-Type: application/json' \
 - 停止会话前保存最后一帧，历史会话仍可查看串口和最后画面；
 - 全局和单设备并发限制、TTL 自动回收。
 
+当前工作站默认允许 `8` 个活动会话，同一型号最多 `6` 个。可通过
+`M5_SERVICE_MAX_SESSIONS`、`M5_SERVICE_MAX_PER_DEVICE` 或对应 CLI 参数调整；
+满载时超出容量仍返回 `429` 和 `Retry-After`。
+
 `running` 只表示虚拟主机控制通道已启动；应用就绪请使用 `ready_marker`、
 串口标记或非空截图确认。
 

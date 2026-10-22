@@ -43,6 +43,12 @@ Recommended default:
 - no pre-flashed UIFlow2 firmware in the review path;
 - optional pre-booted UIFlow2 instances only for demo and live preview.
 
+For the current 10-core Apple M4 workstation, the local service defaults to
+`max_sessions=8` and `max_per_device=6`. This was validated with six running
+StickS3 sessions plus two CoreS3 sessions; the workload remained well below the
+host's total CPU and memory capacity. These values are deployment policy and
+can be changed through CLI flags or environment variables.
+
 “Ready device” and “real-time rendering” are orthogonal. A service can keep a
 device ready and stream frames from it, or start it on demand and stream frames
 after boot. Rendering is the transport/UI concern; pooling is the lifecycle

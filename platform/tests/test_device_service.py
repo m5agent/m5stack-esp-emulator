@@ -16,7 +16,13 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
-from device_service import DeviceService, DeviceSession
+from device_service import (
+    DEFAULT_MAX_PER_DEVICE,
+    DEFAULT_MAX_SESSIONS,
+    DeviceService,
+    DeviceSession,
+    ServiceError,
+)
 from serve import Handler
 
 
@@ -84,6 +90,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(capacity["modes"]["network"], "disabled")
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
+    def test_default_capacity_matches_measured_workstation_profile(self):
+        self.assertEqual(DEFAULT_MAX_SESSIONS, 8)
+        self.assertEqual(DEFAULT_MAX_PER_DEVICE, 6)
+
     def test_catalog_exposes_sku_and_coverage(self):
         row = self.service.get_device("cores3")
         self.assertEqual(row["sku"], "K128")
@@ -130,6 +140,73 @@ class DeviceServiceUnitTests(unittest.TestCase):
         cleared = self.service.clear_stopped(purge=True)
         self.assertEqual(cleared["cleared"], 1)
         self.assertNotIn(session.id, self.service._sessions)
+
+    def test_list_sessions_does_not_block_capacity_during_snapshot(self):
+        session = self._stopped_session()
+        snapshot_started = threading.Event()
+        release_snapshot = threading.Event()
+        capacity_done = threading.Event()
+        original_snapshot = session.snapshot
+
+        def slow_snapshot():
+            snapshot_started.set()
+            release_snapshot.wait(timeout=2)
+            return original_snapshot()
+
+        session.snapshot = slow_snapshot
+        list_thread = threading.Thread(target=self.service.list_sessions)
+        list_thread.start()
+        self.assertTrue(snapshot_started.wait(timeout=1))
+
+        def query_capacity():
+            self.service.capacity()
+            capacity_done.set()
+
+        capacity_thread = threading.Thread(target=query_capacity)
+        capacity_thread.start()
+        try:
+            self.assertTrue(capacity_done.wait(timeout=0.5))
+        finally:
+            release_snapshot.set()
+            list_thread.join(timeout=2)
+            capacity_thread.join(timeout=2)
+        self.assertFalse(list_thread.is_alive())
+        self.assertFalse(capacity_thread.is_alive())
+
+    def test_qmp_timeout_is_bounded_and_closes_connection(self):
+        session = self._stopped_session()
+        session.state = "running"
+
+        class FakeProcess:
+            def poll(self):
+                return None
+
+        class FakeSocket:
+            def settimeout(self, timeout):
+                self.timeout = timeout
+
+        class TimedOutQMP:
+            def __init__(self):
+                self.sock = FakeSocket()
+                self.closed = False
+
+            def cmd(self, name, **arguments):
+                raise TimeoutError("timed out")
+
+            def close(self):
+                self.closed = True
+
+        qmp = TimedOutQMP()
+        session._proc = FakeProcess()
+        session._qmp = qmp
+        with self.assertRaises(ServiceError) as context:
+            session._qmp_call("query-status")
+        self.assertEqual(context.exception.code, "qmp_timeout")
+        self.assertEqual(context.exception.status, 504)
+        self.assertTrue(qmp.closed)
+        self.assertIsNone(session._qmp)
+        session.state = "stopped"
+        session._proc = None
 
     def test_serial_readiness_and_evidence_bundle(self):
         session = self._stopped_session()
