@@ -569,6 +569,48 @@ def check_generic_evidence(
     return checks
 
 
+def diagnose_generic_evidence(
+    serial: str,
+    expected_markers: list[str],
+) -> dict:
+    missing = [
+        marker for marker in expected_markers if marker not in serial
+    ]
+    signatures: list[str] = []
+    if "Unsupported board type" in serial or "auto detect board:" in serial:
+        category = "board_detection"
+        confidence = "native-log-signature"
+        signatures.append("board autodetect/unsupported board signature")
+    elif "assert failed" in serial or "Guru Meditation" in serial:
+        category = "crash_or_assert"
+        confidence = "native-log-signature"
+        signatures.append("firmware assert/crash signature")
+    elif "Rebooting..." in serial or "RTC_SW_CPU_RST" in serial:
+        category = "crash_or_reboot"
+        confidence = "native-log-signature"
+        signatures.append("reset or reboot-loop signature")
+    elif "i2c.master" in serial:
+        category = "peripheral_init_error"
+        confidence = "native-log-signature"
+        signatures.append("I2C master initialization error")
+    elif serial.strip() and "ESP-ROM:" not in serial:
+        category = "guest_marker_timeout"
+        confidence = "inferred-from-missing-markers"
+        signatures.append("guest output exists but expected marker is absent")
+    else:
+        category = "console_or_boot_visibility"
+        confidence = "inferred"
+        signatures.append("no expected marker on the selected console")
+    if not serial.strip():
+        signatures.append("empty serial capture")
+    return {
+        "category": category,
+        "confidence": confidence,
+        "missing_markers": missing,
+        "signatures": signatures,
+    }
+
+
 def generic_markers_complete(
     serial: str,
     expected_markers: list[str],
@@ -872,6 +914,11 @@ def execute(config: LaneConfig) -> dict:
             "Bluedroid or Classic Bluetooth compatibility",
         ],
     }
+    if config.profile == "generic-observe" and evidence["status"] != "PASS":
+        evidence["diagnosis"] = diagnose_generic_evidence(
+            serial,
+            config.expected_markers,
+        )
     evidence_path = config.out_dir / "evidence.json"
     evidence_path.write_text(
         json.dumps(evidence, ensure_ascii=False, indent=2) + "\n"

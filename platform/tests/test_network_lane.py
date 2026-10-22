@@ -15,6 +15,7 @@ from network_lane import (  # noqa: E402
     LaneError,
     build_emulator_command,
     check_generic_evidence,
+    diagnose_generic_evidence,
     generic_markers_complete,
     check_dns_udp_evidence,
     check_coex_evidence,
@@ -330,6 +331,31 @@ BLE_BUMBLE_PASS
                 True,
             )
         )
+
+    def test_generic_diagnosis_classifies_board_detection_failure(self):
+        diagnosis = diagnose_generic_evidence(
+            "auto detect board:146\n"
+            "[error] Keyboard: Unsupported board type: 146\n",
+            ["UIFLOW_NET_BOOT", "UIFLOW_WIFI_RESULT: PASSED"],
+        )
+        self.assertEqual(diagnosis["category"], "board_detection")
+        self.assertEqual(
+            diagnosis["missing_markers"],
+            ["UIFLOW_NET_BOOT", "UIFLOW_WIFI_RESULT: PASSED"],
+        )
+
+    def test_generic_diagnosis_separates_peripheral_and_console_signals(self):
+        peripheral = diagnose_generic_evidence(
+            "ESP-ROM:esp32s3\nentry 0x403c8890\n"
+            "E i2c.master: this port has not been initialized\n",
+            ["UIFLOW_NET_BOOT"],
+        )
+        console = diagnose_generic_evidence(
+            "ESP-ROM:esp32c6\nentry 0x4086b910\n",
+            ["UIFLOW_NET_BOOT"],
+        )
+        self.assertEqual(peripheral["category"], "peripheral_init_error")
+        self.assertEqual(console["category"], "console_or_boot_visibility")
 
     def test_rejects_classic_esp32_before_process_launch(self):
         with tempfile.TemporaryDirectory() as directory:
