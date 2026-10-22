@@ -27,12 +27,13 @@ Implemented on 2026-10-22:
 - StickS3/CoreS3 and NanoC6/Nesso N1 WiFi/DHCP and controlled HTTP/TCP
   download;
 - StickS3 UIFlow2 BLE server observed by an external Bumble GATT peer;
+- host-forwarder DNS plus controlled UDP request/reply;
 - Device Service `runtime=network` sessions and evidence endpoint.
 
 Still open:
 
 - same-instance UIFlow2 WiFi+BLE progression;
-- DNS/UDP policy and host packet summaries;
+- isolated DNS policy and host packet summaries;
 - device-level C6 and remaining S3 runs;
 - combined board-peripheral plus network guest.
 

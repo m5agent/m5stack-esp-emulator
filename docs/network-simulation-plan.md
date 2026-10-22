@@ -26,6 +26,8 @@ Validated on `2026-10-22`:
 - StickS3 UIFlow2 `network.WLAN` scan, association and DHCP have passed;
 - StickS3 UIFlow2 `BLEUARTServer` passes external Bumble scan, connection, NUS
   GATT discovery, subscription, write and guest-side receive callback;
+- the ESP-IDF DNS/UDP fixture passes host-forwarder DNS resolution and a
+  controlled UDP request/reply through the user-mode gateway;
 - the Device Service exposes `runtime=network` one-shot sessions and a
   `/sessions/{id}/network` evidence endpoint.
 
@@ -156,7 +158,7 @@ itself. For untrusted firmware:
 | Phase | Work | Estimate |
 | --- | --- | --- |
 | N0 | One-device UIFlow2 WiFi proof through `esp-emu` | DONE for StickS3 WLAN/DHCP; ESP-IDF adds TCP |
-| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/TCP and BLE harness DONE; DNS/UDP/pcap policy pending |
+| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP and BLE harness DONE; isolated resolver and pcap policy pending |
 | N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | 3–5 working days |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |

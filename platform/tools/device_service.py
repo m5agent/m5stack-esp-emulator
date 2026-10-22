@@ -80,6 +80,7 @@ NETWORK_PROFILES = {
     "uiflow2-sticks3",
     "esp-idf-http",
     "esp-idf-smoke",
+    "idf-dns-udp",
     "generic-observe",
 }
 
@@ -156,6 +157,7 @@ def parse_network_execution(
     defaults = {
         "esp-idf-http": {"wifi": True, "ble": False, "tcp": True},
         "esp-idf-smoke": {"wifi": True, "ble": True, "tcp": False},
+        "idf-dns-udp": {"wifi": True, "ble": False, "tcp": False},
         "uiflow2-sticks3": {"wifi": False, "ble": True, "tcp": False},
         "generic-observe": {"wifi": True, "ble": False, "tcp": False},
     }[profile]

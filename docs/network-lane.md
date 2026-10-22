@@ -45,6 +45,12 @@ The `esp-idf-smoke` profile runs the upstream comprehensive smoke image. It
 asserts WiFi/DHCP and, when `--ble` is requested, NimBLE advertising and the
 smoke summary.
 
+The `idf-dns-udp` profile runs `tests/network/idf_dns_udp`. It requires a
+successful `example.com` DNS lookup, a UDP datagram at the disposable host
+peer on port `19000`, the prefixed reply back in the guest, and the final
+`DNS_UDP_RESULT: PASSED`. DNS currently uses the host forwarder and is not yet
+an isolated resolver.
+
 The `generic-observe` profile runs an arbitrary compatible image for the
 observation window. Without `--expect` it records `PARTIAL` plus serial output;
 repeat `--expect MARKER` to turn application output into explicit PASS/FAIL

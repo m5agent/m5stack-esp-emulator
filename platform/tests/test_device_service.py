@@ -160,6 +160,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
             },
         )
         self.assertEqual(generic["expected_markers"], ["APP_READY"])
+        dns_udp = device_service_module.parse_network_execution(
+            self.service.specs["sticks3"],
+            {"profile": "idf-dns-udp"},
+        )
+        self.assertFalse(dns_udp["tcp"])
 
     def test_network_session_runs_isolated_lane_and_retains_evidence(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"

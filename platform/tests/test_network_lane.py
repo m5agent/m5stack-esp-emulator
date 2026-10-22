@@ -15,6 +15,7 @@ from network_lane import (  # noqa: E402
     LaneError,
     build_emulator_command,
     check_generic_evidence,
+    check_dns_udp_evidence,
     check_http_evidence,
     check_smoke_evidence,
     check_uiflow2_evidence,
@@ -95,6 +96,22 @@ class NetworkLaneTests(unittest.TestCase):
                 firmware_copy=tmp / "runtime.bin",
             )
         self.assertNotIn("--psram-size", command)
+
+    def test_dns_udp_profile_exits_on_final_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            row = config(
+                tmp,
+                profile="idf-dns-udp",
+                ble=False,
+                tcp=False,
+            )
+            command, _ = build_emulator_command(
+                row,
+                firmware_copy=tmp / "runtime.bin",
+            )
+        self.assertIn("--exit-on", command)
+        self.assertIn("DNS_UDP_RESULT", command)
 
     def test_command_and_injection_redact_password(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -182,6 +199,21 @@ HTTP_TPUT_RESULT: PASSED
 """
         checks = check_http_evidence(serial, ["/bigfile"])
         self.assertTrue(all(checks.values()), checks)
+
+    def test_dns_udp_parser_requires_host_datagram_and_guest_reply(self):
+        serial = """
+GOT_IP 192.168.4.2
+DNS_OK: 198.18.0.86
+UDP_REPLY: UDP_REPLY:M5_DNS_UDP_PROBE
+UDP_RESULT: PASSED
+DNS_UDP_RESULT: PASSED
+"""
+        checks, values = check_dns_udp_evidence(
+            serial,
+            [b"M5_DNS_UDP_PROBE"],
+        )
+        self.assertTrue(all(checks.values()), checks)
+        self.assertEqual(values["dns_address"], "198.18.0.86")
 
     def test_smoke_parser_keeps_ble_separate(self):
         serial = """

@@ -28,6 +28,7 @@ DEFAULT_EMULATOR = (
 )
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
 HTTP_PROBE_PORT = 8070
+UDP_PROBE_PORT = 19000
 SUPPORTED_CHIPS = {
     "esp32c3",
     "esp32c5",
@@ -98,6 +99,17 @@ class LabServer:
         self.thread.join(timeout=5)
 
 
+@dataclass
+class UdpLabServer:
+    sock: socket.socket
+    thread: threading.Thread
+    datagrams: list[bytes]
+
+    def close(self) -> None:
+        self.sock.close()
+        self.thread.join(timeout=5)
+
+
 class ProbeHandler(BaseHTTPRequestHandler):
     body = b"M" * (1024 * 1024)
 
@@ -147,6 +159,36 @@ def start_lab_server(port: int = 0) -> LabServer:
     )
     thread.start()
     return LabServer(server, thread, requests, seen)
+
+
+def start_udp_lab_server(port: int = UDP_PROBE_PORT) -> UdpLabServer:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(("127.0.0.1", port))
+    sock.settimeout(0.25)
+    datagrams: list[bytes] = []
+
+    def serve() -> None:
+        while True:
+            try:
+                data, address = sock.recvfrom(4096)
+            except socket.timeout:
+                continue
+            except OSError:
+                break
+            datagrams.append(data)
+            try:
+                sock.sendto(b"UDP_REPLY:" + data, address)
+            except OSError:
+                break
+
+    thread = threading.Thread(
+        target=serve,
+        name="m5-network-lane-udp",
+        daemon=True,
+    )
+    thread.start()
+    return UdpLabServer(sock, thread, datagrams)
 
 
 def uiflow2_injection(config: LaneConfig) -> str:
@@ -223,11 +265,10 @@ def build_emulator_command(
     exit_marker = {
         "esp-idf-http": "HTTP_TPUT_RESULT",
         "esp-idf-smoke": "RESULT_SUMMARY",
+        "idf-dns-udp": "DNS_UDP_RESULT",
     }.get(config.profile)
     if exit_marker:
         command.extend(["--exit-on", exit_marker])
-    for marker in config.expected_markers:
-        command.extend(["--exit-on", marker])
     if config.profile == "uiflow2-sticks3":
         injection = {
             "stages": [
@@ -415,6 +456,25 @@ def check_http_evidence(serial: str, requests: list[str]) -> dict[str, bool]:
     }
 
 
+def check_dns_udp_evidence(
+    serial: str,
+    datagrams: list[bytes],
+) -> tuple[dict[str, bool], dict[str, str]]:
+    dns_match = re.search(r"DNS_OK:\s+(\d+\.\d+\.\d+\.\d+)", serial)
+    checks = {
+        "wifi_dhcp": bool(
+            re.search(r"GOT_IP\s+192\.168\.4\.2", serial)
+        ),
+        "dns_resolved": bool(dns_match),
+        "udp_host_request": b"M5_DNS_UDP_PROBE" in datagrams,
+        "udp_reply": "UDP_REPLY: UDP_REPLY:M5_DNS_UDP_PROBE" in serial,
+        "dns_udp_result": "DNS_UDP_RESULT: PASSED" in serial,
+    }
+    return checks, {
+        "dns_address": dns_match.group(1) if dns_match else "",
+    }
+
+
 def check_generic_evidence(
     serial: str,
     expected_markers: list[str],
@@ -461,6 +521,7 @@ def execute(config: LaneConfig) -> dict:
 
     initial_requests: list[str] = []
     lab_server: LabServer | None = None
+    udp_server: UdpLabServer | None = None
     tcp_port = free_port()
     if config.tcp:
         lab_server = start_lab_server(
@@ -468,6 +529,8 @@ def execute(config: LaneConfig) -> dict:
         )
         initial_requests = lab_server.requests
         tcp_port = lab_server.port
+    if config.profile == "idf-dns-udp":
+        udp_server = start_udp_lab_server()
 
     serial_path = config.out_dir / "serial.log"
     ble_log_path = config.out_dir / "ble-probe.log"
@@ -537,6 +600,8 @@ def execute(config: LaneConfig) -> dict:
         terminate_process(ble_proc)
         if lab_server is not None:
             lab_server.close()
+        if udp_server is not None:
+            udp_server.close()
 
     duration = round(time.monotonic() - started, 3)
     serial = read_text(serial_path)
@@ -555,6 +620,11 @@ def execute(config: LaneConfig) -> dict:
     elif config.profile == "esp-idf-http":
         checks = check_http_evidence(serial, initial_requests)
         values = {}
+    elif config.profile == "idf-dns-udp":
+        checks, values = check_dns_udp_evidence(
+            serial,
+            udp_server.datagrams if udp_server else [],
+        )
     elif config.profile == "generic-observe":
         checks = check_generic_evidence(serial, config.expected_markers)
         values = {}
@@ -607,6 +677,18 @@ def execute(config: LaneConfig) -> dict:
                 ),
                 "host_requests": list(initial_requests),
             },
+            "udp": {
+                "enabled": udp_server is not None,
+                "host_port": UDP_PROBE_PORT if udp_server else None,
+                "datagrams": [
+                    data.decode("utf-8", errors="replace")
+                    for data in (udp_server.datagrams if udp_server else [])
+                ],
+            },
+            "dns": {
+                "mode": "host-forwarder",
+                "controlled_resolver": False,
+            },
         },
         "artifacts": [artifact.evidence() for artifact in artifact_rows],
         "command": public_command,
@@ -649,6 +731,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "uiflow2-sticks3",
             "esp-idf-http",
             "esp-idf-smoke",
+            "idf-dns-udp",
             "generic-observe",
         ),
         default="uiflow2-sticks3",

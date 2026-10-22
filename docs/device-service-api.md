@@ -259,6 +259,8 @@ Profiles are:
 
 - `esp-idf-http`: WiFi, DHCP and a controlled complete HTTP/TCP download;
 - `esp-idf-smoke`: WiFi, DHCP and the upstream comprehensive smoke suite;
+- `idf-dns-udp`: WiFi, DHCP, host-forwarder DNS and a controlled UDP round
+  trip against a disposable host peer;
 - `uiflow2-sticks3`: UIFlow2 network/BLE probe. BLE requires a matching ELF
   uploaded as an artifact and referenced by `elf_artifact_id`.
 - `generic-observe`: runs an arbitrary compatible image for the requested
