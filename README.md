@@ -2,57 +2,37 @@
 
 [![CI](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml)
 
-面向 M5Stack 全量 Flash 固件审查、UIFlow2/UIFlow、ESP-IDF、Arduino、MicroPython
-运行验证、UI 预览、自动测试和未来设备中心接入的多主控模拟平台。
-
-当前验证最完整的是官方 UIFlow2 固件，但架构并不依赖 UIFlow。只要 SoC、板级
-profile、Flash/PSRAM/eFuse、分区布局和所需控制器兼容，也可以加载其他完整
-merged flash 镜像或按地址拆分的镜像段。固件审查边界见
-[`docs/firmware-review-and-simulation-workflow.md`](docs/firmware-review-and-simulation-workflow.md)。
-后续通用固件入口、网络和服务化工作见
-[`docs/project-backlog.md`](docs/project-backlog.md)。
-高保真逐设备外观建模仍待后续专门 Agent 完成，范围和验收标准见
-[`docs/device-visual-fidelity-backlog.md`](docs/device-visual-fidelity-backlog.md)。
-
-当前实现与验证流程说明见 [AGENTS.md](AGENTS.md)。该文件同时定义了新增设备、
-外设模型、QEMU 补丁和发布证据的维护规则。
-
-其他 Agent 可以通过新版本地设备服务租用虚拟主机、上传通用固件、读取串口和
-截图、注入输入与 QOM。API 见
-[`docs/device-service-api.md`](docs/device-service-api.md) 和
-[`docs/device-service.openapi.yaml`](docs/device-service.openapi.yaml)。
+面向 M5Stack 多主控固件启动、烧录、UI 预览、外设联调和自动测试的模拟平台。
+当前验证最完整的是 UIFlow2，但架构也支持满足兼容条件的 ESP-IDF、Arduino、
+MicroPython 和其他完整 Flash 固件。
 
 ![设备目录](docs/images/device-gallery.png)
 
-项目按芯片架构分组保存 14 个 M5Stack 主控档案。13 台 ESP32 主控均已完成官方
-UIFlow2 启动和统一矩阵验收；其中有屏设备已验证目标分辨率首帧与触摸/按键重绘，
-无屏 NanoC6 验证串口启动链路。CardputerZero 使用独立 ARM64 Linux 后端，当前已
-完成官方镜像启动、320×170 ST7789v3 帧缓冲、键盘输入、主要 I2C 外设和音频播放
-与麦克风 PCM 双向回放、IP2315 充放电状态、GL852G High-Speed Hub、
-SR9900A 以太网帧回环、寄存器驱动的 IMX219 + Unicam V4L2 实帧采集、
-GL852G MTT 兼容全/低速下游路由，以及 GPIO 红外收发。
+## 当前状态
 
-外设仿真采用统一契约而不是逐设备硬编码：所有非显示外设必须在
-`platform/peripherals/catalog.json` 中声明芯片、总线、地址、注入接口和实现状态。
-新增设备若漏登记 IMU、音频、继电器等能力，CI 会失败。设计说明见
-[`docs/peripheral-simulation-architecture.md`](docs/peripheral-simulation-architecture.md)。
-当前 14 个虚拟主机中 13 个已通过全部登记外设的数据面验收；Tab5 仍受原生
-P4 CSI/I2S/USB/SDIO 与动态 I2C 后端缺口限制，不能误标为全外设闭环。
-Tab5 当前仍可完成虚拟烧录、UIFlow2 启动、1280×720 画面、触摸、RS-485 和
-静态 I2C 探测；完整暂缓项与恢复条件见
-[`docs/tab5-deferred-backlog.md`](docs/tab5-deferred-backlog.md)。
+- 已登记 14 台设备：9 台 ESP32-S3、2 台 ESP32-C6、Tab5、Core2 和 CardputerZero。
+- 12 台 QEMU-backed ESP32 + Tab5 可通过设备服务创建和烧录。
+- 13 台设备已完成登记外设的模拟数据面；Tab5 外设状态仍为 `partial`。
+- CardputerZero 使用独立 ARM64 Linux 后端，不属于 ESP32/UIFlow2 路径。
+- 设备服务已在 `127.0.0.1:8787` 提供会话租用、固件烧录、串口、画面和输入 API。
 
-WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。S3/C6/P4 可以
-先复用 `esp-emu` 网络通道，Core2 的 ESP32 LX6 仍需单独的 WiFi/PHY 路径。
-现阶段建议把“QEMU 板级/UI 通道”和 `esp-emu` 网络通道分开验证，方案和验收矩阵见
-[`docs/network-simulation-plan.md`](docs/network-simulation-plan.md)。
+## 剩余工作
 
-当前外设契约包含 65 个模型、60 个 `simulated` 模型、67 个 matrix case 和
-7 个 external probe。最近一次干净的全量基线是摄像头帧流变更前的
-67/67 case、272/272 check；当前声明配置已变为 67 个 case、274 个 check，
-但这不是一次全量执行结果，不能表述为 274/274 PASS。
-**本轮按用户要求没有再次执行全量矩阵**，提交前执行了 7 个受影响 case，
-结果为 7/7 case、38/38 check PASS。
+| 工作 | 当前状态 | 说明 |
+| --- | --- | --- |
+| 高保真逐设备外观建模 | `TODO` | 仅 StopWatch 接近参考质量，其余 13 台仍是通用近似外壳 |
+| Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
+| 网络模拟统一接入 | `TODO` | `esp-emu` 已有 WiFi/Ethernet 后端，尚未接入所有设备和自动测试 |
+| 通用固件正式入口 | `TODO` | 支持 merged/segmented 架构，仍需 M5Burner/WebBurner 导入、静态检查和标准化 manifest |
+| 服务池与持久化 | `TODO` | 当前为按需冷启动 + 固件缓存；尚无 warm pool、跨重启会话和多机调度 |
+| 最新全量矩阵与真机验证 | `NOT RUN` | 当前结论均为仿真证据 |
+
+高难度外观建模已单独记录，供后续更强的视觉/3D Agent 接手：
+
+- [设备高保真建模 Backlog](docs/device-visual-fidelity-backlog.md)
+- [完整项目 Backlog](docs/project-backlog.md)
+- [Tab5 暂缓项](docs/tab5-deferred-backlog.md)
+- [网络模拟方案](docs/network-simulation-plan.md)
 
 ## 快速开始
 
@@ -60,7 +40,12 @@ WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。
 ./start.sh
 ```
 
-打开 `http://127.0.0.1:8787/platform/web/`。
+默认地址：
+
+- 设备目录：<http://127.0.0.1:8787/platform/web/>
+- 会话观察：<http://127.0.0.1:8787/platform/web/sessions.html>
+- 设备服务 API：<http://127.0.0.1:8787/api/v1>
+- OpenAPI：<http://127.0.0.1:8787/api/v1/openapi.yaml>
 
 也可以直接启动：
 
@@ -68,413 +53,128 @@ WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。
 python3 platform/tools/serve.py 8787
 ```
 
-设备服务与静态目录共用这个进程。默认支持 12 台 QEMU-backed ESP32，以及
-通过 esp-emu 启动的 Tab5；Tab5 会明确标记外设 `partial`。CardputerZero 和
-网络模拟暂不开放。完整示例：
-[`docs/device-service-api.md`](docs/device-service-api.md)。
+`8787` 是本项目默认端口；本机 `8080` 已被其他 Docker 服务占用。
 
-服务默认端口为 `8787`，因为本机 `8080` 已被 Docker Desktop 占用。可用
-`PORT=8787 ./start.sh` 或 `python3 platform/tools/serve.py <port>` 覆盖。
+## 设备服务
 
-人工观察会话、串口和实时 framebuffer：
+其他 Agent 可以按 lease 创建独占虚拟设备：
 
-```text
-http://127.0.0.1:8787/platform/web/sessions.html
+```bash
+curl -sS -H 'Content-Type: application/json' \
+  -d '{"device_id":"sticks3","ttl_seconds":600}' \
+  http://127.0.0.1:8787/api/v1/sessions
 ```
 
-浏览器设备目录只需要 Python 3。完整 QEMU/固件回归还需要本地准备：
+主要能力：
 
-- `.work/M5StopWatch-QEMU/`：按 `patches/qemu-*/README.md` 应用板级补丁并构建 QEMU；
-- `.work/esp-emu-versions/0.50.0/`：ESP32-C6/P4 使用的 `esp-emu`；
-- Espressif QEMU ROM/eFuse 文件：按上游许可自行获取；
-- `UIFLOW_MICROPYTHON_DIR`：指向 UIFlow2 源码 checkout；
-- `python3 platform/tools/fetch_firmware.py <device>`：下载公开固件到本地缓存。
+- reference UIFlow2 固件或上传的 merged/segmented 固件；
+- 真实 esptool 虚拟烧录和 prepared-flash cache；
+- 每 session 独立虚拟 Flash；
+- 串口、QEMU 日志、PNG framebuffer；
+- 按键/触摸/拖拽、QOM、reset、renew、stop；
+- 全局和单设备并发限制、TTL 自动回收。
 
-固件、ROM、QEMU 二进制和构建目录都被 `.gitignore` 排除，不进入公开仓库。
+`running` 只表示虚拟主机控制通道已启动；应用就绪请使用 `ready_marker`、
+串口标记或非空截图确认。
 
-## 能力分层
+完整接口和示例见：
 
-| 状态 | 含义 | 型号 |
+- [Device Service API](docs/device-service-api.md)
+- [OpenAPI 3.1](docs/device-service.openapi.yaml)
+
+## 设备支持
+
+| 分组 | 设备 | 状态 |
 | --- | --- | --- |
-| `reference-ready` | 官方固件启动、目标尺寸画面、输入注入均可用 | StopWatch、StickS3、AtomS3R、CoreS3、Cardputer-ADV、StamPLC、StackChan、PaperColor、PaperMono、Nesso N1、Core2、Tab5 |
-| `boot-capable` | 官方固件启动并可查看串口，设备本身无显示屏 | NanoC6 |
-| `backend-required` | UIFlow2 运行时不能直接调度，需要独立架构后端 | CardputerZero（ARM64 Linux，独立后端已可启动并部分验收） |
+| ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；外观除 StopWatch 外为近似模型 |
+| ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过 |
+| ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；仍有间歇性 cache panic |
+| Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
-> `boot-capable` 只表示对应芯片固件能启动并输出串口，不表示所有 UIFlow2 外设和 UI 已通过。当前 13 台 ESP32 虚拟主机均完成矩阵验收；Nesso N1 与 Tab5 的真实分辨率、首帧和输入重绘均已通过。Tab5 使用 P4 仿真专用 M5GFX framebuffer 构建，当前启用原生 M5GFX/UIFlow2 UI 路径，LVGL Python 绑定暂不在仿真构建中启用。
+详细逐设备状态见
+[`devices/README.md`](devices/README.md) 和
+[`docs/qemu-device-adaptation-matrix.md`](docs/qemu-device-adaptation-matrix.md)。
 
-CardputerZero 的 BCM2837 后端、DTB 修复、guest probe、键盘/帧缓冲和 I2S PCM
-测试见 [`tests/cardputer_zero/`](tests/cardputer_zero/)。
+## 固件与审查
 
-![UIFlow2 虚拟主机验收矩阵](docs/images/uiflow2-virtual-host-matrix.png)
+当前输入支持：
 
-## 设备目录
+- UIFlow1/UIFlow2
+- ESP-IDF
+- Arduino ESP32
+- MicroPython
+- 其他完整 merged Flash 或带地址的分段镜像
 
-```text
-devices/
-├── catalog.json                 # 设备中心可读目录
-├── esp32-s3/
-│   ├── sticks3/
-│   ├── cores3/
-│   ├── stopwatch/
-│   ├── cardputer-adv/
-│   ├── papermono/
-│   ├── papercolor/
-│   ├── stackchan/
-│   ├── atoms3r/
-│   └── stamplc/
-├── esp32-c6/
-│   ├── nanoc6/
-│   └── nesso-n1/
-├── esp32-p4/
-│   └── tab5/
-├── esp32-lx6/
-│   └── core2/
-└── linux-arm64/
-    └── cardputer-zero/
-```
+兼容前提是芯片、板级 profile、Flash/PSRAM/eFuse、分区布局和控制器模型匹配。
+当前底层烧录工具可接受通用镜像，但正式的非 UIFlow 固件导入和静态审查仍在
+backlog 中。
 
-每个设备目录包含：
+固件审查流程、证据分层和安全边界见：
 
-- `device.json`：芯片、内存、显示、控制、外设、UIFlow2、运行时状态
-- `firmware.json`：内置参考固件、公开 firmware ID、下载地址和缓存路径；
-  通用多固件 manifest 属于后续 P0
-- `README.md`：设备能力与边界
-- `index.html`：打开对应模拟页面
-- `web/`：仅设备专属运行时使用，目前是 StopWatch
+- [固件审查与仿真测试工作流](docs/firmware-review-and-simulation-workflow.md)
+- [外设仿真架构](docs/peripheral-simulation-architecture.md)
+- [UIFlow2 外设测试矩阵](docs/uiflow2-peripheral-test-matrix.md)
 
-## 固件支持与审查
+## 本地开发依赖
 
-UIFlow2 是当前证据最充分的内置固件类型，但不是唯一目标。其他固件进入虚拟
-主机时，至少需要满足：
+浏览器设备目录和 API 只需要 Python 3。完整 QEMU/esp-emu 回归还需要：
 
-- 芯片和内存映射与目标 QEMU/esp-emu machine 一致；
-- 存在对应板级 profile 和总线/外设模型；
-- 提供完整 merged flash，或提供 bootloader、分区表、应用、文件系统及准确地址；
-- 分区、eFuse、安全启动和 Flash 加密模式与仿真后端兼容。
+- `.work/M5StopWatch-QEMU/`：按补丁构建的 QEMU；
+- `.work/esp-emu-versions/0.50.0/`：P4/C6 使用的 `esp-emu`；
+- Espressif QEMU ROM/eFuse 文件；
+- 可选 `UIFLOW_MICROPYTHON_DIR`：UIFlow2 源码 checkout；
+- 固件缓存：`python3 platform/tools/fetch_firmware.py <device>`。
 
-当前 `tests/uiflow2/flash_device.py` 和底层 `esp_flash.py` 已经接受任意镜像路径，
-但设备清单、默认下载元数据和矩阵断言仍主要围绕 UIFlow2。要把 M5Burner/WebBurner
-等来源作为正式审查输入，还需要补通用 firmware manifest、分段烧录和静态检查。
+固件、ROM、QEMU 二进制和构建目录均被 `.gitignore` 排除。
 
-### UIFlow2 已验证路径
+## 验证入口
 
-StopWatch 的 QEMU 后端已修复官方 UIFlow2 v2.5.3 的启动链：可从 ROM 进入 UIFlow2 启动器并输出 466×466 UI；同时提供了本地 `main.py` UI 交互测试。修复说明、复现命令和边界见 [`docs/stopwatch-uiflow2-qemu.md`](docs/stopwatch-uiflow2-qemu.md)，补丁见 [`patches/qemu-stopwatch-uiflow2-boot/`](patches/qemu-stopwatch-uiflow2-boot/)，测试见 [`tests/uiflow2/stopwatch_ui_test/`](tests/uiflow2/stopwatch_ui_test/)。
-
-ESP32-C6 的 QEMU 后端已完成 NanoC6 控制台、RGB/按键/蓝灯/红外，以及 Nesso N1 板型探测、ST7789、触摸、共享 SPI 外设和 USB-Serial-JTAG console；两种 C6 板型按 `M5SW_C6_BOARD` 独立装配，不再互相挂载外设。补丁与边界见 [`patches/qemu-esp32c6-uiflow2-adapters/`](patches/qemu-esp32c6-uiflow2-adapters/)、[`tests/uiflow2/nanoc6_peripherals/`](tests/uiflow2/nanoc6_peripherals/) 和 [`tests/uiflow2/nesso_n1_ui_test/`](tests/uiflow2/nesso_n1_ui_test/)。Core2 的完整 320x240 首帧和 FT5x06 触摸重绘已通过，测试见 [`tests/uiflow2/core2_ui_test/`](tests/uiflow2/core2_ui_test/)。
-
-### CoreS3 动画与 Canvas
-
-CoreS3 的 M5GFX 面板使用 `offset_rotation=3`，横屏 320×240 应设置为
-`M5.Display.setRotation(1)`；设置成 `0` 会得到 240×320 的逻辑绘图区并裁掉右侧。
-
-[`tests/uiflow2/cores3_pelican_bike/`](tests/uiflow2/cores3_pelican_bike/)
-用单个复用 M5GFX Canvas 绘制文字、图形、滚轮、踏板、围巾和道路动画，完成后一次
-`push()` 呈现。拖动公路可调整 0–4 档速度，长按鹈鹕触发铃声，点击右上角按钮可
-暂停；BMI270 的 X/Y 加速度会平移和抬降骑手，Z 轴陀螺仪会驱动围巾与速度线。
-该样例同时验证 320×240 帧、连续帧变化、FT6336 拖拽/长按/点击以及
-`Imu.getAccel()/getGyro()` 注入回读。长按铃声通过 AW88298 + I2S TX 播放
-1000 Hz / 800 Hz 两段 tone，QEMU 捕获到非静音 PCM。
+每次改动先运行窄验证：
 
 ```bash
-M5SW_I2S_DMA_IRQ=1 \
-M5SW_I2S_PCM_FILE=/tmp/m5-cores3-pelican/speaker.pcm \
-PYTHONPATH=.work/py python3 tests/uiflow2/run_profile_ui_test.py \
-  --base platform/.cache/firmware/cores3/uiflow2.bin \
-  --machine m5cores3 \
-  --files-dir tests/uiflow2/cores3_pelican_bike \
-  --vfs-offset 0xAA0000 --vfs-size 0x4C0000 --flash-size 0x1000000 \
-  --expected-size 320x240 \
-  --qom-set /machine/bmi270 accel-x 0.65 \
-  --qom-set /machine/bmi270 accel-y -0.25 \
-  --qom-set /machine/bmi270 accel-z 0.75 \
-  --qom-set /machine/bmi270 gyro-z 35 \
-  --input drag:45,220,285,220 --input longpress:170,130,0.9 \
-  --input touch:280,25 --capture-frames 18 --capture-interval 0.1 \
-  --capture-each-input \
-  --out-dir /tmp/m5-cores3-pelican
+PYTHONPATH=platform/tools python3 -m unittest discover \
+  -s platform/tests -p 'test_*.py'
+python3 platform/tools/runtime_coverage.py --check
+python3 platform/tools/peripheral_catalog.py --check
 ```
 
-PCM 校验：
-
-```bash
-python3 tests/uiflow2/check_pcm.py \
-  /tmp/m5-cores3-pelican/speaker.pcm \
-  --min-nonzero 1000 --min-peak-to-peak 1000
-```
-
-![CoreS3 鹈鹕骑自行车动画](docs/images/cores3-pelican-bike.gif)
-
-![BMI270 中立与倾斜注入对照](docs/images/cores3-pelican-bike-imu-compare.png)
-
-![FT6336 拖拽、长按和暂停状态](docs/images/cores3-pelican-bike-touch-states.png)
-
-[CoreS3 铃声 PCM 预览](docs/audio/cores3-pelican-bell-preview.wav)
-（去除直流偏置并提高可听度的预览；原始捕获见
-[`cores3-pelican-bell-raw.wav`](docs/audio/cores3-pelican-bell-raw.wav)）
-
-公开仓库不附带官方 UIFlow2、UserDemo 或 Espressif ROM 二进制。使用
-`platform/tools/fetch_firmware.py` 从 M5Stack 公开固件 CDN 下载到被忽略的本地缓存。
-
-## 虚拟烧录
-
-ESP32-S3、ESP32-C6 和 Tab5 的 ESP32-P4 通过 `esp-emu` 的下载模式暴露
-`esptool socket://`，实际执行 `write-flash`，校验成功后再由 QEMU 启动
-同一份虚拟 flash：
-
-```bash
-python3 tests/uiflow2/flash_device.py \
-  --device sticks3 \
-  --firmware platform/.cache/firmware/sticks3/uiflow2.bin \
-  --out-dir /tmp/m5-flash-sticks3
-```
-
-Core2 使用同一 QEMU 的 ESP32 ROM UART 下载模式和 `esptool --no-stub`
-写入虚拟 flash；QEMU 的 UART `baud-scale` 属性只用于仿真下载链路加速，
-正常工作负载仍使用默认值。补丁见
-[`patches/qemu-core2-qemu-esptool/`](patches/qemu-core2-qemu-esptool/)。
-
-统一回归入口：
-
-```bash
-python3 tests/uiflow2/run_device_matrix.py \
-  --out-dir /tmp/m5-uiflow2-device-matrix
-```
-
-它会按设备矩阵先烧录测试镜像，再启动对应虚拟后端、检查目标分辨率首帧与输入后的
-画面变化、生成规范 PNG；NanoC6 检查串口标记并通过独立 runner 验证 RGB、
-按键、蓝灯和 IR，CardputerZero 明确标记为非 ESP32 后端并排除。
-
-14 台设备的虚拟主机适配分组、优先级和缺口见 [`docs/qemu-device-adaptation-matrix.md`](docs/qemu-device-adaptation-matrix.md)；机器可读注册表在 [`platform/qemu/profiles.json`](platform/qemu/profiles.json)。
-
-列出可下载型号：
-
-```bash
-python3 platform/tools/fetch_firmware.py --list
-```
-
-下载单个型号或全部：
-
-```bash
-python3 platform/tools/fetch_firmware.py nanoc6
-python3 platform/tools/fetch_firmware.py --all
-```
-
-固件缓存在 `platform/.cache/firmware/<device>/`，不会提交到 Git。
-
-## 导出与迁移
-
-按设备导出独立 ZIP：
-
-```bash
-python3 platform/tools/export_bundle.py --device stopwatch
-python3 platform/tools/export_bundle.py --device sticks3 --device cores3
-python3 platform/tools/export_bundle.py --all
-```
-
-导出包包含共享运行时、设备档案、页面、文档和当前设备目录中的固件文件，不包含本机固件缓存。输出目录默认 `dist/`，已通过 `.gitignore` 排除。
-
-## 自动化接口
-
-设备页面暴露：
-
-```js
-window.m5emu = {
-  loadFirmware,
-  loadFirmwareUrl,
-  reset,
-  pause,
-  resume,
-  press,
-  touch,
-  setImu,
-  setBattery,
-  setRtc,
-  execPython,
-  getFrame,
-  getLog,
-  getState,
-  screenshot
-}
-```
-
-StopWatch 参考运行时和通用设备页都兼容这组接口。设备也通过 `postMessage` 向父页面发送 `m5emu:ready` 和 `m5emu:state`。
-
-## 设备中心接口
-
-静态 API：
-
-- `GET /api/devices`
-- `GET /api/devices/<chip-group>/<device>`
-- `GET /health`
-
-详细契约见 [docs/device-center-adapter.md](docs/device-center-adapter.md)。
-
-## 验证
-
-测试必须分层执行，不要修改一个外设后立即重跑全部设备：
-
-1. 先运行相关平台单元测试和 inventory/coverage 校验；
-2. 只运行本次改动的 device case；
-3. 共享 QEMU 控制器、发布前或跨设备回归时，才运行全量矩阵。
-
-本轮提交前定向用例：
+相关外设用例：
 
 ```bash
 PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
-  --case cores3-camera --case stackchan-camera \
-  --case core2-peripherals --case papercolor-peripherals \
-  --case cores3-power-transitions --case stamplc-peripherals \
-  --case nesso-peripherals
+  --case <case-id> --out-dir /tmp/m5-<case-id>
 ```
 
-```bash
-python3 platform/tests/test_catalog.py
-```
-
-浏览器测试需要 Playwright：
-
-```bash
-cd platform/tests
-npm install
-npx playwright install chromium
-M5_SIM_BASE=http://127.0.0.1:8787 npm test
-```
-
-自动测试会检查 14 个设备、StickS3 页面、CardputerZero 后端状态和
-StopWatch 页面接口。设置 `M5_STOPWATCH_FIXTURE_URL` 后可额外验证真实固件出帧；
-2026-10-21 本机已用 Playwright Chromium 通过完整固件测试。
-
-跨设备显示旋转、输入硬断言、墨水屏局部刷新和 I2S PCM 捕获修复见
-[`docs/uiflow2-cross-device-regression-audit.md`](docs/uiflow2-cross-device-regression-audit.md)。
-
-## 当前剩余工作与工期
-
-当前 14 台设备中 13 台已完成登记外设的模拟数据面闭环，Tab5 是唯一
-`partial` 设备。若继续使用闭源的 `esp-emu 0.50.0` P4 后端，动态 I2C、
-P4 I2S/PCM、MIPI-CSI、USB Host、SDIO 和控制器级触摸没有可用的扩展接口，
-因此 Tab5 完整闭环没有可靠工期，不是简单增加模型代码即可解决。
-
-若改为可扩展或可编译的 P4 后端，按串行实施粗估：
-
-| 工作 | 预计 |
-| --- | --- |
-| 动态 I2C + PMIC/RTC/IMU/充电器 | 3–5 工作日 |
-| P4 I2S/PCM | 2–4 工作日 |
-| MIPI-CSI/SC2356 | 3–5 工作日 |
-| USB Host | 4–7 工作日 |
-| SDIO | 2–4 工作日 |
-| ST7123/IP2326 | 2–3 工作日 |
-| 集成、全量回归、真机补测 | 3–5 工作日 |
-
-串行约 4–6 工作周，具备并行条件时约 2–3 工作周。未来新增普通外设设备约
-1–3 工作日；带音频、摄像头、USB 或无线等复杂能力的设备约 3–7 工作日，
-再加 1–3 工作日真机验证。任何工期估算都不替代里程碑前的干净全量矩阵和真机验收。
-
-## 外设 API 测试
-
-StickS3、AtomS3R、CoreS3、StopWatch、StamPLC、StackChan、Cardputer-ADV、
-PaperMono、PaperColor、Core2 与 Nesso N1 的 IMU、磁力计、按键、触摸、
-电源、RTC、继电器、IO 扩展器、电量计、充电器、INA226/INA3221、SDMMC、
-SPI SD、RMT/NEC 红外、I2C NFC、音频 PCM、PDM 麦克风、舵机和摄像头探测
-结果见
-[`docs/uiflow2-peripheral-test-matrix.md`](docs/uiflow2-peripheral-test-matrix.md)。
+全量矩阵只在发布、里程碑或跨设备大改时运行：
 
 ```bash
 PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   --out-dir /tmp/m5-uiflow2-peripheral-matrix
-python3 tests/uiflow2/run_peripheral_matrix.py \
-  --device stackchan --out-dir /tmp/m5-stackchan-peripherals
 ```
 
-当前已确认 BMI270 完整配置与数据读取、BMM150 Sensor Hub、触摸/PWR、
-电源与 RTC、GPIO 扩展器、INA226/INA3221、SDMMC/SPI SD 块读写、
-RMT/NEC 红外收发、ST25R3916 NFC、ESP32-S3 与 ESP32 classic I2S/PDM
-音频注入与抓取、SCS 舵机，以及 GC0308 + LCD_CAM + GDMA 的
-`camera.snapshot()` 和屏幕显示闭环。StamPLC 的 TWAI CAN、PWR485 和
-I2S 蜂鸣器也已通过虚拟对端双向验收；Nesso N1 的 BQ27220 电量计、
-AW32001 充电器与双 PI4IOE 也已闭环。CardputerZero 的 IMX219 已通过
-Unicam CSI1 输出由 V4L2 控制项驱动的可重复帧；GL852G MTT 兼容路径已通过
-Full-Speed 以太网和 Low-Speed HID。Tab5 的 SIT3088 RS-485 已通过
-UART1 半双工 TX/RX 主机对端验收；MIPI-CSI、ES8388、P4 I2S/PCM、
-SDIO 等尚未闭环的外设仍按器件登记，
-不会用 Python 假数据或“通用 I2C ACK”冒充完成。
+## 文档索引
 
-Tab5 的内部 I2C 已经通过 P4 控制器实际访问 `G31/G32`：INA226 厂商 ID 和校准
-寄存器、两颗 PI4IOE5V6408 的 ID/输出回读、RX8130 时间寄存器回读均通过。
-INA226 场景覆盖充电 `8000mV / 1248mA / 87%` 和低电量放电
-`7200mV / -501mA / 37%`；PI4IOE2 的主动低电平 CHG_STAT 也已让
-`Power.isCharging()` 在充电/放电两种状态下正确返回。
-Tab5 BMI270 仍只确认地址响应，且 UIFlow2 启动路径会清除预载 CHIP_ID；
-实测从 `main.py` 写回 `0x24` 可成功，说明 P4 I2C 控制器和寄存器设备正常，
-但还缺少真实复位/初始化状态机与动态采样，因此 Tab5 继续保持 `partial`。
-所需 P4 后端接口和逐项验收条件见
-[`docs/p4-peripheral-backend-requirements.md`](docs/p4-peripheral-backend-requirements.md)。
+- [项目 Backlog](docs/project-backlog.md)
+- [设备服务架构](docs/simulator-service-architecture.md)
+- [设备服务 API](docs/device-service-api.md)
+- [设备高保真建模 Backlog](docs/device-visual-fidelity-backlog.md)
+- [虚拟主机适配矩阵](docs/qemu-device-adaptation-matrix.md)
+- [外设仿真架构](docs/peripheral-simulation-architecture.md)
+- [固件审查工作流](docs/firmware-review-and-simulation-workflow.md)
+- [网络模拟方案](docs/network-simulation-plan.md)
+- [Tab5 暂缓项](docs/tab5-deferred-backlog.md)
+- [维护与验证规则](AGENTS.md)
 
-外设契约现在同时检查模型和板级后端：`simulated` 模型必须有数据面、注入
-接口和已验证设备；设备只要引用 `partial/planned` 组件，就必须逐项声明
-相同的阻塞模型。新增设备或外设若只实现显示/触摸，CI 会直接失败。
+## 边界
 
-设备中心可直接读取完整外设清单：
-
-```bash
-python3 platform/tools/peripheral_inventory.py
-python3 platform/tools/peripheral_inventory.py --device cardputer-zero --json
-curl http://127.0.0.1:8787/api/peripherals
-curl http://127.0.0.1:8787/api/peripherals/stackchan
-curl http://127.0.0.1:8787/api/peripheral-interfaces
-curl http://127.0.0.1:8787/api/peripheral-interfaces/bmi270
-```
-
-外设接口清单会把证据矩阵里的 QOM、QMP、PCM、RMT、SD、UART 和 framebuffer
-操作展开成机器可读描述；设备清单中的 `runtime_cases` 则给出该设备实际需要
-执行的矩阵或 external probe。
-
-## 参考项目与致谢
-
-本项目的多主控适配和验证流程参考了以下公开项目：
-
-- [zqqf16/M5StopWatch-QEMU](https://github.com/zqqf16/M5StopWatch-QEMU)：
-  StopWatch QEMU 适配、板级模型与早期 UI 验证思路的重要参考。
-- [espressif/esp-emulator](https://github.com/espressif/esp-emulator)：
-  ESP32-C3/C6/P4 RISC-V 运行时、esptool 下载接口、UART/GDB 控制能力。
-- [espressif/qemu](https://github.com/espressif/qemu)：
-  ESP32/S3/P4 QEMU SoC 与板级模型的源码基础。
-- [m5stack/uiflow-micropython](https://github.com/m5stack/uiflow-micropython)：
-  UIFlow2 固件构建、板型配置和 MicroPython API 来源。
-- [m5stack/M5GFX](https://github.com/m5stack/M5GFX) 与
-  [m5stack/M5Unified](https://github.com/m5stack/M5Unified)：
-  显示、触摸、板型探测和设备外设路径。
-- [espressif/esp-toolchain-docs](https://github.com/espressif/esp-toolchain-docs)：
-  QEMU 与 esptool/ESP-IDF 联调方法的公开文档。
-- [m5stack/m5stack-linux-dtoverlays](https://github.com/m5stack/m5stack-linux-dtoverlays)：
-  CardputerZero 官方 Linux 设备树 overlay 来源。
-- [CardputerZero/FactoryTest](https://github.com/CardputerZero/FactoryTest)：
-  CardputerZero 官方外设探测、音频、摄像头和电源接口行为参考。
-- [torvalds/linux `sound/soc/codecs/es8389.c`](https://github.com/torvalds/linux/blob/master/sound/soc/codecs/es8389.c)
-  与 [bouffalolab/bouffalo_sdk `audio_codec_es8389.c`](https://github.com/bouffalolab/bouffalo_sdk/blob/master/bsp/common/audio_codec/audio_codec_es8389.c)：
-  ES8389 寄存器布局、身份寄存器与编解码控制路径参考。
-- [Linux `r8152.c`](https://github.com/raspberrypi/linux/blob/rpi-6.6.y/drivers/net/usb/r8152.c)
-  与 [CoreChips SR9900A 数据手册](https://www.lcsc.com/datasheet/C521278.pdf)：
-  SR9900A 的 RTL8152-compatible USB 控制、TX/RX 描述符和以太网数据面参考。
-- [Genesys Logic GL852G 数据手册](https://www.lcsc.com/datasheet/C7501404.pdf)：
-  `05e3:0610` 默认身份、四口 Hub 与 USB 2.0 行为参考。
-
-各组件的许可与二进制再分发边界见
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
-
-## 当前边界
-
-- 官方 UIFlow2 merged bin 不保证在仿真器中完成板级初始化。
-- 除 StopWatch UserDemo 外，其余设备的 framebuffer 回传依赖对应 QEMU board model；当前 9 台 S3、Nesso N1、Core2 和 Tab5 已通过 screendump/原生 framebuffer 与输入重绘。
-- ESP32-S3/C6/P4 的测试镜像通过 `esp-emu` + `esptool` 写入；Core2 通过 QEMU ESP32 ROM + `esptool --no-stub` 写入，均由测试端逐字节校验完整虚拟 flash。
-- NanoC6 本身没有板载显示屏；其模拟页面以控制台和设备状态为主。
-- CardputerZero 是 Linux ARM64，不是 ESP32/UIFlow2 固件目标；其官方镜像和
-  当前登记的外设数据面已通过 QEMU 验证，但不能用 UIFlow2 真机状态标签描述。
-- 仿真不能替代真机屏幕、音频、电源、射频、总线时序和产线烧录验收。
-- 公开仓库不包含第三方固件、ROM、设备序列号或云端凭据；相关文件需按各自许可自行获取。
+- 仿真 PASS 不等于真机 PASS。
+- 当前网络模拟尚未接入统一设备服务。
+- Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。
+- CardputerZero 不是 UIFlow2/ESP32 固件目标。
+- 公开仓库不包含第三方固件、ROM、设备标识或云端凭据。
 
 ## License
 
-项目原创代码与文档采用 [MIT License](LICENSE)。QEMU 补丁、内置 WASM、
-产品参考图和上游代码片段继续遵循各自许可，详见
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
+项目原创代码与文档采用 [MIT License](LICENSE)。QEMU 补丁、WASM、产品参考图
+和上游代码片段遵循各自许可，见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
