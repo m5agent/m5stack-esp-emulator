@@ -33,7 +33,9 @@ Validated on `2026-10-22`:
 - the ESP-IDF DNS/UDP fixture passes host-forwarder DNS resolution and a
   controlled UDP request/reply through the user-mode gateway;
 - the Device Service exposes `runtime=network` one-shot sessions and a
-  `/sessions/{id}/network` evidence endpoint.
+  `/sessions/{id}/network` evidence endpoint;
+- the classic ESP32 QEMU machine's `open_eth` device reaches DHCP and downloads
+  a complete 1 MiB HTTP body in the `core2_openeth` ESP-IDF fixture.
 
 What is not yet proven:
 
@@ -56,7 +58,7 @@ does not mean the device is online.
 | ESP32-S3 boards, including CoreS3, StickS3, StackChan and StopWatch | `esp-emu` WiFi SoftAP + user/TAP backend | StickS3 WiFi/DHCP/TCP and BLE independently PASS; other S3 profiles await device-level runs |
 | ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | HTTP and same-instance WiFi+BLE coexist PASS at chip level; device-local reruns pending |
 | ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
-| ESP32 LX6 Core2 | Current QEMU path has no WiFi MAC/PHY model; `esp-emu` native target list does not include classic ESP32 | Needs a separate WiFi/PHY model or a different runtime; not covered by the first network lane |
+| ESP32 LX6 Core2 | QEMU OpenETH fixture passes DHCP plus a 1 MiB HTTP transfer; stock firmware selects WiFi instead | Ethernet data plane PASS; WiFi MAC/PHY and BLE remain `NOT RUN` and need a separate model/runtime |
 | CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |
 
 Therefore “all simulated devices online” needs two scopes:

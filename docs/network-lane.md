@@ -66,6 +66,13 @@ Every run writes `serial.log`, `ble-probe.log` and `evidence.json` under the
 selected output directory. Binary hashes identify the exact firmware, ELF and
 emulator used. Passwords are redacted from the command and evidence.
 
+The classic ESP32/Core2 QEMU path has a separate Ethernet fixture at
+`tests/network/core2_openeth/`. It selects `CONFIG_ETH_USE_OPENETH` explicitly,
+passes DHCP and a complete 1 MiB HTTP download, and records `wifi_claimed:
+false`. This is not interchangeable with stock Core2 firmware, whose
+`network.WLAN` or `esp_wifi_*` path still requires a classic ESP32 WiFi
+MAC/PHY model.
+
 The Device Service wraps the same runner as a one-shot
 `runtime=network` session. It returns the normal session lifecycle, serial
 read/log/evidence endpoints and `GET /sessions/{id}/network`; network sessions

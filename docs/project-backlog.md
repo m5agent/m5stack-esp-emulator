@@ -31,6 +31,8 @@ Implemented on 2026-10-22:
   write/readback;
 - host-forwarder DNS plus controlled UDP request/reply;
 - Device Service `runtime=network` sessions and evidence endpoint.
+- classic ESP32 QEMU OpenETH DHCP plus complete 1 MiB HTTP transfer in a
+  dedicated fixture, without claiming WiFi support.
 
 Still open:
 
