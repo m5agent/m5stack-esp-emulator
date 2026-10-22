@@ -66,6 +66,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
         self.assertEqual(rows["cores3"]["network_status"], "validated")
         self.assertTrue(rows["cores3"]["features"]["network"])
+        self.assertEqual(rows["stopwatch"]["network_status"], "validated")
+        self.assertTrue(rows["stopwatch"]["features"]["network"])
         for blocked in (
             "atoms3r",
             "cardputer-adv",
@@ -73,7 +75,6 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "papermono",
             "stackchan",
             "stamplc",
-            "stopwatch",
         ):
             self.assertEqual(
                 rows[blocked]["network_status"],

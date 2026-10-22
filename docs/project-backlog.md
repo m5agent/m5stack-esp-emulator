@@ -30,6 +30,9 @@ Implemented on 2026-10-22:
 - CoreS3 UIFlow2 source rebuilt with UART REPL enabled for observation; the
   same instance passes WiFi association/DHCP and BLE GATT write with guest
   delivery, including through Device Service;
+- StopWatch UIFlow2 source rebuilt with UART REPL enabled; the same instance
+  and Device Service both pass WiFi association/DHCP and BLE GATT write with
+  guest delivery;
 - C6 WiFi stays active during external Bumble scan/connect/GATT
   write/readback;
 - host-forwarder DNS plus controlled UDP request/reply;
@@ -42,7 +45,7 @@ Implemented on 2026-10-22:
 Still open:
 
 - isolated DNS policy and host packet summaries;
-- stock UIFlow2 same-instance network runs for AtomS3R, StopWatch and the
+- stock UIFlow2 same-instance network runs for AtomS3R and the
   remaining S3 models using an observable UART-REPL test build;
 - combined board-peripheral plus network guest.
 
