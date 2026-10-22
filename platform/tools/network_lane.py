@@ -78,6 +78,7 @@ class LaneConfig:
     ble_port: int
     ble_name: str
     tcp: bool
+    expected_markers: list[str]
 
 
 @dataclass
@@ -225,6 +226,8 @@ def build_emulator_command(
     }.get(config.profile)
     if exit_marker:
         command.extend(["--exit-on", exit_marker])
+    for marker in config.expected_markers:
+        command.extend(["--exit-on", marker])
     if config.profile == "uiflow2-sticks3":
         injection = {
             "stages": [
@@ -412,6 +415,18 @@ def check_http_evidence(serial: str, requests: list[str]) -> dict[str, bool]:
     }
 
 
+def check_generic_evidence(
+    serial: str,
+    expected_markers: list[str],
+) -> dict[str, bool]:
+    if expected_markers:
+        return {
+            f"marker:{index + 1}": marker in serial
+            for index, marker in enumerate(expected_markers)
+        }
+    return {"runtime_output": bool(serial.strip())}
+
+
 def check_smoke_evidence(serial: str, require_ble: bool) -> dict[str, bool]:
     checks = {
         "wifi_dhcp": bool(
@@ -540,12 +555,17 @@ def execute(config: LaneConfig) -> dict:
     elif config.profile == "esp-idf-http":
         checks = check_http_evidence(serial, initial_requests)
         values = {}
+    elif config.profile == "generic-observe":
+        checks = check_generic_evidence(serial, config.expected_markers)
+        values = {}
     else:
         checks = check_smoke_evidence(serial, require_ble=config.ble)
         values = {}
 
     required = list(checks)
     passed = all(checks[name] for name in required)
+    if config.profile == "generic-observe" and not config.expected_markers:
+        passed = False
     if not passed and any(checks[name] for name in required):
         status = "PARTIAL"
     else:
@@ -625,7 +645,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--profile",
-        choices=("uiflow2-sticks3", "esp-idf-http", "esp-idf-smoke"),
+        choices=(
+            "uiflow2-sticks3",
+            "esp-idf-http",
+            "esp-idf-smoke",
+            "generic-observe",
+        ),
         default="uiflow2-sticks3",
     )
     parser.add_argument("--chip", default="esp32s3")
@@ -647,6 +672,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--ble", action=argparse.BooleanOptionalAction)
     parser.add_argument("--ble-port", type=int)
     parser.add_argument("--ble-name", default="M5-NETWORK-LANE")
+    parser.add_argument(
+        "--expect",
+        action="append",
+        default=[],
+        help="required serial marker for generic-observe; repeatable",
+    )
     parser.add_argument("--tcp", action=argparse.BooleanOptionalAction)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--json", action="store_true")
@@ -679,6 +710,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.tcp is None
             else args.tcp
         ),
+        expected_markers=list(args.expect),
     )
     if args.dry_run:
         firmware_copy = config.out_dir / "firmware-under-test.bin"

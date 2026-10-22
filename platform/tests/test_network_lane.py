@@ -14,6 +14,7 @@ from network_lane import (  # noqa: E402
     LaneConfig,
     LaneError,
     build_emulator_command,
+    check_generic_evidence,
     check_http_evidence,
     check_smoke_evidence,
     check_uiflow2_evidence,
@@ -41,6 +42,7 @@ def config(tmp: Path, **changes) -> LaneConfig:
         "ble_port": 9544,
         "ble_name": "M5-NETWORK-LANE",
         "tcp": True,
+        "expected_markers": [],
     }
     values.update(changes)
     return LaneConfig(**values)
@@ -190,6 +192,16 @@ RESULT_SUMMARY: passed=34 failed=0 target=esp32s3
         checks = check_smoke_evidence(serial, require_ble=True)
         self.assertTrue(checks["wifi_dhcp"])
         self.assertFalse(checks["ble_advertising"])
+
+    def test_generic_observations_are_partial_without_assertions(self):
+        checks = check_generic_evidence("firmware booted\n", [])
+        self.assertEqual(checks, {"runtime_output": True})
+        asserted = check_generic_evidence(
+            "APP_READY\n",
+            ["APP_READY", "NETWORK_READY"],
+        )
+        self.assertTrue(asserted["marker:1"])
+        self.assertFalse(asserted["marker:2"])
 
     def test_rejects_classic_esp32_before_process_launch(self):
         with tempfile.TemporaryDirectory() as directory:

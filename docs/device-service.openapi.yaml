@@ -833,7 +833,7 @@ components:
           type: array
           items:
             type: string
-            enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke]
+            enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, generic-observe]
         firmware_families:
           type: array
           items:
@@ -950,7 +950,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke]
+          enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, generic-observe]
         wifi:
           type: boolean
         ble:
@@ -977,6 +977,13 @@ components:
         elf_artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
+        expected_markers:
+          type: array
+          maxItems: 16
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
         timeout_seconds:
           type: number
           minimum: 5

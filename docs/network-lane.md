@@ -45,6 +45,12 @@ The `esp-idf-smoke` profile runs the upstream comprehensive smoke image. It
 asserts WiFi/DHCP and, when `--ble` is requested, NimBLE advertising and the
 smoke summary.
 
+The `generic-observe` profile runs an arbitrary compatible image for the
+observation window. Without `--expect` it records `PARTIAL` plus serial output;
+repeat `--expect MARKER` to turn application output into explicit PASS/FAIL
+checks. This is the fallback for firmware whose startup protocol is not known
+in advance.
+
 Every run writes `serial.log`, `ble-probe.log` and `evidence.json` under the
 selected output directory. Binary hashes identify the exact firmware, ELF and
 emulator used. Passwords are redacted from the command and evidence.

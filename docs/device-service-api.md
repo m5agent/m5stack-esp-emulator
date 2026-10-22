@@ -261,6 +261,10 @@ Profiles are:
 - `esp-idf-smoke`: WiFi, DHCP and the upstream comprehensive smoke suite;
 - `uiflow2-sticks3`: UIFlow2 network/BLE probe. BLE requires a matching ELF
   uploaded as an artifact and referenced by `elf_artifact_id`.
+- `generic-observe`: runs an arbitrary compatible image for the requested
+  timeout window. With no `expected_markers` the result is `PARTIAL` and
+  proves only that the process/serial path ran; add up to 16 marker strings to
+  obtain an application-level PASS/FAIL assertion.
 
 For the current StickS3 BLE proof, use
 `{"profile":"uiflow2-sticks3","wifi":false,"ble":true,"elf_artifact_id":"..."}`.

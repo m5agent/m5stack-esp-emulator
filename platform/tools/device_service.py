@@ -76,7 +76,12 @@ DEFAULT_NETWORK_EMULATOR = (
     / ".work/esp-emu-versions/0.50.0"
     / "esp-emu-0.50.0-aarch64-apple-darwin/esp-emu"
 )
-NETWORK_PROFILES = {"uiflow2-sticks3", "esp-idf-http", "esp-idf-smoke"}
+NETWORK_PROFILES = {
+    "uiflow2-sticks3",
+    "esp-idf-http",
+    "esp-idf-smoke",
+    "generic-observe",
+}
 
 
 def iso_now() -> str:
@@ -152,6 +157,7 @@ def parse_network_execution(
         "esp-idf-http": {"wifi": True, "ble": False, "tcp": True},
         "esp-idf-smoke": {"wifi": True, "ble": True, "tcp": False},
         "uiflow2-sticks3": {"wifi": False, "ble": True, "tcp": False},
+        "generic-observe": {"wifi": True, "ble": False, "tcp": False},
     }[profile]
 
     def boolean(name: str) -> bool:
@@ -218,6 +224,20 @@ def parse_network_execution(
             "uiflow2-sticks3 BLE requires network.elf_artifact_id",
             400,
         )
+    expected_markers = value.get("expected_markers", [])
+    if (
+        not isinstance(expected_markers, list)
+        or len(expected_markers) > 16
+        or any(
+            not isinstance(marker, str) or not 1 <= len(marker) <= 200
+            for marker in expected_markers
+        )
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.expected_markers must contain at most 16 short strings",
+            400,
+        )
     return {
         "profile": profile,
         "chip": spec.network_chip,
@@ -231,6 +251,7 @@ def parse_network_execution(
         "ble_name": ble_name,
         "timeout_seconds": timeout,
         "elf_artifact_id": elf_artifact_id,
+        "expected_markers": expected_markers,
     }
 
 
@@ -1976,6 +1997,8 @@ class NetworkDeviceSession(DeviceSession):
                     str(self.service.artifacts.path(str(elf_artifact_id))),
                 ]
             )
+        for marker in self.network_config.get("expected_markers", []):
+            command.extend(["--expect", str(marker)])
         env = os.environ.copy()
         env["PYTHONPATH"] = os.pathsep.join(
             filter(
@@ -2062,10 +2085,10 @@ class NetworkDeviceSession(DeviceSession):
                 return
             self.network_result = evidence
             status = str(evidence.get("status") or "FAIL")
-            self.state = "stopped" if status == "PASS" else "failed"
+            self.state = "stopped" if status in {"PASS", "PARTIAL"} else "failed"
             self.error = (
                 None
-                if status == "PASS"
+                if status in {"PASS", "PARTIAL"}
                 else f"network lane completed with status {status}"
             )
             self.completed_at = self.completed_at or iso_now()
