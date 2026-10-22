@@ -168,21 +168,41 @@ class DeviceServiceUnitTests(unittest.TestCase):
             },
         )
         self.assertEqual(generic["expected_markers"], ["APP_READY"])
+        self.assertEqual(generic["net_mode"], "user,restrict=yes")
         dns_udp = device_service_module.parse_network_execution(
             self.service.specs["sticks3"],
             {"profile": "idf-dns-udp"},
         )
         self.assertFalse(dns_udp["tcp"])
+        self.assertEqual(dns_udp["net_mode"], "user")
+        generic_open = device_service_module.parse_network_execution(
+            self.service.specs["sticks3"],
+            {
+                "profile": "generic-observe",
+                "net_mode": "user",
+            },
+        )
+        self.assertEqual(generic_open["net_mode"], "user")
+        with self.assertRaises(ServiceError) as invalid_mode:
+            device_service_module.parse_network_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "generic-observe",
+                    "net_mode": "tap,ifname=bridge0",
+                },
+            )
+        self.assertEqual(invalid_mode.exception.code, "invalid_network")
 
     def test_network_session_runs_isolated_lane_and_retains_evidence(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
         fake_lane.write_text(
             "#!/usr/bin/env python3\n"
-            "import argparse,json,pathlib\n"
+            "import argparse,json,pathlib,sys\n"
             "p=argparse.ArgumentParser()\n"
             "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
             "a,_=p.parse_known_args()\n"
             "a.out_dir.mkdir(parents=True,exist_ok=True)\n"
+            "(a.out_dir/'argv.json').write_text(json.dumps(sys.argv[1:]))\n"
             "(a.out_dir/'serial.log').write_text('LANE_DONE\\n')\n"
             "e={'status':'PASS','checks':{'wifi_dhcp':True}}\n"
             "(a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
@@ -233,6 +253,9 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 session.network_evidence()["checks"]["wifi_dhcp"],
                 True,
             )
+            argv = json.loads((session.network_dir / "argv.json").read_text())
+            net_mode_index = argv.index("--net-mode")
+            self.assertEqual(argv[net_mode_index + 1], "user")
             bundle = session.evidence_bundle(
                 {"manifest", "network", "serial", "logs"}
             )
@@ -250,6 +273,74 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(restored["network"]["status"], "PASS")
             finally:
                 restored_service.close_all()
+        finally:
+            device_service_module.NETWORK_LANE = old_lane
+            if old_emulator is None:
+                os.environ.pop("M5_NETWORK_EMULATOR", None)
+            else:
+                os.environ["M5_NETWORK_EMULATOR"] = old_emulator
+
+    def test_generic_network_session_passes_restricted_backend(self):
+        fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
+        fake_lane.write_text(
+            "#!/usr/bin/env python3\n"
+            "import argparse,json,pathlib,sys\n"
+            "p=argparse.ArgumentParser()\n"
+            "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
+            "a,_=p.parse_known_args()\n"
+            "a.out_dir.mkdir(parents=True,exist_ok=True)\n"
+            "(a.out_dir/'argv.json').write_text(json.dumps(sys.argv[1:]))\n"
+            "e={'status':'PARTIAL','checks':{}}\n"
+            "(a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            "print(json.dumps(e))\n"
+        )
+        fake_lane.chmod(0o755)
+        fake_emulator = Path(self.tmp.name) / "esp-emu"
+        fake_emulator.write_bytes(b"fake")
+        old_lane = device_service_module.NETWORK_LANE
+        device_service_module.NETWORK_LANE = fake_lane
+        old_emulator = os.environ.get("M5_NETWORK_EMULATOR")
+        os.environ["M5_NETWORK_EMULATOR"] = str(fake_emulator)
+        try:
+            artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)
+            firmware = self.service.create_firmware(
+                {
+                    "device_id": "sticks3",
+                    "kind": "merged",
+                    "artifact_id": artifact["artifact_id"],
+                }
+            )
+            created = self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "firmware_id": firmware["firmware_id"],
+                    "runtime": "network",
+                    "network": {
+                        "profile": "generic-observe",
+                        "timeout_seconds": 10,
+                        "expected_markers": ["APP_READY"],
+                    },
+                }
+            )
+            session = self.service.get_session(created["session_id"])
+            deadline = time.time() + 5
+            while (
+                time.time() < deadline
+                and session.state in {
+                    "provisioning",
+                    "flashing",
+                    "booting",
+                    "running",
+                }
+            ):
+                time.sleep(0.02)
+            self.assertEqual(session.snapshot()["state"], "stopped")
+            argv = json.loads((session.network_dir / "argv.json").read_text())
+            net_mode_index = argv.index("--net-mode")
+            self.assertEqual(
+                argv[net_mode_index + 1],
+                "user,restrict=yes",
+            )
         finally:
             device_service_module.NETWORK_LANE = old_lane
             if old_emulator is None:

@@ -268,7 +268,13 @@ Profiles are:
 - `generic-observe`: runs an arbitrary compatible image for the requested
   timeout window. With no `expected_markers` the result is `PARTIAL` and
   proves only that the process/serial path ran; add up to 16 marker strings to
-  obtain an application-level PASS/FAIL assertion.
+  obtain an application-level PASS/FAIL assertion. This profile defaults to
+  the `user,restrict=yes` network backend so unidentified firmware cannot
+  reach the workstation LAN or the public internet.
+
+`network.net_mode` accepts `user` or `user,restrict=yes`. Validated test
+profiles default to `user`; callers may explicitly select restricted mode.
+Use `user` for unrecognized firmware only inside a disposable VM.
 
 For StickS3 BLE-only, use
 `{"profile":"uiflow2-sticks3","wifi":false,"ble":true,"elf_artifact_id":"..."}`.

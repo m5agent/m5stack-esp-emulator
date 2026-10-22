@@ -163,6 +163,16 @@ def parse_network_execution(
         "uiflow2-sticks3": {"wifi": False, "ble": True, "tcp": False},
         "generic-observe": {"wifi": True, "ble": False, "tcp": False},
     }[profile]
+    net_mode = value.get(
+        "net_mode",
+        "user,restrict=yes" if profile == "generic-observe" else "user",
+    )
+    if net_mode not in {"user", "user,restrict=yes"}:
+        raise ServiceError(
+            "invalid_network",
+            "network.net_mode must be 'user' or 'user,restrict=yes'",
+            400,
+        )
 
     def boolean(name: str) -> bool:
         candidate = value.get(name, defaults[name])
@@ -265,6 +275,7 @@ def parse_network_execution(
         "timeout_seconds": timeout,
         "elf_artifact_id": elf_artifact_id,
         "expected_markers": expected_markers,
+        "net_mode": net_mode,
     }
 
 
@@ -1996,6 +2007,8 @@ class NetworkDeviceSession(DeviceSession):
             str(self.network_config.get("wifi_auth", "wpa2-wpa3")),
             "--psram-size",
             str(self.network_config.get("psram_size", "8M")),
+            "--net-mode",
+            str(self.network_config.get("net_mode", "user")),
             "--ble-name",
             str(self.network_config.get("ble_name", "M5-NETWORK-LANE")),
             "--wifi" if self.network_config.get("wifi") else "--no-wifi",

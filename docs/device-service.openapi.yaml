@@ -970,6 +970,12 @@ components:
         psram_size:
           type: string
           enum: ["0", 2M, 4M, 8M, 16M, 32M, 64M]
+        net_mode:
+          type: string
+          enum: [user, "user,restrict=yes"]
+          description: >
+            Guest network backend. generic-observe defaults to
+            user,restrict=yes; validated profiles default to user.
         ble_name:
           type: string
           minLength: 1

@@ -58,7 +58,8 @@ service, write the static characteristic and verify the readback.
 The `generic-observe` profile runs an arbitrary compatible image for the
 observation window. Without `--expect` it records `PARTIAL` plus serial output;
 repeat `--expect MARKER` to turn application output into explicit PASS/FAIL
-checks. This is the fallback for firmware whose startup protocol is not known
+checks. The Device Service selects `user,restrict=yes` for this profile by
+default. This is the fallback for firmware whose startup protocol is not known
 in advance.
 
 Every run writes `serial.log`, `ble-probe.log` and `evidence.json` under the
@@ -81,8 +82,11 @@ A PASS proves only the listed data planes in the emulator. It does not prove:
 - firmware safety, isolation or malware containment.
 
 The `user` network backend is suitable for functional tests in a trusted
-workstation workflow. Untrusted firmware still requires a disposable VM or a
-network namespace with egress restrictions and packet capture.
+workstation workflow. The Device Service defaults `generic-observe` to
+`user,restrict=yes`, which blocks off-guest egress while retaining guest DHCP.
+An explicitly selected `user` backend is still not a malware boundary:
+untrusted firmware requires a disposable VM or a network namespace with egress
+restrictions and packet capture.
 
 ## Current proof
 
