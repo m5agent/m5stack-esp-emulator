@@ -293,6 +293,17 @@ def resolve_community_firmware(
     return result
 
 
+def intake_status(*, analyze: bool, result: dict) -> str:
+    if not analyze:
+        return "PASS"
+    analysis = result.get("analysis")
+    return (
+        "PASS"
+        if isinstance(analysis, dict) and analysis.get("valid") is True
+        else "PARTIAL"
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("device", nargs="?", help="device id, e.g. stopwatch")
@@ -372,7 +383,12 @@ def main() -> None:
                 )
                 print(f"    FAILED: {error}", file=sys.stderr)
                 continue
-            result["status"] = "PASS"
+            result["status"] = intake_status(
+                analyze=args.analyze,
+                result=result,
+            )
+            if result["status"] != "PASS":
+                failures += 1
             results.append(result)
             print(
                 f"    {result['bytes']} bytes  sha256={result['sha256']}",

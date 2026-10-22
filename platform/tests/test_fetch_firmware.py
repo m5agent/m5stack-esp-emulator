@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 from fetch_firmware import (  # noqa: E402
     current_download_from_detail,
     download_url_from_detail,
+    intake_status,
     merge_current_version,
 )
 
@@ -112,6 +113,23 @@ class FirmwareResolverTests(unittest.TestCase):
         self.assertEqual(version["visibility"], "PUBLIC")
         self.assertEqual(version["status"], "PUBLISHED")
         self.assertEqual(version["binFileName"], "firmware.merged.bin")
+
+    def test_intake_status_separates_download_and_static_validity(self):
+        self.assertEqual(intake_status(analyze=False, result={}), "PASS")
+        self.assertEqual(
+            intake_status(
+                analyze=True,
+                result={"analysis": {"valid": True}},
+            ),
+            "PASS",
+        )
+        self.assertEqual(
+            intake_status(
+                analyze=True,
+                result={"analysis": {"valid": False}},
+            ),
+            "PARTIAL",
+        )
 
 
 if __name__ == "__main__":
