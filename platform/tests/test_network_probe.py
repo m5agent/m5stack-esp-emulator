@@ -40,10 +40,17 @@ class NetworkProbeProvenanceTests(unittest.TestCase):
                 "flash_size": "0x800000",
             }
             recorded_base_hash = self.runner.sha256(base)
-            self.runner.write_build_provenance(image, base, device)
+            files_dir = root / "probe"
+            files_dir.mkdir()
+            (files_dir / "main.py").write_text("print('probe')\n")
+            self.runner.write_build_provenance(image, base, device, files_dir)
 
             base.write_bytes(b"replaced-base")
-            provenance = self.runner.load_build_provenance(image, "sticks3")
+            provenance = self.runner.load_build_provenance(
+                image,
+                "sticks3",
+                files_dir,
+            )
 
             self.assertEqual(provenance["base_sha256"], recorded_base_hash)
             self.assertNotEqual(provenance["base_sha256"], self.runner.sha256(base))
@@ -54,7 +61,10 @@ class NetworkProbeProvenanceTests(unittest.TestCase):
             image.write_bytes(b"probe-image")
 
             with self.assertRaisesRegex(RuntimeError, "requires build provenance"):
-                self.runner.load_build_provenance(image, "sticks3")
+                probe = Path(temporary) / "probe"
+                probe.mkdir()
+                (probe / "main.py").write_text("print('probe')\n")
+                self.runner.load_build_provenance(image, "sticks3", probe)
 
     def test_reused_image_rejects_changed_image(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -69,11 +79,18 @@ class NetworkProbeProvenanceTests(unittest.TestCase):
                 "vfs_size": "0x1BE000",
                 "flash_size": "0x800000",
             }
-            self.runner.write_build_provenance(image, base, device)
+            files_dir = root / "probe"
+            files_dir.mkdir()
+            (files_dir / "main.py").write_text("print('probe')\n")
+            self.runner.write_build_provenance(image, base, device, files_dir)
             image.write_bytes(b"different-image")
 
             with self.assertRaisesRegex(RuntimeError, "image hash mismatch"):
-                self.runner.load_build_provenance(image, "sticks3")
+                self.runner.load_build_provenance(
+                    image,
+                    "sticks3",
+                    files_dir,
+                )
 
     def test_provenance_sidecar_is_stable_json(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -88,7 +105,10 @@ class NetworkProbeProvenanceTests(unittest.TestCase):
                 "vfs_size": "0x8D000",
                 "flash_size": "0x400000",
             }
-            self.runner.write_build_provenance(image, base, device)
+            files_dir = root / "probe"
+            files_dir.mkdir()
+            (files_dir / "main.py").write_text("print('probe')\n")
+            self.runner.write_build_provenance(image, base, device, files_dir)
             sidecar = self.runner.provenance_path(image)
             payload = json.loads(sidecar.read_text())
 
