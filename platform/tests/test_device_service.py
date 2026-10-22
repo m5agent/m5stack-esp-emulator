@@ -70,8 +70,9 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertTrue(rows["stopwatch"]["features"]["network"])
         self.assertEqual(rows["cardputer-adv"]["network_status"], "validated")
         self.assertTrue(rows["cardputer-adv"]["features"]["network"])
+        self.assertEqual(rows["atoms3r"]["network_status"], "validated")
+        self.assertTrue(rows["atoms3r"]["features"]["network"])
         for blocked in (
-            "atoms3r",
             "papercolor",
             "papermono",
             "stackchan",
