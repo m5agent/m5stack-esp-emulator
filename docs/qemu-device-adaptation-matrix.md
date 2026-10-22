@@ -33,6 +33,10 @@
 - PaperMono：480x800 四阶灰度电子纸、FT5x06 触摸、IP2315 充电状态。
 - Core2：320x240、FT5x06 触摸；通过 QEMU ESP32 ROM UART 下载模式和
   `esptool --no-stub` 写入 16 MiB 虚拟 flash。
+- Core2 网络边界：OpenETH 的 DHCP 与 1 MiB HTTP 数据面已单独通过；stock
+  UIFlow2 WiFi 在 `register_chipv7_phy` 首次访问缺失的 `0x60033c00` 时
+  panic，stock BLE 在 `btdm_app_ref_init` 首次访问缺失的 `0x3ff7120c`
+  时 panic。不得把 OpenETH PASS 算作 WiFi/BLE PASS。
 - NanoC6：无显示屏，验证 UIFlow2 控制台启动、板型探测、GPIO19/20 WS2812、
   GPIO9 按键、GPIO7 蓝色 LED 和红外发送。
 - Tab5：物理横向 1280x720、ST7123 触摸和 P4/C6 ESP-Hosted。

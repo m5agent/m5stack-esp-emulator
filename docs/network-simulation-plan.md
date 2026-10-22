@@ -45,6 +45,12 @@ What is not yet proven:
 - simultaneous board-level QEMU peripherals and WiFi in one guest instance;
 - packet capture, DNS policy, TLS/HTTP test services and multi-device isolation
   in the regular regression matrix;
+- stock Core2 UIFlow2 WiFi: the local baseline panics in
+  `register_chipv7_phy` on the first access to `0x60033c00` because the
+  classic ESP32 PHY/WiFi model is absent;
+- stock Core2 UIFlow2 BLE: the local baseline panics in `btdm_app_ref_init`
+  on `0x3ff7120c` because the classic ESP32 Bluetooth controller block is
+  absent;
 - security conclusions about untrusted firmware based only on network traffic.
 
 The QEMU ESP32-S3/LX6 board path currently contains PHY bring-up stubs, not an
