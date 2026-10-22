@@ -321,7 +321,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 row = gated.get_device("core2")
                 self.assertEqual(
                     row["network_profiles"],
-                    ["core2-openmac", "core2-ble-advertise"],
+                    [
+                        "core2-openmac",
+                        "core2-ble-advertise",
+                        "core2-hci-gatt",
+                    ],
                 )
                 self.assertEqual(row["network_status"], "unverified")
                 self.assertFalse(row["features"]["network"])
@@ -358,6 +362,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 },
             )
             self.assertEqual(parsed["profile"], "core2-ble-advertise")
+            hci_gatt = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["core2"],
+                {"profile": "core2-hci-gatt"},
+            )
+            self.assertEqual(hci_gatt["profile"], "core2-hci-gatt")
+            self.assertEqual(
+                hci_gatt["expected_markers"],
+                list(device_service_module.CORE2_HCI_GATT_MARKERS),
+            )
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_ble_execution(
                     self.service.specs["sticks3"],
@@ -655,6 +668,67 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(evidence["status"], "PASS")
         self.assertIn("WiFi", evidence["not_claimed"])
         self.assertIn("external BLE peer/GATT", evidence["not_claimed"])
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_qemu_ble_hci_gatt_evidence_and_bundle(self):
+        spec = self.service.specs["core2"]
+        firmware_path = Path(self.tmp.name) / "core2-hci-gatt.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="1" * 32,
+            spec=spec,
+            firmware_id="2" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="2" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="CORE2_HCI_BLE_ACK_SENT",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "core2-hci-gatt",
+                "expected_markers": list(
+                    device_service_module.CORE2_HCI_GATT_MARKERS
+                ),
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "CORE2_HCI_BLE_READY\n"
+            "CORE2_HCI_BLE_RX b'M5_CORE2_HCI'\n"
+            "CORE2_HCI_BLE_ACK_SENT\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_CORE2_HCI\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_CORE2_HCI\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-qemu-ble-hci-gatt-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertIn(
+            "native ESP32 Bluetooth radio/controller model",
+            evidence["not_claimed"],
+        )
+        bundle = session.evidence_bundle({"manifest", "serial", "logs", "network"})
+        with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+            self.assertIn("network/evidence.json", archive.namelist())
+            self.assertIn("ble-probe.log", archive.namelist())
         session.state = "stopped"
         session._proc = None
         session._qmp = None

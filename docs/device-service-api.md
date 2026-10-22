@@ -265,6 +265,31 @@ This scope currently proves stock UIFlow2 NimBLE activation, GAP configuration,
 controller reset and advertising enable. It does not provide an external BLE
 peer, over-the-air observation, connection or GATT data-plane evidence.
 
+The `core2-hci-gatt` profile exercises the separate HCI-offload lane:
+
+```json
+{
+  "device_id": "core2",
+  "runtime": "qemu-ble",
+  "network": {
+    "profile": "core2-hci-gatt",
+    "attempts": 3
+  }
+}
+```
+
+The uploaded firmware must use the UIFlow2 HCI-UART test configuration with
+the internal controller disabled. The service starts Bumble as an external
+controller, connects QEMU's UART1 chardev to it, and uses a second peer to
+scan, connect, discover NUS, subscribe, write and validate the guest notify.
+The session remains one QEMU instance, so serial, frame, QOM and BLE evidence
+are captured together. `/network` returns
+`kind=m5stack-qemu-ble-hci-gatt-proof` and the evidence ZIP contains both
+serial and `ble-probe.log`.
+
+This is HCI offload. It does not claim a native ESP32 radio/controller model,
+RF behavior, pairing/security or production throughput.
+
 State machine:
 
 ```text
@@ -635,8 +660,9 @@ after a service restart.
 - network sessions are a separate lane and do not combine board peripherals
   with the same guest instance;
 - Core2 radio support is limited to the environment-gated experimental
-  `qemu-wifi` and `qemu-ble` runtimes; BLE currently stops at controller and
-  advertising-enable evidence, without an external peer or GATT data plane;
+  `qemu-wifi` and `qemu-ble` runtimes. `core2-ble-advertise` stops at native
+  controller/advertising control; `core2-hci-gatt` closes an external Bumble
+  scan/connect/NUS GATT write+notify data plane but is not a native radio model;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the

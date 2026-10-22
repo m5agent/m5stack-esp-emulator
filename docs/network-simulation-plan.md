@@ -50,6 +50,9 @@ Validated on `2026-10-22`:
   FIFO/chardev to a Bumble controller; a second peer passes scan, connect, NUS
   discovery, subscription, write, guest receive and notify readback in 5/5
   repeated runs.
+- Device Service `runtime=qemu-ble` / `profile=core2-hci-gatt` runs that exchange
+  in the same QEMU session and exposes serial, frame, QOM, peer log and hashed
+  network evidence through `/api/v1`.
 
 What is not yet proven:
 
@@ -79,7 +82,7 @@ does not mean the device is online.
 | All modeled ESP32-S3 boards | `esp-emu` WiFi SoftAP + user/TAP backend | All nine S3 devices pass UIFlow2 WiFi+BLE on same-instance UART-REPL test builds |
 | ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | Device-local UIFlow2 WiFi+BLE PASS on same-source NanoC6 and Nesso N1 builds; ESP-IDF coexist also PASS |
 | ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
-| ESP32 LX6 Core2 | Optional OpenMAC WiFi and BT bootstrap QEMU models; separate OpenETH fixture; HCI-UART offload lane | Stock UIFlow2 WiFi scan + association + DHCP/IP + controlled HTTP PASS; native BLE active/config/advertising-enable PASS; HCI-offload external scan/connect/GATT write/notify `PASS 5/5`; native-controller peer/GATT, DNS and external internet `NOT RUN` |
+| ESP32 LX6 Core2 | Optional OpenMAC WiFi and BT bootstrap QEMU models; separate OpenETH fixture; HCI-UART offload lane | Stock UIFlow2 WiFi scan + association + DHCP/IP + controlled HTTP PASS; native BLE active/config/advertising-enable PASS; HCI-offload external scan/connect/GATT write/notify `PASS 5/5` and Device Service session PASS; native-controller peer/GATT, DNS and external internet `NOT RUN` |
 | CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |
 
 Therefore “all simulated devices online” needs two scopes:

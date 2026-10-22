@@ -58,6 +58,8 @@ Implemented on 2026-10-22:
   through QEMU UART1. An external peer passes scan, connection, NUS discovery,
   subscription, write, guest receive and notify readback in 5/5 runs. This is
   HCI offload, not a native ESP32 radio/controller model.
+- Device Service `profile=core2-hci-gatt` runs the same exchange in one QEMU
+  lease and retains serial, frame, QOM and Bumble peer evidence.
 
 Still open:
 

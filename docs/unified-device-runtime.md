@@ -35,6 +35,8 @@ complete simulated device or as a unified-device PASS.
 - The native QEMU Core2 BT bootstrap does not yet expose an external peer.
   A separate HCI-offload build now routes NimBLE's H4 traffic through QEMU
   UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
+  Device Service `profile=core2-hci-gatt` exposes the same exchange plus
+  serial/frame/QOM/peer evidence through one `/api/v1` lease.
   The remaining native boundary is still the classic ESP32
   controller/radio/timer path, not UIFlow2's Python BLE API.
 

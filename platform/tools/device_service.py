@@ -77,6 +77,7 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_I2S_TRACE",
 }
 NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
+BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
 DEFAULT_NETWORK_EMULATOR = (
     ROOT
     / ".work/esp-emu-versions/0.50.0"
@@ -98,8 +99,23 @@ NETWORK_STATUSES = {
 }
 CORE2_WIFI_PROFILE = "core2-openmac"
 CORE2_BLE_PROFILE = "core2-ble-advertise"
+CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
+CORE2_HCI_GATT_MARKERS = (
+    "CORE2_HCI_BLE_READY",
+    "CORE2_HCI_BLE_RX",
+    "CORE2_HCI_BLE_ACK_SENT",
+)
+CORE2_HCI_PROBE_MARKERS = (
+    "BLE_BUMBLE_FOUND",
+    "BLE_BUMBLE_CONNECTED",
+    "BLE_BUMBLE_GATT_DISCOVERED",
+    "BLE_BUMBLE_SUBSCRIBED",
+    "BLE_BUMBLE_WRITE",
+    "BLE_BUMBLE_NOTIFICATION_OK",
+    "BLE_BUMBLE_PASS",
+)
 
 
 def iso_now() -> str:
@@ -431,7 +447,7 @@ def parse_qemu_ble_execution(
     if not isinstance(value, dict):
         raise ServiceError("invalid_network", "network must be an object", 400)
     profile = value.get("profile", CORE2_BLE_PROFILE)
-    if profile != CORE2_BLE_PROFILE:
+    if profile not in {CORE2_BLE_PROFILE, CORE2_HCI_GATT_PROFILE}:
         raise ServiceError(
             "unsupported_network_profile",
             f"unsupported qemu-ble profile: {profile!r}",
@@ -451,6 +467,8 @@ def parse_qemu_ble_execution(
             "network.expected_markers must contain at most 16 short strings",
             400,
         )
+    if profile == CORE2_HCI_GATT_PROFILE and not expected_markers:
+        expected_markers = list(CORE2_HCI_GATT_MARKERS)
     attempts = value.get("attempts", 5)
     if not isinstance(attempts, int) or not 1 <= attempts <= 10:
         raise ServiceError(
@@ -631,7 +649,11 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 )
             ):
                 core2_radio_qemu_path()
-                network_profiles = [CORE2_WIFI_PROFILE, CORE2_BLE_PROFILE]
+                network_profiles = [
+                    CORE2_WIFI_PROFILE,
+                    CORE2_BLE_PROFILE,
+                    CORE2_HCI_GATT_PROFILE,
+                ]
                 network_status = "unverified"
             reason = excluded_reason
             if not backend and reason is None:
@@ -1097,6 +1119,9 @@ class DeviceSession:
         self.events_path = self.dir / "events.json"
         self.stdout_path = self.dir / "qemu.stdout"
         self.stderr_path = self.dir / "qemu.stderr"
+        self.hci_probe_log = self.dir / "ble-probe.log"
+        self.hci_port: int | None = None
+        self._hci_probe: subprocess.Popen | None = None
         self._proc: subprocess.Popen | None = None
         self._qmp: QMP | None = None
         self._lock = threading.RLock()
@@ -1263,6 +1288,72 @@ class DeviceSession:
             if self.serial0.is_file()
             else ""
         )
+        profile = self.network_config.get("profile")
+        if profile == CORE2_HCI_GATT_PROFILE:
+            probe_log = (
+                self.hci_probe_log.read_text(errors="replace")
+                if self.hci_probe_log.is_file()
+                else ""
+            )
+            serial_markers = [
+                str(marker)
+                for marker in self.network_config.get(
+                    "expected_markers",
+                    CORE2_HCI_GATT_MARKERS,
+                )
+            ]
+            checks = {
+                f"serial:{index + 1}": marker in serial
+                for index, marker in enumerate(serial_markers)
+            }
+            checks.update(
+                {
+                    f"peer:{marker}": marker in probe_log
+                    for marker in CORE2_HCI_PROBE_MARKERS
+                }
+            )
+            if all(checks.values()):
+                status = "PASS"
+            elif serial.strip() or probe_log.strip():
+                status = "PARTIAL"
+            else:
+                status = "RUNNING" if self.state in ACTIVE_STATES else "FAIL"
+            return {
+                "schema_version": 1,
+                "kind": "m5stack-qemu-ble-hci-gatt-proof",
+                "scope": "simulation-only-not-hardware-validation",
+                "status": status,
+                "session_id": self.id,
+                "profile": profile,
+                "runtime": {
+                    "name": "qemu",
+                    "hci_transport": "UART1 H4",
+                    "controller": "Bumble",
+                    "peer": "external Bumble peer",
+                },
+                "checks": checks,
+                "expected_markers": serial_markers,
+                "serial_bytes": len(serial.encode()),
+                "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
+                "peer_log_bytes": len(probe_log.encode()),
+                "peer_log_sha256": hashlib.sha256(
+                    probe_log.encode()
+                ).hexdigest(),
+                "gatt": {
+                    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+                    "subscribe": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+                    "write": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+                    "payload": "M5_CORE2_HCI",
+                    "notification": "ACK:M5_CORE2_HCI",
+                },
+                "not_claimed": [
+                    "real-hardware behavior",
+                    "native ESP32 Bluetooth radio/controller model",
+                    "RF range, timing, coexistence or performance",
+                    "BLE pairing, security or production throughput",
+                    "malware sandboxing",
+                ],
+            }
         markers = [
             str(marker)
             for marker in self.network_config.get("expected_markers", [])
@@ -1368,6 +1459,11 @@ class DeviceSession:
                         self.ready_marker,
                         self.ready_timeout,
                     )
+                if (
+                    self.network_config.get("profile")
+                    == CORE2_HCI_GATT_PROFILE
+                ):
+                    self._wait_hci_probe_result(self.ready_timeout)
                 self.network_result = self.network_evidence()
                 self._record_event(
                     "qemu_radio_attempt",
@@ -1388,11 +1484,17 @@ class DeviceSession:
                     "ready_timeout",
                     "session_exited",
                     "qmp_timeout",
+                    "ble_peer_failed",
                 }:
                     raise
                 if attempt == attempts:
                     raise
-                for path in (self.serial0, self.stdout_path, self.stderr_path):
+                for path in (
+                    self.serial0,
+                    self.hci_probe_log,
+                    self.stdout_path,
+                    self.stderr_path,
+                ):
                     if path.is_file():
                         path.replace(
                             path.with_name(
@@ -1401,6 +1503,110 @@ class DeviceSession:
                         )
         if last_error is not None:
             raise last_error
+
+    def _wait_hci_probe_result(self, timeout: float) -> None:
+        deadline = time.time() + max(1.0, min(timeout, 30.0))
+        while time.time() < deadline:
+            text = (
+                self.hci_probe_log.read_text(errors="replace")
+                if self.hci_probe_log.is_file()
+                else ""
+            )
+            if "BLE_BUMBLE_PASS" in text:
+                self._record_event("ble_peer_pass")
+                return
+            if "BLE_BUMBLE_FAIL" in text or "BLE_BUMBLE_ERROR" in text:
+                raise ServiceError(
+                    "ble_peer_failed",
+                    "external BLE peer did not complete the GATT exchange",
+                    409,
+                )
+            if (
+                self._hci_probe is not None
+                and self._hci_probe.poll() is not None
+            ):
+                raise ServiceError(
+                    "ble_peer_failed",
+                    "external BLE peer exited before GATT completion",
+                    409,
+                )
+            time.sleep(0.1)
+        raise ServiceError(
+            "ble_peer_failed",
+            "timed out waiting for external BLE peer completion",
+            408,
+        )
+
+    def _launch_hci_probe(self) -> None:
+        if not BLE_PROBE.is_file():
+            raise RuntimeError(f"BLE probe is missing: {BLE_PROBE}")
+        self.hci_port = free_tcp_port()
+        env = os.environ.copy()
+        env["PYTHONPATH"] = os.pathsep.join(
+            filter(
+                None,
+                [
+                    str(ROOT / ".work/py"),
+                    env.get("PYTHONPATH", ""),
+                ],
+            )
+        )
+        output = self.hci_probe_log.open("wb")
+        try:
+            self._hci_probe = subprocess.Popen(
+                [
+                    sys.executable,
+                    str(BLE_PROBE),
+                    "--port",
+                    str(self.hci_port),
+                    "--name-prefix",
+                    "M5-CORE2-HCI",
+                    "--payload",
+                    "M5_CORE2_HCI",
+                    "--subscribe",
+                    "--expect-notification-prefix",
+                    "ACK:",
+                    "--notification-timeout",
+                    "10",
+                    "--timeout",
+                    "25",
+                    "--write-delay",
+                    "1",
+                    "--linger",
+                    "15",
+                ],
+                cwd=ROOT,
+                env=env,
+                stdout=output,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        finally:
+            output.close()
+        deadline = time.time() + 10
+        while time.time() < deadline:
+            if (
+                self.hci_probe_log.is_file()
+                and "BLE_PROBE_READY"
+                in self.hci_probe_log.read_text(errors="replace")
+            ):
+                self._record_event(
+                    "hci_probe_started",
+                    pid=self._hci_probe.pid,
+                )
+                return
+            if self._hci_probe.poll() is not None:
+                raise ServiceError(
+                    "ble_peer_failed",
+                    "external BLE peer exited during startup",
+                    503,
+                )
+            time.sleep(0.05)
+        raise ServiceError(
+            "ble_peer_failed",
+            "external BLE peer did not become ready",
+            504,
+        )
 
     def _launch(self) -> None:
         assert self.virtual_flash is not None
@@ -1421,6 +1627,13 @@ class DeviceSession:
             if self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
             else self.spec.qemu
         )
+        hci_gatt = (
+            self.runtime == QEMU_BLE_RUNTIME
+            and self.network_config.get("profile")
+            == CORE2_HCI_GATT_PROFILE
+        )
+        if hci_gatt:
+            self._launch_hci_probe()
         command = [
             str(qemu_path),
             "-M", self.spec.machine,
@@ -1428,9 +1641,25 @@ class DeviceSession:
             "-L", str(self.spec.rom_dir),
             "-display", "none",
             "-serial", f"file:{self.serial0}",
-            "-serial", f"file:{self.serial1}",
-            "-qmp", f"unix:{self.qmp_path},server=on,wait=off",
         ]
+        if hci_gatt:
+            assert self.hci_port is not None
+            command.extend(
+                [
+                    "-chardev",
+                    (
+                        "socket,id=hci,host=127.0.0.1,"
+                        f"port={self.hci_port},nodelay=on"
+                    ),
+                    "-serial",
+                    "chardev:hci",
+                ]
+            )
+        else:
+            command.extend(["-serial", f"file:{self.serial1}"])
+        command.extend(
+            ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]
+        )
         if self.runtime == QEMU_WIFI_RUNTIME:
             command.extend(
                 [
@@ -2148,6 +2377,7 @@ class DeviceSession:
             for name, path in (
                 (stdout_name, self.stdout_path),
                 (stderr_name, self.stderr_path),
+                ("ble-probe.log", self.hci_probe_log),
                 ("c6.log", self.dir / "c6.log"),
             ):
                 if path.is_file():
@@ -2246,6 +2476,21 @@ class DeviceSession:
             except subprocess.TimeoutExpired:
                 proc.kill()
                 proc.wait(timeout=5)
+        hci_probe = self._hci_probe
+        if hci_probe is not None and hci_probe.poll() is None:
+            try:
+                os.killpg(hci_probe.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                hci_probe.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(hci_probe.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                hci_probe.wait(timeout=5)
+        self._hci_probe = None
         if self._qmp is not None:
             try:
                 self._qmp.close()
@@ -3320,6 +3565,12 @@ class DeviceService:
                 spec,
                 payload.get("network"),
             )
+            if (
+                network_config.get("profile") == CORE2_HCI_GATT_PROFILE
+                and payload.get("ready_marker") is None
+            ):
+                payload = dict(payload)
+                payload["ready_marker"] = "CORE2_HCI_BLE_ACK_SENT"
 
         with self._lock:
             active = [
