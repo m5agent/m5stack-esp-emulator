@@ -550,6 +550,15 @@ def check_generic_evidence(
     return {"runtime_output": bool(serial.strip())}
 
 
+def generic_markers_complete(
+    serial: str,
+    expected_markers: list[str],
+) -> bool:
+    return bool(expected_markers) and all(
+        marker in serial for marker in expected_markers
+    )
+
+
 def check_coex_evidence(serial: str, ble_log: str) -> dict[str, bool]:
     return {
         "wifi_dhcp": bool(re.search(r"got ip:\s*192\.168\.4\.2", serial)),
@@ -665,7 +674,14 @@ def execute(config: LaneConfig) -> dict:
                         serial_snapshot,
                     )
                 )
-                if guest_done and ble_done:
+                generic_done = (
+                    config.profile == "generic-observe"
+                    and generic_markers_complete(
+                        serial_snapshot,
+                        config.expected_markers,
+                    )
+                )
+                if generic_done or (guest_done and ble_done):
                     break
                 if (
                     config.profile == "esp-idf-coex"

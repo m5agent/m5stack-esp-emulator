@@ -15,6 +15,7 @@ from network_lane import (  # noqa: E402
     LaneError,
     build_emulator_command,
     check_generic_evidence,
+    generic_markers_complete,
     check_dns_udp_evidence,
     check_coex_evidence,
     check_http_evidence,
@@ -270,6 +271,13 @@ RESULT_SUMMARY: passed=34 failed=0 target=esp32s3
         )
         self.assertTrue(asserted["marker:1"])
         self.assertFalse(asserted["marker:2"])
+        self.assertFalse(generic_markers_complete("first\n", []))
+        self.assertFalse(
+            generic_markers_complete("first\n", ["first", "second"])
+        )
+        self.assertTrue(
+            generic_markers_complete("first\nsecond\n", ["first", "second"])
+        )
 
     def test_rejects_classic_esp32_before_process_launch(self):
         with tempfile.TemporaryDirectory() as directory:

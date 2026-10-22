@@ -73,6 +73,14 @@ false`. This is not interchangeable with stock Core2 firmware, whose
 `network.WLAN` or `esp_wifi_*` path still requires a classic ESP32 WiFi
 MAC/PHY model.
 
+The UIFlow2 device-local WiFi probe under `tests/uiflow2/network_probe/`
+replaces only the user scripts in a compatible S3/C6 image and requires the
+guest to emit scan, association and DHCP success markers. A StickS3 local
+UART-REPL UIFlow2 build passes this path directly through `generic-observe`.
+Board images that call `M5.begin()` before Python starts still need their
+board I2C/SPI models in the same `esp-emu` instance; otherwise a pre-Python
+hang must be recorded as board coverage `BLOCKED`, not WiFi `FAIL`.
+
 The Device Service wraps the same runner as a one-shot
 `runtime=network` session. It returns the normal session lifecycle, serial
 read/log/evidence endpoints and `GET /sessions/{id}/network`; network sessions

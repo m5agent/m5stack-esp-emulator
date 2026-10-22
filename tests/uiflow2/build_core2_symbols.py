@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a matching UIFlow2 Core2 ELF for panic symbolization."""
+"""Build a matching UIFlow2 board ELF and application image."""
 from __future__ import annotations
 
 import argparse
@@ -66,11 +66,21 @@ def main() -> None:
     env["IDF_PYTHON_ENV_PATH"] = str(
         Path.home() / ".espressif/python_env/idf5.5_py3.13_env"
     )
+    env["IDF_PYTHON_CHECK_CONSTRAINTS"] = "no"
     idf_python = Path(env["IDF_PYTHON_ENV_PATH"]) / "bin/python"
     if not idf_python.is_file():
         raise SystemExit(f"ESP-IDF Python environment not found: {idf_python}")
     run([str(idf_python), "-m", "pip", "install", "future"], ROOT, env)
-    env["PATH"] = f"{idf_path / 'tools'}:{env.get('PATH', '')}"
+    env["PATH"] = os.pathsep.join(
+        filter(
+            None,
+            [
+                str(Path(env["IDF_PYTHON_ENV_PATH"]) / "bin"),
+                str(idf_path / "tools"),
+                env.get("PATH", ""),
+            ],
+        )
+    )
     export = (
         f"source {idf_path}/export.sh >/dev/null || exit 1; "
         f"export IDF_PATH={idf_path}"
@@ -100,7 +110,7 @@ def main() -> None:
         shutil.copy2(app_source, app_target)
 
     result = {
-        "profile": "core2-symbols",
+        "profile": "uiflow2-symbols",
         "board": args.board,
         "uiflow_version": version,
         "uiflow_commit": git_head(repo),
