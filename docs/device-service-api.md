@@ -121,9 +121,12 @@ Important fields:
 - `flash_size`
 - `display`
 - `features.flash/serial/screenshot/input/qom`
-- `features.network` is `true` when the chip has a validated `esp-emu` network
-  path; `network_profiles` lists the available scenarios. Tab5 and Core2
-  currently return `false`.
+- `network_status` separates simulator capability from test evidence:
+  `validated`, `unverified`, `board-init-blocked`, or `not-supported`.
+- `features.network` is `true` only for a `validated` device-level path.
+  `network_profiles` still lists scenarios that can be used for diagnostics on
+  an `unverified` or `board-init-blocked` chip; a profile being listed is not a
+  PASS claim. Tab5 and Core2 are `not-supported`.
 - `network_console` reports the generic-firmware console default declared by
   the device matrix, such as `usb-jtag` for C6 UIFlow2.
 - Tab5 `features.qom` is `false`; its touch path uses the GDB mailbox currently

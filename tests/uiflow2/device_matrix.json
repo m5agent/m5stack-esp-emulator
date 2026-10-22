@@ -24,6 +24,7 @@
     {
       "id": "stopwatch",
       "backend": "qemu-esp32s3",
+      "network_status": "board-init-blocked",
       "mode": "ui",
       "machine": "m5stopwatch",
       "base": "platform/.cache/firmware/stopwatch/uiflow2.bin",
@@ -40,6 +41,7 @@
     {
       "id": "sticks3",
       "backend": "qemu-esp32s3",
+      "network_status": "validated",
       "mode": "ui",
       "machine": "m5sticks3",
       "base": "platform/.cache/firmware/sticks3/uiflow2.bin",
@@ -55,6 +57,7 @@
     {
       "id": "atoms3r",
       "backend": "qemu-esp32s3",
+      "network_status": "board-init-blocked",
       "mode": "ui",
       "machine": "m5atoms3r",
       "base": "platform/.cache/firmware/atoms3r/uiflow2.bin",
@@ -70,6 +73,7 @@
     {
       "id": "cores3",
       "backend": "qemu-esp32s3",
+      "network_status": "board-init-blocked",
       "mode": "ui",
       "machine": "m5cores3",
       "base": "platform/.cache/firmware/cores3/uiflow2.bin",
@@ -186,6 +190,7 @@
       "id": "nesso-n1",
       "backend": "qemu-esp32c6",
       "network_console": "usb-jtag",
+      "network_status": "validated",
       "mode": "ui",
       "machine": "esp32c6",
       "base": "platform/.cache/firmware/nesso-n1/uiflow2.bin",
@@ -204,6 +209,7 @@
       "id": "nanoc6",
       "backend": "qemu-esp32c6",
       "network_console": "usb-jtag",
+      "network_status": "validated",
       "mode": "console",
       "machine": "esp32c6",
       "env": {

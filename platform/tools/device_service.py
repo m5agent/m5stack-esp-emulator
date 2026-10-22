@@ -84,6 +84,12 @@ NETWORK_PROFILES = {
     "esp-idf-coex",
     "generic-observe",
 }
+NETWORK_STATUSES = {
+    "validated",
+    "unverified",
+    "board-init-blocked",
+    "not-supported",
+}
 
 
 def iso_now() -> str:
@@ -136,7 +142,7 @@ def parse_network_execution(
     if not spec.network_chip or not spec.network_profiles:
         raise ServiceError(
             "network_not_supported",
-            f"{spec.id} has no validated network runtime",
+            f"{spec.id} has no esp-emu network runtime",
             409,
         )
     if value is None:
@@ -342,6 +348,7 @@ class DeviceSpec:
     network_chip: str | None
     network_profiles: list[str]
     network_console: str
+    network_status: str
     warnings: list[str]
     state_probes: dict[str, dict[str, Any]]
     reason: str | None
@@ -404,6 +411,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             network_chip = None
             network_profiles: list[str] = []
             network_console = "auto"
+            network_status = "not-supported"
             reason = None
         else:
             supported = (
@@ -435,6 +443,17 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             )
             network_chip = backend.get("esp_emu_chip")
             network_console = row.get("network_console", "auto")
+            network_status = (
+                row.get("network_status", "unverified")
+                if network_chip
+                else "not-supported"
+            )
+            if network_status not in NETWORK_STATUSES:
+                raise ServiceError(
+                    "invalid_network_status",
+                    f"{device_id} has invalid network_status {network_status!r}",
+                    500,
+                )
             network_profiles = (
                 sorted(NETWORK_PROFILES - {"uiflow2-sticks3"})
                 if network_chip
@@ -491,6 +510,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             network_chip=network_chip,
             network_profiles=network_profiles,
             network_console=network_console,
+            network_status=network_status,
             warnings=list(profile.get("blockers", [])),
             state_probes=(
                 profile.get("runtime_state", {})
@@ -2733,10 +2753,14 @@ class DeviceService:
                 "input": spec.supported,
                 "qom": spec.supported and spec.service_kind == "qemu",
                 "device_state": bool(spec.state_probes),
-                "network": bool(spec.network_chip and spec.network_profiles),
+                "network": (
+                    spec.network_status == "validated"
+                    and bool(spec.network_profiles)
+                ),
             },
             "network_profiles": list(spec.network_profiles),
             "network_console": spec.network_console,
+            "network_status": spec.network_status,
             "reason": spec.reason,
         }
 
@@ -2750,7 +2774,7 @@ class DeviceService:
             "service": "m5stack-device-service",
             "api_version": "v1",
             "network_enabled": any(
-                spec.network_chip and spec.network_profiles
+                spec.network_status == "validated" and spec.network_profiles
                 for spec in self.specs.values()
             ),
             "tab5_enabled": False,
@@ -3097,7 +3121,11 @@ class DeviceService:
             "modes": {
                 "network": (
                     "enabled-separate-lane"
-                    if any(spec.network_chip for spec in self.specs.values())
+                    if any(
+                        spec.network_status == "validated"
+                        and spec.network_profiles
+                        for spec in self.specs.values()
+                    )
                     else "disabled"
                 ),
                 "tab5": "enabled-partial",

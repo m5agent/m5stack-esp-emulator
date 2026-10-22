@@ -56,10 +56,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertFalse(rows["tab5"]["features"]["qom"])
         self.assertTrue(rows["sticks3"]["features"]["device_state"])
         self.assertTrue(rows["sticks3"]["features"]["network"])
+        self.assertEqual(rows["sticks3"]["network_status"], "validated")
         self.assertIn(
             "uiflow2-sticks3",
             rows["sticks3"]["network_profiles"],
         )
+        self.assertEqual(rows["nanoc6"]["network_status"], "validated")
+        self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
+        for blocked in ("atoms3r", "cores3", "stopwatch"):
+            self.assertEqual(
+                rows[blocked]["network_status"],
+                "board-init-blocked",
+            )
+            self.assertFalse(rows[blocked]["features"]["network"])
+            self.assertTrue(rows[blocked]["network_profiles"])
+        for unsupported in ("core2", "tab5"):
+            self.assertEqual(
+                rows[unsupported]["network_status"],
+                "not-supported",
+            )
+            self.assertEqual(rows[unsupported]["network_profiles"], [])
         self.assertFalse(rows["core2"]["features"]["network"])
         self.assertFalse(rows["cardputer-zero"]["supported"])
         self.assertFalse(rows["tab5"]["features"]["network"])

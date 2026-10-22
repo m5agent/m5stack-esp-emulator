@@ -24,8 +24,8 @@ Deliverables:
 Implemented on 2026-10-22:
 
 - reusable isolated network/BLE runner with redacted, hashed evidence;
-- StickS3/CoreS3 and NanoC6/Nesso N1 WiFi/DHCP and controlled HTTP/TCP
-  download;
+- StickS3, CoreS3, NanoC6 and Nesso N1 network fixtures for WiFi/DHCP and a
+  controlled HTTP/TCP download;
 - StickS3 UIFlow2 BLE server observed by an external Bumble GATT peer;
 - C6 WiFi stays active during external Bumble scan/connect/GATT
   write/readback;
@@ -39,7 +39,8 @@ Implemented on 2026-10-22:
 Still open:
 
 - isolated DNS policy and host packet summaries;
-- device-level C6 and remaining S3 runs;
+- stock UIFlow2 same-instance network runs for CoreS3, AtomS3R, StopWatch and
+  the remaining S3 models;
 - combined board-peripheral plus network guest.
 
 Rough effort:

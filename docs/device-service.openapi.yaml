@@ -837,6 +837,9 @@ components:
         network_console:
           type: string
           enum: [auto, uart0, usb-jtag]
+        network_status:
+          type: string
+          enum: [validated, unverified, board-init-blocked, not-supported]
         firmware_families:
           type: array
           items:

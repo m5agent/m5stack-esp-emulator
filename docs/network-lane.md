@@ -135,9 +135,12 @@ TCP was verified separately with the ESP-IDF `http_throughput` fixture:
 `1048576` bytes completed in `280081` emulated microseconds (`29.95 Mbit/s`
 reported) against the disposable loopback HTTP server.
 
-Device-level service sessions have also passed the same WiFi/DHCP/HTTP checks
-for CoreS3 (`ESP32-S3`), NanoC6 and Nesso N1 (`ESP32-C6`). The C6 build uses
-no PSRAM argument, while the StickS3/CoreS3 runs use `8M`.
+Device Service sessions using the corresponding `ESP32-S3` and `ESP32-C6`
+network profiles have also passed the controlled WiFi/DHCP/HTTP fixture on
+CoreS3, NanoC6 and Nesso N1. This proves the chip-level network data plane;
+CoreS3's stock UIFLow2 board initialization still needs separate same-instance
+coverage. The C6 build uses no PSRAM argument, while the StickS3/CoreS3 runs
+use `8M`.
 
 A same-instance StickS3 UIFlow2 run passes BLE scan/connect/GATT/write together
 with WiFi association and DHCP to `192.168.4.2`.
@@ -149,6 +152,11 @@ external Bumble NUS connect/discover/subscribe/write followed by the guest-side
 `LANE_BLE_RX b'M5_LANE'` marker. Device Service session
 `48e27f5fb7b44c69852b99993787fa78` repeated the NanoC6 path through the public
 session API.
+
+The Device Service catalog exposes this evidence boundary as `network_status`.
+Only StickS3, NanoC6 and Nesso N1 currently use `validated`; CoreS3, AtomS3R and
+StopWatch are `board-init-blocked` for their stock UIFlow2 boot path, other S3
+models remain `unverified`, and Core2/Tab5 are `not-supported`.
 
 The fixture hashes and machine-readable checks are stored with the run evidence
 and work record rather than copied into this document.
