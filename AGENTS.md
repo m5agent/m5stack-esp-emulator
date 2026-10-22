@@ -79,6 +79,27 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 Stop background full-matrix/QEMU jobs when the user asks to pause; do not leave
 stale `qemu-system-*` processes running.
 
+### Iteration cost
+
+The main cost of peripheral work is not typing the model. It is usually:
+
+- finding authoritative datasheet or schematic evidence for register maps,
+  addresses, pins and controller topology;
+- reproducing the exact UIFlow2 or vendor driver path through I2C, SPI, I2S,
+  DMA, CSI, USB or SDIO;
+- debugging guest/host ordering and boot races;
+- preserving reproducible logs, screenshots, PCM and patch evidence.
+
+A full matrix run takes roughly 20–30 minutes. Targeted iteration is commonly
+3–5 times faster, so use the narrow loop until a milestone boundary is reached.
+Pausing a full run does not relax the release gate: record the latest full run
+as `NOT RUN` and rerun it before a full-matrix or release claim.
+
+Before implementing a new peripheral, identify the official hardware evidence
+and the real driver path first. If the closed-source backend has no usable
+controller or injection interface, mark the model `partial` with a concrete
+blocker instead of spending more time on host-side workarounds.
+
 ## Peripheral contract
 
 - Every non-display capability in `devices/catalog.source.json` must map to a
@@ -138,3 +159,15 @@ verification exists.
   controller-level ST7123 touch.
 - Core2 has an intermittent flash/cache startup panic; retries may let a
   simulation case pass but do not prove the startup issue is fixed.
+
+## Remaining work
+
+The current milestone has 13 complete simulated devices and Tab5 as the only
+incomplete device. A reliable Tab5 estimate requires an extensible or
+rebuildable P4 backend. With that prerequisite, the peripheral work is roughly
+4–6 serial work weeks, or 2–3 weeks with parallel workstreams. Without that
+backend change, do not promise a completion date for the missing data paths.
+
+Before calling the current milestone complete, run a clean latest full matrix
+and perform real-hardware validation on the same implementation paths. Until
+then, all simulator results remain simulation-only evidence.
