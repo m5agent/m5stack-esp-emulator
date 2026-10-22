@@ -1,0 +1,110 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] hw/riscv/esp32c6: expose modem syscon clock bits
+
+ESP-IDF's PHY initialization reads MODEM_SYSCON_CLK_CONF1 at 0x600a9814 and
+asserts that the 0x7e1ff modem clock mask is enabled. QEMU modeled
+MODEM_LPCON but left MODEM_SYSCON unmapped, so public C6 firmware entered
+esp_phy_enable() and then panicked even after flash/QIO initialization.
+
+Add a writable MODEM_SYSCON register file and preserve the required PHY
+clock mask while QEMU intentionally does not gate modem clocks.
+
+---
+ hw/misc/esp32c6_modem.c        | 51 ++++++++++++++++++++++++++++++++++++++++++
+ hw/riscv/esp32c6.c             |  8 +++++++
+ include/hw/misc/esp32c6_modem.h |  4 ++++
+ 3 files changed, 63 insertions(+)
+
+diff --git a/include/hw/misc/esp32c6_modem.h b/include/hw/misc/esp32c6_modem.h
+--- a/include/hw/misc/esp32c6_modem.h
++++ b/include/hw/misc/esp32c6_modem.h
+@@ -16,11 +16,14 @@
+ 
+ #define ESP32C6_MODEM_IO_SIZE 0x100
+ #define ESP32C6_MODEM_BASE    0x600AF000
++#define ESP32C6_MODEM_SYSCON_BASE 0x600A9800
+ 
+ typedef struct {
+     SysBusDevice parent;
+     MemoryRegion iomem;
++    MemoryRegion syscon_iomem;
+     uint32_t clk_conf;
+     uint32_t clk_conf_force_on;
+     uint32_t rst_conf;
++    uint32_t syscon_regs[ESP32C6_MODEM_IO_SIZE / sizeof(uint32_t)];
+ } ESP32C6ModemState;
+diff --git a/hw/misc/esp32c6_modem.c b/hw/misc/esp32c6_modem.c
+--- a/hw/misc/esp32c6_modem.c
++++ b/hw/misc/esp32c6_modem.c
+@@ -73,6 +73,37 @@ static const MemoryRegionOps esp32c6_modem_ops = {
+     .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
++static uint64_t esp32c6_modem_syscon_read(
++    void *opaque, hwaddr addr, unsigned int size)
++{
++    ESP32C6ModemState *s = ESP32C6_MODEM(opaque);
++    uint32_t value = s->syscon_regs[addr / sizeof(uint32_t)];
++
++    /*
++     * ESP-IDF asserts that the PHY clock mask 0x7E1FF from
++     * MODEM_SYSCON_CLK_CONF1 is enabled. QEMU does not gate modem clocks, so
++     * keep the required bits set while preserving firmware writes.
++     */
++    if (addr == 0x14) {
++        value |= 0x7E1FF;
++    }
++    return value;
++}
++
++static void esp32c6_modem_syscon_write(
++    void *opaque, hwaddr addr, uint64_t value, unsigned int size)
++{
++    ESP32C6ModemState *s = ESP32C6_MODEM(opaque);
++
++    s->syscon_regs[addr / sizeof(uint32_t)] = (uint32_t)value;
++}
++
++static const MemoryRegionOps esp32c6_modem_syscon_ops = {
++    .read = esp32c6_modem_syscon_read,
++    .write = esp32c6_modem_syscon_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++};
++
+ static void esp32c6_modem_realize(DeviceState *dev, Error **errp)
+ {
+     ESP32C6ModemState *s = ESP32C6_MODEM(dev);
+@@ -117,8 +154,16 @@ static void esp32c6_modem_init(Object *obj)
+ 
+     memory_region_init_io(&s->iomem, obj, &esp32c6_modem_ops, s,
+                           TYPE_ESP32C6_MODEM, ESP32C6_MODEM_IO_SIZE);
++    memory_region_init_io(
++        &s->syscon_iomem,
++        obj,
++        &esp32c6_modem_syscon_ops,
++        s,
++        TYPE_ESP32C6_MODEM "-syscon",
++        ESP32C6_MODEM_IO_SIZE);
+ 
+     sysbus_init_mmio(sbd, &s->iomem);
++    sysbus_init_mmio(sbd, &s->syscon_iomem);
+ }
+ 
+ static void esp32c6_modem_class_init(ObjectClass *klass, void *data)
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -644,6 +644,13 @@ static void esp32c6_machine_realize(MachineState *machine)
+         sysbus_realize(SYS_BUS_DEVICE(&ms->modem), &error_fatal);
+         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->modem), 0);
+         memory_region_add_subregion_overlap(sys_mem, ESP32C6_MODEM_BASE, mr, 0);
++        MemoryRegion *syscon_mr =
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->modem), 1);
++        memory_region_add_subregion_overlap(
++            sys_mem,
++            ESP32C6_MODEM_SYSCON_BASE,
++            syscon_mr,
++            0);
+     }
+ 
+     /* System clock */

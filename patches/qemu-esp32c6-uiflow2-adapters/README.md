@@ -19,6 +19,8 @@
   屏幕、SX1262、板载 I2C 或强制 GPIO 线；
 - NanoC6 GPIO9 按键 QOM 注入，以及 GPIO7/GPIO9/GPIO19 电平观测；
 - ESP32-C6 GPIO 寄存器写入 trace（`M5SW_GPIO_TRACE=1`）。
+- `MODEM_SYSCON_CLK_CONF1` 的可写寄存器模型，保留 PHY 初始化要求的
+  `0x7E1FF` clock mask，使公开 C6 固件可以越过 `esp_phy_enable()` 断言。
 
 ## 应用
 
@@ -26,6 +28,9 @@
 cd "$QEMU_ROOT/build/qemu-c6"
 git apply /path/to/0001-qemu-c6-m5stack-uiflow2-adapters.patch
 git apply /path/to/0002-nanoc6-board-isolation-gpio.patch
+git apply /path/to/0016-gigadevice-status2-qio.patch
+git apply /path/to/0017-issi-status2-qio.patch
+git apply /path/to/0003-modem-syscon-clock-bits.patch
 ```
 
 补丁不包含 C6 根目录 `meson.build` 的本地构建绕过。

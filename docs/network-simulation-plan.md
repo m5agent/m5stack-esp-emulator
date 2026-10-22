@@ -53,6 +53,9 @@ Validated on `2026-10-22`:
 - Device Service `runtime=qemu-ble` / `profile=core2-hci-gatt` runs that exchange
   in the same QEMU session and exposes serial, frame, QOM, peer log and hashed
   network evidence through `/api/v1`.
+- C6 QEMU now models GigaDevice/ISSI QIO status-register semantics and
+  `MODEM_SYSCON_CLK_CONF1`. Public Evil-NanoC6 and Nesso_base get past QIO and
+  PHY init; their application-level WiFi/BLE behavior is still `NOT RUN`.
 
 What is not yet proven:
 

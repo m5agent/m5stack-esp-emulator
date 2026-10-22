@@ -72,6 +72,8 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   CO5300 QSPI command byte layouts used by UIFlow2 and MotoNav.
 - GigaDevice GD25Qxx status-register-2 QIO enable/readback, fixing firmware
   that aborts in `esp_flash_init_default_chip()` after a failed QIE write.
+- ISSI IS25LP/WP status-register-2 QE mirroring for C6 firmware that verifies
+  quad enable through `RDSR2(0x35)` after setting SR1 bit 6.
 - Cardputer ADV QMP-to-TCA8418 matrix encoding for printable keys, Enter,
   Space, Tab, Backspace and FN-arrow combinations.
 - CS-gated direct SPI panel ID reads so M5GFX autodetection probes using

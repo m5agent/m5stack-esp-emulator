@@ -60,6 +60,8 @@ Implemented on 2026-10-22:
   HCI offload, not a native ESP32 radio/controller model.
 - Device Service `profile=core2-hci-gatt` runs the same exchange in one QEMU
   lease and retains serial, frame, QOM and Bumble peer evidence.
+- C6 QEMU adds GigaDevice/ISSI QIO and MODEM_SYSCON PHY clock semantics.
+  Public NanoC6/Nesso firmware passes the former flash/PHY assertions.
 
 Still open:
 
@@ -67,6 +69,8 @@ Still open:
 - combined board-peripheral plus network guest.
 - Core2 DNS, external internet request coverage, native-controller external
   BLE peer/GATT, RF/coexistence and production payload-size behavior.
+- Public C6 application VFS/SPIFFS and post-PHY network progress. The samples
+  now get past QIO/PHY clock init but do not yet reach verified WiFi/BLE use.
 
 Rough effort:
 
