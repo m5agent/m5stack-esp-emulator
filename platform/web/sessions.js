@@ -289,7 +289,7 @@ $('clearHistoryBtn').addEventListener('click', async () => {
     state.lastFrameAt.clear();
     await refreshSessions();
     showError('');
-    $('sessionSub').textContent = `已清理 ${result.cleared} 个历史会话`;
+    $('sessionSub').textContent = `已清理 ${result.cleared + (result.orphaned_cleared || 0)} 个历史会话`;
   } catch (error) {
     showError(error.message);
   }

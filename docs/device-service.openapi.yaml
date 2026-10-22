@@ -279,6 +279,8 @@ paths:
                 properties:
                   cleared:
                     type: integer
+                  orphaned_cleared:
+                    type: integer
                   purged:
                     type: boolean
   /sessions/{session_id}:

@@ -1997,12 +1997,28 @@ class DeviceService:
                 for session in self._sessions.values()
                 if session.state in {"stopped", "failed"}
             ]
+            known_ids = set(self._sessions)
         for session in sessions:
             session.stop(purge=purge)
             if purge:
                 with self._lock:
                     self._sessions.pop(session.id, None)
-        return {"cleared": len(sessions), "purged": purge}
+        orphaned = []
+        if purge:
+            sessions_root = self.state_dir / "sessions"
+            if sessions_root.is_dir():
+                orphaned = [
+                    path
+                    for path in sessions_root.iterdir()
+                    if path.is_dir() and path.name not in known_ids
+                ]
+                for path in orphaned:
+                    shutil.rmtree(path, ignore_errors=True)
+        return {
+            "cleared": len(sessions),
+            "orphaned_cleared": len(orphaned),
+            "purged": purge,
+        }
 
     def session_events(self, session_id: str) -> dict:
         session = self.get_session(session_id)
