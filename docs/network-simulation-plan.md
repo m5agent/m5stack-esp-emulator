@@ -26,6 +26,8 @@ Validated on `2026-10-22`:
 - StickS3 UIFlow2 `network.WLAN` scan, association and DHCP have passed;
 - StickS3 UIFlow2 `BLEUARTServer` passes external Bumble scan, connection, NUS
   GATT discovery, subscription, write and guest-side receive callback;
+- the same UIFlow2 guest instance passes WiFi association/DHCP together with
+  the BLE GATT exchange;
 - the ESP-IDF DNS/UDP fixture passes host-forwarder DNS resolution and a
   controlled UDP request/reply through the user-mode gateway;
 - the Device Service exposes `runtime=network` one-shot sessions and a
@@ -37,8 +39,6 @@ What is not yet proven:
   controlled TCP/UDP endpoint;
 - automatic internet access for every S3/C6/P4 device profile;
 - simultaneous board-level QEMU peripherals and WiFi in one guest instance;
-- simultaneous UIFlow2 WiFi and BLE in one `esp-emu` instance; BLE passes but
-  WiFi has not progressed in the combined run;
 - packet capture, DNS policy, TLS/HTTP test services and multi-device isolation
   in the regular regression matrix;
 - security conclusions about untrusted firmware based only on network traffic.

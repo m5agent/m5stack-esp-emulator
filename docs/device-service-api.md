@@ -268,10 +268,11 @@ Profiles are:
   proves only that the process/serial path ran; add up to 16 marker strings to
   obtain an application-level PASS/FAIL assertion.
 
-For the current StickS3 BLE proof, use
+For StickS3 BLE-only, use
 `{"profile":"uiflow2-sticks3","wifi":false,"ble":true,"elf_artifact_id":"..."}`.
-WiFi and BLE are separate scenarios; same-instance coexistence is not yet a
-PASS.
+The same guest also supports `wifi=true,ble=true`; the runner stages REPL input
+around UIFlow2's WebREPL startup and has passed simultaneous association/DHCP
+and BLE GATT.
 
 The service stores the latest captured framebuffer as `last-frame.png` and
 `last-frame.json`. When a session stops, `frame.png` returns this last-known
@@ -553,8 +554,6 @@ after a service restart.
 
 - network sessions are a separate lane and do not combine board peripherals
   with the same guest instance;
-- UIFlow2 WiFi and BLE currently use separate runs; same-instance WiFi+BLE is
-  partial on `esp-emu 0.50.0`;
 - Core2 has no `esp-emu` network/PHY path yet;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;

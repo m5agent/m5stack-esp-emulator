@@ -66,8 +66,13 @@ class NetworkLaneTests(unittest.TestCase):
         stages = injection["stages"]
         self.assertEqual(stages[0]["payload"], "\x03")
         self.assertIn("machine.reset()", stages[1]["payload"])
-        self.assertIn("w.connect(\"myssid\",\"mypassword\")", stages[2]["payload"])
         self.assertIn("BLEUARTServer", stages[2]["payload"])
+        self.assertEqual(stages[3]["trigger"], "LANE_BLE_READY")
+        self.assertIn('print("LANE_"+"WIFI_PREP")', stages[3]["payload"])
+        self.assertEqual(stages[4]["trigger"], "LANE_WIFI_PREP")
+        self.assertIn("machine.Timer.ONE_SHOT", stages[4]["payload"])
+        self.assertEqual(stages[5]["trigger"], "LANE_TIMER_READY")
+        self.assertIn("w.connect(\"myssid\",\"mypassword\")", stages[5]["payload"])
 
     def test_http_profile_exits_on_machine_readable_result(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -168,6 +173,20 @@ LANE_DONE
         )
         self.assertTrue(all(checks.values()), checks)
         self.assertNotIn("ble_probe", checks)
+
+    def test_wifi_timer_compact_marker_line_is_accepted(self):
+        serial = """
+LANE_WIFI_SCAN 1
+LANE_WIFI_CONNECTED True LANE_WIFI_STATUS 1010 LANE_WIFI_IP 192.168.4.2 LANE_DONE
+"""
+        checks, values = check_uiflow2_evidence(
+            serial,
+            "",
+            wifi=True,
+            ble=False,
+        )
+        self.assertTrue(all(checks.values()), checks)
+        self.assertEqual(values["wifi_ip"], "192.168.4.2")
 
     def test_ble_only_does_not_require_wifi(self):
         serial = """

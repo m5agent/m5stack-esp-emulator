@@ -26,15 +26,14 @@ The `uiflow2-sticks3` profile:
    build;
 3. executes the real UIFlow2 `network.WLAN` API for scan, association and DHCP.
 
-For the BLE proof, add `--ble --no-wifi`. That path creates the real UIFlow2
+For BLE only, add `--ble --no-wifi`. The combined WiFi+BLE proof uses
+`--ble --wifi`; both data planes run in the same UIFlow2 guest instance. The
+runner stages the BLE setup, WiFi preparation, timer arming and association
+command behind unique output markers so UIFlow2's WebREPL task cannot consume
+later REPL input. This path creates the real UIFlow2
 `BLEUARTServer`, then uses a separate Bumble controller as the BLE peer to
 scan, connect, discover the Nordic UART GATT service, subscribe and write. It
 requires the write to arrive in guest Python before recording BLE PASS.
-
-WiFi and BLE currently run as separate UIFlow2 scenarios: a combined
-same-instance exercise showed a complete BLE GATT exchange but did not progress
-WiFi association afterward in `esp-emu 0.50.0`. That coexistence limit is
-tracked explicitly rather than hidden in one PASS.
 
 The `esp-idf-http` profile runs the upstream `http_throughput` firmware. It
 validates WiFi association, DHCP, an HTTP request through the user-mode
@@ -100,6 +99,9 @@ reported) against the disposable loopback HTTP server.
 Device-level service sessions have also passed the same WiFi/DHCP/HTTP checks
 for CoreS3 (`ESP32-S3`), NanoC6 and Nesso N1 (`ESP32-C6`). The C6 build uses
 no PSRAM argument, while the StickS3/CoreS3 runs use `8M`.
+
+A same-instance StickS3 UIFlow2 run passes BLE scan/connect/GATT/write together
+with WiFi association and DHCP to `192.168.4.2`.
 
 The fixture hashes and machine-readable checks are stored with the run evidence
 and work record rather than copied into this document.

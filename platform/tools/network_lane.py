@@ -191,35 +191,49 @@ def start_udp_lab_server(port: int = UDP_PROBE_PORT) -> UdpLabServer:
     return UdpLabServer(sock, thread, datagrams)
 
 
-def uiflow2_injection(config: LaneConfig) -> str:
+def uiflow2_ble_injection(config: LaneConfig) -> str:
+    name = json.dumps(config.ble_name)
+    lines = [
+        "from bleuart import BLEUARTServer",
+        f"server=BLEUARTServer(name={name})",
+        'server.irq(lambda: print("LANE_BLE_RX", bytes(server.read())))',
+        'print("LANE_"+"BLE_READY")',
+    ]
+    if not config.wifi:
+        lines.append('print("LANE_DONE")')
+    return "\r\n".join(lines) + "\r\n"
+
+
+def uiflow2_wifi_prepare() -> str:
+    lines = [
+        "import network,machine",
+        "w=network.WLAN(network.STA_IF)",
+        "w.active(True)",
+        'print("LANE_WIFI_SCAN", len(w.scan()))',
+        'print("LANE_"+"WIFI_PREP")',
+    ]
+    return "\r\n".join(lines) + "\r\n"
+
+
+def uiflow2_wifi_arm() -> str:
+    lines = [
+        (
+            'cb=lambda t:print("LANE_WIFI_CONNECTED",w.isconnected(),'
+            '"LANE_WIFI_STATUS",w.status(),'
+            '"LANE_WIFI_IP",w.ifconfig()[0],'
+            '"LANE_DONE")'
+        ),
+        "t=machine.Timer(0)",
+        "t.init(period=7000,mode=machine.Timer.ONE_SHOT,callback=cb)",
+        'print("LANE_"+"TIMER_READY")',
+    ]
+    return "\r\n".join(lines) + "\r\n"
+
+
+def uiflow2_wifi_connect(config: LaneConfig) -> str:
     ssid = json.dumps(config.ssid)
     password = json.dumps(config.password)
-    name = json.dumps(config.ble_name)
-    lines = ["import network,time"]
-    if config.ble:
-        lines.extend(
-            [
-                "from bleuart import BLEUARTServer",
-                f"server=BLEUARTServer(name={name})",
-                'server.irq(lambda: print("LANE_BLE_RX", bytes(server.read())))',
-                'print("LANE_BLE_READY")',
-            ]
-        )
-    if config.wifi:
-        lines.extend(
-            [
-                "w=network.WLAN(network.STA_IF)",
-                "w.active(True)",
-                'print("LANE_WIFI_SCAN", len(w.scan()))',
-                f"w.connect({ssid},{password})",
-                "time.sleep(6)",
-                'print("LANE_WIFI_CONNECTED", w.isconnected())',
-                'print("LANE_WIFI_STATUS", w.status())',
-                'print("LANE_WIFI_IP", w.ifconfig()[0])',
-            ]
-        )
-    lines.append('print("LANE_DONE")')
-    return "\r\n".join(lines) + "\r\n"
+    return f"w.connect({ssid},{password})\r\n"
 
 
 def build_emulator_command(
@@ -270,25 +284,56 @@ def build_emulator_command(
     if exit_marker:
         command.extend(["--exit-on", exit_marker])
     if config.profile == "uiflow2-sticks3":
-        injection = {
-            "stages": [
-                {
-                    "trigger": "WiFi initialized",
-                    "payload": "\x03",
-                },
-                {
-                    "trigger": ">>>",
-                    "payload": (
-                        "import os,machine\r\n"
-                        'os.rename("/flash/boot.py","/flash/boot.py.lane")\r\n'
-                        "machine.reset()\r\n"
-                    ),
-                },
+        stages: list[dict[str, str]] = [
+            {
+                "trigger": "WiFi initialized",
+                "payload": "\x03",
+            },
+            {
+                "trigger": "KeyboardInterrupt:",
+                "payload": (
+                    "import os,machine\r\n"
+                    'os.rename("/flash/boot.py","/flash/boot.py.lane")\r\n'
+                    "machine.reset()\r\n"
+                ),
+            },
+        ]
+        if config.ble:
+            stages.append(
                 {
                     "trigger": "RTC_SW_CPU_RST",
-                    "payload": uiflow2_injection(config),
-                },
-            ]
+                    "payload": uiflow2_ble_injection(config),
+                }
+            )
+            if config.wifi:
+                stages.append(
+                    {
+                        "trigger": "LANE_BLE_READY",
+                        "payload": uiflow2_wifi_prepare(),
+                    }
+                )
+        elif config.wifi:
+            stages.append(
+                {
+                    "trigger": "RTC_SW_CPU_RST",
+                    "payload": uiflow2_wifi_prepare(),
+                }
+            )
+        if config.wifi:
+            stages.append(
+                {
+                    "trigger": "LANE_WIFI_PREP",
+                    "payload": uiflow2_wifi_arm(),
+                }
+            )
+            stages.append(
+                {
+                    "trigger": "LANE_TIMER_READY",
+                    "payload": uiflow2_wifi_connect(config),
+                }
+            )
+        injection = {
+            "stages": stages
         }
         for stage in injection["stages"]:
             command.extend(
@@ -421,6 +466,7 @@ def check_uiflow2_evidence(
         )
     checks["guest_completed"] = bool(
         re.search(r"(?m)^LANE_DONE\s*$", serial)
+        or re.search(r"(?m)^LANE_WIFI_CONNECTED .* LANE_DONE\s*$", serial)
     )
     values = {
         "wifi_ip": ip_match.group(1) if ip_match else "",
@@ -573,6 +619,10 @@ def execute(config: LaneConfig) -> dict:
                 ble_snapshot = read_text(ble_log_path)
                 guest_done = bool(
                     re.search(r"(?m)^LANE_DONE\s*$", serial_snapshot)
+                    or re.search(
+                        r"(?m)^LANE_WIFI_CONNECTED .* LANE_DONE\s*$",
+                        serial_snapshot,
+                    )
                 )
                 ble_done = not use_bumble or (
                     "BLE_BUMBLE_PASS" in ble_snapshot
@@ -587,7 +637,16 @@ def execute(config: LaneConfig) -> dict:
                     ble_exited_at = ble_exited_at or time.monotonic()
                     if (
                         re.search(r"(?m)^LANE_BLE_RX b'M5_LANE'\s*$", serial_snapshot)
-                        and re.search(r"(?m)^LANE_DONE\s*$", serial_snapshot)
+                        and (
+                            re.search(
+                                r"(?m)^LANE_DONE\s*$",
+                                serial_snapshot,
+                            )
+                            or re.search(
+                                r"(?m)^LANE_WIFI_CONNECTED .* LANE_DONE\s*$",
+                                serial_snapshot,
+                            )
+                        )
                     ):
                         break
                     if time.monotonic() - ble_exited_at >= 3:

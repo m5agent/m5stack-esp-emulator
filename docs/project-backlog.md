@@ -32,7 +32,6 @@ Implemented on 2026-10-22:
 
 Still open:
 
-- same-instance UIFlow2 WiFi+BLE progression;
 - isolated DNS policy and host packet summaries;
 - device-level C6 and remaining S3 runs;
 - combined board-peripheral plus network guest.
