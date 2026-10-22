@@ -23,6 +23,7 @@ BACKEND_CHIPS = {
     "qemu-esp32s3": "esp32s3",
     "qemu-esp32c6": "esp32c6",
 }
+PROVENANCE_SCHEMA_VERSION = 1
 
 
 def sha256(path: Path) -> str:
@@ -31,6 +32,66 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: source.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def display_path(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(ROOT))
+    except ValueError:
+        return str(path.resolve())
+
+
+def provenance_path(image: Path) -> Path:
+    return image.with_suffix(".build.json")
+
+
+def write_build_provenance(
+    image: Path,
+    base: Path,
+    device: dict,
+) -> dict:
+    provenance = {
+        "schema_version": PROVENANCE_SCHEMA_VERSION,
+        "device_id": device["id"],
+        "image": display_path(image),
+        "image_sha256": sha256(image),
+        "base": display_path(base),
+        "base_sha256": sha256(base),
+        "vfs_offset": device["vfs_offset"],
+        "vfs_size": device["vfs_size"],
+        "flash_size": device["flash_size"],
+    }
+    provenance_path(image).write_text(
+        json.dumps(provenance, indent=2) + "\n"
+    )
+    return provenance
+
+
+def load_build_provenance(image: Path, device_id: str) -> dict:
+    path = provenance_path(image)
+    if not path.is_file():
+        raise RuntimeError(
+            f"--skip-build requires build provenance: {path}"
+        )
+    try:
+        provenance = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"invalid build provenance {path}: {error}") from error
+    if provenance.get("schema_version") != PROVENANCE_SCHEMA_VERSION:
+        raise RuntimeError(
+            f"unsupported build provenance schema in {path}: "
+            f"{provenance.get('schema_version')!r}"
+        )
+    if provenance.get("device_id") != device_id:
+        raise RuntimeError(
+            f"build provenance is for {provenance.get('device_id')!r}, "
+            f"not {device_id!r}: {path}"
+        )
+    if provenance.get("image_sha256") != sha256(image):
+        raise RuntimeError(f"build provenance image hash mismatch: {path}")
+    if not isinstance(provenance.get("base_sha256"), str):
+        raise RuntimeError(f"build provenance has no base hash: {path}")
+    return provenance
 
 
 def build_image(device: dict, out_dir: Path) -> Path:
@@ -50,7 +111,7 @@ def build_image(device: dict, out_dir: Path) -> Path:
         "--flash-size",
         device["flash_size"],
         "--expected-size",
-        device["expected_size"],
+        device.get("expected_size", "1x1"),
         "--out-dir",
         str(out_dir),
     ]
@@ -69,6 +130,7 @@ def build_image(device: dict, out_dir: Path) -> Path:
     image = out_dir / "uiflow2-ui-test.bin"
     if not image.is_file():
         raise RuntimeError(f"image build did not create {image}")
+    write_build_provenance(image, ROOT / device["base"], device)
     return image
 
 
@@ -112,6 +174,11 @@ def main() -> int:
         if args.skip_build
         else build_image(device, args.out_dir)
     )
+    provenance = (
+        load_build_provenance(image, args.device)
+        if args.skip_build
+        else json.loads(provenance_path(image).read_text())
+    )
     image_sha256 = sha256(image)
     command = [
         "python3",
@@ -135,6 +202,7 @@ def main() -> int:
         "--wifi",
         "--no-ble",
         "--no-tcp",
+        *(["--psram-size", "0"] if chip == "esp32c6" else []),
         "--expect",
         "UIFLOW_WIFI_CONNECTED",
         "--expect",
@@ -170,7 +238,9 @@ def main() -> int:
             "path": str(image),
             "bytes": image.stat().st_size,
             "sha256": image_sha256,
-            "base_sha256": sha256(ROOT / device["base"]),
+            "base": provenance["base"],
+            "base_sha256": provenance["base_sha256"],
+            "provenance": str(provenance_path(image)),
         },
         "network_evidence": str(network_evidence_path),
         "network_status": network_evidence.get("status"),

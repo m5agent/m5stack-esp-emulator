@@ -9,6 +9,7 @@ import os
 import shutil
 import signal
 import subprocess
+import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -20,6 +21,9 @@ IDF_PATH = ROOT / ".work/esp-idf-v5.5.4"
 QEMU = ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
 ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
 PAYLOAD = b"\xab" * (1024 * 1024)
+
+sys.path.insert(0, str(ROOT / "platform/tools"))
+from qemu_network_preflight import inspect_qemu_network  # noqa: E402
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -149,6 +153,12 @@ def main() -> int:
 
     if not IDF_PATH.is_dir() or not QEMU.is_file():
         raise SystemExit("ESP-IDF or QEMU runtime is missing")
+    network_preflight = inspect_qemu_network(QEMU, QEMU.parent)
+    if network_preflight["status"] != "PASS":
+        raise SystemExit(
+            "QEMU user-mode network preflight failed:\n"
+            + json.dumps(network_preflight, indent=2)
+        )
     args.out_dir.mkdir(parents=True, exist_ok=True)
     built_firmware = (
         TEST_DIR / "build_esp32/merged.bin"
@@ -193,6 +203,7 @@ def main() -> int:
             "sha256": sha256(QEMU),
             "exit_code": qemu_exit,
             "stderr": qemu_stderr[-4000:],
+            "network_preflight": network_preflight,
         },
         "firmware": {
             "path": display_path(firmware),

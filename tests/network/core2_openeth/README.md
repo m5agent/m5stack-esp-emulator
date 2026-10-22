@@ -15,6 +15,23 @@ Build and run:
 python3 tests/network/core2_openeth/run_test.py
 ```
 
+The runner first checks that the selected QEMU binary is executable, was built
+with `CONFIG_SLIRP`, and advertises the `user` netdev backend. On macOS, a
+clean dependency/configuration sequence is:
+
+```bash
+brew install libslirp
+export PKG_CONFIG_PATH="$(brew --prefix libslirp)/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+cd .work/M5StopWatch-QEMU/build/qemu/build
+../configure --target-list=xtensa-softmmu --enable-slirp --disable-docs \
+  --disable-werror
+ninja qemu-system-xtensa
+python3 ../../../../../platform/tools/qemu_network_preflight.py
+```
+
+The preflight only proves host-side QEMU capability. The full fixture is the
+guest-side OpenETH/DHCP/HTTP proof.
+
 Expected terminal markers:
 
 ```text

@@ -24,7 +24,11 @@ PYTHONPATH=.work/py python3 tests/uiflow2/network_probe/run_test.py \
   --out-dir /tmp/uiflow2-sticks3-wifi
 ```
 
-The run writes a session-isolated image, network evidence and a combined
-`evidence.json`. A PASS proves UIFlow2 WiFi scan/association/DHCP in the
-emulator only. A board firmware that hangs in its C-level `M5.begin()` before
-entering `boot.py` is a board-runtime coverage failure, not a WiFi result.
+The run writes a session-isolated image, a
+`uiflow2-ui-test.build.json` provenance sidecar, network evidence and a
+combined `evidence.json`. `--skip-build` requires that sidecar, verifies the
+image hash, and reports the base image hash recorded when the image was built.
+It does not substitute the current matrix base hash. A PASS proves UIFlow2 WiFi
+scan/association/DHCP in the emulator only. A board firmware that hangs in its
+C-level `M5.begin()` before entering `boot.py` is a board-runtime coverage
+failure, not a WiFi result.
