@@ -1,0 +1,264 @@
+/*!
+ * M5Stack Web Design Tokens v1.0.0
+ * 来源：m5stack.com 源码快照（dev @ f63985c，2026-10-13），核对于 2026-10-22
+ * 用法：<link rel="stylesheet" href="tokens.css">，再按需引入 components.css
+ * 密度：默认 product（1440 固定像素）；营销页在 <body> 或任意容器加 data-m5-density="marketing"
+ */
+
+:root {
+  /* ---------- 品牌色 ---------- */
+  --m5-blue: #0282cb;
+  --m5-blue-hover: #0295e9;
+  --m5-blue-active: #016fad;
+  --m5-blue-deep: #0064c2;
+  --m5-black: #000000;
+
+  /* ---------- 文字 ---------- */
+  --m5-ink: #434343;
+  --m5-ink-2: #555555;
+  --m5-ink-muted: #707070;
+  --m5-ink-hint: #959595;
+  --m5-ink-on-dark: #a0a0a0;
+  --m5-ink-inverse: #ffffff;
+
+  /* ---------- 描边与表面 ---------- */
+  --m5-line: #e5e5e5;
+  --m5-line-soft: #eeeeee;
+  --m5-line-strong: #c0c0c0;
+  --m5-surface: #ffffff;
+  --m5-surface-subtle: #f5f7f6;
+  --m5-surface-inverse: #000000;
+
+  /* ---------- 状态 ---------- */
+  --m5-danger: #ff4d4f;
+  --m5-warning: #ff8a00; /* 建议值，官网未观测到，使用前与品牌确认 */
+  --m5-success: #00a870; /* 建议值，官网未观测到，使用前与品牌确认 */
+
+  /* ---------- 字体 ---------- */
+  --m5-font: Montserrat, "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  --m5-font-display: "HuXiaoBoSaoBaoTi", Montserrat, "Microsoft YaHei", sans-serif;
+  --m5-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+
+  /* ---------- 圆角 ---------- */
+  --m5-radius-xs: 4px;
+  --m5-radius-sm: 6px;
+  --m5-radius-md: 8px;
+  --m5-radius-lg: 10px;
+  --m5-radius-xl: 12px;
+  --m5-radius-2xl: 16px;
+  --m5-radius-pill: 999px;
+
+  /* ---------- 阴影 ---------- */
+  --m5-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --m5-shadow-md: 1px 1px 10px rgba(129, 129, 129, 0.4);
+  --m5-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  /* ---------- 动效 ---------- */
+  --m5-dur-fast: 100ms;
+  --m5-dur-base: 250ms;
+  --m5-dur: 300ms;
+  --m5-dur-slow: 380ms;
+  --m5-dur-reveal: 750ms;
+  --m5-ease: ease;
+  --m5-ease-emphasized: cubic-bezier(0.8, 0, 0.2, 1);
+
+  /* ---------- 布局 ---------- */
+  --m5-container: 1320px;
+  --m5-container-header: 1330px;
+  --m5-gutter: 24px;
+  --m5-header-h: 56px;
+
+  /* ---------- 密度：默认 product ---------- */
+  --m5-font-display-size: 44px;
+  --m5-font-h1: 36px;
+  --m5-font-h2: 28px;
+  --m5-font-h3: 20px;
+  --m5-font-body-l: 18px;
+  --m5-font-body: 16px;
+  --m5-font-caption: 13px;
+  --m5-font-nav: 14px;
+  --m5-font-btn: 14px;
+
+  --m5-space-xs: 4px;
+  --m5-space-s: 8px;
+  --m5-space-m: 12px;
+  --m5-space-l: 16px;
+  --m5-space-xl: 24px;
+  --m5-space-2xl: 32px;
+  --m5-space-3xl: 48px;
+  --m5-space-4xl: 64px;
+}
+
+/* 营销页密度：1920 视口下 1:1，与官网源码 px 值一致 */
+[data-m5-density="marketing"] {
+  --m5-font-display-size: 82px;
+  --m5-font-h1: 60px;
+  --m5-font-h2: 46px;
+  --m5-font-h3: 30px;
+  --m5-font-body-l: 28px;
+  --m5-font-body: 22px;
+  --m5-font-caption: 18px;
+  --m5-font-nav: 19px;
+  --m5-font-btn: 20px;
+
+  --m5-space-xs: 10px;
+  --m5-space-s: 16px;
+  --m5-space-m: 20px;
+  --m5-space-l: 28px;
+  --m5-space-xl: 40px;
+  --m5-space-2xl: 60px;
+  --m5-space-3xl: 80px;
+  --m5-space-4xl: 146px;
+
+  --m5-gutter: 40px;
+  --m5-header-h: 60px;
+}
+
+/* 营销密度的窄屏降级：官网用 10vw 根字号 + 移动端专用 px 值实现，
+   这里用断点整体缩放，效果等价且不需要改页面结构。 */
+@media (max-width: 1024px) {
+  [data-m5-density="marketing"] {
+    --m5-font-display-size: 56px;
+    --m5-font-h1: 44px;
+    --m5-font-h2: 34px;
+    --m5-font-h3: 22px;
+    --m5-font-body-l: 20px;
+    --m5-font-body: 17px;
+    --m5-font-caption: 14px;
+    --m5-font-nav: 15px;
+    --m5-font-btn: 16px;
+    --m5-space-3xl: 56px;
+    --m5-space-4xl: 72px;
+  }
+}
+
+@media (max-width: 640px) {
+  [data-m5-density="marketing"] {
+    --m5-font-display-size: 40px;
+    --m5-font-h1: 32px;
+    --m5-font-h2: 26px;
+    --m5-font-h3: 19px;
+    --m5-font-body-l: 18px;
+    --m5-font-body: 16px;
+    --m5-font-caption: 13px;
+    --m5-font-nav: 14px;
+    --m5-font-btn: 14px;
+    --m5-space-3xl: 40px;
+    --m5-space-4xl: 48px;
+    --m5-gutter: 20px;
+  }
+}
+
+/* ---------- 基础重置 ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--m5-font);
+  font-size: var(--m5-font-body);
+  line-height: 1.6;
+  color: var(--m5-ink);
+  background: var(--m5-surface);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.28;
+  color: var(--m5-ink);
+}
+
+h1 { font-size: var(--m5-font-h1); }
+h2 { font-size: var(--m5-font-h2); }
+h3 { font-size: var(--m5-font-h3); }
+h4 { font-size: var(--m5-font-body-l); }
+
+p { margin: 0 0 var(--m5-space-m); }
+
+a {
+  color: var(--m5-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--m5-blue-hover);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* 焦点可见：官网用 outline:none，这里补齐键盘可达性 */
+:focus-visible {
+  outline: 2px solid var(--m5-blue);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(2, 130, 203, 0.18);
+  color: var(--m5-ink);
+}
+
+/* ---------- 排版工具类 ---------- */
+.m5-display {
+  font-family: var(--m5-font-display);
+  font-size: var(--m5-font-display-size);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--m5-blue);
+}
+
+.m5-h1 { font-size: var(--m5-font-h1); font-weight: 700; }
+.m5-h2 { font-size: var(--m5-font-h2); font-weight: 700; }
+.m5-h3 { font-size: var(--m5-font-h3); font-weight: 700; }
+.m5-lead { font-size: var(--m5-font-body-l); color: var(--m5-ink-2); }
+.m5-caption { font-size: var(--m5-font-caption); color: var(--m5-ink-hint); }
+.m5-mono { font-family: var(--m5-font-mono); }
+
+/* 官网的标志性标题：蓝色 + 粗体 */
+.m5-section-title {
+  font-size: var(--m5-font-h2);
+  font-weight: 700;
+  color: var(--m5-blue);
+}
+
+.m5-container {
+  width: 100%;
+  max-width: var(--m5-container);
+  margin: 0 auto;
+  padding: 0 var(--m5-gutter);
+}
+
+/* 减少动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
