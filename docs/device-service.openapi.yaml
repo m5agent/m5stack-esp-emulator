@@ -976,6 +976,12 @@ components:
           description: >
             Guest network backend. generic-observe defaults to
             user,restrict=yes; validated profiles default to user.
+        console_mode:
+          type: string
+          enum: [auto, uart0, usb-jtag]
+          description: >
+            Guest console used for observation. generic-observe defaults
+            to auto; validated profiles default to uart0.
         ble_name:
           type: string
           minLength: 1

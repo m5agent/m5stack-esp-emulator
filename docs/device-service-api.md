@@ -276,6 +276,10 @@ Profiles are:
 profiles default to `user`; callers may explicitly select restricted mode.
 Use `user` for unrecognized firmware only inside a disposable VM.
 
+`network.console_mode` accepts `auto`, `uart0` and `usb-jtag`.
+`generic-observe` defaults to `auto` so UART-only and USB-Serial/JTAG-only
+firmware can both emit evidence. Validated lane profiles default to `uart0`.
+
 For StickS3 BLE-only, use
 `{"profile":"uiflow2-sticks3","wifi":false,"ble":true,"elf_artifact_id":"..."}`.
 The same guest also supports `wifi=true,ble=true`; the runner stages REPL input

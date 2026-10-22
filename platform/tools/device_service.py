@@ -173,6 +173,16 @@ def parse_network_execution(
             "network.net_mode must be 'user' or 'user,restrict=yes'",
             400,
         )
+    console_mode = value.get(
+        "console_mode",
+        "auto" if profile == "generic-observe" else "uart0",
+    )
+    if console_mode not in {"auto", "uart0", "usb-jtag"}:
+        raise ServiceError(
+            "invalid_network",
+            "network.console_mode must be auto, uart0 or usb-jtag",
+            400,
+        )
 
     def boolean(name: str) -> bool:
         candidate = value.get(name, defaults[name])
@@ -276,6 +286,7 @@ def parse_network_execution(
         "elf_artifact_id": elf_artifact_id,
         "expected_markers": expected_markers,
         "net_mode": net_mode,
+        "console_mode": console_mode,
     }
 
 
@@ -2009,6 +2020,8 @@ class NetworkDeviceSession(DeviceSession):
             str(self.network_config.get("psram_size", "8M")),
             "--net-mode",
             str(self.network_config.get("net_mode", "user")),
+            "--console-mode",
+            str(self.network_config.get("console_mode", "uart0")),
             "--ble-name",
             str(self.network_config.get("ble_name", "M5-NETWORK-LANE")),
             "--wifi" if self.network_config.get("wifi") else "--no-wifi",

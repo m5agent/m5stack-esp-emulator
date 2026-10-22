@@ -76,6 +76,7 @@ class LaneConfig:
     wifi_auth: str
     psram_size: str
     net_mode: str
+    console_mode: str
     wifi: bool
     ble: bool
     ble_port: int
@@ -264,7 +265,7 @@ def build_emulator_command(
             "--wifi-auth",
             config.wifi_auth,
             "--console",
-            "uart0",
+            config.console_mode,
             "--timeout",
             f"{config.timeout:g}s",
             "--log-color",
@@ -775,6 +776,7 @@ def execute(config: LaneConfig) -> dict:
             "name": "esp-emu",
             "expected_version": "0.50.0",
             "network_backend": config.net_mode,
+            "console": config.console_mode,
             "wifi": {
                 "enabled": config.wifi,
                 "ssid": config.ssid,
@@ -872,6 +874,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument("--psram-size", default="8M")
     parser.add_argument("--net-mode", default="user")
+    parser.add_argument(
+        "--console-mode",
+        choices=("auto", "uart0", "usb-jtag"),
+        default="uart0",
+    )
     parser.add_argument("--wifi", action=argparse.BooleanOptionalAction)
     parser.add_argument("--ble", action=argparse.BooleanOptionalAction)
     parser.add_argument("--ble-port", type=int)
@@ -905,6 +912,7 @@ def main(argv: list[str] | None = None) -> int:
         wifi_auth=args.wifi_auth,
         psram_size=args.psram_size,
         net_mode=args.net_mode,
+        console_mode=args.console_mode,
         wifi=True if args.wifi is None else args.wifi,
         ble=False if args.ble is None else args.ble,
         ble_port=args.ble_port or free_port(),

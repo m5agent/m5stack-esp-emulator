@@ -169,12 +169,14 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(generic["expected_markers"], ["APP_READY"])
         self.assertEqual(generic["net_mode"], "user,restrict=yes")
+        self.assertEqual(generic["console_mode"], "auto")
         dns_udp = device_service_module.parse_network_execution(
             self.service.specs["sticks3"],
             {"profile": "idf-dns-udp"},
         )
         self.assertFalse(dns_udp["tcp"])
         self.assertEqual(dns_udp["net_mode"], "user")
+        self.assertEqual(dns_udp["console_mode"], "uart0")
         generic_open = device_service_module.parse_network_execution(
             self.service.specs["sticks3"],
             {
@@ -192,6 +194,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 },
             )
         self.assertEqual(invalid_mode.exception.code, "invalid_network")
+        with self.assertRaises(ServiceError) as invalid_console:
+            device_service_module.parse_network_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "generic-observe",
+                    "console_mode": "vga",
+                },
+            )
+        self.assertEqual(invalid_console.exception.code, "invalid_network")
 
     def test_network_session_runs_isolated_lane_and_retains_evidence(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
@@ -256,6 +267,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
             argv = json.loads((session.network_dir / "argv.json").read_text())
             net_mode_index = argv.index("--net-mode")
             self.assertEqual(argv[net_mode_index + 1], "user")
+            console_mode_index = argv.index("--console-mode")
+            self.assertEqual(argv[console_mode_index + 1], "uart0")
             bundle = session.evidence_bundle(
                 {"manifest", "network", "serial", "logs"}
             )
@@ -341,6 +354,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 argv[net_mode_index + 1],
                 "user,restrict=yes",
             )
+            console_mode_index = argv.index("--console-mode")
+            self.assertEqual(argv[console_mode_index + 1], "auto")
         finally:
             device_service_module.NETWORK_LANE = old_lane
             if old_emulator is None:

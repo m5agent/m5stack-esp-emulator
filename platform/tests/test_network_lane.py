@@ -40,6 +40,7 @@ def config(tmp: Path, **changes) -> LaneConfig:
         "wifi_auth": "wpa2-wpa3",
         "psram_size": "8M",
         "net_mode": "user",
+        "console_mode": "uart0",
         "wifi": True,
         "ble": True,
         "ble_port": 9544,
@@ -103,6 +104,17 @@ class NetworkLaneTests(unittest.TestCase):
                 firmware_copy=tmp / "runtime.bin",
             )
         self.assertNotIn("--psram-size", command)
+
+    def test_console_mode_is_forwarded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            row = config(tmp, console_mode="auto")
+            command, _ = build_emulator_command(
+                row,
+                firmware_copy=tmp / "runtime.bin",
+            )
+        index = command.index("--console")
+        self.assertEqual(command[index + 1], "auto")
 
     def test_dns_udp_profile_exits_on_final_result(self):
         with tempfile.TemporaryDirectory() as directory:

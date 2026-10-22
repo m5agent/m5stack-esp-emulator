@@ -130,6 +130,8 @@ def main() -> int:
         str(args.timeout),
         "--net-mode",
         "user",
+        "--console-mode",
+        "auto",
         "--wifi",
         "--no-ble",
         "--no-tcp",

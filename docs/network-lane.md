@@ -65,6 +65,8 @@ in advance.
 Every run writes `serial.log`, `ble-probe.log` and `evidence.json` under the
 selected output directory. Binary hashes identify the exact firmware, ELF and
 emulator used. Passwords are redacted from the command and evidence.
+Unknown firmware should use `--console-mode auto` so ESP-IDF's selected
+UART or USB-Serial/JTAG console can provide observation markers.
 
 The classic ESP32/Core2 QEMU path has a separate Ethernet fixture at
 `tests/network/core2_openeth/`. It selects `CONFIG_ETH_USE_OPENETH` explicitly,
