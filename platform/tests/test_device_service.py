@@ -164,6 +164,25 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertIn("b/value", diff["added"])
         self.assertIn("a/value", diff["changed"])
 
+    def test_stopped_session_returns_persisted_last_frame(self):
+        session = self._stopped_session()
+        session.last_frame_path.write_bytes(b"\x89PNG\r\n\x1a\nlast-frame")
+        session.last_frame_meta_path.write_text(
+            json.dumps(
+                {
+                    "width": 135,
+                    "height": 240,
+                    "nonblack_pixels": 10,
+                    "unique_colors": 2,
+                    "captured_at": "2026-10-22T00:00:00+00:00",
+                }
+            )
+        )
+        metrics = session.frame_metrics()
+        self.assertEqual(metrics["source"], "persisted")
+        self.assertEqual(metrics["width"], 135)
+        self.assertEqual(metrics["png_bytes"], len(b"\x89PNG\r\n\x1a\nlast-frame"))
+
 
 class DeviceServiceHttpTests(unittest.TestCase):
     @classmethod

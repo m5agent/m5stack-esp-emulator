@@ -633,6 +633,8 @@ class DeviceSession:
         self.dir.mkdir(parents=True, exist_ok=True)
         self.serial0 = self.dir / "serial.log"
         self.serial1 = self.dir / "serial1.log"
+        self.last_frame_path = self.dir / "last-frame.png"
+        self.last_frame_meta_path = self.dir / "last-frame.json"
         self.stdout_path = self.dir / "qemu.stdout"
         self.stderr_path = self.dir / "qemu.stderr"
         self._proc: subprocess.Popen | None = None
@@ -661,6 +663,12 @@ class DeviceSession:
                 self.state = "failed"
                 self.error = self.error or f"process exited with code {self._proc.returncode}"
             serial_size = self.serial0.stat().st_size if self.serial0.exists() else 0
+            frame_meta = {}
+            if self.last_frame_meta_path.is_file():
+                try:
+                    frame_meta = json.loads(self.last_frame_meta_path.read_text())
+                except json.JSONDecodeError:
+                    frame_meta = {}
             return {
                 "session_id": self.id,
                 "device_id": self.spec.id,
@@ -681,6 +689,8 @@ class DeviceSession:
                 ).isoformat(),
                 "error": self.error,
                 "display": self.spec.display,
+                "last_frame_available": self.last_frame_path.is_file(),
+                "last_frame_captured_at": frame_meta.get("captured_at"),
                 "completed_at": self.completed_at,
                 "event_count": len(self.events),
             }
@@ -966,6 +976,13 @@ class DeviceSession:
                 "this device has no framebuffer display",
                 409,
             )
+        if self.state not in {"running", "booting"}:
+            persisted = self.persisted_frame_metrics()
+            if persisted:
+                return persisted
+            raise ServiceError(
+                "session_not_running", f"session state is {self.state}", 409
+            )
         with self._lock:
             ppm = self.dir / f"frame-{uuid.uuid4().hex}.ppm"
             png = ppm.with_suffix(".png")
@@ -975,17 +992,53 @@ class DeviceSession:
                 write_rgb_png(png, width, height, pixels)
                 png_bytes = png.read_bytes()
                 nonblack, unique_colors = rgb_metrics(pixels)
-                return {
+                metrics = {
                     "png": png_bytes,
                     "width": width,
                     "height": height,
                     "nonblack_pixels": nonblack,
                     "unique_colors": unique_colors,
                     "png_bytes": len(png_bytes),
+                    "source": "live",
                 }
+                self._persist_frame(metrics)
+                return metrics
             finally:
                 ppm.unlink(missing_ok=True)
                 png.unlink(missing_ok=True)
+
+    def _persist_frame(self, metrics: dict) -> None:
+        self.last_frame_path.write_bytes(metrics["png"])
+        self.last_frame_meta_path.write_text(
+            json.dumps(
+                {
+                    key: value
+                    for key, value in metrics.items()
+                    if key != "png"
+                }
+                | {"captured_at": iso_now()},
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n"
+        )
+
+    def persisted_frame_metrics(self) -> dict | None:
+        if not self.last_frame_path.is_file():
+            return None
+        meta = {}
+        if self.last_frame_meta_path.is_file():
+            try:
+                meta = json.loads(self.last_frame_meta_path.read_text())
+            except json.JSONDecodeError:
+                meta = {}
+        png = self.last_frame_path.read_bytes()
+        return {
+            **meta,
+            "png": png,
+            "png_bytes": len(png),
+            "source": "persisted",
+        }
 
     def frame_png(self) -> tuple[bytes, int, int]:
         metrics = self.frame_metrics()
@@ -1377,6 +1430,11 @@ class DeviceSession:
                 if purge:
                     shutil.rmtree(self.dir, ignore_errors=True)
                 return result
+            if self.state == "running" and self.spec.has_display:
+                try:
+                    self.frame_metrics()
+                except ServiceError:
+                    pass
             self.state = "stopping"
             if self._qmp is not None:
                 try:
@@ -1516,6 +1574,9 @@ class Tab5DeviceSession(DeviceSession):
 
     def frame_metrics(self) -> dict:
         if self.state not in {"running", "booting"} or self._gdb_port is None:
+            persisted = self.persisted_frame_metrics()
+            if persisted:
+                return persisted
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
             )
@@ -1540,14 +1601,17 @@ class Tab5DeviceSession(DeviceSession):
         try:
             png_bytes = png.read_bytes()
             nonblack, unique_colors = rgb_metrics(pixels)
-            return {
+            metrics = {
                 "png": png_bytes,
                 "width": width,
                 "height": height,
                 "nonblack_pixels": nonblack,
                 "unique_colors": unique_colors,
                 "png_bytes": len(png_bytes),
+                "source": "live",
             }
+            self._persist_frame(metrics)
+            return metrics
         finally:
             png.unlink(missing_ok=True)
             (self.dir / f"{name}.rgb565").unlink(missing_ok=True)
@@ -1644,6 +1708,11 @@ class Tab5DeviceSession(DeviceSession):
                 if purge:
                     shutil.rmtree(self.dir, ignore_errors=True)
                 return result
+            if self.state == "running" and self.spec.has_display:
+                try:
+                    self.frame_metrics()
+                except ServiceError:
+                    pass
             self.state = "stopping"
             self._terminate_tab5()
             self.state = "stopped"

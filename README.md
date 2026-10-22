@@ -73,6 +73,7 @@ curl -sS -H 'Content-Type: application/json' \
 - 串口、QEMU 日志、PNG framebuffer；
 - 按键/触摸/拖拽、QOM、reset、renew、stop；
 - application readiness、evidence ZIP、QOM/flash snapshot/diff；
+- 停止会话前保存最后一帧，历史会话仍可查看串口和最后画面；
 - 全局和单设备并发限制、TTL 自动回收。
 
 `running` 只表示虚拟主机控制通道已启动；应用就绪请使用 `ready_marker`、

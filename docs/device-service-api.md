@@ -180,6 +180,11 @@ not guarantee that the application reached its first frame or a serial marker.
 For application-level readiness, provide `ready_marker` in the create request
 or call `/wait`, then inspect serial and/or `/frame.png`.
 
+The service stores the latest captured framebuffer as `last-frame.png` and
+`last-frame.json`. When a session stops, `frame.png` returns this last-known
+frame instead of failing. Session snapshots expose `last_frame_available` and
+`last_frame_captured_at`.
+
 ## Endpoints
 
 | Method | Path | Purpose |
@@ -204,7 +209,7 @@ or call `/wait`, then inspect serial and/or `/frame.png`.
 | GET | `/api/v1/sessions/{id}/evidence` | Download a hashed evidence ZIP |
 | GET | `/api/v1/sessions/{id}/serial?offset=0&limit=65536` | Incremental serial read |
 | GET | `/api/v1/sessions/{id}/logs?offset=0&limit=65536` | Serial plus QEMU stdout/stderr tail |
-| GET | `/api/v1/sessions/{id}/frame.png` | Current framebuffer as PNG |
+| GET | `/api/v1/sessions/{id}/frame.png` | Live or last-known framebuffer as PNG |
 | POST | `/api/v1/sessions/{id}/input` | Key, touch, long press or drag |
 | POST | `/api/v1/sessions/{id}/qom` | Set a QOM property |
 | GET | `/api/v1/sessions/{id}/qom?path=...&property=...` | Read a QOM property |
@@ -311,6 +316,7 @@ curl -sS \
 ```
 
 The response headers include `X-Frame-Width` and `X-Frame-Height`.
+For a recently stopped session it returns the persisted last-known frame.
 
 ### Inject input
 
@@ -402,6 +408,8 @@ session is removed from the active capacity count immediately.
 - expired sessions are stopped by a janitor thread;
 - stopped/failed sessions remain queryable until the service restarts;
 - `GET /sessions?include_stopped=0` hides stopped/failed history from a UI;
+- the web dashboard shows active leases plus sessions completed in the last
+  30 minutes by default; “显示全部历史” expands the list;
 - `DELETE /sessions?state=stopped&purge=1` removes old sessions and their
   per-session flash copies;
 - a guest reset does not make a session safe for a different tenant;

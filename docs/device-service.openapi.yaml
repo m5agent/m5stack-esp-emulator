@@ -914,6 +914,12 @@ components:
           nullable: true
         event_count:
           type: integer
+        last_frame_available:
+          type: boolean
+        last_frame_captured_at:
+          type: string
+          format: date-time
+          nullable: true
     ReadyConditions:
       type: object
       properties:

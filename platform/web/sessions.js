@@ -61,7 +61,9 @@ function sessionCard(session) {
   const serialState = state.serial.get(session.session_id) || { text: '' };
   const frameUrl = state.frames.get(session.session_id);
   const warning = (device.warnings || []).join(' ');
-  const frameText = hasDisplay ? '等待画面…' : '该设备无 framebuffer';
+  const frameText = hasDisplay
+    ? (session.last_frame_available ? '加载最后一帧…' : '等待应用首帧…')
+    : '该设备无 framebuffer';
   return `
     <article class="panel session-card" data-session-id="${escapeHtml(session.session_id)}">
       <div class="session-visual" id="visual-${escapeHtml(session.session_id)}">
@@ -96,7 +98,7 @@ function sessionCard(session) {
 function render() {
   const list = $('sessionList');
   if (!state.sessions.length) {
-    list.innerHTML = `<div class="panel empty-state">${state.showHistory ? '还没有虚拟设备会话记录。' : '当前没有活动虚拟设备会话。'}</div>`;
+    list.innerHTML = `<div class="panel empty-state">${state.showHistory ? '还没有虚拟设备会话记录。' : '当前没有活动或近期完成的虚拟设备会话。'}</div>`;
     return;
   }
   list.innerHTML = state.sessions
@@ -133,20 +135,30 @@ async function refreshSessions() {
   if (state.busy) return;
   state.busy = true;
   try {
-    const sessionPath = state.showHistory
-      ? '/api/v1/sessions'
-      : '/api/v1/sessions?include_stopped=0';
+    const sessionPath = '/api/v1/sessions';
     const [sessionsPayload, capacity] = await Promise.all([
       api(sessionPath),
       api('/api/v1/capacity'),
     ]);
-    state.sessions = sessionsPayload.sessions || [];
+    const allSessions = sessionsPayload.sessions || [];
+    const recentCutoff = Date.now() - 30 * 60 * 1000;
+    state.sessions = state.showHistory
+      ? allSessions
+      : allSessions.filter(session =>
+          !['stopped', 'failed'].includes(session.state)
+          || Date.parse(session.completed_at || session.created_at) >= recentCutoff
+        );
     renderCapacity(capacity);
     render();
     showError('');
-    const running = state.sessions.filter(session => session.state === 'running');
-    await Promise.all(running.map(refreshSerial));
-    await Promise.all(running.map(refreshFrame));
+    const serialSessions = state.sessions.filter(
+      session => session.state === 'running' || session.serial_bytes > 0
+    );
+    const frameSessions = state.sessions.filter(
+      session => session.state === 'running' || session.last_frame_available
+    );
+    await Promise.all(serialSessions.map(refreshSerial));
+    await Promise.all(frameSessions.map(refreshFrame));
   } catch (error) {
     showError(error.message);
   } finally {
@@ -183,6 +195,7 @@ async function refreshFrame(session) {
   if (!display?.width || !display?.height) return;
   const node = $(`visual-${session.session_id}`);
   if (!node) return;
+  if (session.state !== 'running' && state.frames.has(session.session_id)) return;
   const last = state.lastFrameAt.get(session.session_id) || 0;
   if (state.frames.has(session.session_id) && Date.now() - last < 5000) return;
   const headers = new Headers();
@@ -275,7 +288,7 @@ $('createBtn').addEventListener('click', createSession);
 $('refreshBtn').addEventListener('click', refreshSessions);
 $('historyBtn').addEventListener('click', () => {
   state.showHistory = !state.showHistory;
-  $('historyBtn').textContent = state.showHistory ? '隐藏历史' : '显示历史';
+  $('historyBtn').textContent = state.showHistory ? '仅看近期' : '显示全部历史';
   refreshSessions();
 });
 $('clearHistoryBtn').addEventListener('click', async () => {
