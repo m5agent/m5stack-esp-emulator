@@ -33,6 +33,7 @@ MicroPython 和其他完整 Flash 固件。
 - [完整项目 Backlog](docs/project-backlog.md)
 - [Tab5 暂缓项](docs/tab5-deferred-backlog.md)
 - [网络模拟方案](docs/network-simulation-plan.md)
+- [统一设备运行时契约](docs/unified-device-runtime.md)
 
 ## 快速开始
 
@@ -100,7 +101,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；仍有间歇性 cache panic |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；OpenMAC 可选补丁已完成 stock UIFlow2 WiFi 扫描，DHCP/IP 与 BLE 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -183,6 +184,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - [外设仿真架构](docs/peripheral-simulation-architecture.md)
 - [固件审查工作流](docs/firmware-review-and-simulation-workflow.md)
 - [网络模拟方案](docs/network-simulation-plan.md)
+- [统一设备运行时契约](docs/unified-device-runtime.md)
 - [Tab5 暂缓项](docs/tab5-deferred-backlog.md)
 - [维护与验证规则](AGENTS.md)
 
