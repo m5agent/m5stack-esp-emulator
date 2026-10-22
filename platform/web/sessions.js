@@ -6,6 +6,7 @@ const state = {
   lastFrameAt: new Map(),
   token: sessionStorage.getItem('m5-service-token') || '',
   busy: false,
+  showHistory: false,
 };
 
 const $ = id => document.getElementById(id);
@@ -95,7 +96,7 @@ function sessionCard(session) {
 function render() {
   const list = $('sessionList');
   if (!state.sessions.length) {
-    list.innerHTML = '<div class="panel empty-state">还没有虚拟设备会话。</div>';
+    list.innerHTML = `<div class="panel empty-state">${state.showHistory ? '还没有虚拟设备会话记录。' : '当前没有活动虚拟设备会话。'}</div>`;
     return;
   }
   list.innerHTML = state.sessions
@@ -132,8 +133,11 @@ async function refreshSessions() {
   if (state.busy) return;
   state.busy = true;
   try {
+    const sessionPath = state.showHistory
+      ? '/api/v1/sessions'
+      : '/api/v1/sessions?include_stopped=0';
     const [sessionsPayload, capacity] = await Promise.all([
-      api('/api/v1/sessions'),
+      api(sessionPath),
       api('/api/v1/capacity'),
     ]);
     state.sessions = sessionsPayload.sessions || [];
@@ -243,10 +247,15 @@ async function sessionAction(sessionId, action) {
         body: '{}',
       });
     } else if (action === 'wait') {
+      const session = state.sessions.find(row => row.session_id === sessionId);
+      const display = session?.display || deviceFor(session?.device_id).display;
+      const ready = display?.width
+        ? { frame_nonblank: true, frame_min_bytes: 1024, frame_min_nonblack_pixels: 16 }
+        : undefined;
       await api(`/api/v1/sessions/${encodeURIComponent(sessionId)}/wait`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timeout_seconds: 30 }),
+        body: JSON.stringify({ timeout_seconds: 60, ...(ready ? { ready } : {}) }),
       });
     }
     await refreshSessions();
@@ -264,6 +273,27 @@ $('saveTokenBtn').addEventListener('click', () => {
 
 $('createBtn').addEventListener('click', createSession);
 $('refreshBtn').addEventListener('click', refreshSessions);
+$('historyBtn').addEventListener('click', () => {
+  state.showHistory = !state.showHistory;
+  $('historyBtn').textContent = state.showHistory ? '隐藏历史' : '显示历史';
+  refreshSessions();
+});
+$('clearHistoryBtn').addEventListener('click', async () => {
+  try {
+    const result = await api('/api/v1/sessions?state=stopped&purge=1', {
+      method: 'DELETE',
+    });
+    state.serial.clear();
+    for (const url of state.frames.values()) URL.revokeObjectURL(url);
+    state.frames.clear();
+    state.lastFrameAt.clear();
+    await refreshSessions();
+    showError('');
+    $('sessionSub').textContent = `已清理 ${result.cleared} 个历史会话`;
+  } catch (error) {
+    showError(error.message);
+  }
+});
 $('sessionList').addEventListener('click', event => {
   const button = event.target.closest('button[data-action]');
   if (!button) return;

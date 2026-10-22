@@ -45,6 +45,9 @@ When a token is configured, every `/api/v1` endpoint except health requires:
 Authorization: Bearer <private-token>
 ```
 
+The legacy catalog endpoints `/api/devices`, `/api/peripherals` and
+`/api/peripheral-interfaces` use the same token when one is configured.
+
 The service is intended for a trusted workstation or an isolated worker. Do not
 expose it directly to the public internet.
 
@@ -151,6 +154,10 @@ Content-Type: application/json
 The response includes `firmware_id`, `sha256`, `device_id`, `flash_size`,
 `kind`, `source` and `header_magic`.
 
+`artifact_sha256` identifies the uploaded source artifact. `firmware_id` and
+`firmware.sha256` identify the composed, flash-sized image after padding and
+segment composition. They intentionally do not have to be equal.
+
 ### Session
 
 A session is one exclusive emulator lease. It has one device profile, one
@@ -183,18 +190,30 @@ or call `/wait`, then inspect serial and/or `/frame.png`.
 | GET | `/api/v1/capacity` | Global and per-device active lease counts |
 | POST | `/api/v1/artifacts` | Upload a binary artifact |
 | GET | `/api/v1/artifacts/{artifact_id}` | Artifact metadata |
+| DELETE | `/api/v1/artifacts/{artifact_id}` | Delete an artifact |
 | POST | `/api/v1/firmware` | Compose a merged or segmented firmware |
 | GET | `/api/v1/firmware/{firmware_id}` | Firmware metadata |
-| GET | `/api/v1/sessions` | List sessions |
+| POST | `/api/v1/firmware/analyze` | Validate image, chip ID, partition table and app descriptor |
+| GET | `/api/v1/firmware/{firmware_id}/analysis` | Read stored static analysis |
+| GET | `/api/v1/sessions` | List sessions; `include_stopped=0` shows active leases only |
 | POST | `/api/v1/sessions` | Create a session |
+| DELETE | `/api/v1/sessions?state=stopped&purge=1` | Clear stopped/failed history |
 | GET | `/api/v1/sessions/{id}` | Session status |
-| POST | `/api/v1/sessions/{id}/wait` | Wait for running state or a serial marker |
+| GET | `/api/v1/sessions/{id}/events` | Lifecycle event timeline |
+| POST | `/api/v1/sessions/{id}/wait` | Wait for serial/frame application readiness |
+| GET | `/api/v1/sessions/{id}/evidence` | Download a hashed evidence ZIP |
 | GET | `/api/v1/sessions/{id}/serial?offset=0&limit=65536` | Incremental serial read |
 | GET | `/api/v1/sessions/{id}/logs?offset=0&limit=65536` | Serial plus QEMU stdout/stderr tail |
 | GET | `/api/v1/sessions/{id}/frame.png` | Current framebuffer as PNG |
 | POST | `/api/v1/sessions/{id}/input` | Key, touch, long press or drag |
 | POST | `/api/v1/sessions/{id}/qom` | Set a QOM property |
 | GET | `/api/v1/sessions/{id}/qom?path=...&property=...` | Read a QOM property |
+| GET | `/api/v1/sessions/{id}/qom/list?path=/machine` | List QOM properties |
+| POST | `/api/v1/sessions/{id}/qom-snapshot` | Store a recursive QOM snapshot |
+| GET | `/api/v1/sessions/{id}/qom/diff?before=...&after=...` | Diff stored QOM snapshots |
+| GET | `/api/v1/sessions/{id}/flash?format=sha256\|bin` | Read virtual flash hash or bytes |
+| POST | `/api/v1/sessions/{id}/flash-snapshot` | Store a virtual flash snapshot |
+| GET | `/api/v1/sessions/{id}/flash/diff?before=...&after=...` | Diff flash snapshots |
 | POST | `/api/v1/sessions/{id}/reset` | Reset the guest |
 | POST | `/api/v1/sessions/{id}/renew` | Extend the lease |
 | POST | `/api/v1/sessions/{id}/stop` | Stop the session |
@@ -222,18 +241,56 @@ prepared flash cache into a new per-session flash file.
 ```bash
 SID='<session-id>'
 curl -sS -H 'Content-Type: application/json' \
-  -d '{"timeout_seconds":60}' \
+  -d '{"timeout_seconds":60,"ready":{"frame_nonblank":true,"frame_min_bytes":1024,"frame_min_nonblack_pixels":16}}' \
   http://127.0.0.1:8787/api/v1/sessions/$SID/wait
 ```
 
-For firmware with a known serial marker:
+For firmware with known serial markers:
 
 ```json
 {
-  "ready_marker": "APP_READY",
-  "timeout_seconds": 60
+  "timeout_seconds": 60,
+  "ready": {
+    "serial_markers": ["APP_READY", "UIFLOW_READY"],
+    "frame_nonblank": true,
+    "frame_min_bytes": 1024,
+    "frame_min_nonblack_pixels": 16,
+    "require_all": true
+  }
 }
 ```
+
+The response includes `ready`, `ready_reason`, matched serial markers,
+`first_serial_at`, `first_frame_at` and frame metrics without embedding the
+PNG bytes.
+
+### Evidence bundle
+
+```bash
+curl -sS \
+  'http://127.0.0.1:8787/api/v1/sessions/<session-id>/evidence?include=manifest,serial,frames,logs,qom' \
+  -o /tmp/m5-evidence.zip
+```
+
+Add `flash` to include the full isolated virtual flash. The ZIP always contains
+`manifest.json` with session timeline, file hashes, device warnings and flash
+metadata.
+
+### QOM and flash snapshots
+
+```bash
+curl -sS -H 'Content-Type: application/json' \
+  -d '{"path":"/machine","depth":2,"max_nodes":500}' \
+  http://127.0.0.1:8787/api/v1/sessions/<session-id>/qom-snapshot
+
+curl -sS -H 'Content-Type: application/json' \
+  -d '{}' \
+  http://127.0.0.1:8787/api/v1/sessions/<session-id>/flash-snapshot
+```
+
+Use the returned `snapshot_id` values with the corresponding `diff` endpoint.
+Flash snapshot diff reports changed byte count and contiguous ranges, not a
+second full-size image.
 
 ### Read serial incrementally
 
@@ -344,10 +401,14 @@ session is removed from the active capacity count immediately.
 - `max_per_device` applies to each device model;
 - expired sessions are stopped by a janitor thread;
 - stopped/failed sessions remain queryable until the service restarts;
+- `GET /sessions?include_stopped=0` hides stopped/failed history from a UI;
+- `DELETE /sessions?state=stopped&purge=1` removes old sessions and their
+  per-session flash copies;
 - a guest reset does not make a session safe for a different tenant;
 - delete and recreate for tenant isolation.
 - `running` is an emulator-process state; use serial markers or screenshots to
   establish application and visual readiness.
+- capacity errors return `429` with `Retry-After: 2`.
 
 ## Current limitations
 

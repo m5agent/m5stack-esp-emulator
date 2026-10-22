@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import json
+import io
 import sys
 import tempfile
 import threading
 import unittest
+import zipfile
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import HTTPError
@@ -14,7 +16,7 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
-from device_service import DeviceService
+from device_service import DeviceService, DeviceSession
 from serve import Handler
 
 
@@ -81,6 +83,86 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(capacity["max_per_device"], 1)
         self.assertEqual(capacity["modes"]["network"], "disabled")
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
+
+    def test_catalog_exposes_sku_and_coverage(self):
+        row = self.service.get_device("cores3")
+        self.assertEqual(row["sku"], "K128")
+        self.assertIn("generic-flash", row["firmware_families"])
+        self.assertIn("peripheral_status", row["coverage"])
+
+    def test_artifact_list_and_delete(self):
+        artifact = self.service.upload_artifact(b"probe")
+        self.assertEqual(
+            self.service.artifacts.list()[0]["artifact_id"],
+            artifact["artifact_id"],
+        )
+        self.service.artifacts.delete(artifact["artifact_id"])
+        self.assertEqual(self.service.artifacts.list(), [])
+
+    def _stopped_session(self, firmware: bytes = b"\xff" * 1024):
+        spec = self.service.specs["sticks3"]
+        firmware_path = Path(self.tmp.name) / "firmware.bin"
+        firmware_path.write_bytes(firmware)
+        session = DeviceSession(
+            self.service,
+            session_id="a" * 32,
+            spec=spec,
+            firmware_id="f" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="f" * 64,
+            firmware_source="uploaded",
+            source_artifacts=["e" * 64],
+            ttl_seconds=60,
+            ready_marker=None,
+            ready_timeout=10,
+            ready_conditions=None,
+        )
+        session.serial0.write_text("ready\n")
+        session.virtual_flash = session.dir / "virtual-flash.bin"
+        session.virtual_flash.write_bytes(firmware)
+        session.state = "stopped"
+        self.service._sessions[session.id] = session
+        return session
+
+    def test_session_history_filter_and_clear(self):
+        session = self._stopped_session()
+        self.assertEqual(self.service.list_sessions(include_stopped=False)["sessions"], [])
+        cleared = self.service.clear_stopped(purge=True)
+        self.assertEqual(cleared["cleared"], 1)
+        self.assertNotIn(session.id, self.service._sessions)
+
+    def test_serial_readiness_and_evidence_bundle(self):
+        session = self._stopped_session()
+        session.state = "running"
+        result = session.wait_ready(
+            {
+                "timeout_seconds": 1,
+                "ready": {
+                    "serial_markers": ["ready"],
+                    "require_all": True,
+                },
+            }
+        )
+        self.assertTrue(result["ready"])
+        bundle = session.evidence_bundle({"manifest", "serial", "flash"})
+        with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+            self.assertIn("manifest.json", archive.namelist())
+            self.assertIn("serial.log", archive.namelist())
+            self.assertIn("flash/virtual-flash.bin", archive.namelist())
+
+    def test_qom_diff_uses_stored_snapshots(self):
+        session = self._stopped_session()
+        before = "1" * 32
+        after = "2" * 32
+        (session.dir / f"qom-{before}.json").write_text(
+            json.dumps({"nodes": {"a": {"value": 1}}})
+        )
+        (session.dir / f"qom-{after}.json").write_text(
+            json.dumps({"nodes": {"a": {"value": 2}, "b": {"value": 3}}})
+        )
+        diff = session.qom_diff(before, after)
+        self.assertIn("b/value", diff["added"])
+        self.assertIn("a/value", diff["changed"])
 
 
 class DeviceServiceHttpTests(unittest.TestCase):
@@ -152,6 +234,42 @@ class DeviceServiceHttpTests(unittest.TestCase):
         status, fetched = self.request(f"/api/v1/firmware/{firmware['firmware_id']}")
         self.assertEqual(status, 200)
         self.assertEqual(fetched["sha256"], firmware["sha256"])
+
+
+class LegacyApiAuthTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.service = DeviceService(state_dir=Path(cls.tmp.name))
+
+        class AuthHandler(Handler):
+            api_token = "test-auth-value"
+            service = cls.service
+
+        cls.handler = AuthHandler
+        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), AuthHandler)
+        cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = f"http://127.0.0.1:{cls.server.server_port}"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.server.server_close()
+        cls.thread.join(timeout=2)
+        cls.service.close_all()
+        cls.tmp.cleanup()
+
+    def test_legacy_api_requires_token(self):
+        with self.assertRaises(HTTPError) as context:
+            urlopen(self.base + "/api/devices", timeout=5)
+        self.assertEqual(context.exception.code, 401)
+        request = Request(
+            self.base + "/api/devices",
+            headers={"Authorization": "Bearer test-auth-value"},
+        )
+        with urlopen(request, timeout=5) as response:
+            self.assertEqual(response.status, 200)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ Tab5 is supported with an explicit partial-peripheral warning.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import signal
@@ -18,6 +19,7 @@ import sys
 import threading
 import time
 import uuid
+import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,6 +28,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 MATRIX = ROOT / "tests/uiflow2/device_matrix.json"
 PROFILES = ROOT / "platform/qemu/profiles.json"
+DEVICE_CATALOG = ROOT / "devices/catalog.source.json"
 TEST_TOOLS = ROOT / "tests/uiflow2"
 if str(TEST_TOOLS) not in sys.path:
     sys.path.insert(0, str(TEST_TOOLS))
@@ -49,6 +52,7 @@ from run_tab5_ui_test import (  # noqa: E402
     wait_for_port as wait_for_tcp_port,
     write_png as write_tab5_png,
 )
+from firmware_analysis import analyze_firmware, expected_chip_id  # noqa: E402
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 EXCLUDED_DEVICES = {
@@ -102,6 +106,8 @@ class DeviceSpec:
     name: str
     group: str
     soc: str
+    sku: str
+    device_codes: list[str]
     backend: str
     machine: str
     flash_size: int
@@ -158,12 +164,16 @@ class DeviceSpec:
 def load_device_specs() -> dict[str, DeviceSpec]:
     matrix = json.loads(MATRIX.read_text())
     profiles = json.loads(PROFILES.read_text())
+    catalog_source = json.loads(DEVICE_CATALOG.read_text())
     profiles_by_id = {row["id"]: row for row in profiles["devices"]}
+    source_by_id = {row["id"]: row for row in catalog_source["devices"]}
     specs = {}
     for row in matrix["devices"]:
         device_id = row["id"]
         backend = matrix["backends"].get(row["backend"], {})
         profile = profiles_by_id.get(device_id, {})
+        source = source_by_id.get(device_id, {})
+        uiflow_source = source.get("uiflow2") or {}
         excluded_reason = EXCLUDED_DEVICES.get(device_id)
         reference = ROOT / row["base"] if row.get("base") else None
         if device_id == "tab5":
@@ -218,6 +228,12 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             name=profile.get("name", device_id),
             group=profile.get("group", ""),
             soc=profile.get("soc", ""),
+            sku=source.get("sku", ""),
+            device_codes=(
+                [source["uiflow2"]["firmware"]["firmware_id"]]
+                if (uiflow_source.get("firmware") or {}).get("firmware_id")
+                else []
+            ),
             backend=row["backend"],
             machine=row.get("machine", ""),
             flash_size=(
@@ -321,6 +337,25 @@ class ArtifactStore:
                     "unknown_artifact", f"unknown artifact: {artifact_id}", 404
                 )
             return json.loads(meta.read_text())
+
+    def list(self) -> list[dict]:
+        with self._lock:
+            records = [
+                json.loads(path.read_text())
+                for path in self.root.glob("*.json")
+            ]
+        return sorted(
+            records,
+            key=lambda item: item.get("created_at", ""),
+            reverse=True,
+        )
+
+    def delete(self, artifact_id: str) -> dict:
+        record = self.get(artifact_id)
+        with self._lock:
+            self._data(artifact_id).unlink(missing_ok=True)
+            self._meta(artifact_id).unlink(missing_ok=True)
+        return {"artifact_id": artifact_id, "deleted": True, "record": record}
 
 
 class FirmwareStore:
@@ -459,9 +494,47 @@ class FirmwareStore:
             raise ServiceError("unknown_firmware", "firmware data missing", 404)
         return path
 
+    def analyze(self, firmware_id: str) -> dict:
+        record = self.get(firmware_id)
+        spec = self.specs[record["device_id"]]
+        result = analyze_firmware(
+            self.path(firmware_id),
+            expected_chip_id_value=expected_chip_id(spec.soc),
+        )
+        analysis = {
+            "firmware_id": firmware_id,
+            "device_id": record["device_id"],
+            "device_chip": spec.soc,
+            **result,
+        }
+        analysis_path = self.root / f"{firmware_id}.analysis.json"
+        analysis_path.write_text(
+            json.dumps(analysis, ensure_ascii=False, indent=2) + "\n"
+        )
+        return analysis
+
+    def get_analysis(self, firmware_id: str) -> dict:
+        self.get(firmware_id)
+        analysis_path = self.root / f"{firmware_id}.analysis.json"
+        if not analysis_path.is_file():
+            return self.analyze(firmware_id)
+        return json.loads(analysis_path.read_text())
+
 
 def _is_sha256(value: str) -> bool:
     return len(value) == 64 and all(c in "0123456789abcdef" for c in value)
+
+
+def rgb_metrics(pixels: bytes) -> tuple[int, int]:
+    nonblack = 0
+    colors = set()
+    for offset in range(0, len(pixels) - 2, 3):
+        rgb = pixels[offset:offset + 3]
+        if any(rgb):
+            nonblack += 1
+            if len(colors) < 512:
+                colors.add(rgb)
+    return nonblack, len(colors)
 
 
 def default_flash_preparer(
@@ -529,9 +602,11 @@ class DeviceSession:
         firmware_path: Path,
         firmware_sha: str,
         firmware_source: str,
+        source_artifacts: list[str],
         ttl_seconds: int,
         ready_marker: str | None,
         ready_timeout: float,
+        ready_conditions: dict | None,
     ):
         self.service = service
         self.id = session_id
@@ -540,10 +615,13 @@ class DeviceSession:
         self.firmware_path = firmware_path
         self.firmware_sha = firmware_sha
         self.firmware_source = firmware_source
+        self.source_artifacts = source_artifacts
         self.ttl_seconds = ttl_seconds
         self.ready_marker = ready_marker
         self.ready_timeout = ready_timeout
+        self.ready_conditions = ready_conditions or {}
         self.created_at = iso_now()
+        self.completed_at: str | None = None
         self.expires_at = time.time() + ttl_seconds
         self.state = "provisioning"
         self.error: str | None = None
@@ -561,6 +639,17 @@ class DeviceSession:
         self._qmp: QMP | None = None
         self._lock = threading.RLock()
         self._stop_event = threading.Event()
+        self.events: list[dict] = []
+        self._record_event("created", device_id=spec.id, firmware_id=firmware_id)
+
+    def _record_event(self, event: str, **details) -> None:
+        self.events.append(
+            {
+                "at": iso_now(),
+                "event": event,
+                **details,
+            }
+        )
 
     def snapshot(self) -> dict:
         with self._lock:
@@ -580,6 +669,10 @@ class DeviceSession:
                 "firmware_id": self.firmware_id,
                 "firmware_sha256": self.firmware_sha,
                 "firmware_source": self.firmware_source,
+                "artifact_sha256": (
+                    self.source_artifacts[0] if self.source_artifacts else None
+                ),
+                "source_artifacts": list(self.source_artifacts),
                 "flash": self.flash_info,
                 "serial_bytes": serial_size,
                 "created_at": self.created_at,
@@ -588,6 +681,8 @@ class DeviceSession:
                 ).isoformat(),
                 "error": self.error,
                 "display": self.spec.display,
+                "completed_at": self.completed_at,
+                "event_count": len(self.events),
             }
 
     def start(self) -> None:
@@ -600,7 +695,9 @@ class DeviceSession:
 
     def _set_state(self, state: str) -> None:
         with self._lock:
+            previous = self.state
             self.state = state
+            self._record_event("state", **{"from": previous, "to": state})
 
     def _provision(self) -> None:
         try:
@@ -614,15 +711,24 @@ class DeviceSession:
                 **prepared["info"],
                 "session_isolated_copy": True,
             }
+            self._record_event("flash_prepared", **self.flash_info)
             self._set_state("booting")
             self._launch()
-            if self.ready_marker:
+            if self.ready_conditions:
+                self.wait_ready(
+                    {
+                        "timeout_seconds": self.ready_timeout,
+                        **self.ready_conditions,
+                    }
+                )
+            elif self.ready_marker:
                 self.wait_for_marker(self.ready_marker, self.ready_timeout)
             self._set_state("running")
         except Exception as error:
             with self._lock:
                 self.error = str(error)
                 self.state = "failed"
+                self._record_event("failed", error=str(error))
             self._terminate_process()
 
     def _launch(self) -> None:
@@ -696,6 +802,7 @@ class DeviceSession:
             if self.serial0.exists() and marker in self.serial0.read_text(
                 errors="replace"
             ):
+                self._record_event("serial_marker", marker=marker)
                 return self.snapshot()
             if self._proc and self._proc.poll() is not None:
                 raise ServiceError(
@@ -708,6 +815,126 @@ class DeviceSession:
             "ready_timeout",
             f"timed out waiting for serial marker {marker!r}",
             408,
+        )
+
+    def wait_ready(self, payload: dict) -> dict:
+        """Wait for application-level serial and/or framebuffer readiness."""
+
+        timeout = float(payload.get("timeout_seconds", 30))
+        conditions = payload.get("ready", payload)
+        if not isinstance(conditions, dict):
+            raise ServiceError("invalid_ready", "ready must be an object", 400)
+        serial_markers = conditions.get("serial_markers", [])
+        if isinstance(serial_markers, str):
+            serial_markers = [serial_markers]
+        if not isinstance(serial_markers, list):
+            raise ServiceError(
+                "invalid_ready", "serial_markers must be a list", 400
+            )
+        frame_nonblank = bool(conditions.get("frame_nonblank", False))
+        frame_min_bytes = int(conditions.get("frame_min_bytes", 1024))
+        frame_min_nonblack = int(
+            conditions.get("frame_min_nonblack_pixels", 16)
+        )
+        require_all = bool(conditions.get("require_all", True))
+        if frame_nonblank and not self.spec.has_display:
+            raise ServiceError(
+                "display_not_available",
+                "frame_nonblank was requested for a serial-only device",
+                400,
+            )
+        if not serial_markers and not frame_nonblank:
+            return self.snapshot()
+
+        deadline = time.time() + max(0.1, timeout)
+        found_markers: list[str] = []
+        first_serial_at: str | None = None
+        first_frame_at: str | None = None
+        last_frame: dict | None = None
+        while time.time() < deadline:
+            if serial_markers:
+                serial_text = (
+                    self.serial0.read_text(errors="replace")
+                    if self.serial0.exists()
+                    else ""
+                )
+                for marker in serial_markers:
+                    if marker in serial_text and marker not in found_markers:
+                        found_markers.append(marker)
+                        first_serial_at = first_serial_at or iso_now()
+                        self._record_event("serial_marker", marker=marker)
+            frame_ready = False
+            if frame_nonblank:
+                try:
+                    last_frame = self.frame_metrics()
+                    frame_ready = (
+                        last_frame["png_bytes"] >= frame_min_bytes
+                        and last_frame["nonblack_pixels"] >= frame_min_nonblack
+                    )
+                    if frame_ready and first_frame_at is None:
+                        first_frame_at = iso_now()
+                        self._record_event(
+                            "frame_nonblank",
+                            nonblack_pixels=last_frame["nonblack_pixels"],
+                            png_bytes=last_frame["png_bytes"],
+                        )
+                except ServiceError:
+                    frame_ready = False
+            serial_ready = (
+                not serial_markers
+                or (
+                    len(found_markers) == len(serial_markers)
+                    if require_all
+                    else bool(found_markers)
+                )
+            )
+            criteria = [
+                criterion
+                for criterion, matched in (
+                    ("serial_marker", serial_ready),
+                    ("frame_nonblank", frame_ready),
+                )
+                if criterion in conditions or (
+                    criterion == "serial_marker" and serial_markers
+                ) or (criterion == "frame_nonblank" and frame_nonblank)
+                if matched
+            ]
+            ready = (
+                serial_ready and (frame_ready or not frame_nonblank)
+                if require_all
+                else bool(criteria)
+            )
+            if ready:
+                self._record_event("application_ready", criteria=criteria)
+                return {
+                    **self.snapshot(),
+                    "ready": True,
+                    "ready_reason": criteria,
+                    "serial_markers": found_markers,
+                    "first_serial_at": first_serial_at,
+                    "first_frame_at": first_frame_at,
+                    "frame": (
+                        {
+                            key: value
+                            for key, value in last_frame.items()
+                            if key != "png"
+                        }
+                        if last_frame
+                        else None
+                    ),
+                }
+            if self._proc is not None and self._proc.poll() is not None:
+                raise ServiceError(
+                    "session_exited",
+                    "device exited before application readiness",
+                    409,
+                )
+            time.sleep(0.75)
+        raise ServiceError(
+            "ready_timeout",
+            "application did not satisfy the requested readiness conditions",
+            408,
+            serial_markers=found_markers,
         )
 
     def serial_read(self, offset: int = 0, limit: int = 65536) -> dict:
@@ -732,7 +959,7 @@ class DeviceSession:
             "bytes": len(chunk),
         }
 
-    def frame_png(self) -> tuple[bytes, int, int]:
+    def frame_metrics(self) -> dict:
         if not self.spec.has_display:
             raise ServiceError(
                 "display_not_available",
@@ -746,10 +973,23 @@ class DeviceSession:
                 self._qmp_call("screendump", filename=str(ppm))
                 width, height, pixels = read_ppm(ppm)
                 write_rgb_png(png, width, height, pixels)
-                return png.read_bytes(), width, height
+                png_bytes = png.read_bytes()
+                nonblack, unique_colors = rgb_metrics(pixels)
+                return {
+                    "png": png_bytes,
+                    "width": width,
+                    "height": height,
+                    "nonblack_pixels": nonblack,
+                    "unique_colors": unique_colors,
+                    "png_bytes": len(png_bytes),
+                }
             finally:
                 ppm.unlink(missing_ok=True)
                 png.unlink(missing_ok=True)
+
+    def frame_png(self) -> tuple[bytes, int, int]:
+        metrics = self.frame_metrics()
+        return metrics["png"], metrics["width"], metrics["height"]
 
     def inject(self, payload: dict) -> dict:
         if self.state != "running":
@@ -784,6 +1024,7 @@ class DeviceSession:
         frame_size = self.spec.expected_size or (1, 1)
         with self._lock:
             send_input(self._qmp, spec, frame_size, settle)
+            self._record_event("input", spec=spec)
         return {"session_id": self.id, "input": spec, "accepted": True}
 
     def qom_set(self, payload: dict) -> dict:
@@ -796,16 +1037,312 @@ class DeviceSession:
         value = payload.get("value")
         with self._lock:
             result = self._qmp_call("qom-set", path=path, property=prop, value=value)
+            self._record_event(
+                "qom_set", path=path, property=prop, value=value
+            )
         return {"session_id": self.id, "qom_set": result}
 
     def qom_get(self, path: str, prop: str) -> dict:
         with self._lock:
             result = self._qmp_call("qom-get", path=path, property=prop)
-        return {"session_id": self.id, "path": path, "property": prop, "value": result}
+        return {
+            "session_id": self.id,
+            "path": path,
+            "property": prop,
+            "value": result.get("return"),
+        }
+
+    def qom_list(self, path: str = "/machine") -> dict:
+        with self._lock:
+            result = self._qmp_call("qom-list", path=path)
+        fields = sorted(
+            result.get("return", []), key=lambda item: item.get("name", "")
+        )
+        return {"session_id": self.id, "path": path, "properties": fields}
+
+    def qom_snapshot(
+        self, path: str = "/machine", depth: int = 2, max_nodes: int = 500
+    ) -> dict:
+        depth = max(0, min(int(depth), 8))
+        max_nodes = max(1, min(int(max_nodes), 5000))
+        budget = {"remaining": max_nodes}
+
+        def walk(current_path: str, current_depth: int) -> dict:
+            if budget["remaining"] <= 0:
+                return {"truncated": True}
+            with self._lock:
+                fields = self._qmp_call("qom-list", path=current_path).get(
+                    "return", []
+                )
+            output = {}
+            for field in sorted(fields, key=lambda item: item.get("name", "")):
+                if budget["remaining"] <= 0:
+                    output["__truncated__"] = True
+                    break
+                name = field.get("name")
+                field_type = str(field.get("type", ""))
+                if not name:
+                    continue
+                budget["remaining"] -= 1
+                if field_type.startswith("child<") and current_depth < depth:
+                    output[name] = {
+                        "__type__": field_type,
+                        "children": walk(f"{current_path}/{name}", current_depth + 1),
+                    }
+                    continue
+                try:
+                    with self._lock:
+                        value = self._qmp_call(
+                            "qom-get", path=current_path, property=name
+                        ).get("return")
+                    output[name] = {"type": field_type, "value": value}
+                except ServiceError as error:
+                    output[name] = {
+                        "type": field_type,
+                        "error": error.message,
+                    }
+            return output
+
+        snapshot = {
+            "path": path,
+            "depth": depth,
+            "created_at": iso_now(),
+            "nodes": walk(path, 0),
+        }
+        snapshot_id = uuid.uuid4().hex
+        snapshot_path = self.dir / f"qom-{snapshot_id}.json"
+        snapshot_path.write_text(
+            json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n"
+        )
+        self._record_event("qom_snapshot", snapshot_id=snapshot_id, path=path)
+        return {
+            "session_id": self.id,
+            "snapshot_id": snapshot_id,
+            **snapshot,
+        }
+
+    def _load_qom_snapshot(self, snapshot_id: str) -> dict:
+        if not isinstance(snapshot_id, str) or not all(
+            char in "0123456789abcdef" for char in snapshot_id
+        ):
+            raise ServiceError("unknown_snapshot", "invalid qom snapshot id", 404)
+        path = self.dir / f"qom-{snapshot_id}.json"
+        if not path.is_file():
+            raise ServiceError(
+                "unknown_snapshot", f"unknown qom snapshot: {snapshot_id}", 404
+            )
+        return json.loads(path.read_text())
+
+    def qom_diff(self, before: str, after: str) -> dict:
+        before_snapshot = self._load_qom_snapshot(before)
+        after_snapshot = self._load_qom_snapshot(after)
+
+        def flatten(value: Any, prefix: str = "") -> dict[str, Any]:
+            output = {}
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    child_prefix = f"{prefix}/{key}" if prefix else key
+                    output.update(flatten(child, child_prefix))
+            else:
+                output[prefix] = value
+            return output
+
+        left = flatten(before_snapshot["nodes"])
+        right = flatten(after_snapshot["nodes"])
+        added = {key: right[key] for key in sorted(right.keys() - left.keys())}
+        removed = {key: left[key] for key in sorted(left.keys() - right.keys())}
+        changed = {
+            key: {"before": left[key], "after": right[key]}
+            for key in sorted(left.keys() & right.keys())
+            if left[key] != right[key]
+        }
+        self._record_event(
+            "qom_diff",
+            before=before,
+            after=after,
+            added=len(added),
+            removed=len(removed),
+            changed=len(changed),
+        )
+        return {
+            "session_id": self.id,
+            "before": before,
+            "after": after,
+            "added": added,
+            "removed": removed,
+            "changed": changed,
+        }
+
+    def flash_get(self, output_format: str = "sha256") -> tuple[bytes | None, dict]:
+        if self.virtual_flash is None or not self.virtual_flash.is_file():
+            raise ServiceError("flash_not_available", "session flash is unavailable", 409)
+        data = self.virtual_flash.read_bytes()
+        digest = hashlib.sha256(data).hexdigest()
+        metadata = {
+            "session_id": self.id,
+            "format": output_format,
+            "size": len(data),
+            "sha256": digest,
+        }
+        if output_format == "bin":
+            return data, metadata
+        if output_format != "sha256":
+            raise ServiceError(
+                "invalid_format", "format must be bin or sha256", 400
+            )
+        return None, metadata
+
+    def flash_snapshot(self) -> dict:
+        _, metadata = self.flash_get("sha256")
+        assert self.virtual_flash is not None
+        snapshot_id = uuid.uuid4().hex
+        target = self.dir / f"flash-{snapshot_id}.bin"
+        shutil.copyfile(self.virtual_flash, target)
+        self._record_event(
+            "flash_snapshot", snapshot_id=snapshot_id, sha256=metadata["sha256"]
+        )
+        return {
+            "session_id": self.id,
+            "snapshot_id": snapshot_id,
+            "size": metadata["size"],
+            "sha256": metadata["sha256"],
+            "created_at": iso_now(),
+        }
+
+    def _flash_snapshot_path(self, snapshot_id: str) -> Path:
+        if not isinstance(snapshot_id, str) or not all(
+            char in "0123456789abcdef" for char in snapshot_id
+        ):
+            raise ServiceError("unknown_snapshot", "invalid flash snapshot id", 404)
+        path = self.dir / f"flash-{snapshot_id}.bin"
+        if not path.is_file():
+            raise ServiceError(
+                "unknown_snapshot", f"unknown flash snapshot: {snapshot_id}", 404
+            )
+        return path
+
+    def flash_diff(self, before: str, after: str) -> dict:
+        before_path = self._flash_snapshot_path(before)
+        after_path = self._flash_snapshot_path(after)
+        left = before_path.read_bytes()
+        right = after_path.read_bytes()
+        if len(left) != len(right):
+            raise ServiceError(
+                "flash_size_mismatch",
+                f"snapshot sizes differ: {len(left)} != {len(right)}",
+                409,
+            )
+        ranges = []
+        changed_bytes = 0
+        start = None
+        for index, (old, new) in enumerate(zip(left, right)):
+            if old != new:
+                changed_bytes += 1
+                if start is None:
+                    start = index
+            elif start is not None:
+                ranges.append({"offset": start, "length": index - start})
+                start = None
+        if start is not None:
+            ranges.append({"offset": start, "length": len(left) - start})
+        self._record_event(
+            "flash_diff",
+            before=before,
+            after=after,
+            changed_bytes=changed_bytes,
+            ranges=len(ranges),
+        )
+        return {
+            "session_id": self.id,
+            "before": before,
+            "after": after,
+            "size": len(left),
+            "changed_bytes": changed_bytes,
+            "ranges": ranges[:1000],
+            "truncated_ranges": len(ranges) > 1000,
+        }
+
+    def evidence_bundle(self, include: set[str] | None = None) -> bytes:
+        include = include or {
+            "manifest",
+            "serial",
+            "frames",
+            "logs",
+            "qom",
+        }
+        files: dict[str, bytes] = {}
+        manifest: dict[str, Any] = {
+            "schema_version": 1,
+            "generated_at": iso_now(),
+            "session": self.snapshot(),
+            "device": self.service.get_device(self.spec.id),
+            "timeline": list(self.events),
+            "included": sorted(include),
+            "files": {},
+        }
+        if "serial" in include:
+            for name, path in (("serial.log", self.serial0), ("serial1.log", self.serial1)):
+                if path.is_file():
+                    files[name] = path.read_bytes()
+        if "logs" in include:
+            for name, path in (
+                ("qemu.stdout", self.stdout_path),
+                ("qemu.stderr", self.stderr_path),
+                ("c6.log", self.dir / "c6.log"),
+            ):
+                if path.is_file():
+                    files[name] = path.read_bytes()
+        if "frames" in include and self.spec.has_display:
+            try:
+                frame = self.frame_metrics()
+                files["frames/current.png"] = frame["png"]
+                manifest["frame"] = {
+                    key: value for key, value in frame.items() if key != "png"
+                }
+            except ServiceError as error:
+                manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
+        if "qom" in include and self.spec.service_kind == "qemu":
+            try:
+                snapshot = self.qom_snapshot(path="/machine", depth=2, max_nodes=500)
+                qom_bytes = (
+                    self.dir / f"qom-{snapshot['snapshot_id']}.json"
+                ).read_bytes()
+                files["qom/snapshot.json"] = qom_bytes
+                manifest["qom"] = {
+                    "snapshot_id": snapshot["snapshot_id"],
+                    "path": snapshot["path"],
+                    "depth": snapshot["depth"],
+                    "created_at": snapshot["created_at"],
+                }
+            except ServiceError as error:
+                manifest["qom"] = {"status": "NOT_AVAILABLE", "reason": error.message}
+        if self.virtual_flash and self.virtual_flash.is_file():
+            flash_data = self.virtual_flash.read_bytes()
+            manifest["flash"] = {
+                "size": len(flash_data),
+                "sha256": hashlib.sha256(flash_data).hexdigest(),
+            }
+            if "flash" in include:
+                files["flash/virtual-flash.bin"] = flash_data
+        for name, data in files.items():
+            manifest["files"][name] = {
+                "size": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
+        files["manifest.json"] = (
+            json.dumps(manifest, ensure_ascii=False, indent=2) + "\n"
+        ).encode()
+        output = io.BytesIO()
+        with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, data in files.items():
+                archive.writestr(name, data)
+        self._record_event("evidence_bundle", included=sorted(include))
+        return output.getvalue()
 
     def reset(self) -> dict:
         with self._lock:
             self._qmp_call("system_reset")
+            self._record_event("reset")
         return {"session_id": self.id, "state": self.state, "reset": True}
 
     def renew(self, ttl_seconds: int) -> dict:
@@ -848,6 +1385,8 @@ class DeviceSession:
                     pass
             self._terminate_process()
             self.state = "stopped"
+            self.completed_at = iso_now()
+            self._record_event("stopped", purge=purge)
             result = self.snapshot()
         if purge:
             shutil.rmtree(self.dir, ignore_errors=True)
@@ -875,15 +1414,24 @@ class Tab5DeviceSession(DeviceSession):
                 **prepared["info"],
                 "session_isolated_copy": True,
             }
+            self._record_event("flash_prepared", **self.flash_info)
             self._set_state("booting")
             self._launch_tab5()
-            if self.ready_marker:
+            if self.ready_conditions:
+                self.wait_ready(
+                    {
+                        "timeout_seconds": self.ready_timeout,
+                        **self.ready_conditions,
+                    }
+                )
+            elif self.ready_marker:
                 self.wait_for_marker(self.ready_marker, self.ready_timeout)
             self._set_state("running")
         except Exception as error:
             with self._lock:
                 self.error = str(error)
                 self.state = "failed"
+                self._record_event("failed", error=str(error))
             self._terminate_tab5()
 
     def _launch_tab5(self) -> None:
@@ -966,8 +1514,8 @@ class Tab5DeviceSession(DeviceSession):
         except FileNotFoundError:
             pass
 
-    def frame_png(self) -> tuple[bytes, int, int]:
-        if self.state != "running" or self._gdb_port is None:
+    def frame_metrics(self) -> dict:
+        if self.state not in {"running", "booting"} or self._gdb_port is None:
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
             )
@@ -990,10 +1538,23 @@ class Tab5DeviceSession(DeviceSession):
         png = self.dir / f"{name}.png"
         write_tab5_png(png, width, height, pixels)
         try:
-            return png.read_bytes(), width, height
+            png_bytes = png.read_bytes()
+            nonblack, unique_colors = rgb_metrics(pixels)
+            return {
+                "png": png_bytes,
+                "width": width,
+                "height": height,
+                "nonblack_pixels": nonblack,
+                "unique_colors": unique_colors,
+                "png_bytes": len(png_bytes),
+            }
         finally:
             png.unlink(missing_ok=True)
             (self.dir / f"{name}.rgb565").unlink(missing_ok=True)
+
+    def frame_png(self) -> tuple[bytes, int, int]:
+        metrics = self.frame_metrics()
+        return metrics["png"], metrics["width"], metrics["height"]
 
     def inject(self, payload: dict) -> dict:
         if self.state != "running" or self._gdb_port is None:
@@ -1073,6 +1634,7 @@ class Tab5DeviceSession(DeviceSession):
         self._terminate_tab5()
         self._launch_tab5()
         self._set_state("running")
+        self._record_event("reset")
         return {"session_id": self.id, "state": self.state, "reset": True}
 
     def stop(self, purge: bool = False) -> dict:
@@ -1085,6 +1647,8 @@ class Tab5DeviceSession(DeviceSession):
             self.state = "stopping"
             self._terminate_tab5()
             self.state = "stopped"
+            self.completed_at = iso_now()
+            self._record_event("stopped", purge=purge)
             result = self.snapshot()
         if purge:
             shutil.rmtree(self.dir, ignore_errors=True)
@@ -1141,6 +1705,8 @@ class DeviceService:
             "name": spec.name,
             "group": spec.group,
             "soc": spec.soc,
+            "sku": spec.sku,
+            "device_codes": spec.device_codes,
             "supported": spec.supported,
             "creatable": spec.supported and backend_ready,
             "backend_ready": backend_ready,
@@ -1151,6 +1717,11 @@ class DeviceService:
             "display": spec.display,
             "peripheral_status": spec.peripheral_status,
             "warnings": spec.warnings,
+            "firmware_families": ["uiflow2", "generic-flash"],
+            "coverage": {
+                "peripheral_status": spec.peripheral_status,
+                "complete": spec.peripheral_status == "simulated",
+            },
             "features": {
                 "flash": spec.supported,
                 "serial": spec.supported,
@@ -1322,12 +1893,24 @@ class DeviceService:
             firmware_path = self.firmware.path(str(firmware_id))
             firmware_sha = firmware["sha256"]
             source = "uploaded"
+            firmware_source = firmware.get("source", {})
+            source_artifacts = (
+                [firmware_source["artifact_id"]]
+                if firmware_source.get("kind") == "merged"
+                and firmware_source.get("artifact_id")
+                else [
+                    segment["artifact_id"]
+                    for segment in firmware_source.get("segments", [])
+                    if segment.get("artifact_id")
+                ]
+            )
         else:
             reference = self.reference_info(spec)
             firmware_id = reference["firmware_id"]
             firmware_path = reference["path"]
             firmware_sha = reference["sha256"]
             source = "reference"
+            source_artifacts = []
 
         with self._lock:
             active = [
@@ -1354,6 +1937,11 @@ class DeviceService:
             ready_marker = payload.get("ready_marker")
             if ready_marker is not None and not isinstance(ready_marker, str):
                 raise ServiceError("invalid_request", "ready_marker must be a string", 400)
+            ready_conditions = payload.get("ready")
+            if ready_conditions is not None and not isinstance(
+                ready_conditions, dict
+            ):
+                raise ServiceError("invalid_ready", "ready must be an object", 400)
             ready_timeout = float(payload.get("ready_timeout_seconds", 30))
             session_class = (
                 Tab5DeviceSession
@@ -1368,9 +1956,11 @@ class DeviceService:
                 firmware_path=firmware_path,
                 firmware_sha=firmware_sha,
                 firmware_source=source,
+                source_artifacts=source_artifacts,
                 ttl_seconds=ttl,
                 ready_marker=ready_marker,
                 ready_timeout=ready_timeout,
+                ready_conditions=ready_conditions,
             )
             self._sessions[session.id] = session
         session.start()
@@ -1383,14 +1973,43 @@ class DeviceService:
             raise ServiceError("unknown_session", f"unknown session: {session_id}", 404)
         return session
 
-    def list_sessions(self) -> dict:
+    def list_sessions(self, include_stopped: bool = True) -> dict:
         with self._lock:
-            sessions = [session.snapshot() for session in self._sessions.values()]
+            sessions = [
+                session.snapshot()
+                for session in self._sessions.values()
+                if include_stopped or session.state in ACTIVE_STATES
+            ]
         return {"sessions": sessions}
 
     def delete_session(self, session_id: str, purge: bool = False) -> dict:
         session = self.get_session(session_id)
-        return session.stop(purge=purge)
+        result = session.stop(purge=purge)
+        if purge:
+            with self._lock:
+                self._sessions.pop(session_id, None)
+        return result
+
+    def clear_stopped(self, purge: bool = True) -> dict:
+        with self._lock:
+            sessions = [
+                session
+                for session in self._sessions.values()
+                if session.state in {"stopped", "failed"}
+            ]
+        for session in sessions:
+            session.stop(purge=purge)
+            if purge:
+                with self._lock:
+                    self._sessions.pop(session.id, None)
+        return {"cleared": len(sessions), "purged": purge}
+
+    def session_events(self, session_id: str) -> dict:
+        session = self.get_session(session_id)
+        return {
+            "session_id": session.id,
+            "events": list(session.events),
+        }
 
     def capacity(self) -> dict:
         with self._lock:

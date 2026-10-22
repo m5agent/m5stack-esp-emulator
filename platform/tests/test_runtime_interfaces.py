@@ -14,7 +14,7 @@ class RuntimeInterfaceTests(unittest.TestCase):
     def setUpClass(cls):
         cls.payload = build_interfaces()
 
-    def test_every_simulated_model_has_an_interface(self):
+    def test_every_simulated_model_has_runtime_evidence(self):
         models = self.payload["models"]
         simulated = {
             model_id
@@ -23,9 +23,35 @@ class RuntimeInterfaceTests(unittest.TestCase):
         }
         missing = sorted(
             model_id for model_id in simulated
-            if not models[model_id]["interfaces"]
+            if not models[model_id]["evidence_cases"]
         )
         self.assertEqual(missing, [])
+
+    def test_button_does_not_inherit_imu_qom_interface(self):
+        interfaces = self.payload["models"]["gpio-button"]["interfaces"]
+        self.assertTrue(interfaces)
+        self.assertFalse(
+            any(
+                item.get("adapter") == "qmp-qom"
+                and "bmi270" in item.get("path", "")
+                for item in interfaces
+            )
+        )
+
+    def test_case_interface_collection_preserves_full_case_evidence(self):
+        interfaces = self.payload["devices"]["sticks3"]["case_interfaces"][
+            "sticks3-peripherals"
+        ]
+        self.assertTrue(
+            any(
+                item.get("adapter") == "qmp-qom"
+                and item.get("path") == "/machine/bmi270"
+                for item in interfaces
+            )
+        )
+        self.assertTrue(
+            any(item.get("adapter") == "qmp-input" for item in interfaces)
+        )
 
     def test_bmi270_exposes_qom_inputs(self):
         model = self.payload["models"]["bmi270"]
@@ -74,17 +100,18 @@ class RuntimeInterfaceTests(unittest.TestCase):
         )
 
     def test_model_interfaces_include_all_device_local_cases(self):
-        cases = {
-            item["case"]
-            for item in self.payload["models"]["pcf8563"]["interfaces"]
-        }
+        model_cases = set(self.payload["models"]["pcf8563"]["evidence_cases"])
         self.assertTrue(
             {
                 "cores3-peripherals",
                 "stackchan-peripherals",
                 "core2-peripherals",
             }
-            <= cases
+            <= model_cases
+        )
+        self.assertIn(
+            "core2-peripherals",
+            self.payload["devices"]["core2"]["case_interfaces"],
         )
 
     def test_runtime_sequence_interfaces_are_exposed(self):

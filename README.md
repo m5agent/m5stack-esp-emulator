@@ -72,10 +72,15 @@ curl -sS -H 'Content-Type: application/json' \
 - 每 session 独立虚拟 Flash；
 - 串口、QEMU 日志、PNG framebuffer；
 - 按键/触摸/拖拽、QOM、reset、renew、stop；
+- application readiness、evidence ZIP、QOM/flash snapshot/diff；
 - 全局和单设备并发限制、TTL 自动回收。
 
 `running` 只表示虚拟主机控制通道已启动；应用就绪请使用 `ready_marker`、
 串口标记或非空截图确认。
+
+人工观察页默认只显示活动租约；停止/失败任务通过
+`GET /api/v1/sessions?include_stopped=0` 隐藏，并可从页面或
+`DELETE /api/v1/sessions?state=stopped&purge=1` 清理历史。
 
 完整接口和示例见：
 

@@ -18,7 +18,14 @@
   gap: 12px;
   padding: 4px 2px 12px;
 }
-.sessions-head .status-chip { margin-left: auto; }
+.sessions-head-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.sessions-head-actions .btn { min-height: 30px; padding: 5px 9px; font-size: 11px; }
 .session-list { display: grid; gap: 14px; }
 .session-card {
   display: grid;

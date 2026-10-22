@@ -65,6 +65,21 @@ class Handler(SimpleHTTPRequestHandler):
         if path.startswith("/api/v1"):
             self._handle_v1("GET", path, parse_qs(parsed.query))
             return
+        if (
+            path.startswith("/api/")
+            and path != "/api/health"
+            and not self._authorized(path)
+        ):
+            self._json(
+                {
+                    "error": {
+                        "code": "unauthorized",
+                        "message": "valid Bearer token required",
+                    }
+                },
+                401,
+            )
+            return
         if path in {"/health", "/api/health"}:
             self._json({"ok": True, "service": "m5stack-device-simulator"})
             return
@@ -196,18 +211,87 @@ class Handler(SimpleHTTPRequestHandler):
                 )
                 return
             elif method == "GET" and parts == ["artifacts"]:
-                response = {
-                    "artifacts": [],
-                    "storage": "content-addressed; use POST /api/v1/artifacts",
-                }
+                response = {"artifacts": service.artifacts.list()}
             elif method == "GET" and len(parts) == 2 and parts[0] == "artifacts":
                 response = service.artifacts.get(parts[1])
             elif method == "GET" and len(parts) == 2 and parts[0] == "firmware":
                 response = service.firmware.get(parts[1])
+            elif (
+                method == "GET"
+                and len(parts) == 3
+                and parts[0] == "firmware"
+                and parts[2] == "analysis"
+            ):
+                response = service.firmware.get_analysis(parts[1])
             elif method == "GET" and parts == ["sessions"]:
-                response = service.list_sessions()
+                include_stopped = query.get("include_stopped", ["1"])[0] not in {
+                    "0",
+                    "false",
+                    "no",
+                }
+                response = service.list_sessions(include_stopped=include_stopped)
             elif method == "GET" and len(parts) == 2 and parts[0] == "sessions":
                 response = service.get_session(parts[1]).snapshot()
+            elif (
+                method == "GET"
+                and len(parts) == 3
+                and parts[0] == "sessions"
+                and parts[2] == "events"
+            ):
+                response = service.session_events(parts[1])
+            elif (
+                method == "GET"
+                and len(parts) == 3
+                and parts[0] == "sessions"
+                and parts[2] == "flash"
+            ):
+                session = service.get_session(parts[1])
+                output_format = query.get("format", ["sha256"])[0]
+                data, metadata = session.flash_get(output_format)
+                if data is not None:
+                    self._send_bytes(
+                        data,
+                        "application/octet-stream",
+                        extra_headers={
+                            "X-Request-ID": request_id,
+                            "X-Flash-SHA256": metadata["sha256"],
+                        },
+                    )
+                    return
+                response = metadata
+            elif (
+                method == "GET"
+                and len(parts) == 4
+                and parts[0] == "sessions"
+                and parts[2] == "flash"
+                and parts[3] == "diff"
+            ):
+                session = service.get_session(parts[1])
+                response = session.flash_diff(
+                    query.get("before", [""])[0],
+                    query.get("after", [""])[0],
+                )
+            elif (
+                method == "GET"
+                and len(parts) == 4
+                and parts[0] == "sessions"
+                and parts[2] == "qom"
+                and parts[3] == "list"
+            ):
+                session = service.get_session(parts[1])
+                response = session.qom_list(query.get("path", ["/machine"])[0])
+            elif (
+                method == "GET"
+                and len(parts) == 4
+                and parts[0] == "sessions"
+                and parts[2] == "qom"
+                and parts[3] == "diff"
+            ):
+                session = service.get_session(parts[1])
+                response = session.qom_diff(
+                    query.get("before", [""])[0],
+                    query.get("after", [""])[0],
+                )
             elif (
                 method == "GET"
                 and len(parts) == 3
@@ -233,6 +317,32 @@ class Handler(SimpleHTTPRequestHandler):
                     "qemu_stdout": _read_text_tail(session.stdout_path, limit),
                     "qemu_stderr": _read_text_tail(session.stderr_path, limit),
                 }
+            elif (
+                method == "GET"
+                and len(parts) == 3
+                and parts[0] == "sessions"
+                and parts[2] == "evidence"
+            ):
+                session = service.get_session(parts[1])
+                include = {
+                    item.strip()
+                    for item in query.get(
+                        "include",
+                        ["manifest,serial,frames,logs,qom"],
+                    )[0].split(",")
+                    if item.strip()
+                }
+                self._send_bytes(
+                    session.evidence_bundle(include),
+                    "application/zip",
+                    extra_headers={
+                        "X-Request-ID": request_id,
+                        "Content-Disposition": (
+                            f'attachment; filename="m5-evidence-{session.id}.zip"'
+                        ),
+                    },
+                )
+                return
             elif (
                 method == "GET"
                 and len(parts) == 3
@@ -279,6 +389,14 @@ class Handler(SimpleHTTPRequestHandler):
             elif method == "POST" and parts == ["firmware"]:
                 response = service.create_firmware(self._read_json())
                 status = 201
+            elif method == "POST" and parts == ["firmware", "analyze"]:
+                payload = self._read_json()
+                firmware_id = payload.get("firmware_id")
+                if not isinstance(firmware_id, str):
+                    raise ServiceError(
+                        "invalid_request", "firmware_id is required", 400
+                    )
+                response = service.firmware.analyze(firmware_id)
             elif method == "POST" and parts == ["sessions"]:
                 response = service.create_session(self._read_json())
                 status = 202
@@ -294,6 +412,14 @@ class Handler(SimpleHTTPRequestHandler):
                     response = session.inject(payload)
                 elif action == "qom":
                     response = session.qom_set(payload)
+                elif action == "qom-snapshot":
+                    response = session.qom_snapshot(
+                        path=payload.get("path", "/machine"),
+                        depth=int(payload.get("depth", 2)),
+                        max_nodes=int(payload.get("max_nodes", 500)),
+                    )
+                elif action == "flash-snapshot":
+                    response = session.flash_snapshot()
                 elif action == "reset":
                     response = session.reset()
                 elif action == "renew":
@@ -308,15 +434,33 @@ class Handler(SimpleHTTPRequestHandler):
             elif method == "DELETE" and len(parts) == 2 and parts[0] == "sessions":
                 purge = query.get("purge", ["0"])[0] in {"1", "true", "yes"}
                 response = service.delete_session(parts[1], purge=purge)
+            elif method == "DELETE" and len(parts) == 2 and parts[0] == "artifacts":
+                response = service.artifacts.delete(parts[1])
+            elif method == "DELETE" and parts == ["sessions"]:
+                state = query.get("state", [""])[0]
+                if state not in {"stopped", "failed", ""}:
+                    raise ServiceError(
+                        "invalid_state",
+                        "bulk session deletion supports stopped/failed state only",
+                        400,
+                    )
+                purge = query.get("purge", ["1"])[0] in {"1", "true", "yes"}
+                response = service.clear_stopped(purge=purge)
             else:
                 raise ServiceError("not_found", "not found", 404)
 
             self._json(response, status, extra_headers=headers)
         except ServiceError as error:
+            headers = {"X-Request-ID": request_id}
+            if error.code in {
+                "capacity_exhausted",
+                "device_capacity_exhausted",
+            }:
+                headers["Retry-After"] = "2"
             self._json(
                 error.payload(),
                 error.status,
-                extra_headers={"X-Request-ID": request_id},
+                extra_headers=headers,
             )
         except (ValueError, TypeError, KeyError) as error:
             self._json(
@@ -414,6 +558,8 @@ def _read_text_tail(path: Path, limit: int) -> str:
 
 
 def _wait_for_session(session, payload: dict) -> dict:
+    if payload.get("ready") or payload.get("serial_markers") or payload.get("frame_nonblank"):
+        return session.wait_ready(payload)
     marker = payload.get("ready_marker")
     timeout = float(payload.get("timeout_seconds", 30))
     if marker:

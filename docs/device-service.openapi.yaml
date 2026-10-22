@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.0.0
+  version: 1.1.0
   description: >
     Leased, on-demand virtual M5Stack device service. Network emulation,
     CardputerZero and network emulation are outside this API version. Tab5 is
@@ -65,6 +65,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/Capacity"
   /artifacts:
+    get:
+      summary: List uploaded artifacts
+      responses:
+        "200":
+          description: Artifact list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  artifacts:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Artifact"
     post:
       summary: Upload a content-addressed binary artifact
       parameters:
@@ -111,6 +125,22 @@ paths:
                 $ref: "#/components/schemas/Artifact"
         "404":
           $ref: "#/components/responses/Error"
+    delete:
+      summary: Delete an artifact
+      parameters:
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Artifact deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
   /firmware:
     post:
       summary: Compose and validate a flash-sized firmware image
@@ -149,9 +179,54 @@ paths:
                 $ref: "#/components/schemas/Firmware"
         "404":
           $ref: "#/components/responses/Error"
+  /firmware/analyze:
+    post:
+      summary: Analyze an existing firmware image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firmware_id]
+              properties:
+                firmware_id:
+                  type: string
+      responses:
+        "200":
+          description: Static firmware analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /firmware/{firmware_id}/analysis:
+    get:
+      summary: Read firmware analysis
+      parameters:
+        - name: firmware_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Static firmware analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
   /sessions:
     get:
       summary: List leases
+      parameters:
+        - name: include_stopped
+          in: query
+          schema:
+            type: string
+            enum: ["0", "1"]
+            default: "1"
       responses:
         "200":
           description: Session list
@@ -181,6 +256,31 @@ paths:
                 $ref: "#/components/schemas/Session"
         "429":
           $ref: "#/components/responses/Error"
+    delete:
+      summary: Clear stopped or failed session history
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+            enum: [stopped, failed]
+        - name: purge
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Clear result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cleared:
+                    type: integer
+                  purged:
+                    type: boolean
   /sessions/{session_id}:
     get:
       summary: Read session state
@@ -211,6 +311,173 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
+  /sessions/{session_id}/events:
+    get:
+      summary: Read session lifecycle events
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Session events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+  /sessions/{session_id}/evidence:
+    get:
+      summary: Download an evidence ZIP
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: include
+          in: query
+          schema:
+            type: string
+            default: manifest,serial,frames,logs,qom
+      responses:
+        "200":
+          description: Evidence ZIP
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+  /sessions/{session_id}/qom/list:
+    get:
+      summary: List QOM properties at a path
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: path
+          in: query
+          schema:
+            type: string
+            default: /machine
+      responses:
+        "200":
+          description: QOM property list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/qom-snapshot:
+    post:
+      summary: Store a recursive QOM snapshot
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  default: /machine
+                depth:
+                  type: integer
+                  default: 2
+                max_nodes:
+                  type: integer
+                  default: 500
+      responses:
+        "200":
+          description: QOM snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/qom/diff:
+    get:
+      summary: Diff two stored QOM snapshots
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: before
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: after
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: QOM snapshot diff
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/flash:
+    get:
+      summary: Read current virtual flash metadata or bytes
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [sha256, bin]
+            default: sha256
+      responses:
+        "200":
+          description: Flash metadata or binary image
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /sessions/{session_id}/flash-snapshot:
+    post:
+      summary: Store a virtual flash snapshot
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Flash snapshot metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/flash/diff:
+    get:
+      summary: Diff two virtual flash snapshots
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: before
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: after
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Flash snapshot diff
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
   /sessions/{session_id}/wait:
     post:
       summary: Wait for running state or a serial marker
@@ -228,6 +495,8 @@ paths:
                 timeout_seconds:
                   type: number
                   default: 30
+                ready:
+                  $ref: "#/components/schemas/ReadyConditions"
       responses:
         "200":
           description: Session is ready
@@ -469,6 +738,12 @@ components:
           type: string
         name:
           type: string
+        sku:
+          type: string
+        device_codes:
+          type: array
+          items:
+            type: string
         supported:
           type: boolean
         creatable:
@@ -486,6 +761,13 @@ components:
           type: array
           items:
             type: string
+        firmware_families:
+          type: array
+          items:
+            type: string
+        coverage:
+          type: object
+          additionalProperties: true
         features:
           type: object
           additionalProperties: true
@@ -573,6 +855,8 @@ components:
         ready_timeout_seconds:
           type: number
           default: 30
+        ready:
+          $ref: "#/components/schemas/ReadyConditions"
     Session:
       type: object
       additionalProperties: true
@@ -601,6 +885,13 @@ components:
           type: string
         firmware_source:
           type: string
+        artifact_sha256:
+          type: string
+          nullable: true
+        source_artifacts:
+          type: array
+          items:
+            type: string
         flash:
           type: object
           nullable: true
@@ -615,6 +906,30 @@ components:
         error:
           type: string
           nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        event_count:
+          type: integer
+    ReadyConditions:
+      type: object
+      properties:
+        serial_markers:
+          type: array
+          items:
+            type: string
+        frame_nonblank:
+          type: boolean
+        frame_min_bytes:
+          type: integer
+          default: 1024
+        frame_min_nonblack_pixels:
+          type: integer
+          default: 16
+        require_all:
+          type: boolean
+          default: true
     SerialChunk:
       type: object
       required: [session_id, offset, next_offset, data, bytes]

@@ -46,6 +46,12 @@ ENV_INTERFACES = {
     },
 }
 
+MODEL_QOM_PATH_ALIASES = {
+    # The camera controller node owns the frame stream while gc0308 owns SCCB
+    # identity/configuration. Both are part of the camera model's data plane.
+    "gc0308": {"/machine/m5-lcd-cam"},
+}
+
 
 def _qom(interface: dict, path: str, prop: str, phase: str) -> dict:
     return {
@@ -229,6 +235,59 @@ def case_interfaces(case: dict) -> list[dict]:
     return interfaces
 
 
+def _model_interface(
+    interface: dict,
+    model_id: str,
+    model: dict,
+    qom_paths: set[str],
+) -> bool:
+    """Return whether an interface belongs to a specific catalog model."""
+
+    adapter = interface.get("adapter")
+    if adapter == "qmp-qom":
+        path = interface.get("path")
+        if path in qom_paths:
+            return True
+        return path in MODEL_QOM_PATH_ALIASES.get(model_id, set())
+    if adapter == "qmp-input":
+        control = str(interface.get("control", "")).lower()
+        capabilities = set(model.get("capabilities", []))
+        if control.startswith(("touch:", "drag:", "longpress:")):
+            return "touch" in capabilities
+        if control.startswith("key:"):
+            return bool(
+                capabilities
+                & {
+                    "button",
+                    "power-key",
+                    "keyboard",
+                    "io-expander",
+                    "digital-input",
+                }
+            )
+        return False
+    if adapter == "host-file":
+        capability = str(interface.get("capability", "")).lower()
+        model_capabilities = set(model.get("capabilities", []))
+        kind = str(model.get("kind", "")).lower()
+        if "speaker" in capability or "pcm" in capability and interface.get("direction") == "output":
+            return bool(model_capabilities & {"speaker", "audio-codec"}) or "audio" in kind
+        if "microphone" in capability or "pcm" in capability and interface.get("direction") == "input":
+            return bool(model_capabilities & {"microphone", "audio-codec"}) or "audio-adc" in kind
+        if "camera" in capability:
+            return "camera" in model_capabilities or kind == "camera"
+        if "nec" in capability or "ir" in capability:
+            return "ir" in model_capabilities or kind == "infrared"
+        if "ws2812" in capability:
+            return "rgb-led" in model_capabilities or kind == "led"
+        if "block" in capability or "disk" in capability:
+            return bool(model_capabilities & {"storage", "sd"}) or kind == "storage"
+        return False
+    if adapter == "external-probe":
+        return True
+    return False
+
+
 def build_interfaces() -> dict:
     catalog = json.loads(PERIPHERALS.read_text())
     coverage = json.loads(COVERAGE.read_text())
@@ -242,11 +301,19 @@ def build_interfaces() -> dict:
         if profile.get("board_model")
     }
     machine_devices.update(coverage.get("machine_devices", {}))
+    model_qom_paths: dict[str, set[str]] = {}
+    for device in catalog["devices"].values():
+        for component in device.get("components", []):
+            path = component.get("qom_path")
+            if path:
+                model_qom_paths.setdefault(component["model"], set()).add(path)
 
     models = {}
+    case_outputs: dict[str, list[dict]] = {}
     for model_id, model in catalog["models"].items():
         model_interfaces = []
         evidence_cases = []
+        qom_paths = model_qom_paths.get(model_id, set())
         model_case_ids = [
             case_id
             for case_id, covered_models in case_models.items()
@@ -257,27 +324,32 @@ def build_interfaces() -> dict:
                 case = cases[case_id]
                 device_id = machine_devices.get(case.get("machine"))
                 for interface in case_interfaces(case):
-                    model_interfaces.append(
-                        {
-                            **interface,
-                            "case": case_id,
-                            "device": device_id,
-                            "backend": "qemu-runtime",
-                        }
-                    )
+                    enriched = {
+                        **interface,
+                        "case": case_id,
+                        "device": device_id,
+                        "backend": "qemu-runtime",
+                    }
+                    case_outputs.setdefault(case_id, [])
+                    if enriched not in case_outputs[case_id]:
+                        case_outputs[case_id].append(enriched)
+                    if _model_interface(interface, model_id, model, qom_paths):
+                        model_interfaces.append(enriched)
             else:
                 case = external[case_id]
-                model_interfaces.append(
-                    {
-                        "adapter": "external-probe",
-                        "direction": "input-output",
-                        "case": case_id,
-                        "device": case["device"],
-                        "backend": "external",
-                        "test": case["test"],
-                        "evidence": case["evidence"],
-                    }
-                )
+                interface = {
+                    "adapter": "external-probe",
+                    "direction": "input-output",
+                    "case": case_id,
+                    "device": case["device"],
+                    "backend": "external",
+                    "test": case["test"],
+                    "evidence": case["evidence"],
+                }
+                model_interfaces.append(interface)
+                case_outputs.setdefault(case_id, [])
+                if interface not in case_outputs[case_id]:
+                    case_outputs[case_id].append(interface)
             evidence_cases.append(case_id)
 
         unique = []
@@ -287,6 +359,15 @@ def build_interfaces() -> dict:
             if key not in seen:
                 seen.add(key)
                 unique.append(interface)
+        if not unique and evidence_cases:
+            unique.append(
+                {
+                    "adapter": "case-evidence",
+                    "direction": "input-output",
+                    "capability": "case-level runtime evidence",
+                    "case": evidence_cases[0],
+                }
+            )
         models[model_id] = {
             "status": model["status"],
             "kind": model.get("kind"),
@@ -316,6 +397,11 @@ def build_interfaces() -> dict:
             ],
             "case_models": {
                 case_id: case_models.get(case_id, [])
+                for case_id in group.get("matrix", [])
+                + group.get("external", [])
+            },
+            "case_interfaces": {
+                case_id: case_outputs.get(case_id, [])
                 for case_id in group.get("matrix", [])
                 + group.get("external", [])
             },
