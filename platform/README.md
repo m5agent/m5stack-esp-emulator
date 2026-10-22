@@ -34,6 +34,20 @@ GET /api/peripheral-interfaces/<model>
 的 `runtime_cases`。`runtime_interfaces.py` 进一步把 QOM/QMP/PCM/RMT/SD/
 UART/framebuffer 操作展开为机器可读接口。
 
+## 租用设备 API
+
+`device_service.py` 提供按 lease 创建独立虚拟主机的本地服务：
+
+- 内容寻址固件 artifact；
+- merged/segmented firmware 组合；
+- QEMU-backed ESP32 session；
+- 串口、截图、按键/触摸、QOM、reset 和销毁；
+- prepared-flash cache + 每 session 独立 flash 副本。
+
+目前不开放 Tab5、CardputerZero 和网络模拟。完整契约见
+[`../docs/device-service-api.md`](../docs/device-service-api.md) 和
+[`../docs/device-service.openapi.yaml`](../docs/device-service.openapi.yaml)。
+
 ## 显示协议
 
 `m5emu-shared-v1`：

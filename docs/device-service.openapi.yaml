@@ -1,0 +1,673 @@
+openapi: 3.1.0
+info:
+  title: M5Stack Device Service API
+  version: 1.0.0
+  description: >
+    Leased, on-demand virtual M5Stack device service. Network emulation,
+    Tab5, and CardputerZero are outside this API version.
+servers:
+  - url: http://127.0.0.1:8080/api/v1
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      summary: Service health and capacity
+      security: []
+      responses:
+        "200":
+          description: Service status
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /devices:
+    get:
+      summary: List virtual device profiles
+      parameters:
+        - name: include_unsupported
+          in: query
+          schema:
+            type: string
+            enum: ["0", "1"]
+            default: "1"
+      responses:
+        "200":
+          description: Device catalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceCatalog"
+  /devices/{device_id}:
+    get:
+      summary: Read one virtual device profile
+      parameters:
+        - $ref: "#/components/parameters/DeviceId"
+      responses:
+        "200":
+          description: Device profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "404":
+          $ref: "#/components/responses/Error"
+  /capacity:
+    get:
+      summary: Read active lease capacity
+      responses:
+        "200":
+          description: Capacity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Capacity"
+  /artifacts:
+    post:
+      summary: Upload a content-addressed binary artifact
+      parameters:
+        - name: X-Artifact-Name
+          in: header
+          schema:
+            type: string
+        - name: X-Artifact-Type
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          description: Artifact metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artifact"
+        "413":
+          $ref: "#/components/responses/Error"
+  /artifacts/{artifact_id}:
+    get:
+      summary: Read artifact metadata
+      parameters:
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{64}$"
+      responses:
+        "200":
+          description: Artifact metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artifact"
+        "404":
+          $ref: "#/components/responses/Error"
+  /firmware:
+    post:
+      summary: Compose and validate a flash-sized firmware image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/MergedFirmwareRequest"
+                - $ref: "#/components/schemas/SegmentedFirmwareRequest"
+      responses:
+        "201":
+          description: Firmware metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Firmware"
+        "400":
+          $ref: "#/components/responses/Error"
+  /firmware/{firmware_id}:
+    get:
+      summary: Read firmware metadata
+      parameters:
+        - name: firmware_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Firmware metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Firmware"
+        "404":
+          $ref: "#/components/responses/Error"
+  /sessions:
+    get:
+      summary: List leases
+      responses:
+        "200":
+          description: Session list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Session"
+    post:
+      summary: Create an asynchronous device lease
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSessionRequest"
+      responses:
+        "202":
+          description: Session accepted for provisioning
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "429":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}:
+    get:
+      summary: Read session state
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Session state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Stop a session
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: purge
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Stopped session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+  /sessions/{session_id}/wait:
+    post:
+      summary: Wait for running state or a serial marker
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ready_marker:
+                  type: string
+                timeout_seconds:
+                  type: number
+                  default: 30
+      responses:
+        "200":
+          description: Session is ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "408":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/serial:
+    get:
+      summary: Read serial output incrementally
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 262144
+            default: 65536
+      responses:
+        "200":
+          description: Serial chunk
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerialChunk"
+  /sessions/{session_id}/logs:
+    get:
+      summary: Read serial plus QEMU log tails
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Log chunks
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SerialChunk"
+                  - type: object
+                    properties:
+                      qemu_stdout:
+                        type: string
+                      qemu_stderr:
+                        type: string
+  /sessions/{session_id}/frame.png:
+    get:
+      summary: Capture the current framebuffer
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: PNG framebuffer
+          headers:
+            X-Frame-Width:
+              schema:
+                type: integer
+            X-Frame-Height:
+              schema:
+                type: integer
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "409":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/input:
+    post:
+      summary: Inject key or pointer input
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InputRequest"
+      responses:
+        "200":
+          description: Input accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/qom:
+    post:
+      summary: Set a QOM property
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [path, property]
+              properties:
+                path:
+                  type: string
+                  example: /machine/bmi270
+                property:
+                  type: string
+                  example: accel-x
+                value: {}
+      responses:
+        "200":
+          description: QOM result
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+    get:
+      summary: Read a QOM property
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: property
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: QOM value
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/reset:
+    post:
+      summary: Reset the guest
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Reset accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/renew:
+    post:
+      summary: Extend a lease
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ttl_seconds:
+                  type: integer
+                  minimum: 30
+      responses:
+        "200":
+          description: Renewed session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    DeviceId:
+      name: device_id
+      in: path
+      required: true
+      schema:
+        type: string
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    Error:
+      description: Service error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    DeviceCatalog:
+      type: object
+      required: [service, api_version, network_enabled, devices]
+      properties:
+        service:
+          type: string
+        api_version:
+          type: string
+        network_enabled:
+          type: boolean
+        tab5_enabled:
+          type: boolean
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+    Device:
+      type: object
+      additionalProperties: true
+      properties:
+        device_id:
+          type: string
+        name:
+          type: string
+        supported:
+          type: boolean
+        creatable:
+          type: boolean
+        reference_available:
+          type: boolean
+        flash_size:
+          type: integer
+        display:
+          type: object
+          nullable: true
+        features:
+          type: object
+          additionalProperties: true
+    Artifact:
+      type: object
+      required: [artifact_id, sha256, size, name]
+      properties:
+        artifact_id:
+          type: string
+        sha256:
+          type: string
+        size:
+          type: integer
+        name:
+          type: string
+        content_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    MergedFirmwareRequest:
+      type: object
+      required: [device_id, kind, artifact_id]
+      properties:
+        device_id:
+          type: string
+        kind:
+          const: merged
+        artifact_id:
+          type: string
+    SegmentedFirmwareRequest:
+      type: object
+      required: [device_id, kind, segments]
+      properties:
+        device_id:
+          type: string
+        kind:
+          const: segmented
+        segments:
+          type: array
+          items:
+            type: object
+            required: [offset, artifact_id]
+            properties:
+              offset:
+                oneOf:
+                  - type: integer
+                  - type: string
+              artifact_id:
+                type: string
+    Firmware:
+      type: object
+      additionalProperties: true
+      required: [firmware_id, sha256, device_id, flash_size, kind]
+      properties:
+        firmware_id:
+          type: string
+        sha256:
+          type: string
+        device_id:
+          type: string
+        flash_size:
+          type: integer
+        kind:
+          type: string
+        source:
+          type: object
+        header_magic:
+          type: integer
+    CreateSessionRequest:
+      type: object
+      required: [device_id]
+      properties:
+        device_id:
+          type: string
+        firmware_id:
+          type: string
+          description: Omit to use the cached reference UIFlow2 image.
+        ttl_seconds:
+          type: integer
+          minimum: 30
+          default: 1800
+        ready_marker:
+          type: string
+        ready_timeout_seconds:
+          type: number
+          default: 30
+    Session:
+      type: object
+      additionalProperties: true
+      required: [session_id, device_id, state]
+      properties:
+        session_id:
+          type: string
+        device_id:
+          type: string
+        state:
+          type: string
+          enum:
+            - provisioning
+            - flashing
+            - booting
+            - running
+            - stopping
+            - stopped
+            - failed
+        pid:
+          type: integer
+          nullable: true
+        firmware_id:
+          type: string
+        firmware_sha256:
+          type: string
+        firmware_source:
+          type: string
+        flash:
+          type: object
+          nullable: true
+        serial_bytes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        error:
+          type: string
+          nullable: true
+    SerialChunk:
+      type: object
+      required: [session_id, offset, next_offset, data, bytes]
+      properties:
+        session_id:
+          type: string
+        offset:
+          type: integer
+        next_offset:
+          type: integer
+        data:
+          type: string
+        bytes:
+          type: integer
+    InputRequest:
+      oneOf:
+        - type: object
+          required: [kind, key]
+          properties:
+            kind:
+              const: key
+            key:
+              type: string
+            settle_seconds:
+              type: number
+        - type: object
+          required: [kind, x, y]
+          properties:
+            kind:
+              const: touch
+            x:
+              type: integer
+            y:
+              type: integer
+            settle_seconds:
+              type: number
+        - type: object
+          required: [kind, x, y]
+          properties:
+            kind:
+              const: longpress
+            x:
+              type: integer
+            y:
+              type: integer
+            hold_seconds:
+              type: number
+        - type: object
+          required: [kind, x1, y1, x2, y2]
+          properties:
+            kind:
+              const: drag
+            x1:
+              type: integer
+            y1:
+              type: integer
+            x2:
+              type: integer
+            y2:
+              type: integer
+    Capacity:
+      type: object
+      additionalProperties: true

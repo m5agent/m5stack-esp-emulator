@@ -193,3 +193,10 @@ service are tracked in `docs/project-backlog.md`. The recommended service model
 is one exclusive device instance per lease, cached backend images, a small
 optional warm pool, and disposable copy-on-write flash for review jobs. See
 `docs/simulator-service-architecture.md`.
+
+The v1 local device service is implemented by
+`platform/tools/device_service.py` and exposed by `platform/tools/serve.py`.
+It supports leased QEMU-backed ESP32 sessions, reference or uploaded firmware,
+serial/frame/input/QOM/reset APIs, and excludes Tab5, CardputerZero and network
+emulation. Its contract is `docs/device-service-api.md` and
+`docs/device-service.openapi.yaml`.

@@ -83,6 +83,23 @@ production isolation, observability and capacity management.
 
 See [`simulator-service-architecture.md`](simulator-service-architecture.md).
 
+Implemented on 2026-10-22:
+
+- local on-demand QEMU process runner;
+- session leases with TTL and concurrency limits;
+- content-addressed artifact upload;
+- merged/segmented firmware composition;
+- prepared-flash cache plus per-session isolated flash copy;
+- serial, frame, input, QOM, reset and log APIs.
+
+Still backlog:
+
+- durable sessions across service restart;
+- prestarted warm pool;
+- remote worker scheduling and multi-host capacity;
+- untrusted-firmware isolation and quota enforcement;
+- network namespace and pcap integration.
+
 ## P1: Tab5 deferred peripheral closure
 
 The current Tab5 virtual host already supports virtual flashing, UIFlow2 boot,

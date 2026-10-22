@@ -1,0 +1,1105 @@
+#!/usr/bin/env python3
+"""Leased, on-demand virtual M5Stack device service.
+
+This module is intentionally a local, trusted-workstation service. It owns the
+process lifecycle for QEMU/esp-emu-backed ESP32 devices and exposes an HTTP
+API through serve.py. Network emulation and Tab5 are deliberately outside this
+first service scope.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import sys
+import threading
+import time
+import uuid
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[2]
+MATRIX = ROOT / "tests/uiflow2/device_matrix.json"
+PROFILES = ROOT / "platform/qemu/profiles.json"
+TEST_TOOLS = ROOT / "tests/uiflow2"
+if str(TEST_TOOLS) not in sys.path:
+    sys.path.insert(0, str(TEST_TOOLS))
+
+from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
+from run_profile_ui_test import (  # noqa: E402
+    QMP,
+    read_ppm,
+    send_input,
+    wait_qmp,
+    write_rgb_png,
+)
+
+DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
+EXCLUDED_DEVICES = {
+    "tab5": "Tab5 is deferred from this service scope",
+    "cardputer-zero": "CardputerZero uses a separate Linux backend",
+}
+MAX_ARTIFACT_BYTES = 32 * 1024 * 1024
+MAX_SERIAL_READ = 256 * 1024
+ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
+
+
+def iso_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def parse_int(value: Any, field: str) -> int:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        try:
+            return int(value, 0)
+        except ValueError:
+            pass
+    raise ServiceError("invalid_request", f"{field} must be an integer", 400)
+
+
+def parse_size(value: str | None) -> tuple[int, int] | None:
+    if not value:
+        return None
+    try:
+        width, height = value.lower().split("x", 1)
+        return int(width), int(height)
+    except ValueError:
+        return None
+
+
+class ServiceError(Exception):
+    def __init__(self, code: str, message: str, status: int = 400, **extra):
+        super().__init__(message)
+        self.code = code
+        self.message = message
+        self.status = status
+        self.extra = extra
+
+    def payload(self) -> dict:
+        return {"error": {"code": self.code, "message": self.message, **self.extra}}
+
+
+@dataclass(frozen=True)
+class DeviceSpec:
+    id: str
+    name: str
+    group: str
+    soc: str
+    backend: str
+    machine: str
+    flash_size: int
+    display: dict | None
+    reference_path: Path | None
+    qemu: Path
+    rom_dir: Path
+    efuse_driver: str | None
+    memory: str | None
+    env: dict[str, str]
+    mode: str
+    expected_size: tuple[int, int] | None
+    supported: bool
+    flash_emulator: Path | None
+    reason: str | None
+
+    @property
+    def has_display(self) -> bool:
+        display = self.display or {}
+        return bool(display.get("width") and display.get("height"))
+
+    @property
+    def reference_available(self) -> bool:
+        return bool(self.reference_path and self.reference_path.is_file())
+
+    @property
+    def backend_ready(self) -> bool:
+        return (
+            self.qemu.is_file()
+            and self.rom_dir.is_dir()
+            and (self.flash_emulator is None or self.flash_emulator.is_file())
+        )
+
+
+def load_device_specs() -> dict[str, DeviceSpec]:
+    matrix = json.loads(MATRIX.read_text())
+    profiles = json.loads(PROFILES.read_text())
+    profiles_by_id = {row["id"]: row for row in profiles["devices"]}
+    specs = {}
+    for row in matrix["devices"]:
+        device_id = row["id"]
+        backend = matrix["backends"].get(row["backend"], {})
+        profile = profiles_by_id.get(device_id, {})
+        excluded_reason = EXCLUDED_DEVICES.get(device_id)
+        supported = (
+            excluded_reason is None
+            and bool(backend)
+            and row["backend"].startswith("qemu-esp32")
+            and row["mode"] in {"ui", "console"}
+        )
+        qemu = ROOT / backend["qemu"] if backend.get("qemu") else ROOT / "__missing_qemu__"
+        rom_dir = (
+            ROOT / backend["rom_dir"]
+            if backend.get("rom_dir")
+            else ROOT / "__missing_rom__"
+        )
+        reference = ROOT / row["base"] if row.get("base") else None
+        reason = excluded_reason
+        if not backend and reason is None:
+            reason = f"backend {row['backend']} is not registered for service execution"
+        if not supported and reason is None:
+            reason = f"backend mode {row.get('mode')} is not enabled for this service"
+        specs[device_id] = DeviceSpec(
+            id=device_id,
+            name=profile.get("name", device_id),
+            group=profile.get("group", ""),
+            soc=profile.get("soc", ""),
+            backend=row["backend"],
+            machine=row.get("machine", ""),
+            flash_size=int(row.get("flash_size", "0"), 0),
+            display=profile.get("display"),
+            reference_path=reference,
+            qemu=qemu,
+            rom_dir=rom_dir,
+            efuse_driver=backend.get("efuse_driver"),
+            memory=row.get("memory"),
+            env=row.get("env", {}),
+            mode=row["mode"],
+            expected_size=parse_size(row.get("expected_size")),
+            supported=supported,
+            flash_emulator=(
+                ROOT / ".work/bin/esp-emu"
+                if backend.get("esp_emu_chip")
+                else None
+            ),
+            reason=reason,
+        )
+    return specs
+
+
+class ArtifactStore:
+    """Content-addressed binary artifacts used by firmware manifests."""
+
+    def __init__(self, root: Path):
+        self.root = root
+        self.root.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.RLock()
+
+    def _meta(self, artifact_id: str) -> Path:
+        return self.root / f"{artifact_id}.json"
+
+    def _data(self, artifact_id: str) -> Path:
+        return self.root / f"{artifact_id}.bin"
+
+    def create(
+        self,
+        data: bytes,
+        *,
+        name: str = "",
+        content_type: str = "application/octet-stream",
+    ) -> dict:
+        if not data:
+            raise ServiceError("empty_artifact", "artifact must not be empty", 400)
+        if len(data) > MAX_ARTIFACT_BYTES:
+            raise ServiceError(
+                "artifact_too_large",
+                f"artifact exceeds {MAX_ARTIFACT_BYTES} bytes",
+                413,
+            )
+        artifact_id = hashlib.sha256(data).hexdigest()
+        with self._lock:
+            if not self._data(artifact_id).exists():
+                temp = self.root / f".{artifact_id}.{uuid.uuid4().hex}.tmp"
+                temp.write_bytes(data)
+                temp.replace(self._data(artifact_id))
+            record = {
+                "artifact_id": artifact_id,
+                "sha256": artifact_id,
+                "size": len(data),
+                "name": name or f"artifact-{artifact_id[:12]}.bin",
+                "content_type": content_type,
+                "created_at": iso_now(),
+            }
+            self._meta(artifact_id).write_text(
+                json.dumps(record, ensure_ascii=False, indent=2) + "\n"
+            )
+        return record
+
+    def read(self, artifact_id: str) -> bytes:
+        if not isinstance(artifact_id, str) or not _is_sha256(artifact_id):
+            raise ServiceError("unknown_artifact", "invalid artifact id", 404)
+        with self._lock:
+            path = self._data(artifact_id)
+            if not path.is_file():
+                raise ServiceError(
+                    "unknown_artifact", f"unknown artifact: {artifact_id}", 404
+                )
+            return path.read_bytes()
+
+    def get(self, artifact_id: str) -> dict:
+        if not isinstance(artifact_id, str) or not _is_sha256(artifact_id):
+            raise ServiceError("unknown_artifact", "invalid artifact id", 404)
+        with self._lock:
+            meta = self._meta(artifact_id)
+            if not meta.is_file():
+                raise ServiceError(
+                    "unknown_artifact", f"unknown artifact: {artifact_id}", 404
+                )
+            return json.loads(meta.read_text())
+
+
+class FirmwareStore:
+    """Build complete/flash-sized images from uploaded or segmented artifacts."""
+
+    def __init__(self, root: Path, artifacts: ArtifactStore, specs: dict[str, DeviceSpec]):
+        self.root = root
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.artifacts = artifacts
+        self.specs = specs
+        self._lock = threading.RLock()
+
+    def _meta(self, firmware_id: str) -> Path:
+        return self.root / f"{firmware_id}.json"
+
+    def _data(self, firmware_id: str) -> Path:
+        return self.root / f"{firmware_id}.bin"
+
+    def create(self, payload: dict) -> dict:
+        device_id = payload.get("device_id")
+        if not isinstance(device_id, str) or device_id not in self.specs:
+            raise ServiceError("unknown_device", "device_id is required", 400)
+        spec = self.specs[device_id]
+        if not spec.supported:
+            raise ServiceError(
+                "unsupported_device",
+                spec.reason or "device is not enabled for this service",
+                409,
+            )
+        kind = payload.get("kind", "merged")
+        image = bytearray(b"\xff" * spec.flash_size)
+        intervals: list[tuple[int, int]] = []
+
+        if kind == "merged":
+            artifact_id = payload.get("artifact_id")
+            data = self.artifacts.read(artifact_id)
+            if len(data) > spec.flash_size:
+                raise ServiceError(
+                    "firmware_too_large",
+                    f"firmware is {len(data)} bytes; device flash is {spec.flash_size}",
+                    413,
+                )
+            image[: len(data)] = data
+            intervals.append((0, len(data)))
+            source = {"kind": "merged", "artifact_id": artifact_id}
+        elif kind == "segmented":
+            segments = payload.get("segments")
+            if not isinstance(segments, list) or not segments:
+                raise ServiceError(
+                    "invalid_segments", "segments must be a non-empty list", 400
+                )
+            source_segments = []
+            for index, segment in enumerate(segments):
+                if not isinstance(segment, dict):
+                    raise ServiceError(
+                        "invalid_segments",
+                        f"segments[{index}] must be an object",
+                        400,
+                    )
+                offset = parse_int(segment.get("offset"), f"segments[{index}].offset")
+                artifact_id = segment.get("artifact_id")
+                data = self.artifacts.read(artifact_id)
+                end = offset + len(data)
+                if offset < 0 or end > spec.flash_size:
+                    raise ServiceError(
+                        "segment_out_of_range",
+                        f"segment {index} range 0x{offset:x}-0x{end:x} "
+                        f"exceeds flash size 0x{spec.flash_size:x}",
+                        400,
+                    )
+                if not data:
+                    raise ServiceError(
+                        "empty_artifact",
+                        f"segment {index} artifact is empty",
+                        400,
+                    )
+                for start, existing_end in intervals:
+                    if offset < existing_end and start < end:
+                        raise ServiceError(
+                            "overlapping_segments",
+                            f"segment {index} overlaps another segment",
+                            400,
+                        )
+                image[offset:end] = data
+                intervals.append((offset, end))
+                source_segments.append({"offset": offset, "artifact_id": artifact_id})
+            source = {"kind": "segmented", "segments": source_segments}
+        else:
+            raise ServiceError(
+                "unsupported_firmware_kind",
+                "kind must be 'merged' or 'segmented'",
+                400,
+            )
+
+        if not intervals:
+            raise ServiceError("empty_firmware", "firmware has no data", 400)
+        image_bytes = bytes(image)
+        firmware_id = hashlib.sha256(image_bytes).hexdigest()
+        record = {
+            "firmware_id": firmware_id,
+            "sha256": firmware_id,
+            "device_id": device_id,
+            "flash_size": spec.flash_size,
+            "size": len(image_bytes),
+            "kind": kind,
+            "source": source,
+            "header_magic": image_bytes[0],
+            "created_at": iso_now(),
+        }
+        with self._lock:
+            data_path = self._data(firmware_id)
+            if not data_path.exists():
+                temp = self.root / f".{firmware_id}.{uuid.uuid4().hex}.tmp"
+                temp.write_bytes(image_bytes)
+                temp.replace(data_path)
+            self._meta(firmware_id).write_text(
+                json.dumps(record, ensure_ascii=False, indent=2) + "\n"
+            )
+        return record
+
+    def get(self, firmware_id: str) -> dict:
+        if not _is_sha256(firmware_id):
+            raise ServiceError("unknown_firmware", "invalid firmware id", 404)
+        with self._lock:
+            meta = self._meta(firmware_id)
+            if not meta.is_file():
+                raise ServiceError(
+                    "unknown_firmware", f"unknown firmware: {firmware_id}", 404
+                )
+            return json.loads(meta.read_text())
+
+    def path(self, firmware_id: str) -> Path:
+        self.get(firmware_id)
+        path = self._data(firmware_id)
+        if not path.is_file():
+            raise ServiceError("unknown_firmware", "firmware data missing", 404)
+        return path
+
+
+def _is_sha256(value: str) -> bool:
+    return len(value) == 64 and all(c in "0123456789abcdef" for c in value)
+
+
+def default_flash_preparer(
+    spec: DeviceSpec, image: Path, firmware_sha: str, out_dir: Path
+) -> dict:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    matrix_backend = json.loads(MATRIX.read_text())["backends"][spec.backend]
+    env = default_env()
+    env.update(spec.env)
+    if "esp_emu_chip" in matrix_backend:
+        emulator = Path(
+            os.environ.get(
+                "M5_SERVICE_ESP_EMU",
+                str(spec.flash_emulator or ROOT / ".work/bin/esp-emu"),
+            )
+        )
+        return flash_with_esp_emu(
+            chip=matrix_backend["esp_emu_chip"],
+            image=image,
+            flash_size=spec.flash_size,
+            out_dir=out_dir,
+            env=env,
+            timeout=600,
+            emulator=emulator,
+        )
+    return flash_with_qemu(
+        chip=matrix_backend["qemu_esptool_chip"],
+        machine=spec.machine,
+        image=image,
+        flash_size=spec.flash_size,
+        out_dir=out_dir,
+        env=env,
+        qemu=spec.qemu,
+        rom_dir=spec.rom_dir,
+        timeout=900,
+        memory=spec.memory,
+    )
+
+
+class DeviceSession:
+    def __init__(
+        self,
+        service: "DeviceService",
+        *,
+        session_id: str,
+        spec: DeviceSpec,
+        firmware_id: str,
+        firmware_path: Path,
+        firmware_sha: str,
+        firmware_source: str,
+        ttl_seconds: int,
+        ready_marker: str | None,
+        ready_timeout: float,
+    ):
+        self.service = service
+        self.id = session_id
+        self.spec = spec
+        self.firmware_id = firmware_id
+        self.firmware_path = firmware_path
+        self.firmware_sha = firmware_sha
+        self.firmware_source = firmware_source
+        self.ttl_seconds = ttl_seconds
+        self.ready_marker = ready_marker
+        self.ready_timeout = ready_timeout
+        self.created_at = iso_now()
+        self.expires_at = time.time() + ttl_seconds
+        self.state = "provisioning"
+        self.error: str | None = None
+        self.pid: int | None = None
+        self.flash_info: dict | None = None
+        self.virtual_flash: Path | None = None
+        self.qmp_path = Path("/tmp") / f"m5-service-{session_id}.sock"
+        self.dir = service.state_dir / "sessions" / session_id
+        self.dir.mkdir(parents=True, exist_ok=True)
+        self.serial0 = self.dir / "serial.log"
+        self.serial1 = self.dir / "serial1.log"
+        self.stdout_path = self.dir / "qemu.stdout"
+        self.stderr_path = self.dir / "qemu.stderr"
+        self._proc: subprocess.Popen | None = None
+        self._qmp: QMP | None = None
+        self._lock = threading.RLock()
+        self._stop_event = threading.Event()
+
+    def snapshot(self) -> dict:
+        with self._lock:
+            if (
+                self._proc is not None
+                and self._proc.poll() is not None
+                and self.state in ACTIVE_STATES
+            ):
+                self.state = "failed"
+                self.error = self.error or f"process exited with code {self._proc.returncode}"
+            serial_size = self.serial0.stat().st_size if self.serial0.exists() else 0
+            return {
+                "session_id": self.id,
+                "device_id": self.spec.id,
+                "state": self.state,
+                "pid": self.pid,
+                "firmware_id": self.firmware_id,
+                "firmware_sha256": self.firmware_sha,
+                "firmware_source": self.firmware_source,
+                "flash": self.flash_info,
+                "serial_bytes": serial_size,
+                "created_at": self.created_at,
+                "expires_at": datetime.fromtimestamp(
+                    self.expires_at, timezone.utc
+                ).isoformat(),
+                "error": self.error,
+                "display": self.spec.display,
+            }
+
+    def start(self) -> None:
+        thread = threading.Thread(
+            target=self._provision,
+            name=f"m5-session-{self.id}",
+            daemon=True,
+        )
+        thread.start()
+
+    def _set_state(self, state: str) -> None:
+        with self._lock:
+            self.state = state
+
+    def _provision(self) -> None:
+        try:
+            self._set_state("flashing")
+            prepared = self.service.prepare_flash(
+                self.spec, self.firmware_path, self.firmware_sha
+            )
+            self.virtual_flash = self.dir / "virtual-flash.bin"
+            shutil.copyfile(prepared["path"], self.virtual_flash)
+            self.flash_info = {
+                **prepared["info"],
+                "session_isolated_copy": True,
+            }
+            self._set_state("booting")
+            self._launch()
+            if self.ready_marker:
+                self.wait_for_marker(self.ready_marker, self.ready_timeout)
+            self._set_state("running")
+        except Exception as error:
+            with self._lock:
+                self.error = str(error)
+                self.state = "failed"
+            self._terminate_process()
+
+    def _launch(self) -> None:
+        assert self.virtual_flash is not None
+        efuse = self.dir / "efuse.bin"
+        efuse_data = bytearray(4096)
+        # The device matrix uses the same package-version encoding as the
+        # existing profile runner.
+        if "efuse_pkg_version" in self.service.raw_device(self.spec.id):
+            pkg = int(self.service.raw_device(self.spec.id)["efuse_pkg_version"])
+            efuse_data[36:40] = (pkg << 21).to_bytes(4, "little")
+        efuse.write_bytes(efuse_data)
+        try:
+            self.qmp_path.unlink()
+        except FileNotFoundError:
+            pass
+        command = [
+            str(self.spec.qemu),
+            "-M", self.spec.machine,
+            "-drive", f"file={self.virtual_flash},if=mtd,format=raw",
+            "-L", str(self.spec.rom_dir),
+            "-display", "none",
+            "-serial", f"file:{self.serial0}",
+            "-serial", f"file:{self.serial1}",
+            "-qmp", f"unix:{self.qmp_path},server=on,wait=off",
+        ]
+        if self.spec.efuse_driver != "none":
+            command.extend(
+                [
+                    "-drive", f"if=none,id=efuse,file={efuse},format=raw",
+                    "-global",
+                    f"driver={self.spec.efuse_driver},property=drive,value=efuse",
+                ]
+            )
+        if self.spec.memory is not None:
+            command.extend(["-m", str(self.spec.memory)])
+        env = os.environ.copy()
+        env.update(self.spec.env)
+        stdout = self.stdout_path.open("wb")
+        stderr = self.stderr_path.open("wb")
+        try:
+            self._proc = subprocess.Popen(
+                command,
+                cwd=ROOT,
+                env=env,
+                stdout=stdout,
+                stderr=stderr,
+            )
+        finally:
+            stdout.close()
+            stderr.close()
+        self.pid = self._proc.pid
+        self._qmp = wait_qmp(self.qmp_path, timeout=20)
+
+    def _qmp_call(self, name: str, **arguments):
+        with self._lock:
+            if self._proc is None or self._proc.poll() is not None:
+                raise ServiceError("session_not_running", "device process is not running", 409)
+            if self._qmp is None:
+                self._qmp = wait_qmp(self.qmp_path, timeout=5)
+            try:
+                return self._qmp.cmd(name, **arguments)
+            except (OSError, RuntimeError) as error:
+                raise ServiceError(
+                    "qmp_error", f"QMP command failed: {error}", 503
+                ) from error
+
+    def wait_for_marker(self, marker: str, timeout: float) -> dict:
+        deadline = time.time() + max(0.1, timeout)
+        while time.time() < deadline:
+            if self.serial0.exists() and marker in self.serial0.read_text(
+                errors="replace"
+            ):
+                return self.snapshot()
+            if self._proc and self._proc.poll() is not None:
+                raise ServiceError(
+                    "session_exited",
+                    f"device exited before marker {marker!r}",
+                    409,
+                )
+            time.sleep(0.1)
+        raise ServiceError(
+            "ready_timeout",
+            f"timed out waiting for serial marker {marker!r}",
+            408,
+        )
+
+    def serial_read(self, offset: int = 0, limit: int = 65536) -> dict:
+        limit = min(max(int(limit), 1), MAX_SERIAL_READ)
+        with self._lock:
+            if not self.serial0.exists():
+                return {
+                    "session_id": self.id,
+                    "offset": offset,
+                    "next_offset": offset,
+                    "data": "",
+                    "bytes": 0,
+                }
+            data = self.serial0.read_bytes()
+        offset = min(max(int(offset), 0), len(data))
+        chunk = data[offset:offset + limit]
+        return {
+            "session_id": self.id,
+            "offset": offset,
+            "next_offset": offset + len(chunk),
+            "data": chunk.decode("utf-8", errors="replace"),
+            "bytes": len(chunk),
+        }
+
+    def frame_png(self) -> tuple[bytes, int, int]:
+        if not self.spec.has_display:
+            raise ServiceError(
+                "display_not_available",
+                "this device has no framebuffer display",
+                409,
+            )
+        with self._lock:
+            ppm = self.dir / f"frame-{uuid.uuid4().hex}.ppm"
+            png = ppm.with_suffix(".png")
+            try:
+                self._qmp_call("screendump", filename=str(ppm))
+                width, height, pixels = read_ppm(ppm)
+                write_rgb_png(png, width, height, pixels)
+                return png.read_bytes(), width, height
+            finally:
+                ppm.unlink(missing_ok=True)
+                png.unlink(missing_ok=True)
+
+    def inject(self, payload: dict) -> dict:
+        if self.state != "running":
+            raise ServiceError(
+                "session_not_running", f"session state is {self.state}", 409
+            )
+        settle = float(payload.get("settle_seconds", 0.3))
+        kind = payload.get("kind")
+        if kind == "key":
+            key = str(payload.get("key", ""))
+            if not key:
+                raise ServiceError("invalid_input", "key is required", 400)
+            spec = f"key:{key}"
+        elif kind == "touch":
+            spec = f"touch:{int(payload.get('x', 0))},{int(payload.get('y', 0))}"
+        elif kind == "longpress":
+            spec = (
+                f"longpress:{int(payload.get('x', 0))},"
+                f"{int(payload.get('y', 0))},{float(payload.get('hold_seconds', 0.5))}"
+            )
+        elif kind == "drag":
+            spec = (
+                f"drag:{int(payload.get('x1', 0))},{int(payload.get('y1', 0))},"
+                f"{int(payload.get('x2', 0))},{int(payload.get('y2', 0))}"
+            )
+        else:
+            raise ServiceError(
+                "invalid_input",
+                "kind must be key, touch, longpress or drag",
+                400,
+            )
+        frame_size = self.spec.expected_size or (1, 1)
+        with self._lock:
+            send_input(self._qmp, spec, frame_size, settle)
+        return {"session_id": self.id, "input": spec, "accepted": True}
+
+    def qom_set(self, payload: dict) -> dict:
+        path = payload.get("path")
+        prop = payload.get("property")
+        if not isinstance(path, str) or not isinstance(prop, str):
+            raise ServiceError(
+                "invalid_qom", "path and property are required strings", 400
+            )
+        value = payload.get("value")
+        with self._lock:
+            result = self._qmp_call("qom-set", path=path, property=prop, value=value)
+        return {"session_id": self.id, "qom_set": result}
+
+    def qom_get(self, path: str, prop: str) -> dict:
+        with self._lock:
+            result = self._qmp_call("qom-get", path=path, property=prop)
+        return {"session_id": self.id, "path": path, "property": prop, "value": result}
+
+    def reset(self) -> dict:
+        with self._lock:
+            self._qmp_call("system_reset")
+        return {"session_id": self.id, "state": self.state, "reset": True}
+
+    def renew(self, ttl_seconds: int) -> dict:
+        self.ttl_seconds = ttl_seconds
+        self.expires_at = time.time() + ttl_seconds
+        return self.snapshot()
+
+    def _terminate_process(self) -> None:
+        proc = self._proc
+        if proc is not None and proc.poll() is None:
+            try:
+                proc.terminate()
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=5)
+        if self._qmp is not None:
+            try:
+                self._qmp.close()
+            except OSError:
+                pass
+            self._qmp = None
+        try:
+            self.qmp_path.unlink()
+        except FileNotFoundError:
+            pass
+
+    def stop(self, purge: bool = False) -> dict:
+        with self._lock:
+            if self.state in {"stopped", "failed"}:
+                result = self.snapshot()
+                if purge:
+                    shutil.rmtree(self.dir, ignore_errors=True)
+                return result
+            self.state = "stopping"
+            if self._qmp is not None:
+                try:
+                    self._qmp.cmd("quit")
+                except (OSError, RuntimeError):
+                    pass
+            self._terminate_process()
+            self.state = "stopped"
+            result = self.snapshot()
+        if purge:
+            shutil.rmtree(self.dir, ignore_errors=True)
+        return result
+
+
+class DeviceService:
+    def __init__(
+        self,
+        *,
+        state_dir: Path = DEFAULT_STATE_DIR,
+        max_sessions: int = 4,
+        max_per_device: int = 2,
+        default_ttl: int = 1800,
+        api_token: str | None = None,
+        flash_preparer=None,
+    ):
+        self.state_dir = Path(state_dir)
+        self.state_dir.mkdir(parents=True, exist_ok=True)
+        self.specs = load_device_specs()
+        self.raw_matrix = json.loads(MATRIX.read_text())
+        self.artifacts = ArtifactStore(self.state_dir / "artifacts")
+        self.firmware = FirmwareStore(
+            self.state_dir / "firmware", self.artifacts, self.specs
+        )
+        self.max_sessions = max(1, int(max_sessions))
+        self.max_per_device = max(1, int(max_per_device))
+        self.default_ttl = max(30, int(default_ttl))
+        self.api_token = api_token
+        self.flash_preparer = flash_preparer or default_flash_preparer
+        self._sessions: dict[str, DeviceSession] = {}
+        self._lock = threading.RLock()
+        self._flash_lock = threading.Lock()
+        self._reference_cache: dict[str, dict] = {}
+        self._stop = threading.Event()
+        self._janitor = threading.Thread(
+            target=self._janitor_loop,
+            name="m5-session-janitor",
+            daemon=True,
+        )
+        self._janitor.start()
+
+    def raw_device(self, device_id: str) -> dict:
+        for row in self.raw_matrix["devices"]:
+            if row["id"] == device_id:
+                return row
+        raise KeyError(device_id)
+
+    def _public_device(self, spec: DeviceSpec) -> dict:
+        reference_available = spec.reference_available
+        backend_ready = spec.backend_ready
+        return {
+            "device_id": spec.id,
+            "name": spec.name,
+            "group": spec.group,
+            "soc": spec.soc,
+            "supported": spec.supported,
+            "creatable": spec.supported and backend_ready,
+            "backend_ready": backend_ready,
+            "reference_available": reference_available,
+            "backend": spec.backend,
+            "machine": spec.machine,
+            "flash_size": spec.flash_size,
+            "display": spec.display,
+            "features": {
+                "flash": spec.supported,
+                "serial": spec.supported,
+                "screenshot": spec.supported and spec.has_display,
+                "input": spec.supported,
+                "qom": spec.supported,
+                "network": False,
+            },
+            "reason": spec.reason,
+        }
+
+    def list_devices(self, include_unsupported: bool = True) -> dict:
+        devices = [
+            self._public_device(spec)
+            for spec in sorted(self.specs.values(), key=lambda row: row.id)
+            if include_unsupported or spec.supported
+        ]
+        return {
+            "service": "m5stack-device-service",
+            "api_version": "v1",
+            "network_enabled": False,
+            "tab5_enabled": False,
+            "devices": devices,
+        }
+
+    def get_device(self, device_id: str) -> dict:
+        spec = self.specs.get(device_id)
+        if spec is None:
+            raise ServiceError("unknown_device", f"unknown device: {device_id}", 404)
+        return self._public_device(spec)
+
+    def upload_artifact(
+        self, data: bytes, *, name: str = "", content_type: str = ""
+    ) -> dict:
+        return self.artifacts.create(
+            data, name=name, content_type=content_type or "application/octet-stream"
+        )
+
+    def create_firmware(self, payload: dict) -> dict:
+        return self.firmware.create(payload)
+
+    def reference_info(self, spec: DeviceSpec) -> dict:
+        with self._lock:
+            if spec.id in self._reference_cache:
+                return self._reference_cache[spec.id]
+            if not spec.reference_path or not spec.reference_path.is_file():
+                raise ServiceError(
+                    "reference_firmware_missing",
+                    f"reference firmware is not cached for {spec.id}",
+                    409,
+                )
+            data = spec.reference_path.read_bytes()
+            if len(data) > spec.flash_size:
+                raise ServiceError(
+                    "reference_firmware_too_large",
+                    "reference firmware exceeds device flash size",
+                    409,
+                )
+            record = {
+                "firmware_id": hashlib.sha256(data).hexdigest(),
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "size": len(data),
+                "path": spec.reference_path,
+            }
+            self._reference_cache[spec.id] = record
+            return record
+
+    def prepare_flash(
+        self, spec: DeviceSpec, image: Path, firmware_sha: str
+    ) -> dict:
+        cache_dir = self.state_dir / "flash-cache" / spec.id
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_path = cache_dir / f"{firmware_sha}.bin"
+        work_dir = cache_dir / f".work-{uuid.uuid4().hex}"
+        with self._flash_lock:
+            if cache_path.is_file() and cache_path.stat().st_size == spec.flash_size:
+                return {
+                    "path": cache_path,
+                        "info": _public_flash_info({
+                        "transport": "cache",
+                        "verified": True,
+                        "flash_size": spec.flash_size,
+                        "firmware_sha256": firmware_sha,
+                        }),
+                }
+            work_dir.mkdir(parents=True, exist_ok=True)
+            try:
+                if os.environ.get("M5_SERVICE_FLASH_MODE", "esptool") == "host-image":
+                    info = {
+                        "transport": "host-image",
+                        "verified": True,
+                        "flash_size": spec.flash_size,
+                        "firmware_sha256": firmware_sha,
+                    }
+                    work_dir.joinpath("virtual-flash.bin").write_bytes(
+                        _padded(image.read_bytes(), spec.flash_size)
+                    )
+                else:
+                    info = self.flash_preparer(spec, image, firmware_sha, work_dir)
+                produced = Path(info["virtual_flash"])
+                if produced.stat().st_size != spec.flash_size:
+                    raise ServiceError(
+                        "flash_size_mismatch",
+                        f"prepared flash size {produced.stat().st_size} "
+                        f"!= {spec.flash_size}",
+                        500,
+                    )
+                shutil.copyfile(produced, cache_path)
+                return {"path": cache_path, "info": _public_flash_info(info)}
+            finally:
+                shutil.rmtree(work_dir, ignore_errors=True)
+
+    def create_session(self, payload: dict) -> dict:
+        device_id = payload.get("device_id")
+        if not isinstance(device_id, str):
+            raise ServiceError("invalid_request", "device_id is required", 400)
+        spec = self.specs.get(device_id)
+        if spec is None:
+            raise ServiceError("unknown_device", f"unknown device: {device_id}", 404)
+        if not spec.supported:
+            raise ServiceError(
+                "unsupported_device", spec.reason or "device is not enabled", 409
+            )
+        if not spec.backend_ready:
+            raise ServiceError(
+                "backend_not_ready",
+                f"runtime files are missing for {device_id}",
+                503,
+            )
+        firmware_id = payload.get("firmware_id")
+        if firmware_id:
+            firmware = self.firmware.get(str(firmware_id))
+            if firmware["device_id"] != device_id:
+                raise ServiceError(
+                    "firmware_device_mismatch",
+                    f"firmware belongs to {firmware['device_id']}",
+                    409,
+                )
+            firmware_path = self.firmware.path(str(firmware_id))
+            firmware_sha = firmware["sha256"]
+            source = "uploaded"
+        else:
+            reference = self.reference_info(spec)
+            firmware_id = reference["firmware_id"]
+            firmware_path = reference["path"]
+            firmware_sha = reference["sha256"]
+            source = "reference"
+
+        with self._lock:
+            active = [
+                session
+                for session in self._sessions.values()
+                if session.state in ACTIVE_STATES
+            ]
+            if len(active) >= self.max_sessions:
+                raise ServiceError(
+                    "capacity_exhausted",
+                    f"maximum active sessions is {self.max_sessions}",
+                    429,
+                )
+            same_device = [session for session in active if session.spec.id == device_id]
+            if len(same_device) >= self.max_per_device:
+                raise ServiceError(
+                    "device_capacity_exhausted",
+                    f"maximum active sessions for {device_id} is {self.max_per_device}",
+                    429,
+                )
+            ttl = int(payload.get("ttl_seconds", self.default_ttl))
+            if ttl < 30:
+                raise ServiceError("invalid_ttl", "ttl_seconds must be >= 30", 400)
+            ready_marker = payload.get("ready_marker")
+            if ready_marker is not None and not isinstance(ready_marker, str):
+                raise ServiceError("invalid_request", "ready_marker must be a string", 400)
+            ready_timeout = float(payload.get("ready_timeout_seconds", 30))
+            session = DeviceSession(
+                self,
+                session_id=uuid.uuid4().hex,
+                spec=spec,
+                firmware_id=firmware_id,
+                firmware_path=firmware_path,
+                firmware_sha=firmware_sha,
+                firmware_source=source,
+                ttl_seconds=ttl,
+                ready_marker=ready_marker,
+                ready_timeout=ready_timeout,
+            )
+            self._sessions[session.id] = session
+        session.start()
+        return session.snapshot()
+
+    def get_session(self, session_id: str) -> DeviceSession:
+        with self._lock:
+            session = self._sessions.get(session_id)
+        if session is None:
+            raise ServiceError("unknown_session", f"unknown session: {session_id}", 404)
+        return session
+
+    def list_sessions(self) -> dict:
+        with self._lock:
+            sessions = [session.snapshot() for session in self._sessions.values()]
+        return {"sessions": sessions}
+
+    def delete_session(self, session_id: str, purge: bool = False) -> dict:
+        session = self.get_session(session_id)
+        return session.stop(purge=purge)
+
+    def capacity(self) -> dict:
+        with self._lock:
+            active = [
+                session for session in self._sessions.values()
+                if session.state in ACTIVE_STATES
+            ]
+            by_device: dict[str, int] = {}
+            for session in active:
+                by_device[session.spec.id] = by_device.get(session.spec.id, 0) + 1
+        return {
+            "max_sessions": self.max_sessions,
+            "active_sessions": len(active),
+            "available_sessions": max(0, self.max_sessions - len(active)),
+            "max_per_device": self.max_per_device,
+            "by_device": by_device,
+            "modes": {
+                "network": "disabled",
+                "tab5": "disabled",
+                "flash": "prepared-cache + exact artifact",
+            },
+        }
+
+    def _janitor_loop(self) -> None:
+        while not self._stop.wait(2):
+            now = time.time()
+            expired = []
+            with self._lock:
+                for session in self._sessions.values():
+                    if (
+                        session.state in ACTIVE_STATES
+                        and session._proc is not None
+                        and session._proc.poll() is not None
+                    ):
+                        session.state = "failed"
+                        session.error = (
+                            session.error
+                            or f"process exited with code {session._proc.returncode}"
+                        )
+                    if session.state in ACTIVE_STATES and session.expires_at <= now:
+                        expired.append(session)
+            for session in expired:
+                try:
+                    session.stop()
+                except Exception:
+                    pass
+
+    def close_all(self) -> None:
+        self._stop.set()
+        with self._lock:
+            sessions = list(self._sessions.values())
+        for session in sessions:
+            try:
+                session.stop()
+            except Exception:
+                pass
+
+
+def _padded(data: bytes, size: int) -> bytes:
+    if len(data) > size:
+        raise ServiceError(
+            "firmware_too_large",
+            f"firmware is {len(data)} bytes; flash is {size}",
+            413,
+        )
+    return data + b"\xff" * (size - len(data))
+
+
+def _public_flash_info(info: dict) -> dict:
+    return {
+        key: value
+        for key, value in info.items()
+        if key not in {"image", "virtual_flash", "qemu", "rom_dir"}
+    }

@@ -15,6 +15,11 @@ merged flash 镜像或按地址拆分的镜像段。固件审查边界见
 当前实现与验证流程说明见 [AGENTS.md](AGENTS.md)。该文件同时定义了新增设备、
 外设模型、QEMU 补丁和发布证据的维护规则。
 
+其他 Agent 可以通过新版本地设备服务租用虚拟主机、上传通用固件、读取串口和
+截图、注入输入与 QOM。API 见
+[`docs/device-service-api.md`](docs/device-service-api.md) 和
+[`docs/device-service.openapi.yaml`](docs/device-service.openapi.yaml)。
+
 ![设备目录](docs/images/device-gallery.png)
 
 项目按芯片架构分组保存 14 个 M5Stack 主控档案。13 台 ESP32 主控均已完成官方
@@ -60,6 +65,10 @@ WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。
 ```bash
 python3 platform/tools/serve.py 8080
 ```
+
+设备服务与静态目录共用这个进程。默认支持 12 台 QEMU-backed ESP32，
+Tab5、CardputerZero 和网络模拟暂不开放。完整示例：
+[`docs/device-service-api.md`](docs/device-service-api.md)。
 
 浏览器设备目录只需要 Python 3。完整 QEMU/固件回归还需要本地准备：
 

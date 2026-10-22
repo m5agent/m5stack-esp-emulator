@@ -2,6 +2,32 @@
 
 Date: `2026-10-22`
 
+## Implementation status
+
+The local v1 API and on-demand process runner are implemented in
+`platform/tools/device_service.py` and `platform/tools/serve.py`.
+
+Implemented:
+
+- device catalog and capability discovery;
+- exclusive session leases with TTL and capacity limits;
+- content-addressed artifact upload;
+- merged and segmented firmware composition;
+- real esptool-backed first-run flash preparation plus cached flash images;
+- one isolated flash copy per session;
+- serial/log/frame/input/QOM/reset/delete APIs;
+- optional Bearer token.
+
+Not implemented yet:
+
+- prestarted warm QEMU instances;
+- durable sessions across service restart;
+- remote worker pool and multi-host scheduling;
+- network namespaces and packet capture;
+- untrusted multi-tenant isolation.
+
+See [`device-service-api.md`](device-service-api.md) for the delivered API.
+
 ## Decision summary
 
 A device model is a **template**, not a singleton service. The service should
