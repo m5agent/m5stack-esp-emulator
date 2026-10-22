@@ -119,6 +119,8 @@ BCM2835 SPI DMAEN 32-bit FIFO + write-only panel backpressure: PASS
 CardputerZero factory UI startup to LVGL 320x170: PASS
 CardputerZero factory UI first frame: PASS (54400/54400 non-black pixels, 127 RGB565 colors)
 UIFlow2 peripheral matrix: 67/67 cases, 272/272 checks PASS
+(latest camera/state-transition changes: targeted 7/7 cases, 38/38 checks PASS;
+full 67/274 not rerun per user request)
 (clean final run; a separate 6-run Core2 stress check reproduced the known
 intermittent boot cache panic once)
 ```
@@ -157,7 +159,8 @@ python3 tests/uiflow2/run_nanoc6_peripherals.py
 - `peripheral-matrix-summary-66-2026-10-22.json`: final 66-case peripheral
   matrix summary with 264/264 passing checks.
 - `peripheral-matrix-summary-67-2026-10-22.json`: runtime-transition follow-up
-  with 67/67 cases and 272/272 checks passing.
+  with 67/67 cases and 272/272 checks passing; later camera/state-transition
+  changes were validated with the targeted 7-case suite only.
 - `tab5-charging-ui-2026-10-22.png`: native 1280x720 Tab5 framebuffer after
   touch, showing `CHG in:00 api:True en:1`.
 - `sticks3-peripheral-contract-2026-10-22.png`: device page showing the

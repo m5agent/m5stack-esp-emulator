@@ -85,6 +85,7 @@ git apply /path/to/0010-bcm2835-spi-dma-panel-sink.patch
 git apply /path/to/0011-imx219-register-controlled-frames-and-gl852g-tt.patch
 git apply /path/to/0012-stackchan-correct-bm8563-rtc.patch
 git apply /path/to/0013-papermono-buzzer-and-power-key.patch
+git apply /path/to/0014-m5-lcd-cam-runtime-frame-seed.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -167,3 +168,8 @@ RTC models, and attaches the carrier LTR553 ambient-light sensor at `0x23`.
 `0013-papermono-buzzer-and-power-key.patch` attaches PaperMono's GPIO42
 buzzer path to the ESP32-S3 I2S/GDMA model and routes the QMP `P` key to the
 board power-key signal shared by PaperMono and PaperColor.
+
+`0014-m5-lcd-cam-runtime-frame-seed.patch` exposes the deterministic GC0308
+camera frame seed through QOM, adds per-frame auto-increment, and registers
+`/machine/m5-lcd-cam`. CoreS3 can therefore observe changing frame content
+across runtime snapshots while StackChan keeps its single-frame path.

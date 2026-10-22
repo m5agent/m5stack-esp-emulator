@@ -639,9 +639,14 @@ CASES = [
         "wait": "10",
         "inputs": ["key:p"],
         "qom": [],
+        "qom_set_boot": [
+            ("/machine/m5-lcd-cam", "auto-increment", "true"),
+        ],
+        "post_input_wait": 3.0,
         "allow_static_frame": True,
         "serial_expect": [
             "CORES3_CAMERA_PASS 320x240 153600 bytes",
+            "CORES3_CAMERA_FRAMESTREAM PASS 1",
         ],
         "reason": (
             "GC0308 init, ESP32-S3 LCD_CAM capture, GDMA frame delivery, "
@@ -651,6 +656,8 @@ CASES = [
             {"name": "camera_init", "status": "PASS"},
             {"name": "camera_snapshot", "status": "PASS"},
             {"name": "camera_display", "status": "PASS"},
+            {"name": "camera_runtime_frame_change", "status": "PASS"},
+            {"name": "camera_runtime_frame_stream", "status": "PASS"},
         ],
     },
     {
@@ -1762,13 +1769,13 @@ CASES = [
         "vfs_size": "0x7DF000",
         "flash_size": "0x1000000",
         "expected_size": "320x240",
-        "wait": "8",
+        "wait": "12",
         "inputs": ["longpress:220,190,1.5", "key:p"],
         "post_input_wait": 1.5,
         "qom": [],
         "efuse_driver": "none",
         "memory": "0",
-        "retries": 3,
+        "retries": 5,
         "post_frame_color": "310,230,00FF00",
         "frame_color": {"x": 310, "y": 230, "label": "Core2 peripherals"},
     },
@@ -2466,9 +2473,9 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--qom-set", path, prop, value])
     for path, prop, value in case.get("qom_set_boot", []):
         command.extend(["--qom-set-boot", path, prop, value])
-    for delay, path, prop, value in case.get("qom_steps", []):
+    for step in case.get("qom_steps", []):
         command.extend([
-            "--qom-step", str(delay), path, prop, str(value),
+            "--qom-step", *(str(value) for value in step),
         ])
     for path, prop, value in case.get("qom_expect", []):
         command.extend(["--qom-expect", path, prop, value])

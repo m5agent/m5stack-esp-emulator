@@ -9,6 +9,7 @@ image = None
 input_count = 0
 stage = "init"
 log_uart = None
+frame_changes = 0
 
 
 def emit(*parts):
@@ -54,6 +55,30 @@ try:
     M5.Display.show(image, 0, 0)
     emit("CORES3_CAMERA_PASS", detail)
     status = "snapshot ok"
+    if M5.getBoard() in (10, 17):
+        previous = bytes(image.bytearray())
+        deadline = time.ticks_add(time.ticks_ms(), 20000)
+        while (frame_changes < 1
+               and time.ticks_diff(deadline, time.ticks_ms()) > 0):
+            M5.update()
+            next_image = camera.snapshot()
+            if next_image is None:
+                continue
+            current = bytes(next_image.bytearray())
+            if current != previous:
+                frame_changes += 1
+                previous = current
+                image = next_image
+                signature = current[:16].hex()
+                emit("CORES3_CAMERA_FRAME_CHANGE",
+                     frame_changes, next_image.size(), signature)
+                image.draw_string(8, 8, "M5 EMU", color=(0, 255, 0), scale=2)
+                M5.Display.show(image, 0, 0)
+            time.sleep_ms(100)
+        if frame_changes >= 1:
+            emit("CORES3_CAMERA_FRAMESTREAM PASS", frame_changes)
+        else:
+            emit("CORES3_CAMERA_FRAMESTREAM FAIL", frame_changes)
 except Exception as error:
     if stage == "snapshot":
         status = "camera partial"

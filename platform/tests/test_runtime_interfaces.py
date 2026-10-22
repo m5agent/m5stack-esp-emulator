@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
-from runtime_interfaces import build_interfaces
+from runtime_interfaces import build_interfaces, case_interfaces
 
 
 class RuntimeInterfaceTests(unittest.TestCase):
@@ -99,6 +99,24 @@ class RuntimeInterfaceTests(unittest.TestCase):
                 for item in sequence)
         )
         self.assertIn("delay_seconds", sequence[0])
+    def test_synchronized_qom_steps_are_exported(self):
+        interfaces = case_interfaces(
+            {
+                "qom_steps": [
+                    (
+                        0,
+                        "/machine/example",
+                        "state",
+                        "2",
+                        "READY_FOR_STATE_2",
+                    )
+                ]
+            }
+        )
+        self.assertEqual(
+            interfaces[0]["wait_marker"],
+            "READY_FOR_STATE_2",
+        )
 
 
 if __name__ == "__main__":

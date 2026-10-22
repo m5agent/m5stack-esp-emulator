@@ -87,7 +87,9 @@ def case_interfaces(case: dict) -> list[dict]:
                 "runtime",
             )
         )
-    for delay, path, prop, value in case.get("qom_steps", []):
+    for step in case.get("qom_steps", []):
+        delay, path, prop, value = step[:4]
+        wait_marker = step[4] if len(step) == 5 else None
         interface = _qom(
             {
                 "direction": "input",
@@ -95,6 +97,7 @@ def case_interfaces(case: dict) -> list[dict]:
                 "value_type": "qom-sequence",
                 "capability": "runtime physical state transition",
                 "delay_seconds": delay,
+                **({"wait_marker": wait_marker} if wait_marker else {}),
             },
             path,
             prop,

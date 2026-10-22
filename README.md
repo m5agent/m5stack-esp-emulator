@@ -4,6 +4,9 @@
 
 面向 UIFlow2 固件验证、UI 预览、自动测试和未来设备中心接入的多主控模拟平台。
 
+当前实现与验证流程说明见 [AGENTS.md](AGENTS.md)。该文件同时定义了新增设备、
+外设模型、QEMU 补丁和发布证据的维护规则。
+
 ![设备目录](docs/images/device-gallery.png)
 
 项目按芯片架构分组保存 14 个 M5Stack 主控档案。13 台 ESP32 主控均已完成官方
@@ -20,6 +23,12 @@ GL852G MTT 兼容全/低速下游路由，以及 GPIO 红外收发。
 [`docs/peripheral-simulation-architecture.md`](docs/peripheral-simulation-architecture.md)。
 当前 14 个虚拟主机中 13 个已通过全部登记外设的数据面验收；Tab5 仍受原生
 P4 CSI/I2S/USB/SDIO 与动态 I2C 后端缺口限制，不能误标为全外设闭环。
+
+当前外设契约包含 65 个模型、60 个 `simulated` 模型、67 个 matrix case 和
+7 个 external probe。最近一次干净的全量基线是摄像头帧流变更前的
+67/67 case、272/272 check；当前配置为 67/67 case、274/274 check。
+**本轮按用户要求没有再次执行全量矩阵**，提交前执行了 7 个受影响 case，
+结果为 7/7 case、38/38 check PASS。
 
 ## 快速开始
 
@@ -248,6 +257,22 @@ StopWatch 参考运行时和通用设备页都兼容这组接口。设备也通�
 详细契约见 [docs/device-center-adapter.md](docs/device-center-adapter.md)。
 
 ## 验证
+
+测试必须分层执行，不要修改一个外设后立即重跑全部设备：
+
+1. 先运行相关平台单元测试和 inventory/coverage 校验；
+2. 只运行本次改动的 device case；
+3. 共享 QEMU 控制器、发布前或跨设备回归时，才运行全量矩阵。
+
+本轮提交前定向用例：
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
+  --case cores3-camera --case stackchan-camera \
+  --case core2-peripherals --case papercolor-peripherals \
+  --case cores3-power-transitions --case stamplc-peripherals \
+  --case nesso-peripherals
+```
 
 ```bash
 python3 platform/tests/test_catalog.py

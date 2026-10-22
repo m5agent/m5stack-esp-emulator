@@ -100,12 +100,15 @@ StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 
 汇总：
 
 ```text
-cases   67
-checks  272
-PASS    67
+configured cases   67
+configured checks  274
+last clean full     67 cases / 272 checks PASS
+latest targeted     7 cases / 38 checks PASS
 ```
 
-最终全量运行 67/67 用例、272/272 检查清洁通过。另做 6 次 Core2
+最近一次干净的全量运行是摄像头帧流变更前的 67/67 用例、272/272 检查；
+之后新增 CoreS3 摄像头帧流和运行中状态序列，按用户要求未再次跑全量，
+只运行 7 个受影响用例并通过 38/38 检查。另做 6 次 Core2
 启动压力复跑时命中 1 次已知 MicroPython cache panic，重启后通过；失败
 串口保留为 `serial.attempt-1.log`。该启动稳定性问题单独记录，不归因或
 掩盖 AXP192 外设数据面。

@@ -382,12 +382,13 @@ def main():
     parser.add_argument(
         "--qom-step",
         action="append",
-        nargs=4,
-        metavar=("DELAY", "PATH", "PROPERTY", "VALUE"),
+        nargs="+",
+        metavar="STEP",
         default=[],
         help=(
-            "after boot, sleep DELAY seconds and set a QOM property; "
-            "repeat to exercise runtime state transitions"
+            "after boot, optionally wait for a serial marker, sleep DELAY "
+            "seconds, then set PATH PROPERTY VALUE; repeat to exercise "
+            "runtime state transitions"
         ),
     )
     parser.add_argument("--qom-sequence-settle", type=float, default=0.5)
@@ -564,7 +565,28 @@ def main():
                 print(f"qom {path} {prop}={current['return']}")
         if args.qom_set:
             time.sleep(args.qom_settle)
-        for raw_delay, path, prop, raw_value in args.qom_step:
+        for step in args.qom_step:
+            if len(step) not in (4, 5):
+                raise RuntimeError(
+                    "--qom-step expects DELAY PATH PROPERTY VALUE "
+                    "[WAIT_MARKER]"
+                )
+            raw_delay, path, prop, raw_value = step[:4]
+            wait_marker = step[4] if len(step) == 5 else None
+            if wait_marker:
+                deadline = time.time() + 30
+                while wait_marker not in serial.read_text(errors="replace"):
+                    if proc.poll() is not None:
+                        raise RuntimeError(
+                            "process exited while waiting for QOM-step marker "
+                            f"{wait_marker!r}"
+                        )
+                    if time.time() >= deadline:
+                        raise RuntimeError(
+                            f"timed out waiting for QOM-step marker "
+                            f"{wait_marker!r}"
+                        )
+                    time.sleep(0.1)
             time.sleep(float(raw_delay))
             try:
                 value = json.loads(raw_value)
