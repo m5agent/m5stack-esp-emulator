@@ -79,8 +79,9 @@ curl -sS -H 'Content-Type: application/json' \
 `running` 只表示虚拟主机控制通道已启动；应用就绪请使用 `ready_marker`、
 串口标记或非空截图确认。
 
-人工观察页默认只显示活动租约；停止/失败任务通过
-`GET /api/v1/sessions?include_stopped=0` 隐藏，并可从页面或
+人工观察页默认显示活动租约，以及最近 30 分钟内保存了最后一帧或串口的
+完成会话；`显示全部历史` 可展开更早记录。API 可用
+`GET /api/v1/sessions?include_stopped=0` 只取活动租约，也可从页面或
 `DELETE /api/v1/sessions?state=stopped&purge=1` 清理历史。
 
 完整接口和示例见：

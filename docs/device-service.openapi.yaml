@@ -219,10 +219,11 @@ paths:
                 additionalProperties: true
   /sessions:
     get:
-      summary: List leases
+      summary: List leases and retained session history
       parameters:
         - name: include_stopped
           in: query
+          description: Set to 0 to return active leases only. The default includes stopped and failed sessions while they remain retained.
           schema:
             type: string
             enum: ["0", "1"]

@@ -200,7 +200,7 @@ frame instead of failing. Session snapshots expose `last_frame_available` and
 | GET | `/api/v1/firmware/{firmware_id}` | Firmware metadata |
 | POST | `/api/v1/firmware/analyze` | Validate image, chip ID, partition table and app descriptor |
 | GET | `/api/v1/firmware/{firmware_id}/analysis` | Read stored static analysis |
-| GET | `/api/v1/sessions` | List sessions; `include_stopped=0` shows active leases only |
+| GET | `/api/v1/sessions` | List sessions; history is included by default, `include_stopped=0` shows active leases only |
 | POST | `/api/v1/sessions` | Create a session |
 | DELETE | `/api/v1/sessions?state=stopped&purge=1` | Clear stopped/failed history |
 | GET | `/api/v1/sessions/{id}` | Session status |
