@@ -154,10 +154,12 @@ external Bumble NUS connect/discover/subscribe/write followed by the guest-side
 session API.
 
 The Device Service catalog exposes this evidence boundary as `network_status`.
-Only StickS3, NanoC6 and Nesso N1 currently use `validated`. The stock UIFlow2
-boot path remains `board-init-blocked` on CoreS3, AtomS3R, StopWatch,
-Cardputer ADV, StackChan, PaperColor, PaperMono and StamPLC because the app
-reaches an I2C-master initialization error before the injected Python probe.
+StickS3, CoreS3, NanoC6 and Nesso N1 currently use `validated`. CoreS3 passed
+only after rebuilding the same UIFlow2 source with UART REPL enabled; the stock
+image disables the REPL, so its UART0 I2C log is not evidence that the app
+failed to start. The stock UIFlow2 boot path remains `board-init-blocked` on
+AtomS3R, StopWatch, Cardputer ADV, StackChan, PaperColor, PaperMono and StamPLC
+until an equivalent observable REPL build and same-instance probe pass.
 Core2 and Tab5 are `not-supported`. A board in this state must not be reported
 as a WiFi/BLE regression.
 

@@ -136,6 +136,9 @@ Important fields:
 
 An artifact is an immutable content-addressed byte blob. Upload the bootloader,
 partition table, application or a complete merged image separately.
+The per-artifact limit is 96 MiB so a matching UIFlow2 ELF with debug/symbol
+data can accompany BLE tests; stripped ELFs are not interchangeable when the
+emulator needs the full symbol data for HCI interception.
 
 ```http
 POST /api/v1/artifacts

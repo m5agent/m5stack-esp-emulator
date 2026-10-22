@@ -25,6 +25,7 @@ from device_service import (
     DEFAULT_MAX_SESSIONS,
     DeviceService,
     DeviceSession,
+    MAX_ARTIFACT_BYTES,
     QMP,
     ServiceError,
 )
@@ -63,10 +64,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(rows["nanoc6"]["network_status"], "validated")
         self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
+        self.assertEqual(rows["cores3"]["network_status"], "validated")
+        self.assertTrue(rows["cores3"]["features"]["network"])
         for blocked in (
             "atoms3r",
             "cardputer-adv",
-            "cores3",
             "papercolor",
             "papermono",
             "stackchan",
@@ -133,6 +135,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_default_capacity_matches_measured_workstation_profile(self):
         self.assertEqual(DEFAULT_MAX_SESSIONS, 12)
         self.assertEqual(DEFAULT_MAX_PER_DEVICE, 8)
+        self.assertEqual(MAX_ARTIFACT_BYTES, 96 * 1024 * 1024)
 
     def test_catalog_exposes_sku_and_coverage(self):
         row = self.service.get_device("cores3")

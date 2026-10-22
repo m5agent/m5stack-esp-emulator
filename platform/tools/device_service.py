@@ -61,7 +61,7 @@ QMP_COMMAND_TIMEOUT = 2
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
-MAX_ARTIFACT_BYTES = 64 * 1024 * 1024
+MAX_ARTIFACT_BYTES = 96 * 1024 * 1024
 MAX_SERIAL_READ = 256 * 1024
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 ALLOWED_RUNTIME_ENV = {
