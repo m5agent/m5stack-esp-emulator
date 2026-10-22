@@ -124,6 +124,8 @@ Important fields:
 - `features.network` is `true` when the chip has a validated `esp-emu` network
   path; `network_profiles` lists the available scenarios. Tab5 and Core2
   currently return `false`.
+- `network_console` reports the generic-firmware console default declared by
+  the device matrix, such as `usb-jtag` for C6 UIFlow2.
 - Tab5 `features.qom` is `false`; its touch path uses the GDB mailbox currently
   used by the validated Tab5 runtime.
 
@@ -268,17 +270,20 @@ Profiles are:
 - `generic-observe`: runs an arbitrary compatible image for the requested
   timeout window. With no `expected_markers` the result is `PARTIAL` and
   proves only that the process/serial path ran; add up to 16 marker strings to
-  obtain an application-level PASS/FAIL assertion. This profile defaults to
-  the `user,restrict=yes` network backend so unidentified firmware cannot
-  reach the workstation LAN or the public internet.
+  obtain an application-level PASS/FAIL assertion. Add
+  `net_mode=user,restrict=yes` for untrusted firmware. When `ble=true`, the
+  profile runs an external Bumble observer and requires
+  `elf_artifact_id`; successful BLE requires GATT discovery, subscription,
+  write, and guest-side delivery.
 
 `network.net_mode` accepts `user` or `user,restrict=yes`. Validated test
 profiles default to `user`; callers may explicitly select restricted mode.
 Use `user` for unrecognized firmware only inside a disposable VM.
 
 `network.console_mode` accepts `auto`, `uart0` and `usb-jtag`.
-`generic-observe` defaults to `auto` so UART-only and USB-Serial/JTAG-only
-firmware can both emit evidence. Validated lane profiles default to `uart0`.
+`generic-observe` uses the device's matrix `network_console` value when one is
+declared; ESP32-C6 UIFlow2 entries currently use `usb-jtag`. Other generic
+devices default to `auto`. Validated lane profiles default to `uart0`.
 
 For StickS3 BLE-only, use
 `{"profile":"uiflow2-sticks3","wifi":false,"ble":true,"elf_artifact_id":"..."}`.

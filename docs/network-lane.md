@@ -58,9 +58,11 @@ service, write the static characteristic and verify the readback.
 The `generic-observe` profile runs an arbitrary compatible image for the
 observation window. Without `--expect` it records `PARTIAL` plus serial output;
 repeat `--expect MARKER` to turn application output into explicit PASS/FAIL
-checks. The Device Service selects `user,restrict=yes` for this profile by
-default. This is the fallback for firmware whose startup protocol is not known
-in advance.
+checks. Its `--ble` option starts the external Bumble observer and adds GATT
+connect/discover/write plus guest-delivery checks; a matching ELF is required
+by `esp-emu` for HCI interception. The Device Service selects
+`user,restrict=yes` for this profile by default. This is the fallback for
+firmware whose startup protocol is not known in advance.
 
 Every run writes `serial.log`, `ble-probe.log` and `evidence.json` under the
 selected output directory. Binary hashes identify the exact firmware, ELF and
@@ -79,6 +81,10 @@ The UIFlow2 device-local WiFi probe under `tests/uiflow2/network_probe/`
 replaces only the user scripts in a compatible S3/C6 image and requires the
 guest to emit scan, association and DHCP success markers. A StickS3 local
 UART-REPL UIFlow2 build passes this path directly through `generic-observe`.
+ESP32-C6 UIFlow2 images built with USB-Serial/JTAG console must use the
+matrix-provided `network_console=usb-jtag`; the app otherwise blocks in
+`mp_hal_stdout_tx_strn` waiting for a TX notification while UART0 appears
+silent.
 Board images that call `M5.begin()` before Python starts still need their
 board I2C/SPI models in the same `esp-emu` instance; otherwise a pre-Python
 hang must be recorded as board coverage `BLOCKED`, not WiFi `FAIL`.
@@ -128,6 +134,14 @@ no PSRAM argument, while the StickS3/CoreS3 runs use `8M`.
 
 A same-instance StickS3 UIFlow2 run passes BLE scan/connect/GATT/write together
 with WiFi association and DHCP to `192.168.4.2`.
+
+The UIFlow2 `--ble` probe also passed on same-source NanoC6 (4 MB) and Nesso N1
+(16 MB) C6 builds. Each run used its matching ELF, selected USB-Serial/JTAG
+console, associated and received DHCP at `192.168.4.2`, and completed an
+external Bumble NUS connect/discover/subscribe/write followed by the guest-side
+`LANE_BLE_RX b'M5_LANE'` marker. Device Service session
+`48e27f5fb7b44c69852b99993787fa78` repeated the NanoC6 path through the public
+session API.
 
 The fixture hashes and machine-readable checks are stored with the run evidence
 and work record rather than copied into this document.

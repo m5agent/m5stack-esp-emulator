@@ -834,6 +834,9 @@ components:
           items:
             type: string
             enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+        network_console:
+          type: string
+          enum: [auto, uart0, usb-jtag]
         firmware_families:
           type: array
           items:
@@ -980,8 +983,9 @@ components:
           type: string
           enum: [auto, uart0, usb-jtag]
           description: >
-            Guest console used for observation. generic-observe defaults
-            to auto; validated profiles default to uart0.
+            Guest console used for observation. generic-observe uses the
+            device's network_console value when declared, otherwise auto;
+            validated profiles default to uart0.
         ble_name:
           type: string
           minLength: 1

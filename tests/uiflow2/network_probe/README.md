@@ -24,6 +24,23 @@ PYTHONPATH=.work/py python3 tests/uiflow2/network_probe/run_test.py \
   --out-dir /tmp/uiflow2-sticks3-wifi
 ```
 
+UIFlow2 C6 images may print through USB-Serial/JTAG instead of UART0. Use
+`--console-mode usb-jtag` when the matching board image selects that console;
+`--console-mode auto` remains the default for images whose selector is known
+to work.
+
+For combined WiFi/BLE validation, pass `--ble` plus a matching `--elf`:
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/network_probe/run_test.py \
+  --device nanoc6 --ble --elf /path/to/micropython.elf \
+  --out-dir /tmp/uiflow2-nanoc6-wifi-ble
+```
+
+The BLE result requires an external Bumble connection, GATT discovery,
+subscription, write, and the guest-side `LANE_BLE_RX` marker. An ELF that does
+not match the image descriptor is not sufficient.
+
 The run writes a session-isolated image, a
 `uiflow2-ui-test.build.json` provenance sidecar, network evidence and a
 combined `evidence.json`. `--skip-build` requires that sidecar, verifies the

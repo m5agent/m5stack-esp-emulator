@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 PROBE_DIR = Path(__file__).resolve().parent / "wifi"
+BLE_PROBE_DIR = Path(__file__).resolve().parent / "wifi_ble"
 MATRIX = ROOT / "tests/uiflow2/device_matrix.json"
 PROFILE_RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
 NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
@@ -45,10 +46,22 @@ def provenance_path(image: Path) -> Path:
     return image.with_suffix(".build.json")
 
 
+def probe_files_sha256(files_dir: Path) -> str:
+    digest = hashlib.sha256()
+    for path in sorted(files_dir.rglob("*.py")):
+        relative = path.relative_to(files_dir).as_posix()
+        digest.update(relative.encode())
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
 def write_build_provenance(
     image: Path,
     base: Path,
     device: dict,
+    files_dir: Path,
 ) -> dict:
     provenance = {
         "schema_version": PROVENANCE_SCHEMA_VERSION,
@@ -57,6 +70,8 @@ def write_build_provenance(
         "image_sha256": sha256(image),
         "base": display_path(base),
         "base_sha256": sha256(base),
+        "probe_files": display_path(files_dir),
+        "probe_files_sha256": probe_files_sha256(files_dir),
         "vfs_offset": device["vfs_offset"],
         "vfs_size": device["vfs_size"],
         "flash_size": device["flash_size"],
@@ -67,7 +82,11 @@ def write_build_provenance(
     return provenance
 
 
-def load_build_provenance(image: Path, device_id: str) -> dict:
+def load_build_provenance(
+    image: Path,
+    device_id: str,
+    files_dir: Path,
+) -> dict:
     path = provenance_path(image)
     if not path.is_file():
         raise RuntimeError(
@@ -91,10 +110,16 @@ def load_build_provenance(image: Path, device_id: str) -> dict:
         raise RuntimeError(f"build provenance image hash mismatch: {path}")
     if not isinstance(provenance.get("base_sha256"), str):
         raise RuntimeError(f"build provenance has no base hash: {path}")
+    if provenance.get("probe_files_sha256") != probe_files_sha256(files_dir):
+        raise RuntimeError(f"build provenance probe files mismatch: {path}")
     return provenance
 
 
-def build_image(device: dict, out_dir: Path) -> Path:
+def build_image(
+    device: dict,
+    out_dir: Path,
+    files_dir: Path = PROBE_DIR,
+) -> Path:
     command = [
         "python3",
         str(PROFILE_RUNNER),
@@ -103,7 +128,7 @@ def build_image(device: dict, out_dir: Path) -> Path:
         "--machine",
         device["machine"],
         "--files-dir",
-        str(PROBE_DIR),
+        str(files_dir),
         "--vfs-offset",
         device["vfs_offset"],
         "--vfs-size",
@@ -130,7 +155,12 @@ def build_image(device: dict, out_dir: Path) -> Path:
     image = out_dir / "uiflow2-ui-test.bin"
     if not image.is_file():
         raise RuntimeError(f"image build did not create {image}")
-    write_build_provenance(image, ROOT / device["base"], device)
+    write_build_provenance(
+        image,
+        ROOT / device["base"],
+        device,
+        files_dir,
+    )
     return image
 
 
@@ -138,12 +168,31 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--device", required=True)
     parser.add_argument("--base", type=Path)
+    parser.add_argument(
+        "--elf",
+        type=Path,
+        help="matching application ELF required by esp-emu for BLE HCI interception",
+    )
     parser.add_argument("--vfs-offset")
     parser.add_argument("--vfs-size")
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=60)
     parser.add_argument("--skip-build", action="store_true")
+    parser.add_argument(
+        "--ble",
+        action="store_true",
+        help="also start BLEUARTServer and require an external Bumble GATT write",
+    )
+    parser.add_argument("--ble-name", default="M5-NETWORK-LANE")
+    parser.add_argument(
+        "--console-mode",
+        choices=("auto", "uart0", "usb-jtag"),
+        default=None,
+        help="guest console channel used by the network lane",
+    )
     args = parser.parse_args()
+    if args.ble and args.elf is None:
+        raise SystemExit("--ble requires --elf for esp-emu HCI interception")
 
     matrix = json.loads(MATRIX.read_text())
     devices = {device["id"]: device for device in matrix["devices"]}
@@ -169,17 +218,19 @@ def main() -> int:
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     network_dir = args.out_dir / "network"
+    probe_files = BLE_PROBE_DIR if args.ble else PROBE_DIR
     image = (
         args.out_dir / "uiflow2-ui-test.bin"
         if args.skip_build
-        else build_image(device, args.out_dir)
+        else build_image(device, args.out_dir, probe_files)
     )
     provenance = (
-        load_build_provenance(image, args.device)
+        load_build_provenance(image, args.device, probe_files)
         if args.skip_build
         else json.loads(provenance_path(image).read_text())
     )
     image_sha256 = sha256(image)
+    console_mode = args.console_mode or device.get("network_console", "auto")
     command = [
         "python3",
         str(NETWORK_LANE),
@@ -198,9 +249,9 @@ def main() -> int:
         "--net-mode",
         "user",
         "--console-mode",
-        "auto",
+        console_mode,
         "--wifi",
-        "--no-ble",
+        "--ble" if args.ble else "--no-ble",
         "--no-tcp",
         *(["--psram-size", "0"] if chip == "esp32c6" else []),
         "--expect",
@@ -209,6 +260,19 @@ def main() -> int:
         "UIFLOW_WIFI_RESULT: PASSED",
         "--json",
     ]
+    if args.ble:
+        command.extend(
+            [
+                "--ble-name",
+                args.ble_name,
+                "--expect",
+                "UIFLOW_BLE_READY",
+            ]
+        )
+    if args.elf is not None:
+        if not args.elf.is_file():
+            raise SystemExit(f"ELF does not exist: {args.elf}")
+        command.extend(["--elf", str(args.elf)])
     completed = subprocess.run(
         command,
         cwd=ROOT,
@@ -242,6 +306,14 @@ def main() -> int:
             "base_sha256": provenance["base_sha256"],
             "provenance": str(provenance_path(image)),
         },
+        "elf": (
+            {
+                "path": str(args.elf),
+                "sha256": sha256(args.elf),
+            }
+            if args.elf is not None
+            else None
+        ),
         "network_evidence": str(network_evidence_path),
         "network_status": network_evidence.get("status"),
         "checks": network_evidence.get("checks", {}),
@@ -249,7 +321,7 @@ def main() -> int:
         "stderr_tail": completed.stderr[-4000:],
         "not_claimed": [
             "real-hardware behavior",
-            "BLE",
+            *(["BLE"] if not (passed and args.ble) else []),
             "stock user application behavior",
             "board peripherals in the same instance",
         ],

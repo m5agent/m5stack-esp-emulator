@@ -185,6 +185,7 @@
     {
       "id": "nesso-n1",
       "backend": "qemu-esp32c6",
+      "network_console": "usb-jtag",
       "mode": "ui",
       "machine": "esp32c6",
       "base": "platform/.cache/firmware/nesso-n1/uiflow2.bin",
@@ -202,6 +203,7 @@
     {
       "id": "nanoc6",
       "backend": "qemu-esp32c6",
+      "network_console": "usb-jtag",
       "mode": "console",
       "machine": "esp32c6",
       "env": {

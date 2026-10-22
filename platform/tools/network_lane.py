@@ -244,7 +244,10 @@ def build_emulator_command(
     *,
     firmware_copy: Path,
 ) -> tuple[list[str], dict]:
-    use_bumble = config.profile in {"uiflow2-sticks3", "esp-idf-coex"} and config.ble
+    use_bumble = (
+        config.profile in {"uiflow2-sticks3", "esp-idf-coex"}
+        or config.profile == "generic-observe"
+    ) and config.ble
     command = [
         str(config.emulator),
         "--chip",
@@ -473,15 +476,7 @@ def check_uiflow2_evidence(
             }
         )
     if ble:
-        checks["ble_probe"] = bool(
-            "BLE_BUMBLE_PASS" in ble_log
-            and "BLE_BUMBLE_GATT_DISCOVERED" in ble_log
-            and "BLE_BUMBLE_SUBSCRIBED" in ble_log
-            and "BLE_BUMBLE_WRITE" in ble_log
-        )
-        checks["ble_device_to_host"] = bool(
-            "LANE_BLE_RX" in serial and "M5_LANE" in serial
-        )
+        checks.update(check_ble_uart_evidence(serial, ble_log))
     checks["guest_completed"] = bool(
         re.search(r"(?m)^LANE_DONE\s*$", serial)
         or re.search(r"(?m)^LANE_WIFI_CONNECTED .* LANE_DONE\s*$", serial)
@@ -500,6 +495,23 @@ def check_uiflow2_evidence(
         ),
     }
     return checks, values
+
+
+def check_ble_uart_evidence(
+    serial: str,
+    ble_log: str,
+) -> dict[str, bool]:
+    return {
+        "ble_probe": bool(
+            "BLE_BUMBLE_PASS" in ble_log
+            and "BLE_BUMBLE_GATT_DISCOVERED" in ble_log
+            and "BLE_BUMBLE_SUBSCRIBED" in ble_log
+            and "BLE_BUMBLE_WRITE" in ble_log
+        ),
+        "ble_device_to_host": bool(
+            "LANE_BLE_RX" in serial and "M5_LANE" in serial
+        ),
+    }
 
 
 def check_http_evidence(serial: str, requests: list[str]) -> dict[str, bool]:
@@ -542,22 +554,34 @@ def check_dns_udp_evidence(
 def check_generic_evidence(
     serial: str,
     expected_markers: list[str],
+    ble_log: str = "",
+    require_ble: bool = False,
 ) -> dict[str, bool]:
     if expected_markers:
-        return {
+        checks = {
             f"marker:{index + 1}": marker in serial
             for index, marker in enumerate(expected_markers)
         }
-    return {"runtime_output": bool(serial.strip())}
+    else:
+        checks = {"runtime_output": bool(serial.strip())}
+    if require_ble:
+        checks.update(check_ble_uart_evidence(serial, ble_log))
+    return checks
 
 
 def generic_markers_complete(
     serial: str,
     expected_markers: list[str],
+    ble_log: str = "",
+    require_ble: bool = False,
 ) -> bool:
-    return bool(expected_markers) and all(
-        marker in serial for marker in expected_markers
+    checks = check_generic_evidence(
+        serial,
+        expected_markers,
+        ble_log,
+        require_ble,
     )
+    return bool(expected_markers) and all(checks.values())
 
 
 def check_coex_evidence(serial: str, ble_log: str) -> dict[str, bool]:
@@ -637,7 +661,10 @@ def execute(config: LaneConfig) -> dict:
 
     ble_proc: subprocess.Popen | None = None
     emu_proc: subprocess.Popen | None = None
-    use_bumble = config.profile in {"uiflow2-sticks3", "esp-idf-coex"} and config.ble
+    use_bumble = (
+        config.profile in {"uiflow2-sticks3", "esp-idf-coex"}
+        or config.profile == "generic-observe"
+    ) and config.ble
     timed_out = False
     started = time.monotonic()
     try:
@@ -680,6 +707,8 @@ def execute(config: LaneConfig) -> dict:
                     and generic_markers_complete(
                         serial_snapshot,
                         config.expected_markers,
+                        ble_snapshot,
+                        config.ble,
                     )
                 )
                 if generic_done or (guest_done and ble_done):
@@ -744,7 +773,12 @@ def execute(config: LaneConfig) -> dict:
             udp_server.datagrams if udp_server else [],
         )
     elif config.profile == "generic-observe":
-        checks = check_generic_evidence(serial, config.expected_markers)
+        checks = check_generic_evidence(
+            serial,
+            config.expected_markers,
+            ble_log,
+            config.ble,
+        )
         values = {}
     elif config.profile == "esp-idf-coex":
         checks = check_coex_evidence(serial, ble_log)

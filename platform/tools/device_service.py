@@ -175,7 +175,11 @@ def parse_network_execution(
         )
     console_mode = value.get(
         "console_mode",
-        "auto" if profile == "generic-observe" else "uart0",
+        (
+            spec.network_console
+            if profile == "generic-observe"
+            else "uart0"
+        ),
     )
     if console_mode not in {"auto", "uart0", "usb-jtag"}:
         raise ServiceError(
@@ -249,7 +253,11 @@ def parse_network_execution(
     tcp = boolean("tcp")
     if (
         ble
-        and profile in {"uiflow2-sticks3", "esp-idf-coex"}
+        and profile in {
+            "uiflow2-sticks3",
+            "esp-idf-coex",
+            "generic-observe",
+        }
         and not elf_artifact_id
     ):
         raise ServiceError(
@@ -333,6 +341,7 @@ class DeviceSpec:
     peripheral_status: str
     network_chip: str | None
     network_profiles: list[str]
+    network_console: str
     warnings: list[str]
     state_probes: dict[str, dict[str, Any]]
     reason: str | None
@@ -394,6 +403,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             flash_emulator = emulator
             network_chip = None
             network_profiles: list[str] = []
+            network_console = "auto"
             reason = None
         else:
             supported = (
@@ -424,6 +434,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 else None
             )
             network_chip = backend.get("esp_emu_chip")
+            network_console = row.get("network_console", "auto")
             network_profiles = (
                 sorted(NETWORK_PROFILES - {"uiflow2-sticks3"})
                 if network_chip
@@ -479,6 +490,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             ),
             network_chip=network_chip,
             network_profiles=network_profiles,
+            network_console=network_console,
             warnings=list(profile.get("blockers", [])),
             state_probes=(
                 profile.get("runtime_state", {})
@@ -2724,6 +2736,7 @@ class DeviceService:
                 "network": bool(spec.network_chip and spec.network_profiles),
             },
             "network_profiles": list(spec.network_profiles),
+            "network_console": spec.network_console,
             "reason": spec.reason,
         }
 

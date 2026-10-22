@@ -170,6 +170,24 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(generic["expected_markers"], ["APP_READY"])
         self.assertEqual(generic["net_mode"], "user,restrict=yes")
         self.assertEqual(generic["console_mode"], "auto")
+        with self.assertRaises(ServiceError) as generic_ble_elf:
+            device_service_module.parse_network_execution(
+                self.service.specs["nanoc6"],
+                {
+                    "profile": "generic-observe",
+                    "wifi": True,
+                    "ble": True,
+                },
+            )
+        self.assertEqual(generic_ble_elf.exception.code, "elf_required")
+        generic_c6 = device_service_module.parse_network_execution(
+            self.service.specs["nanoc6"],
+            {
+                "profile": "generic-observe",
+                "expected_markers": ["APP_READY"],
+            },
+        )
+        self.assertEqual(generic_c6["console_mode"], "usb-jtag")
         dns_udp = device_service_module.parse_network_execution(
             self.service.specs["sticks3"],
             {"profile": "idf-dns-udp"},

@@ -116,6 +116,22 @@ class NetworkLaneTests(unittest.TestCase):
         index = command.index("--console")
         self.assertEqual(command[index + 1], "auto")
 
+    def test_generic_observation_can_enable_bumble_data_plane(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            row = config(
+                tmp,
+                profile="generic-observe",
+                expected_markers=["PROBE_READY"],
+            )
+            command, _ = build_emulator_command(
+                row,
+                firmware_copy=tmp / "runtime.bin",
+            )
+        self.assertIn("--ble-hci", command)
+        index = command.index("--ble-hci")
+        self.assertEqual(command[index + 1], "tcp:127.0.0.1:9544")
+
     def test_dns_udp_profile_exits_on_final_result(self):
         with tempfile.TemporaryDirectory() as directory:
             tmp = Path(directory)
@@ -289,6 +305,30 @@ RESULT_SUMMARY: passed=34 failed=0 target=esp32s3
         )
         self.assertTrue(
             generic_markers_complete("first\nsecond\n", ["first", "second"])
+        )
+
+    def test_generic_ble_requires_external_gatt_and_guest_rx(self):
+        serial = "UIFLOW_WIFI_RESULT: PASSED\nLANE_BLE_RX b'M5_LANE'\n"
+        ble = """
+BLE_BUMBLE_GATT_DISCOVERED 6e400001-b5a3-f393-e0a9-e50e24dcca9e
+BLE_BUMBLE_SUBSCRIBED 6e400003-b5a3-f393-e0a9-e50e24dcca9e
+BLE_BUMBLE_WRITE M5_LANE
+BLE_BUMBLE_PASS
+"""
+        checks = check_generic_evidence(
+            serial,
+            ["UIFLOW_WIFI_RESULT: PASSED"],
+            ble,
+            True,
+        )
+        self.assertTrue(all(checks.values()), checks)
+        self.assertTrue(
+            generic_markers_complete(
+                serial,
+                ["UIFLOW_WIFI_RESULT: PASSED"],
+                ble,
+                True,
+            )
         )
 
     def test_rejects_classic_esp32_before_process_launch(self):
