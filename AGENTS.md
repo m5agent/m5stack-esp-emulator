@@ -2,13 +2,15 @@
 
 ## Project
 
-This repository is an M5Stack multi-device UIFlow2 simulator and Device Center
-adapter. It combines:
+This repository is an M5Stack multi-device firmware simulation and review
+platform with a Device Center adapter. UIFlow2 is the strongest validated
+firmware family, but generic full-flash firmware is a supported architecture
+goal. It combines:
 
 - device manifests under `devices/`;
 - peripheral contracts under `platform/peripherals/`;
 - ESP32 QEMU board models and patches under `patches/`;
-- UIFlow2 and external probes under `tests/`;
+- UIFlow2, generic-firmware and external probes under `tests/`;
 - browser/Device Center surfaces under `platform/`.
 
 The source of truth is the current worktree plus the generated validators, not
@@ -29,6 +31,9 @@ the README prose or previous chat summaries.
    addresses or firmware/ROM binaries.
 5. Do not use `git add -A`. The worktree can contain unrelated user assets or
    experiments; stage an explicit file whitelist.
+6. Do not describe the repository as UIFlow2-only. Accept another firmware only
+   when its chip, board profile, controller coverage, flash/partition layout,
+   eFuse/security mode and merged or segmented image are explicit and compatible.
 
 ## Validation strategy
 
@@ -182,3 +187,9 @@ backend change, do not promise a completion date for the missing data paths.
 Before calling the current milestone complete, run a clean latest full matrix
 and perform real-hardware validation on the same implementation paths. Until
 then, all simulator results remain simulation-only evidence.
+
+Network simulation, generic firmware intake and the leased simulator-worker
+service are tracked in `docs/project-backlog.md`. The recommended service model
+is one exclusive device instance per lease, cached backend images, a small
+optional warm pool, and disposable copy-on-write flash for review jobs. See
+`docs/simulator-service-architecture.md`.

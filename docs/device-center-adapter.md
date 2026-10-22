@@ -108,5 +108,10 @@ window.parent.postMessage({
 
 - WebSocket 串口桥：把原生 `esp-emu` 的 esptool/raw REPL 暴露给设备中心。
 - 图像通道：`getFrame()` 的 PNG data URL 可替换成二进制 WebSocket/WebRTC。
-- 任务调度：按 `runtime.status`、`uiflow2.supported`、`runtime.chip` 选择执行器。
+- 固件入口：接受 merged flash 或带偏移的 bootloader/partition/app/filesystem
+  分段，并记录 SHA-256、chip、flash size、可选 ELF/MAP 和来源。
+- 任务调度：按 `runtime.status`、固件目标芯片、板级 profile、控制器覆盖和镜像兼容性
+  选择执行器；UIFlow2 只是其中一种固件族。
+- 实例调度：每个 lease 独占一个模拟实例；同类设备可创建多个副本，但不能共享
+  可变 Flash、串口、输入或网络状态。推荐方案见 `simulator-service-architecture.md`。
 - 已知问题：设备 `runtime.validation` 必须参与调度，避免把公开固件的 bootloader panic 判为应用通过。

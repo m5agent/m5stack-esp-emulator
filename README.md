@@ -1,8 +1,16 @@
-# M5Stack Multi-Device Simulator
+# M5Stack Firmware Simulation and Review Platform
 
 [![CI](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml)
 
-面向 UIFlow2 固件验证、UI 预览、自动测试和未来设备中心接入的多主控模拟平台。
+面向 M5Stack 全量 Flash 固件审查、UIFlow2/UIFlow、ESP-IDF、Arduino、MicroPython
+运行验证、UI 预览、自动测试和未来设备中心接入的多主控模拟平台。
+
+当前验证最完整的是官方 UIFlow2 固件，但架构并不依赖 UIFlow。只要 SoC、板级
+profile、Flash/PSRAM/eFuse、分区布局和所需控制器兼容，也可以加载其他完整
+merged flash 镜像或按地址拆分的镜像段。固件审查边界见
+[`docs/firmware-review-and-simulation-workflow.md`](docs/firmware-review-and-simulation-workflow.md)。
+后续通用固件入口、网络和服务化工作见
+[`docs/project-backlog.md`](docs/project-backlog.md)。
 
 当前实现与验证流程说明见 [AGENTS.md](AGENTS.md)。该文件同时定义了新增设备、
 外设模型、QEMU 补丁和发布证据的维护规则。
@@ -53,7 +61,7 @@ WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。
 python3 platform/tools/serve.py 8080
 ```
 
-浏览器设备目录只需要 Python 3。完整 QEMU/UIFlow2 回归还需要本地准备：
+浏览器设备目录只需要 Python 3。完整 QEMU/固件回归还需要本地准备：
 
 - `.work/M5StopWatch-QEMU/`：按 `patches/qemu-*/README.md` 应用板级补丁并构建 QEMU；
 - `.work/esp-emu-versions/0.50.0/`：ESP32-C6/P4 使用的 `esp-emu`；
@@ -107,12 +115,27 @@ devices/
 每个设备目录包含：
 
 - `device.json`：芯片、内存、显示、控制、外设、UIFlow2、运行时状态
-- `firmware.json`：UIFlow2 版本、公开 firmware ID、下载地址和缓存路径
+- `firmware.json`：内置参考固件、公开 firmware ID、下载地址和缓存路径；
+  通用多固件 manifest 属于后续 P0
 - `README.md`：设备能力与边界
 - `index.html`：打开对应模拟页面
 - `web/`：仅设备专属运行时使用，目前是 StopWatch
 
-## UIFlow2 固件
+## 固件支持与审查
+
+UIFlow2 是当前证据最充分的内置固件类型，但不是唯一目标。其他固件进入虚拟
+主机时，至少需要满足：
+
+- 芯片和内存映射与目标 QEMU/esp-emu machine 一致；
+- 存在对应板级 profile 和总线/外设模型；
+- 提供完整 merged flash，或提供 bootloader、分区表、应用、文件系统及准确地址；
+- 分区、eFuse、安全启动和 Flash 加密模式与仿真后端兼容。
+
+当前 `tests/uiflow2/flash_device.py` 和底层 `esp_flash.py` 已经接受任意镜像路径，
+但设备清单、默认下载元数据和矩阵断言仍主要围绕 UIFlow2。要把 M5Burner/WebBurner
+等来源作为正式审查输入，还需要补通用 firmware manifest、分段烧录和静态检查。
+
+### UIFlow2 已验证路径
 
 StopWatch 的 QEMU 后端已修复官方 UIFlow2 v2.5.3 的启动链：可从 ROM 进入 UIFlow2 启动器并输出 466×466 UI；同时提供了本地 `main.py` UI 交互测试。修复说明、复现命令和边界见 [`docs/stopwatch-uiflow2-qemu.md`](docs/stopwatch-uiflow2-qemu.md)，补丁见 [`patches/qemu-stopwatch-uiflow2-boot/`](patches/qemu-stopwatch-uiflow2-boot/)，测试见 [`tests/uiflow2/stopwatch_ui_test/`](tests/uiflow2/stopwatch_ui_test/)。
 

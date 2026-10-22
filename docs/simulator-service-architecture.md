@@ -1,0 +1,209 @@
+# Simulator host service architecture
+
+Date: `2026-10-22`
+
+## Decision summary
+
+A device model is a **template**, not a singleton service. The service should
+create one emulator instance per lease and allow several replicas of the same
+model, bounded by a per-model capacity policy.
+
+Recommended default:
+
+- one exclusive emulator instance per active test or review lease;
+- cached backend images for every device class;
+- a small warm pool only for interactive/high-demand models;
+- cold, disposable instances for untrusted-firmware review;
+- no pre-flashed UIFlow2 firmware in the review path;
+- optional pre-booted UIFlow2 instances only for demo and live preview.
+
+“Ready device” and “real-time rendering” are orthogonal. A service can keep a
+device ready and stream frames from it, or start it on demand and stream frames
+after boot. Rendering is the transport/UI concern; pooling is the lifecycle
+concern.
+
+## Important comparison: `build-esp-docker`
+
+The neighboring `build-esp-docker` project does not maintain a pool of running
+containers. It keeps official ESP-IDF images cached and runs one-shot
+`docker run --rm` build containers with project locks and a concurrency limit.
+
+That pattern is useful for the simulator service:
+
+- cache large backend images;
+- create a disposable worker per task;
+- enforce per-project and global concurrency;
+- destroy the worker after evidence collection.
+
+If low interactive latency is required, add a warm pool on top. The build
+project itself is not already a ready-simulator pool.
+
+## Instance options
+
+| Option | Advantages | Disadvantages | Recommended use |
+| --- | --- | --- | --- |
+| One long-lived instance per model, serialized jobs | Lowest idle cost; simple | State leakage; queueing; one bad firmware can poison the next test; no concurrency | Local debugging only |
+| Fixed `N` warm instances per model | Low startup latency; predictable capacity | High idle RAM/CPU; stale firmware; more complex refresh and teardown | Top interactive models only |
+| Cold instance created per lease | Fresh state; strong isolation; exact firmware; easy evidence | Startup/flash latency; more scheduling work | Default for automated tests and untrusted review |
+| Shared multi-tenant instance | Highest density | Cross-tenant state, input, network and security leakage; impossible evidence isolation | Reject |
+| Hybrid warm/cold pool | Good latency for hot models; scale-to-zero for the rest | More complex policy and observability | Recommended |
+
+## Firmware preload options
+
+| Option | Advantages | Disadvantages | Decision |
+| --- | --- | --- | --- |
+| Pre-boot official UIFlow2 on every model | Instant first frame and UI preview | Stale version; mutable state; cannot review arbitrary firmware; misleading readiness | Demo/preview pool only |
+| Cache the UIFlow2 image but flash per lease | Fast download; exact SHA; reproducible | Flash/boot latency remains | Recommended for UIFlow2 tests |
+| Immutable UIFlow2 golden snapshot + copy-on-write overlay | Fast reset; repeatable | Version management; still not the artifact under review | Useful for regression |
+| Pre-flash the firmware under review into a shared instance | Short first run | State leakage, security risk, non-reproducible evidence | Reject |
+| Flash exact artifact into a fresh overlay for every lease | Reproducible; auditable; safe teardown | Highest latency | Required for firmware review |
+
+## Recommended pool levels
+
+Keep these stages distinct:
+
+1. **Image warm:** runtime images and ROM/eFuse/toolchain files are cached.
+2. **Worker warm:** a worker agent/container is already running.
+3. **Emulator warm:** a QEMU/esp-emu process is initialized with a known blank
+   or maintenance flash but no user firmware.
+4. **Demo ready:** an official UIFlow2 image is booted and rendering.
+
+Recommended policy:
+
+- all backend images: warm/cache;
+- all device models: cold on-demand by default;
+- CoreS3, StickS3, Core2 and Tab5: optional `min_ready=1` preview instances;
+- untrusted firmware: always cold, isolated and destroyed after the lease;
+- flash is reset from an immutable base before every lease.
+
+Do not keep all 14 models booted by default. The idle cost and stale-state risk
+are higher than the saved startup time.
+
+## Lease lifecycle
+
+```text
+idle
+  -> reserved
+  -> worker allocated
+  -> flash overlay restored
+  -> artifact verified and flashed
+  -> booted
+  -> inputs / serial / frames / network evidence
+  -> stopped
+  -> overlay destroyed or reset
+  -> idle or terminated
+```
+
+Every instance has:
+
+- a lease ID and owner;
+- one device profile;
+- one immutable base flash hash;
+- one task-specific overlay;
+- one network namespace/backend;
+- one evidence bundle;
+- a hard timeout and teardown policy.
+
+Guest reset alone is insufficient for tenant isolation. Recreate the instance
+or restore a clean snapshot after a review job.
+
+## Concurrency policy
+
+Device profiles should expose:
+
+```yaml
+min_ready: 0
+max_instances: 2
+idle_ttl_seconds: 120
+lease_ttl_seconds: 1800
+```
+
+Each model can have several replicas, but no emulator instance is shared by two
+leases. Capacity is managed by backend class and memory/CPU cost, not just
+device count.
+
+## Rendering and API
+
+Use different output paths for different consumers:
+
+- automation: PNG/framebuffer snapshots plus serial and state APIs;
+- human preview: WebSocket or WebRTC frame stream from the leased instance;
+- catalog: cached thumbnail/last-known frame, clearly marked as stale;
+- evidence: immutable screenshots, logs, pcap and hashes stored with the lease.
+
+Real-time rendering should not force every model to run continuously.
+
+## Generic firmware artifact
+
+A future firmware manifest should accept either:
+
+```json
+{
+  "kind": "merged-flash",
+  "chip": "esp32s3",
+  "flash_size": 16777216,
+  "image": "firmware.bin",
+  "sha256": "..."
+}
+```
+
+or separate flash segments:
+
+```json
+{
+  "kind": "segmented-flash",
+  "chip": "esp32s3",
+  "flash_size": 16777216,
+  "segments": [
+    {"offset": "0x0", "file": "bootloader.bin"},
+    {"offset": "0x8000", "file": "partition-table.bin"},
+    {"offset": "0x10000", "file": "app.bin"},
+    {"offset": "0x210000", "file": "storage.bin"}
+  ]
+}
+```
+
+Optional ELF, MAP, `flasher_args.json`, sdkconfig and filesystem metadata should
+be stored with the artifact for review evidence.
+
+## Migration path
+
+### Phase S0: local process runner
+
+- one process per lease on the current workstation;
+- JSON job manifest and evidence directory;
+- no shared mutable flash;
+- preserve existing matrix runners.
+
+### Phase S1: remote worker API
+
+- submit, status, cancel, serial, input, screenshot and evidence endpoints;
+- one task per worker;
+- cached runtime images;
+- per-model and global concurrency limits.
+
+### Phase S2: warm/cold pool
+
+- `min_ready` for selected preview models;
+- isolated review pool;
+- snapshot/overlay management;
+- scheduler capacity and queue metrics.
+
+### Phase S3: production hardening
+
+- container/VM isolation for untrusted firmware;
+- network egress policy and pcap retention;
+- worker health, eviction and teardown verification;
+- multi-host scheduling and artifact storage.
+
+## Recommendation
+
+Start with Phase S0/S1, not with a large pre-booted fleet. This preserves the
+current QEMU/esp-emu work and gives reproducible evidence. Add a small warm pool
+only after startup/queue measurements show that interactive users need it.
+
+For firmware review, the correct default is:
+
+```text
+warm backend + cold instance + exact artifact + isolated network + disposable overlay
+```

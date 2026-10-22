@@ -76,7 +76,7 @@ function drawIdle(canvas, device) {
   ctx.fillRect(width * .28, height * .6, width * .44, 1);
   ctx.fillStyle = '#7d8da1';
   ctx.font = `500 ${Math.max(8, Math.round(width / 42))}px -apple-system, BlinkMacSystemFont, sans-serif`;
-  const hint = device.runtime.status === 'reference-ready' ? 'Open the reference runtime for live firmware' : device.uiflow2?.supported ? 'Load UIFlow2 firmware to begin' : 'No UIFlow2 firmware for this target';
+  const hint = device.runtime.status === 'reference-ready' ? 'Open the reference runtime for live firmware' : device.runtime.status === 'boot-capable' ? 'Load a compatible merged flash image to begin' : 'This target needs a dedicated backend';
   ctx.fillText(hint, width / 2, height * .66);
 }
 

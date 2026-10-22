@@ -124,7 +124,7 @@ function render(device) {
   if (isNativeQemu(device)) {
     if (runtime.status === 'reference-ready') {
       runtimeClass = 'ok';
-      runtimeText = 'QEMU 虚拟主机已验证：官方 UIFlow2 可启动，目标尺寸首帧与输入重绘通过。本页面展示设备档案；执行与实时画面由本地矩阵或设备中心接入。';
+      runtimeText = 'QEMU 虚拟主机已验证：参考固件可启动，目标尺寸首帧与输入重绘通过。本页面展示设备档案；执行与实时画面由本地矩阵或设备中心接入。';
     } else {
       runtimeClass = runtime.validation?.status === 'bootloader-panic' ? 'danger' : '';
       runtimeText = `本地 QEMU/esp-emu 后端状态：${runtime.status}。显示协议：${runtime.display_protocol || '未接入'}。`;
@@ -292,7 +292,7 @@ async function fetchUIFlow2() {
   const firmware = state.device?.uiflow2?.firmware;
   if (!firmware?.download_url) {
     $('firmwareNotice').className = 'notice danger';
-    $('firmwareNotice').textContent = '该设备没有可用的 UIFlow2 固件。';
+    $('firmwareNotice').textContent = '该设备没有可用的内置参考固件；可选择本地兼容镜像。';
     return;
   }
   $('fetchBtn').disabled = true;
