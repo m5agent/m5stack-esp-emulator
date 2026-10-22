@@ -1,0 +1,5972 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-22T08:06:15.738583+08:00",
+  "out_dir": "/tmp/m5-peripheral-matrix-runtime-transitions",
+  "results": {
+    "sticks3-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/sticks3_peripherals",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "5",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-peripherals",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--input",
+        "key:b",
+        "--input",
+        "key:p",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--serial-expect",
+        "STICKS3_IMU_TYPE 6",
+        "--serial-expect",
+        "STICKS3_BATTERY 87 4000 0",
+        "--serial-expect",
+        "STICKS3_BTN_A 1",
+        "--serial-expect",
+        "STICKS3_BTN_B 1",
+        "--serial-expect",
+        "STICKS3_BTN_PWR 1",
+        "--serial-expect",
+        "STICKS3_IMU 0.250 -0.500 0.750"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-peripherals/after.png",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: STICKS3_IMU_TYPE 6, STICKS3_BATTERY 87 4000 0, STICKS3_BTN_A 1, STICKS3_BTN_B 1, STICKS3_BTN_PWR 1, STICKS3_IMU 0.250 -0.500 0.750\n",
+      "reason": "BMI270 accel/gyro, A/B/P buttons and M5PM1 power telemetry are all visible through the UIFlow2 API."
+    },
+    "sticks3-audio": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/sticks3_audio",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "4",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-audio",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--qom-expect",
+        "/machine/m5pm1",
+        "pa-enabled",
+        "true",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-audio",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-audio/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-audio/after.png",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=66560 samples=33280 nonzero=33270 peak_to_peak=2881\nPASS StickS3 audio marker rgb=(0,255,0)\n",
+      "reason": "Speaker.begin(), ES8311 I2C setup, I2S TX, cyclic GDMA descriptor completion and host PCM capture all pass."
+    },
+    "sticks3-mic": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/sticks3_mic",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "5",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-mic",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-mic",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-mic/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-mic/after.png",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StickS3 mic marker rgb=(0,255,0)\n",
+      "reason": "The official Mic API records through I2S RX and cyclic GDMA; host PCM injection is returned non-silent to the UIFlow2 buffer."
+    },
+    "cardputer-adv-sd": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cardputer_adv_sd",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "22",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-sd",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame",
+        "--sd-image",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-sd/sd.img"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-sd",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-sd/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-sd/after.png",
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "disk",
+        "frame-marker"
+      ],
+      "validation": "disk image=/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-sd/sd.img sector=100 length=512 match=True\nPASS Cardputer-ADV SD marker rgb=(0,255,0)\n",
+      "reason": "The documented Cardputer-ADV SPI SD pins are used with the machine.SDCard block API; a 512-byte write and readback match the raw QEMU SD image."
+    },
+    "cardputer-adv-imu": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cardputer_adv_peripherals",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-imu",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-imu",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-imu/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-imu/after.png",
+      "checks": [
+        {
+          "name": "cardputer_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV BMI270 marker rgb=(0,255,0)\n",
+      "reason": "The Cardputer-ADV BMI270 at I2C 0x69 is initialized by M5Unified and QOM physical values reach Imu.getAccel/getGyro."
+    },
+    "cardputer-adv-keyboard": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cardputer_adv_ui_test",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "6",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-keyboard",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-keyboard",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-keyboard/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-keyboard/after.png",
+      "checks": [
+        {
+          "name": "tca8418_matrix_event",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_i2c_decode",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "keyboard_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV TCA8418 marker rgb=(0,255,0)\n",
+      "reason": "A QMP key event enters the TCA8418 matrix-controller FIFO, raises the controller interrupt path, and is decoded by the official UIFlow2 KeyboardI2C API."
+    },
+    "cardputer-adv-nfc": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cardputer_adv_nfc",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "12",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-nfc",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-nfc",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-nfc/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-nfc/after.png",
+      "checks": [
+        {
+          "name": "cardputer_nfc_spi_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV NFC marker rgb=(0,255,0)\n",
+      "reason": "The Cardputer-ADV ST25R3916 is reached over the shared SPI2 bus with NFC CS G6; Type 2 UID/page reads and a page-8 write and readback pass."
+    },
+    "cardputer-adv-cc1101": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cardputer_adv_cc1101",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "15",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-cc1101",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-cc1101",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-cc1101/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-cc1101/after.png",
+      "checks": [
+        {
+          "name": "cardputer_cc1101_spi_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "cardputer_cc1101_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV CC1101 marker rgb=(0,255,0)\n",
+      "reason": "The Cardputer-ADV CC1101 Cap configures over shared SPI2 with CS G5, sends M5CC1101 and receives the chip FIFO loopback through the official cap.CC1101Cap API."
+    },
+    "cardputer-adv-audio": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cardputer_adv_audio",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-audio",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-audio",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-audio/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-audio/after.png",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=32768 samples=16384 nonzero=16356 peak_to_peak=46091\nPASS Cardputer-ADV audio marker rgb=(0,255,0)\n",
+      "reason": "The official Speaker API drives ES8311 and NS4150B through I2S TX and cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    "cardputer-adv-mic": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cardputer_adv_mic",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "9",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-mic",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-mic",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-mic/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-mic/after.png",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Cardputer-ADV mic marker rgb=(0,255,0)\n",
+      "reason": "The official Mic API records through ES8311, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    "atoms3r-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/atoms3r/uiflow2.bin",
+        "--machine",
+        "m5atoms3r",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/atoms3r_peripherals",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "128x128",
+        "--wait",
+        "5",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-peripherals",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-x",
+        "30",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-z",
+        "45",
+        "--serial-expect",
+        "ATOMS3R_IMU_TYPE 6",
+        "--serial-expect",
+        "ATOMS3R_BTN 1",
+        "--serial-expect",
+        "ATOMS3R_ACCEL -0.50 -0.25 0.75",
+        "--serial-expect",
+        "ATOMS3R_GYRO -20.02 -10.01 30.03",
+        "--serial-expect",
+        "ATOMS3R_MAG -29.99 -19.49 -89.96"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-peripherals/after.png",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "button",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: ATOMS3R_IMU_TYPE 6, ATOMS3R_BTN 1, ATOMS3R_ACCEL -0.50 -0.25 0.75, ATOMS3R_GYRO -20.02 -10.01 30.03, ATOMS3R_MAG -29.99 -19.49 -89.96\n",
+      "reason": "BMI270 accel/gyro, BMM150 magnetometer and the user button are verified through UIFlow2."
+    },
+    "sticks3-ir": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/sticks3_ir",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-ir",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-ir",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-ir/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-ir/after.png",
+      "checks": [
+        {
+          "name": "rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "validation": "PASS NEC symbols=34 address=0x56 command=0xa3\n",
+      "reason": "The official hardware.IR UIFlow2 API sends NEC address/command through RMT channel 0 and the transmitted RMT symbols decode back to the expected packet."
+    },
+    "sticks3-ir-rx": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/sticks3/uiflow2.bin",
+        "--machine",
+        "m5sticks3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/sticks3_ir_rx",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-ir-rx",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-ir-rx",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-ir-rx/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/sticks3-ir-rx/after.png",
+      "checks": [
+        {
+          "name": "rmt_nec_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ir_rx_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS IR RX marker rgb=(0,255,0)\n",
+      "reason": "QEMU injects a NEC packet into RMT channel 4 hardware memory; the official hardware.IR callback receives address 0x56 and command 0xA3, and the UIFlow2 UI draws its success marker."
+    },
+    "cores3-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cores3_peripherals",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "6",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-peripherals",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--input",
+        "key:p",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-x",
+        "30",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-z",
+        "45",
+        "--qom-set",
+        "/machine/ltr553",
+        "light-level",
+        "640",
+        "--qom-set",
+        "/machine/ltr553",
+        "proximity-level",
+        "321",
+        "--serial-expect",
+        "CORES3_IMU_TYPE 6",
+        "--serial-expect",
+        "CORES3_POWER 87 4000 1",
+        "--serial-expect",
+        "CORES3_ALS 640 321",
+        "--serial-expect",
+        "CORES3_MAG",
+        "--serial-expect",
+        "CORES3_TOUCH",
+        "--serial-expect",
+        "CORES3_BTN_PWR 1",
+        "--serial-expect",
+        "CORES3_IMU 0.250 -0.500 0.750",
+        "--serial-expect",
+        "CORES3_RTC 2026-10-22 06:07:08"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-peripherals/after.png",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "ambient_light",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "proximity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "btn_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: CORES3_IMU_TYPE 6, CORES3_POWER 87 4000 1, CORES3_ALS 640 321, CORES3_MAG, CORES3_TOUCH, CORES3_BTN_PWR 1, CORES3_IMU 0.250 -0.500 0.750, CORES3_RTC 2026-10-22 06:07:08\n",
+      "reason": "IMU, magnetometer, touch, PWR, power, RTC and LTR553 ambient light/proximity all pass through their real buses."
+    },
+    "cores3-power-transitions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cores3_power_transitions",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "4",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-power-transitions",
+        "--efuse-pkg-version",
+        "0",
+        "--qom-step",
+        "0.8",
+        "/machine/axp2101",
+        "battery-level",
+        "64",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "vbat-mv",
+        "3600",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "vin-mv",
+        "0",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "charging",
+        "false",
+        "--qom-step",
+        "2.0",
+        "/machine/axp2101",
+        "battery-level",
+        "93",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "vbat-mv",
+        "4200",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "vin-mv",
+        "5000",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "charging",
+        "true",
+        "--serial-expect",
+        "CORES3_POWER_TRANS 87 4000 1",
+        "--serial-expect",
+        "CORES3_POWER_TRANS 64 3600 0",
+        "--serial-expect",
+        "CORES3_POWER_TRANS 93 4200 1",
+        "--serial-expect",
+        "CORES3_POWER_TRANS_DONE PASS",
+        "--qom-sequence-settle",
+        "2.0",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-power-transitions",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-power-transitions/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-power-transitions/after.png",
+      "checks": [
+        {
+          "name": "axp2101_initial_power_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_discharge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_charge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_runtime_sequence_complete",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log",
+        "qom",
+        "frame-marker"
+      ],
+      "validation": "PASS serial markers: CORES3_POWER_TRANS 87 4000 1, CORES3_POWER_TRANS 64 3600 0, CORES3_POWER_TRANS 93 4200 1, CORES3_POWER_TRANS_DONE PASS\nPASS CoreS3 PMIC transitions marker rgb=(0,255,0)\n",
+      "reason": "The UIFlow2 application remains running while AXP2101 battery level, voltage, VBUS and charging state change through a QOM runtime sequence; the official Power API observes every state."
+    },
+    "cores3-usb-hid": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cores3_usb_hid",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "14",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-usb-hid",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--qom-set-boot",
+        "/machine/max3421e-usb",
+        "mouse-x",
+        "5",
+        "--qom-set-boot",
+        "/machine/max3421e-usb",
+        "mouse-y",
+        "-3",
+        "--qom-set-boot",
+        "/machine/max3421e-usb",
+        "mouse-buttons",
+        "1",
+        "--qom-expect",
+        "/machine/max3421e-usb",
+        "enumerated",
+        "1",
+        "--qom-expect",
+        "/machine/max3421e-usb",
+        "last-report",
+        "1",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-usb-hid",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-usb-hid/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-usb-hid/after.png",
+      "checks": [
+        {
+          "name": "max3421e_config",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_chapter9_enumeration",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_report_descriptor",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_interrupt_in_report",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "qom"
+      ],
+      "reason": "The official module.USBModule enumerates a MAX3421E HID device over the CoreS3 M-Bus SPI register/FIFO path and returns the QOM-injected mouse report."
+    },
+    "cores3-camera": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cores3_camera",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-camera",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:p",
+        "--serial-expect",
+        "CORES3_CAMERA_PASS 320x240 153600 bytes",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-camera",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-camera/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-camera/after.png",
+      "checks": [
+        {
+          "name": "camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: CORES3_CAMERA_PASS 320x240 153600 bytes\n",
+      "reason": "GC0308 init, ESP32-S3 LCD_CAM capture, GDMA frame delivery, camera.snapshot(), and camera image display all pass."
+    },
+    "stackchan-camera": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cores3_camera",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-camera",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--serial-expect",
+        "CORES3_CAMERA_PASS 320x240 153600 bytes",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-camera",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-camera/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-camera/after.png",
+      "checks": [
+        {
+          "name": "stackchan_camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "stackchan_camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: CORES3_CAMERA_PASS 320x240 153600 bytes\n",
+      "reason": "StackChan GC0308 SCCB, ESP32-S3 LCD_CAM, GDMA frame delivery, snapshot and camera image display all pass."
+    },
+    "cores3-audio": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cores3_audio",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "4",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-audio",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-audio",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-audio/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-audio/after.png",
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=33280 samples=16640 nonzero=16612 peak_to_peak=11523\nPASS CoreS3 audio marker rgb=(0,255,0)\n",
+      "reason": "Speaker.begin(), AW88298 setup, I2S TX, cyclic GDMA descriptor completion and host PCM capture all pass."
+    },
+    "cores3-mic": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cores3_mic",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "6",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-mic",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-mic",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-mic/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-mic/after.png",
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS CoreS3 mic marker rgb=(0,255,0)\n",
+      "reason": "The official Mic API records through ES7210, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    "stamplc-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stamplc/uiflow2.bin",
+        "--machine",
+        "m5stamplc",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stamplc_peripherals",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "5",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-peripherals",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--qom-set",
+        "/machine/ina226",
+        "bus-voltage-mv",
+        "12000",
+        "--qom-set",
+        "/machine/ina226",
+        "current-ma",
+        "500",
+        "--qom-set",
+        "/machine/ina226",
+        "shunt-ohms",
+        "0.08",
+        "--qom-step",
+        "1.0",
+        "/machine/ina226",
+        "bus-voltage-mv",
+        "15000",
+        "--qom-step",
+        "0",
+        "/machine/ina226",
+        "current-ma",
+        "750",
+        "--serial-expect",
+        "STAMPLC_PERIPHERAL_MAIN",
+        "--serial-expect",
+        "STAMPLC_RELAY 1 PRESS 1",
+        "--serial-expect",
+        "STAMPLC_INPUTS",
+        "--serial-expect",
+        "STAMPLC_INA 12.00 0.500",
+        "--serial-expect",
+        "STAMPLC_INA 15.00 0.750",
+        "--serial-expect",
+        "STAMPLC_RGB True False False",
+        "--serial-expect",
+        "STAMPLC_RTC 2026-10-22 07:08:09",
+        "--qom-sequence-settle",
+        "1.5"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-peripherals/after.png",
+      "checks": [
+        {
+          "name": "relay",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "digital_inputs",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rgb",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_current",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "ina226_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        },
+        {
+          "name": "rx8130_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log",
+        "qom"
+      ],
+      "validation": "PASS serial markers: STAMPLC_PERIPHERAL_MAIN, STAMPLC_RELAY 1 PRESS 1, STAMPLC_INPUTS, STAMPLC_INA 12.00 0.500, STAMPLC_INA 15.00 0.750, STAMPLC_RGB True False False, STAMPLC_RTC 2026-10-22 07:08:09\n",
+      "reason": "Relay, digital inputs, RGB LED state, RX8130 RTC and INA226 bus/current telemetry are exercised through UIFlow2 libraries."
+    },
+    "stopwatch-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "--machine",
+        "m5stopwatch",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stopwatch_peripherals",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "466x466",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-peripherals",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:233,348",
+        "--input",
+        "key:a",
+        "--input",
+        "key:b",
+        "--input",
+        "key:p",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--qom-set",
+        "/machine/m5pm1",
+        "charging",
+        "true",
+        "--serial-expect",
+        "STOPWATCH_IMU_TYPE 6",
+        "--serial-expect",
+        "STOPWATCH_POWER 87 4000 1",
+        "--serial-expect",
+        "STOPWATCH_RTC 2026-10-22 07:08:09",
+        "--serial-expect",
+        "STOPWATCH_TOUCH",
+        "--serial-expect",
+        "STOPWATCH_BTN_A 1",
+        "--serial-expect",
+        "STOPWATCH_BTN_B 1",
+        "--serial-expect",
+        "STOPWATCH_BTN_PWR 1",
+        "--serial-expect",
+        "STOPWATCH_ACCEL 0.25 -0.50 0.75"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-peripherals/after.png",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "buttons_a_b_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: STOPWATCH_IMU_TYPE 6, STOPWATCH_POWER 87 4000 1, STOPWATCH_RTC 2026-10-22 07:08:09, STOPWATCH_TOUCH, STOPWATCH_BTN_A 1, STOPWATCH_BTN_B 1, STOPWATCH_BTN_PWR 1, STOPWATCH_ACCEL 0.25 -0.50 0.75\n",
+      "reason": "BMI270, M5PM1 power, RX8130 RTC, CST820 touch and A/B/PWR keys are verified through the StopWatch UIFlow2 firmware."
+    },
+    "papermono-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papermono/uiflow2.bin",
+        "--machine",
+        "m5papermono",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papermono_peripherals",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "480x800",
+        "--wait",
+        "12",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-peripherals",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:240,650",
+        "--input",
+        "key:a",
+        "--input",
+        "key:p",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--qom-set-boot",
+        "/machine/ip2315",
+        "charging",
+        "true",
+        "--serial-expect",
+        "PAPERMONO_IMU_TYPE 6",
+        "--serial-expect",
+        "PAPERMONO_POWER 87 4000 1",
+        "--serial-expect",
+        "PAPERMONO_RTC 2026-10-22 07:08:09",
+        "--serial-expect",
+        "PAPERMONO_SD rw ok",
+        "--serial-expect",
+        "PAPERMONO_TOUCH",
+        "--serial-expect",
+        "PAPERMONO_KEY 1",
+        "--serial-expect",
+        "PAPERMONO_PWR 1",
+        "--serial-expect",
+        "PAPERMONO_ACCEL 0.25 -0.50 0.75",
+        "--sd-image",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-peripherals/sd.img"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-peripherals/after.png",
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "user_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "sd_block_read_write",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: PAPERMONO_IMU_TYPE 6, PAPERMONO_POWER 87 4000 1, PAPERMONO_RTC 2026-10-22 07:08:09, PAPERMONO_SD rw ok, PAPERMONO_TOUCH, PAPERMONO_KEY 1, PAPERMONO_PWR 1, PAPERMONO_ACCEL 0.25 -0.50 0.75\n",
+      "reason": "BMI270, M5PM1 power, RX8130 RTC, touch, user and power keys, and SDMMC block read/write are verified on PaperMono."
+    },
+    "papermono-buzzer": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papermono/uiflow2.bin",
+        "--machine",
+        "m5papermono",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papermono_buzzer",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "480x800",
+        "--wait",
+        "6",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-buzzer",
+        "--efuse-pkg-version",
+        "0",
+        "--serial-expect",
+        "PAPERMONO_BUZZER ok 3500Hz",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-buzzer",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-buzzer/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-buzzer/after.png",
+      "checks": [
+        {
+          "name": "speaker_begin",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "gpio42_i2s_tx",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "buzzer_pcm_capture",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log",
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PASS serial markers: PAPERMONO_BUZZER ok 3500Hz\nPCM bytes=66560 samples=33280 nonzero=17836 peak_to_peak=65535\nPASS PaperMono buzzer marker rgb=(0,0,0)\n",
+      "reason": "The official Speaker API drives PaperMono GPIO42 through ESP32-S3 I2S TX and cyclic GDMA; host PCM capture contains the buzzer tone."
+    },
+    "papermono-pdm-mic": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papermono/uiflow2.bin",
+        "--machine",
+        "m5papermono",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papermono_mic",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "480x800",
+        "--wait",
+        "6",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-pdm-mic",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-pdm-mic",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-pdm-mic/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-pdm-mic/after.png",
+      "checks": [
+        {
+          "name": "pdm_mic_begin",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_i2s_rx_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pdm_mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS PaperMono PDM mic marker rgb=(0,0,0)\n",
+      "reason": "The built-in PDM microphone records through I2S RX and cyclic GDMA; deterministic host PCM injection reaches the UIFlow2 buffer."
+    },
+    "papermono-rgb": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papermono/uiflow2.bin",
+        "--machine",
+        "m5papermono",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papermono_rgb",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "480x800",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-rgb",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-rgb",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-rgb/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-rgb/after.png",
+      "checks": [
+        {
+          "name": "papermono_rgb_set",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_m5pm1_neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "papermono_rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS PaperMono RGB marker rgb=(0,0,0)\n",
+      "reason": "M5.Led programs the PaperMono RGB LED and the RGB565 value is read back from the M5PM1 NeoPixel RAM over I2C."
+    },
+    "papercolor-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papercolor/uiflow2.bin",
+        "--machine",
+        "m5papercolor",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papercolor_peripherals",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "400x600",
+        "--wait",
+        "12",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-peripherals",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--input",
+        "key:p",
+        "--qom-set-boot",
+        "/machine/m5pm1",
+        "vbat-mv",
+        "4000",
+        "--qom-set-boot",
+        "/machine/m5pm1",
+        "vin-mv",
+        "5000",
+        "--qom-set-boot",
+        "/machine/m5pm1",
+        "charging",
+        "true",
+        "--serial-expect",
+        "PAPERCOLOR_PERIPHERAL_MAIN",
+        "--serial-expect",
+        "PAPERCOLOR_POWER 87 4000 1",
+        "--serial-expect",
+        "PAPERCOLOR_RTC 2026-10-22 07:08:09",
+        "--serial-expect",
+        "PAPERCOLOR_KEY 1",
+        "--serial-expect",
+        "PAPERCOLOR_PWR 1",
+        "--allow-static-frame",
+        "--min-unique-colors",
+        "1"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-peripherals/after.png",
+      "checks": [
+        {
+          "name": "m5pm1_power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rx8130_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "user_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "papercolor_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: PAPERCOLOR_PERIPHERAL_MAIN, PAPERCOLOR_POWER 87 4000 1, PAPERCOLOR_RTC 2026-10-22 07:08:09, PAPERCOLOR_KEY 1, PAPERCOLOR_PWR 1\n",
+      "reason": "The PaperColor M5PM1 power telemetry, RX8130 RTC, user key and power key are exercised through their board data paths."
+    },
+    "papercolor-sd": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papercolor/uiflow2.bin",
+        "--machine",
+        "m5papercolor",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papercolor_sd",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "400x600",
+        "--wait",
+        "22",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sd",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame",
+        "--sd-image",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sd/sd.img"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sd",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sd/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sd/after.png",
+      "checks": [
+        {
+          "name": "sdspi_init",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_write_block",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sdspi_readback",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sd_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "disk",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "disk",
+        "frame-marker"
+      ],
+      "validation": "disk image=/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sd/sd.img sector=100 length=512 match=True\nPASS PaperColor SD marker rgb=(0,0,0)\n",
+      "reason": "The documented PaperColor SPI SD pins are used with machine.SDCard; a 512-byte block write/readback and raw image sector contents both match."
+    },
+    "papercolor-audio": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papercolor/uiflow2.bin",
+        "--machine",
+        "m5papercolor",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papercolor_audio",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "400x600",
+        "--wait",
+        "11",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-audio",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-audio",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-audio/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-audio/after.png",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=66560 samples=33280 nonzero=33274 peak_to_peak=2881\nPASS PaperColor audio marker rgb=(0,0,0)\n",
+      "reason": "The official Speaker API drives ES8311/AW8737A through I2S TX and cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    "papercolor-sht4x": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papercolor/uiflow2.bin",
+        "--machine",
+        "m5papercolor",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papercolor_sht4x",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "400x600",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sht4x",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sht4x",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sht4x/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-sht4x/after.png",
+      "checks": [
+        {
+          "name": "sht4x_measure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sht4x_crc",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sht4x_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS PaperColor SHT4X marker rgb=(0,0,0)\n",
+      "reason": "The onboard SHT4X sensor responds to the official hardware.SHT4X API through I2C; temperature/humidity decoding and CRCs pass."
+    },
+    "papercolor-mic": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papercolor/uiflow2.bin",
+        "--machine",
+        "m5papercolor",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papercolor_mic",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "400x600",
+        "--wait",
+        "11",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-mic",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-mic",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-mic/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-mic/after.png",
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS PaperColor mic marker rgb=(0,0,0)\n",
+      "reason": "The official Mic API records through ES7210, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    "papermono-nfc": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papermono/uiflow2.bin",
+        "--machine",
+        "m5papermono",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papermono_nfc",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "480x800",
+        "--wait",
+        "25",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-nfc",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-nfc",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-nfc/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-nfc/after.png",
+      "checks": [
+        {
+          "name": "nfc_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS NFC marker rgb=(0,0,0)\n",
+      "reason": "The official hardware.NFC API drives ST25R3916 I2C registers and FIFO commands, detects a deterministic NTAG, reads page 4, writes page 8 with TEST, and reads the same value back."
+    },
+    "papermono-lora": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papermono/uiflow2.bin",
+        "--machine",
+        "m5papermono",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/papermono_lora",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "480x800",
+        "--wait",
+        "25",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-lora",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-lora",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-lora/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papermono-lora/after.png",
+      "checks": [
+        {
+          "name": "lora_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_tx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS LoRa marker rgb=(0,0,0)\n",
+      "reason": "The native lora.SX1262 driver configures an 868 MHz LoRa modem through SPI command/register/FIFO transfers, sends M5LORA and receives the same packet through the SX1262 data plane."
+    },
+    "stackchan-nfc": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stackchan_nfc",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "25",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-nfc",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame",
+        "--min-unique-colors",
+        "1"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-nfc",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-nfc/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-nfc/after.png",
+      "checks": [
+        {
+          "name": "nfc_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_page_write_verify",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nfc_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS NFC marker rgb=(0,0,0)\n",
+      "reason": "The same official hardware.NFC and ST25R3916 I2C model detects the deterministic NTAG on StackChan and verifies a page-12 write."
+    },
+    "stackchan-touch": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stackchan_touch",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-touch",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--qom-set",
+        "/machine/si12t",
+        "touch-bits",
+        "2",
+        "--qom-settle",
+        "1",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-touch",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-touch/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-touch/after.png",
+      "checks": [
+        {
+          "name": "si12t_config",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "si12t_touch",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "si12t_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Si12T touch marker rgb=(0,255,0)\n",
+      "reason": "The official Si12T driver configures the body touch controller over I2C; QOM injects touch bits and UIFlow2 decodes point 0."
+    },
+    "stackchan-rgb": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stackchan_rgb",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "12",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-rgb",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-rgb",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-rgb/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-rgb/after.png",
+      "checks": [
+        {
+          "name": "m5ioe1_led_cfg",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StackChan RGB marker rgb=(0,255,0)\n",
+      "reason": "The official M5IOE1 NeoPixel driver writes 12 RGB565 values through I2C and reads the LED RAM back from the expander model."
+    },
+    "stackchan-audio": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stackchan_audio",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "4",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-audio",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-audio",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-audio/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-audio/after.png",
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=33280 samples=16640 nonzero=16612 peak_to_peak=11523\nPASS StackChan audio marker rgb=(0,255,0)\n",
+      "reason": "The official Speaker API drives AW88298 and I2S TX through cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    "stackchan-mic": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stackchan_mic",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "6",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-mic",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-mic",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-mic/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-mic/after.png",
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StackChan mic marker rgb=(0,255,0)\n",
+      "reason": "The official Mic API records through ES7210, I2S RX and cyclic GDMA; host PCM injection reaches the UIFlow2 buffer."
+    },
+    "stackchan-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stackchan_peripherals",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "3",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-peripherals",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,120",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--qom-set-boot",
+        "/machine/aw9523",
+        "input-bits",
+        "61439",
+        "--qom-set-boot",
+        "/machine/ina226",
+        "bus-voltage-mv",
+        "4000",
+        "--qom-set-boot",
+        "/machine/ina226",
+        "current-ma",
+        "250",
+        "--qom-set-boot",
+        "/machine/ina226",
+        "shunt-ohms",
+        "0.08",
+        "--qom-set-boot",
+        "/machine/pcf8563",
+        "unix-time",
+        "1792630923",
+        "--qom-set-boot",
+        "/machine/ltr553",
+        "light-level",
+        "640",
+        "--qom-set-boot",
+        "/machine/ltr553",
+        "proximity-level",
+        "321",
+        "--qom-set-boot",
+        "/machine/axp2101",
+        "vbat-mv",
+        "4000",
+        "--qom-set-boot",
+        "/machine/axp2101",
+        "vin-mv",
+        "5000",
+        "--qom-set-boot",
+        "/machine/axp2101",
+        "charging",
+        "true",
+        "--qom-set-boot",
+        "/machine/bmm150",
+        "mag-x",
+        "30",
+        "--qom-set-boot",
+        "/machine/bmm150",
+        "mag-y",
+        "-20",
+        "--qom-set-boot",
+        "/machine/bmm150",
+        "mag-z",
+        "45",
+        "--serial-expect",
+        "STACKCHAN_IMU_TYPE 6",
+        "--serial-expect",
+        "STACKCHAN_IMU_ACCEL 0.25 -0.50 0.75",
+        "--serial-expect",
+        "STACKCHAN_IMU_GYRO 10.0 -20.0 30.0",
+        "--serial-expect",
+        "STACKCHAN_MAG 118.9 77.3 -356.8",
+        "--serial-expect",
+        "STACKCHAN_PMIC_POWER 87 4000 1",
+        "--serial-expect",
+        "STACKCHAN_TOUCH",
+        "--serial-expect",
+        "STACKCHAN_AW9523 1 0",
+        "--serial-expect",
+        "STACKCHAN_POWER 4.00 0.25 1.00",
+        "--serial-expect",
+        "STACKCHAN_ALS 640 321",
+        "--serial-expect",
+        "STACKCHAN_RTC 2026 10 22 6 7 8",
+        "--serial-expect",
+        "STACKCHAN_IR_RX 86 163",
+        "--serial-expect",
+        "STACKCHAN_CHECKS 1 1 1 1 1 1 1 1 1",
+        "--serial-expect",
+        "STACKCHAN_PERIPHERAL_DONE PASS",
+        "--qom-settle",
+        "0.5",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-peripherals/after.png",
+      "checks": [
+        {
+          "name": "stackchan_imu",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_axp2101_power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_display_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_aw9523",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ina226",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ltr553_als",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_rtc_bm8563",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_ir_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "stackchan_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "rmt-nec",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log",
+        "rmt-nec",
+        "frame-marker"
+      ],
+      "validation": "PASS NEC symbols=34 address=0x56 command=0xa3\nPASS StackChan peripherals marker rgb=(0,255,0)\n",
+      "reason": "BMI270 and BMM150 samples, AXP2101 power telemetry, display touch, AW9523 output/input registers, INA226 battery telemetry, LTR553 ambient light, the BM8563-compatible PCF8563 RTC and NEC IR TX/RX all pass through the StackChan board controllers."
+    },
+    "stackchan-servo": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stackchan/uiflow2.bin",
+        "--machine",
+        "m5stackchan",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stackchan_servo",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "12",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-servo",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-servo",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-servo/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stackchan-servo/after.png",
+      "checks": [
+        {
+          "name": "servo_ping",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_torque",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_write",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "servo_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StackChan servo marker rgb=(0,255,0)\n",
+      "reason": "The official SCS servo driver uses UART1 to ping, enable torque and write/read back both StackChan servo positions through the SCSCL protocol model."
+    },
+    "stopwatch-vibration": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "--machine",
+        "m5stopwatch",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stopwatch_vibration",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "466x466",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-vibration",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-vibration",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-vibration/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-vibration/after.png",
+      "checks": [
+        {
+          "name": "vibration_pwm_on",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "vibration_pwm_off",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "vibration_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS vibration marker rgb=(0,127,0)\n",
+      "reason": "Power.setVibration drives M5IOE1 PWM1 on the StopWatch; the PWM duty and enable bit are read back from the expander registers."
+    },
+    "stopwatch-audio": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "--machine",
+        "m5stopwatch",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stopwatch_audio",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "466x466",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-audio",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame",
+        "--min-unique-colors",
+        "1"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-audio",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-audio/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-audio/after.png",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=66560 samples=33280 nonzero=33278 peak_to_peak=11522\nPASS StopWatch audio marker rgb=(0,127,0)\n",
+      "reason": "The official Speaker API drives ES8311/AW8737A through I2S TX and cyclic GDMA; host PCM capture contains the generated tone."
+    },
+    "stopwatch-mic": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "--machine",
+        "m5stopwatch",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stopwatch_mic",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "466x466",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-mic",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame",
+        "--min-unique-colors",
+        "1"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-mic",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-mic/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-mic/after.png",
+      "checks": [
+        {
+          "name": "es8311_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StopWatch mic marker rgb=(0,127,0)\n",
+      "reason": "The official Mic API records through ES8311, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    "atoms3r-lp5562": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/atoms3r/uiflow2.bin",
+        "--machine",
+        "m5atoms3r",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/atoms3r_lp5562",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "128x128",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-lp5562",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-lp5562",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-lp5562/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-lp5562/after.png",
+      "checks": [
+        {
+          "name": "lp5562_enable",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lp5562_pwm_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lp5562_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS LP5562 marker rgb=(0,255,0)\n",
+      "reason": "The LP5562 I2C RGB controller accepts enable/mode/PWM writes and returns the three independent channel values over the real bus."
+    },
+    "atoms3r-ir": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/atoms3r/uiflow2.bin",
+        "--machine",
+        "m5atoms3r",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/sticks3_ir",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "128x128",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-ir",
+        "--efuse-pkg-version",
+        "1",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-ir",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-ir/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/atoms3r-ir/after.png",
+      "checks": [
+        {
+          "name": "atoms3r_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "validation": "PASS NEC symbols=34 address=0x56 command=0xa3\n",
+      "reason": "AtomS3R hardware.IR sends NEC through ESP32-S3 RMT0 and the captured symbols decode to address 0x56/command 0xA3."
+    },
+    "cardputer-adv-ir": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cardputer-adv/uiflow2.bin",
+        "--machine",
+        "m5cardputeradv",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/sticks3_ir",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-ir",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-ir",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-ir/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cardputer-adv-ir/after.png",
+      "checks": [
+        {
+          "name": "cardputer_adv_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "validation": "PASS NEC symbols=34 address=0x56 command=0xa3\n",
+      "reason": "Cardputer-ADV hardware.IR sends NEC through ESP32-S3 RMT0 and the captured symbols decode to address 0x56/command 0xA3."
+    },
+    "papercolor-ir": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/papercolor/uiflow2.bin",
+        "--machine",
+        "m5papercolor",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/sticks3_ir",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "400x600",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-ir",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-ir",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-ir/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-ir/after.png",
+      "checks": [
+        {
+          "name": "papercolor_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-nec"
+      ],
+      "validation": "PASS NEC symbols=34 address=0x56 command=0xa3\n",
+      "reason": "PaperColor hardware.IR sends NEC through ESP32-S3 RMT0 and the captured symbols decode to address 0x56/command 0xA3."
+    },
+    "core2-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+        "--machine",
+        "m5core2",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/core2_peripherals",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/core2-peripherals",
+        "--memory",
+        "0",
+        "--input",
+        "longpress:220,190,1.5",
+        "--input",
+        "key:p"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-peripherals/after.png",
+      "checks": [
+        {
+          "name": "ft6336_touch",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pcf8563_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Core2 peripherals marker rgb=(0,255,0)\n",
+      "reason": "Core2 FT6336-compatible touch, PCF8563-compatible RTC and the power key are exercised through the official UIFlow2 APIs."
+    },
+    "core2-audio": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+        "--machine",
+        "m5core2",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/core2_audio",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/core2-audio",
+        "--memory",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--qom-expect",
+        "/machine/axp2101",
+        "speaker-enabled",
+        "true",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-audio",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-audio/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-audio/after.png",
+      "checks": [
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_dma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_ns4168_enable",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "qom",
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=358912 samples=179456 nonzero=47920 peak_to_peak=46091\nPASS Core2 audio marker rgb=(0,255,0)\n",
+      "reason": "Core2 v1.1 Speaker drives ESP32 I2S1 and NS4168 through real IDF DMA descriptors, with AXP2101 ALDO3 enabled and host PCM containing the generated tone."
+    },
+    "core2-mic": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+        "--machine",
+        "m5core2",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/core2_mic",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/core2-mic",
+        "--memory",
+        "0",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-mic",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-mic/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-mic/after.png",
+      "checks": [
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Core2 mic marker rgb=(0,255,0)\n",
+      "reason": "Core2 v1.1 Mic uses ESP32 I2S0 PDM RX and the legacy I2S linked-list DMA engine; deterministic host PCM reaches the official UIFlow2 microphone buffer."
+    },
+    "core2-power-monitor": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+        "--machine",
+        "m5core2",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/core2_power_monitor",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/core2-power-monitor",
+        "--memory",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--qom-set",
+        "/machine/ina3221-40",
+        "bus1-mv",
+        "4800",
+        "--qom-set",
+        "/machine/ina3221-40",
+        "current1-ma",
+        "240",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-power-monitor",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-power-monitor/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-power-monitor/after.png",
+      "checks": [
+        {
+          "name": "ina3221_device_id",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_shunt_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Core2 INA3221 marker rgb=(0,255,0)\n",
+      "reason": "Core2 v1.1 INA3221 is read over ESP32 I2C0; QOM-injected physical channel values are converted through the documented INA3221 bus-voltage and shunt-voltage register encodings."
+    },
+    "stamplc-can": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stamplc/uiflow2.bin",
+        "--machine",
+        "m5stamplc",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stamplc_can",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-can",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-can",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-can/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-can/after.png",
+      "checks": [
+        {
+          "name": "twai_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "can_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "can_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StamPLC CAN marker rgb=(0,255,0)\n",
+      "reason": "StamPLC CAN uses G42/G43 with the ESP32-S3 TWAI controller and a virtual CAN peer; the official UIFlow2 CAN API transmits and receives the same frame through the SJA1000-compatible path."
+    },
+    "stamplc-rs485": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stamplc/uiflow2.bin",
+        "--machine",
+        "m5stamplc",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stamplc_rs485",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-rs485",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-rs485",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-rs485/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-rs485/after.png",
+      "checks": [
+        {
+          "name": "uart2_rs485_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rs485_tx_rx",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rs485_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StamPLC RS485 marker rgb=(0,255,0)\n",
+      "reason": "StamPLC PWR485 uses UART2 with G0/G39/G46 and the official half-duplex API; a byte-level peer verifies TX and RX through the UART controller."
+    },
+    "stamplc-buzzer": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stamplc/uiflow2.bin",
+        "--machine",
+        "m5stamplc",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stamplc_buzzer",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-buzzer",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-buzzer",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-buzzer/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-buzzer/after.png",
+      "checks": [
+        {
+          "name": "speaker_buzzer_init",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_delta_sigma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=66560 samples=33280 nonzero=24000 peak_to_peak=60855\nPASS StamPLC buzzer marker rgb=(0,255,0)\n",
+      "reason": "StamPLC buzzer output is generated by the official Speaker path as a 1-bit delta-sigma I2S stream on G44; host capture verifies non-silent firmware output."
+    },
+    "core2-imu": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+        "--machine",
+        "m5core2",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/core2_imu",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "13",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/core2-imu",
+        "--memory",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--qom-set",
+        "/machine/mpu6886",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/mpu6886",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/mpu6886",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/mpu6886",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/mpu6886",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/mpu6886",
+        "gyro-z",
+        "30",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-imu",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-imu/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-imu/after.png",
+      "checks": [
+        {
+          "name": "mpu6886_identity",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Core2 IMU marker rgb=(0,255,0)\n",
+      "reason": "Core2 MPU6886 accel/gyro values are injected through QOM and read through the official UIFlow2 Imu API and ESP32 I2C0 path."
+    },
+    "core2-axp192": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+        "--machine",
+        "m5core2",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/core2_axp192",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "13",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/core2-axp192",
+        "--input",
+        "touch:160,183",
+        "--qom-set",
+        "/machine/axp192",
+        "vbat-mv",
+        "3900",
+        "--qom-set",
+        "/machine/axp192",
+        "vin-mv",
+        "5000",
+        "--qom-set",
+        "/machine/axp192",
+        "battery-current-ma",
+        "300",
+        "--qom-set",
+        "/machine/axp192",
+        "charging",
+        "true",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-axp192",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-axp192/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/core2-axp192/after.png",
+      "checks": [
+        {
+          "name": "core2_axp192_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_current",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_charging",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Core2 AXP192 marker rgb=(0,255,0)\n",
+      "reason": "Core2 UIFlow2 auto-detects the legacy AXP192 model and reads battery voltage, level, current and charging state through Power."
+    },
+    "stamplc-lm75": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stamplc/uiflow2.bin",
+        "--machine",
+        "m5stamplc",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stamplc_lm75",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "8",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-lm75",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--qom-set-boot",
+        "/machine/lm75",
+        "temperature-c",
+        "37.5",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-lm75",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-lm75/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-lm75/after.png",
+      "checks": [
+        {
+          "name": "lm75_i2c_read",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lm75_temperature_encoding",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "lm75_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StamPLC LM75 marker rgb=(0,255,0)\n",
+      "reason": "StamPLC LM75BDP is read over I2C0 G15/G13 at 0x48; QOM temperature injection is encoded in the chip-native register."
+    },
+    "papercolor-rgb": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/check_rmt_ws2812.py",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-rgb/rgb.rmt",
+        "--led",
+        "0,255,0",
+        "--led",
+        "255,0,0"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-rgb",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-rgb/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/papercolor-rgb/after.png",
+      "checks": [
+        {
+          "name": "rmt_led_init",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ws2812_wire_decode",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "rgb_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "rmt-ws2812",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-ws2812",
+        "frame-marker"
+      ],
+      "validation": "WS2812 PASS expected=00ff00ff0000 chunk=2\nPASS PaperColor RGB marker rgb=(67,138,28)\n",
+      "reason": "PaperColor M5.Led drives two GRB LEDs through ESP32-S3 RMT; captured RMT symbols decode to the expected red and green WS2812 wire bytes."
+    },
+    "stamplc-onboard-io": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stamplc/uiflow2.bin",
+        "--machine",
+        "m5stamplc",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stamplc_onboard_io",
+        "--vfs-offset",
+        "0x641000",
+        "--vfs-size",
+        "0x1BE000",
+        "--flash-size",
+        "0x800000",
+        "--expected-size",
+        "240x135",
+        "--wait",
+        "5",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-onboard-io",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--qom-set",
+        "/machine/aw9523",
+        "input-bits",
+        "61680",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-onboard-io",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-onboard-io/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stamplc-onboard-io/after.png",
+      "checks": [
+        {
+          "name": "aw9523_relay_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pi4ioe_rgb_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "onboard_io_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StamPLC onboard IO marker rgb=(0,255,0)\n",
+      "reason": "StamPLC AW9523B controls relay/input banks at 0x59 while PI4IOE5V6408 controls front-panel keys/RGB at 0x43; both are validated through their register paths."
+    },
+    "cores3-aw9523-full": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/cores3_aw9523_full",
+        "--vfs-offset",
+        "0xAA0000",
+        "--vfs-size",
+        "0x4C0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-aw9523-full",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--qom-set",
+        "/machine/aw9523",
+        "input-bits",
+        "61439",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-aw9523-full",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-aw9523-full/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/cores3-aw9523-full/after.png",
+      "checks": [
+        {
+          "name": "aw9523_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS CoreS3 AW9523 marker rgb=(0,255,0)\n",
+      "reason": "The official AW9523 driver exercises output direction and readback plus a QOM-injected input on the CoreS3 system bus."
+    },
+    "stopwatch-m5ioe1-full": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "--machine",
+        "m5stopwatch",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stopwatch_m5ioe1_full",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "466x466",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-m5ioe1-full",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--qom-set",
+        "/machine/m5ioe1",
+        "input-bits",
+        "16382",
+        "--qom-set",
+        "/machine/m5ioe1",
+        "adc1-mv",
+        "1650",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-m5ioe1-full",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-m5ioe1-full/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-m5ioe1-full/after.png",
+      "checks": [
+        {
+          "name": "m5ioe1_gpio_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_adc_conversion",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_pwm_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5ioe1_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StopWatch M5IOE1 marker rgb=(0,127,0)\n",
+      "reason": "The official M5IOE1 driver exercises GPIO, ADC and PWM registers on the StopWatch system bus, including QOM input injection."
+    },
+    "stopwatch-m5pm1-full": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/stopwatch/uiflow2.bin",
+        "--machine",
+        "m5stopwatch",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/stopwatch_m5pm1_full",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "466x466",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-m5pm1-full",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--input",
+        "key:p",
+        "--qom-set",
+        "/machine/m5pm1",
+        "gpio-input-bits",
+        "29",
+        "--qom-set",
+        "/machine/m5pm1",
+        "adc1-mv",
+        "1650",
+        "--qom-set",
+        "/machine/m5pm1",
+        "adc2-mv",
+        "1200",
+        "--qom-set",
+        "/machine/m5pm1",
+        "temperature-c",
+        "30",
+        "--qom-set",
+        "/machine/m5pm1",
+        "wake-source",
+        "4",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-m5pm1-full",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-m5pm1-full/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/stopwatch-m5pm1-full/after.png",
+      "checks": [
+        {
+          "name": "m5pm1_device_info_uid",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_power_and_hold",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_gpio_input_irq",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_adc_and_temperature",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_pwm",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_neopixel_ram",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_wake_watchdog_timer_rtc",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_button_irq",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "m5pm1_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS StopWatch M5PM1 marker rgb=(0,127,0)\n",
+      "reason": "The official M5PM1 driver exercises power, GPIO, ADC, PWM, NeoPixel RAM, IRQ, wake, watchdog, timer and RTC RAM registers."
+    },
+    "nesso-peripherals": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "--machine",
+        "esp32c6",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/nesso_peripherals",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "15",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-peripherals",
+        "--input",
+        "touch:67,160",
+        "--input",
+        "key:a",
+        "--qom-set",
+        "/machine/nesso-bq27220",
+        "battery-mv",
+        "4000",
+        "--qom-set",
+        "/machine/nesso-bq27220",
+        "current-ma",
+        "250",
+        "--qom-set",
+        "/machine/nesso-bq27220",
+        "battery-level",
+        "87",
+        "--qom-set",
+        "/machine/nesso-aw32001",
+        "charging",
+        "true",
+        "--qom-step",
+        "0.8",
+        "/machine/nesso-bq27220",
+        "battery-level",
+        "64",
+        "--qom-step",
+        "0",
+        "/machine/nesso-bq27220",
+        "battery-mv",
+        "3300",
+        "--qom-step",
+        "0",
+        "/machine/nesso-aw32001",
+        "charging",
+        "false",
+        "--qom-step",
+        "1.5",
+        "/machine/nesso-bq27220",
+        "battery-level",
+        "96",
+        "--qom-step",
+        "0",
+        "/machine/nesso-bq27220",
+        "battery-mv",
+        "4300",
+        "--qom-step",
+        "0",
+        "/machine/nesso-aw32001",
+        "charging",
+        "true",
+        "--qom-sequence-settle",
+        "2.0",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-peripherals",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-peripherals/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-peripherals/after.png",
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_e0",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_pi4ioe_e1",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_button_input",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_battery_voltage",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_charging_status",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "bq27220_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw32001_runtime_transition",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "qom",
+        "frame-marker"
+      ],
+      "validation": "PASS Nesso peripherals marker rgb=(0,255,0)\n",
+      "reason": "Both PI4IOE expanders, a button input, the BQ27220 battery gauge and AW32001 charger status are visible through the Nesso UIFlow2 firmware."
+    },
+    "nesso-imu": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "--machine",
+        "esp32c6",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/nesso_imu",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "15",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-imu",
+        "--input",
+        "touch:67,160",
+        "--qom-set",
+        "/machine/nesso-bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/nesso-bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/nesso-bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/nesso-bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/nesso-bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/nesso-bmi270",
+        "gyro-z",
+        "30",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-imu",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-imu/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-imu/after.png",
+      "checks": [
+        {
+          "name": "nesso_bmi270_init",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_bmi270_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_bmi270_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Nesso BMI270 marker rgb=(0,255,0)\n",
+      "reason": "The Nesso N1 BMI270 at I2C 0x68 is initialized by M5Unified; QOM values are encoded in the chip sample registers and read through the official Imu API."
+    },
+    "nesso-ir": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "--machine",
+        "esp32c6",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/nesso_ir",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "15",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-ir",
+        "--input",
+        "touch:67,160",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-ir",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-ir/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-ir/after.png",
+      "checks": [
+        {
+          "name": "nesso_c6_rmt_nec_tx",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_ir_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "rmt-nec",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "rmt-nec",
+        "frame-marker"
+      ],
+      "validation": "PASS NEC symbols=34 address=0x56 command=0xa3\nPASS Nesso IR marker rgb=(0,255,0)\n",
+      "reason": "Nesso N1 hardware.IR sends NEC through ESP32-C6 RMT0 GPIO9 and the captured symbols decode to address 0x56/command 0xA3."
+    },
+    "nesso-lora": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "--machine",
+        "esp32c6",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/nesso_lora",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "15",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-lora",
+        "--input",
+        "touch:67,160",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-lora",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-lora/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-lora/after.png",
+      "checks": [
+        {
+          "name": "nesso_pi4ioe_radio_rails",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_spi2_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "sx1262_tx_rx_loopback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_lora_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Nesso SX1262 marker rgb=(0,255,0)\n",
+      "reason": "The Nesso SX1262 shares ESP32-C6 SPI2 with the display; the hardware.LoRa driver configures the modem and receives the packet sent through the chip packet FIFO."
+    },
+    "nesso-buzzer": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/Users/m5agent/.local/bin/python3",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/platform/.cache/firmware/nesso-n1/uiflow2.bin",
+        "--machine",
+        "esp32c6",
+        "--files-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/tests/uiflow2/nesso_buzzer",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7DF000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "135x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32",
+        "--rom-dir",
+        "/Users/m5agent/Documents/ChatGPT/esp-emulator/.work/M5StopWatch-QEMU/build/qemu-c6/pc-bios",
+        "--out-dir",
+        "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-buzzer",
+        "--input",
+        "touch:67,160",
+        "--allow-static-frame"
+      ],
+      "output": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-buzzer",
+      "before": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-buzzer/before.png",
+      "after": "/tmp/m5-peripheral-matrix-runtime-transitions/nesso-buzzer/after.png",
+      "checks": [
+        {
+          "name": "speaker_begin",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_is_playing",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "c6_i2s_gdma_out_eof",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "c6_buzzer_pcm_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "nesso_buzzer_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=48128 samples=24064 nonzero=12866 peak_to_peak=65535\nPASS Nesso buzzer marker rgb=(0,255,0)\n",
+      "reason": "The Nesso N1 GPIO11 buzzer is driven through the official Speaker API, ESP32-C6 I2S TX and cyclic AHB GDMA OUT descriptors; host PCM contains the firmware-generated 1-bit delta-sigma tone."
+    }
+  }
+}

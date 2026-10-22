@@ -67,6 +67,7 @@
       "ltr-553als-wa",
       "pwr-button"
     ],
+    "cores3-power-transitions": ["axp2101"],
     "cores3-usb-hid": ["usb-host"],
     "cores3-camera": ["gc0308"],
     "cores3-audio": ["aw88298"],
@@ -238,6 +239,7 @@
     "cores3": {
       "matrix": [
         "cores3-peripherals",
+        "cores3-power-transitions",
         "cores3-usb-hid",
         "cores3-camera",
         "cores3-audio",

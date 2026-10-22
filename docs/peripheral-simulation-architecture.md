@@ -72,6 +72,11 @@
 设备后端**运行的用例。这样同名芯片在别的 SoC、I2C 总线、DMA 或引脚映射上
 通过，也不会让新设备自动继承完成状态。
 
+高动态外设可用 `qom_steps` 在一个持续运行的固件实例内按时间顺序注入多次
+物理状态，`qom_sequence_settle` 保证最后一次状态有足够时间被 API 读取。
+运行时接口清单会把这类步骤输出为带 `delay_seconds` 的 `qom-sequence`，
+用于电源、电量计、IO 扩展器和其他需要验证状态跃迁的外设。
+
 新增模型使用 [`model-template.json`](../platform/peripherals/model-template.json)。
 `simulated` 模型缺少 `data_plane`、`injection` 或 `tested_devices` 会直接
 失败；`partial`/`planned` 模型缺少 `blocker` 也会失败。

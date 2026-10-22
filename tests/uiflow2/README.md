@@ -113,6 +113,9 @@ RX 注入。固件启动后注入动态角速度，避免触发 M5Unified 的启
 每个 matrix/external case 还在 `runtime-coverage.json` 的 `case_models`
 中声明实际覆盖的芯片模型。设备上的每个 `simulated` 组件必须有本机用例，
 不能从其他设备的同型号芯片测试中继承完成状态。
+需要验证状态跃迁的用例可在 `qom_steps` 中声明多次宿主注入；
+`qom_sequence_settle` 控制最后一次状态后的等待时间，固件实例保持运行，
+不通过重启模拟“动态”状态。
 
 Tab5 需要先构建仿真固件和 16 MiB merged image：
 

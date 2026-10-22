@@ -379,6 +379,18 @@ def main():
         default=[],
         help="set a QOM property immediately after QMP starts, before firmware boot",
     )
+    parser.add_argument(
+        "--qom-step",
+        action="append",
+        nargs=4,
+        metavar=("DELAY", "PATH", "PROPERTY", "VALUE"),
+        default=[],
+        help=(
+            "after boot, sleep DELAY seconds and set a QOM property; "
+            "repeat to exercise runtime state transitions"
+        ),
+    )
+    parser.add_argument("--qom-sequence-settle", type=float, default=0.5)
     parser.add_argument("--qom-settle", type=float, default=0.5)
     parser.add_argument(
         "--qom-expect",
@@ -552,6 +564,18 @@ def main():
                 print(f"qom {path} {prop}={current['return']}")
         if args.qom_set:
             time.sleep(args.qom_settle)
+        for raw_delay, path, prop, raw_value in args.qom_step:
+            time.sleep(float(raw_delay))
+            try:
+                value = json.loads(raw_value)
+            except json.JSONDecodeError:
+                value = raw_value
+            qmp.cmd("qom-set", path=path, property=prop, value=value)
+            if os.environ.get("M5_QOM_DEBUG"):
+                current = qmp.cmd("qom-get", path=path, property=prop)
+                print(f"qom-step {path} {prop}={current['return']}")
+        if args.qom_step:
+            time.sleep(args.qom_sequence_settle)
         qmp.cmd("screendump", filename=str(before))
         expected = tuple(map(int, args.expected_size.lower().split("x")))
         actual = read_ppm(before)[:2]

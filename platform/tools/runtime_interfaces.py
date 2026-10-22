@@ -87,6 +87,20 @@ def case_interfaces(case: dict) -> list[dict]:
                 "runtime",
             )
         )
+    for delay, path, prop, value in case.get("qom_steps", []):
+        interface = _qom(
+            {
+                "direction": "input",
+                "value": value,
+                "value_type": "qom-sequence",
+                "capability": "runtime physical state transition",
+                "delay_seconds": delay,
+            },
+            path,
+            prop,
+            "runtime",
+        )
+        interfaces.append(interface)
     for path, prop, expected in case.get("qom_expect", []):
         interfaces.append(
             _qom(

@@ -87,6 +87,19 @@ class RuntimeInterfaceTests(unittest.TestCase):
             <= cases
         )
 
+    def test_runtime_sequence_interfaces_are_exposed(self):
+        sequence = [
+            item
+            for item in self.payload["models"]["axp2101"]["interfaces"]
+            if item.get("value_type") == "qom-sequence"
+        ]
+        self.assertTrue(sequence)
+        self.assertTrue(
+            any(item.get("case") == "cores3-power-transitions"
+                for item in sequence)
+        )
+        self.assertIn("delay_seconds", sequence[0])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

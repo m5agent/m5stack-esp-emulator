@@ -32,6 +32,7 @@ GET /health
 `/api/peripheral-interfaces` 从运行时证据矩阵生成可执行控制描述，包含：
 
 - QMP QOM 输入/输出路径、属性、启动期或运行期阶段；
+- 多步 QOM 状态序列及其相对延迟，用于同一运行实例内的动态状态跃迁；
 - QMP 触摸、按键和拖拽输入；
 - PCM、RMT、摄像头和 SD 镜像的文件方向及格式；
 - UART0/UART1 输出断言和 framebuffer 捕获；

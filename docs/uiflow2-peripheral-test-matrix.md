@@ -100,12 +100,12 @@ StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 
 汇总：
 
 ```text
-cases   66
-checks  264
-PASS    66
+cases   67
+checks  271
+PASS    67
 ```
 
-最终全量运行 66/66 用例、264/264 检查清洁通过。另做 6 次 Core2
+最终全量运行 67/67 用例、271/271 检查清洁通过。另做 6 次 Core2
 启动压力复跑时命中 1 次已知 MicroPython cache panic，重启后通过；失败
 串口保留为 `serial.attempt-1.log`。该启动稳定性问题单独记录，不归因或
 掩盖 AXP192 外设数据面。
@@ -636,7 +636,7 @@ CC1101 与 SD、NFC 共用 SPI2，使用 CS `G5`、GDO0 `G15`。官方
 
 ## 设备级调度
 
-`runtime-coverage.json` 的 `device_case_groups` 把 66 个 matrix case 和
+`runtime-coverage.json` 的 `device_case_groups` 把 67 个 matrix case 和
 7 个 external probe 分别绑定到 14 台设备，并声明每组覆盖的模拟模型。
 每个 case 必须且只能归属一个设备组。
 

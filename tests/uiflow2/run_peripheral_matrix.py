@@ -543,6 +543,54 @@ CASES = [
         ],
     },
     {
+        "id": "cores3-power-transitions",
+        "expected_status": "PASS",
+        "reason": (
+            "The UIFlow2 application remains running while AXP2101 battery "
+            "level, voltage, VBUS and charging state change through a QOM "
+            "runtime sequence; the official Power API observes every state."
+        ),
+        "checks": [
+            {"name": "axp2101_initial_power_state", "status": "PASS"},
+            {"name": "axp2101_runtime_discharge_state", "status": "PASS"},
+            {"name": "axp2101_runtime_charge_state", "status": "PASS"},
+            {"name": "power_runtime_sequence_complete", "status": "PASS"},
+        ],
+        "machine": "m5cores3",
+        "base": "platform/.cache/firmware/cores3/uiflow2.bin",
+        "files_dir": "tests/uiflow2/cores3_power_transitions",
+        "vfs_offset": "0xAA0000",
+        "vfs_size": "0x4C0000",
+        "flash_size": "0x1000000",
+        "expected_size": "320x240",
+        "efuse_pkg_version": "0",
+        "wait": "4",
+        "inputs": [],
+        "qom_steps": [
+            (0.8, "/machine/axp2101", "battery-level", "64"),
+            (0, "/machine/axp2101", "vbat-mv", "3600"),
+            (0, "/machine/axp2101", "vin-mv", "0"),
+            (0, "/machine/axp2101", "charging", "false"),
+            (2.0, "/machine/axp2101", "battery-level", "93"),
+            (0, "/machine/axp2101", "vbat-mv", "4200"),
+            (0, "/machine/axp2101", "vin-mv", "5000"),
+            (0, "/machine/axp2101", "charging", "true"),
+        ],
+        "qom_sequence_settle": 2.0,
+        "serial_expect": [
+            "CORES3_POWER_TRANS 87 4000 1",
+            "CORES3_POWER_TRANS 64 3600 0",
+            "CORES3_POWER_TRANS 93 4200 1",
+            "CORES3_POWER_TRANS_DONE PASS",
+        ],
+        "frame_color": {
+            "x": 310,
+            "y": 230,
+            "label": "CoreS3 PMIC transitions",
+        },
+        "allow_static_frame": True,
+    },
+    {
         "id": "cores3-usb-hid",
         "expected_status": "PASS",
         "reason": (
@@ -720,6 +768,7 @@ CASES = [
             {"name": "ina226_identity", "status": "PASS"},
             {"name": "ina226_bus_voltage", "status": "PASS"},
             {"name": "ina226_current", "status": "PASS"},
+            {"name": "ina226_runtime_transition", "status": "PASS"},
             {"name": "rx8130_rtc_write_read", "status": "PASS"},
         ],
         "machine": "m5stamplc",
@@ -737,6 +786,7 @@ CASES = [
             "STAMPLC_RELAY 1 PRESS 1",
             "STAMPLC_INPUTS",
             "STAMPLC_INA 12.00 0.500",
+            "STAMPLC_INA 15.00 0.750",
             "STAMPLC_RGB True False False",
             "STAMPLC_RTC 2026-10-22 07:08:09",
         ],
@@ -745,6 +795,11 @@ CASES = [
             ("/machine/ina226", "current-ma", "500"),
             ("/machine/ina226", "shunt-ohms", "0.08"),
         ],
+        "qom_steps": [
+            (1.0, "/machine/ina226", "bus-voltage-mv", "15000"),
+            (0, "/machine/ina226", "current-ma", "750"),
+        ],
+        "qom_sequence_settle": 1.5,
     },
     {
         "id": "stopwatch-peripherals",
@@ -2192,6 +2247,8 @@ CASES = [
             {"name": "nesso_button_input", "status": "PASS"},
             {"name": "nesso_battery_voltage", "status": "PASS"},
             {"name": "nesso_charging_status", "status": "PASS"},
+            {"name": "bq27220_runtime_transition", "status": "PASS"},
+            {"name": "aw32001_runtime_transition", "status": "PASS"},
             {"name": "nesso_ui_marker", "status": "PASS"},
         ],
         "machine": "esp32c6",
@@ -2210,6 +2267,15 @@ CASES = [
             ("/machine/nesso-bq27220", "battery-level", "87"),
             ("/machine/nesso-aw32001", "charging", "true"),
         ],
+        "qom_steps": [
+            (0.8, "/machine/nesso-bq27220", "battery-level", "64"),
+            (0, "/machine/nesso-bq27220", "battery-mv", "3300"),
+            (0, "/machine/nesso-aw32001", "charging", "false"),
+            (1.5, "/machine/nesso-bq27220", "battery-level", "96"),
+            (0, "/machine/nesso-bq27220", "battery-mv", "4300"),
+            (0, "/machine/nesso-aw32001", "charging", "true"),
+        ],
+        "qom_sequence_settle": 2.0,
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "Nesso peripherals"},
     },
@@ -2390,6 +2456,10 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--qom-set", path, prop, value])
     for path, prop, value in case.get("qom_set_boot", []):
         command.extend(["--qom-set-boot", path, prop, value])
+    for delay, path, prop, value in case.get("qom_steps", []):
+        command.extend([
+            "--qom-step", str(delay), path, prop, str(value),
+        ])
     for path, prop, value in case.get("qom_expect", []):
         command.extend(["--qom-expect", path, prop, value])
     for marker in case.get("serial_expect", []):
@@ -2398,6 +2468,10 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--serial1-expect", marker])
     if case.get("qom_settle"):
         command.extend(["--qom-settle", str(case["qom_settle"])])
+    if case.get("qom_sequence_settle"):
+        command.extend([
+            "--qom-sequence-settle", str(case["qom_sequence_settle"]),
+        ])
     if case.get("allow_static_frame"):
         command.append("--allow-static-frame")
     if sd_image:
@@ -2699,7 +2773,7 @@ def main() -> None:
             evidence.append("serial.log")
         if case.get("serial1_expect"):
             evidence.append("serial1.log")
-        if case.get("qom_expect"):
+        if case.get("qom_expect") or case.get("qom_steps"):
             evidence.append("qom")
         if case.get("pcm"):
             evidence.append("pcm")

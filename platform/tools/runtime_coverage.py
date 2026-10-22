@@ -16,6 +16,7 @@ EVIDENCE_KEYS = (
     "serial_expect",
     "serial1_expect",
     "qom_expect",
+    "qom_steps",
     "pcm",
     "rmt_nec",
     "rmt_ws2812",
