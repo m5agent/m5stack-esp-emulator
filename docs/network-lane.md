@@ -71,6 +71,12 @@ timeout and console/boot visibility. The classification is based on explicit
 native log signatures where possible and does not change the guest or convert
 an unverified result into PASS.
 
+The diagnosis also reports `blocking_layer`, observed `board_ids`, and
+`network_data_plane`. A board/peripheral/console failure records the network
+data plane as `NOT RUN`; a later guest crash records it as `UNKNOWN`. A normal
+`auto detect board:<id>` message is context only and is not by itself classified
+as a board-detection failure.
+
 Every run writes `serial.log`, `ble-probe.log` and `evidence.json` under the
 selected output directory. Binary hashes identify the exact firmware, ELF and
 emulator used. Passwords are redacted from the command and evidence.

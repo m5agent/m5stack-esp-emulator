@@ -643,10 +643,18 @@ def diagnose_generic_evidence(
         marker for marker in expected_markers if marker not in serial
     ]
     signatures: list[str] = []
-    if "Unsupported board type" in serial or "auto detect board:" in serial:
+    board_ids = [
+        int(value)
+        for value in re.findall(r"auto detect board:\s*(\d+)", serial)
+    ]
+    if (
+        "Unsupported board type" in serial
+        or "Unsupported board" in serial
+        or re.search(r"\bboard[_\s-]?unknown\b", serial, re.IGNORECASE)
+    ):
         category = "board_detection"
         confidence = "native-log-signature"
-        signatures.append("board autodetect/unsupported board signature")
+        signatures.append("unsupported/unknown board signature")
     elif "assert failed" in serial or "Guru Meditation" in serial:
         category = "crash_or_assert"
         confidence = "native-log-signature"
@@ -669,9 +677,25 @@ def diagnose_generic_evidence(
         signatures.append("no expected marker on the selected console")
     if not serial.strip():
         signatures.append("empty serial capture")
+    blocking_layer = {
+        "board_detection": "board",
+        "peripheral_init_error": "peripheral",
+        "crash_or_assert": "guest_runtime",
+        "crash_or_reboot": "guest_runtime",
+        "console_or_boot_visibility": "console_or_boot",
+        "guest_marker_timeout": "application_or_observation",
+    }.get(category, "unknown")
+    pre_network = blocking_layer in {
+        "board",
+        "peripheral",
+        "console_or_boot",
+    }
     return {
         "category": category,
         "confidence": confidence,
+        "blocking_layer": blocking_layer,
+        "network_data_plane": "NOT RUN" if pre_network else "UNKNOWN",
+        "board_ids": board_ids,
         "missing_markers": missing,
         "signatures": signatures,
     }

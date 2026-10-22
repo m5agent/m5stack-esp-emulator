@@ -379,10 +379,23 @@ BLE_BUMBLE_PASS
             ["UIFLOW_NET_BOOT", "UIFLOW_WIFI_RESULT: PASSED"],
         )
         self.assertEqual(diagnosis["category"], "board_detection")
+        self.assertEqual(diagnosis["blocking_layer"], "board")
+        self.assertEqual(diagnosis["network_data_plane"], "NOT RUN")
+        self.assertEqual(diagnosis["board_ids"], [146])
         self.assertEqual(
             diagnosis["missing_markers"],
             ["UIFLOW_NET_BOOT", "UIFLOW_WIFI_RESULT: PASSED"],
         )
+
+    def test_generic_diagnosis_does_not_treat_successful_board_log_as_failure(self):
+        diagnosis = diagnose_generic_evidence(
+            "auto detect board:14\n"
+            "Guru Meditation Error: Core 0 panic'ed\n",
+            ["APP_READY"],
+        )
+        self.assertEqual(diagnosis["category"], "crash_or_assert")
+        self.assertEqual(diagnosis["blocking_layer"], "guest_runtime")
+        self.assertEqual(diagnosis["board_ids"], [14])
 
     def test_generic_diagnosis_separates_peripheral_and_console_signals(self):
         peripheral = diagnose_generic_evidence(
@@ -395,7 +408,9 @@ BLE_BUMBLE_PASS
             ["UIFLOW_NET_BOOT"],
         )
         self.assertEqual(peripheral["category"], "peripheral_init_error")
+        self.assertEqual(peripheral["network_data_plane"], "NOT RUN")
         self.assertEqual(console["category"], "console_or_boot_visibility")
+        self.assertEqual(console["network_data_plane"], "NOT RUN")
 
     def test_rejects_classic_esp32_before_process_launch(self):
         with tempfile.TemporaryDirectory() as directory:
