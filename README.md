@@ -103,6 +103,11 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32 LX6 | Core2 | 显示、触摸和外设通过；仍有间歇性 cache panic |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
+CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
+普通文字、矩形、RGB PNG 和自定义不透明绘制正常。该问题跟踪为
+[CoreS3 图像渲染边界](docs/cores3-image-rendering-boundary.md)，不影响启动、
+烧录和像素级 UI 测试，但尚不能称为完全视觉保真。
+
 详细逐设备状态见
 [`devices/README.md`](devices/README.md) 和
 [`docs/qemu-device-adaptation-matrix.md`](docs/qemu-device-adaptation-matrix.md)。

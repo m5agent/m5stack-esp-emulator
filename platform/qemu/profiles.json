@@ -235,13 +235,16 @@
         "BMM150 magnetometer",
         "LCD_CAM camera frames",
         "audio peripheral polish",
-        "MAX3421E USB host on M-Bus SPI"
+        "MAX3421E USB host on M-Bus SPI",
+        "palette/alpha PNG UI asset rendering integrity"
       ],
-      "blockers": [],
+      "blockers": [
+        "UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct"
+      ],
       "validation": {
         "date": "2026-10-22",
         "status": "display-touch-peripherals-simulated",
-        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; touch, PWR, AXP2101 power telemetry, PCF8563 RTC, BMI270/BMM150, LTR553 ALS/proximity, audio, camera capture and MAX3421E USB host all pass through their board data planes."
+        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; touch, PWR, AXP2101 power telemetry, PCF8563 RTC, BMI270/BMM150, LTR553 ALS/proximity, audio, camera capture and MAX3421E USB host all pass through their board data planes. Visual boundary: palette/alpha PNG startup-menu images show stripe artifacts, reproduced with the reference firmware and with an opaque RGBA PNG test; ordinary RGB PNG and opaque drawing remain correct."
       }
     },
     {

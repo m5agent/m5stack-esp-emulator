@@ -460,6 +460,9 @@ session is removed from the active capacity count immediately.
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;
 - Core2 still has the known intermittent cache panic;
+- CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
+  boundary; ordinary opaque drawing is unaffected. See
+  [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);
 - the API creates simulation evidence only, not real-hardware PASS;
 - QEMU stderr/stdout and serial logs can contain firmware-controlled text and
   must be treated as untrusted evidence.

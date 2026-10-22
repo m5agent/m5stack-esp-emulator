@@ -57,7 +57,7 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | --- | --- | --- | --- | --- | --- |
 | StopWatch (`stopwatch`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | CO5300 466x466 | 已完成 |
 | AtomS3R (`atoms3r`) | ESP32-S3-PICO-1-N8R8 | qemu-esp32s3 | `ready` | ST7735 / GC9107 128x128 | 已完成 |
-| CoreS3 (`cores3`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 已完成 |
+| CoreS3 (`cores3`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 功能完成；启动菜单 PNG/alpha 图像条纹待修 |
 | StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | qemu-esp32s3 | `ready` | ST7789P3 135x240 | 已完成 |
 | Cardputer-ADV (`cardputer-adv`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 已完成 |
 | StackChan (`stackchan`) | ESP32-S3 | qemu-esp32s3 | `ready` | ILI9342C / ILI9342E 320x240 | 已完成；含 BMI270 加速度/陀螺仪、BM8563 RTC、AW9523/INA226/IR/音频/舵机/NFC |
@@ -74,7 +74,8 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 
 - StickS3：A/B/P、电源 telemetry、BMI270 数值、ES8311 音频、IR 和电量计路径通过。
 - CoreS3：触摸、PWR、AXP2101、PCF8563、BMI270/BMM150、ALS、AW9523
-  和 GC0308 相机路径通过。
+  和 GC0308 相机路径通过；启动菜单的调色板/透明 PNG 图像存在模拟器条纹，
+  详见 [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md)。
 - Nesso N1：触摸、双 PI4IOE、BQ27220 电池遥测、AW32001 充电状态、
   BMI270 加速度/角速度和 SX1262 LoRa 收发通过。
 
