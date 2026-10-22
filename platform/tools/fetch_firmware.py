@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -18,6 +19,7 @@ CATALOG = ROOT / "devices" / "catalog.json"
 DEFAULT_CACHE = ROOT / "platform" / ".cache" / "firmware"
 DEFAULT_API_BASE = "https://burner.m5stack.com"
 MAX_DOWNLOAD_BYTES = 96 * 1024 * 1024
+CDN_FILE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$")
 
 
 def load_devices() -> list[dict]:
@@ -89,19 +91,32 @@ def current_download_from_detail(
                 f"available={available}"
             )
     version_id = version.get("versionId")
+    bin_file_name = version.get("binFileName")
+    if isinstance(bin_file_name, str) and CDN_FILE_NAME.fullmatch(bin_file_name):
+        url = (
+            "https://m5burner-cdn.m5stack.com"
+            f"/firmware/{bin_file_name}"
+        )
+        url_source = "binFileName"
+    else:
+        developer_id = developer.get("userId")
+        try:
+            next_id = str(int(version_id) + 1)
+        except (TypeError, ValueError) as error:
+            raise RuntimeError(
+                f"firmware {firmware_id} has invalid version id: {version_id!r}"
+            ) from error
+        if not isinstance(developer_id, str) or not developer_id:
+            raise RuntimeError(f"firmware {firmware_id} has no public developer id")
+        url = (
+            "https://m5burner-cdn.m5stack.com"
+            f"/community/{developer_id}/{firmware_id}/{version_id}/bin/{next_id}.bin"
+        )
+        url_source = "legacy-version-id"
+
     developer_id = developer.get("userId")
-    try:
-        next_id = str(int(version_id) + 1)
-    except (TypeError, ValueError) as error:
-        raise RuntimeError(
-            f"firmware {firmware_id} has invalid version id: {version_id!r}"
-        ) from error
     if not isinstance(developer_id, str) or not developer_id:
         raise RuntimeError(f"firmware {firmware_id} has no public developer id")
-    url = (
-        "https://m5burner-cdn.m5stack.com"
-        f"/community/{developer_id}/{firmware_id}/{version_id}/bin/{next_id}.bin"
-    )
     metadata = {
         "firmware_id": firmware_id,
         "firmware_name": str(data.get("firmwareName") or ""),
@@ -113,6 +128,12 @@ def current_download_from_detail(
         "resolved_publish_time": version.get("publishTime"),
         "resolved_visibility": visibility,
         "resolved_status": status,
+        "resolved_bin_file_name": (
+            bin_file_name
+            if isinstance(bin_file_name, str)
+            else None
+        ),
+        "url_source": url_source,
         "supported_devices": [
             {
                 "device_id": row.get("deviceId"),
@@ -260,6 +281,7 @@ def resolve_community_firmware(
     if not isinstance(current, dict) or not {
         "visibility",
         "status",
+        "binFileName",
     } <= current.keys():
         versions_url = f"{metadata_url}/versions"
         detail = merge_current_version(

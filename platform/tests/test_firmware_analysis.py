@@ -83,6 +83,71 @@ class FirmwareAnalysisTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertTrue(result["errors"])
 
+    def test_classic_esp32_bootloader_and_sparse_flash_are_supported(self):
+        image = bytearray(b"\xff" * 0x12000)
+        boot = build_image(chip_id=0x0000, descriptor=False)
+        image[0x1000 : 0x1000 + len(boot)] = boot
+        app = build_image(chip_id=0x0000)
+        image[0x10000 : 0x10000 + len(app)] = app
+        entry = bytearray(32)
+        struct.pack_into("<H", entry, 0, 0x50AA)
+        struct.pack_into("<II", entry, 4, 0x10000, 0x2000)
+        entry[12:19] = b"factory"
+        md5_entry = bytearray(32)
+        struct.pack_into("<H", md5_entry, 0, 0xEBEB)
+        md5_entry[16:32] = hashlib.md5(entry).digest()
+        image[0x8000:0x8020] = entry
+        image[0x8020:0x8040] = md5_entry
+        # Declare a 16 MiB classic ESP32 layout while omitting the unused tail.
+        entry[4:12] = struct.pack("<II", 0x10000, 0xFE0000)
+        md5_entry[16:32] = hashlib.md5(entry).digest()
+        image[0x8000:0x8020] = entry
+        image[0x8020:0x8040] = md5_entry
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "classic-sparse.bin"
+            path.write_bytes(image)
+            result = analyze_firmware(path, expected_chip_id_value=0x0000)
+
+        self.assertTrue(result["valid"], result["errors"])
+        self.assertEqual(result["bootloader"]["offset"], 0x1000)
+        self.assertEqual(result["declared_flash_size"], 16 << 20)
+        self.assertTrue(result["sparse_source"])
+
+    def test_blank_ota_slot_does_not_invalidate_other_app(self):
+        image = bytearray(b"\xff" * 0x22000)
+        boot = build_image(chip_id=0x0009, descriptor=False)
+        image[: len(boot)] = boot
+        app = build_image(chip_id=0x0009)
+        image[0x11000 : 0x11000 + len(app)] = app
+        entries = []
+        for subtype, offset, label in (
+            (0x10, 0x10000, b"ota_0"),
+            (0x11, 0x11000, b"ota_1"),
+        ):
+            entry = bytearray(32)
+            struct.pack_into("<H", entry, 0, 0x50AA)
+            entry[2] = 0
+            entry[3] = subtype
+            struct.pack_into("<II", entry, 4, offset, 0x8000)
+            entry[12 : 12 + len(label)] = label
+            entries.append(entry)
+        payload = b"".join(entries)
+        md5_entry = bytearray(32)
+        struct.pack_into("<H", md5_entry, 0, 0xEBEB)
+        md5_entry[16:32] = hashlib.md5(payload).digest()
+        image[0x8000 : 0x8000 + len(payload)] = payload
+        image[0x8000 + len(payload) : 0x8020 + len(payload)] = md5_entry
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "blank-ota.bin"
+            path.write_bytes(image)
+            result = analyze_firmware(path, expected_chip_id_value=0x0009)
+
+        self.assertTrue(result["valid"], result["errors"])
+        self.assertFalse(result["app_images"][0]["present"])
+        self.assertTrue(result["app_images"][1]["valid"])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

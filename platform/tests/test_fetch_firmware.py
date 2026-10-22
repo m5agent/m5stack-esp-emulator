@@ -59,6 +59,32 @@ class FirmwareResolverTests(unittest.TestCase):
                 {"code": 200, "data": {"developer": {"userId": "1"}}},
             )
 
+    def test_prefers_current_bin_file_name_for_modern_cdn(self):
+        url, metadata = current_download_from_detail(
+            "1897200000000000013",
+            {
+                "code": 200,
+                "data": {
+                    "currentVersion": {
+                        "versionId": "1897300000000000019",
+                        "versionName": "1.16",
+                        "visibility": "PUBLIC",
+                        "status": "PUBLISHED",
+                        "binFileName": "03a8270bc364570ba4663a063dcb7957.bin",
+                    },
+                    "developer": {"userId": "83286"},
+                    "supportedDevices": [{"deviceSlug": "core2"}],
+                },
+            },
+            device_slug="core2",
+        )
+        self.assertEqual(
+            url,
+            "https://m5burner-cdn.m5stack.com/firmware/"
+            "03a8270bc364570ba4663a063dcb7957.bin",
+        )
+        self.assertEqual(metadata["url_source"], "binFileName")
+
     def test_rejects_unpublished_or_wrong_device_firmware(self):
         detail = {
             "code": 200,

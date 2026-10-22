@@ -99,9 +99,17 @@ def analyze_esp_image(data: bytes, offset: int = 0) -> dict:
     return result
 
 
-def parse_partition_table(data: bytes, offset: int = PARTITION_TABLE_OFFSET) -> dict:
+def parse_partition_table(
+    data: bytes,
+    offset: int = PARTITION_TABLE_OFFSET,
+    *,
+    image_size: int | None = None,
+    enforce_size: bool = True,
+) -> dict:
+    declared_size = len(data) if image_size is None else image_size
     result = {
         "offset": offset,
+        "image_size": declared_size,
         "valid": False,
         "errors": [],
         "warnings": [],
@@ -133,7 +141,7 @@ def parse_partition_table(data: bytes, offset: int = PARTITION_TABLE_OFFSET) -> 
                 "flags": _u32(entry, 28),
             }
             result["partitions"].append(partition)
-            if part_offset + size > len(data):
+            if enforce_size and part_offset + size > declared_size:
                 result["errors"].append(
                     f"partition {label or index // 32} exceeds flash size"
                 )
@@ -204,6 +212,13 @@ def expected_chip_id(soc: str) -> int | None:
     return None
 
 
+def _next_power_of_two(value: int) -> int:
+    result = 1
+    while result < value:
+        result <<= 1
+    return result
+
+
 def analyze_firmware(
     path: Path,
     *,
@@ -217,10 +232,38 @@ def analyze_firmware(
         "errors": [],
         "warnings": [],
         "bootloader": analyze_esp_image(data, 0),
-        "partition_table": parse_partition_table(data),
+        "partition_table": {},
         "app_images": [],
         "app_descriptor": None,
     }
+    if not result["bootloader"]["valid"]:
+        classic_bootloader = analyze_esp_image(data, 0x1000)
+        if classic_bootloader["valid"]:
+            result["bootloader"] = classic_bootloader
+            result["warnings"].append(
+                "classic ESP32 bootloader found at 0x1000"
+            )
+
+    structural_table = parse_partition_table(
+        data,
+        enforce_size=False,
+    )
+    partition_end = max(
+        (
+            partition["offset"] + partition["size"]
+            for partition in structural_table.get("partitions", [])
+        ),
+        default=len(data),
+    )
+    declared_size = _next_power_of_two(
+        max(len(data), partition_end)
+    )
+    result["declared_flash_size"] = declared_size
+    result["sparse_source"] = len(data) < declared_size
+    result["partition_table"] = parse_partition_table(
+        data,
+        image_size=declared_size,
+    )
     partition_table = result["partition_table"]
     if not partition_table["valid"]:
         result["warnings"].append(
@@ -230,6 +273,15 @@ def analyze_firmware(
         if partition["type"] != 0:
             continue
         image = analyze_esp_image(data, partition["offset"])
+        image["present"] = any(
+            byte != 0xFF
+            for byte in data[
+                partition["offset"] : min(
+                    partition["offset"] + 32,
+                    len(data),
+                )
+            ]
+        )
         image["label"] = partition["label"]
         image["size"] = partition["size"]
         result["app_images"].append(image)
@@ -242,7 +294,14 @@ def analyze_firmware(
             if descriptor:
                 result["app_descriptor"] = descriptor
     bootloader = result["bootloader"]
-    images = [bootloader, *result["app_images"]]
+    images = [
+        bootloader,
+        *[
+            image
+            for image in result["app_images"]
+            if image.get("present")
+        ],
+    ]
     for image in images:
         result["errors"].extend(image.get("errors", []))
     if expected_chip_id_value is not None:
@@ -259,7 +318,7 @@ def analyze_firmware(
     result["valid"] = (
         bootloader.get("valid", False)
         and partition_table["valid"]
-        and bool(result["app_images"])
+        and any(image.get("valid") for image in result["app_images"])
         and not result["errors"]
     )
     return result
