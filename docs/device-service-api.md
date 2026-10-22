@@ -46,7 +46,7 @@ The default of `8` global sessions and `6` sessions per model is a
 workstation profile, not a protocol limit. It was measured on the current
 Apple M4 host with 10 CPU cores and 32 GB RAM:
 
-- six running StickS3 QEMU sessions used roughly 1.4 CPU cores and 715 MiB RSS
+- six running StickS3 QEMU sessions used roughly 1.4 CPU cores and 695 MiB RSS
   in an averaged process sample;
 - six StickS3 sessions plus two CoreS3 sessions reached the eight-session cap;
 - six concurrent frame captures completed in about 46 ms wall time;
