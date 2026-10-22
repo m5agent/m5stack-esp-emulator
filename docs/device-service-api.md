@@ -164,6 +164,11 @@ running -> stopping -> stopped
 `POST /api/v1/sessions` is asynchronous and returns `202 Accepted` while the
 session is provisioning. Poll the session or call `wait`.
 
+`running` means the QEMU process and QMP control channel are alive. It does
+not guarantee that the application reached its first frame or a serial marker.
+For application-level readiness, provide `ready_marker` in the create request
+or call `/wait`, then inspect serial and/or `/frame.png`.
+
 ## Endpoints
 
 | Method | Path | Purpose |
@@ -337,6 +342,8 @@ session is removed from the active capacity count immediately.
 - stopped/failed sessions remain queryable until the service restarts;
 - a guest reset does not make a session safe for a different tenant;
 - delete and recreate for tenant isolation.
+- `running` is an emulator-process state; use serial markers or screenshots to
+  establish application and visual readiness.
 
 ## Current limitations
 
