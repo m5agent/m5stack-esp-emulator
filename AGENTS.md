@@ -157,8 +157,16 @@ verification exists.
 - Tab5 remains `partial`: the closed-source `esp-emu 0.50.0` P4 backend lacks
   dynamic I2C/RTC injection, I2S/PCM, MIPI-CSI, USB Host, SDIO control and
   controller-level ST7123 touch.
+- Tab5 is still usable for virtual `esptool write-flash`, UIFlow2 boot,
+  framebuffer/touch tests, RS-485, C6 ESP-Hosted and static I2C probes. Do not
+  describe `partial` as “unusable”; document the flashing layout and ROM/eFuse
+  compatibility boundary when reviewing a production image.
 - Core2 has an intermittent flash/cache startup panic; retries may let a
   simulation case pass but do not prove the startup issue is fixed.
+- QEMU S3/LX6 PHY code is a bring-up stub, not WiFi. The `esp-emu` runtime has
+  WiFi/Ethernet backends, but that path is not yet integrated into every device
+  matrix. Keep board/UI evidence and network evidence separate until a
+  same-instance implementation is verified.
 
 ## Remaining work
 

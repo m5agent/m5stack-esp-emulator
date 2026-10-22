@@ -140,3 +140,31 @@ The backend is not complete until:
 4. `run_tab5_ui_test.py` captures display, touch, audio, camera, USB and storage
    evidence in one reproducible device profile.
 5. No test writes the firmware's MicroPython variables to fake a device reading.
+
+## 8. Deferred backlog status (2026-10-22)
+
+The remaining Tab5 data planes are intentionally deferred rather than treated
+as a blocker for every other device. The current backend already supports
+virtual flashing, UIFlow2 boot, 1280x720 MGFX output, touch mailbox input,
+RS-485, C6 ESP-Hosted and static I2C register probes.
+
+Deferred work, in suggested priority order:
+
+| Priority | Work | Acceptance boundary | Rough effort |
+| --- | --- | --- | --- |
+| P1 | Dynamic I2C bridge and device state machines | BMI270 samples, RX8130 progression, INA226 alert, PI4IOE IRQ and IP2326 transitions without process restart | 3–5 days |
+| P1 | P4 I2S/PCM | ES7210 microphone RX and ES8388 speaker TX through the P4 controller/GDMA | 2–4 days |
+| P2 | MIPI-CSI | SC2356 SCCB configuration and a deterministic frame through `camera.snapshot()` | 3–5 days |
+| P2 | P4 USB Host | Chapter 9 enumeration and at least one HID/storage endpoint | 4–7 days |
+| P2 | SDIO block backend | Guest-visible block device and host-side image verification | 2–4 days |
+| P3 | ST7123 controller-level touch | Touch reports through the real I2C controller instead of the GDB mailbox | 2–3 days |
+| P3 | IP2326 charger state machine | Current/termination/charging transitions observable through the normal power path | included in P1 |
+
+The estimates assume a rebuildable/extensible P4 backend and do not include
+the separate long-term work of running all board peripherals and WiFi in one
+QEMU instance. Resume this backlog only when a firmware under review needs one
+of these data planes or when ST7123/IP2326 behavior becomes part of a release
+gate.
+
+See [`tab5-deferred-backlog.md`](tab5-deferred-backlog.md) for the current
+usable boundary, resume conditions and evidence requirements.

@@ -23,6 +23,13 @@ GL852G MTT 兼容全/低速下游路由，以及 GPIO 红外收发。
 [`docs/peripheral-simulation-architecture.md`](docs/peripheral-simulation-architecture.md)。
 当前 14 个虚拟主机中 13 个已通过全部登记外设的数据面验收；Tab5 仍受原生
 P4 CSI/I2S/USB/SDIO 与动态 I2C 后端缺口限制，不能误标为全外设闭环。
+Tab5 当前仍可完成虚拟烧录、UIFlow2 启动、1280×720 画面、触摸、RS-485 和
+静态 I2C 探测；完整暂缓项与恢复条件见
+[`docs/tab5-deferred-backlog.md`](docs/tab5-deferred-backlog.md)。
+
+WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。现阶段建议把
+“QEMU 板级/UI 通道”和 `esp-emu` 网络通道分开验证，方案和验收矩阵见
+[`docs/network-simulation-plan.md`](docs/network-simulation-plan.md)。
 
 当前外设契约包含 65 个模型、60 个 `simulated` 模型、67 个 matrix case 和
 7 个 external probe。最近一次干净的全量基线是摄像头帧流变更前的
