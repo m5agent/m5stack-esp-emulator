@@ -30,6 +30,22 @@ The QEMU ESP32-S3/LX6 board path currently contains PHY bring-up stubs, not an
 RF or WiFi MAC/PHY model. A successful boot log or PHY-ready register therefore
 does not mean the device is online.
 
+## Device coverage
+
+| Device class | Current network path | Status |
+| --- | --- | --- |
+| ESP32-S3 boards, including CoreS3, StickS3, StackChan and StopWatch | `esp-emu` WiFi SoftAP + user/TAP backend | Backend support exists; UIFlow2 integration and regression are pending |
+| ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | Backend support exists; UIFlow2 integration and regression are pending |
+| ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
+| ESP32 LX6 Core2 | Current QEMU path has no WiFi MAC/PHY model; `esp-emu` native target list does not include classic ESP32 | Needs a separate WiFi/PHY model or a different runtime; not covered by the first network lane |
+| CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |
+
+Therefore “all simulated devices online” needs two scopes:
+
+1. **First scope:** S3/C6/P4 devices through the `esp-emu` network lane.
+2. **Full scope:** add a Core2 ESP32 LX6 network path and decide whether
+   CardputerZero network tests belong to the same product matrix.
+
 ## Recommended architecture
 
 Start with a separate network test lane instead of replacing the existing
@@ -126,11 +142,13 @@ itself. For untrusted firmware:
 | --- | --- | --- |
 | N0 | One-device UIFlow2 WiFi proof through `esp-emu` | 1–2 working days |
 | N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | 3–5 working days |
-| N2 | Attach the harness to all S3/C6 profiles and add reconnect/security cases | 3–5 working days |
+| N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | 3–5 working days |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |
-| N5 | Optional same-instance QEMU board + WiFi/radio model | 2–4 weeks |
+| N5 | Core2 ESP32 LX6 WiFi/PHY path or alternative runtime | 1–2 weeks |
+| N6 | Optional same-instance QEMU board + WiFi/radio model | 2–4 weeks |
 
-N0–N3 are the recommended scope before claiming “all simulated devices can go
-online.” N5 is only needed if a test must exercise WiFi and board peripherals
-in one guest process at the same time.
+N0–N3 are the recommended scope before claiming “all S3/C6/P4 simulated
+devices can go online.” N5 extends the claim to Core2. N6 is only needed if a
+test must exercise WiFi and board peripherals in one guest process at the same
+time.

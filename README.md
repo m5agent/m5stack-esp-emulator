@@ -27,8 +27,9 @@ Tab5 当前仍可完成虚拟烧录、UIFlow2 启动、1280×720 画面、触摸
 静态 I2C 探测；完整暂缓项与恢复条件见
 [`docs/tab5-deferred-backlog.md`](docs/tab5-deferred-backlog.md)。
 
-WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。现阶段建议把
-“QEMU 板级/UI 通道”和 `esp-emu` 网络通道分开验证，方案和验收矩阵见
+WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。S3/C6/P4 可以
+先复用 `esp-emu` 网络通道，Core2 的 ESP32 LX6 仍需单独的 WiFi/PHY 路径。
+现阶段建议把“QEMU 板级/UI 通道”和 `esp-emu` 网络通道分开验证，方案和验收矩阵见
 [`docs/network-simulation-plan.md`](docs/network-simulation-plan.md)。
 
 当前外设契约包含 65 个模型、60 个 `simulated` 模型、67 个 matrix case 和

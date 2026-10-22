@@ -167,6 +167,9 @@ verification exists.
   WiFi/Ethernet backends, but that path is not yet integrated into every device
   matrix. Keep board/UI evidence and network evidence separate until a
   same-instance implementation is verified.
+- The current `esp-emu` network lane covers S3/C6/P4, not Core2's ESP32 LX6.
+  Do not describe a Core2 WiFi test as supported until a separate LX6 WiFi/PHY
+  path or alternative runtime is implemented and verified.
 
 ## Remaining work
 
