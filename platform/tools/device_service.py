@@ -1409,7 +1409,7 @@ class DeviceService:
             "by_device": by_device,
             "modes": {
                 "network": "disabled",
-                "tab5": "disabled",
+                "tab5": "enabled-partial",
                 "flash": "prepared-cache + exact artifact",
             },
         }

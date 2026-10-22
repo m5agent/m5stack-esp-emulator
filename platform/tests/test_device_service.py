@@ -80,6 +80,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(capacity["max_sessions"], 2)
         self.assertEqual(capacity["max_per_device"], 1)
         self.assertEqual(capacity["modes"]["network"], "disabled")
+        self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
 
 class DeviceServiceHttpTests(unittest.TestCase):
