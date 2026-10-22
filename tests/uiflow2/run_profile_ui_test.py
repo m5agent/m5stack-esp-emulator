@@ -101,23 +101,32 @@ def build_image(args) -> Path:
 
 
 class QMP:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, timeout: float = 10.0):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.sock.settimeout(timeout)
         self.sock.connect(str(path))
-        self.file = self.sock.makefile("rwb")
-        self.file.readline()
+        self.buffer = bytearray()
+        self.readline()
         self.cmd("qmp_capabilities")
+
+    def readline(self):
+        while b"\n" not in self.buffer:
+            chunk = self.sock.recv(65536)
+            if not chunk:
+                raise RuntimeError("QMP connection closed")
+            self.buffer.extend(chunk)
+        end = self.buffer.index(b"\n") + 1
+        line = bytes(self.buffer[:end])
+        del self.buffer[:end]
+        return line
 
     def cmd(self, name, **arguments):
         request = {"execute": name}
         if arguments:
             request["arguments"] = arguments
-        self.file.write((json.dumps(request) + "\n").encode())
-        self.file.flush()
+        self.sock.sendall((json.dumps(request) + "\n").encode())
         while True:
-            line = self.file.readline()
-            if not line:
-                raise RuntimeError("QMP connection closed")
+            line = self.readline()
             reply = json.loads(line)
             if "event" not in reply:
                 if "error" in reply:
@@ -278,22 +287,37 @@ def pointer_events(
     return events
 
 
+def send_key_event(
+    qmp: QMP, key: str, down: bool, settle: float = 0.0
+) -> None:
+    event = {
+        "type": "key",
+        "data": {
+            "down": down,
+            "key": {"type": "qcode", "data": key},
+        },
+    }
+    qmp.cmd("input-send-event", events=[event])
+    if settle > 0:
+        time.sleep(settle)
+
+
 def send_input(
     qmp: QMP, spec: str, frame_size: tuple[int, int], settle: float
 ) -> None:
     kind, value = spec.split(":", 1)
     if kind == "key":
         for down in (True, False):
-            event = {
-                "type": "key",
-                "data": {
-                    "down": down,
-                    "key": {"type": "qcode", "data": value},
-                },
-            }
-            qmp.cmd("input-send-event", events=[event])
-            time.sleep(0.45)
+            send_key_event(qmp, value, down, settle=0.45)
         time.sleep(settle)
+        return
+    if kind in {"keydown", "keyup"}:
+        send_key_event(
+            qmp,
+            value,
+            down=kind == "keydown",
+            settle=min(max(settle, 0.0), 0.1),
+        )
         return
     if kind == "touch":
         x, y = map(int, value.split(","))

@@ -46,6 +46,10 @@ const stickViewer = await page.evaluate(async () => {
   const pixel = shell.display.getPixel(0, 0);
   shell.model.button('btnA').press('sim');
   shell.model.button('btnA').release('sim');
+  shell.model.button('btnB').press('sim');
+  shell.model.button('btnB').release('sim');
+  shell.model.button('btnPWR').press('sim');
+  shell.model.button('btnPWR').release('sim');
   shell.dispose();
   host.remove();
   return { pixel, events, frameSeq: shell.frameSeq };
@@ -53,7 +57,11 @@ const stickViewer = await page.evaluate(async () => {
 if (stickViewer.pixel.join(',') !== '255,0,0' || stickViewer.frameSeq !== 7) {
   throw new Error(`StickS3 framebuffer bridge failed: ${JSON.stringify(stickViewer)}`);
 }
-if (stickViewer.events.join(',') !== 'a:down:11,a:up:11') {
+if (stickViewer.events.join(',') !== [
+  'a:down:11', 'a:up:11',
+  'b:down:12', 'b:up:12',
+  'power:down:null', 'power:up:null'
+].join(',')) {
   throw new Error(`StickS3 input bridge failed: ${JSON.stringify(stickViewer)}`);
 }
 
@@ -125,7 +133,7 @@ if (tab5.count !== 17 || tab5.blockers !== 15) {
   throw new Error(`Tab5 blocker panel failed: ${JSON.stringify(tab5)}`);
 }
 
-await page.goto(`${base}/platform/web/sessions.html`, { waitUntil: 'networkidle' });
+await page.goto(`${base}/platform/web/sessions.html`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => document.querySelectorAll('#deviceSelect option').length >= 13);
 const sessionsUi = await page.evaluate(() => ({
   service: document.querySelector('#serviceSummary')?.textContent,
@@ -134,6 +142,26 @@ const sessionsUi = await page.evaluate(() => ({
 }));
 if (!sessionsUi.service?.includes('API online') || !sessionsUi.hasSessionList) {
   throw new Error(`sessions dashboard failed: ${JSON.stringify(sessionsUi)}`);
+}
+const firstCard = page.locator('.session-card').first();
+if (await firstCard.count()) {
+  const canvas = firstCard.locator('canvas');
+  if (await canvas.count()) {
+    await canvas.scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, 120));
+    const before = await page.evaluate(() => window.scrollY);
+    const box = await canvas.boundingBox();
+    if (!box) throw new Error('sessions canvas has no bounding box');
+    await page.mouse.move(box.x + box.width * .15, box.y + box.height * .5);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * .35, box.y + box.height * .35, { steps: 6 });
+    await page.mouse.up();
+    await page.waitForTimeout(2300);
+    const after = await page.evaluate(() => window.scrollY);
+    if (Math.abs(after - before) > 2) {
+      throw new Error(`sessions drag reset scroll: before=${before} after=${after}`);
+    }
+  }
 }
 
 await page.goto(`${base}/devices/esp32-s3/stopwatch/web/index.html`, { waitUntil: 'domcontentloaded' });

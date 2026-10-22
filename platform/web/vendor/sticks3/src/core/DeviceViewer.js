@@ -365,6 +365,7 @@ export class DeviceViewer extends EventEmitter {
   }
 
   #pointerDown(e) {
+    if (e.cancelable) e.preventDefault();
     Speaker.unlock();
     const canvas = this.renderer.domElement;
     canvas.setPointerCapture(e.pointerId);
@@ -389,12 +390,14 @@ export class DeviceViewer extends EventEmitter {
   #pointerMove(e) {
     const cap = this.#captures.get(e.pointerId);
     if (cap) {
+      if (e.cancelable) e.preventDefault();
       const hit = this.pick(e, [cap.component.object3d]);
       cap.component.onPointerMove(this.#info(e, hit?.component === cap.component ? hit.intersection : null));
       return;
     }
     const drag = this.#drags.get(e.pointerId);
     if (!drag) return this.#updateHover(e);
+    if (e.cancelable) e.preventDefault();
 
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
     const now = performance.now();
@@ -418,6 +421,7 @@ export class DeviceViewer extends EventEmitter {
   }
 
   #pointerUp(e, cancelled) {
+    if (e.cancelable) e.preventDefault();
     const canvas = this.renderer.domElement;
     if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
     const cap = this.#captures.get(e.pointerId);

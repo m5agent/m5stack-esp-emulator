@@ -1,5 +1,8 @@
 const ACTIVE_STATES = new Set(['provisioning', 'flashing', 'booting', 'running']);
 const THREE_PREVIEW_LIMIT = 4;
+const FRAME_INTERVAL_MS = 125;
+const HIDDEN_FRAME_INTERVAL_MS = 1000;
+const CONTROL_RELEASE_TIMEOUT_MS = 5000;
 
 const state = {
   devices: [],
@@ -12,6 +15,7 @@ const state = {
   token: sessionStorage.getItem('m5-service-token') || '',
   busy: false,
   showHistory: false,
+  frameLoopStarted: false,
 };
 
 const $ = id => document.getElementById(id);
@@ -85,8 +89,13 @@ class SessionVisual {
     this.shell = null;
     this.frameBlob = null;
     this.frameUrl = null;
+    this.lastFrameHash = null;
     this.lastFrameAt = 0;
+    this.lastFrameAttemptAt = 0;
     this.frameApply = Promise.resolve();
+    this.controlQueues = new Map();
+    this.activeControls = new Set();
+    this.controlReleaseTimers = new Map();
     this.destroyed = false;
     this.allowThree = allowThree;
     this.threeAttempted = false;
@@ -100,6 +109,7 @@ class SessionVisual {
 
   updateSession(session) {
     this.session = session;
+    if (!ACTIVE_STATES.has(session.state)) this.releaseActiveControls();
     if (!this.frameBlob && !this.shell) {
       this.placeholder = framePlaceholder(session);
       this.setMessage(this.placeholder);
@@ -138,8 +148,8 @@ class SessionVisual {
     if (this.destroyed || !['sticks3-three', 'cores3-three'].includes(renderer)) return;
     try {
       const module = renderer === 'cores3-three'
-        ? await import('/platform/web/cores3-viewer.js?v=20261022c')
-        : await import('/platform/web/sticks3-viewer.js?v=20261022c');
+        ? await import('/platform/web/cores3-viewer.js?v=20261022e')
+        : await import('/platform/web/sticks3-viewer.js?v=20261022e');
       const Shell = renderer === 'cores3-three'
         ? module.CoreS3ThreeShell
         : module.StickS3ThreeShell;
@@ -148,15 +158,7 @@ class SessionVisual {
       this.container.classList.add('is-three');
       this.shell = new Shell(this.container, profile);
       this.shell.setViewMode('shell');
-      this.shell.on('control', ({ id, down }) => {
-        if (!down || this.session.state !== 'running') return;
-        const key = id === 'power' ? 'p' : id;
-        api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/input`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kind: 'key', key, settle_seconds: 0.05 }),
-        }).catch(error => console.warn('Session key injection failed.', error));
-      });
+      this.shell.on('control', event => this.handleControl(event));
       this.shell.on('touch', ({ x, y, action }) => {
         if (action !== 'start' || this.session.state !== 'running') return;
         api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/input`, {
@@ -180,8 +182,9 @@ class SessionVisual {
     this.container.innerHTML = `<span class="no-frame">${escapeHtml(message)}</span>`;
   }
 
-  setFrame(blob) {
+  setFrame(blob, hash = null) {
     this.frameBlob = blob;
+    this.lastFrameHash = hash;
     this.lastFrameAt = Date.now();
     if (this.shell) return this.applyThreeFrame();
     this.setGenericFrame(blob);
@@ -213,8 +216,61 @@ class SessionVisual {
     this.container.classList.add('has-frame');
   }
 
+  controlKey(id) {
+    return id === 'power' ? 'p' : id;
+  }
+
+  handleControl({ id, down }) {
+    if (this.session.state !== 'running') return;
+    const key = this.controlKey(id);
+    if (down) {
+      this.activeControls.add(key);
+      clearTimeout(this.controlReleaseTimers.get(key));
+      this.enqueueControl(key, 'down');
+      this.controlReleaseTimers.set(
+        key,
+        setTimeout(() => {
+          this.activeControls.delete(key);
+          this.enqueueControl(key, 'up');
+        }, CONTROL_RELEASE_TIMEOUT_MS),
+      );
+      return;
+    }
+    clearTimeout(this.controlReleaseTimers.get(key));
+    this.controlReleaseTimers.delete(key);
+    this.activeControls.delete(key);
+    this.enqueueControl(key, 'up');
+  }
+
+  enqueueControl(key, action, keepalive = false) {
+    const previous = this.controlQueues.get(key) || Promise.resolve();
+    const request = previous
+      .catch(() => {})
+      .then(() => api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/input`, {
+        method: 'POST',
+        keepalive,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'key', key, action, settle_seconds: 0.02 }),
+      }))
+      .catch(error => console.warn(`Session key ${action} injection failed.`, error));
+    this.controlQueues.set(key, request);
+    request.finally(() => {
+      if (this.controlQueues.get(key) === request) this.controlQueues.delete(key);
+    });
+  }
+
+  releaseActiveControls() {
+    for (const key of this.activeControls) {
+      this.enqueueControl(key, 'up', true);
+      clearTimeout(this.controlReleaseTimers.get(key));
+    }
+    this.activeControls.clear();
+    this.controlReleaseTimers.clear();
+  }
+
   destroy() {
     this.destroyed = true;
+    this.releaseActiveControls();
     this.shell?.dispose();
     this.shell = null;
     if (this.frameUrl) URL.revokeObjectURL(this.frameUrl);
@@ -337,12 +393,19 @@ function render() {
     state.deviceStates.delete(sessionId);
     card.remove();
   }
+  // Moving an existing card detaches its canvas, cancels pointer capture and
+  // can make an active 3D drag jump the document to the top.
+  let cursor = list.firstElementChild;
   for (const [index, session] of wanted.entries()) {
     const allowThree = index < THREE_PREVIEW_LIMIT;
     const card = existing.get(session.session_id) || createSessionCard(session, allowThree);
     state.visuals.get(session.session_id)?.setThreeAllowed(allowThree);
     updateSessionCard(card, session);
-    list.append(card);
+    if (card === cursor) {
+      cursor = card.nextElementSibling;
+    } else {
+      list.insertBefore(card, cursor);
+    }
   }
 }
 
@@ -401,15 +464,12 @@ async function refreshSessions() {
     const serialSessions = state.sessions.filter(
       session => ACTIVE_STATES.has(session.state) || session.serial_bytes > 0
     );
-    const frameSessions = state.sessions.filter(
-      session => ACTIVE_STATES.has(session.state) || session.last_frame_available
-    );
     const stateSessions = state.sessions.filter(session => session.device_state_supported);
     await Promise.all([
       ...serialSessions.map(refreshSerial),
-      ...frameSessions.map(refreshFrame),
       ...stateSessions.map(refreshDeviceState),
     ]);
+    startFrameLoop();
   } catch (error) {
     showError(error.message);
   } finally {
@@ -445,8 +505,11 @@ async function refreshSerial(session) {
 async function refreshFrame(session) {
   const visual = state.visuals.get(session.session_id);
   if (!visual) return;
-  if (!ACTIVE_STATES.has(session.state) && visual.frameBlob) return;
-  if (visual.frameBlob && Date.now() - visual.lastFrameAt < 5000) return;
+  const active = ACTIVE_STATES.has(session.state);
+  if (!active) {
+    if (visual.frameBlob || Date.now() - visual.lastFrameAttemptAt < 5000) return;
+    visual.lastFrameAttemptAt = Date.now();
+  }
   const headers = new Headers();
   if (state.token) headers.set('Authorization', `Bearer ${state.token}`);
   try {
@@ -455,10 +518,28 @@ async function refreshFrame(session) {
       { headers }
     );
     if (!response.ok) throw new Error(`frame ${response.status}`);
-    await visual.setFrame(await response.blob());
+    const hash = response.headers.get('X-Frame-SHA256');
+    if (hash && hash === visual.lastFrameHash) return;
+    await visual.setFrame(await response.blob(), hash);
   } catch {
-    visual.setMessage(framePlaceholder(session));
+    if (!visual.frameBlob) visual.setMessage(framePlaceholder(session));
   }
+}
+
+function startFrameLoop() {
+  if (state.frameLoopStarted) return;
+  state.frameLoopStarted = true;
+  const tick = async () => {
+    const started = performance.now();
+    const frameSessions = state.sessions.filter(
+      session => ACTIVE_STATES.has(session.state) || session.last_frame_available
+    );
+    await Promise.allSettled(frameSessions.map(refreshFrame));
+    const interval = document.hidden ? HIDDEN_FRAME_INTERVAL_MS : FRAME_INTERVAL_MS;
+    const elapsed = performance.now() - started;
+    setTimeout(tick, Math.max(16, interval - elapsed));
+  };
+  tick();
 }
 
 async function refreshDeviceState(session) {
@@ -627,7 +708,7 @@ async function init() {
   } catch (error) {
     showError(error.message);
   }
-  setInterval(refreshSessions, 2500);
+  setInterval(refreshSessions, 2000);
 }
 
 window.addEventListener('beforeunload', () => {

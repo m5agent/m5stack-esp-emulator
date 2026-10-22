@@ -57,7 +57,7 @@ from firmware_analysis import analyze_firmware, expected_chip_id  # noqa: E402
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 DEFAULT_MAX_SESSIONS = 12
 DEFAULT_MAX_PER_DEVICE = 8
-QMP_COMMAND_TIMEOUT = 10
+QMP_COMMAND_TIMEOUT = 2
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
@@ -683,6 +683,7 @@ class DeviceSession:
         self._qmp: QMP | None = None
         self._lock = threading.RLock()
         self._stop_event = threading.Event()
+        self._last_frame_persisted_at = 0.0
         self.events: list[dict] = [dict(event) for event in (events or [])]
         self.restored = restored
         self.interrupted = interrupted
@@ -989,8 +990,16 @@ class DeviceSession:
                         found_markers.append(marker)
                         first_serial_at = first_serial_at or iso_now()
                         self._record_event("serial_marker", marker=marker)
+            serial_ready = (
+                not serial_markers
+                or (
+                    len(found_markers) == len(serial_markers)
+                    if require_all
+                    else bool(found_markers)
+                )
+            )
             frame_ready = False
-            if frame_nonblank:
+            if frame_nonblank and (serial_ready or not serial_markers or not require_all):
                 try:
                     last_frame = self.frame_metrics()
                     frame_ready = (
@@ -1006,14 +1015,6 @@ class DeviceSession:
                         )
                 except ServiceError:
                     frame_ready = False
-            serial_ready = (
-                not serial_markers
-                or (
-                    len(found_markers) == len(serial_markers)
-                    if require_all
-                    else bool(found_markers)
-                )
-            )
             criteria = [
                 criterion
                 for criterion, matched in (
@@ -1085,7 +1086,9 @@ class DeviceSession:
             "bytes": len(chunk),
         }
 
-    def frame_metrics(self) -> dict:
+    def frame_metrics(
+        self, *, analyze: bool = True, force_persist: bool = False
+    ) -> dict:
         if not self.spec.has_display:
             raise ServiceError(
                 "display_not_available",
@@ -1107,17 +1110,19 @@ class DeviceSession:
                 width, height, pixels = read_ppm(ppm)
                 write_rgb_png(png, width, height, pixels)
                 png_bytes = png.read_bytes()
-                nonblack, unique_colors = rgb_metrics(pixels)
                 metrics = {
                     "png": png_bytes,
                     "width": width,
                     "height": height,
-                    "nonblack_pixels": nonblack,
-                    "unique_colors": unique_colors,
                     "png_bytes": len(png_bytes),
                     "source": "live",
                 }
-                self._persist_frame(metrics)
+                if analyze:
+                    nonblack, unique_colors = rgb_metrics(pixels)
+                    metrics["nonblack_pixels"] = nonblack
+                    metrics["unique_colors"] = unique_colors
+                if force_persist or time.monotonic() - self._last_frame_persisted_at >= 1:
+                    self._persist_frame(metrics)
                 return metrics
             finally:
                 ppm.unlink(missing_ok=True)
@@ -1138,6 +1143,7 @@ class DeviceSession:
             )
             + "\n"
         )
+        self._last_frame_persisted_at = time.monotonic()
 
     def persisted_frame_metrics(self) -> dict | None:
         if not self.last_frame_path.is_file():
@@ -1157,7 +1163,7 @@ class DeviceSession:
         }
 
     def frame_png(self) -> tuple[bytes, int, int]:
-        metrics = self.frame_metrics()
+        metrics = self.frame_metrics(analyze=False)
         return metrics["png"], metrics["width"], metrics["height"]
 
     def device_state(self) -> dict:
@@ -1249,11 +1255,23 @@ class DeviceSession:
             )
         settle = float(payload.get("settle_seconds", 0.3))
         kind = payload.get("kind")
+        action = str(payload.get("action", "tap")).lower()
         if kind == "key":
             key = str(payload.get("key", ""))
             if not key:
                 raise ServiceError("invalid_input", "key is required", 400)
-            spec = f"key:{key}"
+            if action == "tap":
+                spec = f"key:{key}"
+            elif action in {"down", "up"}:
+                spec = f"key{action}:{key}"
+                if "settle_seconds" not in payload:
+                    settle = 0.02
+            else:
+                raise ServiceError(
+                    "invalid_input",
+                    "key action must be tap, down or up",
+                    400,
+                )
         elif kind == "touch":
             spec = f"touch:{int(payload.get('x', 0))},{int(payload.get('y', 0))}"
         elif kind == "longpress":
@@ -1275,8 +1293,13 @@ class DeviceSession:
         frame_size = self.spec.expected_size or (1, 1)
         with self._lock:
             send_input(self._qmp, spec, frame_size, settle)
-            self._record_event("input", spec=spec)
-        return {"session_id": self.id, "input": spec, "accepted": True}
+            self._record_event("input", spec=spec, action=action)
+        return {
+            "session_id": self.id,
+            "input": spec,
+            "action": action,
+            "accepted": True,
+        }
 
     def qom_set(self, payload: dict) -> dict:
         path = payload.get("path")
@@ -1631,7 +1654,7 @@ class DeviceSession:
                 return result
             if self.state == "running" and self.spec.has_display:
                 try:
-                    self.frame_metrics()
+                    self.frame_metrics(force_persist=True)
                 except ServiceError:
                     pass
             if self.state == "running" and self.spec.state_probes:
@@ -1786,7 +1809,9 @@ class Tab5DeviceSession(DeviceSession):
         except FileNotFoundError:
             pass
 
-    def frame_metrics(self) -> dict:
+    def frame_metrics(
+        self, *, analyze: bool = True, force_persist: bool = False
+    ) -> dict:
         if self.state not in {"running", "booting"} or self._gdb_port is None:
             persisted = self.persisted_frame_metrics()
             if persisted:
@@ -1814,24 +1839,26 @@ class Tab5DeviceSession(DeviceSession):
         write_tab5_png(png, width, height, pixels)
         try:
             png_bytes = png.read_bytes()
-            nonblack, unique_colors = rgb_metrics(pixels)
             metrics = {
                 "png": png_bytes,
                 "width": width,
                 "height": height,
-                "nonblack_pixels": nonblack,
-                "unique_colors": unique_colors,
                 "png_bytes": len(png_bytes),
                 "source": "live",
             }
-            self._persist_frame(metrics)
+            if analyze:
+                nonblack, unique_colors = rgb_metrics(pixels)
+                metrics["nonblack_pixels"] = nonblack
+                metrics["unique_colors"] = unique_colors
+            if force_persist or time.monotonic() - self._last_frame_persisted_at >= 1:
+                self._persist_frame(metrics)
             return metrics
         finally:
             png.unlink(missing_ok=True)
             (self.dir / f"{name}.rgb565").unlink(missing_ok=True)
 
     def frame_png(self) -> tuple[bytes, int, int]:
-        metrics = self.frame_metrics()
+        metrics = self.frame_metrics(analyze=False)
         return metrics["png"], metrics["width"], metrics["height"]
 
     def inject(self, payload: dict) -> dict:
@@ -1924,7 +1951,7 @@ class Tab5DeviceSession(DeviceSession):
                 return result
             if self.state == "running" and self.spec.has_display:
                 try:
-                    self.frame_metrics()
+                    self.frame_metrics(force_persist=True)
                 except ServiceError:
                     pass
             self.state = "stopping"

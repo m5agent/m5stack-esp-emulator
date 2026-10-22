@@ -1020,6 +1020,13 @@ components:
               const: key
             key:
               type: string
+            action:
+              type: string
+              enum: [tap, down, up]
+              default: tap
+              description: >
+                Omit or use tap for a complete press/release. Use down and up
+                separately for a model button that is physically held.
             settle_seconds:
               type: number
         - type: object

@@ -1,4 +1,4 @@
-import { ThreeDeviceShell } from './three-device-viewer.js';
+import { ThreeDeviceShell } from './three-device-viewer.js?v=20261022e';
 import { CoreS3 } from './vendor/sticks3/src/devices/cores3/CoreS3.js';
 
 export class CoreS3ThreeShell extends ThreeDeviceShell {

@@ -1,4 +1,4 @@
-import { ThreeDeviceShell } from './three-device-viewer.js';
+import { ThreeDeviceShell } from './three-device-viewer.js?v=20261022e';
 import { StickS3 } from './vendor/sticks3/src/devices/sticks3/StickS3.js';
 
 export class StickS3ThreeShell extends ThreeDeviceShell {

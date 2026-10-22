@@ -1,4 +1,4 @@
-import { DeviceViewer } from './vendor/sticks3/src/core/DeviceViewer.js';
+import { DeviceViewer } from './vendor/sticks3/src/core/DeviceViewer.js?v=20261022e';
 
 function node(tag, className, text = null) {
   const element = document.createElement(tag);

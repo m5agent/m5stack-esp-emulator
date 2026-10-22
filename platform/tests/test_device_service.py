@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import io
+import socket
 import sys
 import tempfile
 import threading
@@ -21,6 +22,7 @@ from device_service import (
     DEFAULT_MAX_SESSIONS,
     DeviceService,
     DeviceSession,
+    QMP,
     ServiceError,
 )
 from serve import Handler
@@ -218,6 +220,70 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertIsNone(session._qmp)
         session.state = "stopped"
         session._proc = None
+
+    def test_physical_key_down_and_up_are_distinct_qmp_events(self):
+        session = self._stopped_session()
+        session.state = "running"
+
+        class FakeProcess:
+            def poll(self):
+                return None
+
+        class RecordingQMP:
+            def __init__(self):
+                self.calls = []
+
+            def cmd(self, name, **arguments):
+                self.calls.append((name, arguments))
+                return {"return": {}}
+
+        qmp = RecordingQMP()
+        session._proc = FakeProcess()
+        session._qmp = qmp
+        session.inject({"kind": "key", "key": "a", "action": "down"})
+        session.inject({"kind": "key", "key": "a", "action": "up"})
+
+        key_events = [
+            call[1]["events"][0]["data"]["down"]
+            for call in qmp.calls
+            if call[0] == "input-send-event"
+        ]
+        self.assertEqual(key_events, [True, False])
+        input_events = [
+            event["spec"] for event in session.events if event["event"] == "input"
+        ]
+        self.assertEqual(input_events, ["keydown:a", "keyup:a"])
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_qmp_command_read_honors_socket_timeout(self):
+        socket_path = Path(self.tmp.name) / "qmp-timeout.sock"
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.bind(str(socket_path))
+        server.listen(1)
+
+        def serve():
+            connection, _ = server.accept()
+            try:
+                connection.sendall(b'{"QMP":{"version":{}}}\n')
+                connection.recv(4096)
+                connection.sendall(b'{"return":{}}\n')
+                connection.recv(4096)
+                threading.Event().wait(0.5)
+            finally:
+                connection.close()
+
+        thread = threading.Thread(target=serve, daemon=True)
+        thread.start()
+        qmp = QMP(socket_path, timeout=0.1)
+        try:
+            with self.assertRaises(TimeoutError):
+                qmp.cmd("screendump", filename="never-created.ppm")
+        finally:
+            qmp.close()
+            server.close()
+            thread.join(timeout=1)
 
     def test_sticks3_device_state_probe_and_persisted_fallback(self):
         session = self._stopped_session()

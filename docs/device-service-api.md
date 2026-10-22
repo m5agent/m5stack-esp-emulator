@@ -376,8 +376,11 @@ curl -sS \
   -o /tmp/device.png
 ```
 
-The response headers include `X-Frame-Width` and `X-Frame-Height`.
-For a recently stopped session it returns the persisted last-known frame.
+The response headers include `X-Frame-Width`, `X-Frame-Height` and
+`X-Frame-SHA256`. The Live Sessions page polls active framebuffers independently
+from session metadata, targets about 8 FPS, and skips texture updates when the
+frame hash is unchanged. For a recently stopped session it returns the persisted
+last-known frame.
 
 ### Inject input
 
@@ -385,6 +388,14 @@ Key:
 
 ```json
 {"kind":"key","key":"a","settle_seconds":0.3}
+```
+
+Physical hold uses separate key-down and key-up requests. The Live Sessions 3D
+shells use this form so a model button is down only while the pointer is held:
+
+```json
+{"kind":"key","key":"a","action":"down","settle_seconds":0.02}
+{"kind":"key","key":"a","action":"up","settle_seconds":0.02}
 ```
 
 Touch:

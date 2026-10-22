@@ -5,10 +5,10 @@ export async function createDeviceShell(host, device) {
   if (renderer === 'sticks3-three' || renderer === 'cores3-three') {
     try {
       if (renderer === 'cores3-three') {
-        const { CoreS3ThreeShell } = await import('./cores3-viewer.js?v=20261022c');
+        const { CoreS3ThreeShell } = await import('./cores3-viewer.js?v=20261022e');
         return new CoreS3ThreeShell(host, device);
       }
-      const { StickS3ThreeShell } = await import('./sticks3-viewer.js?v=20261022c');
+      const { StickS3ThreeShell } = await import('./sticks3-viewer.js?v=20261022e');
       return new StickS3ThreeShell(host, device);
     } catch (error) {
       console.warn(`${device.name} three.js renderer unavailable; using the generic shell.`, error);

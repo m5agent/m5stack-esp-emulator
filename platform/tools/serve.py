@@ -7,6 +7,7 @@ consistently. Adds the read-only catalog plus the /api/v1 leased device API.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import hmac
 import json
 import mimetypes
@@ -378,6 +379,7 @@ class Handler(SimpleHTTPRequestHandler):
                         "X-Request-ID": request_id,
                         "X-Frame-Width": str(width),
                         "X-Frame-Height": str(height),
+                        "X-Frame-SHA256": hashlib.sha256(png).hexdigest(),
                     },
                 )
                 return

@@ -52,6 +52,8 @@
   height: 420px;
   min-height: 420px;
   overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: none;
   background:
     radial-gradient(circle at 50% 35%, rgba(70, 91, 118, .18), transparent 44%),
     #080d14;
