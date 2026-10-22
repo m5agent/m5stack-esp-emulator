@@ -15,6 +15,15 @@ representation of most M5Stack products.
 - StopWatch has a dedicated SVG shell, a 466×466 circular screen opening,
   physical side-key geometry, screen glare and a real firmware framebuffer
   mapping. It is the reference-quality implementation.
+- StickS3 now has a dedicated three.js shell with physical millimetre geometry,
+  modelled side/top/bottom ports and keys, and the real RGB565 framebuffer
+  mapping. See `sticks3-three-renderer.md`; this is still simulation evidence,
+  not real-hardware industrial-design validation.
+- CoreS3 now has a dedicated three.js shell built from the official 54 × 54 ×
+  15.5 mm module dimensions and the reference DinBase silhouette. It includes
+  the real 320 × 240 active LCD, glass, camera/LED/sensor cluster, side USB-C,
+  M-Bus connector, Grove connectors and mounting ears. See
+  `cores3-three-renderer.md`.
 - Other devices use the generic `M5DeviceShell` renderer with pixel-based
   layouts, simplified CSS decorations and official cutout images.
 - The generic shells are useful for layout and interaction, but their body
@@ -103,7 +112,8 @@ is archived.
 ### Hardest and highest visual value
 
 - Tab5: large tablet body, thin bezel, camera/sensor area, ports and stand.
-- CoreS3: square body, camera, bezel, side controls and rear details.
+- CoreS3: baseline 3D shell is implemented; back labels, exact screw/casting
+  detailing and hardware-calibrated material response remain refinement work.
 - Cardputer-ADV: keyboard, trackball, speaker, hinge-like body and thickness.
 - CardputerZero: keyboard, proportion differences and body finish.
 - StackChan: servos, arms, head, camera, mechanical motion and stand.
@@ -114,7 +124,6 @@ is archived.
 
 - Core2
 - Arduino Nesso N1
-- StickS3
 - AtomS3R
 - NanoC6
 

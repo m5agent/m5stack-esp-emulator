@@ -91,10 +91,12 @@ Implemented on 2026-10-22:
 - merged/segmented firmware composition;
 - prepared-flash cache plus per-session isolated flash copy;
 - serial, frame, input, QOM, reset and log APIs.
+- restart-safe stopped/failed session history, events, last frame and device
+  state; active processes are marked interrupted rather than silently lost.
 
 Still backlog:
 
-- durable sessions across service restart;
+- resumable active emulator processes across service restart;
 - prestarted warm pool;
 - remote worker scheduling and multi-host capacity;
 - untrusted-firmware isolation and quota enforcement;

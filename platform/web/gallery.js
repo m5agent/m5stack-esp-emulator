@@ -1,4 +1,4 @@
-import { M5DeviceShell } from './device-shell.js?v=20261020a';
+import { createDeviceShell } from './device-shell-factory.js?v=20261022c';
 
 const $ = id => document.getElementById(id);
 const state = {
@@ -96,7 +96,7 @@ async function selectDevice(path) {
   $('stageTitle').textContent = device.name;
   $('stageSub').textContent = `${device.group_label} · ${device.hardware.soc}`;
   for (const old of [$('deviceMount')]) old.innerHTML = '';
-  state.shell = new M5DeviceShell($('deviceMount'), device);
+  state.shell = await createDeviceShell($('deviceMount'), device);
   for (const button of $('viewToggle').querySelectorAll('button')) {
     button.addEventListener('click', () => {
       for (const item of $('viewToggle').querySelectorAll('button')) item.classList.toggle('active', item === button);

@@ -119,6 +119,22 @@ blocker instead of spending more time on host-side workarounds.
 - Runtime state transitions belong in `qom_steps`; use
   `qom_sequence_settle` and serial wait markers where ordering matters.
 
+## Virtual-device functional-test routing
+
+- General firmware functional tests, including uploaded UIFlow2 images, must
+  use the Device Service at `/api/v1` on port `8787`: upload/compose firmware,
+  create a visible session, collect serial/frame/state/input/QOM evidence, and
+  stop it with `purge=0` so it remains in history.
+- Do not start `run_profile_ui_test.py`, `run_peripheral_matrix.py`, or QEMU
+  directly for an agent-triggered functional test. Direct runners are for
+  repository regression development and do not create observable sessions.
+- The firmware review control plane is only for explicit M5Burner pending
+  review, approval, rejection, or publication workflows. A functional test is
+  not a firmware review request.
+- Calls made through the review control plane must still use Device Service
+  sessions, so the same execution is visible in Live sessions and retained
+  after the review worker finishes.
+
 ## Device onboarding
 
 1. Add the device to `devices/catalog.source.json`.

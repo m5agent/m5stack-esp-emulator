@@ -55,8 +55,8 @@ from run_tab5_ui_test import (  # noqa: E402
 from firmware_analysis import analyze_firmware, expected_chip_id  # noqa: E402
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
-DEFAULT_MAX_SESSIONS = 8
-DEFAULT_MAX_PER_DEVICE = 6
+DEFAULT_MAX_SESSIONS = 12
+DEFAULT_MAX_PER_DEVICE = 8
 QMP_COMMAND_TIMEOUT = 10
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
@@ -89,6 +89,17 @@ def parse_size(value: str | None) -> tuple[int, int] | None:
         return int(width), int(height)
     except ValueError:
         return None
+
+
+def atomic_write_json(path: Path, payload: Any) -> None:
+    """Write JSON without exposing a partially-written session record."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    temporary.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+    )
+    os.replace(temporary, path)
 
 
 class ServiceError(Exception):
@@ -133,6 +144,7 @@ class DeviceSpec:
     c6_firmware: Path | None
     peripheral_status: str
     warnings: list[str]
+    state_probes: dict[str, dict[str, Any]]
     reason: str | None
 
     @property
@@ -266,6 +278,11 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 "simulated" if supported else "not-applicable",
             ),
             warnings=list(profile.get("blockers", [])),
+            state_probes=(
+                profile.get("runtime_state", {})
+                if isinstance(profile.get("runtime_state", {}), dict)
+                else {}
+            ),
             reason=reason,
         )
     return specs
@@ -610,6 +627,15 @@ class DeviceSession:
         ready_marker: str | None,
         ready_timeout: float,
         ready_conditions: dict | None,
+        events: list[dict] | None = None,
+        created_at: str | None = None,
+        completed_at: str | None = None,
+        expires_at: float | None = None,
+        initial_state: str = "provisioning",
+        error: str | None = None,
+        flash_info: dict | None = None,
+        restored: bool = False,
+        interrupted: bool = False,
     ):
         self.service = service
         self.id = session_id
@@ -623,13 +649,15 @@ class DeviceSession:
         self.ready_marker = ready_marker
         self.ready_timeout = ready_timeout
         self.ready_conditions = ready_conditions or {}
-        self.created_at = iso_now()
-        self.completed_at: str | None = None
-        self.expires_at = time.time() + ttl_seconds
-        self.state = "provisioning"
-        self.error: str | None = None
+        self.created_at = created_at or iso_now()
+        self.completed_at = completed_at
+        self.expires_at = (
+            expires_at if expires_at is not None else time.time() + ttl_seconds
+        )
+        self.state = initial_state
+        self.error = error
         self.pid: int | None = None
-        self.flash_info: dict | None = None
+        self.flash_info = flash_info
         self.virtual_flash: Path | None = None
         self.qmp_path = Path("/tmp") / f"m5-service-{session_id}.sock"
         self.dir = service.state_dir / "sessions" / session_id
@@ -638,14 +666,23 @@ class DeviceSession:
         self.serial1 = self.dir / "serial1.log"
         self.last_frame_path = self.dir / "last-frame.png"
         self.last_frame_meta_path = self.dir / "last-frame.json"
+        self.device_state_path = self.dir / "device-state.json"
+        self.session_record_path = self.dir / "session.json"
+        self.events_path = self.dir / "events.json"
         self.stdout_path = self.dir / "qemu.stdout"
         self.stderr_path = self.dir / "qemu.stderr"
         self._proc: subprocess.Popen | None = None
         self._qmp: QMP | None = None
         self._lock = threading.RLock()
         self._stop_event = threading.Event()
-        self.events: list[dict] = []
-        self._record_event("created", device_id=spec.id, firmware_id=firmware_id)
+        self.events: list[dict] = [dict(event) for event in (events or [])]
+        self.restored = restored
+        self.interrupted = interrupted
+        if events is None:
+            self._record_event(
+                "created", device_id=spec.id, firmware_id=firmware_id
+            )
+        self._persist_session()
 
     def _record_event(self, event: str, **details) -> None:
         self.events.append(
@@ -655,6 +692,39 @@ class DeviceSession:
                 **details,
             }
         )
+        self._persist_events()
+
+    def _persist_events(self) -> None:
+        atomic_write_json(self.events_path, self.events)
+
+    def _session_record(self) -> dict:
+        return {
+            "schema_version": 1,
+            "session_id": self.id,
+            "device_id": self.spec.id,
+            "state": self.state,
+            "pid": self.pid,
+            "firmware_id": self.firmware_id,
+            "firmware_sha256": self.firmware_sha,
+            "firmware_source": self.firmware_source,
+            "source_artifacts": list(self.source_artifacts),
+            "flash": self.flash_info,
+            "ttl_seconds": self.ttl_seconds,
+            "ready_marker": self.ready_marker,
+            "ready_timeout_seconds": self.ready_timeout,
+            "ready_conditions": self.ready_conditions,
+            "created_at": self.created_at,
+            "expires_at": datetime.fromtimestamp(
+                self.expires_at, timezone.utc
+            ).isoformat(),
+            "completed_at": self.completed_at,
+            "error": self.error,
+            "restored": self.restored,
+            "interrupted": self.interrupted,
+        }
+
+    def _persist_session(self) -> None:
+        atomic_write_json(self.session_record_path, self._session_record())
 
     def snapshot(self) -> dict:
         with self._lock:
@@ -665,6 +735,11 @@ class DeviceSession:
             ):
                 self.state = "failed"
                 self.error = self.error or f"process exited with code {self._proc.returncode}"
+                self.completed_at = self.completed_at or iso_now()
+                self._record_event(
+                    "process_exited", returncode=self._proc.returncode
+                )
+                self._persist_session()
             serial_size = self.serial0.stat().st_size if self.serial0.exists() else 0
             frame_meta = {}
             if self.last_frame_meta_path.is_file():
@@ -672,6 +747,12 @@ class DeviceSession:
                     frame_meta = json.loads(self.last_frame_meta_path.read_text())
                 except json.JSONDecodeError:
                     frame_meta = {}
+            state_meta = {}
+            if self.device_state_path.is_file():
+                try:
+                    state_meta = json.loads(self.device_state_path.read_text())
+                except json.JSONDecodeError:
+                    state_meta = {}
             return {
                 "session_id": self.id,
                 "device_id": self.spec.id,
@@ -694,8 +775,13 @@ class DeviceSession:
                 "display": self.spec.display,
                 "last_frame_available": self.last_frame_path.is_file(),
                 "last_frame_captured_at": frame_meta.get("captured_at"),
+                "device_state_supported": bool(self.spec.state_probes),
+                "last_device_state_available": self.device_state_path.is_file(),
+                "last_device_state_at": state_meta.get("captured_at"),
                 "completed_at": self.completed_at,
                 "event_count": len(self.events),
+                "restored": self.restored,
+                "interrupted": self.interrupted,
             }
 
     def start(self) -> None:
@@ -711,6 +797,7 @@ class DeviceSession:
             previous = self.state
             self.state = state
             self._record_event("state", **{"from": previous, "to": state})
+            self._persist_session()
 
     def _provision(self) -> None:
         try:
@@ -725,6 +812,7 @@ class DeviceSession:
                 "session_isolated_copy": True,
             }
             self._record_event("flash_prepared", **self.flash_info)
+            self._persist_session()
             self._set_state("booting")
             self._launch()
             if self.ready_conditions:
@@ -741,7 +829,9 @@ class DeviceSession:
             with self._lock:
                 self.error = str(error)
                 self.state = "failed"
+                self.completed_at = self.completed_at or iso_now()
                 self._record_event("failed", error=str(error))
+                self._persist_session()
             self._terminate_process()
 
     def _launch(self) -> None:
@@ -794,6 +884,7 @@ class DeviceSession:
             stdout.close()
             stderr.close()
         self.pid = self._proc.pid
+        self._persist_session()
         self._qmp = wait_qmp(self.qmp_path, timeout=20)
         self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
 
@@ -1057,6 +1148,88 @@ class DeviceSession:
     def frame_png(self) -> tuple[bytes, int, int]:
         metrics = self.frame_metrics()
         return metrics["png"], metrics["width"], metrics["height"]
+
+    def device_state(self) -> dict:
+        if not self.spec.state_probes:
+            return {
+                "session_id": self.id,
+                "device_id": self.spec.id,
+                "state": self.state,
+                "supported": False,
+                "available": False,
+                "reason": "device_state_not_modelled",
+                "components": {},
+                "errors": {},
+            }
+        if self.state not in {"running", "booting"}:
+            if self.device_state_path.is_file():
+                try:
+                    persisted = json.loads(self.device_state_path.read_text())
+                    return {
+                        **persisted,
+                        "state": self.state,
+                        "source": "persisted",
+                    }
+                except json.JSONDecodeError:
+                    pass
+            return {
+                "session_id": self.id,
+                "device_id": self.spec.id,
+                "state": self.state,
+                "supported": True,
+                "available": False,
+                "reason": "session_not_running",
+                "components": {},
+                "errors": {},
+            }
+
+        components: dict[str, dict[str, Any]] = {}
+        errors: dict[str, dict[str, str]] = {}
+        for component_id, probe in self.spec.state_probes.items():
+            path = probe.get("path")
+            properties = probe.get("properties", [])
+            if not isinstance(path, str) or not isinstance(properties, list):
+                errors[component_id] = {
+                    "probe": "invalid runtime_state probe"
+                }
+                continue
+            values: dict[str, Any] = {}
+            component_errors: dict[str, str] = {}
+            for prop in properties:
+                if not isinstance(prop, str):
+                    continue
+                try:
+                    with self._lock:
+                        result = self._qmp_call(
+                            "qom-get", path=path, property=prop
+                        )
+                    values[prop] = result.get("return")
+                except ServiceError as error:
+                    component_errors[prop] = error.message
+            if values:
+                components[component_id] = {
+                    "path": path,
+                    "properties": values,
+                }
+            if component_errors:
+                errors[component_id] = component_errors
+
+        response = {
+            "session_id": self.id,
+            "device_id": self.spec.id,
+            "state": self.state,
+            "supported": True,
+            "available": bool(components),
+            "source": "live",
+            "captured_at": iso_now(),
+            "components": components,
+            "errors": errors,
+        }
+        if components:
+            self.device_state_path.write_text(
+                json.dumps(response, ensure_ascii=False, indent=2) + "\n"
+            )
+        return response
 
     def inject(self, payload: dict) -> dict:
         if self.state != "running":
@@ -1415,6 +1588,7 @@ class DeviceSession:
     def renew(self, ttl_seconds: int) -> dict:
         self.ttl_seconds = ttl_seconds
         self.expires_at = time.time() + ttl_seconds
+        self._persist_session()
         return self.snapshot()
 
     def _terminate_process(self) -> None:
@@ -1449,6 +1623,11 @@ class DeviceSession:
                     self.frame_metrics()
                 except ServiceError:
                     pass
+            if self.state == "running" and self.spec.state_probes:
+                try:
+                    self.device_state()
+                except ServiceError:
+                    pass
             self.state = "stopping"
             if self._qmp is not None:
                 try:
@@ -1460,6 +1639,7 @@ class DeviceSession:
             self.completed_at = iso_now()
             self._record_event("stopped", purge=purge)
             result = self.snapshot()
+            self._persist_session()
         if purge:
             shutil.rmtree(self.dir, ignore_errors=True)
         return result
@@ -1487,6 +1667,7 @@ class Tab5DeviceSession(DeviceSession):
                 "session_isolated_copy": True,
             }
             self._record_event("flash_prepared", **self.flash_info)
+            self._persist_session()
             self._set_state("booting")
             self._launch_tab5()
             if self.ready_conditions:
@@ -1503,7 +1684,9 @@ class Tab5DeviceSession(DeviceSession):
             with self._lock:
                 self.error = str(error)
                 self.state = "failed"
+                self.completed_at = self.completed_at or iso_now()
                 self._record_event("failed", error=str(error))
+                self._persist_session()
             self._terminate_tab5()
 
     def _launch_tab5(self) -> None:
@@ -1562,6 +1745,7 @@ class Tab5DeviceSession(DeviceSession):
             p4_stdout.close()
             p4_stderr.close()
         self.pid = self._proc.pid
+        self._persist_session()
         wait_for_tcp_port(self._gdb_port, self._proc, 25)
 
     def _terminate_tab5(self) -> None:
@@ -1733,6 +1917,7 @@ class Tab5DeviceSession(DeviceSession):
             self.completed_at = iso_now()
             self._record_event("stopped", purge=purge)
             result = self.snapshot()
+            self._persist_session()
         if purge:
             shutil.rmtree(self.dir, ignore_errors=True)
         return result
@@ -1766,6 +1951,7 @@ class DeviceService:
         self._lock = threading.RLock()
         self._flash_lock = threading.Lock()
         self._reference_cache: dict[str, dict] = {}
+        self._restore_history()
         self._stop = threading.Event()
         self._janitor = threading.Thread(
             target=self._janitor_loop,
@@ -1773,6 +1959,131 @@ class DeviceService:
             daemon=True,
         )
         self._janitor.start()
+
+    def _restore_history(self) -> None:
+        """Restore retained metadata without reviving old QEMU processes."""
+
+        sessions_root = self.state_dir / "sessions"
+        if not sessions_root.is_dir():
+            return
+        for record_path in sorted(
+            sessions_root.glob("*/session.json"),
+            key=lambda path: path.name,
+        ):
+            try:
+                record = json.loads(record_path.read_text())
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not isinstance(record, dict):
+                continue
+            session_id = record.get("session_id")
+            device_id = record.get("device_id")
+            if (
+                not isinstance(session_id, str)
+                or session_id != record_path.parent.name
+                or not isinstance(device_id, str)
+            ):
+                continue
+            spec = self.specs.get(device_id)
+            if spec is None or session_id in self._sessions:
+                continue
+            persisted_state = str(record.get("state") or "failed")
+            interrupted = persisted_state in ACTIVE_STATES or persisted_state == "stopping"
+            restored_state = "failed" if interrupted else persisted_state
+            if restored_state not in {"stopped", "failed"}:
+                restored_state = "failed"
+                interrupted = True
+            events: list[dict] = []
+            events_path = record_path.parent / "events.json"
+            if events_path.is_file():
+                try:
+                    loaded_events = json.loads(events_path.read_text())
+                    if isinstance(loaded_events, list):
+                        events = [
+                            event for event in loaded_events if isinstance(event, dict)
+                        ]
+                except (OSError, json.JSONDecodeError):
+                    events = []
+            try:
+                expires_at = datetime.fromisoformat(
+                    str(record.get("expires_at")).replace("Z", "+00:00")
+                ).timestamp()
+            except (TypeError, ValueError):
+                expires_at = time.time()
+            completed_at = record.get("completed_at")
+            if interrupted and not completed_at:
+                completed_at = iso_now()
+            error = record.get("error")
+            if interrupted:
+                error = (
+                    "service restarted before the session completed; "
+                    f"previous state was {persisted_state}"
+                )
+            source_artifacts = record.get("source_artifacts")
+            if not isinstance(source_artifacts, list):
+                source_artifacts = []
+            try:
+                ttl_seconds = max(30, int(record.get("ttl_seconds") or 30))
+                ready_timeout = float(
+                    record.get("ready_timeout_seconds") or 30
+                )
+            except (TypeError, ValueError):
+                continue
+            session = DeviceSession(
+                self,
+                session_id=session_id,
+                spec=spec,
+                firmware_id=str(record.get("firmware_id") or ""),
+                firmware_path=record_path.parent / "firmware.bin",
+                firmware_sha=str(record.get("firmware_sha256") or ""),
+                firmware_source=str(record.get("firmware_source") or "unknown"),
+                source_artifacts=[
+                    artifact
+                    for artifact in source_artifacts
+                    if isinstance(artifact, str)
+                ],
+                ttl_seconds=ttl_seconds,
+                ready_marker=(
+                    record.get("ready_marker")
+                    if isinstance(record.get("ready_marker"), str)
+                    else None
+                ),
+                ready_timeout=ready_timeout,
+                ready_conditions=(
+                    record.get("ready_conditions")
+                    if isinstance(record.get("ready_conditions"), dict)
+                    else None
+                ),
+                events=events,
+                created_at=(
+                    record.get("created_at")
+                    if isinstance(record.get("created_at"), str)
+                    else None
+                ),
+                completed_at=(
+                    completed_at if isinstance(completed_at, str) else None
+                ),
+                expires_at=expires_at,
+                initial_state=restored_state,
+                error=error if isinstance(error, str) else None,
+                flash_info=(
+                    record.get("flash")
+                    if isinstance(record.get("flash"), dict)
+                    else None
+                ),
+                restored=True,
+                interrupted=interrupted,
+            )
+            virtual_flash = record_path.parent / "virtual-flash.bin"
+            session.virtual_flash = virtual_flash if virtual_flash.is_file() else None
+            if interrupted:
+                session._record_event(
+                    "interrupted",
+                    previous_state=persisted_state,
+                    reason="service restarted before session completion",
+                )
+                session._persist_session()
+            self._sessions[session.id] = session
 
     def raw_device(self, device_id: str) -> dict:
         for row in self.raw_matrix["devices"]:
@@ -1811,6 +2122,7 @@ class DeviceService:
                 "screenshot": spec.supported and spec.has_display,
                 "input": spec.supported,
                 "qom": spec.supported and spec.service_kind == "qemu",
+                "device_state": bool(spec.state_probes),
                 "network": False,
             },
             "reason": spec.reason,
@@ -2148,6 +2460,12 @@ class DeviceService:
                             session.error
                             or f"process exited with code {session._proc.returncode}"
                         )
+                        session.completed_at = session.completed_at or iso_now()
+                        session._record_event(
+                            "process_exited",
+                            returncode=session._proc.returncode,
+                        )
+                        session._persist_session()
                     if session.state in ACTIVE_STATES and session.expires_at <= now:
                         expired.append(session)
             for session in expired:

@@ -334,6 +334,42 @@ paths:
                     items:
                       type: object
                       additionalProperties: true
+  /sessions/{session_id}/device-state:
+    get:
+      summary: Read normalized device runtime state
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Live or persisted device component state
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  session_id:
+                    type: string
+                  device_id:
+                    type: string
+                  state:
+                    type: string
+                  supported:
+                    type: boolean
+                  available:
+                    type: boolean
+                  source:
+                    type: string
+                    enum: [live, persisted]
+                  captured_at:
+                    type: string
+                    format: date-time
+                  components:
+                    type: object
+                    additionalProperties: true
+                  errors:
+                    type: object
+                    additionalProperties: true
   /sessions/{session_id}/evidence:
     get:
       summary: Download an evidence ZIP
@@ -915,9 +951,23 @@ components:
           nullable: true
         event_count:
           type: integer
+        restored:
+          type: boolean
+          description: True when the record was reconstructed from persisted session metadata.
+        interrupted:
+          type: boolean
+          description: True when a previously active session lost its runtime because the service restarted.
         last_frame_available:
           type: boolean
         last_frame_captured_at:
+          type: string
+          format: date-time
+          nullable: true
+        device_state_supported:
+          type: boolean
+        last_device_state_available:
+          type: boolean
+        last_device_state_at:
           type: string
           format: date-time
           nullable: true

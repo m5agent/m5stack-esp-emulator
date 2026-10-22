@@ -1,4 +1,4 @@
-import { M5DeviceShell } from './device-shell.js?v=20261020a';
+import { createDeviceShell } from './device-shell-factory.js?v=20261022c';
 
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -71,10 +71,10 @@ async function loadDevice() {
   });
   state.device = device;
   state.peripheral = peripheral;
-  render(device);
+  await render(device);
 }
 
-function render(device) {
+async function render(device) {
   document.title = `${device.name} · M5Stack Simulator`;
   $('brandTitle').textContent = `${device.name} Simulator`;
   $('brandSub').textContent = `${device.group_label} · ${device.hardware.soc}`;
@@ -86,7 +86,7 @@ function render(device) {
   chip.className = `status-chip ${device.runtime.status}`;
   chip.textContent = device.runtime.status;
 
-  state.shell = new M5DeviceShell($('deviceMount'), device);
+  state.shell = await createDeviceShell($('deviceMount'), device);
   for (const button of $('viewToggle').querySelectorAll('button')) {
     button.addEventListener('click', () => {
       for (const item of $('viewToggle').querySelectorAll('button')) item.classList.toggle('active', item === button);
@@ -100,7 +100,8 @@ function render(device) {
       state.worker.postMessage({ type: 'gpio', pin: gpio, high: !down });
       appendLog(`\n[input] ${control?.label || id} gpio${gpio}=${down ? 'pressed' : 'released'}\n`);
     } else if (control?.type === 'button') {
-      appendLog(`\n[input] ${control.label || id} ${down ? 'pressed' : 'released'} (GPIO mapping not yet modelled)\n`);
+      const mapping = gpio == null ? 'GPIO mapping not yet modelled' : `gpio${gpio}; browser session not connected`;
+      appendLog(`\n[input] ${control.label || id} ${down ? 'pressed' : 'released'} (${mapping})\n`);
     }
     postState();
   });

@@ -6,8 +6,17 @@
   <title>M5Stack Simulated Devices</title>
   <link rel="stylesheet" href="/platform/web/app.css">
   <link rel="stylesheet" href="/platform/web/device-shell.css">
+  <link rel="stylesheet" href="/platform/web/three-device-viewer.css">
   <link rel="stylesheet" href="/platform/web/m5-tokens.css">
   <link rel="stylesheet" href="/platform/web/m5-brand.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/platform/web/vendor/three/three.module.js",
+        "three/addons/": "/platform/web/vendor/three/addons/"
+      }
+    }
+  </script>
 </head>
 <body>
   <header class="brandbar">
@@ -57,6 +66,6 @@
 
   <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>SIMULATED DEVICE PLATFORM</span><span>© 2026 M5Stack</span></div></footer>
 
-  <script type="module" src="/platform/web/gallery.js?v=20261020a"></script>
+  <script type="module" src="/platform/web/gallery.js?v=20261022c"></script>
 </body>
 </html>

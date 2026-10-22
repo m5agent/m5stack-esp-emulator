@@ -308,6 +308,14 @@ class Handler(SimpleHTTPRequestHandler):
                 method == "GET"
                 and len(parts) == 3
                 and parts[0] == "sessions"
+                and parts[2] == "device-state"
+            ):
+                session = service.get_session(parts[1])
+                response = session.device_state()
+            elif (
+                method == "GET"
+                and len(parts) == 3
+                and parts[0] == "sessions"
                 and parts[2] == "serial"
             ):
                 session = service.get_session(parts[1])

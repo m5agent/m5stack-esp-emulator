@@ -24,7 +24,7 @@ MicroPython 和其他完整 Flash 固件。
 | Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
 | 网络模拟统一接入 | `TODO` | `esp-emu` 已有 WiFi/Ethernet 后端，尚未接入所有设备和自动测试 |
 | 通用固件正式入口 | `TODO` | 支持 merged/segmented 架构，仍需 M5Burner/WebBurner 导入、静态检查和标准化 manifest |
-| 服务池与持久化 | `TODO` | 当前为按需冷启动 + 固件缓存；尚无 warm pool、跨重启会话和多机调度 |
+| 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
 | 最新全量矩阵与真机验证 | `NOT RUN` | 当前结论均为仿真证据 |
 
 高难度外观建模已单独记录，供后续更强的视觉/3D Agent 接手：
@@ -129,6 +129,7 @@ backlog 中。
 固件审查流程、证据分层和安全边界见：
 
 - [固件审查与仿真测试工作流](docs/firmware-review-and-simulation-workflow.md)
+- [虚拟设备功能测试入口与持久化规则](docs/device-functional-test-workflow.md)
 - [外设仿真架构](docs/peripheral-simulation-architecture.md)
 - [UIFlow2 外设测试矩阵](docs/uiflow2-peripheral-test-matrix.md)
 

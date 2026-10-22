@@ -13,7 +13,9 @@ Current scope:
   warnings;
 - excluded: CardputerZero;
 - network emulation: disabled;
-- sessions: in-memory leases, destroyed when the service process exits;
+- sessions: active leases are process-local; stopped/failed metadata, events
+  and last-known evidence are restored from each session directory after a
+  service restart;
 - evidence: serial/QEMU logs remain under the configured state directory.
 
 The architecture and future pooling direction are documented in
@@ -27,8 +29,8 @@ served at `/api/v1/openapi.yaml`.
 ```bash
 python3 platform/tools/serve.py 8787 \
   --state-dir platform/.cache/service \
-  --max-sessions 8 \
-  --max-per-device 6 \
+  --max-sessions 12 \
+  --max-per-device 8 \
   --session-ttl 1800
 ```
 
@@ -42,16 +44,22 @@ M5_SERVICE_MAX_PER_DEVICE=8 \
 
 ### Capacity sizing
 
-The default of `8` global sessions and `6` sessions per model is a
+The default of `12` global sessions and `8` sessions per model is a
 workstation profile, not a protocol limit. It was measured on the current
 Apple M4 host with 10 CPU cores and 32 GB RAM:
 
-- six running StickS3 QEMU sessions used roughly 1.4 CPU cores and 695 MiB RSS
-  in an averaged process sample;
-- six StickS3 sessions plus two CoreS3 sessions reached the eight-session cap;
-- six concurrent frame captures completed in about 46 ms wall time;
-- during the eight-session test, `/capacity` remained responsive with a median
-  latency of about 0.4 ms.
+Twelve concurrent StickS3 sessions used about 227% of one CPU core in total
+(about 2.27 of the host's 10 cores), 1.46 GiB aggregate RSS and 1.12 GiB
+physical footprint. All 12 reached a non-black frame; 12 concurrent frame
+captures completed in 18-39 ms.
+
+- eight running StickS3 QEMU sessions used about 1.68 CPU cores and 983 MiB
+  aggregate RSS;
+- twelve running StickS3 QEMU sessions used about 2.27 CPU cores, 1.46 GiB
+  aggregate RSS and 1.12 GiB physical footprint;
+- all twelve sessions reached a non-black frame;
+- twelve concurrent frame captures completed in 18-39 ms wall time;
+- `/capacity` remained below 1 ms and the next request returned `429`.
 
 Per-device resource use varies with firmware activity and device backend. Use
 the environment variables or CLI flags to tune the limits for the host and
@@ -212,6 +220,12 @@ The service stores the latest captured framebuffer as `last-frame.png` and
 frame instead of failing. Session snapshots expose `last_frame_available` and
 `last_frame_captured_at`.
 
+Devices with a normalized runtime-state probe also expose
+`GET /sessions/{id}/device-state`. StickS3 currently reports M5PM1 power state
+and BMI270 IMU values through the same QMP instance. Live sampling is persisted
+to the session directory and remains readable as a last-known snapshot after
+the session stops. This endpoint does not expose arbitrary QOM internals.
+
 ## Endpoints
 
 | Method | Path | Purpose |
@@ -232,6 +246,7 @@ frame instead of failing. Session snapshots expose `last_frame_available` and
 | DELETE | `/api/v1/sessions?state=stopped&purge=1` | Clear stopped/failed history |
 | GET | `/api/v1/sessions/{id}` | Session status |
 | GET | `/api/v1/sessions/{id}/events` | Lifecycle event timeline |
+| GET | `/api/v1/sessions/{id}/device-state` | Live or last-known normalized device state |
 | POST | `/api/v1/sessions/{id}/wait` | Wait for serial/frame application readiness |
 | GET | `/api/v1/sessions/{id}/evidence` | Download a hashed evidence ZIP |
 | GET | `/api/v1/sessions/{id}/serial?offset=0&limit=65536` | Incremental serial read |
@@ -423,8 +438,10 @@ curl -sS -X DELETE \
   'http://127.0.0.1:8787/api/v1/sessions/<session-id>?purge=1'
 ```
 
-Without `purge=1`, serial/QEMU logs remain under the state directory. The
-session is removed from the active capacity count immediately.
+Without `purge=1`, `session.json`, the event timeline, serial/QEMU logs, the
+last frame and device state remain under the state directory. The session is
+removed from the active capacity count immediately and is restored as history
+after a service restart.
 
 ## Concurrency and lifecycle rules
 
@@ -435,7 +452,10 @@ session is removed from the active capacity count immediately.
 - capacity limits can be changed with `--max-sessions`, `--max-per-device`,
   `M5_SERVICE_MAX_SESSIONS`, or `M5_SERVICE_MAX_PER_DEVICE`;
 - expired sessions are stopped by a janitor thread;
-- stopped/failed sessions remain queryable until the service restarts;
+- stopped/failed sessions remain queryable across service restarts;
+- a session that was still active when the service stopped is restored as
+  `failed`, with `interrupted=true`, an explicit error and an `interrupted`
+  lifecycle event; it never consumes active capacity;
 - `GET /sessions?include_stopped=0` hides stopped/failed history from a UI;
 - the web dashboard shows active leases plus sessions completed in the last
   30 minutes when a last-known frame or serial-only view is available;
@@ -455,7 +475,11 @@ session is removed from the active capacity count immediately.
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
   matching reference ELF;
-- sessions are not durable across service restarts;
+- normalized `device-state` probes currently exist for StickS3; other devices
+  expose session metadata, framebuffer and serial without inventing component
+  values;
+- emulator processes are not resumed across service restarts; only stopped,
+  failed and interrupted history is reconstructed;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;

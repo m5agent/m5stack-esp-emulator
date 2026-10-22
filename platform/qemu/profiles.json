@@ -523,6 +523,31 @@
         "IR/audio data path",
         "audio peripheral polish"
       ],
+      "runtime_state": {
+        "power": {
+          "path": "/machine/m5pm1",
+          "properties": [
+            "vbat-mv",
+            "vin-mv",
+            "vinout-mv",
+            "charging",
+            "temperature-c",
+            "pa-enabled",
+            "gpio-input-bits"
+          ]
+        },
+        "imu": {
+          "path": "/machine/bmi270",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        }
+      },
       "blockers": [],
       "validation": {
         "date": "2026-10-22",

@@ -21,15 +21,90 @@ if (peripheralBadges !== 14) throw new Error(`expected 14 peripheral badges, got
 await page.goto(`${base}/platform/web/device.html?device=esp32-s3/sticks3`, { waitUntil: 'networkidle' });
 await page.waitForFunction(() => window.m5emu?.ready === true);
 const stick = await page.evaluate(() => ({
-  preset: document.querySelector('.device-body')?.dataset.preset,
+  renderer: document.querySelector('.three-device-root')?.dataset.renderer,
   peripheralSummary: document.querySelector('#peripheralSummary')?.textContent,
   peripheralCount: document.querySelectorAll('.peripheral-item').length,
   state: window.m5emu.getState()
 }));
-if (stick.preset !== 'stick' || stick.state.deviceId !== 'sticks3') throw new Error('StickS3 profile failed');
+if (stick.renderer !== 'sticks3-three' || stick.state.deviceId !== 'sticks3') throw new Error('StickS3 profile failed');
 if (!stick.peripheralSummary?.includes('外设闭环') || stick.peripheralCount !== 8) {
   throw new Error(`StickS3 peripheral panel failed: ${JSON.stringify(stick)}`);
 }
+const stickViewer = await page.evaluate(async () => {
+  const { StickS3ThreeShell } = await import('/platform/web/sticks3-viewer.js?probe=20261022a');
+  const device = await fetch('/devices/esp32-s3/sticks3/device.json', { cache: 'no-store' }).then(response => response.json());
+  const host = document.createElement('div');
+  host.style.cssText = 'position:fixed;left:-1200px;top:0;width:360px;height:640px';
+  document.body.append(host);
+  const shell = new StickS3ThreeShell(host, device);
+  const events = [];
+  shell.on('control', event => events.push(`${event.id}:${event.down ? 'down' : 'up'}:${event.gpio}`));
+  const pixels = new Uint8Array(shell.display.width * shell.display.height * 2);
+  pixels[0] = 0xf8;
+  pixels[1] = 0x00;
+  shell.setFrame(pixels, shell.display.width, shell.display.height, 7);
+  const pixel = shell.display.getPixel(0, 0);
+  shell.model.button('btnA').press('sim');
+  shell.model.button('btnA').release('sim');
+  shell.dispose();
+  host.remove();
+  return { pixel, events, frameSeq: shell.frameSeq };
+});
+if (stickViewer.pixel.join(',') !== '255,0,0' || stickViewer.frameSeq !== 7) {
+  throw new Error(`StickS3 framebuffer bridge failed: ${JSON.stringify(stickViewer)}`);
+}
+if (stickViewer.events.join(',') !== 'a:down:11,a:up:11') {
+  throw new Error(`StickS3 input bridge failed: ${JSON.stringify(stickViewer)}`);
+}
+
+const coreViewer = await page.evaluate(async () => {
+  const { CoreS3ThreeShell } = await import('/platform/web/cores3-viewer.js?probe=20261022c');
+  const THREE = await import('three');
+  const device = await fetch('/devices/esp32-s3/cores3/device.json', { cache: 'no-store' }).then(response => response.json());
+  const host = document.createElement('div');
+  host.style.cssText = 'position:fixed;left:-1600px;top:0;width:420px;height:720px';
+  document.body.append(host);
+  const shell = new CoreS3ThreeShell(host, device);
+  const controls = [];
+  const touches = [];
+  shell.on('control', event => controls.push(`${event.id}:${event.down ? 'down' : 'up'}:${event.gpio}`));
+  shell.on('touch', event => touches.push(`${event.x}:${event.y}:${event.down}`));
+  const pixels = new Uint8Array(shell.display.width * shell.display.height * 2);
+  pixels[0] = 0xf8;
+  pixels[1] = 0x00;
+  shell.setFrame(pixels, shell.display.width, shell.display.height, 9);
+  const pixel = shell.display.getPixel(0, 0);
+  shell.model.button('power').press('sim');
+  shell.model.button('power').release('sim');
+  shell.display.touch('start', 12, 34, 1);
+  shell.display.touch('end', 12, 34, 1);
+  const bounds = new THREE.Box3().setFromObject(shell.model.root).getSize(new THREE.Vector3());
+  shell.dispose();
+  host.remove();
+  return {
+    pixel,
+    controls,
+    touches,
+    frameSeq: shell.frameSeq,
+    bounds: { x: bounds.x, y: bounds.y, z: bounds.z }
+  };
+});
+if (coreViewer.pixel.join(',') !== '255,0,0' || coreViewer.frameSeq !== 9) {
+  throw new Error(`CoreS3 framebuffer bridge failed: ${JSON.stringify(coreViewer)}`);
+}
+if (coreViewer.controls.join(',') !== 'power:down:null,power:up:null') {
+  throw new Error(`CoreS3 power bridge failed: ${JSON.stringify(coreViewer)}`);
+}
+if (coreViewer.touches.join(',') !== '12:34:true,12:34:false') {
+  throw new Error(`CoreS3 touch bridge failed: ${JSON.stringify(coreViewer)}`);
+}
+if (Math.abs(coreViewer.bounds.y - 62) > .05 || Math.abs(coreViewer.bounds.z - 32.05) > .2) {
+  throw new Error(`CoreS3 physical bounds failed: ${JSON.stringify(coreViewer.bounds)}`);
+}
+await page.goto(`${base}/platform/web/device.html?device=esp32-s3/cores3`, { waitUntil: 'networkidle' });
+await page.waitForFunction(() => window.m5emu?.ready === true);
+const coreRenderer = await page.evaluate(() => document.querySelector('.three-device-root')?.dataset.renderer);
+if (coreRenderer !== 'cores3-three') throw new Error(`CoreS3 renderer failed: ${coreRenderer}`);
 
 await page.goto(`${base}/platform/web/device.html?device=linux-arm64/cardputer-zero`, { waitUntil: 'networkidle' });
 await page.waitForFunction(() => window.m5emu?.ready === true);

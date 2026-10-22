@@ -1,0 +1,52 @@
+# Virtual-device functional-test workflow
+
+Status: implemented routing rule, `2026-10-22`.
+
+This document separates two workflows that previously shared the same Agent
+context:
+
+| User intent | Entry point | Persistent result |
+| --- | --- | --- |
+| Test firmware functions or a UIFlow2 image | Device Service on `8787` | Live/history session with frame, serial, state and evidence |
+| Review, approve, reject or publish an M5Burner pending version | Firmware review control plane on `8790` | Review job and linked Device Service history |
+
+A functional test is not a firmware review request. The review control plane
+may call the Device Service when a review needs execution, but it is not the
+general virtual-device entry point.
+
+## Required device-service flow
+
+1. Upload the exact source artifact with `POST /api/v1/artifacts`.
+2. Compose the matching merged or segmented image with
+   `POST /api/v1/firmware`.
+3. Create `POST /api/v1/sessions` with `device_id`, `firmware_id`, TTL and
+   application readiness conditions.
+4. Wait through `POST /api/v1/sessions/{id}/wait`; `state=running` alone is not
+   an application PASS.
+5. Collect serial, frame, normalized device state, input/QOM evidence and the
+   evidence ZIP through the session API.
+6. Stop with `DELETE /api/v1/sessions/{id}` and no `purge=1`.
+7. Re-read `GET /api/v1/sessions` or the Live sessions page and confirm the
+   stopped session, last frame and lifecycle events are retained.
+
+## Persistence behavior
+
+Each session directory now contains:
+
+- `session.json`: identity, device, firmware, lifecycle and timestamps;
+- `events.json`: lifecycle timeline;
+- `last-frame.png` and `last-frame.json`: retained visual evidence;
+- `serial*.log`, QEMU logs, virtual flash and optional QOM/device-state files.
+
+On startup, a stopped/failed record is restored as history. A record that was
+still active when the service stopped is restored as `failed` with
+`interrupted=true` and an explicit error; it is never presented as running and
+does not consume active-session capacity.
+
+## Boundaries
+
+- QEMU simulation is not real-hardware validation.
+- Agent-triggered direct QEMU runners bypass session observability and must not
+  be used for functional-test requests.
+- The browser's default view shows active sessions and sessions completed in
+  the last 30 minutes; “显示全部历史” expands the retained history.

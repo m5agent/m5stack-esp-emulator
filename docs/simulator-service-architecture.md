@@ -16,12 +16,13 @@ Implemented:
 - real esptool-backed first-run flash preparation plus cached flash images;
 - one isolated flash copy per session;
 - serial/log/frame/input/QOM/reset/delete APIs;
+- restart-safe session history and last-known evidence restoration;
 - optional Bearer token.
 
 Not implemented yet:
 
 - prestarted warm QEMU instances;
-- durable sessions across service restart;
+- resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
 - network namespaces and packet capture;
 - untrusted multi-tenant isolation.
@@ -44,10 +45,11 @@ Recommended default:
 - optional pre-booted UIFlow2 instances only for demo and live preview.
 
 For the current 10-core Apple M4 workstation, the local service defaults to
-`max_sessions=8` and `max_per_device=6`. This was validated with six running
-StickS3 sessions plus two CoreS3 sessions; the workload remained well below the
-host's total CPU and memory capacity. These values are deployment policy and
-can be changed through CLI flags or environment variables.
+`max_sessions=12` and `max_per_device=8`. Twelve simultaneous StickS3 sessions
+were validated with non-black frames; the batch used about 2.27 of the host's
+10 CPU cores, 1.46 GiB aggregate RSS and 1.12 GiB physical footprint. These
+values are deployment policy and can be changed through CLI flags or
+environment variables.
 
 “Ready device” and “real-time rendering” are orthogonal. A service can keep a
 device ready and stream frames from it, or start it on demand and stream frames

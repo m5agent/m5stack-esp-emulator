@@ -29,7 +29,8 @@
       "properties": {
         "preset": {"enum": ["watch-round", "stick", "core", "cardputer", "paper", "tab", "atom", "robot", "industrial", "console-only"]},
         "accent": {"type": "string"},
-        "screen_scale": {"type": "number"}
+        "screen_scale": {"type": "number"},
+        "renderer": {"type": "string"}
       }
     },
     "runtime": {

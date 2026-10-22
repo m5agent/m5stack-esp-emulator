@@ -6,8 +6,17 @@
   <title>M5Stack Device Sessions</title>
   <link rel="stylesheet" href="/platform/web/app.css">
   <link rel="stylesheet" href="/platform/web/sessions.css">
+  <link rel="stylesheet" href="/platform/web/three-device-viewer.css">
   <link rel="stylesheet" href="/platform/web/m5-tokens.css">
   <link rel="stylesheet" href="/platform/web/m5-brand.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/platform/web/vendor/three/three.module.js",
+        "three/addons/": "/platform/web/vendor/three/addons/"
+      }
+    }
+  </script>
 </head>
 <body>
   <header class="brandbar">
@@ -45,8 +54,9 @@
 
       <div class="section">
         <div class="section-title">显示说明</div>
-        <div class="hint">页面只做观察和基本控制，完整固件操作使用 `/api/v1`。`running` 仅表示 QEMU/QMP 或 esp-emu 已启动，不代表应用已完成首帧。</div>
+        <div class="hint">通用固件与 UIFlow 功能测试都应在本服务创建可见会话。M5Burner 待审固件审查才进入独立审查工作台。StickS3 和 CoreS3 预览复用完整 3D 外壳；`running` 不代表应用已完成首帧。</div>
         <a class="doc-link" href="/api/v1/openapi.yaml" target="_blank" rel="noreferrer">打开 OpenAPI</a>
+        <a class="doc-link" id="reviewDashboardLink" href="#" target="_blank" rel="noreferrer">打开 M5Burner 审查工作台</a>
       </div>
     </aside>
 
@@ -71,6 +81,6 @@
 
   <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>VIRTUAL DEVICE LEASES</span><span>© 2026 M5Stack</span></div></footer>
 
-  <script type="module" src="/platform/web/sessions.js?v=20261022a"></script>
+  <script type="module" src="/platform/web/sessions.js?v=20261022d"></script>
 </body>
 </html>
