@@ -46,6 +46,69 @@ class LaneError(RuntimeError):
     pass
 
 
+def normalize_i2c_device(value: str) -> str:
+    """Validate and canonicalize one esp-emu --i2c-dev definition."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("I2C device definition must be a non-empty string")
+    parts = value.split(",")
+    try:
+        port_text, address_text = parts[0].split(":", 1)
+        port = int(port_text, 0)
+        address = int(address_text, 0)
+    except (ValueError, TypeError) as error:
+        raise ValueError(
+            "I2C device must start with PORT:ADDRESS"
+        ) from error
+    if port not in {0, 1}:
+        raise ValueError("I2C port must be 0 or 1")
+    if not 0x08 <= address <= 0x77:
+        raise ValueError("I2C address must be a 7-bit value from 0x08 to 0x77")
+
+    width = 1
+    fill = 0xFF
+    registers: list[tuple[int, int]] = []
+    seen_registers: set[int] = set()
+    for option in parts[1:]:
+        name, separator, raw_value = option.partition("=")
+        if not separator or not raw_value:
+            raise ValueError(f"invalid I2C option: {option!r}")
+        if name == "width":
+            width = int(raw_value, 0)
+            if width not in {1, 2}:
+                raise ValueError("I2C width must be 1 or 2")
+        elif name == "fill":
+            fill = int(raw_value, 0)
+            if not 0 <= fill <= 0xFF:
+                raise ValueError("I2C fill must fit in one byte")
+        elif name == "reg":
+            raw_register, equals, raw_register_value = raw_value.partition("=")
+            if not equals or not raw_register or not raw_register_value:
+                raise ValueError(
+                    "I2C register preload must use reg=REGISTER=VALUE"
+                )
+            register = int(raw_register, 0)
+            register_value = int(raw_register_value, 0)
+            if not 0 <= register <= 0xFF or not 0 <= register_value <= 0xFF:
+                raise ValueError("I2C register and value must fit in one byte")
+            if register in seen_registers:
+                raise ValueError(f"duplicate I2C register preload: 0x{register:02X}")
+            seen_registers.add(register)
+            registers.append((register, register_value))
+        else:
+            raise ValueError(f"unsupported I2C option: {name!r}")
+
+    canonical = [f"{port}:0x{address:02X}"]
+    if width != 1:
+        canonical.append("width=2")
+    if fill != 0xFF:
+        canonical.append(f"fill=0x{fill:02X}")
+    canonical.extend(
+        f"reg=0x{register:02X}=0x{register_value:02X}"
+        for register, register_value in registers
+    )
+    return ",".join(canonical)
+
+
 @dataclass(frozen=True)
 class Artifact:
     role: str
@@ -83,6 +146,7 @@ class LaneConfig:
     ble_name: str
     tcp: bool
     expected_markers: list[str]
+    i2c_devices: list[str]
 
 
 @dataclass
@@ -257,6 +321,8 @@ def build_emulator_command(
     ]
     if config.psram_size != "0":
         command.extend(["--psram-size", config.psram_size])
+    for i2c_device in config.i2c_devices:
+        command.extend(["--i2c-dev", i2c_device])
     command.extend(
         [
             "--net",
@@ -887,6 +953,7 @@ def execute(config: LaneConfig) -> dict:
                 "mode": "host-forwarder",
                 "controlled_resolver": False,
             },
+            "i2c_devices": list(config.i2c_devices),
         },
         "artifacts": [artifact.evidence() for artifact in artifact_rows],
         "command": public_command,
@@ -965,6 +1032,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--ble-port", type=int)
     parser.add_argument("--ble-name", default="M5-NETWORK-LANE")
     parser.add_argument(
+        "--i2c-dev",
+        action="append",
+        default=[],
+        help=(
+            "static emulated I2C register endpoint PORT:ADDR[,width=N,fill=0xNN,"
+            "reg=0xRR=0xVV]; repeatable"
+        ),
+    )
+    parser.add_argument(
         "--expect",
         action="append",
         default=[],
@@ -980,6 +1056,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     out_dir = args.out_dir or Path("/tmp") / f"m5-network-{args.profile}-{timestamp}"
+    try:
+        i2c_devices = [
+            normalize_i2c_device(value) for value in args.i2c_dev
+        ]
+    except ValueError as error:
+        print(f"network lane failed: {error}", file=sys.stderr)
+        return 2
     config = LaneConfig(
         profile=args.profile,
         chip=args.chip,
@@ -1008,6 +1091,7 @@ def main(argv: list[str] | None = None) -> int:
             else args.tcp
         ),
         expected_markers=list(args.expect),
+        i2c_devices=i2c_devices,
     )
     if args.dry_run:
         firmware_copy = config.out_dir / "firmware-under-test.bin"

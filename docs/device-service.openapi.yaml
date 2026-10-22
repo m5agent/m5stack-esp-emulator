@@ -1003,6 +1003,17 @@ components:
             type: string
             minLength: 1
             maxLength: 200
+        i2c_devices:
+          type: array
+          maxItems: 32
+          description: >
+            Static register-file endpoints behind the emulated SoC I2C
+            controller. These are for board bootstrap and register identity
+            only; they do not claim a complete keyboard, PMIC, touch or sensor
+            data plane.
+          items:
+            type: string
+            pattern: '^[01]:0x[0-9A-Fa-f]{2}(,(width=[12]|fill=0x[0-9A-Fa-f]{2}|reg=0x[0-9A-Fa-f]{2}=0x[0-9A-Fa-f]{2}))*$'
         timeout_seconds:
           type: number
           minimum: 5

@@ -53,6 +53,7 @@ from run_tab5_ui_test import (  # noqa: E402
     write_png as write_tab5_png,
 )
 from firmware_analysis import analyze_firmware, expected_chip_id  # noqa: E402
+from network_lane import normalize_i2c_device  # noqa: E402
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 DEFAULT_MAX_SESSIONS = 12
@@ -285,6 +286,27 @@ def parse_network_execution(
             "network.expected_markers must contain at most 16 short strings",
             400,
         )
+    raw_i2c_devices = value.get("i2c_devices", [])
+    if (
+        not isinstance(raw_i2c_devices, list)
+        or len(raw_i2c_devices) > 32
+        or any(not isinstance(item, str) for item in raw_i2c_devices)
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.i2c_devices must contain at most 32 strings",
+            400,
+        )
+    try:
+        i2c_devices = [
+            normalize_i2c_device(item) for item in raw_i2c_devices
+        ]
+    except ValueError as error:
+        raise ServiceError(
+            "invalid_network",
+            f"network.i2c_devices is invalid: {error}",
+            400,
+        ) from error
     return {
         "profile": profile,
         "chip": spec.network_chip,
@@ -301,6 +323,7 @@ def parse_network_execution(
         "expected_markers": expected_markers,
         "net_mode": net_mode,
         "console_mode": console_mode,
+        "i2c_devices": i2c_devices,
     }
 
 
@@ -2070,6 +2093,8 @@ class NetworkDeviceSession(DeviceSession):
             )
         for marker in self.network_config.get("expected_markers", []):
             command.extend(["--expect", str(marker)])
+        for i2c_device in self.network_config.get("i2c_devices", []):
+            command.extend(["--i2c-dev", str(i2c_device)])
         env = os.environ.copy()
         env["PYTHONPATH"] = os.pathsep.join(
             filter(

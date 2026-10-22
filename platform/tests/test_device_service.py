@@ -197,6 +197,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(generic["expected_markers"], ["APP_READY"])
         self.assertEqual(generic["net_mode"], "user,restrict=yes")
         self.assertEqual(generic["console_mode"], "auto")
+        bootstrapped = device_service_module.parse_network_execution(
+            self.service.specs["cardputer-adv"],
+            {
+                "profile": "generic-observe",
+                "i2c_devices": ["0:0x34,fill=0,reg=0x03=0x4a"],
+            },
+        )
+        self.assertEqual(
+            bootstrapped["i2c_devices"],
+            ["0:0x34,fill=0x00,reg=0x03=0x4A"],
+        )
+        with self.assertRaises(ServiceError) as invalid_i2c:
+            device_service_module.parse_network_execution(
+                self.service.specs["cardputer-adv"],
+                {
+                    "profile": "generic-observe",
+                    "i2c_devices": ["0:0x34,width=9"],
+                },
+            )
+        self.assertEqual(invalid_i2c.exception.code, "invalid_network")
         with self.assertRaises(ServiceError) as generic_ble_elf:
             device_service_module.parse_network_execution(
                 self.service.specs["nanoc6"],
@@ -377,6 +397,9 @@ class DeviceServiceUnitTests(unittest.TestCase):
                         "profile": "generic-observe",
                         "timeout_seconds": 10,
                         "expected_markers": ["APP_READY"],
+                        "i2c_devices": [
+                            "0:0x34,fill=0,reg=0x03=0x4a"
+                        ],
                     },
                 }
             )
@@ -401,6 +424,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
             console_mode_index = argv.index("--console-mode")
             self.assertEqual(argv[console_mode_index + 1], "auto")
+            i2c_index = argv.index("--i2c-dev")
+            self.assertEqual(
+                argv[i2c_index + 1],
+                "0:0x34,fill=0x00,reg=0x03=0x4A",
+            )
         finally:
             device_service_module.NETWORK_LANE = old_lane
             if old_emulator is None:

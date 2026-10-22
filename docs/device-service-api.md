@@ -291,6 +291,12 @@ Use `user` for unrecognized firmware only inside a disposable VM.
 declared; ESP32-C6 UIFlow2 entries currently use `usb-jtag`. Other generic
 devices default to `auto`. Validated lane profiles default to `uart0`.
 
+`network.i2c_devices` accepts at most 32 canonical endpoint definitions such as
+`0:0x34,fill=0x00,reg=0x03=0x4A`. They are served by the emulated SoC I2C
+controller and exist to help a board driver pass identity/bootstrap reads.
+This is not full keyboard, PMIC, touch or sensor simulation; a firmware test
+must still record those board data planes separately as `PARTIAL` or `NOT RUN`.
+
 For StickS3 BLE-only, use
 `{"profile":"uiflow2-sticks3","wifi":false,"ble":true,"elf_artifact_id":"..."}`.
 The same guest also supports `wifi=true,ble=true`; the runner stages REPL input

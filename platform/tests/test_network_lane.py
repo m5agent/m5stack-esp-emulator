@@ -23,6 +23,7 @@ from network_lane import (  # noqa: E402
     check_smoke_evidence,
     check_uiflow2_evidence,
     execute,
+    normalize_i2c_device,
     redact_command,
 )
 
@@ -48,6 +49,7 @@ def config(tmp: Path, **changes) -> LaneConfig:
         "ble_name": "M5-NETWORK-LANE",
         "tcp": True,
         "expected_markers": [],
+        "i2c_devices": [],
     }
     values.update(changes)
     return LaneConfig(**values)
@@ -116,6 +118,44 @@ class NetworkLaneTests(unittest.TestCase):
             )
         index = command.index("--console")
         self.assertEqual(command[index + 1], "auto")
+
+    def test_i2c_bootstrap_devices_are_validated_and_forwarded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            row = config(
+                tmp,
+                profile="generic-observe",
+                ble=False,
+                expected_markers=["APP_READY"],
+                i2c_devices=[
+                    normalize_i2c_device(
+                        "0:0x34,fill=0,reg=0x03=0x4a"
+                    )
+                ],
+            )
+            command, _ = build_emulator_command(
+                row,
+                firmware_copy=tmp / "runtime.bin",
+            )
+        index = command.index("--i2c-dev")
+        self.assertEqual(
+            command[index + 1],
+            "0:0x34,fill=0x00,reg=0x03=0x4A",
+        )
+
+    def test_i2c_bootstrap_rejects_invalid_endpoint(self):
+        for value in (
+            "",
+            "2:0x34",
+            "0:0x03",
+            "0:0x34,width=3",
+            "0:0x34,reg=0x03",
+            "0:0x34,reg=0x03=0x4a,reg=0x03=0x4b",
+            "0:0x34,unknown=1",
+        ):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    normalize_i2c_device(value)
 
     def test_generic_observation_can_enable_bumble_data_plane(self):
         with tempfile.TemporaryDirectory() as directory:

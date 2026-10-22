@@ -77,6 +77,14 @@ emulator used. Passwords are redacted from the command and evidence.
 Unknown firmware should use `--console-mode auto` so ESP-IDF's selected
 UART or USB-Serial/JTAG console can provide observation markers.
 
+For board drivers that stop before networking on identity/bootstrap reads,
+`--i2c-dev PORT:ADDR[,width=N,fill=0xNN,reg=0xRR=0xVV]` attaches the static
+register-file endpoint provided by `esp-emu` behind the emulated SoC I2C
+controller. This can move a firmware past board detection, but it does not
+model the real keyboard, PMIC, touch controller or sensor data plane. Such a
+run must keep board behavior `PARTIAL` while reporting WiFi/BLE only from their
+own data-plane assertions.
+
 The classic ESP32/Core2 QEMU path has a separate Ethernet fixture at
 `tests/network/core2_openeth/`. It selects `CONFIG_ETH_USE_OPENETH` explicitly,
 passes DHCP and a complete 1 MiB HTTP download, and records `wifi_claimed:
