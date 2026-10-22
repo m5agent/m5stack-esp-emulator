@@ -833,7 +833,7 @@ components:
           type: array
           items:
             type: string
-            enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, idf-dns-udp, generic-observe]
+            enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
         firmware_families:
           type: array
           items:
@@ -950,7 +950,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, idf-dns-udp, generic-observe]
+          enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
         wifi:
           type: boolean
         ble:

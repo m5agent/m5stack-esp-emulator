@@ -23,6 +23,8 @@ Validated on `2026-10-22`:
 - StickS3 and CoreS3 ESP-IDF WiFi association, DHCP and a controlled 1 MiB
   HTTP/TCP download pass;
 - NanoC6 and Nesso N1 pass the same WiFi/DHCP/HTTP path on ESP32-C6;
+- ESP-IDF C6 `bleprph_wifi_coex` passes WiFi/DHCP while Bumble connects,
+  discovers GATT, writes and reads back a characteristic;
 - StickS3 UIFlow2 `network.WLAN` scan, association and DHCP have passed;
 - StickS3 UIFlow2 `BLEUARTServer` passes external Bumble scan, connection, NUS
   GATT discovery, subscription, write and guest-side receive callback;
@@ -52,7 +54,7 @@ does not mean the device is online.
 | Device class | Current network path | Status |
 | --- | --- | --- |
 | ESP32-S3 boards, including CoreS3, StickS3, StackChan and StopWatch | `esp-emu` WiFi SoftAP + user/TAP backend | StickS3 WiFi/DHCP/TCP and BLE independently PASS; other S3 profiles await device-level runs |
-| ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | Backend support exists; device-level HTTP/BLE runs pending |
+| ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | HTTP and same-instance WiFi+BLE coexist PASS at chip level; device-local reruns pending |
 | ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
 | ESP32 LX6 Core2 | Current QEMU path has no WiFi MAC/PHY model; `esp-emu` native target list does not include classic ESP32 | Needs a separate WiFi/PHY model or a different runtime; not covered by the first network lane |
 | CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |

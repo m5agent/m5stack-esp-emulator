@@ -16,6 +16,7 @@ from network_lane import (  # noqa: E402
     build_emulator_command,
     check_generic_evidence,
     check_dns_udp_evidence,
+    check_coex_evidence,
     check_http_evidence,
     check_smoke_evidence,
     check_uiflow2_evidence,
@@ -233,6 +234,22 @@ DNS_UDP_RESULT: PASSED
         )
         self.assertTrue(all(checks.values()), checks)
         self.assertEqual(values["dns_address"], "198.18.0.86")
+
+    def test_coex_parser_requires_wifi_during_ble_gatt(self):
+        serial = """
+got ip:192.168.4.2
+64bytes from 93.184.216.34 icmp_seq=5 ttl=64 time=0ms
+"""
+        ble = """
+BLE_BUMBLE_FOUND name='nimble-bleprph'
+BLE_BUMBLE_CONNECTED
+BLE_BUMBLE_GATT_DISCOVERED 59462f12-9543-9999-12c8-58b459a2712d
+BLE_BUMBLE_WRITE *
+BLE_BUMBLE_READBACK_OK
+BLE_BUMBLE_PASS
+"""
+        checks = check_coex_evidence(serial, ble)
+        self.assertTrue(all(checks.values()), checks)
 
     def test_smoke_parser_keeps_ble_separate(self):
         serial = """

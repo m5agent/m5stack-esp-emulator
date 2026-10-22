@@ -50,6 +50,11 @@ peer on port `19000`, the prefixed reply back in the guest, and the final
 `DNS_UDP_RESULT: PASSED`. DNS currently uses the host forwarder and is not yet
 an isolated resolver.
 
+The `esp-idf-coex` profile runs ESP-IDF's `bleprph_wifi_coex` example with its
+matching ELF. It requires DHCP, keeps the WiFi ping path active, and uses
+Bumble to scan `nimble-bleprph`, connect, discover the security-test GATT
+service, write the static characteristic and verify the readback.
+
 The `generic-observe` profile runs an arbitrary compatible image for the
 observation window. Without `--expect` it records `PARTIAL` plus serial output;
 repeat `--expect MARKER` to turn application output into explicit PASS/FAIL

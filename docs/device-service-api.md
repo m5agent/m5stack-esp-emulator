@@ -261,6 +261,8 @@ Profiles are:
 - `esp-idf-smoke`: WiFi, DHCP and the upstream comprehensive smoke suite;
 - `idf-dns-udp`: WiFi, DHCP, host-forwarder DNS and a controlled UDP round
   trip against a disposable host peer;
+- `esp-idf-coex`: the upstream NimBLE/WiFi coexistence application plus an
+  external Bumble GATT connect/write/readback while WiFi remains active;
 - `uiflow2-sticks3`: UIFlow2 network/BLE probe. BLE requires a matching ELF
   uploaded as an artifact and referenced by `elf_artifact_id`.
 - `generic-observe`: runs an arbitrary compatible image for the requested

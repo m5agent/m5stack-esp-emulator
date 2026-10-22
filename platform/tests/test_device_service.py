@@ -147,6 +147,14 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 {"profile": "uiflow2-sticks3"},
             )
         self.assertEqual(elf_required.exception.code, "elf_required")
+        coex = device_service_module.parse_network_execution(
+            self.service.specs["nanoc6"],
+            {
+                "profile": "esp-idf-coex",
+                "elf_artifact_id": "a" * 64,
+            },
+        )
+        self.assertTrue(coex["ble"])
         c6 = device_service_module.parse_network_execution(
             self.service.specs["nanoc6"],
             {"profile": "esp-idf-http"},

@@ -120,41 +120,53 @@ async def observe(args: argparse.Namespace) -> int:
     target_service = None
     target_characteristics: dict[str, Any] = {}
     for service in peer.services:
-        if NUS_SERVICE_UUID not in str(service.uuid).lower():
+        if args.service_uuid.lower() not in str(service.uuid).lower():
             continue
         target_service = service
         await service.discover_characteristics()
         for characteristic in service.characteristics:
             uuid = str(characteristic.uuid).lower()
-            if NUS_RX_UUID in uuid:
+            if args.rx_uuid.lower() in uuid:
                 target_characteristics["rx"] = characteristic
-            elif NUS_TX_UUID in uuid:
+            elif args.tx_uuid and args.tx_uuid.lower() in uuid:
                 target_characteristics["tx"] = characteristic
         break
 
     if target_service is None:
-        emit("BLE_BUMBLE_FAIL", f"NUS service {NUS_SERVICE_UUID} not found")
+        emit("BLE_BUMBLE_FAIL", f"service {args.service_uuid} not found")
         await connection.disconnect()
         return 1
-    if set(target_characteristics) != {"rx", "tx"}:
+    required_characteristics = {"rx"}
+    if args.subscribe:
+        required_characteristics.add("tx")
+    if set(target_characteristics) != required_characteristics:
         emit(
             "BLE_BUMBLE_FAIL",
-            f"NUS characteristics missing: found={sorted(target_characteristics)}",
+            f"characteristics missing: found={sorted(target_characteristics)}",
         )
         await connection.disconnect()
         return 1
 
-    emit("BLE_BUMBLE_GATT_DISCOVERED", NUS_SERVICE_UUID)
-    tx = target_characteristics["tx"]
-    await tx.discover_descriptors()
-    await tx.subscribe()
-    emit("BLE_BUMBLE_SUBSCRIBED", NUS_TX_UUID)
+    emit("BLE_BUMBLE_GATT_DISCOVERED", args.service_uuid)
+    if args.subscribe:
+        tx = target_characteristics["tx"]
+        await tx.discover_descriptors()
+        await tx.subscribe()
+        emit("BLE_BUMBLE_SUBSCRIBED", args.tx_uuid)
 
     if args.write_delay > 0:
         await asyncio.sleep(args.write_delay)
     rx = target_characteristics["rx"]
     await rx.write_value(args.payload.encode("utf-8"))
     emit("BLE_BUMBLE_WRITE", args.payload)
+    if args.readback:
+        value = await rx.read_value()
+        emit("BLE_BUMBLE_READBACK", value.hex())
+        if value != args.payload.encode("utf-8"):
+            emit("BLE_BUMBLE_FAIL", "readback mismatch")
+            await connection.disconnect()
+            return 1
+        emit("BLE_BUMBLE_READBACK_OK")
     await asyncio.sleep(1)
     emit("BLE_BUMBLE_PASS")
     if args.linger > 0:
@@ -168,6 +180,15 @@ def main() -> int:
     parser.add_argument("--port", type=int, default=9544)
     parser.add_argument("--name-prefix", default="M5-NETWORK-LANE")
     parser.add_argument("--payload", default="M5_LANE")
+    parser.add_argument("--service-uuid", default=NUS_SERVICE_UUID)
+    parser.add_argument("--rx-uuid", default=NUS_RX_UUID)
+    parser.add_argument("--tx-uuid", default=NUS_TX_UUID)
+    parser.add_argument(
+        "--subscribe",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+    )
+    parser.add_argument("--readback", action="store_true")
     parser.add_argument("--timeout", type=float, default=35)
     parser.add_argument("--write-delay", type=float, default=10)
     parser.add_argument("--linger", type=float, default=15)

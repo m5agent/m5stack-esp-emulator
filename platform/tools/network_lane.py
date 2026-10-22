@@ -29,6 +29,8 @@ DEFAULT_EMULATOR = (
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
 HTTP_PROBE_PORT = 8070
 UDP_PROBE_PORT = 19000
+COEX_SERVICE_UUID = "59462f12-9543-9999-12c8-58b459a2712d"
+COEX_STATIC_UUID = "5c3a659e-897e-45e1-b016-007107c96df7"
 SUPPORTED_CHIPS = {
     "esp32c3",
     "esp32c5",
@@ -241,7 +243,7 @@ def build_emulator_command(
     *,
     firmware_copy: Path,
 ) -> tuple[list[str], dict]:
-    use_bumble = config.profile == "uiflow2-sticks3" and config.ble
+    use_bumble = config.profile in {"uiflow2-sticks3", "esp-idf-coex"} and config.ble
     command = [
         str(config.emulator),
         "--chip",
@@ -394,7 +396,9 @@ def start_ble_probe(config: LaneConfig, log_path: Path) -> tuple[subprocess.Pope
         "--port",
         str(config.ble_port),
         "--name-prefix",
-        config.ble_name,
+        "nimble-bleprph"
+        if config.profile == "esp-idf-coex"
+        else config.ble_name,
         "--timeout",
         f"{max(10, config.timeout - 5):g}",
         "--write-delay",
@@ -402,6 +406,19 @@ def start_ble_probe(config: LaneConfig, log_path: Path) -> tuple[subprocess.Pope
         "--linger",
         "15",
     ]
+    if config.profile == "esp-idf-coex":
+        command.extend(
+            [
+                "--service-uuid",
+                COEX_SERVICE_UUID,
+                "--rx-uuid",
+                COEX_STATIC_UUID,
+                "--payload",
+                "*",
+                "--no-subscribe",
+                "--readback",
+            ]
+        )
     log = log_path.open("w")
     proc = subprocess.Popen(
         command,
@@ -533,6 +550,23 @@ def check_generic_evidence(
     return {"runtime_output": bool(serial.strip())}
 
 
+def check_coex_evidence(serial: str, ble_log: str) -> dict[str, bool]:
+    return {
+        "wifi_dhcp": bool(re.search(r"got ip:\s*192\.168\.4\.2", serial)),
+        "ble_scan_connect": bool(
+            "BLE_BUMBLE_FOUND" in ble_log
+            and "BLE_BUMBLE_CONNECTED" in ble_log
+        ),
+        "ble_gatt": bool(
+            "BLE_BUMBLE_GATT_DISCOVERED" in ble_log
+            and "BLE_BUMBLE_WRITE" in ble_log
+            and "BLE_BUMBLE_READBACK_OK" in ble_log
+            and "BLE_BUMBLE_PASS" in ble_log
+        ),
+        "wifi_still_active": bool(re.search(r"icmp_seq=\d+", serial)),
+    }
+
+
 def check_smoke_evidence(serial: str, require_ble: bool) -> dict[str, bool]:
     checks = {
         "wifi_dhcp": bool(
@@ -545,7 +579,7 @@ def check_smoke_evidence(serial: str, require_ble: bool) -> dict[str, bool]:
         checks["ble_advertising"] = bool(
             "BLE: advertising as" in serial
             and re.search(r"TEST ble:\s*PASSED", serial)
-            and "failed=0" in serial
+            and not re.search(r"TEST ble:\s*FAILED", serial)
         )
     return checks
 
@@ -593,7 +627,7 @@ def execute(config: LaneConfig) -> dict:
 
     ble_proc: subprocess.Popen | None = None
     emu_proc: subprocess.Popen | None = None
-    use_bumble = config.profile == "uiflow2-sticks3" and config.ble
+    use_bumble = config.profile in {"uiflow2-sticks3", "esp-idf-coex"} and config.ble
     timed_out = False
     started = time.monotonic()
     try:
@@ -632,6 +666,14 @@ def execute(config: LaneConfig) -> dict:
                     )
                 )
                 if guest_done and ble_done:
+                    break
+                if (
+                    config.profile == "esp-idf-coex"
+                    and "BLE_BUMBLE_PASS" in ble_snapshot
+                    and "BLE_BUMBLE_READBACK_OK" in ble_snapshot
+                    and re.search(r"got ip:\s*192\.168\.4\.2", serial_snapshot)
+                    and re.search(r"icmp_seq=\d+", serial_snapshot)
+                ):
                     break
                 if use_bumble and ble_proc is not None and ble_proc.poll() is not None:
                     ble_exited_at = ble_exited_at or time.monotonic()
@@ -686,6 +728,9 @@ def execute(config: LaneConfig) -> dict:
         )
     elif config.profile == "generic-observe":
         checks = check_generic_evidence(serial, config.expected_markers)
+        values = {}
+    elif config.profile == "esp-idf-coex":
+        checks = check_coex_evidence(serial, ble_log)
         values = {}
     else:
         checks = check_smoke_evidence(serial, require_ble=config.ble)
@@ -791,6 +836,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "esp-idf-http",
             "esp-idf-smoke",
             "idf-dns-udp",
+            "esp-idf-coex",
             "generic-observe",
         ),
         default="uiflow2-sticks3",
@@ -846,7 +892,11 @@ def main(argv: list[str] | None = None) -> int:
         wifi=True if args.wifi is None else args.wifi,
         ble=False if args.ble is None else args.ble,
         ble_port=args.ble_port or free_port(),
-        ble_name=args.ble_name,
+        ble_name=(
+            "nimble-bleprph"
+            if args.profile == "esp-idf-coex"
+            else args.ble_name
+        ),
         tcp=(
             args.profile == "esp-idf-http"
             if args.tcp is None

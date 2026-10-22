@@ -81,6 +81,7 @@ NETWORK_PROFILES = {
     "esp-idf-http",
     "esp-idf-smoke",
     "idf-dns-udp",
+    "esp-idf-coex",
     "generic-observe",
 }
 
@@ -158,6 +159,7 @@ def parse_network_execution(
         "esp-idf-http": {"wifi": True, "ble": False, "tcp": True},
         "esp-idf-smoke": {"wifi": True, "ble": True, "tcp": False},
         "idf-dns-udp": {"wifi": True, "ble": False, "tcp": False},
+        "esp-idf-coex": {"wifi": True, "ble": True, "tcp": False},
         "uiflow2-sticks3": {"wifi": False, "ble": True, "tcp": False},
         "generic-observe": {"wifi": True, "ble": False, "tcp": False},
     }[profile]
@@ -212,7 +214,12 @@ def parse_network_execution(
         raise ServiceError(
             "invalid_network", "network.elf_artifact_id is invalid", 400
         )
-    ble_name = value.get("ble_name", "M5-NETWORK-LANE")
+    ble_name = value.get(
+        "ble_name",
+        "nimble-bleprph"
+        if profile == "esp-idf-coex"
+        else "M5-NETWORK-LANE",
+    )
     if not isinstance(ble_name, str) or not 1 <= len(ble_name) <= 29:
         raise ServiceError(
             "invalid_network", "network.ble_name must be 1-29 characters", 400
@@ -220,10 +227,14 @@ def parse_network_execution(
     wifi = boolean("wifi")
     ble = boolean("ble")
     tcp = boolean("tcp")
-    if ble and profile == "uiflow2-sticks3" and not elf_artifact_id:
+    if (
+        ble
+        and profile in {"uiflow2-sticks3", "esp-idf-coex"}
+        and not elf_artifact_id
+    ):
         raise ServiceError(
             "elf_required",
-            "uiflow2-sticks3 BLE requires network.elf_artifact_id",
+            f"{profile} BLE requires network.elf_artifact_id",
             400,
         )
     expected_markers = value.get("expected_markers", [])
