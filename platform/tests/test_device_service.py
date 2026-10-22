@@ -110,6 +110,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.service.artifacts.delete(artifact["artifact_id"])
         self.assertEqual(self.service.artifacts.list(), [])
 
+    def test_runtime_env_is_narrowly_allowlisted(self):
+        with self.assertRaises(ServiceError) as caught:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {"PATH": "/tmp"},
+                }
+            )
+        self.assertEqual(caught.exception.code, "invalid_runtime_env")
+
     def _stopped_session(self, firmware: bytes = b"\xff" * 1024):
         spec = self.service.specs["sticks3"]
         firmware_path = Path(self.tmp.name) / "firmware.bin"

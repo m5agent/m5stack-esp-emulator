@@ -64,6 +64,12 @@ EXCLUDED_DEVICES = {
 MAX_ARTIFACT_BYTES = 32 * 1024 * 1024
 MAX_SERIAL_READ = 256 * 1024
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
+ALLOWED_RUNTIME_ENV = {
+    "M5SW_I2S_DMA_IRQ",
+    "M5SW_I2S_PCM_FILE",
+    "M5SW_I2S_RX_PCM_FILE",
+    "M5SW_I2S_TRACE",
+}
 
 
 def iso_now() -> str:
@@ -627,6 +633,7 @@ class DeviceSession:
         ready_marker: str | None,
         ready_timeout: float,
         ready_conditions: dict | None,
+        runtime_env: dict[str, str] | None = None,
         events: list[dict] | None = None,
         created_at: str | None = None,
         completed_at: str | None = None,
@@ -645,6 +652,7 @@ class DeviceSession:
         self.firmware_sha = firmware_sha
         self.firmware_source = firmware_source
         self.source_artifacts = source_artifacts
+        self.runtime_env = dict(runtime_env or {})
         self.ttl_seconds = ttl_seconds
         self.ready_marker = ready_marker
         self.ready_timeout = ready_timeout
@@ -708,6 +716,7 @@ class DeviceSession:
             "firmware_sha256": self.firmware_sha,
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
+            "runtime_env": dict(self.runtime_env),
             "flash": self.flash_info,
             "ttl_seconds": self.ttl_seconds,
             "ready_marker": self.ready_marker,
@@ -765,6 +774,7 @@ class DeviceSession:
                     self.source_artifacts[0] if self.source_artifacts else None
                 ),
                 "source_artifacts": list(self.source_artifacts),
+                "runtime_env": dict(self.runtime_env),
                 "flash": self.flash_info,
                 "serial_bytes": serial_size,
                 "created_at": self.created_at,
@@ -870,6 +880,7 @@ class DeviceSession:
             command.extend(["-m", str(self.spec.memory)])
         env = os.environ.copy()
         env.update(self.spec.env)
+        env.update(self.runtime_env)
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
@@ -1700,6 +1711,9 @@ class Tab5DeviceSession(DeviceSession):
             self._hosted_socket.unlink()
         except FileNotFoundError:
             pass
+        launch_env = os.environ.copy()
+        launch_env.update(self.spec.env)
+        launch_env.update(self.runtime_env)
         c6_stdout = (self.dir / "c6.log").open("wb")
         self._c6_proc = subprocess.Popen(
             [
@@ -1709,6 +1723,7 @@ class Tab5DeviceSession(DeviceSession):
                 "--hosted", f"bridge:slave:{self._hosted_socket}",
             ],
             cwd=ROOT,
+            env=launch_env,
             stdout=c6_stdout,
             stderr=subprocess.STDOUT,
         )
@@ -1738,6 +1753,7 @@ class Tab5DeviceSession(DeviceSession):
             self._proc = subprocess.Popen(
                 command,
                 cwd=ROOT,
+                env=launch_env,
                 stdout=p4_stdout,
                 stderr=p4_stderr,
             )
@@ -2054,6 +2070,15 @@ class DeviceService:
                     if isinstance(record.get("ready_conditions"), dict)
                     else None
                 ),
+                runtime_env={
+                    key: value
+                    for key, value in (
+                        record.get("runtime_env")
+                        if isinstance(record.get("runtime_env"), dict)
+                        else {}
+                    ).items()
+                    if key in ALLOWED_RUNTIME_ENV and isinstance(value, str)
+                },
                 events=events,
                 created_at=(
                     record.get("created_at")
@@ -2337,6 +2362,27 @@ class DeviceService:
                 ready_conditions, dict
             ):
                 raise ServiceError("invalid_ready", "ready must be an object", 400)
+            runtime_env = payload.get("runtime_env", {})
+            if runtime_env is None:
+                runtime_env = {}
+            if not isinstance(runtime_env, dict):
+                raise ServiceError(
+                    "invalid_runtime_env", "runtime_env must be an object", 400
+                )
+            invalid_env = [
+                key
+                for key, value in runtime_env.items()
+                if key not in ALLOWED_RUNTIME_ENV
+                or not isinstance(value, str)
+                or "\x00" in value
+            ]
+            if invalid_env:
+                raise ServiceError(
+                    "invalid_runtime_env",
+                    "unsupported runtime_env keys or values: "
+                    + ", ".join(str(key) for key in invalid_env),
+                    400,
+                )
             ready_timeout = float(payload.get("ready_timeout_seconds", 30))
             session_class = (
                 Tab5DeviceSession
@@ -2356,6 +2402,7 @@ class DeviceService:
                 ready_marker=ready_marker,
                 ready_timeout=ready_timeout,
                 ready_conditions=ready_conditions,
+                runtime_env=runtime_env,
             )
             self._sessions[session.id] = session
         session.start()

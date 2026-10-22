@@ -215,6 +215,25 @@ not guarantee that the application reached its first frame or a serial marker.
 For application-level readiness, provide `ready_marker` in the create request
 or call `/wait`, then inspect serial and/or `/frame.png`.
 
+Audio data-plane tests can provide a narrow, trusted-local `runtime_env`
+object when creating a session:
+
+```json
+{
+  "device_id": "cores3",
+  "firmware_id": "<firmware-id>",
+  "runtime_env": {
+    "M5SW_I2S_DMA_IRQ": "1",
+    "M5SW_I2S_PCM_FILE": "/private/tmp/session/speaker.pcm",
+    "M5SW_I2S_RX_PCM_FILE": "/private/tmp/session/microphone.pcm"
+  }
+}
+```
+
+Only `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
+`M5SW_I2S_RX_PCM_FILE`, and `M5SW_I2S_TRACE` are accepted. This is a
+trusted-workstation control surface; do not expose it to untrusted tenants.
+
 The service stores the latest captured framebuffer as `last-frame.png` and
 `last-frame.json`. When a session stops, `frame.png` returns this last-known
 frame instead of failing. Session snapshots expose `last_frame_available` and

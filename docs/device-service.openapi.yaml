@@ -896,6 +896,14 @@ components:
           default: 30
         ready:
           $ref: "#/components/schemas/ReadyConditions"
+        runtime_env:
+          type: object
+          description: >
+            Trusted-local runtime overrides for the QEMU process. Only
+            M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE, M5SW_I2S_RX_PCM_FILE and
+            M5SW_I2S_TRACE are accepted.
+          additionalProperties:
+            type: string
     Session:
       type: object
       additionalProperties: true
