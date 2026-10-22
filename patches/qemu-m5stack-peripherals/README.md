@@ -67,6 +67,9 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
 - optional raw camera frame injection through `M5SW_CAMERA_FRAME`;
 - Cardputer-Adv, AtomS3R, Core2, PaperColor, PaperMono, StackChan and StamPLC
   peripheral attachment updates.
+- ESP32-S3 Bluetooth low-power clock register readback, the RWIP busy/ID/time
+  handshake used by precompiled BLE controller firmware, and both validated
+  CO5300 QSPI command byte layouts used by UIFlow2 and MotoNav.
 
 Historical incremental replay uses `0001` then `0002`. For a fresh upstream
 tree, use the current standalone snapshot `0003` followed by the PCM capture
@@ -86,6 +89,7 @@ git apply /path/to/0011-imx219-register-controlled-frames-and-gl852g-tt.patch
 git apply /path/to/0012-stackchan-correct-bm8563-rtc.patch
 git apply /path/to/0013-papermono-buzzer-and-power-key.patch
 git apply /path/to/0014-m5-lcd-cam-runtime-frame-seed.patch
+git apply /path/to/0015-motonav-rwip-and-co5300-framing.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -173,3 +177,12 @@ board power-key signal shared by PaperMono and PaperColor.
 camera frame seed through QOM, adds per-frame auto-increment, and registers
 `/machine/m5-lcd-cam`. CoreS3 can therefore observe changing frame content
 across runtime snapshots while StackChan keeps its single-frame path.
+
+`0015-motonav-rwip-and-co5300-framing.patch` closes two firmware-path gaps
+found while booting the unmodified MotoNav v7.12.3 StopWatch image. ESP32-S3
+now preserves the `SYSTEM_BT_LPCK_DIV_INT/FRAC` registers long enough for the
+BTDM low-power setup readback, exposes the RWIP control/ID/time handshake used
+by BLE controller startup, and the CO5300 accepts both
+`[op, 00, cmd, 00]` and `[op, cmd, 00, 00]` QSPI address phase layouts. The
+same StopWatch image now produces the MotoNav link page while the reference
+UIFlow2 image still renders normally.
