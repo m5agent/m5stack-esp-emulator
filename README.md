@@ -191,6 +191,39 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - CardputerZero 不是 UIFlow2/ESP32 固件目标。
 - 公开仓库不包含第三方固件、ROM、设备标识或云端凭据。
 
+## 参考项目与致谢
+
+本项目的多主控适配和验证流程参考了以下公开项目：
+
+- [zqqf16/M5StopWatch-QEMU](https://github.com/zqqf16/M5StopWatch-QEMU)：
+  StopWatch QEMU 适配、板级模型与早期 UI 验证思路的重要参考。
+- [espressif/esp-emulator](https://github.com/espressif/esp-emulator)：
+  ESP32-C3/C6/P4 RISC-V 运行时、esptool 下载接口、UART/GDB 控制能力。
+- [espressif/qemu](https://github.com/espressif/qemu)：
+  ESP32/S3/P4 QEMU SoC 与板级模型的源码基础。
+- [m5stack/uiflow-micropython](https://github.com/m5stack/uiflow-micropython)：
+  UIFlow2 固件构建、板型配置和 MicroPython API 来源。
+- [m5stack/M5GFX](https://github.com/m5stack/M5GFX) 与
+  [m5stack/M5Unified](https://github.com/m5stack/M5Unified)：
+  显示、触摸、板型探测和设备外设路径。
+- [espressif/esp-toolchain-docs](https://github.com/espressif/esp-toolchain-docs)：
+  QEMU 与 esptool/ESP-IDF 联调方法的公开文档。
+- [m5stack/m5stack-linux-dtoverlays](https://github.com/m5stack/m5stack-linux-dtoverlays)：
+  CardputerZero 官方 Linux 设备树 overlay 来源。
+- [CardputerZero/FactoryTest](https://github.com/CardputerZero/FactoryTest)：
+  CardputerZero 官方外设探测、音频、摄像头和电源接口行为参考。
+- [torvalds/linux `sound/soc/codecs/es8389.c`](https://github.com/torvalds/linux/blob/master/sound/soc/codecs/es8389.c)
+  与 [bouffalolab/bouffalo_sdk `audio_codec_es8389.c`](https://github.com/bouffalolab/bouffalo_sdk/blob/master/bsp/common/audio_codec/audio_codec_es8389.c)：
+  ES8389 寄存器布局、身份寄存器与编解码控制路径参考。
+- [Linux `r8152.c`](https://github.com/raspberrypi/linux/blob/rpi-6.6.y/drivers/net/usb/r8152.c)
+  与 [CoreChips SR9900A 数据手册](https://www.lcsc.com/datasheet/C521278.pdf)：
+  SR9900A 的 RTL8152-compatible USB 控制、TX/RX 描述符和以太网数据面参考。
+- [Genesys Logic GL852G 数据手册](https://www.lcsc.com/datasheet/C7501404.pdf)：
+  `05e3:0610` 默认身份、四口 Hub 与 USB 2.0 行为参考。
+
+各组件的许可与二进制再分发边界见
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
+
 ## License
 
 项目原创代码与文档采用 [MIT License](LICENSE)。QEMU 补丁、WASM、产品参考图
