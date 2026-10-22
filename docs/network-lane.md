@@ -64,6 +64,13 @@ by `esp-emu` for HCI interception. The Device Service selects
 `user,restrict=yes` for this profile by default. This is the fallback for
 firmware whose startup protocol is not known in advance.
 
+For a generic run that does not reach its required markers, `evidence.json`
+includes a non-fatal `diagnosis` object. The categories distinguish board
+detection, crash/assert, reboot, peripheral initialization, guest marker
+timeout and console/boot visibility. The classification is based on explicit
+native log signatures where possible and does not change the guest or convert
+an unverified result into PASS.
+
 Every run writes `serial.log`, `ble-probe.log` and `evidence.json` under the
 selected output directory. Binary hashes identify the exact firmware, ELF and
 emulator used. Passwords are redacted from the command and evidence.

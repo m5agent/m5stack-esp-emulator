@@ -74,6 +74,8 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   that aborts in `esp_flash_init_default_chip()` after a failed QIE write.
 - Cardputer ADV QMP-to-TCA8418 matrix encoding for printable keys, Enter,
   Space, Tab, Backspace and FN-arrow combinations.
+- CS-gated direct SPI panel ID reads so M5GFX autodetection probes using
+  unselected pin groups do not all observe the same ST7789 identity.
 
 Historical incremental replay uses `0001` then `0002`. For a fresh upstream
 tree, use the current standalone snapshot `0003` followed by the PCM capture
@@ -96,6 +98,7 @@ git apply /path/to/0014-m5-lcd-cam-runtime-frame-seed.patch
 git apply /path/to/0015-motonav-rwip-and-co5300-framing.patch
 git apply /path/to/0016-gigadevice-status2-qio.patch
 git apply /path/to/0017-cardputer-adv-qmp-key-matrix.patch
+git apply /path/to/0018-gpspi-cs-gated-panel-id.patch
 ninja -C build qemu-system-xtensa
 ```
 
