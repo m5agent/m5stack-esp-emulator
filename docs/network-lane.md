@@ -105,9 +105,17 @@ device. A stock Core2 UIFlow2 scan probe now reaches the real network driver:
 APs in every recorded run. Probe, authentication and association management
 frames are exchanged, DHCP completes, and UIFlow2 reports `10.0.2.15/24` with
 gateway `10.0.2.2`. A controlled host HTTP GET returns `200 OK`; DNS, external
-internet access and BLE are still `NOT RUN`. The Device Service keeps Core2
-`network_status: not-supported` until the optional patch is integrated into its
-default runtime.
+internet access and BLE beyond advertising enable are still `NOT RUN`.
+
+A following classic-ESP32 BT bootstrap patch maps the missing `0x3ff70000`
+Bluetooth RAM/control window and models the ROM core identities, clock
+handshake and fine-timer-mask state. Stock UIFlow2 now prints
+`CORE2_BLE_ACTIVE True`, completes GAP configuration and returns from
+`gap_advertise()` with `CORE2_BLE_RESULT: PASSED`. No external device has
+observed the advertisement or completed GATT discovery/write, so this is a
+controller/control-plane PASS, not a full BLE data-plane PASS. The Device
+Service exposes both paths as environment-gated `qemu-wifi` and `qemu-ble`
+runtimes while keeping catalog `network_status: unverified`.
 
 The UIFlow2 device-local WiFi probe under `tests/uiflow2/network_probe/`
 replaces only the user scripts in a compatible S3/C6 image and requires the
@@ -183,7 +191,9 @@ All modeled ESP32-S3 devices (StickS3, AtomS3R, CoreS3, StopWatch, Cardputer
 ADV, StackChan, PaperColor, PaperMono and StamPLC) and C6 devices (NanoC6 and
 Nesso N1) currently use `validated`. The S3 results use observable UART-REPL
 test builds; the stock images disable the REPL, so their UART0 I2C logs are not
-evidence that the apps failed to start. Core2 and Tab5 are `not-supported`.
+evidence that the apps failed to start. Tab5 remains `not-supported`; Core2
+radio paths remain environment-gated experimental profiles and are not
+promoted to `validated`.
 Public firmware can still stop in a separate board-detection or peripheral
 self-test path before networking; that blocker must not be reported as a
 WiFi/BLE regression.

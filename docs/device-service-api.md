@@ -215,9 +215,10 @@ through the separate `esp-emu` network/BLE lane. Network sessions do not expose
 framebuffer, input, QOM or same-instance board state; those remain in the QEMU
 lane.
 
-Core2 has an explicit experimental `qemu-wifi` runtime when the service starts
-with `M5_CORE2_WIFI_QEMU` pointing at a QEMU build containing the
-`misc.esp32_wifi` model:
+Core2 has experimental `qemu-wifi` and `qemu-ble` runtimes when the service
+starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing the
+classic ESP32 WiFi and Bluetooth models. `M5_CORE2_WIFI_QEMU` remains a
+compatibility alias for existing deployments.
 
 ```json
 {
@@ -241,6 +242,28 @@ ID, then mounts that exact copy as the QEMU MTD drive without invoking esptool.
 A partial image is rejected instead of being silently padded in this lane.
 This runtime remains `unverified` in the catalog and is not enabled without the
 environment-selected patched QEMU.
+
+The BLE controller bootstrap uses the same QEMU instance and guest UART/frame/
+QOM paths:
+
+```json
+{
+  "device_id": "core2",
+  "runtime": "qemu-ble",
+  "network": {
+    "profile": "core2-ble-advertise",
+    "expected_markers": [
+      "CORE2_BLE_ACTIVE True",
+      "CORE2_BLE_RESULT: PASSED"
+    ],
+    "attempts": 5
+  }
+}
+```
+
+This scope currently proves stock UIFlow2 NimBLE activation, GAP configuration,
+controller reset and advertising enable. It does not provide an external BLE
+peer, over-the-air observation, connection or GATT data-plane evidence.
 
 State machine:
 
@@ -611,8 +634,9 @@ after a service restart.
 
 - network sessions are a separate lane and do not combine board peripherals
   with the same guest instance;
-- Core2 WiFi is limited to the environment-gated experimental `qemu-wifi`
-  runtime; Core2 BLE is not implemented;
+- Core2 radio support is limited to the environment-gated experimental
+  `qemu-wifi` and `qemu-ble` runtimes; BLE currently stops at controller and
+  advertising-enable evidence, without an external peer or GATT data plane;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the

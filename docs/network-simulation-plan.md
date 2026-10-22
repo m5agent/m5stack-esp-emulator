@@ -44,6 +44,8 @@ Validated on `2026-10-22`:
   UIFlow2 `network.WLAN` activate, scan three virtual APs, associate and obtain
   DHCP address `10.0.2.15`, with observable 802.11 management frames and a
   controlled HTTP `200 OK`.
+- the classic ESP32 BT bootstrap patch lets the same stock Core2 UIFlow2 image
+  activate NimBLE, configure its GAP name and return from `gap_advertise()`.
 
 What is not yet proven:
 
@@ -54,11 +56,11 @@ What is not yet proven:
 - packet capture, DNS policy, TLS/HTTP test services and multi-device isolation
   in the regular regression matrix;
 - stock Core2 UIFlow2 DNS and external internet access: the optional OpenMAC
-  patch completes scan, association, DHCP and controlled HTTP, but DNS,
-  external internet behavior and BLE remain unverified;
-- stock Core2 UIFlow2 BLE: the local baseline panics in `btdm_app_ref_init`
-  on `0x3ff7120c` because the classic ESP32 Bluetooth controller block is
-  absent;
+  patch completes scan, association, DHCP and controlled HTTP, but DNS and
+  external internet behavior remain unverified;
+- stock Core2 UIFlow2 BLE beyond advertising enable: no external peer has
+  observed an over-the-air advertisement, connection, GATT service or ACL
+  exchange yet;
 - security conclusions about untrusted firmware based only on network traffic.
 
 The QEMU ESP32-S3/LX6 board path currently contains PHY bring-up stubs, not an
@@ -72,7 +74,7 @@ does not mean the device is online.
 | All modeled ESP32-S3 boards | `esp-emu` WiFi SoftAP + user/TAP backend | All nine S3 devices pass UIFlow2 WiFi+BLE on same-instance UART-REPL test builds |
 | ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | Device-local UIFlow2 WiFi+BLE PASS on same-source NanoC6 and Nesso N1 builds; ESP-IDF coexist also PASS |
 | ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
-| ESP32 LX6 Core2 | Optional OpenMAC QEMU WiFi model; separate OpenETH fixture | Stock UIFlow2 WiFi scan + association + DHCP/IP + controlled HTTP PASS; DNS/external internet and BLE `NOT RUN` |
+| ESP32 LX6 Core2 | Optional OpenMAC WiFi and BT bootstrap QEMU models; separate OpenETH fixture | Stock UIFlow2 WiFi scan + association + DHCP/IP + controlled HTTP PASS; BLE active/config/advertising-enable PASS; external BLE peer/GATT, DNS and external internet `NOT RUN` |
 | CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |
 
 Therefore “all simulated devices online” needs two scopes:
@@ -180,8 +182,8 @@ itself. For untrusted firmware:
 | N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | 3–5 working days |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |
-| N5 | Core2 ESP32 LX6 WiFi/PHY path or alternative runtime | Scan, association, DHCP/IP and controlled HTTP DONE behind an optional QEMU patch; DNS/external network and BLE remain open |
-| N6 | Optional same-instance QEMU board + WiFi/radio model | 2–4 weeks |
+| N5 | Core2 ESP32 LX6 WiFi/PHY and BLE controller path or alternative runtime | WiFi data path DONE; BLE controller/advertising DONE; external peer/GATT, DNS and external network remain open |
+| N6 | Optional same-instance QEMU board + WiFi/radio model | Core2 WiFi data plane and BLE advertising control path are available behind optional patches; full BLE data-plane closure remains open |
 
 N0–N3 are the recommended scope before claiming “all S3/C6/P4 simulated
 devices can go online.” N5 extends the claim to Core2. N6 is only needed if a

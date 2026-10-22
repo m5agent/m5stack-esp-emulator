@@ -28,12 +28,13 @@ complete simulated device or as a unified-device PASS.
   display/input/framebuffer path.
 - `esp-emu` has validated WiFi/BLE behavior on S3/C6, including same-instance
   WiFi + BLE inside one `esp-emu` guest.
-- The QEMU classic-ESP32 experiment at
-  `/tmp/m5qemu-core2-openmac.l6vOEl` contains a `misc.esp32_wifi` model and
-  reaches WiFi scan plus probe-request transmission, but has not completed
-  association or DHCP. This is a prototype, not the final radio model.
-- The QEMU runtime does not yet have a complete native WiFi MAC/PHY or BLE
-  controller model for the M5Stack product families.
+- The QEMU classic-ESP32 experiment contains a `misc.esp32_wifi` model and
+  completes scan, association, DHCP and controlled HTTP in the same guest.
+  A following BT bootstrap exposes the 64 KiB BT RAM/control page and lets
+  stock UIFlow2 activate NimBLE and enable advertising.
+- The QEMU BLE path does not yet expose an external peer or GATT data plane;
+  the remaining boundary is the classic ESP32 controller's radio/timer/HCI
+  data path, not UIFlow2's Python BLE API.
 
 ## Integration rule
 
@@ -58,6 +59,8 @@ finished chip model.
   documented exception unless QEMU reaches equivalent P4/C6 coverage.
 - **Core2 classic ESP32:** extend QEMU with the missing MAC/PHY and Bluetooth
   controller blocks; OpenETH is not a substitute for stock `network.WLAN`.
+  Current optional patches cover WiFi user-net and BLE advertising control;
+  external BLE peer/GATT remains the next vertical slice.
 
 ## Acceptance milestone
 

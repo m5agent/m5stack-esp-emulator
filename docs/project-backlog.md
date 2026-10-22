@@ -52,13 +52,16 @@ Implemented on 2026-10-22:
   scans three virtual APs, completes association and DHCP, and observes
   probe/authentication/association management frames plus a controlled
   HTTP `200 OK`;
-- exact Core2 BLE failure remains pinned by the stock baseline probe.
+- a following classic-ESP32 BT bootstrap lets stock Core2 UIFlow2 activate
+  NimBLE, configure GAP and return successfully from `gap_advertise()`;
+- external observation, BLE connection and GATT data-plane evidence for
+  Core2 remain `NOT RUN`.
 
 Still open:
 
 - isolated DNS policy and host packet summaries;
 - combined board-peripheral plus network guest.
-- Core2 DNS, external internet request coverage and BLE.
+- Core2 DNS, external internet request coverage and external BLE peer/GATT.
 
 Rough effort:
 

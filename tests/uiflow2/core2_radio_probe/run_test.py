@@ -73,6 +73,8 @@ def build_image(probe_dir: Path, out_dir: Path) -> Path:
 
 
 def run_qemu(
+    qemu: Path,
+    rom_dir: Path,
     image: Path,
     out_dir: Path,
     timeout: float,
@@ -81,7 +83,7 @@ def run_qemu(
     serial_path = out_dir / "serial.log"
     serial_path.unlink(missing_ok=True)
     command = [
-        str(QEMU),
+        str(qemu),
         "-m",
         "0",
         "-M",
@@ -89,7 +91,7 @@ def run_qemu(
         "-drive",
         f"file={image},if=mtd,format=raw",
         "-L",
-        str(ROM_DIR),
+        str(rom_dir),
         "-display",
         "none",
         "-serial",
@@ -131,7 +133,13 @@ def main() -> int:
     parser.add_argument("--timeout", type=float, default=30)
     parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--skip-build", action="store_true")
+    parser.add_argument("--qemu", type=Path, default=QEMU)
+    parser.add_argument("--rom-dir", type=Path, default=ROM_DIR)
+    parser.add_argument("--retry-after-main-failure", action="store_true")
     args = parser.parse_args()
+    for label, path in (("QEMU", args.qemu), ("ROM directory", args.rom_dir)):
+        if not path.exists():
+            parser.error(f"{label} does not exist: {path}")
     args.out_dir.mkdir(parents=True, exist_ok=True)
     probe_dir = PROBE_ROOT / args.probe
     prefix = "WIFI" if args.probe == "wifi" else "BLE"
@@ -154,6 +162,8 @@ def main() -> int:
         shutil.copyfile(image, attempt_image)
         attempt_input_sha256 = sha256(attempt_image)
         qemu_exit, serial, qemu_stderr = run_qemu(
+            args.qemu,
+            args.rom_dir,
             attempt_image,
             attempt_dir,
             args.timeout,
@@ -161,9 +171,14 @@ def main() -> int:
         )
         serial_path = attempt_dir / "serial.log"
         reached_main = f"CORE2_{prefix}_MAIN_START" in serial
+        attempt_passed = (
+            f"CORE2_{prefix}_ACTIVE True" in serial
+            and f"CORE2_{prefix}_RESULT: PASSED" in serial
+        )
         attempts.append(
             {
                 "attempt": attempt_index,
+                "status": "PASS" if attempt_passed else "FAIL",
                 "reached_main": reached_main,
                 "serial_path": str(serial_path),
                 "serial_bytes": serial_path.stat().st_size,
@@ -174,7 +189,12 @@ def main() -> int:
                 "qemu_stderr": qemu_stderr[-2000:],
             }
         )
-        if reached_main:
+        retry_after_main = (
+            args.retry_after_main_failure
+            and reached_main
+            and not attempt_passed
+        )
+        if reached_main and not retry_after_main:
             selected = (attempt_dir, qemu_exit, serial, qemu_stderr)
             break
     if selected is None:
@@ -233,8 +253,8 @@ def main() -> int:
             "base_sha256": sha256(BASE),
         },
         "qemu": {
-            "path": display_path(QEMU),
-            "sha256": sha256(QEMU),
+            "path": display_path(args.qemu),
+            "sha256": sha256(args.qemu),
             "exit_code": qemu_exit,
             "stderr": qemu_stderr[-4000:],
         },

@@ -97,7 +97,9 @@ NETWORK_STATUSES = {
     "not-supported",
 }
 CORE2_WIFI_PROFILE = "core2-openmac"
+CORE2_BLE_PROFILE = "core2-ble-advertise"
 QEMU_WIFI_RUNTIME = "qemu-wifi"
+QEMU_BLE_RUNTIME = "qemu-ble"
 
 
 def iso_now() -> str:
@@ -334,20 +336,22 @@ def parse_network_execution(
     }
 
 
-def core2_wifi_qemu_path() -> Path:
-    raw_path = os.environ.get("M5_CORE2_WIFI_QEMU")
+def core2_radio_qemu_path() -> Path:
+    raw_path = os.environ.get("M5_CORE2_RADIO_QEMU") or os.environ.get(
+        "M5_CORE2_WIFI_QEMU"
+    )
     if not raw_path:
         raise ServiceError(
             "qemu_wifi_backend_unavailable",
-            "M5_CORE2_WIFI_QEMU must point to a QEMU build with "
-            "misc.esp32_wifi support",
+            "M5_CORE2_RADIO_QEMU must point to a QEMU build with "
+            "classic ESP32 WiFi/BT support",
             503,
         )
     path = Path(raw_path)
     if not path.is_file() or not os.access(path, os.X_OK):
         raise ServiceError(
             "qemu_wifi_backend_unavailable",
-            "M5_CORE2_WIFI_QEMU does not point to an executable file",
+            "Core2 radio QEMU does not point to an executable file",
             503,
         )
     return path
@@ -402,11 +406,61 @@ def parse_qemu_wifi_execution(
             "network.attempts must be an integer from 1 to 10",
             400,
         )
-    core2_wifi_qemu_path()
+    core2_radio_qemu_path()
     return {
         "profile": profile,
         "net_mode": net_mode,
         "nic": "misc.esp32_wifi",
+        "expected_markers": expected_markers,
+        "attempts": attempts,
+    }
+
+
+def parse_qemu_ble_execution(
+    spec: DeviceSpec,
+    value: Any,
+) -> dict:
+    if spec.id != "core2":
+        raise ServiceError(
+            "qemu_ble_not_supported",
+            "qemu-ble is currently limited to Core2 classic ESP32",
+            409,
+        )
+    if value is None:
+        value = {}
+    if not isinstance(value, dict):
+        raise ServiceError("invalid_network", "network must be an object", 400)
+    profile = value.get("profile", CORE2_BLE_PROFILE)
+    if profile != CORE2_BLE_PROFILE:
+        raise ServiceError(
+            "unsupported_network_profile",
+            f"unsupported qemu-ble profile: {profile!r}",
+            400,
+        )
+    expected_markers = value.get("expected_markers", [])
+    if (
+        not isinstance(expected_markers, list)
+        or len(expected_markers) > 16
+        or any(
+            not isinstance(marker, str) or not 1 <= len(marker) <= 200
+            for marker in expected_markers
+        )
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.expected_markers must contain at most 16 short strings",
+            400,
+        )
+    attempts = value.get("attempts", 5)
+    if not isinstance(attempts, int) or not 1 <= attempts <= 10:
+        raise ServiceError(
+            "invalid_network",
+            "network.attempts must be an integer from 1 to 10",
+            400,
+        )
+    core2_radio_qemu_path()
+    return {
+        "profile": profile,
         "expected_markers": expected_markers,
         "attempts": attempts,
     }
@@ -571,10 +625,13 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, "uiflow2-sticks3")
             if (
                 device_id == "core2"
-                and os.environ.get("M5_CORE2_WIFI_QEMU")
+                and (
+                    os.environ.get("M5_CORE2_RADIO_QEMU")
+                    or os.environ.get("M5_CORE2_WIFI_QEMU")
+                )
             ):
-                core2_wifi_qemu_path()
-                network_profiles = [CORE2_WIFI_PROFILE]
+                core2_radio_qemu_path()
+                network_profiles = [CORE2_WIFI_PROFILE, CORE2_BLE_PROFILE]
                 network_status = "unverified"
             reason = excluded_reason
             if not backend and reason is None:
@@ -1153,13 +1210,15 @@ class DeviceSession:
                 "error": self.error,
                 "display": self.spec.display,
                 "display_available": (
-                    self.runtime in {"qemu", QEMU_WIFI_RUNTIME}
+                    self.runtime
+                    in {"qemu", QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
                     and self.spec.has_display
                 ),
                 "last_frame_available": self.last_frame_path.is_file(),
                 "last_frame_captured_at": frame_meta.get("captured_at"),
                 "device_state_supported": bool(
-                    self.runtime in {"qemu", QEMU_WIFI_RUNTIME}
+                    self.runtime
+                    in {"qemu", QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
                     and self.spec.state_probes
                 ),
                 "last_device_state_available": self.device_state_path.is_file(),
@@ -1193,10 +1252,10 @@ class DeviceSession:
             self._persist_session()
 
     def network_evidence(self) -> dict:
-        if self.runtime != QEMU_WIFI_RUNTIME:
+        if self.runtime not in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
             raise ServiceError(
                 "network_evidence_not_supported",
-                "network evidence is available only for qemu-wifi sessions",
+                "network evidence is available only for qemu radio sessions",
                 409,
             )
         serial = (
@@ -1220,7 +1279,11 @@ class DeviceSession:
             status = "RUNNING" if self.state in ACTIVE_STATES else "FAIL"
         return {
             "schema_version": 1,
-            "kind": "m5stack-qemu-wifi-proof",
+            "kind": (
+                "m5stack-qemu-wifi-proof"
+                if self.runtime == QEMU_WIFI_RUNTIME
+                else "m5stack-qemu-ble-proof"
+            ),
             "scope": "simulation-only-not-hardware-validation",
             "status": status,
             "session_id": self.id,
@@ -1236,7 +1299,10 @@ class DeviceSession:
             "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
             "not_claimed": [
                 "real-hardware behavior",
-                "BLE",
+                "BLE" if self.runtime == QEMU_WIFI_RUNTIME else "WiFi",
+                "external BLE peer/GATT"
+                if self.runtime == QEMU_BLE_RUNTIME
+                else "external peer coverage",
                 "malware sandboxing",
             ],
         }
@@ -1259,8 +1325,8 @@ class DeviceSession:
             self._record_event("flash_prepared", **self.flash_info)
             self._persist_session()
             self._set_state("booting")
-            if self.runtime == QEMU_WIFI_RUNTIME:
-                self._provision_qemu_wifi(prepared["path"])
+            if self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
+                self._provision_qemu_radio(prepared["path"])
             else:
                 self._launch()
                 if self.ready_conditions:
@@ -1282,7 +1348,7 @@ class DeviceSession:
                 self._persist_session()
             self._terminate_process()
 
-    def _provision_qemu_wifi(self, clean_flash: Path) -> None:
+    def _provision_qemu_radio(self, clean_flash: Path) -> None:
         attempts = int(self.network_config.get("attempts", 5))
         last_error: ServiceError | None = None
         for attempt in range(1, attempts + 1):
@@ -1304,7 +1370,7 @@ class DeviceSession:
                     )
                 self.network_result = self.network_evidence()
                 self._record_event(
-                    "qemu_wifi_attempt",
+                    "qemu_radio_attempt",
                     attempt=attempt,
                     status="PASS",
                 )
@@ -1312,7 +1378,7 @@ class DeviceSession:
             except ServiceError as error:
                 last_error = error
                 self._record_event(
-                    "qemu_wifi_attempt",
+                    "qemu_radio_attempt",
                     attempt=attempt,
                     status="FAIL",
                     error=error.message,
@@ -1351,8 +1417,8 @@ class DeviceSession:
         except FileNotFoundError:
             pass
         qemu_path = (
-            core2_wifi_qemu_path()
-            if self.runtime == QEMU_WIFI_RUNTIME
+            core2_radio_qemu_path()
+            if self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
             else self.spec.qemu
         )
         command = [
@@ -2089,7 +2155,8 @@ class DeviceSession:
         if (
             "frames" in include
             and self.spec.has_display
-            and self.runtime in {"qemu", QEMU_WIFI_RUNTIME}
+            and self.runtime
+            in {"qemu", QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
         ):
             try:
                 frame = self.frame_metrics()
@@ -2102,7 +2169,8 @@ class DeviceSession:
         if (
             "qom" in include
             and self.spec.service_kind == "qemu"
-            and self.runtime in {"qemu", QEMU_WIFI_RUNTIME}
+            and self.runtime
+            in {"qemu", QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
         ):
             try:
                 snapshot = self.qom_snapshot(path="/machine", depth=2, max_nodes=500)
@@ -2128,7 +2196,7 @@ class DeviceSession:
                 if path.is_file():
                     files[name] = path.read_bytes()
             manifest["network"] = self.network_evidence()
-        elif self.runtime == QEMU_WIFI_RUNTIME:
+        elif self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
             network_payload = self.network_evidence()
             files["network/evidence.json"] = (
                 json.dumps(network_payload, ensure_ascii=False, indent=2) + "\n"
@@ -2885,6 +2953,7 @@ class DeviceService:
                     "qemu",
                     "network",
                     QEMU_WIFI_RUNTIME,
+                    QEMU_BLE_RUNTIME,
                 }
                 else "qemu"
             )
@@ -3118,7 +3187,7 @@ class DeviceService:
         *,
         runtime: str = "qemu",
     ) -> dict:
-        if runtime == QEMU_WIFI_RUNTIME:
+        if runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
             data = image.read_bytes()
             info = validate_complete_flash_image(
                 data,
@@ -3221,10 +3290,15 @@ class DeviceService:
             source_artifacts = []
 
         runtime = payload.get("runtime", "qemu")
-        if runtime not in {"qemu", "network", QEMU_WIFI_RUNTIME}:
+        if runtime not in {
+            "qemu",
+            "network",
+            QEMU_WIFI_RUNTIME,
+            QEMU_BLE_RUNTIME,
+        }:
             raise ServiceError(
                 "unsupported_runtime",
-                "runtime must be qemu, network or qemu-wifi",
+                "runtime must be qemu, network, qemu-wifi or qemu-ble",
                 400,
             )
         network_config = None
@@ -3238,6 +3312,11 @@ class DeviceService:
                 self.artifacts.get(str(elf_artifact_id))
         elif runtime == QEMU_WIFI_RUNTIME:
             network_config = parse_qemu_wifi_execution(
+                spec,
+                payload.get("network"),
+            )
+        elif runtime == QEMU_BLE_RUNTIME:
+            network_config = parse_qemu_ble_execution(
                 spec,
                 payload.get("network"),
             )
@@ -3413,6 +3492,12 @@ class DeviceService:
                     in self.specs["core2"].network_profiles
                     else "disabled"
                 ),
+                "qemu-ble": (
+                    "enabled-core2-experimental"
+                    if CORE2_BLE_PROFILE
+                    in self.specs["core2"].network_profiles
+                    else "disabled"
+                ),
                 "tab5": "enabled-partial",
                 "flash": "prepared-cache + exact artifact",
             },
@@ -3468,16 +3553,16 @@ def validate_complete_flash_image(
 ) -> dict:
     """Validate a complete flash image without rewriting it.
 
-    The qemu-wifi lane accepts images that are already merged for direct use as
-    an MTD drive. It must not invoke esptool or silently pad a partial image:
-    doing either would make the resulting boot behavior differ from the exact
-    bytes the caller submitted.
+    The qemu radio lanes accept images that are already merged for direct use
+    as an MTD drive. They must not invoke esptool or silently pad a partial
+    image: doing either would make the resulting boot behavior differ from the
+    exact bytes the caller submitted.
     """
 
     if len(data) != flash_size:
         raise ServiceError(
             "complete_flash_image_required",
-            f"qemu-wifi requires a complete {flash_size}-byte flash image; "
+            f"qemu radio requires a complete {flash_size}-byte flash image; "
             f"received {len(data)} bytes",
             400,
         )

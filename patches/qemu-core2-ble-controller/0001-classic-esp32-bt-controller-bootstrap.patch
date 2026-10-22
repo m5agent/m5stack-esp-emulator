@@ -1,0 +1,144 @@
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+index 692c0fc..459538d 100644
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -35,6 +35,7 @@
+ #include "sysemu/runstate.h"
+ #include "sysemu/blockdev.h"
+ #include "sysemu/block-backend.h"
++#include "qemu/timer.h"
+ #include "exec/exec-all.h"
+ #include "net/net.h"
+ #include "elf.h"
+@@ -57,6 +58,7 @@ enum {
+     ESP32_MEMREGION_RTCSLOW,
+     ESP32_MEMREGION_RTCFAST_D,
+     ESP32_MEMREGION_RTCFAST_I,
++    ESP32_MEMREGION_BT,
+     ESP32_MEMREGION_FRAMEBUF,
+ };
+ 
+@@ -73,6 +75,7 @@ static const struct MemmapEntry {
+     [ESP32_MEMREGION_RTCSLOW] = { 0x50000000, 0x2000 },
+     [ESP32_MEMREGION_RTCFAST_I] = { 0x400C0000, 0x2000 },
+     [ESP32_MEMREGION_RTCFAST_D] = { 0x3ff80000, 0x2000 },
++    [ESP32_MEMREGION_BT] = { 0x3ff70000, 0x10000 },
+     /* Virtual Framebuffer, used for the graphical interface */
+     [ESP32_MEMREGION_FRAMEBUF] = { 0x20000000, ESP_RGB_MAX_VRAM_SIZE }
+ };
+@@ -85,6 +88,66 @@ enum {
+ #define ESP32_SOC_RESET_RTC       0x8
+ #define ESP32_SOC_RESET_ALL       (ESP32_SOC_RESET_RTC | ESP32_SOC_RESET_DIG)
+ 
++typedef struct {
++    MemoryRegion iomem;
++    uint32_t regs[0x1000 / sizeof(uint32_t)];
++} Esp32BtState;
++
++static uint64_t esp32_bt_read(void *opaque, hwaddr offset, unsigned size)
++{
++    Esp32BtState *s = opaque;
++
++    if ((offset == 0x000 || offset == 0x200) && size == 4) {
++        return s->regs[offset / sizeof(uint32_t)] & 0x3fffffff;
++    }
++    if ((offset & 0xff) == 0x01c && size == 4) {
++        /*
++         * The Bluetooth ROM clock helper requests a sample by setting the
++         * busy bit, then polls until hardware clears it.  Model that request
++         * as immediate and return the low half of a free-running microsecond
++         * counter in the remaining bits.
++         */
++        return ((uint64_t)qemu_clock_get_us(QEMU_CLOCK_VIRTUAL)) &
++               0x7fffffff;
++    }
++    return s->regs[offset / sizeof(uint32_t)];
++}
++
++static void esp32_bt_write(void *opaque, hwaddr offset, uint64_t value,
++                           unsigned size)
++{
++    Esp32BtState *s = opaque;
++
++    if ((offset == 0x000 || offset == 0x200) && size == 4) {
++        s->regs[offset / sizeof(uint32_t)] =
++            (uint32_t)value & 0x3fffffff;
++        if (offset == 0x000) {
++            s->regs[0] |= 1U << 9;
++        }
++        return;
++    }
++    if ((offset & 0xff) == 0x01c && size == 4) {
++        s->regs[offset / sizeof(uint32_t)] = (uint32_t)value & 0x7fffffff;
++        return;
++    }
++    if (offset == 0x00c && size == 4) {
++        s->regs[offset / sizeof(uint32_t)] =
++            ((uint32_t)value & ~(1U << 9)) | (1U << 9);
++        return;
++    }
++    s->regs[offset / sizeof(uint32_t)] = (uint32_t)value;
++}
++
++static const MemoryRegionOps esp32_bt_ops = {
++    .read = esp32_bt_read,
++    .write = esp32_bt_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid = {
++        .min_access_size = 1,
++        .max_access_size = 4,
++    },
++};
++
+ 
+ 
+ 
+@@ -297,6 +360,7 @@ static void esp32_soc_realize(DeviceState *dev, Error **errp)
+ {
+     Esp32SocState *s = ESP32_SOC(dev);
+     MachineState *ms = MACHINE(qdev_get_machine());
++    Esp32BtState *bt_state;
+ 
+     const struct MemmapEntry *memmap = esp32_memmap;
+     MemoryRegion *sys_mem = get_system_memory();
+@@ -308,6 +372,8 @@ static void esp32_soc_realize(DeviceState *dev, Error **errp)
+     MemoryRegion *rtcslow = g_new(MemoryRegion, 1);
+     MemoryRegion *rtcfast_i = g_new(MemoryRegion, 1);
+     MemoryRegion *rtcfast_d = g_new(MemoryRegion, 1);
++    MemoryRegion *bt_ram_low = g_new(MemoryRegion, 1);
++    MemoryRegion *bt_ram_high = g_new(MemoryRegion, 1);
+ 
+     for (int i = 0; i < ms->smp.cpus; ++i) {
+         assert(i >= 0 && i <= 9);
+@@ -355,6 +421,31 @@ static void esp32_soc_realize(DeviceState *dev, Error **errp)
+     memory_region_init_alias(rtcfast_d, NULL, "esp32.rtcfast_d", rtcfast_i, 0, memmap[ESP32_MEMREGION_RTCFAST_D].size);
+     memory_region_add_subregion(&s->cpu_specific_mem[0], memmap[ESP32_MEMREGION_RTCFAST_D].base, rtcfast_d);
+ 
++    memory_region_init_ram(bt_ram_low, NULL, "esp32.bt.ram.low",
++                           0x1000, &error_fatal);
++    memory_region_add_subregion(sys_mem, memmap[ESP32_MEMREGION_BT].base,
++                                bt_ram_low);
++
++    bt_state = g_new0(Esp32BtState, 1);
++    /* BT core identification checked by the classic ESP32 ROM. */
++    bt_state->regs[0x004 / sizeof(uint32_t)] = 0x08000b00;
++    bt_state->regs[0x00c / sizeof(uint32_t)] = 1U << 9;
++    bt_state->regs[0x204 / sizeof(uint32_t)] = 0x08000900;
++    /* Fine timer-mask ready bit polled by ea_prog_timer(). */
++    bt_state->regs[0x000 / sizeof(uint32_t)] = 1U << 9;
++    memory_region_init_io(&bt_state->iomem, NULL, &esp32_bt_ops, bt_state,
++                          "esp32.bt.regs", 0x1000);
++    memory_region_add_subregion(sys_mem,
++                                memmap[ESP32_MEMREGION_BT].base + 0x1000,
++                                &bt_state->iomem);
++
++    memory_region_init_ram(bt_ram_high, NULL, "esp32.bt.ram.high",
++                           memmap[ESP32_MEMREGION_BT].size - 0x2000,
++                           &error_fatal);
++    memory_region_add_subregion(sys_mem,
++                                memmap[ESP32_MEMREGION_BT].base + 0x2000,
++                                bt_ram_high);
++
+     for (int i = 0; i < ms->smp.cpus; ++i) {
+         qdev_realize(DEVICE(&s->cpu[i]), NULL, &error_fatal);
+     }

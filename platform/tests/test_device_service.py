@@ -131,6 +131,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "enabled-separate-lane",
         )
         self.assertEqual(capacity["modes"]["qemu-wifi"], "disabled")
+        self.assertEqual(capacity["modes"]["qemu-ble"], "disabled")
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
     def test_default_capacity_matches_measured_workstation_profile(self):
@@ -318,11 +319,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
             try:
                 row = gated.get_device("core2")
-                self.assertEqual(row["network_profiles"], ["core2-openmac"])
+                self.assertEqual(
+                    row["network_profiles"],
+                    ["core2-openmac", "core2-ble-advertise"],
+                )
                 self.assertEqual(row["network_status"], "unverified")
                 self.assertFalse(row["features"]["network"])
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-wifi"],
+                    "enabled-core2-experimental",
+                )
+                self.assertEqual(
+                    gated.capacity()["modes"]["qemu-ble"],
                     "enabled-core2-experimental",
                 )
             finally:
@@ -332,6 +340,51 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 os.environ.pop("M5_CORE2_WIFI_QEMU", None)
             else:
                 os.environ["M5_CORE2_WIFI_QEMU"] = old
+
+    def test_experimental_qemu_ble_is_core2_only_and_env_gated(self):
+        fake_qemu = Path(self.tmp.name) / "qemu-core2-radio"
+        fake_qemu.write_bytes(b"fake")
+        fake_qemu.chmod(0o755)
+        old_radio = os.environ.get("M5_CORE2_RADIO_QEMU")
+        old_wifi = os.environ.get("M5_CORE2_WIFI_QEMU")
+        os.environ.pop("M5_CORE2_WIFI_QEMU", None)
+        os.environ["M5_CORE2_RADIO_QEMU"] = str(fake_qemu)
+        try:
+            parsed = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["core2"],
+                {
+                    "profile": "core2-ble-advertise",
+                    "expected_markers": ["CORE2_BLE_RESULT: PASSED"],
+                },
+            )
+            self.assertEqual(parsed["profile"], "core2-ble-advertise")
+            with self.assertRaises(ServiceError) as wrong_device:
+                device_service_module.parse_qemu_ble_execution(
+                    self.service.specs["sticks3"],
+                    {},
+                )
+            self.assertEqual(
+                wrong_device.exception.code,
+                "qemu_ble_not_supported",
+            )
+            with self.assertRaises(ServiceError) as wrong_profile:
+                device_service_module.parse_qemu_ble_execution(
+                    self.service.specs["core2"],
+                    {"profile": "core2-openmac"},
+                )
+            self.assertEqual(
+                wrong_profile.exception.code,
+                "unsupported_network_profile",
+            )
+        finally:
+            if old_radio is None:
+                os.environ.pop("M5_CORE2_RADIO_QEMU", None)
+            else:
+                os.environ["M5_CORE2_RADIO_QEMU"] = old_radio
+            if old_wifi is None:
+                os.environ.pop("M5_CORE2_WIFI_QEMU", None)
+            else:
+                os.environ["M5_CORE2_WIFI_QEMU"] = old_wifi
 
     def test_network_session_runs_isolated_lane_and_retains_evidence(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
@@ -561,6 +614,47 @@ class DeviceServiceUnitTests(unittest.TestCase):
         with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
             self.assertIn("network/evidence.json", archive.namelist())
             self.assertIn("serial.log", archive.namelist())
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_qemu_ble_network_evidence_scope(self):
+        spec = self.service.specs["core2"]
+        firmware_path = Path(self.tmp.name) / "core2-ble.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="d" * 32,
+            spec=spec,
+            firmware_id="e" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="e" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="CORE2_BLE_RESULT: PASSED",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "core2-ble-advertise",
+                "expected_markers": [
+                    "CORE2_BLE_ACTIVE True",
+                    "CORE2_BLE_RESULT: PASSED",
+                ],
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "CORE2_BLE_ACTIVE True\n"
+            "CORE2_BLE_RESULT: PASSED\n"
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(evidence["kind"], "m5stack-qemu-ble-proof")
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertIn("WiFi", evidence["not_claimed"])
+        self.assertIn("external BLE peer/GATT", evidence["not_claimed"])
         session.state = "stopped"
         session._proc = None
         session._qmp = None

@@ -9,7 +9,7 @@
 - **9 台 ESP32-S3** 共用一套 QEMU/S3 后端和 GPIO/SPI/I2C 框架，只补板级 profile、显示模型、输入和外设。
 - **2 台 ESP32-C6** 需要 C6 后端/板级模型。
 - **Tab5（ESP32-P4）** 使用 `esp-emu 0.50.0`、P4 rev0 ROM 和配套 eFuse，接入 C6 ESP-Hosted 协处理器，并以仿真 M5GFX DSI framebuffer 输出真实 UI。
-- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 `qemu-core2-openmac-wifi` 补丁已让 stock UIFlow2 完成 WiFi 扫描、关联、DHCP/IP 和受控 HTTP；外网 DNS 与 BLE 仍未完成。
+- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 QEMU 补丁已让 stock UIFlow2 完成 WiFi 扫描、关联、DHCP/IP、受控 HTTP，以及 BLE controller 激活和 advertising enable；外网 DNS、外部 BLE peer/GATT 仍未完成。
 - **CardputerZero** 是 Linux ARM64（BCM2837），不是 ESP32 固件目标；独立
   QEMU Linux 后端已可启动官方镜像、输出 320x170 帧、注入键盘事件和
   I2S 双向 PCM，注入 IP2315 充放电状态，并以 MTT 兼容路径枚举 GL852G Hub
@@ -33,10 +33,11 @@
 - PaperMono：480x800 四阶灰度电子纸、FT5x06 触摸、IP2315 充电状态。
 - Core2：320x240、FT5x06 触摸；通过 QEMU ESP32 ROM UART 下载模式和
   `esptool --no-stub` 写入 16 MiB 虚拟 flash。
-- Core2 网络边界：OpenETH 的 DHCP 与 1 MiB HTTP 数据面已单独通过；stock
-  UIFlow2 WiFi 在 `register_chipv7_phy` 首次访问缺失的 `0x60033c00` 时
-  panic，stock BLE 在 `btdm_app_ref_init` 首次访问缺失的 `0x3ff7120c`
-  时 panic。不得把 OpenETH PASS 算作 WiFi/BLE PASS。
+- Core2 网络边界：OpenETH 的 DHCP 与 1 MiB HTTP 数据面已单独通过；可选
+  OpenMAC/BT bootstrap 补丁下，stock UIFlow2 WiFi 已完成 scan、association、
+  DHCP 和受控 HTTP，BLE 已完成 controller reset、`active(True)`、
+  GAP 配置和 `gap_advertise()`。外部 BLE 扫描、连接和 GATT 数据面仍为
+  `NOT RUN`，不得把 controller/advertising 证据算作完整 BLE 数据面。
 - NanoC6：无显示屏，验证 UIFlow2 控制台启动、板型探测、GPIO19/20 WS2812、
   GPIO9 按键、GPIO7 蓝色 LED 和红外发送。
 - Tab5：物理横向 1280x720、ST7123 触摸和 P4/C6 ESP-Hosted。
