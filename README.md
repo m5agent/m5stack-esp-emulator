@@ -123,8 +123,9 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
 - 其他完整 merged Flash 或带地址的分段镜像
 
 兼容前提是芯片、板级 profile、Flash/PSRAM/eFuse、分区布局和控制器模型匹配。
-当前底层烧录工具可接受通用镜像，但正式的非 UIFlow 固件导入和静态审查仍在
-backlog 中。
+当前底层烧录工具可接受通用镜像；`fetch_firmware.py --firmware-id` 可校验公开
+状态与支持设备、按当前 metadata 下载社区固件并运行静态镜像分析。设备级兼容
+仍需按具体 SoC/板级 profile 和控制器覆盖验证。
 
 固件审查流程、证据分层和安全边界见：
 
@@ -141,7 +142,9 @@ backlog 中。
 - `.work/esp-emu-versions/0.50.0/`：P4/C6 使用的 `esp-emu`；
 - Espressif QEMU ROM/eFuse 文件；
 - 可选 `UIFLOW_MICROPYTHON_DIR`：UIFlow2 源码 checkout；
-- 固件缓存：`python3 platform/tools/fetch_firmware.py <device>`。
+- 内置 UIFlow2 缓存：`python3 platform/tools/fetch_firmware.py <device>`；
+- 任意公开社区固件：
+  `python3 platform/tools/fetch_firmware.py --firmware-id <id> --device-slug <slug> --analyze --chip-id 0x9 --cache /tmp/m5-firmware`。
 
 固件、ROM、QEMU 二进制和构建目录均被 `.gitignore` 排除。
 
