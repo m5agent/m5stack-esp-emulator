@@ -3,10 +3,12 @@ from __future__ import annotations
 
 import json
 import io
+import os
 import socket
 import sys
 import tempfile
 import threading
+import time
 import unittest
 import zipfile
 from http.server import ThreadingHTTPServer
@@ -17,6 +19,7 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
+import device_service as device_service_module
 from device_service import (
     DEFAULT_MAX_PER_DEVICE,
     DEFAULT_MAX_SESSIONS,
@@ -25,7 +28,7 @@ from device_service import (
     QMP,
     ServiceError,
 )
-from serve import Handler
+from serve import Handler, _wait_for_session
 
 
 class DeviceServiceUnitTests(unittest.TestCase):
@@ -52,9 +55,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertTrue(rows["tab5"]["warnings"])
         self.assertFalse(rows["tab5"]["features"]["qom"])
         self.assertTrue(rows["sticks3"]["features"]["device_state"])
+        self.assertTrue(rows["sticks3"]["features"]["network"])
+        self.assertIn(
+            "uiflow2-sticks3",
+            rows["sticks3"]["network_profiles"],
+        )
+        self.assertFalse(rows["core2"]["features"]["network"])
         self.assertFalse(rows["cardputer-zero"]["supported"])
         self.assertFalse(rows["tab5"]["features"]["network"])
-        self.assertFalse(payload["network_enabled"])
+        self.assertTrue(payload["network_enabled"])
 
     def test_merged_firmware_is_padded_to_device_flash(self):
         artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)
@@ -90,7 +99,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
         capacity = self.service.capacity()
         self.assertEqual(capacity["max_sessions"], 2)
         self.assertEqual(capacity["max_per_device"], 1)
-        self.assertEqual(capacity["modes"]["network"], "disabled")
+        self.assertEqual(
+            capacity["modes"]["network"],
+            "enabled-separate-lane",
+        )
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
     def test_default_capacity_matches_measured_workstation_profile(self):
@@ -121,6 +133,127 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 }
             )
         self.assertEqual(caught.exception.code, "invalid_runtime_env")
+
+    def test_network_profile_requires_supported_chip_and_elf(self):
+        with self.assertRaises(ServiceError) as core2:
+            device_service_module.parse_network_execution(
+                self.service.specs["core2"],
+                {"profile": "esp-idf-http"},
+            )
+        self.assertEqual(core2.exception.code, "network_not_supported")
+        with self.assertRaises(ServiceError) as elf_required:
+            device_service_module.parse_network_execution(
+                self.service.specs["sticks3"],
+                {"profile": "uiflow2-sticks3"},
+            )
+        self.assertEqual(elf_required.exception.code, "elf_required")
+        c6 = device_service_module.parse_network_execution(
+            self.service.specs["nanoc6"],
+            {"profile": "esp-idf-http"},
+        )
+        self.assertEqual(c6["psram_size"], "0")
+
+    def test_network_session_runs_isolated_lane_and_retains_evidence(self):
+        fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
+        fake_lane.write_text(
+            "#!/usr/bin/env python3\n"
+            "import argparse,json,pathlib\n"
+            "p=argparse.ArgumentParser()\n"
+            "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
+            "a,_=p.parse_known_args()\n"
+            "a.out_dir.mkdir(parents=True,exist_ok=True)\n"
+            "(a.out_dir/'serial.log').write_text('LANE_DONE\\n')\n"
+            "e={'status':'PASS','checks':{'wifi_dhcp':True}}\n"
+            "(a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            "print(json.dumps(e))\n"
+        )
+        fake_lane.chmod(0o755)
+        fake_emulator = Path(self.tmp.name) / "esp-emu"
+        fake_emulator.write_bytes(b"fake")
+        old_lane = device_service_module.NETWORK_LANE
+        device_service_module.NETWORK_LANE = fake_lane
+        old_emulator = os.environ.get("M5_NETWORK_EMULATOR")
+        os.environ["M5_NETWORK_EMULATOR"] = str(fake_emulator)
+        try:
+            artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)
+            firmware = self.service.create_firmware(
+                {
+                    "device_id": "sticks3",
+                    "kind": "merged",
+                    "artifact_id": artifact["artifact_id"],
+                }
+            )
+            created = self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "firmware_id": firmware["firmware_id"],
+                    "runtime": "network",
+                    "network": {
+                        "profile": "esp-idf-http",
+                        "timeout_seconds": 10,
+                    },
+                }
+            )
+            session = self.service.get_session(created["session_id"])
+            sid = session.id
+            deadline = time.time() + 5
+            while time.time() < deadline and session.state in {
+                "provisioning",
+                "flashing",
+                "booting",
+                "running",
+            }:
+                time.sleep(0.02)
+            snapshot = session.snapshot()
+            self.assertEqual(snapshot["runtime"], "network")
+            self.assertEqual(snapshot["state"], "stopped")
+            self.assertEqual(snapshot["network"]["status"], "PASS")
+            self.assertEqual(
+                session.network_evidence()["checks"]["wifi_dhcp"],
+                True,
+            )
+            bundle = session.evidence_bundle(
+                {"manifest", "network", "serial", "logs"}
+            )
+            with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+                self.assertIn("network/evidence.json", archive.namelist())
+                self.assertIn("network-runner.stdout", archive.namelist())
+            restored_service = DeviceService(
+                state_dir=Path(self.tmp.name),
+                max_sessions=1,
+                max_per_device=1,
+            )
+            try:
+                restored = restored_service.get_session(sid).snapshot()
+                self.assertEqual(restored["runtime"], "network")
+                self.assertEqual(restored["network"]["status"], "PASS")
+            finally:
+                restored_service.close_all()
+        finally:
+            device_service_module.NETWORK_LANE = old_lane
+            if old_emulator is None:
+                os.environ.pop("M5_NETWORK_EMULATOR", None)
+            else:
+                os.environ["M5_NETWORK_EMULATOR"] = old_emulator
+
+    def test_network_wait_does_not_return_on_running_state(self):
+        class FakeSession:
+            def __init__(self):
+                self.calls = 0
+
+            def snapshot(self):
+                self.calls += 1
+                if self.calls < 3:
+                    return {"state": "running", "network": {"status": "RUNNING"}}
+                return {"state": "stopped", "network": {"status": "PASS"}}
+
+        session = FakeSession()
+        result = _wait_for_session(
+            session,
+            {"wait_for_completion": True, "timeout_seconds": 1},
+        )
+        self.assertEqual(result["state"], "stopped")
+        self.assertGreaterEqual(session.calls, 3)
 
     def _stopped_session(self, firmware: bytes = b"\xff" * 1024):
         spec = self.service.specs["sticks3"]
@@ -505,7 +638,10 @@ class DeviceServiceHttpTests(unittest.TestCase):
         self.assertEqual(len(payload["devices"]), 14)
         status, capacity = self.request("/api/v1/capacity")
         self.assertEqual(status, 200)
-        self.assertEqual(capacity["modes"]["network"], "disabled")
+        self.assertEqual(
+            capacity["modes"]["network"],
+            "enabled-separate-lane",
+        )
 
     def test_openapi_is_served(self):
         with urlopen(self.base + "/api/v1/openapi.yaml", timeout=5) as response:

@@ -21,6 +21,21 @@ Deliverables:
 6. separate Core2 ESP32 LX6 WiFi/PHY path;
 7. same-instance board + WiFi model only if later required.
 
+Implemented on 2026-10-22:
+
+- reusable isolated network/BLE runner with redacted, hashed evidence;
+- StickS3/CoreS3 and NanoC6/Nesso N1 WiFi/DHCP and controlled HTTP/TCP
+  download;
+- StickS3 UIFlow2 BLE server observed by an external Bumble GATT peer;
+- Device Service `runtime=network` sessions and evidence endpoint.
+
+Still open:
+
+- same-instance UIFlow2 WiFi+BLE progression;
+- DNS/UDP policy and host packet summaries;
+- device-level C6 and remaining S3 runs;
+- combined board-peripheral plus network guest.
+
 Rough effort:
 
 - S3/C6/P4 network lane: 2–3 working weeks;

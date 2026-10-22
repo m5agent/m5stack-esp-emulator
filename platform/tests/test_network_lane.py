@@ -78,6 +78,22 @@ class NetworkLaneTests(unittest.TestCase):
         self.assertIn("--exit-on", command)
         self.assertIn("HTTP_TPUT_RESULT", command)
 
+    def test_c6_without_psram_omits_psram_argument(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            row = config(
+                tmp,
+                chip="esp32c6",
+                profile="esp-idf-http",
+                psram_size="0",
+                ble=False,
+            )
+            command, _ = build_emulator_command(
+                row,
+                firmware_copy=tmp / "runtime.bin",
+            )
+        self.assertNotIn("--psram-size", command)
+
     def test_command_and_injection_redact_password(self):
         with tempfile.TemporaryDirectory() as directory:
             row = config(Path(directory))

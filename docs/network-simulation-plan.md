@@ -16,12 +16,27 @@ What is already available:
 - Tab5 starts the C6 ESP-Hosted network adapter process with `--net user`;
 - CardputerZero has a separate SR9900A Ethernet path and frame round-trip.
 
+Validated on `2026-10-22`:
+
+- `platform/tools/network_lane.py` runs isolated `esp-emu` sessions and emits
+  hashed `evidence.json`;
+- StickS3 and CoreS3 ESP-IDF WiFi association, DHCP and a controlled 1 MiB
+  HTTP/TCP download pass;
+- NanoC6 and Nesso N1 pass the same WiFi/DHCP/HTTP path on ESP32-C6;
+- StickS3 UIFlow2 `network.WLAN` scan, association and DHCP have passed;
+- StickS3 UIFlow2 `BLEUARTServer` passes external Bumble scan, connection, NUS
+  GATT discovery, subscription, write and guest-side receive callback;
+- the Device Service exposes `runtime=network` one-shot sessions and a
+  `/sessions/{id}/network` evidence endpoint.
+
 What is not yet proven:
 
 - an unmodified UIFlow2 firmware connecting to a virtual SSID and reaching a
   controlled TCP/UDP endpoint;
 - automatic internet access for every S3/C6/P4 device profile;
 - simultaneous board-level QEMU peripherals and WiFi in one guest instance;
+- simultaneous UIFlow2 WiFi and BLE in one `esp-emu` instance; BLE passes but
+  WiFi has not progressed in the combined run;
 - packet capture, DNS policy, TLS/HTTP test services and multi-device isolation
   in the regular regression matrix;
 - security conclusions about untrusted firmware based only on network traffic.
@@ -34,8 +49,8 @@ does not mean the device is online.
 
 | Device class | Current network path | Status |
 | --- | --- | --- |
-| ESP32-S3 boards, including CoreS3, StickS3, StackChan and StopWatch | `esp-emu` WiFi SoftAP + user/TAP backend | Backend support exists; UIFlow2 integration and regression are pending |
-| ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | Backend support exists; UIFlow2 integration and regression are pending |
+| ESP32-S3 boards, including CoreS3, StickS3, StackChan and StopWatch | `esp-emu` WiFi SoftAP + user/TAP backend | StickS3 WiFi/DHCP/TCP and BLE independently PASS; other S3 profiles await device-level runs |
+| ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | Backend support exists; device-level HTTP/BLE runs pending |
 | ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
 | ESP32 LX6 Core2 | Current QEMU path has no WiFi MAC/PHY model; `esp-emu` native target list does not include classic ESP32 | Needs a separate WiFi/PHY model or a different runtime; not covered by the first network lane |
 | CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |
@@ -140,8 +155,8 @@ itself. For untrusted firmware:
 
 | Phase | Work | Estimate |
 | --- | --- | --- |
-| N0 | One-device UIFlow2 WiFi proof through `esp-emu` | 1–2 working days |
-| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | 3–5 working days |
+| N0 | One-device UIFlow2 WiFi proof through `esp-emu` | DONE for StickS3 WLAN/DHCP; ESP-IDF adds TCP |
+| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/TCP and BLE harness DONE; DNS/UDP/pcap policy pending |
 | N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | 3–5 working days |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |

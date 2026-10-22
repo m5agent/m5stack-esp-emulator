@@ -49,6 +49,11 @@ Every run writes `serial.log`, `ble-probe.log` and `evidence.json` under the
 selected output directory. Binary hashes identify the exact firmware, ELF and
 emulator used. Passwords are redacted from the command and evidence.
 
+The Device Service wraps the same runner as a one-shot
+`runtime=network` session. It returns the normal session lifecycle, serial
+read/log/evidence endpoints and `GET /sessions/{id}/network`; network sessions
+do not expose board framebuffer, input, QOM or same-instance device state.
+
 ## Evidence boundary
 
 A PASS proves only the listed data planes in the emulator. It does not prove:
@@ -79,6 +84,10 @@ The first live run used:
 TCP was verified separately with the ESP-IDF `http_throughput` fixture:
 `1048576` bytes completed in `280081` emulated microseconds (`29.95 Mbit/s`
 reported) against the disposable loopback HTTP server.
+
+Device-level service sessions have also passed the same WiFi/DHCP/HTTP checks
+for CoreS3 (`ESP32-S3`), NanoC6 and Nesso N1 (`ESP32-C6`). The C6 build uses
+no PSRAM argument, while the StickS3/CoreS3 runs use `8M`.
 
 The fixture hashes and machine-readable checks are stored with the run evidence
 and work record rather than copied into this document.

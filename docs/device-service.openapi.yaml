@@ -1,11 +1,12 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.1.0
+  version: 1.2.0
   description: >
-    Leased, on-demand virtual M5Stack device service. Network emulation,
-    CardputerZero and network emulation are outside this API version. Tab5 is
-    available through esp-emu with partial peripheral status.
+    Leased, on-demand virtual M5Stack device service. QEMU board sessions and
+    separate esp-emu network/BLE sessions use isolated firmware copies.
+    CardputerZero is outside this API version. Tab5 is available through
+    esp-emu with partial peripheral status.
 servers:
   - url: http://127.0.0.1:8787/api/v1
 security:
@@ -334,6 +335,21 @@ paths:
                     items:
                       type: object
                       additionalProperties: true
+  /sessions/{session_id}/network:
+    get:
+      summary: Read machine-readable network or BLE evidence
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Network lane evidence, or RUNNING before completion
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "409":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/device-state:
     get:
       summary: Read normalized device runtime state
@@ -534,6 +550,10 @@ paths:
                 timeout_seconds:
                   type: number
                   default: 30
+                wait_for_completion:
+                  type: boolean
+                  default: false
+                  description: Wait until a one-shot network session stops or fails.
                 ready:
                   $ref: "#/components/schemas/ReadyConditions"
       responses:
@@ -572,7 +592,7 @@ paths:
                 $ref: "#/components/schemas/SerialChunk"
   /sessions/{session_id}/logs:
     get:
-      summary: Read serial plus QEMU log tails
+      summary: Read serial plus runtime log tails
       parameters:
         - $ref: "#/components/parameters/SessionId"
       responses:
@@ -585,10 +605,19 @@ paths:
                   - $ref: "#/components/schemas/SerialChunk"
                   - type: object
                     properties:
+                      runtime:
+                        type: string
+                        enum: [qemu, network]
+                      stdout:
+                        type: string
+                      stderr:
+                        type: string
                       qemu_stdout:
                         type: string
+                        deprecated: true
                       qemu_stderr:
                         type: string
+                        deprecated: true
   /sessions/{session_id}/frame.png:
     get:
       summary: Capture the current framebuffer
@@ -800,6 +829,11 @@ components:
           type: array
           items:
             type: string
+        network_profiles:
+          type: array
+          items:
+            type: string
+            enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke]
         firmware_families:
           type: array
           items:
@@ -904,6 +938,50 @@ components:
             M5SW_I2S_TRACE are accepted.
           additionalProperties:
             type: string
+        runtime:
+          type: string
+          enum: [qemu, network]
+          default: qemu
+        network:
+          $ref: "#/components/schemas/NetworkExecution"
+    NetworkExecution:
+      type: object
+      required: [profile]
+      properties:
+        profile:
+          type: string
+          enum: [uiflow2-sticks3, esp-idf-http, esp-idf-smoke]
+        wifi:
+          type: boolean
+        ble:
+          type: boolean
+        tcp:
+          type: boolean
+        wifi_ssid:
+          type: string
+          maxLength: 32
+        wifi_password:
+          type: string
+          maxLength: 63
+          writeOnly: true
+        wifi_auth:
+          type: string
+          enum: [wpa2-wpa3, wpa3-sae, wpa2-psk, open]
+        psram_size:
+          type: string
+          enum: ["0", 2M, 4M, 8M, 16M, 32M, 64M]
+        ble_name:
+          type: string
+          minLength: 1
+          maxLength: 29
+        elf_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        timeout_seconds:
+          type: number
+          minimum: 5
+          maximum: 300
+          default: 60
     Session:
       type: object
       additionalProperties: true
@@ -932,6 +1010,13 @@ components:
           type: string
         firmware_source:
           type: string
+        runtime:
+          type: string
+          enum: [qemu, network]
+        network:
+          type: object
+          nullable: true
+          additionalProperties: true
         artifact_sha256:
           type: string
           nullable: true

@@ -191,23 +191,27 @@ def build_emulator_command(
         config.chip,
         "--firmware",
         str(firmware_copy),
-        "--psram-size",
-        config.psram_size,
-        "--net",
-        config.net_mode,
-        "--wifi-ssid",
-        config.ssid,
-        "--wifi-password",
-        config.password,
-        "--wifi-auth",
-        config.wifi_auth,
-        "--console",
-        "uart0",
-        "--timeout",
-        f"{config.timeout:g}s",
-        "--log-color",
-        "never",
     ]
+    if config.psram_size != "0":
+        command.extend(["--psram-size", config.psram_size])
+    command.extend(
+        [
+            "--net",
+            config.net_mode,
+            "--wifi-ssid",
+            config.ssid,
+            "--wifi-password",
+            config.password,
+            "--wifi-auth",
+            config.wifi_auth,
+            "--console",
+            "uart0",
+            "--timeout",
+            f"{config.timeout:g}s",
+            "--log-color",
+            "never",
+        ]
+    )
     injection: dict[str, Any] = {}
     if config.elf is not None:
         command.extend(["--elf", str(config.elf)])

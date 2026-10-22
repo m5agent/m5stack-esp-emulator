@@ -61,7 +61,7 @@ QMP_COMMAND_TIMEOUT = 2
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
-MAX_ARTIFACT_BYTES = 32 * 1024 * 1024
+MAX_ARTIFACT_BYTES = 64 * 1024 * 1024
 MAX_SERIAL_READ = 256 * 1024
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 ALLOWED_RUNTIME_ENV = {
@@ -70,10 +70,24 @@ ALLOWED_RUNTIME_ENV = {
     "M5SW_I2S_RX_PCM_FILE",
     "M5SW_I2S_TRACE",
 }
+NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
+DEFAULT_NETWORK_EMULATOR = (
+    ROOT
+    / ".work/esp-emu-versions/0.50.0"
+    / "esp-emu-0.50.0-aarch64-apple-darwin/esp-emu"
+)
+NETWORK_PROFILES = {"uiflow2-sticks3", "esp-idf-http", "esp-idf-smoke"}
 
 
 def iso_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def redacted_network_config(config: dict | None) -> dict:
+    safe = dict(config or {})
+    if safe.get("password"):
+        safe["password"] = "<redacted>"
+    return safe
 
 
 def parse_int(value: Any, field: str) -> int:
@@ -106,6 +120,118 @@ def atomic_write_json(path: Path, payload: Any) -> None:
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
     )
     os.replace(temporary, path)
+
+
+def parse_network_execution(
+    spec: DeviceSpec,
+    value: Any,
+) -> dict:
+    if not spec.network_chip or not spec.network_profiles:
+        raise ServiceError(
+            "network_not_supported",
+            f"{spec.id} has no validated network runtime",
+            409,
+        )
+    if value is None:
+        value = {}
+    if not isinstance(value, dict):
+        raise ServiceError("invalid_network", "network must be an object", 400)
+    default_profile = (
+        "esp-idf-http"
+        if "esp-idf-http" in spec.network_profiles
+        else spec.network_profiles[0]
+    )
+    profile = value.get("profile", default_profile)
+    if profile not in spec.network_profiles:
+        raise ServiceError(
+            "unsupported_network_profile",
+            f"network profile {profile!r} is not available for {spec.id}",
+            400,
+        )
+    defaults = {
+        "esp-idf-http": {"wifi": True, "ble": False, "tcp": True},
+        "esp-idf-smoke": {"wifi": True, "ble": True, "tcp": False},
+        "uiflow2-sticks3": {"wifi": False, "ble": True, "tcp": False},
+    }[profile]
+
+    def boolean(name: str) -> bool:
+        candidate = value.get(name, defaults[name])
+        if not isinstance(candidate, bool):
+            raise ServiceError(
+                "invalid_network", f"network.{name} must be a boolean", 400
+            )
+        return candidate
+
+    ssid = value.get("wifi_ssid", "myssid")
+    password = value.get("wifi_password", "mypassword")
+    wifi_auth = value.get("wifi_auth", "wpa2-wpa3")
+    psram_size = value.get(
+        "psram_size",
+        "8M" if spec.network_chip == "esp32s3" else "0",
+    )
+    if not isinstance(ssid, str) or not 1 <= len(ssid) <= 32:
+        raise ServiceError(
+            "invalid_network", "network.wifi_ssid must be 1-32 characters", 400
+        )
+    if not isinstance(password, str) or len(password) > 63:
+        raise ServiceError(
+            "invalid_network", "network.wifi_password is invalid", 400
+        )
+    if wifi_auth not in {"wpa2-wpa3", "wpa3-sae", "wpa2-psk", "open"}:
+        raise ServiceError(
+            "invalid_network", "network.wifi_auth is not supported", 400
+        )
+    if psram_size not in {"0", "2M", "4M", "8M", "16M", "32M", "64M"}:
+        raise ServiceError(
+            "invalid_network", "network.psram_size is not supported", 400
+        )
+    try:
+        timeout = float(value.get("timeout_seconds", 60))
+    except (TypeError, ValueError) as error:
+        raise ServiceError(
+            "invalid_network", "network.timeout_seconds must be numeric", 400
+        ) from error
+    if not 5 <= timeout <= 300:
+        raise ServiceError(
+            "invalid_network",
+            "network.timeout_seconds must be between 5 and 300",
+            400,
+        )
+    elf_artifact_id = value.get("elf_artifact_id")
+    if elf_artifact_id is not None and (
+        not isinstance(elf_artifact_id, str) or not _is_sha256(elf_artifact_id)
+    ):
+        raise ServiceError(
+            "invalid_network", "network.elf_artifact_id is invalid", 400
+        )
+    ble_name = value.get("ble_name", "M5-NETWORK-LANE")
+    if not isinstance(ble_name, str) or not 1 <= len(ble_name) <= 29:
+        raise ServiceError(
+            "invalid_network", "network.ble_name must be 1-29 characters", 400
+        )
+    wifi = boolean("wifi")
+    ble = boolean("ble")
+    tcp = boolean("tcp")
+    if ble and profile == "uiflow2-sticks3" and not elf_artifact_id:
+        raise ServiceError(
+            "elf_required",
+            "uiflow2-sticks3 BLE requires network.elf_artifact_id",
+            400,
+        )
+    return {
+        "profile": profile,
+        "chip": spec.network_chip,
+        "wifi": wifi,
+        "ble": ble,
+        "tcp": tcp,
+        "wifi_ssid": ssid,
+        "wifi_password": password,
+        "wifi_auth": wifi_auth,
+        "psram_size": psram_size,
+        "ble_name": ble_name,
+        "timeout_seconds": timeout,
+        "elf_artifact_id": elf_artifact_id,
+    }
 
 
 class ServiceError(Exception):
@@ -149,6 +275,8 @@ class DeviceSpec:
     efuse: Path | None
     c6_firmware: Path | None
     peripheral_status: str
+    network_chip: str | None
+    network_profiles: list[str]
     warnings: list[str]
     state_probes: dict[str, dict[str, Any]]
     reason: str | None
@@ -208,6 +336,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             efuse = ROOT / row["efuse"]
             c6_firmware = ROOT / row["c6_firmware"]
             flash_emulator = emulator
+            network_chip = None
+            network_profiles: list[str] = []
             reason = None
         else:
             supported = (
@@ -237,6 +367,14 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 if backend.get("esp_emu_chip")
                 else None
             )
+            network_chip = backend.get("esp_emu_chip")
+            network_profiles = (
+                sorted(NETWORK_PROFILES - {"uiflow2-sticks3"})
+                if network_chip
+                else []
+            )
+            if device_id == "sticks3" and network_chip:
+                network_profiles.insert(0, "uiflow2-sticks3")
             reason = excluded_reason
             if not backend and reason is None:
                 reason = (
@@ -283,6 +421,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 "peripheral_status",
                 "simulated" if supported else "not-applicable",
             ),
+            network_chip=network_chip,
+            network_profiles=network_profiles,
             warnings=list(profile.get("blockers", [])),
             state_probes=(
                 profile.get("runtime_state", {})
@@ -352,6 +492,16 @@ class ArtifactStore:
                     "unknown_artifact", f"unknown artifact: {artifact_id}", 404
                 )
             return path.read_bytes()
+
+    def path(self, artifact_id: str) -> Path:
+        self.get(artifact_id)
+        with self._lock:
+            path = self._data(artifact_id)
+            if not path.is_file():
+                raise ServiceError(
+                    "unknown_artifact", f"artifact data is missing: {artifact_id}", 404
+                )
+            return path
 
     def get(self, artifact_id: str) -> dict:
         if not isinstance(artifact_id, str) or not _is_sha256(artifact_id):
@@ -634,6 +784,9 @@ class DeviceSession:
         ready_timeout: float,
         ready_conditions: dict | None,
         runtime_env: dict[str, str] | None = None,
+        runtime: str = "qemu",
+        network_config: dict | None = None,
+        network_result: dict | None = None,
         events: list[dict] | None = None,
         created_at: str | None = None,
         completed_at: str | None = None,
@@ -653,6 +806,11 @@ class DeviceSession:
         self.firmware_source = firmware_source
         self.source_artifacts = source_artifacts
         self.runtime_env = dict(runtime_env or {})
+        self.runtime = runtime
+        self.network_config = dict(network_config or {})
+        self.network_result = (
+            dict(network_result) if isinstance(network_result, dict) else None
+        )
         self.ttl_seconds = ttl_seconds
         self.ready_marker = ready_marker
         self.ready_timeout = ready_timeout
@@ -718,6 +876,9 @@ class DeviceSession:
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
             "runtime_env": dict(self.runtime_env),
+            "runtime": self.runtime,
+            "network": redacted_network_config(self.network_config),
+            "network_result": self.network_result,
             "flash": self.flash_info,
             "ttl_seconds": self.ttl_seconds,
             "ready_marker": self.ready_marker,
@@ -743,13 +904,7 @@ class DeviceSession:
                 and self._proc.poll() is not None
                 and self.state in ACTIVE_STATES
             ):
-                self.state = "failed"
-                self.error = self.error or f"process exited with code {self._proc.returncode}"
-                self.completed_at = self.completed_at or iso_now()
-                self._record_event(
-                    "process_exited", returncode=self._proc.returncode
-                )
-                self._persist_session()
+                self._handle_process_exit(self._proc.returncode)
             serial_size = self.serial0.stat().st_size if self.serial0.exists() else 0
             frame_meta = {}
             if self.last_frame_meta_path.is_file():
@@ -776,6 +931,16 @@ class DeviceSession:
                 ),
                 "source_artifacts": list(self.source_artifacts),
                 "runtime_env": dict(self.runtime_env),
+                "runtime": self.runtime,
+                "network": self.network_result
+                or (
+                    {
+                        "status": "RUNNING",
+                        "profile": self.network_config.get("profile"),
+                    }
+                    if self.network_config
+                    else None
+                ),
                 "flash": self.flash_info,
                 "serial_bytes": serial_size,
                 "created_at": self.created_at,
@@ -784,9 +949,14 @@ class DeviceSession:
                 ).isoformat(),
                 "error": self.error,
                 "display": self.spec.display,
+                "display_available": (
+                    self.runtime == "qemu" and self.spec.has_display
+                ),
                 "last_frame_available": self.last_frame_path.is_file(),
                 "last_frame_captured_at": frame_meta.get("captured_at"),
-                "device_state_supported": bool(self.spec.state_probes),
+                "device_state_supported": bool(
+                    self.runtime == "qemu" and self.spec.state_probes
+                ),
                 "last_device_state_available": self.device_state_path.is_file(),
                 "last_device_state_at": state_meta.get("captured_at"),
                 "completed_at": self.completed_at,
@@ -794,6 +964,13 @@ class DeviceSession:
                 "restored": self.restored,
                 "interrupted": self.interrupted,
             }
+
+    def _handle_process_exit(self, returncode: int | None) -> None:
+        self.state = "failed"
+        self.error = self.error or f"process exited with code {returncode}"
+        self.completed_at = self.completed_at or iso_now()
+        self._record_event("process_exited", returncode=returncode)
+        self._persist_session()
 
     def start(self) -> None:
         thread = threading.Thread(
@@ -1559,14 +1736,28 @@ class DeviceSession:
                 if path.is_file():
                     files[name] = path.read_bytes()
         if "logs" in include:
+            stdout_name = (
+                "network-runner.stdout"
+                if self.runtime == "network"
+                else "qemu.stdout"
+            )
+            stderr_name = (
+                "network-runner.stderr"
+                if self.runtime == "network"
+                else "qemu.stderr"
+            )
             for name, path in (
-                ("qemu.stdout", self.stdout_path),
-                ("qemu.stderr", self.stderr_path),
+                (stdout_name, self.stdout_path),
+                (stderr_name, self.stderr_path),
                 ("c6.log", self.dir / "c6.log"),
             ):
                 if path.is_file():
                     files[name] = path.read_bytes()
-        if "frames" in include and self.spec.has_display:
+        if (
+            "frames" in include
+            and self.spec.has_display
+            and self.runtime == "qemu"
+        ):
             try:
                 frame = self.frame_metrics()
                 files["frames/current.png"] = frame["png"]
@@ -1575,7 +1766,11 @@ class DeviceSession:
                 }
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
-        if "qom" in include and self.spec.service_kind == "qemu":
+        if (
+            "qom" in include
+            and self.spec.service_kind == "qemu"
+            and self.runtime == "qemu"
+        ):
             try:
                 snapshot = self.qom_snapshot(path="/machine", depth=2, max_nodes=500)
                 qom_bytes = (
@@ -1590,6 +1785,16 @@ class DeviceSession:
                 }
             except ServiceError as error:
                 manifest["qom"] = {"status": "NOT_AVAILABLE", "reason": error.message}
+        network_dir = getattr(self, "network_dir", None)
+        if isinstance(network_dir, Path) and network_dir.is_dir():
+            for name, path in (
+                ("network/evidence.json", network_dir / "evidence.json"),
+                ("network/serial.log", network_dir / "serial.log"),
+                ("network/ble-probe.log", network_dir / "ble-probe.log"),
+            ):
+                if path.is_file():
+                    files[name] = path.read_bytes()
+            manifest["network"] = self.network_evidence()
         if self.virtual_flash and self.virtual_flash.is_file():
             flash_data = self.virtual_flash.read_bytes()
             manifest["flash"] = {
@@ -1677,6 +1882,261 @@ class DeviceSession:
         if purge:
             shutil.rmtree(self.dir, ignore_errors=True)
         return result
+
+
+class NetworkDeviceSession(DeviceSession):
+    """One-shot network/BLE proof executed through the reusable network lane."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.network_dir = self.dir / "network"
+        self.network_dir.mkdir(parents=True, exist_ok=True)
+        self.serial0 = self.network_dir / "serial.log"
+        self.serial1 = self.network_dir / "serial1.log"
+        self.stdout_path = self.dir / "network-runner.stdout"
+        self.stderr_path = self.dir / "network-runner.stderr"
+        self._persist_session()
+
+    def _provision(self) -> None:
+        try:
+            self._set_state("flashing")
+            self.virtual_flash = self.dir / "virtual-flash.bin"
+            shutil.copyfile(self.firmware_path, self.virtual_flash)
+            self.flash_info = {
+                "transport": "network-direct-image",
+                "verified": self.virtual_flash.stat().st_size == self.spec.flash_size,
+                "flash_size": self.spec.flash_size,
+                "firmware_sha256": self.firmware_sha,
+                "session_isolated_copy": True,
+            }
+            self._record_event("flash_prepared", **self.flash_info)
+            self._persist_session()
+            self._set_state("booting")
+            self._launch()
+            self._set_state("running")
+        except Exception as error:
+            with self._lock:
+                self.error = str(error)
+                self.state = "failed"
+                self.completed_at = self.completed_at or iso_now()
+                self._record_event("failed", error=str(error))
+                self._persist_session()
+            self._terminate_process()
+
+    def _launch(self) -> None:
+        assert self.virtual_flash is not None
+        chip = self.network_config.get("chip")
+        if not chip:
+            raise ServiceError(
+                "network_not_supported",
+                f"{self.spec.id} has no esp-emu network chip",
+                409,
+            )
+        emulator = Path(
+            os.environ.get("M5_NETWORK_EMULATOR", str(DEFAULT_NETWORK_EMULATOR))
+        )
+        if not emulator.is_file():
+            raise RuntimeError(f"network emulator is missing: {emulator}")
+        profile = self.network_config.get("profile")
+        elf_artifact_id = self.network_config.get("elf_artifact_id")
+        command = [
+            sys.executable,
+            str(NETWORK_LANE),
+            "--profile",
+            str(profile),
+            "--chip",
+            str(chip),
+            "--firmware",
+            str(self.virtual_flash),
+            "--emulator",
+            str(emulator),
+            "--out-dir",
+            str(self.network_dir),
+            "--timeout",
+            str(self.network_config.get("timeout_seconds", 60)),
+            "--ssid",
+            str(self.network_config.get("wifi_ssid", "myssid")),
+            "--password",
+            str(self.network_config.get("wifi_password", "mypassword")),
+            "--wifi-auth",
+            str(self.network_config.get("wifi_auth", "wpa2-wpa3")),
+            "--psram-size",
+            str(self.network_config.get("psram_size", "8M")),
+            "--ble-name",
+            str(self.network_config.get("ble_name", "M5-NETWORK-LANE")),
+            "--wifi" if self.network_config.get("wifi") else "--no-wifi",
+            "--ble" if self.network_config.get("ble") else "--no-ble",
+            "--tcp" if self.network_config.get("tcp") else "--no-tcp",
+            "--json",
+        ]
+        if elf_artifact_id:
+            command.extend(
+                [
+                    "--elf",
+                    str(self.service.artifacts.path(str(elf_artifact_id))),
+                ]
+            )
+        env = os.environ.copy()
+        env["PYTHONPATH"] = os.pathsep.join(
+            filter(
+                None,
+                [
+                    str(ROOT / ".work/py"),
+                    env.get("PYTHONPATH", ""),
+                ],
+            )
+        )
+        stdout = self.stdout_path.open("wb")
+        stderr = self.stderr_path.open("wb")
+        try:
+            self._proc = subprocess.Popen(
+                command,
+                cwd=ROOT,
+                env=env,
+                stdout=stdout,
+                stderr=stderr,
+                start_new_session=True,
+            )
+        finally:
+            stdout.close()
+            stderr.close()
+        self.pid = self._proc.pid
+        self._persist_session()
+        self._record_event(
+            "network_started",
+            profile=profile,
+            chip=chip,
+            pid=self.pid,
+        )
+        threading.Thread(
+            target=self._monitor_network_process,
+            name=f"m5-network-monitor-{self.id}",
+            daemon=True,
+        ).start()
+
+    def _network_evidence_path(self) -> Path:
+        return self.network_dir / "evidence.json"
+
+    def network_evidence(self) -> dict:
+        evidence_path = self._network_evidence_path()
+        if evidence_path.is_file():
+            try:
+                payload = json.loads(evidence_path.read_text())
+                if isinstance(payload, dict):
+                    return payload
+            except json.JSONDecodeError:
+                pass
+        return {
+            "schema_version": 1,
+            "kind": "m5stack-network-lane-proof",
+            "scope": "simulation-only-not-hardware-validation",
+            "status": self.network_result.get("status", "RUNNING")
+            if self.network_result
+            else "RUNNING",
+            "session_id": self.id,
+            "profile": self.network_config.get("profile"),
+        }
+
+    def _monitor_network_process(self) -> None:
+        proc = self._proc
+        if proc is None:
+            return
+        returncode = proc.wait()
+        self._handle_process_exit(returncode)
+
+    def _handle_process_exit(self, returncode: int | None) -> None:
+        with self._lock:
+            if self.state not in ACTIVE_STATES:
+                return
+            evidence_path = self._network_evidence_path()
+            evidence: dict | None = None
+            if evidence_path.is_file():
+                try:
+                    candidate = json.loads(evidence_path.read_text())
+                    if isinstance(candidate, dict):
+                        evidence = candidate
+                except json.JSONDecodeError:
+                    evidence = None
+            if evidence is None:
+                super()._handle_process_exit(returncode)
+                return
+            self.network_result = evidence
+            status = str(evidence.get("status") or "FAIL")
+            self.state = "stopped" if status == "PASS" else "failed"
+            self.error = (
+                None
+                if status == "PASS"
+                else f"network lane completed with status {status}"
+            )
+            self.completed_at = self.completed_at or iso_now()
+            self._record_event(
+                "network_completed",
+                status=status,
+                returncode=returncode,
+                evidence=self._network_evidence_path().name,
+            )
+            self._persist_session()
+
+    def _terminate_process(self) -> None:
+        proc = self._proc
+        if proc is not None and proc.poll() is None:
+            try:
+                if os.name == "posix":
+                    os.killpg(proc.pid, signal.SIGTERM)
+                else:
+                    proc.terminate()
+            except (OSError, ProcessLookupError):
+                proc.terminate()
+            try:
+                proc.wait(timeout=8)
+            except subprocess.TimeoutExpired:
+                try:
+                    if os.name == "posix":
+                        os.killpg(proc.pid, signal.SIGKILL)
+                    else:
+                        proc.kill()
+                except (OSError, ProcessLookupError):
+                    proc.kill()
+                proc.wait(timeout=5)
+
+    def _unavailable(self, feature: str):
+        raise ServiceError(
+            "runtime_feature_not_available",
+            f"{feature} is not available in a network-only session",
+            409,
+        )
+
+    def frame_metrics(self, *, analyze: bool = True, force_persist: bool = False):
+        self._unavailable("framebuffer capture")
+
+    def frame_png(self):
+        self._unavailable("framebuffer capture")
+
+    def device_state(self):
+        self._unavailable("board device state")
+
+    def inject(self, payload: dict):
+        self._unavailable("input injection")
+
+    def qom_set(self, payload: dict):
+        self._unavailable("QOM")
+
+    def qom_get(self, path: str, prop: str):
+        self._unavailable("QOM")
+
+    def qom_list(self, path: str = "/machine"):
+        self._unavailable("QOM")
+
+    def qom_snapshot(
+        self, path: str = "/machine", depth: int = 2, max_nodes: int = 500
+    ):
+        self._unavailable("QOM")
+
+    def qom_diff(self, before: str, after: str):
+        self._unavailable("QOM")
+
+    def reset(self):
+        self._unavailable("network session reset")
 
 
 class Tab5DeviceSession(DeviceSession):
@@ -2072,7 +2532,28 @@ class DeviceService:
                 )
             except (TypeError, ValueError):
                 continue
-            session = DeviceSession(
+            runtime = (
+                record.get("runtime")
+                if record.get("runtime") in {"qemu", "network"}
+                else "qemu"
+            )
+            network_config = (
+                record.get("network")
+                if isinstance(record.get("network"), dict)
+                else None
+            )
+            network_result = (
+                record.get("network_result")
+                if isinstance(record.get("network_result"), dict)
+                else None
+            )
+            if runtime == "network":
+                session_class = NetworkDeviceSession
+            elif spec.service_kind == "tab5":
+                session_class = Tab5DeviceSession
+            else:
+                session_class = DeviceSession
+            session = session_class(
                 self,
                 session_id=session_id,
                 spec=spec,
@@ -2106,6 +2587,9 @@ class DeviceService:
                     ).items()
                     if key in ALLOWED_RUNTIME_ENV and isinstance(value, str)
                 },
+                runtime=runtime,
+                network_config=network_config,
+                network_result=network_result,
                 events=events,
                 created_at=(
                     record.get("created_at")
@@ -2175,8 +2659,9 @@ class DeviceService:
                 "input": spec.supported,
                 "qom": spec.supported and spec.service_kind == "qemu",
                 "device_state": bool(spec.state_probes),
-                "network": False,
+                "network": bool(spec.network_chip and spec.network_profiles),
             },
+            "network_profiles": list(spec.network_profiles),
             "reason": spec.reason,
         }
 
@@ -2189,7 +2674,10 @@ class DeviceService:
         return {
             "service": "m5stack-device-service",
             "api_version": "v1",
-            "network_enabled": False,
+            "network_enabled": any(
+                spec.network_chip and spec.network_profiles
+                for spec in self.specs.values()
+            ),
             "tab5_enabled": False,
             "devices": devices,
         }
@@ -2359,6 +2847,23 @@ class DeviceService:
             source = "reference"
             source_artifacts = []
 
+        runtime = payload.get("runtime", "qemu")
+        if runtime not in {"qemu", "network"}:
+            raise ServiceError(
+                "unsupported_runtime",
+                "runtime must be qemu or network",
+                400,
+            )
+        network_config = None
+        if runtime == "network":
+            network_config = parse_network_execution(
+                spec,
+                payload.get("network"),
+            )
+            elf_artifact_id = network_config.get("elf_artifact_id")
+            if elf_artifact_id:
+                self.artifacts.get(str(elf_artifact_id))
+
         with self._lock:
             active = [
                 session
@@ -2411,11 +2916,12 @@ class DeviceService:
                     400,
                 )
             ready_timeout = float(payload.get("ready_timeout_seconds", 30))
-            session_class = (
-                Tab5DeviceSession
-                if spec.service_kind == "tab5"
-                else DeviceSession
-            )
+            if runtime == "network":
+                session_class = NetworkDeviceSession
+            elif spec.service_kind == "tab5":
+                session_class = Tab5DeviceSession
+            else:
+                session_class = DeviceSession
             session = session_class(
                 self,
                 session_id=uuid.uuid4().hex,
@@ -2430,6 +2936,8 @@ class DeviceService:
                 ready_timeout=ready_timeout,
                 ready_conditions=ready_conditions,
                 runtime_env=runtime_env,
+                runtime=runtime,
+                network_config=network_config,
             )
             self._sessions[session.id] = session
         session.start()
@@ -2512,7 +3020,11 @@ class DeviceService:
             "max_per_device": self.max_per_device,
             "by_device": by_device,
             "modes": {
-                "network": "disabled",
+                "network": (
+                    "enabled-separate-lane"
+                    if any(spec.network_chip for spec in self.specs.values())
+                    else "disabled"
+                ),
                 "tab5": "enabled-partial",
                 "flash": "prepared-cache + exact artifact",
             },
@@ -2529,17 +3041,7 @@ class DeviceService:
                         and session._proc is not None
                         and session._proc.poll() is not None
                     ):
-                        session.state = "failed"
-                        session.error = (
-                            session.error
-                            or f"process exited with code {session._proc.returncode}"
-                        )
-                        session.completed_at = session.completed_at or iso_now()
-                        session._record_event(
-                            "process_exited",
-                            returncode=session._proc.returncode,
-                        )
-                        session._persist_session()
+                        session._handle_process_exit(session._proc.returncode)
                     if session.state in ACTIVE_STATES and session.expires_at <= now:
                         expired.append(session)
             for session in expired:

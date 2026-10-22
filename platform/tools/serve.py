@@ -23,6 +23,7 @@ from device_service import (
     DEFAULT_MAX_PER_DEVICE,
     DEFAULT_MAX_SESSIONS,
     DEFAULT_STATE_DIR,
+    MAX_ARTIFACT_BYTES,
     DeviceService,
     ServiceError,
 )
@@ -256,6 +257,21 @@ class Handler(SimpleHTTPRequestHandler):
                 method == "GET"
                 and len(parts) == 3
                 and parts[0] == "sessions"
+                and parts[2] == "network"
+            ):
+                session = service.get_session(parts[1])
+                network_evidence = getattr(session, "network_evidence", None)
+                if network_evidence is None:
+                    raise ServiceError(
+                        "network_not_available",
+                        "this session is not a network session",
+                        409,
+                    )
+                response = network_evidence()
+            elif (
+                method == "GET"
+                and len(parts) == 3
+                and parts[0] == "sessions"
                 and parts[2] == "flash"
             ):
                 session = service.get_session(parts[1])
@@ -333,10 +349,15 @@ class Handler(SimpleHTTPRequestHandler):
                 offset = int(query.get("offset", ["0"])[0])
                 limit = int(query.get("limit", ["65536"])[0])
                 serial = session.serial_read(offset=offset, limit=limit)
+                stdout = _read_text_tail(session.stdout_path, limit)
+                stderr = _read_text_tail(session.stderr_path, limit)
                 response = {
                     **serial,
-                    "qemu_stdout": _read_text_tail(session.stdout_path, limit),
-                    "qemu_stderr": _read_text_tail(session.stderr_path, limit),
+                    "runtime": getattr(session, "runtime", "qemu"),
+                    "stdout": stdout,
+                    "stderr": stderr,
+                    "qemu_stdout": stdout,
+                    "qemu_stderr": stderr,
                 }
             elif (
                 method == "GET"
@@ -398,7 +419,7 @@ class Handler(SimpleHTTPRequestHandler):
                     )
                 response = session.qom_get(path_value, prop)
             elif method == "POST" and parts == ["artifacts"]:
-                data = self._read_body(max_bytes=32 * 1024 * 1024)
+                data = self._read_body(max_bytes=MAX_ARTIFACT_BYTES)
                 response = service.upload_artifact(
                     data,
                     name=self.headers.get("X-Artifact-Name", ""),
@@ -586,10 +607,19 @@ def _wait_for_session(session, payload: dict) -> dict:
     timeout = float(payload.get("timeout_seconds", 30))
     if marker:
         return session.wait_for_marker(str(marker), timeout)
+    wait_for_completion = bool(payload.get("wait_for_completion", False))
     deadline = time.time() + timeout
     while time.time() < deadline:
         snapshot = session.snapshot()
-        if snapshot["state"] == "running":
+        if wait_for_completion and snapshot["state"] in {"stopped", "failed"}:
+            if snapshot["state"] == "failed":
+                raise ServiceError(
+                    "session_failed",
+                    snapshot.get("error") or "session failed",
+                    409,
+                )
+            return snapshot
+        if snapshot["state"] == "running" and not wait_for_completion:
             return snapshot
         if snapshot["state"] == "failed":
             raise ServiceError(

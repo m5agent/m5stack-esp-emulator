@@ -12,7 +12,8 @@ Current scope:
 - Tab5: enabled through esp-emu, with `peripheral_status=partial` and explicit
   warnings;
 - excluded: CardputerZero;
-- network emulation: disabled;
+- network emulation: enabled as a separate `runtime=network` one-shot lane for
+  S3/C6 devices with validated `esp-emu` profiles;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -120,7 +121,9 @@ Important fields:
 - `flash_size`
 - `display`
 - `features.flash/serial/screenshot/input/qom`
-- `features.network` is currently always `false`
+- `features.network` is `true` when the chip has a validated `esp-emu` network
+  path; `network_profiles` lists the available scenarios. Tab5 and Core2
+  currently return `false`.
 - Tab5 `features.qom` is `false`; its touch path uses the GDB mailbox currently
   used by the validated Tab5 runtime.
 
@@ -199,6 +202,10 @@ A session is one exclusive emulator lease. It has one device profile, one
 immutable source firmware, one private flash copy, one QEMU process and one
 serial log set.
 
+`runtime` is `qemu` by default. Set it to `network` to run the firmware through
+the separate network/BLE lane. Network sessions do not expose framebuffer,
+input, QOM or same-instance board state; those remain in the QEMU lane.
+
 State machine:
 
 ```text
@@ -234,6 +241,32 @@ Only `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
 `M5SW_I2S_RX_PCM_FILE`, and `M5SW_I2S_TRACE` are accepted. This is a
 trusted-workstation control surface; do not expose it to untrusted tenants.
 
+Network sessions use a validated scenario:
+
+```json
+{
+  "device_id": "sticks3",
+  "firmware_id": "<firmware-id>",
+  "runtime": "network",
+  "network": {
+    "profile": "esp-idf-http",
+    "timeout_seconds": 45
+  }
+}
+```
+
+Profiles are:
+
+- `esp-idf-http`: WiFi, DHCP and a controlled complete HTTP/TCP download;
+- `esp-idf-smoke`: WiFi, DHCP and the upstream comprehensive smoke suite;
+- `uiflow2-sticks3`: UIFlow2 network/BLE probe. BLE requires a matching ELF
+  uploaded as an artifact and referenced by `elf_artifact_id`.
+
+For the current StickS3 BLE proof, use
+`{"profile":"uiflow2-sticks3","wifi":false,"ble":true,"elf_artifact_id":"..."}`.
+WiFi and BLE are separate scenarios; same-instance coexistence is not yet a
+PASS.
+
 The service stores the latest captured framebuffer as `last-frame.png` and
 `last-frame.json`. When a session stops, `frame.png` returns this last-known
 frame instead of failing. Session snapshots expose `last_frame_available` and
@@ -265,11 +298,12 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | DELETE | `/api/v1/sessions?state=stopped&purge=1` | Clear stopped/failed history |
 | GET | `/api/v1/sessions/{id}` | Session status |
 | GET | `/api/v1/sessions/{id}/events` | Lifecycle event timeline |
+| GET | `/api/v1/sessions/{id}/network` | Machine-readable network/BLE evidence |
 | GET | `/api/v1/sessions/{id}/device-state` | Live or last-known normalized device state |
-| POST | `/api/v1/sessions/{id}/wait` | Wait for serial/frame application readiness |
+| POST | `/api/v1/sessions/{id}/wait` | Wait for serial/frame readiness; `wait_for_completion=true` waits for a one-shot network session to finish |
 | GET | `/api/v1/sessions/{id}/evidence` | Download a hashed evidence ZIP |
 | GET | `/api/v1/sessions/{id}/serial?offset=0&limit=65536` | Incremental serial read |
-| GET | `/api/v1/sessions/{id}/logs?offset=0&limit=65536` | Serial plus QEMU stdout/stderr tail |
+| GET | `/api/v1/sessions/{id}/logs?offset=0&limit=65536` | Serial plus runtime stdout/stderr tail |
 | GET | `/api/v1/sessions/{id}/frame.png` | Live or last-known framebuffer as PNG |
 | POST | `/api/v1/sessions/{id}/input` | Key, touch, long press or drag |
 | POST | `/api/v1/sessions/{id}/qom` | Set a QOM property |
@@ -337,6 +371,17 @@ curl -sS \
   'http://127.0.0.1:8787/api/v1/sessions/<session-id>/evidence?include=manifest,serial,frames,logs,qom' \
   -o /tmp/m5-evidence.zip
 ```
+
+### Wait for a network session
+
+```bash
+curl -sS -H 'Content-Type: application/json' \
+  -d '{"timeout_seconds":90,"wait_for_completion":true}' \
+  http://127.0.0.1:8787/api/v1/sessions/$SID/wait
+```
+
+`GET /sessions/{id}/network` returns the final `evidence.json`, including
+checks, artifact hashes, log hashes and explicit simulation-only limits.
 
 Add `flash` to include the full isolated virtual flash. The ZIP always contains
 `manifest.json` with session timeline, file hashes, device warnings and flash
@@ -500,7 +545,11 @@ after a service restart.
 
 ## Current limitations
 
-- no WiFi/LAN network emulation;
+- network sessions are a separate lane and do not combine board peripherals
+  with the same guest instance;
+- UIFlow2 WiFi and BLE currently use separate runs; same-instance WiFi+BLE is
+  partial on `esp-emu 0.50.0`;
+- Core2 has no `esp-emu` network/PHY path yet;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
