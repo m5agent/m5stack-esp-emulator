@@ -90,6 +90,7 @@
     {
       "id": "cardputer-adv",
       "backend": "qemu-esp32s3",
+      "network_status": "board-init-blocked",
       "mode": "ui",
       "machine": "m5cardputeradv",
       "base": "platform/.cache/firmware/cardputer-adv/uiflow2.bin",
@@ -105,6 +106,7 @@
     {
       "id": "stamplc",
       "backend": "qemu-esp32s3",
+      "network_status": "board-init-blocked",
       "mode": "ui",
       "machine": "m5stamplc",
       "base": "platform/.cache/firmware/stamplc/uiflow2.bin",
@@ -120,6 +122,7 @@
     {
       "id": "stackchan",
       "backend": "qemu-esp32s3",
+      "network_status": "board-init-blocked",
       "mode": "ui",
       "machine": "m5stackchan",
       "base": "platform/.cache/firmware/stackchan/uiflow2.bin",
@@ -136,6 +139,7 @@
     {
       "id": "papercolor",
       "backend": "qemu-esp32s3",
+      "network_status": "board-init-blocked",
       "mode": "ui",
       "machine": "m5papercolor",
       "base": "platform/.cache/firmware/papercolor/uiflow2.bin",
@@ -154,6 +158,7 @@
     {
       "id": "papermono",
       "backend": "qemu-esp32s3",
+      "network_status": "board-init-blocked",
       "mode": "ui",
       "machine": "m5papermono",
       "base": "platform/.cache/firmware/papermono/uiflow2.bin",

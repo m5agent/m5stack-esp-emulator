@@ -63,7 +63,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(rows["nanoc6"]["network_status"], "validated")
         self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
-        for blocked in ("atoms3r", "cores3", "stopwatch"):
+        for blocked in (
+            "atoms3r",
+            "cardputer-adv",
+            "cores3",
+            "papercolor",
+            "papermono",
+            "stackchan",
+            "stamplc",
+            "stopwatch",
+        ):
             self.assertEqual(
                 rows[blocked]["network_status"],
                 "board-init-blocked",
