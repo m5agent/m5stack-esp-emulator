@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>M5Stack Device Sessions</title>
+  <link rel="stylesheet" href="/platform/web/app.css">
+  <link rel="stylesheet" href="/platform/web/sessions.css">
+</head>
+<body>
+  <header class="brandbar">
+    <div class="brand-mark">M5</div>
+    <div>
+      <div class="brand-title">Device Sessions</div>
+      <div class="brand-sub">Live virtual-device leases · serial · framebuffer · state</div>
+    </div>
+    <div class="brand-actions">
+      <a class="btn ghost" href="/platform/web/index.html">设备目录</a>
+      <button class="btn" id="refreshBtn" type="button">刷新</button>
+    </div>
+  </header>
+
+  <main class="sessions-layout">
+    <aside class="panel sessions-side">
+      <div class="section-title">Service</div>
+      <div id="serviceSummary" class="notice">Loading service status…</div>
+
+      <div class="section">
+        <div class="section-title">API token</div>
+        <input class="field" id="tokenInput" type="password" placeholder="仅局域网服务需要">
+        <button class="btn" id="saveTokenBtn" type="button">保存 Token</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">创建虚拟设备</div>
+        <label class="field-label" for="deviceSelect">Device</label>
+        <select class="field" id="deviceSelect"></select>
+        <label class="field-label" for="ttlInput">Lease TTL (seconds)</label>
+        <input class="field" id="ttlInput" type="number" min="30" value="600">
+        <button class="btn primary" id="createBtn" type="button">创建参考设备</button>
+        <div class="hint">Tab5 可用烧录、启动、串口、GDB 截图和触摸；外设仍是 partial。</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">显示说明</div>
+        <div class="hint">页面只做观察和基本控制，完整固件操作使用 `/api/v1`。`running` 仅表示 QEMU/QMP 或 esp-emu 已启动，不代表应用已完成首帧。</div>
+        <a class="doc-link" href="/api/v1/openapi.yaml" target="_blank" rel="noreferrer">打开 OpenAPI</a>
+      </div>
+    </aside>
+
+    <section class="sessions-main">
+      <div id="errorBanner" class="notice danger" hidden></div>
+      <div class="sessions-head">
+        <div>
+          <div class="stage-title">Live sessions</div>
+          <div class="stage-sub" id="sessionSub">等待服务连接…</div>
+        </div>
+        <div class="status-chip" id="capacityChip">loading</div>
+      </div>
+      <div id="sessionList" class="session-list">
+        <div class="panel empty-state">还没有虚拟设备会话。</div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/platform/web/sessions.js?v=20261022a"></script>
+</body>
+</html>

@@ -31,13 +31,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.service.close_all()
         self.tmp.cleanup()
 
-    def test_catalog_excludes_tab5_and_cardputer_zero_from_creation(self):
+    def test_catalog_enables_tab5_and_excludes_cardputer_zero(self):
         payload = self.service.list_devices()
         rows = {row["device_id"]: row for row in payload["devices"]}
         self.assertEqual(len(rows), 14)
-        self.assertEqual(sum(row["creatable"] for row in rows.values()), 12)
-        self.assertFalse(rows["tab5"]["supported"])
-        self.assertFalse(rows["tab5"]["creatable"])
+        self.assertEqual(sum(row["creatable"] for row in rows.values()), 13)
+        self.assertTrue(rows["tab5"]["supported"])
+        self.assertTrue(rows["tab5"]["creatable"])
+        self.assertEqual(rows["tab5"]["peripheral_status"], "partial")
+        self.assertTrue(rows["tab5"]["warnings"])
+        self.assertFalse(rows["tab5"]["features"]["qom"])
         self.assertFalse(rows["cardputer-zero"]["supported"])
         self.assertFalse(rows["tab5"]["features"]["network"])
         self.assertFalse(payload["network_enabled"])

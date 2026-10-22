@@ -3,14 +3,15 @@
 
 This module is intentionally a local, trusted-workstation service. It owns the
 process lifecycle for QEMU/esp-emu-backed ESP32 devices and exposes an HTTP
-API through serve.py. Network emulation and Tab5 are deliberately outside this
-first service scope.
+API through serve.py. Network emulation is outside this first service scope;
+Tab5 is supported with an explicit partial-peripheral warning.
 """
 from __future__ import annotations
 
 import hashlib
 import json
 import os
+import signal
 import shutil
 import subprocess
 import sys
@@ -37,10 +38,20 @@ from run_profile_ui_test import (  # noqa: E402
     wait_qmp,
     write_rgb_png,
 )
+from run_tab5_ui_test import (  # noqa: E402
+    capture_framebuffer,
+    free_tcp_port,
+    inject_touch,
+    logical_to_raw_touch,
+    orient_rgb565,
+    rgb565_to_rgb,
+    wait_for_path as wait_for_fs_path,
+    wait_for_port as wait_for_tcp_port,
+    write_png as write_tab5_png,
+)
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 EXCLUDED_DEVICES = {
-    "tab5": "Tab5 is deferred from this service scope",
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
 MAX_ARTIFACT_BYTES = 32 * 1024 * 1024
@@ -105,6 +116,14 @@ class DeviceSpec:
     expected_size: tuple[int, int] | None
     supported: bool
     flash_emulator: Path | None
+    service_kind: str
+    emulator: Path | None
+    elf: Path | None
+    rom: Path | None
+    efuse: Path | None
+    c6_firmware: Path | None
+    peripheral_status: str
+    warnings: list[str]
     reason: str | None
 
     @property
@@ -118,6 +137,17 @@ class DeviceSpec:
 
     @property
     def backend_ready(self) -> bool:
+        if self.service_kind == "tab5":
+            return all(
+                path is not None and path.is_file()
+                for path in (
+                    self.emulator,
+                    self.rom,
+                    self.efuse,
+                    self.c6_firmware,
+                    self.reference_path,
+                )
+            )
         return (
             self.qemu.is_file()
             and self.rom_dir.is_dir()
@@ -135,24 +165,54 @@ def load_device_specs() -> dict[str, DeviceSpec]:
         backend = matrix["backends"].get(row["backend"], {})
         profile = profiles_by_id.get(device_id, {})
         excluded_reason = EXCLUDED_DEVICES.get(device_id)
-        supported = (
-            excluded_reason is None
-            and bool(backend)
-            and row["backend"].startswith("qemu-esp32")
-            and row["mode"] in {"ui", "console"}
-        )
-        qemu = ROOT / backend["qemu"] if backend.get("qemu") else ROOT / "__missing_qemu__"
-        rom_dir = (
-            ROOT / backend["rom_dir"]
-            if backend.get("rom_dir")
-            else ROOT / "__missing_rom__"
-        )
         reference = ROOT / row["base"] if row.get("base") else None
-        reason = excluded_reason
-        if not backend and reason is None:
-            reason = f"backend {row['backend']} is not registered for service execution"
-        if not supported and reason is None:
-            reason = f"backend mode {row.get('mode')} is not enabled for this service"
+        if device_id == "tab5":
+            supported = True
+            service_kind = "tab5"
+            qemu = ROOT / "__missing_qemu__"
+            rom_dir = ROOT / "__missing_rom__"
+            emulator = ROOT / row["emulator"]
+            elf = ROOT / row["elf"]
+            rom = ROOT / row["rom"]
+            efuse = ROOT / row["efuse"]
+            c6_firmware = ROOT / row["c6_firmware"]
+            flash_emulator = emulator
+            reason = None
+        else:
+            supported = (
+                excluded_reason is None
+                and bool(backend)
+                and row["backend"].startswith("qemu-esp32")
+                and row["mode"] in {"ui", "console"}
+            )
+            service_kind = "qemu"
+            qemu = (
+                ROOT / backend["qemu"]
+                if backend.get("qemu")
+                else ROOT / "__missing_qemu__"
+            )
+            rom_dir = (
+                ROOT / backend["rom_dir"]
+                if backend.get("rom_dir")
+                else ROOT / "__missing_rom__"
+            )
+            emulator = None
+            elf = None
+            rom = None
+            efuse = None
+            c6_firmware = None
+            flash_emulator = (
+                ROOT / ".work/bin/esp-emu"
+                if backend.get("esp_emu_chip")
+                else None
+            )
+            reason = excluded_reason
+            if not backend and reason is None:
+                reason = (
+                    f"backend {row['backend']} is not registered for service execution"
+                )
+            if not supported and reason is None:
+                reason = f"backend mode {row.get('mode')} is not enabled for this service"
         specs[device_id] = DeviceSpec(
             id=device_id,
             name=profile.get("name", device_id),
@@ -160,7 +220,11 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             soc=profile.get("soc", ""),
             backend=row["backend"],
             machine=row.get("machine", ""),
-            flash_size=int(row.get("flash_size", "0"), 0),
+            flash_size=(
+                16 << 20
+                if device_id == "tab5"
+                else int(row.get("flash_size", "0"), 0)
+            ),
             display=profile.get("display"),
             reference_path=reference,
             qemu=qemu,
@@ -171,11 +235,18 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             mode=row["mode"],
             expected_size=parse_size(row.get("expected_size")),
             supported=supported,
-            flash_emulator=(
-                ROOT / ".work/bin/esp-emu"
-                if backend.get("esp_emu_chip")
-                else None
+            flash_emulator=flash_emulator,
+            service_kind=service_kind,
+            emulator=emulator,
+            elf=elf,
+            rom=rom,
+            efuse=efuse,
+            c6_firmware=c6_firmware,
+            peripheral_status=profile.get(
+                "peripheral_status",
+                "simulated" if supported else "not-applicable",
             ),
+            warnings=list(profile.get("blockers", [])),
             reason=reason,
         )
     return specs
@@ -397,9 +468,26 @@ def default_flash_preparer(
     spec: DeviceSpec, image: Path, firmware_sha: str, out_dir: Path
 ) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
-    matrix_backend = json.loads(MATRIX.read_text())["backends"][spec.backend]
     env = default_env()
     env.update(spec.env)
+    if spec.service_kind == "tab5":
+        return flash_with_esp_emu(
+            chip="esp32p4",
+            image=image,
+            flash_size=spec.flash_size,
+            out_dir=out_dir,
+            env=env,
+            timeout=900,
+            emulator=spec.emulator,
+            rom=spec.rom,
+            efuse=spec.efuse,
+            extra_args=["--psram-size", "32M"],
+            no_stub=True,
+            chunk_size=1 << 20,
+            chunk_ranges=[(0, 0x500000), (0x610000, 0x7F0000)],
+            restart_per_chunk=True,
+        )
+    matrix_backend = json.loads(MATRIX.read_text())["backends"][spec.backend]
     if "esp_emu_chip" in matrix_backend:
         emulator = Path(
             os.environ.get(
@@ -766,6 +854,243 @@ class DeviceSession:
         return result
 
 
+class Tab5DeviceSession(DeviceSession):
+    """Tab5 esp-emu session with serial, GDB framebuffer and touch support."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._c6_proc: subprocess.Popen | None = None
+        self._gdb_port: int | None = None
+        self._hosted_socket = Path("/tmp") / f"m5-service-tab5-{self.id}.sock"
+
+    def _provision(self) -> None:
+        try:
+            self._set_state("flashing")
+            prepared = self.service.prepare_flash(
+                self.spec, self.firmware_path, self.firmware_sha
+            )
+            self.virtual_flash = self.dir / "virtual-flash.bin"
+            shutil.copyfile(prepared["path"], self.virtual_flash)
+            self.flash_info = {
+                **prepared["info"],
+                "session_isolated_copy": True,
+            }
+            self._set_state("booting")
+            self._launch_tab5()
+            if self.ready_marker:
+                self.wait_for_marker(self.ready_marker, self.ready_timeout)
+            self._set_state("running")
+        except Exception as error:
+            with self._lock:
+                self.error = str(error)
+                self.state = "failed"
+            self._terminate_tab5()
+
+    def _launch_tab5(self) -> None:
+        assert self.virtual_flash is not None
+        assert self.spec.emulator is not None
+        assert self.spec.elf is not None
+        assert self.spec.rom is not None
+        assert self.spec.efuse is not None
+        assert self.spec.c6_firmware is not None
+        try:
+            self._hosted_socket.unlink()
+        except FileNotFoundError:
+            pass
+        c6_stdout = (self.dir / "c6.log").open("wb")
+        self._c6_proc = subprocess.Popen(
+            [
+                str(self.spec.emulator),
+                "--chip", "esp32c6",
+                "--firmware", str(self.spec.c6_firmware),
+                "--hosted", f"bridge:slave:{self._hosted_socket}",
+            ],
+            cwd=ROOT,
+            stdout=c6_stdout,
+            stderr=subprocess.STDOUT,
+        )
+        try:
+            wait_for_fs_path(self._hosted_socket, self._c6_proc, 25)
+        finally:
+            c6_stdout.close()
+        self._gdb_port = free_tcp_port()
+        p4_stdout = self.serial0.open("wb")
+        p4_stderr = self.stderr_path.open("wb")
+        command = [
+            str(self.spec.emulator),
+            "--chip", "esp32p4",
+            "--firmware", str(self.virtual_flash),
+            "--elf", str(self.spec.elf),
+            "--rom", str(self.spec.rom),
+            "--efuse", str(self.spec.efuse),
+            "--hosted", f"bridge:host:{self._hosted_socket}",
+            "--hosted-reset-gpio", "15",
+            "--hosted-reset-active-high",
+            "--psram-size", "32M",
+            "--console", "uart0",
+            "--gdb", str(self._gdb_port),
+            "--timeout", f"{int(self.ttl_seconds + 120)}s",
+        ]
+        try:
+            self._proc = subprocess.Popen(
+                command,
+                cwd=ROOT,
+                stdout=p4_stdout,
+                stderr=p4_stderr,
+            )
+        finally:
+            p4_stdout.close()
+            p4_stderr.close()
+        self.pid = self._proc.pid
+        wait_for_tcp_port(self._gdb_port, self._proc, 25)
+
+    def _terminate_tab5(self) -> None:
+        for proc in (self._proc, self._c6_proc):
+            if proc is not None and proc.poll() is None:
+                try:
+                    proc.send_signal(signal.SIGINT)
+                except ProcessLookupError:
+                    pass
+        for proc in (self._proc, self._c6_proc):
+            if proc is None:
+                continue
+            try:
+                proc.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=5)
+        self._proc = None
+        self._c6_proc = None
+        try:
+            self._hosted_socket.unlink()
+        except FileNotFoundError:
+            pass
+
+    def frame_png(self) -> tuple[bytes, int, int]:
+        if self.state != "running" or self._gdb_port is None:
+            raise ServiceError(
+                "session_not_running", f"session state is {self.state}", 409
+            )
+        if self.firmware_source != "reference":
+            raise ServiceError(
+                "screenshot_requires_matching_elf",
+                "Tab5 screenshot capture requires the reference ELF; "
+                "uploaded firmware has no matching symbol file yet",
+                409,
+            )
+        assert self.spec.elf is not None
+        name = f"api-frame-{uuid.uuid4().hex}"
+        raw_width, raw_height, raw565, _ = capture_framebuffer(
+            self.spec.elf, self._gdb_port, self.dir, name
+        )
+        width, height, oriented = orient_rgb565(
+            raw565, raw_width, raw_height, 1
+        )
+        pixels = rgb565_to_rgb(oriented)
+        png = self.dir / f"{name}.png"
+        write_tab5_png(png, width, height, pixels)
+        try:
+            return png.read_bytes(), width, height
+        finally:
+            png.unlink(missing_ok=True)
+            (self.dir / f"{name}.rgb565").unlink(missing_ok=True)
+
+    def inject(self, payload: dict) -> dict:
+        if self.state != "running" or self._gdb_port is None:
+            raise ServiceError(
+                "session_not_running", f"session state is {self.state}", 409
+            )
+        if self.firmware_source != "reference":
+            raise ServiceError(
+                "input_requires_matching_elf",
+                "Tab5 touch injection currently requires the reference ELF",
+                409,
+            )
+        kind = payload.get("kind")
+        if kind not in {"touch", "longpress"}:
+            raise ServiceError(
+                "unsupported_input",
+                "Tab5 service currently supports touch and longpress only",
+                409,
+            )
+        x = int(payload.get("x", 0))
+        y = int(payload.get("y", 0))
+        hold = (
+            float(payload.get("hold_seconds", 0.5))
+            if kind == "longpress"
+            else float(payload.get("settle_seconds", 0.15))
+        )
+        raw_x, raw_y = logical_to_raw_touch(x, y, 720, 1280, 1)
+        assert self.spec.elf is not None
+        inject_touch(
+            self.spec.elf,
+            self._gdb_port,
+            self.dir,
+            f"api-touch-down-{uuid.uuid4().hex}",
+            down=True,
+            x=raw_x,
+            y=raw_y,
+        )
+        time.sleep(max(0.05, hold))
+        inject_touch(
+            self.spec.elf,
+            self._gdb_port,
+            self.dir,
+            f"api-touch-up-{uuid.uuid4().hex}",
+            down=False,
+            x=raw_x,
+            y=raw_y,
+        )
+        return {
+            "session_id": self.id,
+            "input": kind,
+            "logical": [x, y],
+            "raw": [raw_x, raw_y],
+            "accepted": True,
+        }
+
+    def qom_set(self, payload: dict) -> dict:
+        raise ServiceError(
+            "qom_not_supported",
+            "Tab5 esp-emu sessions do not expose QMP QOM",
+            409,
+        )
+
+    def qom_get(self, path: str, prop: str) -> dict:
+        raise ServiceError(
+            "qom_not_supported",
+            "Tab5 esp-emu sessions do not expose QMP QOM",
+            409,
+        )
+
+    def reset(self) -> dict:
+        if self.state != "running":
+            raise ServiceError(
+                "session_not_running", f"session state is {self.state}", 409
+            )
+        self._set_state("booting")
+        self.serial0.write_bytes(b"")
+        self._terminate_tab5()
+        self._launch_tab5()
+        self._set_state("running")
+        return {"session_id": self.id, "state": self.state, "reset": True}
+
+    def stop(self, purge: bool = False) -> dict:
+        with self._lock:
+            if self.state in {"stopped", "failed"}:
+                result = self.snapshot()
+                if purge:
+                    shutil.rmtree(self.dir, ignore_errors=True)
+                return result
+            self.state = "stopping"
+            self._terminate_tab5()
+            self.state = "stopped"
+            result = self.snapshot()
+        if purge:
+            shutil.rmtree(self.dir, ignore_errors=True)
+        return result
+
+
 class DeviceService:
     def __init__(
         self,
@@ -824,12 +1149,14 @@ class DeviceService:
             "machine": spec.machine,
             "flash_size": spec.flash_size,
             "display": spec.display,
+            "peripheral_status": spec.peripheral_status,
+            "warnings": spec.warnings,
             "features": {
                 "flash": spec.supported,
                 "serial": spec.supported,
                 "screenshot": spec.supported and spec.has_display,
                 "input": spec.supported,
-                "qom": spec.supported,
+                "qom": spec.supported and spec.service_kind == "qemu",
                 "network": False,
             },
             "reason": spec.reason,
@@ -875,7 +1202,10 @@ class DeviceService:
                     f"reference firmware is not cached for {spec.id}",
                     409,
                 )
-            data = spec.reference_path.read_bytes()
+            reference_path = spec.reference_path
+            if spec.service_kind == "tab5":
+                reference_path = self._tab5_reference_image(spec)
+            data = reference_path.read_bytes()
             if len(data) > spec.flash_size:
                 raise ServiceError(
                     "reference_firmware_too_large",
@@ -886,10 +1216,37 @@ class DeviceService:
                 "firmware_id": hashlib.sha256(data).hexdigest(),
                 "sha256": hashlib.sha256(data).hexdigest(),
                 "size": len(data),
-                "path": spec.reference_path,
+                "path": reference_path,
             }
             self._reference_cache[spec.id] = record
             return record
+
+    def _tab5_reference_image(self, spec: DeviceSpec) -> Path:
+        assert spec.reference_path is not None
+        target = self.state_dir / "references" / "tab5-uiflow2-service.bin"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if (
+            not target.is_file()
+            or target.stat().st_mtime < spec.reference_path.stat().st_mtime
+        ):
+            env = os.environ.copy()
+            env["PYTHONPATH"] = os.pathsep.join(
+                filter(None, [str(ROOT / ".work/py"), env.get("PYTHONPATH", "")])
+            )
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tests/uiflow2/tab5_ui_test/make_image.py"),
+                    "--base",
+                    str(spec.reference_path),
+                    "--out",
+                    str(target),
+                ],
+                cwd=ROOT,
+                env=env,
+                check=True,
+            )
+        return target
 
     def prepare_flash(
         self, spec: DeviceSpec, image: Path, firmware_sha: str
@@ -998,7 +1355,12 @@ class DeviceService:
             if ready_marker is not None and not isinstance(ready_marker, str):
                 raise ServiceError("invalid_request", "ready_marker must be a string", 400)
             ready_timeout = float(payload.get("ready_timeout_seconds", 30))
-            session = DeviceSession(
+            session_class = (
+                Tab5DeviceSession
+                if spec.service_kind == "tab5"
+                else DeviceSession
+            )
+            session = session_class(
                 self,
                 session_id=uuid.uuid4().hex,
                 spec=spec,

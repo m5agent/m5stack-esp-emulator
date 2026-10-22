@@ -44,7 +44,8 @@ UART/framebuffer 操作展开为机器可读接口。
 - 串口、截图、按键/触摸、QOM、reset 和销毁；
 - prepared-flash cache + 每 session 独立 flash 副本。
 
-目前不开放 Tab5、CardputerZero 和网络模拟。完整契约见
+Tab5 通过 esp-emu 单独接入，外设状态明确标记为 `partial`；CardputerZero
+和网络模拟暂不开放。完整契约见
 [`../docs/device-service-api.md`](../docs/device-service-api.md) 和
 [`../docs/device-service.openapi.yaml`](../docs/device-service.openapi.yaml)。
 

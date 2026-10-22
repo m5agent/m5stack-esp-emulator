@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const base = process.env.M5_SIM_BASE || 'http://127.0.0.1:8080';
+const base = process.env.M5_SIM_BASE || 'http://127.0.0.1:8787';
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
 const browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -48,6 +48,17 @@ if (!tab5.summary?.includes('外设未闭环') || !tab5.summary.includes('临时
 }
 if (tab5.count !== 17 || tab5.blockers !== 15) {
   throw new Error(`Tab5 blocker panel failed: ${JSON.stringify(tab5)}`);
+}
+
+await page.goto(`${base}/platform/web/sessions.html`, { waitUntil: 'networkidle' });
+await page.waitForFunction(() => document.querySelectorAll('#deviceSelect option').length >= 13);
+const sessionsUi = await page.evaluate(() => ({
+  service: document.querySelector('#serviceSummary')?.textContent,
+  devices: document.querySelectorAll('#deviceSelect option').length,
+  hasSessionList: Boolean(document.querySelector('#sessionList')),
+}));
+if (!sessionsUi.service?.includes('API online') || !sessionsUi.hasSessionList) {
+  throw new Error(`sessions dashboard failed: ${JSON.stringify(sessionsUi)}`);
 }
 
 await page.goto(`${base}/devices/esp32-s3/stopwatch/web/index.html`, { waitUntil: 'domcontentloaded' });

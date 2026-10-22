@@ -9,7 +9,9 @@ frame, input and QOM operations through HTTP.
 Current scope:
 
 - enabled: 12 QEMU-backed ESP32 devices;
-- excluded: Tab5 and CardputerZero;
+- Tab5: enabled through esp-emu, with `peripheral_status=partial` and explicit
+  warnings;
+- excluded: CardputerZero;
 - network emulation: disabled;
 - sessions: in-memory leases, destroyed when the service process exits;
 - evidence: serial/QEMU logs remain under the configured state directory.
@@ -23,7 +25,7 @@ served at `/api/v1/openapi.yaml`.
 ## Start the service
 
 ```bash
-python3 platform/tools/serve.py 8080 \
+python3 platform/tools/serve.py 8787 \
   --state-dir platform/.cache/service \
   --max-sessions 4 \
   --max-per-device 2 \
@@ -34,7 +36,7 @@ For LAN access with a shared token:
 
 ```bash
 export M5_SERVICE_API_TOKEN='<private-token>'
-python3 platform/tools/serve.py 8080 --bind 0.0.0.0
+python3 platform/tools/serve.py 8787 --bind 0.0.0.0
 ```
 
 When a token is configured, every `/api/v1` endpoint except health requires:
@@ -49,7 +51,7 @@ expose it directly to the public internet.
 ## Base URL
 
 ```text
-http://127.0.0.1:8080/api/v1
+http://127.0.0.1:8787/api/v1
 ```
 
 Every JSON response includes `X-Request-ID`. Errors use:
@@ -81,6 +83,8 @@ Important fields:
 - `display`
 - `features.flash/serial/screenshot/input/qom`
 - `features.network` is currently always `false`
+- Tab5 `features.qom` is `false`; its touch path uses the GDB mailbox currently
+  used by the validated Tab5 runtime.
 
 ### Artifact
 
@@ -206,7 +210,7 @@ omitted:
 ```bash
 curl -sS -H 'Content-Type: application/json' \
   -d '{"device_id":"sticks3","ttl_seconds":600}' \
-  http://127.0.0.1:8080/api/v1/sessions
+  http://127.0.0.1:8787/api/v1/sessions
 ```
 
 The first run prepares and verifies a virtual flash through the backend's
@@ -219,7 +223,7 @@ prepared flash cache into a new per-session flash file.
 SID='<session-id>'
 curl -sS -H 'Content-Type: application/json' \
   -d '{"timeout_seconds":60}' \
-  http://127.0.0.1:8080/api/v1/sessions/$SID/wait
+  http://127.0.0.1:8787/api/v1/sessions/$SID/wait
 ```
 
 For firmware with a known serial marker:
@@ -235,7 +239,7 @@ For firmware with a known serial marker:
 
 ```bash
 curl -sS \
-  'http://127.0.0.1:8080/api/v1/sessions/<session-id>/serial?offset=0&limit=65536'
+  'http://127.0.0.1:8787/api/v1/sessions/<session-id>/serial?offset=0&limit=65536'
 ```
 
 Use `next_offset` on the next request. Serial content is decoded as UTF-8 with
@@ -245,7 +249,7 @@ replacement characters; the underlying file remains the authoritative evidence.
 
 ```bash
 curl -sS \
-  http://127.0.0.1:8080/api/v1/sessions/<session-id>/frame.png \
+  http://127.0.0.1:8787/api/v1/sessions/<session-id>/frame.png \
   -o /tmp/device.png
 ```
 
@@ -282,7 +286,7 @@ Drag:
 ```bash
 curl -sS -H 'Content-Type: application/json' \
   -d '{"path":"/machine/bmi270","property":"accel-x","value":0.25}' \
-  http://127.0.0.1:8080/api/v1/sessions/<session-id>/qom
+  http://127.0.0.1:8787/api/v1/sessions/<session-id>/qom
 ```
 
 QOM is a trusted-local control surface. Do not expose arbitrary QOM access to
@@ -295,7 +299,7 @@ curl -sS -X POST \
   -H 'Content-Type: application/octet-stream' \
   -H 'X-Artifact-Name: webburner.bin' \
   --data-binary @webburner.bin \
-  http://127.0.0.1:8080/api/v1/artifacts
+  http://127.0.0.1:8787/api/v1/artifacts
 ```
 
 Then create firmware:
@@ -303,7 +307,7 @@ Then create firmware:
 ```bash
 curl -sS -H 'Content-Type: application/json' \
   -d '{"device_id":"cores3","kind":"merged","artifact_id":"<sha256>"}' \
-  http://127.0.0.1:8080/api/v1/firmware
+  http://127.0.0.1:8787/api/v1/firmware
 ```
 
 Then create the session with the returned `firmware_id`:
@@ -311,7 +315,7 @@ Then create the session with the returned `firmware_id`:
 ```bash
 curl -sS -H 'Content-Type: application/json' \
   -d '{"device_id":"cores3","firmware_id":"<firmware-id>","ttl_seconds":900}' \
-  http://127.0.0.1:8080/api/v1/sessions
+  http://127.0.0.1:8787/api/v1/sessions
 ```
 
 This accepts a merged image or segmented image. It does not prove that a vendor
@@ -323,10 +327,10 @@ upload the bootloader, partition table and filesystem segments as well.
 ```bash
 curl -sS -H 'Content-Type: application/json' \
   -d '{"ttl_seconds":900}' \
-  http://127.0.0.1:8080/api/v1/sessions/<session-id>/renew
+  http://127.0.0.1:8787/api/v1/sessions/<session-id>/renew
 
 curl -sS -X DELETE \
-  'http://127.0.0.1:8080/api/v1/sessions/<session-id>?purge=1'
+  'http://127.0.0.1:8787/api/v1/sessions/<session-id>?purge=1'
 ```
 
 Without `purge=1`, serial/QEMU logs remain under the state directory. The
@@ -348,7 +352,10 @@ session is removed from the active capacity count immediately.
 ## Current limitations
 
 - no WiFi/LAN network emulation;
-- no Tab5 or CardputerZero;
+- CardputerZero is not enabled;
+- Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
+- uploaded Tab5 firmware can boot, but screenshot/input currently require the
+  matching reference ELF;
 - sessions are not durable across service restarts;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition

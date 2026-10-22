@@ -140,7 +140,7 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _authorized(self, path: str) -> bool:
         token = type(self).api_token
-        if not token or path in {"/api/v1/health", "/api/v1"}:
+        if not token or path in {"/api/v1/health", "/api/v1", "/api/v1/openapi.yaml"}:
             return True
         provided = self.headers.get("Authorization", "")
         expected = f"Bearer {token}"
@@ -433,7 +433,7 @@ def _wait_for_session(session, payload: dict) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("port", nargs="?", type=int, default=8080)
+    parser.add_argument("port", nargs="?", type=int, default=8787)
     parser.add_argument("--bind", default="127.0.0.1")
     parser.add_argument("--state-dir", type=Path, default=None)
     parser.add_argument("--max-sessions", type=int, default=4)

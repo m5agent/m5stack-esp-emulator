@@ -196,7 +196,8 @@ optional warm pool, and disposable copy-on-write flash for review jobs. See
 
 The v1 local device service is implemented by
 `platform/tools/device_service.py` and exposed by `platform/tools/serve.py`.
-It supports leased QEMU-backed ESP32 sessions, reference or uploaded firmware,
-serial/frame/input/QOM/reset APIs, and excludes Tab5, CardputerZero and network
-emulation. Its contract is `docs/device-service-api.md` and
+It supports leased QEMU-backed ESP32 sessions plus a partial Tab5 esp-emu
+session, reference or uploaded firmware, serial/frame/input/QOM/reset APIs,
+and excludes CardputerZero and network emulation. Tab5 QOM is unavailable and
+uploaded Tab5 screenshots require a matching ELF. Its contract is `docs/device-service-api.md` and
 `docs/device-service.openapi.yaml`.

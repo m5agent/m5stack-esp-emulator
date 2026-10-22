@@ -65,7 +65,7 @@ def main() -> None:
             "name": name,
             "devices": [item["id"] for item in selected],
             "entry": "platform/web/index.html",
-            "server": "python3 platform/tools/serve.py 8080",
+            "server": "python3 platform/tools/serve.py 8787",
         }, ensure_ascii=False, indent=2) + "\n")
         with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as output:
             for path in bundle.rglob("*"):

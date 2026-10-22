@@ -58,17 +58,27 @@ WiFi 模拟后端已经存在，但还没有接入所有设备的统一回归。
 ./start.sh
 ```
 
-打开 `http://127.0.0.1:8080/platform/web/`。
+打开 `http://127.0.0.1:8787/platform/web/`。
 
 也可以直接启动：
 
 ```bash
-python3 platform/tools/serve.py 8080
+python3 platform/tools/serve.py 8787
 ```
 
-设备服务与静态目录共用这个进程。默认支持 12 台 QEMU-backed ESP32，
-Tab5、CardputerZero 和网络模拟暂不开放。完整示例：
+设备服务与静态目录共用这个进程。默认支持 12 台 QEMU-backed ESP32，以及
+通过 esp-emu 启动的 Tab5；Tab5 会明确标记外设 `partial`。CardputerZero 和
+网络模拟暂不开放。完整示例：
 [`docs/device-service-api.md`](docs/device-service-api.md)。
+
+服务默认端口为 `8787`，因为本机 `8080` 已被 Docker Desktop 占用。可用
+`PORT=8787 ./start.sh` 或 `python3 platform/tools/serve.py <port>` 覆盖。
+
+人工观察会话、串口和实时 framebuffer：
+
+```text
+http://127.0.0.1:8787/platform/web/sessions.html
+```
 
 浏览器设备目录只需要 Python 3。完整 QEMU/固件回归还需要本地准备：
 
@@ -325,7 +335,7 @@ python3 platform/tests/test_catalog.py
 cd platform/tests
 npm install
 npx playwright install chromium
-M5_SIM_BASE=http://127.0.0.1:8080 npm test
+M5_SIM_BASE=http://127.0.0.1:8787 npm test
 ```
 
 自动测试会检查 14 个设备、StickS3 页面、CardputerZero 后端状态和
@@ -407,10 +417,10 @@ Tab5 BMI270 仍只确认地址响应，且 UIFlow2 启动路径会清除预载 C
 ```bash
 python3 platform/tools/peripheral_inventory.py
 python3 platform/tools/peripheral_inventory.py --device cardputer-zero --json
-curl http://127.0.0.1:8080/api/peripherals
-curl http://127.0.0.1:8080/api/peripherals/stackchan
-curl http://127.0.0.1:8080/api/peripheral-interfaces
-curl http://127.0.0.1:8080/api/peripheral-interfaces/bmi270
+curl http://127.0.0.1:8787/api/peripherals
+curl http://127.0.0.1:8787/api/peripherals/stackchan
+curl http://127.0.0.1:8787/api/peripheral-interfaces
+curl http://127.0.0.1:8787/api/peripheral-interfaces/bmi270
 ```
 
 外设接口清单会把证据矩阵里的 QOM、QMP、PCM、RMT、SD、UART 和 framebuffer
