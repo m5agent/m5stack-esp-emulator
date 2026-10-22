@@ -10,7 +10,9 @@ state = {
     "rtc": (0, 0, 0, 0, 0, 0),
     "key": 0,
     "pwr": 0,
+    "power_done": False,
 }
+seen_power = set()
 log_uart = None
 
 
@@ -33,6 +35,8 @@ def draw():
     d.print("rtc:%04d-%02d-%02d %02d:%02d:%02d" % state["rtc"])
     d.setCursor(24, 198)
     d.print("key:%d pwr:%d" % (state["key"], state["pwr"]))
+    d.fillRect(380, 580, 20, 20,
+               d.COLOR.GREEN if state["power_done"] else d.COLOR.RED)
 
 
 M5.begin()
@@ -49,6 +53,7 @@ try:
         Power.getBatteryVoltage(),
         1 if Power.isCharging() else 0,
     )
+    seen_power.add(state["power"][1:])
     emit("PAPERCOLOR_POWER", *state["power"])
 except Exception as error:
     emit("PAPERCOLOR_POWER_ERR", repr(error))
@@ -65,6 +70,19 @@ draw()
 while True:
     M5.update()
     changed = False
+    power = (
+        Power.getBatteryLevel(),
+        Power.getBatteryVoltage(),
+        1 if Power.isCharging() else 0,
+    )
+    if power[1:] != state["power"][1:]:
+        state["power"] = power
+        emit("PAPERCOLOR_POWER_STATE", power[1], power[2])
+    seen_power.add(power[1:])
+    if (not state["power_done"]
+            and {3400, 4200} <= {value[0] for value in seen_power}):
+        state["power_done"] = True
+        emit("PAPERCOLOR_POWER_DONE PASS")
     if BtnA.wasPressed():
         state["key"] += 1
         emit("PAPERCOLOR_KEY", state["key"])

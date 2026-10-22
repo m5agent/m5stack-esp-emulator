@@ -101,11 +101,11 @@ StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 
 
 ```text
 cases   67
-checks  271
+checks  272
 PASS    67
 ```
 
-最终全量运行 67/67 用例、271/271 检查清洁通过。另做 6 次 Core2
+最终全量运行 67/67 用例、272/272 检查清洁通过。另做 6 次 Core2
 启动压力复跑时命中 1 次已知 MicroPython cache panic，重启后通过；失败
 串口保留为 `serial.attempt-1.log`。该启动稳定性问题单独记录，不归因或
 掩盖 AXP192 外设数据面。
