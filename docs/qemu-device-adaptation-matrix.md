@@ -9,7 +9,7 @@
 - **9 台 ESP32-S3** 共用一套 QEMU/S3 后端和 GPIO/SPI/I2C 框架，只补板级 profile、显示模型、输入和外设。
 - **2 台 ESP32-C6** 需要 C6 后端/板级模型。
 - **Tab5（ESP32-P4）** 使用 `esp-emu 0.50.0`、P4 rev0 ROM 和配套 eFuse，接入 C6 ESP-Hosted 协处理器，并以仿真 M5GFX DSI framebuffer 输出真实 UI。
-- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。
+- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 `qemu-core2-openmac-wifi` 补丁已让 stock UIFlow2 扫描到虚拟 AP；DHCP/IP 与 BLE 仍未完成。
 - **CardputerZero** 是 Linux ARM64（BCM2837），不是 ESP32 固件目标；独立
   QEMU Linux 后端已可启动官方镜像、输出 320x170 帧、注入键盘事件和
   I2S 双向 PCM，注入 IP2315 充放电状态，并以 MTT 兼容路径枚举 GL852G Hub

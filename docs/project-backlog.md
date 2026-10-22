@@ -48,19 +48,24 @@ Implemented on 2026-10-22:
 - Device Service `runtime=network` sessions and evidence endpoint.
 - classic ESP32 QEMU OpenETH DHCP plus complete 1 MiB HTTP transfer in a
   dedicated fixture, without claiming WiFi support.
-- exact stock Core2 UIFlow2 WiFi and BLE failure points are pinned by separate
-  baseline probes; both currently panic before association or HCI traffic.
+- an optional OpenMAC QEMU 9.2.2 patch activates stock Core2 UIFlow2 WiFi,
+  scans three virtual APs, and observes probe/authentication/association
+  management frames;
+- exact Core2 BLE failure remains pinned by the stock baseline probe.
 
 Still open:
 
 - isolated DNS policy and host packet summaries;
 - combined board-peripheral plus network guest.
+- Core2 DHCP/IP data-plane bridge: the first discover frame currently crashes
+  user-net after successful association.
 
 Rough effort:
 
 - S3/C6/P4 network lane: 2–3 working weeks;
 - Tab5 ESP-Hosted closure: 2–4 additional working days;
-- Core2 LX6 network path: 1–2 working weeks;
+- Core2 LX6 DHCP/IP/BLE completion: 1–2 additional working weeks after the
+  scan/management-frame bring-up;
 - same-instance QEMU board + WiFi: 2–4 additional working weeks.
 
 See [`network-simulation-plan.md`](network-simulation-plan.md).
