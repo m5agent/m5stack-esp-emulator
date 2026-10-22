@@ -120,6 +120,19 @@ See [`tab5-deferred-backlog.md`](tab5-deferred-backlog.md). With a rebuildable
 P4 backend, the remaining work is roughly 4–6 serial weeks or 2–3 weeks with
 parallel workstreams.
 
+## P1: high-fidelity device visual modeling
+
+Current visual fidelity is not sufficient: only StopWatch has a dedicated
+physical shell and screen opening; the other devices still use approximate
+generic shells and CSS decorations.
+
+This is a specialist visual/3D modeling task. The future agent must build
+measured per-device manifests, layered body/screen/control assets, physical
+hitboxes, framebuffer clipping and visual regression evidence. Do not try to
+close this by tweaking the generic shell dimensions alone.
+
+See [`device-visual-fidelity-backlog.md`](device-visual-fidelity-backlog.md).
+
 ## P1: long-running stability and hardware evidence
 
 - Fix the Core2 intermittent cache panic rather than relying on retries.

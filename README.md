@@ -11,6 +11,8 @@ merged flash 镜像或按地址拆分的镜像段。固件审查边界见
 [`docs/firmware-review-and-simulation-workflow.md`](docs/firmware-review-and-simulation-workflow.md)。
 后续通用固件入口、网络和服务化工作见
 [`docs/project-backlog.md`](docs/project-backlog.md)。
+高保真逐设备外观建模仍待后续专门 Agent 完成，范围和验收标准见
+[`docs/device-visual-fidelity-backlog.md`](docs/device-visual-fidelity-backlog.md)。
 
 当前实现与验证流程说明见 [AGENTS.md](AGENTS.md)。该文件同时定义了新增设备、
 外设模型、QEMU 补丁和发布证据的维护规则。

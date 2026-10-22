@@ -194,6 +194,11 @@ is one exclusive device instance per lease, cached backend images, a small
 optional warm pool, and disposable copy-on-write flash for review jobs. See
 `docs/simulator-service-architecture.md`.
 
+High-fidelity per-device visual modeling is a separate deferred specialist task
+tracked in `docs/device-visual-fidelity-backlog.md`. StopWatch is the only
+reference-quality shell today; do not claim that the generic CSS shell is a
+physical model of the other devices.
+
 The v1 local device service is implemented by
 `platform/tools/device_service.py` and exposed by `platform/tools/serve.py`.
 It supports leased QEMU-backed ESP32 sessions plus a partial Tab5 esp-emu
