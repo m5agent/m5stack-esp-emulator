@@ -103,10 +103,11 @@ An optional QEMU bring-up patch under
 device. A stock Core2 UIFlow2 scan probe now reaches the real network driver:
 `network.WLAN(...).active(True)` succeeds and `scan()` returns three virtual
 APs in every recorded run. Probe, authentication and association management
-frames are also exchanged. The first DHCP discover converted from 802.11 to
-Ethernet currently crashes the user-net bridge, so Core2 IP connectivity is
-still `NOT RUN` and the Device Service keeps Core2 `network_status:
-not-supported`.
+frames are exchanged, DHCP completes, and UIFlow2 reports `10.0.2.15/24` with
+gateway `10.0.2.2`. A controlled host HTTP GET returns `200 OK`; DNS, external
+internet access and BLE are still `NOT RUN`. The Device Service keeps Core2
+`network_status: not-supported` until the optional patch is integrated into its
+default runtime.
 
 The UIFlow2 device-local WiFi probe under `tests/uiflow2/network_probe/`
 replaces only the user scripts in a compatible S3/C6 image and requires the

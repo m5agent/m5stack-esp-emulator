@@ -201,7 +201,7 @@
 +type_init(esp32_wifi_register_types)
 --- /dev/null
 +++ b/hw/misc/esp32_wifi_ap.c
-@@ -0,0 +1,412 @@
+@@ -0,0 +1,413 @@
 +/**
 + * QEMU WLAN access point emulation
 + *
@@ -439,7 +439,8 @@
 +    s->inject_timer = timer_new_ns(QEMU_CLOCK_REALTIME, Esp32_WLAN_inject_timer, s);
 +
 +    s->nic = qemu_new_nic(&net_info, &s->conf,
-+                          object_get_typename(OBJECT(s)), dev->id, NULL, s);
++                          object_get_typename(OBJECT(s)), dev->id,
++                          &s->reentrancy_guard, s);
 +    qemu_format_nic_info_str(qemu_get_queue(s->nic), s->macaddr);
 +}
 +
@@ -1593,7 +1594,7 @@
  #define APB_REG_BASE                            0x60000000
 --- /dev/null
 +++ b/include/hw/misc/esp32_wifi.h
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,66 @@
 +#pragma once
 +
 +#include "hw/hw.h"
@@ -1634,6 +1635,7 @@
 +    uint32_t receive_queue_count;
 +    NICConf conf;
 +    NICState *nic;
++    MemReentrancyGuard reentrancy_guard;
 +    // various timers
 +    QEMUTimer *beacon_timer;
 +    QEMUTimer *inject_timer;

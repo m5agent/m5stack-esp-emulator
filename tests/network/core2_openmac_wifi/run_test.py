@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise stock Core2 WiFi scan through the OpenMAC QEMU model."""
+"""Exercise stock Core2 WiFi through the OpenMAC QEMU model."""
 from __future__ import annotations
 
 import argparse
@@ -10,7 +10,9 @@ import re
 import shutil
 import signal
 import subprocess
+import threading
 import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -32,7 +34,34 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def build_image(base: Path, out_dir: Path) -> Path:
+class ProbeHandler(BaseHTTPRequestHandler):
+    def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler contract
+        self.server.requests.append(self.path)  # type: ignore[attr-defined]
+        body = b"CORE2_HOST_HTTP_OK\n"
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, format: str, *args) -> None:
+        return
+
+
+def start_http_server() -> ThreadingHTTPServer:
+    server = ThreadingHTTPServer(("127.0.0.1", 0), ProbeHandler)
+    server.requests = []  # type: ignore[attr-defined]
+    return server
+
+
+def build_image(base: Path, out_dir: Path, http_port: int) -> Path:
+    files_dir = out_dir / "probe-files"
+    files_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(FILES / "boot.py", files_dir / "boot.py")
+    main_py = (FILES / "main.py").read_text()
+    (files_dir / "main.py").write_text(
+        main_py.replace("__HTTP_PORT__", str(http_port))
+    )
     command = [
         "python3",
         str(PROFILE_RUNNER),
@@ -41,7 +70,7 @@ def build_image(base: Path, out_dir: Path) -> Path:
         "--machine",
         "m5core2",
         "--files-dir",
-        str(FILES),
+        str(files_dir),
         "--vfs-offset",
         "0x820000",
         "--vfs-size",
@@ -78,6 +107,8 @@ def build_image(base: Path, out_dir: Path) -> Path:
 
 def parse_probe(serial: str) -> dict:
     scan_match = re.search(r"CORE2_WIFI_SCAN_OK\s+(\d+)", serial)
+    ip_match = re.search(r"CORE2_WIFI_IP\s+(\d+\.\d+\.\d+\.\d+)", serial)
+    http_match = re.search(r"CORE2_HTTP_RX\s+(.+)", serial)
     result_match = re.search(r"CORE2_WIFI_RESULT:\s+(PASSED|FAILED)", serial)
     return {
         "boot": "CORE2_WIFI_BOOT_FLAG" in serial,
@@ -85,6 +116,11 @@ def parse_probe(serial: str) -> dict:
         "active": "CORE2_WIFI_ACTIVE True" in serial,
         "scan_count": int(scan_match.group(1)) if scan_match else 0,
         "known_ssid": "myssid" in serial,
+        "connect_returned": "CORE2_WIFI_CONNECT_RETURNED None" in serial,
+        "connected": "CORE2_WIFI_CONNECTED True" in serial,
+        "ip": ip_match.group(1) if ip_match else None,
+        "http_200": "CORE2_HTTP_OK" in serial,
+        "http_response": http_match.group(1) if http_match else None,
         "terminal_result": result_match.group(1) if result_match else None,
     }
 
@@ -164,7 +200,7 @@ def main() -> int:
         default=Path("/tmp/core2-openmac-wifi"),
     )
     parser.add_argument("--timeout", type=float, default=12)
-    parser.add_argument("--attempts", type=int, default=3)
+    parser.add_argument("--attempts", type=int, default=5)
     args = parser.parse_args()
 
     for label, path in (
@@ -176,52 +212,73 @@ def main() -> int:
             parser.error(f"{label} does not exist: {path}")
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    built_image = build_image(args.base, args.out_dir)
-    firmware_sha256 = sha256(built_image)
-    attempts = []
-    passed_attempt = None
-    for attempt_index in range(1, args.attempts + 1):
-        attempt_dir = args.out_dir / f"attempt-{attempt_index}"
-        attempt_dir.mkdir(parents=True, exist_ok=True)
-        image = attempt_dir / "firmware-under-test.bin"
-        shutil.copyfile(built_image, image)
-        qemu_exit, serial, qemu_stderr = run_qemu(
-            args.qemu,
-            args.rom_dir,
-            image,
-            attempt_dir,
-            args.timeout,
-        )
-        probe = parse_probe(serial)
-        passed = bool(
-            probe["boot"]
-            and probe["main"]
-            and probe["active"]
-            and probe["scan_count"] > 0
-            and probe["known_ssid"]
-            and probe["terminal_result"] == "PASSED"
-        )
-        attempt = {
-            "attempt": attempt_index,
-            "status": "PASS" if passed else "FAIL",
-            "qemu_exit_code": qemu_exit,
-            "qemu_stderr": qemu_stderr[-2000:],
-            "serial": probe,
-            "serial_path": str(attempt_dir / "serial.log"),
-            "serial_sha256": sha256(attempt_dir / "serial.log"),
-        }
-        attempts.append(attempt)
-        if passed:
-            passed_attempt = attempt_index
-            break
+    http_server = start_http_server()
+    http_server_thread = threading.Thread(
+        target=http_server.serve_forever,
+        name="core2-http-probe",
+        daemon=True,
+    )
+    http_server_thread.start()
+    http_port = int(http_server.server_port)
+    try:
+        built_image = build_image(args.base, args.out_dir, http_port)
+        firmware_sha256 = sha256(built_image)
+        attempts = []
+        passed_attempt = None
+        for attempt_index in range(1, args.attempts + 1):
+            attempt_dir = args.out_dir / f"attempt-{attempt_index}"
+            attempt_dir.mkdir(parents=True, exist_ok=True)
+            image = attempt_dir / "firmware-under-test.bin"
+            shutil.copyfile(built_image, image)
+            request_offset = len(http_server.requests)
+            qemu_exit, serial, qemu_stderr = run_qemu(
+                args.qemu,
+                args.rom_dir,
+                image,
+                attempt_dir,
+                args.timeout,
+            )
+            probe = parse_probe(serial)
+            attempt_requests = list(http_server.requests[request_offset:])
+            passed = bool(
+                probe["boot"]
+                and probe["main"]
+                and probe["active"]
+                and probe["scan_count"] > 0
+                and probe["known_ssid"]
+                and probe["connect_returned"]
+                and probe["connected"]
+                and probe["ip"] is not None
+                and probe["http_200"]
+                and probe["terminal_result"] == "PASSED"
+                and "/" in attempt_requests
+            )
+            attempt = {
+                "attempt": attempt_index,
+                "status": "PASS" if passed else "FAIL",
+                "qemu_exit_code": qemu_exit,
+                "qemu_stderr": qemu_stderr[-2000:],
+                "serial": probe,
+                "http_requests": attempt_requests,
+                "serial_path": str(attempt_dir / "serial.log"),
+                "serial_sha256": sha256(attempt_dir / "serial.log"),
+            }
+            attempts.append(attempt)
+            if passed:
+                passed_attempt = attempt_index
+                break
+    finally:
+        http_server.shutdown()
+        http_server.server_close()
+        http_server_thread.join(timeout=3)
 
     status = "PASS" if passed_attempt is not None else "FAIL"
     evidence = {
         "schema_version": 1,
-        "kind": "m5stack-core2-openmac-wifi-scan",
+        "kind": "m5stack-core2-openmac-wifi-http",
         "scope": "simulation-only-not-hardware-validation",
         "status": status,
-        "profile": "core2-stock-uiflow2-openmac-scan",
+        "profile": "core2-stock-uiflow2-openmac-http",
         "firmware": {
             "path": str(built_image),
             "bytes": built_image.stat().st_size,
@@ -234,12 +291,13 @@ def main() -> int:
             "machine": "m5core2",
             "psram_mib": 0,
             "nic": "user,model=misc.esp32_wifi",
+            "http_probe_port": http_port,
         },
         "attempts": attempts,
         "passed_attempt": passed_attempt,
         "not_claimed": [
-            "DHCP or IP connectivity",
-            "HTTP or DNS behavior",
+            "DNS behavior",
+            "remote internet access",
             "BLE",
             "real radio behavior",
             "real-hardware validation",

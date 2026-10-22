@@ -18,7 +18,8 @@ The patch includes:
 - QEMU-hosted 802.11 beacon/probe/auth/association frames;
 - a default test AP named `myssid`;
 - an APB alias for the WiFi register block;
-- current QEMU 9.2 `qemu_new_nic()` integration.
+- current QEMU 9.2 `qemu_new_nic()` integration with a real
+  `MemReentrancyGuard`.
 
 ## Verified boundary
 
@@ -26,10 +27,13 @@ On QEMU 9.2.2, a stock Core2 UIFlow2 `network.WLAN` probe passes:
 
 - WiFi active;
 - `scan()` returns three APs;
-- probe/authentication/association management exchange is observable.
+- probe/authentication/association management exchange is observable;
+- DHCP succeeds and UIFlow2 receives `10.0.2.15/24`, gateway `10.0.2.2` and
+  DNS `10.0.2.3` from QEMU user networking;
+- a controlled HTTP GET through the QEMU user-net gateway returns
+  `HTTP/1.0 200 OK`.
 
-The first DHCP discover converted from 802.11 to Ethernet currently crashes
-the user-net bridge. IP connectivity is therefore `NOT RUN`.
+DNS requests, external internet access and BLE remain `NOT RUN`.
 
 This is a simulation bring-up patch, not a complete WiFi implementation and not
 real-hardware validation.

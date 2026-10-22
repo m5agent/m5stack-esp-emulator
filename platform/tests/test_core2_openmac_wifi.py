@@ -20,6 +20,11 @@ class Core2OpenMacWifiTests(unittest.TestCase):
             "CORE2_WIFI_ACTIVE True\n"
             "CORE2_WIFI_SCAN_OK 3\n"
             "CORE2_WIFI_SCAN_RESULTS [(b'myssid',)]\n"
+            "CORE2_WIFI_CONNECT_RETURNED None\n"
+            "CORE2_WIFI_CONNECTED True\n"
+            "CORE2_WIFI_IP 10.0.2.15\n"
+            "CORE2_HTTP_RX b'HTTP/1.0 200 OK\\r\\nServer: SimpleH'\n"
+            "CORE2_HTTP_OK\n"
             "CORE2_WIFI_RESULT: PASSED\n"
         )
         self.assertTrue(parsed["boot"])
@@ -27,12 +32,21 @@ class Core2OpenMacWifiTests(unittest.TestCase):
         self.assertTrue(parsed["active"])
         self.assertEqual(parsed["scan_count"], 3)
         self.assertTrue(parsed["known_ssid"])
+        self.assertTrue(parsed["connect_returned"])
+        self.assertTrue(parsed["connected"])
+        self.assertEqual(parsed["ip"], "10.0.2.15")
+        self.assertTrue(parsed["http_200"])
+        self.assertIn("200 OK", parsed["http_response"])
         self.assertEqual(parsed["terminal_result"], "PASSED")
 
     def test_missing_scan_does_not_pass(self):
         parsed = parse_probe("CORE2_WIFI_RESULT: FAILED\n")
         self.assertFalse(parsed["boot"])
         self.assertEqual(parsed["scan_count"], 0)
+        self.assertFalse(parsed["connected"])
+        self.assertIsNone(parsed["ip"])
+        self.assertFalse(parsed["http_200"])
+        self.assertIsNone(parsed["http_response"])
         self.assertEqual(parsed["terminal_result"], "FAILED")
 
 
