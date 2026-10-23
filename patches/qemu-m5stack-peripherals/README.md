@@ -114,7 +114,8 @@ git apply /path/to/0020-m5ioe1-pa-output-state.patch
 git apply /path/to/0021-esp32s3-uart2-chardev.patch
 git apply /path/to/0022-sticks3-st7789-panel-id.patch
 git apply /path/to/0023-user-firmware-hot-samples.patch
-git apply /path/to/0024-esp32c6-wifi-mac.patch
+git apply /path/to/0024-esp32s3-qio-read-phase.patch
+git apply /path/to/0025-esp32c6-wifi-mac.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -165,7 +166,14 @@ infers unreliable SPI panel D/C phases from DCS commands and pixel lengths,
 adds the second StamPLC PI4IOE expander with unique QOM names, and attaches
 AtomS3R's ES8311/PI4IOE devices.
 
-`0024-esp32c6-wifi-mac.patch` adds the ESP32-C6 WiFi MAC/PHY register
+`0024-esp32s3-qio-read-phase.patch` completes the S3 `0xEB` QIO read phase for
+the m25p80 model. Arduino ESP32 4.4 supplies one programmed dummy byte while
+m25p80 consumes a mode byte and four dummy bytes; the four-byte shortfall
+shifted every read so NVS returned empty values, LittleFS data was corrupt and
+display assets repeated. The fix is limited to QIO reads selected on flash
+CS0.
+
+`0025-esp32c6-wifi-mac.patch` adds the ESP32-C6 WiFi MAC/PHY register
 windows, RX/TX descriptor rings, interrupt completion and QEMU NIC conversion
 behind `-nic`. It supports the open virtual AP used by the repository tests:
 stock UIFlow2 performs scan, Authentication, Association, DHCP, DNS and a
