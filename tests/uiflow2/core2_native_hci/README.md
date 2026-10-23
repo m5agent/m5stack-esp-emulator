@@ -89,6 +89,17 @@ points. The guest still returned ACK 12 twice and crashed with
 controller-notification context. Evidence:
 `evidence-2026-10-24-hci3b-safe-point-audit.json`.
 
+A second controller-entry audit called the firmware's real
+`r_eif_send -> vhci_send` C2H path, which invokes the registered receive
+callback and updates VHCI flow state. Invoking that entry as a nested guest RPC
+failed with a cache-disabled memory access and did not return normally.
+Evidence:
+`evidence-2026-10-24-hci3b-controller-entry-audit.json`.
+
+Controller delivery must therefore be a device/IRQ event with valid cache and
+flow-control context, or an in-process controller model. It cannot be a
+synchronous QEMU-to-guest internal-function call.
+
 A local C2H experiment invoked the guest `vhci_send` address and made the
 function return, but the firmware still timed out waiting for the controller
 acknowledgement. That confirms `vhci_send` is not a direct H4 packet-ingest

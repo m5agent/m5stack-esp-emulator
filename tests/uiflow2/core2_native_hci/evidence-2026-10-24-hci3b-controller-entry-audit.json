@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-controller-entry-audit",
+  "scope": "invoke the real r_eif_send -> vhci_send C2H path from QEMU",
+  "status": "FAIL",
+  "stage": "HCI-3b",
+  "firmware": {
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "3370f5afb7344fe0cdcfafdd610fb8a755d43c0b88c7582aefc025e8cb06d04b",
+  "symbols": {
+    "r_eif_send": "0x402fbc28",
+    "vhci_send": "0x40306330",
+    "vhci_notify_host_send_available": "0x403062e8",
+    "dummy_host_rcv_pkt": "0x40329de8"
+  },
+  "finding": "r_eif_send -> vhci_send is the firmware-internal path that invokes the registered notify_host_recv callback, updates VHCI flow state and later calls send-available.",
+  "experiment": {
+    "entry": "r_eif_send",
+    "completion": "dummy_host_rcv_pkt",
+    "invocation": "QEMU nested guest call at the idle safe point",
+    "result": "callback did not return normally",
+    "guest_error": "Guru Meditation Error: Cache disabled but cached memory region accessed",
+    "pc": "0x400934a6"
+  },
+  "conclusion": "The real controller entry cannot be treated as a re-entrant RPC from the QEMU device callback context. Controller delivery must be integrated as a device/IRQ event with valid cache and flow-control context, or replaced by an in-process controller model.",
+  "experiment_retained": false,
+  "qemu_patch_reverse_check": "PASS",
+  "not_claimed": [
+    "complete HCI/GATT",
+    "bit-exact controller/baseband",
+    "physical hardware"
+  ]
+}

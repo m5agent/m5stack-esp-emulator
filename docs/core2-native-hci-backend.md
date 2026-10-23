@@ -197,6 +197,13 @@ Bumble。Reset 已通过；`HCI-3a` 现在能交付第一个 C2H 响应并推进
 任意 CPU0 safe point 注入 callback；guest 仍在 BLE 初始化阶段两次
 `ack returned 12`，随后 `LoadProhibited` 崩溃。该实验也已回退。
 
+controller-entry audit 进一步确认 `r_eif_send → vhci_send` 是 firmware
+真实 C2H 路径，负责调用 registered receive callback 并更新 VHCI flow。
+但把该入口当作 nested guest RPC 调用会触发
+`Cache disabled but cached memory region accessed`，callback 不能正常返回。
+因此 controller 交付必须是设备/IRQ 事件，或由 in-process controller
+执行；不能再从 QEMU device callback 同步“远程调用” guest 内部函数。
+
 下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
 调整固定 sleep 或换 CPU：
 
