@@ -30,6 +30,8 @@ Implemented:
 - passing trusted-host and Linux-private-namespace TLS/Host allowlist runs
   with generated test CA, HTTPS gateway, 200/403 Host decisions and pcap
   evidence;
+- a controlled namespace-local DNS resolver using a temporary private
+  resolver configuration, with A/NXDOMAIN and query-log evidence;
 - versioned FirmwareManifest import and structured capability mismatch.
 
 Not implemented yet:
@@ -38,8 +40,7 @@ Not implemented yet:
 - resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
 - formal CI/worker lifecycle for the Linux namespace lane;
-- controlled resolver, generic destination allowlisting and multi-device lab
-  fabric;
+- generic destination allowlisting and multi-device lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
 

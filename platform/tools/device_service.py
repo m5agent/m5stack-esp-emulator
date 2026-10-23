@@ -1975,6 +1975,7 @@ class DeviceSession:
         self.hci_probe_log = self.dir / "ble-probe.log"
         self.native_vhci_log = self.dir / "native-vhci-gdb.log"
         self.http_fixture_log = self.dir / "http-fixture.json"
+        self.dns_fixture_log = self.dir / "dns-fixture.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
         self.speaker_pcm = self.dir / "speaker.pcm"
@@ -3561,6 +3562,17 @@ class DeviceSession:
             sandbox_config: dict[str, Any] = {
                 "policy": policy.evidence(),
             }
+            if policy.dns == "controlled":
+                sandbox_config["dns"] = {
+                    "mode": "controlled",
+                    "host": "127.0.0.1",
+                    "port": 53,
+                    "hosts": {
+                        host: "10.0.2.2"
+                        for host in policy.allowed_hosts
+                    },
+                    "log": str(self.dns_fixture_log),
+                }
             if http_profile:
                 http_body = UNIFIED_HTTP_BODIES.get(profile)
                 http_port = UNIFIED_HTTP_PORTS.get(profile)
@@ -4450,6 +4462,7 @@ class DeviceSession:
                 ("ble-probe.log", self.hci_probe_log),
                 ("native-vhci-gdb.log", self.native_vhci_log),
                 ("http-fixture.json", self.http_fixture_log),
+                ("dns-fixture.json", self.dns_fixture_log),
                 ("c6.log", self.dir / "c6.log"),
             ):
                 if path.is_file():

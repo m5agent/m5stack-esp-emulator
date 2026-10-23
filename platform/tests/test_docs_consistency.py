@@ -36,6 +36,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
+            "tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
@@ -117,6 +118,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "TLS/Host allowlist fixture is wired but blocked",
             "Linux namespace TLS remains `NOT RUN`",
             "Linux namespace TLS、可控 resolver",
+            "继续补可控 resolver",
             "网络模拟暂不开放",
         ):
             self.assertNotIn(stale, active)
@@ -171,10 +173,10 @@ class DocsConsistencyTests(unittest.TestCase):
             (DOCS / "qemu-device-adaptation-matrix.md").read_text(),
         )
         self.assertIn(
-            "trusted-host 与 Linux arm64 private namespace 下的 TLS + "
-            "Host allowlist",
+            "Linux namespace controlled DNS、TLS + Host allowlist",
             status,
         )
+        self.assertIn("controlled DNS", status)
         self.assertIn("QEMU patch `0027`", status)
         self.assertIn(
             "TLS/Host allowlisting now passes in both trusted-host",
@@ -210,6 +212,16 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(tls_namespace["isolation"], "namespace")
         self.assertTrue(tls_namespace["checks"]["private_namespace"])
         self.assertTrue(tls_namespace["checks"]["no_external_route"])
+        tls_dns = json.loads(
+            (
+                ROOT
+                / "tests/network/tls_allowlist/"
+                "evidence-2026-10-24-controlled-dns-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(tls_dns["status"], "PASS")
+        self.assertTrue(tls_dns["checks"]["dns_allow_and_deny"])
+        self.assertTrue(tls_dns["checks"]["dns_background_denied"])
         matrix = json.loads(
             (
                 ROOT
@@ -252,6 +264,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(markdown_version.group(1), openapi_version.group(1))
         self.assertIn("allowlist", openapi)
         self.assertIn("allowed_hosts", openapi)
+        self.assertIn("controlled", openapi)
 
 
 if __name__ == "__main__":

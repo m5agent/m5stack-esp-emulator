@@ -565,7 +565,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         allowlist["policy"] = {
             "isolation": "namespace",
             "egress": "allowlist",
-            "dns": "deny",
+            "dns": "controlled",
             "allowed_hosts": ["qemu.test"],
         }
         with mock.patch.object(
@@ -582,6 +582,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             parsed["policy"]["allowed_hosts"],
             ["qemu.test"],
         )
+        self.assertTrue(parsed["policy"]["controlled_resolver"])
 
     def test_capture_summary_is_written_after_qemu_stops(self):
         spec = self.service.specs["sticks3"]

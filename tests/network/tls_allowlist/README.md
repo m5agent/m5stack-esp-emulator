@@ -43,6 +43,13 @@ inside a private network namespace. That run additionally reports
 Evidence:
 [`evidence-2026-10-24-linux-namespace-pass.json`](evidence-2026-10-24-linux-namespace-pass.json).
 
+The namespace run also installs a private temporary `resolv.conf` in a mount
+namespace. A controlled UDP resolver returns `10.0.2.2` for
+`allowed.lab.test`, NXDOMAIN for `denied.lab.test`, and NXDOMAIN for background
+UIFlow/NTP names. The host resolver configuration is not modified globally.
+Evidence:
+[`evidence-2026-10-24-controlled-dns-pass.json`](evidence-2026-10-24-controlled-dns-pass.json).
+
 The test covers a namespace-local TLS gateway allowlist. It does not claim
 arbitrary public-internet allowlisting, certificate pinning, mutual TLS,
 hardware RF behavior or malicious-firmware safety.

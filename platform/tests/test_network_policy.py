@@ -89,6 +89,17 @@ class NetworkPolicyTests(unittest.TestCase):
             policy.evidence()["allowed_hosts"],
             ["10.0.2.2", "allowed.lab.test"],
         )
+        controlled = NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_hosts": ["allowed.lab.test"],
+            }
+        )
+        self.assertTrue(
+            controlled.evidence()["controlled_resolver"]
+        )
         for value in (
             {
                 "isolation": "namespace",
@@ -105,6 +116,17 @@ class NetworkPolicyTests(unittest.TestCase):
                 "isolation": "namespace",
                 "egress": "deny-all",
                 "dns": "deny",
+                "allowed_hosts": ["allowed.lab.test"],
+            },
+            {
+                "isolation": "trusted-host",
+                "egress": "native",
+                "dns": "controlled",
+            },
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "slirp",
                 "allowed_hosts": ["allowed.lab.test"],
             },
         ):

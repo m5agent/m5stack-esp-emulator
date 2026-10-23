@@ -31,7 +31,7 @@
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、link fault/reconnect；trusted-host 与 Linux arm64 private namespace 下的 TLS + Host allowlist 均完成测试 CA、200/403 和 pcap 联合 PASS；QEMU patch `0027` 闭合 AES/GDMA 外部内存读取 | 正式 CI/worker、可控 resolver、通用 egress allowlist、DHCP renewal、双设备 lab fabric |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、link fault/reconnect；Linux namespace controlled DNS、TLS + Host allowlist 完成允许 A/200、拒绝 NXDOMAIN/403 和 pcap 联合 PASS；QEMU patch `0027` 闭合 AES/GDMA 外部内存读取 | 正式 CI/worker、通用 destination egress allowlist、DHCP renewal、双设备 lab fabric |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、Device Service `core2-native-vhci` PASS | 非 GDB 生产实现、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM 摘要 | 文件系统/资源权限审查、许可策略、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
@@ -42,9 +42,9 @@
 | 设备与板级契约 | 已完成 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 14 台设备登记；13 台达到登记外设的模拟数据面；catalog、coverage、profile 校验通过 | 新设备逐项登记；视觉保真另列 |
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | QEMU patch `0027` 后最新 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成，生产后端开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、Device Service lease PASS | 去掉 GDB bridge；bit-exact BT；物理 cache/PSRAM 与 soak |
-| Device Service | v1 已实现，生产服务开放 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.8.0 | worker 化、活动进程恢复、warm pool、多机调度与 VM 隔离 |
+| Device Service | v1 已实现，生产服务开放 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.9.0 | worker 化、活动进程恢复、warm pool、多机调度与 VM 隔离 |
 | FirmwareManifest | v1 + 静态审查已实现 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_static_review.py`、`fetch_firmware.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态、capability mismatch、脱敏 URL/凭据/高熵 finding 和 SBOM 摘要 | 文件系统/资源权限、许可策略、生产 key/eFuse、跨厂商回归、流式上传 |
-| 网络隔离与取证 | Linux 单机路径闭环，正式 worker 开放 | `network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、`tests/network/tls_allowlist/` | namespace 无外网、pcap、错误密码、link down/up、重新 DHCP 与前后 HTTP；trusted-host 和 Linux namespace TLS Host allowlist（200/403）及 QEMU AES/GDMA 外部内存路径 PASS | 可控 resolver、通用 egress allowlist、DHCP renewal、真实 AP 丢失、双设备 fabric、CI/worker |
+| 网络隔离与取证 | Linux 单机路径闭环，正式 worker 开放 | `network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、`tests/network/tls_allowlist/` | namespace 无外网、controlled DNS、pcap、错误密码、link down/up、重新 DHCP 与前后 HTTP；TLS Host allowlist（200/403）及 QEMU AES/GDMA 外部内存路径 PASS | 通用 destination egress allowlist、DHCP renewal、真实 AP 丢失、双设备 fabric、CI/worker |
 | 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
 | 物理硬件验证 | `NOT RUN` | Device Test Center 路径 | 当前仅有 virtual-device validation | 代表设备使用同固件 SHA 和同测试计划做实机证据 |
 
@@ -151,6 +151,8 @@
   [`tests/network/tls_allowlist/evidence-2026-10-23-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-23-pass.json)
 - Linux namespace TLS/Host allowlist evidence:
   [`tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json)
+- Controlled DNS + TLS/Host allowlist evidence:
+  [`tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json)
 - Firmware redacted static review evidence:
   [`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)
 - Linux guest-in-namespace evidence:
@@ -173,8 +175,7 @@
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径
    已 PASS；trusted-host 和 Linux private namespace 下的 TLS/Host allowlist
    也已完成测试 CA、HTTPS 握手、200/403 和 pcap 联合验证。它仍不等同于
-   恶意固件沙箱；通用 destination allowlist、resolver 和 worker/VM 隔离
-   仍待实现。
+   恶意固件沙箱；通用 destination allowlist 和 worker/VM 隔离仍待实现。
 5. **通用固件兼容性**：SoC 相同不代表板级、分区、安全配置和控制器全部
    兼容。
 6. **视觉保真**：除 StopWatch 外，设备外壳仍主要是近似模型。

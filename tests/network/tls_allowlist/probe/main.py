@@ -9,6 +9,7 @@ import time
 SSID = "myssid"
 TLS_IP = "10.0.2.2"
 TLS_PORT = __TLS_PORT__
+CHECK_DNS = __CHECK_DNS__
 SERVER_NAME = "allowed.lab.test"
 CA_PEM_B64 = "__CA_PEM_B64__"
 log_uart = None
@@ -60,6 +61,22 @@ def tls_request(context, host, path):
             raw.close()
 
 
+def check_dns():
+    if not CHECK_DNS:
+        return
+    allowed = socket.getaddrinfo("allowed.lab.test", TLS_PORT)
+    allowed_ip = allowed[0][-1][0]
+    if allowed_ip != TLS_IP:
+        raise RuntimeError("allowed DNS returned %s" % allowed_ip)
+    emit("TLS_DNS_ALLOWED PASS", allowed_ip)
+    try:
+        socket.getaddrinfo("denied.lab.test", TLS_PORT)
+    except OSError:
+        emit("TLS_DNS_DENIED PASS")
+    else:
+        raise RuntimeError("denied DNS unexpectedly resolved")
+
+
 try:
     from hardware import UART
 
@@ -83,6 +100,7 @@ while (
 if not station.isconnected():
     raise RuntimeError("TLS allowlist WiFi association timed out")
 emit("TLS_WIFI_READY", station.ifconfig()[0])
+check_dns()
 
 try:
     emit("TLS_CA_PAYLOAD_DECODE_BEGIN")

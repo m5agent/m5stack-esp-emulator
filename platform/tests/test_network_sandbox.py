@@ -5,7 +5,9 @@ import http.client
 import io
 import json
 import shutil
+import socket
 import ssl
+import struct
 import subprocess
 import sys
 import tempfile
@@ -172,8 +174,14 @@ class NetworkSandboxTests(unittest.TestCase):
                     "policy": {
                         "isolation": "namespace",
                         "egress": "allowlist",
-                        "dns": "deny",
+                        "dns": "controlled",
                         "allowed_hosts": ["allowed.lab.test"],
+                    },
+                    "dns": {
+                        "mode": "controlled",
+                        "hosts": {
+                            "allowed.lab.test": "10.0.2.2",
+                        },
                     },
                     "http": {
                         "tls": {
@@ -184,6 +192,64 @@ class NetworkSandboxTests(unittest.TestCase):
                 },
             )
             isolation = json.loads(isolation_path.read_text())
+            dns_log = root / "dns.json"
+            dns = network_sandbox.ControlledDns(
+                host="127.0.0.1",
+                port=0,
+                records={"allowed.lab.test": "10.0.2.2"},
+                log_path=dns_log,
+            )
+            dns.start()
+            dns_port = dns.socket.getsockname()[1]
+            qname = (
+                b"".join(
+                    bytes([len(label)]) + label
+                    for label in (b"allowed", b"lab", b"test")
+                )
+                + b"\0"
+            )
+            query = (
+                struct.pack(
+                    "!HHHHHH",
+                    0x1234,
+                    0x0100,
+                    1,
+                    0,
+                    0,
+                    0,
+                )
+                + qname
+                + struct.pack("!HH", 1, 1)
+            )
+            query_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            query_socket.settimeout(2)
+            query_socket.sendto(query, ("127.0.0.1", dns_port))
+            dns_response, _ = query_socket.recvfrom(4096)
+            denied_qname = (
+                b"".join(
+                    bytes([len(label)]) + label
+                    for label in (b"denied", b"lab", b"test")
+                )
+                + b"\0"
+            )
+            denied_query = (
+                struct.pack(
+                    "!HHHHHH",
+                    0x1235,
+                    0x0100,
+                    1,
+                    0,
+                    0,
+                    0,
+                )
+                + denied_qname
+                + struct.pack("!HH", 1, 1)
+            )
+            query_socket.sendto(denied_query, ("127.0.0.1", dns_port))
+            denied_response, _ = query_socket.recvfrom(4096)
+            query_socket.close()
+            dns.close()
+            dns_requests = json.loads(dns_log.read_text())
 
         self.assertEqual(allowed[0], 200)
         self.assertEqual(denied[0], 403)
@@ -200,6 +266,23 @@ class NetworkSandboxTests(unittest.TestCase):
             ["allowed.lab.test"],
         )
         self.assertTrue(isolation["tls_gateway"])
+        self.assertTrue(isolation["controlled_dns"])
+        self.assertEqual(
+            isolation["dns_records"],
+            {"allowed.lab.test": "10.0.2.2"},
+        )
+        self.assertEqual(dns_requests[0]["decision"], "allow")
+        self.assertEqual(dns_requests[0]["status"], "A")
+        self.assertEqual(dns_requests[1]["decision"], "deny")
+        self.assertEqual(dns_requests[1]["status"], "NXDOMAIN")
+        self.assertEqual(
+            struct.unpack_from("!H", dns_response, 6)[0],
+            1,
+        )
+        self.assertEqual(
+            struct.unpack_from("!H", denied_response, 6)[0],
+            0,
+        )
 
 
 if __name__ == "__main__":

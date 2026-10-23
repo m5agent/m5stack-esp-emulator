@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Status: local MVP with unified-device runtime contract `1.8.0` and bounded
+Status: local MVP with unified-device runtime contract `1.9.0` and bounded
 storage retention implemented on `2026-10-23`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -350,7 +350,7 @@ Evidence ZIPs include `network/capture.pcap` and
   "policy": {
     "isolation": "namespace",
     "egress": "allowlist",
-    "dns": "deny",
+    "dns": "controlled",
     "allowed_hosts": ["allowed.lab.test"]
   }
 }
@@ -362,11 +362,15 @@ controlled HTTP/BLE peers inside the same namespace. If namespace creation is
 not permitted, the session fails with `network_isolation_unavailable` instead
 of falling back to host networking. `egress=lab-only` permits only the
 namespace-local fixture; external DNS and TCP are intentionally unavailable.
-`egress=allowlist` additionally requires a non-empty `allowed_hosts` list and
-applies that list to the controlled HTTP gateway's `Host` header. It is not a
-generic destination-IP/port allowlist and does not by itself expose external
-internet egress. Profiles without a controlled HTTP fixture reject this mode
-with `allowlist_not_supported`.
+`egress=allowlist` additionally requires a non-empty `allowed_hosts` list.
+The same list controls DNS A records and the controlled HTTP gateway's `Host`
+header. It is not a generic destination-IP/port allowlist and does not by
+itself expose external internet egress. Profiles without a controlled HTTP
+fixture reject this mode with `allowlist_not_supported`.
+`dns=controlled` requires namespace isolation and `egress=allowlist`. The
+sandbox creates a private mount namespace, binds a temporary resolver
+configuration only into the QEMU process tree, and serves allowlisted names
+from the controlled resolver while returning NXDOMAIN for other names.
 
 Use `runtime=qemu-wifi` with `network.profile=uiflow2-sticks3-wifi` for a
 StickS3 application that needs the board framebuffer, input and public

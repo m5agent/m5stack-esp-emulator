@@ -28,7 +28,7 @@ PROFILE_RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
 BASE_IMAGE = ROOT / "platform/.cache/firmware/sticks3/uiflow2.bin"
 SANDBOX = ROOT / "platform/tools/network_sandbox.py"
 TLS_PORT = 18443
-REQUIRED_SERIAL = (
+BASE_REQUIRED_SERIAL = (
     "TLS_WIFI_READY",
     "TLS_CONTEXT_READY",
     "TLS_CA_LOADED",
@@ -100,12 +100,18 @@ def make_certificate(root: Path) -> tuple[Path, Path]:
 def build_probe(
     out_dir: Path,
     cert: Path,
+    *,
+    check_dns: bool,
 ) -> Path:
     generated_probe = out_dir / "probe-files"
     generated_probe.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(PROBE / "boot.py", generated_probe / "boot.py")
     source = (PROBE / "main.py").read_text()
     source = source.replace("__TLS_PORT__", str(TLS_PORT))
+    source = source.replace(
+        "__CHECK_DNS__",
+        "True" if check_dns else "False",
+    )
     ca_b64 = base64.b64encode(cert.read_bytes()).decode("ascii")
     source = source.replace("__CA_PEM_B64__", ca_b64)
     (generated_probe / "main.py").write_text(source)
@@ -216,6 +222,7 @@ def main() -> int:
         parser.error("--qemu and --rom-dir must exist")
     if args.isolation == "namespace" and sys.platform != "linux":
         parser.error("namespace isolation requires Linux")
+    controlled_dns = args.isolation == "namespace"
 
     out = args.out_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -228,7 +235,7 @@ def main() -> int:
     try:
         cert, key = make_certificate(cert_dir)
         certificate_sha256 = sha256(cert)
-        image = build_probe(out, cert)
+        image = build_probe(out, cert, check_dns=controlled_dns)
         qemu = qemu_command(
             args.qemu.resolve(),
             image,
@@ -243,8 +250,17 @@ def main() -> int:
                         "policy": {
                             "isolation": "namespace",
                             "egress": "allowlist",
-                            "dns": "deny",
+                            "dns": "controlled",
                             "allowed_hosts": ["allowed.lab.test"],
+                        },
+                        "dns": {
+                            "mode": "controlled",
+                            "host": "127.0.0.1",
+                            "port": 53,
+                            "hosts": {
+                                "allowed.lab.test": "10.0.2.2",
+                            },
+                            "log": str(out / "dns-requests.json"),
                         },
                         "http": {
                             "port": TLS_PORT,
@@ -293,6 +309,12 @@ def main() -> int:
             stderr=stderr_handle,
             start_new_session=True,
         )
+        required_serial = BASE_REQUIRED_SERIAL
+        if controlled_dns:
+            required_serial += (
+                "TLS_DNS_ALLOWED PASS",
+                "TLS_DNS_DENIED PASS",
+            )
         deadline = time.monotonic() + args.timeout
         while time.monotonic() < deadline:
             text = (
@@ -300,7 +322,7 @@ def main() -> int:
                 if serial.is_file()
                 else ""
             )
-            if all(marker in text for marker in REQUIRED_SERIAL):
+            if all(marker in text for marker in required_serial):
                 break
             if process.poll() is not None:
                 break
@@ -322,6 +344,12 @@ def main() -> int:
     requests = (
         json.loads(request_log.read_text())
         if request_log.is_file()
+        else []
+    )
+    dns_log = out / "dns-requests.json"
+    dns_requests = (
+        json.loads(dns_log.read_text())
+        if dns_log.is_file()
         else []
     )
     capture_path = out / "network.pcap"
@@ -353,7 +381,7 @@ def main() -> int:
     checks = {
         **{
             marker: marker in serial
-            for marker in REQUIRED_SERIAL
+            for marker in required_serial
         },
         "tls_allow_and_deny": requests == expected_requests,
         "dhcp": bool(capture.get("dhcp", {}).get("guest_addresses")),
@@ -381,6 +409,36 @@ def main() -> int:
             isolation.get("allowed_hosts")
             == ["allowed.lab.test"]
         )
+        checks["controlled_dns"] = (
+            isolation.get("controlled_dns") is True
+        )
+        relevant_dns = [
+            row
+            for row in dns_requests
+            if row.get("name") in {
+                "allowed.lab.test",
+                "denied.lab.test",
+            }
+        ]
+        checks["dns_allow_and_deny"] = relevant_dns == [
+            {
+                "name": "allowed.lab.test",
+                "qtype": "1",
+                "decision": "allow",
+                "status": "A",
+            },
+            {
+                "name": "denied.lab.test",
+                "qtype": "1",
+                "decision": "deny",
+                "status": "NXDOMAIN",
+            },
+        ]
+        checks["dns_background_denied"] = all(
+            row.get("decision") == "deny"
+            for row in dns_requests
+            if row.get("name") != "allowed.lab.test"
+        )
     status = "PASS" if all(checks.values()) else "FAIL"
     evidence = {
         "schema_version": 1,
@@ -394,6 +452,7 @@ def main() -> int:
         "certificate_sha256": certificate_sha256,
         "checks": checks,
         "tls_requests": requests,
+        "dns_requests": dns_requests,
         "packet_capture": {
             key: value
             for key, value in capture.items()

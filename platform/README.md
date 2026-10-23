@@ -42,8 +42,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - `runtime=qemu-unified` 的 S3/C6/Core2 单 guest 板级 + 网络 + BLE；
 - Core2 `profile=core2-native-vhci` 的 stock firmware VHCI → Bumble 路径；
 - QEMU pcap、flow/DNS/DHCP/ARP 和 payload-hash 摘要；
-- Linux private namespace、fail-closed isolation、TLS/Host allowlist fixture
-  和 SoftAP `hostfwd` 诊断。
+- Linux private net/mount namespace、controlled DNS、fail-closed isolation、
+  TLS/Host allowlist fixture 和 SoftAP `hostfwd` 诊断。
 
 当前边界：
 
@@ -52,9 +52,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱；worker/VM 生命周期仍未完成。
-- TLS/Host allowlist fixture 已在 trusted-host 和 Linux private namespace
-  下 PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；该能力仍不是
-  任意公网目标 allowlist。
+- controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
+  PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；该能力仍不是任意
+  公网目标 IP/端口 allowlist。
 
 完整契约见
 [`docs/device-service-api.md`](../docs/device-service-api.md) 和
@@ -72,8 +72,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/firmware_analysis.py` | ESP image、分区、应用描述和静态分析 |
 | `tools/fetch_firmware.py` | 公开 M5Burner 固件查询、下载和缓存 |
 | `tools/user_firmware_matrix.py` | 热门用户固件仿真矩阵 |
-| `tools/network_policy.py` | isolation、egress、DNS、Host allowlist 和 pcap 策略 |
-| `tools/network_sandbox.py` | Linux private namespace 与 fail-closed runner |
+| `tools/network_policy.py` | isolation、egress、controlled DNS、Host allowlist 和 pcap 策略 |
+| `tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS 与 fail-closed runner |
 | `tools/network_lane.py` | esp-emu 网络/Provisioning 诊断 lane |
 | `tools/pcap_summary.py` | pcap 元数据和 payload hash 摘要 |
 | `tools/ble_probe.py` | 外部 BLE controller/peer 与 GATT 验证 |

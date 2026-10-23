@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-controlled-dns-tls-host-allowlist",
+  "scope": "virtual-device-linux-network-namespace-dns-tls-not-hardware-rf",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "isolation": "namespace",
+  "base_image_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "built_image_sha256": "514d143c02adda72350e3c026527a4ee64d0ff41e0dca63f9addfeff124f38f1",
+  "certificate_sha256": "6b54cbdb508cde018829c775dca61e5d93e5e2cbb20e8106369e99ed6098a797",
+  "qemu": {
+    "platform": "linux-arm64",
+    "sha256": "abab392c14f9074b7787face2c616be7bf93bc3b53f945b97c9fd70e25a23670",
+    "patch": "patches/qemu-m5stack-peripherals/0027-esp32s3-gdma-external-memory.patch"
+  },
+  "resolver": {
+    "mode": "controlled",
+    "host": "127.0.0.1",
+    "port": 53,
+    "records": {
+      "allowed.lab.test": "10.0.2.2"
+    }
+  },
+  "checks": {
+    "private_namespace": true,
+    "no_external_route": true,
+    "controlled_dns": true,
+    "dns_allow_and_deny": true,
+    "dns_background_denied": true,
+    "tls_allow_and_deny": true,
+    "tls_port_observed": true,
+    "pcap_written": true
+  },
+  "dns_requests": [
+    {
+      "name": "allowed.lab.test",
+      "qtype": "1",
+      "decision": "allow",
+      "status": "A"
+    },
+    {
+      "name": "denied.lab.test",
+      "qtype": "1",
+      "decision": "deny",
+      "status": "NXDOMAIN"
+    },
+    {
+      "name": "uiflow2.m5stack.com",
+      "qtype": "1",
+      "decision": "deny",
+      "status": "NXDOMAIN"
+    },
+    {
+      "name": "ntp.aliyun.com",
+      "qtype": "1",
+      "decision": "deny",
+      "status": "NXDOMAIN"
+    }
+  ],
+  "tls_requests": [
+    {
+      "path": "/allowed",
+      "host": "allowed.lab.test",
+      "decision": "allow",
+      "status": "200"
+    },
+    {
+      "path": "/denied",
+      "host": "denied.lab.test",
+      "decision": "deny",
+      "status": "403"
+    }
+  ],
+  "packet_capture": {
+    "bytes": 11933,
+    "sha256": "40480f68e91bd44d37b8f3c5532bc0d2f7806397d9fd08451b7ba5dd028a5a2f",
+    "packets": 75,
+    "dns_queries": 5,
+    "dhcp": "PASS"
+  },
+  "not_claimed": [
+    "real-hardware TLS or RF behavior",
+    "arbitrary public-internet egress allowlisting",
+    "certificate-pinned or mutual-TLS firmware",
+    "malicious-firmware safety"
+  ]
+}

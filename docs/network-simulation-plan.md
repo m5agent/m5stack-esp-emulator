@@ -125,11 +125,10 @@ What is not yet proven:
 - stable public-network access for Tab5 and CardputerZero backends; the
   validated S3/C6 unified profiles use QEMU SLiRP and have controlled HTTP
   coverage;
-- allowlisted external egress and multi-device lab fabric in the regular
+- generic destination egress and multi-device lab fabric in the regular
   regression matrix. TLS/Host allowlisting now passes in both trusted-host
-  and Linux private namespace with generated CA, HTTP 200/403 decisions,
-  denied DNS and pcap evidence; generic destination allowlisting is still a
-  separate, open capability;
+  and Linux private namespace; namespace runs also use a controlled DNS
+  resolver with A/NXDOMAIN decisions, generated CA, HTTP 200/403 and pcap;
 - DHCP renewal and loss of an actual AP/radio source; current reconnect proof
   uses a guest WLAN disconnect plus QEMU backend link down/up;
 - WPA2/WPA3 behavior for the QEMU unified AP model; the current virtual AP is
@@ -282,7 +281,7 @@ itself. For untrusted firmware:
 | Phase | Work | Estimate |
 | --- | --- | --- |
 | N0 | One-device UIFlow2 WiFi proof through `esp-emu` | DONE for StickS3 WLAN/DHCP and C6 NanoC6/Nesso WiFi+BLE; ESP-IDF adds TCP |
-| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP, BLE, loopback hostfwd, wrong-password negative case, QEMU pcap summary, Linux no-egress namespace and TLS/Host allowlist in both trusted-host and namespace DONE; generic egress allowlist and multi-device fabric remain |
+| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP, BLE, loopback hostfwd, wrong-password negative case, QEMU pcap summary, Linux namespace controlled DNS and TLS/Host allowlist DONE; generic destination egress and multi-device fabric remain |
 | N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | S3/C6 device-level unified paths and StickS3 reconnect PASS; DHCP renewal, real AP disappearance and P4 end-to-end remain |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | Linux namespace guest/deny proof DONE; formal CI integration and multi-device fabric remain 3–5 working days |

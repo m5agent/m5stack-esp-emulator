@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import fcntl
 import json
 import os
@@ -12,6 +13,7 @@ import ssl
 import struct
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -24,10 +26,74 @@ SIOCSIFFLAGS = 0x8914
 IFF_UP = 0x1
 IFNAMSIZ = 16
 IFREQ_SIZE = 40
+MS_BIND = 4096
+MS_REC = 16384
+MS_PRIVATE = 1 << 18
 
 
 class SandboxError(RuntimeError):
     pass
+
+
+def install_controlled_resolv_conf() -> Path:
+    try:
+        os.unshare(os.CLONE_NEWNS)
+    except (AttributeError, OSError) as error:
+        raise SandboxError(
+            f"controlled DNS requires a private mount namespace: {error}"
+        ) from error
+
+    descriptor, raw_path = tempfile.mkstemp(
+        prefix="m5-resolv-",
+        suffix=".conf",
+    )
+    path = Path(raw_path)
+    try:
+        os.write(
+            descriptor,
+            b"nameserver 127.0.0.1\n"
+            b"options timeout:1 attempts:1\n",
+        )
+    finally:
+        os.close(descriptor)
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    libc.mount.argtypes = [
+        ctypes.c_char_p,
+        ctypes.c_char_p,
+        ctypes.c_char_p,
+        ctypes.c_ulong,
+        ctypes.c_void_p,
+    ]
+    libc.mount.restype = ctypes.c_int
+    if libc.mount(
+        None,
+        b"/",
+        None,
+        MS_REC | MS_PRIVATE,
+        None,
+    ) != 0:
+        error = ctypes.get_errno()
+        path.unlink(missing_ok=True)
+        raise SandboxError(
+            "cannot make mount namespace private: "
+            f"{os.strerror(error)}"
+        )
+    target = Path("/etc/resolv.conf").resolve()
+    if libc.mount(
+        str(path).encode(),
+        str(target).encode(),
+        None,
+        MS_BIND,
+        None,
+    ) != 0:
+        error = ctypes.get_errno()
+        path.unlink(missing_ok=True)
+        raise SandboxError(
+            "cannot bind controlled resolv.conf: "
+            f"{os.strerror(error)}"
+        )
+    return path
 
 
 def bring_loopback_up(interface: str = "lo") -> None:
@@ -74,6 +140,9 @@ def write_isolation_evidence(
     http = (config or {}).get("http", {})
     if not isinstance(http, dict):
         http = {}
+    dns = (config or {}).get("dns", {})
+    if not isinstance(dns, dict):
+        dns = {}
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(
@@ -87,6 +156,8 @@ def write_isolation_evidence(
                 "dns": policy.get("dns", "deny"),
                 "allowed_hosts": policy.get("allowed_hosts", []),
                 "tls_gateway": bool(http.get("tls")),
+                "controlled_dns": dns.get("mode") == "controlled",
+                "dns_records": dns.get("hosts", {}),
             },
             indent=2,
         )
@@ -188,6 +259,138 @@ class ControlledHttp:
             self.persist()
 
 
+class ControlledDns:
+    def __init__(
+        self,
+        *,
+        host: str,
+        port: int,
+        records: dict[str, str],
+        log_path: Path | None,
+    ):
+        self.records = {
+            name.lower(): address for name, address in records.items()
+        }
+        self.requests: list[dict[str, str]] = []
+        self.lock = threading.Lock()
+        self.log_path = log_path
+        self.stop_event = threading.Event()
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind((host, port))
+        self.socket.settimeout(0.2)
+        self.thread = threading.Thread(
+            target=self.serve,
+            name="m5-sandbox-dns",
+            daemon=True,
+        )
+
+    @staticmethod
+    def parse_question(query: bytes) -> tuple[str, int, int] | None:
+        if len(query) < 17:
+            return None
+        offset = 12
+        labels: list[str] = []
+        while offset < len(query):
+            length = query[offset]
+            offset += 1
+            if length == 0:
+                break
+            if length & 0xC0 or offset + length > len(query):
+                return None
+            label = query[offset : offset + length].decode(
+                "ascii",
+                errors="ignore",
+            )
+            if not label:
+                return None
+            labels.append(label)
+            offset += length
+        else:
+            return None
+        if not labels or offset + 4 > len(query):
+            return None
+        qtype, qclass = struct.unpack_from("!HH", query, offset)
+        return ".".join(labels).lower(), qtype, offset + 4
+
+    def response(self, query: bytes) -> bytes:
+        question = self.parse_question(query)
+        if question is None:
+            return b""
+        name, qtype, question_end = question
+        address = self.records.get(name)
+        allowed = address is not None
+        answer = b""
+        if allowed and qtype == 1:
+            answer = (
+                b"\xc0\x0c"
+                + struct.pack("!HHIH", 1, 1, 60, 4)
+                + socket.inet_aton(address)
+            )
+        flags = 0x8180 if allowed else 0x8183
+        response = (
+            query[:2]
+            + struct.pack("!HHHHH", flags, 1, 1 if answer else 0, 0, 0)
+            + query[12:question_end]
+            + answer
+        )
+        status = (
+            "A"
+            if answer
+            else "NOERROR_NO_A"
+            if allowed
+            else "NXDOMAIN"
+        )
+        with self.lock:
+            self.requests.append(
+                {
+                    "name": name,
+                    "qtype": str(qtype),
+                    "decision": "allow" if allowed else "deny",
+                    "status": status,
+                }
+            )
+            self.persist()
+        return response
+
+    def serve(self) -> None:
+        while not self.stop_event.is_set():
+            try:
+                query, peer = self.socket.recvfrom(4096)
+            except TimeoutError:
+                continue
+            except OSError:
+                break
+            response = self.response(query)
+            if response:
+                try:
+                    self.socket.sendto(response, peer)
+                except OSError:
+                    break
+
+    def persist(self) -> None:
+        if self.log_path is None:
+            return
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self.log_path.with_name(
+            f".{self.log_path.name}.{os.getpid()}.tmp"
+        )
+        temporary.write_text(
+            json.dumps(self.requests, ensure_ascii=False, indent=2) + "\n"
+        )
+        temporary.replace(self.log_path)
+
+    def start(self) -> None:
+        self.thread.start()
+
+    def close(self) -> None:
+        self.stop_event.set()
+        self.socket.close()
+        self.thread.join(timeout=5)
+        with self.lock:
+            self.persist()
+
+
 def start_logged_process(
     command: list[str],
     *,
@@ -271,6 +474,10 @@ def run(config: dict[str, Any], command: list[str]) -> int:
         os.unshare(os.CLONE_NEWNET)
     except (AttributeError, OSError) as error:
         raise SandboxError(f"cannot create network namespace: {error}") from error
+    dns_config = config.get("dns")
+    resolv_path: Path | None = None
+    if dns_config is not None:
+        resolv_path = install_controlled_resolv_conf()
     bring_loopback_up()
     if route_table_has_external_route():
         raise SandboxError(
@@ -282,6 +489,7 @@ def run(config: dict[str, Any], command: list[str]) -> int:
 
     http_config = config.get("http")
     http: ControlledHttp | None = None
+    dns: ControlledDns | None = None
     ble_process: subprocess.Popen[str] | None = None
     qemu_process: subprocess.Popen | None = None
     previous: dict[int, Any] = {}
@@ -300,6 +508,31 @@ def run(config: dict[str, Any], command: list[str]) -> int:
         previous[signum] = signal.getsignal(signum)
         signal.signal(signum, stop)
     try:
+        if dns_config is not None:
+            if not isinstance(dns_config, dict):
+                raise SandboxError("sandbox DNS config must be an object")
+            records = dns_config.get("hosts")
+            if (
+                not isinstance(records, dict)
+                or not records
+                or any(
+                    not isinstance(name, str)
+                    or not isinstance(address, str)
+                    for name, address in records.items()
+                )
+            ):
+                raise SandboxError(
+                    "sandbox DNS hosts must be a non-empty string map"
+                )
+            raw_log = dns_config.get("log")
+            dns = ControlledDns(
+                host=str(dns_config.get("host", "127.0.0.1")),
+                port=int(dns_config.get("port", 53)),
+                records=records,
+                log_path=Path(str(raw_log)) if raw_log else None,
+            )
+            dns.start()
+
         if http_config is not None:
             if not isinstance(http_config, dict):
                 raise SandboxError("sandbox http config must be an object")
@@ -383,6 +616,10 @@ def run(config: dict[str, Any], command: list[str]) -> int:
                 log.close()
         if http is not None:
             http.close()
+        if dns is not None:
+            dns.close()
+        if resolv_path is not None:
+            resolv_path.unlink(missing_ok=True)
         for signum, handler in previous.items():
             signal.signal(signum, handler)
 

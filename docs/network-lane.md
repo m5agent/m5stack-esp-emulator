@@ -107,9 +107,10 @@ TLS 测试 CA 和 Host allowlist 的独立 fixture 位于
 [`tests/network/tls_allowlist/`](../tests/network/tls_allowlist/README.md)。
 它已在 trusted-host 和 Linux arm64 private namespace 下覆盖测试 CA 生成、
 HTTPS gateway、Host 允许 200 / 拒绝 403、请求决策日志和 pcap 断言；
-namespace 运行同时确认无外部路由和 DNS 无响应。`0027` QEMU patch 修复了
-AES/GDMA 访问外部内存时的读失败。该 fixture 只验证 lab gateway 的 Host
-决策，不证明任意公网 destination allowlist。
+namespace 运行还通过 private mount namespace 安装 controlled DNS，对允许
+域名返回 A，对拒绝域名和后台 UIFlow/NTP 域名返回 NXDOMAIN。`0027` QEMU
+patch 修复了 AES/GDMA 访问外部内存时的读失败。该 fixture 仍不证明目标
+IP/端口级的任意公网 destination allowlist。
 
 ## 证据边界
 

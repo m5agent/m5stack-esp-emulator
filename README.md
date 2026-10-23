@@ -37,7 +37,7 @@ MicroPython 和其他完整 Flash 固件。
 | --- | --- | --- |
 | 高保真逐设备外观建模 | `TODO` | 仅 StopWatch 接近参考质量，其余 13 台仍是通用近似外壳 |
 | Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
-| 网络隔离与安全回归 | `mostly complete` | Linux namespace 内 guest、pcap 摘要、错误密码、StickS3 断线重连和 Linux namespace TLS/Host allowlist 已通；正式 CI/worker、可控 resolver、DHCP renewal 和通用 egress allowlist 仍待补 |
+| 网络隔离与安全回归 | `mostly complete` | Linux namespace 内 guest、pcap 摘要、错误密码、StickS3 断线重连、可控 DNS、TLS/Host allowlist 已通；正式 CI/worker、DHCP renewal 和通用 destination egress allowlist 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、capability mismatch、脱敏静态审查和 SBOM 摘要已通；文件系统深度解析、许可策略与生产 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
 | Core2 稳定性与原生无线 | `mostly complete` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3 和 Device Service `core2-native-vhci` lease PASS；非 GDB 生产实现、bit-exact BT controller 与物理等价性未完成 |

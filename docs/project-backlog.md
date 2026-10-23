@@ -23,7 +23,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-01` | 进行中 | trusted-host 与 Linux namespace TLS/Host allowlist、AES/GDMA 外部内存路径已完成；继续补可控 resolver 和通用 egress allowlist | 允许/拒绝目标可重复，guest 无法旁路；pcap 和摘要一致 |
+| `NET-01` | 进行中 | controlled DNS、TLS/Host allowlist 和 AES/GDMA 外部内存路径已完成；继续补目标地址/端口级通用 egress allowlist | 允许/拒绝目标可重复，guest 无法旁路；pcap 和摘要一致 |
 | `NET-02` | 待做 | 增加 DHCP renewal、AP 消失/恢复和 lease 变化 | 同一 guest 观测到 renewal 或 reacquire，前后 HTTP 与 pcap 对齐 |
 | `NET-03` | 待做 | 双设备 private lab fabric 与宿主 LAN 隔离 | 两台 guest 仅通过预期 fabric 通信，控制面和宿主 LAN 不可达 |
 | `NET-04` | 待做 | 把 Linux namespace/reconnect/pcap 接入正式 CI 与 worker | CI 可重复产出 evidence；namespace 创建失败保持 fail-closed |
@@ -78,10 +78,13 @@
   加载、HTTPS 握手、允许 Host 200、拒绝 Host 403 和 pcap 联合 PASS。
 - 同一 fixture 在 Linux arm64 private namespace 中完成相同断言，并确认
   无外部路由、DNS 无响应和 allowlist evidence。
+- namespace 内临时 mount namespace 只向 QEMU 子树绑定
+  `nameserver 127.0.0.1`；controlled DNS 对允许域名返回 A，对拒绝域名和
+  UIFlow/NTP 后台域名返回 NXDOMAIN。
 
 仍待完成：
 
-1. 增加可控 resolver 和面向目标地址/端口的通用 egress allowlist；
+1. 增加面向目标地址/端口的通用 egress allowlist；
 2. 增加 DHCP renewal、真实 AP 消失/恢复和 lease 变化；
 3. 把 multi-device 通信隔离和 host-to-device 访问做成容量测试；
 4. 将 pcap 保留策略、对象存储和审计接入 worker；

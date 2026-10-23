@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SANDBOX_RUNNER = ROOT / "platform/tools/network_sandbox.py"
 ISOLATION_MODES = {"trusted-host", "namespace"}
 EGRESS_MODES = {"native", "deny-all", "lab-only", "allowlist"}
-DNS_MODES = {"slirp", "deny"}
+DNS_MODES = {"slirp", "deny", "controlled"}
 HOST_PATTERN = re.compile(r"^[a-z0-9.-]{1,253}$")
 
 
@@ -83,18 +83,26 @@ class NetworkPolicy:
             raise NetworkPolicyError(
                 "non-native egress requires isolation=namespace"
             )
-        if isolation == "trusted-host" and dns == "deny":
+        if isolation == "trusted-host" and dns != "slirp":
             raise NetworkPolicyError(
-                "dns=deny requires isolation=namespace"
+                "non-slirp DNS requires isolation=namespace"
             )
         if isolation == "namespace" and egress == "native":
             raise NetworkPolicyError(
                 "isolation=namespace requires "
                 "egress=deny-all, lab-only or allowlist"
             )
-        if egress in {"deny-all", "lab-only", "allowlist"} and dns != "deny":
+        if egress in {"deny-all", "lab-only"} and dns != "deny":
             raise NetworkPolicyError(
                 "restricted egress requires dns=deny"
+            )
+        if egress == "allowlist" and dns not in {"deny", "controlled"}:
+            raise NetworkPolicyError(
+                "egress=allowlist requires dns=deny or dns=controlled"
+            )
+        if dns == "controlled" and egress != "allowlist":
+            raise NetworkPolicyError(
+                "dns=controlled requires egress=allowlist"
             )
         if egress == "allowlist" and not allowed_hosts:
             raise NetworkPolicyError(
@@ -119,6 +127,7 @@ class NetworkPolicy:
             "dns": self.dns,
             "capture_pcap": self.capture_pcap,
             "allowed_hosts": list(self.allowed_hosts),
+            "controlled_resolver": self.dns == "controlled",
             "claim": (
                 "Linux network namespace with no external route and "
                 "controlled HTTP Host allowlisting"
