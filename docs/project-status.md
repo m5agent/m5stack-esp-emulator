@@ -49,7 +49,7 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；GitHub Actions Linux policy CI PASS | 自托管 QEMU worker、双设备 lab fabric、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号、Device Service `core2-native-vhci` 单 lease PASS | 去掉 GDB 暂停/注入/return 控制面、重复 lease 稳定门禁、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号 | 同 commit repeated lease 仅 `1/2`，第二次在 `LE Set Event Mask` C2H 注入时 callback 拒绝并触发 guest debug exception；去掉 GDB 暂停/注入/return 控制面、稳定门禁、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
 ## 工程工作流总表
@@ -168,6 +168,8 @@
   [`tests/uiflow2/core2_native_vhci/evidence-2026-10-24-symbol-pinned.json`](../tests/uiflow2/core2_native_vhci/evidence-2026-10-24-symbol-pinned.json)
 - Core2 pinned-symbol same-guest unified evidence:
   [`tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json)
+- Core2 repeated Device Service stability failure:
+  [`tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-service-stability.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-service-stability.json)
 - Core2 Device Service native-VHCI evidence:
   [`tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
 - GDMA external-memory fix + latest full matrix evidence:

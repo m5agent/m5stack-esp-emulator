@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-vhci-service-repeat",
+  "scope": "simulation-only-not-hardware-validation",
+  "source_commit": "455504dab038975a3deb601d48c3c3604fff5a1d",
+  "status": "FAIL",
+  "gate": "repeated Device Service lease stability",
+  "runtime": {
+    "name": "qemu-unified",
+    "profile": "core2-native-vhci",
+    "machine": "m5core2",
+    "smp_cpus": 2,
+    "accel": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off",
+    "hci_transport": "ESP32 VHCI via GDB bridge to Bumble"
+  },
+  "firmware": {
+    "sha256": "b9c91c40e60867186717938e075da8b19271cc8e7a22323524be213beff81982",
+    "bytes": 16777216
+  },
+  "symbols": {
+    "source": "matching Xtensa ELF",
+    "API_vhci_host_send_packet": "0x403064d8",
+    "vhci_env_p": "0x3ffcc0a4",
+    "esp_cpu_wait_for_intr": "0x40093578"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "session_state": "stopped",
+      "error": null,
+      "serial_sha256": "309c21b939dc09a38ef1b6d77b37617f1778f79fb49fdf20910bc13c6f954f95",
+      "peer_log_sha256": "8e9d4f8d610cdea068e0c4714a345df7f275431eb4d7dbfd8110fd6c88905016",
+      "bridge_log_sha256": "87f93228bc3e7bcf3572ec01c24bdb590ce48f27dd77674490f962fdc6a424a0",
+      "checks": {
+        "wifi": true,
+        "controlled_http": true,
+        "public_dns": true,
+        "public_http": true,
+        "ble_rx": true,
+        "ble_ack_sent": true,
+        "bumble_found": true,
+        "bumble_connected": true,
+        "gatt_discovered": true,
+        "gatt_subscribed": true,
+        "gatt_write": true,
+        "notification": true,
+        "bridge_h2c": true,
+        "bridge_c2h": true,
+        "bridge_acl_h2c": true,
+        "bridge_acl_c2h": true
+      }
+    },
+    {
+      "attempt": 2,
+      "status": "FAIL",
+      "session_state": "failed",
+      "error": "timed out waiting for serial marker 'UNIFIED_CORE2_READY'",
+      "serial_sha256": "e7d56718fb359ce3313442a73460617bcc8986b398169366e8a49865e6ea3443",
+      "peer_log_sha256": "cd70537dd655468ef8fb60550321fae17729eed2645365279dca3373a6e4470e",
+      "bridge_log_sha256": "eb1608b213402593c8e1bb9c40a769f164d95e5d619af7fddafc7ce2baa5fd04",
+      "checks": {
+        "wifi": true,
+        "controlled_http": true,
+        "public_dns": true,
+        "public_http": true,
+        "ble_rx": false,
+        "ble_ack_sent": false,
+        "bumble_found": false,
+        "bumble_connected": false,
+        "gatt_discovered": false,
+        "gatt_subscribed": false,
+        "gatt_write": false,
+        "notification": false,
+        "bridge_h2c": true,
+        "bridge_c2h": false,
+        "bridge_acl_h2c": false,
+        "bridge_acl_c2h": false
+      },
+      "failure_sequence": [
+        "Bumble returned a C2H Command Complete event for LE Set Event Mask.",
+        "The GDB bridge called the firmware host callback from the H2C sender context.",
+        "The callback call returned status=2559356 and the packet was not injected.",
+        "GDB then reported that the target was running.",
+        "The guest raised an unhandled debug exception, reported InstrFetchProhibited, and rebooted."
+      ]
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 1,
+    "total": 2,
+    "pass_rate": 0.5,
+    "stable": false
+  },
+  "not_claimed": [
+    "physical hardware validation",
+    "bit-exact Espressif BT baseband/controller",
+    "RF behavior or coexistence",
+    "physical cache/PSRAM equivalence"
+  ]
+}

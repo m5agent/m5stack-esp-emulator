@@ -84,5 +84,8 @@ The same path is exposed through Device Service as
 `qemu-unified/profile=core2-native-vhci`; the service-side run is recorded in
 `evidence-2026-10-23-native-vhci-service.json`. GDB still pauses the guest,
 invokes firmware callbacks and supplies the synthetic send-frame return.
-Repeated-lease stability and removal of that GDB control plane remain open in
-`CORE2-01`.
+Repeated-lease stability is currently `1/2`, recorded in
+`evidence-2026-10-24-native-vhci-service-stability.json`. The failed lease was
+rejected while injecting the C2H Command Complete for `LE Set Event Mask`,
+then the guest raised a debug exception and rebooted. Removal of that GDB
+control plane and a stable repeated-lease gate remain open in `CORE2-01`.

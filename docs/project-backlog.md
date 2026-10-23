@@ -49,7 +49,7 @@
 | `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
 | `NET-04` | 进行中 | GitHub Actions 已跑 namespace/egress；继续接 QEMU runtime、pcap/reconnect 和正式 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain/re-attach |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
-| `CORE2-01` | 进行中 | ELF 符号查询已固定；先建立重复 lease 稳定性门禁，再把 GDB 暂停/注入/return 改为 QEMU 内部或无调试器后端 | 同一 stock 固件通过重复 lease；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
+| `CORE2-01` | 进行中 | ELF 符号查询已固定；当前 repeated lease `1/2`，失败在 C2H callback 注入；先修该窗口，再把 GDB 暂停/注入/return 改为 QEMU 内部或无调试器后端 | 同一 stock 固件通过固定次数 repeated lease；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
 | `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
 | `FW-02` | 进行中 | 包内安全摘要已支持；继续做真机 eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -100,6 +100,10 @@
 
 - GDB 仍负责 guest 暂停、breakpoint/callback 注入和 synthetic return；
 - 尚未形成同 commit、固定次数的重复 Device Service lease 门禁；
+- 当前同 commit repeated lease 为 `1/2`。失败时 Bumble C2H
+  `LE Set Event Mask` response 在 H2C sender context 调用 host callback
+  返回 `2559356`，随后 GDB target-running，guest
+  `InstrFetchProhibited` 并重启；
 - 尚无 QEMU 内部或无调试器 backend。
 
 交付：
