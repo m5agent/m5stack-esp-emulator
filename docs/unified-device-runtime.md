@@ -45,6 +45,9 @@ complete simulated device or as a unified-device PASS.
 - The PaperColor machine uses the same NIC with its 400x600 Spectra 6
   display, GPIO buttons, M5PM1, SHT40, ES8311/AW8737A audio, WiFi DHCP/HTTP
   and external HCI BLE exchange in one guest.
+- The PaperMono machine uses the same NIC with its 480x800 SSD1677
+  display, FT6336 touch, GPIO keys, M5PM1/IP2315, BMI270, RX8130, RGB,
+  GPIO42 speaker, WiFi DHCP/HTTP and external HCI BLE exchange in one guest.
 - The StickS3 unified HCI-UART build routes real NimBLE H4 traffic through
   QEMU UART1 to a Bumble controller. An external peer completes NUS discovery,
   subscription, write, guest receive and notify ACK in the same QEMU process.
@@ -91,8 +94,8 @@ finished chip model.
 
 ## Acceptance milestone
 
-First vertical slices are StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R
-and PaperColor. Each runs one UIFlow2 image in one QEMU guest that
+First vertical slices are StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R,
+PaperColor and PaperMono. Each runs one UIFlow2 image in one QEMU guest that
 simultaneously shows a non-black frame, accepts a physical key/touch event,
 reads device state and audio where available, associates with the virtual
 WiFi SSID, obtains DHCP, completes a controlled HTTP request, and completes
@@ -100,8 +103,8 @@ BLE GATT discovery/write. Each session exposes all checks through one
 `/api/v1` lease and retains a combined evidence bundle.
 
 Status: **PASS for the simulation-only StickS3, CoreS3, Cardputer ADV,
-StopWatch, AtomS3R and PaperColor slices** through `runtime=qemu-ble`, the
-six unified profiles, and retained Device Service evidence ZIPs containing
+StopWatch, AtomS3R, PaperColor and PaperMono slices** through
+`runtime=qemu-ble`, the seven unified profiles, and retained Device Service evidence ZIPs containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
 manifest hashes. All probes use an open virtual AP on one fixed channel;
 WPA2/WPA3 security behavior is not modelled. BLE is host-controller HCI data

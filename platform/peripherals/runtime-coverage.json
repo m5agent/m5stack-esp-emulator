@@ -55,6 +55,11 @@
       "test": "tests/uiflow2/unified_papercolor/run_test.py",
       "evidence": "tests/uiflow2/unified_papercolor/evidence-2026-10-23.json"
     },
+    "papermono-unified": {
+      "device": "papermono",
+      "test": "tests/uiflow2/unified_papermono/run_test.py",
+      "evidence": "tests/uiflow2/unified_papermono/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -113,6 +118,17 @@
       "aw8737a",
       "gpio-button",
       "pwr-button"
+    ],
+    "papermono-unified": [
+      "m5pm1",
+      "ip2315",
+      "bmi270",
+      "rx8130",
+      "touch-ft5x06",
+      "gpio-button",
+      "pwr-button",
+      "buzzer",
+      "rgb-led"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -405,6 +421,9 @@
         "papermono-rgb",
         "papermono-nfc",
         "papermono-lora"
+      ],
+      "external": [
+        "papermono-unified"
       ],
       "models": [
         "m5pm1",

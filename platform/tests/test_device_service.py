@@ -108,6 +108,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "uiflow2-papercolor-unified",
             rows["papercolor"]["network_profiles"],
         )
+        self.assertEqual(rows["papermono"]["network_status"], "validated")
+        self.assertTrue(rows["papermono"]["features"]["network"])
+        self.assertTrue(rows["papermono"]["features"]["device_state"])
+        self.assertIn(
+            "uiflow2-papermono-unified",
+            rows["papermono"]["network_profiles"],
+        )
         for validated_s3 in (
             "papercolor",
             "papermono",
@@ -169,7 +176,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(capacity["modes"]["qemu-ble"], "disabled")
         self.assertEqual(
             capacity["modes"]["qemu-unified"],
-            "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-wifi-ble",
+            "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-wifi-ble",
         )
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
@@ -527,9 +534,28 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 ],
                 18085,
             )
+            papermono = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["papermono"],
+                {},
+            )
+            self.assertEqual(
+                papermono["profile"],
+                "uiflow2-papermono-unified",
+            )
+            self.assertEqual(papermono["nic"], "misc.esp32s3.wifi")
+            self.assertEqual(
+                papermono["expected_markers"],
+                list(device_service_module.PAPERMONO_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                device_service_module.UNIFIED_HTTP_PORTS[
+                    device_service_module.PAPERMONO_UNIFIED_PROFILE
+                ],
+                18086,
+            )
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_ble_execution(
-                    self.service.specs["papermono"],
+                    self.service.specs["stamplc"],
                     {},
                 )
             self.assertEqual(
@@ -1297,6 +1323,67 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertTrue(all(evidence["checks"].values()))
         self.assertEqual(evidence["gatt"]["name"], "M5-PAPERCOLOR-UNIFIED")
         self.assertEqual(evidence["gatt"]["payload"], "M5_PAPERCOLOR_U")
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_papermono_unified_qemu_evidence(self):
+        spec = self.service.specs["papermono"]
+        firmware_path = Path(self.tmp.name) / "papermono-unified.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="e" * 32,
+            spec=spec,
+            firmware_id="2" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="2" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_PAPERMONO_READY",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "uiflow2-papermono-unified",
+                "nic": "misc.esp32s3.wifi",
+                "expected_markers": list(
+                    device_service_module.PAPERMONO_UNIFIED_MARKERS
+                ),
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "UNIFIED_PAPERMONO_WIFI_CONNECTED 10.0.2.15\n"
+            "UNIFIED_PAPERMONO_HTTP_PASS\n"
+            "UNIFIED_PAPERMONO_BLE_RX b'M5_PAPERMONO_U'\n"
+            "UNIFIED_PAPERMONO_BLE_ACK_SENT\n"
+            "UNIFIED_PAPERMONO_READY\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-PAPERMONO-UNIFIED'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_PAPERMONO_U\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_PAPERMONO_U\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}])
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-papermono-unified-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(evidence["gatt"]["name"], "M5-PAPERMONO-UNIFIED")
+        self.assertEqual(evidence["gatt"]["payload"], "M5_PAPERMONO_U")
         session.state = "stopped"
         session._proc = None
         session._qmp = None

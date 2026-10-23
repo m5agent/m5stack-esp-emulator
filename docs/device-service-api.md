@@ -15,8 +15,8 @@ Current scope:
 - network emulation: `runtime=network` remains available for diagnosis on
   S3/C6; StickS3 also supports a Wi-Fi-only board lease through
   `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV, StopWatch,
-  AtomS3R and PaperColor use one combined WiFi+BLE+board QEMU lease through
-  their unified profiles;
+  AtomS3R, PaperColor and PaperMono use one combined WiFi+BLE+board QEMU
+  lease through their unified profiles;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -428,6 +428,26 @@ controlled HTTP request on port `18085`, plus HCI-UART BLE NUS
 discovery/subscription/write and notification. GPIO43 is the e-paper DC pin,
 so the probe routes its audit UART output through GPIO44/45.
 
+PaperMono uses the same one-guest contract:
+
+```json
+{
+  "device_id": "papermono",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 60,
+  "network": {
+    "profile": "uiflow2-papermono-unified",
+    "attempts": 2
+  }
+}
+```
+
+The PaperMono image exercises the 480x800 four-gray SSD1677 display, FT6336
+touch, GPIO keys, M5PM1/IP2315 power and charging state, BMI270, RX8130,
+RGB LED, GPIO42 speaker, WiFi scan/association/DHCP and a controlled HTTP
+request on port `18086`, plus HCI-UART BLE NUS discovery/subscription/write
+and notification.
+
 State machine:
 
 ```text
@@ -796,7 +816,7 @@ after a service restart.
 ## Current limitations
 
 - `runtime=network` sessions are diagnostic lanes; StickS3, CoreS3,
-  Cardputer ADV, StopWatch, AtomS3R and PaperColor instead use
+  Cardputer ADV, StopWatch, AtomS3R, PaperColor and PaperMono instead use
   `runtime=qemu-ble` with their unified profiles for one combined guest;
 - unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
   HCI-offload over UART1, not a native S3 PHY/radio model;
@@ -809,8 +829,8 @@ after a service restart.
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
   matching reference ELF;
 - normalized `device-state` probes currently exist for StickS3, CoreS3,
-  Cardputer ADV, StopWatch, AtomS3R and PaperColor; other devices expose
-  session metadata, framebuffer and serial without inventing component
+  Cardputer ADV, StopWatch, AtomS3R, PaperColor and PaperMono; other devices
+  expose session metadata, framebuffer and serial without inventing component
   values;
 - emulator processes are not resumed across service restarts; only stopped,
   failed and interrupted history is reconstructed;

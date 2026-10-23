@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "papermono",
+  "firmware_sha256": "d628edf99407785a4251f575a501d43b2c3bc7a1e1c690f938ca721f93278655",
+  "consecutive_passes": 3,
+  "runs": [
+    {
+      "serial_sha256": "7acad6ffac545a3ba2be191e542068aed0c34958a0d0043ea7b6f46bb763ded6",
+      "peer_log_sha256": "89e693f861508978b1befb5caf61c14e2fa266aeb65101655423baef260ee033"
+    },
+    {
+      "serial_sha256": "e0b29b412c54ca3306372133609f9ac83ef6296d8ba32c041e429aaad17b5255",
+      "peer_log_sha256": "2864cf81fb1ab125af337ae8bea83bfefdc36f5c3748031647d672335cbc66ae"
+    },
+    {
+      "serial_sha256": "52beaff25b8ba7d545b71bbb7bf7a9f4f00260ae3026198a5e331526469878be",
+      "peer_log_sha256": "8d94e829118b444ee7a19b6328f097180b682706d35141bafd3f6e17a533f63d"
+    }
+  ],
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "touch_redraw": true,
+    "button_redraw": true,
+    "power": true,
+    "ip2315_charging": true,
+    "bmi270": true,
+    "rx8130": true,
+    "rgb_api": true,
+    "speaker_pcm": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [
+      480,
+      800
+    ],
+    "before_nonblack_pixels": 350743,
+    "before_unique_colors": 3,
+    "after_nonblack_pixels": 350711,
+    "after_unique_colors": 3,
+    "changed_after_touch_and_key": true
+  },
+  "audio": {
+    "bytes": 66560,
+    "nonzero_bytes": 34426,
+    "peak_to_peak": 255,
+    "sha256": "87e5dc4fe24b7e1c70e0ddfdf1bec9a2cd7eb8663e897c46e603533df5ac017c"
+  },
+  "device_state": {
+    "vbat_mv": 4000,
+    "charging": true,
+    "accel": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "gyro": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_port": 18086,
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART1 H4",
+    "controller": "Bumble",
+    "name": "M5-PAPERMONO-UNIFIED",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_PAPERMONO_U",
+    "notification": "ACK:M5_PAPERMONO_U"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 Bluetooth controller model",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "untrusted-firmware sandboxing"
+  ]
+}

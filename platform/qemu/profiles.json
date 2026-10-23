@@ -480,16 +480,62 @@
       "peripherals": [
         "m5pm1",
         "m5ioe1",
-        "rx8130"
+        "ip2315",
+        "bmi270",
+        "rx8130",
+        "ft5x06",
+        "gpio-buttons",
+        "buzzer",
+        "rgb-led",
+        "pdm-microphone",
+        "nfc",
+        "lora",
+        "sd"
       ],
+      "runtime_state": {
+        "power": {
+          "path": "/machine/m5pm1",
+          "properties": [
+            "vbat-mv",
+            "vin-mv",
+            "vinout-mv",
+            "charging",
+            "temperature-c",
+            "gpio-input-bits"
+          ]
+        },
+        "charger": {
+          "path": "/machine/ip2315",
+          "properties": [
+            "charging"
+          ]
+        },
+        "imu": {
+          "path": "/machine/bmi270",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        },
+        "rtc": {
+          "path": "/machine/rx8130",
+          "properties": [
+            "unix-time"
+          ]
+        }
+      },
       "board_work": [
         "SSD1677 waveform timing polish"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
-        "status": "display-touch-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 480x800 four-gray UI; QMP touch injection redraws the on-screen counter."
+        "date": "2026-10-23",
+        "status": "display-input-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 480x800 four-gray frame; touch/key input, M5PM1/IP2315, BMI270, RX8130, RGB, speaker PCM, WiFi DHCP/HTTP and HCI-UART BLE pass in one QEMU guest."
       }
     },
     {
