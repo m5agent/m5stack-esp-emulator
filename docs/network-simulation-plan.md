@@ -62,7 +62,8 @@ Device Service lease
 - 物理 RF 消失/恢复、信道/速率变化或重新分配不同 lease；
 - WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
 - 两台设备通过唯一预期 lab fabric 通信；
-- namespace、pcap retention 和 evidence upload 的正式 CI/worker 生命周期；
+- namespace、pcap retention 和 evidence upload 的自托管 QEMU worker
+  生命周期；GitHub-hosted policy/egress CI 已单独通过；
 - 任意 S3/C6 固件或任意公网服务的稳定联网；
 - 外部 IPv6、CIDR 或域名到多个 IP 的 egress policy；
 - Tab5 P4↔C6 ESP-Hosted 端到端网络；
@@ -148,7 +149,7 @@ QEMU 子树看到 127.0.0.1 resolver；HTTPS 网关使用临时 CA 和 Host allo
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
 | N4a Linux policy CI | DONE | GitHub-hosted namespace/nft/egress fixture 保持 fail-closed 并可重复 |
 | N4b 双设备 fabric | OPEN | 两台 guest 只能通过预期 fabric 通信，宿主 LAN/控制面不可达 |
-| N5 Core2 production BLE/PHY | PARTIAL | ELF 固定符号已完成；剩余 GDB 控制面、重复 lease、controller semantics、coexistence soak |
+| N5 Core2 production BLE/PHY | PARTIAL | ELF 固定符号已完成；`HCI-3b` 已排除 safe-point callback/nested `r_eif_send`；下一步 C2H device/IRQ queue 或 in-process controller，剩余 GDB 控制面、重复 lease、coexistence soak |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
 虚拟 radio/AP 丢失恢复已完成，下一步是 `NET-03` 双设备 fabric。精确 IPv4

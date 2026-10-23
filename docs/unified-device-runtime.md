@@ -119,9 +119,13 @@ complete simulated device or as a unified-device PASS.
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
   `01030c00` without GDB, and `HCI-3a` invokes the registered receive
   callback with status 0, emits send-available and observes the guest's next
-  H2C command. Complete Bumble HCI/GATT sequence (`HCI-3b`) and repeated
-  Device Service leases remain open, so the unified acceptance status above
-  is unchanged.
+  H2C command. The `HCI-3b` diagnostic reaches connect and the first ATT
+  exchange, then resets after the second ATT request. Safe-point callback
+  injection and a nested call into `r_eif_send -> vhci_send` both failed and
+  were reverted. The replacement must use a guest-visible
+  controller-to-host IRQ/queue or an in-process controller transaction.
+  Complete Bumble HCI/GATT sequence (`HCI-3b`) and repeated Device Service
+  leases remain open, so the unified acceptance status above is unchanged.
 
 ## Integration rule
 

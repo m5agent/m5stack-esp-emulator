@@ -425,7 +425,8 @@ evidence/
 
 1. SPIFFS 只读清单、运行时权限/许可审批、证书链校验和许可证策略；
    LittleFS/FAT、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
-2. 正式 CI/worker、外部 IPv6 egress 和双设备 lab fabric；
+2. 自托管 QEMU worker；GitHub-hosted Linux policy/egress CI 已具备，
+   外部 IPv6 egress 和双设备 lab fabric 仍开放；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。

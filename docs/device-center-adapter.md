@@ -54,13 +54,15 @@ GET /health
 
 当 `runtime.execution = native-qemu` 时，`reference-ready` 表示本机 QEMU
 虚拟主机已完成目标尺寸首帧和输入重绘验收，不表示浏览器 WASM 页面可以执行。
-设备中心应从 `platform/qemu/profiles.json` 读取机器名、外设模型和阻塞项，
-通过统一矩阵或后续进程级执行器启动 QEMU。
+设备中心应通过 Device Service 的 `GET /api/v1/devices` 读取 profile、
+backend readiness、外设模型和阻塞项，通过 `POST /api/v1/sessions` 创建独占
+lease。设备中心不直接启动 QEMU、不复制 profile 的启动参数，也不维护第二套
+Flash/网络状态。
 
-ESP32-S3/C6/P4 的矩阵执行先通过 `esp-emu --strap-mode 0x02` 暴露 esptool
-socket，再以 `write-flash` 写入虚拟 flash；Core2 通过 QEMU ESP32 ROM
-UART 下载模式和 `esptool --no-stub` 写入。执行结果中的
-`flash.transport` 和 `flash.verified` 应作为设备中心的调度证据。
+QEMU S3/C6/Core2 与 Tab5 `esp-emu` 的烧录由 Device Service 处理；Cardputer
+Zero 是独立 Linux ARM64 后端，当前不属于 `/api/v1`。设备中心以 session
+返回的 `flash.transport`、`flash.verified`、frame、serial 和 evidence 作为
+调度证据，不以进程已启动作为固件 PASS。
 
 ## 页面接口
 
@@ -107,14 +109,26 @@ window.parent.postMessage({
 }, location.origin);
 ```
 
-## 后续扩展
+## 已接入契约
 
-- WebSocket 串口桥：把原生 `esp-emu` 的 esptool/raw REPL 暴露给设备中心。
-- 图像通道：`getFrame()` 的 PNG data URL 可替换成二进制 WebSocket/WebRTC。
-- 固件入口：接受 merged flash 或带偏移的 bootloader/partition/app/filesystem
-  分段，并记录 SHA-256、chip、flash size、可选 ELF/MAP 和来源。
-- 任务调度：按 `runtime.status`、固件目标芯片、板级 profile、控制器覆盖和镜像兼容性
-  选择执行器；UIFlow2 只是其中一种固件族。
-- 实例调度：每个 lease 独占一个模拟实例；同类设备可创建多个副本，但不能共享
-  可变 Flash、串口、输入或网络状态。推荐方案见 `simulator-service-architecture.md`。
-- 已知问题：设备 `runtime.validation` 必须参与调度，避免把公开固件的 bootloader panic 判为应用通过。
+- 固件入口：merged/segmented flash、FirmwareManifest、M5Burner/WebBurner/
+  ESP-IDF 包、SHA-256、chip、flash size、ELF/MAP 和 provenance；
+- 任务调度：按 runtime、目标芯片、板级 profile、控制器覆盖和 capability
+  mismatch 选择执行器；
+- 实例调度：每个 lease 独占一个模拟实例和可变 Flash，不共享串口、输入或
+  网络状态；
+- 观测：session history、last frame、serial、QOM、pcap、BLE peer 和
+  evidence ZIP。
+
+## 仍开放
+
+- 二进制 WebSocket/WebRTC 图像与串口实时推送；当前 REST/轮询接口已可用，
+  但还不是低延迟媒体协议；
+- 自托管 worker、warm pool、多机调度和活动进程跨服务重启接管；
+- 设备中心正式消费 `runtime.validation` 的门禁字段，避免把公开固件的
+  bootloader panic 判为应用通过；
+- CardputerZero 的 `/api/v1` 适配，目前仍需独立后端。
+
+完整状态只维护在 [项目当前状态](project-status.md)，剩余执行项只维护在
+[项目 Backlog](project-backlog.md)；服务演进方案见
+[`simulator-service-architecture.md`](simulator-service-architecture.md)。

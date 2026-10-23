@@ -29,7 +29,7 @@
 | 工作流 | 已经形成的边界 | 现在真正待做 |
 | --- | --- | --- |
 | 网络 namespace/DNS/egress/pcap/重连 | 单机 namespace、controlled DNS、TLS/Host、精确 IPv4 egress、pcap、错误密码、radio/AP 丢失恢复和 DHCP renewal 已有同路径证据 | `NET-03` 双设备 fabric、`NET-04` 自托管 worker 生命周期、`NET-05` 外部 IPv6 |
-| Core2 cache/PSRAM/原生蓝牙/公网 | deterministic TCG/icount 已消除当前虚拟 WDT 复现；WiFi、DNS/公网和 board 外设同 guest PASS；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 callback PASS | 稳定 `HCI-3b` 完整 HCI/GATT sequence，再做 `HCI-4` repeated lease；物理 cache/PSRAM 与 bit-exact controller 仍属后续边界 |
+| Core2 cache/PSRAM/原生蓝牙/公网 | deterministic TCG/icount 已消除当前虚拟 WDT 复现；WiFi、DNS/公网和 board 外设同 guest PASS；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 callback PASS；`HCI-3b` 已到首个 ATT 交互 | 任意 safe-point callback 和 nested `r_eif_send` 已证伪并回退；下一步实现 C2H device/IRQ queue 或 in-process controller，再做 `HCI-4` repeated lease；物理 cache/PSRAM 与 bit-exact controller 仍属后续边界 |
 | FirmwareManifest/WebBurner/安全 | 版本化 manifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传与刷新恢复、capability mismatch、脱敏静态审查、eFuse 证据分层、LittleFS/FAT 清单已实现 | `FW-01` SPIFFS/权限/许可、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 
 ## 文档分层
@@ -56,7 +56,7 @@
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.13.0`；WebBurner browser intake、resumable chunk upload、atomic append rollback、staging GC、nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 地址已固定，GDB 控制面仍开放 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | `HCI-1` PASS；`HCI-2` 首包 PARTIAL；`HCI-3a` 单包 callback PASS；`HCI-3b`/`HCI-4` 开放 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | `HCI-1` PASS；`HCI-2` 首包 PARTIAL；`HCI-3a` 单包 callback PASS；`HCI-3b` diagnostic FAIL，safe-point/nested-entry 路线已回退；`HCI-4` 开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32 清单已通；SPIFFS 仍 `UNSUPPORTED` |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap 和 radio/AP 丢失恢复已通；QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
@@ -69,9 +69,9 @@
 | [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
 | [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-24` | `.work/` 不随仓库发布；QEMU/namespace 的资产和权限要求 |
 | [设备中心接入契约](device-center-adapter.md) | 接口契约 | `2026-10-24` | 目录、外设接口、设备状态与页面消息 |
-| [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-23` | 功能测试必须走 Device Service 并保留 session evidence |
+| [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-24` | 功能测试必须走 Device Service 并保留 session evidence |
 | [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-24` | 审查证据分层、运行路径和发布门禁 |
-| [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-23` | catalog、runtime coverage、后端数据面和设备本地验收 |
+| [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-24` | catalog、runtime coverage、后端数据面和设备本地验收 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-24` | Tab5 缺失的 P4 控制器、DMA 和端点 |
 | [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-24` | 当前单机模块化单体与后续 worker/warm-pool 路线 |
 | [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-24` | 公开固件按设备经 Device Service 的批量运行边界 |
@@ -147,6 +147,9 @@
 
 ## 更新规则
 
+- 项目级当前能力以 `project-status.md` 为准；设备矩阵只提供该页引用的设备
+  明细。README 和本页只做摘要，工作流页只维护工作流级索引和下一步，不复制
+  逐设备验证明细。
 - 能力变化：同步 `README.md`、`project-status.md` 和对应专题页。
 - 计划变化：只改 `project-backlog.md` 或专项 backlog。
 - API 变化：同步 Markdown、OpenAPI、服务实现和契约测试。
@@ -155,6 +158,8 @@
 - 新验证：保存 evidence，必要时写入 `agent-work-logs`；不要把聊天摘要当作证据。
 - 历史页保留原日期；若结论被推翻，在页首加“已由某页取代”，不要静默改写成
   好像当时就知道后来结果。
+- 同一证据的 SHA、测试数、Task 状态不要复制到历史页或设计页；应链接当前
+  状态/Backlog，减少多处数字漂移。
 
 文档一致性由 `platform/tests/test_docs_consistency.py` 检查，包括关键文件、
 相对链接、API 版本、设备计数和已知过期陈述。

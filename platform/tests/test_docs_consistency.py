@@ -222,6 +222,8 @@ class DocsConsistencyTests(unittest.TestCase):
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
         source = json.loads((ROOT / "devices" / "catalog.source.json").read_text())
         catalog = json.loads((ROOT / "devices" / "catalog.json").read_text())
         profiles = json.loads(
@@ -468,6 +470,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(safe_point["status"], "FAIL")
         self.assertFalse(safe_point["progression"]["ble_connected"])
         self.assertFalse(safe_point["experiment_retained"])
+        self.assertEqual(safe_point["qemu_patch_reverse_check"], "PASS")
         controller_entry = json.loads(
             (
                 ROOT
@@ -477,6 +480,34 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertEqual(controller_entry["status"], "FAIL")
         self.assertFalse(controller_entry["experiment_retained"])
+        self.assertEqual(
+            controller_entry["qemu_patch_reverse_check"],
+            "PASS",
+        )
+        for document in (status, workstreams, backlog, code_map):
+            self.assertIn("safe-point", document)
+            self.assertIn("r_eif_send", document)
+        for document in (status, workstreams, backlog):
+            self.assertIn("IRQ/queue", document)
+            self.assertIn("in-process controller", document)
+        dns_probe = (
+            ROOT / "tests/network/idf_dns_udp/README.md"
+        ).read_text()
+        self.assertIn("Controlled\nA/NXDOMAIN", dns_probe)
+        self.assertNotIn("future dedicated DNS", dns_probe)
+        agents = (ROOT / "AGENTS.md").read_text()
+        self.assertNotIn(
+            "streaming upload and broader cross-firmware compatibility",
+            agents,
+        )
+        device_center = (DOCS / "device-center-adapter.md").read_text()
+        self.assertIn("POST /api/v1/sessions", device_center)
+        self.assertIn("## 已接入契约", device_center)
+        self.assertNotIn("后续进程级执行器", device_center)
+        peripheral_matrix = (
+            DOCS / "uiflow2-peripheral-test-matrix.md"
+        ).read_text()
+        self.assertNotIn("未来 CC1101", peripheral_matrix)
 
     def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
         workstreams = (DOCS / "workstreams.md").read_text()

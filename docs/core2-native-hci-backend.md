@@ -18,9 +18,11 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-4` stability | `OPEN` | 无门禁 | 还没有无 GDB 的 Device Service 连续 `5/5` 完整 GATT 证据 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
-send-available 的基本路径；`HCI-3b` 仍需解决多包 event/ACL 的稳定顺序和
-safe point。只有完整 sequence 稳定后才可进入 `HCI-4`。不能把单次
-connect/首包 callback 写成“原生蓝牙后端已完成”。
+send-available 的基本路径；`HCI-3b` 的后续审计又证明：在任意 safe point
+直接注入 callback、以及 nested 调用真实 `r_eif_send → vhci_send`，都不是
+有效的 controller-to-host 交付上下文。下一实现必须提供 guest-visible
+IRQ/queue 或 in-process controller transaction。只有完整 sequence 稳定后
+才可进入 `HCI-4`。不能把单次 connect/首包 callback 写成“原生蓝牙后端已完成”。
 
 ## 结论先行
 
@@ -32,7 +34,10 @@ connect/首包 callback 写成“原生蓝牙后端已完成”。
 `CORE2-01` 应采用 QEMU 进程内的 HCI relay，并满足：
 
 - H2C 来自 guest 真实 `API_vhci_host_send_packet` 数据面；
-- C2H 由 QEMU/异步主循环在确定的 vCPU 安全点提交；
+- C2H 先进入 QEMU controller-to-host 数据/状态队列，再向 guest 发出与真实
+  controller 等价的 IRQ；
+- guest firmware ISR 自己消费队列、调用 `notify_host_recv` 并更新
+  VHCI flow-control/ACK 状态；
 - host socket/chardev worker 不直接修改 vCPU 寄存器或调用 guest callback；
 - 每个 packet 有 queued/submitted/completed 状态和失败分类；
 - 同一 stock 固件、同一 ELF、同一 Bumble peer 通过 repeated lease；
@@ -204,11 +209,22 @@ controller-entry audit 进一步确认 `r_eif_send → vhci_send` 是 firmware
 因此 controller 交付必须是设备/IRQ 事件，或由 in-process controller
 执行；不能再从 QEMU device callback 同步“远程调用” guest 内部函数。
 
-下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
-调整固定 sleep 或换 CPU：
+已证伪并回退的路线：
 
+| 路线 | 结果 | 证据 |
+| --- | --- | --- |
+| 固定 CPU0 idle / 任意 CPU0 safe point 直接调用 callback | BLE 初始化 ack 12；补寄存器后在 `LoadProhibited` 崩溃 | `evidence-2026-10-24-hci3b-safe-point-audit.json` |
+| nested 调用真实 `r_eif_send → vhci_send` | `Cache disabled but cached memory region accessed`，callback 未正常返回 | `evidence-2026-10-24-hci3b-controller-entry-audit.json` |
+| 扩大 RX 队列、移除 drop | 仍停在第二个 ATT request，不能修复 transaction | `evidence-2026-10-24-hci3b-diagnostic.json` |
+
+两次审计实验均未保留；QEMU 补丁 reverse-check 为 `PASS`。
+
+下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
+调整固定 sleep、CPU pinning、寄存器补丁或 nested guest RPC：
+
+- 增加 guest 可见的 controller-to-host queue/status 寄存器并 raise IRQ；
 - 在 H2C send 与对应 C2H response 之间保持可验证的 transaction；
-- 让 callback 在 host controller 的确定安全上下文中执行；
+- 让 guest firmware 自己的 ISR/worker 在有效 cache 和 task 上下文中消费；
 - 明确 FreeRTOS task wake/ACK 与 vCPU resume 的关系；
 - 每一步都要求 Bumble ATT/GATT 前进，失败不 retry。
 

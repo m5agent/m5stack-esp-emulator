@@ -109,6 +109,17 @@
 这些是维护成本，不是当前功能失败。没有 API 契约测试和同路径 evidence
 保护时，不做跨文件大重构。
 
+`SVC-03` 的目标不是一次搬空 `device_service.py`，而是按可回滚边界拆：
+
+1. content-addressed firmware/artifact store 与 resumable upload；
+2. session repository、状态机和历史恢复；
+3. QEMU、esp-emu/Tab5、network runtime adapters；
+4. serial/frame/QOM/audio/network evidence collector；
+5. HTTP handler 与 orchestration facade。
+
+每一步先保留现有 `/api/v1`、session JSON、evidence ZIP 和 stopped-session
+恢复契约，再迁移一个边界；禁止在同一变更里同时改 API、存储布局和运行时。
+
 ## 运行链路
 
 ### Device Service
@@ -223,7 +234,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 native HCI `HCI-1` | `patches/qemu-core2-native-hci/`；`tests/uiflow2/core2_native_hci/test_transport.py` | QEMU H4 chardev framing、bounded queue、overflow、peer lifecycle、counters 和 clean shutdown PASS |
 | Core2 guest H2C `HCI-2` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` 并转发 peer |
 | Core2 C2H callback `HCI-3a` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py --enable-c2h` | 从 ELF 分配 guest buffer，调用注册的 `notify_host_recv` 和 send-available；Reset Complete 后 guest 发出下一条 H2C，targeted `5/5` |
-| Core2 full HCI/GATT `HCI-3b` | `tests/uiflow2/core2_native_hci/run_full.py` | 无 GDB、真实 Bumble controller/peer；当前可发现/连接并完成首个 ATT 交互，第二个 ATT request 后 guest Reset，diagnostic `FAIL` |
+| Core2 full HCI/GATT `HCI-3b` | `tests/uiflow2/core2_native_hci/run_full.py`；三份 `evidence-2026-10-24-hci3b-*.json` | 无 GDB、真实 Bumble controller/peer；已到连接和首个 ATT 交互，第二个 ATT request 后 guest Reset。safe-point callback 与 nested `r_eif_send` 分别导致 LoadProhibited 和 cache-disabled 异常，实验均已回退 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |

@@ -56,8 +56,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 
 - `core2-native-vhci` 已进入 `/api/v1`，但内部仍使用服务托管的 GDB bridge；
   QEMU native-HCI 替代路径已完成 `HCI-1` transport、`HCI-2` 首个 H2C
-  Reset 捕获和 `HCI-3a` 单包 C2H callback `5/5`；`HCI-3b` 完整
-  HCI/GATT、`HCI-4` repeated lease、bit-exact Espressif
+  Reset 捕获和 `HCI-3a` 单包 C2H callback `5/5`；`HCI-3b` 已到连接和首个
+  ATT 交互，但任意 safe-point callback 与 nested `r_eif_send` 已证伪并
+  回退。下一步必须是 guest-visible C2H IRQ/queue 或 in-process controller
+  transaction。`HCI-4` repeated lease、bit-exact Espressif
   BT baseband/controller 和物理 cache/PSRAM 等价性仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。

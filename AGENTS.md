@@ -221,9 +221,15 @@ diagnostics in `internal/records/`.
   `HCI-2` first stock Reset capture pass. `HCI-3a` now invokes the firmware's
   registered receive callback, observes status 0, calls send-available and
   sees the guest emit its next H2C command. The complete Bumble HCI/GATT
-  sequence (`HCI-3b`), no-GDB repeated Device Service leases (`HCI-4`) and a
-  bit-exact controller remain open; do not call single-packet C2H a finished
-  native Bluetooth backend.
+  sequence (`HCI-3b`) still resets after the first ATT exchange. Saving
+  additional Xtensa special registers and invoking callbacks at arbitrary CPU0
+  safe points did not fix it, and nesting the firmware's real
+  `r_eif_send -> vhci_send` path as a guest RPC failed with a cache-disabled
+  memory access. Those experiments were reverted. The next implementation
+  must enqueue C2H and raise the guest-visible controller IRQ, or use an
+  in-process controller model. No-GDB repeated Device Service leases
+  (`HCI-4`) and a bit-exact controller remain open; do not call single-packet
+  C2H or direct callback injection a finished native Bluetooth backend.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.
@@ -244,12 +250,12 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- QEMU worker CI integration, a two-device lab fabric and external IPv6
-  endpoint enforcement;
+- self-hosted QEMU worker integration, a two-device lab fabric and external
+  IPv6 endpoint enforcement;
 - production Core2 VHCI backend, bit-exact BT controller and physical
   cache/PSRAM equivalence, coexistence and soak;
 - SPIFFS inventory, runtime permissions/license policy, production
-  security-key flows, streaming upload and broader cross-firmware compatibility;
+  security-key flows and broader cross-firmware compatibility;
 - remote worker supervision, warm pools, multi-host scheduling and hardened
   untrusted-firmware isolation;
 - Tab5 missing P4 data paths behind the closed-source backend;

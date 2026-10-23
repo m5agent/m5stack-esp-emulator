@@ -467,7 +467,7 @@ TX/RX FIFO 协议，不在 Python 层替换返回值。
 
 ### Cardputer-ADV ST25R3916 SPI
 
-Cardputer-ADV 的 SPI2 同时挂载 microSD、ST25R3916 NFC 和未来 CC1101。
+Cardputer-ADV 的 SPI2 同时挂载 microSD、ST25R3916 NFC 和 CC1101。
 模型允许同一控制器按 CS 选择多个 SPI 从设备，并通过稳定的 MISO 缓冲
 把读数据交付给 IDF DMA 路径。NFC 测试通过 SCLK `G40`、MOSI `G14`、
 MISO `G39`、NFC CS `G6` 读取 UID `DEADBEEF`、page4 `M5N1`，写入并回读

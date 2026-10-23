@@ -35,7 +35,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新 `67/67` case、`274/274` check，全部首轮无重试 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5` | `CORE2-01` 先稳定 `HCI-3b` 完整 Bumble HCI/GATT sequence，再以 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面；`CORE2-02` controller、物理 cache/PSRAM、coexistence/soak |
+| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5`、`HCI-3b` 到首个 ATT 后 Reset；safe-point/nested-entry 审计均 FAIL 且未保留 | `CORE2-01` 下一实现是 guest-visible C2H controller IRQ/queue 或 in-process controller transaction，不再调用 guest callback/RPC；sequence 稳定后再用 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面。`CORE2-02` 继续 controller、物理 cache/PSRAM、coexistence/soak |
 | 网络隔离、策略与取证 | `DELIVERED`（单机与 Linux policy CI） | `network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；GitHub Actions policy fixture | `NET-03` 双设备 fabric、`NET-04` 自托管 QEMU worker、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT 清单、失败回滚与 staging GC | `FW-01` SPIFFS/权限/许可策略、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`storage_policy.py`、`docs/device-service-api.md` | lease、烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` worker 生命周期、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
@@ -47,8 +47,10 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 
 ## 当前执行顺序
 
-1. `CORE2-01` 的代码入口是 `HCI-3b`：单包 C2H callback 已通过，继续稳定
-   完整 Bumble HCI/GATT sequence，保留 packet order/QOM 计数。
+1. `CORE2-01` 的代码入口是 `HCI-3b`：在 QEMU 中建立 guest-visible
+   controller-to-host IRQ/queue，或实现 in-process controller transaction；
+   保留 packet order/QOM 计数。不要再走任意 safe-point callback 或 nested
+   `r_eif_send` guest RPC。
 2. `HCI-3b` 闭环后立即做 `HCI-4`：同一 stock 固件、同一 ELF 和同一 QEMU
    build 通过 Device Service `/api/v1` 连续 `5/5`，再删除 GDB callback
    injection/synthetic return 诊断桥。
