@@ -384,9 +384,9 @@
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-22",
-        "status": "console-rgb-button-led-ir-pass",
-        "detail": "Official UIFlow2 v2.5.3 boots on the dedicated NanoC6 C6 board profile and reports board 140. hardware.RGB enables GPIO19 RGBPWR and drives GPIO20; RMT captures decode to WS2812 GRB 00FF00. GPIO9 press/release is injected through the machine GPIO property and read by machine.Pin, GPIO7 blue LED on/off is observed from the GPIO output registers, and hardware.IR TX decodes to NEC 0x56/0xA3."
+        "date": "2026-10-23",
+        "status": "board-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 runs hardware.RGB/WS2812, GPIO9 press/release, GPIO7 blue LED, RMT NEC IR, QEMU ESP32-C6 WiFi scan/association/DHCP/HTTP and UART1 HCI BLE NUS in one C6 guest. The same image passes in the standalone runner and one Device Service qemu-ble lease."
       }
     },
     {
@@ -429,8 +429,8 @@
       "blockers": [],
       "validation": {
         "date": "2026-10-23",
-        "status": "display-touch-power-io-ir-imu-lora-buzzer-hci-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, both PI4IOE expanders, BQ27220/AW32001, C6 RMT NEC 0x56/0xA3, BMI270 accel/gyro, SX1262 LoRa TX/RX, GPIO11 1-bit delta-sigma I2S buzzer and UART1 HCI BLE NUS pass in one QEMU C6 guest. C6 QEMU WiFi and stock hardware.RGB() remain NOT RUN."
+        "status": "display-touch-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, PI4IOE expanders, BQ27220/AW32001, BMI270, SX1262 LoRa, RMT IR, I2S buzzer, QEMU ESP32-C6 WiFi DHCP/HTTP and UART1 HCI BLE NUS pass in one C6 guest. The same image passes in the standalone runner and one Device Service qemu-ble lease; stock hardware.RGB() remains NOT RUN."
       }
     },
     {

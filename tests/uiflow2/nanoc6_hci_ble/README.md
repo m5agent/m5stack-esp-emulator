@@ -1,11 +1,8 @@
 # NanoC6 board + HCI BLE QEMU probe
 
 This probe runs the NanoC6 GPIO9 button, GPIO7 blue LED, GPIO19/20 WS2812,
-GPIO3 IR output and UART1 HCI BLE in one ESP32-C6 QEMU guest.
-
-It is intentionally not called a WiFi profile: the current QEMU C6 machine
-has no C6 WiFi MAC/PHY data plane. WiFi for NanoC6 remains on the separate
-`esp-emu` backend and is not claimed as same-instance QEMU coverage.
+GPIO3 IR output, QEMU ESP32-C6 WiFi scan/association/DHCP/HTTP and UART1 HCI
+BLE in one ESP32-C6 QEMU guest.
 
 Official board mapping used here:
 
@@ -16,6 +13,7 @@ Official board mapping used here:
 - UART0 GPIO16/17 testpoints are used by the test build for UART1 HCI routing.
 
 The controlled BLE peer is Bumble. The result is simulation-only.
+The HTTP endpoint is a controlled host peer reached through QEMU SLiRP.
 
 Build configuration:
 

@@ -42,8 +42,9 @@ Implemented on 2026-10-22:
 - StackChan, PaperColor, PaperMono and StamPLC UIFlow2 sources rebuilt with
   UART REPL enabled; each passes WiFi association/DHCP and BLE GATT write with
   guest delivery in both the direct runner and Device Service;
-- C6 WiFi stays active during external Bumble scan/connect/GATT
-  write/readback;
+- C6 QEMU WiFi completes scan, open association, DHCP, DNS and controlled
+  HTTP while UART1 HCI BLE completes external Bumble scan/connect/GATT
+  write/readback in the same guest;
 - host-forwarder DNS plus controlled UDP request/reply;
 - Device Service `runtime=network` sessions and evidence endpoint.
 - classic ESP32 QEMU OpenETH DHCP plus complete 1 MiB HTTP transfer in a
@@ -62,20 +63,21 @@ Implemented on 2026-10-22:
   lease and retains serial, frame, QOM and Bumble peer evidence.
 - C6 QEMU adds GigaDevice/ISSI QIO and MODEM_SYSCON PHY clock semantics.
   Public NanoC6/Nesso firmware passes the former flash/PHY assertions.
-- NanoC6 QEMU now runs RGB/button/IR and UART1 HCI BLE in one C6 guest.
-  The C6 UART timeout/FIFO-reset register layout is modeled, and both the
-  direct runner and a Device Service lease close the Bumble NUS GATT exchange.
-  C6 WiFi remains on the separate esp-emu lane because the QEMU machine has no
-  C6 WiFi MAC/PHY data plane.
+- NanoC6 QEMU now runs RGB/button/IR, QEMU ESP32-C6 WiFi DHCP/HTTP and UART1
+  HCI BLE in one C6 guest. The C6 UART timeout/FIFO-reset, MODEM_SYSCON,
+  WiFi MAC/DMA/IRQ and SLiRP data paths are modeled. The direct runner and one
+  Device Service `qemu-ble` lease both pass.
 - Nesso N1 now closes display/touch, PI4IOE rails/buttons, BQ27220/AW32001,
   BMI270, SX1262 loopback, RMT IR, buzzer PCM and UART1 HCI BLE in one C6
-  guest. The direct runner and Device Service both retain unified evidence;
-  Nesso WiFi remains `NOT RUN` on the current QEMU C6 machine.
+  guest. QEMU ESP32-C6 WiFi DHCP/HTTP and UART1 HCI BLE run alongside those
+  peripherals; the direct runner and one Device Service lease both retain
+  unified evidence. Stock `hardware.RGB()` remains separately unverified.
 
 Still open:
 
 - isolated DNS policy and host packet summaries;
-- combined board-peripheral plus network guest.
+- combined board-peripheral plus network guest on the remaining unvalidated
+  backends;
 - Core2 DNS, external internet request coverage, native-controller external
   BLE peer/GATT, RF/coexistence and production payload-size behavior.
 - Public C6 application VFS/SPIFFS and post-PHY network progress. The samples

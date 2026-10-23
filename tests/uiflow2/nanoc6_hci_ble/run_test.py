@@ -9,7 +9,9 @@ import os
 import socket
 import subprocess
 import sys
+import threading
 import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -23,6 +25,7 @@ DEFAULT_QEMU = (
 DEFAULT_ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/pc-bios"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
 FLASH_SIZE = 4 << 20
+HTTP_PORT = 18090
 
 BOARD_MARKERS = (
     "NANOC6_HCI_BOARD 140",
@@ -39,6 +42,11 @@ BLE_MARKERS = (
     "NANOC6_HCI_BLE_READY",
     "NANOC6_HCI_BLE_RX",
     "NANOC6_HCI_BLE_ACK_SENT",
+)
+WIFI_MARKERS = (
+    "NANOC6_HCI_WIFI_SCAN",
+    "NANOC6_HCI_WIFI_CONNECTED 10.0.2.15",
+    "NANOC6_HCI_HTTP_PASS",
 )
 PEER_MARKERS = (
     "BLE_BUMBLE_FOUND",
@@ -91,6 +99,43 @@ def stop_process(process: subprocess.Popen | None) -> None:
         process.wait(timeout=5)
 
 
+class ControlledHttp:
+    def __init__(self, port: int):
+        self.requests: list[dict[str, str]] = []
+        owner = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                owner.requests.append(
+                    {"path": self.path, "host": self.headers.get("Host", "")}
+                )
+                body = b"UNIFIED_NANOC6_OK\n"
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, _format: str, *_args: object) -> None:
+                return
+
+        self.server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+        self.thread = threading.Thread(
+            target=self.server.serve_forever,
+            name="nanoc6-unified-http",
+            daemon=True,
+        )
+
+    def __enter__(self) -> "ControlledHttp":
+        self.thread.start()
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=5)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--image", required=True, type=Path)
@@ -127,7 +172,9 @@ def main() -> int:
     peer_process: subprocess.Popen | None = None
     qemu: subprocess.Popen | None = None
     qmp = None
+    http_probe: ControlledHttp | None = None
     try:
+        http_probe = ControlledHttp(HTTP_PORT).__enter__()
         with peer_path.open("wb") as peer_log:
             peer_process = subprocess.Popen(
                 [
@@ -165,7 +212,7 @@ def main() -> int:
             "-M",
             "esp32c6",
             "-drive",
-            f"file={image},if=mtd,format=raw",
+            f"file={image},if=mtd,format=raw,snapshot=on",
             "-L",
             str(args.rom_dir),
             "-display",
@@ -183,6 +230,8 @@ def main() -> int:
             f"file:{serial_path}",
             "-qmp",
             f"unix:{qmp_path},server=on,wait=off",
+            "-nic",
+            "user,model=misc.esp32c6.wifi,id=wifi0",
         ]
         with (out / "qemu.stdout").open("wb") as stdout, (
             out / "qemu.stderr"
@@ -215,6 +264,8 @@ def main() -> int:
             peer = peer_path.read_text(errors="replace")
             if all(marker in serial for marker in BOARD_MARKERS) and all(
                 marker in serial for marker in BLE_MARKERS
+            ) and all(
+                marker in serial for marker in WIFI_MARKERS
             ) and all(marker in peer for marker in PEER_MARKERS):
                 break
             if qemu.poll() is not None:
@@ -236,6 +287,8 @@ def main() -> int:
         stop_process(qemu)
         stop_process(peer_process)
         qmp_path.unlink(missing_ok=True)
+        if http_probe is not None:
+            http_probe.__exit__(None, None, None)
 
     serial_bytes = serial_path.read_bytes()
     serial = serial_bytes.decode(errors="replace")
@@ -273,10 +326,14 @@ def main() -> int:
         stderr=subprocess.STDOUT,
         check=False,
     )
+    http_requests = list(http_probe.requests) if http_probe is not None else []
     checks = {
         **{f"serial:{marker}": marker in serial for marker in BOARD_MARKERS},
         **{f"serial:{marker}": marker in serial for marker in BLE_MARKERS},
+        **{f"serial:{marker}": marker in serial for marker in WIFI_MARKERS},
         **{f"peer:{marker}": marker in peer for marker in PEER_MARKERS},
+        "http:controlled_request": http_requests
+        == [{"path": "/unified", "host": "qemu.test"}],
         "gpio:rgb_power": gpio_before["gpio19"] is True,
         "gpio:blue_on": gpio_before["gpio7"] is True,
         "gpio:button_idle_high": gpio_before["gpio9"] is True,
@@ -313,14 +370,14 @@ def main() -> int:
         "serial_sha256": sha256(serial_bytes),
         "peer_log_bytes": len(peer_bytes),
         "peer_log_sha256": sha256(peer_bytes),
+        "http_requests": http_requests,
         "network": {
-            "wifi": "NOT RUN",
-            "wifi_reason": "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane",
+            "wifi": "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
+            "wifi_markers": list(WIFI_MARKERS),
             "ble": "PASS via UART1 HCI offload",
         },
         "not_claimed": [
             "real-hardware behavior",
-            "WiFi on the QEMU C6 machine",
             "native ESP32-C6 Bluetooth controller/radio model",
             "RF privacy, security, range or performance",
         ],

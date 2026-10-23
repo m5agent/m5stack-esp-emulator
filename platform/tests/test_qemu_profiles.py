@@ -130,7 +130,7 @@ class QemuProfileTest(unittest.TestCase):
         row = next(row for row in self.registry["devices"] if row["id"] == "nesso-n1")
         self.assertEqual(
             row["validation"]["status"],
-            "display-touch-power-io-ir-imu-lora-buzzer-hci-ble-pass",
+            "display-touch-peripherals-wifi-ble-pass",
         )
         self.assertEqual(row["blockers"], [])
 

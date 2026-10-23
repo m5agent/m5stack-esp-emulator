@@ -77,8 +77,8 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | StamPLC (`stamplc`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 显示/IO/CAN/RS485/蜂鸣器已完成 |
 | PaperColor (`papercolor`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | E Ink Spectra 6 400x600 | 已完成 |
 | PaperMono (`papermono`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | SSD1677 480x800 | 已完成，含 IP2315 充电状态 |
-| NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG、RGB、按键、蓝灯和 IR；公开 Evil-NanoC6 已越过 QIO flash init，SPIFFS 仍失败 |
-| Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 外设闭环完成；公开 Nesso_base 已越过 flash、QIO 和 PHY clock assert，应用网络行为待闭环 |
+| NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG、RGB、按键、蓝灯、IR、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与同一 Device Service lease 内通过 |
+| Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 显示/触摸、电源/扩展 IO、IMU、LoRa、IR、蜂鸣器、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与同一 Device Service lease 内通过 |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | linux-arm64 | `separate-backend` | ST7789v3 SPI LCD 320x170 | Linux/非黑 LVGL 首帧/输入/I2C/IR/双向 PCM/充电状态/寄存器驱动 IMX219/GL852G MTT FS+LS/SR9900A 帧回环已通 |
 | Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸、WiFi 受控 HTTP 和 HCI-offload BLE GATT 已通过；原生 BT 射频、DNS、PSRAM/cache 稳定性待补 |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | esp-emulator-native | `ready` | ST7121 / ST7123 物理横向 1280x720 | 显示/触摸、C6 Hosted、I2C 寄存器探测和 SIT3088 RS-485 已通；CSI/I2S/USB/SDIO 等仍 partial |

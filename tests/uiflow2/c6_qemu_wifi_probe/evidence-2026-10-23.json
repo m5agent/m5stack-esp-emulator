@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS_PUBLIC_HTTP",
+  "device_id": "nanoc6",
+  "profile": "c6-qemu-wifi-public",
+  "firmware": {
+    "base_sha256": "f6efc24d96f7b9a97684e63f764ef44b4357556d9b07dec4c1c67eb3d9153ecf",
+    "probe_sha256": "94147165061527ba1f8dfa95ed55cbfb21dc562a089944382607fbfe400b0a1b"
+  },
+  "runtime": {
+    "name": "qemu",
+    "machine": "esp32c6",
+    "wifi_nic": "misc.esp32c6.wifi",
+    "network_backend": "user"
+  },
+  "observed": {
+    "wifi_scan": "myssid",
+    "association": "PASS",
+    "dhcp": {
+      "address": "10.0.2.15",
+      "netmask": "255.255.255.0",
+      "gateway": "10.0.2.2",
+      "dns": "10.0.2.3"
+    },
+    "dns": "example.com",
+    "http": "HTTP/1.1 200 OK"
+  },
+  "checks": {
+    "scan": true,
+    "association": true,
+    "dhcp": true,
+    "dns": true,
+    "tcp_http": true,
+    "public_response": true
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "RF, PHY or antenna behavior",
+    "TLS certificate validation",
+    "stable public internet or DNS availability"
+  ]
+}

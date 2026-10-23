@@ -60,6 +60,10 @@ complete simulated device or as a unified-device PASS.
   DHCP/HTTP and UART1 HCI BLE in one `m5core2` guest. QOM injection does not
   pause the guest because early QMP stop/continue triggers the known
   cache/watchdog failure.
+- NanoC6 combines real UIFlow2 RGB/button/IR paths, QEMU ESP32-C6 WiFi
+  scan/association/DHCP/HTTP and UART1 HCI BLE in one C6 guest.
+- Nesso N1 combines its display/touch and peripheral set with QEMU ESP32-C6
+  WiFi DHCP/HTTP and UART1 HCI BLE in one C6 guest.
 - The StickS3 unified HCI-UART build routes real NimBLE H4 traffic through
   QEMU UART1 to a Bumble controller. An external peer completes NUS discovery,
   subscription, write, guest receive and notify ACK in the same QEMU process.
@@ -107,31 +111,29 @@ finished chip model.
 ## Acceptance milestone
 
 First vertical slices are StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R,
-PaperColor, PaperMono, StackChan, StamPLC and environment-gated Core2. Each
-runs one UIFlow2 image in one QEMU guest that simultaneously shows a non-black
-frame, accepts a physical key/touch event,
-reads device state and audio where available, associates with the virtual
+PaperColor, PaperMono, StackChan, StamPLC, NanoC6, Nesso N1 and
+environment-gated Core2. Each runs one UIFlow2 image in one QEMU guest that
+simultaneously exercises its board peripherals, associates with the virtual
 WiFi SSID, obtains DHCP, completes a controlled HTTP request, and completes
 BLE GATT discovery/write. Each session exposes all checks through one
 `/api/v1` lease and retains a combined evidence bundle.
 
 Status: **PASS for the simulation-only StickS3, CoreS3, Cardputer ADV,
-StopWatch, AtomS3R, PaperColor, PaperMono, StackChan, StamPLC and Core2
-slices** through `runtime=qemu-ble`, the ten unified profiles, and retained
-Device Service evidence ZIPs containing
+StopWatch, AtomS3R, PaperColor, PaperMono, StackChan, StamPLC, NanoC6,
+Nesso N1 and Core2 slices** through `runtime=qemu-ble`, the twelve unified
+profiles, and retained Device Service evidence containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
-manifest hashes. S3 probes use one open fixed-channel virtual AP; Core2
+manifest hashes. S3/C6 probes use one open fixed-channel virtual AP; Core2
 OpenMAC advertises its open test-AP set and associates with `myssid`.
 WPA2/WPA3 security behavior is not modelled. BLE is host-controller HCI data
 over an HCI-UART test build, not a native ESP32 radio/controller model.
 
-The S3 NIC models the guest-visible MAC, DMA descriptors, interrupt and
+The S3/C6 NIC models the guest-visible MAC, DMA descriptors, interrupt and
 user-net frame path, but not a complete PHY/rate/security/RF model. The classic
 ESP32 LX6 path still contains separate PHY bring-up stubs. A successful boot log
 or PHY-ready register therefore does not by itself mean that the device is
 online.
 
-For the rollout, repeat the same contract on NanoC6/Nesso N1 and then Core2.
 Each device gets explicit network and board-peripheral status; no
 family-wide PASS is inferred from another device's result.
 

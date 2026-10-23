@@ -1021,12 +1021,12 @@ components:
             core2-unified runs display/touch, AXP2101/INA3221, IMU/RTC,
             speaker/microphone, OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE
             in one m5core2 guest when M5_CORE2_RADIO_QEMU is configured.
-            nanoc6-hci-ble runs NanoC6 RGB/button/IR and UART1 HCI BLE in one
-            ESP32-C6 guest; WiFi is explicitly NOT RUN because that QEMU
-            machine has no C6 WiFi MAC/PHY data plane.
+            nanoc6-hci-ble runs NanoC6 RGB/button/IR, QEMU ESP32-C6 WiFi
+            DHCP/HTTP and UART1 HCI BLE in one ESP32-C6 guest.
             nesso-unified runs Nesso N1 display/touch, PI4IOE, power telemetry,
-            BMI270, SX1262, IR, buzzer and UART1 HCI BLE in one ESP32-C6 guest;
-            WiFi and the stock UIFlow2 RGB API are explicitly NOT RUN.
+            BMI270, SX1262, IR, buzzer, QEMU ESP32-C6 WiFi DHCP/HTTP and
+            UART1 HCI BLE in one ESP32-C6 guest; the stock UIFlow2 RGB API is
+            explicitly NOT RUN.
         console_mode:
           type: string
           enum: [auto, uart0, usb-jtag]

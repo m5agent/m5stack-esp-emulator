@@ -18,11 +18,11 @@ Current scope:
   AtomS3R, PaperColor, PaperMono, StackChan and StamPLC use one combined
   WiFi+BLE+board QEMU lease through their unified profiles; environment-gated
   Core2 adds `core2-unified` through the classic ESP32 OpenMAC/HCI QEMU path;
-- NanoC6 adds `nanoc6-hci-ble`: board peripherals, RMT WS2812/IR and UART1
-  HCI BLE run in one C6 guest, while WiFi remains explicitly `NOT RUN`;
+- NanoC6 adds `nanoc6-hci-ble`: board peripherals, RMT WS2812/IR, QEMU C6
+  WiFi DHCP/HTTP and UART1 HCI BLE run in one C6 guest;
 - Nesso N1 adds `nesso-unified`: display/touch, PI4IOE, power telemetry,
-  BMI270, SX1262, IR, buzzer and UART1 HCI BLE run in one C6 guest, while
-  WiFi remains explicitly `NOT RUN`;
+  BMI270, SX1262, IR, buzzer, QEMU C6 WiFi DHCP/HTTP and UART1 HCI BLE run in
+  one C6 guest;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -311,7 +311,8 @@ serial and `ble-probe.log`.
 This is HCI offload. It does not claim a native ESP32 radio/controller model,
 RF behavior, pairing/security or production throughput.
 
-NanoC6 uses the same HCI-offload boundary without claiming C6 WiFi:
+NanoC6 uses the same one-guest contract for board peripherals, QEMU C6 WiFi
+and HCI-offload BLE:
 
 ```json
 {
@@ -327,14 +328,14 @@ NanoC6 uses the same HCI-offload boundary without claiming C6 WiFi:
 
 The firmware is built with the C6 internal controller disabled and HCI UART1
 on GPIO16/17. The USB-Serial-JTAG console remains on QEMU serial2; UART0 is
-unused and UART1 is attached to Bumble. The service injects GPIO9 press/release
-through QOM and captures WS2812/IR symbols while an external peer completes the
-NUS GATT exchange. `/network` returns
-`kind=m5stack-nanoc6-board-hci-ble-qemu-proof`, with
-`runtime.wifi=NOT RUN` and the reason that the QEMU C6 machine has no WiFi
-MAC/PHY data plane.
+unused and UART1 is attached to Bumble. One QEMU C6 guest runs the
+`misc.esp32c6.wifi` NIC, obtains DHCP through SLiRP, reaches the controlled
+HTTP fixture, and completes the external Bumble NUS exchange. The service
+injects GPIO9 press/release through QOM and captures WS2812/IR symbols.
+`/network` returns
+`kind=m5stack-nanoc6-board-hci-ble-qemu-proof` with unified WiFi and BLE checks.
 
-Nesso N1 extends the same C6 HCI lane to its full board peripheral set:
+Nesso N1 extends the same C6 unified lane to its full board peripheral set:
 
 ```json
 {
@@ -352,8 +353,10 @@ The service waits for the PI4IOE rail setup, injects BQ27220/AW32001 and
 BMI270 QOM values, sends touch and key input, captures a nonblank/touch-redrawn
 135x240 frame, checks SX1262 loopback, RMT IR and buzzer PCM, and waits for an
 external Bumble peer to complete NUS scan/connect/subscribe/write/notify.
+The same guest obtains DHCP, reaches the controlled HTTP fixture and keeps the
+WiFi path active while the external peer completes the NUS exchange.
 `/network` returns
-`kind=m5stack-nesso-board-hci-ble-qemu-proof` with `wifi=NOT RUN`.
+`kind=m5stack-nesso-board-hci-ble-qemu-proof` with unified WiFi and BLE checks.
 
 Core2 also has a combined WiFi and BLE profile through the same board/QMP/
 UART1 instance:
@@ -955,9 +958,9 @@ after a service restart.
 ## Current limitations
 
 - `runtime=network` sessions are diagnostic lanes; StickS3, CoreS3,
-  Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and
-  StamPLC instead use `runtime=qemu-ble` with their unified profiles for
-  one combined guest;
+  Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan,
+  StamPLC, NanoC6 and Nesso N1 instead use `runtime=qemu-ble` with their
+  unified profiles for one combined guest;
 - unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
   HCI-offload over UART1 (UART2 on StackChan), not a native S3 PHY/radio
   model;
@@ -967,12 +970,11 @@ after a service restart.
   `core2-ble-advertise` stops at native controller/advertising control;
   `core2-hci-gatt` closes external Bumble GATT without WiFi but neither is a
   native radio model;
-- NanoC6 `nanoc6-hci-ble` closes board peripherals and UART1 HCI BLE in one
-  C6 guest, but WiFi is `NOT RUN` because the QEMU C6 machine has no WiFi
-  MAC/PHY data plane;
+- NanoC6 `nanoc6-hci-ble` closes board peripherals, QEMU C6 WiFi DHCP/HTTP
+  and UART1 HCI BLE in one C6 guest;
 - Nesso N1 `nesso-unified` adds display/touch, PI4IOE, BQ27220/AW32001,
-  BMI270, SX1262, IR, buzzer and UART1 HCI BLE in one C6 guest. WiFi remains
-  `NOT RUN`; stock Nesso UIFlow2 `hardware.RGB()` also remains `NOT RUN`;
+  BMI270, SX1262, IR, buzzer, QEMU C6 WiFi DHCP/HTTP and UART1 HCI BLE in
+  one C6 guest. Stock Nesso UIFlow2 `hardware.RGB()` remains `NOT RUN`;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the

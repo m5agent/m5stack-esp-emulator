@@ -114,7 +114,8 @@ git apply /path/to/0020-m5ioe1-pa-output-state.patch
 git apply /path/to/0021-esp32s3-uart2-chardev.patch
 git apply /path/to/0022-sticks3-st7789-panel-id.patch
 git apply /path/to/0023-user-firmware-hot-samples.patch
-ninja -C build qemu-system-xtensa
+git apply /path/to/0024-esp32c6-wifi-mac.patch
+ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
 `0005`-`0007` are incremental fixes against the M5StopWatch-QEMU development
@@ -163,6 +164,17 @@ restores coprocessor enable state, separates CO5300 QSPI command framing,
 infers unreliable SPI panel D/C phases from DCS commands and pixel lengths,
 adds the second StamPLC PI4IOE expander with unique QOM names, and attaches
 AtomS3R's ES8311/PI4IOE devices.
+
+`0024-esp32c6-wifi-mac.patch` adds the ESP32-C6 WiFi MAC/PHY register
+windows, RX/TX descriptor rings, interrupt completion and QEMU NIC conversion
+behind `-nic`. It supports the open virtual AP used by the repository tests:
+stock UIFlow2 performs scan, Authentication, Association, DHCP, DNS and a
+controlled or public HTTP request. MODEM_SYSCON at `0x600a9800` is required for
+leaving scan mode; TX queue state and command frame construction are also
+modelled. The patch is validated with NanoC6 and Nesso N1 in the same C6 guest
+as their board peripherals and UART1 HCI BLE path. Apply it after `0023` on
+the M5StopWatch-QEMU ESP32-C6 worktree; it is not a standalone patch against
+the upstream C6 machine.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and

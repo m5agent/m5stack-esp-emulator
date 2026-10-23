@@ -100,8 +100,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/unified_nesso/run_test.py \
 ```
 
 它同时运行 135x240 显示/触摸、PI4IOE、BQ27220/AW32001、BMI270、
-SX1262 回环、RMT IR、蜂鸣器 PCM 和 UART1 HCI BLE。C6 QEMU WiFi 与
-stock `hardware.RGB()` 不在该探针的 PASS 范围内。
+SX1262 回环、RMT IR、蜂鸣器 PCM、QEMU ESP32-C6 WiFi DHCP/HTTP 和
+UART1 HCI BLE。stock `hardware.RGB()` 不在该探针的 PASS 范围内。
 
 StackChan 的 IMU/AW9523/INA226/IR 联合探针：
 

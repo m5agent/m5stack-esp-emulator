@@ -318,7 +318,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(
             capacity["modes"]["qemu-unified"],
-            "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-wifi-ble",
+            "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
         )
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
@@ -529,7 +529,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertTrue(row["features"]["network"])
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-unified"],
-                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-core2-wifi-ble",
+                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-core2-c6-wifi-ble",
                 )
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-wifi"],
@@ -593,7 +593,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 {},
             )
             self.assertEqual(nanoc6["profile"], "nanoc6-hci-ble")
-            self.assertIsNone(nanoc6["nic"])
+            self.assertEqual(nanoc6["nic"], "misc.esp32c6.wifi")
             self.assertEqual(
                 nanoc6["expected_markers"],
                 list(device_service_module.NANOC6_HCI_BLE_MARKERS),
@@ -607,7 +607,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 {},
             )
             self.assertEqual(nesso["profile"], "nesso-unified")
-            self.assertIsNone(nesso["nic"])
+            self.assertEqual(nesso["nic"], "misc.esp32c6.wifi")
             self.assertEqual(
                 nesso["expected_markers"],
                 list(device_service_module.NESSO_UNIFIED_MARKERS),
@@ -1823,7 +1823,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             runtime="qemu-ble",
             network_config={
                 "profile": "nanoc6-hci-ble",
-                "nic": None,
+                "nic": "misc.esp32c6.wifi",
                 "expected_markers": list(
                     device_service_module.NANOC6_HCI_BLE_MARKERS
                 ),
@@ -1836,6 +1836,9 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "NANOC6_HCI_RGB 1 00FF00\n"
             "NANOC6_HCI_BLUE 1\n"
             "NANOC6_HCI_IR 0x56 0xA3\n"
+            "NANOC6_HCI_WIFI_SCAN []\n"
+            "NANOC6_HCI_WIFI_CONNECTED 10.0.2.15\n"
+            "NANOC6_HCI_HTTP_PASS\n"
             "NANOC6_HCI_BUTTON_PRESS\n"
             "NANOC6_HCI_BUTTON_RELEASE\n"
             "NANOC6_HCI_BLE_RX b'M5_NANOC6_HCI'\n"
@@ -1851,6 +1854,9 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "BLE_BUMBLE_WRITE M5_NANOC6_HCI\n"
             "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_NANOC6_HCI\n"
             "BLE_BUMBLE_PASS\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}]) + "\n"
         )
 
         green = 0x00FF00
@@ -1879,7 +1885,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(evidence["status"], "PASS")
         self.assertTrue(all(evidence["checks"].values()))
         self.assertEqual(evidence["runtime"]["hci_transport"], "UART1 H4")
-        self.assertEqual(evidence["runtime"]["wifi"], "NOT RUN")
+        self.assertEqual(
+            evidence["runtime"]["wifi"],
+            "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
+        )
+        self.assertEqual(evidence["http_requests"], [
+            {"path": "/unified", "host": "qemu.test"}
+        ])
         self.assertEqual(evidence["rmt"]["ws2812"]["status"], "PASS")
         self.assertEqual(evidence["rmt"]["nec"]["status"], "PASS")
         self.assertEqual(evidence["gatt"]["name"], "M5-NANOC6-HCI")
@@ -1908,7 +1920,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             runtime="qemu-ble",
             network_config={
                 "profile": "nesso-unified",
-                "nic": None,
+                "nic": "misc.esp32c6.wifi",
                 "expected_markers": list(
                     device_service_module.NESSO_UNIFIED_MARKERS
                 ),
@@ -1942,6 +1954,9 @@ class DeviceServiceUnitTests(unittest.TestCase):
             b"".join(word.to_bytes(4, "little") for word in nec_words)
         )
         session.speaker_pcm.write_bytes(b"\x00\x00\xff\x7f" * 2048)
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}]) + "\n"
+        )
         session.unified_frame_changed = True
         session.frame_metrics = lambda **_kwargs: {  # type: ignore[method-assign]
             "png": b"png",
@@ -1960,7 +1975,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(evidence["status"], "PASS")
         self.assertTrue(all(evidence["checks"].values()))
         self.assertEqual(evidence["runtime"]["hci_transport"], "UART1 H4")
-        self.assertEqual(evidence["runtime"]["wifi"], "NOT RUN")
+        self.assertEqual(
+            evidence["runtime"]["wifi"],
+            "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
+        )
+        self.assertEqual(evidence["http_requests"], [
+            {"path": "/unified", "host": "qemu.test"}
+        ])
         self.assertEqual(evidence["rmt"]["nec"]["status"], "PASS")
         self.assertEqual(evidence["pcm"]["check"]["status"], "PASS")
         self.assertEqual(evidence["gatt"]["name"], "M5-NESSO-UNIFIED")

@@ -126,6 +126,8 @@ PAPERMONO_UNIFIED_PROFILE = "uiflow2-papermono-unified"
 STACKCHAN_UNIFIED_PROFILE = "uiflow2-stackchan-unified"
 STAMPLC_UNIFIED_PROFILE = "uiflow2-stamplc-unified"
 UNIFIED_PROFILES = {
+    NANOC6_HCI_BLE_PROFILE,
+    NESSO_UNIFIED_PROFILE,
     STICKS3_UNIFIED_PROFILE,
     CORES3_UNIFIED_PROFILE,
     CARDPUTER_ADV_UNIFIED_PROFILE,
@@ -138,6 +140,8 @@ UNIFIED_PROFILES = {
     CORE2_UNIFIED_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
+    NANOC6_HCI_BLE_PROFILE: 18090,
+    NESSO_UNIFIED_PROFILE: 18091,
     STICKS3_UNIFIED_PROFILE: 18080,
     CORES3_UNIFIED_PROFILE: 18081,
     CARDPUTER_ADV_UNIFIED_PROFILE: 18082,
@@ -170,6 +174,9 @@ NANOC6_HCI_BLE_MARKERS = (
     "NANOC6_HCI_RGB 1 00FF00",
     "NANOC6_HCI_BLUE 1",
     "NANOC6_HCI_IR 0x56 0xA3",
+    "NANOC6_HCI_WIFI_SCAN",
+    "NANOC6_HCI_WIFI_CONNECTED 10.0.2.15",
+    "NANOC6_HCI_HTTP_PASS",
     "NANOC6_HCI_BUTTON_PRESS",
     "NANOC6_HCI_BUTTON_RELEASE",
     "NANOC6_HCI_BLE_RX",
@@ -185,6 +192,9 @@ NESSO_UNIFIED_MARKERS = (
     "UNIFIED_NESSO_LORA M5LORA",
     "UNIFIED_NESSO_IR 0x56 0xA3",
     "UNIFIED_NESSO_BUZZER 3500",
+    "UNIFIED_NESSO_WIFI_SCAN",
+    "UNIFIED_NESSO_WIFI_CONNECTED 10.0.2.15",
+    "UNIFIED_NESSO_HTTP_PASS",
     "UNIFIED_NESSO_TOUCH",
     "UNIFIED_NESSO_BUTTON 1",
     "UNIFIED_NESSO_BLE_RX",
@@ -265,6 +275,8 @@ UNIFIED_MARKERS = {
     CORE2_UNIFIED_PROFILE: CORE2_UNIFIED_MARKERS,
 }
 UNIFIED_READY_MARKERS = {
+    NANOC6_HCI_BLE_PROFILE: "NANOC6_HCI_READY",
+    NESSO_UNIFIED_PROFILE: "UNIFIED_NESSO_READY",
     STICKS3_UNIFIED_PROFILE: "UNIFIED_STICKS3_READY",
     CORES3_UNIFIED_PROFILE: "UNIFIED_CORES3_READY",
     CARDPUTER_ADV_UNIFIED_PROFILE: "UNIFIED_CARDPUTER_READY",
@@ -277,6 +289,8 @@ UNIFIED_READY_MARKERS = {
     CORE2_UNIFIED_PROFILE: "UNIFIED_CORE2_READY",
 }
 UNIFIED_HTTP_BODIES = {
+    NANOC6_HCI_BLE_PROFILE: b"UNIFIED_NANOC6_OK\n",
+    NESSO_UNIFIED_PROFILE: b"UNIFIED_NESSO_OK\n",
     STICKS3_UNIFIED_PROFILE: b"UNIFIED_STICKS3_OK\n",
     CORES3_UNIFIED_PROFILE: b"UNIFIED_CORES3_OK\n",
     CARDPUTER_ADV_UNIFIED_PROFILE: b"UNIFIED_CARDPUTER_OK\n",
@@ -289,6 +303,8 @@ UNIFIED_HTTP_BODIES = {
     CORE2_UNIFIED_PROFILE: b"UNIFIED_CORE2_OK\n",
 }
 UNIFIED_BLE_IDENTITIES = {
+    "nanoc6": NANOC6_BLE_IDENTITY,
+    "nesso-n1": NESSO_BLE_IDENTITY,
     "sticks3": ("M5-STICKS3-UNIFIED", "M5_STICKS3_UNIFIED"),
     "cores3": ("M5-CORES3-UNIFIED", "M5_CORES3_UNIFIED"),
     "cardputer-adv": ("M5-CPTR-ADV-UNIFIED", "M5_CPTR_ADV"),
@@ -814,7 +830,7 @@ def parse_qemu_ble_execution(
         "nic": (
             "misc.esp32_wifi"
             if spec.id == "core2"
-            else None
+            else "misc.esp32c6.wifi"
             if spec.id in {"nanoc6", "nesso-n1"}
             else "misc.esp32s3.wifi"
         ),
@@ -1770,6 +1786,23 @@ class DeviceSession:
             )
             checks["rmt:ws2812_green"] = ws2812["status"] == "PASS"
             checks["rmt:nec"] = nec["status"] == "PASS"
+            http_requests: list[dict] = []
+            if self._http_fixture is not None:
+                http_requests = [
+                    dict(item) for item in self._http_fixture.requests
+                ]
+            elif self.http_fixture_log.is_file():
+                try:
+                    loaded = json.loads(self.http_fixture_log.read_text())
+                    if isinstance(loaded, list):
+                        http_requests = [
+                            item for item in loaded if isinstance(item, dict)
+                        ]
+                except json.JSONDecodeError:
+                    http_requests = []
+            checks["http:controlled_request"] = http_requests == [
+                {"path": "/unified", "host": "qemu.test"}
+            ]
             if all(checks.values()):
                 status = "PASS"
             elif serial.strip() or probe_log.strip():
@@ -1797,13 +1830,13 @@ class DeviceSession:
                     "hci_transport": "UART1 H4",
                     "ble_controller": "Bumble",
                     "ble_peer": "external Bumble peer",
-                    "wifi": "NOT RUN",
-                    "wifi_reason": (
-                        "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane"
-                    ),
+                    "wifi_nic": self.network_config.get("nic"),
+                    "wifi": "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
+                    "http_fixture": "controlled local endpoint",
                 },
                 "checks": checks,
                 "expected_markers": serial_markers,
+                "http_requests": http_requests,
                 "serial_bytes": len(serial.encode()),
                 "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
                 "peer_log_bytes": len(probe_log.encode()),
@@ -1830,7 +1863,6 @@ class DeviceSession:
                 },
                 "not_claimed": [
                     "real-hardware behavior",
-                    "WiFi on the QEMU ESP32-C6 machine",
                     "native ESP32-C6 Bluetooth controller/radio model",
                     "RF privacy, security, range or performance",
                     "untrusted-firmware sandboxing",
@@ -1917,6 +1949,23 @@ class DeviceSession:
             )
             checks["rmt:nec"] = nec["status"] == "PASS"
             checks["pcm:buzzer"] = pcm["status"] == "PASS"
+            http_requests: list[dict] = []
+            if self._http_fixture is not None:
+                http_requests = [
+                    dict(item) for item in self._http_fixture.requests
+                ]
+            elif self.http_fixture_log.is_file():
+                try:
+                    loaded = json.loads(self.http_fixture_log.read_text())
+                    if isinstance(loaded, list):
+                        http_requests = [
+                            item for item in loaded if isinstance(item, dict)
+                        ]
+                except json.JSONDecodeError:
+                    http_requests = []
+            checks["http:controlled_request"] = http_requests == [
+                {"path": "/unified", "host": "qemu.test"}
+            ]
             try:
                 frame = self.frame_metrics()
                 checks["frame:nonblank"] = frame["nonblack_pixels"] > 100
@@ -1958,13 +2007,13 @@ class DeviceSession:
                     "ble_controller": "Bumble",
                     "ble_peer": "external Bumble peer",
                     "display": "135x240",
-                    "wifi": "NOT RUN",
-                    "wifi_reason": (
-                        "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane"
-                    ),
+                    "wifi_nic": self.network_config.get("nic"),
+                    "wifi": "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
+                    "http_fixture": "controlled local endpoint",
                 },
                 "checks": checks,
                 "expected_markers": serial_markers,
+                "http_requests": http_requests,
                 "serial_bytes": len(serial.encode()),
                 "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
                 "peer_log_bytes": len(probe_log.encode()),
@@ -2002,7 +2051,6 @@ class DeviceSession:
                 },
                 "not_claimed": [
                     "real-hardware behavior",
-                    "WiFi on the QEMU ESP32-C6 machine",
                     "native ESP32-C6 Bluetooth controller/radio model",
                     "RF privacy, security, range or performance",
                     "untrusted-firmware sandboxing",
@@ -5052,12 +5100,18 @@ class DeviceService:
         unified_core2 = (
             CORE2_UNIFIED_PROFILE in self.specs["core2"].network_profiles
         )
+        unified_c6 = (
+            NANOC6_HCI_BLE_PROFILE in self.specs["nanoc6"].network_profiles
+            and NESSO_UNIFIED_PROFILE
+            in self.specs["nesso-n1"].network_profiles
+        )
         qemu_unified = (
             "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-"
             "papercolor-papermono-stackchan-stamplc"
             + ("-core2" if unified_core2 else "")
+            + ("-c6" if unified_c6 else "")
             + "-wifi-ble"
-            if unified_s3 or unified_core2
+            if unified_s3 or unified_core2 or unified_c6
             else "disabled"
         )
         qemu_ble_devices = []

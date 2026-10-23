@@ -750,9 +750,9 @@
         "display_protocol": "none",
         "execution": "native-qemu",
       "validation": {
-        "date": "2026-10-22",
-        "status": "console-rgb-button-led-ir-pass",
-        "detail": "官方 UIFlow2 v2.5.3 在独立 NanoC6 板级 C6 后端运行，M5.begin() 返回板型 140；hardware.RGB 打开 GPIO19 RGBPWR，GPIO20 RMT WS2812 GRB 数据捕获为 00FF00；GPIO9 经 QOM 注入按下/释放并由 machine.Pin 读取；GPIO7 蓝色 LED 开关状态通过 GPIO 输出寄存器验证；hardware.IR TX 捕获并解码为 NEC 0x56/0xA3。"
+        "date": "2026-10-23",
+        "status": "board-peripherals-wifi-ble-pass",
+        "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 hardware.RGB/WS2812、GPIO9 按键、GPIO7 蓝色 LED、RMT NEC 红外、QEMU ESP32-C6 WiFi 扫描/关联/DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner 与 Device Service 单个 qemu-ble lease 均通过。"
       }
       },
       "uiflow2": {
@@ -1091,9 +1091,9 @@
         "display_protocol": "spi-st7789",
         "execution": "native-qemu",
         "validation": {
-          "date": "2026-10-21",
-          "status": "display-touch-power-io-ir-imu-lora-pass",
-          "detail": "官方 UIFlow2 v2.5.3 渲染 135x240 UI；触摸/按键、双 PI4IOE、BQ27220、AW32001、ESP32-C6 RMT NEC 红外、BMI270 加速度/角速度和 SX1262 LoRa 收发均完成总线闭环。"
+        "date": "2026-10-23",
+        "status": "display-touch-peripherals-wifi-ble-pass",
+        "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 135x240 显示、触摸/按键、PI4IOE、BQ27220/AW32001、BMI270、SX1262 LoRa、RMT 红外、I2S 蜂鸣器、QEMU ESP32-C6 WiFi DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner 与 Device Service 单个 qemu-ble lease 均通过，stock hardware.RGB() 仍为 NOT RUN。"
         }
       },
       "uiflow2": {

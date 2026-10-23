@@ -4,25 +4,10 @@
   "status": "PASS",
   "device_id": "nanoc6",
   "profile": "nanoc6-board-hci-ble",
-  "consecutive_passes": 3,
-  "runs": [
-    {
-      "serial_sha256": "a4bc1f59ced30d4827d20c4628b119f7a25ab24f881acbb04414f97dc4628d38",
-      "peer_log_sha256": "2e58883b3797cb2a6a084c469125128aa74dd0959d9f28dad9d8a93eb52bbd37"
-    },
-    {
-      "serial_sha256": "a4bc1f59ced30d4827d20c4628b119f7a25ab24f881acbb04414f97dc4628d38",
-      "peer_log_sha256": "422ae29cf99aa586aa38f68f25d15263064a4ed83b06d0ffc4c35bf6da4e74ed"
-    },
-    {
-      "serial_sha256": "a4bc1f59ced30d4827d20c4628b119f7a25ab24f881acbb04414f97dc4628d38",
-      "peer_log_sha256": "599e7037a81d1fd35f6454b7fb9525e9c46fceca96ee47405006cbbe72811034"
-    }
-  ],
   "firmware": {
-    "path": "/private/tmp/m5-nanoc6-hci-ble.bin",
+    "path": "/private/tmp/m5-nanoc6-unified-wifi-ble-service.bin",
     "bytes": 4194304,
-    "sha256": "6335a6d18d9a6c43f0dcda67e9692beed5a72a9e6ca18e1830dc91d25e87efc9"
+    "sha256": "c1c8bb84266fa1dcb337ddd6a629f95dccbe586452c77bcf894161dc238e0b05"
   },
   "checks": {
     "serial:NANOC6_HCI_BOARD 140": true,
@@ -37,6 +22,9 @@
     "serial:NANOC6_HCI_BLE_READY": true,
     "serial:NANOC6_HCI_BLE_RX": true,
     "serial:NANOC6_HCI_BLE_ACK_SENT": true,
+    "serial:NANOC6_HCI_WIFI_SCAN": true,
+    "serial:NANOC6_HCI_WIFI_CONNECTED 10.0.2.15": true,
+    "serial:NANOC6_HCI_HTTP_PASS": true,
     "peer:BLE_BUMBLE_FOUND": true,
     "peer:BLE_BUMBLE_CONNECTED": true,
     "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
@@ -44,6 +32,7 @@
     "peer:BLE_BUMBLE_WRITE": true,
     "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
     "peer:BLE_BUMBLE_PASS": true,
+    "http:controlled_request": true,
     "gpio:rgb_power": true,
     "gpio:blue_on": true,
     "gpio:button_idle_high": true,
@@ -70,38 +59,27 @@
     "ws2812_check": "WS2812 PASS expected=00ff00 offset=16",
     "nec_check": "PASS NEC offset=48 address=0x56 command=0xa3"
   },
-  "serial_bytes": 739,
-  "serial_sha256": "a4bc1f59ced30d4827d20c4628b119f7a25ab24f881acbb04414f97dc4628d38",
+  "serial_bytes": 1160,
+  "serial_sha256": "28ceb3e9b97814ef4085ff1f089b554a74dbbe94631b30c2e822a640b783d427",
   "peer_log_bytes": 4472,
-  "peer_log_sha256": "a1e72b2daad2599f08a5ba8eceaaa8439c76c968d304b5ba7bc7831f44fb2b59",
+  "peer_log_sha256": "b5c90ea70709464c1c1e11f5c5a76d9eb8df16771b8113fa7c61cfc5931d5551",
+  "http_requests": [
+    {
+      "path": "/unified",
+      "host": "qemu.test"
+    }
+  ],
   "network": {
-    "wifi": "NOT RUN",
-    "wifi_reason": "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane",
-    "ble": "PASS via UART1 HCI offload"
-  },
-  "device_service": {
-    "profile": "nanoc6-hci-ble",
-    "status": "PASS",
-    "guest_process_count": 1,
-    "evidence_zip_sha256": "3feb4e8f06772a334c3848e943866ca966f2239d3ffc3e32a3fb957983e8e457"
-  },
-  "full_matrix": {
-    "status": "PARTIAL_KNOWN_INTERMITTENT",
-    "initial": {
-      "pass": 65,
-      "fail": 2,
-      "failed_cases": ["stamplc-peripherals", "core2-peripherals"]
-    },
-    "retries": [
-      {"case": "stamplc-peripherals", "attempt": 1, "status": "PASS"},
-      {"case": "core2-peripherals", "attempt": 1, "status": "FAIL"},
-      {"case": "core2-peripherals", "attempt": 2, "status": "PASS"}
+    "wifi": "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
+    "wifi_markers": [
+      "NANOC6_HCI_WIFI_SCAN",
+      "NANOC6_HCI_WIFI_CONNECTED 10.0.2.15",
+      "NANOC6_HCI_HTTP_PASS"
     ],
-    "note": "The two initial failures are pre-existing non-C6 intermittent cases; the full run is not reported as 67/67."
+    "ble": "PASS via UART1 HCI offload"
   },
   "not_claimed": [
     "real-hardware behavior",
-    "WiFi on the QEMU C6 machine",
     "native ESP32-C6 Bluetooth controller/radio model",
     "RF privacy, security, range or performance"
   ]

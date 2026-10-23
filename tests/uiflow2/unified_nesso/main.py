@@ -2,6 +2,8 @@
 
 import M5
 import machine
+import network
+import socket
 import time
 from M5 import *
 from hardware import IR
@@ -10,6 +12,10 @@ from machine import Pin, SoftI2C
 
 
 BLE_NAME = "M5-NESSO-UNIFIED"
+WIFI_SSID = "myssid"
+WIFI_BSSID = b"\x10\x01\x00\xc4\x0a\x50"
+HTTP_HOST = "10.0.2.2"
+HTTP_PORT = 18091
 EXPECTED_POWER = (100, 4300, 1)
 EXPECTED_ACCEL = (0.25, -0.50, 0.75)
 EXPECTED_GYRO = (10.0, -20.0, 30.0)
@@ -88,6 +94,51 @@ def wait_imu(timeout_ms=8000):
     raise RuntimeError("imu timeout %r %r" % (accel, gyro))
 
 
+def connect_wifi():
+    station = network.WLAN(network.STA_IF)
+    station.active(True)
+    time.sleep_ms(500)
+    access_points = station.scan()
+    print("UNIFIED_NESSO_WIFI_SCAN", repr(access_points))
+    station.connect(WIFI_SSID, "", bssid=WIFI_BSSID)
+    deadline = time.ticks_add(time.ticks_ms(), 20000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        M5.update()
+        if station.isconnected():
+            address = station.ifconfig()[0]
+            print("UNIFIED_NESSO_WIFI_CONNECTED", address)
+            return station
+        time.sleep_ms(100)
+    raise RuntimeError("WiFi connection timed out")
+
+
+def probe_http():
+    connection = socket.socket()
+    connection.settimeout(10)
+    try:
+        connection.connect((HTTP_HOST, HTTP_PORT))
+        connection.send(
+            b"GET /unified HTTP/1.0\r\nHost: qemu.test\r\n\r\n"
+        )
+        response = bytearray()
+        while b"UNIFIED_NESSO_OK" not in response and len(response) < 2048:
+            chunk = connection.recv(512)
+            if not chunk:
+                break
+            response.extend(chunk)
+        response = bytes(response)
+        print("UNIFIED_NESSO_HTTP", repr(response))
+        if (
+            not response.startswith(b"HTTP/")
+            or b"200 OK" not in response
+            or b"UNIFIED_NESSO_OK" not in response
+        ):
+            raise RuntimeError("controlled HTTP response is invalid")
+        print("UNIFIED_NESSO_HTTP_PASS")
+    finally:
+        connection.close()
+
+
 print("UNIFIED_NESSO_MAIN")
 M5.begin()
 print("UNIFIED_NESSO_BOARD", M5.getBoard())
@@ -164,6 +215,9 @@ time.sleep_ms(100)
 if not Speaker.isPlaying():
     raise RuntimeError("buzzer not playing")
 print("UNIFIED_NESSO_BUZZER 3500")
+
+connect_wifi()
+probe_http()
 
 from bleuart import BLEUARTServer
 

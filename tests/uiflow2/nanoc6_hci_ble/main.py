@@ -2,8 +2,61 @@
 
 import M5
 import machine
+import network
+import socket
 import time
 from hardware import IR, RGB
+
+
+WIFI_SSID = "myssid"
+WIFI_BSSID = b"\x10\x01\x00\xc4\x0a\x50"
+HTTP_HOST = "10.0.2.2"
+HTTP_PORT = 18090
+
+
+def connect_wifi():
+    station = network.WLAN(network.STA_IF)
+    station.active(True)
+    time.sleep_ms(500)
+    access_points = station.scan()
+    print("NANOC6_HCI_WIFI_SCAN", repr(access_points))
+    station.connect(WIFI_SSID, "", bssid=WIFI_BSSID)
+    deadline = time.ticks_add(time.ticks_ms(), 20000)
+    while time.ticks_diff(deadline, time.ticks_ms()) > 0:
+        M5.update()
+        if station.isconnected():
+            address = station.ifconfig()[0]
+            print("NANOC6_HCI_WIFI_CONNECTED", address)
+            return station
+        time.sleep_ms(100)
+    raise RuntimeError("WiFi connection timed out")
+
+
+def probe_http():
+    connection = socket.socket()
+    connection.settimeout(10)
+    try:
+        connection.connect((HTTP_HOST, HTTP_PORT))
+        connection.send(
+            b"GET /unified HTTP/1.0\r\nHost: qemu.test\r\n\r\n"
+        )
+        response = bytearray()
+        while b"UNIFIED_NANOC6_OK" not in response and len(response) < 2048:
+            chunk = connection.recv(512)
+            if not chunk:
+                break
+            response.extend(chunk)
+        response = bytes(response)
+        print("NANOC6_HCI_HTTP", repr(response))
+        if (
+            not response.startswith(b"HTTP/")
+            or b"200 OK" not in response
+            or b"UNIFIED_NANOC6_OK" not in response
+        ):
+            raise RuntimeError("controlled HTTP response is invalid")
+        print("NANOC6_HCI_HTTP_PASS")
+    finally:
+        connection.close()
 
 
 print("NANOC6_HCI_MAIN")
@@ -27,6 +80,9 @@ print("NANOC6_HCI_IR 0x56 0xA3")
 
 button = machine.Pin(9, machine.Pin.IN, machine.Pin.PULL_UP)
 print("NANOC6_HCI_BUTTON_READY")
+
+connect_wifi()
+probe_http()
 
 from bleuart import BLEUARTServer
 

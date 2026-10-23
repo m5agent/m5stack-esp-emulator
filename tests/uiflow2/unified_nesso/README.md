@@ -2,12 +2,11 @@
 
 This probe runs the Nesso N1 135x240 ST7789 display and touch, PI4IOE power
 rails and button input, BQ27220 gauge, AW32001 charger status, BMI270,
-SX1262 LoRa loopback, GPIO9 NEC IR, GPIO11 buzzer and UART1 HCI BLE in one
-ESP32-C6 QEMU guest.
+SX1262 LoRa loopback, GPIO9 NEC IR, GPIO11 buzzer, QEMU ESP32-C6 WiFi
+scan/association/DHCP/HTTP and UART1 HCI BLE in one ESP32-C6 QEMU guest.
 
-WiFi is intentionally `NOT RUN`: the QEMU C6 machine still has no C6 WiFi
-MAC/PHY data plane. BLE is an HCI-offload path to Bumble, not a native C6
-controller/radio claim.
+The network lane uses the repository's open virtual AP and QEMU user networking.
+BLE is an HCI-offload path to Bumble, not a native C6 controller/radio claim.
 
 Build configuration:
 

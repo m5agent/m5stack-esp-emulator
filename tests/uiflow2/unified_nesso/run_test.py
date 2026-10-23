@@ -9,7 +9,9 @@ import os
 import socket
 import subprocess
 import sys
+import threading
 import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -29,6 +31,7 @@ DEFAULT_QEMU = (
 DEFAULT_ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu-c6/pc-bios"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
 FLASH_SIZE = 16 << 20
+HTTP_PORT = 18091
 
 SERIAL_MARKERS = (
     "UNIFIED_NESSO_BOARD 23",
@@ -39,6 +42,9 @@ SERIAL_MARKERS = (
     "UNIFIED_NESSO_LORA M5LORA",
     "UNIFIED_NESSO_IR 0x56 0xA3",
     "UNIFIED_NESSO_BUZZER 3500",
+    "UNIFIED_NESSO_WIFI_SCAN",
+    "UNIFIED_NESSO_WIFI_CONNECTED 10.0.2.15",
+    "UNIFIED_NESSO_HTTP_PASS",
     "UNIFIED_NESSO_BLE_READY",
     "UNIFIED_NESSO_READY",
     "UNIFIED_NESSO_TOUCH",
@@ -97,6 +103,43 @@ def stop_process(process: subprocess.Popen | None) -> None:
     except subprocess.TimeoutExpired:
         process.kill()
         process.wait(timeout=5)
+
+
+class ControlledHttp:
+    def __init__(self, port: int):
+        self.requests: list[dict[str, str]] = []
+        owner = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                owner.requests.append(
+                    {"path": self.path, "host": self.headers.get("Host", "")}
+                )
+                body = b"UNIFIED_NESSO_OK\n"
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, _format: str, *_args: object) -> None:
+                return
+
+        self.server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+        self.thread = threading.Thread(
+            target=self.server.serve_forever,
+            name="nesso-unified-http",
+            daemon=True,
+        )
+
+    def __enter__(self) -> "ControlledHttp":
+        self.thread.start()
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=5)
 
 
 def run_check(
@@ -159,10 +202,12 @@ def main() -> int:
     peer_process: subprocess.Popen | None = None
     qemu: subprocess.Popen | None = None
     qmp = None
+    http_probe: ControlledHttp | None = None
     terminal = "timeout"
     before = None
     after = None
     try:
+        http_probe = ControlledHttp(HTTP_PORT).__enter__()
         with peer_path.open("wb") as peer_log:
             peer_process = subprocess.Popen(
                 [
@@ -200,7 +245,7 @@ def main() -> int:
             "-M",
             "esp32c6",
             "-drive",
-            f"file={image},if=mtd,format=raw",
+            f"file={image},if=mtd,format=raw,snapshot=on",
             "-L",
             str(args.rom_dir),
             "-display",
@@ -218,6 +263,8 @@ def main() -> int:
             f"file:{serial_path}",
             "-qmp",
             f"unix:{qmp_path},server=on,wait=off",
+            "-nic",
+            "user,model=misc.esp32c6.wifi,id=wifi0",
         ]
         with (out / "qemu.stdout").open("wb") as stdout, (
             out / "qemu.stderr"
@@ -274,6 +321,8 @@ def main() -> int:
         stop_process(qemu)
         stop_process(peer_process)
         qmp_path.unlink(missing_ok=True)
+        if http_probe is not None:
+            http_probe.__exit__(None, None, None)
 
     serial_bytes = serial_path.read_bytes()
     serial = serial_bytes.decode(errors="replace")
@@ -304,9 +353,12 @@ def main() -> int:
         and after is not None
         and before[2] != after[2]
     )
+    http_requests = list(http_probe.requests) if http_probe is not None else []
     checks = {
         **{f"serial:{marker}": marker in serial for marker in SERIAL_MARKERS},
         **{f"peer:{marker}": marker in peer for marker in PEER_MARKERS},
+        "http:controlled_request": http_requests
+        == [{"path": "/unified", "host": "qemu.test"}],
         "frame:nonblank": before_stats[0] > 100,
         "frame:touch_redraw": frame_changed,
         "rmt:nec": rmt_nec["status"] == "PASS",
@@ -352,9 +404,9 @@ def main() -> int:
         "serial_sha256": sha256(serial_bytes),
         "peer_log_bytes": len(peer_bytes),
         "peer_log_sha256": sha256(peer_bytes),
+        "http_requests": http_requests,
         "network": {
-            "wifi": "NOT RUN",
-            "wifi_reason": "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane",
+            "wifi": "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
             "ble": "PASS via UART1 HCI offload",
         },
         "gatt": {
@@ -365,7 +417,6 @@ def main() -> int:
         },
         "not_claimed": [
             "real-hardware behavior",
-            "WiFi on the QEMU ESP32-C6 machine",
             "native ESP32-C6 Bluetooth controller/radio model",
             "RF privacy, security, range or performance",
         ],
