@@ -112,6 +112,9 @@ evidence 中成立。
 - `HCI-3b` 可发现、连接并完成首个 ATT request/response；第二个 ATT
   request 后 guest 报 `HCI process ack returned 12` 并 Reset，完整
   HCI/GATT sequence 失败。
+- API-boundary 审计证明 GDB 路径是在 `API_vhci_host_send_packet` 入口
+  bypass 内部 controller。实验中的 QEMU API hook 已完成广播、连接、NUS
+  discovery 和订阅，但最终 write/notify transaction 仍超时；实验代码未保留。
 - 现有 GDB VHCI bridge 的 repeated Device Service lease 为 `1/2`，不能作为
   生产门禁。
 - 尚无 guest-visible controller-to-host queue/IRQ 的完整 packet order、
@@ -120,7 +123,8 @@ evidence 中成立。
 下一项最小交付：
 
 1. 从 firmware/ELF/QEMU 状态建立 VHCI C2H queue、status 和 IRQ 的真实语义。
-2. 由 QEMU device 入队并 raise IRQ，让 guest 自己的 ISR/task 消费；或实现
+2. 在 `API_vhci_host_send_packet` 入口建立显式 H2C→C2H transaction，由
+   QEMU device 入队并 raise IRQ，让 guest 自己的 ISR/task 消费；或实现
    明确事务化的 in-process controller。
 3. 先让 scan/connect/service discovery/subscribe/write/notify 不靠 retry
    稳定通过，再用 Device Service 连续 `5/5`。

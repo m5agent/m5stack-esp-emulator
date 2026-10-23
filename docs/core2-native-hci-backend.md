@@ -221,9 +221,32 @@ controller-entry audit 进一步确认 `r_eif_send → vhci_send` 是 firmware
 
 两次审计实验均未保留；QEMU 补丁 reverse-check 为 `PASS`。
 
+#### API boundary 审计
+
+后续对照 GDB 5/5 路径与 native-HCI 失败路径，确认两者在 H2C 边界上并不同：
+
+- GDB 桥在 `API_vhci_host_send_packet` 入口截获真实参数并直接返回，固件内部
+  controller 不参与 HCI transaction；
+- native-HCI 仅监听 VHCI shared-memory 长度写入，固件内部 controller 与
+  Bumble 同时推进状态，第二个 ATT request 后发生 ACK 12/Reset；
+- 在 Xtensa `entry` 指令之前，`WINDOW_BASE` 仍在 caller；GDB `return`
+  把 PC 放回 wrapper call site 而不旋转窗口。QEMU hook 旋转窗口会造成
+  cache-disabled panic。
+
+实验性 QEMU CPU hook 使用正确的 pre-entry 返回语义后，完成了广播、连接、
+NUS service discovery 和 CCCD subscription，H2C parser error/drop 均为 0，
+外部 peer 也发出了 NUS write；但最后一个 guest write/notify callback 事务
+未完成。改变 nested callback step budget 只移动失败点，没有闭环。
+
+证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json`。
+实验代码未保留，`HCI-3b` 仍为 `FAIL`，不能把这次 partial 结果写成蓝牙后端完成。
+
 下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
 调整固定 sleep、CPU pinning、寄存器补丁或 nested guest RPC：
 
+- 在 `API_vhci_host_send_packet` 边界建立显式 transaction，避免内部 controller
+  和外部 controller 同时拥有同一 packet；
 - 增加 guest 可见的 controller-to-host queue/status 寄存器并 raise IRQ；
 - 在 H2C send 与对应 C2H response 之间保持可验证的 transaction；
 - 让 guest firmware 自己的 ISR/worker 在有效 cache 和 task 上下文中消费；

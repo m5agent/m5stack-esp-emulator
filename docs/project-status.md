@@ -67,7 +67,7 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions Linux policy CI PASS | 远程 QEMU worker、活动进程 re-attach、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB `run_full.py` 已到广播/连接和首个 ATT 交互，但第二个 ATT request 后 guest `ack returned 12` 并 Reset；任意 safe-point callback 与 nested `r_eif_send` 均已证伪并回退。下一步是实现 C2H device/IRQ queue 或 in-process controller transaction，随后 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB internal-controller relay 在第二个 ATT request 后 `ack returned 12` 并 Reset。API-boundary 审计已完成广播、连接、NUS discovery 和订阅，但最终 write/notify 事务仍失败；safe-point callback 与 nested `r_eif_send` 均已证伪并回退。下一步是实现显式 API transaction + C2H device/IRQ queue，随后 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
 
 ## 工作流入口
@@ -135,7 +135,7 @@
   | `HCI-1` transport | `PASS` | 分片 ACL、32 packet bounded queue、overflow、peer close、counters 和 clean shutdown |
   | `HCI-2` H2C | `PARTIAL` | 不启动 GDB，已捕获真实 stock HCI Reset `01030c00`；后续 H2C 依赖 controller response |
   | `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | 真实 Bumble Reset Complete 经 firmware `notify_host_recv` 交付，callback status 0；send-available 后 guest 从 HCI Reset 推进到 Read Local Version，targeted `5/5`。后续审计不支持把它当作产品后端 |
-  | `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | Bumble 能到广播/连接和首个 ATT request/response；第二个 ATT request 后 ack 12 并 Reset。任意 safe-point callback 与 nested `r_eif_send` 均已证伪并回退，必须改走 device/IRQ queue 或 in-process controller |
+  | `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | internal-controller relay 在第二个 ATT request 后 ack 12 并 Reset；API-boundary hook 已完成广播、连接、NUS discovery 和订阅，但 final write/notify transaction 超时。必须改走显式 API transaction + device/IRQ queue |
   | `HCI-4` stability | `OPEN` | 尚无以 Device Service `/api/v1` 连续 `5/5`、无 GDB callback/synthetic return 的完整 GATT 门禁 |
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和

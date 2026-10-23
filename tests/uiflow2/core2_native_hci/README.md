@@ -16,7 +16,7 @@ controller/baseband or prove a complete GATT sequence.
 | `HCI-1` host transport | `PASS` | `evidence-2026-10-24-transport-pass.json` |
 | `HCI-2` guest H2C | `PARTIAL` | `evidence-2026-10-24-guest-h2c.json`; first Reset only |
 | `HCI-3a` guest C2H callback | `DIAGNOSTIC PASS` | `evidence-2026-10-24-c2h-delivery.json` and `evidence-2026-10-24-c2h-delivery-5x.json`; Reset Complete then next H2C. This narrow callback route is not the production C2H backend |
-| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | `evidence-2026-10-24-hci3b-diagnostic.json`; connection succeeds, second ATT request precedes guest HCI Reset |
+| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | Internal-controller relay resets after the second ATT request. The API-boundary audit reaches GATT discovery and subscription but stalls in the final write/notify transaction |
 | `HCI-4` repeated lease | `OPEN` | Still provided by the GDB diagnostic bridge at `1/2` |
 
 Build the patched QEMU, then run:
@@ -106,3 +106,32 @@ acknowledgement. That confirms `vhci_send` is not a direct H4 packet-ingest
 entry point and the experiment is not part of this patch. The committed path
 uses the firmware-observed callback contract and QOM
 queued/delivered/error/status counters.
+
+## API-boundary audit
+
+The internal-controller relay and the external Bumble controller cannot both
+own the same VHCI transaction. A later no-GDB experiment installed a QEMU CPU
+hook at `API_vhci_host_send_packet`, captured the real H2C arguments directly,
+returned at the wrapper call site, and kept the firmware controller out of the
+data path.
+
+The GDB diagnostic established the required pre-entry return contract:
+
+- API PC is `0x403064d8`;
+- the wrapper call site is `0x402670a8`;
+- `WINDOW_BASE` remains unchanged at the breakpoint;
+- rotating the Xtensa window at this pre-entry point corrupts the caller and
+  causes a cache-disabled panic.
+
+With the corrected return semantics, the best API-hook run completed
+advertisement, connection, NUS service discovery and CCCD subscription without
+HCI parser errors or dropped packets. Bumble sent the NUS write, but the final
+guest callback/notification transaction did not complete. This is a partial
+advance, not an `HCI-3b` PASS.
+
+Evidence:
+`evidence-2026-10-24-hci3b-api-boundary-audit.json`.
+
+The next implementation must make H2C send, matching C2H delivery,
+`notify_host_recv`, and `notify_host_send_available` one explicit transaction.
+It cannot depend on nested guest `cpu_exec()` timing or an idle safe point.

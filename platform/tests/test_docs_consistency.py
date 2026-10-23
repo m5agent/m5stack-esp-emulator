@@ -48,6 +48,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-diagnostic.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-safe-point-audit.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-controller-entry-audit.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
@@ -656,6 +657,24 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(
             controller_entry["qemu_patch_reverse_check"],
             "PASS",
+        )
+        api_boundary = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci3b-api-boundary-audit.json"
+            ).read_text()
+        )
+        self.assertEqual(api_boundary["stage"], "HCI-3b")
+        self.assertEqual(api_boundary["status"], "FAIL")
+        partial = api_boundary["observations"]["api_breakpoint_partial"]
+        self.assertTrue(partial["gatt_discovered"])
+        self.assertTrue(partial["notification_subscribed"])
+        self.assertFalse(partial["guest_received_write"])
+        self.assertFalse(api_boundary["findings"]["retained"])
+        self.assertIn(
+            "API boundary",
+            (DOCS / "core2-native-hci-backend.md").read_text(),
         )
         for document in (status, workstreams, backlog, code_map):
             self.assertIn("safe-point", document)
