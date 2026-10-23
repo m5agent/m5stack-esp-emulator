@@ -78,6 +78,8 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   Space, Tab, Backspace and FN-arrow combinations.
 - CS-gated direct SPI panel ID reads so M5GFX autodetection probes using
   unselected pin groups do not all observe the same ST7789 identity.
+- StickS3 panel identification as ST7789 (`0x81`) instead of inheriting the
+  generic ST7735 (`0x7683`) ID, which made M5GFX select a 128x128 AtomS3R path.
 - An ESP32-S3 WiFi MAC/DMA device at `0x60033000` sharing the OpenMAC WLAN
   access-point/data-frame state machine with the classic ESP32 model. It uses
   the S3 RX/TX descriptor layout, S3 RX metadata header, WLAN interrupt source
@@ -110,6 +112,7 @@ git apply /path/to/qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch
 git apply /path/to/0019-esp32s3-wifi-mac.patch
 git apply /path/to/0020-m5ioe1-pa-output-state.patch
 git apply /path/to/0021-esp32s3-uart2-chardev.patch
+git apply /path/to/0022-sticks3-st7789-panel-id.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -144,6 +147,12 @@ must not be used as a StopWatch proxy.
 QEMU's third serial chardev. StackChan uses it for external HCI because UART1
 is dedicated to the SCS servo bus. Without the mapping, guest HCI commands
 were write-only and NimBLE timed out waiting for a controller acknowledgement.
+
+`0022-sticks3-st7789-panel-id.patch` changes StickS3's modelled panel identity
+from the generic ST7735 `0x7683` default to the ST7789 `0x81` family. With the
+old value, M5GFX's LGA56 autodetection accepted the AtomS3R probe and mapped
+the application through a 128x128 ST7735 panel; a normal 240x135 StickS3 layout
+therefore appeared as only a clipped corner.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and
