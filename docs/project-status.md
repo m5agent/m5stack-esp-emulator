@@ -116,7 +116,8 @@
   门禁；在此之前不再把 GDB 桥单次 PASS 写成稳定能力。
   HCI-1 的 QEMU chardev/H4 transport-only 切片已通过分片 ACL、32 packet
   bounded queue、overflow、peer close 和 clean shutdown；guest VHCI
-  H2C/C2H 尚未接入。
+  方向已在不启动 GDB 的情况下捕获真实 stock HCI Reset `01030c00`；
+  C2H 尚未回送 guest，完整命令序列仍开放。
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
   `/after` HTTP。

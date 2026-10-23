@@ -73,6 +73,16 @@ python3 tests/uiflow2/core2_native_hci/test_transport.py
 和 shutdown，不验证 guest VHCI/BLE。设计和阶段门禁见
 `docs/core2-native-hci-backend.md`。
 
+guest H2C capture 切片：
+
+```bash
+python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
+  --image /path/to/stock/core2-uiflow2.bin
+```
+
+它不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset
+`01030c00` 并送到外部 peer。C2H 尚未回送 guest，因此不是 BLE PASS。
+
 Core2 peripheral 和 device matrix 现在都显式使用
 `tcg,thread=single` + `icount shift=auto,align=off,sleep=off`。matrices
 不再配置自动重试；若 case 声明 `retries`，runner 默认拒绝运行，只有显式

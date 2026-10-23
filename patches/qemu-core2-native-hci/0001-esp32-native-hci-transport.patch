@@ -2,7 +2,7 @@ diff --git a/include/hw/xtensa/esp32_native_hci.h b/include/hw/xtensa/esp32_nati
 new file mode 100644
 --- /dev/null
 +++ b/include/hw/xtensa/esp32_native_hci.h
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,66 @@
 +/*
 + * Classic ESP32 native HCI transport.
 + *
@@ -16,6 +16,7 @@ new file mode 100644
 +
 +#include "chardev/char-fe.h"
 +#include "hw/qdev-core.h"
++#include "qemu/timer.h"
 +#include "qom/object.h"
 +
 +#define TYPE_ESP32_NATIVE_HCI "esp32-native-hci"
@@ -34,6 +35,7 @@ new file mode 100644
 +    DeviceState parent_obj;
 +
 +    CharBackend chr;
++    QEMUTimer *poll_timer;
 +    Esp32NativeHciPacket tx_queue[ESP32_NATIVE_HCI_QUEUE_DEPTH];
 +    Esp32NativeHciPacket rx_queue[ESP32_NATIVE_HCI_QUEUE_DEPTH];
 +    uint8_t rx_buffer[ESP32_NATIVE_HCI_RX_BUFFER_SIZE];
@@ -44,6 +46,10 @@ new file mode 100644
 +    uint32_t tx_queue_head;
 +    uint32_t tx_queue_count;
 +    uint32_t last_error;
++    uint64_t env_pointer_address;
++    uint64_t last_h2c_signature;
++    uint32_t last_h2c_length;
++    bool h2c_armed;
 +
 +    uint64_t rx_bytes;
 +    uint64_t rx_packets;
@@ -53,6 +59,9 @@ new file mode 100644
 +    uint64_t dropped_packets;
 +    uint64_t peer_opened;
 +    uint64_t peer_closed;
++    uint64_t h2c_packets;
++    uint64_t h2c_bytes;
++    uint64_t h2c_duplicates;
 +};
 +
 +bool esp32_native_hci_send_h2c(Esp32NativeHciState *s,
@@ -64,7 +73,7 @@ diff --git a/hw/xtensa/esp32_native_hci.c b/hw/xtensa/esp32_native_hci.c
 new file mode 100644
 --- /dev/null
 +++ b/hw/xtensa/esp32_native_hci.c
-@@ -0,0 +1,285 @@
+@@ -0,0 +1,410 @@
 +/*
 + * Classic ESP32 native HCI transport.
 + *
@@ -75,8 +84,12 @@ new file mode 100644
 + * SPDX-License-Identifier: GPL-2.0-or-later
 + */
 +#include "qemu/osdep.h"
++#include "qemu/log.h"
 +#include "qemu/module.h"
++#include "qemu/timer.h"
 +#include "qapi/error.h"
++#include "exec/address-spaces.h"
++#include "exec/memory.h"
 +#include "hw/qdev-properties.h"
 +#include "hw/qdev-properties-system.h"
 +#include "hw/xtensa/esp32_native_hci.h"
@@ -87,6 +100,10 @@ new file mode 100644
 +    ESP32_NATIVE_HCI_ERROR_QUEUE_FULL = 2,
 +    ESP32_NATIVE_HCI_ERROR_WRITE = 3,
 +};
++
++#define ESP32_VHCI_ENV_BUFFER_OFFSET 40
++#define ESP32_VHCI_ENV_LENGTH_OFFSET 0x4d8
++#define ESP32_VHCI_POLL_INTERVAL_NS 100000
 +
 +static size_t h4_packet_length(const uint8_t *data, size_t available)
 +{
@@ -210,6 +227,84 @@ new file mode 100644
 +    }
 +}
 +
++static uint64_t h2c_signature(const uint8_t *data, size_t size)
++{
++    uint64_t value = 1469598103934665603ULL;
++
++    for (size_t i = 0; i < size; i++) {
++        value ^= data[i];
++        value *= 1099511628211ULL;
++    }
++    return value ^ ((uint64_t)size << 32);
++}
++
++static void esp32_native_hci_poll(void *opaque)
++{
++    Esp32NativeHciState *s = opaque;
++    uint32_t env = 0;
++    uint32_t length = 0;
++    uint8_t packet[ESP32_NATIVE_HCI_PACKET_MAX];
++    uint64_t signature;
++    Error *error = NULL;
++
++    if (!s->env_pointer_address) {
++        return;
++    }
++    if (address_space_read(&address_space_memory,
++                           s->env_pointer_address,
++                           MEMTXATTRS_UNSPECIFIED,
++                           &env, sizeof(env)) != MEMTX_OK ||
++        !env) {
++        goto reschedule;
++    }
++    if (address_space_read(&address_space_memory,
++                           env + ESP32_VHCI_ENV_LENGTH_OFFSET,
++                           MEMTXATTRS_UNSPECIFIED,
++                           &length, sizeof(length)) != MEMTX_OK) {
++        goto reschedule;
++    }
++    if (!length) {
++        s->h2c_armed = true;
++        goto reschedule;
++    }
++    if (length > ESP32_NATIVE_HCI_PACKET_MAX ||
++        address_space_read(&address_space_memory,
++                           env + ESP32_VHCI_ENV_BUFFER_OFFSET,
++                           MEMTXATTRS_UNSPECIFIED,
++                           packet, length) != MEMTX_OK) {
++        goto reschedule;
++    }
++    signature = h2c_signature(packet, length);
++    if (!s->h2c_armed &&
++        s->last_h2c_length == length &&
++        s->last_h2c_signature == signature) {
++        s->h2c_duplicates++;
++        goto reschedule;
++    }
++    if (!esp32_native_hci_send_h2c(s, packet, length, &error)) {
++        qemu_log_mask(LOG_GUEST_ERROR,
++                      "esp32-native-hci: H2C capture failed: %s\n",
++                      error_get_pretty(error));
++        error_free(error);
++        goto reschedule;
++    }
++    s->h2c_armed = false;
++    s->last_h2c_length = length;
++    s->last_h2c_signature = signature;
++    s->h2c_packets++;
++    s->h2c_bytes += length;
++    qemu_log_mask(LOG_UNIMP,
++                  "esp32-native-hci: H2C packet=%s len=%u\n",
++                  packet[0] == 0x01 ? "command" :
++                  packet[0] == 0x02 ? "acl" : "other",
++                  length);
++
++reschedule:
++    timer_mod(s->poll_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++              ESP32_VHCI_POLL_INTERVAL_NS);
++}
++
 +static bool esp32_native_hci_flush_tx(Esp32NativeHciState *s, Error **errp)
 +{
 +    while (s->tx_queue_count) {
@@ -289,6 +384,15 @@ new file mode 100644
 +    object_property_add_uint64_ptr(
 +        OBJECT(dev), "peer-closed", &s->peer_closed,
 +        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "h2c-packets", &s->h2c_packets,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "h2c-bytes", &s->h2c_bytes,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "h2c-duplicates", &s->h2c_duplicates,
++        OBJ_PROP_FLAG_READ);
 +    object_property_add_uint32_ptr(
 +        OBJECT(dev), "rx-queue-depth", &s->rx_queue_count,
 +        OBJ_PROP_FLAG_READ);
@@ -298,6 +402,11 @@ new file mode 100644
 +    object_property_add_uint32_ptr(
 +        OBJECT(dev), "last-error", &s->last_error,
 +        OBJ_PROP_FLAG_READ);
++    if (s->env_pointer_address) {
++        timer_mod(s->poll_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                  ESP32_VHCI_POLL_INTERVAL_NS);
++    }
 +}
 +
 +static void esp32_native_hci_unrealize(DeviceState *dev)
@@ -306,6 +415,7 @@ new file mode 100644
 +
 +    qemu_chr_fe_set_handlers(&s->chr, NULL, NULL, NULL, NULL,
 +                             NULL, NULL, false);
++    timer_del(s->poll_timer);
 +}
 +
 +static void esp32_native_hci_reset(DeviceState *dev)
@@ -318,12 +428,34 @@ new file mode 100644
 +    s->tx_queue_head = 0;
 +    s->tx_queue_count = 0;
 +    s->last_error = ESP32_NATIVE_HCI_ERROR_NONE;
++    s->last_h2c_signature = 0;
++    s->last_h2c_length = 0;
++    s->h2c_armed = true;
 +}
 +
 +static Property esp32_native_hci_properties[] = {
 +    DEFINE_PROP_CHR("chardev", Esp32NativeHciState, chr),
++    DEFINE_PROP_UINT64("env-pointer-address",
++                       Esp32NativeHciState, env_pointer_address, 0),
 +    DEFINE_PROP_END_OF_LIST(),
 +};
++
++static void esp32_native_hci_init(Object *obj)
++{
++    Esp32NativeHciState *s = ESP32_NATIVE_HCI(obj);
++
++    s->poll_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                 esp32_native_hci_poll, s);
++    s->h2c_armed = true;
++}
++
++static void esp32_native_hci_finalize(Object *obj)
++{
++    Esp32NativeHciState *s = ESP32_NATIVE_HCI(obj);
++
++    timer_free(s->poll_timer);
++    s->poll_timer = NULL;
++}
 +
 +static void esp32_native_hci_class_init(ObjectClass *klass, void *data)
 +{
@@ -341,6 +473,8 @@ new file mode 100644
 +    .name = TYPE_ESP32_NATIVE_HCI,
 +    .parent = TYPE_DEVICE,
 +    .instance_size = sizeof(Esp32NativeHciState),
++    .instance_init = esp32_native_hci_init,
++    .instance_finalize = esp32_native_hci_finalize,
 +    .class_init = esp32_native_hci_class_init,
 +};
 +

@@ -108,13 +108,19 @@ shutdown。该 PASS 只覆盖 host transport，不覆盖 guest VHCI。
 
 ### HCI-2：H2C guest→QEMU
 
+状态：`PARTIAL`。已从真实 stock Core2 VHCI shared memory 捕获首个 H4
+command `01030c00`（HCI Reset），不启动 GDB，QOM `h2c-packets=1`，
+dummy peer 收到相同 4 bytes。证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-guest-h2c.json`。
+
 - 在 classic ESP32 VHCI 数据面捕获完整 H2C packet；
 - 不执行 GDB `return`，不调用 host callback；
 - 将 packet 入队到 transport 并保留 guest-visible accepted/completed 状态；
 - 按真实 ID 记录 H2C opcode/ACL header，不记录敏感载荷。
 
 验收：stock firmware Reset、LE init、advertising enable 命令按 H4 完整到达
-Bumble。
+Bumble。Reset 已通过；后续命令需要 HCI-3 C2H 响应才能继续，因此完整
+sequence 仍开放。
 
 ### HCI-3：C2H QEMU→guest
 

@@ -108,7 +108,8 @@
   返回 `2559356`，随后 GDB target-running，guest
   `InstrFetchProhibited` 并重启；
 - QEMU host H4 transport-only 已完成；H2C guest capture 和 C2H
-  vCPU-safe guest delivery 尚未接入；
+  vCPU-safe guest delivery 尚未接入。H2C 已捕获 stock HCI Reset
+  `01030c00`，完整命令序列等待 C2H；
 - 尚无 QEMU 内部或无调试器 backend。
 
 交付：

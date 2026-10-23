@@ -42,7 +42,7 @@ MicroPython 和其他完整 Flash 固件。
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap | [`radio-loss-pass.json`](tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json) | 双设备 fabric、自托管 QEMU worker、外部 IPv6 |
-| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、QEMU H4 transport-only | [`native-vhci-service-stability.json`](tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-service-stability.json) | GDB 控制面、repeated lease `1/2`、guest H2C/C2H 接入、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
+| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、QEMU H4 transport、无 GDB 捕获 stock HCI Reset | [`native-vhci-service-stability.json`](tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-service-stability.json) | GDB 控制面、repeated lease `1/2`、完整 H2C sequence、C2H delivery、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
 | 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32 文件清单与 SPDX | [`efuse-security.json`](tests/firmware/evidence-2026-10-24-efuse-security.json) | SPIFFS、运行时权限/许可策略、真机 key/eFuse、流式上传、跨厂商回归 |
 | 共享 QEMU 回归 | AES/GDMA 外部内存读取修复；S3/C6/Core2 全矩阵首轮通过 | [`gdma-external-memory-matrix.json`](tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) | 新共享控制器改动后重新跑受影响矩阵；真机同路径证据 |
 
