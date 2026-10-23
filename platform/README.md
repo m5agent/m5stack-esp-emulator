@@ -52,7 +52,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 当前边界：
 
 - `core2-native-vhci` 已进入 `/api/v1`，但内部仍使用服务托管的 GDB bridge；
-  bit-exact Espressif BT baseband/controller 和物理 cache/PSRAM 等价性未完成。
+  QEMU native-HCI 替代路径已完成 `HCI-1` transport 和 `HCI-2` 首个 H2C
+  Reset 捕获；`HCI-3` C2H guest delivery、repeated lease、bit-exact
+  Espressif BT baseband/controller 和物理 cache/PSRAM 等价性未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱；worker/VM 生命周期仍未完成。

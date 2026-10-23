@@ -61,16 +61,23 @@ PYTHONPATH=.work/py python3 tests/uiflow2/unified_core2/run_test.py \
 同时返回 board/frame/QOM/audio/WiFi/公网/BLE，并保留 pcap、bridge 和 peer
 evidence；当前仍依赖服务托管的 GDB bridge。
 
-Device Service repeated lease 目前为 `1/2`，失败在 C2H callback 注入，
-因此单 lease PASS 不等于稳定后端。QEMU 内部替代路线的第一个
-transport-only 切片为：
+Device Service 的 GDB 诊断桥 repeated lease 目前为 `1/2`，失败在 C2H
+callback 注入，因此单 lease PASS 不等于稳定后端。QEMU 内部替代路线当前
+的边界是：
+
+| 阶段 | 状态 | 验证入口 |
+| --- | --- | --- |
+| `HCI-1` host transport | `PASS` | `core2_native_hci/test_transport.py` |
+| `HCI-2` guest H2C | `PARTIAL` | `core2_native_hci/test_guest_h2c.py`，只到首个 Reset |
+| `HCI-3` guest C2H | `OPEN` | 尚无已提交实现 |
+| `HCI-4` repeated lease | `OPEN` | 仍需无 GDB 的 Device Service `5/5` |
 
 ```bash
 python3 tests/uiflow2/core2_native_hci/test_transport.py
 ```
 
-该测试只验证 H4 chardev framing、bounded queue、overflow、peer lifecycle
-和 shutdown，不验证 guest VHCI/BLE。设计和阶段门禁见
+`HCI-1` 测试只验证 H4 chardev framing、bounded queue、overflow、peer
+lifecycle 和 shutdown，不验证 guest VHCI/BLE。设计和阶段门禁见
 `docs/core2-native-hci-backend.md`。
 
 guest H2C capture 切片：
@@ -82,6 +89,9 @@ python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
 
 它不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset
 `01030c00` 并送到外部 peer。C2H 尚未回送 guest，因此不是 BLE PASS。
+本地曾尝试直接调用 guest `vhci_send`，函数虽然返回，guest 仍等待 ack 并
+`ETIMEDOUT`；该入口不是直接 H4 ingest API，实验未提交。`HCI-3` 必须从
+真实 controller-to-host 通知/队列语义继续。
 
 Core2 peripheral 和 device matrix 现在都显式使用
 `tcg,thread=single` + `icount shift=auto,align=off,sleep=off`。matrices

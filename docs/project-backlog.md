@@ -31,15 +31,17 @@
 
 ## 当前执行顺序
 
-1. `NET-03`：完成双设备 lab fabric。
-2. `NET-04` / `SVC-01`：把 Linux policy CI 和 QEMU evidence 路径接入正式 worker。
-3. `CORE2-01`：先完成同 commit 的重复 Device Service lease，再移除 GDB
-   暂停、callback 注入和 synthetic return 控制；随后做 `CORE2-02` 的
-   controller 和物理过程验证。
-4. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
-5. `FW-02/03/04`：生产 key/eFuse、跨厂商样本和流式上传。
-6. `HW-01`：对应功能稳定后立即补同路径真机证据。
-7. `NET-05`：补外部 IPv6 端点策略。
+1. `CORE2-01` / `HCI-3`：完成真实 C2H 的 vCPU-safe guest delivery；
+   不再猜测 `vhci_send` 参数。
+2. `CORE2-01` / `HCI-4`：用同一 stock 固件通过 Device Service repeated
+   lease `5/5`，再删除 GDB callback 注入和 synthetic return。
+3. `NET-03`：完成双设备 lab fabric。
+4. `NET-04` / `SVC-01`：把 Linux policy CI 和 QEMU evidence 路径接入正式
+   worker。
+5. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
+6. `FW-04/03/02`：流式上传、跨厂商样本，再补生产 key/eFuse 与真机路径。
+7. `CORE2-02`、`HW-01`、`NET-05`：controller/物理边界、同路径真机证据和
+   外部 IPv6 端点策略。
 8. Tab5、worker pool、视觉保真和 CardputerZero 作为后续专项推进。
 
 ## 可执行任务板
@@ -49,7 +51,7 @@
 | `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
 | `NET-04` | 进行中 | GitHub Actions 已跑 namespace/egress；继续接 QEMU runtime、pcap/reconnect 和正式 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain/re-attach |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
-| `CORE2-01` | 进行中 | ELF 符号查询已固定；当前 repeated lease `1/2`，失败在 C2H callback 注入；先修该窗口，再把 GDB 暂停/注入/return 改为 QEMU 内部或无调试器后端 | 同一 stock 固件通过固定次数 repeated lease；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
+| `CORE2-01` | 进行中 | ELF 符号查询已固定；`HCI-1` transport PASS，`HCI-2` 已无 GDB 捕获首包；下一最小交付是 `HCI-3` C2H guest delivery，随后 `HCI-4` repeated lease | 同一 stock 固件通过 Device Service `5/5`；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
 | `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
 | `FW-02` | 进行中 | 包内安全摘要已支持；继续做真机 eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -90,6 +92,15 @@
 实现路线和阶段验收见
 [Core2 native HCI backend](core2-native-hci-backend.md)。
 
+阶段状态：
+
+| 阶段 | 状态 | 已证明 | 仍未证明 |
+| --- | --- | --- | --- |
+| `HCI-1` host transport | `PASS` | H4 command/event/ACL/SCO framing、32 packet bounded queue、overflow/drop、peer lifecycle、counters、clean shutdown | guest VHCI 数据面 |
+| `HCI-2` H2C | `PARTIAL` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` | controller response 后的完整 H2C 命令序列 |
+| `HCI-3` C2H | `OPEN` | 已确认 C2H 必须在 vCPU-safe 路径交付；`vhci_send` 直接注入假设失败，没有形成提交 | 真实 controller-to-host queue、callback/window/return 语义，以及外部 scan/connect/GATT |
+| `HCI-4` stability | `OPEN` | 现有 GDB 诊断桥有过单 lease PASS | Device Service 连续 `5/5`、无 GDB callback injection/synthetic return、故障分类 |
+
 已经完成：
 
 - 从匹配 Xtensa ELF 解析 `API_vhci_host_send_packet`、`vhci_env_p` 和
@@ -97,26 +108,31 @@
 - pinned-symbol standalone 外部 NUS GATT `5/5`；
 - pinned-symbol 同 guest board+WiFi+公网+native-VHCI BLE `3/3`；
 - Device Service `core2-native-vhci` 已有一个带 symbol event 的单 lease
-  PASS。
+  PASS；
+- QEMU `H4 transport-only` targeted test `11/11` PASS；
+- 不启动 GDB 捕获首个 stock H2C Reset，QOM 和 dummy peer 字节一致。
 
 仍未完成：
 
+- `HCI-3` 尚未把 Bumble C2H 交给 guest 的实际 VHCI controller-to-host
+  路径。当前实验曾调用 `vhci_send` 并进入 guest 函数，但 guest 报
+  `HCI wait for ack returned 19`/`ETIMEDOUT`；该入口不是可直接灌入 H4
+  packet 的接口，实验没有提交；
+- `HCI-4` 尚无以 Device Service `/api/v1` 连续 `5/5` 的无 GDB 门禁；
 - GDB 仍负责 guest 暂停、breakpoint/callback 注入和 synthetic return；
 - 尚未形成同 commit、固定次数的重复 Device Service lease 门禁；
 - 当前同 commit repeated lease 为 `1/2`。失败时 Bumble C2H
   `LE Set Event Mask` response 在 H2C sender context 调用 host callback
   返回 `2559356`，随后 GDB target-running，guest
   `InstrFetchProhibited` 并重启；
-- QEMU host H4 transport-only 已完成；H2C guest capture 和 C2H
-  vCPU-safe guest delivery 尚未接入。H2C 已捕获 stock HCI Reset
-  `01030c00`，完整命令序列等待 C2H；
 - 尚无 QEMU 内部或无调试器 backend。
 
 交付：
 
 - 先跑固定次数独立 lease，失败分类必须区分 target running、
   `INJECT_REJECTED`、double exception、GDB exit 和 peer timeout；
-- QEMU 内部或无调试器 backend 完成同一 H2C/C2H 数据面；
+- 先让 `HCI-3` 的 QEMU 内部 C2H 完成同一 H2C/C2H 数据面，再由
+  `HCI-4` 验证 Device Service `5/5`；
 - 同一 stock 固件和 ELF 通过 scan/connect/NUS subscribe/write/notify；
 - Device Service 单 lease、pcap、bridge log 和 peer evidence 不回退。
 
@@ -181,7 +197,7 @@ helper；实现前保持 `UNSUPPORTED`。
 
 ### SVC-03 Device Service 编排拆分
 
-`platform/tools/device_service.py` 当前约为 6700 行，同时承担会话模型、
+`platform/tools/device_service.py` 当前为 `6843` 行，同时承担会话模型、
 固件存储、QEMU/esp-emu 启动、网络策略、输入、证据、历史恢复和 HTTP
 适配。继续叠加能力会扩大回归面。
 

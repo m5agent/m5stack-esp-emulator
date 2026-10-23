@@ -7,6 +7,19 @@ QEMU 内部实现路线。当前能力结论仍以
 [项目当前状态](project-status.md) 为准，未完成项只在
 [项目 Backlog](project-backlog.md) 跟踪。
 
+## 当前阶段快照
+
+| 阶段 | 状态 | 已提交产物 | 结论 |
+| --- | --- | --- | --- |
+| `HCI-1` host transport | `PASS` | `patches/qemu-core2-native-hci/0001-esp32-native-hci-transport.patch` | H4 framing、bounded queue、overflow、peer lifecycle、QOM counters 和 clean shutdown 已通过 targeted test |
+| `HCI-2` H2C | `PARTIAL` | 同一补丁的 `env-pointer-address` poller；`test_guest_h2c.py` | 不启动 GDB 已捕获真实 stock HCI Reset `01030c00`；完整命令序列需要 C2H 才能继续 |
+| `HCI-3` C2H | `OPEN` | 无已提交实现 | 还没有把 Bumble event/ACL 安全交给 guest 的实际 VHCI controller-to-host 路径 |
+| `HCI-4` stability | `OPEN` | 无门禁 | 还没有无 GDB 的 Device Service 连续 `5/5` 完整 GATT 证据 |
+
+`HCI-3` 是当前唯一应继续写 QEMU 代码的阶段。只有它完成并形成真实命令序列，
+才有意义做 `HCI-4`；在此之前不能把 transport PASS 或首包 capture PASS
+写成“原生蓝牙后端已完成”。
+
 ## 结论先行
 
 现有 `API_vhci_host_send_packet → GDB Python → Bumble` 路径可以作为调试夹具，
@@ -108,9 +121,9 @@ shutdown。该 PASS 只覆盖 host transport，不覆盖 guest VHCI。
 
 ### HCI-2：H2C guest→QEMU
 
-状态：`PARTIAL`。已从真实 stock Core2 VHCI shared memory 捕获首个 H4
-command `01030c00`（HCI Reset），不启动 GDB，QOM `h2c-packets=1`，
-dummy peer 收到相同 4 bytes。证据：
+状态：`PARTIAL`（首个 packet PASS，完整 sequence 未完成）。已从真实 stock
+Core2 VHCI shared memory 捕获首个 H4 command `01030c00`（HCI Reset），
+不启动 GDB，QOM `h2c-packets=1`，dummy peer 收到相同 4 bytes。证据：
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-guest-h2c.json`。
 
 - 在 classic ESP32 VHCI 数据面捕获完整 H2C packet；
@@ -124,6 +137,8 @@ sequence 仍开放。
 
 ### HCI-3：C2H QEMU→guest
 
+状态：`OPEN`。当前没有可提交的 C2H implementation patch。
+
 - Bumble event/ACL 由 QEMU 主循环接收；
 - 用 `async_run_on_cpu` 或设备 IRQ 在安全点提交；
 - 由 firmware 自己的 VHCI controller-to-host 路径调用 `notify_host_recv`；
@@ -132,6 +147,31 @@ sequence 仍开放。
 
 验收：external Bumble scan/connect/NUS subscribe/write/notify；guest ACK
 回读。
+
+#### 已排除的假设
+
+本地实验把 C2H 从 chardev callback 送进 CPU0，并尝试直接调用 guest
+`vhci_send`。`cpu_exec_step_atomic` 能让该函数返回，但 guest 随后报告
+`HCI wait for ack returned 19` 和 `OSError: ETIMEDOUT`。这说明
+`vhci_send` 不是简单的 `(H4 buffer, length)` 注入入口；它依赖 controller
+内部事件/队列结构。该实验没有固化为源码提交，不应继续猜 `a2/a3/a4/a5`
+参数或靠 retry 让它“偶尔返回值”。
+
+#### 下一最小实验
+
+1. 从匹配 ELF、VHCI 运行时结构和反汇编确认 firmware 注册的
+   `notify_host_recv`/send-available callback ABI，而不是按符号名猜签名；
+2. 只在 CPU0 的 vCPU-safe 提交点进入 guest，完整保存/恢复 PC、PS、
+   window base/start 和返回地址编码；
+3. 先把一个真实 Bumble C2H packet 写入 firmware 可读的 controller-to-host
+   buffer/状态，再调用 firmware 注册的通知路径；
+4. 单独通知 send-available，验证 dummy peer 返回
+   `Command Complete (Reset)` 后 guest 能发出下一条 H2C；
+5. 用 QOM 记录 queued/submitted/completed/rejected，任何异常返回都让
+   session 明确失败，不继续运行成“看起来起来但未初始化”的状态。
+
+成功判据不是 `vhci_send` 返回，而是同一 guest 的命令序列继续推进，并能在
+`HCI-4` 中完成外部 peer 的 scan/connect/GATT。
 
 ### HCI-4：稳定性门禁
 

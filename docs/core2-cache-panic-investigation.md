@@ -1,5 +1,10 @@
 # Core2 intermittent cache-panic investigation
 
+Last reviewed: `2026-10-24`. Historical root-cause record; current capability
+and open production boundaries are maintained in
+[Project current status](project-status.md) and
+[project backlog](project-backlog.md).
+
 Status: **mitigated for virtual-device runs; physical/hardware equivalence
 remains open**. This is an emulator scheduling/runtime issue, not a
 peripheral-data failure.

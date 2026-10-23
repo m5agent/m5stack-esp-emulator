@@ -26,9 +26,15 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/firmware-manifest.md",
             "docs/network-simulation-plan.md",
             "docs/network-lane.md",
+            "docs/core2-native-hci-backend.md",
             "platform/README.md",
             "tests/uiflow2/README.md",
             "tests/uiflow2/core2_native_vhci/README.md",
+            "tests/uiflow2/core2_native_hci/README.md",
+            "tests/uiflow2/core2_native_hci/test_transport.py",
+            "tests/uiflow2/core2_native_hci/test_guest_h2c.py",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-transport-pass.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-guest-h2c.json",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
@@ -64,11 +70,33 @@ class DocsConsistencyTests(unittest.TestCase):
         linked = set(
             re.findall(r"\]\(([^)#]+\.md)(?:#[^)]*)?\)", index)
         )
+        freshness = index.split("## 新鲜度台账", 1)[1].split(
+            "## 入口索引", 1
+        )[0]
+        freshness_linked = set(
+            re.findall(r"\]\(([^)#]+\.md)(?:#[^)]*)?\)", freshness)
+        )
+        freshness_rows: set[str] = set()
+        for line in freshness.splitlines():
+            if not line.startswith("| ["):
+                continue
+            cells = [cell.strip() for cell in line.split("|")]
+            self.assertGreaterEqual(len(cells), 5)
+            self.assertRegex(
+                cells[3],
+                r"`\d{4}-\d{2}-\d{2}`",
+                f"freshness row lacks a date: {line}",
+            )
+            freshness_rows.update(
+                re.findall(r"\]\(([^)#]+\.md)(?:#[^)]*)?\)", cells[1])
+            )
+        self.assertEqual(freshness_rows, freshness_linked)
         for path in sorted(DOCS.rglob("*.md")):
             relative = path.relative_to(DOCS).as_posix()
             if relative == "README.md":
                 continue
             self.assertIn(relative, linked, relative)
+            self.assertIn(relative, freshness_linked, relative)
 
     def test_relative_markdown_links_exist(self) -> None:
         paths = [
@@ -78,7 +106,7 @@ class DocsConsistencyTests(unittest.TestCase):
             ROOT / "devices" / "README.md",
             *sorted((ROOT / "devices").rglob("README.md")),
             *sorted((ROOT / "devices").rglob("README.extra.md")),
-            *sorted(DOCS.glob("*.md")),
+            *sorted(DOCS.rglob("*.md")),
             *sorted((ROOT / "tests").rglob("README.md")),
         ]
         pattern = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
@@ -156,6 +184,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "仍不是任意 公网目标 IP/端口 allowlist",
             "generic allowlisted egress and object-backed",
             "文件系统提取、敏感资产/权限审批",
+            "243/243",
+            "guest VHCI 未接入",
         ):
             self.assertNotIn(stale, active)
 
@@ -182,6 +212,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(catalog["generated_at"], review_date)
         self.assertEqual(qemu_count, 12)
         self.assertIn("`67/67` 用例、`274/274` 检查 PASS", status)
+        self.assertIn("平台套件共 `243` 项", status)
+        self.assertIn("`241` 项通过、`2` 项环境相关测试跳过", status)
         self.assertIn("2026-10-24 00:11 +08:00", status)
         self.assertIn("`retry_used=false`", status)
         self.assertIn("`qemu-unified`", (ROOT / "README.md").read_text())
@@ -208,6 +240,11 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("native-VHCI BLE 5/5", status)
         self.assertIn("同 guest native-VHCI 3/3", status)
         self.assertIn("core2-native-vhci", status)
+        self.assertIn("HCI-1", status)
+        self.assertIn("HCI-2", status)
+        self.assertIn("HCI-3", status)
+        self.assertIn("HCI-4", status)
+        self.assertIn("`01030c00`", status)
         self.assertIn(
             "profile=core2-native-vhci",
             (DOCS / "unified-device-runtime.md").read_text(),
@@ -372,13 +409,14 @@ class DocsConsistencyTests(unittest.TestCase):
             pattern="test_*.py",
         )
         count = suite.countTestCases()
-        expected = f"`{count}/{count}` PASS"
+        expected = f"`{count}` 项"
         for relative in ("README.md", "docs/project-status.md"):
+            document = (ROOT / relative).read_text()
             self.assertIn(
-                expected,
-                (ROOT / relative).read_text(),
+                expected, document,
                 f"{relative} must document {count} platform tests",
             )
+            self.assertIn("跳过", document, relative)
 
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()

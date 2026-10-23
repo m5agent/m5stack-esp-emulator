@@ -2,6 +2,13 @@
 
 日期：`2026-10-24`
 
+本页对账的代码基线是 `7f8343d0b3c5e0ecfac90d24084e250c0ad5a5f9`
+（`2026-10-24 03:22 +08:00`）。该基线的最新 GitHub Actions run
+[`40010980506`](https://github.com/m5agent/m5stack-esp-emulator/actions/runs/40010980506)
+成功：平台套件共 `243` 项，`241` 项通过、`2` 项环境相关测试跳过；
+`runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验均为
+`PASS`。这里记录的是证据快照，不把“测试总数”写成“全部执行通过”。
+
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
@@ -17,6 +24,14 @@
 如果页面之间冲突，以当前代码、生成后的 catalog/coverage、最新测试证据和
 `project-status.md` 为准；`project-backlog.md` 不描述完成状态，日期较早的
 调查页也不自动代表当前结论。
+
+## 三组 P0 的实际位置
+
+| 工作流 | 已经形成的边界 | 现在真正待做 |
+| --- | --- | --- |
+| 网络 namespace/DNS/egress/pcap/重连 | 单机 namespace、controlled DNS、TLS/Host、精确 IPv4 egress、pcap、错误密码、radio/AP 丢失恢复和 DHCP renewal 已有同路径证据 | `NET-03` 双设备 fabric、`NET-04` 自托管 worker 生命周期、`NET-05` 外部 IPv6 |
+| Core2 cache/PSRAM/原生蓝牙/公网 | deterministic TCG/icount 已消除当前虚拟 WDT 复现；WiFi、DNS/公网和 board 外设同 guest PASS；native-HCI `HCI-1` transport PASS，`HCI-2` 已无 GDB 捕获首个 HCI Reset | 先完成 `HCI-3` 的 C2H guest delivery，再做 `HCI-4` 的 repeated lease；物理 cache/PSRAM 与 bit-exact controller 仍属后续边界 |
+| FirmwareManifest/WebBurner/安全 | 版本化 manifest、WebBurner/M5Burner/ESP-IDF 导入、capability mismatch、脱敏静态审查、eFuse 证据分层、LittleFS/FAT 清单已实现 | `FW-01` SPIFFS/权限/许可、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归、`FW-04` 流式上传 |
 
 ## 文档分层
 
@@ -37,12 +52,12 @@
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
 | [工作流总台账](workstreams.md) | 当前工作台账 | `2026-10-24` | 交付状态、代码/证据入口和未完成 Task ID |
-| [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络/CI、Core2、FirmwareManifest 与 243 项平台测试 |
+| [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络/CI、Core2、FirmwareManifest 与平台测试快照 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.11.0`；nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 地址已固定，GDB 控制面仍开放 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | GDB 诊断桥 repeated lease `1/2`；QEMU 内部 relay 的四阶段方案与门禁 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | `HCI-1` PASS；`HCI-2` 仅首个 Reset；`HCI-3`/`HCI-4` 开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | eFuse summary、LittleFS/FAT12/16/32 清单已通；SPIFFS 仍 `UNSUPPORTED` |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap 和 radio/AP 丢失恢复已通；QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
@@ -50,9 +65,21 @@
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 最新 `67/67` case、`274/274` check |
 | [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-24` | 能力仍以 2026-10-22 定向证据为基线 |
 | [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-24` | StopWatch 是唯一参考质量外壳 |
-| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-23` | 保留旧命名和复现，不覆盖当前状态 |
+| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-24` | 保留旧命名和复现，不覆盖当前状态 |
 | [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
-| [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | 初始适配日 | 解释启动链，不描述后续 multi-board 能力 |
+| [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
+| [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-24` | `.work/` 不随仓库发布；QEMU/namespace 的资产和权限要求 |
+| [设备中心接入契约](device-center-adapter.md) | 接口契约 | `2026-10-24` | 目录、外设接口、设备状态与页面消息 |
+| [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-23` | 功能测试必须走 Device Service 并保留 session evidence |
+| [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-24` | 审查证据分层、运行路径和发布门禁 |
+| [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-23` | catalog、runtime coverage、后端数据面和设备本地验收 |
+| [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-24` | Tab5 缺失的 P4 控制器、DMA 和端点 |
+| [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-24` | 当前单机模块化单体与后续 worker/warm-pool 路线 |
+| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-24` | 公开固件按设备经 Device Service 的批量运行边界 |
+| [CoreS3 图像边界](cores3-image-rendering-boundary.md) | 已知差异 | `2026-10-22` | 固定在当轮透明度/调色板图像分析 |
+| [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
+| [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
+| [多设备模拟器设计](plans/2026-10-20-multi-device-emulator-design.md) | 历史设计 | `2026-10-20` | 早期后端和能力分层，不代表当前设备状态 |
 
 当前入口出现冲突时先修 `project-status.md`、Backlog、代码地图和契约页；
 历史页只允许补充“被哪一页取代”，不能反向把旧结论写回当前入口。

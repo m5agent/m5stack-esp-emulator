@@ -10,6 +10,11 @@
 
 代码入口和详细验证命令见 [代码与验证入口地图](code-map.md)。
 
+本轮台账对账到代码基线 `7f8343d0b3c5e0ecfac90d24084e250c0ad5a5f9`。
+该基线的 GitHub Actions run `40010980506` 两个 job 均成功，平台套件
+`243` 项中 `241` 项通过、`2` 项环境相关测试跳过。表中后续状态以该快照
+和已提交 evidence 为准；文档整理提交本身不产生新的设备能力。
+
 ## 状态语义
 
 | 状态 | 含义 |
@@ -30,7 +35,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新 `67/67` case、`274/274` check，全部首轮无重试 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service repeated lease 当前 `1/2`；QEMU H4 transport-only PASS；无 GDB 捕获 stock HCI Reset | `CORE2-01` 完成 C2H vCPU-safe delivery 和完整 H2C sequence，再按 [native HCI backend](core2-native-hci-backend.md) 收口；`CORE2-02` controller、物理 cache/PSRAM、coexistence/soak |
+| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` transport PASS，`HCI-2` 无 GDB 捕获 stock Reset `01030c00` | `CORE2-01` 先完成 `HCI-3` C2H vCPU-safe guest delivery 和完整 H2C sequence，再以 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面；`CORE2-02` controller、物理 cache/PSRAM、coexistence/soak |
 | 网络隔离、策略与取证 | `DELIVERED`（单机与 Linux policy CI） | `network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；GitHub Actions policy fixture | `NET-03` 双设备 fabric、`NET-04` 自托管 QEMU worker、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT 清单 | `FW-01` SPIFFS/权限/许可策略、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归、`FW-04` 流式上传 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`storage_policy.py`、`docs/device-service-api.md` | lease、烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` worker 生命周期、`SVC-02` warm pool/多机、`SVC-03` 拆分 6.8k 行编排热区 |
@@ -42,14 +47,17 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 
 ## 当前执行顺序
 
-1. 先关 P0 中能形成稳定回归边界的工作：`CORE2-01`、`FW-01`，同时为
-   `HW-01` 准备同固件路径。Core2 已完成 ELF 符号固定，下一步先做重复
-   Device Service lease，再替换 GDB 的暂停、callback 注入和 return 控制。
-2. 把已跑通路径产品化：`NET-04`、`SVC-01`，随后处理 `SVC-03` 的
-   编排模块拆分，避免继续扩大单文件热区。
-3. 再扩展覆盖面：`NET-03`、`NET-05`、`FW-02` 至 `FW-04`、
-   `SVC-02`、`CORE2-02`。
-4. Tab5、视觉保真与 CardputerZero 是专项工作；没有后端、素材和真机证据时
+1. `CORE2-01` 的唯一当前代码入口是 `HCI-3`：把真实 C2H packet 交给 guest
+   自己的 VHCI controller-to-host 路径，并保留 packet order/QOM 计数。
+   `vhci_send` 参数猜测已失败且没有形成提交，不再沿该假设扩写。
+2. `HCI-3` 闭环后立即做 `HCI-4`：同一 stock 固件、同一 ELF 和同一 QEMU
+   build 通过 Device Service `/api/v1` 连续 `5/5`，再删除 GDB callback
+   injection/synthetic return 诊断桥。
+3. 并行推进网络产品化：`NET-03` 双设备 fabric，随后 `NET-04` worker 和
+   `SVC-01` 生命周期；`NET-05` 外部 IPv6 单列。
+4. 固件审查继续 `FW-01` SPIFFS/权限/许可，再处理 `FW-04` 流式上传、
+   `FW-03` 跨厂商样本和 `FW-02` 真机 key/eFuse。
+5. Tab5、视觉保真与 CardputerZero 是专项工作；没有后端、素材和真机证据时
    不把它们写成统一运行时完成。
 
 ## 代码边界

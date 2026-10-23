@@ -1,5 +1,7 @@
 # Device Service API v1
 
+Last reviewed: `2026-10-24`.
+
 Status: local MVP with unified-device runtime contract `1.11.0` and bounded
 storage retention implemented on `2026-10-24`.
 

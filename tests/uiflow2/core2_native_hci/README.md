@@ -11,6 +11,13 @@ H2C from VHCI shared memory; it does **not** deliver C2H packets to a firmware
 callback or execute a Bluetooth controller/baseband. The current GDB bridge
 remains the complete guest-side diagnostic path.
 
+| Stage | Status | Evidence |
+| --- | --- | --- |
+| `HCI-1` host transport | `PASS` | `evidence-2026-10-24-transport-pass.json` |
+| `HCI-2` guest H2C | `PARTIAL` | `evidence-2026-10-24-guest-h2c.json`; first Reset only |
+| `HCI-3` guest C2H | `OPEN` | No committed implementation |
+| `HCI-4` repeated lease | `OPEN` | Still provided by the GDB diagnostic bridge at `1/2` |
+
 Build the patched QEMU, then run:
 
 ```bash
@@ -41,3 +48,10 @@ python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
 This milestone captures `01030c00` (HCI Reset) and proves the guest→QEMU
 direction. It does not deliver C2H responses, so the guest cannot progress to
 the complete command sequence.
+
+A local C2H experiment invoked the guest `vhci_send` address and made the
+function return, but the firmware still timed out waiting for the controller
+acknowledgement. That confirms `vhci_send` is not a direct H4 packet-ingest
+entry point and the experiment is not part of this patch. `HCI-3` must use a
+firmware-observed controller-to-host notification/queue contract, with packet
+state and failures exposed through QOM.

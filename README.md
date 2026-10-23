@@ -22,7 +22,8 @@ MicroPython 和其他完整 Flash 固件。
 - 最新 UIFlow2 外设全矩阵在 `2026-10-24 00:11 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
   `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
-  下首轮通过。当前平台单元测试为 `243/243` PASS。
+  下首轮通过。代码基线 `7f8343d` 的 CI 平台套件共 `243` 项：
+  `241` 项通过、`2` 项环境相关测试跳过。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
 - GitHub Actions 已运行完整平台测试，并在 Ubuntu runner 上执行 fail-closed
@@ -42,7 +43,7 @@ MicroPython 和其他完整 Flash 固件。
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap | [`radio-loss-pass.json`](tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json) | 双设备 fabric、自托管 QEMU worker、外部 IPv6 |
-| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、QEMU H4 transport、无 GDB 捕获 stock HCI Reset | [`native-vhci-service-stability.json`](tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-service-stability.json) | GDB 控制面、repeated lease `1/2`、完整 H2C sequence、C2H delivery、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
+| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、native-HCI `HCI-1` transport PASS、`HCI-2` 无 GDB 捕获首个 `01030c00` | [`guest-h2c.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-guest-h2c.json) | `HCI-3` C2H guest delivery、`HCI-4` repeated lease `5/5`、GDB 控制面、完整 H2C sequence、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
 | 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32 文件清单与 SPDX | [`efuse-security.json`](tests/firmware/evidence-2026-10-24-efuse-security.json) | SPIFFS、运行时权限/许可策略、真机 key/eFuse、流式上传、跨厂商回归 |
 | 共享 QEMU 回归 | AES/GDMA 外部内存读取修复；S3/C6/Core2 全矩阵首轮通过 | [`gdma-external-memory-matrix.json`](tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) | 新共享控制器改动后重新跑受影响矩阵；真机同路径证据 |
 
@@ -55,7 +56,7 @@ MicroPython 和其他完整 Flash 固件。
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT 和 DHCP renewal 已通；自托管 QEMU worker、双设备 fabric 和外部 IPv6 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS 与 FAT12/16/32 文件清单已通；SPIFFS、许可策略与真机 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
-| Core2 稳定性与原生无线 | `mostly complete` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、VHCI 地址由 ELF 固定和 Device Service `core2-native-vhci` 单 lease PASS；GDB 仍负责暂停/注入/synthetic return，重复 lease 稳定性、bit-exact BT controller 与物理等价性未完成 |
+| Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、ELF 固定地址和 Device Service 单 lease 已通；native-HCI 仅到 `HCI-1` PASS / `HCI-2` 首包 PASS。下一步是 `HCI-3` C2H guest delivery，随后做 `HCI-4` repeated lease；GDB 控制面、bit-exact controller 与物理等价性仍未完成 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 关键索引：
@@ -265,7 +266,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   同一 guest 的 board+WiFi+公网+native-VHCI BLE 3/3，并已进入 Device Service
   单 lease。VHCI 符号地址已由匹配 ELF 固定，不再由 GDB 查询；GDB 仍用于
   guest 暂停、callback 注入和 synthetic return，因此它仍是诊断桥，不是
-  bit-exact ESP32 BT baseband/controller 模型。
+  bit-exact ESP32 BT baseband/controller 模型。QEMU 内部替代路径已完成
+  `HCI-1` transport 和 `HCI-2` 首个 H2C Reset 捕获；`HCI-3` C2H guest
+  delivery 尚未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。
