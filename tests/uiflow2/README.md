@@ -96,8 +96,9 @@ python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
 Core2 peripheral 和 device matrix 现在都显式使用
 `tcg,thread=single` + `icount shift=auto,align=off,sleep=off`。matrices
 不再配置自动重试；若 case 声明 `retries`，runner 默认拒绝运行，只有显式
-`--allow-retries` 才执行诊断重试。2026-10-24 00:11 的完整矩阵为
-`67/67`、`274/274`，全部 `attempts=1`。
+`--allow-retries` 才执行诊断重试。2026-10-24 06:47 的完整矩阵为
+`67/67`、`274/274`，全部 `attempts=1`；该轮包含双 guest WiFi patch
+`0028`，并把 Cardputer-ADV 键盘用例的启动/输入端等待调整为 10/2 秒。
 当前统一运行时入口是 `runtime=qemu-unified`；`qemu-wifi` 和 `qemu-ble`
 只用于兼容 profile 或单选无线诊断，不应作为新调用的默认路径。
 

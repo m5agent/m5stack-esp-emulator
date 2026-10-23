@@ -118,6 +118,7 @@ git apply /path/to/0024-esp32s3-qio-read-phase.patch
 git apply /path/to/0025-esp32c6-wifi-mac.patch
 git apply /path/to/0026-m5stack-rtc-virtual-clock.patch
 git apply /path/to/0027-esp32s3-gdma-external-memory.patch
+git apply /path/to/0028-esp32-wifi-dual-guest-fabric.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -199,6 +200,16 @@ descriptor points into the ESP32-S3 external-memory window. UIFlow2
 `MEMTX_ERROR`; the stock TLS path now reaches the certificate parser and HTTPS
 gateway. The fallback uses the modelled cache/PSRAM path and does not expose
 arbitrary host memory.
+
+`0028-esp32-wifi-dual-guest-fabric.patch` makes the shared classic/S3 WLAN
+model usable by more than one guest at a time. It honors the explicit QEMU NIC
+MAC for the full virtual STA lifecycle, accepts host ingress during the
+association/DHCP transition, and flushes controller input held while the
+802.11 injection queue was busy. The validation fixture runs two UIFlow2
+StickS3 guests through a private QEMU socket L2 switch: both complete
+DISCOVER/OFFER/REQUEST/ACK, exchange a real TCP request/reply in both pcap
+directions, and cannot reach the host, public IPv4 or metadata from the
+namespace.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and

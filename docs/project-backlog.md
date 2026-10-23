@@ -19,7 +19,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络策略与 worker | 双设备 fabric、自托管 QEMU worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
+| P0 | 网络策略与 worker | 自托管 QEMU worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
 | P0 | Core2 生产化 | 去掉 GDB 暂停/注入/return 控制、重复 lease 稳定门禁、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
 | P0 | 通用固件审查 | SPIFFS、权限/许可策略、真机 eFuse/安全启动/key 流程、跨厂商回归 | 多格式镜像；生产安全配置 |
 | P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
@@ -35,20 +35,18 @@
    或实现 in-process controller transaction；达到完整 Bumble HCI/GATT。
 2. `CORE2-01` / `HCI-4`：用同一 stock 固件通过 Device Service repeated
    lease `5/5`，再删除 GDB callback 注入和 synthetic return。
-3. `NET-03`：完成双设备 lab fabric。
-4. `NET-04` / `SVC-01`：把 Linux policy CI 和 QEMU evidence 路径接入正式
-   worker。
-5. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
-6. `FW-03/02`：扩跨厂商样本，再补生产 key/eFuse 与真机路径。
-7. `CORE2-02`、`HW-01`、`NET-05`：controller/物理边界、同路径真机证据和
+3. `NET-04` / `SVC-01`：把 Linux policy CI、双 guest lab fabric 和 QEMU
+   evidence 路径接入正式 worker。
+4. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
+5. `FW-03/02`：扩跨厂商样本，再补生产 key/eFuse 与真机路径。
+6. `CORE2-02`、`HW-01`、`NET-05`：controller/物理边界、同路径真机证据和
    外部 IPv6 端点策略。
-8. Tab5、worker pool、视觉保真和 CardputerZero 作为后续专项推进。
+7. Tab5、worker pool、视觉保真和 CardputerZero 作为后续专项推进。
 
 ## 可执行任务板
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
 | `NET-04` | 进行中 | GitHub Actions 已跑 namespace/egress；继续接 QEMU runtime、pcap/reconnect 和正式 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain/re-attach |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
 | `CORE2-01` | 进行中 | ELF 符号查询已固定；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5`；`HCI-3b` 已到首个 ATT 交互。下一最小交付是 guest-visible C2H IRQ/queue 或 in-process controller transaction，随后 `HCI-4` repeated lease | 同一 stock 固件通过 Device Service `5/5`；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
@@ -66,19 +64,13 @@
 
 ## P0：网络策略、隔离与 CI
 
-### NET-03 双设备 fabric
-
-交付：
-
-- 两台 guest 位于独立 namespace 和唯一 bridge/fabric；
-- 只允许预期 peer 和端口；
-- host-to-device 入口、workstation LAN、云元数据和控制面均不可达。
-
 ### NET-04 CI 与 worker
 
 交付：
 
 - GitHub Actions 的完整平台测试和 namespace/egress fail-closed 回归已完成；
+- 双 guest lab fabric 已作为独立 QEMU virtual-device fixture 通过，并由 CI
+  单独执行 TAP/bridge primitive；
 - QEMU runtime、pcap retention、reconnect evidence 进入自托管 Linux worker；
 - worker 注册、心跳、drain、重排和 evidence 上传可观测；
 - namespace 创建/权限失败时 fail-closed；

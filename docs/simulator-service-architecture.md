@@ -38,6 +38,8 @@ Implemented:
   per-session veth/NAT path and verified cleanup;
 - guest-issued DHCP renewal with DORA baseline, later REQUEST/ACK, retained
   address, HTTP continuity and pcap summaries;
+- a two-guest StickS3 lab fabric inside a private namespace, with reserved
+  DHCP addresses, real guest TCP, two-sided pcap and blocked host/public routes;
 - versioned FirmwareManifest import and structured capability mismatch.
 
 Not implemented yet:
@@ -47,7 +49,8 @@ Not implemented yet:
 - remote worker pool and multi-host scheduling;
 - self-hosted QEMU worker lifecycle for the Linux namespace lane; the
   GitHub-hosted policy/egress fixture already runs in CI;
-- external IPv6/CIDR/domain-set allowlisting and multi-device lab fabric;
+- external IPv6/CIDR/domain-set allowlisting;
+- production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
 

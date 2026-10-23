@@ -11,7 +11,7 @@ RUNNER = ROOT / "tests/uiflow2/run_peripheral_matrix.py"
 
 
 class PeripheralRunnerTests(unittest.TestCase):
-    def test_case_post_input_wait_reaches_ui_runner(self):
+    def test_interactive_case_settle_times_reach_ui_runner(self):
         spec = importlib.util.spec_from_file_location(
             "peripheral_matrix", RUNNER
         )
@@ -28,6 +28,21 @@ class PeripheralRunnerTests(unittest.TestCase):
 
         wait_index = command.index("--post-input-wait") + 1
         self.assertEqual(command[wait_index], "3.0")
+
+        keyboard = next(
+            case for case in module.CASES
+            if case["id"] == "cardputer-adv-keyboard"
+        )
+        keyboard_command = module.command_for(
+            keyboard,
+            ROOT / ".work/test",
+        )
+        wait_index = keyboard_command.index("--wait") + 1
+        post_input_index = (
+            keyboard_command.index("--post-input-wait") + 1
+        )
+        self.assertEqual(keyboard_command[wait_index], "10")
+        self.assertEqual(keyboard_command[post_input_index], "2")
 
     def test_core2_cases_use_deterministic_scheduling_without_retries(self):
         spec = importlib.util.spec_from_file_location(

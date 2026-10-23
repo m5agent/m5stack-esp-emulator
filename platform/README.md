@@ -68,6 +68,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
   已在同一隔离路径验证 exact IPv4 IP/协议/端口和 veth/NAT，上述内容也不
   等于任意 IPv6、CIDR 或恶意固件沙箱。
+- 双设备 lab fabric 同样是 virtual-device 证据：private namespace 内两台
+  StickS3 通过 QEMU socket L2 switch 完成 DHCP、A→B TCP 和双侧 pcap，宿主
+  与公网不可达。TAP/bridge + DHCP helper 是 CI 单独检查的 host primitive，
+  不是本次 QEMU PASS 的数据路径，也不是生产 worker。
 
 完整契约见
 [`docs/device-service-api.md`](../docs/device-service-api.md) 和
@@ -88,6 +92,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/user_firmware_matrix.py` | 热门用户固件仿真矩阵 |
 | `tools/network_policy.py` | isolation、egress、controlled DNS、Host allowlist 和 pcap 策略 |
 | `tools/network_egress.py` | nftables 精确 IP/端口规则、veth/NAT gateway、能力检查和清理 |
+| `tools/network_fabric.py` | private namespace、双 guest QEMU socket L2 switch、DHCP reservation 和 TAP/bridge primitive |
 | `tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS 与 fail-closed runner |
 | `tools/network_lane.py` | esp-emu 网络/Provisioning 诊断 lane |
 | `tools/pcap_summary.py` | pcap 元数据和 payload hash 摘要 |
@@ -96,6 +101,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/tls_allowlist/` | 测试 CA、HTTPS Host allowlist、200/403、pcap 断言和 AES/GDMA 回归证据 |
 | `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
+| `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
 
 ## 目录服务 API
 

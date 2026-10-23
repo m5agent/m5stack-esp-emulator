@@ -40,9 +40,11 @@ Device Service lease
 | DHCP renewal | ESP-IDF guest 调用 `netifapi_dhcp_renew()`；pcap 同事务包含初次 DORA 后的 `REQUEST/ACK`，lease 86400、地址保持、随后 HTTP 200 | 仿真 lease renewal，不是物理 AP/RF |
 | Linux 隔离 | StickS3 QEMU guest 位于 private network namespace；无外部路由，namespace 创建失败时 fail-closed | 单设备、受控 fixture；不是恶意固件 VM |
 | Linux CI | GitHub Ubuntu runner 执行完整平台测试和 nftables exact IPv4 veth/NAT fixture | 验证策略引擎、清理和 CI 稳定性；没有 QEMU guest |
+| 双设备 lab fabric | private namespace 内的 QEMU socket L2 switch 连接两台 StickS3，并按 MAC 绑定连接槽位；两端 DORA、A→B TCP `19123`、双侧 pcap 双向 payload hash、宿主/公网/metadata/默认路由阻断和清理全部 PASS | 两台真实 QEMU guest、各自的 NIC/协议栈；不是 TAP 数据面、RF、WPA2/WPA3、worker 或恶意固件沙箱 |
 | DNS/TLS allowlist | private mount namespace 注入临时 `resolv.conf`；允许域名 A，拒绝和 UIFlow/NTP 后台域名 NXDOMAIN；测试 CA TLS 允许 200、拒绝 403；pcap 一致 | Host/DNS 决策与网络 destination policy 分开记录 |
 | 精确 IPv4 egress | nftables input/output 默认 drop；exact IP+protocol+port；同 IP 其他端口和同端口其他 IP 均超时；`1.1.1.1:80` 经 veth/NAT 200/301；namespace/NAT 清理 | 外部 IPv6、CIDR 和域名不作为隐式端点 |
-| QEMU 外部内存 | patch `0027` 修复 ESP32-S3 AES/GDMA 访问外部内存，TLS 可进入证书解析和 HTTPS 路径 | 修复后最新全矩阵 `67/67`、`274/274`，全部首轮无重试 |
+| QEMU 外部内存 | patch `0027` 修复 ESP32-S3 AES/GDMA 访问外部内存，TLS 可进入证书解析和 HTTPS 路径 | 当轮全矩阵 `67/67`、`274/274`，全部首轮无重试 |
+| 共享 WLAN 生命周期 | patch `0028` 修复显式 NIC MAC、association/DHCP ingress 和积压队列 flush；双 guest socket fabric 已完成 DHCP/TCP/双侧 pcap | patch `0028` 后最新全矩阵 `67/67`、`274/274`，全部首轮无重试 |
 | Tab5 | C6 `network_adapter` 以 ESP-Hosted 启动 | P4 UIFlow2/ESP-IDF 的 association/DHCP/DNS/TCP 仍 `NOT RUN` |
 | CardputerZero | 独立 SR9900A Ethernet frame 回环 | 不是 WiFi，也不是 ESP32/UIFlow2 产品路径 |
 
@@ -55,13 +57,14 @@ Device Service lease
 - [精确 IPv4 IP/端口和 NAT 证据](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json)
 - [TLS guest under nftables policy](../tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json)
 - [GDMA 外部内存修复和全矩阵](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json)
+- [双 guest WLAN patch 和最新全矩阵](../tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json)
 - [StickS3 radio/AP 丢失与同 guest 恢复](../tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json)
+- [双设备 private QEMU lab fabric](../tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json)
 
 ## 尚未证明
 
 - 物理 RF 消失/恢复、信道/速率变化或重新分配不同 lease；
 - WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
-- 两台设备通过唯一预期 lab fabric 通信；
 - namespace、pcap retention 和 evidence upload 的自托管 QEMU worker
   生命周期；GitHub-hosted policy/egress CI 已单独通过；
 - 任意 S3/C6 固件或任意公网服务的稳定联网；
@@ -109,8 +112,15 @@ QEMU 子树看到 127.0.0.1 resolver；HTTPS 网关使用临时 CA 和 Host allo
 
 ### Multi-device lab fabric
 
-后续在独立 namespace/bridge 内连接两台 guest。必须证明设备仅通过预期 fabric
-通信，不能访问工作站 LAN、宿主服务、云元数据或控制面。
+已通过的双设备路径在 private Linux network namespace 内运行一个 QEMU socket
+L2 switch，两台 StickS3 分别连接到这个 switch。namespace 没有默认路由，
+input/output 默认 drop；DHCP 使用固定 MAC/IP reservation，switch 只转发给
+另一台已登记 guest。
+
+`network_fabric.py` 另有 namespace bridge + 两个 TAP + 原生命令 DHCP 的 host
+primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP readiness
+和清理。两条路径都有独立证据，不能把 primitive 说成 QEMU 数据面，也不能把
+本次虚拟 lab 说成生产 worker、恶意固件沙箱或工作站 LAN 隔离保证。
 
 ## Required test matrix
 
@@ -148,10 +158,11 @@ QEMU 子树看到 127.0.0.1 resolver；HTTPS 网关使用临时 CA 和 Host allo
 | N2 S3/C6 单 guest board+radio | DONE | 新 profile 必须带设备级 evidence |
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
 | N4a Linux policy CI | DONE | GitHub-hosted namespace/nft/egress fixture 保持 fail-closed 并可重复 |
-| N4b 双设备 fabric | OPEN | 两台 guest 只能通过预期 fabric 通信，宿主 LAN/控制面不可达 |
+| N4b 双设备 fabric | DONE (virtual) | 两台 StickS3 的 DHCP、guest TCP、双侧 pcap、宿主隔离与清理已通过；下一步接入 worker |
 | N5 Core2 production BLE/PHY | PARTIAL | ELF 固定符号已完成；`HCI-3b` 已排除 safe-point callback/nested `r_eif_send`；下一步 C2H device/IRQ queue 或 in-process controller，剩余 GDB 控制面、重复 lease、coexistence soak |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
-虚拟 radio/AP 丢失恢复已完成，下一步是 `NET-03` 双设备 fabric。精确 IPv4
+虚拟 radio/AP 丢失恢复和双设备 private lab fabric 已完成，下一步是
+`NET-04` 自托管 QEMU worker 生命周期，再单列 `NET-05` 外部 IPv6。精确 IPv4
 endpoint policy 已由 nftables 在隔离 namespace 内执行，外部 IPv4 通过
 per-session veth/NAT；策略或依赖不可用时 fail-closed。

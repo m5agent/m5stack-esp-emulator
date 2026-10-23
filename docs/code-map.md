@@ -64,6 +64,7 @@
 | `platform/tools/user_firmware_matrix.py` | 热门公开固件经 Device Service 的批量仿真 | 回归操作员 |
 | `platform/tools/network_policy.py` | isolation/egress/DNS/TLS/pcap 策略校验 | Device Service |
 | `platform/tools/network_egress.py` | 精确 IPv4 IP/协议/端口、veth/NAT 和清理 | Device Service、隔离测试 |
+| `platform/tools/network_fabric.py` | private namespace、双 TAP/bridge DHCP primitive 和双 guest QEMU socket L2 switch | lab-fabric runner、CI |
 | `platform/tools/network_sandbox.py` | Linux private net/mount namespace 与 controlled DNS | 隔离 runner、worker |
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
@@ -87,7 +88,7 @@
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
-| `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal 和 radio/AP 重连 | 网络策略/运行时改动 |
+| `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连和双 guest lab fabric | 网络策略/运行时改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 
@@ -181,6 +182,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | --- | --- |
 | `platform/tools/network_policy.py` | `isolation`、`egress`、controlled DNS 和 pcap 策略 |
 | `platform/tools/network_egress.py` | exact IPv4 IP/协议/端口、nftables、per-session veth/NAT 和清理 |
+| `platform/tools/network_fabric.py` | private namespace、双 guest QEMU socket switch、DHCP reservation、TAP/bridge primitive |
 | `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled DNS、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
 | `platform/tools/network_lane.py` | `esp-emu` 诊断/Provisioning 网络 lane |
 | `platform/tools/pcap_summary.py` | flow、DNS、DHCP message/transaction/renewal、ARP、egress scope 和 payload hash |
@@ -192,6 +194,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | QEMU GDB H2C/C2H bridge；符号地址来自固定环境变量，GDB 仍负责暂停、callback 注入和 synthetic return |
 | `tests/network/tls_allowlist/` | 测试 CA、namespace-local HTTPS gateway、Host 允许/拒绝和 pcap 断言 |
 | `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
+| `tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 TAP/bridge primitive |
 | `tests/network/` | 隔离、错误密码、radio/AP 丢失重连和 Core2 网络夹具 |
 
 QEMU 主路径必须在同一个 guest 内同时具备板级外设、网络和 HCI/BT 数据面。
@@ -236,6 +239,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 C2H callback `HCI-3a` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py --enable-c2h` | 从 ELF 分配 guest buffer，调用注册的 `notify_host_recv` 和 send-available；Reset Complete 后 guest 发出下一条 H2C，targeted `5/5` |
 | Core2 full HCI/GATT `HCI-3b` | `tests/uiflow2/core2_native_hci/run_full.py`；三份 `evidence-2026-10-24-hci3b-*.json` | 无 GDB、真实 Bumble controller/peer；已到连接和首个 ATT 交互，第二个 ATT request 后 guest Reset。safe-point callback 与 nested `r_eif_send` 分别导致 LoadProhibited 和 cache-disabled 异常，实验均已回退 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
+| Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |
 | FAT inventory | `tests/firmware/evidence-2026-10-24-fat-inventory.json` | 合成 FAT12/16/32、LFN、循环链、多簇哈希、敏感路径、erased partition 与真实 PaperColor FAT12 样本 |
@@ -246,6 +250,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
 | Exact IPv4 egress | `tests/network/egress_allowlist/` | nftables 默认 drop、允许/拒绝端口与 IP、`1.1.1.1:80` veth/NAT、namespace/NAT 清理 |
 | DHCP renewal | `tests/network/idf_dhcp_renewal/` | guest 调用 renew API；pcap 区分初次 DORA 与后续 REQUEST/ACK，lease/地址/HTTP 联合 PASS |
+| 双设备 lab fabric | `tests/network/lab_fabric/`、patches `0028` | private namespace 内两台 QEMU guest 完成 DORA、A→B TCP 和双侧 pcap；宿主、公网、metadata、默认路由不可达并按预期清理。QEMU 运行路径是 socket switch；TAP/bridge 是独立 primitive |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |
 | 公共 API | `/api/v1` Device Service | 可观察、可保留的 session/evidence |
 

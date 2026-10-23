@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-two-guest-linux-lab-fabric",
+  "scope": "virtual-device-network-not-hardware-rf",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "duration_seconds": 9.55,
+  "checks": {
+    "guest_a_serial": true,
+    "guest_b_serial": true,
+    "guest_a_dhcp": true,
+    "guest_b_dhcp": true,
+    "dhcp_reservations": true,
+    "switch_mac_binding": true,
+    "guest_a_to_b_tcp": true,
+    "guest_b_to_a_tcp": true,
+    "guest_a_pcap": true,
+    "guest_b_pcap": true,
+    "host_control_unreachable": true,
+    "public_unreachable": true,
+    "metadata_unreachable": true,
+    "isolation_probe_exit_zero": true,
+    "no_default_route": true,
+    "namespace_created": true,
+    "namespace_cleaned": true
+  },
+  "fabric": {
+    "mode": "linux-private-qemu-socket-switch",
+    "nft_table": "m5_socket_lab",
+    "endpoints": [
+      {
+        "index": 0,
+        "mac": "02:4d:35:00:00:01",
+        "address": "10.230.0.2"
+      },
+      {
+        "index": 1,
+        "mac": "02:4d:35:00:00:02",
+        "address": "10.230.0.3"
+      }
+    ]
+  },
+  "firmware": {
+    "guest_a": {
+      "bytes": 8388608,
+      "sha256": "6e44f5f70ac31beaf85aae37d88184f2392f88d4bde7ef2d2ed208f7fb91a5c2"
+    },
+    "guest_b": {
+      "bytes": 8388608,
+      "sha256": "e9aa38793d9e71dddf6760629e9c7b2eacc3a23499c65d1a27c82dc4d6ab36ab"
+    }
+  },
+  "qemu": {
+    "version_target": "xtensa-softmmu",
+    "sha256": "16c6d6185781b7ddfaa3e646adcd3dea2ecd851b319dd35ce502496432a95fb5"
+  },
+  "isolation": {
+    "host_control": {
+      "connected": false,
+      "error": "OSError: [Errno 101] Network is unreachable"
+    },
+    "public_web": {
+      "connected": false,
+      "error": "OSError: [Errno 101] Network is unreachable"
+    },
+    "metadata": {
+      "connected": false,
+      "error": "OSError: [Errno 101] Network is unreachable"
+    },
+    "routes": [],
+    "links": [
+      "lo",
+      "tunl0",
+      "gre0",
+      "gretap0",
+      "erspan0",
+      "ip_vti0",
+      "ip6_vti0",
+      "sit0",
+      "ip6tnl0",
+      "ip6gre0"
+    ]
+  },
+  "dhcp": {
+    "leases": {
+      "02:4d:35:00:00:01": "10.230.0.2",
+      "02:4d:35:00:00:02": "10.230.0.3"
+    },
+    "transactions": [
+      {
+        "guest": "B",
+        "sequence": [
+          "DISCOVER",
+          "OFFER",
+          "REQUEST",
+          "ACK"
+        ],
+        "address": "10.230.0.3"
+      },
+      {
+        "guest": "A",
+        "sequence": [
+          "DISCOVER",
+          "OFFER",
+          "REQUEST",
+          "ACK"
+        ],
+        "address": "10.230.0.2"
+      }
+    ]
+  },
+  "switch": {
+    "frames": 44,
+    "client_frames": {
+      "0": 22,
+      "1": 22
+    },
+    "pending_frames": {
+      "0": 0,
+      "1": 0
+    },
+    "client_slot_by_endpoint": {
+      "0": 0,
+      "1": 1
+    },
+    "mac_by_client_slot": {
+      "0": "02:4d:35:00:00:01",
+      "1": "02:4d:35:00:00:02"
+    }
+  },
+  "captures": {
+    "guest_a": {
+      "bytes": 4922,
+      "sha256": "7cbc094f4d38987f6aea1ce49283ff3c99c72e3e68b28953b065efb9ba3f1ab0",
+      "packets": 44,
+      "protocols": {
+        "UDP": 13,
+        "ARP": 18,
+        "IGMP": 4,
+        "TCP": 9
+      },
+      "tcp_flows": [
+        {
+          "source": "10.230.0.2:52681",
+          "destination": "10.230.0.3:19123",
+          "packets": 5,
+          "payload_bytes": 18,
+          "payload_sha256": [
+            "d3baa6a86484b6aa9c82a6e11f82d6ff11563579f52035b2c2e88a831efa41c8"
+          ]
+        },
+        {
+          "source": "10.230.0.3:19123",
+          "destination": "10.230.0.2:52681",
+          "packets": 4,
+          "payload_bytes": 35,
+          "payload_sha256": [
+            "cc66efb26a22cea0b398979c94c5e6c99a00eeda31d253d516535a5f6af07fb8"
+          ]
+        }
+      ]
+    },
+    "guest_b": {
+      "bytes": 4922,
+      "sha256": "7f601cf00fd32f78a33bea02108912c57dcd430c9fb5db796b43c429871570e6",
+      "packets": 44,
+      "protocols": {
+        "ARP": 18,
+        "UDP": 13,
+        "IGMP": 4,
+        "TCP": 9
+      },
+      "tcp_flows": [
+        {
+          "source": "10.230.0.2:52681",
+          "destination": "10.230.0.3:19123",
+          "packets": 5,
+          "payload_bytes": 18,
+          "payload_sha256": [
+            "d3baa6a86484b6aa9c82a6e11f82d6ff11563579f52035b2c2e88a831efa41c8"
+          ]
+        },
+        {
+          "source": "10.230.0.3:19123",
+          "destination": "10.230.0.2:52681",
+          "packets": 4,
+          "payload_bytes": 35,
+          "payload_sha256": [
+            "cc66efb26a22cea0b398979c94c5e6c99a00eeda31d253d516535a5f6af07fb8"
+          ]
+        }
+      ]
+    }
+  },
+  "not_claimed": [
+    "physical hardware or RF",
+    "WPA2 or WPA3 security",
+    "workstation LAN isolation outside the container/namespace",
+    "multi-host scheduling",
+    "malware safety"
+  ]
+}

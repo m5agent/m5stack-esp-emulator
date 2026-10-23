@@ -58,6 +58,17 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/egress_allowlist/run_test.py",
             "tests/network/idf_dhcp_renewal/README.md",
             "tests/network/idf_dhcp_renewal/run_test.py",
+            "platform/tools/network_fabric.py",
+            "platform/tests/test_network_fabric.py",
+            "tests/network/lab_fabric/README.md",
+            "tests/network/lab_fabric/run_test.py",
+            "tests/network/lab_fabric/check_fabric.py",
+            "tests/network/lab_fabric/role_a/boot.py",
+            "tests/network/lab_fabric/role_a/main.py",
+            "tests/network/lab_fabric/role_b/boot.py",
+            "tests/network/lab_fabric/role_b/main.py",
+            "tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json",
+            "patches/qemu-m5stack-peripherals/0028-esp32-wifi-dual-guest-fabric.patch",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
@@ -69,6 +80,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
+            "tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
             "tests/firmware/evidence-2026-10-24-filesystem-inventory.json",
             "tests/firmware/evidence-2026-10-24-fat-inventory.json",
@@ -216,6 +228,13 @@ class DocsConsistencyTests(unittest.TestCase):
             "WebBurner UI 未接线",
             "WebBurner UI 接线仍开放",
             "WebBurner UI 尚未调用 chunk API",
+            "双设备 fabric、自托管 QEMU worker、外部 IPv6",
+            "自托管 QEMU worker、双设备 fabric 和外部 IPv6 仍待补",
+            "`NET-03` 双设备 fabric",
+            "external IPv6 egress 和双设备 lab fabric 仍开放",
+            "external IPv6/CIDR/domain-set allowlisting and multi-device lab fabric",
+            "下一步是 `NET-03` 双设备 fabric",
+            "two-device lab fabric and external",
         ):
             self.assertNotIn(stale, active)
 
@@ -249,7 +268,7 @@ class DocsConsistencyTests(unittest.TestCase):
             status,
         )
         self.assertIn("项环境相关测试跳过", status)
-        self.assertIn("2026-10-24 00:11 +08:00", status)
+        self.assertIn("2026-10-24 06:47 +08:00", status)
         self.assertIn("`retry_used=false`", status)
         self.assertIn("`qemu-unified`", (ROOT / "README.md").read_text())
         self.assertIn(
@@ -299,7 +318,7 @@ class DocsConsistencyTests(unittest.TestCase):
             status,
         )
         self.assertIn("controlled DNS", status)
-        self.assertIn("QEMU patch `0027`", status)
+        self.assertIn("QEMU patch `0028`", status)
         self.assertIn(
             "DNS/TLS allowlist",
             (DOCS / "network-simulation-plan.md").read_text(),
@@ -385,6 +404,40 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(matrix["peripheral_matrix"]["cases"], 67)
         self.assertEqual(matrix["peripheral_matrix"]["checks"], 274)
         self.assertFalse(matrix["peripheral_matrix"]["retry_used"])
+        latest_matrix = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/"
+                "evidence-2026-10-24-dual-guest-fabric-matrix.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            latest_matrix["qemu_patch"]["file"],
+            (
+                "patches/qemu-m5stack-peripherals/"
+                "0028-esp32-wifi-dual-guest-fabric.patch"
+            ),
+        )
+        self.assertEqual(latest_matrix["qemu_patch"]["reverse_check"], "PASS")
+        self.assertEqual(latest_matrix["peripheral_matrix"]["cases"], 67)
+        self.assertEqual(latest_matrix["peripheral_matrix"]["checks"], 274)
+        self.assertEqual(latest_matrix["peripheral_matrix"]["pass"], 67)
+        self.assertEqual(latest_matrix["peripheral_matrix"]["fail"], 0)
+        self.assertEqual(
+            latest_matrix["peripheral_matrix"]["attempts_per_case"],
+            1,
+        )
+        self.assertFalse(latest_matrix["peripheral_matrix"]["retry_used"])
+        self.assertEqual(
+            latest_matrix["interactive_case_hardening"]["case"],
+            "cardputer-adv-keyboard",
+        )
+        self.assertEqual(
+            latest_matrix["interactive_case_hardening"][
+                "final_full_matrix"
+            ],
+            "PASS",
+        )
         ci_egress = json.loads(
             (
                 ROOT
@@ -404,6 +457,67 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(radio_loss["status"], "PASS")
         self.assertTrue(all(radio_loss["checks"].values()))
         self.assertEqual(radio_loss["fault"]["target"], "radio")
+        lab_fabric = json.loads(
+            (
+                ROOT
+                / "tests/network/lab_fabric/"
+                "evidence-2026-10-24-two-guest-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(lab_fabric["status"], "PASS")
+        self.assertEqual(len(lab_fabric["checks"]), 17)
+        self.assertTrue(all(lab_fabric["checks"].values()))
+        self.assertEqual(
+            lab_fabric["fabric"]["mode"],
+            "linux-private-qemu-socket-switch",
+        )
+        self.assertFalse(
+            lab_fabric["isolation"]["host_control"]["connected"]
+        )
+        self.assertFalse(
+            lab_fabric["isolation"]["public_web"]["connected"]
+        )
+        self.assertFalse(
+            lab_fabric["isolation"]["metadata"]["connected"]
+        )
+        self.assertTrue(lab_fabric["checks"]["switch_mac_binding"])
+        self.assertEqual(
+            lab_fabric["switch"]["client_slot_by_endpoint"],
+            {"0": 0, "1": 1},
+        )
+        self.assertEqual(
+            lab_fabric["switch"]["mac_by_client_slot"],
+            {
+                "0": "02:4d:35:00:00:01",
+                "1": "02:4d:35:00:00:02",
+            },
+        )
+        self.assertFalse(any(lab_fabric["switch"]["pending_frames"].values()))
+        for capture_name in ("guest_a", "guest_b"):
+            flows = lab_fabric["captures"][capture_name]["tcp_flows"]
+            self.assertTrue(
+                any(
+                    flow["source"].startswith("10.230.0.2:")
+                    and flow["destination"].startswith("10.230.0.3:19123")
+                    for flow in flows
+                )
+            )
+            self.assertTrue(
+                any(
+                    flow["source"].startswith("10.230.0.3:19123")
+                    and flow["destination"].startswith("10.230.0.2:")
+                    for flow in flows
+                )
+            )
+        for document in (
+            (ROOT / "README.md").read_text(),
+            status,
+            (DOCS / "network-simulation-plan.md").read_text(),
+            (ROOT / "tests/network/lab_fabric/README.md").read_text(),
+        ):
+            self.assertIn("QEMU socket", document)
+        self.assertIn("双 guest", workstreams)
+        self.assertIn("TAP/bridge", status)
         efuse_security = json.loads(
             (
                 ROOT
@@ -513,6 +627,9 @@ class DocsConsistencyTests(unittest.TestCase):
         workstreams = (DOCS / "workstreams.md").read_text()
         code_map = (DOCS / "code-map.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
+        lab_fabric = (
+            ROOT / "tests/network/lab_fabric/README.md"
+        ).read_text()
 
         for tool in sorted((ROOT / "platform" / "tools").glob("*.py")):
             self.assertIn(
@@ -531,11 +648,19 @@ class DocsConsistencyTests(unittest.TestCase):
                 workstreams,
                 f"backlog task {task_id} is missing from docs/workstreams.md",
             )
+        self.assertNotIn("`NET-03`", backlog)
+        self.assertIn("QEMU socket L2 switch", lab_fabric)
+        self.assertIn("TAP/bridge", lab_fabric)
 
     def test_documented_platform_test_count_is_current(self) -> None:
         count = self._platform_test_count()
         expected = f"`{count}` 项"
-        for relative in ("README.md", "docs/project-status.md"):
+        for relative in (
+            "README.md",
+            "docs/README.md",
+            "docs/project-status.md",
+            "docs/workstreams.md",
+        ):
             document = (ROOT / relative).read_text()
             self.assertIn(
                 expected, document,

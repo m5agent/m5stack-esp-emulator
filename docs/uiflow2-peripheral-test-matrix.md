@@ -102,16 +102,19 @@ StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 
 configured cases   67
 configured checks  274
 last clean full     67 cases / 274 checks PASS
-last full run       2026-10-24 00:11 +08:00
+last full run       2026-10-24 06:47 +08:00
 attempts            1 per case
 retry_used          false for every case
 ```
 
 最新干净全量运行同时包含 S3 QIO read-phase、Core2 BB idle readback、
-deterministic TCG/icount 和 RTC 虚拟时钟修复。67/67 用例、274/274 检查
-全部通过，Core2 6 个 case 均为首轮 PASS；matrices 默认拒绝配置
-`retries` 的 case，诊断重试必须显式启用 `--allow-retries`。该结果仍不等同
-于物理 cache/PSRAM、RF 或真机时序验证。
+deterministic TCG/icount、RTC 虚拟时钟和双 guest WiFi patch `0028`。首轮
+暴露 Cardputer-ADV 键盘的 6 秒启动窗口竞争；定向复现后将等待改为 10 秒，
+输入端等待改为 2 秒，再完成 67/67 用例、274/274 检查全部通过和 Core2
+6 个 case 首轮 PASS。matrices 默认拒绝配置 `retries` 的 case，诊断重试必须
+显式启用 `--allow-retries`。该结果仍不等同于物理 cache/PSRAM、RF 或真机
+时序验证。证据见
+[`evidence-2026-10-24-dual-guest-fabric-matrix.json`](../tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json)。
 
 NanoC6 无显示屏，额外使用 `run_nanoc6_peripherals.py` 验证 RGB、按键和蓝灯，
 不计入上述需要截图的 peripheral matrix 统计。上述汇总来自全量矩阵运行；

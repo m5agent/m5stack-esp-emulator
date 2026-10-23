@@ -237,8 +237,9 @@ CASES = [
         "flash_size": "0x800000",
         "expected_size": "240x135",
         "efuse_pkg_version": "0",
-        "wait": "6",
+        "wait": "10",
         "inputs": ["key:a"],
+        "post_input_wait": 2,
         "qom": [],
         "frame_color": {
             "x": 4, "y": 4, "label": "Cardputer-ADV TCA8418",

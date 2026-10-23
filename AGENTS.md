@@ -238,6 +238,13 @@ diagnostics in `internal/records/`.
   temporary NAT table; required DNS/HTTP/HCI/GDB loopback ports are explicit
   internal exceptions. External IPv6, CIDRs and domain-to-multiple-IP grants
   are not implemented and must fail rather than become implicit allow rules.
+- The two-guest lab fabric is a separate virtual-device path. The passing
+  fixture runs two StickS3 QEMU guests through an L2 switch inside a private
+  Linux network namespace, with reserved DHCP addresses, real guest TCP,
+  two-sided pcap, MAC-bound client slots and no host/public/metadata route.
+  The QEMU evidence uses a socket switch; the namespace bridge/TAP plus DHCP
+  helper is an independently tested host primitive. Neither result is
+  RF/WPA2/WPA3 validation or a production multi-tenant worker boundary.
 - `user,restrict=yes` and loopback `hostfwd` are not an untrusted-firmware
   sandbox. The Linux fail-closed namespace runner and guest path are validated;
   filesystem/resource isolation and formal worker/VM lifecycle remain open.
@@ -250,8 +257,7 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- self-hosted QEMU worker integration, a two-device lab fabric and external
-  IPv6 endpoint enforcement;
+- self-hosted QEMU worker integration and external IPv6 endpoint enforcement;
 - production Core2 VHCI backend, bit-exact BT controller and physical
   cache/PSRAM equivalence, coexistence and soak;
 - SPIFFS inventory, runtime permissions/license policy, production

@@ -425,15 +425,16 @@ evidence/
 
 1. SPIFFS 只读清单、运行时权限/许可审批、证书链校验和许可证策略；
    LittleFS/FAT、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
-2. 自托管 QEMU worker；GitHub-hosted Linux policy/egress CI 已具备，
-   外部 IPv6 egress 和双设备 lab fabric 仍开放；
+2. 自托管 QEMU worker；GitHub-hosted Linux policy/egress CI 和双设备
+   lab fabric 已具备，外部 IPv6 egress 仍开放；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
 
 网络部分已经具备 controlled DNS、TLS/Host allowlist、精确 IPv4
-IP/协议/端口 egress、pcap、DHCP renewal 和虚拟 radio/AP 丢失恢复；仍未
-完成的是双设备 fabric、自托管 QEMU worker 和外部 IPv6。固件文件系统 PASS
+IP/协议/端口 egress、pcap、DHCP renewal、虚拟 radio/AP 丢失恢复，以及
+两台 QEMU guest 的 DHCP/TCP/双侧 pcap/宿主隔离；仍未完成的是自托管 QEMU
+worker 和外部 IPv6。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 
 ## 11. 结论
