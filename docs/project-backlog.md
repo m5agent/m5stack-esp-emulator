@@ -87,6 +87,9 @@
 
 ### CORE2-01 无 GDB VHCI
 
+实现路线和阶段验收见
+[Core2 native HCI backend](core2-native-hci-backend.md)。
+
 已经完成：
 
 - 从匹配 Xtensa ELF 解析 `API_vhci_host_send_packet`、`vhci_env_p` 和

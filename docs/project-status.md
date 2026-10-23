@@ -110,6 +110,10 @@
   peer、pcap 和 manifest。GDB 仍用于 guest 暂停、callback 注入和
   synthetic return，重复 lease 稳定性尚未形成门禁；也没有执行 bit-exact
   Espressif BT baseband/controller 固件。
+  `CORE2-01` 的替代路径已固化为
+  [QEMU 内部 native HCI backend](core2-native-hci-backend.md)：host
+  transport worker、bounded queue、vCPU-safe C2H commit 和 `5/5` lease
+  门禁；在此之前不再把 GDB 桥单次 PASS 写成稳定能力。
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
   `/after` HTTP。

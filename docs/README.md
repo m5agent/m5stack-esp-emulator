@@ -42,6 +42,7 @@
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.11.0`；nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 地址已固定，GDB 控制面仍开放 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | GDB 诊断桥 repeated lease `1/2`；QEMU 内部 relay 的四阶段方案与门禁 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | eFuse summary、LittleFS/FAT12/16/32 清单已通；SPIFFS 仍 `UNSUPPORTED` |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap 和 radio/AP 丢失恢复已通；QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
@@ -96,6 +97,7 @@
 - [精确 IP/端口 egress allowlist](../tests/network/egress_allowlist/README.md)
 - [DHCP renewal probe](../tests/network/idf_dhcp_renewal/README.md)
 - [Core2 stock VHCI BLE](../tests/uiflow2/core2_native_vhci/README.md)
+- [Core2 native HCI backend](core2-native-hci-backend.md)
 
 ### 专项 Backlog
 

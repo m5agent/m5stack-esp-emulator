@@ -19,6 +19,7 @@
 | 单 lease 设备验收标准 | [统一设备运行时契约](unified-device-runtime.md) |
 | 固件如何规范化和拒绝 | [固件清单与 WebBurner 导入](firmware-manifest.md) |
 | 网络如何隔离和取证 | [网络模拟方案](network-simulation-plan.md)、[网络诊断 lane](network-lane.md) |
+| Core2 如何进入 QEMU 内部 HCI relay | [Core2 native HCI backend](core2-native-hci-backend.md) |
 | 代码入口和证据目录 | 本文 |
 
 旧的启动排障、渲染分析和计划文档保留为历史证据，不应覆盖上述当前状态。
