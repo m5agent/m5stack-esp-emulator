@@ -67,6 +67,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "uiflow2-sticks3-unified",
             rows["sticks3"]["network_profiles"],
         )
+        self.assertIn(
+            "uiflow2-sticks3-wifi",
+            rows["sticks3"]["network_profiles"],
+        )
         self.assertEqual(rows["nanoc6"]["network_status"], "validated")
         self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
         self.assertEqual(rows["cores3"]["network_status"], "validated")
@@ -144,7 +148,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             capacity["modes"]["network"],
             "enabled-separate-lane",
         )
-        self.assertEqual(capacity["modes"]["qemu-wifi"], "disabled")
+        self.assertEqual(capacity["modes"]["qemu-wifi"], "enabled-sticks3")
         self.assertEqual(capacity["modes"]["qemu-ble"], "disabled")
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
@@ -286,7 +290,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
         self.assertEqual(invalid_console.exception.code, "invalid_network")
 
-    def test_experimental_qemu_wifi_is_core2_only_and_env_gated(self):
+    def test_experimental_qemu_wifi_core2_gate_and_sticks3_lane(self):
         with self.assertRaises(ServiceError) as unavailable:
             device_service_module.parse_qemu_wifi_execution(
                 self.service.specs["core2"],
@@ -311,9 +315,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
             self.assertEqual(parsed["net_mode"], "user")
             self.assertEqual(parsed["nic"], "misc.esp32_wifi")
+            sticks3 = device_service_module.parse_qemu_wifi_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "uiflow2-sticks3-wifi",
+                    "expected_markers": ["WEATHER_READY"],
+                },
+            )
+            self.assertEqual(sticks3["nic"], "misc.esp32s3.wifi")
+            self.assertEqual(sticks3["expected_markers"], ["WEATHER_READY"])
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_wifi_execution(
-                    self.service.specs["sticks3"],
+                    self.service.specs["atoms3r"],
                     {},
                 )
             self.assertEqual(
@@ -345,7 +358,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertFalse(row["features"]["network"])
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-wifi"],
-                    "enabled-core2-experimental",
+                    "enabled-sticks3-and-core2",
                 )
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-ble"],

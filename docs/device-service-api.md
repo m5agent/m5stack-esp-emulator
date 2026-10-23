@@ -13,8 +13,9 @@ Current scope:
   warnings;
 - excluded: CardputerZero;
 - network emulation: `runtime=network` remains available for diagnosis on
-  S3/C6; StickS3, CoreS3 and Cardputer ADV use one combined WiFi+BLE+board
-  QEMU lease through their unified profiles;
+  S3/C6; StickS3 also supports a Wi-Fi-only board lease through
+  `uiflow2-sticks3-wifi`, while StickS3, CoreS3 and Cardputer ADV use one
+  combined WiFi+BLE+board QEMU lease through their unified profiles;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -216,6 +217,11 @@ through the separate `esp-emu` network/BLE lane. Network sessions do not expose
 framebuffer, input, QOM or same-instance board state; those remain in the QEMU
 lane. StickS3 also has a unified `qemu-ble` profile described below that keeps
 network and board evidence in one QEMU instance.
+
+Use `runtime=qemu-wifi` with `network.profile=uiflow2-sticks3-wifi` for a
+StickS3 application that needs the board framebuffer, input and public
+internet without an external BLE controller. This lane starts the QEMU
+`misc.esp32s3.wifi` NIC and does not start the HCI/Bumble peer.
 
 Core2 has experimental `qemu-wifi` and `qemu-ble` runtimes when the service
 starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing the

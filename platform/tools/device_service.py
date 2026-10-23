@@ -102,6 +102,7 @@ NETWORK_STATUSES = {
 CORE2_WIFI_PROFILE = "core2-openmac"
 CORE2_BLE_PROFILE = "core2-ble-advertise"
 CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
+STICKS3_WIFI_PROFILE = "uiflow2-sticks3-wifi"
 STICKS3_UNIFIED_PROFILE = "uiflow2-sticks3-unified"
 CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
 CARDPUTER_ADV_UNIFIED_PROFILE = "uiflow2-cardputer-adv-unified"
@@ -476,18 +477,26 @@ def parse_qemu_wifi_execution(
     spec: DeviceSpec,
     value: Any,
 ) -> dict:
-    if spec.id != "core2":
+    if spec.id == "core2":
+        default_profile = CORE2_WIFI_PROFILE
+        supported_profile = CORE2_WIFI_PROFILE
+        nic = "misc.esp32_wifi"
+    elif spec.id == "sticks3":
+        default_profile = STICKS3_WIFI_PROFILE
+        supported_profile = STICKS3_WIFI_PROFILE
+        nic = "misc.esp32s3.wifi"
+    else:
         raise ServiceError(
             "qemu_wifi_not_supported",
-            "qemu-wifi is currently limited to Core2 classic ESP32",
+            "qemu-wifi is supported only for Core2 and StickS3",
             409,
         )
     if value is None:
         value = {}
     if not isinstance(value, dict):
         raise ServiceError("invalid_network", "network must be an object", 400)
-    profile = value.get("profile", CORE2_WIFI_PROFILE)
-    if profile != CORE2_WIFI_PROFILE:
+    profile = value.get("profile", default_profile)
+    if profile != supported_profile:
         raise ServiceError(
             "unsupported_network_profile",
             f"unsupported qemu-wifi profile: {profile!r}",
@@ -521,11 +530,12 @@ def parse_qemu_wifi_execution(
             "network.attempts must be an integer from 1 to 10",
             400,
         )
-    core2_radio_qemu_path()
+    if spec.id == "core2":
+        core2_radio_qemu_path()
     return {
         "profile": profile,
         "net_mode": net_mode,
-        "nic": "misc.esp32_wifi",
+        "nic": nic,
         "expected_markers": expected_markers,
         "attempts": attempts,
     }
@@ -767,6 +777,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 else []
             )
             if device_id == "sticks3" and network_chip:
+                network_profiles.insert(0, STICKS3_WIFI_PROFILE)
                 network_profiles.insert(0, "uiflow2-sticks3")
                 network_profiles.insert(0, STICKS3_UNIFIED_PROFILE)
             if device_id == "cores3" and network_chip:
@@ -1921,12 +1932,16 @@ class DeviceSession:
             ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]
         )
         if self.runtime == QEMU_WIFI_RUNTIME or unified:
+            s3_wifi = (
+                unified
+                or self.network_config.get("profile") == STICKS3_WIFI_PROFILE
+            )
             command.extend(
                 [
                     "-nic",
                     (
                         "user,model=misc.esp32s3.wifi,id=wifi0"
-                        if unified
+                        if s3_wifi
                         else "user,model=misc.esp32_wifi,id=wifi0"
                     ),
                 ]
@@ -4039,7 +4054,17 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-wifi": (
-                    "enabled-core2-experimental"
+                    "enabled-sticks3-and-core2"
+                    if (
+                        STICKS3_WIFI_PROFILE
+                        in self.specs["sticks3"].network_profiles
+                        and CORE2_WIFI_PROFILE
+                        in self.specs["core2"].network_profiles
+                    )
+                    else "enabled-sticks3"
+                    if STICKS3_WIFI_PROFILE
+                    in self.specs["sticks3"].network_profiles
+                    else "enabled-core2-experimental"
                     if CORE2_WIFI_PROFILE
                     in self.specs["core2"].network_profiles
                     else "disabled"
