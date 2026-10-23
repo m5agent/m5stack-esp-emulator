@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import importlib.util
 import json
 import subprocess
 import sys
@@ -10,6 +11,24 @@ RUNNER = ROOT / "tests/uiflow2/run_peripheral_matrix.py"
 
 
 class PeripheralRunnerTests(unittest.TestCase):
+    def test_case_post_input_wait_reaches_ui_runner(self):
+        spec = importlib.util.spec_from_file_location(
+            "peripheral_matrix", RUNNER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        case = next(
+            case for case in module.CASES
+            if case["id"] == "core2-peripherals"
+        )
+
+        command = module.command_for(case, ROOT / ".work/test")
+
+        wait_index = command.index("--post-input-wait") + 1
+        self.assertEqual(command[wait_index], "3.0")
+
     def test_device_group_lists_exact_cases(self):
         result = subprocess.run(
             [
