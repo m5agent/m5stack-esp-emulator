@@ -620,6 +620,38 @@
         "rx8130",
         "es8311"
       ],
+      "runtime_state": {
+        "power": {
+          "path": "/machine/m5pm1",
+          "properties": [
+            "vbat-mv",
+            "vin-mv",
+            "vinout-mv",
+            "charging",
+            "temperature-c",
+            "gpio-input-bits"
+          ]
+        },
+        "expander": {
+          "path": "/machine/m5ioe1",
+          "properties": [
+            "pa-enabled",
+            "input-bits",
+            "adc1-mv"
+          ]
+        },
+        "imu": {
+          "path": "/machine/bmi270",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        }
+      },
       "board_work": [],
       "blockers": []
     },

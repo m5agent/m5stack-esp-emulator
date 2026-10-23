@@ -40,6 +40,11 @@
       "test": "tests/uiflow2/unified_cardputer/run_test.py",
       "evidence": "tests/uiflow2/unified_cardputer/evidence-2026-10-23.json"
     },
+    "stopwatch-unified": {
+      "device": "stopwatch",
+      "test": "tests/uiflow2/unified_stopwatch/run_test.py",
+      "evidence": "tests/uiflow2/unified_stopwatch/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -76,6 +81,14 @@
       "bmi270",
       "es8311",
       "ns4150b"
+    ],
+    "stopwatch-unified": [
+      "m5pm1",
+      "m5ioe1",
+      "touch-cst820",
+      "bmi270",
+      "es8311",
+      "aw8737a"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -246,6 +259,9 @@
         "stopwatch-mic",
         "stopwatch-m5ioe1-full",
         "stopwatch-m5pm1-full"
+      ],
+      "external": [
+        "stopwatch-unified"
       ],
       "models": [
         "m5pm1",

@@ -168,7 +168,7 @@
       "capabilities": ["io-expander", "digital-input", "adc", "pwm", "vibration", "neopixel"],
       "status": "simulated",
       "injection": ["qom-input-bits", "qom-adc-mv"],
-      "data_plane": "M5IOE1 GPIO direction/output/input, pulls, drive mode, ADC, temperature, PWM, IRQ status and NeoPixel RAM over the device I2C bus; Linux binds pinctrl, PWM and ADC children",
+      "data_plane": "M5IOE1 GPIO direction/output/input, pulls, drive mode, ADC, temperature, PWM, IRQ status and NeoPixel RAM over the device I2C bus; GPIO_OUT_H G10 is exposed through QOM as the StopWatch AW8737A PA state, and Linux binds pinctrl, PWM and ADC children",
       "tested_devices": ["stopwatch", "papermono", "stackchan", "cardputer-zero"]
     },
     "aw9523": {

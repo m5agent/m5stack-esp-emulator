@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "stopwatch",
+  "firmware_sha256": "088560f0ee3829db5259b17f9be82e31e665b0c5a7f92345e9569e48ca6aca68",
+  "consecutive_passes": 2,
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "touch_redraw": true,
+    "power": true,
+    "io_expander_pa": true,
+    "imu": true,
+    "speaker_pcm": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [466, 466],
+    "before_nonblack_pixels": 18397,
+    "before_unique_colors": 31,
+    "after_nonblack_pixels": 18375,
+    "after_unique_colors": 31,
+    "changed_after_touch": true
+  },
+  "audio": {
+    "bytes": 67584,
+    "nonzero_bytes": 66956,
+    "sha256": "9521989ae0e96870cfbbfd49fa8dcec59f3279554d5ff20f99dedb7a0c3d8c23"
+  },
+  "repeat_audio": {
+    "bytes": 67584,
+    "nonzero_bytes": 65430,
+    "sha256": "61b24b51c9262c114304e743d90a1ea99f5f042f5b544613ba34032aaa250290"
+  },
+  "device_state": {
+    "vbat_mv": 4000,
+    "pa_enabled": true,
+    "accel_z_g": 1
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_port": 18083,
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART1 H4",
+    "controller": "Bumble",
+    "name": "M5-STOPWATCH-UNIFIED",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_STOPWATCH_U",
+    "notification": "ACK:M5_STOPWATCH_U"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 Bluetooth controller model",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "untrusted-firmware sandboxing"
+  ]
+}

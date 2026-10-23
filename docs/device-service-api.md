@@ -14,8 +14,8 @@ Current scope:
 - excluded: CardputerZero;
 - network emulation: `runtime=network` remains available for diagnosis on
   S3/C6; StickS3 also supports a Wi-Fi-only board lease through
-  `uiflow2-sticks3-wifi`, while StickS3, CoreS3 and Cardputer ADV use one
-  combined WiFi+BLE+board QEMU lease through their unified profiles;
+  `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV and StopWatch
+  use one combined WiFi+BLE+board QEMU lease through their unified profiles;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -366,6 +366,27 @@ controlled HTTP request on port `18082`, plus HCI-UART BLE NUS
 discovery/subscription/write and notification. UART1 uses GPIO15/16 because
 GPIO33-38 drive the display; BLE payloads stay within the default attribute
 length.
+
+StopWatch uses the same one-guest contract:
+
+```json
+{
+  "device_id": "stopwatch",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 60,
+  "network": {
+    "profile": "uiflow2-stopwatch-unified",
+    "attempts": 2
+  }
+}
+```
+
+The StopWatch image exercises the 466x466 CO5300 display, CST820 touch,
+M5PM1 power telemetry, M5IOE1 G10/AW8737A amplifier state, BMI270 IMU,
+ES8311 I2S speaker PCM, WiFi scan/association/DHCP and a controlled HTTP
+request on port `18083`, plus HCI-UART BLE NUS discovery/subscription/write
+and notification. StopWatch routes PA enable through M5IOE1, not M5PM1; the
+device-state expander probe reads the real G10 output state.
 
 State machine:
 
@@ -734,9 +755,9 @@ after a service restart.
 
 ## Current limitations
 
-- `runtime=network` sessions are diagnostic lanes; StickS3, CoreS3 and
-  Cardputer ADV instead use `runtime=qemu-ble` with their unified profiles for
-  one combined guest;
+- `runtime=network` sessions are diagnostic lanes; StickS3, CoreS3,
+  Cardputer ADV and StopWatch instead use `runtime=qemu-ble` with their
+  unified profiles for one combined guest;
 - unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
   HCI-offload over UART1, not a native S3 PHY/radio model;
 - Core2 radio support is limited to the environment-gated experimental
@@ -747,9 +768,9 @@ after a service restart.
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
   matching reference ELF;
-- normalized `device-state` probes currently exist for StickS3, CoreS3 and
-  Cardputer ADV; other devices expose session metadata, framebuffer and serial
-  without inventing component values;
+- normalized `device-state` probes currently exist for StickS3, CoreS3,
+  Cardputer ADV and StopWatch; other devices expose session metadata,
+  framebuffer and serial without inventing component values;
 - emulator processes are not resumed across service restarts; only stopped,
   failed and interrupted history is reconstructed;
 - reference firmware must already exist in `platform/.cache/firmware`;

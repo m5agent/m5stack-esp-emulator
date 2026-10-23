@@ -82,6 +82,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(rows["stopwatch"]["network_status"], "validated")
         self.assertTrue(rows["stopwatch"]["features"]["network"])
+        self.assertTrue(rows["stopwatch"]["features"]["device_state"])
+        self.assertIn(
+            "uiflow2-stopwatch-unified",
+            rows["stopwatch"]["network_profiles"],
+        )
         self.assertEqual(rows["cardputer-adv"]["network_status"], "validated")
         self.assertTrue(rows["cardputer-adv"]["features"]["network"])
         self.assertTrue(rows["cardputer-adv"]["features"]["device_state"])
@@ -150,6 +155,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(capacity["modes"]["qemu-wifi"], "enabled-sticks3")
         self.assertEqual(capacity["modes"]["qemu-ble"], "disabled")
+        self.assertEqual(
+            capacity["modes"]["qemu-unified"],
+            "enabled-sticks3-cores3-cardputer-adv-stopwatch-wifi-ble",
+        )
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
     def test_default_capacity_matches_measured_workstation_profile(self):
@@ -448,6 +457,25 @@ class DeviceServiceUnitTests(unittest.TestCase):
                     device_service_module.CARDPUTER_ADV_UNIFIED_PROFILE
                 ],
                 18082,
+            )
+            stopwatch = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["stopwatch"],
+                {},
+            )
+            self.assertEqual(
+                stopwatch["profile"],
+                "uiflow2-stopwatch-unified",
+            )
+            self.assertEqual(stopwatch["nic"], "misc.esp32s3.wifi")
+            self.assertEqual(
+                stopwatch["expected_markers"],
+                list(device_service_module.STOPWATCH_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                device_service_module.UNIFIED_HTTP_PORTS[
+                    device_service_module.STOPWATCH_UNIFIED_PROFILE
+                ],
+                18083,
             )
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_ble_execution(
@@ -1036,6 +1064,67 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertTrue(all(evidence["checks"].values()))
         self.assertEqual(evidence["gatt"]["name"], "M5-CPTR-ADV-UNIFIED")
         self.assertEqual(evidence["gatt"]["payload"], "M5_CPTR_ADV")
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_stopwatch_unified_qemu_evidence(self):
+        spec = self.service.specs["stopwatch"]
+        firmware_path = Path(self.tmp.name) / "stopwatch-unified.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="b" * 32,
+            spec=spec,
+            firmware_id="c" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="c" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_STOPWATCH_READY",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "uiflow2-stopwatch-unified",
+                "nic": "misc.esp32s3.wifi",
+                "expected_markers": list(
+                    device_service_module.STOPWATCH_UNIFIED_MARKERS
+                ),
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "UNIFIED_STOPWATCH_WIFI_CONNECTED 10.0.2.15\n"
+            "UNIFIED_STOPWATCH_HTTP_PASS\n"
+            "UNIFIED_STOPWATCH_BLE_RX b'M5_STOPWATCH_U'\n"
+            "UNIFIED_STOPWATCH_BLE_ACK_SENT\n"
+            "UNIFIED_STOPWATCH_READY\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-STOPWATCH-UNIFIED'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_STOPWATCH_U\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_STOPWATCH_U\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}])
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-stopwatch-unified-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(evidence["gatt"]["name"], "M5-STOPWATCH-UNIFIED")
+        self.assertEqual(evidence["gatt"]["payload"], "M5_STOPWATCH_U")
         session.state = "stopped"
         session._proc = None
         session._qmp = None

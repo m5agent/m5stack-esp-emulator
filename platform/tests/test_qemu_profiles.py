@@ -22,6 +22,14 @@ class QemuProfileTest(unittest.TestCase):
         row = next(row for row in self.registry["devices"] if row["id"] == "stopwatch")
         self.assertEqual(row["qemu_status"], "ready")
         self.assertEqual(row["backend"], "qemu-esp32s3")
+        state = row["runtime_state"]
+        self.assertEqual(state["power"]["path"], "/machine/m5pm1")
+        self.assertIn("vbat-mv", state["power"]["properties"])
+        self.assertEqual(state["expander"]["path"], "/machine/m5ioe1")
+        self.assertIn("pa-enabled", state["expander"]["properties"])
+        self.assertEqual(state["imu"]["path"], "/machine/bmi270")
+        self.assertIn("accel-z", state["imu"]["properties"])
+        self.assertIn("gyro-z", state["imu"]["properties"])
 
     def test_sticks3_runtime_state_probe(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "sticks3")

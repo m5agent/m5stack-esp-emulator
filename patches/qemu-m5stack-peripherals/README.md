@@ -108,6 +108,7 @@ git apply /path/to/0017-cardputer-adv-qmp-key-matrix.patch
 git apply /path/to/0018-gpspi-cs-gated-panel-id.patch
 git apply /path/to/qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch
 git apply /path/to/0019-esp32s3-wifi-mac.patch
+git apply /path/to/0020-m5ioe1-pa-output-state.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -132,6 +133,11 @@ functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
 not a complete S3 PHY/rate/security model. The unified StickS3 test also uses
 an HCI-UART UIFlow2 build so the external Bumble controller can exercise the
 same guest's BLE NUS data plane without a second emulator process.
+
+`0020-m5ioe1-pa-output-state.patch` tracks M5IOE1 `GPIO_OUT_H` bit 1 and
+exposes the decoded StopWatch G10 PA level as `pa-enabled`. StopWatch routes
+the AW8737A enable through M5IOE1; M5PM1's G3 PA bit is the StickS3 path and
+must not be used as a StopWatch proxy.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and
