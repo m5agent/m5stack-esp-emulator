@@ -227,7 +227,9 @@
 - 声明型号、版本和设备是否与镜像一致；
 - ESP image、分区表和文件系统是否合法；
 - 是否存在重复制品或设备声明冲突；
-- 签名、安全启动和 Flash 加密状态。
+- 镜像声明、sdkconfig、分区加密 flag 和可选 eFuse summary；
+- 签名、安全启动和 Flash 加密状态。包内 eFuse summary 只作自报证据，
+  不能替代真机读取。
 
 ### 5.2 静态检查
 
@@ -411,7 +413,8 @@ evidence/
 
 1. 版本化 FirmwareManifest、M5Burner/WebBurner/ESP-IDF 导入和
    artifact hash/size 复核；
-2. capability mismatch、安全状态 `unknown` 和静态 review 的结构化结果；
+2. capability mismatch、镜像/sdkconfig/eFuse 分层的安全状态和静态 review
+   的结构化结果；
 3. 脱敏 URL、凭据/私钥特征、高熵编码块与 SBOM 摘要；
 4. QEMU pcap、DNS/DHCP/ARP/flow/payload-hash 摘要；
 5. Linux private namespace、fail-closed 和单 guest 无外网路径；

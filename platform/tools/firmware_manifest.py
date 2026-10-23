@@ -78,6 +78,11 @@ CAPABILITY_ALIASES = {
     "screen": "display",
     "storage": "sd",
 }
+EFUSE_SUMMARY_NAMES = (
+    "efuse-summary.json",
+    "espefuse-summary.json",
+    "efuse_summary.json",
+)
 
 
 class ManifestError(ValueError):
@@ -438,6 +443,38 @@ def _find_resources(root: Path) -> dict:
     return resources
 
 
+def _find_efuse_summary(root: Path) -> Path | None:
+    candidates = [
+        path
+        for name in EFUSE_SUMMARY_NAMES
+        for path in root.rglob(name)
+        if path.is_file()
+    ]
+    if not candidates:
+        return None
+    return sorted(candidates, key=lambda item: item.as_posix())[0]
+
+
+def _load_efuse_summary(path: Path) -> dict[str, Any]:
+    try:
+        text = path.read_text()
+    except OSError as error:
+        raise ManifestError(f"cannot read eFuse summary {path}: {error}") from error
+    try:
+        value = json.loads(text)
+    except json.JSONDecodeError:
+        start = text.find("{")
+        if start < 0:
+            raise ManifestError("eFuse summary contains no JSON object")
+        try:
+            value, _ = json.JSONDecoder().raw_decode(text[start:])
+        except json.JSONDecodeError as error:
+            raise ManifestError(f"invalid eFuse summary JSON: {error}") from error
+    if not isinstance(value, dict):
+        raise ManifestError("eFuse summary must be a JSON object")
+    return value
+
+
 def _segment_intervals(segments: Iterable[dict]) -> list[tuple[int, int, dict]]:
     intervals = []
     for segment in segments:
@@ -658,6 +695,8 @@ def _device_capability_set(device: dict) -> set[str]:
 def _security_metadata(
     analysis: dict,
     sdkconfig: Path | None,
+    efuse_summary: dict[str, Any] | None = None,
+    efuse_summary_path: Path | None = None,
 ) -> dict:
     partitions = analysis.get("partition_table", {}).get("partitions", [])
     encrypted = any(
@@ -668,30 +707,192 @@ def _security_metadata(
     config = ""
     if sdkconfig is not None and sdkconfig.is_file():
         config = sdkconfig.read_text(errors="replace")
-    if "CONFIG_SECURE_BOOT_V2_ENABLED=y" in config:
-        secure_boot = "v2"
-    elif "CONFIG_SECURE_BOOT_V1_ENABLED=y" in config:
-        secure_boot = "v1"
-    elif "CONFIG_SECURE_BOOT=y" in config:
-        secure_boot = "enabled-unspecified"
-    elif config:
-        secure_boot = "not-indicated"
-    else:
-        secure_boot = "unknown"
-    if "CONFIG_SECURE_FLASH_ENC_ENABLED=y" in config:
-        flash_encryption = "enabled"
+    config_flags = _sdkconfig_flags(config)
+    configured_secure_boot = _configured_secure_boot(config_flags)
+    configured_flash_encryption = (
+        "enabled"
+        if config_flags.get("CONFIG_SECURE_FLASH_ENC_ENABLED") == "y"
+        else "not-indicated"
+        if config_flags
+        else "unknown"
+    )
+    efuse = _parse_efuse_security(efuse_summary, efuse_summary_path)
+    secure_boot = (
+        efuse["secure_boot"]
+        if efuse is not None and efuse["secure_boot"] != "unknown"
+        else configured_secure_boot
+    )
+    if efuse is not None and efuse["flash_encryption"] != "unknown":
+        flash_encryption = efuse["flash_encryption"]
     elif encrypted:
         flash_encryption = "partition-encryption-marked"
-    elif config:
-        flash_encryption = "not-indicated"
     else:
-        flash_encryption = "unknown"
+        flash_encryption = configured_flash_encryption
     return {
         "secure_boot": secure_boot,
         "flash_encryption": flash_encryption,
-        "efuse": "not-included",
+        "secure_boot_config": configured_secure_boot,
+        "flash_encryption_config": configured_flash_encryption,
+        "efuse": "summary-included" if efuse is not None else "not-included",
+        "efuse_summary": efuse,
         "secure_version": descriptor.get("secure_version"),
         "sdkconfig_available": bool(config),
+    }
+
+
+def _sdkconfig_flags(config: str) -> dict[str, str]:
+    flags = {}
+    for raw_line in config.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if key.startswith("CONFIG_"):
+            flags[key] = value.strip().strip('"')
+    return flags
+
+
+def _configured_secure_boot(flags: dict[str, str]) -> str:
+    if flags.get("CONFIG_SECURE_BOOT_V2_ENABLED") == "y":
+        return "v2"
+    if flags.get("CONFIG_SECURE_BOOT_V1_ENABLED") == "y":
+        return "v1"
+    if flags.get("CONFIG_SECURE_BOOT") == "y":
+        return "enabled-unspecified"
+    return "not-indicated" if flags else "unknown"
+
+
+def _efuse_field(
+    document: dict[str, Any],
+    name: str,
+) -> dict[str, Any] | None:
+    value = document.get(name)
+    if not isinstance(value, dict) or value.get("readable") is False:
+        return None
+    return value
+
+
+def _efuse_bool(
+    document: dict[str, Any],
+    name: str,
+) -> bool | None:
+    field = _efuse_field(document, name)
+    if field is None:
+        return None
+    value = field.get("value")
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int) and value in {0, 1}:
+        return bool(value)
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "enable", "enabled", "1"}:
+            return True
+        if normalized in {"false", "disable", "disabled", "0"}:
+            return False
+    return None
+
+
+def _efuse_int(
+    document: dict[str, Any],
+    name: str,
+) -> int | None:
+    field = _efuse_field(document, name)
+    if field is None:
+        return None
+    value = field.get("value")
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        try:
+            return int(value, 0)
+        except ValueError:
+            return None
+    return None
+
+
+def _efuse_text(
+    document: dict[str, Any],
+    name: str,
+) -> str | None:
+    field = _efuse_field(document, name)
+    if field is None:
+        return None
+    value = field.get("value")
+    if not isinstance(value, str) or not value.strip():
+        return None
+    return value.strip()
+
+
+def _parse_efuse_security(
+    document: dict[str, Any] | None,
+    source: Path | None,
+) -> dict[str, Any] | None:
+    if document is None:
+        return None
+    secure_boot_v1 = _efuse_bool(document, "ABS_DONE_0")
+    secure_boot_v2 = _efuse_bool(document, "ABS_DONE_1")
+    secure_boot_en = _efuse_bool(document, "SECURE_BOOT_EN")
+    if secure_boot_v2 is True:
+        secure_boot = "v2"
+    elif secure_boot_v1 is True:
+        secure_boot = "v1"
+    elif secure_boot_en is True:
+        secure_boot = "enabled-unspecified"
+    elif any(
+        value is False
+        for value in (
+            secure_boot_v1,
+            secure_boot_v2,
+            secure_boot_en,
+        )
+    ):
+        secure_boot = "disabled"
+    else:
+        secure_boot = "unknown"
+
+    flash_crypt = _efuse_text(document, "SPI_BOOT_CRYPT_CNT")
+    if flash_crypt is None:
+        flash_encryption = "unknown"
+    elif flash_crypt.lower() in {"enable", "enabled"}:
+        flash_encryption = "enabled"
+    elif flash_crypt.lower() in {"disable", "disabled"}:
+        flash_encryption = "disabled"
+    else:
+        flash_encryption = "unknown"
+
+    purposes = []
+    for index in range(8):
+        purpose = _efuse_text(document, f"KEY_PURPOSE_{index}")
+        if purpose is not None:
+            purposes.append(
+                {
+                    "block": index,
+                    "purpose": purpose,
+                }
+            )
+    return {
+        "source": "espefuse-json",
+        "summary_sha256": (
+            sha256_file(source)
+            if source is not None and source.is_file()
+            else None
+        ),
+        "field_count": len(document),
+        "secure_boot": secure_boot,
+        "flash_encryption": flash_encryption,
+        "secure_version": _efuse_int(document, "SECURE_VERSION"),
+        "write_protected": {
+            "secure_boot": _efuse_bool(
+                document,
+                "WR_DIS_SECURE_BOOT_EN",
+            ),
+            "flash_encryption": _efuse_bool(
+                document,
+                "WR_DIS_SPI_BOOT_CRYPT_CNT",
+            ),
+        },
+        "key_purposes": purposes,
     }
 
 
@@ -839,6 +1040,12 @@ def import_package(
             if "sdkconfig" in resources
             else None
         )
+        efuse_summary_path = _find_efuse_summary(root)
+        efuse_summary = (
+            _load_efuse_summary(efuse_summary_path)
+            if efuse_summary_path is not None
+            else None
+        )
         copied_resources = {
             key: _copy_resource(
                 row,
@@ -918,7 +1125,12 @@ def import_package(
                 "application": analysis.get("app_descriptor"),
                 "filesystems": analysis.get("filesystems", []),
             },
-            "security": _security_metadata(analysis, sdkconfig_path),
+            "security": _security_metadata(
+                analysis,
+                sdkconfig_path,
+                efuse_summary,
+                efuse_summary_path,
+            ),
             "provenance": {
                 "importer": "m5stack-firmware-manifest/1",
                 "source_format": source_format,
@@ -949,18 +1161,62 @@ def import_package(
             "validation": {
                 "status": "PASS",
                 "errors": [],
-                "warnings": [
-                    _code_issues(
-                        "security_metadata_incomplete",
-                        (
-                            "eFuse and runtime security state are not "
-                            "embedded in a flash image"
-                        ),
-                        path="security",
-                    )
-                ],
+                "warnings": [],
             },
         }
+        if manifest["security"]["efuse"] == "summary-included":
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "efuse_summary_unverified",
+                    (
+                        "package-provided eFuse summary is self-asserted and "
+                        "was not independently read from hardware"
+                    ),
+                    path="security.efuse_summary",
+                )
+            )
+        else:
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "security_metadata_incomplete",
+                    (
+                        "eFuse and runtime security state are not embedded "
+                        "in a flash image"
+                    ),
+                    path="security",
+                )
+            )
+        security = manifest["security"]
+        if (
+            security["secure_boot_config"]
+            in {"v1", "v2", "enabled-unspecified"}
+            and security["secure_boot"] in {"disabled", "not-indicated"}
+        ):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "secure_boot_config_not_enabled",
+                    (
+                        "sdkconfig enables secure boot but the supplied "
+                        "security evidence does not indicate an enabled "
+                        "boot chain"
+                    ),
+                    path="security.secure_boot",
+                )
+            )
+        if (
+            security["flash_encryption_config"] == "enabled"
+            and security["flash_encryption"] in {"disabled", "not-indicated"}
+        ):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "flash_encryption_config_not_enabled",
+                    (
+                        "sdkconfig enables Flash Encryption but the supplied "
+                        "security evidence does not indicate it is active"
+                    ),
+                    path="security.flash_encryption",
+                )
+            )
         if review["status"] == "REVIEW_REQUIRED":
             manifest["validation"]["warnings"].append(
                 _code_issues(

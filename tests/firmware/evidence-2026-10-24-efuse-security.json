@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-efuse-security-evidence",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "static-package-import-not-hardware-efuse-read",
+  "sample": {
+    "kind": "synthetic-structural-firmware",
+    "sdkconfig_secure_boot": "v2",
+    "sdkconfig_flash_encryption": "enabled",
+    "efuse_summary": "synthetic-enable-plus-espefuse-v5.6.0-virtual-json"
+  },
+  "derived_security": {
+    "secure_boot": "v2",
+    "secure_boot_config": "v2",
+    "flash_encryption": "enabled",
+    "flash_encryption_config": "enabled",
+    "efuse": "summary-included",
+    "efuse_summary": {
+      "secure_boot": "v2",
+      "flash_encryption": "enabled",
+      "secure_version": 7,
+      "write_protected": {
+        "secure_boot": true,
+        "flash_encryption": null
+      },
+      "key_purposes": [
+        {
+          "block": 0,
+          "purpose": "SECURE_BOOT_DIGEST0"
+        }
+      ]
+    }
+  },
+  "checks": {
+    "sdkconfig_v2_detected": true,
+    "efuse_v2_precedence_recorded": true,
+    "efuse_flash_encryption_recorded": true,
+    "secure_version_recorded": true,
+    "key_purpose_recorded_without_raw_key": true,
+    "write_disable_state_recorded": true,
+    "raw_secret_absent_from_manifest": true,
+    "raw_secret_absent_from_output": true,
+    "efuse_source_not_copied": true,
+    "unverified_summary_warning_recorded": true,
+    "capability_mismatch_rejects_unmodeled_security": true,
+    "real_espefuse_json_preamble_tolerated": true,
+    "virtual_espefuse_summary_fields": 89,
+    "virtual_espefuse_disabled_state_derived": true
+  },
+  "capability_preflight": {
+    "device_id": "sticks3",
+    "status": "REJECTED",
+    "errors": [
+      "secure_boot_not_modeled",
+      "flash_encryption_not_modeled"
+    ]
+  },
+  "not_claimed": [
+    "that the package-provided eFuse summary is authentic",
+    "an eFuse read from physical hardware",
+    "secure boot or Flash Encryption execution in QEMU",
+    "production key custody or revocation",
+    "physical hardware validation"
+  ]
+}

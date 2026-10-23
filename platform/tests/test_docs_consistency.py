@@ -53,6 +53,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-23-static-review.json",
             "tests/firmware/evidence-2026-10-24-filesystem-inventory.json",
             "tests/firmware/evidence-2026-10-24-fat-inventory.json",
+            "tests/firmware/evidence-2026-10-24-efuse-security.json",
             "patches/qemu-core2-openmac-wifi/README.md",
             "patches/qemu-core2-ble-controller/README.md",
         ):
@@ -329,6 +330,18 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(radio_loss["status"], "PASS")
         self.assertTrue(all(radio_loss["checks"].values()))
         self.assertEqual(radio_loss["fault"]["target"], "radio")
+        efuse_security = json.loads(
+            (
+                ROOT
+                / "tests/firmware/evidence-2026-10-24-efuse-security.json"
+            ).read_text()
+        )
+        self.assertEqual(efuse_security["status"], "PASS")
+        self.assertTrue(all(efuse_security["checks"].values()))
+        self.assertEqual(
+            efuse_security["capability_preflight"]["status"],
+            "REJECTED",
+        )
 
     def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
         workstreams = (DOCS / "workstreams.md").read_text()

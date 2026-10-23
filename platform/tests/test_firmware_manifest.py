@@ -79,6 +79,133 @@ class FirmwareManifestTests(unittest.TestCase):
             )
             self.assertEqual(validate_manifest_structure(manifest), [])
 
+    def test_efuse_summary_adds_redacted_security_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            firmware = root / "probe.bin"
+            firmware.write_bytes(build_flash())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+                "CONFIG_SECURE_FLASH_ENC_ENABLED=y\n"
+            )
+            (root / "efuse-summary.json").write_text(
+                "espefuse v5.6.0\n\n"
+                "=== Run \"summary\" command ===\n"
+                + json.dumps(
+                    {
+                        "ABS_DONE_1": {
+                            "value": "True",
+                            "readable": True,
+                        },
+                        "SPI_BOOT_CRYPT_CNT": {
+                            "value": "Enable",
+                            "readable": True,
+                        },
+                        "SECURE_VERSION": {
+                            "value": 7,
+                            "readable": True,
+                        },
+                        "KEY_PURPOSE_0": {
+                            "value": "SECURE_BOOT_DIGEST0",
+                            "readable": True,
+                        },
+                        "WR_DIS_SECURE_BOOT_EN": {
+                            "value": "True",
+                            "readable": True,
+                        },
+                        "BLOCK_KEY0": {
+                            "value": "EFUSE_SECRET_SENTINEL",
+                            "raw_value": "EFUSE_SECRET_SENTINEL",
+                            "readable": True,
+                        },
+                    }
+                )
+            )
+            result = import_package(
+                firmware,
+                root / "out",
+                flash_size=8 << 20,
+            )
+            manifest = result["manifest"]
+            output_text = "\n".join(
+                path.read_text(errors="ignore")
+                for path in (root / "out").rglob("*")
+                if path.is_file()
+            )
+        self.assertEqual(manifest["security"]["secure_boot"], "v2")
+        self.assertEqual(
+            manifest["security"]["flash_encryption"],
+            "enabled",
+        )
+        self.assertEqual(
+            manifest["security"]["secure_boot_config"],
+            "v2",
+        )
+        self.assertEqual(
+            manifest["security"]["efuse"],
+            "summary-included",
+        )
+        summary = manifest["security"]["efuse_summary"]
+        self.assertEqual(summary["secure_version"], 7)
+        self.assertEqual(
+            summary["key_purposes"],
+            [{"block": 0, "purpose": "SECURE_BOOT_DIGEST0"}],
+        )
+        self.assertTrue(summary["write_protected"]["secure_boot"])
+        self.assertIn(
+            "efuse_summary_unverified",
+            {
+                row["code"]
+                for row in manifest["validation"]["warnings"]
+            },
+        )
+        self.assertNotIn("EFUSE_SECRET_SENTINEL", json.dumps(manifest))
+        self.assertNotIn("EFUSE_SECRET_SENTINEL", output_text)
+        self.assertFalse((root / "out" / "efuse-summary.json").exists())
+        self.assertEqual(validate_manifest_structure(manifest), [])
+
+    def test_efuse_summary_keeps_config_and_runtime_state_distinct(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            firmware = root / "probe.bin"
+            firmware.write_bytes(build_flash())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+                "CONFIG_SECURE_FLASH_ENC_ENABLED=y\n"
+            )
+            (root / "efuse-summary.json").write_text(
+                json.dumps(
+                    {
+                        "ABS_DONE_1": {
+                            "value": "False",
+                            "readable": True,
+                        },
+                        "SPI_BOOT_CRYPT_CNT": {
+                            "value": "Disable",
+                            "readable": True,
+                        },
+                    }
+                )
+            )
+            manifest = import_package(
+                firmware,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+        security = manifest["security"]
+        self.assertEqual(security["secure_boot"], "disabled")
+        self.assertEqual(security["secure_boot_config"], "v2")
+        self.assertEqual(security["flash_encryption"], "disabled")
+        self.assertEqual(security["flash_encryption_config"], "enabled")
+        codes = {
+            row["code"]
+            for row in manifest["validation"]["warnings"]
+        }
+        self.assertIn("secure_boot_config_not_enabled", codes)
+        self.assertIn("flash_encryption_config_not_enabled", codes)
+
     def test_manifest_id_is_content_stable(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

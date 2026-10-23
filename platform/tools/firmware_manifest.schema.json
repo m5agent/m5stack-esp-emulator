@@ -171,6 +171,7 @@
         "secure_boot": {
           "enum": [
             "unknown",
+            "disabled",
             "not-indicated",
             "v1",
             "v2",
@@ -180,6 +181,7 @@
         "flash_encryption": {
           "enum": [
             "unknown",
+            "disabled",
             "not-indicated",
             "partition-encryption-marked",
             "enabled"
@@ -187,6 +189,28 @@
         },
         "efuse": {
           "type": "string"
+        },
+        "secure_boot_config": {
+          "enum": [
+            "unknown",
+            "not-indicated",
+            "v1",
+            "v2",
+            "enabled-unspecified"
+          ]
+        },
+        "flash_encryption_config": {
+          "enum": [
+            "unknown",
+            "not-indicated",
+            "enabled"
+          ]
+        },
+        "efuse_summary": {
+          "type": [
+            "object",
+            "null"
+          ]
         },
         "secure_version": {
           "type": [

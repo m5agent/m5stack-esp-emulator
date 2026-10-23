@@ -28,6 +28,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 - 带同名 `.json` provenance sidecar 的 M5Burner `.bin`；
 - WebBurner `manifest.json` 的 `builds[].parts[]`；
 - 含 `flasher_args.json` 的 ESP-IDF 构建目录/ZIP；
+- 含 `espefuse.py summary --format json` 输出（`efuse-summary.json`）的包；
 - 单个 sparse/merged bin；
 - 带 ELF、MAP、sdkconfig、SPDX/CycloneDX SBOM、license/provenance 的包目录。
 
@@ -41,7 +42,8 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
    脚本/证书/配置类型、敏感路径和 SPDX 许可证声明；
 6. 静态扫描 URL、凭据特征、私钥标记和高熵编码块，并汇总 SBOM；
 7. 生成完整镜像、资源副本和 `*.manifest.json`；
-8. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需 capabilities。
+8. 分层记录镜像、sdkconfig、分区 flag 和可选 eFuse summary 的安全证据；
+9. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需 capabilities。
 
 ## Manifest 结构
 
@@ -52,7 +54,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | `artifact` | 规范化完整镜像或分段 artifact 的路径、大小、SHA256 |
 | `target` | SoC、chip ID、Flash、PSRAM、分区表、应用描述 |
 | `target.filesystems` | LittleFS/FAT 分区、文件路径/大小/SHA256、敏感路径和许可证声明 |
-| `security` | 安全启动、Flash Encryption、eFuse 和 secure version 边界 |
+| `security` | 安全启动、Flash Encryption、配置态、eFuse 摘要和 secure version 边界 |
 | `provenance` | M5Burner ID、版本、来源 URL/类型、license |
 | `resources` | ELF、MAP、sdkconfig、flasher args、SBOM |
 | `capabilities.required` | 目标设备必须提供的能力 |
@@ -60,6 +62,39 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | `validation` | 结构化 `errors[]` / `warnings[]` |
 
 JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名。
+
+## 安全证据分层
+
+`security.secure_boot` 和 `security.flash_encryption` 表示当前可取得的最高优先级
+证据结论；来源必须结合以下字段解释：
+
+| 证据层 | 字段 | 能证明什么 |
+| --- | --- | --- |
+| 镜像 | partition `flags`、app descriptor `secure_version` | 镜像声明、加密分区标记和 anti-rollback version |
+| sdkconfig | `secure_boot_config`、`flash_encryption_config` | 构建配置原本要求什么，不证明设备实际启用了什么 |
+| eFuse summary | `efuse`、`efuse_summary` | 包提供的一份 `espefuse` 读取结果声称设备状态是什么 |
+| 真机运行态 | 当前 manifest 不包含 | 必须由同设备、同安全配置的独立真机验证提供 |
+
+生成可导入的 eFuse 证据：
+
+```bash
+espefuse.py --chip esp32s3 summary --format json > efuse-summary.json
+```
+
+导入器只提取下述非秘密字段，原 JSON 不复制到输出目录：
+
+- `ABS_DONE_0/1`、`SECURE_BOOT_EN`；
+- `SPI_BOOT_CRYPT_CNT`；
+- `SECURE_VERSION`；
+- `KEY_PURPOSE_0..7` 的用途名称；
+- 安全启动与 Flash Encryption 的 write-disable 状态；
+- 原文件 SHA256 和字段数。
+
+不含 eFuse summary 时，eFuse 状态仍为 `not-included`，安全启动/加密状态只能
+由 sdkconfig 和镜像标记推断。包含 summary 时也只标记
+`efuse_summary_unverified`：包内 JSON 可以由调用者伪造，不是从真机实时读取。
+Device Service 仍拒绝启用 secure boot 或 Flash Encryption 的镜像，因为当前
+QEMU profile 没有建模对应的密钥和启动链。
 
 ## 静态审查
 
@@ -177,7 +212,10 @@ LittleFS 清单依赖 `littlefs-python`；依赖缺失时返回 `UNAVAILABLE`，
     "security": {
       "secure_boot": "unknown",
       "flash_encryption": "unknown",
-      "efuse": "not-included"
+      "secure_boot_config": "unknown",
+      "flash_encryption_config": "unknown",
+      "efuse": "not-included",
+      "efuse_summary": null
     },
     "provenance": {
       "importer": "m5stack-firmware-manifest/1",
@@ -246,7 +284,11 @@ FAT 证据：
 ## 边界
 
 - 镜像文件本身不能证明 eFuse/OEM key 状态；
-- 没有 sdkconfig 时安全启动/Flash Encryption 只能是 `unknown`；
+- 没有 sdkconfig 且没有可解析 eFuse 证据时，安全启动/Flash Encryption
+  只能是 `unknown`；
+- 包内 eFuse summary 是自报证据，必须记录来源哈希，并保持
+  `efuse_summary_unverified`；
+- eFuse summary 中的 key material / raw value 不进入 manifest 或规范化输出；
 - 分区 flag 的 encrypted bit 是镜像声明，不等于运行态 key 完整；
 - ELF/MAP 只用于符号化，不证明固件来源；
 - SBOM 存在只证明包内声明，不证明组件版本或许可证声明真实；

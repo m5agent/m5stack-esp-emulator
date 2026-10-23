@@ -25,7 +25,7 @@
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
   `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
   QEMU 虚拟时钟推进。
-- 当前平台测试：`237/237` PASS；runtime coverage、peripheral catalog 和
+- 当前平台测试：`239/239` PASS；runtime coverage、peripheral catalog 和
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
@@ -40,6 +40,7 @@
 | 2026-10-24 | DHCP renewal | ESP-IDF guest 调用 `netifapi_dhcp_renew()`；pcap 同事务出现初次 DORA 后再接 `REQUEST/ACK`，renewal request/ack 各 1，地址保持并通过 HTTP | [`renewal-pass.json`](../tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json) |
 | 2026-10-24 | 共享 QEMU | ESP32-S3 AES/GDMA 外部内存读取修复；最新全矩阵 `67/67` case、`274/274` check，全部首轮无重试 | [`gdma-external-memory-matrix.json`](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) |
 | 2026-10-24 | 固件审查 | FirmwareManifest 增加 LittleFS 与只读 FAT12/16/32 文件清单、SHA256、LFN、敏感路径脱敏与 SPDX 提取 | [`fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json) |
+| 2026-10-24 | 固件安全配置 | FirmwareManifest 解析脱敏 `espefuse summary --format json`，区分镜像、sdkconfig、分区 flag 与 eFuse 证据；原始 key/value 不落输出；启用安全启动/加密仍被 capability preflight 拒绝 | [`efuse-security.json`](../tests/firmware/evidence-2026-10-24-efuse-security.json) |
 | 2026-10-24 | Core2 | 确定性启动与零重试门禁合入；stock native-VHCI BLE、同 guest board+WiFi+公网+BLE GATT、Device Service 单 lease 证据已归档 | [`native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) |
 
 ## P0 收口
@@ -48,7 +49,7 @@
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；GitHub Actions Linux policy CI PASS | 自托管 QEMU worker、双设备 lab fabric、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、Device Service `core2-native-vhci` PASS | 非 GDB 生产实现、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
 ## 工程工作流总表
 
@@ -58,7 +59,7 @@
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | QEMU patch `0027` 后最新 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成，生产后端开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、Device Service lease PASS | 去掉 GDB bridge；bit-exact BT；物理 cache/PSRAM 与 soak |
 | Device Service | 本地 v1 可用，生产服务化未完成 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.11.0 | worker 化、活动进程恢复、warm pool、多机调度、VM 隔离和编排模块拆分 |
-| FirmwareManifest | v1 + 静态审查 + LittleFS/FAT 清单 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态、capability mismatch、脱敏 finding、SBOM、LittleFS/FAT12/16/32 文件哈希/敏感路径/SPDX | SPIFFS、运行时权限、许可策略、生产 key/eFuse、跨厂商回归、流式上传 |
+| FirmwareManifest | v1 + 静态审查 + eFuse 安全摘要 + LittleFS/FAT 清单 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、sdkconfig/分区/eFuse 分层、capability mismatch、脱敏 finding、SBOM、LittleFS/FAT12/16/32 文件哈希/敏感路径/SPDX | SPIFFS、运行时权限、许可策略、真机 key/eFuse、跨厂商回归、流式上传 |
 | 网络隔离与取证 | Linux 单机与 GitHub Actions policy 路径闭环，正式 worker 开放 | `network_egress.py`、`network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、reconnect probe | namespace/controlled DNS/TLS、nftables exact IPv4 egress、veth/NAT、DHCP DORA+renew lifecycle、pcap、错误密码、radio/AP 丢失恢复和清理 PASS；GitHub Actions Linux job PASS | 自托管 QEMU worker、双设备 fabric、外部 IPv6 |
 | 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
 | 物理硬件验证 | `NOT RUN` | Device Test Center 路径 | 当前仅有 virtual-device validation | 代表设备使用同固件 SHA 和同测试计划做实机证据 |

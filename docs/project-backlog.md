@@ -21,7 +21,7 @@
 | --- | --- | --- | --- |
 | P0 | 网络策略与 worker | 双设备 fabric、自托管 QEMU worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
 | P0 | Core2 生产化 | 非 GDB VHCI、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
-| P0 | 通用固件审查 | SPIFFS、权限/许可策略、eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
+| P0 | 通用固件审查 | SPIFFS、权限/许可策略、真机 eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
 | P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
 | P1 | 外部 IPv6 egress | v6 veth/route/NAT 与 exact endpoint 规则 | worker 双栈配置；当前 IPv6 请求会被拒绝 |
 | P1 | 服务 worker 与调度 | supervisor、heartbeat、drain/re-attach、warm pool、多机容量 | 生产部署；对象存储；审计 |
@@ -50,7 +50,7 @@
 | `CORE2-01` | 待做 | 服务托管的 GDB VHCI 改为 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
 | `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
-| `FW-02` | 待做 | eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
+| `FW-02` | 进行中 | 包内安全摘要已支持；继续做真机 eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、boot 层，不混算 PASS |
 | `FW-04` | 待做 | WebBurner 流式导入和 chunk artifact upload | 大镜像不先落完整宿主临时文件，hash/manifest 保持一致 |
 | `SVC-01` | 待做 | worker supervisor、注册/心跳、drain、re-attach | 服务重启可收敛 worker，lease 有明确接管或失败状态 |
@@ -119,7 +119,9 @@ helper；实现前保持 `UNSUPPORTED`。
 
 ### FW-02 安全配置
 
-- 识别 secure boot、Flash Encryption、eFuse 和 key 状态；
+- 包内 sdkconfig、分区 flag、`espefuse summary --format json` 和 key purpose
+  已能分层记录；原始 key/value 不复制到输出；
+- 仍需识别真机 secure boot、Flash Encryption、eFuse 和 key 状态；
 - 明确镜像声明 / 运行态 / 真机验证三层；
 - 测试 key、生产 key 和拒绝路径不进入仓库或公开日志；
 - 无权威输入时保持 `unknown`。
