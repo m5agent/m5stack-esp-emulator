@@ -34,10 +34,14 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/tls_allowlist/README.md",
             "tests/network/tls_allowlist/run_test.py",
             "tests/network/core2_openmac_wifi/README.md",
+            "tests/network/egress_allowlist/README.md",
+            "tests/network/egress_allowlist/run_test.py",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json",
+            "tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json",
+            "tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
@@ -93,6 +97,7 @@ class DocsConsistencyTests(unittest.TestCase):
                 ROOT / "platform" / "README.md",
                 ROOT / "tests" / "uiflow2" / "README.md",
                 ROOT / "tests" / "network" / "core2_openmac_wifi" / "README.md",
+                ROOT / "tests" / "network" / "egress_allowlist" / "README.md",
                 ROOT / "patches" / "qemu-core2-openmac-wifi" / "README.md",
                 ROOT / "patches" / "qemu-core2-ble-controller" / "README.md",
                 *sorted(DOCS.glob("*.md")),
@@ -135,6 +140,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "FAT inventory is not implemented",
             "SPIFFS/FAT 解包",
             "FAT/SPIFFS 返回可验证清单",
+            "This is not a generic destination-IP/port allowlist",
+            "通用 destination allowlist",
+            "still not prove arbitrary destination IP/port",
         ):
             self.assertNotIn(stale, active)
 
@@ -192,7 +200,7 @@ class DocsConsistencyTests(unittest.TestCase):
             (DOCS / "qemu-device-adaptation-matrix.md").read_text(),
         )
         self.assertIn(
-            "Linux namespace controlled DNS、TLS + Host allowlist",
+            "controlled DNS、TLS/Host allowlist",
             status,
         )
         self.assertIn("controlled DNS", status)
@@ -200,6 +208,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "DNS/TLS allowlist",
             (DOCS / "network-simulation-plan.md").read_text(),
+        )
+        self.assertIn(
+            "IP/端口 egress",
+            status,
         )
         self.assertIn("## 新鲜度台账", (DOCS / "README.md").read_text())
         self.assertIn("## 可执行任务板", backlog)
@@ -309,6 +321,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(markdown_version.group(1), openapi_version.group(1))
         self.assertIn("allowlist", openapi)
         self.assertIn("allowed_hosts", openapi)
+        self.assertIn("allowed_endpoints", openapi)
         self.assertIn("controlled", openapi)
 
 

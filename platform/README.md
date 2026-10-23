@@ -76,12 +76,14 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/fetch_firmware.py` | 公开 M5Burner 固件查询、下载和缓存 |
 | `tools/user_firmware_matrix.py` | 热门用户固件仿真矩阵 |
 | `tools/network_policy.py` | isolation、egress、controlled DNS、Host allowlist 和 pcap 策略 |
+| `tools/network_egress.py` | nftables 精确 IP/端口规则、veth/NAT gateway、能力检查和清理 |
 | `tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS 与 fail-closed runner |
 | `tools/network_lane.py` | esp-emu 网络/Provisioning 诊断 lane |
 | `tools/pcap_summary.py` | pcap 元数据和 payload hash 摘要 |
 | `tools/ble_probe.py` | 外部 BLE controller/peer 与 GATT 验证 |
 | `tools/storage_policy.py` | 历史、Flash 和缓存回收策略 |
 | `../tests/network/tls_allowlist/` | 测试 CA、HTTPS Host allowlist、200/403、pcap 断言和 AES/GDMA 回归证据 |
+| `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |
 
 ## 目录服务 API
 

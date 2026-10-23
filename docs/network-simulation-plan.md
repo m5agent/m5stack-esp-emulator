@@ -37,7 +37,8 @@ Device Service lease
 | 负向认证 | 错误密码要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker 同时成立 | 当前实际 AP 类型有限 |
 | 断线和恢复 | guest `WLAN.disconnect()` 叠加 QMP `wifi0` link down/up 后重新 DHCP，并通过 `/after` HTTP | 不是物理 AP/radio 消失，也不是 DHCP renewal |
 | Linux 隔离 | StickS3 QEMU guest 位于 private network namespace；无外部路由，namespace 创建失败时 fail-closed | 单设备、受控 fixture；不是恶意固件 VM |
-| DNS/TLS allowlist | private mount namespace 注入临时 `resolv.conf`；允许域名 A，拒绝和 UIFlow/NTP 后台域名 NXDOMAIN；测试 CA TLS 允许 200、拒绝 403；pcap 一致 | 仍不是任意目标 IP/端口 egress policy |
+| DNS/TLS allowlist | private mount namespace 注入临时 `resolv.conf`；允许域名 A，拒绝和 UIFlow/NTP 后台域名 NXDOMAIN；测试 CA TLS 允许 200、拒绝 403；pcap 一致 | Host/DNS 决策与网络 destination policy 分开记录 |
+| 精确 IPv4 egress | nftables input/output 默认 drop；exact IP+protocol+port；同 IP 其他端口和同端口其他 IP 均超时；`1.1.1.1:80` 经 veth/NAT 200/301；namespace/NAT 清理 | 外部 IPv6、CIDR 和域名不作为隐式端点 |
 | QEMU 外部内存 | patch `0027` 修复 ESP32-S3 AES/GDMA 访问外部内存，TLS 可进入证书解析和 HTTPS 路径 | 修复后最新全矩阵 `67/67`、`274/274`，全部首轮无重试 |
 | Tab5 | C6 `network_adapter` 以 ESP-Hosted 启动 | P4 UIFlow2/ESP-IDF 的 association/DHCP/DNS/TCP 仍 `NOT RUN` |
 | CardputerZero | 独立 SR9900A Ethernet frame 回环 | 不是 WiFi，也不是 ESP32/UIFlow2 产品路径 |
@@ -47,16 +48,18 @@ Device Service lease
 - [controlled DNS + TLS Host allowlist](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json)
 - [Linux private namespace guest](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
 - [Core2 native-VHCI Device Service lease](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
+- [精确 IPv4 IP/端口和 NAT 证据](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json)
+- [TLS guest under nftables policy](../tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json)
 - [GDMA 外部内存修复和全矩阵](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json)
 
 ## 尚未证明
 
-- 通用 destination IP/端口级 egress allowlist；
 - DHCP renewal、真实 AP 消失/恢复和 lease 变化；
 - WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
 - 两台设备通过唯一预期 lab fabric 通信；
 - namespace、pcap retention 和 evidence upload 的正式 CI/worker 生命周期；
 - 任意 S3/C6 固件或任意公网服务的稳定联网；
+- 外部 IPv6、CIDR 或域名到多个 IP 的 egress policy；
 - Tab5 P4↔C6 ESP-Hosted 端到端网络；
 - Core2 无 GDB 的 VHCI 后端、bit-exact BT controller/baseband、
   RF/coexistence/throughput/soak；
@@ -135,13 +138,14 @@ QEMU 子树看到 127.0.0.1 resolver；HTTPS 网关使用临时 CA 和 Host allo
 | Phase | Status | Next acceptance |
 | --- | --- | --- |
 | N0 单设备 WiFi/DHCP/HTTP | DONE | 保留回归 |
-| N1 可控 DNS/TLS/负向/重连/pcap | MOSTLY DONE | 补 destination IP/port policy 和 DHCP renewal |
+| N1 可控 DNS/TLS/IP-port/负向/重连/pcap | DONE | 保留回归；DHCP renewal 在 N2 |
 | N2 S3/C6 单 guest board+radio | DONE | 新 profile 必须带设备级 evidence |
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
-| N4 Linux CI、egress、双设备 fabric | IN PROGRESS | CI 可重复，namespace fail-closed，两 guest 隔离 |
+| N4 Linux CI、双设备 fabric | IN PROGRESS | CI 可重复，namespace/nft 失败保持 fail-closed，两 guest 隔离 |
 | N5 Core2 production BLE/PHY | PARTIAL | 非 GDB backend、controller semantics、coexistence soak |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
-下一项最小交付是 `NET-01`：在现有 namespace controlled DNS/TLS 基础上加入
-目标 IP+端口 allow/deny，并由同一次 guest 产生 pcap 和协议证据。随后补
-`NET-02` 的 renewal/真实 AP 恢复和 `NET-03` 的双设备 fabric。
+下一项最小交付是 `NET-02`：DHCP renewal、真实 AP 丢失/恢复，以及随后的
+`NET-03` 双设备 fabric。精确 IPv4 endpoint policy 已由 nftables 在隔离
+namespace 内执行，外部 IPv4 通过 per-session veth/NAT；策略或依赖不可用时
+fail-closed。

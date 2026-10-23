@@ -15,13 +15,11 @@ import tempfile
 import time
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
 from network_sandbox import ControlledHttp  # noqa: E402
 from pcap_summary import summarize_pcap  # noqa: E402
-
 
 PROBE = Path(__file__).resolve().parent / "probe"
 PROFILE_RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
@@ -252,6 +250,13 @@ def main() -> int:
                             "egress": "allowlist",
                             "dns": "controlled",
                             "allowed_hosts": ["allowed.lab.test"],
+                            "allowed_endpoints": [
+                                {
+                                    "protocol": "tcp",
+                                    "address": "10.0.2.2",
+                                    "port": TLS_PORT,
+                                }
+                            ],
                         },
                         "dns": {
                             "mode": "controlled",
@@ -409,6 +414,20 @@ def main() -> int:
             isolation.get("allowed_hosts")
             == ["allowed.lab.test"]
         )
+        checks["allowed_endpoint_evidence"] = (
+            isolation.get("allowed_endpoints")
+            == [
+                {
+                    "protocol": "tcp",
+                    "address": "10.0.2.2",
+                    "port": TLS_PORT,
+                }
+            ]
+        )
+        checks["nftables_default_drop"] = (
+            isolation.get("egress_enforcement")
+            == "nftables-input-output-default-drop"
+        )
         checks["controlled_dns"] = (
             isolation.get("controlled_dns") is True
         )
@@ -460,7 +479,7 @@ def main() -> int:
         },
         "not_claimed": [
             "real-hardware TLS or RF behavior",
-            "arbitrary public-internet allowlisting",
+            "public-internet availability",
             "certificate-pinned or mutual-TLS firmware",
             "malicious-firmware safety",
         ],

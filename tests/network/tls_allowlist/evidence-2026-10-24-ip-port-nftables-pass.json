@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-tls-host-allowlist-with-ip-port-policy",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "virtual-device-namespace-lab-tls-not-hardware-rf",
+  "duration_seconds": 24.808,
+  "image_sha256": "226f84dfdf9277243b313f49dd47ced79ac12a6e33df37d4356257abbaf3d355",
+  "base_image_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "certificate_sha256": "9ffdd613225d9fb5b46887f4eb195378c0a3c806344bf839e71c8026dd21a2bd",
+  "checks": {
+    "wifi_ready": true,
+    "tls_context_ready": true,
+    "ca_loaded": true,
+    "tls_allowed_host_200": true,
+    "tls_denied_host_403": true,
+    "tls_allowlist_result": true,
+    "dns_allowed_a": true,
+    "dns_denied_nxdomain": true,
+    "dhcp": true,
+    "tls_port_observed": true,
+    "pcap_written": true,
+    "private_namespace": true,
+    "no_external_route": true,
+    "allowed_host_evidence": true,
+    "allowed_endpoint_evidence": true,
+    "nftables_input_output_default_drop": true,
+    "controlled_dns": true,
+    "dns_background_denied": true
+  },
+  "allowed_endpoint": {
+    "protocol": "tcp",
+    "address": "10.0.2.2",
+    "port": 18443
+  },
+  "packet_capture": {
+    "status": "PASS",
+    "bytes": 12167,
+    "sha256": "f9666e39b3796950247c45386e6820542294af961b3f03ffdceff90bf7e1e5ba",
+    "packets": 77,
+    "truncated_records": 0,
+    "malformed_records": 0,
+    "dhcp_guest_address": "10.0.2.15",
+    "tls_destination": "10.0.2.2:18443",
+    "dns_destination": "10.0.2.3:53"
+  },
+  "not_claimed": [
+    "real-hardware TLS or RF behavior",
+    "general public-internet availability",
+    "certificate-pinned or mutual-TLS firmware",
+    "external IPv6 egress",
+    "malicious-firmware safety"
+  ]
+}

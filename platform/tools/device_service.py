@@ -67,6 +67,11 @@ from firmware_manifest import (  # noqa: E402
     validate_manifest_structure,
 )
 from network_lane import normalize_hostfwd, normalize_i2c_device  # noqa: E402
+from network_egress import (  # noqa: E402
+    EgressEndpoint,
+    capability as egress_capability,
+    requires_external_gateway,
+)
 from network_policy import (  # noqa: E402
     NetworkPolicy,
     NetworkPolicyError,
@@ -445,9 +450,16 @@ def parse_capture_pcap(value: Any, *, default: bool = True) -> bool:
     return value
 
 
-def parse_network_policy(value: Any) -> NetworkPolicy:
+def parse_network_policy(
+    value: Any,
+    *,
+    implicit_endpoints: tuple[EgressEndpoint, ...] = (),
+) -> NetworkPolicy:
     try:
-        return NetworkPolicy.from_mapping(value)
+        policy = NetworkPolicy.from_mapping(value)
+        if policy.egress == "allowlist" and implicit_endpoints:
+            policy = policy.with_allowed_endpoints(implicit_endpoints)
+        return policy
     except NetworkPolicyError as error:
         raise ServiceError(
             "invalid_network_policy",
@@ -460,14 +472,51 @@ def require_allowlist_http_fixture(
     profile: str,
     policy: NetworkPolicy,
 ) -> None:
-    if policy.egress != "allowlist" or profile in UNIFIED_HTTP_PORTS:
+    if (
+        policy.egress != "allowlist"
+        or profile in UNIFIED_HTTP_PORTS
+        or policy.allowed_endpoints
+    ):
         return
     raise ServiceError(
         "allowlist_not_supported",
-        "network.policy.egress=allowlist requires a profile with a "
-        "controlled HTTP fixture",
+        "network.policy.egress=allowlist requires allowed_endpoints or a "
+        "profile with a controlled HTTP fixture",
         400,
     )
+
+
+def implicit_allowlist_endpoints(
+    profile: str,
+) -> tuple[EgressEndpoint, ...]:
+    port = UNIFIED_HTTP_PORTS.get(profile)
+    if port is None:
+        return ()
+    return (EgressEndpoint(protocol="tcp", address="10.0.2.2", port=port),)
+
+
+def require_network_capabilities(policy: NetworkPolicy) -> None:
+    if policy.isolation != "namespace":
+        return
+    if namespace_capability()["status"] != "PASS":
+        raise ServiceError(
+            "network_isolation_unavailable",
+            "network namespace isolation is unavailable on this runtime",
+            503,
+        )
+    if policy.egress != "allowlist":
+        return
+    capability = egress_capability(
+        require_gateway=requires_external_gateway(
+            policy.allowed_endpoints
+        )
+    )
+    if capability["status"] != "PASS":
+        raise ServiceError(
+            "egress_policy_unavailable",
+            "; ".join(capability["errors"]),
+            503,
+        )
 
 
 def qemu_pcap_options(path: Path, *, netdev: str = "wifi0") -> list[str]:
@@ -926,17 +975,12 @@ def parse_qemu_wifi_execution(
             "network.attempts must be an integer from 1 to 10",
             400,
         )
-    policy = parse_network_policy(value.get("policy"))
+    policy = parse_network_policy(
+        value.get("policy"),
+        implicit_endpoints=implicit_allowlist_endpoints(profile),
+    )
     require_allowlist_http_fixture(profile, policy)
-    if (
-        policy.isolation == "namespace"
-        and namespace_capability()["status"] != "PASS"
-    ):
-        raise ServiceError(
-            "network_isolation_unavailable",
-            "network namespace isolation is unavailable on this runtime",
-            503,
-        )
+    require_network_capabilities(policy)
     capture_pcap = parse_capture_pcap(
         value.get("capture_pcap"),
         default=policy.capture_pcap,
@@ -1076,17 +1120,12 @@ def parse_qemu_ble_execution(
             "network.attempts must be an integer from 1 to 10",
             400,
         )
-    policy = parse_network_policy(value.get("policy"))
+    policy = parse_network_policy(
+        value.get("policy"),
+        implicit_endpoints=implicit_allowlist_endpoints(profile),
+    )
     require_allowlist_http_fixture(profile, policy)
-    if (
-        policy.isolation == "namespace"
-        and namespace_capability()["status"] != "PASS"
-    ):
-        raise ServiceError(
-            "network_isolation_unavailable",
-            "network namespace isolation is unavailable on this runtime",
-            503,
-        )
+    require_network_capabilities(policy)
     capture_pcap = parse_capture_pcap(
         value.get("capture_pcap"),
         default=policy.capture_pcap,
@@ -3562,6 +3601,17 @@ class DeviceSession:
             sandbox_config: dict[str, Any] = {
                 "policy": policy.evidence(),
             }
+            control_tcp_ports = sorted(
+                {
+                    port
+                    for port in (self.hci_port, self.gdb_port)
+                    if port is not None
+                }
+            )
+            if control_tcp_ports:
+                sandbox_config["control"] = {
+                    "tcp_ports": control_tcp_ports,
+                }
             if policy.dns == "controlled":
                 sandbox_config["dns"] = {
                     "mode": "controlled",

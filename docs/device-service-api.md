@@ -1,7 +1,7 @@
 # Device Service API v1
 
-Status: local MVP with unified-device runtime contract `1.9.0` and bounded
-storage retention implemented on `2026-10-23`.
+Status: local MVP with unified-device runtime contract `1.10.0` and bounded
+storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
 firmware artifact into an isolated virtual-flash copy, and exposes serial,
@@ -351,26 +351,51 @@ Evidence ZIPs include `network/capture.pcap` and
     "isolation": "namespace",
     "egress": "allowlist",
     "dns": "controlled",
-    "allowed_hosts": ["allowed.lab.test"]
+    "allowed_hosts": ["allowed.lab.test"],
+    "allowed_endpoints": [
+      {
+        "protocol": "tcp",
+        "address": "10.0.2.2",
+        "port": 18443
+      }
+    ]
   }
 }
 ```
 
-`isolation=namespace` is Linux-only. The service creates a private network
-namespace, rejects any external route and starts the
-controlled HTTP/BLE peers inside the same namespace. If namespace creation is
-not permitted, the session fails with `network_isolation_unavailable` instead
-of falling back to host networking. `egress=lab-only` permits only the
-namespace-local fixture; external DNS and TCP are intentionally unavailable.
-`egress=allowlist` additionally requires a non-empty `allowed_hosts` list.
-The same list controls DNS A records and the controlled HTTP gateway's `Host`
-header. It is not a generic destination-IP/port allowlist and does not by
-itself expose external internet egress. Profiles without a controlled HTTP
-fixture reject this mode with `allowlist_not_supported`.
+`isolation=namespace` is Linux-only. For `lab-only`, the service creates a
+private namespace with no external route and starts controlled HTTP/BLE peers
+inside it. For `allowlist`, nftables input/output chains default to `drop`;
+only exact IPv4 `protocol + address + port` endpoints, established/related
+flows, and required loopback control ports are accepted.
+
+`allowed_endpoints` accepts at most 64 exact endpoints. A guest-visible
+`10.0.2.2` endpoint is enforced against the SLiRP host-loopback socket; other
+IPv4 endpoints use a per-session veth and temporary worker-side NAT table.
+External IPv6 endpoints, CIDRs and domains are rejected rather than treated as
+implicitly allowed. Loopback allowances are derived internally from controlled
+DNS, HTTP/TLS fixtures and HCI/GDB control ports; callers cannot grant arbitrary
+host-loopback services through `allowed_endpoints`.
+
+`egress=allowlist` requires at least one of `allowed_hosts` or
+`allowed_endpoints`. Profiles with a controlled HTTP fixture add their exact
+HTTP endpoint automatically. Profiles without one require explicit
+`allowed_endpoints`; otherwise the request fails with
+`allowlist_not_supported`.
 `dns=controlled` requires namespace isolation and `egress=allowlist`. The
 sandbox creates a private mount namespace, binds a temporary resolver
 configuration only into the QEMU process tree, and serves allowlisted names
 from the controlled resolver while returning NXDOMAIN for other names.
+`allowed_hosts` is therefore required for `dns=controlled`; it controls DNS A
+records and the HTTP gateway's `Host` decision, while `allowed_endpoints`
+controls the actual network destination.
+
+The Linux worker must provide root or equivalent `NET_ADMIN`/`SYS_ADMIN`
+capabilities, `nftables`, and for external IPv4 endpoints `iproute2` plus
+`net.ipv4.ip_forward=1`. Preflight failure returns
+`egress_policy_unavailable`; readiness/rule installation failure remains
+fail-closed. Every temporary namespace, veth pair and NAT table is removed when
+the session stops.
 
 Use `runtime=qemu-wifi` with `network.profile=uiflow2-sticks3-wifi` for a
 StickS3 application that needs the board framebuffer, input and public

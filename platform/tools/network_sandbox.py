@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Run a QEMU session inside a Linux network namespace with no egress route."""
+"""Run a command inside a fail-closed Linux network namespace."""
 from __future__ import annotations
 
 import argparse
 import ctypes
 import fcntl
+import ipaddress
 import json
 import os
 import signal
@@ -20,6 +21,17 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
+from network_egress import (
+    EgressEndpoint,
+    EgressError,
+    EgressGateway,
+    install_egress_rules,
+    parse_endpoints,
+    requires_external_gateway,
+)
+from network_egress import (
+    capability as egress_capability,
+)
 
 SIOCGIFFLAGS = 0x8913
 SIOCSIFFLAGS = 0x8914
@@ -109,29 +121,83 @@ def bring_loopback_up(interface: str = "lo") -> None:
         fcntl.ioctl(sock.fileno(), SIOCSIFFLAGS, bytes(request))
 
 
-def route_table_has_external_route() -> bool:
+def route_table_has_external_route(
+    *,
+    expected_interface: str | None = None,
+    expected_gateway: str | None = None,
+    expected_network: str | None = None,
+) -> bool:
     path = Path("/proc/net/route")
     if not path.is_file():
         return True
+    gateway_value = (
+        int.from_bytes(socket.inet_aton(expected_gateway), "little")
+        if expected_gateway
+        else None
+    )
+    network_value = (
+        int.from_bytes(socket.inet_aton(expected_network), "little")
+        if expected_network
+        else None
+    )
     for line in path.read_text(errors="replace").splitlines()[1:]:
         fields = line.split()
         if len(fields) < 8:
             continue
         flags = int(fields[3], 16)
-        if fields[0] != "lo" and flags & 0x1:
-            return True
+        if fields[0] == "lo" or not flags & 0x1:
+            continue
+        destination = int(fields[1], 16)
+        gateway = int(fields[2], 16)
+        if (
+            expected_interface
+            and fields[0] == expected_interface
+            and (
+                (
+                    destination == 0
+                    and gateway == gateway_value
+                )
+                or (
+                    expected_network is not None
+                    and destination == network_value
+                    and gateway == 0
+                )
+            )
+        ):
+            continue
+        return True
     ipv6 = Path("/proc/net/ipv6_route")
     if ipv6.is_file():
         for line in ipv6.read_text(errors="replace").splitlines():
             fields = line.split()
-            if fields and fields[-1] != "lo":
-                return True
+            if not fields or fields[-1] == "lo":
+                continue
+            if (
+                expected_interface
+                and fields[-1] == expected_interface
+                and len(fields) > 1
+                and (
+                    (
+                        fields[0].startswith("fe8")
+                        and fields[1] == "40"
+                    )
+                    or (
+                        fields[0].startswith("ff")
+                        and fields[1] == "08"
+                    )
+                )
+            ):
+                continue
+            return True
     return False
 
 
 def write_isolation_evidence(
     path: Path,
     config: dict[str, Any] | None = None,
+    *,
+    gateway: dict[str, Any] | None = None,
+    external_route: bool = False,
 ) -> None:
     interfaces = sorted(name for _, name in socket.if_nameindex())
     policy = (config or {}).get("policy", {})
@@ -143,6 +209,9 @@ def write_isolation_evidence(
     dns = (config or {}).get("dns", {})
     if not isinstance(dns, dict):
         dns = {}
+    control = (config or {}).get("control", {})
+    if not isinstance(control, dict):
+        control = {}
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(
@@ -151,10 +220,19 @@ def write_isolation_evidence(
                 "platform": sys.platform,
                 "private_network_namespace": True,
                 "interfaces": interfaces,
-                "external_route": False,
+                "external_route": external_route,
                 "egress": policy.get("egress", "deny-all"),
                 "dns": policy.get("dns", "deny"),
                 "allowed_hosts": policy.get("allowed_hosts", []),
+                "allowed_endpoints": policy.get("allowed_endpoints", []),
+                "control_tcp_ports": control.get("tcp_ports", []),
+                "control_udp_ports": control.get("udp_ports", []),
+                "egress_enforcement": (
+                    "nftables-input-output-default-drop"
+                    if policy.get("egress") == "allowlist"
+                    else "namespace-no-external-route"
+                ),
+                "gateway": gateway,
                 "tls_gateway": bool(http.get("tls")),
                 "controlled_dns": dns.get("mode") == "controlled",
                 "dns_records": dns.get("hosts", {}),
@@ -465,27 +543,129 @@ def load_config(path: Path) -> dict[str, Any]:
     return value
 
 
-def run(config: dict[str, Any], command: list[str]) -> int:
+def _port_values(value: object, *, field: str) -> set[int]:
+    if value is None:
+        return set()
+    if not isinstance(value, list) or any(
+        not isinstance(port, int)
+        or isinstance(port, bool)
+        or not 1 <= port <= 65535
+        for port in value
+    ):
+        raise SandboxError(f"{field} must be a list of TCP/UDP ports")
+    return set(value)
+
+
+def _egress_endpoints(config: dict[str, Any]) -> tuple[EgressEndpoint, ...]:
+    policy = config.get("policy")
+    if not isinstance(policy, dict):
+        raise SandboxError("sandbox policy config must be an object")
+    try:
+        return parse_endpoints(policy.get("allowed_endpoints", []))
+    except EgressError as error:
+        raise SandboxError(str(error)) from error
+
+
+def _loopback_ports(config: dict[str, Any]) -> tuple[set[int], set[int]]:
+    control = config.get("control", {})
+    if not isinstance(control, dict):
+        raise SandboxError("sandbox control config must be an object")
+    tcp_ports = _port_values(
+        control.get("tcp_ports"),
+        field="sandbox control.tcp_ports",
+    )
+    udp_ports = _port_values(
+        control.get("udp_ports"),
+        field="sandbox control.udp_ports",
+    )
+    http = config.get("http")
+    if isinstance(http, dict) and http.get("port") is not None:
+        port = int(http["port"])
+        if 1 <= port <= 65535:
+            tcp_ports.add(port)
+    dns = config.get("dns")
+    if isinstance(dns, dict):
+        port = int(dns.get("port", 53))
+        if not 1 <= port <= 65535:
+            raise SandboxError("sandbox DNS port is out of range")
+        udp_ports.add(port)
+    return tcp_ports, udp_ports
+
+
+def run(
+    config: dict[str, Any],
+    command: list[str],
+    *,
+    create_namespace: bool = True,
+    gateway: dict[str, Any] | None = None,
+) -> int:
     if sys.platform != "linux":
         raise SandboxError("network namespace isolation requires Linux")
     if not command:
         raise SandboxError("a command is required after --")
-    try:
-        os.unshare(os.CLONE_NEWNET)
-    except (AttributeError, OSError) as error:
-        raise SandboxError(f"cannot create network namespace: {error}") from error
+    if create_namespace:
+        try:
+            os.unshare(os.CLONE_NEWNET)
+        except (AttributeError, OSError) as error:
+            raise SandboxError(
+                f"cannot create network namespace: {error}"
+            ) from error
     dns_config = config.get("dns")
     resolv_path: Path | None = None
     if dns_config is not None:
         resolv_path = install_controlled_resolv_conf()
     bring_loopback_up()
-    if route_table_has_external_route():
+    if gateway is None and route_table_has_external_route():
         raise SandboxError(
             "network namespace still has an external route; refusing to run"
         )
+    if gateway is not None:
+        guest_address = str(gateway.get("guest_address", ""))
+        try:
+            network = str(
+                ipaddress.ip_network(
+                    f"{guest_address}/{gateway.get('prefix_length', 30)}",
+                    strict=False,
+                ).network_address
+            )
+        except ValueError as error:
+            raise SandboxError("sandbox gateway metadata is invalid") from error
+        if route_table_has_external_route(
+            expected_interface=str(gateway.get("guest_interface", "")),
+            expected_gateway=str(gateway.get("host_address", "")),
+            expected_network=network,
+        ):
+            raise SandboxError(
+                "gateway namespace has an unexpected external route"
+            )
+    policy = config.get("policy")
+    policy_egress = (
+        policy.get("egress")
+        if isinstance(policy, dict)
+        else None
+    )
+    endpoints: tuple[EgressEndpoint, ...] = ()
+    loopback_tcp_ports: set[int] = set()
+    loopback_udp_ports: set[int] = set()
+    if policy_egress == "allowlist":
+        endpoints = _egress_endpoints(config)
+        loopback_tcp_ports, loopback_udp_ports = _loopback_ports(config)
+        try:
+            install_egress_rules(
+                endpoints,
+                loopback_tcp_ports=loopback_tcp_ports,
+                loopback_udp_ports=loopback_udp_ports,
+            )
+        except EgressError as error:
+            raise SandboxError(str(error)) from error
     evidence_path = config.get("isolation_evidence")
     if evidence_path:
-        write_isolation_evidence(Path(str(evidence_path)), config)
+        write_isolation_evidence(
+            Path(str(evidence_path)),
+            config,
+            gateway=gateway,
+            external_route=gateway is not None,
+        )
 
     http_config = config.get("http")
     http: ControlledHttp | None = None
@@ -624,10 +804,70 @@ def run(config: dict[str, Any], command: list[str]) -> int:
             signal.signal(signum, handler)
 
 
+def run_with_gateway(
+    config: dict[str, Any],
+    command: list[str],
+    *,
+    config_path: Path,
+) -> int:
+    capability = egress_capability(require_gateway=True)
+    if capability["status"] != "PASS":
+        raise SandboxError("; ".join(capability["errors"]))
+    gateway = EgressGateway.allocate()
+    process: subprocess.Popen | None = None
+    previous: dict[int, Any] = {}
+    terminating = False
+
+    def stop(_signum: int, _frame: object) -> None:
+        nonlocal terminating
+        if terminating:
+            return
+        terminating = True
+        terminate_process(process)
+        raise SystemExit(143)
+
+    try:
+        gateway.start()
+        inner_environment = os.environ.copy()
+        inner_environment["M5_EGRESS_GATEWAY"] = json.dumps(
+            gateway.metadata()
+        )
+        for signum in (signal.SIGTERM, signal.SIGINT):
+            previous[signum] = signal.getsignal(signum)
+            signal.signal(signum, stop)
+        inner_command = [
+            "ip",
+            "netns",
+            "exec",
+            gateway.namespace,
+            sys.executable,
+            str(Path(__file__).resolve()),
+            "--inner",
+            "--config",
+            str(config_path),
+            "--",
+            *command,
+        ]
+        process = subprocess.Popen(
+            inner_command,
+            cwd=Path.cwd(),
+            env=inner_environment,
+            stdin=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+        return process.wait()
+    finally:
+        terminate_process(process)
+        for signum, handler in previous.items():
+            signal.signal(signum, handler)
+        gateway.cleanup()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run a QEMU command inside a no-egress network namespace"
     )
+    parser.add_argument("--inner", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
@@ -635,8 +875,29 @@ def main() -> int:
     if command and command[0] == "--":
         command.pop(0)
     try:
-        return run(load_config(args.config), command)
-    except (OSError, SandboxError) as error:
+        config = load_config(args.config)
+        if args.inner:
+            raw_gateway = os.environ.get("M5_EGRESS_GATEWAY")
+            gateway = json.loads(raw_gateway) if raw_gateway else None
+            if gateway is not None and not isinstance(gateway, dict):
+                raise SandboxError("gateway metadata must be an object")
+            return run(
+                config,
+                command,
+                create_namespace=False,
+                gateway=gateway,
+            )
+        policy = config.get("policy")
+        if isinstance(policy, dict) and policy.get("egress") == "allowlist":
+            endpoints = _egress_endpoints(config)
+            if requires_external_gateway(endpoints):
+                return run_with_gateway(
+                    config,
+                    command,
+                    config_path=args.config,
+                )
+        return run(config, command)
+    except (json.JSONDecodeError, OSError, EgressError, SandboxError) as error:
         print(f"network sandbox failed: {error}", file=sys.stderr)
         return 126
 

@@ -93,8 +93,9 @@ complete simulated device or as a unified-device PASS.
 - Linux runs the same StickS3 guest inside a private network namespace with no
   external route. Controlled DNS returns allow A / deny NXDOMAIN, a generated
   test CA exercises TLS Host allow/deny as HTTP 200/403, and pcap records the
-  same decisions. This is one-device isolation evidence, not a worker sandbox
-  or generic destination IP/port policy.
+  same decisions. A separate nftables policy enforces exact IPv4
+  IP/protocol/port endpoints and uses veth/NAT for allowed external traffic.
+  This is not a worker VM sandbox or external IPv6 implementation.
 - `esp-emu` has validated WiFi/BLE behavior on S3/C6, including same-instance
   WiFi + BLE inside one `esp-emu` guest.
 - The QEMU classic-ESP32 path contains a `misc.esp32_wifi` model and
@@ -179,9 +180,10 @@ online.
 
 Untrusted sessions can request
 `network.policy.isolation=namespace` on a Linux worker. The runner creates a
-private network namespace with no external route and refuses to fall back when
-namespace creation fails. Namespace proof does not establish RF behavior or
-malicious-firmware safety.
+private network namespace and refuses to fall back when namespace creation
+fails. `lab-only` has no external route; `allowlist` may use a per-session
+veth/NAT only with nftables default-drop rules. Namespace proof does not
+establish RF behavior or malicious-firmware safety.
 
 Each device gets explicit network and board-peripheral status; no
 family-wide PASS is inferred from another device's result.

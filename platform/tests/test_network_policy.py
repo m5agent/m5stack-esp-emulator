@@ -9,6 +9,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
+from network_egress import EgressEndpoint  # noqa: E402
 from network_policy import (  # noqa: E402
     NetworkPolicy,
     NetworkPolicyError,
@@ -69,7 +70,7 @@ class NetworkPolicyTests(unittest.TestCase):
                 with self.assertRaises(NetworkPolicyError):
                     NetworkPolicy.from_mapping(value)
 
-    def test_allowlist_policy_requires_explicit_hosts(self):
+    def test_allowlist_policy_requires_explicit_targets(self):
         policy = NetworkPolicy.from_mapping(
             {
                 "isolation": "namespace",
@@ -78,6 +79,13 @@ class NetworkPolicyTests(unittest.TestCase):
                 "allowed_hosts": [
                     "Allowed.Lab.Test",
                     "10.0.2.2",
+                ],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "10.0.2.2",
+                        "port": 18443,
+                    }
                 ],
             }
         )
@@ -89,16 +97,51 @@ class NetworkPolicyTests(unittest.TestCase):
             policy.evidence()["allowed_hosts"],
             ["10.0.2.2", "allowed.lab.test"],
         )
+        self.assertEqual(
+            policy.evidence()["allowed_endpoints"],
+            [
+                {
+                    "protocol": "tcp",
+                    "address": "10.0.2.2",
+                    "port": 18443,
+                }
+            ],
+        )
         controlled = NetworkPolicy.from_mapping(
             {
                 "isolation": "namespace",
                 "egress": "allowlist",
                 "dns": "controlled",
                 "allowed_hosts": ["allowed.lab.test"],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "10.0.2.2",
+                        "port": 18443,
+                    }
+                ],
             }
         )
         self.assertTrue(
             controlled.evidence()["controlled_resolver"]
+        )
+        endpoint_only = NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "deny",
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 80,
+                    }
+                ],
+            }
+        )
+        self.assertEqual(
+            endpoint_only.allowed_endpoints,
+            (EgressEndpoint("tcp", "1.1.1.1", 80),),
         )
         for value in (
             {
@@ -111,6 +154,13 @@ class NetworkPolicyTests(unittest.TestCase):
                 "egress": "allowlist",
                 "dns": "deny",
                 "allowed_hosts": ["bad host"],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 80,
+                    }
+                ],
             },
             {
                 "isolation": "namespace",
@@ -126,8 +176,39 @@ class NetworkPolicyTests(unittest.TestCase):
             {
                 "isolation": "namespace",
                 "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 80,
+                    }
+                ],
+            },
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
                 "dns": "slirp",
                 "allowed_hosts": ["allowed.lab.test"],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 80,
+                    }
+                ],
+            },
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "deny",
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 0,
+                    }
+                ],
             },
         ):
             with self.subTest(value=value):

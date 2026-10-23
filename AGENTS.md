@@ -220,6 +220,11 @@ diagnostics in `internal/records/`.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.
+- Linux `egress=allowlist` enforces exact IPv4 IP/protocol/port with nftables
+  input/output default-drop rules. External IPv4 uses a per-session veth and
+  temporary NAT table; required DNS/HTTP/HCI/GDB loopback ports are explicit
+  internal exceptions. External IPv6, CIDRs and domain-to-multiple-IP grants
+  are not implemented and must fail rather than become implicit allow rules.
 - `user,restrict=yes` and loopback `hostfwd` are not an untrusted-firmware
   sandbox. The Linux fail-closed namespace runner and guest path are validated;
   filesystem/resource isolation and formal worker/VM lifecycle remain open.
@@ -232,8 +237,8 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- Linux namespace CI integration, generic destination IP/port egress policy,
-  DHCP renewal, real AP loss/recovery and a two-device lab fabric;
+- Linux namespace CI integration, DHCP renewal, real AP loss/recovery, a
+  two-device lab fabric and external IPv6 endpoint enforcement;
 - production Core2 VHCI backend, bit-exact BT controller and physical
   cache/PSRAM equivalence, coexistence and soak;
 - SPIFFS inventory, runtime permissions/license policy, production

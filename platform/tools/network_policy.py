@@ -11,6 +11,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from network_egress import (
+    EgressEndpoint,
+    EgressError,
+    parse_endpoints,
+)
+from network_egress import (
+    capability as egress_capability,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 SANDBOX_RUNNER = ROOT / "platform/tools/network_sandbox.py"
@@ -31,9 +39,25 @@ class NetworkPolicy:
     dns: str = "slirp"
     capture_pcap: bool = True
     allowed_hosts: tuple[str, ...] = ()
+    allowed_endpoints: tuple[EgressEndpoint, ...] = ()
+
+    def with_allowed_endpoints(
+        self,
+        endpoints: tuple[EgressEndpoint, ...],
+    ) -> NetworkPolicy:
+        return NetworkPolicy(
+            isolation=self.isolation,
+            egress=self.egress,
+            dns=self.dns,
+            capture_pcap=self.capture_pcap,
+            allowed_hosts=self.allowed_hosts,
+            allowed_endpoints=tuple(
+                sorted(set(self.allowed_endpoints) | set(endpoints))
+            ),
+        )
 
     @classmethod
-    def from_mapping(cls, value: Any) -> "NetworkPolicy":
+    def from_mapping(cls, value: Any) -> NetworkPolicy:
         if value is None:
             return cls()
         if not isinstance(value, dict):
@@ -65,6 +89,12 @@ class NetworkPolicy:
             raise NetworkPolicyError(
                 "network.policy.allowed_hosts exceeds 32 entries"
             )
+        try:
+            allowed_endpoints = parse_endpoints(
+                value.get("allowed_endpoints")
+            )
+        except EgressError as error:
+            raise NetworkPolicyError(str(error)) from error
         if isolation not in ISOLATION_MODES:
             raise NetworkPolicyError(
                 f"network.policy.isolation must be one of "
@@ -104,13 +134,21 @@ class NetworkPolicy:
             raise NetworkPolicyError(
                 "dns=controlled requires egress=allowlist"
             )
-        if egress == "allowlist" and not allowed_hosts:
+        if egress == "allowlist" and not (
+            allowed_hosts or allowed_endpoints
+        ):
             raise NetworkPolicyError(
-                "egress=allowlist requires non-empty allowed_hosts"
+                "egress=allowlist requires allowed_hosts or allowed_endpoints"
+            )
+        if egress != "allowlist" and allowed_endpoints:
+            raise NetworkPolicyError(
+                "allowed_endpoints requires egress=allowlist"
             )
         if egress != "allowlist" and allowed_hosts:
+            raise NetworkPolicyError("allowed_hosts requires egress=allowlist")
+        if dns == "controlled" and not allowed_hosts:
             raise NetworkPolicyError(
-                "allowed_hosts requires egress=allowlist"
+                "dns=controlled requires non-empty allowed_hosts"
             )
         return cls(
             isolation=isolation,
@@ -118,6 +156,7 @@ class NetworkPolicy:
             dns=dns,
             capture_pcap=True,
             allowed_hosts=allowed_hosts,
+            allowed_endpoints=allowed_endpoints,
         )
 
     def evidence(self) -> dict:
@@ -127,10 +166,13 @@ class NetworkPolicy:
             "dns": self.dns,
             "capture_pcap": self.capture_pcap,
             "allowed_hosts": list(self.allowed_hosts),
+            "allowed_endpoints": [
+                endpoint.as_dict() for endpoint in self.allowed_endpoints
+            ],
             "controlled_resolver": self.dns == "controlled",
             "claim": (
                 "Linux network namespace with no external route and "
-                "controlled HTTP Host allowlisting"
+                "kernel-enforced exact IP/protocol/port egress"
                 if self.egress == "allowlist"
                 else "Linux network namespace with no external route"
                 if self.isolation == "namespace"
@@ -140,8 +182,8 @@ class NetworkPolicy:
                 "malware safety",
                 "RF behavior",
                 "TLS certificate correctness",
-                "arbitrary destination-IP allowlisting",
-                "external internet allowlist",
+                "external IPv6 egress",
+                "domain-to-unlisted-IP substitution",
             ],
         }
 
@@ -195,6 +237,7 @@ def namespace_capability() -> dict:
         "status": "PASS" if not errors else "UNAVAILABLE",
         "checks": checks,
         "errors": errors,
+        "egress": egress_capability(),
     }
 
 

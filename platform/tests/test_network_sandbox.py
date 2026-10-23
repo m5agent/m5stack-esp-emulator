@@ -176,6 +176,13 @@ class NetworkSandboxTests(unittest.TestCase):
                         "egress": "allowlist",
                         "dns": "controlled",
                         "allowed_hosts": ["allowed.lab.test"],
+                        "allowed_endpoints": [
+                            {
+                                "protocol": "tcp",
+                                "address": "10.0.2.2",
+                                "port": 18443,
+                            }
+                        ],
                     },
                     "dns": {
                         "mode": "controlled",
@@ -267,6 +274,20 @@ class NetworkSandboxTests(unittest.TestCase):
         )
         self.assertTrue(isolation["tls_gateway"])
         self.assertTrue(isolation["controlled_dns"])
+        self.assertEqual(
+            isolation["egress_enforcement"],
+            "nftables-input-output-default-drop",
+        )
+        self.assertEqual(
+            isolation["allowed_endpoints"],
+            [
+                {
+                    "protocol": "tcp",
+                    "address": "10.0.2.2",
+                    "port": 18443,
+                }
+            ],
+        )
         self.assertEqual(
             isolation["dns_records"],
             {"allowed.lab.test": "10.0.2.2"},

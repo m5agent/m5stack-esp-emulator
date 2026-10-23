@@ -551,6 +551,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
             device_service_module,
             "namespace_capability",
             return_value={"status": "PASS", "checks": {}, "errors": []},
+        ), mock.patch.object(
+            device_service_module,
+            "egress_capability",
+            return_value={"status": "PASS", "checks": {}, "errors": []},
         ):
             parsed = device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
@@ -572,6 +576,33 @@ class DeviceServiceUnitTests(unittest.TestCase):
             device_service_module,
             "namespace_capability",
             return_value={"status": "PASS", "checks": {}, "errors": []},
+        ), mock.patch.object(
+            device_service_module,
+            "egress_capability",
+            return_value={
+                "status": "UNAVAILABLE",
+                "checks": {},
+                "errors": ["nft unavailable"],
+            },
+        ):
+            with self.assertRaises(ServiceError) as egress_unavailable:
+                device_service_module.parse_qemu_ble_execution(
+                    self.service.specs["sticks3"],
+                    allowlist,
+                    runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+                )
+        self.assertEqual(
+            egress_unavailable.exception.code,
+            "egress_policy_unavailable",
+        )
+        with mock.patch.object(
+            device_service_module,
+            "namespace_capability",
+            return_value={"status": "PASS", "checks": {}, "errors": []},
+        ), mock.patch.object(
+            device_service_module,
+            "egress_capability",
+            return_value={"status": "PASS", "checks": {}, "errors": []},
         ):
             parsed = device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
@@ -581,6 +612,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(
             parsed["policy"]["allowed_hosts"],
             ["qemu.test"],
+        )
+        self.assertEqual(
+            parsed["policy"]["allowed_endpoints"],
+            [
+                {
+                    "protocol": "tcp",
+                    "address": "10.0.2.2",
+                    "port": device_service_module.UNIFIED_HTTP_PORTS[
+                        device_service_module.STICKS3_UNIFIED_PROFILE
+                    ],
+                }
+            ],
         )
         self.assertTrue(parsed["policy"]["controlled_resolver"])
 

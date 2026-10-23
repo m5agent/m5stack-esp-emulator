@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-egress-ip-port-allowlist",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "linux-virtual-network-policy-not-firmware-or-hardware",
+  "runtime": {
+    "platform": "linux",
+    "root": true,
+    "capabilities": [
+      "NET_ADMIN",
+      "SYS_ADMIN"
+    ],
+    "helpers": [
+      "iproute2",
+      "nftables"
+    ],
+    "ipv4_forwarding": true
+  },
+  "checks": {
+    "sandbox_exit_zero": true,
+    "allowed_ip_port_connected": true,
+    "allowed_http_status": 200,
+    "denied_port_filtered": true,
+    "denied_ip_filtered": true,
+    "allowed_server_saw_one_request": true,
+    "denied_server_saw_no_request": true,
+    "nftables_input_output_default_drop": true,
+    "veth_nat_gateway": true,
+    "public_ip_port_connected": true,
+    "public_ip_port_status": 301,
+    "namespace_cleaned": true,
+    "nat_table_cleaned": true
+  },
+  "allowed_endpoints": [
+    {
+      "protocol": "tcp",
+      "address": "<worker-local-ip>",
+      "port": "<redacted-ephemeral-port>",
+      "role": "deterministic worker-local"
+    },
+    {
+      "protocol": "tcp",
+      "address": "1.1.1.1",
+      "port": 80,
+      "role": "public NAT path"
+    }
+  ],
+  "denied_cases": [
+    {
+      "case": "different port on the allowed worker-local IP",
+      "result": "TIMEOUT"
+    },
+    {
+      "case": "same allowed port on 192.0.2.1",
+      "result": "TIMEOUT"
+    }
+  ],
+  "not_claimed": [
+    "firmware guest behavior in this fixture",
+    "physical hardware or RF",
+    "general public internet availability",
+    "external IPv6 egress",
+    "malware safety"
+  ]
+}

@@ -19,10 +19,11 @@
 
 | 优先级 | 工作流 | 完成标准 | 依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络策略与 CI | destination IP/port allowlist、DHCP renewal、AP 丢失、双设备 fabric、正式 worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
+| P0 | 网络策略与 CI | DHCP renewal、AP 丢失、双设备 fabric、正式 worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
 | P0 | Core2 生产化 | 非 GDB VHCI、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
 | P0 | 通用固件审查 | SPIFFS、权限/许可策略、eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
 | P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
+| P1 | 外部 IPv6 egress | v6 veth/route/NAT 与 exact endpoint 规则 | worker 双栈配置；当前 IPv6 请求会被拒绝 |
 | P1 | 服务 worker 与调度 | supervisor、heartbeat、drain/re-attach、warm pool、多机容量 | 生产部署；对象存储；审计 |
 | P1 | Tab5 后端补齐 | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123、IP2326 | 可扩展 P4 backend 或重建 |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/结构资料 |
@@ -30,23 +31,23 @@
 
 ## 当前执行顺序
 
-1. `NET-01`：完成 generic destination IP/port allowlist。
-2. `NET-02` / `NET-03`：完成 DHCP renewal、真实 AP 丢失/恢复和双设备 fabric。
-3. `NET-04` / `SVC-01`：把现有网络隔离和 evidence 路径接入正式 CI/worker。
-4. `CORE2-01`：移除 GDB bridge，再做 `CORE2-02` 的 controller 和物理过程验证。
-5. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
-6. `FW-02/03/04`：生产 key/eFuse、跨厂商样本和流式上传。
-7. `HW-01`：对应功能稳定后立即补同路径真机证据。
+1. `NET-02` / `NET-03`：完成 DHCP renewal、真实 AP 丢失/恢复和双设备 fabric。
+2. `NET-04` / `SVC-01`：把现有网络隔离和 evidence 路径接入正式 CI/worker。
+3. `CORE2-01`：移除 GDB bridge，再做 `CORE2-02` 的 controller 和物理过程验证。
+4. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
+5. `FW-02/03/04`：生产 key/eFuse、跨厂商样本和流式上传。
+6. `HW-01`：对应功能稳定后立即补同路径真机证据。
+7. `NET-05`：补外部 IPv6 端点策略。
 8. Tab5、worker pool、视觉保真和 CardputerZero 作为后续专项推进。
 
 ## 可执行任务板
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-01` | 进行中 | namespace 内目标 IP+端口 allow/deny policy | 允许/拒绝可重复，guest 无法旁路；pcap 与协议证据一致 |
 | `NET-02` | 待做 | DHCP renewal、真实虚拟 AP 消失/恢复、lease 变化 | 不重启 guest 完成 renewal 或 reacquire，前后 HTTP 与 pcap 对齐 |
 | `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
 | `NET-04` | 待做 | namespace/DNS/TLS/pcap/reconnect 接入 CI 和 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed |
+| `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
 | `CORE2-01` | 待做 | 服务托管的 GDB VHCI 改为 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
 | `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
@@ -61,17 +62,6 @@
 | `CZ-01` | 待做 | CardputerZero 系统与驱动长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：网络策略、隔离与 CI
-
-### NET-01 目标 egress policy
-
-现状边界：namespace controlled DNS、TLS Host allowlist、pcap、错误密码和
-link down/up 已有 virtual-device evidence；仍缺任意目标 IP+端口策略。
-
-交付：
-
-- 在 namespace gateway 上实现 destination IP+port allowlist/denylist；
-- guest 不能通过 user-net 默认路由、DNS rebinding 或直连旁路；
-- 允许/拒绝、DNS、TLS 和 pcap 来自同一次 guest 运行。
 
 ### NET-02 DHCP renewal 与 AP 丢失
 

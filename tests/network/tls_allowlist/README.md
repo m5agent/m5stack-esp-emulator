@@ -50,6 +50,12 @@ UIFlow/NTP names. The host resolver configuration is not modified globally.
 Evidence:
 [`evidence-2026-10-24-controlled-dns-pass.json`](evidence-2026-10-24-controlled-dns-pass.json).
 
+The namespace lane now also installs nftables input/output default-drop rules.
+The guest TLS request is allowed only for the exact endpoint
+`10.0.2.2:18443/tcp`; required DNS and control ports are internal loopback
+exceptions. Evidence:
+[`evidence-2026-10-24-ip-port-nftables-pass.json`](evidence-2026-10-24-ip-port-nftables-pass.json).
+
 The test covers a namespace-local TLS gateway allowlist. It does not claim
 arbitrary public-internet allowlisting, certificate pinning, mutual TLS,
 hardware RF behavior or malicious-firmware safety.

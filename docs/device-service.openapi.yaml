@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.9.0
+  version: 1.10.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1251,7 +1251,9 @@ components:
           description: >
             Fail-closed network policy. namespace isolation is Linux-only and
             refuses to start if a private network namespace cannot be created.
-            The sandbox exposes loopback lab fixtures and no external route.
+            lab-only starts loopback fixtures without an external route.
+            allowlist installs nftables default-drop rules and permits only
+            exact declared endpoints plus required loopback control ports.
           properties:
             isolation:
               type: string
@@ -1275,15 +1277,40 @@ components:
               maxItems: 32
               uniqueItems: true
               description: >
-                Required with egress=allowlist. Filters the Host header at the
-                controlled HTTP gateway and provides A records from the
-                controlled DNS resolver. This is not a general destination-IP
-                or internet egress allowlist. Profiles without a controlled
-                HTTP fixture reject egress=allowlist with
-                allowlist_not_supported.
+                Optional HTTP Host and DNS-name allowlist. Required when
+                dns=controlled. Filters the Host header at the controlled HTTP
+                gateway and provides A records from the controlled resolver.
+                Actual network destinations are controlled separately by
+                allowed_endpoints.
               items:
                 type: string
                 pattern: "^[A-Za-z0-9.-]{1,253}$"
+            allowed_endpoints:
+              type: array
+              maxItems: 64
+              description: >
+                Exact IPv4 protocol/address/port egress grants for
+                egress=allowlist. 10.0.2.2 is mapped to the QEMU SLiRP host
+                loopback socket; other IPv4 destinations use a per-session
+                veth and temporary NAT table. External IPv6, CIDRs and domains
+                are rejected. Profiles with a controlled HTTP fixture add the
+                fixture endpoint automatically.
+              items:
+                type: object
+                additionalProperties: false
+                required: [protocol, address, port]
+                properties:
+                  protocol:
+                    type: string
+                    enum: [tcp, udp]
+                  address:
+                    type: string
+                    format: ipv4
+                    description: Exact IPv4 address.
+                  port:
+                    type: integer
+                    minimum: 1
+                    maximum: 65535
         console_mode:
           type: string
           enum: [auto, uart0, usb-jtag]
