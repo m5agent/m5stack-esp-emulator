@@ -78,6 +78,11 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   Space, Tab, Backspace and FN-arrow combinations.
 - CS-gated direct SPI panel ID reads so M5GFX autodetection probes using
   unselected pin groups do not all observe the same ST7789 identity.
+- An ESP32-S3 WiFi MAC/DMA device at `0x60033000` sharing the OpenMAC WLAN
+  access-point/data-frame state machine with the classic ESP32 model. It uses
+  the S3 RX/TX descriptor layout, S3 RX metadata header, WLAN interrupt source
+  and QEMU user networking, while preserving the existing StickS3 board
+  peripherals in the same machine.
 
 Historical incremental replay uses `0001` then `0002`. For a fresh upstream
 tree, use the current standalone snapshot `0003` followed by the PCM capture
@@ -101,6 +106,8 @@ git apply /path/to/0015-motonav-rwip-and-co5300-framing.patch
 git apply /path/to/0016-gigadevice-status2-qio.patch
 git apply /path/to/0017-cardputer-adv-qmp-key-matrix.patch
 git apply /path/to/0018-gpspi-cs-gated-panel-id.patch
+git apply /path/to/qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch
+git apply /path/to/0019-esp32s3-wifi-mac.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -118,6 +125,14 @@ Verified source baseline:
 - `0004` applies cleanly immediately after the current standalone `0003`.
 
 The camera frame path is a simulation data plane, not real-camera validation.
+
+`0019-esp32s3-wifi-mac.patch` depends on the shared WLAN files imported by
+`qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch`. It is a
+functional scan/association/DHCP/HTTP data plane on one fixed virtual channel,
+not a complete S3 PHY/rate/security model. The unified StickS3 test also uses
+an HCI-UART UIFlow2 build so the external Bumble controller can exercise the
+same guest's BLE NUS data plane without a second emulator process.
+
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and
 Cardputer/PaperColor SPI SD and Cardputer-ADV NFCCap ST25R3916 SPI plus Cap

@@ -28,6 +28,9 @@ Validated on `2026-10-22`:
 - StickS3 UIFlow2 `network.WLAN` scan, association and DHCP have passed;
 - StickS3 UIFlow2 `BLEUARTServer` passes external Bumble scan, connection, NUS
   GATT discovery, subscription, write and guest-side receive callback;
+- a StickS3 unified QEMU profile keeps display/buttons/IMU/audio, WiFi
+  scan/association/DHCP/HTTP, and HCI-UART BLE NUS in one guest process and
+  exposes the combined evidence through one Device Service lease;
 - the same UIFlow2 guest instance passes WiFi association/DHCP together with
   the BLE GATT exchange;
 - same-source UIFlow2 NanoC6 and Nesso N1 builds pass WiFi scan/association/
@@ -62,7 +65,8 @@ What is not yet proven:
 - an unmodified UIFlow2 firmware connecting to a virtual SSID and reaching a
   controlled TCP/UDP endpoint;
 - automatic internet access for every S3/C6/P4 device profile;
-- simultaneous board-level QEMU peripherals and WiFi in one guest instance;
+- simultaneous board-level QEMU peripherals and WiFi/BLE in one guest instance
+  beyond the validated StickS3 reference slice;
 - packet capture, DNS policy, TLS/HTTP test services and multi-device isolation
   in the regular regression matrix;
 - stock Core2 UIFlow2 DNS and external internet access: the optional OpenMAC
@@ -194,7 +198,7 @@ itself. For untrusted firmware:
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |
 | N5 | Core2 ESP32 LX6 WiFi/PHY and BLE controller path or alternative runtime | WiFi data path DONE; native controller/advertising DONE; HCI-offload external GATT DONE 5/5; native-controller peer/GATT, DNS and external network remain open |
-| N6 | Optional same-instance QEMU board + WiFi/radio model | Core2 WiFi data plane and BLE HCI-offload data plane are available; native ESP32 BT radio/controller closure remains open |
+| N6 | Optional same-instance QEMU board + WiFi/radio model | DONE for StickS3 board+WiFi+BLE HCI-offload in one guest; Core2 WiFi is available and native BT controller/radio closure remains open; other devices pending |
 
 N0–N3 are the recommended scope before claiming “all S3/C6/P4 simulated
 devices can go online.” N5 extends the claim to Core2. N6 is only needed if a

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "sticks3",
+  "firmware_sha256": "b5bb931910dfcbf0f1ecced5562e367a9f67f2085a0e7ddf7204fe776bef56c6",
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "button_redraw": true,
+    "power": true,
+    "imu": true,
+    "speaker_pcm": true,
+    "speaker_pa": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [135, 240],
+    "before_nonblack_pixels": 8076,
+    "before_unique_colors": 31,
+    "after_nonblack_pixels": 8054,
+    "after_unique_colors": 31,
+    "changed_after_key": true
+  },
+  "audio": {
+    "bytes": 67584,
+    "nonzero_bytes": 65532,
+    "sha256": "e07103139f37f5593361014113dce0e2c861ea9d1e9e30f806266ed9d1e2bdba"
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART1 H4",
+    "controller": "Bumble",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_STICKS3_UNIFIED",
+    "notification": "ACK:M5_STICKS3_UNIFIED"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 Bluetooth controller model",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "untrusted-firmware sandboxing"
+  ]
+}

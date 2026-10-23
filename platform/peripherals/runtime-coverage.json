@@ -25,6 +25,11 @@
       "test": "tests/uiflow2/run_nanoc6_peripherals.py",
       "evidence": "tests/uiflow2/nanoc6_peripherals/evidence-2026-10-22.json"
     },
+    "sticks3-unified": {
+      "device": "sticks3",
+      "test": "tests/uiflow2/unified_sticks3/run_test.py",
+      "evidence": "tests/uiflow2/unified_sticks3/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -42,6 +47,14 @@
     }
   },
   "case_models": {
+    "sticks3-unified": [
+      "m5pm1",
+      "bmi270",
+      "es8311",
+      "gpio-button",
+      "pwr-button",
+      "aw8737a"
+    ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
     "sticks3-mic": ["es8311"],
@@ -189,6 +202,9 @@
         "sticks3-mic",
         "sticks3-ir",
         "sticks3-ir-rx"
+      ],
+      "external": [
+        "sticks3-unified"
       ],
       "models": [
         "m5pm1",

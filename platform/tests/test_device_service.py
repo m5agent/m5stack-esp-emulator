@@ -63,6 +63,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "uiflow2-sticks3",
             rows["sticks3"]["network_profiles"],
         )
+        self.assertIn(
+            "uiflow2-sticks3-unified",
+            rows["sticks3"]["network_profiles"],
+        )
         self.assertEqual(rows["nanoc6"]["network_status"], "validated")
         self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
         self.assertEqual(rows["cores3"]["network_status"], "validated")
@@ -371,9 +375,22 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 hci_gatt["expected_markers"],
                 list(device_service_module.CORE2_HCI_GATT_MARKERS),
             )
+            unified = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                {},
+            )
+            self.assertEqual(
+                unified["profile"],
+                "uiflow2-sticks3-unified",
+            )
+            self.assertEqual(unified["nic"], "misc.esp32s3.wifi")
+            self.assertEqual(
+                unified["expected_markers"],
+                list(device_service_module.STICKS3_UNIFIED_MARKERS),
+            )
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_ble_execution(
-                    self.service.specs["sticks3"],
+                    self.service.specs["atoms3r"],
                     {},
                 )
             self.assertEqual(
@@ -729,6 +746,76 @@ class DeviceServiceUnitTests(unittest.TestCase):
         with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
             self.assertIn("network/evidence.json", archive.namelist())
             self.assertIn("ble-probe.log", archive.namelist())
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_sticks3_unified_qemu_evidence_and_bundle(self):
+        spec = self.service.specs["sticks3"]
+        firmware_path = Path(self.tmp.name) / "sticks3-unified.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="3" * 32,
+            spec=spec,
+            firmware_id="4" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="4" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_STICKS3_READY",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "uiflow2-sticks3-unified",
+                "nic": "misc.esp32s3.wifi",
+                "expected_markers": list(
+                    device_service_module.STICKS3_UNIFIED_MARKERS
+                ),
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "UNIFIED_STICKS3_WIFI_CONNECTED 10.0.2.15\n"
+            "UNIFIED_STICKS3_HTTP_PASS\n"
+            "UNIFIED_STICKS3_BLE_RX b'M5_STICKS3_UNIFIED'\n"
+            "UNIFIED_STICKS3_BLE_ACK_SENT\n"
+            "UNIFIED_STICKS3_READY\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-STICKS3-UNIFIED'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_STICKS3_UNIFIED\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_STICKS3_UNIFIED\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}])
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-sticks3-unified-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(
+            evidence["runtime"]["guest_process_count"],
+            1,
+        )
+        bundle = session.evidence_bundle(
+            {"manifest", "serial", "logs", "network"}
+        )
+        with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+            self.assertIn("network/evidence.json", archive.namelist())
+            self.assertIn("ble-probe.log", archive.namelist())
+            self.assertIn("http-fixture.json", archive.namelist())
         session.state = "stopped"
         session._proc = None
         session._qmp = None

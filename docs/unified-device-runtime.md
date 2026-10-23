@@ -1,6 +1,6 @@
 # Unified Device Runtime Contract
 
-Date: `2026-10-22`
+Date: `2026-10-23`
 
 ## Decision
 
@@ -26,6 +26,13 @@ complete simulated device or as a unified-device PASS.
 
 - QEMU already owns the modeled M5Stack board peripherals and the common
   display/input/framebuffer path.
+- QEMU now owns a functional ESP32-S3 WiFi MAC/DMA model at `0x60033000`.
+  Stock UIFlow2 `network.WLAN` completes scan, association, DHCP and a
+  controlled HTTP request while the same `m5sticks3` guest drives the panel,
+  PMIC, IMU, buttons and I2S speaker.
+- The StickS3 unified HCI-UART build routes real NimBLE H4 traffic through
+  QEMU UART1 to a Bumble controller. An external peer completes NUS discovery,
+  subscription, write, guest receive and notify ACK in the same QEMU process.
 - `esp-emu` has validated WiFi/BLE behavior on S3/C6, including same-instance
   WiFi + BLE inside one `esp-emu` guest.
 - The QEMU classic-ESP32 experiment contains a `misc.esp32_wifi` model and
@@ -76,7 +83,14 @@ controlled HTTP request, and completes BLE GATT discovery/write. The session
 must expose all of these through one `/api/v1` lease and retain the evidence
 after completion.
 
-After StickS3 passes, repeat the same contract on CoreS3, Cardputer ADV,
+Status: **PASS for the simulation-only StickS3 slice** through
+`runtime=qemu-ble`, `network.profile=uiflow2-sticks3-unified` and one retained
+Device Service evidence ZIP containing serial, frame, audio PCM, QOM, network,
+BLE peer log and manifest hashes. The probe uses an open virtual AP; WPA2/WPA3
+security behavior is not yet modelled. BLE is host-controller HCI data over an
+HCI-UART test build, not a native ESP32-S3 radio/controller model.
+
+For the rollout, repeat the same contract on CoreS3, Cardputer ADV,
 StopWatch, NanoC6/Nesso N1, and then Core2. Each device gets explicit network
 and board-peripheral status; no family-wide PASS is inferred from another
 device's result.

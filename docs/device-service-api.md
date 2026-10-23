@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Status: local MVP implemented on `2026-10-22`.
+Status: local MVP implemented on `2026-10-23`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
 firmware artifact into an isolated virtual-flash copy, and exposes serial,
@@ -12,8 +12,9 @@ Current scope:
 - Tab5: enabled through esp-emu, with `peripheral_status=partial` and explicit
   warnings;
 - excluded: CardputerZero;
-- network emulation: enabled as a separate `runtime=network` one-shot lane for
-  S3/C6 devices with validated `esp-emu` profiles;
+- network emulation: `runtime=network` remains available for S3/C6; StickS3
+  additionally supports one combined WiFi+BLE+board QEMU lease through the
+  `uiflow2-sticks3-unified` profile;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -213,7 +214,8 @@ serial log set.
 `runtime` is `qemu` by default. Set it to `network` to run S3/C6 firmware
 through the separate `esp-emu` network/BLE lane. Network sessions do not expose
 framebuffer, input, QOM or same-instance board state; those remain in the QEMU
-lane.
+lane. StickS3 also has a unified `qemu-ble` profile described below that keeps
+network and board evidence in one QEMU instance.
 
 Core2 has experimental `qemu-wifi` and `qemu-ble` runtimes when the service
 starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing the
@@ -289,6 +291,32 @@ serial and `ble-probe.log`.
 
 This is HCI offload. It does not claim a native ESP32 radio/controller model,
 RF behavior, pairing/security or production throughput.
+
+The StickS3 unified profile closes WiFi and BLE in that same instance:
+
+```json
+{
+  "device_id": "sticks3",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 60,
+  "network": {
+    "profile": "uiflow2-sticks3-unified",
+    "attempts": 2
+  }
+}
+```
+
+The uploaded image must contain the repository's unified StickS3 probe and the
+UIFlow2 HCI-UART test configuration. The service starts one QEMU `m5sticks3`
+guest with the ESP32-S3 WiFi MAC/DMA NIC, routes UART1 H4 to Bumble, and starts
+a controlled HTTP endpoint on port 18080. `/network` returns
+`kind=m5stack-sticks3-unified-qemu-proof`; the evidence ZIP includes the frame,
+audio PCM, QOM snapshot, serial, BLE peer log, HTTP request record and network
+evidence.
+
+This profile proves a functional open virtual AP on one fixed channel and an
+HCI-offload BLE controller. It does not claim WPA2/WPA3, native S3 RF/PHY,
+RF-range/security behavior or a native ESP32-S3 Bluetooth controller model.
 
 State machine:
 
@@ -657,8 +685,10 @@ after a service restart.
 
 ## Current limitations
 
-- network sessions are a separate lane and do not combine board peripherals
-  with the same guest instance;
+- `runtime=network` sessions remain a separate lane; StickS3 can instead use
+  `runtime=qemu-ble` with `uiflow2-sticks3-unified` for one combined guest;
+- unified StickS3 WiFi is an open AP on one fixed virtual channel and BLE is
+  HCI-offload over UART1, not a native S3 PHY/radio model;
 - Core2 radio support is limited to the environment-gated experimental
   `qemu-wifi` and `qemu-ble` runtimes. `core2-ble-advertise` stops at native
   controller/advertising control; `core2-hci-gatt` closes an external Bumble
