@@ -18,12 +18,15 @@ the README prose or previous chat summaries.
 
 ## Non-negotiable rules
 
-1. Simulation PASS is not hardware PASS. Never describe a QEMU result as
-   real-hardware validation.
+1. Virtual-device PASS and hardware PASS are distinct validation categories.
+   Never describe a QEMU or `esp-emu` result as a physical-hardware
+   measurement, but either category can satisfy the publication gate when the
+   same firmware/user path and reproducible evidence are available.
 2. Before an external-facing claim, release note, issue reply, PR/MR or public
    report, follow the M5Stack external verification gate in the managed
-   `AGENTS.md`. If the target hardware is unavailable, validate the same path
-   on a substitute device or keep the result internal.
+   `AGENTS.md`. A validated virtual device is accepted evidence; include the
+   firmware hash, runtime/profile, input, serial, framebuffer and relevant
+   data-plane results.
 3. Do not bypass the emulated SoC controller, DMA/FIFO/endpoint or board wiring
    with Python-level fake values. A peripheral is not `simulated` unless its
    data plane and device-local runtime evidence exist.
@@ -169,9 +172,10 @@ ninja -C .work/M5StopWatch-QEMU/build/qemu/build qemu-system-xtensa
 
 For verifiable engineering work, archive the result in
 `~/Documents/agent-work-logs` according to that repository's
-`docs/work-record-workflow.md` and `docs/redaction-policy.md`. Keep
-simulation-only findings in `internal/records/` until real-hardware
-verification exists.
+`docs/work-record-workflow.md` and `docs/redaction-policy.md`. Reproducible
+virtual-device validation may be published in `records/` after passing the
+external verification gate; keep raw internal-only logs and unreproducible
+diagnostics in `internal/records/`.
 
 ## Known boundaries
 
