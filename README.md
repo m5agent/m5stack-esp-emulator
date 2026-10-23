@@ -22,8 +22,10 @@ MicroPython 和其他完整 Flash 固件。
 - 最新 UIFlow2 外设全矩阵在 `2026-10-24 00:11 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
   `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
-  下首轮通过。本轮在同一工作树执行本地平台套件，共 `249` 项，
-  `249` 项通过、`0` 项跳过。
+  下首轮通过。本轮在同一工作树执行本地平台套件，共 `253` 项，
+  `253` 项通过、`0` 项跳过。
+- WebBurner 的 SHA256 与 upload client Node 测试 `2/2 PASS`，真实浏览器
+  已用 `9.44 MiB`、`3` chunk 包完成上传和 manifest 导入。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
 - GitHub Actions 已运行完整平台测试，并在 Ubuntu runner 上执行 fail-closed
@@ -44,7 +46,7 @@ MicroPython 和其他完整 Flash 固件。
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap | [`radio-loss-pass.json`](tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json) | 双设备 fabric、自托管 QEMU worker、外部 IPv6 |
 | Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、native-HCI `HCI-1` transport PASS、`HCI-2` 无 GDB 捕获首个 `01030c00`、`HCI-3a` Reset Complete callback 后 guest 继续发出命令 `5/5` | [`c2h-delivery.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json) | `HCI-3b` 完整 Bumble HCI/GATT sequence、`HCI-4` repeated lease `5/5`、GDB 控制面、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
-| 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、带写入回滚和废弃 staging GC 的 resumable chunk artifact upload、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32 文件清单与 SPDX | [`streaming-artifact-upload.json`](tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json) | WebBurner UI 接线、SPIFFS、运行时权限/许可策略、真机 key/eFuse、跨厂商回归 |
+| 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、写入回滚和 staging GC、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32 文件清单与 SPDX | [`webburner-ui.json`](tests/firmware/evidence-2026-10-24-webburner-ui.json) | SPIFFS、运行时权限/许可策略、真机 key/eFuse、跨厂商回归 |
 | 共享 QEMU 回归 | AES/GDMA 外部内存读取修复；S3/C6/Core2 全矩阵首轮通过 | [`gdma-external-memory-matrix.json`](tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) | 新共享控制器改动后重新跑受影响矩阵；真机同路径证据 |
 
 ## 剩余工作
@@ -54,7 +56,7 @@ MicroPython 和其他完整 Flash 固件。
 | 高保真逐设备外观建模 | `TODO` | 仅 StopWatch 接近参考质量，其余 13 台仍是通用近似外壳 |
 | Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT 和 DHCP renewal 已通；自托管 QEMU worker、双设备 fabric 和外部 IPv6 仍待补 |
-| 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、resumable chunk upload backend、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS 与 FAT12/16/32 文件清单已通；WebBurner UI 接线、SPIFFS、许可策略与真机 key 流程仍待补 |
+| 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、浏览器 chunk 上传与刷新恢复、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS 与 FAT12/16/32 文件清单已通；SPIFFS、许可策略与真机 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
 | Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、ELF 固定地址和 Device Service 单 lease 已通；native-HCI 到 `HCI-3a` 单包 C2H callback PASS。下一步是稳定 `HCI-3b` 完整 HCI/GATT，再做 `HCI-4` repeated lease；GDB 控制面、bit-exact controller 与物理等价性仍未完成 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
@@ -82,6 +84,7 @@ MicroPython 和其他完整 Flash 固件。
 
 - 设备目录：<http://127.0.0.1:8787/platform/web/>
 - 会话观察：<http://127.0.0.1:8787/platform/web/sessions.html>
+- WebBurner 固件导入：<http://127.0.0.1:8787/platform/web/firmware.html>
 - 设备服务 API：<http://127.0.0.1:8787/api/v1>
 - OpenAPI：<http://127.0.0.1:8787/api/v1/openapi.yaml>
 
@@ -184,6 +187,7 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
 固件审查流程、证据分层和安全边界见：
 
 - [固件审查与仿真测试工作流](docs/firmware-review-and-simulation-workflow.md)
+- [WebBurner 浏览器固件导入](platform/web/firmware.html)
 - [虚拟设备功能测试入口与持久化规则](docs/device-functional-test-workflow.md)
 - [外设仿真架构](docs/peripheral-simulation-architecture.md)
 - [UIFlow2 外设测试矩阵](docs/uiflow2-peripheral-test-matrix.md)

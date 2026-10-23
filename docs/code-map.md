@@ -29,7 +29,7 @@
 | 目录 | 职责 | 是否产品入口 |
 | --- | --- | --- |
 | `platform/tools/` | Device Service、固件导入/审查、网络策略、存储、QEMU profile 和目录生成 | 是 |
-| `platform/tests/` | 平台单元/契约测试；`test_docs_consistency.py` 防止文档和 API 漂移 | 是 |
+| `platform/tests/` | 平台单元/契约测试与浏览器 upload/SHA256 Node 测试；`test_docs_consistency.py` 防止文档和 API 漂移 | 是 |
 | `platform/peripherals/` | 芯片模型登记、运行时 coverage、设备/模型模板和完成门禁 | 是 |
 | `platform/qemu/` | QEMU machine、runtime profile、资产和 blocker 注册表 | 是 |
 | `patches/` | 可重放的 QEMU/板级补丁源；必须从匹配 worktree 生成和反向验证 | 是 |
@@ -37,7 +37,7 @@
 | `tests/network/` | namespace、DNS、TLS、错误密码、radio/AP 重连和 Core2 网络夹具 | 是 |
 | `tests/firmware/` | FirmwareManifest、静态审查和文件系统清单证据 | 是 |
 | `devices/` | 源设备清单、生成后的设备档案、固件来源和说明 | 是 |
-| `platform/web/` | 设备目录、Live session、输入和 3D 外壳 | 是 |
+| `platform/web/` | 设备目录、Live session、WebBurner、输入和 3D 外壳 | 是 |
 | `platform/runtime/wasm/` | 固定版本的第三方 `esp-emu` 运行时资产 | 仅 Tab5/诊断后端 |
 | `records/` | 仓内历史调查快照；不代表当前状态 | 否，历史证据 |
 | `.work/` | 本地 QEMU、ROM、工具链、固件和缓存，不提交 | 否，运行时资产 |
@@ -82,7 +82,7 @@
 
 | 入口 | 负责范围 | 何时运行 |
 | --- | --- | --- |
-| `platform/tests/` | API、catalog、manifest、network、文档和工具契约 | 每次代码改动 |
+| `platform/tests/` | Python API/契约与 Node SHA256/upload client 测试 | 每次代码改动 |
 | `tests/uiflow2/run_device_matrix.py` | 设备首帧、输入、烧录和板型 smoke | 设备/固件 profile 改动 |
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
@@ -143,10 +143,11 @@ HTTP / browser
 
 ```text
 M5Burner / WebBurner / ESP-IDF / merged / segmented
+  -> platform/web/firmware.html (optional browser path)
   -> firmware_manifest.py
   -> normalized flash + manifest.json
   -> optional resumable /api/v1/artifact-uploads/<id>/chunks
-  -> POST /api/v1/firmware (kind=manifest)
+  -> POST /api/v1/firmware/import or /api/v1/firmware (kind=manifest)
   -> capability/security preflight
   -> session
 ```
@@ -161,6 +162,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
 | `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |
+| `platform/web/firmware.html`、`firmware.js`、`firmware-upload.js`、`sha256.js` | 浏览器 WebBurner 包上传、流式 SHA256、重试/取消/刷新恢复和 manifest 导入 |
 
 ### 网络与 BLE
 
@@ -226,6 +228,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |
 | FAT inventory | `tests/firmware/evidence-2026-10-24-fat-inventory.json` | 合成 FAT12/16/32、LFN、循环链、多簇哈希、敏感路径、erased partition 与真实 PaperColor FAT12 样本 |
 | Resumable artifact upload | `tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json`; `DeviceServiceUnitTests.test_streamed_*`; `DeviceServiceHttpTests.test_streamed_artifact_http_upload` | 连续 offset、per-chunk/final hash、失败 append 回滚、resume、abort 和 abandoned staging GC |
+| WebBurner browser intake | `platform/web/firmware.html`; `platform/tests/test_firmware_upload.mjs`; `tests/firmware/evidence-2026-10-24-webburner-ui.json` | 9.44 MiB / 3 chunk、浏览器 SHA256、进度重试、刷新续接、取消清理和 WebBurner ZIP → manifest import |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证、radio/AP 移除、scan `1→0→1`、重新 DHCP 和前后 HTTP |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |

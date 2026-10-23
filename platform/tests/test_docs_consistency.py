@@ -70,6 +70,14 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-fat-inventory.json",
             "tests/firmware/evidence-2026-10-24-efuse-security.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
+            "tests/firmware/evidence-2026-10-24-webburner-ui.json",
+            "platform/web/firmware.html",
+            "platform/web/firmware.css",
+            "platform/web/firmware.js",
+            "platform/web/firmware-upload.js",
+            "platform/web/sha256.js",
+            "platform/tests/test_firmware_upload.mjs",
+            "platform/tests/test_sha256.mjs",
             "patches/qemu-core2-openmac-wifi/README.md",
             "patches/qemu-core2-ble-controller/README.md",
         ):
@@ -201,6 +209,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "6.8k 行",
             "6840 行",
             "6843 行",
+            "WebBurner UI 未接线",
+            "WebBurner UI 接线仍开放",
+            "WebBurner UI 尚未调用 chunk API",
         ):
             self.assertNotIn(stale, active)
 
@@ -412,6 +423,23 @@ class DocsConsistencyTests(unittest.TestCase):
             upload_evidence["checks"]["failed_append_rollback"]
         )
         self.assertTrue(upload_evidence["checks"]["abandoned_upload_gc"])
+        webburner_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/evidence-2026-10-24-webburner-ui.json"
+            ).read_text()
+        )
+        self.assertEqual(webburner_evidence["status"], "PASS")
+        self.assertTrue(all(webburner_evidence["checks"].values()))
+        self.assertEqual(
+            webburner_evidence["large_package_probe"]["chunks"],
+            3,
+        )
+        self.assertTrue(
+            webburner_evidence["refresh_recovery"][
+                "import_resumed_after_refresh"
+            ]
+        )
 
     def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
         workstreams = (DOCS / "workstreams.md").read_text()
@@ -467,6 +495,24 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("allowed_endpoints", openapi)
         self.assertIn("controlled", openapi)
         self.assertIn("artifact-uploads", openapi)
+        self.assertIn("/firmware/import", openapi)
+
+    def test_webburner_browser_surface_is_wired(self) -> None:
+        html = (ROOT / "platform/web/firmware.html").read_text()
+        script = (ROOT / "platform/web/firmware.js").read_text()
+        uploader = (ROOT / "platform/web/firmware-upload.js").read_text()
+        index = (ROOT / "platform/web/index.html").read_text()
+        sessions = (ROOT / "platform/web/sessions.html").read_text()
+
+        self.assertIn('id="firmwareFile"', html)
+        self.assertIn('id="startBtn"', html)
+        self.assertIn('id="cancelBtn"', html)
+        self.assertIn('id="createSessionBtn"', html)
+        self.assertIn("firmware-upload.js", script)
+        self.assertIn("/api/v1/firmware/import", uploader)
+        self.assertIn("/api/v1/artifact-uploads", uploader)
+        self.assertIn("/platform/web/firmware.html", index)
+        self.assertIn("/platform/web/firmware.html", sessions)
 
 
 if __name__ == "__main__":

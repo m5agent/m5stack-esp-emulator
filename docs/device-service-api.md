@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.12.0` and bounded
+Status: local MVP with unified-device runtime contract `1.13.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -262,6 +262,42 @@ clients can query the upload and retry from `next_offset`. Upload metadata
 contains no artifact body. The cache janitor removes interrupted staging data
 and expired completed upload records after `M5_SERVICE_CACHE_GRACE`, while a
 completed artifact follows normal content-addressed artifact retention.
+
+### Import a browser-uploaded firmware package
+
+The WebBurner page uploads the package artifact and then asks the service to
+run the same FirmwareManifest importer used by the CLI:
+
+```http
+POST /api/v1/firmware/import
+Content-Type: application/json
+```
+
+```json
+{
+  "device_id": "sticks3",
+  "artifact_id": "<uploaded-package-sha256>"
+}
+```
+
+The uploaded artifact name selects the importer path:
+
+- `.bin`: merged flash;
+- `.zip`, `.m5burner` or `.webburner`: WebBurner/M5Burner/ESP-IDF package.
+
+The endpoint performs archive-safe extraction, segment composition, padding,
+static/security review, filesystem inventory and target capability checks. It
+always publishes a normalized merged-flash artifact to the firmware store and
+preserves the original source format and normalized segment hashes in the
+manifest. `409 unsupported_firmware_capability` includes structured
+`issues[]`; an invalid package returns `400 invalid_firmware_package`.
+
+The browser page is `/platform/web/firmware.html`. It streams the complete
+SHA256 calculation and 4 MiB chunks, retries transient failures, exposes
+progress/cancel, and restores the upload checkpoint from browser storage.
+After a refresh, an incomplete upload requires reselecting the same file for
+content verification; a completed artifact can continue directly to manifest
+import without uploading again.
 
 ### Firmware
 
@@ -1014,7 +1050,13 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | POST | `/api/v1/artifacts` | Upload a binary artifact |
 | GET | `/api/v1/artifacts/{artifact_id}` | Artifact metadata |
 | DELETE | `/api/v1/artifacts/{artifact_id}` | Delete an artifact |
+| POST | `/api/v1/artifact-uploads` | Start a resumable artifact upload |
+| GET | `/api/v1/artifact-uploads/{upload_id}` | Read resumable upload progress |
+| POST | `/api/v1/artifact-uploads/{upload_id}/chunks` | Append one contiguous chunk |
+| POST | `/api/v1/artifact-uploads/{upload_id}/complete` | Verify and publish the artifact |
+| DELETE | `/api/v1/artifact-uploads/{upload_id}` | Abort and clean staging |
 | POST | `/api/v1/firmware` | Compose a merged or segmented firmware |
+| POST | `/api/v1/firmware/import` | Normalize an uploaded `.bin`/WebBurner/ESP-IDF package |
 | GET | `/api/v1/firmware/{firmware_id}` | Firmware metadata |
 | POST | `/api/v1/firmware/analyze` | Validate image, chip ID, partition table and app descriptor |
 | GET | `/api/v1/firmware/{firmware_id}/analysis` | Read stored static analysis |

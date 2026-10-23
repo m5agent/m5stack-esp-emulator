@@ -206,13 +206,23 @@ Device Service 现在还接受不把完整 artifact 放进 JSON/base64 的 chunk
 5. `DELETE /api/v1/artifact-uploads/<id>` 清理未完成 staging 文件。
 
 chunk 只在请求期间进入内存，staging artifact 直接顺序写盘；最终 manifest
-仍引用普通 artifact，不引入第二种下游格式。当前完成的是 WebBurner
-backend，页面进度、重试、取消和刷新恢复仍属于 `FW-04` UI 工作。
+仍引用普通 artifact，不引入第二种下游格式。
 
 每次 append 先写 staging 再原子替换 upload metadata；任何写入、`fsync` 或
 metadata 提交失败都会把 part 截断回最后一个已确认 offset，客户端可重新
 `GET` 后从 `next_offset` 续传。未完成上传、孤立 staging 文件和过期完成
 记录由 storage janitor 按 `M5_SERVICE_CACHE_GRACE` 回收。
+
+浏览器入口是 `/platform/web/firmware.html`：
+
+- 流式计算完整 SHA256，不把整个固件一次性读入内存；
+- 4 MiB chunk、进度、瞬态重试、取消和 staging 清理；
+- 上传完成后调用 `POST /api/v1/firmware/import`，服务端执行同一套
+  WebBurner/M5Burner/ESP-IDF 导入、文件系统审查、安全检查和 capability
+  mismatch；
+- 上传完成后的 artifact 可以刷新后直接继续 import；
+- 未完成上传刷新后会保留 upload ID，浏览器重新选择同一文件并校验内容后
+  从已确认 offset 续传。
 
 ## Device Service
 

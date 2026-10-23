@@ -3,9 +3,10 @@
 日期：`2026-10-24`
 
 本页对账到当前工作树、生成物和最近一次本地全量验证快照。平台套件共
-`249` 项，`249` 项通过、`0` 项跳过；
+`253` 项，`253` 项通过、`0` 项跳过；
 `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验均为
-`PASS`。这里记录的是证据快照，不把“测试总数”写成“全部功能或真机通过”。
+`PASS`；浏览器 SHA256/upload client Node 测试 `2/2 PASS`。这里记录的是
+证据快照，不把“测试总数”写成“全部功能或真机通过”。
 
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
@@ -29,7 +30,7 @@
 | --- | --- | --- |
 | 网络 namespace/DNS/egress/pcap/重连 | 单机 namespace、controlled DNS、TLS/Host、精确 IPv4 egress、pcap、错误密码、radio/AP 丢失恢复和 DHCP renewal 已有同路径证据 | `NET-03` 双设备 fabric、`NET-04` 自托管 worker 生命周期、`NET-05` 外部 IPv6 |
 | Core2 cache/PSRAM/原生蓝牙/公网 | deterministic TCG/icount 已消除当前虚拟 WDT 复现；WiFi、DNS/公网和 board 外设同 guest PASS；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 callback PASS | 稳定 `HCI-3b` 完整 HCI/GATT sequence，再做 `HCI-4` repeated lease；物理 cache/PSRAM 与 bit-exact controller 仍属后续边界 |
-| FirmwareManifest/WebBurner/安全 | 版本化 manifest、WebBurner/M5Burner/ESP-IDF 导入、capability mismatch、脱敏静态审查、eFuse 证据分层、LittleFS/FAT 清单和 resumable chunk upload backend 已实现 | `FW-01` SPIFFS/权限/许可、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归、`FW-04` WebBurner UI/重试/刷新恢复 |
+| FirmwareManifest/WebBurner/安全 | 版本化 manifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传与刷新恢复、capability mismatch、脱敏静态审查、eFuse 证据分层、LittleFS/FAT 清单已实现 | `FW-01` SPIFFS/权限/许可、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 
 ## 文档分层
 
@@ -53,10 +54,10 @@
 | [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络/CI、Core2、FirmwareManifest 与平台测试快照 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.12.0`；resumable chunk upload、atomic append rollback、staging GC、nftables exact egress + DHCP lifecycle |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.13.0`；WebBurner browser intake、resumable chunk upload、atomic append rollback、staging GC、nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 地址已固定，GDB 控制面仍开放 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | `HCI-1` PASS；`HCI-2` 首包 PARTIAL；`HCI-3a` 单包 callback PASS；`HCI-3b`/`HCI-4` 开放 |
-| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | eFuse summary、LittleFS/FAT12/16/32 清单和 resumable upload backend 已通；SPIFFS 仍 `UNSUPPORTED`，WebBurner UI 未接线 |
+| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32 清单已通；SPIFFS 仍 `UNSUPPORTED` |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap 和 radio/AP 丢失恢复已通；QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
@@ -97,6 +98,7 @@
 
 - [Device Service API](device-service-api.md)
 - [OpenAPI 3.1](device-service.openapi.yaml)
+- [WebBurner 浏览器固件导入](../platform/web/firmware.html)
 - [Device Center adapter](device-center-adapter.md)
 - [服务架构与 worker 路线](simulator-service-architecture.md)
 - [虚拟设备功能测试工作流](device-functional-test-workflow.md)

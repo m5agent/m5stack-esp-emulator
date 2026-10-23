@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "kind": "m5stack-webburner-browser-intake",
+  "status": "PASS",
+  "scope": "browser chunk upload, FirmwareManifest import, refresh recovery and cancel",
+  "source_commit_base": "0ffaf07b334a09690e2ad62b23078c04ea8b134c",
+  "large_package_probe": {
+    "package_bytes": 9441052,
+    "chunk_bytes": 4194304,
+    "chunks": 3,
+    "source_sha256": "39c02eae0969b8bd0876976413193d84b3554ff7bf8fce5bd402ad652b4e08c3",
+    "source_format": "web-manifest",
+    "normalized_flash_bytes": 8388608,
+    "normalized_from": "segmented-flash",
+    "firmware_id": "819893edc0a3bb872d2e336f14e27dbcaad4a6216f3bfc2dbcdb9b2a4179819d",
+    "manifest_validation": "PASS",
+    "browser_page_errors": 0
+  },
+  "refresh_recovery": {
+    "forced_import_failure": true,
+    "upload_completed_before_refresh": true,
+    "artifact_preserved_after_refresh": true,
+    "file_reselection_required_for_completed_artifact": false,
+    "import_resumed_after_refresh": true,
+    "firmware_id_stable": true
+  },
+  "cancel_probe": {
+    "cancelled_after_first_of_three_chunks": true,
+    "upload_lookup_after_cancel_status": 404,
+    "browser_checkpoint_cleared": true,
+    "staging_cleanup_verified": true
+  },
+  "checks": {
+    "streaming_browser_sha256": true,
+    "four_mib_chunks": true,
+    "multi_chunk_upload": true,
+    "transient_retry": true,
+    "import_invokes_web_manifest_parser": true,
+    "normalized_merged_artifact_published": true,
+    "capability_validation_pass": true,
+    "partial_upload_resume_from_server_offset": true,
+    "refresh_resume_without_reupload": true,
+    "cancel_cleans_staging": true
+  },
+  "not_claimed": [
+    "virtual device boot from the imported synthetic firmware",
+    "SPIFFS inventory",
+    "cross-vendor package corpus",
+    "runtime file permission policy",
+    "physical hardware"
+  ]
+}

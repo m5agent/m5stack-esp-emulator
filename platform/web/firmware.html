@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>M5Stack WebBurner</title>
+  <link rel="stylesheet" href="/platform/web/app.css">
+  <link rel="stylesheet" href="/platform/web/firmware.css?v=20261024a">
+  <link rel="stylesheet" href="/platform/web/m5-tokens.css">
+  <link rel="stylesheet" href="/platform/web/m5-brand.css">
+</head>
+<body>
+  <header class="brandbar">
+    <div class="brand-mark"><img src="/platform/web/m5stack-logo.png" alt="M5Stack"></div>
+    <div>
+      <div class="brand-title">WebBurner</div>
+      <div class="brand-sub">Resumable firmware intake · manifest validation · virtual-device session</div>
+    </div>
+    <div class="brand-actions">
+      <a class="btn ghost" href="/platform/web/index.html">设备目录</a>
+      <a class="btn ghost" href="/platform/web/sessions.html">Live sessions</a>
+      <a class="btn ghost" href="/api/v1/openapi.yaml" target="_blank" rel="noreferrer">OpenAPI</a>
+    </div>
+  </header>
+
+  <main class="firmware-layout">
+    <section class="panel firmware-form">
+      <div class="stage-title">固件包导入</div>
+      <div class="stage-sub">支持 merged .bin、WebBurner/M5Burner .zip、ESP-IDF flasher package。</div>
+
+      <div class="firmware-field">
+        <label for="deviceSelect">目标设备</label>
+        <select class="field" id="deviceSelect"></select>
+      </div>
+      <div class="firmware-grid">
+        <div class="firmware-field">
+          <label for="ttlInput">Session TTL</label>
+          <input class="field" id="ttlInput" type="number" min="30" value="600">
+        </div>
+        <div class="firmware-field">
+          <label for="tokenInput">API token</label>
+          <input class="field" id="tokenInput" type="password" placeholder="仅局域网服务需要">
+        </div>
+      </div>
+
+      <label class="firmware-drop" id="dropZone" for="firmwareFile">
+        <input id="firmwareFile" type="file" accept=".bin,.zip,.m5burner,.webburner">
+        <strong>选择或拖入固件包</strong>
+        <span id="fileSummary">尚未选择文件</span>
+      </label>
+
+      <div class="firmware-progress" id="progressWrap">
+        <div class="firmware-progress-head">
+          <span id="progressLabel">等待上传</span>
+          <strong id="progressValue">0%</strong>
+        </div>
+        <div class="firmware-progress-track">
+          <span id="progressBar"></span>
+        </div>
+      </div>
+
+      <div class="firmware-actions">
+        <button class="btn primary" id="startBtn" type="button">上传、规范化并导入</button>
+        <button class="btn danger" id="cancelBtn" type="button" hidden>取消上传</button>
+        <button class="btn" id="createSessionBtn" type="button" hidden>创建虚拟设备</button>
+      </div>
+      <div class="notice firmware-notice" id="notice">等待固件包。上传中断后刷新页面会保留 upload ID，重新选择同一文件即可续传。</div>
+    </section>
+
+    <section class="panel firmware-result">
+      <div class="firmware-result-head">
+        <div>
+          <div class="stage-title">导入结果</div>
+          <div class="stage-sub" id="resultSub">FirmwareManifest 尚未生成。</div>
+        </div>
+        <span class="status-chip" id="resultChip">idle</span>
+      </div>
+
+      <div class="firmware-summary" id="summary">
+        <div class="firmware-empty">上传后会显示规范化镜像、目标芯片、capability 检查和安全告警。</div>
+      </div>
+
+      <div class="firmware-issues" id="issues" hidden>
+        <div class="section-title">Validation details</div>
+        <pre id="issueList"></pre>
+      </div>
+
+      <div class="firmware-session" id="sessionResult" hidden>
+        <div>
+          <small>Virtual session</small>
+          <code id="sessionId"></code>
+        </div>
+        <a class="btn primary" href="/platform/web/sessions.html">打开 Live sessions</a>
+      </div>
+
+      <div class="firmware-log" id="timeline" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>FIRMWARE INTAKE</span><span>© 2026 M5Stack</span></div></footer>
+  <script type="module" src="/platform/web/firmware.js?v=20261024a"></script>
+</body>
+</html>

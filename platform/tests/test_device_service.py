@@ -23,6 +23,7 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
+sys.path.insert(0, str(ROOT / "platform/tests"))
 
 import device_service as device_service_module
 from device_service import (
@@ -38,6 +39,7 @@ from device_service import (
     default_session_ready_timeout,
 )
 from serve import Handler, _wait_for_session
+from test_firmware_analysis import build_flash
 
 
 def hermetic_flash_preparer(
@@ -58,6 +60,45 @@ def hermetic_flash_preparer(
         "firmware_sha256": firmware_sha,
         "virtual_flash": str(target),
     }
+
+
+def webburner_package(image: bytes) -> bytes:
+    parts = {
+        "bootloader.bin": image[:0x8000],
+        "partition-table.bin": image[0x8000:0x10000],
+        "application.bin": image[0x10000:],
+    }
+    offsets = {
+        "bootloader.bin": 0,
+        "partition-table.bin": 0x8000,
+        "application.bin": 0x10000,
+    }
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr(
+            "manifest.json",
+            json.dumps(
+                {
+                    "name": "Web Probe",
+                    "version": "2.0.0",
+                    "builds": [
+                        {
+                            "chipFamily": "ESP32-S3",
+                            "parts": [
+                                {
+                                    "path": name,
+                                    "offset": offsets[name],
+                                }
+                                for name in parts
+                            ],
+                        }
+                    ],
+                }
+            ),
+        )
+        for name, data in parts.items():
+            archive.writestr(name, data)
+    return output.getvalue()
 
 
 class DeviceServiceUnitTests(unittest.TestCase):
@@ -727,6 +768,62 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(caught.exception.code, "unknown_upload")
             finally:
                 service.close_all()
+
+    def test_imports_webburner_package_as_normalized_firmware(self):
+        package = webburner_package(build_flash())
+        artifact = self.service.upload_artifact(
+            package,
+            name="web-probe.zip",
+            content_type="application/zip",
+        )
+
+        firmware = self.service.import_firmware_package(
+            {
+                "device_id": "sticks3",
+                "artifact_id": artifact["artifact_id"],
+            }
+        )
+
+        self.assertEqual(firmware["device_id"], "sticks3")
+        self.assertEqual(firmware["kind"], "manifest")
+        self.assertEqual(firmware["size"], 8 << 20)
+        manifest = firmware["manifest"]
+        self.assertEqual(
+            manifest["provenance"]["source_format"],
+            "web-manifest",
+        )
+        self.assertEqual(
+            manifest["artifact"]["kind"],
+            "merged-flash",
+        )
+        self.assertEqual(
+            manifest["artifact"]["normalized_from"],
+            "segmented-flash",
+        )
+        self.assertEqual(len(manifest["artifact"]["source_segments"]), 3)
+        self.assertEqual(
+            firmware["source"]["compatibility"]["status"],
+            "PASS",
+        )
+        self.assertTrue(self.service.firmware.path(firmware["firmware_id"]).is_file())
+        self.assertFalse((self.service.state_dir / "firmware-imports").exists())
+
+    def test_firmware_package_import_rejects_unknown_extension(self):
+        artifact = self.service.upload_artifact(
+            b"not a firmware package",
+            name="firmware.txt",
+        )
+        with self.assertRaises(ServiceError) as caught:
+            self.service.import_firmware_package(
+                {
+                    "device_id": "sticks3",
+                    "artifact_id": artifact["artifact_id"],
+                }
+            )
+        self.assertEqual(
+            caught.exception.code,
+            "unsupported_firmware_package",
+        )
 
     def test_runtime_env_is_narrowly_allowlisted(self):
         with self.assertRaises(ServiceError) as caught:
@@ -3866,6 +3963,37 @@ class DeviceServiceHttpTests(unittest.TestCase):
         )
         self.assertEqual(status, 200)
         self.assertTrue(deleted["aborted"])
+
+    def test_webburner_http_import(self):
+        package = webburner_package(build_flash())
+        status, artifact = self.request(
+            "/api/v1/artifacts",
+            method="POST",
+            data=package,
+            headers={
+                "Content-Type": "application/zip",
+                "X-Artifact-Name": "web-probe.zip",
+            },
+        )
+        self.assertEqual(status, 201)
+        status, firmware = self.request(
+            "/api/v1/firmware/import",
+            method="POST",
+            data=json.dumps(
+                {
+                    "device_id": "sticks3",
+                    "artifact_id": artifact["artifact_id"],
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(firmware["kind"], "manifest")
+        self.assertEqual(
+            firmware["manifest"]["provenance"]["source_format"],
+            "web-manifest",
+        )
+        self.assertEqual(firmware["manifest"]["artifact"]["kind"], "merged-flash")
 
     def test_device_state_endpoint(self):
         spec = self.service.specs["sticks3"]

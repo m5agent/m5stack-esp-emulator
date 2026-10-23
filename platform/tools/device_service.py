@@ -62,7 +62,9 @@ from firmware_analysis import (  # noqa: E402
     parse_partition_table,
 )
 from firmware_manifest import (  # noqa: E402
+    ManifestError,
     canonical_json_sha256,
+    import_package,
     load_device_profile,
     validate_capabilities,
     validate_manifest_structure,
@@ -6153,6 +6155,108 @@ class DeviceService:
 
     def abort_artifact_upload(self, upload_id: str) -> dict:
         return self.artifacts.abort_upload(upload_id)
+
+    def import_firmware_package(self, payload: dict) -> dict:
+        device_id = str(payload.get("device_id") or "")
+        spec = self.specs.get(device_id)
+        if spec is None:
+            raise ServiceError("unknown_device", "device_id is required", 400)
+        if not spec.supported:
+            raise ServiceError(
+                "unsupported_device",
+                spec.reason or "device is not enabled for this service",
+                409,
+            )
+        artifact_id = payload.get("artifact_id")
+        artifact = self.artifacts.get(artifact_id)
+        original_name = str(artifact.get("name") or f"{artifact_id}.bin")
+        suffix = Path(original_name).suffix.lower()
+        if suffix not in {".bin", ".zip", ".m5burner", ".webburner"}:
+            raise ServiceError(
+                "unsupported_firmware_package",
+                "package must be .bin, .zip, .m5burner or .webburner",
+                400,
+            )
+        safe_stem = "".join(
+            char if char.isalnum() or char in "._-" else "-"
+            for char in Path(original_name).stem
+        ).strip("-")[:80] or "firmware"
+        import_root = self.state_dir / "firmware-imports"
+        work_dir = import_root / uuid.uuid4().hex
+        source_path = work_dir / f"{safe_stem}{suffix}"
+        normalized_dir = work_dir / "normalized"
+        self._ensure_storage_capacity(spec.flash_size * 2)
+        try:
+            work_dir.mkdir(parents=True, exist_ok=False)
+            shutil.copyfile(self.artifacts.path(artifact_id), source_path)
+            result = import_package(
+                source_path,
+                normalized_dir,
+                device_id=device_id,
+                flash_size=spec.flash_size,
+            )
+            manifest = result["manifest"]
+            validation = manifest.get("validation", {})
+            if validation.get("status") != "PASS":
+                raise ServiceError(
+                    "unsupported_firmware_capability",
+                    (
+                        "firmware package does not satisfy the target "
+                        "device capability profile"
+                    ),
+                    409,
+                    issues=list(validation.get("errors", [])),
+                    warnings=list(validation.get("warnings", [])),
+                    manifest_id=manifest.get("manifest_id"),
+                )
+            image_path = Path(result["image_path"])
+            normalized = self.artifacts.create(
+                image_path.read_bytes(),
+                name=image_path.name,
+                content_type="application/octet-stream",
+            )
+            original_artifact_kind = manifest["artifact"].get("kind")
+            source_segments = manifest["artifact"].get("segments")
+            manifest["artifact"].update(
+                {
+                    "kind": "merged-flash",
+                    "file": image_path.name,
+                    "artifact_id": normalized["artifact_id"],
+                    "sha256": normalized["artifact_id"],
+                    "size": normalized["size"],
+                    "normalized_from": original_artifact_kind,
+                }
+            )
+            if source_segments:
+                manifest["artifact"]["source_segments"] = source_segments
+                manifest["artifact"].pop("segments", None)
+            manifest["device_id"] = device_id
+            manifest["manifest_id"] = canonical_json_sha256(
+                {
+                    key: value
+                    for key, value in manifest.items()
+                    if key not in {"manifest_id", "created_at"}
+                }
+            )
+            return self.firmware.create(
+                {
+                    "device_id": device_id,
+                    "kind": "manifest",
+                    "manifest": manifest,
+                }
+            )
+        except ManifestError as error:
+            raise ServiceError(
+                "invalid_firmware_package",
+                str(error),
+                400,
+            ) from error
+        finally:
+            shutil.rmtree(work_dir, ignore_errors=True)
+            try:
+                import_root.rmdir()
+            except OSError:
+                pass
 
     def create_firmware(self, payload: dict) -> dict:
         spec = self.specs.get(str(payload.get("device_id") or ""))

@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node test_ui.mjs"
+    "test": "node test_ui.mjs",
+    "test:units": "node test_sha256.mjs && node test_firmware_upload.mjs"
   },
   "dependencies": {
     "playwright": "^1.64.1"

@@ -11,8 +11,9 @@
 代码入口和详细验证命令见 [代码与验证入口地图](code-map.md)。
 
 本轮台账对账到 `2026-10-24` 当前工作树、生成物和已提交 evidence。平台套件
-共 `249` 项，其中 `249` 项通过、`0` 项环境相关测试跳过。文档整理本身不
-产生新的设备能力；运行时结论仍以对应固件 SHA、profile 和 evidence 为准。
+共 `253` 项，其中 `253` 项通过、`0` 项环境相关测试跳过。文档整理本身不
+产生新的设备能力；浏览器 SHA256/upload client Node 测试另为 `2/2 PASS`。
+运行时结论仍以对应固件 SHA、profile 和 evidence 为准。
 
 ## 状态语义
 
@@ -36,7 +37,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
 | Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5` | `CORE2-01` 先稳定 `HCI-3b` 完整 Bumble HCI/GATT sequence，再以 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面；`CORE2-02` controller、物理 cache/PSRAM、coexistence/soak |
 | 网络隔离、策略与取证 | `DELIVERED`（单机与 Linux policy CI） | `network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；GitHub Actions policy fixture | `NET-03` 双设备 fabric、`NET-04` 自托管 QEMU worker、`NET-05` IPv6 |
-| 通用固件导入与静态审查 | `DELIVERED`（静态与上传后端范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT 清单、resumable chunk upload、失败回滚与 staging GC | `FW-01` SPIFFS/权限/许可策略、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归、`FW-04` WebBurner UI/重试/刷新恢复 |
+| 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT 清单、失败回滚与 staging GC | `FW-01` SPIFFS/权限/许可策略、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`storage_policy.py`、`docs/device-service-api.md` | lease、烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` worker 生命周期、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
 | 热门公开固件仿真 | `PILOT` | `fetch_firmware.py`、`user_firmware_matrix.py` | 按 M5Burner 热度选样并通过 `/api/v1` 留下 session/evidence | 更大样本面、跨厂商统计、长时间稳定性 |
 | 浏览器目录与设备页 | `DELIVERED`（本地） | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、Live sessions、输入和证据浏览 | `UI-01` 逐设备高保真外壳与视觉回归 |
@@ -53,9 +54,8 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
    injection/synthetic return 诊断桥。
 3. 并行推进网络产品化：`NET-03` 双设备 fabric，随后 `NET-04` worker 和
    `SVC-01` 生命周期；`NET-05` 外部 IPv6 单列。
-4. 固件审查继续 `FW-01` SPIFFS/权限/许可；`FW-04` backend 已完成，
-   剩余 WebBurner UI 接线，再处理 `FW-03` 跨厂商样本和 `FW-02` 真机
-   key/eFuse。
+4. 固件审查继续 `FW-01` SPIFFS/权限/许可，再处理 `FW-03` 跨厂商样本和
+   `FW-02` 真机 key/eFuse。
 5. Tab5、视觉保真与 CardputerZero 是专项工作；没有后端、素材和真机证据时
    不把它们写成统一运行时完成。
 

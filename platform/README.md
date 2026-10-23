@@ -40,6 +40,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 
 - 内容寻址 firmware/artifact 和版本化 FirmwareManifest；
 - 可恢复 chunk artifact upload，含连续 offset/hash、失败回滚和 staging GC；
+- `/platform/web/firmware.html` WebBurner：浏览器 SHA256、chunk 进度重试、
+  取消、刷新恢复和 package → manifest import；
 - merged/segmented/ZIP 导入与 capability mismatch；
 - QEMU 与 Tab5 session 生命周期、TTL、容量和存储回收；
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和

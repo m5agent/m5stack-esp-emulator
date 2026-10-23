@@ -16,6 +16,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
       - name: Run platform tests and contract checks
         env:
           PYTHONPATH: platform/tools
@@ -28,6 +31,10 @@ jobs:
       - name: Compile Python entry points
         run: |
           python3 -m compileall -q platform tests
+      - name: Run browser upload unit tests
+        run: |
+          node platform/tests/test_sha256.mjs
+          node platform/tests/test_firmware_upload.mjs
 
   network-namespace-policy:
     runs-on: ubuntu-latest

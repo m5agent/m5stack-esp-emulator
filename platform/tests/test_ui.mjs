@@ -18,6 +18,18 @@ if (!catalogChip.includes('13/14 peripheral-complete')) {
 const peripheralBadges = await page.$$eval('.peripheral-badge', items => items.length);
 if (peripheralBadges !== 14) throw new Error(`expected 14 peripheral badges, got ${peripheralBadges}`);
 
+await page.goto(`${base}/platform/web/firmware.html`, { waitUntil: 'networkidle' });
+await page.waitForFunction(() => window.m5Firmware?.getState && document.querySelectorAll('#deviceSelect option').length >= 13);
+const firmwareUi = await page.evaluate(() => ({
+  devices: document.querySelectorAll('#deviceSelect option').length,
+  fileInput: Boolean(document.querySelector('#firmwareFile')),
+  start: Boolean(document.querySelector('#startBtn')),
+  state: window.m5Firmware.getState(),
+}));
+if (!firmwareUi.fileInput || !firmwareUi.start || firmwareUi.devices < 13) {
+  throw new Error(`WebBurner UI failed: ${JSON.stringify(firmwareUi)}`);
+}
+
 await page.goto(`${base}/platform/web/device.html?device=esp32-s3/sticks3`, { waitUntil: 'networkidle' });
 await page.waitForFunction(() => window.m5emu?.ready === true);
 const stick = await page.evaluate(() => ({

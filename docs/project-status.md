@@ -11,8 +11,10 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `249` 项，`249` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `253` 项，`253` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
+- WebBurner 浏览器 SHA256/upload client Node 测试 `2/2 PASS`；真实页面对
+  `9.44 MiB`、`3` chunk 的 WebBurner ZIP 完成上传、manifest 导入和刷新恢复。
 - 已登记 `14` 台设备：9 台 ESP32-S3、2 台 ESP32-C6、Core2、Tab5 和
   CardputerZero。
 - Device Service 可创建 `13` 台设备：12 台 QEMU ESP32 加 Tab5。CardputerZero
@@ -40,7 +42,7 @@
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
 | S3/C6/Core2 单实例无线 | 12 个 unified profile；S3/C6 整机路径 PASS，Core2 为环境门控且 GDB/native-HCI 生产化未闭环 | `qemu-unified` 可返回 frame/QOM/network/evidence | `NOT RUN` | 已能验证应用网络与 BLE 数据面，不是完整 RF/PHY |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal PASS | 单机 lease 可用；双设备 fabric、自托管 worker 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
-| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT、可恢复上传后端 PASS | WebBurner UI 尚未调用 chunk API | `NOT RUN` | 审查后端可用，浏览器入口与生产 key 流程未完成 |
+| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
 | 服务生命周期 | 停止/失败历史可恢复、容量与 GC 可用 | 活动进程不能跨重启接管，无 warm pool/多机调度 | 不适用 | 本地 MVP，不是完整云端服务 |
 
 ## 最近里程碑
@@ -55,6 +57,7 @@
 | 2026-10-24 | 共享 QEMU | ESP32-S3 AES/GDMA 外部内存读取修复；最新全矩阵 `67/67` case、`274/274` check，全部首轮无重试 | [`gdma-external-memory-matrix.json`](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) |
 | 2026-10-24 | 固件审查 | FirmwareManifest 增加 LittleFS 与只读 FAT12/16/32 文件清单、SHA256、LFN、敏感路径脱敏与 SPDX 提取 | [`fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json) |
 | 2026-10-24 | 固件上传 | 可恢复 chunk artifact upload 增加连续 offset、per-chunk/final SHA256、写入失败回滚、原子 metadata、abort 和废弃 staging GC | [`streaming-artifact-upload.json`](../tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json) |
+| 2026-10-24 | WebBurner | 浏览器完成流式 SHA256、4 MiB 多 chunk、进度/重试/取消、刷新恢复和 package → FirmwareManifest import；9.44 MiB 三 chunk 探针 PASS | [`webburner-ui.json`](../tests/firmware/evidence-2026-10-24-webburner-ui.json) |
 | 2026-10-24 | 固件安全配置 | FirmwareManifest 解析脱敏 `espefuse summary --format json`，区分镜像、sdkconfig、分区 flag 与 eFuse 证据；原始 key/value 不落输出；启用安全启动/加密仍被 capability preflight 拒绝 | [`efuse-security.json`](../tests/firmware/evidence-2026-10-24-efuse-security.json) |
 | 2026-10-24 | Core2 | 确定性启动与零重试门禁合入；stock native-VHCI BLE、同 guest board+WiFi+公网+BLE GATT、Device Service 单 lease 证据已归档 | [`native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) |
 | 2026-10-24 | Core2 VHCI 符号 | 从匹配 Xtensa ELF 解析 `API_vhci_host_send_packet`、`vhci_env_p`、`esp_cpu_wait_for_intr` 固定地址；standalone BLE `5/5`、同 guest unified `3/3`；GDB 不再负责符号查询，仍负责暂停、callback 注入和 synthetic return | [`native-vhci-pinned.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json) |
@@ -68,7 +71,7 @@
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；GitHub Actions Linux policy CI PASS | 自托管 QEMU worker、双设备 lab fabric、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；`HCI-3b` 完整 Bumble HCI/GATT sequence 和 `HCI-4` Device Service `5/5` 门禁仍未完成；随后才是去掉 GDB 控制面、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、RF/coexistence/soak |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、可回滚的 resumable chunk artifact upload backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | WebBurner UI 接线、SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
 
 ## 工程工作流总表
 
@@ -77,8 +80,8 @@
 | 设备与板级契约 | 已完成 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 14 台设备登记；13 台达到登记外设的模拟数据面；catalog、coverage、profile 校验通过 | 新设备逐项登记；视觉保真另列 |
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | QEMU patch `0027` 后最新 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成；native-HCI 单包 C2H 已通过 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、ELF 固定符号、Device Service 单 lease PASS；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` `5/5` | 先稳定 `HCI-3b` 完整 Bumble HCI/GATT，再以 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面；bit-exact BT、物理 cache/PSRAM 与 soak 另列 |
-| Device Service | 本地 v1 可用，生产服务化未完成 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、direct/resumable chunk 上传、烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.12.0 | worker 化、活动进程恢复、warm pool、多机调度、VM 隔离和编排模块拆分 |
-| FirmwareManifest | v1 + 静态审查 + eFuse 安全摘要 + LittleFS/FAT 清单 + resumable upload backend | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`device_service.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、8 MiB chunk/offset/hash/resume、failed-append rollback、staging GC、sdkconfig/分区/eFuse 分层、capability mismatch、脱敏 finding、SBOM、LittleFS/FAT12/16/32 文件哈希/敏感路径/SPDX | WebBurner UI 接线、SPIFFS、运行时权限、许可策略、真机 key/eFuse、跨厂商回归 |
+| Device Service | 本地 v1 可用，生产服务化未完成 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py`、`platform/web/firmware.*` | lease、WebBurner/firmware package import、direct/resumable chunk 上传、烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.13.0 | worker 化、活动进程恢复、warm pool、多机调度、VM 隔离和编排模块拆分 |
+| FirmwareManifest | v1 + 静态审查 + eFuse 安全摘要 + LittleFS/FAT 清单 + WebBurner browser intake | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`device_service.py`、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、8 MiB API chunk、4 MiB browser chunk、browser SHA256/progress/retry/cancel/refresh、failed-append rollback、staging GC、capability mismatch、SBOM、LittleFS/FAT | SPIFFS、运行时权限、许可策略、真机 key/eFuse、跨厂商回归 |
 | 网络隔离与取证 | Linux 单机与 GitHub Actions policy 路径闭环，正式 worker 开放 | `network_egress.py`、`network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、reconnect probe | namespace/controlled DNS/TLS、nftables exact IPv4 egress、veth/NAT、DHCP DORA+renew lifecycle、pcap、错误密码、radio/AP 丢失恢复和清理 PASS；GitHub Actions Linux job PASS | 自托管 QEMU worker、双设备 fabric、外部 IPv6 |
 | 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
 | 物理硬件验证 | `NOT RUN` | Device Test Center 路径 | 当前仅有 virtual-device validation | 代表设备使用同固件 SHA 和同测试计划做实机证据 |
@@ -160,6 +163,9 @@
 - 已提供版本化 FirmwareManifest、WebBurner/M5Burner/`flasher_args.json`
   导入、规范化完整 Flash、provenance/security 记录和结构化 capability
   mismatch；真实公开固件样本已 round-trip。
+- `/platform/web/firmware.html` 可直接上传 merged `.bin` 或 WebBurner/
+  M5Burner/ESP-IDF 包；浏览器流式计算 SHA256，按 4 MiB chunk 上传，支持
+  进度、瞬态重试、取消和刷新恢复，完成后调用同一 Manifest importer。
 - 已提供公开社区固件抓取、热门固件批量仿真、结构分析、脱敏静态审查和
   SPDX/CycloneDX SBOM 摘要。manifest 不保存 URL query、凭据或编码载荷明文。
 - 任意固件仍受板型、PSRAM、eFuse/安全启动、Flash 加密、分区和控制器覆盖
@@ -229,6 +235,8 @@
   [`tests/firmware/evidence-2026-10-24-fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json)
 - Resumable artifact upload, rollback and staging GC:
   [`tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json`](../tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json)
+- WebBurner browser upload, refresh recovery and cancel:
+  [`tests/firmware/evidence-2026-10-24-webburner-ui.json`](../tests/firmware/evidence-2026-10-24-webburner-ui.json)
 - Linux guest-in-namespace evidence:
   [`tests/network/linux_isolation/evidence-2026-10-23-linux.json`](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
 - [网络模拟方案](network-simulation-plan.md)

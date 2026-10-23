@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.12.0
+  version: 1.13.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -284,6 +284,28 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+  /firmware/import:
+    post:
+      summary: Normalize a firmware package and create a validated firmware
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FirmwareImportRequest"
+      responses:
+        "201":
+          description: Normalized firmware metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Firmware"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
   /firmware:
     post:
       summary: Compose and validate a flash-sized firmware image
@@ -1225,6 +1247,15 @@ components:
         created_at:
           type: string
           format: date-time
+    FirmwareImportRequest:
+      type: object
+      required: [device_id, artifact_id]
+      properties:
+        device_id:
+          type: string
+        artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
     MergedFirmwareRequest:
       type: object
       required: [device_id, kind, artifact_id]
