@@ -1,0 +1,64 @@
+# User firmware simulation matrix
+
+`platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
+M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
+possible, uploads each merged image through the Device Service `/api/v1`, boots
+it, injects the board's primary input, captures serial and frame evidence, and
+stops the session with `purge=0`.
+
+This is simulation-only evidence. It does not establish real-hardware
+validation and must not be used by itself to publish a fix, issue reply, review
+or release note.
+
+## Run
+
+Start the Device Service and run selected devices:
+
+Set `M5_DEVICE_SERVICE_URL` or pass `--service-url` to point the matrix at the
+service instance.
+
+```bash
+python3 platform/tools/serve.py 8787 \
+  --state-dir platform/.cache/service \
+  --max-sessions 8 --max-per-device 4 --session-ttl 1800
+
+export M5_DEVICE_SERVICE_URL=http://device-service:8787
+export USER_FIRMWARE_OUT="$PWD/artifacts/user-firmware"
+
+python3 platform/tools/user_firmware_matrix.py \
+  --service-url "$M5_DEVICE_SERVICE_URL" \
+  --devices atoms3r,cardputer-adv,core2,cores3,nanoc6,nesso-n1 \
+  --per-device 3 --jobs 3 --observe-seconds 45 \
+  --out-dir "$USER_FIRMWARE_OUT"
+```
+
+Use `--resume` with the same output directory to retry missing or intentionally
+removed sample results without changing the stored hot-firmware selection.
+
+## Status
+
+- `PASS`: the board rendered a non-blank application frame, the session stayed
+  running, and no configured fatal serial signature was observed.
+- `PARTIAL`: boot or application output exists, but frame, input, device
+  lifecycle or full application readiness is incomplete.
+- `FAIL`: boot did not reach the application, the session failed, or a fatal
+  panic/watchdog/assert was observed.
+- Devices without a display can only reach `PARTIAL`; serial boot alone is not
+  application success.
+
+The tool records the selected firmware ID, download count, SHA-256, static
+partition/image analysis, Device Service session ID, frame metrics, input
+response, serial digest and a bounded set of fatal error lines.
+
+## Boundaries
+
+- CardputerZero is an ARM64 Linux device and has no CardputerZero entry in the
+  M5Burner ESP firmware catalog.
+- Some Burner device names have fewer than three compatible, non-baseline
+  samples. The plan records the exact partial coverage instead of substituting
+  an incompatible image.
+- Tab5 service sessions attach the documented PI4IOE, INA226, RX8130 and
+  BMI270 register devices to I2C1. Uploaded Tab5 images still lack a matching
+  ELF, so AP-frame and touch capture remain unavailable.
+- Core2 sessions expose the supported 4 MiB PSRAM model. The existing Core2
+  cache/WDT startup instability remains a known simulation-only blocker.

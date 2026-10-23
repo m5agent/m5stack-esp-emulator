@@ -1,0 +1,797 @@
+diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+index 3f3053b..9246578 100644
+--- a/hw/dma/esp_gdma.c
++++ b/hw/dma/esp_gdma.c
+@@ -487,6 +487,7 @@ uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
+     uint32_t copy;
+     uint32_t next;
+ 
++    state->status &= ~R_GDMA_INFIFO_STATUS_FIFO_EMPTY_MASK;
+     if (!addr || !esp_gdma_read_descr(s, addr, &desc)) {
+         esp_gdma_set_status(&state->int_state,
+                             R_GDMA_INTERRUPT_OUT_DSCR_ERR_MASK);
+@@ -499,6 +500,7 @@ uint32_t esp_gdma_complete_out_descriptor(ESPGdmaState *s, uint32_t chan,
+         return 0;
+     }
+     state->suc_eof_desc_addr = addr;
++    state->status |= R_GDMA_INFIFO_STATUS_FIFO_EMPTY_MASK;
+     next = desc.next_addr;
+     if (next) {
+         esp_gdma_push_descriptor(s, chan, ESP_GDMA_OUT_IDX, next);
+@@ -973,6 +975,10 @@ static void esp_gdma_write_chan_conf(ESPGdmaState *state, uint32_t dir, uint32_t
+             /* Check if any of the previous two bits has just been enabled */
+             if ((value & start_mask) || (value & restart_mask))
+             {
++                if (dir == ESP_GDMA_OUT_IDX) {
++                    s->status &=
++                        ~R_GDMA_INFIFO_STATUS_FIFO_EMPTY_MASK;
++                }
+                 esp_gdma_check_and_start_mem_transfer(state, chan);
+             }
+             break;
+diff --git a/hw/i2c/esp32_i2c.c b/hw/i2c/esp32_i2c.c
+index abd89fd..ef2fe4b 100644
+--- a/hw/i2c/esp32_i2c.c
++++ b/hw/i2c/esp32_i2c.c
+@@ -27,6 +27,11 @@ static void esp32_i2c_reset_hold(Object *obj, ResetType type)
+     s->rstart_setup_reg = 0;
+     s->stop_hold_reg = 0;
+     s->stop_setup_reg = 0;
++    s->scl_st_timeout_reg = 16;
++    s->scl_main_st_timeout_reg = 16;
++    s->scl_sp_conf_reg = 0;
++    s->scl_stretch_conf_reg = 0;
++    s->date_reg = 35656050;
+     memset(s->cmd_reg, 0, sizeof(s->cmd_reg));
+ 
+     fifo8_reset(&s->tx_fifo);
+@@ -59,8 +64,8 @@ static uint64_t esp32_i2c_read(void * opaque, hwaddr addr, unsigned int size)
+         return esp32_i2c_get_status_reg(s);
+     case A_I2C_FIFO_DATA: {
+         if (fifo8_num_used(&s->rx_fifo) == 0) {
+-            error_report("esp32_i2c: read I2C FIFO while it is empty");
+-            return 0xee;
++            /* Hardware returns an all-ones byte for an empty RX FIFO. */
++            return 0xff;
+         }
+         uint8_t res = fifo8_pop(&s->rx_fifo);
+         return res;
+@@ -71,7 +76,7 @@ static uint64_t esp32_i2c_read(void * opaque, hwaddr addr, unsigned int size)
+         return s->int_ena_reg;
+     case A_I2C_INT_ST:
+         return s->int_raw_reg & s->int_ena_reg;
+-    case A_I2C_CMD ... (A_I2C_CMD + ESP32_I2C_CMD_COUNT * 4):
++    case A_I2C_CMD ... (A_I2C_CMD + (ESP32_I2C_CMD_COUNT - 1) * 4):
+         return s->cmd_reg[(addr - A_I2C_CMD) / 4];
+     case A_I2C_TIMEOUT:
+         return s->timeout_reg;
+@@ -91,6 +96,16 @@ static uint64_t esp32_i2c_read(void * opaque, hwaddr addr, unsigned int size)
+         return s->stop_hold_reg;
+     case A_I2C_STOP_SETUP:
+         return s->stop_setup_reg;
++    case A_I2C_SCL_ST_TIME_OUT:
++        return s->scl_st_timeout_reg;
++    case A_I2C_SCL_MAIN_ST_TIME_OUT:
++        return s->scl_main_st_timeout_reg;
++    case A_I2C_SCL_SP_CONF:
++        return s->scl_sp_conf_reg;
++    case A_I2C_SCL_STRETCH_CONF:
++        return s->scl_stretch_conf_reg;
++    case A_I2C_DATE:
++        return s->date_reg;
+     default:
+         return 0;
+     }
+@@ -142,7 +157,7 @@ static void esp32_i2c_write(void * opaque, hwaddr addr, uint64_t value, unsigned
+         s->int_ena_reg = value;
+         esp32_i2c_update_irq(s);
+         break;
+-    case A_I2C_CMD ... (A_I2C_CMD + ESP32_I2C_CMD_COUNT * 4):
++    case A_I2C_CMD ... (A_I2C_CMD + (ESP32_I2C_CMD_COUNT - 1) * 4):
+         s->cmd_reg[(addr - A_I2C_CMD) / 4] = value;
+         break;
+     case A_I2C_TIMEOUT:
+@@ -172,6 +187,27 @@ static void esp32_i2c_write(void * opaque, hwaddr addr, uint64_t value, unsigned
+     case A_I2C_STOP_SETUP:
+         s->stop_setup_reg = value;
+         break;
++    case A_I2C_SCL_ST_TIME_OUT:
++        s->scl_st_timeout_reg = value;
++        break;
++    case A_I2C_SCL_MAIN_ST_TIME_OUT:
++        s->scl_main_st_timeout_reg = value;
++        break;
++    case A_I2C_SCL_SP_CONF:
++        /*
++         * SCL_RST_SLV_EN is a self-clearing pulse request.  Firmware polls
++         * this bit until the controller acknowledges and clears it.
++         */
++        s->scl_sp_conf_reg =
++            value & ~R_I2C_SCL_SP_CONF_SCL_RST_SLV_EN_MASK;
++        break;
++    case A_I2C_SCL_STRETCH_CONF:
++        s->scl_stretch_conf_reg =
++            value & ~R_I2C_SCL_STRETCH_CONF_SLAVE_SCL_STRETCH_CLR_MASK;
++        break;
++    case A_I2C_DATE:
++        s->date_reg = value;
++        break;
+     default:
+         break;
+     }
+@@ -240,7 +276,12 @@ static void esp32_i2c_do_transaction(Esp32I2CState * s)
+                 error_report("esp32_i2c: Invalid command %d opcode %d", i_cmd, opcode);
+                 break;
+         }
+-        s->cmd_reg[i_cmd] = FIELD_DP32(s->cmd_reg[i_cmd], I2C_CMD, DONE, 1);
++        /*
++         * The command fields are consumed by the controller.  Drivers poll
++         * DONE and the cleared low command word before reusing a slot; leaving
++         * OPCODE/BYTE_NUM set makes that poll loop forever.
++         */
++        s->cmd_reg[i_cmd] = R_I2C_CMD_DONE_MASK;
+     }
+     esp32_i2c_update_irq(s);
+ }
+diff --git a/hw/misc/esp32_ledc.c b/hw/misc/esp32_ledc.c
+index 9cebea9..83053e6 100644
+--- a/hw/misc/esp32_ledc.c
++++ b/hw/misc/esp32_ledc.c
+@@ -2,6 +2,7 @@
+ #include "hw/sysbus.h"
+ #include "qemu/log.h"
+ #include "qapi/error.h"
++#include "hw/qdev-properties.h"
+ #include "hw/misc/esp32_ledc.h"
+ 
+ #define ESP32_LEDC_REGS_SIZE (A_LEDC_CONF_REG + 4)
+@@ -10,6 +11,17 @@ static uint64_t esp32_ledc_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32LEDCState *s = ESP32_LEDC(opaque);
+     uint64_t r = 0;
++    if (getenv("M5SW_LEDC_TRACE")) {
++        fprintf(stderr, "[ledc] rd %03" HWADDR_PRIx " size=%u\n", addr, size);
++    }
++    if (s->compact_layout && addr >= 0xa0 && addr < 0xc0) {
++        unsigned index = (addr - 0xa0) / 8;
++        return (addr & 4) ? s->timer_value_reg[index]
++                          : s->timer_conf_reg[index];
++    }
++    if (s->compact_layout && addr == 0xd0) {
++        return s->conf_reg;
++    }
+     switch (addr) {
+     case A_LEDC_HSTIMER0_CONF_REG ... A_LEDC_LSTIMER3_CONF_REG:
+         r = s->timer_conf_reg[(addr - A_LEDC_HSTIMER0_CONF_REG) / 0x8];
+@@ -55,6 +67,26 @@ static void esp32_ledc_write(void *opaque, hwaddr addr,
+                             uint64_t value, unsigned int size)
+ {
+     Esp32LEDCState *s = ESP32_LEDC(opaque);
++    if (getenv("M5SW_LEDC_TRACE")) {
++        fprintf(stderr, "[ledc] wr %03" HWADDR_PRIx "=%08" PRIx64
++                " size=%u\n", addr, value, size);
++    }
++    if (s->compact_layout && addr >= 0xa0 && addr < 0xc0) {
++        unsigned index = (addr - 0xa0) / 8;
++        if (addr & 4) {
++            s->timer_value_reg[index] = value;
++        } else {
++            s->timer_conf_reg[index] = value;
++            if ((value & 0xf) != 0) {
++                s->duty_res[index] = value & 0xf;
++            }
++        }
++        return;
++    }
++    if (s->compact_layout && addr == 0xd0) {
++        s->conf_reg = value;
++        return;
++    }
+     switch (addr) {
+     case A_LEDC_HSTIMER0_CONF_REG ... A_LEDC_LSTIMER3_CONF_REG:
+         /* get duty resolution from timer config */
+@@ -111,6 +143,12 @@ static const MemoryRegionOps esp32_ledc_ops = {
+         .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
++static Property esp32_ledc_props[] = {
++    DEFINE_PROP_BOOL("compact-layout", Esp32LEDCState,
++                     compact_layout, false),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
+ static void esp32_ledc_realize(DeviceState *dev, Error **errp)
+ {
+     Esp32LEDCState *s = ESP32_LEDC(dev);
+@@ -136,6 +174,7 @@ static void esp32_ledc_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     dc->realize = esp32_ledc_realize;
++    device_class_set_props(dc, esp32_ledc_props);
+ }
+ 
+ static const TypeInfo esp32_ledc_info = {
+diff --git a/hw/misc/esp32c6_pcr.c b/hw/misc/esp32c6_pcr.c
+index 68d452e..24e3a34 100644
+--- a/hw/misc/esp32c6_pcr.c
++++ b/hw/misc/esp32c6_pcr.c
+@@ -25,6 +25,9 @@
+ REG32(PCR_MSPI_CLK_CONF, 0x01C)
+     FIELD(PCR_MSPI_CLK_CONF, FAST_LS_DIV_NUM, 0,  8)
+     FIELD(PCR_MSPI_CLK_CONF, FAST_HS_DIV_NUM, 8,  8)
++REG32(PCR_LEDC_SCLK_CONF, 0x038)
++    FIELD(PCR_LEDC_SCLK_CONF, LEDC_SCLK_SEL, 20, 2)
++    FIELD(PCR_LEDC_SCLK_CONF, LEDC_SCLK_EN, 22, 1)
+ REG32(SYSCON_RND_DATA,   0x0B0)
+ REG32(PCR_SYSCLK_CONF,   0x110)
+     FIELD(PCR_SYSCLK_CONF, HS_DIV_NUM,    8,  8)
+@@ -49,6 +52,8 @@ REG32(SYSCON_ORIGIN,     0x3F8) /* QEMU magic identifier "QEMU" */
+ 
+ static uint64_t esp32c6_pcr_read(void *opaque, hwaddr addr, unsigned int size)
+ {
++    ESP32C6PcrState *s = ESP32C6_PCR(opaque);
++
+     switch (addr) {
+     case A_PCR_MSPI_CLK_CONF: {
+         uint32_t r = 0;
+@@ -82,13 +87,18 @@ static uint64_t esp32c6_pcr_read(void *opaque, hwaddr addr, unsigned int size)
+         return SYSCON_ORIGIN_QEMU_MAGIC;
+ 
+     default:
+-        return 0;
++        return addr < sizeof(s->regs) ? s->regs[addr / 4] : 0;
+     }
+ }
+ 
+ static void esp32c6_pcr_write(void *opaque, hwaddr addr, uint64_t value,
+                               unsigned int size)
+ {
++    ESP32C6PcrState *s = ESP32C6_PCR(opaque);
++
++    if (addr < sizeof(s->regs)) {
++        s->regs[addr / 4] = (uint32_t)value;
++    }
+ }
+ 
+ static const MemoryRegionOps esp32c6_pcr_ops = {
+@@ -97,6 +107,17 @@ static const MemoryRegionOps esp32c6_pcr_ops = {
+     .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
++static void esp32c6_pcr_reset_hold(Object *obj, ResetType type)
++{
++    ESP32C6PcrState *s = ESP32C6_PCR(obj);
++    uint32_t value = 0;
++
++    memset(s->regs, 0, sizeof(s->regs));
++    value = FIELD_DP32(value, PCR_LEDC_SCLK_CONF, LEDC_SCLK_SEL, 1);
++    value = FIELD_DP32(value, PCR_LEDC_SCLK_CONF, LEDC_SCLK_EN, 1);
++    s->regs[A_PCR_LEDC_SCLK_CONF / 4] = value;
++}
++
+ static void esp32c6_pcr_init(Object *obj)
+ {
+     ESP32C6PcrState *s = ESP32C6_PCR(obj);
+@@ -110,6 +131,8 @@ static void esp32c6_pcr_init(Object *obj)
+ 
+ static void esp32c6_pcr_class_init(ObjectClass *klass, void *data)
+ {
++    ResettableClass *rc = RESETTABLE_CLASS(klass);
++    rc->phases.hold = esp32c6_pcr_reset_hold;
+ }
+ 
+ static const TypeInfo esp32c6_pcr_info = {
+diff --git a/hw/misc/meson.build b/hw/misc/meson.build
+index f99c722..1cba2a7 100644
+--- a/hw/misc/meson.build
++++ b/hw/misc/meson.build
+@@ -159,6 +159,8 @@ system_ss.add(when: 'CONFIG_RISCV_ESP32C3', if_true: files(
+ ))
+ 
+ system_ss.add(when: 'CONFIG_RISCV_ESP32C6', if_true: files(
++  'esp32_ledc.c',
++  'led.c',
+   'esp32c6_cache.c',
+   'esp32c6_i2c_ana_mst.c',
+   'esp32c6_intpri.c',
+diff --git a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+index cbc874d..e85fc8d 100644
+--- a/hw/riscv/esp32c6.c
++++ b/hw/riscv/esp32c6.c
+@@ -53,6 +53,7 @@
+ #include "hw/misc/esp32c6_soft_i2c.h"
+ #include "hw/misc/esp32c6_sx1262.h"
+ #include "hw/misc/esp32c6_i2s.h"
++#include "hw/misc/esp32_ledc.h"
+ #include "hw/timer/esp32c6_timg.h"
+ #include "hw/timer/esp32c6_systimer.h"
+ #include "hw/ssi/esp32c6_spi.h"
+@@ -90,6 +91,7 @@ struct Esp32C6MachineState {
+     ESP32C6SpiState spi1;
+     ESP32C6GdmaState gdma;
+     ESP32C6ShaState sha;
++    Esp32LEDCState ledc;
+     ESP32C6UsbJtagState jtag;
+     ESP32C6PcrState pcr;
+     ESP32C6LpState lp;
+@@ -395,6 +397,8 @@ static void esp32c6_machine_init(MachineState *machine)
+     object_initialize_child(OBJECT(machine), "clock", &ms->clock, TYPE_ESP32C6_CLOCK);
+     object_initialize_child(OBJECT(machine), "gdma", &ms->gdma, TYPE_ESP32C6_GDMA);
+     object_initialize_child(OBJECT(machine), "sha", &ms->sha, TYPE_ESP32C6_SHA);
++    object_initialize_child(OBJECT(machine), "ledc", &ms->ledc, TYPE_ESP32_LEDC);
++    qdev_prop_set_bit(DEVICE(&ms->ledc), "compact-layout", true);
+     object_initialize_child(OBJECT(machine), "timg0", &ms->timg[0], TYPE_ESP32C6_TIMG);
+     object_initialize_child(OBJECT(machine), "timg1", &ms->timg[1], TYPE_ESP32C6_TIMG);
+     object_initialize_child(OBJECT(machine), "systimer", &ms->systimer, TYPE_ESP32C6_SYSTIMER);
+@@ -459,6 +463,10 @@ static void esp32c6_machine_init(MachineState *machine)
+         qdev_realize(panel, NULL, &error_fatal);
+         esp32c3_spi_set_m5_sink(ms->spi2, panel,
+                                 esp32c6_nesso_panel_write);
++        esp32c3_spi_set_gdma(ms->spi2, ESP_GDMA(&ms->gdma));
++        sysbus_connect_irq(
++            SYS_BUS_DEVICE(ms->spi2), 0,
++            qdev_get_gpio_in(intmatrix_dev, C6_ETS_SPI2_INTR_SOURCE));
+         esp32c6_sx1262_attach_soft_spi(23, 20, 21, 22, 19, 15);
+     }
+ 
+@@ -479,6 +487,14 @@ static void esp32c6_machine_init(MachineState *machine)
+         memory_region_add_subregion_overlap(sys_mem, DR_REG_GPIO_BASE, mr, 0);
+     }
+ 
++    /* LEDC: six channels and four timers using the compact register layout. */
++    {
++        sysbus_realize(SYS_BUS_DEVICE(&ms->ledc), &error_fatal);
++        MemoryRegion *mr =
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(&ms->ledc), 0);
++        memory_region_add_subregion_overlap(sys_mem, DR_REG_LEDC_BASE, mr, 0);
++    }
++
+     /* RMT: TX channels 0/1, RX channels 2/3, plus hardware symbol RAM. */
+     {
+         DeviceState *rmt = qdev_new(TYPE_ESP32C6_RMT);
+diff --git a/hw/ssi/esp32c3_spi.c b/hw/ssi/esp32c3_spi.c
+index 08546c9..f57d82e 100644
+--- a/hw/ssi/esp32c3_spi.c
++++ b/hw/ssi/esp32c3_spi.c
+@@ -25,6 +25,22 @@
+ #define SPI1_DEBUG      0
+ #define SPI1_WARNING    0
+ 
++#define R_SPI_DMA_CONF  0x30
++#define DMA_RX_ENA      (1u << 27)
++#define DMA_TX_ENA      (1u << 28)
++#define SPI_TRANS_DONE  (1u << 12)
++
++static void esp32c3_spi_update_irq(ESP32C3SpiState *s)
++{
++    int level = !!(s->dma_int_raw & s->dma_int_ena);
++
++    if (s->m5_spi2 && getenv("M5SW_C6_SPI2_TRACE")) {
++        fprintf(stderr, "[c6-spi2-irq] level=%d raw=%08x ena=%08x\n",
++                level, s->dma_int_raw, s->dma_int_ena);
++    }
++    qemu_set_irq(s->irq, level);
++}
++
+ 
+ enum {
+     CMD_RES = 0xab,
+@@ -65,6 +81,28 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+     ESP32C3SpiState *s = ESP32C3_SPI(opaque);
+ 
+     uint64_t r = 0;
++    if (s->m5_spi2) {
++        switch (addr) {
++        case 0x10:
++            return s->mem_user;
++        case 0x14:
++            return s->mem_user1;
++        case 0x18:
++            return s->mem_user2;
++        case 0x1c:
++            return s->mem_mosi_len;
++        case 0x20:
++            return s->c6_misc;
++        case 0x24:
++            return s->c6_din_mode;
++        case 0x28:
++            return s->c6_din_num;
++        case 0x2c:
++            return s->c6_dout_mode;
++        case R_SPI_DMA_CONF:
++            return s->dma_conf;
++        }
++    }
+     switch (addr) {
+         case A_SPI_MEM_CMD:
+             r = 0;
+@@ -79,26 +117,22 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+             r = s->mem_ctrl1;
+             break;
+         case A_SPI_MEM_CTRL2:
+-            if (s->m5_spi2) {
+-                r = s->mem_user;
+-                break;
+-            }
+             r = s->mem_ctrl2;
+             break;
+         case A_SPI_MEM_CLOCK:
+-            r = s->m5_spi2 ? s->mem_user1 : s->mem_clock;
++            r = s->mem_clock;
+             break;
+         case A_SPI_MEM_USER:
+             r = s->mem_user;
+             break;
+         case A_SPI_MEM_USER1:
+-            r = s->m5_spi2 ? s->mem_mosi_len : s->mem_user1;
++            r = s->mem_user1;
+             break;
+         case A_SPI_MEM_USER2:
+             r = s->mem_user2;
+             break;
+         case A_SPI_MEM_MISO_DLEN:
+-            r = s->m5_spi2 ? s->mem_mosi_len : s->mem_miso_len;
++            r = s->mem_miso_len;
+             break;
+         case A_SPI_MEM_MOSI_DLEN:
+             r = s->mem_mosi_len;
+@@ -115,6 +149,9 @@ static uint64_t esp32c3_spi_read(void *opaque, hwaddr addr, unsigned int size)
+         case 0x3c:
+             r = s->dma_int_raw;
+             break;
++        case 0x40:
++            r = s->dma_int_raw & s->dma_int_ena;
++            break;
+         case 0x44:
+             r = 0;
+             break;
+@@ -235,7 +272,8 @@ static void esp32c3_spi_perform_transaction(ESP32C3SpiState *s, ESP32C3SpiTransa
+         fprintf(stderr, "\n");
+     }
+     qemu_set_irq(s->cs_gpio[0], 1);
+-    s->dma_int_raw |= BIT(0);
++    s->dma_int_raw |= SPI_TRANS_DONE;
++    esp32c3_spi_update_irq(s);
+ }
+ 
+ 
+@@ -268,6 +306,12 @@ static inline void esp32c3_spi_get_dummy(ESP32C3SpiState *s, uint32_t* len)
+ 
+ static void esp32c3_spi_begin_transaction(ESP32C3SpiState *s)
+ {
++    uint8_t dma_buffer[4096];
++    uint32_t dma_channel = 0;
++    bool dma_tx = s->m5_spi2 && s->gdma &&
++        (s->dma_conf & DMA_TX_ENA);
++    bool dma_rx = s->m5_spi2 && s->gdma &&
++        (s->dma_conf & DMA_RX_ENA);
+     ESP32C3SpiTransaction t = {
+         .data = s->data_reg
+      };
+@@ -287,9 +331,12 @@ static void esp32c3_spi_begin_transaction(ESP32C3SpiState *s)
+     /* Get the command and its length, in bytes
+      * In theory we should test mem_user's command bit. In practice, if we do, `esptool`
+      * cannot write flash successfully and detects an error */
+-    t.cmd = FIELD_EX32(s->mem_user2, SPI_MEM_USER2, USR_COMMAND_VALUE);
+-    t.cmd_bytes = FIELD_EX32(s->mem_user2, SPI_MEM_USER2, USR_COMMAND_BITLEN);
+-    t.cmd_bytes = (t.cmd_bytes + 1) / 8;
++    if (!s->m5_spi2 || (s->mem_user & R_SPI_MEM_USER_USR_COMMAND_MASK)) {
++        t.cmd = FIELD_EX32(s->mem_user2, SPI_MEM_USER2, USR_COMMAND_VALUE);
++        t.cmd_bytes =
++            FIELD_EX32(s->mem_user2, SPI_MEM_USER2, USR_COMMAND_BITLEN);
++        t.cmd_bytes = (t.cmd_bytes + 1) / 8;
++    }
+ 
+     /* Get the address and its length, in bytes */
+     if (s->mem_user & R_SPI_MEM_USER_USR_ADDR_MASK) {
+@@ -314,6 +361,17 @@ static void esp32c3_spi_begin_transaction(ESP32C3SpiState *s)
+         t.has_mode_byte = true;
+     }
+ 
++    if (dma_tx &&
++        esp_gdma_get_channel_periph(s->gdma, GDMA_SPI2,
++                                    ESP_GDMA_OUT_IDX, &dma_channel)) {
++        uint32_t requested = t.tx_bytes ? t.tx_bytes : sizeof(dma_buffer);
++        uint32_t got = esp_gdma_complete_out_descriptor(
++            s->gdma, dma_channel, dma_buffer,
++            MIN(requested, sizeof(dma_buffer)));
++        t.data = dma_buffer;
++        t.tx_bytes = got;
++    }
++
+     if (s->m5_spi2 && getenv("M5SW_C6_SPI2_TRACE")) {
+         fprintf(stderr,
+                 "[c6-spi2-xfer] cmd=0x%02x addr_bytes=%u tx=%u rx=%u "
+@@ -334,6 +392,13 @@ static void esp32c3_spi_begin_transaction(ESP32C3SpiState *s)
+     }
+ 
+     esp32c3_spi_perform_transaction(s, &t);
++
++    if (dma_rx && t.rx_bytes &&
++        esp_gdma_get_channel_periph(s->gdma, GDMA_SPI2,
++                                    ESP_GDMA_IN_IDX, &dma_channel)) {
++        esp_gdma_complete_in_descriptor(
++            s->gdma, dma_channel, t.data, t.rx_bytes);
++    }
+ }
+ 
+ 
+@@ -459,6 +524,39 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+     info_report("[SPI1] Writing 0x%lx = %08lx", addr, value);
+ #endif
+ 
++    if (s->m5_spi2) {
++        switch (addr) {
++        case 0x10:
++            s->mem_user = wvalue;
++            return;
++        case 0x14:
++            s->mem_user1 = wvalue;
++            return;
++        case 0x18:
++            s->mem_user2 = wvalue;
++            return;
++        case 0x1c:
++            s->mem_mosi_len = wvalue;
++            s->mem_miso_len = wvalue;
++            return;
++        case 0x20:
++            s->c6_misc = wvalue;
++            return;
++        case 0x24:
++            s->c6_din_mode = wvalue;
++            return;
++        case 0x28:
++            s->c6_din_num = wvalue;
++            return;
++        case 0x2c:
++            s->c6_dout_mode = wvalue;
++            return;
++        case R_SPI_DMA_CONF:
++            s->dma_conf = wvalue;
++            return;
++        }
++    }
++
+     switch (addr) {
+         case A_SPI_MEM_CMD:
+             if ((wvalue & R_SPI_MEM_CMD_USR_MASK) ||
+@@ -471,14 +569,17 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+             break;
+         case 0x34:
+             s->dma_int_ena = wvalue;
++            esp32c3_spi_update_irq(s);
+             break;
+         case 0x38:
+             s->dma_int_raw &= ~wvalue;
++            esp32c3_spi_update_irq(s);
+             break;
+         case 0x3c:
+             break;
+         case 0x44:
+             s->dma_int_raw |= wvalue;
++            esp32c3_spi_update_irq(s);
+             break;
+         case A_SPI_MEM_ADDR:
+             s->mem_addr = wvalue;
+@@ -490,40 +591,22 @@ static void esp32c3_spi_write(void *opaque, hwaddr addr,
+             s->mem_ctrl1 = wvalue;
+             break;
+         case A_SPI_MEM_CTRL2:
+-            if (s->m5_spi2) {
+-                s->mem_user = wvalue;
+-            } else {
+-                s->mem_ctrl2 = wvalue;
+-            }
++            s->mem_ctrl2 = wvalue;
+             break;
+         case A_SPI_MEM_CLOCK:
+-            if (s->m5_spi2) {
+-                s->mem_user1 = wvalue;
+-            } else {
+-                s->mem_clock = wvalue;
+-            }
++            s->mem_clock = wvalue;
+             break;
+         case A_SPI_MEM_USER:
+             s->mem_user = wvalue;
+             break;
+         case A_SPI_MEM_USER1:
+-            if (s->m5_spi2) {
+-                s->mem_mosi_len = wvalue;
+-                s->mem_miso_len = wvalue;
+-            } else {
+-                s->mem_user1 = wvalue;
+-            }
++            s->mem_user1 = wvalue;
+             break;
+         case A_SPI_MEM_USER2:
+             s->mem_user2 = wvalue;
+             break;
+         case A_SPI_MEM_MISO_DLEN:
+-            if (s->m5_spi2) {
+-                s->mem_mosi_len = wvalue;
+-                s->mem_miso_len = wvalue;
+-            } else {
+-                s->mem_miso_len = wvalue;
+-            }
++            s->mem_miso_len = wvalue;
+             break;
+         case A_SPI_MEM_MOSI_DLEN:
+             s->mem_mosi_len = wvalue;
+@@ -574,6 +657,11 @@ static void esp32c3_spi_reset_hold(Object *obj, ResetType type)
+     s->mem_user2 = FIELD_DP32(s->mem_user2, SPI_MEM_USER2, USR_COMMAND_BITLEN, 7);
+     s->dma_int_ena = 0;
+     s->dma_int_raw = 0;
++    s->dma_conf = 0;
++    s->c6_misc = 0;
++    s->c6_din_mode = 0;
++    s->c6_din_num = 0;
++    s->c6_dout_mode = 0;
+ 
+     /* In case more registers are supported in the future (MEM_MISC, MEM_TX_CRC, ...)
+      * update this function with their default values */
+@@ -598,7 +686,7 @@ static void esp32c3_spi_init(Object *obj)
+     memory_region_init_io(&s->iomem, obj, &esp32c3_spi_ops, s,
+                           TYPE_ESP32C3_SPI, ESP32C3_SPI_IO_SIZE);
+     sysbus_init_mmio(sbd, &s->iomem);
+-    // sysbus_init_irq(sbd, &s->irq);
++    sysbus_init_irq(sbd, &s->irq);
+ 
+     esp32c3_spi_reset_hold(obj, RESET_TYPE_COLD);
+ 
+@@ -626,6 +714,11 @@ void esp32c3_spi_set_m5_slave(DeviceState *dev, int cs_pin, void *opaque,
+     s->m5_slave_transfer = transfer;
+ }
+ 
++void esp32c3_spi_set_gdma(DeviceState *dev, ESPGdmaState *gdma)
++{
++    ESP32C3_SPI(dev)->gdma = gdma;
++}
++
+ static Property esp32c3_spi_properties[] = {
+     DEFINE_PROP_BOOL("m5-spi2", ESP32C3SpiState, m5_spi2, false),
+     DEFINE_PROP_END_OF_LIST(),
+diff --git a/include/hw/i2c/esp32_i2c.h b/include/hw/i2c/esp32_i2c.h
+index b12ba7e..7de9576 100644
+--- a/include/hw/i2c/esp32_i2c.h
++++ b/include/hw/i2c/esp32_i2c.h
+@@ -12,7 +12,7 @@
+ 
+ #define ESP32_I2C_MEM_SIZE 0x100
+ #define ESP32_I2C_FIFO_LENGTH 32
+-#define ESP32_I2C_CMD_COUNT 16
++#define ESP32_I2C_CMD_COUNT 8
+ 
+ 
+ typedef struct Esp32I2CState {
+@@ -37,6 +37,11 @@ typedef struct Esp32I2CState {
+     uint32_t rstart_setup_reg;
+     uint32_t stop_hold_reg;
+     uint32_t stop_setup_reg;
++    uint32_t scl_st_timeout_reg;
++    uint32_t scl_main_st_timeout_reg;
++    uint32_t scl_sp_conf_reg;
++    uint32_t scl_stretch_conf_reg;
++    uint32_t date_reg;
+     uint32_t cmd_reg[ESP32_I2C_CMD_COUNT];
+ } Esp32I2CState;
+ 
+@@ -97,6 +102,14 @@ REG32(I2C_CMD, 0x58);
+     FIELD(I2C_CMD, DONE, 31, 1);
+ /* 15 more command registers omitted */
+ 
++REG32(I2C_SCL_ST_TIME_OUT, 0x78);
++REG32(I2C_SCL_MAIN_ST_TIME_OUT, 0x7c);
++REG32(I2C_SCL_SP_CONF, 0x80);
++    FIELD(I2C_SCL_SP_CONF, SCL_RST_SLV_EN, 0, 1);
++REG32(I2C_SCL_STRETCH_CONF, 0x84);
++    FIELD(I2C_SCL_STRETCH_CONF, SLAVE_SCL_STRETCH_CLR, 11, 1);
++REG32(I2C_DATE, 0xf8);
++
+ /* I2C_CMD.OPCODE values */
+ typedef enum {
+     /* ESP32-C6 uses the same 3-bit field with the C6 opcode values. */
+diff --git a/include/hw/misc/esp32_ledc.h b/include/hw/misc/esp32_ledc.h
+index 818b984..2c055f5 100644
+--- a/include/hw/misc/esp32_ledc.h
++++ b/include/hw/misc/esp32_ledc.h
+@@ -15,7 +15,10 @@ typedef struct Esp32LEDCState {
+     MemoryRegion iomem;
+     uint32_t duty_res[ESP32_LEDC_TIMER_CNT];
+     uint32_t timer_conf_reg[ESP32_LEDC_TIMER_CNT];
++    uint32_t timer_value_reg[ESP32_LEDC_TIMER_CNT];
+     uint32_t channel_conf0_reg[ESP32_LEDC_CHANNEL_CNT];
++    uint32_t conf_reg;
++    bool compact_layout;
+     LEDState led[ESP32_LEDC_CHANNEL_CNT];
+ } Esp32LEDCState;
+ 
+diff --git a/include/hw/misc/esp32c6_pcr.h b/include/hw/misc/esp32c6_pcr.h
+index 44c5e85..a269187 100644
+--- a/include/hw/misc/esp32c6_pcr.h
++++ b/include/hw/misc/esp32c6_pcr.h
+@@ -19,4 +19,5 @@
+ typedef struct {
+     SysBusDevice parent;
+     MemoryRegion iomem;
++    uint32_t regs[ESP32C6_PCR_IO_SIZE / sizeof(uint32_t)];
+ } ESP32C6PcrState;
+diff --git a/include/hw/misc/esp32c6_reg.h b/include/hw/misc/esp32c6_reg.h
+index d5aa1c1..9d43a93 100644
+--- a/include/hw/misc/esp32c6_reg.h
++++ b/include/hw/misc/esp32c6_reg.h
+@@ -27,6 +27,7 @@
+ #define DR_REG_HMAC_BASE                        0x6008D000
+ #define DR_REG_DIGITAL_SIGNATURE_BASE           0x6008C000
+ #define DR_REG_GPIO_BASE                        0x60091000
++#define DR_REG_LEDC_BASE                        0x60007000
+ #define DR_REG_SYSTEM_BASE                      0x60095000
+ #define DR_REG_SYSCON_BASE                      0x60096000
+ #define DR_REG_EFUSE_BASE                       0x600B0800
+diff --git a/include/hw/ssi/esp32c3_spi.h b/include/hw/ssi/esp32c3_spi.h
+index 2d02526..154933e 100644
+--- a/include/hw/ssi/esp32c3_spi.h
++++ b/include/hw/ssi/esp32c3_spi.h
+@@ -2,6 +2,7 @@
+ 
+ #include "hw/hw.h"
+ #include "hw/registerfields.h"
++#include "hw/dma/esp_gdma.h"
+ #include "hw/misc/esp32c3_xts_aes.h"
+ #include "hw/ssi/ssi.h"
+ 
+@@ -23,6 +24,7 @@ typedef struct ESP32C3SpiState {
+ 
+     MemoryRegion iomem;
+     SSIBus *spi;
++    qemu_irq irq;
+     qemu_irq cs_gpio[ESP32C3_SPI_CS_COUNT];
+ 
+     uint32_t mem_cmd;
+@@ -47,6 +49,12 @@ typedef struct ESP32C3SpiState {
+     uint32_t data_reg[ESP32C3_SPI_BUF_WORDS];
+     uint32_t mem_sus_st;
+     ESP32C3XtsAesState *xts_aes;
++    ESPGdmaState *gdma;
++    uint32_t dma_conf;
++    uint32_t c6_misc;
++    uint32_t c6_din_mode;
++    uint32_t c6_din_num;
++    uint32_t c6_dout_mode;
+     bool m5_spi2;
+     void *m5_sink_opaque;
+     void (*m5_sink)(void *opaque, const uint8_t *buf, uint32_t len,
+@@ -61,6 +69,7 @@ void esp32c3_spi_set_m5_sink(DeviceState *dev, void *opaque,
+                                           bool));
+ void esp32c3_spi_set_m5_slave(DeviceState *dev, int cs_pin, void *opaque,
+                               uint8_t (*transfer)(void *, uint8_t));
++void esp32c3_spi_set_gdma(DeviceState *dev, ESPGdmaState *gdma);
+ 
+ 
+ REG32(SPI_MEM_CMD, 0x000)
+diff --git a/target/riscv/cpu_helper.c b/target/riscv/cpu_helper.c
+index 45806f5..f60e992 100644
+--- a/target/riscv/cpu_helper.c
++++ b/target/riscv/cpu_helper.c
+@@ -1899,6 +1899,20 @@ void riscv_cpu_do_interrupt(CPUState *cs)
+     trace_riscv_trap(env->mhartid, async, cause, env->pc, tval,
+                      riscv_cpu_get_trap_name(cause, async));
+ 
++    if (getenv("M5SW_RISCV_TRAP_TRACE")) {
++        static unsigned trace_count;
++
++        if (!async || trace_count++ < 512) {
++            fprintf(stderr,
++                    "[riscv-trap] hart=%" PRId64 " async=%d cause=%08x"
++                    " pc=%08x tval=%08x"
++                    " priv=%d desc=%s\n",
++                    (int64_t)env->mhartid, async, (uint32_t)cause,
++                    (uint32_t)env->pc, (uint32_t)tval, env->priv,
++                    riscv_cpu_get_trap_name(cause, async));
++        }
++    }
++
+     qemu_log_mask(CPU_LOG_INT,
+                   "%s: hart:"TARGET_FMT_ld", async:%d, cause:"TARGET_FMT_lx", "
+                   "epc:0x"TARGET_FMT_lx", tval:0x"TARGET_FMT_lx", desc=%s\n",

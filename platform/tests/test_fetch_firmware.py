@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -13,7 +15,9 @@ from fetch_firmware import (  # noqa: E402
     current_download_from_detail,
     download_url_from_detail,
     intake_status,
+    legacy_download_from_detail,
     merge_current_version,
+    resolve_community_firmware,
 )
 
 
@@ -105,6 +109,80 @@ class FirmwareResolverTests(unittest.TestCase):
         detail["data"]["currentVersion"]["visibility"] = "PUBLIC"
         with self.assertRaisesRegex(RuntimeError, "does not support"):
             current_download_from_detail("1", detail, device_slug="cores3")
+
+    def test_legacy_download_url_is_available_as_a_fallback(self):
+        detail = {
+            "code": 200,
+            "data": {
+                "currentVersion": {
+                    "versionId": "2112130111324377090",
+                },
+                "developer": {"userId": "1"},
+            },
+        }
+        self.assertEqual(
+            legacy_download_from_detail("1897200000000002129", detail),
+            "https://m5burner-cdn.m5stack.com/community/1/"
+            "1897200000000002129/2112130111324377090/bin/"
+            "2112130111324377091.bin",
+        )
+
+    def test_community_download_falls_back_after_direct_cdn_404(self):
+        firmware_id = "1897200000000002129"
+        detail = {
+            "code": 200,
+            "data": {
+                "firmwareName": "StackChan-UserDemo",
+                "currentVersion": {
+                    "versionId": "2112130111324377090",
+                    "versionName": "V1.6.0",
+                    "visibility": "PUBLIC",
+                    "status": "PUBLISHED",
+                    "binFileName": "missing-direct-name.bin",
+                },
+                "developer": {"userId": "1"},
+                "supportedDevices": [
+                    {"deviceId": "15", "deviceSlug": "stackchan"}
+                ],
+            },
+        }
+        calls = []
+
+        def fake_download(url, destination, force=False, extra_metadata=None):
+            calls.append((url, extra_metadata))
+            if len(calls) == 1:
+                raise RuntimeError(f"download failed with HTTP 404: {url}")
+            return {
+                "url": url,
+                "path": str(destination),
+                "bytes": 1,
+                "sha256": "0" * 64,
+                "source": "download",
+                **(extra_metadata or {}),
+            }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with (
+                patch("fetch_firmware.request_json", return_value=detail),
+                patch("fetch_firmware.download", side_effect=fake_download),
+            ):
+                result = resolve_community_firmware(
+                    firmware_id,
+                    Path(tmp) / "firmware.bin",
+                    api_base="https://burner.example",
+                    device_slug="stackchan",
+                    force=False,
+                    analyze=False,
+                    expected_chip_id_value=None,
+                )
+
+        self.assertEqual(len(calls), 2)
+        self.assertIn("/community/1/", calls[1][0])
+        self.assertEqual(
+            calls[1][1]["url_source"],
+            "legacy-fallback-after-404",
+        )
+        self.assertEqual(result["url"], calls[1][0])
 
     def test_merges_current_public_version_lists(self):
         detail = {

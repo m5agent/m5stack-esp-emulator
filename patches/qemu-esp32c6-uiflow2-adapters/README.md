@@ -21,6 +21,9 @@
 - ESP32-C6 GPIO 寄存器写入 trace（`M5SW_GPIO_TRACE=1`）。
 - `MODEM_SYSCON_CLK_CONF1` 的可写寄存器模型，保留 PHY 初始化要求的
   `0x7E1FF` clock mask，使公开 C6 固件可以越过 `esp_phy_enable()` 断言。
+- 热门用户固件回归所需的 C6 修正：8 个命令寄存器、空 RX FIFO `0xff`、
+  SCL reset 寄存器布局、PCR LEDC clock、compact LEDC layout、SPI2/GDMA
+  TX/RX、`TRANS_DONE` 中断，以及共享 GDMA 的 OUT FIFO 完成握手。
 
 ## 应用
 
@@ -31,6 +34,7 @@ git apply /path/to/0002-nanoc6-board-isolation-gpio.patch
 git apply /path/to/0016-gigadevice-status2-qio.patch
 git apply /path/to/0017-issi-status2-qio.patch
 git apply /path/to/0003-modem-syscon-clock-bits.patch
+git apply /path/to/0004-user-firmware-hot-samples.patch
 ```
 
 补丁不包含 C6 根目录 `meson.build` 的本地构建绕过。

@@ -113,6 +113,7 @@ git apply /path/to/0019-esp32s3-wifi-mac.patch
 git apply /path/to/0020-m5ioe1-pa-output-state.patch
 git apply /path/to/0021-esp32s3-uart2-chardev.patch
 git apply /path/to/0022-sticks3-st7789-panel-id.patch
+git apply /path/to/0023-user-firmware-hot-samples.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -153,6 +154,15 @@ from the generic ST7735 `0x7683` default to the ST7789 `0x81` family. With the
 old value, M5GFX's LGA56 autodetection accepted the AtomS3R probe and mapped
 the application through a 128x128 ST7735 panel; a normal 240x135 StickS3 layout
 therefore appeared as only a clipped corner.
+
+`0023-user-firmware-hot-samples.patch` adds the regressions found by booting
+three popular M5Burner images per available ESP device. It enables the S3 LEDC
+register layout used by Cardputer Meshtastic, preserves PSRAM cache control
+bits, fixes APPCPU reset/mailbox startup and the `0xff` CPU-id sentinel alias,
+restores coprocessor enable state, separates CO5300 QSPI command framing,
+infers unreliable SPI panel D/C phases from DCS commands and pixel lengths,
+adds the second StamPLC PI4IOE expander with unique QOM names, and attaches
+AtomS3R's ES8311/PI4IOE devices.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and

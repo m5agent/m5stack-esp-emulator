@@ -159,6 +159,48 @@ class DeviceServiceUnitTests(unittest.TestCase):
             8 << 20,
         )
 
+    def test_core2_and_tab5_use_exact_host_image(self):
+        for device_id in ("core2", "tab5"):
+            with self.subTest(device_id=device_id):
+                spec = self.service.specs[device_id]
+                image = b"\xff" * spec.flash_size
+                firmware = Path(self.tmp.name) / f"{device_id}.bin"
+                firmware.write_bytes(image)
+                firmware_sha = device_service_module.hashlib.sha256(
+                    image
+                ).hexdigest()
+
+                def unexpected_flash_preparer(*args, **kwargs):
+                    raise AssertionError(
+                        f"{device_id} must not invoke the esptool path"
+                    )
+
+                self.service.flash_preparer = unexpected_flash_preparer
+                prepared = self.service.prepare_flash(spec, firmware, firmware_sha)
+
+                self.assertEqual(prepared["info"]["transport"], "host-image")
+                self.assertTrue(prepared["info"]["verified"])
+                self.assertEqual(prepared["path"].stat().st_size, spec.flash_size)
+
+    def test_core2_service_exposes_board_psram(self):
+        self.assertEqual(self.service.specs["core2"].memory, "4")
+
+    def test_tab5_service_models_board_i2c_devices(self):
+        devices = device_service_module.TAB5_I2C_DEVICES
+        by_address = {
+            value.split("0x", 1)[1].split(",", 1)[0]: value
+            for value in devices
+        }
+
+        self.assertEqual(
+            set(by_address),
+            {"32", "41", "43", "44", "68"},
+        )
+        self.assertIn("reg=0x01=0xA2", by_address["43"])
+        self.assertIn("reg=0x01=0xA2", by_address["44"])
+        self.assertIn("reg=0x0F=0x00", by_address["44"])
+        self.assertIn("reg=0x00=0x24", by_address["68"])
+
     def test_segmented_firmware_rejects_overlap(self):
         artifact = self.service.upload_artifact(b"APP")
         with self.assertRaises(Exception) as context:
@@ -1703,6 +1745,73 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(
             incomplete.exception.code,
             "complete_flash_image_required",
+        )
+
+    def test_qemu_wifi_allows_erased_inactive_ota_slot(self):
+        spec = self.service.specs["sticks3"]
+        image = bytearray(b"\xff" * spec.flash_size)
+
+        def write_test_esp_image(offset: int) -> None:
+            image[offset] = 0xE9
+            image[offset + 1] = 0
+            struct.pack_into("<I", image, offset + 4, 0x40000000)
+            struct.pack_into("<H", image, offset + 12, 9)
+
+        write_test_esp_image(0)
+        write_test_esp_image(0x10000)
+        for index, (subtype, offset, label) in enumerate(
+            (
+                (0x10, 0x10000, b"app0"),
+                (0x11, 0x200000, b"app1"),
+            )
+        ):
+            struct.pack_into(
+                "<HBBII16sI",
+                image,
+                0x8000 + index * 32,
+                0x50AA,
+                0,
+                subtype,
+                offset,
+                0x1000,
+                label,
+                0,
+            )
+
+        firmware = Path(self.tmp.name) / "sticks3-sparse-ota.bin"
+        firmware.write_bytes(image)
+        firmware_sha = device_service_module.hashlib.sha256(image).hexdigest()
+        prepared = self.service.prepare_flash(
+            spec,
+            firmware,
+            firmware_sha,
+            runtime="qemu-wifi",
+        )
+        self.assertEqual(
+            [row["label"] for row in prepared["info"]["app_partitions"]],
+            ["app0"],
+        )
+        self.assertEqual(
+            [
+                row["label"]
+                for row in prepared["info"]["erased_app_partitions"]
+            ],
+            ["app1"],
+        )
+
+        image[0x200000] = 0
+        corrupted = Path(self.tmp.name) / "sticks3-corrupt-ota.bin"
+        corrupted.write_bytes(image)
+        with self.assertRaises(ServiceError) as invalid:
+            self.service.prepare_flash(
+                spec,
+                corrupted,
+                device_service_module.hashlib.sha256(image).hexdigest(),
+                runtime="qemu-wifi",
+            )
+        self.assertEqual(
+            invalid.exception.code,
+            "direct_flash_layout_invalid",
         )
 
     def _stopped_session(self, firmware: bytes = b"\xff" * 1024):

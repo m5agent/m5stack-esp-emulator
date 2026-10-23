@@ -671,8 +671,17 @@ curl -sS -H 'Content-Type: application/json' \
 ```
 
 The first run prepares and verifies a virtual flash through the backend's
-esptool path. Later sessions with the same device and firmware hash copy the
-prepared flash cache into a new per-session flash file.
+flashing path. Core2 and Tab5 use an exact host-image copy: Core2 avoids the
+intermittent LX6 ROM download handshake, while the esp-emu 0.50.0 Tab5 esptool
+path does not support upper flash regions. Later sessions with the same device
+and firmware hash copy the prepared flash cache into a new per-session flash
+file.
+
+Core2 service sessions expose the machine's supported 4 MiB PSRAM model while
+retaining the existing raw regression-runner `-m 0` mode. Tab5 sessions attach
+the board's PI4IOE, INA226, RX8130 and BMI270 register devices to I2C1 before
+boot, so application firmware sees the documented addresses rather than an
+empty bus.
 
 ### Wait for boot
 

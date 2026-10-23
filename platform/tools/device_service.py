@@ -64,6 +64,15 @@ from network_lane import normalize_i2c_device  # noqa: E402
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 DEFAULT_MAX_SESSIONS = 12
 DEFAULT_MAX_PER_DEVICE = 8
+SERVICE_MEMORY_OVERRIDES = {"core2": "4"}
+TAB5_I2C_DEVICES = (
+    "1:0x32,fill=0",
+    "1:0x41,fill=0,reg=0xFE=0x54,reg=0xFF=0x49,"
+    "reg=0x02=0x19,reg=0x03=0x00,reg=0x04=0xB0",
+    "1:0x43,fill=0,reg=0x01=0xA2",
+    "1:0x44,fill=0,reg=0x01=0xA2,reg=0x0F=0x00",
+    "1:0x68,fill=0,reg=0x00=0x24",
+)
 QMP_COMMAND_TIMEOUT = 2
 QMP_START_TIMEOUT = 60
 EXCLUDED_DEVICES = {
@@ -997,7 +1006,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             qemu=qemu,
             rom_dir=rom_dir,
             efuse_driver=backend.get("efuse_driver"),
-            memory=row.get("memory"),
+            memory=SERVICE_MEMORY_OVERRIDES.get(device_id, row.get("memory")),
             env=row.get("env", {}),
             mode=row["mode"],
             expected_size=parse_size(row.get("expected_size")),
@@ -2720,7 +2729,27 @@ class DeviceSession:
             )
         frame_size = self.spec.expected_size or (1, 1)
         with self._lock:
-            send_input(self._qmp, spec, frame_size, settle)
+            if self.spec.id == "nanoc6" and kind == "key":
+                path = "/machine"
+                property_name = "button-gpio9"
+                if action in {"tap", "down"}:
+                    self._qmp_call(
+                        "qom-set",
+                        path=path,
+                        property=property_name,
+                        value=True,
+                    )
+                if action == "tap":
+                    time.sleep(settle)
+                if action in {"tap", "up"}:
+                    self._qmp_call(
+                        "qom-set",
+                        path=path,
+                        property=property_name,
+                        value=False,
+                    )
+            else:
+                send_input(self._qmp, spec, frame_size, settle)
             self._record_event("input", spec=spec, action=action)
         return {
             "session_id": self.id,
@@ -3562,6 +3591,8 @@ class Tab5DeviceSession(DeviceSession):
             "--gdb", str(self._gdb_port),
             "--timeout", f"{int(self.ttl_seconds + 120)}s",
         ]
+        for i2c_device in TAB5_I2C_DEVICES:
+            command.extend(["--i2c-dev", i2c_device])
         try:
             self._proc = subprocess.Popen(
                 command,
@@ -4131,14 +4162,20 @@ class DeviceService:
                 }
             work_dir.mkdir(parents=True, exist_ok=True)
             try:
-                if os.environ.get("M5_SERVICE_FLASH_MODE", "esptool") == "host-image":
+                if (
+                    spec.id in {"core2", "tab5"}
+                    or os.environ.get("M5_SERVICE_FLASH_MODE", "esptool")
+                    == "host-image"
+                ):
+                    virtual_flash = work_dir / "virtual-flash.bin"
                     info = {
                         "transport": "host-image",
                         "verified": True,
                         "flash_size": spec.flash_size,
                         "firmware_sha256": firmware_sha,
+                        "virtual_flash": str(virtual_flash),
                     }
-                    work_dir.joinpath("virtual-flash.bin").write_bytes(
+                    virtual_flash.write_bytes(
                         _padded(image.read_bytes(), spec.flash_size)
                     )
                 else:
@@ -4581,11 +4618,28 @@ def validate_complete_flash_image(
             422,
         )
     app_images = []
+    erased_app_partitions = []
     for partition in partition_table["partitions"]:
         if partition["type"] != 0:
             continue
         image = analyze_esp_image(data, partition["offset"])
         if not image["valid"]:
+            slot = data[
+                partition["offset"] : partition["offset"] + partition["size"]
+            ]
+            if (
+                0x10 <= partition["subtype"] <= 0x1F
+                and slot
+                and all(value == 0xFF for value in slot)
+            ):
+                erased_app_partitions.append(
+                    {
+                        "label": partition["label"],
+                        "offset": partition["offset"],
+                        "size": partition["size"],
+                    }
+                )
+                continue
             raise ServiceError(
                 "direct_flash_layout_invalid",
                 f"app partition {partition['label']!r} is invalid: "
@@ -4625,6 +4679,7 @@ def validate_complete_flash_image(
         "bootloader_offset": bootloader_offset,
         "bootloader_chip": bootloader.get("chip"),
         "app_partitions": app_images,
+        "erased_app_partitions": erased_app_partitions,
     }
 
 

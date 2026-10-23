@@ -237,12 +237,15 @@ def analyze_firmware(
         "app_descriptor": None,
     }
     if not result["bootloader"]["valid"]:
-        classic_bootloader = analyze_esp_image(data, 0x1000)
-        if classic_bootloader["valid"]:
-            result["bootloader"] = classic_bootloader
-            result["warnings"].append(
-                "classic ESP32 bootloader found at 0x1000"
-            )
+        for offset, warning in (
+            (0x1000, "classic ESP32 bootloader found at 0x1000"),
+            (0x2000, "ESP32-P4 bootloader found at 0x2000"),
+        ):
+            candidate = analyze_esp_image(data, offset)
+            if candidate["valid"]:
+                result["bootloader"] = candidate
+                result["warnings"].append(warning)
+                break
 
     structural_table = parse_partition_table(
         data,

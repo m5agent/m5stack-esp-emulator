@@ -38,6 +38,30 @@ def request_json(url: str) -> dict:
     return payload
 
 
+def legacy_download_from_detail(firmware_id: str, detail: dict) -> str:
+    data = detail.get("data")
+    if not isinstance(data, dict):
+        raise RuntimeError(f"firmware {firmware_id} has no public detail data")
+    version = data.get("currentVersion")
+    developer = data.get("developer")
+    if not isinstance(version, dict) or not isinstance(developer, dict):
+        raise RuntimeError(f"firmware {firmware_id} has incomplete version metadata")
+    version_id = version.get("versionId")
+    developer_id = developer.get("userId")
+    try:
+        next_id = str(int(version_id) + 1)
+    except (TypeError, ValueError) as error:
+        raise RuntimeError(
+            f"firmware {firmware_id} has invalid version id: {version_id!r}"
+        ) from error
+    if not isinstance(developer_id, str) or not developer_id:
+        raise RuntimeError(f"firmware {firmware_id} has no public developer id")
+    return (
+        "https://m5burner-cdn.m5stack.com"
+        f"/community/{developer_id}/{firmware_id}/{version_id}/bin/{next_id}.bin"
+    )
+
+
 def current_download_from_detail(
     firmware_id: str,
     detail: dict,
@@ -99,19 +123,7 @@ def current_download_from_detail(
         )
         url_source = "binFileName"
     else:
-        developer_id = developer.get("userId")
-        try:
-            next_id = str(int(version_id) + 1)
-        except (TypeError, ValueError) as error:
-            raise RuntimeError(
-                f"firmware {firmware_id} has invalid version id: {version_id!r}"
-            ) from error
-        if not isinstance(developer_id, str) or not developer_id:
-            raise RuntimeError(f"firmware {firmware_id} has no public developer id")
-        url = (
-            "https://m5burner-cdn.m5stack.com"
-            f"/community/{developer_id}/{firmware_id}/{version_id}/bin/{next_id}.bin"
-        )
+        url = legacy_download_from_detail(firmware_id, detail)
         url_source = "legacy-version-id"
 
     developer_id = developer.get("userId")
@@ -293,16 +305,36 @@ def resolve_community_firmware(
         detail,
         device_slug=device_slug,
     )
-    result = download(
-        url,
-        destination,
-        force,
-        extra_metadata={
-            **metadata,
-            "metadata_url": metadata_url,
-            "url_source": "public-metadata",
-        },
-    )
+    extra_metadata = {
+        **metadata,
+        "metadata_url": metadata_url,
+        "url_source": "public-metadata",
+    }
+    try:
+        result = download(
+            url,
+            destination,
+            force,
+            extra_metadata=extra_metadata,
+        )
+    except RuntimeError as error:
+        if (
+            metadata.get("url_source") != "binFileName"
+            or "HTTP 404" not in str(error)
+        ):
+            raise
+        fallback_url = legacy_download_from_detail(firmware_id, detail)
+        result = download(
+            fallback_url,
+            destination,
+            force,
+            extra_metadata={
+                **extra_metadata,
+                "primary_url": url,
+                "primary_url_error": "HTTP 404",
+                "url_source": "legacy-fallback-after-404",
+            },
+        )
     if analyze:
         analysis = analyze_firmware(
             destination,

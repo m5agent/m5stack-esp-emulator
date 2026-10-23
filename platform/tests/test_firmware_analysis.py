@@ -114,6 +114,34 @@ class FirmwareAnalysisTests(unittest.TestCase):
         self.assertEqual(result["declared_flash_size"], 16 << 20)
         self.assertTrue(result["sparse_source"])
 
+    def test_esp32p4_bootloader_at_0x2000_is_supported(self):
+        image = bytearray(b"\xff" * 0x12000)
+        boot = build_image(chip_id=0x0012, descriptor=False)
+        image[0x2000 : 0x2000 + len(boot)] = boot
+        app = build_image(chip_id=0x0012)
+        image[0x10000 : 0x10000 + len(app)] = app
+        entry = bytearray(32)
+        struct.pack_into("<H", entry, 0, 0x50AA)
+        struct.pack_into("<II", entry, 4, 0x10000, 0x2000)
+        entry[12:19] = b"factory"
+        md5_entry = bytearray(32)
+        struct.pack_into("<H", md5_entry, 0, 0xEBEB)
+        md5_entry[16:32] = hashlib.md5(entry).digest()
+        image[0x8000:0x8020] = entry
+        image[0x8020:0x8040] = md5_entry
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "esp32p4.bin"
+            path.write_bytes(image)
+            result = analyze_firmware(path, expected_chip_id_value=0x0012)
+
+        self.assertTrue(result["valid"], result["errors"])
+        self.assertEqual(result["bootloader"]["offset"], 0x2000)
+        self.assertIn(
+            "ESP32-P4 bootloader found at 0x2000",
+            result["warnings"],
+        )
+
     def test_blank_ota_slot_does_not_invalidate_other_app(self):
         image = bytearray(b"\xff" * 0x22000)
         boot = build_image(chip_id=0x0009, descriptor=False)

@@ -766,11 +766,11 @@
         "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/pdf/static/en/core/StamPLC.pdf"
       ],
       "components": [
-        {"id": "io-expander", "model": "pi4ioe5v6408", "qom_path": "/machine/pi4ioe"},
-        {"id": "io-expander-aw9523", "model": "aw9523", "address": "0x59"},
+        {"id": "io-expander", "model": "pi4ioe5v6408", "qom_path": "/machine/pi4ioe-43"},
+        {"id": "io-expander-aw9523", "model": "aw9523", "address": "0x59", "qom_path": "/machine/aw9523-59"},
         {"id": "rtc", "model": "rx8130", "address": "0x32"},
-        {"id": "temperature", "model": "lm75", "address": "0x48", "qom_path": "/machine/lm75"},
-        {"id": "power-monitor", "model": "ina226", "address": "0x40", "qom_path": "/machine/ina226"},
+        {"id": "temperature", "model": "lm75", "address": "0x48", "qom_path": "/machine/lm75-48"},
+        {"id": "power-monitor", "model": "ina226", "address": "0x40", "qom_path": "/machine/ina226-40"},
         {"id": "buttons", "model": "gpio-button"},
         {"id": "buzzer", "model": "buzzer"},
         {"id": "can", "model": "can"},
