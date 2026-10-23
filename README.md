@@ -25,6 +25,8 @@ MicroPython 和其他完整 Flash 固件。
   下首轮通过。当前平台单元测试为 `236/236` PASS。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
+- GitHub Actions 已运行完整平台测试，并在 Ubuntu runner 上执行 fail-closed
+  namespace + nftables exact IPv4 egress、拒绝端口/IP、veth/NAT 和清理回归。
 
 完整设备矩阵、证据日期和风险边界见
 [项目当前状态](docs/project-status.md)。

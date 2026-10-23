@@ -45,6 +45,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json",
             "tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json",
+            "tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json",
             "tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
@@ -308,6 +309,15 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(matrix["peripheral_matrix"]["cases"], 67)
         self.assertEqual(matrix["peripheral_matrix"]["checks"], 274)
         self.assertFalse(matrix["peripheral_matrix"]["retry_used"])
+        ci_egress = json.loads(
+            (
+                ROOT
+                / "tests/network/egress_allowlist/"
+                "evidence-2026-10-24-github-actions-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(ci_egress["status"], "PASS")
+        self.assertTrue(all(ci_egress["checks"].values()))
 
     def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
         workstreams = (DOCS / "workstreams.md").read_text()

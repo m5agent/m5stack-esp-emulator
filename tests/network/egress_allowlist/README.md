@@ -39,3 +39,10 @@ enforcement mode, veth/NAT metadata, inner probe results and cleanup outcome.
 This validates the network policy engine. It does not by itself prove a
 firmware guest, physical RF, public-internet availability, IPv6 egress or
 malware safety.
+
+GitHub Actions runs this deterministic fixture as the
+`network-namespace-policy` job together with the full platform suite. The
+successful Ubuntu runner evidence is
+[`evidence-2026-10-24-github-actions-pass.json`](evidence-2026-10-24-github-actions-pass.json).
+That CI job validates Linux namespace/nftables policy and cleanup, not QEMU
+guest behavior or a self-hosted worker lifecycle.

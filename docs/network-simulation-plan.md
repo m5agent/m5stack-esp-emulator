@@ -38,6 +38,7 @@ Device Service lease
 | 断线和恢复 | guest `WLAN.disconnect()` 叠加 QMP `wifi0` link down/up 后重新 DHCP，并通过 `/after` HTTP | 不是物理 AP/radio 消失，也不是 DHCP renewal |
 | DHCP renewal | ESP-IDF guest 调用 `netifapi_dhcp_renew()`；pcap 同事务包含初次 DORA 后的 `REQUEST/ACK`，lease 86400、地址保持、随后 HTTP 200 | 仿真 lease renewal，不是物理 AP/RF |
 | Linux 隔离 | StickS3 QEMU guest 位于 private network namespace；无外部路由，namespace 创建失败时 fail-closed | 单设备、受控 fixture；不是恶意固件 VM |
+| Linux CI | GitHub Ubuntu runner 执行完整平台测试和 nftables exact IPv4 veth/NAT fixture | 验证策略引擎、清理和 CI 稳定性；没有 QEMU guest |
 | DNS/TLS allowlist | private mount namespace 注入临时 `resolv.conf`；允许域名 A，拒绝和 UIFlow/NTP 后台域名 NXDOMAIN；测试 CA TLS 允许 200、拒绝 403；pcap 一致 | Host/DNS 决策与网络 destination policy 分开记录 |
 | 精确 IPv4 egress | nftables input/output 默认 drop；exact IP+protocol+port；同 IP 其他端口和同端口其他 IP 均超时；`1.1.1.1:80` 经 veth/NAT 200/301；namespace/NAT 清理 | 外部 IPv6、CIDR 和域名不作为隐式端点 |
 | QEMU 外部内存 | patch `0027` 修复 ESP32-S3 AES/GDMA 访问外部内存，TLS 可进入证书解析和 HTTPS 路径 | 修复后最新全矩阵 `67/67`、`274/274`，全部首轮无重试 |
@@ -48,6 +49,7 @@ Device Service lease
 
 - [controlled DNS + TLS Host allowlist](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json)
 - [Linux private namespace guest](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
+- [GitHub Actions namespace/egress PASS](../tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json)
 - [Core2 native-VHCI Device Service lease](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
 - [精确 IPv4 IP/端口和 NAT 证据](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json)
 - [TLS guest under nftables policy](../tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json)

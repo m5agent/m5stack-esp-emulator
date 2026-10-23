@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-egress-ip-port-allowlist-ci-proof",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "linux-virtual-network-policy-not-firmware-or-hardware",
+  "validation": {
+    "source": "GitHub Actions",
+    "workflow": "CI",
+    "job": "network-namespace-policy",
+    "run_id": 39995827840,
+    "source_commit": "8469f801992d0f980291a697909e0a0a784a6ada",
+    "run_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/39995827840",
+    "runner": "ubuntu-latest"
+  },
+  "checks": {
+    "sandbox_exit_zero": true,
+    "allowed_ip_port_connected": true,
+    "allowed_http_status": 200,
+    "denied_port_filtered": true,
+    "denied_ip_filtered": true,
+    "allowed_server_saw_one_request": true,
+    "denied_server_saw_no_request": true,
+    "nftables_input_output_default_drop": true,
+    "veth_nat_gateway": true,
+    "namespace_cleaned": true,
+    "nat_table_cleaned": true
+  },
+  "platform_regression": {
+    "full_platform_suite": "PASS",
+    "tests_passed": 236,
+    "tests_total": 236,
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS"
+  },
+  "not_claimed": [
+    "firmware guest behavior in the egress fixture",
+    "physical hardware or RF",
+    "general public internet availability",
+    "external IPv6 egress",
+    "malware safety",
+    "self-hosted QEMU worker lifecycle"
+  ]
+}

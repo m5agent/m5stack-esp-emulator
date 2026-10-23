@@ -46,7 +46,7 @@
 | --- | --- | --- | --- |
 | `NET-02` | 进行中 | 移除实际虚拟 AP/radio 后观察失败，再恢复并重新 DHCP | 不重启 guest，前后 HTTP 与 pcap 对齐 |
 | `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
-| `NET-04` | 待做 | namespace/DNS/TLS/pcap/reconnect 接入 CI 和 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed |
+| `NET-04` | 进行中 | GitHub Actions 已跑 namespace/egress；继续接 QEMU runtime、pcap/reconnect 和正式 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain/re-attach |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
 | `CORE2-01` | 待做 | 服务托管的 GDB VHCI 改为 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
@@ -86,7 +86,9 @@
 
 交付：
 
-- Linux integration test、pcap retention 和 evidence upload 进入正式 worker；
+- GitHub Actions 的完整平台测试和 namespace/egress fail-closed 回归已完成；
+- QEMU runtime、pcap retention、reconnect evidence 进入自托管 Linux worker；
+- worker 注册、心跳、drain、重排和 evidence 上传可观测；
 - namespace 创建/权限失败时 fail-closed；
 - 超时、残留进程、临时盘和失败重试都有结构化结果。
 
