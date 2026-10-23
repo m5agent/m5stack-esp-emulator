@@ -93,6 +93,20 @@
     "guest_process_count": 1,
     "evidence_zip_sha256": "c884baa1e88c485b274182bb407af12db2331452c64c8c61e4f3b466a6c099d0"
   },
+  "full_matrix": {
+    "status": "PARTIAL_KNOWN_INTERMITTENT",
+    "initial": {
+      "pass": 65,
+      "fail": 2,
+      "failed_cases": ["stamplc-peripherals", "core2-peripherals"]
+    },
+    "retries": [
+      {"case": "stamplc-peripherals", "attempt": 1, "status": "PASS"},
+      {"case": "core2-peripherals", "attempt": 1, "status": "FAIL"},
+      {"case": "core2-peripherals", "attempt": 2, "status": "PASS"}
+    ],
+    "note": "The two initial failures are pre-existing non-C6 intermittent cases; the full run is not reported as 67/67."
+  },
   "gatt": {
     "name": "M5-NESSO-UNIFIED",
     "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
