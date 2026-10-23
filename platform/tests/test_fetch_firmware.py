@@ -19,6 +19,7 @@ from fetch_firmware import (  # noqa: E402
     merge_current_version,
     resolve_community_firmware,
 )
+from test_firmware_analysis import build_flash  # noqa: E402
 
 
 class FirmwareResolverTests(unittest.TestCase):
@@ -217,6 +218,68 @@ class FirmwareResolverTests(unittest.TestCase):
         self.assertEqual(version["visibility"], "PUBLIC")
         self.assertEqual(version["status"], "PUBLISHED")
         self.assertEqual(version["binFileName"], "firmware.merged.bin")
+
+    def test_community_analysis_includes_redacted_static_review(self):
+        detail = {
+            "code": 200,
+            "data": {
+                "firmwareName": "Static Review Probe",
+                "currentVersion": {
+                    "versionId": "2",
+                    "versionName": "1.0",
+                    "visibility": "PUBLIC",
+                    "status": "PUBLISHED",
+                },
+                "developer": {"userId": "1"},
+                "supportedDevices": [{"deviceSlug": "sticks3"}],
+            },
+        }
+        versions = {
+            "code": 200,
+            "data": [
+                {
+                    "versionId": "2",
+                    "versionName": "1.0",
+                    "visibility": "PUBLIC",
+                    "status": "PUBLISHED",
+                    "current": True,
+                }
+            ],
+        }
+
+        def fake_download(url, destination, force=False, extra_metadata=None):
+            destination.write_bytes(build_flash())
+            return {
+                "url": url,
+                "path": str(destination),
+                "bytes": destination.stat().st_size,
+                "sha256": "0" * 64,
+                "source": "download",
+                **(extra_metadata or {}),
+            }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with (
+                patch(
+                    "fetch_firmware.request_json",
+                    side_effect=[detail, versions],
+                ),
+                patch("fetch_firmware.download", side_effect=fake_download),
+            ):
+                result = resolve_community_firmware(
+                    "1897200000000009999",
+                    Path(tmp) / "firmware.bin",
+                    api_base="https://burner.example",
+                    device_slug="sticks3",
+                    force=False,
+                    analyze=True,
+                    expected_chip_id_value=0x0009,
+                )
+        self.assertTrue(result["analysis"]["valid"])
+        self.assertEqual(
+            result["analysis"]["static_review"]["status"],
+            "CLEAN",
+        )
 
     def test_intake_status_separates_download_and_static_validity(self):
         self.assertEqual(intake_status(analyze=False, result={}), "PASS")

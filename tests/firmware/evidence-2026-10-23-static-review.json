@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "kind": "firmware-manifest-redacted-static-review",
+  "generated_at": "2026-10-23T22:55:00+08:00",
+  "source_base_commit": "1ef7f0a081cfdc968a816741ca0ed52e18e6b967",
+  "review_contract": {
+    "redacted_url_fields": [
+      "scheme",
+      "host",
+      "port",
+      "url_sha256",
+      "path_sha256",
+      "offset",
+      "length"
+    ],
+    "credential_values_redacted": true,
+    "encoded_blob_values_redacted": true,
+    "sbom_formats": [
+      "SPDX-2.3 JSON",
+      "CycloneDX JSON"
+    ]
+  },
+  "public_firmware_samples": [
+    {
+      "firmware_id": "1897200000000001693",
+      "artifact_sha256": "04b522f6d447b8d9f1a625e3dbb566ac8630210690f7a83d757b84e89331b289",
+      "manifest_sha256": "670e5d2b44a0320a386302d34da234cdd9c226fc2ba50a058aef82120b2fc020",
+      "manifest_id": "d924ea3ee63cdff3236118691596f474bd6e030a74dae79f827146869cf9a53b",
+      "validation": "PASS",
+      "review": "REVIEW_REQUIRED",
+      "bytes_scanned": 8388608,
+      "strings_scanned": 52240,
+      "urls": 22,
+      "credential_findings": 3,
+      "encoded_blobs": 1,
+      "sbom": "NOT_PROVIDED"
+    },
+    {
+      "firmware_id": "1897200000000003332",
+      "artifact_sha256": "3007033877f32310b69f78b0308ef31c9891b1bd53278f560128b5d3ce415979",
+      "manifest_sha256": "fe0995add66addb372e44ff1a1e79ba1ab371bd27f7fce8aca59eb4b694cf6b7",
+      "manifest_id": "63b789480b1c9ec13216ba33796061650030a44f99d379954b03ecd3bbf31d65",
+      "validation": "PASS",
+      "review": "REVIEW_REQUIRED",
+      "bytes_scanned": 8388608,
+      "strings_scanned": 9532,
+      "urls": 0,
+      "credential_findings": 0,
+      "encoded_blobs": 2,
+      "sbom": "NOT_PROVIDED"
+    },
+    {
+      "firmware_id": "2108939572843147265",
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "manifest_sha256": "fafee71bd9f90f9137c00da4bfeba744ef5f3b9d5f19a1b307d92ee2ef600894",
+      "manifest_id": "f9e35f4ea6ae499d9aa6b1648fa0ef7a090a64af56b9fa674e6b06c10324a55c",
+      "validation": "PASS",
+      "review": "REVIEW_REQUIRED",
+      "bytes_scanned": 8388608,
+      "strings_scanned": 40101,
+      "urls": 4,
+      "credential_findings": 3,
+      "encoded_blobs": 6,
+      "sbom": "NOT_PROVIDED"
+    }
+  ],
+  "redaction_checks": {
+    "raw_credentials_in_manifests": 0,
+    "raw_url_queries_in_manifests": 0,
+    "encoded_blob_values_in_manifests": 0,
+    "host_absolute_paths_in_manifests": 0
+  },
+  "not_claimed": [
+    "review CLEAN means the firmware is safe",
+    "SBOM presence proves component versions or licenses",
+    "heuristic findings prove malicious behavior",
+    "physical hardware or boot validation"
+  ]
+}

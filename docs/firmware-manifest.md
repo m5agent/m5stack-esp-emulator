@@ -7,12 +7,14 @@
 把 M5Burner 下载物、WebBurner/ESP Web Tools 的 part 列表、ESP-IDF
 `flasher_args.json` 或显式 merged/segmented 输入，规范化为同一个完整虚拟
 Flash 和版本化 manifest。manifest 只记录可核验事实；镜像本身无法证明的
-eFuse、安全启动和 Flash Encryption 状态保持 `unknown`。
+eFuse、安全启动和 Flash Encryption 状态保持 `unknown`。静态审查输出只保留
+脱敏指纹，不把镜像中的 URL query、凭据或编码载荷明文写入 manifest。
 
 Schema：
 
 - `platform/tools/firmware_manifest.schema.json`
 - `platform/tools/firmware_manifest.py`
+- `platform/tools/firmware_static_review.py`
 
 ## 导入
 
@@ -27,7 +29,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 - WebBurner `manifest.json` 的 `builds[].parts[]`；
 - 含 `flasher_args.json` 的 ESP-IDF 构建目录/ZIP；
 - 单个 sparse/merged bin；
-- 带 ELF、MAP、sdkconfig、license/provenance 的包目录。
+- 带 ELF、MAP、sdkconfig、SPDX/CycloneDX SBOM、license/provenance 的包目录。
 
 导入器会：
 
@@ -35,8 +37,9 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 2. 校验 segment 偏移不重叠且不越界；
 3. 将 sparse merged 镜像补齐为目标设备完整 Flash；
 4. 分析 bootloader、partition table、app image 和 app descriptor；
-5. 生成完整镜像、资源副本和 `*.manifest.json`；
-6. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需 capabilities。
+5. 静态扫描 URL、凭据特征、私钥标记和高熵编码块，并汇总 SBOM；
+6. 生成完整镜像、资源副本和 `*.manifest.json`；
+7. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需 capabilities。
 
 ## Manifest 结构
 
@@ -48,11 +51,70 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | `target` | SoC、chip ID、Flash、PSRAM、分区表、应用描述 |
 | `security` | 安全启动、Flash Encryption、eFuse 和 secure version 边界 |
 | `provenance` | M5Burner ID、版本、来源 URL/类型、license |
-| `resources` | ELF、MAP、sdkconfig、flasher args |
+| `resources` | ELF、MAP、sdkconfig、flasher args、SBOM |
 | `capabilities.required` | 目标设备必须提供的能力 |
+| `review` | 脱敏 URL、凭据/私钥特征、高熵编码块、SBOM 摘要 |
 | `validation` | 结构化 `errors[]` / `warnings[]` |
 
 JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名。
+
+## 静态审查
+
+导入器始终写入 `review`。旧版 v1 manifest 可以不带该字段，保持向后兼容。
+
+```json
+{
+  "review": {
+    "schema_version": 1,
+    "status": "REVIEW_REQUIRED",
+    "coverage": {
+      "bytes_scanned": 8388608,
+      "strings_scanned": 52240,
+      "url_count": 22,
+      "credential_finding_count": 3,
+      "encoded_blob_count": 1
+    },
+    "urls": [
+      {
+        "scheme": "https",
+        "host": "example.com",
+        "url_sha256": "<sha256>",
+        "path_sha256": "<sha256>",
+        "offset": 1234,
+        "length": 64
+      }
+    ],
+    "encoded_blobs": [],
+    "findings": [
+      {
+        "code": "credential_like_material",
+        "category": "private-key",
+        "severity": "critical",
+        "message": "credential-like material detected; value is redacted",
+        "offset": 4567,
+        "evidence_sha256": "<sha256>"
+      }
+    ],
+    "sbom": {
+      "status": "PASS",
+      "format": "spdx-json",
+      "spec_version": "SPDX-2.3",
+      "component_count": 12,
+      "licenses": ["Apache-2.0", "MIT"]
+    },
+    "limits": {
+      "strings_truncated": false,
+      "urls_truncated": false,
+      "credentials_truncated": false,
+      "encoded_blobs_truncated": false,
+      "findings_truncated": false
+    }
+  }
+}
+```
+
+`REVIEW_REQUIRED` 表示有人需要查看脱敏 finding；它不自动等于恶意固件，也不会
+绕过 SoC/capability 的兼容性检查。
 
 ## Device Service
 
@@ -120,11 +182,19 @@ JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名�
 对 StickS3 声明 `camera` capability 时，Device Service 返回结构化
 `unsupported_firmware_capability`，未创建 session。
 
+同一批公开样本也执行了脱敏静态审查：结构/capability validation 为 `PASS`，
+review 状态为 `REVIEW_REQUIRED`，分别记录 URL、凭据特征、高熵编码块和
+SBOM 缺失；输出 manifest 中未出现原始 query、凭据值或编码载荷。证据：
+[`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)。
+
 ## 边界
 
 - 镜像文件本身不能证明 eFuse/OEM key 状态；
 - 没有 sdkconfig 时安全启动/Flash Encryption 只能是 `unknown`；
 - 分区 flag 的 encrypted bit 是镜像声明，不等于运行态 key 完整；
 - ELF/MAP 只用于符号化，不证明固件来源；
+- SBOM 存在只证明包内声明，不证明组件版本或许可证声明真实；
+- URL/凭据/高熵扫描是启发式审查，压缩资源可能产生待人工确认项；
+- manifest 中不得出现凭据、私钥、URL query/fragment 或编码载荷明文；
 - license/provenance 缺失不会自动变成合法授权；
 - 真机安全启动、Flash Encryption 和生产 key 流程仍须真机验证。

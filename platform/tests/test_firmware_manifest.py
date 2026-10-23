@@ -216,6 +216,52 @@ class FirmwareManifestTests(unittest.TestCase):
             )
         )
 
+    def test_manifest_includes_redacted_review_and_sbom(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = bytearray(build_flash())
+            image.extend(b"\xff" * 0x1000)
+            marker = b"api_key=MANIFEST_SECRET_VALUE_12345"
+            image[0x12000:0x12000 + len(marker)] = marker
+            firmware = root / "review.bin"
+            firmware.write_bytes(image)
+            (root / "sbom.spdx.json").write_text(
+                json.dumps(
+                    {
+                        "spdxVersion": "SPDX-2.3",
+                        "packages": [
+                            {
+                                "name": "M5GFX",
+                                "licenseDeclared": "MIT",
+                            }
+                        ],
+                    }
+                )
+            )
+            manifest = import_package(
+                firmware,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )["manifest"]
+        rendered = json.dumps(manifest)
+        self.assertNotIn("MANIFEST_SECRET_VALUE_12345", rendered)
+        self.assertEqual(manifest["review"]["status"], "REVIEW_REQUIRED")
+        self.assertEqual(manifest["review"]["sbom"]["component_count"], 1)
+        self.assertEqual(
+            manifest["resources"]["sbom"]["file"],
+            "sbom.spdx.json",
+        )
+        codes = {
+            issue["code"]
+            for issue in manifest["validation"]["warnings"]
+        }
+        self.assertIn("static_review_required", codes)
+        self.assertEqual(validate_manifest_structure(manifest), [])
+        legacy = dict(manifest)
+        legacy.pop("review")
+        self.assertEqual(validate_manifest_structure(legacy), [])
+
     def test_soc_and_flash_mismatches_are_rejected(self):
         profile = load_device_profile("sticks3")
         manifest = {

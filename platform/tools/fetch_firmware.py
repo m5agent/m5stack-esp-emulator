@@ -13,6 +13,7 @@ import urllib.request
 from pathlib import Path
 
 from firmware_analysis import analyze_firmware
+from firmware_static_review import review_firmware
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "devices" / "catalog.json"
@@ -340,6 +341,7 @@ def resolve_community_firmware(
             destination,
             expected_chip_id_value=expected_chip_id_value,
         )
+        analysis["static_review"] = review_firmware(destination)
         result["analysis"] = analysis
         destination.with_suffix(".analysis.json").write_text(
             json.dumps(analysis, ensure_ascii=False, indent=2) + "\n"

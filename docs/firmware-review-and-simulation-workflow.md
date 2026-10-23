@@ -231,13 +231,14 @@
 
 ### 5.2 静态检查
 
-- 字符串、URL、IP、域名和证书；
+- 字符串、脱敏 URL、域名和证书标记；
 - OTA、远程控制和调试端点；
 - 高风险命令和调试后门；
-- 第三方库、版本和来源；
+- 第三方库、版本、来源和 SPDX/CycloneDX SBOM 摘要；
 - 文件系统内容；
 - 配置漂移和未声明能力；
-- 高熵载荷和异常嵌入文件。
+- 凭据/私钥特征和高熵编码载荷；
+- 文件系统异常资产、权限和许可策略仍待补齐。
 
 ### 5.3 动态行为
 
@@ -410,15 +411,16 @@ evidence/
 
 1. 版本化 FirmwareManifest、M5Burner/WebBurner/ESP-IDF 导入和
    artifact hash/size 复核；
-2. capability mismatch 与安全状态 `unknown` 的结构化结果；
-3. QEMU pcap、DNS/DHCP/ARP/flow/payload-hash 摘要；
-4. Linux private namespace、fail-closed 和单 guest 无外网路径；
-5. 错误密码负向用例与 StickS3 link fault/reconnect；
-6. Device Service session 的统一 evidence ZIP。
+2. capability mismatch、安全状态 `unknown` 和静态 review 的结构化结果；
+3. 脱敏 URL、凭据/私钥特征、高熵编码块与 SBOM 摘要；
+4. QEMU pcap、DNS/DHCP/ARP/flow/payload-hash 摘要；
+5. Linux private namespace、fail-closed 和单 guest 无外网路径；
+6. 错误密码负向用例与 StickS3 link fault/reconnect；
+7. Device Service session 的统一 evidence ZIP。
 
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
-1. 更深静态审查、文件系统提取、URL/证书/凭据/高熵载荷和 SBOM；
+1. 文件系统提取、敏感资产/权限审批、证书链校验和许可证策略；
 2. 正式 CI/worker、egress allowlist、TLS 测试 CA 和双设备 lab fabric；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；

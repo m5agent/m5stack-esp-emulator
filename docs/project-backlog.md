@@ -29,7 +29,7 @@
 | `NET-04` | 待做 | 把 Linux namespace/reconnect/pcap 接入正式 CI 与 worker | CI 可重复产出 evidence；namespace 创建失败保持 fail-closed |
 | `CORE2-01` | 待做 | 将服务托管的 GDB VHCI bridge 改成 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | 执行 Espressif BT controller/baseband 语义并补物理 cache/PSRAM 时序 | controller 级协议与真机收敛；同路径 soak、coexistence 和 RF 边界可证 |
-| `FW-01` | 待做 | 文件系统、URL/凭据、高熵载荷和 SBOM 静态审查 | 风险项结构化输出，安全状态 `unknown` 不被伪装成 PASS |
+| `FW-01` | 待做 | LittleFS/SPIFFS/FAT 资源解包、可执行/权限/敏感文件审批与许可证策略交叉验证 | 资源项有来源、哈希、权限和许可结论；安全状态 `unknown` 不被伪装成 PASS |
 | `FW-02` | 待做 | eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | 扩大 ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、启动/失败层，不混算 |
 | `FW-04` | 待做 | WebBurner 网页流式导入和 chunk artifact upload | 大镜像无需先落完整宿主临时文件，校验和与 manifest 保持 |
@@ -143,10 +143,11 @@ guest 路径实际产生 pcap 和 reconnect 证据；不可信固件无法访问
   mismatch 的结构化拒绝；
 - Device Service `kind=manifest` 创建路径；
 - 三个真实公开固件样本 round-trip。
+- 脱敏 URL、凭据/私钥特征、高熵编码块和 SPDX/CycloneDX SBOM 摘要。
 
 仍待完成：
 
-1. 静态审查接入文件系统、嵌入 URL/凭据、异常高熵载荷和第三方 SBOM；
+1. 静态审查继续接入文件系统资源解包、文件权限/敏感资产审批和许可证策略；
 2. 真实 eFuse、生产 secure boot/Flash Encryption key 流程；
 3. 更广的 ESP-IDF/Arduino/MicroPython/vendor 兼容回归集；
 4. 从 WebBurner 网页直接流式导入和 artifact chunk 上传；

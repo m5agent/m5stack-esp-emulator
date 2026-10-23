@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from firmware_analysis import analyze_firmware
+from firmware_static_review import review_firmware
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -414,6 +415,13 @@ def _find_resources(root: Path) -> dict:
             "sdkconfig.defaults",
         ),
         "flasher_args": ("flasher_args.json",),
+        "sbom": (
+            "sbom.json",
+            "bom.json",
+            "*.spdx.json",
+            "*.cdx.json",
+            "cyclonedx*.json",
+        ),
     }
     for kind, names in patterns.items():
         candidates = []
@@ -839,6 +847,12 @@ def import_package(
             )
             for key, row in resources.items()
         }
+        sbom_path = (
+            _resolve_package_file(root, resources["sbom"]["file"])
+            if "sbom" in resources
+            else None
+        )
+        review = review_firmware(destination, sbom_path=sbom_path)
         source_digest = sha256_file(destination)
         artifact = {
             "kind": (
@@ -930,6 +944,7 @@ def import_package(
                 "required": sorted(set(required_capabilities or [])),
                 "optional": sorted(set(optional_capabilities or [])),
             },
+            "review": review,
             "validation": {
                 "status": "PASS",
                 "errors": [],
@@ -945,6 +960,42 @@ def import_package(
                 ],
             },
         }
+        if review["status"] == "REVIEW_REQUIRED":
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "static_review_required",
+                    (
+                        f"static review produced "
+                        f"{len(review['findings'])} finding(s); values are "
+                        "redacted in the manifest"
+                    ),
+                    path="review.findings",
+                )
+            )
+        if review["sbom"]["status"] == "NOT_PROVIDED":
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "sbom_not_provided",
+                    "package does not include a recognized SPDX/CycloneDX SBOM",
+                    path="review.sbom",
+                )
+            )
+        elif review["sbom"]["status"] != "PASS":
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "sbom_invalid",
+                    "package SBOM could not be summarized",
+                    path="review.sbom",
+                )
+            )
+        if any(review["limits"].values()):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "static_review_truncated",
+                    "one or more static-review limits were reached",
+                    path="review.limits",
+                )
+            )
         if device_profile is not None:
             capability = validate_capabilities(manifest, device_profile)
             manifest["validation"]["errors"].extend(capability["errors"])
@@ -1019,6 +1070,25 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
     provenance = manifest.get("provenance")
     if not isinstance(provenance, dict):
         errors.append("manifest.provenance must be an object")
+    review = manifest.get("review")
+    if review is not None and not isinstance(review, dict):
+        errors.append("manifest.review must be an object when present")
+    elif isinstance(review, dict):
+        if review.get("schema_version") != 1:
+            errors.append("manifest.review.schema_version must be 1")
+        if review.get("status") not in {"CLEAN", "REVIEW_REQUIRED"}:
+            errors.append("manifest.review.status is invalid")
+        for key in (
+            "coverage",
+            "findings",
+            "urls",
+            "encoded_blobs",
+            "sbom",
+            "limits",
+        ):
+            expected = list if key in {"findings", "urls", "encoded_blobs"} else dict
+            if not isinstance(review.get(key), expected):
+                errors.append(f"manifest.review.{key} has invalid type")
     validation = manifest.get("validation")
     if not isinstance(validation, dict) or validation.get("status") not in {
         "PASS",

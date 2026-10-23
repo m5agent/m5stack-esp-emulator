@@ -257,6 +257,9 @@
         },
         "flasher_args": {
           "$ref": "#/$defs/resource"
+        },
+        "sbom": {
+          "$ref": "#/$defs/resource"
         }
       }
     },
@@ -279,6 +282,9 @@
           "uniqueItems": true
         }
       }
+    },
+    "review": {
+      "$ref": "#/$defs/review"
     },
     "validation": {
       "type": "object",
@@ -311,6 +317,92 @@
     }
   },
   "$defs": {
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "status",
+        "coverage",
+        "urls",
+        "encoded_blobs",
+        "findings",
+        "sbom",
+        "limits"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "status": {
+          "enum": [
+            "CLEAN",
+            "REVIEW_REQUIRED"
+          ]
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "urls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "scheme",
+              "host",
+              "url_sha256",
+              "path_sha256",
+              "offset",
+              "length"
+            ]
+          }
+        },
+        "encoded_blobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "encoding",
+              "entropy",
+              "length",
+              "offset",
+              "sha256"
+            ]
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "code",
+              "category",
+              "severity",
+              "message"
+            ]
+          }
+        },
+        "sbom": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "status",
+            "format",
+            "spec_version",
+            "component_count",
+            "licenses"
+          ]
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
     "resource": {
       "type": "object",
       "additionalProperties": false,

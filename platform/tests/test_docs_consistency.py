@@ -32,6 +32,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
+            "tests/firmware/evidence-2026-10-23-static-review.json",
         ):
             self.assertTrue((ROOT / relative).is_file(), relative)
 

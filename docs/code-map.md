@@ -69,6 +69,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/fetch_firmware.py` | 公开 M5Burner 固件查询、校验、下载与缓存 |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 |
 | `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、manifest 和 capability mismatch |
+| `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
 
@@ -114,6 +115,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 stock VHCI BLE | `tests/uiflow2/core2_native_vhci/run_test.py` | 内置-controller 固件边界的外部 NUS GATT |
 | Core2 unified native VHCI | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | Device Service/独立 runner 的同 guest board+WiFi+公网+native-VHCI BLE |
 | Core2 zero-retry + full matrix | `tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json` | deterministic peripheral/UI、RTC 虚拟时钟、67/67 首轮无重试 |
+| Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码/重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证和 link fault 后恢复 |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |

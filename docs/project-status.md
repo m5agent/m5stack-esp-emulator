@@ -23,7 +23,7 @@
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
   `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
   QEMU 虚拟时钟推进。
-- 当前平台测试：`216/216` PASS；runtime coverage、peripheral catalog 和
+- 当前平台测试：`221/221` PASS；runtime coverage、peripheral catalog 和
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
@@ -33,7 +33,7 @@
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、link fault/reconnect、Linux arm64 private namespace 无外网整机路径 | 正式 CI/worker 生命周期、allowlist/TLS、DHCP renewal、双设备 lab fabric |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、Device Service `core2-native-vhci` PASS | 非 GDB 生产实现、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch | 更深静态审查、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM 摘要 | 文件系统/资源权限审查、许可策略、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
 ## 工程工作流总表
 
@@ -43,7 +43,7 @@
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | 22:44 的 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成，生产后端开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、Device Service lease PASS | 去掉 GDB bridge；bit-exact BT；物理 cache/PSRAM 与 soak |
 | Device Service | v1 已实现，生产服务开放 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.7.0 | worker 化、活动进程恢复、warm pool、多机调度与 VM 隔离 |
-| FirmwareManifest | v1 已实现 | `firmware_manifest.py`、`firmware_analysis.py`、`fetch_firmware.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态和 capability mismatch | 深层静态审查、生产 key/eFuse、跨厂商回归、流式上传 |
+| FirmwareManifest | v1 + 静态审查已实现 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_static_review.py`、`fetch_firmware.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态、capability mismatch、脱敏 URL/凭据/高熵 finding 和 SBOM 摘要 | 文件系统/资源权限、许可策略、生产 key/eFuse、跨厂商回归、流式上传 |
 | 网络隔离与取证 | Linux 单机路径闭环，正式 worker 开放 | `network_policy.py`、`network_sandbox.py`、`pcap_summary.py` | namespace 无外网、pcap、错误密码、link down/up、重新 DHCP 与前后 HTTP | allowlist/TLS、DHCP renewal、真实 AP 丢失、双设备 fabric、CI/worker |
 | 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
 | 物理硬件验证 | `NOT RUN` | Device Test Center 路径 | 当前仅有 virtual-device validation | 代表设备使用同固件 SHA 和同测试计划做实机证据 |
@@ -108,7 +108,8 @@
 - 已提供版本化 FirmwareManifest、WebBurner/M5Burner/`flasher_args.json`
   导入、规范化完整 Flash、provenance/security 记录和结构化 capability
   mismatch；真实公开固件样本已 round-trip。
-- 已提供公开社区固件抓取、热门固件批量仿真和静态镜像分析工具。
+- 已提供公开社区固件抓取、热门固件批量仿真、结构分析、脱敏静态审查和
+  SPDX/CycloneDX SBOM 摘要。manifest 不保存 URL query、凭据或编码载荷明文。
 - 任意固件仍受板型、PSRAM、eFuse/安全启动、Flash 加密、分区和控制器覆盖
   约束；不支持时必须以结构化能力缺口返回，不能伪装成固件失败或 PASS。
 
@@ -146,6 +147,8 @@
   [`tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
 - Core2 zero-retry + full matrix evidence:
   [`tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json`](../tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json)
+- Firmware redacted static review evidence:
+  [`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)
 - Linux guest-in-namespace evidence:
   [`tests/network/linux_isolation/evidence-2026-10-23-linux.json`](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
 - [网络模拟方案](network-simulation-plan.md)
