@@ -26,8 +26,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-peripherals-simulated` (2026-10-22)
-- 详情：官方 UIFlow2 v2.5.3 渲染 320x240 UI 并接受触摸；BMI270 加速度与陀螺仪 API、BM8563 RTC、LTR553 环境光/接近、AW9523 输出/输入、INA226 电压/电流/功率、RMT NEC IR TX/RX 均通过 StackChan 板级数据面。全设备 8/8 外设用例通过。
+- 验证：`display-input-peripherals-wifi-ble-pass` (2026-10-23)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过显示/触摸、相机、IMU/磁力计、电源与 IO 扩展、INA226、LTR553、RTC、双舵机、音频、NFC、IR、WiFi DHCP/HTTP 以及 UART2 HCI BLE；StackChan 8/8 外设矩阵通过。
 
 
 

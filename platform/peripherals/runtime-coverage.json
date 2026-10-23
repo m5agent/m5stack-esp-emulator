@@ -60,6 +60,11 @@
       "test": "tests/uiflow2/unified_papermono/run_test.py",
       "evidence": "tests/uiflow2/unified_papermono/evidence-2026-10-23.json"
     },
+    "stackchan-unified": {
+      "device": "stackchan",
+      "test": "tests/uiflow2/unified_stackchan/run_test.py",
+      "evidence": "tests/uiflow2/unified_stackchan/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -129,6 +134,25 @@
       "pwr-button",
       "buzzer",
       "rgb-led"
+    ],
+    "stackchan-unified": [
+      "axp2101",
+      "aw9523",
+      "m5ioe1",
+      "bmm150",
+      "bmi270",
+      "touch-ft5x06",
+      "touch-si12t",
+      "gc0308",
+      "ltr-553als-wa",
+      "pcf8563",
+      "es7210",
+      "aw88298",
+      "ina226",
+      "nfc-st25r3916",
+      "ir-tx-rx",
+      "rgb-led",
+      "servo"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -473,6 +497,9 @@
         "stackchan-mic",
         "stackchan-peripherals",
         "stackchan-servo"
+      ],
+      "external": [
+        "stackchan-unified"
       ],
       "models": [
         "axp2101",

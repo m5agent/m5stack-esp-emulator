@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "stackchan",
+  "firmware": {
+    "bytes": 16777216,
+    "sha256": "6ae3db16bc25ab4f2dd64c13ec808100252b51d545a92d1642ae16004d25103e"
+  },
+  "consecutive_passes": 3,
+  "runs": [
+    {
+      "serial_sha256": "854c55325b4ced57a5bc36c17918bd74a9c05463bee28a8a193320837e030036",
+      "peer_log_sha256": "1dfc108b38709452955e0385e71c82c157362ce2e7324eb160c00ae6e07ca13d"
+    },
+    {
+      "serial_sha256": "8d6739384ff55a8621c01a84e0fe00a40254edb20794cfce43199a9a44f60dc1",
+      "peer_log_sha256": "14986b329f706e926d2df15f43905edaa1395fbcdaaa79dde8c2ab7cce04f09e"
+    },
+    {
+      "serial_sha256": "4760056290bf2a9a773a3b06fdedf18abaebb80f4836d2a6ee752e6accc83be3",
+      "peer_log_sha256": "a278365a5ffc1462c0a780333bb90ff1d20b517f34239b8cb1e7c139a457b783"
+    }
+  ],
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "display_touch": true,
+    "body_touch": true,
+    "camera": true,
+    "imu": true,
+    "magnetometer": true,
+    "power_axp2101": true,
+    "io_expanders_aw9523_m5ioe1": true,
+    "ina226": true,
+    "ltr553": true,
+    "rtc_pcf8563": true,
+    "servo_ping_move_readback": true,
+    "microphone_pcm": true,
+    "speaker_pcm": true,
+    "nfc": true,
+    "ir_nec_tx_rx": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [
+      320,
+      240
+    ],
+    "before_nonblack_pixels": 17295,
+    "before_unique_colors": 30,
+    "after_nonblack_pixels": 17347,
+    "after_unique_colors": 30,
+    "changed_after_touch_and_body_touch": true
+  },
+  "audio": {
+    "speaker_bytes": 32768,
+    "speaker_nonzero_bytes": 32469,
+    "speaker_peak_to_peak": 255,
+    "speaker_sha256": "598262d32be70b54914228fed196b5acd075da7a18048104f4200488814fb5ce",
+    "microphone_source_bytes": 32000,
+    "microphone_source_nonzero_bytes": 31760,
+    "microphone_source_sha256": "7bf26780838b452847af12b4bb1c1eb56b303132f46659e8c913a3a01a5a6e9b"
+  },
+  "device_state": {
+    "vbat_mv": 4000,
+    "vin_mv": 5000,
+    "charging": true,
+    "accel": [
+      0.25,
+      -0.5,
+      0.75
+    ],
+    "gyro": [
+      10,
+      -20,
+      30
+    ],
+    "magnetometer_raw": [
+      30,
+      -20,
+      45
+    ],
+    "ina226_bus_voltage_mv": 4000,
+    "ina226_current_ma": 250,
+    "ltr553_light": 640,
+    "ltr553_proximity": 321,
+    "body_touch_bits": 2
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_host": "10.0.2.2",
+    "http_port": 18087,
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART2 H4",
+    "hci_uart": {
+      "port": 2,
+      "rx_gpio": 31,
+      "tx_gpio": 32,
+      "baudrate": 921600
+    },
+    "controller": "Bumble",
+    "name": "M5-STACKCHAN-UNIFIED",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_STACKCHAN_U",
+    "notification": "ACK:M5_STACKCHAN_U"
+  },
+  "device_service_validation": {
+    "runtime": "qemu-ble",
+    "profile": "uiflow2-stackchan-unified",
+    "uploaded_image_sha256": "6ae3db16bc25ab4f2dd64c13ec808100252b51d545a92d1642ae16004d25103e",
+    "guest_process_count": 1,
+    "network_status": "PASS",
+    "frame_changed_after_touch": true,
+    "before_png_sha256": "27f5ce02c35fb7a771459a7e268aab075047abd8d13410bb07a7137a43455a24",
+    "after_png_sha256": "777a422f5d3f8e7e324a1431ff0a472b685114af3386e09446d4698c69e9d46b",
+    "device_state_components": [
+      "power",
+      "imu",
+      "magnetometer",
+      "power-monitor",
+      "light-proximity",
+      "rtc",
+      "body-touch",
+      "io-expander"
+    ],
+    "evidence_zip_sha256": "67f868ac6202a231f27e5e76740bea30cf6fe8ec1b2171721b5d7e42c98cb133",
+    "evidence_zip_entries": [
+      "serial.log",
+      "serial1.log",
+      "qemu.stdout",
+      "qemu.stderr",
+      "ble-probe.log",
+      "frames/current.png",
+      "audio/speaker.pcm",
+      "audio/microphone-source.pcm",
+      "ir/nec-source.rmt",
+      "ir/nec-capture.rmt",
+      "qom/snapshot.json",
+      "network/evidence.json",
+      "flash/virtual-flash.bin",
+      "manifest.json"
+    ]
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 WiFi PHY or Bluetooth controller model",
+    "public internet access",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "untrusted-firmware sandboxing"
+  ]
+}

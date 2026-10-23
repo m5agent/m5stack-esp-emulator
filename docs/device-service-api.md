@@ -15,8 +15,8 @@ Current scope:
 - network emulation: `runtime=network` remains available for diagnosis on
   S3/C6; StickS3 also supports a Wi-Fi-only board lease through
   `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV, StopWatch,
-  AtomS3R, PaperColor and PaperMono use one combined WiFi+BLE+board QEMU
-  lease through their unified profiles;
+  AtomS3R, PaperColor, PaperMono and StackChan use one combined
+  WiFi+BLE+board QEMU lease through their unified profiles;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -448,6 +448,29 @@ RGB LED, GPIO42 speaker, WiFi scan/association/DHCP and a controlled HTTP
 request on port `18086`, plus HCI-UART BLE NUS discovery/subscription/write
 and notification.
 
+StackChan uses the same one-guest contract:
+
+```json
+{
+  "device_id": "stackchan",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 60,
+  "network": {
+    "profile": "uiflow2-stackchan-unified",
+    "attempts": 2
+  }
+}
+```
+
+The StackChan image exercises the 320x240 ILI9342 display, FT6336 and Si12T
+touch, GC0308 camera, BMI270/BMM150, AXP2101/AW9523/M5IOE1, INA226, LTR553,
+PCF8563, two SCS servos, ES7210/AW88298 audio, ST25R3916 NFC and RMT IR,
+together with WiFi DHCP/HTTP on port `18087` and UART2 HCI BLE NUS. UART1
+remains the servo bus; UART2 uses GPIO31/32 to avoid the camera, audio and
+servo pins. The service pauses the guest at the post-driver IMU setup marker,
+injects the configured peripheral state, and resumes it before readiness.
+Its evidence ZIP also retains microphone source PCM and NEC IR capture.
+
 State machine:
 
 ```text
@@ -816,10 +839,12 @@ after a service restart.
 ## Current limitations
 
 - `runtime=network` sessions are diagnostic lanes; StickS3, CoreS3,
-  Cardputer ADV, StopWatch, AtomS3R, PaperColor and PaperMono instead use
-  `runtime=qemu-ble` with their unified profiles for one combined guest;
+  Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono and StackChan
+  instead use `runtime=qemu-ble` with their unified profiles for one
+  combined guest;
 - unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
-  HCI-offload over UART1, not a native S3 PHY/radio model;
+  HCI-offload over UART1 (UART2 on StackChan), not a native S3 PHY/radio
+  model;
 - Core2 radio support is limited to the environment-gated experimental
   `qemu-wifi` and `qemu-ble` runtimes. `core2-ble-advertise` stops at native
   controller/advertising control; `core2-hci-gatt` closes an external Bumble
@@ -829,9 +854,9 @@ after a service restart.
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
   matching reference ELF;
 - normalized `device-state` probes currently exist for StickS3, CoreS3,
-  Cardputer ADV, StopWatch, AtomS3R, PaperColor and PaperMono; other devices
-  expose session metadata, framebuffer and serial without inventing component
-  values;
+  Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono and StackChan;
+  other devices expose session metadata, framebuffer and serial without
+  inventing component values;
 - emulator processes are not resumed across service restarts; only stopped,
   failed and interrupted history is reconstructed;
 - reference firmware must already exist in `platform/.cache/firmware`;

@@ -109,6 +109,7 @@ git apply /path/to/0018-gpspi-cs-gated-panel-id.patch
 git apply /path/to/qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch
 git apply /path/to/0019-esp32s3-wifi-mac.patch
 git apply /path/to/0020-m5ioe1-pa-output-state.patch
+git apply /path/to/0021-esp32s3-uart2-chardev.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -138,6 +139,11 @@ same guest's BLE NUS data plane without a second emulator process.
 exposes the decoded StopWatch G10 PA level as `pa-enabled`. StopWatch routes
 the AW8737A enable through M5IOE1; M5PM1's G3 PA bit is the StickS3 path and
 must not be used as a StopWatch proxy.
+
+`0021-esp32s3-uart2-chardev.patch` connects the optional ESP32-S3 UART2 to
+QEMU's third serial chardev. StackChan uses it for external HCI because UART1
+is dedicated to the SCS servo bus. Without the mapping, guest HCI commands
+were write-only and NimBLE timed out waiting for a controller acknowledgement.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and

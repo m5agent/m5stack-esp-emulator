@@ -110,6 +110,7 @@ STOPWATCH_UNIFIED_PROFILE = "uiflow2-stopwatch-unified"
 ATOMS3R_UNIFIED_PROFILE = "uiflow2-atoms3r-unified"
 PAPERCOLOR_UNIFIED_PROFILE = "uiflow2-papercolor-unified"
 PAPERMONO_UNIFIED_PROFILE = "uiflow2-papermono-unified"
+STACKCHAN_UNIFIED_PROFILE = "uiflow2-stackchan-unified"
 UNIFIED_PROFILES = {
     STICKS3_UNIFIED_PROFILE,
     CORES3_UNIFIED_PROFILE,
@@ -118,6 +119,7 @@ UNIFIED_PROFILES = {
     ATOMS3R_UNIFIED_PROFILE,
     PAPERCOLOR_UNIFIED_PROFILE,
     PAPERMONO_UNIFIED_PROFILE,
+    STACKCHAN_UNIFIED_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
     STICKS3_UNIFIED_PROFILE: 18080,
@@ -127,6 +129,7 @@ UNIFIED_HTTP_PORTS = {
     ATOMS3R_UNIFIED_PROFILE: 18084,
     PAPERCOLOR_UNIFIED_PROFILE: 18085,
     PAPERMONO_UNIFIED_PROFILE: 18086,
+    STACKCHAN_UNIFIED_PROFILE: 18087,
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
@@ -186,6 +189,12 @@ PAPERMONO_UNIFIED_MARKERS = (
     "UNIFIED_PAPERMONO_BLE_RX",
     "UNIFIED_PAPERMONO_BLE_ACK_SENT",
 )
+STACKCHAN_UNIFIED_MARKERS = (
+    "UNIFIED_STACKCHAN_WIFI_CONNECTED",
+    "UNIFIED_STACKCHAN_HTTP_PASS",
+    "UNIFIED_STACKCHAN_BLE_RX",
+    "UNIFIED_STACKCHAN_BLE_ACK_SENT",
+)
 UNIFIED_MARKERS = {
     STICKS3_UNIFIED_PROFILE: STICKS3_UNIFIED_MARKERS,
     CORES3_UNIFIED_PROFILE: CORES3_UNIFIED_MARKERS,
@@ -194,6 +203,7 @@ UNIFIED_MARKERS = {
     ATOMS3R_UNIFIED_PROFILE: ATOMS3R_UNIFIED_MARKERS,
     PAPERCOLOR_UNIFIED_PROFILE: PAPERCOLOR_UNIFIED_MARKERS,
     PAPERMONO_UNIFIED_PROFILE: PAPERMONO_UNIFIED_MARKERS,
+    STACKCHAN_UNIFIED_PROFILE: STACKCHAN_UNIFIED_MARKERS,
 }
 UNIFIED_READY_MARKERS = {
     STICKS3_UNIFIED_PROFILE: "UNIFIED_STICKS3_READY",
@@ -203,6 +213,7 @@ UNIFIED_READY_MARKERS = {
     ATOMS3R_UNIFIED_PROFILE: "UNIFIED_ATOMS3R_READY",
     PAPERCOLOR_UNIFIED_PROFILE: "UNIFIED_PAPERCOLOR_READY",
     PAPERMONO_UNIFIED_PROFILE: "UNIFIED_PAPERMONO_READY",
+    STACKCHAN_UNIFIED_PROFILE: "UNIFIED_STACKCHAN_READY",
 }
 UNIFIED_HTTP_BODIES = {
     STICKS3_UNIFIED_PROFILE: b"UNIFIED_STICKS3_OK\n",
@@ -212,6 +223,7 @@ UNIFIED_HTTP_BODIES = {
     ATOMS3R_UNIFIED_PROFILE: b"UNIFIED_ATOMS3R_OK\n",
     PAPERCOLOR_UNIFIED_PROFILE: b"UNIFIED_PAPERCOLOR_OK\n",
     PAPERMONO_UNIFIED_PROFILE: b"UNIFIED_PAPERMONO_OK\n",
+    STACKCHAN_UNIFIED_PROFILE: b"UNIFIED_STACKCHAN_OK\n",
 }
 UNIFIED_BLE_IDENTITIES = {
     "sticks3": ("M5-STICKS3-UNIFIED", "M5_STICKS3_UNIFIED"),
@@ -221,7 +233,29 @@ UNIFIED_BLE_IDENTITIES = {
     "atoms3r": ("M5-ATOMS3R-UNIFIED", "M5_ATOMS3R_U"),
     "papercolor": ("M5-PAPERCOLOR-UNIFIED", "M5_PAPERCOLOR_U"),
     "papermono": ("M5-PAPERMONO-UNIFIED", "M5_PAPERMONO_U"),
+    "stackchan": ("M5-STACKCHAN-UNIFIED", "M5_STACKCHAN_U"),
 }
+STACKCHAN_UNIFIED_QOM = (
+    ("/machine/aw9523", "input-bits", 61439),
+    ("/machine/ina226", "bus-voltage-mv", 4000),
+    ("/machine/ina226", "current-ma", 250),
+    ("/machine/ina226", "shunt-ohms", 0.08),
+    ("/machine/pcf8563", "unix-time", 1792630923),
+    ("/machine/ltr553", "light-level", 640),
+    ("/machine/ltr553", "proximity-level", 321),
+    ("/machine/axp2101", "vbat-mv", 4000),
+    ("/machine/axp2101", "vin-mv", 5000),
+    ("/machine/axp2101", "charging", True),
+    ("/machine/bmm150", "mag-x", 30),
+    ("/machine/bmm150", "mag-y", -20),
+    ("/machine/bmm150", "mag-z", 45),
+    ("/machine/bmi270", "accel-x", 0.25),
+    ("/machine/bmi270", "accel-y", -0.5),
+    ("/machine/bmi270", "accel-z", 0.75),
+    ("/machine/bmi270", "gyro-x", 10),
+    ("/machine/bmi270", "gyro-y", -20),
+    ("/machine/bmi270", "gyro-z", 30),
+)
 
 
 def iso_now() -> str:
@@ -628,6 +662,9 @@ def parse_qemu_ble_execution(
     elif spec.id == "papermono":
         supported_profiles = {PAPERMONO_UNIFIED_PROFILE}
         default_profile = PAPERMONO_UNIFIED_PROFILE
+    elif spec.id == "stackchan":
+        supported_profiles = {STACKCHAN_UNIFIED_PROFILE}
+        default_profile = STACKCHAN_UNIFIED_PROFILE
     else:
         raise ServiceError(
             "qemu_ble_not_supported",
@@ -856,6 +893,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, PAPERCOLOR_UNIFIED_PROFILE)
             if device_id == "papermono" and network_chip:
                 network_profiles.insert(0, PAPERMONO_UNIFIED_PROFILE)
+            if device_id == "stackchan" and network_chip:
+                network_profiles.insert(0, STACKCHAN_UNIFIED_PROFILE)
             if (
                 device_id == "core2"
                 and (
@@ -1337,6 +1376,9 @@ class DeviceSession:
         self.hci_probe_log = self.dir / "ble-probe.log"
         self.http_fixture_log = self.dir / "http-fixture.json"
         self.speaker_pcm = self.dir / "speaker.pcm"
+        self.microphone_source_pcm = self.dir / "microphone-source.pcm"
+        self.rmt_source = self.dir / "nec-source.rmt"
+        self.rmt_capture = self.dir / "nec-capture.rmt"
         self.hci_port: int | None = None
         self._hci_probe: subprocess.Popen | None = None
         self._http_fixture: UnifiedHttpFixture | None = None
@@ -1565,7 +1607,11 @@ class DeviceSession:
                     "name": "qemu",
                     "guest_process_count": 1,
                     "wifi_nic": self.network_config.get("nic"),
-                    "hci_transport": "UART1 H4",
+                    "hci_transport": (
+                        "UART2 H4"
+                        if profile == STACKCHAN_UNIFIED_PROFILE
+                        else "UART1 H4"
+                    ),
                     "ble_controller": "Bumble",
                     "ble_peer": "external Bumble peer",
                     "http_fixture": "controlled local endpoint",
@@ -1589,7 +1635,7 @@ class DeviceSession:
                 },
                 "not_claimed": [
                     "real-hardware behavior",
-                    "native ESP32-S3 Bluetooth controller model",
+                    "native ESP32-S3 WiFi PHY or Bluetooth controller model",
                     "RF security, range or performance",
                     "untrusted-firmware sandboxing",
                 ],
@@ -1944,6 +1990,91 @@ class DeviceSession:
             ) from error
         self._record_event("http_fixture_started", port=port)
 
+    def _prepare_stackchan_peripheral_inputs(self) -> None:
+        commands = (
+            (
+                ROOT / "tests/uiflow2/make_pcm_tone.py",
+                str(self.microphone_source_pcm),
+                "--frequency",
+                "440",
+                "--sample-rate",
+                "16000",
+                "--seconds",
+                "1",
+                "--amplitude",
+                "12000",
+            ),
+            (
+                ROOT / "tests/uiflow2/make_rmt_nec.py",
+                str(self.rmt_source),
+                "--address",
+                "0x56",
+                "--command",
+                "0xa3",
+            ),
+        )
+        for arguments in commands:
+            result = subprocess.run(
+                [sys.executable, *(str(item) for item in arguments)],
+                cwd=ROOT,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+            if result.returncode != 0:
+                raise RuntimeError(
+                    "StackChan fixture generation failed: "
+                    + result.stdout.strip()
+                )
+        self._record_event("stackchan_peripheral_inputs_prepared")
+
+    def _apply_stackchan_qom(self) -> None:
+        marker = "UNIFIED_STACKCHAN_IMU_CONFIG_READY"
+        deadline = time.time() + 20
+        while time.time() < deadline:
+            serial = (
+                self.serial0.read_text(errors="replace")
+                if self.serial0.is_file()
+                else ""
+            )
+            if marker in serial:
+                break
+            if self._proc is None or self._proc.poll() is not None:
+                raise ServiceError(
+                    "session_exited",
+                    f"device exited before marker {marker!r}",
+                    409,
+                )
+            time.sleep(0.05)
+        else:
+            raise ServiceError(
+                "qom_timeout",
+                f"timed out waiting for marker {marker!r}",
+                408,
+            )
+        assert self._qmp is not None
+        try:
+            self._qmp.cmd("stop")
+            for path, prop, value in STACKCHAN_UNIFIED_QOM:
+                self._qmp.cmd("qom-set", path=path, property=prop, value=value)
+            self._qmp.cmd("cont")
+        except (OSError, RuntimeError) as error:
+            try:
+                self._qmp.cmd("cont")
+            except (OSError, RuntimeError):
+                pass
+            raise ServiceError(
+                "qom_error",
+                f"StackChan runtime state injection failed: {error}",
+                503,
+            ) from error
+        self._record_event(
+            "profile_qom_applied",
+            profile=STACKCHAN_UNIFIED_PROFILE,
+            property_count=len(STACKCHAN_UNIFIED_QOM),
+        )
+
     def _launch(self) -> None:
         assert self.virtual_flash is not None
         efuse = self.dir / "efuse.bin"
@@ -1977,6 +2108,8 @@ class DeviceSession:
             self._launch_hci_probe()
         if unified:
             self._launch_http_fixture()
+        if profile == STACKCHAN_UNIFIED_PROFILE:
+            self._prepare_stackchan_peripheral_inputs()
         command = [
             str(qemu_path),
             "-M", self.spec.machine,
@@ -1987,6 +2120,8 @@ class DeviceSession:
         ]
         if hci_gatt:
             assert self.hci_port is not None
+            if profile == STACKCHAN_UNIFIED_PROFILE:
+                command.extend(["-serial", f"file:{self.serial1}"])
             command.extend(
                 [
                     "-chardev",
@@ -2034,6 +2169,11 @@ class DeviceSession:
         if unified:
             env["M5SW_I2S_DMA_IRQ"] = "1"
             env["M5SW_I2S_PCM_FILE"] = str(self.speaker_pcm)
+        if profile == STACKCHAN_UNIFIED_PROFILE:
+            env["M5SW_I2S_RX_PCM_FILE"] = str(self.microphone_source_pcm)
+            env["M5SW_RMT_RX_FILE"] = str(self.rmt_source)
+            env["M5SW_RMT_TX_FILE"] = str(self.rmt_capture)
+            env["M5SW_RMT_TRACE"] = "1"
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
@@ -2058,6 +2198,8 @@ class DeviceSession:
                 504,
             ) from error
         self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+        if profile == STACKCHAN_UNIFIED_PROFILE:
+            self._apply_stackchan_qom()
 
     def _qmp_call(self, name: str, **arguments):
         with self._lock:
@@ -2762,6 +2904,20 @@ class DeviceSession:
                 "nonzeros": sum(value != 0 for value in pcm),
                 "sha256": hashlib.sha256(pcm).hexdigest(),
             }
+        if self.network_config.get("profile") == STACKCHAN_UNIFIED_PROFILE:
+            for name, path in (
+                ("audio/microphone-source.pcm", self.microphone_source_pcm),
+                ("ir/nec-source.rmt", self.rmt_source),
+                ("ir/nec-capture.rmt", self.rmt_capture),
+            ):
+                if not path.is_file():
+                    continue
+                data = path.read_bytes()
+                files[name] = data
+                manifest.setdefault("stackchan_data", {})[name] = {
+                    "bytes": len(data),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                }
         if (
             "qom" in include
             and self.spec.service_kind == "qemu"
@@ -4148,7 +4304,7 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-unified": (
-                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-wifi-ble"
+                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-wifi-ble"
                     if any(
                         profile in self.specs[device_id].network_profiles
                         for device_id, profile in (
@@ -4162,6 +4318,7 @@ class DeviceService:
                             ("atoms3r", ATOMS3R_UNIFIED_PROFILE),
                             ("papercolor", PAPERCOLOR_UNIFIED_PROFILE),
                             ("papermono", PAPERMONO_UNIFIED_PROFILE),
+                            ("stackchan", STACKCHAN_UNIFIED_PROFILE),
                         )
                     )
                     else "disabled"

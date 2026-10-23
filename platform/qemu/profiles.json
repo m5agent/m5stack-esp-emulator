@@ -561,7 +561,7 @@
       ],
       "peripherals": [
         "servo",
-        "audio",
+        "axp2101",
         "bmi270",
         "bmm150",
         "aw9523",
@@ -569,11 +569,76 @@
         "ina226",
         "pcf8563",
         "ltr553",
+        "es7210",
+        "aw88298",
         "ir",
         "nfc",
+        "si12t",
         "rgb-led",
         "camera"
       ],
+      "runtime_state": {
+        "power": {
+          "path": "/machine/axp2101",
+          "properties": [
+            "vbat-mv",
+            "vin-mv",
+            "charging"
+          ]
+        },
+        "imu": {
+          "path": "/machine/bmi270",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        },
+        "magnetometer": {
+          "path": "/machine/bmm150",
+          "properties": [
+            "mag-x",
+            "mag-y",
+            "mag-z"
+          ]
+        },
+        "power-monitor": {
+          "path": "/machine/ina226",
+          "properties": [
+            "bus-voltage-mv",
+            "current-ma",
+            "shunt-ohms"
+          ]
+        },
+        "light-proximity": {
+          "path": "/machine/ltr553",
+          "properties": [
+            "light-level",
+            "proximity-level"
+          ]
+        },
+        "rtc": {
+          "path": "/machine/pcf8563",
+          "properties": [
+            "unix-time"
+          ]
+        },
+        "body-touch": {
+          "path": "/machine/si12t",
+          "properties": [
+            "touch-bits"
+          ]
+        },
+        "io-expander": {
+          "path": "/machine/aw9523",
+          "properties": [
+            "input-bits"
+          ]
+        }
+      },
       "board_work": [
         "servo/audio and NFC functional models",
         "BMI270/AW9523/INA226 peripheral closure",
@@ -581,9 +646,9 @@
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-22",
-        "status": "display-touch-peripherals-simulated",
-        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI and accepts touch. BMI270 accel/gyro APIs, BM8563 RTC, LTR553 ALS/proximity, AW9523 output/input, INA226 voltage/current/power, and RMT NEC IR TX/RX all pass through StackChan board data paths. All 8 StackChan peripheral cases pass."
+        "date": "2026-10-23",
+        "status": "display-input-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 passes display/touch, camera, IMU/magnetometer, AXP2101/AW9523/M5IOE1/INA226/LTR553/RTC, servo, audio, NFC and IR plus WiFi DHCP/HTTP and UART2 HCI BLE in one QEMU guest. All 8 StackChan peripheral cases pass."
       }
     },
     {

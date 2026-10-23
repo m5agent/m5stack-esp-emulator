@@ -22,8 +22,8 @@ class RuntimeCoverageTests(unittest.TestCase):
         )
         self.assertEqual(report["device_case_groups"], 14)
         self.assertEqual(report["assigned_matrix_cases"], 67)
-        self.assertEqual(report["assigned_external_cases"], 14)
-        self.assertEqual(report["case_model_groups"], 81)
+        self.assertEqual(report["assigned_external_cases"], 15)
+        self.assertEqual(report["case_model_groups"], 82)
 
     def test_missing_device_case_group_is_rejected(self):
         coverage = json.loads(runtime_coverage.COVERAGE.read_text())
@@ -57,6 +57,7 @@ class RuntimeCoverageTests(unittest.TestCase):
     def test_device_component_needs_device_local_case_coverage(self):
         coverage = json.loads(runtime_coverage.COVERAGE.read_text())
         coverage["case_models"]["stackchan-peripherals"].remove("bmm150")
+        coverage["case_models"]["stackchan-unified"].remove("bmm150")
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "runtime-coverage.json"
             path.write_text(json.dumps(coverage))
