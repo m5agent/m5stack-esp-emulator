@@ -69,7 +69,8 @@ callback 注入，因此单 lease PASS 不等于稳定后端。QEMU 内部替代
 | --- | --- | --- |
 | `HCI-1` host transport | `PASS` | `core2_native_hci/test_transport.py` |
 | `HCI-2` guest H2C | `PARTIAL` | `core2_native_hci/test_guest_h2c.py`，只到首个 Reset |
-| `HCI-3` guest C2H | `OPEN` | 尚无已提交实现 |
+| `HCI-3a` guest C2H callback | `PASS` | `core2_native_hci/test_guest_h2c.py --enable-c2h`，targeted `5/5` |
+| `HCI-3b` complete HCI/GATT | `OPEN` | Bumble 全初始化/GATT 尚未稳定 |
 | `HCI-4` repeated lease | `OPEN` | 仍需无 GDB 的 Device Service `5/5` |
 
 ```bash
@@ -84,14 +85,13 @@ guest H2C capture 切片：
 
 ```bash
 python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
-  --image /path/to/stock/core2-uiflow2.bin
+  --image /path/to/stock/core2-uiflow2.bin --enable-c2h
 ```
 
 它不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset
-`01030c00` 并送到外部 peer。C2H 尚未回送 guest，因此不是 BLE PASS。
-本地曾尝试直接调用 guest `vhci_send`，函数虽然返回，guest 仍等待 ack 并
-`ETIMEDOUT`；该入口不是直接 H4 ingest API，实验未提交。`HCI-3` 必须从
-真实 controller-to-host 通知/队列语义继续。
+`01030c00`，向 guest 交付 Reset Complete，再要求 guest 发出
+`01011000`。callback status、错误计数和 send-available 均由 QOM 检查。
+这证明单包 C2H 路径，不证明完整 BLE 初始化或 GATT。
 
 Core2 peripheral 和 device matrix 现在都显式使用
 `tcg,thread=single` + `icount shift=auto,align=off,sleep=off`。matrices

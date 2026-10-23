@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Capture the first stock Core2 H2C packet without a GDB bridge."""
+"""Exercise stock Core2 H2C and optional VHCI C2H callback delivery."""
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 from pathlib import Path
@@ -16,8 +18,17 @@ DEFAULT_QEMU = (
     ROOT
     / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
 )
+DEFAULT_ELF = ROOT / ".work/uiflow2-core2-symbols/micropython.elf"
 DEFAULT_ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
 DEVICE_PATH = "/machine/peripheral-anon/device[0]"
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 class QMP:
@@ -128,9 +139,38 @@ def main() -> int:
         "--env-pointer-address",
         default="0x3ffcc0a4",
     )
+    parser.add_argument(
+        "--c2h-scratch-address",
+        help="Guest buffer used to deliver controller-to-host packets",
+    )
+    parser.add_argument("--elf", type=Path, default=DEFAULT_ELF)
+    parser.add_argument(
+        "--enable-c2h",
+        action="store_true",
+        help="Deliver C2H packets through the registered firmware callback",
+    )
+    parser.add_argument(
+        "--c2h-allocator-address",
+        help="Guest malloc-compatible symbol used for the C2H buffer",
+    )
     parser.add_argument("--timeout", type=float, default=20)
     parser.add_argument("--out-dir", type=Path)
     args = parser.parse_args()
+    c2h_enabled = bool(args.enable_c2h or args.c2h_scratch_address)
+    allocator_address = (
+        int(args.c2h_allocator_address, 0)
+        if args.c2h_allocator_address
+        else 0
+    )
+    if c2h_enabled and not args.c2h_scratch_address and not allocator_address:
+        if not args.elf.is_file():
+            parser.error(f"ELF does not exist: {args.elf}")
+        sys.path.insert(0, str(ROOT / "platform/tools"))
+        from xtensa_elf_symbols import resolve_symbols
+
+        allocator_address = resolve_symbols(
+            args.elf, ["malloc"]
+        )["malloc"].value
     for label, path in (
         ("image", args.image),
         ("QEMU", args.qemu),
@@ -149,6 +189,17 @@ def main() -> int:
     listener.bind(("127.0.0.1", port))
     listener.listen(1)
     listener.settimeout(args.timeout)
+    hci_device = (
+        "esp32-native-hci,chardev=hci,"
+        f"env-pointer-address={args.env_pointer_address}"
+    )
+    if args.c2h_scratch_address:
+        hci_device += f",c2h-scratch-address={args.c2h_scratch_address}"
+    elif allocator_address:
+        hci_device += (
+            f",c2h-allocator-address=0x{allocator_address:08x}"
+            ",c2h-scratch-size=2048"
+        )
     command = [
         str(args.qemu),
         "-snapshot",
@@ -175,10 +226,7 @@ def main() -> int:
             f"port={port},server=off,nodelay=on"
         ),
         "-device",
-        (
-            "esp32-native-hci,chardev=hci,"
-            f"env-pointer-address={args.env_pointer_address}"
-        ),
+        hci_device,
         "-qmp",
         f"unix:{qmp_path},server=on,wait=off",
     ]
@@ -191,13 +239,23 @@ def main() -> int:
     qmp: QMP | None = None
     result: dict[str, Any] = {
         "schema_version": 1,
-        "kind": "m5stack-core2-guest-h2c-capture",
-        "scope": "virtual-device guest-to-QEMU transport",
+        "kind": (
+            "m5stack-core2-native-hci-c2h-delivery"
+            if c2h_enabled
+            else "m5stack-core2-guest-h2c-capture"
+        ),
+        "scope": (
+            "virtual-device H2C and C2H callback transport"
+            if c2h_enabled
+            else "virtual-device guest-to-QEMU transport"
+        ),
         "status": "FAIL",
         "firmware": {
-            "path": str(args.image),
+            "file": args.image.name,
+            "sha256": sha256(args.image),
             "bytes": args.image.stat().st_size,
         },
+        "qemu_sha256": sha256(args.qemu),
         "checks": {},
     }
     try:
@@ -226,11 +284,81 @@ def main() -> int:
                 },
             }
         )
+        if c2h_enabled:
+            peer.sendall(bytes.fromhex("040e0401030c00"))
+            next_packet = read_h4_packet(peer, args.timeout)
+            delivered = wait_qmp_value(
+                qmp,
+                "c2h-delivered",
+                lambda value: value >= 1,
+                args.timeout,
+            )
+            packets_after_c2h = wait_qmp_value(
+                qmp,
+                "h2c-packets",
+                lambda value: value >= 2,
+                args.timeout,
+            )
+            send_available = qmp.get("c2h-send-available")
+            callback_errors = qmp.get("c2h-errors")
+            callback_status = qmp.get("c2h-last-status")
+            result.update(
+                {
+                    "next_packet": next_packet.hex(),
+                    "c2h_delivered": delivered,
+                    "h2c_packets_after_c2h": packets_after_c2h,
+                    "c2h_send_available": send_available,
+                    "c2h_errors": callback_errors,
+                    "c2h_last_status": callback_status,
+                }
+            )
+            result["checks"].update(
+                {
+                    "reset_complete_delivered": delivered >= 1,
+                    "guest_command_progressed": (
+                        next_packet[0] == 0x01 and next_packet != packet
+                    ),
+                    "qom_callback_status_zero": callback_status == 0,
+                    "qom_callback_no_errors": callback_errors == 0,
+                    "qom_send_available_called": send_available >= 1,
+                }
+            )
         if not all(result["checks"].values()):
             raise RuntimeError(f"capture checks failed: {result['checks']}")
         result["status"] = "PASS"
+        result["not_claimed"] = [
+            "complete HCI command sequence",
+            "BLE connection or GATT",
+            "bit-exact controller/baseband",
+            "physical hardware",
+        ]
     except Exception as error:
         result["error"] = str(error)
+        if qmp is not None:
+            result["diagnostics"] = {}
+            for property_name in (
+                "rx-queue-depth",
+                "c2h-delivered",
+                "c2h-errors",
+                "c2h-send-available",
+                "c2h-last-status",
+                "c2h-last-pc",
+                "c2h-observed-pc",
+                "c2h-observed-halted",
+                "c2h-return-pc",
+                "c2h-exit-pc",
+                "c2h-steps",
+                "c2h-exception-index",
+                "last-error",
+            ):
+                try:
+                    result["diagnostics"][property_name] = qmp.get(
+                        property_name
+                    )
+                except (OSError, RuntimeError) as diagnostic_error:
+                    result["diagnostics"][property_name] = (
+                        f"unavailable: {diagnostic_error}"
+                    )
         raise
     finally:
         if peer is not None:

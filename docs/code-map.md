@@ -174,7 +174,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/hci_stream.py` | H4 command/event/ACL 分包 |
 | `platform/tools/runtime_interfaces.py` | 对外汇总设备、外设和运行时可注入接口 |
 | `tests/uiflow2/core2_native_vhci/` | stock Core2 VHCI→Bumble GATT runner |
-| `tests/uiflow2/core2_native_hci/` | QEMU native-HCI transport、无 GDB H2C capture 和后续 C2H 门禁 |
+| `tests/uiflow2/core2_native_hci/` | QEMU native-HCI transport、无 GDB H2C capture、单包 C2H callback 和完整 sequence 门禁 |
 | `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | QEMU GDB H2C/C2H bridge；符号地址来自固定环境变量，GDB 仍负责暂停、callback 注入和 synthetic return |
 | `tests/network/tls_allowlist/` | 测试 CA、namespace-local HTTPS gateway、Host 允许/拒绝和 pcap 断言 |
 | `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
@@ -218,7 +218,8 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 stock VHCI BLE | `tests/uiflow2/core2_native_vhci/run_test.py --symbol-source pinned` | ELF 固定符号下，内置-controller 固件边界的外部 NUS GATT 5/5；`gdb` 仅保留作符号查询对照 |
 | Core2 unified native VHCI | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | Device Service/独立 runner 的同 guest board+WiFi+公网+native-VHCI BLE，符号来自匹配 ELF |
 | Core2 native HCI `HCI-1` | `patches/qemu-core2-native-hci/`；`tests/uiflow2/core2_native_hci/test_transport.py` | QEMU H4 chardev framing、bounded queue、overflow、peer lifecycle、counters 和 clean shutdown PASS |
-| Core2 guest H2C `HCI-2` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` 并转发 peer；这是首个 packet PASS，不是完整 BLE sequence，C2H 仍未回送 |
+| Core2 guest H2C `HCI-2` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` 并转发 peer |
+| Core2 C2H callback `HCI-3a` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py --enable-c2h` | 从 ELF 分配 guest buffer，调用注册的 `notify_host_recv` 和 send-available；Reset Complete 后 guest 发出下一条 H2C，targeted `5/5` |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |

@@ -13,12 +13,14 @@ QEMU 内部实现路线。当前能力结论仍以
 | --- | --- | --- | --- |
 | `HCI-1` host transport | `PASS` | `patches/qemu-core2-native-hci/0001-esp32-native-hci-transport.patch` | H4 framing、bounded queue、overflow、peer lifecycle、QOM counters 和 clean shutdown 已通过 targeted test |
 | `HCI-2` H2C | `PARTIAL` | 同一补丁的 `env-pointer-address` poller；`test_guest_h2c.py` | 不启动 GDB 已捕获真实 stock HCI Reset `01030c00`；完整命令序列需要 C2H 才能继续 |
-| `HCI-3` C2H | `OPEN` | 无已提交实现 | 还没有把 Bumble event/ACL 安全交给 guest 的实际 VHCI controller-to-host 路径 |
+| `HCI-3a` C2H callback | `PASS` | `c2h-allocator-address`、注册 callback 调用、send-available 和 QOM counters | Reset Complete 已交付 guest 的 `notify_host_recv`，callback status 为 0，guest 随后发出 Read Local Version；连续 `5/5` |
+| `HCI-3b` complete sequence | `OPEN` | 无稳定门禁 | Bumble 全初始化在部分探索运行中能到广播/连接，但完整 HCI/GATT sequence 仍会停住或 Reset，不能作为 PASS |
 | `HCI-4` stability | `OPEN` | 无门禁 | 还没有无 GDB 的 Device Service 连续 `5/5` 完整 GATT 证据 |
 
-`HCI-3` 是当前唯一应继续写 QEMU 代码的阶段。只有它完成并形成真实命令序列，
-才有意义做 `HCI-4`；在此之前不能把 transport PASS 或首包 capture PASS
-写成“原生蓝牙后端已完成”。
+`HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
+send-available 的基本路径；`HCI-3b` 仍需解决多包 event/ACL 的稳定顺序和
+safe point。只有完整 sequence 稳定后才可进入 `HCI-4`。不能把单次
+connect/首包 callback 写成“原生蓝牙后端已完成”。
 
 ## 结论先行
 
@@ -132,12 +134,12 @@ Core2 VHCI shared memory 捕获首个 H4 command `01030c00`（HCI Reset），
 - 按真实 ID 记录 H2C opcode/ACL header，不记录敏感载荷。
 
 验收：stock firmware Reset、LE init、advertising enable 命令按 H4 完整到达
-Bumble。Reset 已通过；后续命令需要 HCI-3 C2H 响应才能继续，因此完整
-sequence 仍开放。
+Bumble。Reset 已通过；`HCI-3a` 现在能交付第一个 C2H 响应并推进一条后续
+命令，但完整 Bumble sequence 仍归入 `HCI-3b`。
 
 ### HCI-3：C2H QEMU→guest
 
-状态：`OPEN`。当前没有可提交的 C2H implementation patch。
+状态：`HCI-3a PASS / HCI-3b OPEN`。
 
 - Bumble event/ACL 由 QEMU 主循环接收；
 - 用 `async_run_on_cpu` 或设备 IRQ 在安全点提交；
@@ -148,6 +150,25 @@ sequence 仍开放。
 验收：external Bumble scan/connect/NUS subscribe/write/notify；guest ACK
 回读。
 
+#### HCI-3a 已通过
+
+- 从 `vhci_env_p + 0x4e4` 动态读取注册 callback table；
+- 用真实 guest `malloc` 分配 C2H scratch，避免覆盖 BT RAM；
+- 按 Xtensa `call8` ABI 使用 caller `a10/a11` 传参数，返回地址放在 `a8`；
+- 在 CPU safe point 运行 `notify_host_recv`，恢复 PC、PS、window base/start、
+  physical registers 和 icount；
+- callback 返回后调用 send-available；
+- dummy controller 返回 Reset Complete 后，guest 从 `01030c00` 推进到
+  `01011000`。
+
+证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json`；
+同一固件/QEMU 的 targeted run 连续 `5/5` PASS：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery-5x.json`。
+
+这仍不等于完整 BLE：探索性 Bumble 运行出现过完整初始化、广播和连接，
+但后续 ATT 请求不能稳定完成，因此不把 scan/connect/GATT 作为门禁结果。
+
 #### 已排除的假设
 
 本地实验把 C2H 从 chardev callback 送进 CPU0，并尝试直接调用 guest
@@ -157,21 +178,15 @@ sequence 仍开放。
 内部事件/队列结构。该实验没有固化为源码提交，不应继续猜 `a2/a3/a4/a5`
 参数或靠 retry 让它“偶尔返回值”。
 
-#### 下一最小实验
+#### HCI-3b 下一项
 
-1. 从匹配 ELF、VHCI 运行时结构和反汇编确认 firmware 注册的
-   `notify_host_recv`/send-available callback ABI，而不是按符号名猜签名；
-2. 只在 CPU0 的 vCPU-safe 提交点进入 guest，完整保存/恢复 PC、PS、
-   window base/start 和返回地址编码；
-3. 先把一个真实 Bumble C2H packet 写入 firmware 可读的 controller-to-host
-   buffer/状态，再调用 firmware 注册的通知路径；
-4. 单独通知 send-available，验证 dummy peer 返回
-   `Command Complete (Reset)` 后 guest 能发出下一条 H2C；
-5. 用 QOM 记录 queued/submitted/completed/rejected，任何异常返回都让
-   session 明确失败，不继续运行成“看起来起来但未初始化”的状态。
-
-成功判据不是 `vhci_send` 返回，而是同一 guest 的命令序列继续推进，并能在
-`HCI-4` 中完成外部 peer 的 scan/connect/GATT。
+1. 用真实 Bumble controller 连续跑完整 init，记录每个 C2H 的 type、batch、
+   callback status 和下一条 H2C；
+2. 解决 connection 后 event/ACL batch 的 CPU safe point 和 FreeRTOS wake
+   顺序，目标是外部 peer 完成 scan/connect/service discovery；
+3. 出现 callback reject、guest reset、ACK 错序或 ATT timeout 时让测试明确
+   FAIL，不自动 retry；
+4. 通过后再接 NUS subscribe/write/notify，并进入 `HCI-4` repeated lease。
 
 ### HCI-4：稳定性门禁
 

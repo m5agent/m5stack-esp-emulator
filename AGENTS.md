@@ -217,11 +217,13 @@ diagnostics in `internal/records/`.
   stock-firmware controller-boundary evidence, not a bit-exact Espressif BT
   baseband/controller model. The GDB backend and physical cache/PSRAM
   equivalence remain open.
-- The QEMU native-HCI replacement is staged: `HCI-1` host transport passes
-  and `HCI-2` captures the first stock Reset without GDB. C2H guest delivery
-  (`HCI-3`), no-GDB repeated Device Service leases (`HCI-4`) and a complete
-  BLE sequence remain open. Do not call the transport or first-packet capture
-  a finished native Bluetooth backend.
+- The QEMU native-HCI replacement is staged: `HCI-1` host transport and
+  `HCI-2` first stock Reset capture pass. `HCI-3a` now invokes the firmware's
+  registered receive callback, observes status 0, calls send-available and
+  sees the guest emit its next H2C command. The complete Bumble HCI/GATT
+  sequence (`HCI-3b`), no-GDB repeated Device Service leases (`HCI-4`) and a
+  bit-exact controller remain open; do not call single-packet C2H a finished
+  native Bluetooth backend.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.

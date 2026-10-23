@@ -35,6 +35,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/test_guest_h2c.py",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-transport-pass.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-guest-h2c.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery-5x.json",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
@@ -244,6 +246,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("HCI-2", status)
         self.assertIn("HCI-3", status)
         self.assertIn("HCI-4", status)
+        self.assertIn("HCI-3a", status)
+        self.assertIn("HCI-3b", status)
         self.assertIn("`01030c00`", status)
         self.assertIn(
             "profile=core2-native-vhci",

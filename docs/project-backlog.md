@@ -31,8 +31,8 @@
 
 ## 当前执行顺序
 
-1. `CORE2-01` / `HCI-3`：完成真实 C2H 的 vCPU-safe guest delivery；
-   不再猜测 `vhci_send` 参数。
+1. `CORE2-01` / `HCI-3b`：单包 C2H callback 已通过，继续稳定完整 Bumble
+   HCI/GATT sequence。
 2. `CORE2-01` / `HCI-4`：用同一 stock 固件通过 Device Service repeated
    lease `5/5`，再删除 GDB callback 注入和 synthetic return。
 3. `NET-03`：完成双设备 lab fabric。
@@ -51,7 +51,7 @@
 | `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
 | `NET-04` | 进行中 | GitHub Actions 已跑 namespace/egress；继续接 QEMU runtime、pcap/reconnect 和正式 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain/re-attach |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
-| `CORE2-01` | 进行中 | ELF 符号查询已固定；`HCI-1` transport PASS，`HCI-2` 已无 GDB 捕获首包；下一最小交付是 `HCI-3` C2H guest delivery，随后 `HCI-4` repeated lease | 同一 stock 固件通过 Device Service `5/5`；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
+| `CORE2-01` | 进行中 | ELF 符号查询已固定；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5`；下一最小交付是 `HCI-3b` 完整 HCI/GATT，随后 `HCI-4` repeated lease | 同一 stock 固件通过 Device Service `5/5`；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
 | `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
 | `FW-02` | 进行中 | 包内安全摘要已支持；继续做真机 eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -98,7 +98,8 @@
 | --- | --- | --- | --- |
 | `HCI-1` host transport | `PASS` | H4 command/event/ACL/SCO framing、32 packet bounded queue、overflow/drop、peer lifecycle、counters、clean shutdown | guest VHCI 数据面 |
 | `HCI-2` H2C | `PARTIAL` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` | controller response 后的完整 H2C 命令序列 |
-| `HCI-3` C2H | `OPEN` | 已确认 C2H 必须在 vCPU-safe 路径交付；`vhci_send` 直接注入假设失败，没有形成提交 | 真实 controller-to-host queue、callback/window/return 语义，以及外部 scan/connect/GATT |
+| `HCI-3a` C2H callback | `PASS` | Reset Complete 经 firmware `notify_host_recv` 交付，callback status 0，send-available 后 guest 发出下一条 H2C；targeted `5/5` | packet order/flow control 和完整 controller sequence |
+| `HCI-3b` complete sequence | `OPEN` | 探索性 Bumble 运行可到广播/连接 | 完整 HCI init、ATT/GATT service discovery 必须稳定，不靠 retry |
 | `HCI-4` stability | `OPEN` | 现有 GDB 诊断桥有过单 lease PASS | Device Service 连续 `5/5`、无 GDB callback injection/synthetic return、故障分类 |
 
 已经完成：
@@ -114,10 +115,8 @@
 
 仍未完成：
 
-- `HCI-3` 尚未把 Bumble C2H 交给 guest 的实际 VHCI controller-to-host
-  路径。当前实验曾调用 `vhci_send` 并进入 guest 函数，但 guest 报
-  `HCI wait for ack returned 19`/`ETIMEDOUT`；该入口不是可直接灌入 H4
-  packet 的接口，实验没有提交；
+- `HCI-3a` 已把单个 Reset Complete 交给 guest 的注册 callback；`HCI-3b`
+  仍需稳定多 packet Bumble event/ACL、广播、连接和 ATT/GATT sequence；
 - `HCI-4` 尚无以 Device Service `/api/v1` 连续 `5/5` 的无 GDB 门禁；
 - GDB 仍负责 guest 暂停、breakpoint/callback 注入和 synthetic return；
 - 尚未形成同 commit、固定次数的重复 Device Service lease 门禁；
@@ -131,7 +130,7 @@
 
 - 先跑固定次数独立 lease，失败分类必须区分 target running、
   `INJECT_REJECTED`、double exception、GDB exit 和 peer timeout；
-- 先让 `HCI-3` 的 QEMU 内部 C2H 完成同一 H2C/C2H 数据面，再由
+- 先让 `HCI-3b` 的 QEMU 内部 C2H 完成稳定完整数据面，再由
   `HCI-4` 验证 Device Service `5/5`；
 - 同一 stock 固件和 ELF 通过 scan/connect/NUS subscribe/write/notify；
 - Device Service 单 lease、pcap、bridge log 和 peer evidence 不回退。

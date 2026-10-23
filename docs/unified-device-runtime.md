@@ -117,9 +117,11 @@ complete simulated device or as a unified-device PASS.
   UIFlow2's Python BLE API or Device Service integration.
 - The replacement QEMU native-HCI path is staged independently:
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
-  `01030c00` without GDB, and `HCI-3` C2H guest delivery remains open. This
-  does not change the unified acceptance status above until the complete
-  no-GDB GATT sequence and repeated Device Service leases pass.
+  `01030c00` without GDB, and `HCI-3a` invokes the registered receive
+  callback with status 0, emits send-available and observes the guest's next
+  H2C command. Complete Bumble HCI/GATT sequence (`HCI-3b`) and repeated
+  Device Service leases remain open, so the unified acceptance status above
+  is unchanged.
 
 ## Integration rule
 
