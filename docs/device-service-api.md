@@ -20,6 +20,9 @@ Current scope:
   Core2 adds `core2-unified` through the classic ESP32 OpenMAC/HCI QEMU path;
 - NanoC6 adds `nanoc6-hci-ble`: board peripherals, RMT WS2812/IR and UART1
   HCI BLE run in one C6 guest, while WiFi remains explicitly `NOT RUN`;
+- Nesso N1 adds `nesso-unified`: display/touch, PI4IOE, power telemetry,
+  BMI270, SX1262, IR, buzzer and UART1 HCI BLE run in one C6 guest, while
+  WiFi remains explicitly `NOT RUN`;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -330,6 +333,27 @@ NUS GATT exchange. `/network` returns
 `kind=m5stack-nanoc6-board-hci-ble-qemu-proof`, with
 `runtime.wifi=NOT RUN` and the reason that the QEMU C6 machine has no WiFi
 MAC/PHY data plane.
+
+Nesso N1 extends the same C6 HCI lane to its full board peripheral set:
+
+```json
+{
+  "device_id": "nesso-n1",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 120,
+  "network": {
+    "profile": "nesso-unified",
+    "attempts": 3
+  }
+}
+```
+
+The service waits for the PI4IOE rail setup, injects BQ27220/AW32001 and
+BMI270 QOM values, sends touch and key input, captures a nonblank/touch-redrawn
+135x240 frame, checks SX1262 loopback, RMT IR and buzzer PCM, and waits for an
+external Bumble peer to complete NUS scan/connect/subscribe/write/notify.
+`/network` returns
+`kind=m5stack-nesso-board-hci-ble-qemu-proof` with `wifi=NOT RUN`.
 
 Core2 also has a combined WiFi and BLE profile through the same board/QMP/
 UART1 instance:
@@ -946,6 +970,9 @@ after a service restart.
 - NanoC6 `nanoc6-hci-ble` closes board peripherals and UART1 HCI BLE in one
   C6 guest, but WiFi is `NOT RUN` because the QEMU C6 machine has no WiFi
   MAC/PHY data plane;
+- Nesso N1 `nesso-unified` adds display/touch, PI4IOE, BQ27220/AW32001,
+  BMI270, SX1262, IR, buzzer and UART1 HCI BLE in one C6 guest. WiFi remains
+  `NOT RUN`; stock Nesso UIFlow2 `hardware.RGB()` also remains `NOT RUN`;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the

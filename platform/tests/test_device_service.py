@@ -78,6 +78,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
             rows["nanoc6"]["network_profiles"],
         )
         self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
+        self.assertIn(
+            "nesso-unified",
+            rows["nesso-n1"]["network_profiles"],
+        )
         self.assertEqual(rows["cores3"]["network_status"], "validated")
         self.assertTrue(rows["cores3"]["features"]["network"])
         self.assertTrue(rows["cores3"]["features"]["device_state"])
@@ -310,7 +314,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(capacity["modes"]["qemu-wifi"], "enabled-sticks3")
         self.assertEqual(
             capacity["modes"]["qemu-ble"],
-            "enabled-nanoc6-hci",
+            "enabled-nanoc6-hci-nesso-hci",
         )
         self.assertEqual(
             capacity["modes"]["qemu-unified"],
@@ -533,7 +537,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-ble"],
-                    "enabled-core2-experimental-nanoc6-hci",
+                    "enabled-core2-experimental-nanoc6-hci-nesso-hci",
                 )
             finally:
                 gated.close_all()
@@ -543,7 +547,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             else:
                 os.environ["M5_CORE2_WIFI_QEMU"] = old
 
-    def test_experimental_qemu_ble_is_core2_only_and_env_gated(self):
+    def test_qemu_ble_profiles_and_core2_environment_gate(self):
         fake_qemu = Path(self.tmp.name) / "qemu-core2-radio"
         fake_qemu.write_bytes(b"fake")
         fake_qemu.chmod(0o755)
@@ -597,6 +601,20 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertEqual(
                 nanoc6["ble_name"],
                 "M5-NANOC6-HCI",
+            )
+            nesso = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["nesso-n1"],
+                {},
+            )
+            self.assertEqual(nesso["profile"], "nesso-unified")
+            self.assertIsNone(nesso["nic"])
+            self.assertEqual(
+                nesso["expected_markers"],
+                list(device_service_module.NESSO_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                nesso["ble_name"],
+                "M5-NESSO-UNIFIED",
             )
             unified = device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
@@ -1866,6 +1884,86 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(evidence["rmt"]["nec"]["status"], "PASS")
         self.assertEqual(evidence["gatt"]["name"], "M5-NANOC6-HCI")
         self.assertEqual(evidence["gatt"]["payload"], "M5_NANOC6_HCI")
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_nesso_unified_qemu_evidence(self):
+        spec = self.service.specs["nesso-n1"]
+        firmware_path = Path(self.tmp.name) / "nesso-unified.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="8" * 32,
+            spec=spec,
+            firmware_id="9" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="9" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_NESSO_BLE_ACK_SENT",
+            ready_timeout=30,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "nesso-unified",
+                "nic": None,
+                "expected_markers": list(
+                    device_service_module.NESSO_UNIFIED_MARKERS
+                ),
+                "attempts": 3,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "\n".join(device_service_module.NESSO_UNIFIED_MARKERS) + "\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-NESSO-UNIFIED'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_NESSO_UNIFIED\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_NESSO_UNIFIED\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        payload = 0x56 | ((0x56 ^ 0xFF) << 8)
+        payload |= 0xA3 << 16
+        payload |= (0xA3 ^ 0xFF) << 24
+        nec_words = [9000 | (4500 << 16)]
+        for index in range(32):
+            nec_words.append(
+                560 | ((1690 if payload & (1 << index) else 560) << 16)
+            )
+        nec_words.append(560)
+        session.rmt_capture.write_bytes(
+            b"".join(word.to_bytes(4, "little") for word in nec_words)
+        )
+        session.speaker_pcm.write_bytes(b"\x00\x00\xff\x7f" * 2048)
+        session.unified_frame_changed = True
+        session.frame_metrics = lambda **_kwargs: {  # type: ignore[method-assign]
+            "png": b"png",
+            "png_bytes": 3,
+            "width": 135,
+            "height": 240,
+            "nonblack_pixels": 7000,
+            "unique_colors": 17,
+        }
+
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-nesso-board-hci-ble-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(evidence["runtime"]["hci_transport"], "UART1 H4")
+        self.assertEqual(evidence["runtime"]["wifi"], "NOT RUN")
+        self.assertEqual(evidence["rmt"]["nec"]["status"], "PASS")
+        self.assertEqual(evidence["pcm"]["check"]["status"], "PASS")
+        self.assertEqual(evidence["gatt"]["name"], "M5-NESSO-UNIFIED")
         session.state = "stopped"
         session._proc = None
         session._qmp = None

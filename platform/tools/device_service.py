@@ -114,6 +114,7 @@ CORE2_BLE_PROFILE = "core2-ble-advertise"
 CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
 CORE2_UNIFIED_PROFILE = "core2-unified"
 NANOC6_HCI_BLE_PROFILE = "nanoc6-hci-ble"
+NESSO_UNIFIED_PROFILE = "nesso-unified"
 STICKS3_WIFI_PROFILE = "uiflow2-sticks3-wifi"
 STICKS3_UNIFIED_PROFILE = "uiflow2-sticks3-unified"
 CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
@@ -176,6 +177,21 @@ NANOC6_HCI_BLE_MARKERS = (
     "NANOC6_HCI_READY",
 )
 NANOC6_BLE_IDENTITY = ("M5-NANOC6-HCI", "M5_NANOC6_HCI")
+NESSO_UNIFIED_MARKERS = (
+    "UNIFIED_NESSO_BOARD 23",
+    "UNIFIED_NESSO_DISPLAY 135 240",
+    "UNIFIED_NESSO_POWER 100 4300 1",
+    "UNIFIED_NESSO_IMU 0.25 -0.50 0.75 10.0 -20.0 30.0",
+    "UNIFIED_NESSO_LORA M5LORA",
+    "UNIFIED_NESSO_IR 0x56 0xA3",
+    "UNIFIED_NESSO_BUZZER 3500",
+    "UNIFIED_NESSO_TOUCH",
+    "UNIFIED_NESSO_BUTTON 1",
+    "UNIFIED_NESSO_BLE_RX",
+    "UNIFIED_NESSO_BLE_ACK_SENT",
+    "UNIFIED_NESSO_READY",
+)
+NESSO_BLE_IDENTITY = ("M5-NESSO-UNIFIED", "M5_NESSO_UNIFIED")
 STICKS3_UNIFIED_MARKERS = (
     "UNIFIED_STICKS3_WIFI_CONNECTED",
     "UNIFIED_STICKS3_HTTP_PASS",
@@ -744,6 +760,9 @@ def parse_qemu_ble_execution(
     elif spec.id == "nanoc6":
         supported_profiles = {NANOC6_HCI_BLE_PROFILE}
         default_profile = NANOC6_HCI_BLE_PROFILE
+    elif spec.id == "nesso-n1":
+        supported_profiles = {NESSO_UNIFIED_PROFILE}
+        default_profile = NESSO_UNIFIED_PROFILE
     else:
         raise ServiceError(
             "qemu_ble_not_supported",
@@ -775,6 +794,8 @@ def parse_qemu_ble_execution(
         expected_markers = list(CORE2_HCI_GATT_MARKERS)
     elif profile == NANOC6_HCI_BLE_PROFILE and not expected_markers:
         expected_markers = list(NANOC6_HCI_BLE_MARKERS)
+    elif profile == NESSO_UNIFIED_PROFILE and not expected_markers:
+        expected_markers = list(NESSO_UNIFIED_MARKERS)
     elif profile in UNIFIED_MARKERS and not expected_markers:
         expected_markers = list(UNIFIED_MARKERS[profile])
     attempts = value.get("attempts", 5)
@@ -794,7 +815,7 @@ def parse_qemu_ble_execution(
             "misc.esp32_wifi"
             if spec.id == "core2"
             else None
-            if spec.id == "nanoc6"
+            if spec.id in {"nanoc6", "nesso-n1"}
             else "misc.esp32s3.wifi"
         ),
         "ble_name": (
@@ -804,6 +825,8 @@ def parse_qemu_ble_execution(
             if spec.id == "core2"
             else NANOC6_BLE_IDENTITY[0]
             if spec.id == "nanoc6"
+            else NESSO_BLE_IDENTITY[0]
+            if spec.id == "nesso-n1"
             else UNIFIED_BLE_IDENTITIES[spec.id][0]
         ),
     }
@@ -1009,6 +1032,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, STAMPLC_UNIFIED_PROFILE)
             if device_id == "nanoc6" and network_chip:
                 network_profiles.insert(0, NANOC6_HCI_BLE_PROFILE)
+            if device_id == "nesso-n1" and network_chip:
+                network_profiles.insert(0, NESSO_UNIFIED_PROFILE)
             if (
                 device_id == "core2"
                 and (
@@ -1502,6 +1527,7 @@ class DeviceSession:
         self._lock = threading.RLock()
         self._stop_event = threading.Event()
         self._last_frame_persisted_at = 0.0
+        self.unified_frame_changed: bool | None = None
         self.events: list[dict] = [dict(event) for event in (events or [])]
         self.restored = restored
         self.interrupted = interrupted
@@ -1810,6 +1836,178 @@ class DeviceSession:
                     "untrusted-firmware sandboxing",
                 ],
             }
+        if profile == NESSO_UNIFIED_PROFILE:
+            probe_log = (
+                self.hci_probe_log.read_text(errors="replace")
+                if self.hci_probe_log.is_file()
+                else ""
+            )
+            serial_markers = [
+                str(marker)
+                for marker in self.network_config.get(
+                    "expected_markers",
+                    NESSO_UNIFIED_MARKERS,
+                )
+            ]
+            checks = {
+                f"serial:{marker}": marker in serial
+                for marker in serial_markers
+            }
+            checks.update(
+                {
+                    f"peer:{marker}": marker in probe_log
+                    for marker in CORE2_HCI_PROBE_MARKERS
+                }
+            )
+
+            def data_check(
+                script: str,
+                path: Path,
+                *arguments: str,
+            ) -> dict:
+                if not path.is_file():
+                    return {
+                        "status": "NOT_RUN",
+                        "reason": f"{path.name} is missing",
+                    }
+                env = os.environ.copy()
+                env["PYTHONPATH"] = os.pathsep.join(
+                    filter(
+                        None,
+                        [
+                            str(ROOT / ".work/py"),
+                            env.get("PYTHONPATH", ""),
+                        ],
+                    )
+                )
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(TEST_TOOLS / script),
+                        str(path),
+                        *arguments,
+                    ],
+                    cwd=ROOT,
+                    env=env,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    check=False,
+                )
+                return {
+                    "status": "PASS" if result.returncode == 0 else "FAIL",
+                    "detail": result.stdout.strip(),
+                }
+
+            nec = data_check(
+                "check_rmt_nec.py",
+                self.rmt_capture,
+                "--address",
+                "0x56",
+                "--command",
+                "0xa3",
+            )
+            pcm = data_check(
+                "check_pcm.py",
+                self.speaker_pcm,
+                "--min-nonzero",
+                "1000",
+                "--min-peak-to-peak",
+                "1000",
+            )
+            checks["rmt:nec"] = nec["status"] == "PASS"
+            checks["pcm:buzzer"] = pcm["status"] == "PASS"
+            try:
+                frame = self.frame_metrics()
+                checks["frame:nonblank"] = frame["nonblack_pixels"] > 100
+            except ServiceError as error:
+                frame = {"error": error.message}
+                checks["frame:nonblank"] = False
+            if self.unified_frame_changed is not None:
+                checks["frame:touch_redraw"] = self.unified_frame_changed
+            if all(checks.values()):
+                status = "PASS"
+            elif serial.strip() or probe_log.strip():
+                status = "PARTIAL"
+            else:
+                status = "RUNNING" if self.state in ACTIVE_STATES else "FAIL"
+            rmt_bytes = (
+                self.rmt_capture.read_bytes()
+                if self.rmt_capture.is_file()
+                else b""
+            )
+            pcm_bytes = (
+                self.speaker_pcm.read_bytes()
+                if self.speaker_pcm.is_file()
+                else b""
+            )
+            ble_name, ble_payload = NESSO_BLE_IDENTITY
+            return {
+                "schema_version": 1,
+                "kind": "m5stack-nesso-board-hci-ble-qemu-proof",
+                "scope": "simulation-only-not-hardware-validation",
+                "status": status,
+                "session_id": self.id,
+                "device_id": self.spec.id,
+                "profile": profile,
+                "runtime": {
+                    "name": "qemu",
+                    "guest_process_count": 1,
+                    "console": "USB-Serial-JTAG",
+                    "hci_transport": "UART1 H4",
+                    "ble_controller": "Bumble",
+                    "ble_peer": "external Bumble peer",
+                    "display": "135x240",
+                    "wifi": "NOT RUN",
+                    "wifi_reason": (
+                        "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane"
+                    ),
+                },
+                "checks": checks,
+                "expected_markers": serial_markers,
+                "serial_bytes": len(serial.encode()),
+                "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
+                "peer_log_bytes": len(probe_log.encode()),
+                "peer_log_sha256": hashlib.sha256(
+                    probe_log.encode()
+                ).hexdigest(),
+                "frame": {
+                    key: value for key, value in frame.items() if key != "png"
+                },
+                "rmt": {
+                    "bytes": len(rmt_bytes),
+                    "sha256": (
+                        hashlib.sha256(rmt_bytes).hexdigest()
+                        if rmt_bytes
+                        else None
+                    ),
+                    "nec": nec,
+                },
+                "pcm": {
+                    "bytes": len(pcm_bytes),
+                    "sha256": (
+                        hashlib.sha256(pcm_bytes).hexdigest()
+                        if pcm_bytes
+                        else None
+                    ),
+                    "check": pcm,
+                },
+                "gatt": {
+                    "name": ble_name,
+                    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+                    "subscribe": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+                    "write": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+                    "payload": ble_payload,
+                    "notification": "ACK:" + ble_payload,
+                },
+                "not_claimed": [
+                    "real-hardware behavior",
+                    "WiFi on the QEMU ESP32-C6 machine",
+                    "native ESP32-C6 Bluetooth controller/radio model",
+                    "RF privacy, security, range or performance",
+                    "untrusted-firmware sandboxing",
+                ],
+            }
         if profile in UNIFIED_PROFILES:
             default_markers = UNIFIED_MARKERS[profile]
             ble_name, ble_payload = UNIFIED_BLE_IDENTITIES[self.spec.id]
@@ -2091,6 +2289,7 @@ class DeviceSession:
                     in {
                         CORE2_HCI_GATT_PROFILE,
                         NANOC6_HCI_BLE_PROFILE,
+                        NESSO_UNIFIED_PROFILE,
                         *UNIFIED_PROFILES,
                     }
                 ):
@@ -2174,11 +2373,14 @@ class DeviceSession:
         profile = self.network_config.get("profile")
         unified = profile in UNIFIED_PROFILES
         nanoc6_hci = profile == NANOC6_HCI_BLE_PROFILE
-        extended_exchange = unified or nanoc6_hci
+        c6_hci = nanoc6_hci or profile == NESSO_UNIFIED_PROFILE
+        extended_exchange = unified or c6_hci
         if unified:
             name_prefix, payload = UNIFIED_BLE_IDENTITIES[self.spec.id]
         elif nanoc6_hci:
             name_prefix, payload = NANOC6_BLE_IDENTITY
+        elif profile == NESSO_UNIFIED_PROFILE:
+            name_prefix, payload = NESSO_BLE_IDENTITY
         else:
             name_prefix = "M5-CORE2-HCI"
             payload = "M5_CORE2_HCI"
@@ -2193,7 +2395,7 @@ class DeviceSession:
                 ],
             )
         )
-        if nanoc6_hci:
+        if c6_hci:
             env["BLE_HCI_TRACE"] = "1"
         output = self.hci_probe_log.open("wb")
         try:
@@ -2435,6 +2637,62 @@ class DeviceSession:
         wait_for_serial("NANOC6_HCI_BUTTON_RELEASE")
         self._record_event("nanoc6_button_input", press=True, release=True)
 
+    def _exercise_nesso_unified(self) -> None:
+        def wait_for_serial(marker: str, timeout: float = 20) -> None:
+            deadline = time.time() + timeout
+            while time.time() < deadline:
+                if (
+                    self.serial0.is_file()
+                    and marker in self.serial0.read_text(errors="replace")
+                ):
+                    return
+                if self._proc is None or self._proc.poll() is not None:
+                    raise ServiceError(
+                        "session_exited",
+                        "Nesso QEMU exited before unified input injection",
+                        409,
+                    )
+                time.sleep(0.05)
+            raise ServiceError(
+                "ready_timeout",
+                f"Nesso serial marker timed out: {marker}",
+                408,
+            )
+
+        wait_for_serial("UNIFIED_NESSO_IO_CONFIG_READY", timeout=40)
+        for path, prop, value in (
+            ("/machine/nesso-bq27220", "battery-mv", 4300),
+            ("/machine/nesso-bq27220", "current-ma", 250),
+            ("/machine/nesso-bq27220", "battery-level", 96),
+            ("/machine/nesso-aw32001", "charging", True),
+            ("/machine/nesso-bmi270", "accel-x", 0.25),
+            ("/machine/nesso-bmi270", "accel-y", -0.50),
+            ("/machine/nesso-bmi270", "accel-z", 0.75),
+            ("/machine/nesso-bmi270", "gyro-x", 10),
+            ("/machine/nesso-bmi270", "gyro-y", -20),
+            ("/machine/nesso-bmi270", "gyro-z", 30),
+        ):
+            self._qmp_call(
+                "qom-set",
+                path=path,
+                property=prop,
+                value=value,
+            )
+        wait_for_serial("UNIFIED_NESSO_READY", timeout=60)
+        before = self.frame_metrics(force_persist=True)
+        send_input(self._qmp, "touch:67,175", (135, 240), 1.0)
+        send_input(self._qmp, "key:a", (135, 240), 0.8)
+        wait_for_serial("UNIFIED_NESSO_TOUCH")
+        wait_for_serial("UNIFIED_NESSO_BUTTON 1")
+        after = self.frame_metrics(force_persist=True)
+        self.unified_frame_changed = before["png"] != after["png"]
+        self._record_event(
+            "nesso_unified_input",
+            touch=True,
+            button=True,
+            frame_changed=self.unified_frame_changed,
+        )
+
     def _launch(self) -> None:
         assert self.virtual_flash is not None
         efuse = self.dir / "efuse.bin"
@@ -2466,6 +2724,7 @@ class DeviceSession:
             in {
                 CORE2_HCI_GATT_PROFILE,
                 NANOC6_HCI_BLE_PROFILE,
+                NESSO_UNIFIED_PROFILE,
                 *UNIFIED_PROFILES,
             }
         )
@@ -2484,7 +2743,7 @@ class DeviceSession:
             "-L", str(self.spec.rom_dir),
             "-display", "none",
         ]
-        if profile == NANOC6_HCI_BLE_PROFILE:
+        if profile in {NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE}:
             assert self.hci_port is not None
             command.extend(
                 [
@@ -2573,6 +2832,11 @@ class DeviceSession:
         if profile == NANOC6_HCI_BLE_PROFILE:
             env["M5SW_RMT_TX_FILE"] = str(self.rmt_capture)
             env["M5SW_RMT_TRACE"] = "1"
+        if profile == NESSO_UNIFIED_PROFILE:
+            env["M5SW_I2S_PCM_FILE"] = str(self.speaker_pcm)
+            env["M5SW_RMT_TX_FILE"] = str(self.rmt_capture)
+            env["M5SW_RMT_TRACE"] = "1"
+            env["M5SW_SX1262_TRACE"] = "1"
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
@@ -2599,6 +2863,8 @@ class DeviceSession:
         self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
         if profile == NANOC6_HCI_BLE_PROFILE:
             self._exercise_nanoc6_button()
+        elif profile == NESSO_UNIFIED_PROFILE:
+            self._exercise_nesso_unified()
         if profile == STACKCHAN_UNIFIED_PROFILE:
             self._apply_profile_qom(
                 "UNIFIED_STACKCHAN_IMU_CONFIG_READY",
@@ -3332,7 +3598,10 @@ class DeviceSession:
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
         if (
-            self.network_config.get("profile") in UNIFIED_PROFILES
+            (
+                self.network_config.get("profile") in UNIFIED_PROFILES
+                or self.network_config.get("profile") == NESSO_UNIFIED_PROFILE
+            )
             and self.speaker_pcm.is_file()
         ):
             pcm = self.speaker_pcm.read_bytes()
@@ -3363,13 +3632,19 @@ class DeviceSession:
                     "bytes": len(data),
                     "sha256": hashlib.sha256(data).hexdigest(),
                 }
-        if profile == NANOC6_HCI_BLE_PROFILE and self.rmt_capture.is_file():
-            data = self.rmt_capture.read_bytes()
-            files["rmt/capture.bin"] = data
-            manifest.setdefault("device_data", {})["rmt/capture.bin"] = {
-                "bytes": len(data),
-                "sha256": hashlib.sha256(data).hexdigest(),
-            }
+        if profile in {NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE}:
+            for name, path in (
+                ("rmt/capture.bin", self.rmt_capture),
+                ("pcm/buzzer.pcm", self.speaker_pcm),
+            ):
+                if not path.is_file():
+                    continue
+                data = path.read_bytes()
+                files[name] = data
+                manifest.setdefault("device_data", {})[name] = {
+                    "bytes": len(data),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                }
         if (
             "qom" in include
             and self.spec.service_kind == "qemu"
@@ -4597,6 +4872,12 @@ class DeviceService:
                 payload = dict(payload)
                 payload["ready_marker"] = "NANOC6_HCI_BLE_ACK_SENT"
             elif (
+                network_config.get("profile") == NESSO_UNIFIED_PROFILE
+                and payload.get("ready_marker") is None
+            ):
+                payload = dict(payload)
+                payload["ready_marker"] = "UNIFIED_NESSO_BLE_ACK_SENT"
+            elif (
                 network_config.get("profile") in UNIFIED_READY_MARKERS
                 and payload.get("ready_marker") is None
             ):
@@ -4779,6 +5060,18 @@ class DeviceService:
             if unified_s3 or unified_core2
             else "disabled"
         )
+        qemu_ble_devices = []
+        if CORE2_BLE_PROFILE in self.specs["core2"].network_profiles:
+            qemu_ble_devices.append("core2-experimental")
+        if NANOC6_HCI_BLE_PROFILE in self.specs["nanoc6"].network_profiles:
+            qemu_ble_devices.append("nanoc6-hci")
+        if NESSO_UNIFIED_PROFILE in self.specs["nesso-n1"].network_profiles:
+            qemu_ble_devices.append("nesso-hci")
+        qemu_ble = (
+            "enabled-" + "-".join(qemu_ble_devices)
+            if qemu_ble_devices
+            else "disabled"
+        )
         return {
             "max_sessions": self.max_sessions,
             "active_sessions": len(active),
@@ -4811,24 +5104,7 @@ class DeviceService:
                     in self.specs["core2"].network_profiles
                     else "disabled"
                 ),
-                "qemu-ble": (
-                    "enabled-core2-experimental-nanoc6-hci"
-                    if (
-                        CORE2_BLE_PROFILE
-                        in self.specs["core2"].network_profiles
-                        and NANOC6_HCI_BLE_PROFILE
-                        in self.specs["nanoc6"].network_profiles
-                    )
-                    else "enabled-nanoc6-hci"
-                    if (
-                        NANOC6_HCI_BLE_PROFILE
-                        in self.specs["nanoc6"].network_profiles
-                    )
-                    else "enabled-core2-experimental"
-                    if CORE2_BLE_PROFILE
-                    in self.specs["core2"].network_profiles
-                    else "disabled"
-                ),
+                "qemu-ble": qemu_ble,
                 "qemu-unified": qemu_unified,
                 "tab5": "enabled-partial",
                 "flash": "prepared-cache + exact artifact",

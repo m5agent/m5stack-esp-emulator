@@ -91,6 +91,18 @@ python3 tests/uiflow2/run_nanoc6_peripherals.py
 GPIO7 蓝色 LED。C6 后端通过 `M5SW_C6_BOARD=nanoc6` 与 Nesso N1 板级外设
 隔离，不再把 Nesso 的屏幕、SX1262 或强制 GPIO 状态挂到 NanoC6。
 
+Nesso N1 单 guest 联合探针：
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/unified_nesso/run_test.py \
+  --image /tmp/m5-nesso-unified.bin \
+  --out-dir /tmp/m5-nesso-unified
+```
+
+它同时运行 135x240 显示/触摸、PI4IOE、BQ27220/AW32001、BMI270、
+SX1262 回环、RMT IR、蜂鸣器 PCM 和 UART1 HCI BLE。C6 QEMU WiFi 与
+stock `hardware.RGB()` 不在该探针的 PASS 范围内。
+
 StackChan 的 IMU/AW9523/INA226/IR 联合探针：
 
 ```bash

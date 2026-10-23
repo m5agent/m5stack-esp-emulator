@@ -30,6 +30,11 @@
       "test": "tests/uiflow2/nanoc6_hci_ble/run_test.py",
       "evidence": "tests/uiflow2/nanoc6_hci_ble/evidence-2026-10-23.json"
     },
+    "nesso-unified": {
+      "device": "nesso-n1",
+      "test": "tests/uiflow2/unified_nesso/run_test.py",
+      "evidence": "tests/uiflow2/unified_nesso/evidence-2026-10-23.json"
+    },
     "sticks3-unified": {
       "device": "sticks3",
       "test": "tests/uiflow2/unified_sticks3/run_test.py",
@@ -307,6 +312,17 @@
     "nesso-ir": ["ir-tx-c6"],
     "nesso-lora": ["lora-sx1262", "pi4ioe5v6408"],
     "nesso-buzzer": ["i2s-buzzer-c6"],
+    "nesso-unified": [
+      "pi4ioe5v6408",
+      "bq27220",
+      "aw32001",
+      "touch-ft5x06",
+      "gpio-button",
+      "bmi270",
+      "lora-sx1262",
+      "ir-tx-c6",
+      "i2s-buzzer-c6"
+    ],
     "cardputer-zero-full": [
       "keyboard-tca8418",
       "m5ioe1",
@@ -592,6 +608,7 @@
         "nesso-lora",
         "nesso-buzzer"
       ],
+      "external": ["nesso-unified"],
       "models": [
         "bmi270",
         "lora-sx1262",

@@ -67,6 +67,10 @@ Implemented on 2026-10-22:
   direct runner and a Device Service lease close the Bumble NUS GATT exchange.
   C6 WiFi remains on the separate esp-emu lane because the QEMU machine has no
   C6 WiFi MAC/PHY data plane.
+- Nesso N1 now closes display/touch, PI4IOE rails/buttons, BQ27220/AW32001,
+  BMI270, SX1262 loopback, RMT IR, buzzer PCM and UART1 HCI BLE in one C6
+  guest. The direct runner and Device Service both retain unified evidence;
+  Nesso WiFi remains `NOT RUN` on the current QEMU C6 machine.
 
 Still open:
 

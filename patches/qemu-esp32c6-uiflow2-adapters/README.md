@@ -45,6 +45,8 @@ git apply /path/to/0005-c6-uart-timeout-registers.patch
 - NanoC6：官方 UIFlow2 v2.5.3 可启动自定义 `/boot.py`、`/main.py`，`M5.begin()` 返回板型 140；无显示屏。
 - NanoC6：C6 UART `TOUT_CONF`、FIFO reset、阈值寄存器按 C6 布局建模，
   UART1 HCI Reset/LE 命令可经 Bumble 回包并完成 NUS GATT 写与通知。
+- Nesso N1：同一 C6 guest 同时完成 ST7789/触摸、PI4IOE、电源遥测、
+  BMI270、SX1262 回环、RMT IR、蜂鸣器 PCM 和 UART1 HCI BLE。
 - NanoC6：`hardware.IR.tx()` 经 ESP32-C6 RMT 发送 NEC `0x56/0xA3`。
 - NanoC6：`hardware.RGB()` 打开 GPIO19 RGBPWR，GPIO20 WS2812 GRB 解码为
   `00ff00`；GPIO9 按下/释放、GPIO7 蓝灯开关均通过 GPIO 寄存器验证。

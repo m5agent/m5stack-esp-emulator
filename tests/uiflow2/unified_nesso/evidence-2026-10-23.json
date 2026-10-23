@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "nesso-n1",
+  "profile": "nesso-board-hci-ble",
+  "terminal": "complete",
+  "consecutive_passes": 3,
+  "runs": [
+    {
+      "serial_sha256": "0138f1ef0eafe5fd7f1796a36a1f58d1f1eeaef03893e02cc268a0e4bedc9bb2",
+      "peer_log_sha256": "4bcd9c7af063180b761558784c62640bdb0c7f095d66185f2952bacc3530fca0"
+    },
+    {
+      "serial_sha256": "0138f1ef0eafe5fd7f1796a36a1f58d1f1eeaef03893e02cc268a0e4bedc9bb2",
+      "peer_log_sha256": "a37cde01629ea3ed078b3efa0db41fe63cea000297bb3f67865d1ead37011d5e"
+    },
+    {
+      "serial_sha256": "0138f1ef0eafe5fd7f1796a36a1f58d1f1eeaef03893e02cc268a0e4bedc9bb2",
+      "peer_log_sha256": "acbdfc6532c8ec2e6466e96b919e82b5e685394ebc47ff1ae1813d11d0ecca25"
+    }
+  ],
+  "firmware": {
+    "path": "/private/tmp/m5-nesso-unified-v3.bin",
+    "bytes": 16777216,
+    "sha256": "9638cd4d678979da99a62f7122d312df98b48e80a6e9f7306360fe8f67c59c92"
+  },
+  "checks": {
+    "serial:UNIFIED_NESSO_BOARD 23": true,
+    "serial:UNIFIED_NESSO_DISPLAY 135 240": true,
+    "serial:UNIFIED_NESSO_IO_CONFIG_READY": true,
+    "serial:UNIFIED_NESSO_POWER 100 4300 1": true,
+    "serial:UNIFIED_NESSO_IMU 0.25 -0.50 0.75 10.0 -20.0 30.0": true,
+    "serial:UNIFIED_NESSO_LORA M5LORA": true,
+    "serial:UNIFIED_NESSO_IR 0x56 0xA3": true,
+    "serial:UNIFIED_NESSO_BUZZER 3500": true,
+    "serial:UNIFIED_NESSO_BLE_READY": true,
+    "serial:UNIFIED_NESSO_READY": true,
+    "serial:UNIFIED_NESSO_TOUCH": true,
+    "serial:UNIFIED_NESSO_BUTTON 1": true,
+    "serial:UNIFIED_NESSO_BLE_RX": true,
+    "serial:UNIFIED_NESSO_BLE_ACK_SENT": true,
+    "peer:BLE_BUMBLE_FOUND": true,
+    "peer:BLE_BUMBLE_CONNECTED": true,
+    "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
+    "peer:BLE_BUMBLE_SUBSCRIBED": true,
+    "peer:BLE_BUMBLE_WRITE": true,
+    "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
+    "peer:BLE_BUMBLE_PASS": true,
+    "frame:nonblank": true,
+    "frame:touch_redraw": true,
+    "rmt:nec": true,
+    "pcm:buzzer": true
+  },
+  "frame": {
+    "size": [135, 240],
+    "before_nonblack": 6126,
+    "before_unique_colors": 16,
+    "after_nonblack": 7423,
+    "after_unique_colors": 17,
+    "changed": true
+  },
+  "rmt": {
+    "bytes": 136,
+    "sha256": "e49369575476368a1349d721e15ce957c7b5a4712c6d4bd90b51ee956c58a597",
+    "nec": {
+      "status": "PASS",
+      "detail": "PASS NEC offset=0 address=0x56 command=0xa3"
+    }
+  },
+  "pcm": {
+    "bytes": 230400,
+    "sha256": "9102c986a651365f9ecf90cf7ac3acaa90f7eedb6e38905dc3afb93d8a47f43e",
+    "check": {
+      "status": "PASS",
+      "detail": "PCM bytes=230400 samples=115200 nonzero=61725 peak_to_peak=65535"
+    }
+  },
+  "serial_bytes": 884,
+  "serial_sha256": "0138f1ef0eafe5fd7f1796a36a1f58d1f1eeaef03893e02cc268a0e4bedc9bb2",
+  "peer_log_bytes": 4499,
+  "peer_log_sha256": "4bcd9c7af063180b761558784c62640bdb0c7f095d66185f2952bacc3530fca0",
+  "network": {
+    "wifi": "NOT RUN",
+    "wifi_reason": "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane",
+    "ble": "PASS via UART1 HCI offload",
+    "rgb": "NOT RUN",
+    "rgb_reason": "stock Nesso UIFlow2 hardware.RGB() returns None"
+  },
+  "device_service": {
+    "profile": "nesso-unified",
+    "status": "PASS",
+    "guest_process_count": 1,
+    "evidence_zip_sha256": "c884baa1e88c485b274182bb407af12db2331452c64c8c61e4f3b466a6c099d0"
+  },
+  "gatt": {
+    "name": "M5-NESSO-UNIFIED",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_NESSO_UNIFIED",
+    "notification": "ACK:M5_NESSO_UNIFIED"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "WiFi on the QEMU ESP32-C6 machine",
+    "native ESP32-C6 Bluetooth controller/radio model",
+    "RF privacy, security, range or performance",
+    "Nesso UIFlow2 RGB API behavior"
+  ]
+}

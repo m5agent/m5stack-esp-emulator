@@ -428,9 +428,9 @@
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-21",
-        "status": "display-touch-power-io-ir-imu-lora-buzzer-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, both PI4IOE expanders, BQ27220/AW32001, C6 RMT NEC 0x56/0xA3, BMI270 accel/gyro, SX1262 LoRa TX/RX and the GPIO11 1-bit delta-sigma I2S buzzer all pass through their controller and chip data planes."
+        "date": "2026-10-23",
+        "status": "display-touch-power-io-ir-imu-lora-buzzer-hci-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, both PI4IOE expanders, BQ27220/AW32001, C6 RMT NEC 0x56/0xA3, BMI270 accel/gyro, SX1262 LoRa TX/RX, GPIO11 1-bit delta-sigma I2S buzzer and UART1 HCI BLE NUS pass in one QEMU C6 guest. C6 QEMU WiFi and stock hardware.RGB() remain NOT RUN."
       }
     },
     {
