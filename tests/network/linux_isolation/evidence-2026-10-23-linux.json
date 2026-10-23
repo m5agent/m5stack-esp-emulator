@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-linux-network-namespace-proof",
+  "scope": "virtual-device-network-isolation-not-hardware-rf",
+  "status": "PASS",
+  "duration_seconds": 34.454,
+  "firmware": {
+    "bytes": 8388608,
+    "sha256": "9c12fe83013c0e735b2af0f7f3ef28299cee43118404fed3bb08db005fa59bdf"
+  },
+  "qemu": {
+    "version_target": "xtensa-softmmu",
+    "sha256": "22c84199187d47ebbe3bd66073583d2d8f042d60e974c4f4d9d549564cdb7290"
+  },
+  "checks": {
+    "private_namespace": true,
+    "no_external_route": true,
+    "wifi_dhcp": true,
+    "controlled_http": true,
+    "public_dns_denied": true,
+    "guest_ready": true,
+    "controlled_http_request": true,
+    "dhcp": true,
+    "dns_query_observed": true,
+    "dns_response_denied": true,
+    "no_external_destination": true,
+    "pcap_written": true
+  },
+  "isolation": {
+    "schema_version": 1,
+    "platform": "linux",
+    "private_network_namespace": true,
+    "interfaces": [
+      "erspan0",
+      "gre0",
+      "gretap0",
+      "ip6_vti0",
+      "ip6gre0",
+      "ip6tnl0",
+      "ip_vti0",
+      "lo",
+      "sit0",
+      "tunl0"
+    ],
+    "external_route": false,
+    "egress": "deny-all",
+    "dns": "deny"
+  },
+  "http_requests": [
+    {
+      "path": "/unified",
+      "host": "qemu.test"
+    }
+  ],
+  "packet_capture": {
+    "schema_version": 1,
+    "kind": "m5stack-pcap-summary",
+    "status": "PASS",
+    "scope": "capture-summary-not-rf-validation",
+    "input": {
+      "bytes": 7871,
+      "sha256": "8a02ca41ba7256d1d45ba700b387a4e904f0ae11faab2d898329e0417835c17a"
+    },
+    "format": "pcap",
+    "linktype": 1,
+    "packets": 65,
+    "truncated_records": 0,
+    "malformed_records": 0,
+    "protocols": {
+      "UDP": 23,
+      "ARP": 11,
+      "IGMP": 2,
+      "TCP": 10,
+      "ICMP": 19
+    },
+    "flows_truncated": false,
+    "dns": {
+      "queries": [
+        "example.com.",
+        "uiflow2.m5stack.com.",
+        "mpy-esp32s3.local.",
+        "ntp.aliyun.com."
+      ],
+      "responses": [],
+      "malformed": 0,
+      "names_included": true
+    },
+    "dhcp": {
+      "packets": 4,
+      "requests": 2,
+      "replies": 2,
+      "guest_addresses": [
+        "10.0.2.15"
+      ]
+    },
+    "arp_packets": 11,
+    "egress_destinations": [
+      {
+        "address": "255.255.255.255",
+        "port": 67,
+        "scope": "broadcast",
+        "protocols": [
+          "UDP"
+        ],
+        "packets": 2
+      },
+      {
+        "address": "255.255.255.255",
+        "port": 68,
+        "scope": "broadcast",
+        "protocols": [
+          "UDP"
+        ],
+        "packets": 2
+      },
+      {
+        "address": "224.0.0.251",
+        "port": null,
+        "scope": "multicast",
+        "protocols": [
+          "IGMP"
+        ],
+        "packets": 2
+      },
+      {
+        "address": "224.0.0.251",
+        "port": 5353,
+        "scope": "multicast",
+        "protocols": [
+          "UDP"
+        ],
+        "packets": 6
+      },
+      {
+        "address": "10.0.2.2",
+        "port": 18080,
+        "scope": "private",
+        "protocols": [
+          "TCP"
+        ],
+        "packets": 5
+      },
+      {
+        "address": "10.0.2.3",
+        "port": 53,
+        "scope": "private",
+        "protocols": [
+          "UDP"
+        ],
+        "packets": 13
+      }
+    ],
+    "not_claimed": [
+      "packet payload contents",
+      "TLS plaintext",
+      "real-hardware RF behavior",
+      "malware safety"
+    ],
+    "pcap_version": "2.4"
+  },
+  "artifacts": {
+    "serial.log": {
+      "bytes": 1830,
+      "sha256": "b28cecec68716c0e87cdce2cefa7704978870b9b2611db1af116ce773ea1bcd5"
+    },
+    "http.json": {
+      "bytes": 60,
+      "sha256": "433e57d90c4c099243a3c4b26aa2323db4a4b9aa08af136ce867e2331039f139"
+    },
+    "network.pcap": {
+      "bytes": 7871,
+      "sha256": "8a02ca41ba7256d1d45ba700b387a4e904f0ae11faab2d898329e0417835c17a"
+    },
+    "isolation.json": {
+      "bytes": 314,
+      "sha256": "814ef87718c8476e133e997d9fa0616006dce46e9e3f1803cf17d9aa437f9db7"
+    }
+  },
+  "not_claimed": [
+    "real-hardware RF behavior",
+    "WPA2 or WPA3 security",
+    "TLS certificate correctness",
+    "malicious-firmware safety",
+    "external egress allowlists"
+  ]
+}

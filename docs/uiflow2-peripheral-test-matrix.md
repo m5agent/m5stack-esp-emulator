@@ -103,12 +103,13 @@ StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 
 configured cases   67
 configured checks  274
 last clean full     67 cases / 274 checks PASS
-last full run       2026-10-23 16:55 +08:00
+last full run       2026-10-23 19:31 +08:00
 ```
 
 最近一次干净的全量运行包含 S3 QIO read-phase 修复后的新 QEMU 二进制，
-67/67 用例、274/274 检查全部通过。Core2 的间歇 cache/PSRAM 启动问题仍是
-独立风险；重试通过不能视为稳定性修复。
+67/67 用例、274/274 检查全部通过。Core2 后续新增确定性 TCG/icount 调度，
+统一 probe 10/10 次无重试首轮 PASS；该结果不等同于物理 cache/PSRAM 时序
+验证。
 
 NanoC6 无显示屏，额外使用 `run_nanoc6_peripherals.py` 验证 RGB、按键和蓝灯，
 不计入上述需要截图的 peripheral matrix 统计。上述汇总来自全量矩阵运行；

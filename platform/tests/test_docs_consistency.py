@@ -19,6 +19,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/unified-device-runtime.md",
             "docs/device-service-api.md",
             "docs/device-service.openapi.yaml",
+            "docs/code-map.md",
+            "docs/firmware-manifest.md",
             "docs/network-simulation-plan.md",
             "docs/network-lane.md",
         ):
@@ -61,6 +63,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "CoreS3's stock UIFlow2 board initialization still needs separate",
             "same-instance board + WiFi model only if later required",
             "network simulation has not yet been integrated",
+            "network namespaces and packet capture",
+            "连续 3/3 首轮 PASS",
+            "cache/WDT startup instability remains a known simulation-only blocker",
         ):
             self.assertNotIn(stale, active)
 
@@ -73,6 +78,14 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "runtime=qemu-unified",
             (DOCS / "unified-device-runtime.md").read_text(),
+        )
+        self.assertIn(
+            "docs/code-map.md",
+            (ROOT / "README.md").read_text(),
+        )
+        self.assertIn(
+            "## P0 收口",
+            status,
         )
 
     def test_api_versions_match(self) -> None:

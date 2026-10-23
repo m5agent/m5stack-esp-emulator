@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import sys
+import unittest
+from pathlib import Path
+from unittest import mock
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "platform/tools"))
+
+from network_policy import (  # noqa: E402
+    NetworkPolicy,
+    NetworkPolicyError,
+    build_sandbox_command,
+    namespace_capability,
+    qemu_user_netdev,
+)
+
+
+class NetworkPolicyTests(unittest.TestCase):
+    def test_default_policy_preserves_trusted_host_behavior(self):
+        policy = NetworkPolicy.from_mapping(None)
+        self.assertEqual(policy.isolation, "trusted-host")
+        self.assertEqual(policy.egress, "native")
+        self.assertEqual(
+            qemu_user_netdev(nic="misc.esp32s3.wifi", policy=policy),
+            "user,model=misc.esp32s3.wifi,id=wifi0",
+        )
+        self.assertIn(
+            "malware safety",
+            policy.evidence()["not_claimed"],
+        )
+
+    def test_isolated_lab_only_reaches_loopback_fixture_without_restrict(self):
+        policy = NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "lab-only",
+                "dns": "deny",
+            }
+        )
+        self.assertEqual(policy.isolation, "namespace")
+        self.assertEqual(policy.egress, "lab-only")
+        self.assertEqual(
+            qemu_user_netdev(nic="misc.esp32c6.wifi", policy=policy),
+            "user,model=misc.esp32c6.wifi,id=wifi0",
+        )
+        deny = NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "deny-all",
+                "dns": "deny",
+            }
+        )
+        self.assertEqual(
+            qemu_user_netdev(nic="misc.esp32c6.wifi", policy=deny),
+            "user,restrict=yes,model=misc.esp32c6.wifi,id=wifi0",
+        )
+
+    def test_rejects_unsafe_or_incomplete_policies(self):
+        for value in (
+            {"isolation": "container"},
+            {"isolation": "trusted-host", "egress": "deny-all"},
+            {"isolation": "namespace", "egress": "deny-all", "dns": "slirp"},
+            {"isolation": "namespace", "egress": "allowlist"},
+        ):
+            with self.subTest(value=value):
+                with self.assertRaises(NetworkPolicyError):
+                    NetworkPolicy.from_mapping(value)
+
+    def test_namespace_builder_fails_closed(self):
+        with mock.patch(
+            "network_policy.namespace_capability",
+            return_value={
+                "status": "UNAVAILABLE",
+                "checks": {},
+                "errors": ["network namespace isolation requires Linux"],
+            },
+        ):
+            with self.assertRaisesRegex(
+                NetworkPolicyError,
+                "requires Linux",
+            ):
+                build_sandbox_command(
+                    ["qemu-system-xtensa"],
+                    config_path=Path("/tmp/sandbox.json"),
+                )
+        self.assertIn("linux", namespace_capability()["checks"])
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

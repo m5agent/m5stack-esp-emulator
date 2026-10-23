@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Status: local MVP with unified-device runtime contract `1.5.0` and bounded
+Status: local MVP with unified-device runtime contract `1.6.0` and bounded
 storage retention implemented on `2026-10-23`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -33,6 +33,9 @@ Current scope:
   and last-known evidence are restored from each session directory after a
   service restart;
 - evidence: serial/QEMU logs remain under the configured state directory.
+  QEMU radio sessions add pcap summaries, network policy evidence and a
+  link-fault control for reconnect tests; versioned firmware manifests add
+  capability/security preflight.
 - storage: stopped/failed history is bounded by age, count and bytes; session
   Flash files are released after stop unless explicitly retained, and
   unreferenced artifact/firmware/prepared-flash caches are garbage-collected.
@@ -241,6 +244,55 @@ Segmented image:
 Offsets may be integers or `0x` strings. Segments cannot overlap or exceed the
 target device flash size.
 
+Versioned manifest:
+
+```json
+{
+  "device_id": "sticks3",
+  "kind": "manifest",
+  "manifest": {
+    "schema_version": 1,
+    "kind": "m5stack-firmware-manifest",
+    "artifact": {
+      "kind": "merged-flash",
+      "file": "firmware-flash.bin",
+      "artifact_id": "<normalized-image-sha256>",
+      "size": 8388608,
+      "sha256": "<normalized-image-sha256>"
+    },
+    "target": {"soc": "esp32s3", "flash_size": 8388608},
+    "security": {
+      "secure_boot": "unknown",
+      "flash_encryption": "unknown",
+      "efuse": "not-included"
+    },
+    "provenance": {
+      "importer": "m5stack-firmware-manifest/1",
+      "source_format": "merged-bin"
+    },
+    "validation": {"status": "PASS", "errors": [], "warnings": []}
+  }
+}
+```
+
+Use the manifest importer to normalize an M5Burner `.bin`/sidecar, a
+WebBurner `manifest.json` part list, a `.zip`, or an ESP-IDF
+`flasher_args.json` package:
+
+```bash
+python3 platform/tools/firmware_manifest.py /path/to/package \
+  --out-dir /tmp/m5-firmware-manifest --print summary
+```
+
+The schema is
+[`platform/tools/firmware_manifest.schema.json`](../platform/tools/firmware_manifest.schema.json).
+The importer pads sparse images to the complete virtual flash, prohibits
+archive path traversal, records hashes/provenance and keeps unknown security
+state as `unknown` rather than claiming it disabled. When a target device is
+known, required capabilities, chip, flash and PSRAM are checked. The service
+returns HTTP `409 unsupported_firmware_capability` with `issues[]`; a model gap
+must not be reported as a firmware crash.
+
 ```http
 POST /api/v1/firmware
 Content-Type: application/json
@@ -280,7 +332,34 @@ runtime name alone; use the profile matrix below.
 `runtime=network` runs S3/C6 firmware through the separate `esp-emu` lane. It
 does not expose framebuffer, input, QOM or same-instance board state, so its
 result cannot be combined with another session to claim a complete-device
-PASS.
+PASS. It also rejects `capture_pcap=true`: `esp-emu` user networking has no
+Ethernet capture interface. Use a QEMU radio runtime for pcap evidence.
+
+QEMU radio sessions capture Ethernet traffic by default through QEMU
+`filter-dump`. After stop, `GET /sessions/{id}/network` contains
+`packet_capture` with flow endpoints, DNS names, DHCP/ARP counts, egress scope
+and payload SHA256 values; raw payloads are not copied into the summary.
+Evidence ZIPs include `network/capture.pcap` and
+`network/pcap-summary.json`.
+
+`network.policy` provides a fail-closed isolation envelope:
+
+```json
+{
+  "policy": {
+    "isolation": "namespace",
+    "egress": "lab-only",
+    "dns": "deny"
+  }
+}
+```
+
+`isolation=namespace` is Linux-only. The service creates a private network
+namespace, rejects any external route and starts the
+controlled HTTP/BLE peers inside the same namespace. If namespace creation is
+not permitted, the session fails with `network_isolation_unavailable` instead
+of falling back to host networking. `egress=lab-only` permits only the
+namespace-local fixture; external DNS and TCP are intentionally unavailable.
 
 Use `runtime=qemu-wifi` with `network.profile=uiflow2-sticks3-wifi` for a
 StickS3 application that needs the board framebuffer, input and public
@@ -307,13 +386,15 @@ classic ESP32 WiFi and Bluetooth models. The canonical combined path is
 
 This is the same QEMU instance as the Core2 board lane, so framebuffer, serial,
 QMP and QOM remain available while the stock WiFi driver runs. The model uses
-the fixed test AP `myssid` and QEMU user networking. `attempts` retries the
-known intermittent Core2 cache panic only when it occurs before readiness.
+the fixed test AP `myssid` and QEMU user networking. Core2 radio QEMU uses
+deterministic `tcg,thread=single` plus `icount` scheduling; `attempts` remains
+a diagnostic retry setting, but retries are not used as evidence that a failed
+first attempt was repaired.
 The input must already be a complete, flash-sized merged image. The service
 validates its SHA256, bootloader, partition table, app partitions and ESP32 chip
 ID, then mounts that exact copy as the QEMU MTD drive without invoking esptool.
 A partial image is rejected instead of being silently padded in this lane.
-This runtime remains `unverified` in the catalog and is not enabled without the
+This runtime remains environment-gated and is not enabled without the
 environment-selected patched QEMU.
 
 The BLE controller bootstrap uses the same QEMU instance and guest UART/frame/
@@ -427,12 +508,14 @@ UART1 instance:
 
 The image uses the Core2 HCI-UART build, QEMU `-m 0`, `misc.esp32_wifi`,
 UART1 H4, a Bumble controller/peer and a controlled HTTP endpoint on port
-`18089`. QOM is written while the guest runs because QMP stop/continue during
-early Core2 setup reproducibly triggered the interrupt-watchdog cache crash.
+`18089`. QOM is written while the guest runs.
 The profile exercises display/touch, AXP2101, INA3221, MPU6886, PCF8563,
-NS4168 speaker, SPM1423 microphone, WiFi DHCP/HTTP and external BLE NUS in
-one guest. It remains simulation-only and does not eliminate the wider Core2
-cache startup boundary.
+NS4168 speaker, SPM1423 microphone, WiFi DHCP/HTTP, public IPv4 DNS/HTTP and
+external HCI-offload BLE NUS in one guest. Ten independent first attempts
+passed 10/10 with no retry under deterministic TCG/icount scheduling. This is
+simulation-only evidence and is not equivalent to physical cache/PSRAM timing.
+The native ESP32 Bluetooth controller still has no external radio/controller
+model; HCI-offload is not native-controller evidence.
 
 The StickS3 unified profile closes WiFi and BLE in that same instance:
 
@@ -804,6 +887,7 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | GET | `/api/v1/sessions/{id}` | Session status |
 | GET | `/api/v1/sessions/{id}/events` | Lifecycle event timeline |
 | GET | `/api/v1/sessions/{id}/network` | Machine-readable network/BLE evidence |
+| POST | `/api/v1/sessions/{id}/network-fault` | Set the QEMU `wifi0` link down/up for reconnect tests |
 | GET | `/api/v1/sessions/{id}/device-state` | Live or last-known normalized device state |
 | POST | `/api/v1/sessions/{id}/wait` | Wait for serial/frame readiness; `wait_for_completion=true` waits for a one-shot network session to finish |
 | GET | `/api/v1/sessions/{id}/evidence` | Download a hashed evidence ZIP |
@@ -918,6 +1002,24 @@ curl -sS -H 'Content-Type: application/json' \
 Use the returned `snapshot_id` values with the corresponding `diff` endpoint.
 Flash snapshot diff reports changed byte count and contiguous ranges, not a
 second full-size image.
+
+### Network fault and reconnect evidence
+
+```bash
+curl -sS -H 'Content-Type: application/json' -d '{"action":"down"}' \
+  http://127.0.0.1:8787/api/v1/sessions/$SID/network-fault
+
+sleep 2
+
+curl -sS -H 'Content-Type: application/json' -d '{"action":"up"}' \
+  http://127.0.0.1:8787/api/v1/sessions/$SID/network-fault
+```
+
+The action invokes QMP `set_link` on `wifi0` and records a `network_fault`
+timeline event. A reconnect PASS needs guest-side DHCP/data-plane evidence
+after link restoration; the link command alone is not a PASS. The retained
+StickS3 probe also performs a guest WLAN disconnect and HTTP `/before` and
+`/after` requests, yielding a pcap with the full before/after exchange.
 
 ### Read serial incrementally
 
@@ -1108,7 +1210,9 @@ restart.
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;
-- Core2 still has the known intermittent cache panic;
+- Core2 startup starvation is mitigated by deterministic TCG/icount scheduling
+  (10/10 first attempts), but physical cache/PSRAM equivalence and the native
+  Bluetooth controller remain unverified;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See
   [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);

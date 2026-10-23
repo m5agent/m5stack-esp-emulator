@@ -207,6 +207,96 @@ class DeviceServiceUnitTests(unittest.TestCase):
             8 << 20,
         )
 
+    def test_manifest_firmware_is_validated_and_recorded(self):
+        data = b"\xe9" + b"M" * 1023
+        artifact = self.service.upload_artifact(data)
+        manifest = {
+            "schema_version": 1,
+            "kind": "m5stack-firmware-manifest",
+            "device_id": "sticks3",
+            "artifact": {
+                "kind": "merged-flash",
+                "file": "firmware.bin",
+                "artifact_id": artifact["artifact_id"],
+                "size": len(data),
+                "sha256": artifact["sha256"],
+            },
+            "target": {
+                "soc": "esp32s3",
+                "chip_id": 9,
+                "flash_size": 8 << 20,
+                "psram_size": 8 << 20,
+                "partition_table": {},
+                "application": None,
+            },
+            "security": {
+                "secure_boot": "unknown",
+                "flash_encryption": "unknown",
+                "efuse": "not-included",
+                "secure_version": 0,
+            },
+            "provenance": {
+                "importer": "test",
+                "source_format": "merged-bin",
+            },
+            "resources": {},
+            "capabilities": {
+                "required": ["wifi"],
+                "optional": [],
+            },
+            "validation": {
+                "status": "PASS",
+                "errors": [],
+                "warnings": [],
+            },
+        }
+        manifest["manifest_id"] = device_service_module.canonical_json_sha256(
+            manifest
+        )
+        firmware = self.service.create_firmware(
+            {
+                "device_id": "sticks3",
+                "kind": "manifest",
+                "manifest": manifest,
+            }
+        )
+        self.assertEqual(firmware["kind"], "manifest")
+        self.assertEqual(
+            firmware["manifest_id"],
+            manifest["manifest_id"],
+        )
+        self.assertEqual(
+            firmware["source"]["artifact_id"],
+            artifact["artifact_id"],
+        )
+        self.assertEqual(firmware["size"], 8 << 20)
+
+        rejected = json.loads(json.dumps(manifest))
+        rejected["capabilities"]["required"] = ["camera"]
+        rejected["manifest_id"] = device_service_module.canonical_json_sha256(
+            {
+                key: value
+                for key, value in rejected.items()
+                if key != "manifest_id"
+            }
+        )
+        with self.assertRaises(ServiceError) as caught:
+            self.service.create_firmware(
+                {
+                    "device_id": "sticks3",
+                    "kind": "manifest",
+                    "manifest": rejected,
+                }
+            )
+        self.assertEqual(
+            caught.exception.code,
+            "unsupported_firmware_capability",
+        )
+        self.assertEqual(
+            caught.exception.extra["issues"][0]["code"],
+            "unsupported_capability",
+        )
+
     def test_qemu_wifi_network_result_refreshes_before_stop(self):
         spec = self.service.specs["sticks3"]
         firmware = Path(self.tmp.name) / "sticks3-wifi.bin"
@@ -395,6 +485,176 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "qemu_unified_not_supported",
         )
 
+    def test_qemu_radio_capture_defaults_on_and_can_be_disabled(self):
+        captured = device_service_module.parse_qemu_ble_execution(
+            self.service.specs["sticks3"],
+            {"profile": "uiflow2-sticks3-unified"},
+            runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+        )
+        self.assertTrue(captured["capture_pcap"])
+        disabled = device_service_module.parse_qemu_ble_execution(
+            self.service.specs["sticks3"],
+            {
+                "profile": "uiflow2-sticks3-unified",
+                "capture_pcap": False,
+            },
+            runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+        )
+        self.assertFalse(disabled["capture_pcap"])
+        with self.assertRaises(ServiceError) as invalid:
+            device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                {"capture_pcap": "yes"},
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(invalid.exception.code, "invalid_network")
+
+        options = device_service_module.qemu_pcap_options(
+            Path("/tmp/session/network.pcap")
+        )
+        self.assertEqual(options[0], "-object")
+        self.assertIn("filter-dump", options[1])
+        self.assertIn("netdev=wifi0", options[1])
+        self.assertIn("file=/tmp/session/network.pcap", options[1])
+
+    def test_network_namespace_policy_requires_linux_and_is_recorded(self):
+        request = {
+            "profile": "uiflow2-sticks3-unified",
+            "policy": {
+                "isolation": "namespace",
+                "egress": "lab-only",
+                "dns": "deny",
+            },
+        }
+        with (
+            mock.patch.object(
+                device_service_module,
+                "namespace_capability",
+                return_value={
+                    "status": "UNAVAILABLE",
+                    "checks": {},
+                    "errors": ["requires Linux"],
+                },
+            ),
+            self.assertRaises(ServiceError) as unavailable,
+        ):
+            device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                request,
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(
+            unavailable.exception.code,
+            "network_isolation_unavailable",
+        )
+        with mock.patch.object(
+            device_service_module,
+            "namespace_capability",
+            return_value={"status": "PASS", "checks": {}, "errors": []},
+        ):
+            parsed = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                request,
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(parsed["policy"]["isolation"], "namespace")
+        self.assertEqual(parsed["policy"]["egress"], "lab-only")
+        self.assertEqual(parsed["policy"]["dns"], "deny")
+        self.assertTrue(parsed["capture_pcap"])
+
+    def test_capture_summary_is_written_after_qemu_stops(self):
+        spec = self.service.specs["sticks3"]
+        firmware = Path(self.tmp.name) / "capture-firmware.bin"
+        firmware.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="7" * 32,
+            spec=spec,
+            firmware_id="8" * 64,
+            firmware_path=firmware,
+            firmware_sha="8" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker=None,
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-wifi",
+            network_config={
+                "profile": "uiflow2-sticks3-wifi",
+                "nic": "misc.esp32s3.wifi",
+                "net_mode": "user",
+                "capture_pcap": True,
+                "expected_markers": [],
+                "attempts": 1,
+            },
+        )
+        session.network_pcap.write_bytes(
+            b"\xd4\xc3\xb2\xa1"
+            + struct.pack("<HHiIII", 2, 4, 0, 0, 262144, 1)
+        )
+        summary = session._finalize_network_capture()
+        self.assertEqual(summary["status"], "PASS")
+        self.assertEqual(summary["packets"], 0)
+        self.assertTrue(session.network_pcap_summary.is_file())
+        self.assertEqual(
+            session._network_capture_evidence()["format"],
+            "pcap",
+        )
+
+    def test_qemu_network_fault_uses_set_link_action(self):
+        spec = self.service.specs["sticks3"]
+        firmware = Path(self.tmp.name) / "fault-firmware.bin"
+        firmware.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="9" * 32,
+            spec=spec,
+            firmware_id="a" * 64,
+            firmware_path=firmware,
+            firmware_sha="a" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker=None,
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-wifi",
+            network_config={
+                "profile": "uiflow2-sticks3-wifi",
+                "nic": "misc.esp32s3.wifi",
+                "net_mode": "user",
+            },
+        )
+        with mock.patch.object(
+            session,
+            "_qmp_execute",
+            return_value={"return": {}},
+        ) as execute:
+            down = session.network_fault({"action": "down"})
+            up = session.network_fault({"action": "up"})
+        self.assertFalse(down["network_fault"]["up"])
+        self.assertTrue(up["network_fault"]["up"])
+        self.assertEqual(
+            execute.call_args_list,
+            [
+                mock.call(
+                    "set_link",
+                    {"name": "wifi0", "up": False},
+                ),
+                mock.call(
+                    "set_link",
+                    {"name": "wifi0", "up": True},
+                ),
+            ],
+        )
+        with self.assertRaises(ServiceError) as invalid:
+            session.network_fault({"action": "cycle"})
+        self.assertEqual(
+            invalid.exception.code,
+            "invalid_network_fault",
+        )
+
     def test_network_profile_requires_supported_chip_and_elf(self):
         with self.assertRaises(ServiceError) as core2:
             device_service_module.parse_network_execution(
@@ -421,12 +681,31 @@ class DeviceServiceUnitTests(unittest.TestCase):
             {"profile": "esp-idf-http"},
         )
         self.assertEqual(c6["psram_size"], "0")
+        wrong_password = device_service_module.parse_network_execution(
+            self.service.specs["sticks3"],
+            {"profile": "esp-idf-wrong-password"},
+        )
+        self.assertTrue(wrong_password["wifi"])
+        self.assertFalse(wrong_password["ble"])
+        self.assertFalse(wrong_password["tcp"])
         generic = device_service_module.parse_network_execution(
             self.service.specs["sticks3"],
             {
                 "profile": "generic-observe",
                 "expected_markers": ["APP_READY"],
             },
+        )
+        with self.assertRaises(ServiceError) as pcap_unsupported:
+            device_service_module.parse_network_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "generic-observe",
+                    "capture_pcap": True,
+                },
+            )
+        self.assertEqual(
+            pcap_unsupported.exception.code,
+            "pcap_not_supported",
         )
         self.assertEqual(generic["expected_markers"], ["APP_READY"])
         self.assertEqual(generic["net_mode"], "user,restrict=yes")
@@ -1987,6 +2266,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session.serial0.write_text(
             "UNIFIED_CORE2_WIFI_CONNECTED 10.0.2.15\n"
             "UNIFIED_CORE2_HTTP_PASS\n"
+            "UNIFIED_CORE2_PUBLIC_DNS 198.18.0.86\n"
+            "UNIFIED_CORE2_PUBLIC_HTTP_PASS\n"
             "UNIFIED_CORE2_BLE_RX b'M5_CORE2_UNIFIED'\n"
             "UNIFIED_CORE2_BLE_ACK_SENT\n"
             "UNIFIED_CORE2_READY\n"
@@ -2938,6 +3219,8 @@ class DeviceServiceHttpTests(unittest.TestCase):
             document = response.read()
             self.assertIn(b"openapi: 3.1.0", document)
             self.assertIn(b"qemu-unified", document)
+            self.assertIn(b"ManifestFirmwareRequest", document)
+            self.assertIn(b"network-fault", document)
 
     def test_storage_stats_and_manual_prune(self):
         status, storage = self.request("/api/v1/storage")

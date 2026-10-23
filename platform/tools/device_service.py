@@ -60,7 +60,21 @@ from firmware_analysis import (  # noqa: E402
     expected_chip_id,
     parse_partition_table,
 )
+from firmware_manifest import (  # noqa: E402
+    canonical_json_sha256,
+    load_device_profile,
+    validate_capabilities,
+    validate_manifest_structure,
+)
 from network_lane import normalize_hostfwd, normalize_i2c_device  # noqa: E402
+from network_policy import (  # noqa: E402
+    NetworkPolicy,
+    NetworkPolicyError,
+    build_sandbox_command,
+    namespace_capability,
+    qemu_user_netdev,
+)
+from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
@@ -101,6 +115,7 @@ NETWORK_PROFILES = {
     "esp-idf-http",
     "esp-idf-smoke",
     "idf-dns-udp",
+    "esp-idf-wrong-password",
     "esp-idf-coex",
     "generic-observe",
 }
@@ -141,6 +156,7 @@ UNIFIED_PROFILES = {
     CORE2_UNIFIED_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
+    STICKS3_WIFI_PROFILE: 18080,
     NANOC6_HCI_BLE_PROFILE: 18090,
     NESSO_UNIFIED_PROFILE: 18091,
     STICKS3_UNIFIED_PROFILE: 18080,
@@ -269,6 +285,8 @@ STAMPLC_UNIFIED_MARKERS = (
 CORE2_UNIFIED_MARKERS = (
     "UNIFIED_CORE2_WIFI_CONNECTED",
     "UNIFIED_CORE2_HTTP_PASS",
+    "UNIFIED_CORE2_PUBLIC_DNS",
+    "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
     "UNIFIED_CORE2_BLE_RX",
     "UNIFIED_CORE2_BLE_ACK_SENT",
 )
@@ -299,6 +317,7 @@ UNIFIED_READY_MARKERS = {
     CORE2_UNIFIED_PROFILE: "UNIFIED_CORE2_READY",
 }
 UNIFIED_HTTP_BODIES = {
+    STICKS3_WIFI_PROFILE: b"STICKS3_WIFI_OK\n",
     NANOC6_HCI_BLE_PROFILE: b"UNIFIED_NANOC6_OK\n",
     NESSO_UNIFIED_PROFILE: b"UNIFIED_NESSO_OK\n",
     STICKS3_UNIFIED_PROFILE: b"UNIFIED_STICKS3_OK\n",
@@ -405,6 +424,39 @@ def parse_size(value: str | None) -> tuple[int, int] | None:
         return None
 
 
+def parse_capture_pcap(value: Any, *, default: bool = True) -> bool:
+    if value is None:
+        return default
+    if not isinstance(value, bool):
+        raise ServiceError(
+            "invalid_network",
+            "network.capture_pcap must be a boolean",
+            400,
+        )
+    return value
+
+
+def parse_network_policy(value: Any) -> NetworkPolicy:
+    try:
+        return NetworkPolicy.from_mapping(value)
+    except NetworkPolicyError as error:
+        raise ServiceError(
+            "invalid_network_policy",
+            str(error),
+            400,
+        ) from error
+
+
+def qemu_pcap_options(path: Path, *, netdev: str = "wifi0") -> list[str]:
+    return [
+        "-object",
+        (
+            f"filter-dump,id=netdump,netdev={netdev},"
+            f"file={path},maxlen=262144"
+        ),
+    ]
+
+
 def atomic_write_json(path: Path, payload: Any) -> None:
     """Write JSON without exposing a partially-written session record."""
 
@@ -492,6 +544,11 @@ def parse_network_execution(
         "esp-idf-http": {"wifi": True, "ble": False, "tcp": True},
         "esp-idf-smoke": {"wifi": True, "ble": True, "tcp": False},
         "idf-dns-udp": {"wifi": True, "ble": False, "tcp": False},
+        "esp-idf-wrong-password": {
+            "wifi": True,
+            "ble": False,
+            "tcp": False,
+        },
         "esp-idf-coex": {"wifi": True, "ble": True, "tcp": False},
         "uiflow2-sticks3": {"wifi": False, "ble": True, "tcp": False},
         "generic-observe": {"wifi": True, "ble": False, "tcp": False},
@@ -505,6 +562,17 @@ def parse_network_execution(
             "invalid_network",
             "network.net_mode must be 'user' or 'user,restrict=yes'",
             400,
+        )
+    capture_pcap = parse_capture_pcap(
+        value.get("capture_pcap"),
+        default=False,
+    )
+    if capture_pcap:
+        raise ServiceError(
+            "pcap_not_supported",
+            "runtime=network uses esp-emu user networking, which does not "
+            "expose an Ethernet pcap; use runtime=qemu-unified",
+            409,
         )
     raw_hostfwd = value.get("hostfwd", [])
     if not isinstance(raw_hostfwd, list) or len(raw_hostfwd) > 8:
@@ -727,6 +795,7 @@ def parse_network_execution(
         "hostfwd": hostfwd,
         "console_mode": console_mode,
         "i2c_devices": i2c_devices,
+        "capture_pcap": False,
     }
 
 
@@ -808,6 +877,20 @@ def parse_qemu_wifi_execution(
             "network.attempts must be an integer from 1 to 10",
             400,
         )
+    policy = parse_network_policy(value.get("policy"))
+    if (
+        policy.isolation == "namespace"
+        and namespace_capability()["status"] != "PASS"
+    ):
+        raise ServiceError(
+            "network_isolation_unavailable",
+            "network namespace isolation is unavailable on this runtime",
+            503,
+        )
+    capture_pcap = parse_capture_pcap(
+        value.get("capture_pcap"),
+        default=policy.capture_pcap,
+    )
     if spec.id == "core2":
         core2_radio_qemu_path()
     return {
@@ -816,6 +899,8 @@ def parse_qemu_wifi_execution(
         "nic": nic,
         "expected_markers": expected_markers,
         "attempts": attempts,
+        "capture_pcap": capture_pcap,
+        "policy": policy.evidence(),
     }
 
 
@@ -922,12 +1007,28 @@ def parse_qemu_ble_execution(
             "network.attempts must be an integer from 1 to 10",
             400,
         )
+    policy = parse_network_policy(value.get("policy"))
+    if (
+        policy.isolation == "namespace"
+        and namespace_capability()["status"] != "PASS"
+    ):
+        raise ServiceError(
+            "network_isolation_unavailable",
+            "network namespace isolation is unavailable on this runtime",
+            503,
+        )
+    capture_pcap = parse_capture_pcap(
+        value.get("capture_pcap"),
+        default=policy.capture_pcap,
+    )
     if spec.id == "core2":
         core2_radio_qemu_path()
     return {
         "profile": profile,
         "expected_markers": expected_markers,
         "attempts": attempts,
+        "capture_pcap": capture_pcap,
+        "policy": policy.evidence(),
         "nic": (
             "misc.esp32_wifi"
             if spec.id == "core2"
@@ -1412,10 +1513,115 @@ class FirmwareStore:
                 intervals.append((offset, end))
                 source_segments.append({"offset": offset, "artifact_id": artifact_id})
             source = {"kind": "segmented", "segments": source_segments}
+        elif kind == "manifest":
+            manifest = payload.get("manifest")
+            structure_errors = validate_manifest_structure(manifest)
+            if structure_errors:
+                raise ServiceError(
+                    "invalid_firmware_manifest",
+                    "; ".join(structure_errors),
+                    400,
+                )
+            manifest_device = manifest.get("device_id")
+            if manifest_device not in {None, device_id}:
+                raise ServiceError(
+                    "firmware_device_mismatch",
+                    (
+                        f"manifest targets {manifest_device!r}, "
+                        f"not {device_id!r}"
+                    ),
+                    409,
+                )
+            manifest_id = manifest.get("manifest_id")
+            if manifest_id:
+                expected_manifest_id = canonical_json_sha256(
+                    {
+                        key: value
+                        for key, value in manifest.items()
+                        if key not in {"manifest_id", "created_at"}
+                    }
+                )
+                if manifest_id != expected_manifest_id:
+                    raise ServiceError(
+                        "firmware_manifest_id_mismatch",
+                        "manifest_id does not match canonical manifest content",
+                        409,
+                    )
+            artifact_record = manifest["artifact"]
+            if artifact_record.get("kind") != "merged-flash":
+                raise ServiceError(
+                    "unsupported_manifest_artifact",
+                    (
+                        "Device Service manifest creation currently "
+                        "requires a normalized merged-flash artifact"
+                    ),
+                    400,
+                )
+            artifact_id = artifact_record.get("artifact_id")
+            if not artifact_id:
+                artifact_id = artifact_record.get("sha256")
+            data = self.artifacts.read(artifact_id)
+            data_sha256 = hashlib.sha256(data).hexdigest()
+            if data_sha256 != artifact_record.get("sha256"):
+                raise ServiceError(
+                    "firmware_sha256_mismatch",
+                    "manifest artifact hash does not match uploaded artifact",
+                    409,
+                )
+            if len(data) != artifact_record.get("size"):
+                raise ServiceError(
+                    "firmware_size_mismatch",
+                    "manifest artifact size does not match uploaded artifact",
+                    409,
+                )
+            if manifest["target"]["flash_size"] != spec.flash_size:
+                raise ServiceError(
+                    "flash_size_mismatch",
+                    (
+                        f"manifest flash size {manifest['target']['flash_size']} "
+                        f"does not match device flash {spec.flash_size}"
+                    ),
+                    409,
+                )
+            if len(data) > spec.flash_size:
+                raise ServiceError(
+                    "firmware_too_large",
+                    f"firmware is {len(data)} bytes; device flash is {spec.flash_size}",
+                    413,
+                )
+            profile = load_device_profile(device_id)
+            if profile is None:
+                raise ServiceError(
+                    "unknown_device",
+                    f"no compatibility profile for {device_id}",
+                    400,
+                )
+            compatibility = validate_capabilities(manifest, profile)
+            manifest_errors = list(
+                manifest.get("validation", {}).get("errors", [])
+            )
+            if (
+                compatibility["status"] != "PASS"
+                or manifest.get("validation", {}).get("status") != "PASS"
+            ):
+                raise ServiceError(
+                    "unsupported_firmware_capability",
+                    "firmware requires capabilities unavailable in the target profile",
+                    409,
+                    issues=manifest_errors + compatibility["errors"],
+                )
+            image[: len(data)] = data
+            intervals.append((0, len(data)))
+            source = {
+                "kind": "manifest",
+                "manifest_id": manifest.get("manifest_id"),
+                "artifact_id": artifact_id,
+                "compatibility": compatibility,
+            }
         else:
             raise ServiceError(
                 "unsupported_firmware_kind",
-                "kind must be 'merged' or 'segmented'",
+                "kind must be 'merged', 'segmented' or 'manifest'",
                 400,
             )
 
@@ -1431,6 +1637,14 @@ class FirmwareStore:
             "size": len(image_bytes),
             "kind": kind,
             "source": source,
+            **(
+                {
+                    "manifest": manifest,
+                    "manifest_id": manifest.get("manifest_id"),
+                }
+                if kind == "manifest"
+                else {}
+            ),
             "header_magic": image_bytes[0],
             "created_at": iso_now(),
         }
@@ -1474,6 +1688,17 @@ class FirmwareStore:
             "firmware_id": firmware_id,
             "device_id": record["device_id"],
             "device_chip": spec.soc,
+            **(
+                {
+                    "manifest_id": record.get("manifest_id"),
+                    "manifest": record.get("manifest"),
+                    "compatibility": record.get("source", {}).get(
+                        "compatibility"
+                    ),
+                }
+                if record.get("kind") == "manifest"
+                else {}
+            ),
             **result,
         }
         analysis_path = self.root / f"{firmware_id}.analysis.json"
@@ -1665,6 +1890,8 @@ class DeviceSession:
         self.stderr_path = self.dir / "qemu.stderr"
         self.hci_probe_log = self.dir / "ble-probe.log"
         self.http_fixture_log = self.dir / "http-fixture.json"
+        self.network_pcap = self.dir / "network.pcap"
+        self.network_pcap_summary = self.dir / "network.pcap.json"
         self.speaker_pcm = self.dir / "speaker.pcm"
         self.microphone_source_pcm = self.dir / "microphone-source.pcm"
         self.rmt_source = self.dir / "nec-source.rmt"
@@ -1826,6 +2053,8 @@ class DeviceSession:
         self.error = self.error or f"process exited with code {returncode}"
         self.completed_at = self.completed_at or iso_now()
         self._record_event("process_exited", returncode=returncode)
+        if self.runtime in QEMU_RADIO_RUNTIMES:
+            self._finalize_network_capture()
         if not self.service.storage_policy.retain_session_flash:
             self._release_virtual_flash()
         self._persist_session()
@@ -2405,8 +2634,70 @@ class DeviceSession:
             ],
         }
 
+    def _finalize_network_capture(self) -> dict | None:
+        if not self.network_config.get("capture_pcap", False):
+            return None
+        if not self.network_pcap.is_file():
+            return None
+        try:
+            summary = summarize_pcap(self.network_pcap)
+        except (OSError, PcapError) as error:
+            failure = {
+                "schema_version": 1,
+                "kind": "m5stack-pcap-summary",
+                "status": "FAIL",
+                "reason": str(error),
+                "capture": {
+                    "bytes": self.network_pcap.stat().st_size,
+                    "sha256": hashlib.sha256(
+                        self.network_pcap.read_bytes()
+                    ).hexdigest(),
+                },
+            }
+            atomic_write_json(self.network_pcap_summary, failure)
+            self._record_event(
+                "network_capture_summary_failed",
+                error=str(error),
+            )
+            return failure
+        summary = {
+            "status": "PASS",
+            **summary,
+        }
+        atomic_write_json(self.network_pcap_summary, summary)
+        self._record_event(
+            "network_capture_summarized",
+            packets=summary.get("packets", 0),
+            capture_sha256=summary.get("input", {}).get("sha256"),
+        )
+        return summary
+
+    def _network_capture_evidence(self) -> dict:
+        if not self.network_config.get("capture_pcap", False):
+            return {
+                "status": "NOT_RUN",
+                "reason": "network.capture_pcap is disabled",
+            }
+        if self.network_pcap_summary.is_file():
+            try:
+                return json.loads(self.network_pcap_summary.read_text())
+            except (OSError, json.JSONDecodeError):
+                pass
+        if self.network_pcap.is_file():
+            return {
+                "status": "CAPTURING",
+                "bytes": self.network_pcap.stat().st_size,
+            }
+        return {
+            "status": "NOT_RUN",
+            "reason": "capture file has not been created",
+        }
+
     def network_evidence(self) -> dict:
         evidence = self._build_network_evidence()
+        if self.network_config.get("policy"):
+            evidence["policy"] = self.network_config["policy"]
+        evidence["packet_capture"] = self._network_capture_evidence()
         previous = self.network_result or {}
         self.network_result = evidence
         if (
@@ -2456,6 +2747,8 @@ class DeviceSession:
                 self._record_event("failed", error=str(error))
                 self._persist_session()
             self._terminate_process()
+            if self.runtime in QEMU_RADIO_RUNTIMES:
+                self._finalize_network_capture()
 
     def _provision_qemu_radio(self, clean_flash: Path) -> None:
         attempts = int(self.network_config.get("attempts", 5))
@@ -2517,6 +2810,8 @@ class DeviceSession:
                     self.hci_probe_log,
                     self.stdout_path,
                     self.stderr_path,
+                    self.network_pcap,
+                    self.network_pcap_summary,
                 ):
                     if path.is_file():
                         path.replace(
@@ -2560,7 +2855,7 @@ class DeviceSession:
             408,
         )
 
-    def _launch_hci_probe(self) -> None:
+    def _hci_probe_command(self) -> tuple[list[str], dict[str, str]]:
         if not BLE_PROBE.is_file():
             raise RuntimeError(f"BLE probe is missing: {BLE_PROBE}")
         profile = self.network_config.get("profile")
@@ -2590,30 +2885,35 @@ class DeviceSession:
         )
         if c6_hci:
             env["BLE_HCI_TRACE"] = "1"
+        command = [
+            sys.executable,
+            str(BLE_PROBE),
+            "--port",
+            str(self.hci_port),
+            "--name-prefix",
+            name_prefix,
+            "--payload",
+            payload,
+            "--subscribe",
+            "--expect-notification-prefix",
+            "ACK:",
+            "--notification-timeout",
+            "15" if extended_exchange else "10",
+            "--timeout",
+            "40" if extended_exchange else "25",
+            "--write-delay",
+            "2" if extended_exchange else "1",
+            "--linger",
+            "20" if unified else "15",
+        ]
+        return command, env
+
+    def _launch_hci_probe(self) -> None:
+        command, env = self._hci_probe_command()
         output = self.hci_probe_log.open("wb")
         try:
             self._hci_probe = subprocess.Popen(
-                [
-                    sys.executable,
-                    str(BLE_PROBE),
-                    "--port",
-                    str(self.hci_port),
-                    "--name-prefix",
-                    name_prefix,
-                    "--payload",
-                    payload,
-                    "--subscribe",
-                    "--expect-notification-prefix",
-                    "ACK:",
-                    "--notification-timeout",
-                    "15" if extended_exchange else "10",
-                    "--timeout",
-                    "40" if extended_exchange else "25",
-                    "--write-delay",
-                    "2" if extended_exchange else "1",
-                    "--linger",
-                    "20" if unified else "15",
-                ],
+                command,
                 cwd=ROOT,
                 env=env,
                 stdout=output,
@@ -2911,6 +3211,10 @@ class DeviceSession:
             else self.spec.qemu
         )
         profile = self.network_config.get("profile")
+        policy = NetworkPolicy.from_mapping(
+            self.network_config.get("policy")
+        )
+        isolated = policy.isolation == "namespace"
         hci_gatt = (
             self.runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}
             and profile
@@ -2921,9 +3225,14 @@ class DeviceSession:
                 *UNIFIED_PROFILES,
             }
         )
-        if hci_gatt:
+        ble_probe_command: list[str] | None = None
+        ble_probe_env: dict[str, str] = {}
+        if hci_gatt and not isolated:
             self._launch_hci_probe()
-        if unified:
+        elif hci_gatt:
+            ble_probe_command, ble_probe_env = self._hci_probe_command()
+        http_profile = unified or profile == STICKS3_WIFI_PROFILE
+        if http_profile and not isolated:
             self._launch_http_fixture()
         if profile == STACKCHAN_UNIFIED_PROFILE:
             self._prepare_stackchan_peripheral_inputs()
@@ -2936,6 +3245,15 @@ class DeviceSession:
             "-L", str(self.spec.rom_dir),
             "-display", "none",
         ]
+        if core2_radio:
+            command.extend(
+                [
+                    "-accel",
+                    "tcg,thread=single",
+                    "-icount",
+                    "shift=auto,align=off,sleep=off",
+                ]
+            )
         if profile in {NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE}:
             assert self.hci_port is not None
             command.extend(
@@ -2993,9 +3311,13 @@ class DeviceSession:
             command.extend(
                 [
                     "-nic",
-                    f"user,model={nic},id=wifi0",
+                    qemu_user_netdev(nic=nic, policy=policy),
                 ]
             )
+            if self.network_config.get("capture_pcap", False):
+                self.network_pcap.unlink(missing_ok=True)
+                self.network_pcap_summary.unlink(missing_ok=True)
+                command.extend(qemu_pcap_options(self.network_pcap))
         if self.spec.efuse_driver != "none":
             command.extend(
                 [
@@ -3030,11 +3352,62 @@ class DeviceSession:
             env["M5SW_RMT_TX_FILE"] = str(self.rmt_capture)
             env["M5SW_RMT_TRACE"] = "1"
             env["M5SW_SX1262_TRACE"] = "1"
+        launch_command = command
+        if isolated:
+            sandbox_config: dict[str, Any] = {
+                "policy": policy.evidence(),
+            }
+            if http_profile:
+                http_body = UNIFIED_HTTP_BODIES.get(profile)
+                http_port = UNIFIED_HTTP_PORTS.get(profile)
+                if http_body is None or http_port is None:
+                    raise ServiceError(
+                        "http_fixture_failed",
+                        f"no controlled HTTP port for profile {profile}",
+                        500,
+                    )
+                sandbox_config["http"] = {
+                    "port": http_port,
+                    "body": http_body.decode(),
+                    "log": str(self.http_fixture_log),
+                }
+            if hci_gatt:
+                assert ble_probe_command is not None
+                sandbox_config["ble_probe"] = {
+                    "command": ble_probe_command,
+                    "log": str(self.hci_probe_log),
+                    "ready_marker": "BLE_PROBE_READY",
+                    "ready_timeout_seconds": 10,
+                    "env": {
+                        key: value
+                        for key, value in ble_probe_env.items()
+                        if key == "BLE_HCI_TRACE"
+                    },
+                }
+            sandbox_config_path = self.dir / "network-sandbox.json"
+            atomic_write_json(sandbox_config_path, sandbox_config)
+            try:
+                launch_command = build_sandbox_command(
+                    command,
+                    config_path=sandbox_config_path,
+                )
+            except NetworkPolicyError as error:
+                raise ServiceError(
+                    "network_isolation_unavailable",
+                    str(error),
+                    503,
+                ) from error
+            self._record_event(
+                "network_sandbox_started",
+                isolation=policy.isolation,
+                egress=policy.egress,
+                dns=policy.dns,
+            )
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
             self._proc = subprocess.Popen(
-                command,
+                launch_command,
                 cwd=ROOT,
                 env=env,
                 stdout=stdout,
@@ -3099,6 +3472,50 @@ class DeviceSession:
                     "qmp_timeout" if timeout else "qmp_error",
                     f"QMP command {'timed out' if timeout else 'failed'}: {error}",
                     504 if timeout else 503,
+                ) from error
+
+    def _qmp_execute(self, name: str, arguments: dict):
+        """Execute a QMP command whose argument names collide with Python."""
+
+        with self._lock:
+            if (
+                self._proc is None
+                or self._proc.poll() is not None
+            ):
+                raise ServiceError(
+                    "session_not_running",
+                    "device process is not running",
+                    409,
+                )
+            if self._qmp is None:
+                self._qmp = wait_qmp(self.qmp_path, timeout=5)
+                self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+            try:
+                self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+                request = {
+                    "execute": name,
+                    "arguments": arguments,
+                }
+                self._qmp.sock.sendall(
+                    (json.dumps(request) + "\n").encode()
+                )
+                while True:
+                    reply = json.loads(self._qmp.readline())
+                    if "event" in reply:
+                        continue
+                    if "error" in reply:
+                        raise RuntimeError(reply["error"])
+                    return reply
+            except (OSError, RuntimeError, ValueError) as error:
+                try:
+                    self._qmp.close()
+                except OSError:
+                    pass
+                self._qmp = None
+                raise ServiceError(
+                    "qmp_error",
+                    f"QMP command failed: {error}",
+                    503,
                 ) from error
 
     def wait_for_marker(self, marker: str, timeout: float) -> dict:
@@ -3514,6 +3931,47 @@ class DeviceSession:
             )
         return {"session_id": self.id, "qom_set": result}
 
+    def network_fault(self, payload: dict) -> dict:
+        action = payload.get("action")
+        if action not in {"down", "up"}:
+            raise ServiceError(
+                "invalid_network_fault",
+                "network fault action must be down or up",
+                400,
+            )
+        if self.runtime not in QEMU_RADIO_RUNTIMES:
+            raise ServiceError(
+                "network_fault_not_supported",
+                "network link fault injection requires a QEMU radio runtime",
+                409,
+            )
+        if not self.network_config:
+            raise ServiceError(
+                "network_fault_not_supported",
+                "session has no QEMU network profile",
+                409,
+            )
+        up = action == "up"
+        result = self._qmp_execute(
+            "set_link",
+            {"name": "wifi0", "up": up},
+        )
+        self._record_event(
+            "network_fault",
+            action=action,
+            netdev="wifi0",
+            up=up,
+        )
+        return {
+            "session_id": self.id,
+            "network_fault": {
+                "action": action,
+                "netdev": "wifi0",
+                "up": up,
+                "qmp_result": result.get("return"),
+            },
+        }
+
     def qom_get(self, path: str, prop: str) -> dict:
         with self._lock:
             result = self._qmp_call("qom-get", path=path, property=prop)
@@ -3877,6 +4335,12 @@ class DeviceSession:
                 json.dumps(network_payload, ensure_ascii=False, indent=2) + "\n"
             ).encode()
             manifest["network"] = network_payload
+            if self.network_pcap.is_file():
+                files["network/capture.pcap"] = self.network_pcap.read_bytes()
+            if self.network_pcap_summary.is_file():
+                files["network/pcap-summary.json"] = (
+                    self.network_pcap_summary.read_bytes()
+                )
         if self.virtual_flash and self.virtual_flash.is_file():
             flash_data = self.virtual_flash.read_bytes()
             manifest["flash"] = {
@@ -3990,6 +4454,8 @@ class DeviceSession:
         with self._lock:
             if self.state in {"stopped", "failed"}:
                 self._terminate_process()
+                if self.runtime in QEMU_RADIO_RUNTIMES:
+                    self._finalize_network_capture()
                 if not purge and not retain_flash:
                     self._release_virtual_flash()
                 result = self.snapshot()
@@ -4018,6 +4484,9 @@ class DeviceSession:
                 except (OSError, RuntimeError):
                     pass
             self._terminate_process()
+            if self.runtime in QEMU_RADIO_RUNTIMES:
+                self._finalize_network_capture()
+                self.network_result = self.network_evidence()
             if self.runtime == "network":
                 evidence = self.network_evidence()
                 if evidence.get("status") != "RUNNING":
@@ -4866,6 +5335,10 @@ class DeviceService:
                     spec.network_status == "validated"
                     and bool(spec.network_profiles)
                 ),
+                "network_capture": (
+                    spec.network_status == "validated"
+                    and spec.service_kind == "qemu"
+                ),
             },
             "network_profiles": list(spec.network_profiles),
             "network_console": spec.network_console,
@@ -5081,7 +5554,7 @@ class DeviceService:
             firmware_source = firmware.get("source", {})
             source_artifacts = (
                 [firmware_source["artifact_id"]]
-                if firmware_source.get("kind") == "merged"
+                if firmware_source.get("kind") in {"merged", "manifest"}
                 and firmware_source.get("artifact_id")
                 else [
                     segment["artifact_id"]

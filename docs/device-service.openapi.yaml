@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.5.0
+  version: 1.6.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -185,6 +185,7 @@ paths:
               oneOf:
                 - $ref: "#/components/schemas/MergedFirmwareRequest"
                 - $ref: "#/components/schemas/SegmentedFirmwareRequest"
+                - $ref: "#/components/schemas/ManifestFirmwareRequest"
       responses:
         "201":
           description: Firmware metadata
@@ -398,6 +399,33 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NetworkEvidence"
+        "409":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/network-fault:
+    post:
+      summary: Inject a QEMU link fault for reconnect tests
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  enum: [down, up]
+                  description: Sets the QEMU wifi0 backend link state through QMP set_link.
+      responses:
+        "200":
+          description: Link state changed
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
         "409":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/device-state:
@@ -958,6 +986,16 @@ components:
           type: object
           additionalProperties:
             type: boolean
+        policy:
+          type: object
+          additionalProperties: true
+          description: Effective isolation, egress and DNS policy.
+        packet_capture:
+          type: object
+          additionalProperties: true
+          description: >
+            PASS with a hashed pcap summary, CAPTURING while QEMU is running,
+            or NOT_RUN with a reason.
         expected_markers:
           type: array
           items:
@@ -1013,6 +1051,24 @@ components:
                   - type: string
               artifact_id:
                 type: string
+    ManifestFirmwareRequest:
+      type: object
+      required: [device_id, kind, manifest]
+      properties:
+        device_id:
+          type: string
+        kind:
+          const: manifest
+        manifest:
+          type: object
+          additionalProperties: true
+          required: [schema_version, kind, artifact, target, security, provenance, validation]
+          description: >
+            Versioned m5stack-firmware-manifest. The normalized merged-flash
+            artifact must already be uploaded; artifact.artifact_id defaults to
+            artifact.sha256 when omitted. Capability, flash-size and security
+            mismatches return unsupported_firmware_capability with structured
+            issues instead of starting a session.
     Firmware:
       type: object
       additionalProperties: true
@@ -1076,7 +1132,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe]
         wifi:
           type: boolean
         ble:
@@ -1177,6 +1233,34 @@ components:
             BMI270, SX1262, IR, buzzer, QEMU ESP32-C6 WiFi DHCP/HTTP and
             UART1 HCI BLE in one ESP32-C6 guest; the stock UIFlow2 RGB API is
             explicitly NOT RUN.
+        capture_pcap:
+          type: boolean
+          default: true
+          description: >
+            Capture QEMU Ethernet traffic through filter-dump. runtime=network
+            rejects true because esp-emu user networking exposes no pcap path.
+            Stopping the session writes network.pcap.json with flow, DNS, DHCP,
+            ARP and payload hashes but no raw payloads.
+        policy:
+          type: object
+          additionalProperties: false
+          description: >
+            Fail-closed network policy. namespace isolation is Linux-only and
+            refuses to start if a private network namespace cannot be created.
+            The sandbox exposes loopback lab fixtures and no external route.
+          properties:
+            isolation:
+              type: string
+              enum: [trusted-host, namespace]
+              default: trusted-host
+            egress:
+              type: string
+              enum: [native, deny-all, lab-only]
+              default: native
+            dns:
+              type: string
+              enum: [slirp, deny]
+              default: slirp
         console_mode:
           type: string
           enum: [auto, uart0, usb-jtag]
@@ -1204,8 +1288,9 @@ components:
           maximum: 10
           default: 5
           description: >
-            Core2 QEMU WiFi startup attempts. The existing intermittent Core2
-            cache panic can occur before WiFi activation.
+            Core2 QEMU startup attempts. Core2 radio runs use deterministic
+            TCG/icount scheduling; retries remain available for diagnostics but
+            are not evidence that a failed first attempt was repaired.
         i2c_devices:
           type: array
           maxItems: 32

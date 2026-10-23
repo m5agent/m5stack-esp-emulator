@@ -386,6 +386,7 @@ def build_emulator_command(
         command.append("--no-panic-intercept")
     exit_marker = {
         "esp-idf-http": "HTTP_TPUT_RESULT",
+        "esp-idf-wrong-password": "HTTP_TPUT_RESULT",
         "esp-idf-smoke": "RESULT_SUMMARY",
         "idf-dns-udp": "DNS_UDP_RESULT",
     }.get(config.profile)
@@ -656,6 +657,32 @@ def check_dns_udp_evidence(
     }
     return checks, {
         "dns_address": dns_match.group(1) if dns_match else "",
+    }
+
+
+def check_wrong_password_evidence(serial: str) -> dict[str, bool]:
+    attempts = len(
+        re.findall(r"wifi:state:\s*init\s*->\s*auth", serial)
+    )
+    rejections = len(
+        re.findall(
+            r"wifi:state:\s*auth\s*->\s*init\s*\(0x600\)",
+            serial,
+        )
+    )
+    return {
+        "auth_attempted": attempts >= 1,
+        "wrong_password_rejected": rejections >= 1,
+        "retry_observed": attempts >= 2 and rejections >= 2,
+        "no_dhcp_lease": "got ip:" not in serial.lower(),
+        "no_http_progress": "HTTP_TPUT:" not in serial,
+        "failure_marker": (
+            "HTTP_TPUT_RESULT: FAILED" in serial
+            and "no IP" in serial
+        ),
+        "softap_wrong_password_warning": (
+            "wrong password" in serial.lower()
+        ),
     }
 
 
@@ -961,6 +988,9 @@ def execute(config: LaneConfig) -> dict:
             serial,
             udp_server.datagrams if udp_server else [],
         )
+    elif config.profile == "esp-idf-wrong-password":
+        checks = check_wrong_password_evidence(serial)
+        values = {}
     elif config.profile == "generic-observe":
         checks = check_generic_evidence(
             serial,
@@ -1090,6 +1120,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "esp-idf-http",
             "esp-idf-smoke",
             "idf-dns-udp",
+            "esp-idf-wrong-password",
             "esp-idf-coex",
             "generic-observe",
         ),

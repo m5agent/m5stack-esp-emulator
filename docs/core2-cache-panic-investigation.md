@@ -1,7 +1,52 @@
 # Core2 intermittent cache-panic investigation
 
-Status: **open**. This is an emulator/runtime stability issue, not a
+Status: **mitigated for virtual-device runs; physical/hardware equivalence
+remains open**. This is an emulator scheduling/runtime issue, not a
 peripheral-data failure.
+
+## 2026-10-23 update
+
+The earlier label "cache panic" was too specific. A fresh failure was captured
+after `UNIFIED_CORE2_IO_CONFIG_READY` with both CPUs in:
+
+```text
+esp_cpu_wait_for_intr
+esp_pm_impl_waiti
+esp_vApplicationIdleHook
+prvIdleTask
+Guru Meditation Error: Core 1 panic'ed (Interrupt wdt timeout on CPU1)
+```
+
+The QEMU cache illegal-access callback was not entered. The failed run had no
+retry, no QOM pause and no QEMU `-m 0` retry masking. `-accel
+tcg,thread=single` alone still reproduced the failure. Adding deterministic
+icount scheduling:
+
+```text
+-accel tcg,thread=single
+-icount shift=auto,align=off,sleep=off
+```
+
+then passed 10 independent first attempts, 10/10, with no retry. Every run
+covered board peripherals, WiFi DHCP, controlled HTTP, public IPv4 DNS/HTTP,
+UIFlow2 touch/audio and external HCI-offload BLE NUS in the same guest.
+
+This strongly points to virtual timer/interrupt starvation while vCPUs are
+idle under the default TCG virtual-clock execution model. It also explains the
+historic `PANIC_RSN_CACHEERR` classification: the high-interrupt handler could
+select that pseudo-cause without entering the QEMU cache trap callback.
+
+What this does **not** prove:
+
+- physical ESP32 cache/PSRAM timing is equivalent;
+- every Core2 firmware/configuration is stable;
+- icount timing matches real silicon;
+- the native ESP32 Bluetooth controller is modeled.
+
+Do not remove the deterministic runtime options or replace them with
+unconditional high retry counts. A future failure with these options should
+preserve the exact serial/QMP/QEMU configuration and be treated as a new
+blocker.
 
 ## Symptom
 
@@ -55,25 +100,22 @@ one six-run focused reproduction hit it once.
 
 ## Current mitigation
 
-- Core2 peripheral cases use `-m 0` and have retries enabled.
-- The harness preserves the failed serial attempt and only marks the case
-  PASS after a subsequent attempt succeeds.
-- The retry is a test-harness mitigation, not a claim that the cache bug is
-  fixed.
+- Raw Core2 peripheral cases use `-m 0`.
+- Radio/unified Core2 runs use `tcg,thread=single` plus deterministic icount.
+- Retry counters and failed-attempt evidence remain available for diagnosis,
+  but the public Core2 evidence is based on first-attempt PASS results.
+- Device Service Core2 radio launches use the same deterministic options.
 
 ## Next investigation
 
-1. Trace `rsr INTERRUPT`, `INTENABLE`, DPORT interrupt-status registers and the
-   interrupt matrix crossing immediately before `xt_highintx` selects
-   `PANIC_RSN_CACHEERR`.
-2. Compare QEMU's level-4 interrupt delivery with the ESP32 high-interrupt
-   vector, especially when IPC and TG1/cache-error sources are close together.
-3. Trace DPORT cross-core flash-cache disable handshake and interrupt
-   delivery around `spi_flash_disable_interrupts_caches_and_other_cpu()`.
-4. Compare QEMU cache-state readback and cache-disable semantics against the
-   ESP32 ROM behavior.
-5. Only remove the retry mitigation after a repeated clean-run test proves
-   the panic is gone.
+1. Instrument vCPU idle, `CCOMPARE`, `INTSET`, `INTENABLE`, timer expiry and
+   WDT expiry timestamps to quantify the TCG starvation window.
+2. Compare default TCG multi-thread, single-thread and icount over larger
+   repeated matrices and other classic ESP32 images.
+3. Validate that QOM/FIFO/audio activity cannot starve timers under icount.
+4. Add a long-running soak test beyond one boot/readiness cycle.
+5. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
+   collected.
 
 ## Reproduction
 

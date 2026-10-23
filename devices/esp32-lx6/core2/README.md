@@ -27,7 +27,7 @@
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-input-peripherals-wifi-ble-pass` (2026-10-23)
-- 详情：官方 UIFlow2 v2.5.3 在同一 m5core2 guest 内通过 320x240 显示/触摸、AXP2101、INA3221、MPU6886、PCF8563、NS4168 扬声器、SPM1423 麦克风、OpenMAC WiFi DHCP/HTTP 和 UART1 HCI BLE；QOM 注入不暂停 guest，以规避已知 Core2 cache/watchdog 故障，QEMU 仍使用 -m 0。
+- 详情：官方 UIFlow2 v2.5.3 在同一 m5core2 guest 内通过 320x240 显示/触摸、AXP2101、INA3221、MPU6886、PCF8563、NS4168 扬声器、SPM1423 麦克风、OpenMAC WiFi DHCP/HTTP、example.com IPv4 DNS/HTTP 和 UART1 HCI BLE；确定性 TCG/icount 调度下 10/10 次无重试首轮启动通过，QOM 注入不暂停 guest，QEMU 仍使用 -m 0；原生 BT controller 外部 peer/GATT 仍为 NOT RUN。
 
 
 

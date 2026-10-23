@@ -44,6 +44,8 @@ REQUIRED_MARKERS = (
     "UNIFIED_CORE2_AUDIO_PASS",
     "UNIFIED_CORE2_WIFI_CONNECTED 10.0.2.15",
     "UNIFIED_CORE2_HTTP_PASS",
+    "UNIFIED_CORE2_PUBLIC_DNS",
+    "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
     "UNIFIED_CORE2_BLE_READY",
     "UNIFIED_CORE2_BLE_RX",
     "UNIFIED_CORE2_BLE_ACK_SENT",
@@ -245,6 +247,10 @@ def run_attempt(
         command = [
             str(args.qemu),
             "-snapshot",
+            "-accel",
+            "tcg,thread=single",
+            "-icount",
+            "shift=auto,align=off,sleep=off",
             "-m",
             "0",
             "-M",
@@ -523,7 +529,7 @@ def main() -> int:
             "real-hardware behavior",
             "native ESP32 Bluetooth controller/radio model",
             "RF privacy, security, range or performance",
-            "elimination of the intermittent Core2 cache startup issue",
+            "hardware equivalence of deterministic TCG/icount scheduling",
         ],
     }
     (args.out_dir / "evidence.json").write_text(

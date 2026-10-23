@@ -62,9 +62,10 @@ complete simulated device or as a unified-device PASS.
   HCI BLE. UART2 remains the PWR-485 bus on G0/G39/G46.
 - The environment-gated Core2 machine combines display/touch,
   AXP2101/INA3221, MPU6886, PCF8563, NS4168/SPM1423 audio, OpenMAC WiFi
-  DHCP/HTTP and UART1 HCI BLE in one `m5core2` guest. QOM injection does not
-  pause the guest because early QMP stop/continue triggers the known
-  cache/watchdog failure.
+  DHCP/HTTP, public IPv4 DNS/HTTP and UART1 HCI BLE in one `m5core2` guest.
+  QOM injection does not pause the guest, and radio launches use deterministic
+  `tcg,thread=single` plus `icount`; ten independent first attempts passed
+  10/10 with no retry.
 - NanoC6 combines real UIFlow2 RGB/button/IR paths, QEMU ESP32-C6 WiFi
   scan/association/DHCP/HTTP and UART1 HCI BLE in one C6 guest.
 - Nesso N1 combines its display/touch and peripheral set with QEMU ESP32-C6
@@ -133,19 +134,27 @@ Nesso N1 and Core2 slices** through `runtime=qemu-unified` (legacy `qemu-ble`
 remains accepted), the twelve unified profiles, and retained Device Service
 evidence ZIPs containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
-manifest hashes. S3/C6 probes use one open fixed-channel virtual AP; Core2
+manifest hashes. QEMU radio leases also retain a pcap and a payload-hash-only
+summary. S3/C6 probes use one open fixed-channel virtual AP; Core2
 OpenMAC advertises its open test-AP set and associates with `myssid`.
 WPA2/WPA3 security behavior is not modelled. BLE is host-controller HCI data
 over an HCI-UART test build, not a native ESP32 radio/controller model.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
-stable access to arbitrary internet services.
+stable access to arbitrary internet services. Core2 now includes public DNS
+and HTTP in the default unified evidence.
 
 The S3/C6 NIC models the guest-visible MAC, DMA descriptors, interrupt and
 user-net frame path, but not a complete PHY/rate/security/RF model. The classic
 ESP32 LX6 path still contains separate PHY bring-up stubs. A successful boot log
 or PHY-ready register therefore does not by itself mean that the device is
 online.
+
+Untrusted sessions can request
+`network.policy.isolation=namespace` on a Linux worker. The runner creates a
+private network namespace with no external route and refuses to fall back when
+namespace creation fails. Namespace proof does not establish RF behavior or
+malicious-firmware safety.
 
 Each device gets explicit network and board-peripheral status; no
 family-wide PASS is inferred from another device's result.

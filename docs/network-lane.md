@@ -31,6 +31,21 @@ PYTHONPATH=.work/py python3 platform/tools/network_lane.py \
   --out-dir /tmp/m5-network-diagnostic
 ```
 
+错误密码负向用例：
+
+```bash
+PYTHONPATH=.work/py python3 platform/tools/network_lane.py \
+  --profile esp-idf-wrong-password \
+  --chip esp32s3 \
+  --firmware /path/to/http_throughput.bin \
+  --password '<wrong-password>' \
+  --timeout 35 \
+  --out-dir /tmp/m5-network-wrong-password
+```
+
+该 profile 只有在认证尝试、错误密码拒绝、至少一次重试、无 DHCP、无 HTTP
+进度和最终失败标记全部成立时才 PASS；“连不上”单独不算通过。
+
 固件自建 SoftAP 和 provisioning portal：
 
 ```bash
@@ -80,6 +95,10 @@ SoftAP 门户；UDP 当前只覆盖 station path。实际接口与错误码见
 - UIFlow2 `BLEUARTServer` 和 ESP-IDF coexistence 的 HCI/外部 GATT；
 - 固件 self-SoftAP 的 join 与 loopback portal 转发；
 - 基于日志、配置和 marker 的启动 blocker 诊断。
+- 错误密码的认证拒绝、重试、无 DHCP/HTTP 负向证据；
+- QEMU unified 会话的 pcap 流/DNS/DHCP 摘要；
+- StickS3 guest WLAN 主动断开叠加 QMP `wifi0` link-down/up 后的重新 DHCP
+  和前后两次受控 HTTP。
 
 S3/C6 的完整设备路径另外已经在 QEMU unified profile 中完成，不依赖本
 lane 的 framebuffer/板级结果拼接。
@@ -98,6 +117,18 @@ PASS 只证明本次运行时列出的数据面。它不证明：
 `user,restrict=yes` 和 loopback `hostfwd` 不是恶意固件沙箱。不可信固件需要
 disposable VM 或独立 network namespace，并阻断 workstation LAN、host
 filesystem、cloud metadata 和内部服务。
+
+Linux worker 可以使用 `network.policy.isolation=namespace`。隔离 runner
+先创建 private network namespace，并拒绝存在外部路由；无法创建 namespace 时
+拒绝启动。受控 HTTP/BLE peer 在同一个 namespace 内运行，默认没有外网路由。
+Linux arm64 已用同一 QEMU 源码重建运行时，并在 private namespace 内实跑
+StickS3 guest：受控 `/unified` HTTP PASS，公网 DNS 查询无响应，pcap 中没有
+global/slirp-redirect 目标。宿主 macOS 仍不直接执行该隔离路径。
+
+`esp-emu` 的 `user` 网络不提供 Ethernet pcap；`network.capture_pcap=true`
+会明确拒绝。pcap 证据应使用 QEMU radio runtime，随后由
+`platform/tools/pcap_summary.py` 生成 flow、DNS、DHCP、ARP、egress scope
+和 payload hash 摘要，不保存 payload 明文。
 
 ## 什么时候改用 QEMU unified
 

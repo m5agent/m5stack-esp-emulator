@@ -22,6 +22,7 @@ from network_lane import (  # noqa: E402
     check_http_evidence,
     check_smoke_evidence,
     check_uiflow2_evidence,
+    check_wrong_password_evidence,
     execute,
     normalize_hostfwd,
     normalize_i2c_device,
@@ -192,6 +193,22 @@ class NetworkLaneTests(unittest.TestCase):
         self.assertIn("--exit-on", command)
         self.assertIn("DNS_UDP_RESULT", command)
 
+    def test_wrong_password_profile_exits_on_failure_probe(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            row = config(
+                tmp,
+                profile="esp-idf-wrong-password",
+                ble=False,
+                tcp=False,
+            )
+            command, _ = build_emulator_command(
+                row,
+                firmware_copy=tmp / "runtime.bin",
+            )
+        index = command.index("--exit-on")
+        self.assertEqual(command[index + 1], "HTTP_TPUT_RESULT")
+
     def test_command_and_injection_redact_password(self):
         with tempfile.TemporaryDirectory() as directory:
             row = config(Path(directory))
@@ -352,6 +369,24 @@ DNS_UDP_RESULT: PASSED
         )
         self.assertTrue(all(checks.values()), checks)
         self.assertEqual(values["dns_address"], "198.18.0.86")
+
+    def test_wrong_password_requires_rejection_not_success(self):
+        serial = """
+E wifi:state: init -> auth (0xb0)
+[WARN periph::wifi_softap] WiFi SoftAP: SAE confirm mismatch — wrong password on the station?
+I wifi:state: auth -> init (0x600)
+I wifi:state: init -> auth (0xb0)
+[WARN periph::wifi_softap] WiFi SoftAP: SAE confirm mismatch — wrong password on the station?
+I wifi:state: auth -> init (0x600)
+HTTP_TPUT_RESULT: FAILED (no IP in 20s)
+"""
+        checks = check_wrong_password_evidence(serial)
+        self.assertTrue(all(checks.values()), checks)
+        self.assertFalse(
+            check_wrong_password_evidence(
+                serial + "wifi: got ip: 192.168.4.2\n"
+            )["no_dhcp_lease"]
+        )
 
     def test_coex_parser_requires_wifi_during_ble_gatt(self):
         serial = """

@@ -24,16 +24,23 @@ Implemented:
 - bounded stopped/failed history with age, count and byte limits;
 - stopped-session Flash release by default and reference-aware cache GC;
 - optional Bearer token.
+- Linux fail-closed network namespaces for QEMU radio sessions;
+- QEMU `filter-dump` pcap plus flow/DNS/DHCP/ARP/payload-hash summaries;
+- `POST /sessions/{id}/network-fault` for link down/up reconnect tests;
+- versioned FirmwareManifest import and structured capability mismatch.
 
 Not implemented yet:
 
 - prestarted warm QEMU instances;
 - resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
-- network namespaces and packet capture;
-- untrusted multi-tenant isolation.
+- formal CI/worker lifecycle for the Linux namespace lane;
+- allowlisted egress, TLS test CA and multi-device lab fabric;
+- disposable VM/copy-on-write isolation for untrusted multi-tenant review;
+- pcap/evidence object storage, retention policy and audit integration.
 
-See [`device-service-api.md`](device-service-api.md) for the delivered API.
+See [`device-service-api.md`](device-service-api.md) for the delivered API and
+[`code-map.md`](code-map.md) for module/evidence locations.
 
 ## Decision summary
 
@@ -191,9 +198,11 @@ Real-time rendering should not force every model to run continuously.
 
 ## Firmware artifact contract
 
-The v1 service already accepts a merged image or explicit flash segments. A
-normalized review manifest should preserve the same content plus provenance,
-ELF/MAP/sdkconfig and security metadata. It should accept either:
+The v1 service accepts a merged image or explicit flash segments. Version 1 of
+the normalized FirmwareManifest additionally preserves provenance,
+ELF/MAP/sdkconfig, security metadata and required capabilities. The importer
+accepts M5Burner sidecars, WebBurner `manifest.json`, ESP-IDF
+`flasher_args.json`, merged/segmented images and ZIP packages:
 
 ```json
 {
@@ -221,8 +230,10 @@ or separate flash segments:
 }
 ```
 
-Optional ELF, MAP, `flasher_args.json`, sdkconfig and filesystem metadata should
-be stored with the artifact for review evidence.
+Optional ELF, MAP, `flasher_args.json`, sdkconfig and filesystem metadata are
+stored with the artifact for review evidence. See
+[`firmware-manifest.md`](firmware-manifest.md) for the schema and failure
+contract.
 
 ## Migration path
 
@@ -257,11 +268,13 @@ Status: planned. Current sessions are cold/on-demand.
 
 ### Phase S3: production hardening
 
-Status: planned. Current service is trusted-local and not an untrusted-firmware
+Status: partial. The Linux namespace lane is implemented and fail-closed, but
+the overall service is still trusted-local and not an untrusted-firmware
 sandbox.
 
 - container/VM isolation for untrusted firmware;
-- network egress policy and pcap retention;
+- allowlisted egress, TLS test services and object-backed pcap/evidence
+  retention;
 - worker health, eviction and teardown verification;
 - multi-host scheduling and artifact storage.
 

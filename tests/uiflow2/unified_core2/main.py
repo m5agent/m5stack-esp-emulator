@@ -86,6 +86,37 @@ def probe_http():
         client.close()
 
 
+def probe_public():
+    addresses = socket.getaddrinfo("example.com", 80)
+    if not addresses:
+        raise RuntimeError("public DNS returned no address")
+    address = addresses[0][4][0]
+    emit("UNIFIED_CORE2_PUBLIC_DNS", address)
+    client = socket.socket()
+    client.settimeout(15)
+    try:
+        client.connect((address, 80))
+        client.send(
+            b"GET / HTTP/1.0\r\nHost: example.com\r\n"
+            b"Connection: close\r\n\r\n"
+        )
+        response = bytearray()
+        while len(response) < 2048:
+            chunk = client.recv(512)
+            if not chunk:
+                break
+            response.extend(chunk)
+            if b"\r\n\r\n" in response:
+                break
+        response = bytes(response)
+        emit("UNIFIED_CORE2_PUBLIC_HTTP", repr(response[:128]))
+        if not response.startswith(b"HTTP/"):
+            raise RuntimeError("public HTTP response is invalid")
+        emit("UNIFIED_CORE2_PUBLIC_HTTP_PASS")
+    finally:
+        client.close()
+
+
 def main():
     global log_uart
 
@@ -216,6 +247,10 @@ def main():
         except Exception as error:
             state["http"] = "fail"
             emit("UNIFIED_CORE2_HTTP_ERROR", repr(error))
+        try:
+            probe_public()
+        except Exception as error:
+            emit("UNIFIED_CORE2_PUBLIC_HTTP_ERROR", repr(error))
 
     try:
         from bleuart import BLEUARTServer

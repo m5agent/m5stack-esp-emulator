@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://m5stack.local/schemas/firmware-manifest-v1.json",
+  "title": "M5Stack Firmware Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "artifact",
+    "target",
+    "security",
+    "provenance",
+    "validation"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "m5stack-firmware-manifest"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "manifest_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "device_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "file",
+        "size",
+        "sha256"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "merged-flash",
+            "segmented-flash"
+          ]
+        },
+        "file": {
+          "type": "string"
+        },
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "padded": {
+          "type": "boolean"
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "offset",
+              "file",
+              "size",
+              "sha256"
+            ],
+            "properties": {
+              "offset": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "file": {
+                "type": "string"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "artifact_id": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "soc",
+        "flash_size"
+      ],
+      "properties": {
+        "soc": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "chip_id": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "flash_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "psram_size": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "partition_table": {
+          "type": "object"
+        },
+        "application": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "secure_boot",
+        "flash_encryption",
+        "efuse"
+      ],
+      "properties": {
+        "secure_boot": {
+          "enum": [
+            "unknown",
+            "not-indicated",
+            "v1",
+            "v2",
+            "enabled-unspecified"
+          ]
+        },
+        "flash_encryption": {
+          "enum": [
+            "unknown",
+            "not-indicated",
+            "partition-encryption-marked",
+            "enabled"
+          ]
+        },
+        "efuse": {
+          "type": "string"
+        },
+        "secure_version": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "importer",
+        "source_format"
+      ],
+      "properties": {
+        "importer": {
+          "type": "string"
+        },
+        "source_format": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "firmware_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "license": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "elf": {
+          "$ref": "#/$defs/resource"
+        },
+        "map": {
+          "$ref": "#/$defs/resource"
+        },
+        "sdkconfig": {
+          "$ref": "#/$defs/resource"
+        },
+        "flasher_args": {
+          "$ref": "#/$defs/resource"
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "optional": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "errors",
+        "warnings"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "PASS",
+            "REJECTED"
+          ]
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "size",
+        "sha256"
+      ],
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "requirement": {},
+        "available": {},
+        "path": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

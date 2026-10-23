@@ -4,6 +4,9 @@
 - 日期：2026-10-23
 - 适用对象：UIFlow/UIFlow2、ESP-IDF、Arduino、MicroPython 和自研 ESP32 固件
 - 相关文档：
+  - [项目当前状态](project-status.md)
+  - [项目 Backlog](project-backlog.md)
+  - [代码与验证入口地图](code-map.md)
   - [外设仿真架构](peripheral-simulation-architecture.md)
   - [虚拟主机适配矩阵](qemu-device-adaptation-matrix.md)
   - [UIFlow2 外设 API 测试矩阵](uiflow2-peripheral-test-matrix.md)
@@ -312,16 +315,29 @@ TLS 正文通常不可见。若固件没有证书固定，可使用专用测试 
 ```text
 待审固件
   -> 1. 下载与 SHA-256/大小校验
-  -> 2. 静态镜像、分区、文件和字符串检查
-  -> 3. 选择设备 profile 和隔离网络
-  -> 4. 仿真启动，记录串口和首帧
-  -> 5. UI、API、外设和驱动回归
-  -> 6. 网络、DNS、局域网扫描和外传审计
-  -> 7. Flash/NVS/文件系统前后差异
-  -> 8. 异常规则和人工复核
-  -> 9. 必要时真机隔离网络复核
-  -> 10. 生成证据包和最终结论
+  -> 2. FirmwareManifest 规范化、WebBurner/M5Burner 导入
+  -> 3. 静态镜像、分区、文件和字符串检查
+  -> 4. 选择设备 profile、安全策略和隔离网络
+  -> 5. 仿真启动，记录串口和首帧
+  -> 6. UI、API、外设和驱动回归
+  -> 7. 网络、DNS、link fault/reconnect、局域网扫描和外传审计
+  -> 8. Flash/NVS/文件系统前后差异
+  -> 9. 异常规则和人工复核
+  -> 10. 必要时真机隔离网络复核
+  -> 11. 生成证据包和最终结论
 ```
+
+规范化命令：
+
+```bash
+python3 platform/tools/firmware_manifest.py /path/to/package \
+  --out-dir /tmp/m5-review --print summary
+```
+
+QEMU radio session 默认生成 `network/capture.pcap` 和
+`network/pcap-summary.json`。`POST /sessions/{id}/network-fault` 可执行
+link down/up；连接恢复 PASS 还必须包含 guest 重新 DHCP 和一次新的受控
+数据面请求。
 
 最终提交前要求：
 
@@ -388,31 +404,25 @@ evidence/
 `passed=true`；纯软件/user-path 断言可以使用 validated virtual-device
 证据并明确标注范围。模型缺口和无匹配运行时不能混同为固件安全失败。
 
-## 10. 后续开发优先级
+## 10. 实施状态和后续
 
-### P0：固件安全审查基础
+当前 P0 基础已经具备：
 
-1. 每台目标设备的隔离网络后端和 pcap 捕获；
-2. DNS、连接目标、端口、流量和时序报告；
-3. Flash 运行前后快照、哈希和文件系统差异；
-4. 统一证据包 schema；
-5. `SIM_ONLY`、`PARTIAL`、`HW_VERIFIED` 的强制分级。
+1. 版本化 FirmwareManifest、M5Burner/WebBurner/ESP-IDF 导入和
+   artifact hash/size 复核；
+2. capability mismatch 与安全状态 `unknown` 的结构化结果；
+3. QEMU pcap、DNS/DHCP/ARP/flow/payload-hash 摘要；
+4. Linux private namespace、fail-closed 和单 guest 无外网路径；
+5. 错误密码负向用例与 StickS3 link fault/reconnect；
+6. Device Service session 的统一 evidence ZIP。
 
-### P1：审查自动化
+仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
-1. 静态镜像和文件系统提取；
-2. URL/IP/域名/证书和敏感字符串扫描；
-3. 可疑行为规则引擎；
-4. 网络 honeypot 和局域网扫描检测；
-5. 仿真与 Agent Review Broker 对接。
-
-### P2：提高仿真覆盖
-
-1. 继续补齐 Tab5、CardputerZero 和其他平台的剩余外设；
-2. 支持时间序列 QOM 注入，模拟运动和传感器变化；
-3. 任务/中断/DMA/QOM 的统一 trace；
-4. 长延迟、重启、掉电和环境触发测试；
-5. 对 QEMU 检测、延迟触发和加密 C2 的反分析测试。
+1. 更深静态审查、文件系统提取、URL/证书/凭据/高熵载荷和 SBOM；
+2. 正式 CI/worker、egress allowlist、TLS 测试 CA 和双设备 lab fabric；
+3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
+4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
+5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
 
 ## 11. 结论
 

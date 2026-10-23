@@ -16,6 +16,11 @@ goal. It combines:
 The source of truth is the current worktree plus the generated validators, not
 the README prose or previous chat summaries.
 
+Current capability is summarized in `docs/project-status.md`, open work in
+`docs/project-backlog.md`, and code/evidence entry points in
+`docs/code-map.md`. Topic documents explain or preserve a narrower result; they
+must not override the current status/backlog pages.
+
 ## Non-negotiable rules
 
 1. Virtual-device PASS and hardware PASS are distinct validation categories.
@@ -190,20 +195,23 @@ diagnostics in `internal/records/`.
   framebuffer/touch tests, RS-485, C6 ESP-Hosted and static I2C probes. Do not
   describe `partial` as “unusable”; document the flashing layout and ROM/eFuse
   compatibility boundary when reviewing a production image.
-- Core2 has an intermittent flash/cache startup panic; retries may let a
-  simulation case pass but do not prove the startup issue is fixed.
+- Core2 radio runs use deterministic TCG/icount after the idle interrupt-WDT
+  reproduction; ten independent first attempts passed 10/10. This does not
+  prove physical cache/PSRAM timing or native Bluetooth controller behavior.
 - S3/C6 use device-level QEMU WiFi MAC/DMA plus SLiRP in the 11 unified
   profiles. This is functional virtual networking, not a complete PHY, RF,
   antenna, WPA2/WPA3 or security model.
 - Core2 exposes environment-gated `core2-unified` with OpenMAC WiFi and
   UART1 HCI-offload BLE when `M5_CORE2_RADIO_QEMU` selects the matching QEMU.
-  The native ESP32 BT controller external peer/GATT, DNS/public networking and
-  cache/PSRAM startup stability remain open.
+  DNS/public HTTP and deterministic TCG/icount startup are validated; the
+  native ESP32 BT controller external peer/GATT and physical cache/PSRAM
+  equivalence remain open.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.
 - `user,restrict=yes` and loopback `hostfwd` are not an untrusted-firmware
-  sandbox. Use disposable VM/network namespace isolation for hostile images.
+  sandbox. The Linux fail-closed namespace runner and guest path are validated;
+  filesystem/resource isolation and formal worker/VM lifecycle remain open.
 
 ## Remaining work
 
@@ -213,10 +221,10 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- network namespace/egress policy, pcap, reconnect and security-mode coverage;
-- Core2 cache/PSRAM stability, native BT controller peer/GATT and DNS/public
-  networking;
-- generic-firmware manifest/WebBurner intake and capability mismatch reporting;
+- Linux namespace CI integration, egress allowlists/TLS and DHCP renewal;
+- Core2 native BT controller peer/GATT and physical cache/PSRAM equivalence;
+- deeper generic-firmware static analysis, production security-key flows and
+  broader cross-firmware compatibility;
 - remote worker supervision, warm pools, multi-host scheduling and hardened
   untrusted-firmware isolation;
 - Tab5 missing P4 data paths behind the closed-source backend;
@@ -226,6 +234,8 @@ The v1 local Device Service is implemented by `platform/tools/device_service.py`
 and exposed by `platform/tools/serve.py`. It supports leased QEMU-backed ESP32
 sessions, QEMU unified radio profiles, a partial Tab5 esp-emu session, the
 separate network diagnostic lane, reference or uploaded firmware, and
-serial/frame/input/QOM/evidence APIs. CardputerZero remains an independent
+serial/frame/input/QOM/evidence APIs, QEMU pcap summaries,
+`network-fault` reconnect control, and versioned firmware-manifest intake.
+CardputerZero remains an independent
 Linux backend and is not managed by `/api/v1`. Its contract is
 `docs/device-service-api.md` and `docs/device-service.openapi.yaml`.

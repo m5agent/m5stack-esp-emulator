@@ -464,6 +464,8 @@ class Handler(SimpleHTTPRequestHandler):
                     response = session.inject(payload)
                 elif action == "qom":
                     response = session.qom_set(payload)
+                elif action == "network-fault":
+                    response = session.network_fault(payload)
                 elif action == "qom-snapshot":
                     response = session.qom_snapshot(
                         path=payload.get("path", "/machine"),

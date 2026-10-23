@@ -62,5 +62,7 @@ response, serial digest and a bounded set of fatal error lines.
 - Tab5 service sessions attach the documented PI4IOE, INA226, RX8130 and
   BMI270 register devices to I2C1. Uploaded Tab5 images still lack a matching
   ELF, so AP-frame and touch capture remain unavailable.
-- Core2 sessions expose the supported 4 MiB PSRAM model. The existing Core2
-  cache/WDT startup instability remains a known simulation-only blocker.
+- Core2 sessions expose the supported 4 MiB PSRAM model. Radio/unified runs
+  now use deterministic TCG/icount scheduling and passed 10/10 independent
+  first attempts; this mitigates the virtual interrupt-WDT reproduction but
+  does not prove physical cache/PSRAM timing or native BT controller behavior.

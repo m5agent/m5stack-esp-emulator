@@ -1,8 +1,8 @@
 # Core2 unified runtime probe
 
 This probe runs the Core2 320x240 display, touch, AXP2101, INA3221,
-MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, WiFi and
-`BLEUARTServer` in one UIFlow2 guest.
+MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, WiFi, public IPv4
+DNS/HTTP and `BLEUARTServer` in one UIFlow2 guest.
 
 It is simulation-only. WiFi uses the QEMU classic ESP32 OpenMAC model and
 QEMU user networking. BLE uses UART1 HCI-offload to an external Bumble
@@ -42,8 +42,17 @@ PYTHONPATH=.work/py python3 \
   --out-dir /tmp/m5-core2-unified
 ```
 
-The controlled HTTP fixture listens on host port `18089`. The runner retries
-only the known Core2 cache startup failure and records every attempt. QOM
-values are written while the guest is running: QMP stop/continue during early
-board setup reproducibly triggered the Core2 interrupt-watchdog cache crash.
-`evidence-2026-10-23.json` records three consecutive first-attempt PASS runs.
+The controlled HTTP fixture listens on host port `18089`. The runner records
+every attempt, but the current evidence uses first attempts with no retries.
+The scheduling fix is `tcg,thread=single` plus
+`icount shift=auto,align=off,sleep=off`. QOM values are written while the guest
+runs because QMP stop/continue during early board setup reproducibly triggered
+an interrupt-watchdog failure.
+
+`evidence-2026-10-23-icount-public.json` records ten independent first-attempt
+PASS runs, including public DNS/HTTP. The older
+`evidence-2026-10-23.json` remains as pre-mitigation history.
+
+BLE remains UART1 HCI-offload to Bumble. Native ESP32 controller advertising
+enable is proven separately, but native over-the-air
+advertising/connection/GATT remains `NOT RUN`.
