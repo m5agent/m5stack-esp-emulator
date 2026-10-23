@@ -76,6 +76,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
         efuse.write_bytes(b"\0" * 4096)
         c6_firmware = runtime / "c6.bin"
         c6_firmware.write_bytes(b"test c6 firmware")
+        qemu_reference = runtime / "qemu-reference.bin"
+        qemu_reference.write_bytes(b"\xff" * (4 << 20))
         tab5_reference = runtime / "tab5-reference.bin"
         tab5_reference.write_bytes(b"\xff" * (16 << 20))
         specs = {}
@@ -97,6 +99,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                     flash_emulator=(
                         esp_emu if spec.flash_emulator is not None else None
                     ),
+                    reference_path=qemu_reference,
                 )
             specs[device_id] = spec
         self.service = DeviceService(
