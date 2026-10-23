@@ -5,7 +5,8 @@ Last reviewed: `2026-10-24`
 共享基础设施，不含具体产品档案。当前能力以
 [`docs/project-status.md`](../docs/project-status.md) 为准，代码和证据入口见
 [`docs/code-map.md`](../docs/code-map.md)，按工作流查看交付和待办见
-[`docs/workstreams.md`](../docs/workstreams.md)。
+[`docs/workstreams.md`](../docs/workstreams.md)，带日期的验证记录见
+[`docs/validation-ledger.md`](../docs/validation-ledger.md)。
 
 ```text
 platform/
@@ -58,7 +59,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 
 - `core2-native-vhci` 已进入 `/api/v1`，但内部仍使用服务托管的 GDB bridge；
   QEMU native-HCI 替代路径已完成 `HCI-1` transport、`HCI-2` 首个 H2C
-  Reset 捕获和 `HCI-3a` 单包 C2H callback `5/5`；`HCI-3b` 已到连接和首个
+  Reset 捕获和 `HCI-3a` 诊断性单包 C2H `5/5`；该 callback 路线不是产品
+  后端；`HCI-3b` 已到连接和首个
   ATT 交互，但任意 safe-point callback 与 nested `r_eif_send` 已证伪并
   回退。下一步必须是 guest-visible C2H IRQ/queue 或 in-process controller
   transaction。`HCI-4` repeated lease、bit-exact Espressif

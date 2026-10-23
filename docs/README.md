@@ -11,26 +11,27 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
-## 先看这五页
+## 先看这六页
 
 1. [工作流总台账](workstreams.md)：按工作流串起当前状态、代码、证据和下一任务。
 2. [项目当前状态](project-status.md)：现在能做什么、已经验证什么、仍有什么风险。
 3. [项目 Backlog](project-backlog.md)：尚未完成的工作、优先级、依赖和验收条件。
 4. [代码与验证入口地图](code-map.md)：实现落在哪些模块、测试如何复现、证据在哪里。
-5. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
+5. [验证证据台账](validation-ledger.md)：按日期保存当时的检查项、结论和 evidence。
+6. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
    board/WiFi/BLE/evidence 的产品验收边界。
 
 如果页面之间冲突，以当前代码、生成后的 catalog/coverage、最新测试证据和
 `project-status.md` 为准；`project-backlog.md` 不描述完成状态，日期较早的
 调查页也不自动代表当前结论。
 
-## 三组 P0 的实际位置
+## 三组 P0 的权威入口
 
-| 工作流 | 已经形成的边界 | 现在真正待做 |
-| --- | --- | --- |
-| 网络 namespace/DNS/egress/pcap/重连 | 单机 namespace、controlled DNS、TLS/Host、精确 IPv4 egress、pcap、错误密码、radio/AP 丢失恢复、DHCP renewal、两台 QEMU guest fabric 和本地 worker heartbeat/drain 已有同路径证据 | `NET-04` 远程 worker 和活动进程 re-attach、`NET-05` 外部 IPv6 |
-| Core2 cache/PSRAM/原生蓝牙/公网 | deterministic TCG/icount 已消除当前虚拟 WDT 复现；WiFi、DNS/公网和 board 外设同 guest PASS；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 callback PASS；`HCI-3b` 已到首个 ATT 交互 | 任意 safe-point callback 和 nested `r_eif_send` 已证伪并回退；下一步实现 C2H device/IRQ queue 或 in-process controller，再做 `HCI-4` repeated lease；物理 cache/PSRAM 与 bit-exact controller 仍属后续边界 |
-| FirmwareManifest/WebBurner/安全 | 版本化 manifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传与刷新恢复、capability mismatch、脱敏静态审查、eFuse 证据分层、LittleFS/FAT 清单已实现 | `FW-01` SPIFFS/权限/许可、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
+- 当前能力、已闭合边界和风险只看 [项目当前状态](project-status.md)。
+- 未完成 Task ID、依赖和验收只看 [项目 Backlog](project-backlog.md)。
+- 某项结论何时、用什么证据验证，只看 [验证证据台账](validation-ledger.md)。
+
+不要在 README、专题页或历史调查中复制第三份 P0 状态表。
 
 ## 文档分层
 
@@ -40,6 +41,7 @@
 | 待办 | 只列未完成工作、依赖和验收条件 | [项目 Backlog](project-backlog.md) |
 | 契约 | 定义 API、manifest、运行时和发布门禁 | [Device Service API](device-service-api.md)、[FirmwareManifest](firmware-manifest.md)、[统一运行时](unified-device-runtime.md) |
 | 实现地图 | 指到源码、测试、证据和生成物 | [代码与验证入口地图](code-map.md) |
+| 验证台账 | 按日期保存当时结论、检查项和 evidence | [验证证据台账](validation-ledger.md) |
 | 专题说明 | 深入解释某一类模型、流程或边界 | [网络模拟](network-simulation-plan.md)、[外设架构](peripheral-simulation-architecture.md) |
 | 历史证据 | 保留当时的复现、根因或阶段计划 | [StopWatch QEMU 适配](stopwatch-uiflow2-qemu.md)、[多设备设计](plans/2026-10-20-multi-device-emulator-design.md) |
 
@@ -54,9 +56,10 @@
 | [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络/CI、Core2、FirmwareManifest 与平台测试快照 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
+| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期记录当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.14.0`；Worker heartbeat/drain/resume、WebBurner browser intake、resumable chunk upload、atomic append rollback、staging GC、nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 地址已固定，GDB 控制面仍开放 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | `HCI-1` PASS；`HCI-2` 首包 PARTIAL；`HCI-3a` 单包 callback PASS；`HCI-3b` diagnostic FAIL，safe-point/nested-entry 路线已回退；`HCI-4` 开放 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | `HCI-1` PASS；`HCI-2` 首包 PARTIAL；`HCI-3a` 仅诊断性单包 PASS；`HCI-3b` diagnostic FAIL，safe-point/nested-entry 路线已回退；`HCI-4` 开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32 清单已通；SPIFFS 仍 `UNSUPPORTED` |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复和双 guest lab fabric 已通；QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
@@ -91,6 +94,7 @@
 - [项目当前状态](project-status.md)
 - [项目 Backlog](project-backlog.md)
 - [代码与验证入口地图](code-map.md)
+- [验证证据台账](validation-ledger.md)
 - [部署与运行时资产](deployment.md)
 - [仓库维护规则](../AGENTS.md)
 
@@ -158,6 +162,8 @@
 - 设备/外设变化：同步源 catalog、生成目录、peripheral catalog、runtime
   coverage、profile、设备级用例和矩阵文档。
 - 新验证：保存 evidence，必要时写入 `agent-work-logs`；不要把聊天摘要当作证据。
+- 新验证记录：追加到 `validation-ledger.md`，并回查它是否改变
+  `project-status.md` 或 `project-backlog.md`。
 - 历史页保留原日期；若结论被推翻，在页首加“已由某页取代”，不要静默改写成
   好像当时就知道后来结果。
 - 同一证据的 SHA、测试数、Task 状态不要复制到历史页或设计页；应链接当前

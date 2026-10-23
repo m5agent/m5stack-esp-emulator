@@ -2,255 +2,240 @@
 
 日期：`2026-10-24`
 
-本文只记录**尚未完成**的工作、依赖和验收条件。已有能力、验证日期和证据
-统一见 [项目当前状态](project-status.md)，代码与测试入口见
+本文只记录**尚未完成**的工作、优先级、依赖和验收条件。当前能力、已闭合
+边界和风险见 [项目当前状态](project-status.md)，历史验证见
+[验证证据台账](validation-ledger.md)，代码入口见
 [代码与验证入口地图](code-map.md)。
 
 ## 使用规则
 
-- 有代码、单元测试或一次 virtual-device evidence，不等于正式 CI、生产隔离
-  或真机能力已经完成。
-- 任务只有满足“验收”后才能移到当前状态页；不得在 Backlog 中保留完成日志。
+- 任务只有满足本节对应“验收”后才能从 Backlog 移到当前状态页或证据台账。
+- 本页不保存完成日志。若需要理解某个未完成项从哪里起步，只引用当前代码、
+  测试入口和仍未满足的条件。
 - 每个 PASS 必须绑定设备、runtime/profile、固件 SHA 和可复现 evidence。
-- 仿真结果必须标记 virtual-device；RF、功耗、声学、光学、机械和电气结论
-  必须来自真机。
+- virtual-device 结果与 hardware validation 分开记录；RF、功耗、声学、
+  光学、机械和电气结论必须来自真机。
+- 安全状态未知必须保持 `unknown`/`REVIEW`，不能为了推进任务写成 PASS。
 
 ## 优先级总览
 
-| 优先级 | 工作流 | 完成标准 | 依赖 / 风险 |
+| 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络策略与 worker | 远程 QEMU worker 注册/调度和活动进程 re-attach | Linux worker；QEMU network backend；fail-closed |
-| P0 | Core2 生产化 | 去掉 GDB 暂停/注入/return 控制、重复 lease 稳定门禁、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
-| P0 | 通用固件审查 | SPIFFS、权限/许可策略、真机 eFuse/安全启动/key 流程、跨厂商回归 | 多格式镜像；生产安全配置 |
-| P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
-| P1 | 外部 IPv6 egress | v6 veth/route/NAT 与 exact endpoint 规则 | worker 双栈配置；当前 IPv6 请求会被拒绝 |
-| P1 | 服务 worker 与调度 | supervisor、heartbeat、drain/re-attach、warm pool、多机容量 | 生产部署；对象存储；审计 |
-| P1 | Tab5 后端补齐 | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123、IP2326 | 可扩展 P4 backend 或重建 |
-| P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/结构资料 |
+| P0 | 网络产品化 | 远程 worker 注册、队列、调度和活动 QEMU re-attach | Linux worker；持久化状态；证据回传 |
+| P0 | Core2 native HCI | 无 GDB 完成完整 HCI/GATT，并连续 `5/5` | classic ESP32 VHCI queue/IRQ 语义或 in-process controller |
+| P0 | 通用固件安全 | SPIFFS、权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
+| P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
+| P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
+| P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
+| P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
+| P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
 
 ## 当前执行顺序
 
-1. `CORE2-01` / `HCI-3b`：增加 guest-visible controller-to-host IRQ/queue，
-   或实现 in-process controller transaction；达到完整 Bumble HCI/GATT。
-2. `CORE2-01` / `HCI-4`：用同一 stock 固件通过 Device Service repeated
-   lease `5/5`，再删除 GDB callback 注入和 synthetic return。
-3. `NET-04` / `SVC-01`：把 Linux policy CI、双 guest lab fabric 和 QEMU
-   evidence 路径接入正式 worker。
-4. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
-5. `FW-03/02`：扩跨厂商样本，再补生产 key/eFuse 与真机路径。
-6. `CORE2-02`、`HW-01`、`NET-05`：controller/物理边界、同路径真机证据和
-   外部 IPv6 端点策略。
-7. Tab5、worker pool、视觉保真和 CardputerZero 作为后续专项推进。
+1. `CORE2-01`：先完成 `HCI-3b` 的 guest-visible C2H IRQ/queue 或
+   in-process controller transaction，再做 `HCI-4`。
+2. `NET-04` / `SVC-01`：在本地 worker lifecycle 基础上完成远程注册、
+   持久队列、调度和活动实例 re-attach；`NET-05` 独立推进 IPv6。
+3. `FW-01`：补 SPIFFS、运行时权限和许可策略；随后 `FW-03` 扩跨厂商样本，
+   `FW-02` 做生产 key/eFuse 与真机安全配置。
+4. `CORE2-02`、`HW-01`：controller/baseband 物理边界和同路径真机证据。
+5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
+   视觉工作，不与当前 P0 混算完成。
 
 ## 可执行任务板
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | GitHub Actions 和双 guest fabric 已通过；本地 worker identity/heartbeat/drain/resume/abandoned lease 已实现。下一项是远程注册、任务队列和活动 QEMU re-attach | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain，并在重启后明确接管或失败 |
-| `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
-| `CORE2-01` | 进行中 | ELF 符号查询已固定；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5`；`HCI-3b` 已到首个 ATT 交互。下一最小交付是 guest-visible C2H IRQ/queue 或 in-process controller transaction，随后 `HCI-4` repeated lease | 同一 stock 固件通过 Device Service `5/5`；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
-| `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
-| `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
-| `FW-02` | 进行中 | 包内安全摘要已支持；继续做真机 eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、boot 层，不混算 PASS |
-| `SVC-01` | 进行中 | supervisor/heartbeat/drain/resume、独占状态目录和 lease 失败分类已完成；下一项是活动进程 re-attach | 服务重启可收敛 worker，lease 有明确接管或失败状态 |
-| `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态不泄漏 |
-| `SVC-03` | 待做 | 拆分 `device_service.py` 的固件存储、运行时适配器、证据和会话状态机 | 对外 API/evidence 不回归；单文件职责和测试边界清晰 |
-| `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation，虚拟结果不冒充 |
-| `TAB5-01` | 决策 | 重建或扩展 P4 backend | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 |
-| `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和截图阈值 | 每台设备有独立尺寸/结构/回归，不只改通用 CSS |
-| `CZ-01` | 待做 | CardputerZero 系统与驱动长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
+| `NET-04` | 进行中 | 远程 worker 注册、持久任务队列、调度和活动 QEMU re-attach | worker 失联/重启可收敛；namespace 失败 fail-closed；evidence 可回传 |
+| `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
+| `CORE2-01` | 进行中 | `HCI-3b` device/IRQ queue 或 in-process controller，随后 `HCI-4` repeated lease | 同一 stock 固件无 GDB 完成 NUS GATT，Device Service `5/5` |
+| `CORE2-02` | 待做 | bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和 soak | 物理边界可证；真机/RF 结论不冒充 |
+| `FW-01` | 进行中 | SPIFFS 只读清单或明确 `UNSUPPORTED`；运行时权限/许可策略 | 文件清单可追踪；资源权限和许可结论可审计 |
+| `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
+| `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 跨厂商回归集 | 每样本分层记录导入、capability、boot 和功能 |
+| `SVC-01` | 进行中 | 活动 QEMU re-attach 与远程 supervisor 契约 | 服务重启可接管或明确失败，不产生假 running |
+| `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
+| `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
+| `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation |
+| `TAB5-01` | 决策 | 重建或扩展 P4 backend | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123、IP2326 有执行路径 |
+| `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和截图阈值 | 每台设备独立结构证据和视觉回归 |
+| `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
-## P0：网络策略、隔离与 CI
+## P0：网络与 worker
 
-### NET-04 CI 与 worker
+### NET-04 远程 worker
 
-交付：
+当前缺口：
 
-- GitHub Actions 的完整平台测试和 namespace/egress fail-closed 回归已完成；
-- 双 guest lab fabric 已作为独立 QEMU virtual-device fixture 通过，并由 CI
-  单独执行 TAP/bridge primitive；
-- 本地 worker 持久化 ID、generation、heartbeat、active lease、
-  drain/resume、独占锁、pcap result 和重启后 abandoned-lease 分类已完成；
-- QEMU runtime、pcap retention、reconnect evidence 进入自托管 Linux worker；
-- 远程 worker 注册、任务重排、活动进程 re-attach 和 evidence 上传仍待完成；
-- namespace 创建/权限失败时 fail-closed；
-- 超时、残留进程、临时盘和失败重试都有结构化结果。
+- 本地 worker identity、generation、heartbeat、drain/resume、
+  abandoned lease 和 bounded result 已实现，但没有远程注册协议；
+- 没有持久任务队列、跨 worker 调度、容量租约和多机状态收敛；
+- 服务重启后，仍在运行的活动 QEMU 进程不能 re-attach；
+- 双 guest lab fabric 和 Linux policy CI 尚未成为自托管 worker 的正式
+  调度与 evidence replay 路径。
 
-## P0：Core2 生产化
+下一项最小交付：
 
-### CORE2-01 无 GDB VHCI
-
-实现路线和阶段验收见
-[Core2 native HCI backend](core2-native-hci-backend.md)。
-
-阶段状态：
-
-| 阶段 | 状态 | 已证明 | 仍未证明 |
-| --- | --- | --- | --- |
-| `HCI-1` host transport | `PASS` | H4 command/event/ACL/SCO framing、32 packet bounded queue、overflow/drop、peer lifecycle、counters、clean shutdown | guest VHCI 数据面 |
-| `HCI-2` H2C | `PARTIAL` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` | controller response 后的完整 H2C 命令序列 |
-| `HCI-3a` C2H callback | `PASS` | Reset Complete 经 firmware `notify_host_recv` 交付，callback status 0，send-available 后 guest 发出下一条 H2C；targeted `5/5` | packet order/flow control 和完整 controller sequence |
-| `HCI-3b` complete sequence | `OPEN` | `run_full.py` 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest `ack returned 12` 并 Reset。任意 safe-point callback 和 nested `r_eif_send` 均失败并回退 | 实现 guest-visible C2H IRQ/queue 或 in-process controller；完整 ATT/GATT service discovery 必须稳定，不靠 retry |
-| `HCI-4` stability | `OPEN` | 现有 GDB 诊断桥有过单 lease PASS | Device Service 连续 `5/5`、无 GDB callback injection/synthetic return、故障分类 |
-
-已经完成：
-
-- 从匹配 Xtensa ELF 解析 `API_vhci_host_send_packet`、`vhci_env_p` 和
-  `esp_cpu_wait_for_intr`，Device Service 与独立 runner 传固定地址；
-- pinned-symbol standalone 外部 NUS GATT `5/5`；
-- pinned-symbol 同 guest board+WiFi+公网+native-VHCI BLE `3/3`；
-- Device Service `core2-native-vhci` 已有一个带 symbol event 的单 lease
-  PASS；
-- QEMU `H4 transport-only` targeted test `11/11` PASS；
-- 不启动 GDB 捕获首个 stock H2C Reset，QOM 和 dummy peer 字节一致。
-
-仍未完成：
-
-- `HCI-3a` 已把单个 Reset Complete 交给 guest 的注册 callback；无 GDB
-  `run_full.py` 已让 Bumble 完成广播、连接和首个 ATT request/response，
-  但第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset；
-- 临时诊断确认 73 个 `malformed-packets` 是 VHCI length 字段的非最终写入，
-  不是 H4 RX 错位；callback status 均为 0，失败边界是 controller response
-  transaction 与 callback safe context；
-- 保存/恢复常用 Xtensa caller-saved 特殊寄存器后在任意 CPU0 safe point
-  注入 callback，仍出现两次 ack 12 和 `LoadProhibited`；
-- nested 调用 firmware 真实 `r_eif_send → vhci_send` 触发
-  `Cache disabled but cached memory region accessed`，不能作为
-  controller-to-host 交付路径；
-- 上述 safe-point 与 nested-entry 实验均已回退，QEMU 补丁
-  reverse-check 为 `PASS`，不应继续基于 sleep、CPU pinning 或 retry 试验；
-- `HCI-4` 尚无以 Device Service `/api/v1` 连续 `5/5` 的无 GDB 门禁；
-- GDB 仍负责 guest 暂停、breakpoint/callback 注入和 synthetic return；
-- 尚未形成同 commit、固定次数的重复 Device Service lease 门禁；
-- 当前同 commit repeated lease 为 `1/2`。失败时 Bumble C2H
-  `LE Set Event Mask` response 在 H2C sender context 调用 host callback
-  返回 `2559356`，随后 GDB target-running，guest
-  `InstrFetchProhibited` 并重启；
-- 尚无 QEMU 内部或无调试器 backend。
-
-交付：
-
-- 新增 guest 可见的 controller-to-host 状态/数据队列和 IRQ；由 guest
-  firmware ISR 消费并执行自身 `notify_host_recv`/flow-control 生命周期，
-  或实现明确事务的 in-process controller；
-- 先跑固定次数独立 lease，失败分类必须区分 target running、
-  `INJECT_REJECTED`、double exception、GDB exit 和 peer timeout；
-- 先让 `HCI-3b` 的 QEMU 内部 C2H 完成稳定完整数据面，再由
-  `HCI-4` 验证 Device Service `5/5`；
-- 同一 stock 固件和 ELF 通过 scan/connect/NUS subscribe/write/notify；
-- Device Service 单 lease、pcap、bridge log 和 peer evidence 不回退。
-
-### CORE2-02 controller 与物理边界
-
-交付：
-
-- Espressif BT controller/baseband 协议语义，而不是只在 VHCI 边界替换；
-- physical cache/PSRAM 对比、coexistence、throughput 和 long soak；
-- 真机同路径证据区分 virtual/firmware/hardware 结论。
-
-## P0：通用固件审查
-
-### FW-01 文件系统与权限
-
-LittleFS 和 FAT12/16/32 已支持文件/目录、大小、SHA256、敏感路径脱敏和
-SPDX；FAT parser 包含 LFN 校验、循环链拒绝、目录/文件上限和 erased
-partition 分类。下一项是 SPIFFS 只读 parser 或基于 ESP-IDF 的可审计 host
-helper；实现前保持 `UNSUPPORTED`。
+1. 定义 worker register/heartbeat/drain/result 协议和持久状态。
+2. 定义任务提交、排队、租约、取消、重试和 evidence 回传状态机。
+3. 对活动 QEMU 实现“重新接管”或明确 `interrupted_failed`，禁止假装仍在
+   running。
+4. 把 namespace、pcap、session history 和 cleanup 结果绑定到同一个 lease。
 
 验收：
 
-- SPIFFS 返回可验证清单或明确 `UNSUPPORTED`；
-- 资源项记录来源、哈希、权限策略和许可结论；
-- `unknown` 安全状态不能被写成 PASS；
-- 所有 listing 有截断标记和资源上限。
+- worker 强杀、重启、失联和 drain 都有确定终态；
+- 远程 worker 的 Linux policy 失败时 fail-closed；
+- 任务、实际执行 worker、generation、QEMU 进程和 evidence 可关联；
+- 活动实例 re-attach 有重复测试和清理证据。
 
-### FW-02 安全配置
+### NET-05 外部 IPv6
 
-- 包内 sdkconfig、分区 flag、`espefuse summary --format json` 和 key purpose
-  已能分层记录；原始 key/value 不复制到输出；
-- 仍需识别真机 secure boot、Flash Encryption、eFuse 和 key 状态；
-- 明确镜像声明 / 运行态 / 真机验证三层；
-- 测试 key、生产 key 和拒绝路径不进入仓库或公开日志；
-- 无权威输入时保持 `unknown`。
+当前缺口：exact IPv4 IP/protocol/port 已通过，外部 IPv6、IPv6 DNS、
+veth/route、NAT 和清理尚未实现；IPv6 请求必须继续拒绝，不能隐式放行。
+
+验收：允许与拒绝端点可重复；policy、guest 访问、pcap 和 cleanup 在同一次
+evidence 中成立。
+
+## P0：Core2 native HCI
+
+设计见 [Core2 native HCI backend](core2-native-hci-backend.md)。
+
+### CORE2-01 `HCI-3b` 与 `HCI-4`
+
+当前缺口：
+
+- `HCI-3a` 只是一条诊断性单包 callback 路径。它证明 ABI 和首个
+  Reset Complete 可交付，但后续审计已证明任意 safe-point callback 与
+  nested `r_eif_send → vhci_send` 都不能扩展成稳定后端。
+- `HCI-3b` 可发现、连接并完成首个 ATT request/response；第二个 ATT
+  request 后 guest 报 `HCI process ack returned 12` 并 Reset，完整
+  HCI/GATT sequence 失败。
+- 现有 GDB VHCI bridge 的 repeated Device Service lease 为 `1/2`，不能作为
+  生产门禁。
+- 尚无 guest-visible controller-to-host queue/IRQ 的完整 packet order、
+  flow-control、ACK 和事务语义。
+
+下一项最小交付：
+
+1. 从 firmware/ELF/QEMU 状态建立 VHCI C2H queue、status 和 IRQ 的真实语义。
+2. 由 QEMU device 入队并 raise IRQ，让 guest 自己的 ISR/task 消费；或实现
+   明确事务化的 in-process controller。
+3. 先让 scan/connect/service discovery/subscribe/write/notify 不靠 retry
+   稳定通过，再用 Device Service 连续 `5/5`。
+4. 失败分类必须区分 queue、transport、vCPU commit、guest reset 和 peer。
+
+验收：
+
+- 同一 stock 固件 SHA、ELF SHA、QEMU build 和 profile；
+- 无 GDB callback injection 或 synthetic return；
+- Device Service `/api/v1` 连续 `5/5` 完成外部 NUS GATT；
+- frame、QOM、WiFi/公网、pcap 和 peer evidence 不回退。
+
+### CORE2-02 物理与 controller 边界
+
+仍未完成：
+
+- bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；
+- 物理 cache/PSRAM 时序对比；
+- coexistence、throughput 和 long soak；
+- 同固件路径真机验证。
+
+## P0：通用固件审查
+
+### FW-01 文件系统、权限与许可
+
+当前缺口：LittleFS 与 FAT12/16/32 已有只读清单；SPIFFS、运行时文件权限和
+可审计许可策略仍开放。
+
+验收：
+
+- SPIFFS 返回可验证清单，或明确、结构化地返回 `UNSUPPORTED`；
+- 每个资源项记录来源、哈希、权限策略和许可结论；
+- listing 有资源上限和截断标记；
+- `unknown` 安全状态不能被写成 PASS。
+
+### FW-02 真机安全配置
+
+当前缺口：包内 sdkconfig、分区 flag、脱敏 eFuse summary 和 capability
+preflight 已有；真机 secure boot、Flash Encryption、eFuse 和生产 key
+状态尚未闭环。
+
+验收：明确区分镜像声明、运行态和真机验证；测试/生产 key 不进入仓库或公开
+日志；无权威输入时保持 `unknown`。
 
 ### FW-03 跨厂商回归
 
-- 扩充 ESP-IDF、Arduino、MicroPython 和 vendor 样本；
-- 每样本记录 importer、chip/board/partition、capability 和 boot 层；
-- 不得把结构 PASS、UI PASS、功能 PASS 或安全 PASS 混成一个结论。
+当前缺口：ESP-IDF、Arduino、MicroPython 和 vendor 固件样本覆盖仍不足。
 
-## P1：服务 worker 与调度
+验收：每个样本记录 importer、chip/board/profile、partition、capability、
+boot 和功能层；结构 PASS、UI PASS、功能 PASS、安全 PASS 不混算。
 
-当前是单机模块化单体；历史会话可恢复，但活动 QEMU 进程不能跨服务重启接管。
+## P0：真机同路径
 
-顺序：
+### HW-01
 
-1. supervisor、端口、临时目录和 evidence collector 拆成 worker；
-2. 注册、心跳、drain、re-attach 和故障收敛；
-3. runtime image cache、少量 warm pool；
-4. 队列、配额、对象存储、retention、审计和租户隔离；
-5. 可疑固件使用 disposable VM / copy-on-write flash；
-6. 观测 start latency、CPU/RSS、queue time、失败率和 cleanup。
+当前缺口：现有能力全部是 virtual-device validation，没有可引用的同固件
+SHA 真机记录。
 
-### SVC-03 Device Service 编排拆分
+验收：代表设备用同固件 SHA、同测试计划和相同关键输入运行；明确标注
+`hardware validation`，并保留串口、画面、网络/外设和必要测量证据。
 
-`platform/tools/device_service.py` 是大型单文件编排热区，同时承担会话模型、
-固件存储、QEMU/esp-emu 启动、网络策略、输入、证据、历史恢复和 HTTP 适配。
-继续叠加能力会扩大回归面；规模以当前源码为准，不在文档保存易漂移的行数。
+## P1：服务化与代码整理
 
-拆分顺序：
+### SVC-01 活动实例接管
 
-1. 先固定 `/api/v1`、session JSON、evidence ZIP 和历史恢复的契约测试；
-2. 拆出 content-addressed firmware/artifact store；
-3. 拆出 QEMU、Tab5、network 三类 runtime adapter；
-4. 拆出 evidence collector 和 lifecycle/history repository；
-5. 最后收敛 HTTP handler，不在拆分过程中改变 API 语义。
+与 `NET-04` 共用 worker 状态机。先完成“接管或明确失败”，再实现 warm pool；
+不能把已失去父进程的 QEMU 子进程默认为 running。
 
-验收必须保留当前平台测试、目标设备 unified lease、停止后历史恢复和
-evidence ZIP 的字段兼容性。
+### SVC-02 服务池
 
-## P1：Tab5
+仍未做 warm pool、队列、配额、对象存储、审计、多租户隔离和容量指标。
+不可信固件最终需要 disposable VM / copy-on-write flash，而不是当前单机
+namespace 即视为恶意代码沙箱。
 
-当前是 `partial`：virtual flash、boot、1280×720 framebuffer、touch mailbox、
-RS-485、C6 ESP-Hosted 和静态 I2C 可用。
+### SVC-03 编排拆分
 
-未完成：
+`platform/tools/device_service.py` 仍是大型编排热区，覆盖 session、存储、
+runtime、证据和 HTTP 边界。拆分必须按以下顺序：
 
-- dynamic I2C/RTC/IMU/INA226/PI4IOE/IP2326 状态机；
-- P4 I2S/PCM、ES7210/ES8388；
-- MIPI-CSI/SC2356；
-- P4 USB Host；
-- SDIO block backend；
-- controller-level ST7123 touch；
-- P4↔C6 ESP-Hosted end-to-end association/DHCP/DNS/TCP。
+1. 固定 `/api/v1`、session JSON、evidence ZIP 和历史恢复契约；
+2. 拆 content-addressed firmware/artifact store；
+3. 拆 QEMU、Tab5、network runtime adapters；
+4. 拆 evidence collector 和 lifecycle/history repository；
+5. 最后收敛 HTTP/orchestration facade。
 
-先决定重建/扩展 P4 backend；没有该前提不承诺日期。详见
-[Tab5 暂缓项](tab5-deferred-backlog.md) 和
-[P4 外设后端要求](p4-peripheral-backend-requirements.md)。
+验收：平台测试、目标 unified lease、停止后历史恢复和 evidence 字段兼容。
 
-## P1：视觉保真
+## P1：专项
 
-StopWatch 是当前唯一参考质量外壳。其余设备需要独立完成尺寸、分层机体、
-屏幕开孔、按键、接口、材质、物理 hitbox、framebuffer clipping 和截图阈值。
+### TAB5-01
 
-见 [设备视觉保真 Backlog](device-visual-fidelity-backlog.md)。
+当前缺口：动态 I2C/RTC/IMU/INA226/PI4IOE/IP2326、P4 I2S/PCM、MIPI-CSI、
+USB Host、SDIO、controller-level ST7123 和 P4↔C6 ESP-Hosted 端到端网络。
+先决定重建或扩展 P4 backend；当前闭源后端无法给出可靠完成日期。
+
+### UI-01
+
+当前缺口：StopWatch 是唯一参考质量外壳，CoreS3/StickS3 已有专门 renderer，
+其余仍是通用近似外壳。逐设备需要结构尺寸、面板开孔、材质、hitbox 和视觉
+回归阈值。
 
 ## P2：CardputerZero
 
-CardputerZero 是独立 ARM64 Linux 后端，不属于 ESP32/UIFlow2 `/api/v1`
-设备路径。仍缺完整启动/服务回归、USB split timing、网络性能与隔离、
-摄像头/音频/电源/键盘 soak 和真机同路径验证。
+### CZ-01
+
+当前缺口：完整系统回归、USB split timing、网络性能/隔离、
+摄像头/音频/电源/键盘 soak 和真机同路径。
 
 ## 发布门禁
 
 发布或外部结论前至少完成：
 
-1. 最新平台测试、runtime coverage、peripheral catalog 和 QEMU profiles check；
+1. 平台测试、runtime coverage、peripheral catalog 和 QEMU profiles check；
 2. 受影响设备组 targeted matrix；
-3. 共享 QEMU/控制器变更时跑最新 67-case 全矩阵；
+3. 共享 QEMU/controller 变更时跑最新 full matrix；
 4. 用目标 commit 和同主机架构重建 runtime；
-5. 声明分层为 hardware validation 或 virtual-device validation；
-6. 更新 README、当前状态、API/OpenAPI、专题文档和工作记录；
-7. 外部结论附 full-commit-SHA permalink 和可复现 evidence。
+5. 更新当前状态、证据台账、API/OpenAPI、专题页和发版说明；
+6. 外部结论附 full-commit-SHA permalink，并明确验证层级。

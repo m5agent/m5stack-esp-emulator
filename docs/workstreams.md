@@ -9,6 +9,8 @@
 - 尚未达到验收条件的工作只看 [项目 Backlog](project-backlog.md)。
 
 代码入口和详细验证命令见 [代码与验证入口地图](code-map.md)。
+每项里程碑的日期、当时检查项和 evidence 见
+[验证证据台账](validation-ledger.md)。
 
 本轮台账对账到 `2026-10-24` 当前工作树、生成物和已提交 evidence。平台套件
 共 `264` 项，其中 `264` 项通过、`0` 项环境相关测试跳过。文档整理本身不
@@ -35,7 +37,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新 `67/67` case、`274/274` check，全部首轮无重试 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5`、`HCI-3b` 到首个 ATT 后 Reset；safe-point/nested-entry 审计均 FAIL 且未保留 | `CORE2-01` 下一实现是 guest-visible C2H controller IRQ/queue 或 in-process controller transaction，不再调用 guest callback/RPC；sequence 稳定后再用 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面。`CORE2-02` 继续 controller、物理 cache/PSRAM、coexistence/soak |
+| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5`、`HCI-3b` 到首个 ATT 后 Reset；safe-point/nested-entry 审计均 FAIL 且未保留 | `CORE2-01` 下一实现是 guest-visible C2H controller IRQ/queue 或 in-process controller transaction，不再调用 guest callback/RPC；sequence 稳定后再用 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面。`CORE2-02` 继续 controller、物理 cache/PSRAM、coexistence/soak |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle 与 Linux policy CI） | `worker_registry.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；两台 QEMU guest 的 DHCP/双向 TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 远程 worker/活动 QEMU re-attach、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT 清单、失败回滚与 staging GC | `FW-01` SPIFFS/权限/许可策略、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`storage_policy.py`、`docs/device-service-api.md` | lease、worker ID/generation/heartbeat、独占状态锁、drain/resume、abandoned lease、pcap result、烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` 远程注册和活动 QEMU re-attach、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
@@ -75,9 +77,9 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 
 ## 证据读取顺序
 
-1. 先读本页确认工作流边界，再读 `project-status.md` 的最新证据。
-2. 打开对应页内的 evidence JSON，核对设备、固件 SHA、runtime/profile、
-   check 和 boundary。
+1. 先读本页确认工作流边界，再读 `project-status.md` 的当前结论。
+2. 打开 `validation-ledger.md` 找到对应日期的 evidence JSON，核对设备、
+   固件 SHA、runtime/profile、check 和 boundary。
 3. 只有 schema/单元测试时，把结论写成实现支撑，不写成设备功能 PASS。
 4. 对外结论必须使用完整 commit SHA 的可复现记录，并明确
    `virtual-device validation` 或 `hardware validation`。

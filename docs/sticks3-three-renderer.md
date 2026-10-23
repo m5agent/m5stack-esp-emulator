@@ -6,6 +6,11 @@ Status: `INTEGRATED — simulation-only visual shell`
 
 Last reviewed: `2026-10-24`.
 
+> Historical integration record. Current device capability and remaining visual
+> work are tracked in [project status](project-status.md),
+> [validation ledger](validation-ledger.md) and the
+> [visual-fidelity backlog](device-visual-fidelity-backlog.md).
+
 The StickS3 device page now has a dedicated three.js shell from the pinned
 `MarsTechHAN/sticks3.js` source under `platform/web/vendor/sticks3/`. It replaces
 the approximate CSS body only for StickS3; every other device continues to use

@@ -26,6 +26,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/workstreams.md",
             "docs/project-status.md",
             "docs/project-backlog.md",
+            "docs/validation-ledger.md",
             "docs/unified-device-runtime.md",
             "docs/device-service-api.md",
             "docs/device-service.openapi.yaml",
@@ -240,6 +241,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "external IPv6/CIDR/domain-set allowlisting and multi-device lab fabric",
             "下一步是 `NET-03` 双设备 fabric",
             "two-device lab fabric and external",
+            "现网 Agent Review API 已具备",
+            "| `HCI-3a` C2H callback | `PASS` |",
         ):
             self.assertNotIn(stale, active)
 
@@ -304,6 +307,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("HCI-3", status)
         self.assertIn("HCI-4", status)
         self.assertIn("HCI-3a", status)
+        self.assertIn("诊断性单包 C2H", status)
         self.assertIn("HCI-3b", status)
         self.assertIn("`01030c00`", status)
         self.assertIn("worker heartbeat", status)
@@ -335,12 +339,31 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn(
             "IP/端口 egress",
-            status,
+            (DOCS / "validation-ledger.md").read_text(),
         )
         self.assertIn("DHCP renewal", status)
         self.assertIn("## 新鲜度台账", (DOCS / "README.md").read_text())
         self.assertIn("## 可执行任务板", backlog)
         self.assertNotIn("本轮已完成", backlog)
+        self.assertNotIn("已经完成", backlog)
+        self.assertIn("本页不保存完成日志", backlog)
+        ledger = (DOCS / "validation-ledger.md").read_text()
+        self.assertIn("验证证据台账", ledger)
+        self.assertIn("2026-10-24", ledger)
+        self.assertIn("HCI-3a", ledger)
+        self.assertIn("诊断性单包 C2H", ledger)
+        self.assertIn("[验证证据台账](validation-ledger.md)", status)
+        self.assertIn(
+            "[验证证据台账](docs/validation-ledger.md)",
+            (ROOT / "README.md").read_text(),
+        )
+        ledger_evidence = re.findall(
+            r"\]\((\.\./tests/[^)#]+\.json)\)",
+            ledger,
+        )
+        self.assertGreaterEqual(len(ledger_evidence), 10)
+        for relative in ledger_evidence:
+            json.loads((DOCS / relative).read_text())
         self.assertIn(
             f"日期：`{review_date}`",
             status,
@@ -673,6 +696,16 @@ class DocsConsistencyTests(unittest.TestCase):
                 code_map,
                 f"platform/tools/{tool.name} is missing from docs/code-map.md",
             )
+
+        self.assertIn("## 代码域", code_map)
+        self.assertIn("服务与生命周期", code_map)
+        self.assertIn("固件输入与审查", code_map)
+        self.assertIn("网络策略与取证", code_map)
+        self.assertIn("运行时与设备登记", code_map)
+        self.assertIn(
+            "`HCI-3a` C2H callback | `DIAGNOSTIC PASS`",
+            (DOCS / "core2-native-hci-backend.md").read_text(),
+        )
 
         task_ids = sorted(
             set(re.findall(r"^\| `([A-Z][A-Z0-9-]+)` \|", backlog, re.M))

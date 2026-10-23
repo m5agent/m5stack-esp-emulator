@@ -71,6 +71,11 @@
 
 ![UIFlow2 虚拟主机验收矩阵](images/uiflow2-virtual-host-matrix.png)
 
+> 状态列表示当前文件里的“板级/显示/输入 profile 可用性”，不等于所有控制器
+> 或物理属性完成。Core2 的 `HCI-3a` 只是诊断性单包 C2H 证据，`HCI-3b`
+> 完整 HCI/GATT 和 `HCI-4` repeated lease 仍未通过。Tab5 的 profile 可启动，
+> 但外设总体仍是 `partial`。
+
 ## S3 eFuse 包版本
 
 ESP32-S3 的 M5GFX 自动探测按 `PKG_VERSION` 分支：

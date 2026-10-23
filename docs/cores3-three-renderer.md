@@ -6,6 +6,11 @@ Status: `INTEGRATED — simulation-only visual shell`
 
 Last reviewed: `2026-10-24`.
 
+> Historical integration record. Current device capability and remaining visual
+> work are tracked in [project status](project-status.md),
+> [validation ledger](validation-ledger.md) and the
+> [visual-fidelity backlog](device-visual-fidelity-backlog.md).
+
 ![CoreS3 shell before/after](images/cores3-shell-before-after.png)
 
 CoreS3 now has a dedicated three.js shell built with the device-authoring

@@ -117,9 +117,11 @@ complete simulated device or as a unified-device PASS.
   UIFlow2's Python BLE API or Device Service integration.
 - The replacement QEMU native-HCI path is staged independently:
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
-  `01030c00` without GDB, and `HCI-3a` invokes the registered receive
-  callback with status 0, emits send-available and observes the guest's next
-  H2C command. The `HCI-3b` diagnostic reaches connect and the first ATT
+  `01030c00` without GDB, and `HCI-3a` is a diagnostic single-packet check
+  that invokes the registered receive callback with status 0, emits
+  send-available and observes the guest's next H2C command. The callback
+  route is not accepted as the production controller-to-host backend.
+  The `HCI-3b` diagnostic reaches connect and the first ATT
   exchange, then resets after the second ATT request. Safe-point callback
   injection and a nested call into `r_eif_send -> vhci_send` both failed and
   were reverted. The replacement must use a guest-visible
@@ -167,11 +169,9 @@ WiFi SSID, obtains DHCP, completes a controlled HTTP request, and completes
 BLE GATT discovery/write. Each session exposes all checks through one
 `/api/v1` lease and retains a combined evidence bundle.
 
-Status: **PASS for the simulation-only StickS3, CoreS3, Cardputer ADV,
-StopWatch, AtomS3R, PaperColor, PaperMono, StackChan, StamPLC, NanoC6,
-Nesso N1 and Core2 slices** through `runtime=qemu-unified` (legacy `qemu-ble`
-remains accepted), the twelve unified profiles, and retained Device Service
-evidence ZIPs containing
+Status: **PASS for the eleven S3/C6 slices; PARTIAL for Core2** through
+`runtime=qemu-unified` (legacy `qemu-ble` remains accepted). The eleven
+S3/C6 unified profiles retain Device Service evidence ZIPs containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
 manifest hashes. QEMU radio leases also retain a pcap and a payload-hash-only
 summary. S3/C6 probes use one open fixed-channel virtual AP; Core2
@@ -183,8 +183,10 @@ same-guest board+WiFi+public-network variant, but use a GDB-to-Bumble
 controller bridge rather than a bit-exact ESP32 controller. Their VHCI
 addresses are pinned from ELF; debugger-mediated pause, callback injection and
 synthetic return remain. That bridge is available as
-`qemu-unified/profile=core2-native-vhci`; repeated-lease stability and replacing
-the debug control backend are the open production items.
+`qemu-unified/profile=core2-native-vhci`, but repeated-lease stability is only
+`1/2` at the latest check. Core2 therefore does not meet the stable
+unified-device acceptance gate until replacing the debug control backend and
+passing repeated leases.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
 stable access to arbitrary internet services. Core2 now includes public DNS

@@ -17,7 +17,8 @@ The source of truth is the current worktree plus the generated validators, not
 the README prose or previous chat summaries.
 
 Current capability is summarized in `docs/project-status.md`, open work in
-`docs/project-backlog.md`, and code/evidence entry points in
+`docs/project-backlog.md`, dated validation history in
+`docs/validation-ledger.md`, and code/evidence entry points in
 `docs/code-map.md`. Topic documents explain or preserve a narrower result; they
 must not override the current status/backlog pages.
 
@@ -218,10 +219,12 @@ diagnostics in `internal/records/`.
   baseband/controller model. The GDB backend and physical cache/PSRAM
   equivalence remain open.
 - The QEMU native-HCI replacement is staged: `HCI-1` host transport and
-  `HCI-2` first stock Reset capture pass. `HCI-3a` now invokes the firmware's
-  registered receive callback, observes status 0, calls send-available and
-  sees the guest emit its next H2C command. The complete Bumble HCI/GATT
-  sequence (`HCI-3b`) still resets after the first ATT exchange. Saving
+  `HCI-2` first stock Reset capture pass. `HCI-3a` is a diagnostic
+  single-packet check: it invokes the firmware's registered receive callback,
+  observes status 0, calls send-available and sees the guest emit its next H2C
+  command. It is not a reusable controller backend. The complete Bumble
+  HCI/GATT sequence (`HCI-3b`) still resets after the first ATT exchange.
+  Saving
   additional Xtensa special registers and invoking callbacks at arbitrary CPU0
   safe points did not fix it, and nesting the firmware's real
   `r_eif_send -> vhci_send` path as a guest RPC failed with a cache-disabled

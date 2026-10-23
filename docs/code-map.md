@@ -45,6 +45,24 @@
 代码和文档发生冲突时，优先级是：本次实测 evidence 与同 commit 生成物 >
 源 catalog/profile/API 契约 > `project-status.md` > 专题说明 > 历史文档。
 
+## 代码域
+
+顶层工具按职责归为五组；同一组内部可以复用，跨组调用应通过明确的 JSON、
+CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
+
+| 代码域 | 模块 | 入口 / 输出 |
+| --- | --- | --- |
+| 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`storage_policy.py` | `/api/v1`、session/evidence、worker heartbeat/drain、GC |
+| 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py` | 公开固件下载、manifest、静态/SBOM/文件系统证据和批量运行 |
+| 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/TLS、pcap 摘要 |
+| 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
+| BLE/发布工具 | `ble_probe.py`、`hci_stream.py`、`generate_catalog.py`、`export_bundle.py` | 外部 peer、H4 分包、生成的设备目录和可移植资产包 |
+
+`platform/tools/*.py` 是服务侧共享实现；`tests/uiflow2/`、`tests/network/`
+和 `tests/firmware/` 是运行时/契约验证入口。若只改文档，不重启
+`platform/.cache/service`；若改服务代码，按
+[部署与运行时资产](deployment.md) 重启匹配进程。
+
 ## 平台工具完整清单
 
 下表中的 `platform/tools/*.py` 都由文档测试检查，新增顶层工具时
@@ -240,7 +258,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 unified native VHCI | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | Device Service/独立 runner 的同 guest board+WiFi+公网+native-VHCI BLE，符号来自匹配 ELF |
 | Core2 native HCI `HCI-1` | `patches/qemu-core2-native-hci/`；`tests/uiflow2/core2_native_hci/test_transport.py` | QEMU H4 chardev framing、bounded queue、overflow、peer lifecycle、counters 和 clean shutdown PASS |
 | Core2 guest H2C `HCI-2` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` 并转发 peer |
-| Core2 C2H callback `HCI-3a` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py --enable-c2h` | 从 ELF 分配 guest buffer，调用注册的 `notify_host_recv` 和 send-available；Reset Complete 后 guest 发出下一条 H2C，targeted `5/5` |
+| Core2 C2H callback `HCI-3a` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py --enable-c2h` | 诊断性单包路径：从 ELF 分配 guest buffer，调用注册的 `notify_host_recv` 和 send-available；Reset Complete 后 guest 发出下一条 H2C，targeted `5/5`；不能扩展为产品 C2H 后端 |
 | Core2 full HCI/GATT `HCI-3b` | `tests/uiflow2/core2_native_hci/run_full.py`；三份 `evidence-2026-10-24-hci3b-*.json` | 无 GDB、真实 Bumble controller/peer；已到连接和首个 ATT 交互，第二个 ATT request 后 guest Reset。safe-point callback 与 nested `r_eif_send` 分别导致 LoadProhibited 和 cache-disabled 异常，实验均已回退 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |

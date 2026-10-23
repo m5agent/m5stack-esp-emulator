@@ -385,16 +385,19 @@ evidence/
 - 模型状态：`simulated`、`partial`、`planned`；
 - 验证层级：`SIM_ONLY`、`PARTIAL`、`HW_VERIFIED`、`NOT_RUN`。
 
-## 9. 当前固件审核 API 的约束
+## 9. 外部固件审核控制面的约束
 
-现网 Agent Review API 已具备：
+外部 M5Burner/Agent Review 控制面不在本仓库工作树内，其部署状态和字段不能在
+这里当作当前事实。接入前必须对该环境做一次只读契约核验。就本仓库的
+Device Service 和 review adapter 而言，联调至少需要确认以下外部能力：
 
 - pending 列表；
 - claim 和 lease token；
 - 幂等提交；
 - `deviceCodes`。
 
-仍缺少：
+若目标环境缺少以下能力，本地 Review Broker 必须承担并在 evidence 中记录，
+不能假设服务端已经保存：
 
 - 单条详情和历史回读；
 - 分阶段结果；

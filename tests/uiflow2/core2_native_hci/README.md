@@ -15,7 +15,7 @@ controller/baseband or prove a complete GATT sequence.
 | --- | --- | --- |
 | `HCI-1` host transport | `PASS` | `evidence-2026-10-24-transport-pass.json` |
 | `HCI-2` guest H2C | `PARTIAL` | `evidence-2026-10-24-guest-h2c.json`; first Reset only |
-| `HCI-3a` guest C2H callback | `PASS` | `evidence-2026-10-24-c2h-delivery.json` and `evidence-2026-10-24-c2h-delivery-5x.json`; Reset Complete then next H2C |
+| `HCI-3a` guest C2H callback | `DIAGNOSTIC PASS` | `evidence-2026-10-24-c2h-delivery.json` and `evidence-2026-10-24-c2h-delivery-5x.json`; Reset Complete then next H2C. This narrow callback route is not the production C2H backend |
 | `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | `evidence-2026-10-24-hci3b-diagnostic.json`; connection succeeds, second ATT request precedes guest HCI Reset |
 | `HCI-4` repeated lease | `OPEN` | Still provided by the GDB diagnostic bridge at `1/2` |
 

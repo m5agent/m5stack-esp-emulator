@@ -13,12 +13,12 @@ QEMU 内部实现路线。当前能力结论仍以
 | --- | --- | --- | --- |
 | `HCI-1` host transport | `PASS` | `patches/qemu-core2-native-hci/0001-esp32-native-hci-transport.patch` | H4 framing、bounded queue、overflow、peer lifecycle、QOM counters 和 clean shutdown 已通过 targeted test |
 | `HCI-2` H2C | `PARTIAL` | 同一补丁的 `env-pointer-address` poller；`test_guest_h2c.py` | 不启动 GDB 已捕获真实 stock HCI Reset `01030c00`；完整命令序列需要 C2H 才能继续 |
-| `HCI-3a` C2H callback | `PASS` | `c2h-allocator-address`、注册 callback 调用、send-available 和 QOM counters | Reset Complete 已交付 guest 的 `notify_host_recv`，callback status 为 0，guest 随后发出 Read Local Version；连续 `5/5` |
+| `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | `c2h-allocator-address`、注册 callback 调用、send-available 和 QOM counters | Reset Complete 已交付 guest 的 `notify_host_recv`，callback status 为 0，guest 随后发出 Read Local Version；连续 `5/5`。这只证明窄路径 ABI，不是可扩展产品后端 |
 | `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | `run_full.py`、`evidence-2026-10-24-hci3b-diagnostic.json` | 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset，不能作为 PASS |
 | `HCI-4` stability | `OPEN` | 无门禁 | 还没有无 GDB 的 Device Service 连续 `5/5` 完整 GATT 证据 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
-send-available 的基本路径；`HCI-3b` 的后续审计又证明：在任意 safe point
+send-available 的窄路径；但 `HCI-3b` 的后续审计证明：在任意 safe point
 直接注入 callback、以及 nested 调用真实 `r_eif_send → vhci_send`，都不是
 有效的 controller-to-host 交付上下文。下一实现必须提供 guest-visible
 IRQ/queue 或 in-process controller transaction。只有完整 sequence 稳定后
@@ -144,7 +144,7 @@ Bumble。Reset 已通过；`HCI-3a` 现在能交付第一个 C2H 响应并推进
 
 ### HCI-3：C2H QEMU→guest
 
-状态：`HCI-3a PASS / HCI-3b OPEN`。
+状态：`HCI-3a DIAGNOSTIC PASS / HCI-3b OPEN`。
 
 - Bumble event/ACL 由 QEMU 主循环接收；
 - 用 `async_run_on_cpu` 或设备 IRQ 在安全点提交；
@@ -155,7 +155,7 @@ Bumble。Reset 已通过；`HCI-3a` 现在能交付第一个 C2H 响应并推进
 验收：external Bumble scan/connect/NUS subscribe/write/notify；guest ACK
 回读。
 
-#### HCI-3a 已通过
+#### HCI-3a 诊断路径已通过
 
 - 从 `vhci_env_p + 0x4e4` 动态读取注册 callback table；
 - 用真实 guest `malloc` 分配 C2H scratch，避免覆盖 BT RAM；
@@ -173,6 +173,8 @@ Bumble。Reset 已通过；`HCI-3a` 现在能交付第一个 C2H 响应并推进
 
 这仍不等于完整 BLE：探索性 Bumble 运行出现过完整初始化、广播和连接，
 但后续 ATT 请求不能稳定完成，因此不把 scan/connect/GATT 作为门禁结果。
+后续审计也证明该 callback 注入方式不适合作为正式 controller-to-host
+交付机制，不能据此进入 `HCI-4`。
 
 #### 已排除的假设
 
@@ -239,19 +241,21 @@ repeated lease。
 - 失败必须分类为 queue、transport、vCPU commit、guest reset 或 peer；
 - 再做长稳、coexistence 和真机同路径。
 
-## 工作量
+## 剩余工作量
 
-在已有 Core2 QEMU、HCI packet fixture 和 Bumble peer 的前提下：
+下面是当前阶段之后的重新估算，不包含已经完成的 HCI-1、HCI-2 和
+HCI-3a 窄路径：
 
-- HCI-0 到 HCI-2 的 host transport、queue 和 H2C 抓取：约 `4–7` 天；
-- HCI-3 的 C2H 安全提交和 ESP32 VHCI controller-to-host 对齐：约
-  `4–8` 天；
-- HCI-4 的 repeated lease、故障注入和长稳：约 `3–5` 天；
-- 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计
-  `4–8` 周，不能包含在前 2–3 周内。
+- `HCI-3b` C2H queue/status/IRQ 语义审计和 spike：约 `1–2` 天；如果固件
+  和 ELF 能给出可验证字段，再进入实现；
+- `HCI-3b` guest-visible queue/IRQ 或 in-process controller transaction：
+  约 `3–6` 天；
+- `HCI-4` repeated lease、故障注入和长稳：约 `2–4` 天；
+- 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周，
+  不能包含在 HCI-3b/HCI-4 的估算内。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
-firmware/ELF 和 QEMU 状态建立可验证语义，HCI-3 会升级为架构 blocker，
+firmware/ELF 和 QEMU 状态建立可验证语义，HCI-3b 会升级为架构 blocker，
 届时停止 GDB hack，不以更多 retry 掩盖。
 
 ## 明确不接受

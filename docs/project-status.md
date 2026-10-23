@@ -27,7 +27,8 @@
   `67/67` 用例、`274/274` 检查 PASS，包含全部 6 个 Core2 case；每个
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
   `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
-  QEMU 虚拟时钟推进。该轮包含双 guest WiFi patch `0028`；第一轮暴露
+  QEMU 虚拟时钟推进。该轮包含 QEMU patch `0028` 的双 guest WiFi
+  生命周期；第一轮暴露
   Cardputer-ADV 键盘 6 秒启动窗口竞争，补齐 10 秒等待和 2 秒输入后等待
   后，定向用例和最终全矩阵均通过。
 - 当前窄校验：runtime coverage、peripheral catalog 和 QEMU profiles
@@ -54,53 +55,25 @@
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
 | 服务生命周期 | 停止/失败历史可恢复、容量与 GC 可用；worker heartbeat/drain/resume、租约和重启分类可用 | 活动进程不能跨重启接管，无远程注册、warm pool/多机调度 | 不适用 | 本地 worker 控制面，不是完整云端服务 |
 
-## 最近里程碑
+## 验证证据
 
-| 日期 | 工作流 | 已交付结果 | 证据入口 |
-| --- | --- | --- | --- |
-| 2026-10-24 | 网络隔离 | private net/mount namespace、fail-closed、controlled DNS、TLS/Host allowlist、200/403 与 pcap 联合 PASS | [`controlled-dns-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json) |
-| 2026-10-24 | IP/端口 egress | nftables input/output 默认 drop；允许/拒绝端口、允许/拒绝 IP、`1.1.1.1:80` veth/NAT、namespace/NAT 清理 PASS；TLS guest 在同一策略下 PASS | [`ip-port-pass.json`](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json) |
-| 2026-10-24 | Linux CI | 该证据产生时 GitHub Ubuntu runner 执行 `236` 项平台测试和 fail-closed namespace/egress fixture；允许端点 200、拒绝端口/IP、veth/NAT 与清理全部 PASS。该数字属于历史证据，当前套件规模见上方本轮快照 | [`github-actions-pass.json`](../tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json) |
-| 2026-10-24 | AP/radio loss | StickS3 guest 先 DHCP/HTTP；QOM `radio-enabled=false` 后扫描为 0，恢复后扫描为 1，同一 guest 再 DHCP 并完成 `/after` HTTP；pcap 含两组 DORA | [`radio-loss-pass.json`](../tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json) |
-| 2026-10-24 | DHCP renewal | ESP-IDF guest 调用 `netifapi_dhcp_renew()`；pcap 同事务出现初次 DORA 后再接 `REQUEST/ACK`，renewal request/ack 各 1，地址保持并通过 HTTP | [`renewal-pass.json`](../tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json) |
-| 2026-10-24 | 双设备 lab fabric | private namespace 内两台 StickS3 完成 DHCP；A→B TCP `19123` 请求/响应成功，两侧 pcap 均有双向 payload hash；宿主、公网、metadata、默认路由不可达，namespace 已清理 | [`two-guest-pass.json`](../tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json) |
-| 2026-10-24 | 本地 worker lifecycle | 真实 StickS3 `qemu-wifi` lease：心跳、active lease、drain 阻断新租约、活动会话和 pcap 继续、停止后 drained、resume；强杀服务进程组后下一 generation 将旧 lease 标为 abandoned，会话恢复为 interrupted failed | [`worker-lifecycle-pass.json`](../tests/network/worker_lifecycle/evidence-2026-10-24-pass.json) |
-| 2026-10-24 | 共享 WiFi + 全矩阵 | patch `0028` 的双 guest WLAN 生命周期进入同一 QEMU build；Cardputer-ADV 键盘 settle 加固后，S3/C6/Core2 `67/67` case、`274/274` check 首轮 PASS，全部 `attempts=1`、`retry_used=false` | [`dual-guest-fabric-matrix.json`](../tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) |
-| 2026-10-24 | 共享 QEMU | ESP32-S3 AES/GDMA 外部内存读取修复；当轮全矩阵 `67/67` case、`274/274` check，全部首轮无重试 | [`gdma-external-memory-matrix.json`](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) |
-| 2026-10-24 | 固件审查 | FirmwareManifest 增加 LittleFS 与只读 FAT12/16/32 文件清单、SHA256、LFN、敏感路径脱敏与 SPDX 提取 | [`fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json) |
-| 2026-10-24 | 固件上传 | 可恢复 chunk artifact upload 增加连续 offset、per-chunk/final SHA256、写入失败回滚、原子 metadata、abort 和废弃 staging GC | [`streaming-artifact-upload.json`](../tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json) |
-| 2026-10-24 | WebBurner | 浏览器完成流式 SHA256、4 MiB 多 chunk、进度/重试/取消、刷新恢复和 package → FirmwareManifest import；9.44 MiB 三 chunk 探针 PASS | [`webburner-ui.json`](../tests/firmware/evidence-2026-10-24-webburner-ui.json) |
-| 2026-10-24 | 固件安全配置 | FirmwareManifest 解析脱敏 `espefuse summary --format json`，区分镜像、sdkconfig、分区 flag 与 eFuse 证据；原始 key/value 不落输出；启用安全启动/加密仍被 capability preflight 拒绝 | [`efuse-security.json`](../tests/firmware/evidence-2026-10-24-efuse-security.json) |
-| 2026-10-24 | Core2 | 确定性启动与零重试门禁合入；stock native-VHCI BLE、同 guest board+WiFi+公网+BLE GATT、Device Service 单 lease 证据已归档 | [`native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) |
-| 2026-10-24 | Core2 VHCI 符号 | 从匹配 Xtensa ELF 解析 `API_vhci_host_send_packet`、`vhci_env_p`、`esp_cpu_wait_for_intr` 固定地址；standalone BLE `5/5`、同 guest unified `3/3`；GDB 不再负责符号查询，仍负责暂停、callback 注入和 synthetic return | [`native-vhci-pinned.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json) |
-| 2026-10-24 | Core2 native HCI `HCI-1` | QEMU `esp32-native-hci` 完成 H4 chardev framing、32 packet bounded queue、overflow/peer/clean shutdown 和 QOM counters，targeted transport test PASS | [`transport-pass.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-transport-pass.json) |
-| 2026-10-24 | Core2 native HCI `HCI-2` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00`，QOM 与 dummy peer 均记录同一 packet；完整命令序列仍等待 C2H | [`guest-h2c.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-guest-h2c.json) |
-| 2026-10-24 | Core2 native HCI `HCI-3a` | 从 ELF 解析 `vhci_env_p` 和 guest `malloc`，按 Xtensa callback ABI 交付 Reset Complete；callback status 为 0，guest 继续发出 Read Local Version，targeted `5/5` | [`c2h-delivery.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json) |
-| 2026-10-24 | Core2 native HCI `HCI-3b` | 无 GDB 的 Bumble peer 已发现/连接并完成首个 ATT request/response；第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并发送 HCI Reset，服务发现超时。H4 解析和 callback status 不是故障点，完整 sequence 仍为 `FAIL` | [`hci3b-diagnostic.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-diagnostic.json) |
-| 2026-10-24 | Core2 callback 路线审计 | 保存/恢复常用 Xtensa caller-saved 特殊寄存器并在任意 CPU0 safe point 注入，仍触发 ack 12 和 `LoadProhibited`；直接 nested 调用真实 `r_eif_send → vhci_send` 触发 `Cache disabled but cached memory region accessed`。两个实验均未保留，补丁 reverse-check 为 `PASS` | [`safe-point-audit.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-safe-point-audit.json)、[`controller-entry-audit.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-controller-entry-audit.json) |
+带日期的里程碑、当时检查项和证据链接统一维护在
+[验证证据台账](validation-ledger.md)。本页只保留“这些证据加在一起，今天
+能得出什么当前结论”，不复制逐条流水。代码路径和复现命令见
+[代码与验证入口地图](code-map.md)。
 
 ## P0 收口
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions Linux policy CI PASS | 远程 QEMU worker、活动进程 re-attach、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB `run_full.py` 已到广播/连接和首个 ATT 交互，但第二个 ATT request 后 guest `ack returned 12` 并 Reset；任意 safe-point callback 与 nested `r_eif_send` 均已证伪并回退。下一步是实现 C2H device/IRQ queue 或 in-process controller transaction，随后 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB `run_full.py` 已到广播/连接和首个 ATT 交互，但第二个 ATT request 后 guest `ack returned 12` 并 Reset；任意 safe-point callback 与 nested `r_eif_send` 均已证伪并回退。下一步是实现 C2H device/IRQ queue 或 in-process controller transaction，随后 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
 
-## 工程工作流总表
+## 工作流入口
 
-| 工作流 | 当前状态 | 主要代码 | 已验证内容 | 下一道边界 |
-| --- | --- | --- | --- | --- |
-| 设备与板级契约 | 已完成 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 14 台设备登记；13 台达到登记外设的模拟数据面；catalog、coverage、profile 校验通过 | 新设备逐项登记；视觉保真另列 |
-| QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | QEMU patch `0028` 后最新 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
-| Core2 LX6 | 功能路径完成；native-HCI 单包 C2H 已通过，完整 sequence 已有序失败取证 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、ELF 固定符号、Device Service 单 lease PASS；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` `5/5`；`HCI-3b` diagnostic FAIL 固定在第二个 ATT request，safe-point/nested-entry 实验已回退 | 实现 guest-visible controller-to-host IRQ/queue 或 in-process controller transaction；随后 `HCI-4` Device Service `5/5`；bit-exact BT、物理 cache/PSRAM 与 soak 另列 |
-| Device Service | 本地 v1 + worker lifecycle controller 可用，生产服务化未完成 | `platform/tools/device_service.py`、`serve.py`、`worker_registry.py`、`storage_policy.py`、`platform/web/firmware.*` | lease、worker heartbeat/drain/resume、独占状态目录、generation/abandoned lease、WebBurner/firmware package import、direct/resumable chunk 上传、烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.14.0 | 远程 worker 注册/调度、活动 QEMU 进程 re-attach、warm pool、多机、VM 隔离和编排模块拆分 |
-| FirmwareManifest | v1 + 静态审查 + eFuse 安全摘要 + LittleFS/FAT 清单 + WebBurner browser intake | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`device_service.py`、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、8 MiB API chunk、4 MiB browser chunk、browser SHA256/progress/retry/cancel/refresh、failed-append rollback、staging GC、capability mismatch、SBOM、LittleFS/FAT | SPIFFS、运行时权限、许可策略、真机 key/eFuse、跨厂商回归 |
-| 网络隔离与取证 | Linux 单机、双 guest lab fabric、本地 worker lifecycle 与 GitHub Actions policy 路径闭环，远程 worker 开放 | `worker_registry.py`、`network_fabric.py`、`network_egress.py`、`network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、reconnect probe | namespace/controlled DNS/TLS、nftables exact IPv4 egress、veth/NAT、DHCP DORA+renew lifecycle、pcap、错误密码、radio/AP 丢失恢复、双 guest DHCP/TCP/双侧 pcap、本地 worker heartbeat/drain/restart classification 和清理 PASS；GitHub Actions Linux job PASS | 远程 QEMU worker、活动进程 re-attach、外部 IPv6 |
-| 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
-| 物理硬件验证 | `NOT RUN` | Device Test Center 路径 | 当前仅有 virtual-device validation | 代表设备使用同固件 SHA 和同测试计划做实机证据 |
-
-这张表是工作流级摘要，设备级细节在下文矩阵；真正未完成事项只在
+按工作流查看交付状态、代码/证据入口和未完成 Task ID，见
+[工作流总台账](workstreams.md)。设备级细节在下文矩阵；真正未完成事项只在
 [项目 Backlog](project-backlog.md) 维护。
 
 ## 现在可以做什么
@@ -161,7 +134,7 @@
   | --- | --- | --- |
   | `HCI-1` transport | `PASS` | 分片 ACL、32 packet bounded queue、overflow、peer close、counters 和 clean shutdown |
   | `HCI-2` H2C | `PARTIAL` | 不启动 GDB，已捕获真实 stock HCI Reset `01030c00`；后续 H2C 依赖 controller response |
-  | `HCI-3a` C2H callback | `PASS` | 真实 Bumble Reset Complete 经 firmware `notify_host_recv` 交付，callback status 0；send-available 后 guest 从 HCI Reset 推进到 Read Local Version，targeted `5/5` |
+  | `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | 真实 Bumble Reset Complete 经 firmware `notify_host_recv` 交付，callback status 0；send-available 后 guest 从 HCI Reset 推进到 Read Local Version，targeted `5/5`。后续审计不支持把它当作产品后端 |
   | `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | Bumble 能到广播/连接和首个 ATT request/response；第二个 ATT request 后 ack 12 并 Reset。任意 safe-point callback 与 nested `r_eif_send` 均已证伪并回退，必须改走 device/IRQ queue 或 in-process controller |
   | `HCI-4` stability | `OPEN` | 尚无以 Device Service `/api/v1` 连续 `5/5`、无 GDB callback/synthetic return 的完整 GATT 门禁 |
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
@@ -214,57 +187,8 @@
 
 - [QEMU 设备适配矩阵](qemu-device-adaptation-matrix.md)
 - [UIFlow2 外设测试矩阵](uiflow2-peripheral-test-matrix.md)
+- [验证证据台账](validation-ledger.md)
 - [代码与验证入口地图](code-map.md)
-- Core2 10-run evidence:
-  [`tests/uiflow2/unified_core2/evidence-2026-10-23-icount-public.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-icount-public.json)
-- Core2 native-VHCI GATT evidence:
-  [`tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json`](../tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json)
-- Core2 same-guest unified native-VHCI evidence:
-  [`tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json)
-- Core2 pinned-symbol standalone native-VHCI evidence:
-  [`tests/uiflow2/core2_native_vhci/evidence-2026-10-24-symbol-pinned.json`](../tests/uiflow2/core2_native_vhci/evidence-2026-10-24-symbol-pinned.json)
-- Core2 pinned-symbol same-guest unified evidence:
-  [`tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json)
-- Core2 repeated Device Service stability failure:
-  [`tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-service-stability.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-service-stability.json)
-- Core2 Device Service native-VHCI evidence:
-  [`tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
-- GDMA external-memory fix + patch 0027 full-matrix evidence:
-  [`tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json`](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json)
-- Dual-guest WiFi patch + latest full matrix evidence:
-  [`tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json`](../tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json)
-- TLS/Host allowlist pass evidence:
-  [`tests/network/tls_allowlist/evidence-2026-10-23-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-23-pass.json)
-- Linux namespace TLS/Host allowlist evidence:
-  [`tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json)
-- Controlled DNS + TLS/Host allowlist evidence:
-  [`tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json)
-- Exact IP/port, public NAT and cleanup evidence:
-  [`tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json`](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json)
-- GitHub Actions Linux namespace/egress evidence:
-  [`tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json`](../tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json)
-- Two-guest private QEMU lab fabric:
-  [`tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json`](../tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json)
-- Local worker drain/restart lifecycle:
-  [`tests/network/worker_lifecycle/evidence-2026-10-24-pass.json`](../tests/network/worker_lifecycle/evidence-2026-10-24-pass.json)
-- StickS3 TLS under nftables IP/port policy:
-  [`tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json)
-- DHCP renewal through Device Service:
-  [`tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json`](../tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json)
-- Virtual WiFi radio/AP loss and same-guest recovery:
-  [`tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json`](../tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json)
-- Firmware redacted static review evidence:
-  [`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)
-- LittleFS inventory evidence:
-  [`tests/firmware/evidence-2026-10-24-filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json)
-- FAT12/16/32 inventory and real-sample evidence:
-  [`tests/firmware/evidence-2026-10-24-fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json)
-- Resumable artifact upload, rollback and staging GC:
-  [`tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json`](../tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json)
-- WebBurner browser upload, refresh recovery and cancel:
-  [`tests/firmware/evidence-2026-10-24-webburner-ui.json`](../tests/firmware/evidence-2026-10-24-webburner-ui.json)
-- Linux guest-in-namespace evidence:
-  [`tests/network/linux_isolation/evidence-2026-10-23-linux.json`](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
 - [网络模拟方案](network-simulation-plan.md)
 - [网络诊断 lane](network-lane.md)
 - [统一设备运行时契约](unified-device-runtime.md)
@@ -278,7 +202,7 @@
    复现；native-VHCI 已在同一 guest 与 WiFi/公网/board 合并 3/3，并进入
    Device Service。VHCI 符号已经固定，但 GDB 仍控制暂停、callback 注入
    和 synthetic return。QEMU 内部 relay 已完成 transport、首个 H2C 和
-   单包 C2H callback；完整 sequence 的失败证据也排除了任意 safe-point
+   诊断性单包 C2H callback；完整 sequence 的失败证据也排除了任意 safe-point
    回调与 nested guest RPC。下一步必须建立 guest-visible controller
    IRQ/queue 或 in-process controller transaction。该路径不是无调试器的
    生产模型，也不等于 bit-exact Espressif BT controller 或物理
@@ -302,6 +226,7 @@
 - `workstreams.md`：按工作流汇总当前交付、代码/证据入口和未完成 Task ID。
 - 本文：当前能力与设备状态。
 - `docs/project-backlog.md`：只列未完成事项、优先级和依赖。
+- `docs/validation-ledger.md`：按日期保存里程碑、检查项和 evidence。
 - `docs/code-map.md`：代码入口、验证命令、证据目录和文档维护规则。
 - `docs/unified-device-runtime.md`：单 lease/单 guest 的运行时契约。
 - `docs/network-*.md`：网络数据面、测试夹具和边界。
