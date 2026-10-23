@@ -1,5 +1,7 @@
 # User firmware simulation matrix
 
+Last reviewed: `2026-10-24`
+
 `platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
 M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
 possible, uploads each merged image through the Device Service `/api/v1`, boots
@@ -64,7 +66,8 @@ response, serial digest and a bounded set of fatal error lines.
   ELF, so AP-frame and touch capture remain unavailable.
 - Core2 sessions expose the supported 4 MiB PSRAM model. Radio/unified runs
   now use deterministic TCG/icount scheduling and passed 10/10 independent
-  first attempts; this mitigates the virtual interrupt-WDT reproduction but
-  does not prove physical cache/PSRAM timing. Stock VHCI paths pass external
+  first attempts; the reproduced failure was interrupt-WDT/timer starvation,
+  not a proven cache fault. This does not prove physical cache/PSRAM timing.
+  Stock VHCI paths pass external
   NUS GATT 5/5 standalone and board+WiFi+public+BLE 3/3 in one guest, but
   bit-exact Espressif BT controller behavior is still `NOT RUN`.

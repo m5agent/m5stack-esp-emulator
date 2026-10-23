@@ -206,7 +206,8 @@ diagnostics in `internal/records/`.
   antenna, WPA2/WPA3 or security model.
 - Core2 exposes environment-gated `core2-unified` with OpenMAC WiFi and
   UART1 HCI-offload BLE when `M5_CORE2_RADIO_QEMU` selects the matching QEMU.
-  DNS/public HTTP and deterministic TCG/icount startup are validated.
+  DHCP, controlled HTTP, public DNS/HTTP and deterministic TCG/icount startup
+  are validated.
 - The standalone stock Core2 UIFlow2 native-VHCI runner uses a GDB bridge to
   hand HCI to Bumble and passed external NUS GATT 5/5 without rebuilding for
   UART HCI. The extended `unified_core2` runner also combines board, frame,
@@ -231,11 +232,12 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- Linux namespace CI integration, egress allowlists/TLS and DHCP renewal;
+- Linux namespace CI integration, generic destination IP/port egress policy,
+  DHCP renewal, real AP loss/recovery and a two-device lab fabric;
 - production Core2 VHCI backend, bit-exact BT controller and physical
-  cache/PSRAM equivalence;
-- deeper generic-firmware static analysis, production security-key flows and
-  broader cross-firmware compatibility;
+  cache/PSRAM equivalence, coexistence and soak;
+- FAT/SPIFFS inventory, runtime permissions/license policy, production
+  security-key flows, streaming upload and broader cross-firmware compatibility;
 - remote worker supervision, warm pools, multi-host scheduling and hardened
   untrusted-firmware isolation;
 - Tab5 missing P4 data paths behind the closed-source backend;

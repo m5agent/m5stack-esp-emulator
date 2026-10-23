@@ -1,5 +1,7 @@
 # Core2 OpenMAC WiFi model
 
+Last reviewed: `2026-10-24`
+
 This patch imports the ESP32 classic WiFi device from
 `esp32-open-mac/qemu` commit
 `47ff9135c3f8890c9d93a2775eb4e5f6d8e65c04` into the current M5 QEMU 9.2.2
@@ -33,7 +35,19 @@ On QEMU 9.2.2, a stock Core2 UIFlow2 `network.WLAN` probe passes:
 - a controlled HTTP GET through the QEMU user-net gateway returns
   `HTTP/1.0 200 OK`.
 
-DNS requests, external internet access and BLE remain `NOT RUN`.
+This patch alone proves the MAC/DMA/user-net path above. Its follow-up lanes
+now also pass public IPv4 DNS/HTTP and two BLE GATT paths:
+
+- `unified_core2` keeps board, WiFi, public DNS/HTTP and HCI-offload BLE in one
+  guest;
+- stock UIFlow2 native-VHCI keeps the built-in-controller build and bridges the
+  real VHCI boundary to Bumble for external NUS GATT 5/5;
+- `qemu-unified/profile=core2-native-vhci` exposes the same stock path through
+  one Device Service lease.
+
+Those later results do not turn this patch into a complete PHY/rate/security/RF
+model. The native-VHCI bridge still depends on QEMU GDB, and a bit-exact
+Espressif BT baseband/controller remains `NOT RUN`.
 
 This is a simulation bring-up patch, not a complete WiFi implementation and not
 real-hardware validation.

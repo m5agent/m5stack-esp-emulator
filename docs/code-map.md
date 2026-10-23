@@ -23,6 +23,27 @@
 
 旧的启动排障、渲染分析和计划文档保留为历史证据，不应覆盖上述当前状态。
 
+## 代码目录
+
+| 目录 | 职责 | 是否产品入口 |
+| --- | --- | --- |
+| `platform/tools/` | Device Service、固件导入/审查、网络策略、存储、QEMU profile 和目录生成 | 是 |
+| `platform/tests/` | 平台单元/契约测试；`test_docs_consistency.py` 防止文档和 API 漂移 | 是 |
+| `platform/peripherals/` | 芯片模型登记、运行时 coverage、设备/模型模板和完成门禁 | 是 |
+| `platform/qemu/` | QEMU machine、runtime profile、资产和 blocker 注册表 | 是 |
+| `patches/` | 可重放的 QEMU/板级补丁源；必须从匹配 worktree 生成和反向验证 | 是 |
+| `tests/uiflow2/` | 外设、UI、统一运行时、Core2 无线和证据包 | 是 |
+| `tests/network/` | namespace、DNS、TLS、错误密码、重连和 Core2 网络夹具 | 是 |
+| `tests/firmware/` | FirmwareManifest、静态审查和文件系统清单证据 | 是 |
+| `devices/` | 源设备清单、生成后的设备档案、固件来源和说明 | 是 |
+| `platform/web/` | 设备目录、Live session、输入和 3D 外壳 | 是 |
+| `platform/runtime/wasm/` | 固定版本的第三方 `esp-emu` 运行时资产 | 仅 Tab5/诊断后端 |
+| `records/` | 仓内历史调查快照；不代表当前状态 | 否，历史证据 |
+| `.work/` | 本地 QEMU、ROM、工具链、固件和缓存，不提交 | 否，运行时资产 |
+
+代码和文档发生冲突时，优先级是：本次实测 evidence 与同 commit 生成物 >
+源 catalog/profile/API 契约 > `project-status.md` > 专题说明 > 历史文档。
+
 ## 运行链路
 
 ### Device Service
@@ -73,6 +94,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
+| `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |
 
 ### 网络与 BLE
 
@@ -84,6 +106,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/pcap_summary.py` | flow、DNS、DHCP、ARP、egress scope 和 payload hash |
 | `platform/tools/ble_probe.py` | 外部 BLE peer / GATT 验证 |
 | `platform/tools/hci_stream.py` | H4 command/event/ACL 分包 |
+| `platform/tools/runtime_interfaces.py` | 对外汇总设备、外设和运行时可注入接口 |
 | `tests/uiflow2/core2_native_vhci/` | stock Core2 VHCI→Bumble GATT runner |
 | `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | QEMU GDB H2C/C2H bridge |
 | `tests/network/tls_allowlist/` | 测试 CA、namespace-local HTTPS gateway、Host 允许/拒绝和 pcap 断言 |
@@ -91,6 +114,16 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 
 QEMU 主路径必须在同一个 guest 内同时具备板级外设、网络和 HCI/BT 数据面。
 `runtime=network` 只用于诊断，不能和另一条 QEMU 板级结果拼成整机 PASS。
+
+### 运行时优先级
+
+| 层级 | 入口 | 用途 | 结论边界 |
+| --- | --- | --- | --- |
+| 产品验收 | `runtime=qemu-unified` + `*-unified` profile | 单 lease、单 guest 的 board/WiFi/BLE/evidence | 当前 S3/C6/Core2 的主路径 |
+| 兼容无线 | `qemu-wifi`、`qemu-ble` | 旧 profile 和单选无线诊断 | `qemu-ble` 不应作为新调用默认值 |
+| 网络诊断 | `runtime=network` / `network_lane.py` | WiFi/BLE blocker、SoftAP、DNS/TCP/UDP/HCI | 没有同 guest 板级结论 |
+| Tab5 例外 | `esp-emulator-native` | P4 rom/ELF、显示、触摸和 ESP-Hosted | `partial`，不是完整 P4 外设模型 |
+| 历史实验 | 无服务入口的临时 QEMU worktree、旧 evidence | 根因调查 | 不能写成当前产品能力 |
 
 ### 设备契约与 QEMU
 

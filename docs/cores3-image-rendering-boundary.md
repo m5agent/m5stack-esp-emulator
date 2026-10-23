@@ -4,6 +4,8 @@ Status: `OPEN`
 
 Date: `2026-10-22`
 
+Last reviewed: `2026-10-24`; the boundary remains `OPEN`.
+
 ## Symptom
 
 CoreS3 UIFlow2 startup menus can show horizontal/diagonal stripe artifacts in

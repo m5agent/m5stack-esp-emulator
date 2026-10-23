@@ -1,5 +1,7 @@
 # Core2 unified runtime probe
 
+Last reviewed: `2026-10-24`
+
 This probe runs the Core2 320x240 display, touch, AXP2101, INA3221,
 MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, WiFi, public IPv4
 DNS/HTTP and `BLEUARTServer` in one UIFlow2 guest.

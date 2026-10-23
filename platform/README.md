@@ -1,5 +1,7 @@
 # Platform
 
+Last reviewed: `2026-10-24`
+
 共享基础设施，不含具体产品档案。当前能力以
 [`docs/project-status.md`](../docs/project-status.md) 为准，代码和证据入口见
 [`docs/code-map.md`](../docs/code-map.md)。

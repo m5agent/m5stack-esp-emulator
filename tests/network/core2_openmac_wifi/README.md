@@ -1,5 +1,7 @@
 # Core2 OpenMAC WiFi scan probe
 
+Last reviewed: `2026-10-24`
+
 This optional regression exercises the ESP32 classic WiFi MAC and user-net path added by
 `patches/qemu-core2-openmac-wifi/`.
 
@@ -21,9 +23,10 @@ performs a controlled HTTP GET through QEMU user networking. It requires:
 - `CORE2_WIFI_RESULT: PASSED`.
 
 The model responds to probe requests and emits beacon/probe-response frames.
-This proves the stock WiFi MAC/PHY initialization, scan, association, DHCP,
-basic IP configuration and controlled TCP/HTTP path in simulation. It does not
-prove DNS, external internet access, BLE or real RF.
+This probe specifically proves scan, association, DHCP, basic IP configuration
+and controlled TCP/HTTP. Later `tests/uiflow2/unified_core2/` runs add public
+IPv4 DNS/HTTP and BLE in the same guest. This probe and those later runs do not
+prove real RF, WPA2/WPA3, roaming or coexistence.
 
 ## Apply the QEMU patch
 

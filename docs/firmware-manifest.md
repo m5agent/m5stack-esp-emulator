@@ -1,6 +1,6 @@
 # 固件清单与 WebBurner 导入
 
-日期：`2026-10-23`
+日期：`2026-10-24`
 
 ## 目标
 
@@ -121,7 +121,15 @@ JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名�
 
 ## 文件系统清单
 
-当前支持 LittleFS 数据分区：
+当前支持矩阵：
+
+| 文件系统 | 当前行为 | 证据 / 边界 |
+| --- | --- | --- |
+| LittleFS | 只读挂载、目录/文件清单、大小、SHA256、敏感路径脱敏、SPDX 提取 | 真实 StickS3 UIFlow2 `sys`/`vfs` 分区 PASS |
+| FAT12/16/32 | 分区可识别，但内容清单返回 `UNSUPPORTED` | 尚未实现只读 parser；不能用“挂载失败”冒充 `PASS` |
+| SPIFFS | 分区可识别，但内容清单返回 `UNSUPPORTED` | 尚未实现可审计 host parser；不能根据文件名/字符串猜测 |
+
+LittleFS 数据分区的具体行为：
 
 - 从 merged/segmented flash 的 data partition 直接挂载；
 - 自动尝试常见 block size，并记录实际 block size/count；
@@ -209,6 +217,9 @@ SBOM 缺失；输出 manifest 中未出现原始 query、凭据值或编码载�
 [`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)。
 StickS3 UIFlow2 `sys`/`vfs` LittleFS 清单与哈希证据：
 [`tests/firmware/evidence-2026-10-24-filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json)。
+其中 `sys` 为 39 个文件、5 个目录、632603 bytes，`vfs` 为 17 个文件、
+7 个目录、16306 bytes；两个分区均完成 manifest round-trip。该样本
+证明 LittleFS 路径，不代表 FAT/SPIFFS 已支持。
 
 ## 边界
 
@@ -221,3 +232,7 @@ StickS3 UIFlow2 `sys`/`vfs` LittleFS 清单与哈希证据：
 - manifest 中不得出现凭据、私钥、URL query/fragment 或编码载荷明文；
 - license/provenance 缺失不会自动变成合法授权；
 - 真机安全启动、Flash Encryption 和生产 key 流程仍须真机验证。
+
+下一步先实现有严格文件/簇上限的只读 FAT12/16/32 解析和 fixture；
+SPIFFS 要么实现窄范围只读 parser，要么从 ESP-IDF 源码构建可审计 helper，
+在直接测试前保持 `UNSUPPORTED`。

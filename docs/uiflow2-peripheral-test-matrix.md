@@ -1,6 +1,6 @@
 # UIFlow2 外设 API 测试矩阵
 
-日期：`2026-10-23`
+日期：`2026-10-24`
 
 本矩阵验证的是 QEMU 中的完整控制器/总线路径，而不是在 Python 测试代码里伪造
 API 返回值。当前结果只代表仿真验收，不是实机验收。
@@ -86,7 +86,6 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 | NanoC6 | GPIO19 电源使能 + GPIO20 WS2812 GRB | `hardware.RGB()` + RMT 解码 | PASS |
 | NanoC6 | GPIO9 低有效按键按下/释放 | `machine.Pin` + QOM GPIO 注入 | PASS |
 | NanoC6 | GPIO7 蓝色 LED 开关 | GPIO 输出寄存器 + QOM 电平观测 | PASS |
-
 | Arduino Nesso N1 | ESP32-C6 RMT0 NEC 红外发送 | `hardware.IR.tx()` | PASS |
 | StackChan | GC0308 初始化、LCD_CAM/GDMA 取帧、快照和显示 | `camera.snapshot()` | PASS |
 | PaperMono | RGB 红/绿/蓝控制与 M5IOE1 PWM 回读 | `M5.Led` | PASS |

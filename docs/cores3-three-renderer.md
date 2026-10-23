@@ -4,6 +4,8 @@ Date: `2026-10-22`
 
 Status: `INTEGRATED — simulation-only visual shell`
 
+Last reviewed: `2026-10-24`.
+
 ![CoreS3 shell before/after](images/cores3-shell-before-after.png)
 
 CoreS3 now has a dedicated three.js shell built with the device-authoring

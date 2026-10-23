@@ -28,6 +28,32 @@
 | 专题说明 | 深入解释某一类模型、流程或边界 | [网络模拟](network-simulation-plan.md)、[外设架构](peripheral-simulation-architecture.md) |
 | 历史证据 | 保留当时的复现、根因或阶段计划 | [StopWatch QEMU 适配](stopwatch-uiflow2-qemu.md)、[多设备设计](plans/2026-10-20-multi-device-emulator-design.md) |
 
+## 新鲜度台账
+
+“最近核对”表示该页结论已经和当前主入口对齐，不表示所有底层矩阵都在同一天
+重跑；真正的验证时间以页内 evidence 和 JSON 为准。
+
+| 页面 | 类型 | 最近核对 | 事实基线 |
+| --- | --- | --- | --- |
+| [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络、Core2、FirmwareManifest 与 225 项平台测试 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.9.0` |
+| [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 例外已纳入 service |
+| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | LittleFS 清单已通；FAT/SPIFFS 仍 `UNSUPPORTED` |
+| [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace、controlled DNS、TLS/Host allowlist、pcap 已通 |
+| [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
+| [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
+| [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 最新 `67/67` case、`274/274` check |
+| [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-24` | 能力仍以 2026-10-22 定向证据为基线 |
+| [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-24` | StopWatch 是唯一参考质量外壳 |
+| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-23` | 保留旧命名和复现，不覆盖当前状态 |
+| [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
+| [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | 初始适配日 | 解释启动链，不描述后续 multi-board 能力 |
+
+当前入口出现冲突时先修 `project-status.md`、Backlog、代码地图和契约页；
+历史页只允许补充“被哪一页取代”，不能反向把旧结论写回当前入口。
+
 ## 入口索引
 
 ### 状态、计划与维护

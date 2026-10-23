@@ -27,11 +27,20 @@
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
+## 最近里程碑
+
+| 日期 | 工作流 | 已交付结果 | 证据入口 |
+| --- | --- | --- | --- |
+| 2026-10-24 | 网络隔离 | private net/mount namespace、fail-closed、controlled DNS、TLS/Host allowlist、200/403 与 pcap 联合 PASS | [`controlled-dns-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json) |
+| 2026-10-24 | 共享 QEMU | ESP32-S3 AES/GDMA 外部内存读取修复；最新全矩阵 `67/67` case、`274/274` check，全部首轮无重试 | [`gdma-external-memory-matrix.json`](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) |
+| 2026-10-24 | 固件审查 | FirmwareManifest 增加 LittleFS 文件/目录、大小、SHA256、敏感路径脱敏与 SPDX 清单 | [`filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json) |
+| 2026-10-24 | Core2 | 确定性启动与零重试门禁合入；stock native-VHCI BLE、同 guest board+WiFi+公网+BLE GATT、Device Service 单 lease 证据已归档 | [`native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) |
+
 ## P0 收口
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、link fault/reconnect；Linux namespace controlled DNS、TLS + Host allowlist 完成允许 A/200、拒绝 NXDOMAIN/403 和 pcap 联合 PASS；QEMU patch `0027` 闭合 AES/GDMA 外部内存读取 | 正式 CI/worker、通用 destination egress allowlist、DHCP renewal、双设备 lab fabric |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、guest 断网 + backend link down/up + 重新 DHCP/HTTP；Linux namespace controlled DNS、TLS + Host allowlist 完成允许 A/200、拒绝 NXDOMAIN/403 和 pcap 联合 PASS；QEMU patch `0027` 闭合 AES/GDMA 外部内存读取 | 正式 CI/worker、通用 destination IP/port allowlist、DHCP renewal、真实 AP 丢失、双设备 lab fabric |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、Device Service `core2-native-vhci` PASS | 非 GDB 生产实现、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM 摘要、LittleFS 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS/FAT 解包、运行时权限、许可策略、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
@@ -129,7 +138,7 @@
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS | 原生 BT controller 与 C6 WiFi PHY |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller |
 | Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、扬声器、麦克风、WiFi、公网 DNS/HTTP、HCI-offload BLE、stock native-VHCI BLE GATT | `core2-unified` 与 `core2-native-vhci` Device Service lease PASS；native-VHCI BLE 5/5；同 guest 3/3 | 非 GDB 生产实现、bit-exact BT controller、物理 cache/PSRAM 等价性 |
-| Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
+| Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
 逐项测试依据：

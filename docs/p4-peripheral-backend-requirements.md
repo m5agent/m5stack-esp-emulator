@@ -1,5 +1,8 @@
 # ESP32-P4 peripheral backend requirements
 
+Last reviewed: `2026-10-24`. Capability evidence remains the Tab5
+`2026-10-22` focused probe.
+
 This document defines the minimum runtime interfaces needed to close the
 remaining Tab5 peripheral gaps without bypassing the firmware driver,
 controller, DMA/FIFO or endpoint path.

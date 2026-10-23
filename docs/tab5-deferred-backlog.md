@@ -2,6 +2,9 @@
 
 Date: `2026-10-22`
 
+Last reviewed: `2026-10-24`. The evidence baseline remains the focused
+`2026-10-22` probes; no newer Tab5 data plane is implied.
+
 ## Status
 
 Tab5 is usable as a partial virtual host, but its full peripheral data plane is

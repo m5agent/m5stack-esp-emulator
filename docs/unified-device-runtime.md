@@ -1,6 +1,6 @@
 # Unified Device Runtime Contract
 
-Date: `2026-10-23`
+Date: `2026-10-24`
 
 Current device availability is tracked in
 [Project current status](project-status.md); unfinished work is tracked in the
@@ -90,6 +90,11 @@ complete simulated device or as a unified-device PASS.
   DNS and an IPv4 HTTP request in that same guest. This is an opt-in
   host-network check because external availability is not deterministic in
   CI; the default regression path remains a controlled local HTTP fixture.
+- Linux runs the same StickS3 guest inside a private network namespace with no
+  external route. Controlled DNS returns allow A / deny NXDOMAIN, a generated
+  test CA exercises TLS Host allow/deny as HTTP 200/403, and pcap records the
+  same decisions. This is one-device isolation evidence, not a worker sandbox
+  or generic destination IP/port policy.
 - `esp-emu` has validated WiFi/BLE behavior on S3/C6, including same-instance
   WiFi + BLE inside one `esp-emu` guest.
 - The QEMU classic-ESP32 path contains a `misc.esp32_wifi` model and

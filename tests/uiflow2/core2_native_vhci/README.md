@@ -1,5 +1,7 @@
 # Core2 native VHCI BLE GATT bridge
 
+Last reviewed: `2026-10-24`
+
 This lane runs the stock Core2 UIFlow2 application image with its built-in
 controller build and intercepts the firmware's real `esp_vhci_host_*` boundary.
 It does not use the HCI-UART test build.

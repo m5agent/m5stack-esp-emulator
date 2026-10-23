@@ -4,6 +4,11 @@ Status: **mitigated for virtual-device runs; physical/hardware equivalence
 remains open**. This is an emulator scheduling/runtime issue, not a
 peripheral-data failure.
 
+> 历史根因页：2026-10-23 的后续定位已把最初 “cache panic” 命名修正为
+> interrupt-WDT/timer starvation。当前可用能力见
+> [项目当前状态](project-status.md)，剩余生产化项见
+> [项目 Backlog](project-backlog.md)。
+
 ## 2026-10-23 update
 
 The earlier label "cache panic" was too specific. A fresh failure was captured

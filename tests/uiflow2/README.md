@@ -1,5 +1,7 @@
 # UIFlow2 虚拟烧录与 UI 回归
 
+最近核对：`2026-10-24`
+
 设备参数在 `device_matrix.json` 中集中维护。统一流程：
 
 1. 生成带测试 `boot.py`/`main.py` 的 merged flash；
@@ -64,9 +66,13 @@ Core2 peripheral 和 device matrix 现在都显式使用
 不再配置自动重试；若 case 声明 `retries`，runner 默认拒绝运行，只有显式
 `--allow-retries` 才执行诊断重试。2026-10-24 00:11 的完整矩阵为
 `67/67`、`274/274`，全部 `attempts=1`。
+当前统一运行时入口是 `runtime=qemu-unified`；`qemu-wifi` 和 `qemu-ble`
+只用于兼容 profile 或单选无线诊断，不应作为新调用的默认路径。
 
-本轮跨设备问题、修复和证据见
+当时跨设备问题、修复和证据见
 [`docs/uiflow2-cross-device-regression-audit.md`](../../docs/uiflow2-cross-device-regression-audit.md)。
+当前能力不要从该历史页推断，统一看
+[`docs/project-status.md`](../../docs/project-status.md)。
 
 ## I2S 音频捕获
 

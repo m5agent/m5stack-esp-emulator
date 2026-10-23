@@ -1,295 +1,147 @@
-# Network simulation plan
+# 网络模拟方案
 
-Date: `2026-10-24`
+日期：`2026-10-24`
 
-## Current state
+本文定义网络架构、当前验证边界和后续验收顺序。当前设备能力以
+[项目当前状态](project-status.md) 为准，未完成事项只在
+[项目 Backlog](project-backlog.md) 维护，代码和证据入口见
+[代码与验证入口地图](code-map.md)。
 
-The primary product path is now one QEMU guest per Device Service lease with
-the board model, WiFi MAC/DMA and, where applicable, HCI BLE. The `esp-emu`
-network lane remains a diagnostic and provisioning backend rather than a
-whole-device acceptance path.
+## 产品路径
 
-Current capability is maintained in [Project current status](project-status.md);
-open network work is in [Project backlog](project-backlog.md), and code/evidence
-locations are in [Code and validation map](code-map.md).
+正式验收使用一个 Device Service lease、一个 QEMU guest 和一份 evidence：
 
-What is already available:
+```text
+Device Service lease
+        |
+        +-- one QEMU process
+              +-- SoC + flash + RAM/PSRAM
+              +-- board display/input/audio/sensors
+              +-- WiFi MAC/DMA + QEMU NIC
+              +-- BLE HCI-UART or controller-boundary path
+              +-- serial + frame + QOM + pcap + peer evidence
+```
 
-- `esp-emu` exposes WiFi SoftAP support, WPA2/WPA3, DHCP, user-mode networking,
-  TAP/vmnet backends, DNS and `hostfwd`;
-- the bundled WASM runtime exposes WiFi configuration and Ethernet-frame
-  injection/drain APIs;
-- Tab5 starts the C6 ESP-Hosted network adapter process with `--net user`;
-- CardputerZero has a separate SR9900A Ethernet path and frame round-trip.
+`esp-emu runtime=network` 是诊断和 provisioning lane，不是整机验收后端。
+它不能与其他 guest 的板级结果拼接成“单实例 PASS”。
 
-Validated through `2026-10-23`:
+## 当前已验证
 
-- `platform/tools/network_lane.py` runs isolated `esp-emu` sessions and emits
-  hashed `evidence.json`;
-- StickS3 and CoreS3 ESP-IDF WiFi association, DHCP and a controlled 1 MiB
-  HTTP/TCP download pass;
-- NanoC6 and Nesso N1 pass the same WiFi/DHCP/HTTP path on ESP32-C6;
-- ESP-IDF C6 `bleprph_wifi_coex` passes WiFi/DHCP while Bumble connects,
-  discovers GATT, writes and reads back a characteristic;
-- StickS3 UIFlow2 `network.WLAN` scan, association and DHCP have passed;
-- StickS3 UIFlow2 `BLEUARTServer` passes external Bumble scan, connection, NUS
-  GATT discovery, subscription, write and guest-side receive callback;
-- a StickS3 unified QEMU profile keeps display/buttons/IMU/audio, WiFi
-  scan/association/DHCP/HTTP, and HCI-UART BLE NUS in one guest process and
-  exposes the combined evidence through one Device Service lease;
-- a CoreS3 unified QEMU profile keeps display/touch, AXP2101/BMI270/audio,
-  WiFi scan/association/DHCP/HTTP, and HCI-UART BLE NUS in one guest process
-  and exposes the combined evidence through one Device Service lease;
-- a Cardputer ADV unified QEMU profile keeps display/keyboard, BMI270/audio,
-  WiFi scan/association/DHCP/HTTP, and HCI-UART BLE NUS in one guest process
-  and exposes the combined evidence through one Device Service lease;
-- a StopWatch unified QEMU profile keeps display/touch, M5PM1,
-  M5IOE1/AW8737A audio, BMI270, WiFi scan/association/DHCP/HTTP, and
-  HCI-UART BLE NUS in one guest process and exposes the combined evidence
-  through one Device Service lease;
-- an AtomS3R unified QEMU profile keeps display/button, BMI270, BMM150,
-  LP5562, WiFi scan/association/DHCP/HTTP, and HCI-UART BLE NUS in one guest
-  process and exposes the combined evidence through one Device Service lease;
-- a PaperColor unified QEMU profile keeps display/buttons, M5PM1, SHT40,
-  ES8311/AW8737A audio, WiFi scan/association/DHCP/HTTP, and HCI-UART BLE
-  NUS in one guest process and exposes the combined evidence through one
-  Device Service lease;
-- a PaperMono unified QEMU profile keeps display/touch, M5PM1/IP2315,
-  BMI270, RX8130, RGB, GPIO42 speaker, WiFi scan/association/DHCP/HTTP and
-  HCI-UART BLE NUS in one guest process and exposes the combined evidence
-  through one Device Service lease;
-- a StackChan unified QEMU profile keeps display/touch, camera,
-  IMU/magnetometer, power/audio/IR/NFC/servo, WiFi
-  scan/association/DHCP/HTTP and UART2 HCI BLE NUS in one guest process and
-  exposes the combined evidence through one Device Service lease;
-- a StamPLC unified QEMU profile keeps display/keys/RGB, relay/input banks,
-  INA226, LM75, RX8130, TWAI CAN, PWR-485, buzzer, WiFi
-  scan/association/DHCP/HTTP and UART1 HCI BLE NUS in one guest process and
-  exposes the combined evidence through one Device Service lease;
-- the environment-gated Core2 unified profile keeps display/touch,
-  AXP2101/INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone,
-  OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE NUS in one `m5core2` guest;
-- a standalone stock UIFlow2 Core2 runner keeps the built-in-controller
-  configuration and bridges the firmware's real VHCI H2C/C2H boundary to
-  Bumble; an external peer completes scan/connect/NUS subscription/write and
-  the guest notification is read back, 5/5 PASS;
-- `unified_core2 --ble-transport native-vhci` additionally keeps display,
-  touch, QOM, audio, WiFi/DHCP, public DNS/HTTP and the stock VHCI BLE path in
-  the same QEMU guest, 3/3 PASS after the classic ESP32 BB idle page was
-  changed from all-ones to zero-valued readback;
-- Device Service `qemu-unified/profile=core2-native-vhci` runs that same stock
-  VHCI path in one `/api/v1` lease with frame/QOM/pcap/bridge/peer evidence;
-- NanoC6 runs RGB/button/IR, QEMU ESP32-C6 WiFi scan/association/DHCP/HTTP
-  and UART1 HCI BLE NUS in one C6 guest and one Device Service lease;
-- Nesso N1 runs its display/touch/peripheral set, QEMU ESP32-C6 WiFi
-  scan/association/DHCP/HTTP and UART1 HCI BLE NUS in one C6 guest and one
-  Device Service lease;
-- the same UIFlow2 guest instance passes WiFi association/DHCP together with
-  the BLE GATT exchange;
-- same-source UIFlow2 NanoC6 and Nesso N1 builds pass WiFi scan/association/
-  DHCP plus external Bumble NUS discovery/write and guest receive in one
-  `esp-emu` instance, using their matching ELF and USB-Serial/JTAG console;
-- the same NanoC6 path passes through Device Service `runtime=network`;
-- the ESP-IDF DNS/UDP fixture passes host-forwarder DNS resolution and a
-  controlled UDP request/reply through the user-mode gateway;
-- the Device Service exposes `runtime=network` one-shot sessions and a
-  `/sessions/{id}/network` evidence endpoint;
-- Device Service `network` sessions expose `firmware_ap_password` and up to
-  eight loopback-only `hostfwd` entries, allowing an `esp-emu` guest to join a
-  firmware-created SoftAP and serve its provisioning portal through
-  `127.0.0.1`; physical-phone captive-portal behavior is not modeled;
-- the classic ESP32 QEMU machine's `open_eth` device reaches DHCP and downloads
-  a complete 1 MiB HTTP body in the `core2_openeth` ESP-IDF fixture.
-- an optional OpenMAC WiFi model imported into QEMU 9.2.2 lets stock Core2
-  UIFlow2 `network.WLAN` activate, scan three virtual APs, associate and obtain
-  DHCP address `10.0.2.15`, with observable 802.11 management frames and a
-  controlled HTTP `200 OK`; the same guest resolves `example.com` and receives
-  a public IPv4 HTTP response.
-- the classic ESP32 BT bootstrap patch lets the same stock Core2 UIFlow2 image
-  activate NimBLE, configure its GAP name and return from `gap_advertise()`.
-- a Core2 UIFlow2 HCI-UART test build connects NimBLE through the QEMU UART1
-  FIFO/chardev to a Bumble controller; a second peer passes scan, connect, NUS
-  discovery, subscription, write, guest receive and notify readback in 5/5
-  repeated runs.
-- Device Service `runtime=qemu-unified` / `profile=core2-hci-gatt` runs that
-  exchange in the same QEMU session and exposes serial, frame, QOM, peer log
-  and hashed network evidence through `/api/v1`; `qemu-ble` remains a legacy
-  alias.
-- C6 QEMU models GigaDevice/ISSI QIO status-register semantics,
-  `MODEM_SYSCON_CLK_CONF1`, the C6 WiFi MAC/PHY register windows, DMA
-  descriptor rings, TX completion and RX injection. A stock UIFlow2 guest
-  resolves `example.com` and receives a public HTTP `200 OK`.
+| 范围 | 当前结果 | 证据边界 |
+| --- | --- | --- |
+| S3/C6 unified | 11 个设备 profile 在单 guest 中完成板级、WiFi scan/association/DHCP/HTTP 和外部 HCI-UART BLE GATT | 固定开放 AP；不是完整 PHY/RF，也不覆盖 WPA2/WPA3 |
+| Core2 unified | OpenMAC WiFi、DHCP、受控 HTTP、公网 DNS/HTTP、UART1 HCI-offload BLE 和板级外设同一 guest；确定性 TCG/icount 10/10 首轮 | 环境门控；物理 cache/PSRAM、RF 和 long soak 未验 |
+| Core2 stock BLE | 不重建 HCI-UART，在 stock 固件的 `esp_vhci_host_*` 边界接 Bumble；外部 NUS GATT 5/5，同 guest board+WiFi+公网+BLE GATT 3/3 | 依赖 GDB bridge，不是 bit-exact BT baseband/controller |
+| Device Service | `qemu-unified/profile=core2-native-vhci` 单 lease 返回 frame、QOM、pcap、bridge 和 peer evidence | 仅证明该 runtime/profile 和对应固件 SHA |
+| 公网 | StickS3、Nesso N1 和 Core2 在对应同 guest 路径完成 IPv4 DNS/HTTP | 只证明一次可达的 IPv4 HTTP；不证明任意云服务、TLS 固定或长期稳定 |
+| 负向认证 | 错误密码要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker 同时成立 | 当前实际 AP 类型有限 |
+| 断线和恢复 | guest `WLAN.disconnect()` 叠加 QMP `wifi0` link down/up 后重新 DHCP，并通过 `/after` HTTP | 不是物理 AP/radio 消失，也不是 DHCP renewal |
+| Linux 隔离 | StickS3 QEMU guest 位于 private network namespace；无外部路由，namespace 创建失败时 fail-closed | 单设备、受控 fixture；不是恶意固件 VM |
+| DNS/TLS allowlist | private mount namespace 注入临时 `resolv.conf`；允许域名 A，拒绝和 UIFlow/NTP 后台域名 NXDOMAIN；测试 CA TLS 允许 200、拒绝 403；pcap 一致 | 仍不是任意目标 IP/端口 egress policy |
+| QEMU 外部内存 | patch `0027` 修复 ESP32-S3 AES/GDMA 访问外部内存，TLS 可进入证书解析和 HTTPS 路径 | 修复后最新全矩阵 `67/67`、`274/274`，全部首轮无重试 |
+| Tab5 | C6 `network_adapter` 以 ESP-Hosted 启动 | P4 UIFlow2/ESP-IDF 的 association/DHCP/DNS/TCP 仍 `NOT RUN` |
+| CardputerZero | 独立 SR9900A Ethernet frame 回环 | 不是 WiFi，也不是 ESP32/UIFlow2 产品路径 |
 
-What is not yet proven:
+主要证据：
 
-- stable public-network access for Tab5 and CardputerZero backends; the
-  validated S3/C6 unified profiles use QEMU SLiRP and have controlled HTTP
-  coverage;
-- generic destination egress and multi-device lab fabric in the regular
-  regression matrix. TLS/Host allowlisting now passes in both trusted-host
-  and Linux private namespace; namespace runs also use a controlled DNS
-  resolver with A/NXDOMAIN decisions, generated CA, HTTP 200/403 and pcap;
-- DHCP renewal and loss of an actual AP/radio source; current reconnect proof
-  uses a guest WLAN disconnect plus QEMU backend link down/up;
-- WPA2/WPA3 behavior for the QEMU unified AP model; the current virtual AP is
-  open and single-channel;
-- formal CI/worker integration and a two-device lab fabric for the Linux
-  namespace runner; the one-device Linux arm64 guest path already passes with
-  namespace-local HTTP, denied public DNS and no global/SLiRP-redirect pcap
-  destination;
-- removing the GDB dependency from the already integrated Device Service
-  `core2-native-vhci` path and executing the bit-exact Espressif BT
-  baseband/controller firmware; the current GDB bridge proves the stock
-  firmware's controller-boundary data plane but does not implement the
-  controller internals;
-- security conclusions about untrusted firmware based only on network traffic.
+- [controlled DNS + TLS Host allowlist](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json)
+- [Linux private namespace guest](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
+- [Core2 native-VHCI Device Service lease](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
+- [GDMA 外部内存修复和全矩阵](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json)
 
-The QEMU S3/C6 models cover the guest-visible MAC, DMA descriptors, interrupts
-and QEMU user-net frame path, but not a complete PHY, rate, security or RF model.
-The classic ESP32 LX6 path still contains PHY bring-up stubs. A successful boot
-log or PHY-ready register therefore does not by itself mean the device is online.
+## 尚未证明
+
+- 通用 destination IP/端口级 egress allowlist；
+- DHCP renewal、真实 AP 消失/恢复和 lease 变化；
+- WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
+- 两台设备通过唯一预期 lab fabric 通信；
+- namespace、pcap retention 和 evidence upload 的正式 CI/worker 生命周期；
+- 任意 S3/C6 固件或任意公网服务的稳定联网；
+- Tab5 P4↔C6 ESP-Hosted 端到端网络；
+- Core2 无 GDB 的 VHCI 后端、bit-exact BT controller/baseband、
+  RF/coexistence/throughput/soak；
+- 基于一次网络观测判定固件安全。
+
+QEMU S3/C6 模型覆盖 guest 可见的 MAC、DMA descriptor、interrupt 和
+QEMU user-net frame path，不是完整 PHY、速率、安全或天线模型。Core2
+OpenMAC 和 BT boundary 同样是功能级模型；PHY-ready 日志不等于应用联网。
 
 ## Device coverage
 
 | Device class | Current network path | Status |
 | --- | --- | --- |
-| StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and StamPLC | QEMU `misc.esp32s3.wifi` + board model + UART1/2 H4 BLE | Unified Device Service lease PASS for display/input/device state/audio where available, WiFi DHCP/HTTP and external BLE GATT |
-| ESP32-C6 boards, including NanoC6 and Nesso N1 | QEMU `misc.esp32c6.wifi` + board model + UART1 H4 BLE | Unified Device Service lease PASS for board peripherals, WiFi DHCP/HTTP and external BLE GATT |
-| ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
-| ESP32 LX6 Core2 | Optional OpenMAC WiFi and board models; HCI-UART or stock native-VHCI BLE backend | `core2-unified` PASS 10/10 for board/peripherals + WiFi + public DNS/HTTP + HCI-offload GATT; standalone stock VHCI GATT 5/5; same-guest 3/3; Device Service `core2-native-vhci` lease PASS with frame/QOM/pcap/bridge/peer evidence; non-GDB backend and bit-exact controller remain open |
-| CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |
+| 9 台 ESP32-S3 | QEMU S3 WiFi MAC/DMA + board model + UART1/2 H4 BLE | Unified Device Service lease PASS |
+| NanoC6、Nesso N1 | QEMU C6 WiFi MAC/DMA + board model + UART1 H4 BLE | Unified Device Service lease PASS |
+| Core2 | OpenMAC WiFi；HCI-offload 或 stock native-VHCI BLE | `core2-unified` 和 `core2-native-vhci` PASS；生产边界开放 |
+| Tab5 | C6 ESP-Hosted transport | Transport starts; end-to-end network `NOT RUN` |
+| CardputerZero | Linux SR9900A Ethernet | Separate backend; not WiFi |
 
-“All simulated devices online” means one Device Service lease and one guest per
-device. StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R, PaperColor,
-PaperMono, StackChan, StamPLC, NanoC6 and Nesso N1 meet that simulator-only
-bar. A PASS from the diagnostic `esp-emu` lane or from another device cannot be
-inherited. Environment-gated Core2 also meets the unified bar through its
-separate classic-ESP32 OpenMAC/HCI path.
+“模拟设备可联网”只能按设备、profile、固件 SHA 和本次 evidence 判断，
+不能从同一 SoC 的另一台设备继承 PASS。
 
-## Recommended architecture
-
-The primary architecture puts board and network data planes in the same guest:
-
-```text
-Device Service lease
-        |
-        +--> one QEMU process
-              +-- board: display, touch, I2C, I2S, camera, USB
-              +-- WiFi MAC/DMA or equivalent virtual radio path
-              +-- BLE controller or HCI data path
-              +-- serial, frame, input, QOM and network evidence
-```
-
-Separate `esp-emu` or network-only sessions remain useful for fault isolation,
-protocol development and regression. They are diagnostic lanes: their result
-cannot be combined with a QEMU board session to claim that a complete simulated
-device passed.
-
-## Network modes
+## 网络模式
 
 ### Isolated user-mode lab
 
-Use `--net user` with a controlled host service. This is zero-setup, gives the
-guest DHCP/DNS and can expose test servers through `hostfwd`.
+QEMU `user` networking 加本实例内的受控 HTTP/BLE peer。默认用于固件功能
+测试、DNS/TCP/UDP、重连和 provisioning。用户态 NAT 本身不是恶意固件沙箱。
 
-Recommended for:
+### Controlled DNS and TLS
 
-- firmware functional tests;
-- HTTP/WebSocket/MQTT test endpoints;
-- DNS and reconnect tests;
-- untrusted-firmware observation with restricted egress.
-
-### Controlled internet egress
-
-Use a user-mode NAT with an allowlist/proxy. Do not give untrusted firmware
-direct access to the workstation LAN or credentials.
-
-Recommended for:
-
-- cloud onboarding tests against disposable accounts;
-- firmware update and certificate tests;
-- deterministic allow/deny behavior.
-
-### TAP/vmnet LAN
-
-Use a TAP bridge or macOS vmnet backend when testing mDNS, discovery, LAN
-scanning, multiple virtual devices, or host-to-device connections.
-
-This mode requires host networking privileges and must run in an isolated
-network namespace/VM for untrusted firmware.
+Linux worker 使用 private network + mount namespace。命名空间内没有外部路由；
+QEMU 子树看到 127.0.0.1 resolver；HTTPS 网关使用临时 CA 和 Host allowlist。
+允许/拒绝、DNS、TLS 和 pcap 必须由同一次 guest 运行产生。
 
 ### Firmware SoftAP
 
-For firmware that starts its own AP, let the emulator join it and use
-`hostfwd` from the host. This tests captive portal and local provisioning flows
-without a physical phone or router.
+固件自建 AP 时，`runtime=network` 可加入该 AP，并用最多 8 条 loopback-only
+`hostfwd` 访问 provisioning portal。该路径覆盖 portal 请求，不模拟手机、
+真实 roaming 或 captive-portal 操作系统行为。
 
-The Device Service exposes this as `network.firmware_ap_password` plus
-`network.hostfwd` on `runtime=network`. Forwards bind only to loopback. The
-portal path is usable while the one-shot session is running, but automated
-captive-portal HTTP assertions and a virtual phone network namespace are still
-pending.
+### Multi-device lab fabric
+
+后续在独立 namespace/bridge 内连接两台 guest。必须证明设备仅通过预期 fabric
+通信，不能访问工作站 LAN、宿主服务、云元数据或控制面。
 
 ## Required test matrix
 
 | Capability | Minimum assertion |
 | --- | --- |
-| Scan/associate | Firmware sees the configured SSID and connects with the expected security mode |
-| DHCP | Guest receives an address, gateway and DNS server |
-| DNS | Query reaches the controlled resolver; allow and deny cases are recorded |
-| TCP | Request/response completes against a host test server |
-| UDP | Datagram is received by a host peer |
-| Reconnect | Link loss, wrong password and DHCP renewal are observable |
-| Security modes | Open, WPA2, WPA3 and wrong-credential behavior are tested |
-| Multi-device | Two virtual devices can communicate only through the intended lab fabric |
-| Packet evidence | Host captures DNS/TCP/UDP metadata and payload hashes without storing secrets |
-
-The first acceptance target should be one S3 or C6 device with a small UIFlow2
-program printing `WIFI_CONNECTED`, `DHCP_OK`, `DNS_OK` and `TCP_OK`.
-
-Current P0 evidence additions:
-
-- S3/C6 QEMU radio sessions capture `filter-dump` Ethernet traffic by default;
-  a real StickS3 run produced 88 packets, complete DHCP and DNS/TCP flow
-  summaries, and the evidence ZIP retained both pcap and summary;
-- `esp-idf-wrong-password` validates three failed SAE confirmations, no DHCP,
-  no HTTP progress and the expected terminal failure marker;
-- `tests/network/reconnect_probe` disconnects WLAN after `/before`, holds an
-  air gap while QMP `wifi0` is down, reconnects, obtains DHCP again and passes
-  `/after`; host fixture logs contain both requests;
-- Core2 OpenMAC now passes IPv4 DNS and public HTTP in the same guest as board
-  peripherals and HCI-offload BLE;
-- deterministic Core2 TCG/icount scheduling passed 10 independent first
-  attempts with no retry, including DNS/public HTTP.
-- Linux arm64 QEMU guest-in-namespace evidence is retained under
-  `tests/network/linux_isolation/`.
+| Scan/associate | 固件看见目标 SSID 并使用预期安全模式 |
+| DHCP | guest 获得 address、gateway 和 DNS |
+| DNS | 允许/拒绝查询到达受控 resolver 并有 pcap |
+| TCP/UDP | guest 与 namespace 内 peer 完成请求/响应或 datagram |
+| Wrong credential | 认证失败、重试、无 DHCP/HTTP、明确失败 marker |
+| Link recovery | link down/up 后重新 DHCP，前后请求和 pcap 对齐 |
+| DHCP renewal | 不重启 guest 观察到 lease renewal |
+| Real AP loss | 移除实际虚拟 radio/AP 后恢复，而不是只调用 guest disconnect |
+| Multi-device | 两台 guest 只能通过预期 lab fabric 通信 |
+| Core egress | 允许/拒绝目标 IP+port 可重复，不能被 user-net 旁路 |
+| Evidence | pcap 只保存元数据和 payload hash，evidence 可复现 |
 
 ## Security boundary
 
-The network lane is an observation environment, not a malware sandbox by
-itself. For untrusted firmware:
+待审固件和 QEMU 都应视为不可信输入：
 
-- run each build in a disposable VM or isolated network namespace;
-- block workstation LAN, credentials, cloud metadata and host services;
-- capture only metadata and payload hashes by default;
-- record both “observed behavior” and the limits of the observation;
-- never conclude that firmware is safe merely because no suspicious traffic was
-  observed in one run.
+- 每个任务使用 disposable VM/namespace 和独立虚拟 Flash；
+- 阻断工作站 LAN、宿主目录、凭据、云元数据和控制面；
+- 只保留 pcap 元数据、DNS/DHCP/flow 摘要和 payload hash；
+- 设置 CPU、RAM、磁盘、运行时长和并发上限；
+- 任务结束后回收进程、网络和临时盘；
+- “没有看到异常流量”不等于安全。
 
-## Delivery plan
+## 交付顺序
 
-| Phase | Work | Estimate |
+| Phase | Status | Next acceptance |
 | --- | --- | --- |
-| N0 | One-device UIFlow2 WiFi proof through `esp-emu` | DONE for StickS3 WLAN/DHCP and C6 NanoC6/Nesso WiFi+BLE; ESP-IDF adds TCP |
-| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP, BLE, loopback hostfwd, wrong-password negative case, QEMU pcap summary, Linux namespace controlled DNS and TLS/Host allowlist DONE; generic destination egress and multi-device fabric remain |
-| N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | S3/C6 device-level unified paths and StickS3 reconnect PASS; DHCP renewal, real AP disappearance and P4 end-to-end remain |
-| N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
-| N4 | Isolated CI runner, egress policy and multi-device lab fabric | Linux namespace guest/deny proof DONE; formal CI integration and multi-device fabric remain 3–5 working days |
-| N5 | Core2 ESP32 LX6 WiFi/PHY and BLE controller path or alternative runtime | WiFi, DNS/public HTTP, HCI-offload GATT, stock VHCI external GATT, Device Service native-VHCI lease and deterministic scheduling DONE; non-GDB backend and bit-exact controller remain |
-| N6 | Same-instance QEMU board + WiFi/radio model | DONE for all validated S3 slices, both C6 boards, HCI-offload Core2 and stock native-VHCI Core2; the native-VHCI board+WiFi+public+BLE path also passes through one Device Service lease |
+| N0 单设备 WiFi/DHCP/HTTP | DONE | 保留回归 |
+| N1 可控 DNS/TLS/负向/重连/pcap | MOSTLY DONE | 补 destination IP/port policy 和 DHCP renewal |
+| N2 S3/C6 单 guest board+radio | DONE | 新 profile 必须带设备级 evidence |
+| N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
+| N4 Linux CI、egress、双设备 fabric | IN PROGRESS | CI 可重复，namespace fail-closed，两 guest 隔离 |
+| N5 Core2 production BLE/PHY | PARTIAL | 非 GDB backend、controller semantics、coexistence soak |
+| N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
-N6 is the primary product contract. N0–N3 remain the reusable fixture layer,
-and N5 closes the Core2 SoC-specific gap. “All simulated devices online” means
-the per-device status in [`project-status.md`](project-status.md), not a
-family-wide inference. Tab5 and CardputerZero are not covered by this
-ESP32-QEMU statement.
+下一项最小交付是 `NET-01`：在现有 namespace controlled DNS/TLS 基础上加入
+目标 IP+端口 allow/deny，并由同一次 guest 产生 pcap 和协议证据。随后补
+`NET-02` 的 renewal/真实 AP 恢复和 `NET-03` 的双设备 fabric。

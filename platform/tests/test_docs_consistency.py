@@ -33,6 +33,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
             "tests/network/tls_allowlist/README.md",
             "tests/network/tls_allowlist/run_test.py",
+            "tests/network/core2_openmac_wifi/README.md",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
@@ -41,6 +42,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
             "tests/firmware/evidence-2026-10-24-filesystem-inventory.json",
+            "patches/qemu-core2-openmac-wifi/README.md",
+            "patches/qemu-core2-ble-controller/README.md",
         ):
             self.assertTrue((ROOT / relative).is_file(), relative)
 
@@ -88,6 +91,9 @@ class DocsConsistencyTests(unittest.TestCase):
                 ROOT / "AGENTS.md",
                 ROOT / "platform" / "README.md",
                 ROOT / "tests" / "uiflow2" / "README.md",
+                ROOT / "tests" / "network" / "core2_openmac_wifi" / "README.md",
+                ROOT / "patches" / "qemu-core2-openmac-wifi" / "README.md",
+                ROOT / "patches" / "qemu-core2-ble-controller" / "README.md",
                 *sorted(DOCS.glob("*.md")),
             )
         )
@@ -121,15 +127,22 @@ class DocsConsistencyTests(unittest.TestCase):
             "Linux namespace TLS、可控 resolver",
             "继续补可控 resolver",
             "网络模拟暂不开放",
+            "DNS requests, external internet access and BLE remain `NOT RUN`",
+            "QOM injection runs without pausing the guest to avoid the known Core2 cache/watchdog failure",
+            "PSRAM/cache stability remains",
+            "It does not yet prove over-the-air advertising, external discovery",
         ):
             self.assertNotIn(stale, active)
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
         source = json.loads((ROOT / "devices" / "catalog.source.json").read_text())
+        catalog = json.loads((ROOT / "devices" / "catalog.json").read_text())
         profiles = json.loads(
             (ROOT / "platform" / "qemu" / "profiles.json").read_text()
         )
+        review_date = source["generated_at"]
         device_count = len(source["devices"])
         qemu_count = sum(
             device["backend"].startswith("qemu-")
@@ -141,6 +154,7 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn(f"`{device_count}` 台设备", status)
         self.assertIn(f"`{service_count}` 台设备", status)
+        self.assertEqual(catalog["generated_at"], review_date)
         self.assertEqual(qemu_count, 12)
         self.assertIn("`67/67` 用例、`274/274` 检查 PASS", status)
         self.assertIn("2026-10-24 00:11 +08:00", status)
@@ -180,8 +194,34 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("controlled DNS", status)
         self.assertIn("QEMU patch `0027`", status)
         self.assertIn(
-            "TLS/Host allowlisting now passes in both trusted-host",
+            "DNS/TLS allowlist",
             (DOCS / "network-simulation-plan.md").read_text(),
+        )
+        self.assertIn("## 新鲜度台账", (DOCS / "README.md").read_text())
+        self.assertIn("## 可执行任务板", backlog)
+        self.assertNotIn("本轮已完成", backlog)
+        self.assertIn(
+            f"日期：`{review_date}`",
+            status,
+        )
+        self.assertIn(
+            f"日期：`{review_date}`",
+            (DOCS / "firmware-manifest.md").read_text(),
+        )
+        self.assertIn(
+            f"Date: `{review_date}`",
+            (DOCS / "unified-device-runtime.md").read_text(),
+        )
+        self.assertIn(
+            f"日期：`{review_date}`",
+            (DOCS / "uiflow2-peripheral-test-matrix.md").read_text(),
+        )
+        core2_profile = next(
+            device for device in profiles["devices"] if device["id"] == "core2"
+        )
+        self.assertIn(
+            "physical cache/PSRAM",
+            " ".join(core2_profile["blockers"]),
         )
         tls_evidence = json.loads(
             (

@@ -4,6 +4,8 @@ Date: `2026-10-22`
 
 Status: `INTEGRATED — simulation-only visual shell`
 
+Last reviewed: `2026-10-24`.
+
 The StickS3 device page now has a dedicated three.js shell from the pinned
 `MarsTechHAN/sticks3.js` source under `platform/web/vendor/sticks3/`. It replaces
 the approximate CSS body only for StickS3; every other device continues to use

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-21",
+  "generated_at": "2026-10-24",
   "note": "QEMU/board adaptation registry. Shell/UI profiles already exist for all devices; this file tracks the virtual-host runtime work.",
   "validation_matrix": {
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
-    "date": "2026-10-21",
-    "result": "13 ESP32 display/input PASS with emulator-backed esptool virtual flash; Tab5 external peripherals remain partial; CardputerZero uses a separate ARM64 Linux backend"
+    "date": "2026-10-24",
+    "result": "13 QEMU ESP32 device paths are registered; the latest peripheral matrix is 67/67 cases and 274/274 checks with no retry; Tab5 remains partial and CardputerZero uses a separate ARM64 Linux backend"
   },
   "backends": {
     "qemu-esp32s3": {
@@ -268,17 +268,17 @@
       },
       "board_work": [
         "ILI9342 pixel-stream/live-frame polish",
-        "PSRAM/cache stability",
+        "physical cache/PSRAM timing equivalence",
         "non-GDB production native-VHCI bridge"
       ],
       "blockers": [
-        "PSRAM/cache stability remains",
+        "physical cache/PSRAM timing equivalence remains NOT RUN",
         "bit-exact ESP32 BT baseband/controller remains NOT RUN"
       ],
       "validation": {
-        "date": "2026-10-23",
+        "date": "2026-10-24",
         "status": "display-input-peripherals-wifi-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 runs the 320x240 display/touch, AXP2101, INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE in one m5core2 guest. QOM injection runs without pausing the guest to avoid the known Core2 cache/watchdog failure; QEMU -m 0 is still required. A stock internal-controller VHCI runner passes external NUS subscribe/write/notify 5/5, and Device Service profile core2-native-vhci keeps board, WiFi, public network, frame/QOM and the same external GATT in one lease. The bridge still depends on GDB and the Espressif BT baseband/controller is not bit-exact."
+        "detail": "Official UIFlow2 v2.5.3 runs the 320x240 display/touch, AXP2101, INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, OpenMAC WiFi DHCP/HTTP, public DNS/HTTP and UART1 HCI BLE in one m5core2 guest. Deterministic tcg,thread=single plus icount passed ten independent first attempts without retry; the earlier interrupt-WDT was virtual timer/interrupt starvation rather than a proven cache fault. QOM injection now runs without pausing the guest. A stock internal-controller VHCI runner passes external NUS subscribe/write/notify 5/5, and Device Service profile core2-native-vhci keeps board, WiFi, public network, frame/QOM and the same external GATT in one lease. The bridge still depends on GDB; physical cache/PSRAM equivalence and a bit-exact Espressif BT baseband/controller remain NOT RUN."
       }
     },
     {

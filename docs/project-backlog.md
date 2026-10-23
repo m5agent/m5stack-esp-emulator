@@ -2,237 +2,212 @@
 
 日期：`2026-10-24`
 
-本文只记录仍未完成的工作。已完成能力和验证证据统一见
-[项目当前状态](project-status.md)，代码和测试入口见
+本文只记录**尚未完成**的工作、依赖和验收条件。已有能力、验证日期和证据
+统一见 [项目当前状态](project-status.md)，代码与测试入口见
 [代码与验证入口地图](code-map.md)。
+
+## 使用规则
+
+- 有代码、单元测试或一次 virtual-device evidence，不等于正式 CI、生产隔离
+  或真机能力已经完成。
+- 任务只有满足“验收”后才能移到当前状态页；不得在 Backlog 中保留完成日志。
+- 每个 PASS 必须绑定设备、runtime/profile、固件 SHA 和可复现 evidence。
+- 仿真结果必须标记 virtual-device；RF、功耗、声学、光学、机械和电气结论
+  必须来自真机。
 
 ## 优先级总览
 
-| 优先级 | 工作流 | 完成标准 | 依赖 / 主要风险 |
+| 优先级 | 工作流 | 完成标准 | 依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络隔离、观测与重连 | namespace、DNS/egress policy、pcap、错误密码、断线重连的整机 CI 闭环 | Linux worker；CI/worker 生命周期、DHCP renewal 和真实 AP 消失 |
-| P0 | Core2 BT 生产化与物理等价性 | 将已进入 Device Service 的 GDB VHCI bridge 改为 QEMU 内部/无调试器后端；bit-exact controller；物理 cache/PSRAM 时序 | LX6 baseband/controller 模型；真机 |
-| P0 | 通用固件审查 | 更深静态审查、安全 key 真机流程和跨设备兼容回归 | 多厂商镜像格式；板级 profile 和 eFuse/安全启动差异 |
-| P0 | 发布前硬件验证 | 代表设备在同一固件 SHA 和测试计划上通过真机 UART/画面/网络/外设证据 | 物理设备和测试槽；虚拟结果只能标 virtual-device |
-| P1 | Tab5 后端补齐 | 重建或扩展 P4 后端，关闭 I2S/PCM、MIPI-CSI、USB Host、SDIO、动态 I2C、ST7123 controller | 闭源 `esp-emu 0.50.0`；建议 2–3 周并行工程 |
-| P1 | 服务 worker 与调度 | worker daemon、活动进程跨重启接管、warm pool、多机容量和故障转移 | 生产部署；当前单机进程内 active lease |
-| P1 | 热门外壳高保真 | 每台设备独立尺寸、结构、屏幕开孔、按键和 hitbox，并有视觉回归 | 实测尺寸/结构资料；专门视觉/3D 工作 |
-| P2 | CardputerZero 系统收口 | 系统启动、驱动、音频、摄像头、网络、USB 回归和真机证据 | 独立 Linux 后端；不属于 ESP32/UIFlow2 |
+| P0 | 网络策略与 CI | destination IP/port allowlist、DHCP renewal、AP 丢失、双设备 fabric、正式 worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
+| P0 | Core2 生产化 | 非 GDB VHCI、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
+| P0 | 通用固件审查 | FAT/SPIFFS、权限/许可策略、eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
+| P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
+| P1 | 服务 worker 与调度 | supervisor、heartbeat、drain/re-attach、warm pool、多机容量 | 生产部署；对象存储；审计 |
+| P1 | Tab5 后端补齐 | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123、IP2326 | 可扩展 P4 backend 或重建 |
+| P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/结构资料 |
+| P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
+
+## 当前执行顺序
+
+1. `NET-01`：完成 generic destination IP/port allowlist。
+2. `NET-02` / `NET-03`：完成 DHCP renewal、真实 AP 丢失/恢复和双设备 fabric。
+3. `NET-04` / `SVC-01`：把现有网络隔离和 evidence 路径接入正式 CI/worker。
+4. `CORE2-01`：移除 GDB bridge，再做 `CORE2-02` 的 controller 和物理过程验证。
+5. `FW-01`：先补只读 FAT12/16/32，再处理 SPIFFS、权限和许可策略。
+6. `FW-02/03/04`：生产 key/eFuse、跨厂商样本和流式上传。
+7. `HW-01`：对应功能稳定后立即补同路径真机证据。
+8. Tab5、worker pool、视觉保真和 CardputerZero 作为后续专项推进。
 
 ## 可执行任务板
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-01` | 进行中 | controlled DNS、TLS/Host allowlist 和 AES/GDMA 外部内存路径已完成；继续补目标地址/端口级通用 egress allowlist | 允许/拒绝目标可重复，guest 无法旁路；pcap 和摘要一致 |
-| `NET-02` | 待做 | 增加 DHCP renewal、AP 消失/恢复和 lease 变化 | 同一 guest 观测到 renewal 或 reacquire，前后 HTTP 与 pcap 对齐 |
-| `NET-03` | 待做 | 双设备 private lab fabric 与宿主 LAN 隔离 | 两台 guest 仅通过预期 fabric 通信，控制面和宿主 LAN 不可达 |
-| `NET-04` | 待做 | 把 Linux namespace/reconnect/pcap 接入正式 CI 与 worker | CI 可重复产出 evidence；namespace 创建失败保持 fail-closed |
-| `CORE2-01` | 待做 | 将服务托管的 GDB VHCI bridge 改成 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
-| `CORE2-02` | 待做 | 执行 Espressif BT controller/baseband 语义并补物理 cache/PSRAM 时序 | controller 级协议与真机收敛；同路径 soak、coexistence 和 RF 边界可证 |
-| `FW-01` | 进行中 | LittleFS 文件哈希、敏感路径脱敏和 SPDX 提取已完成；继续补 SPIFFS/FAT、运行时权限与许可证策略交叉验证 | 资源项有来源、哈希、权限和许可结论；安全状态 `unknown` 不被伪装成 PASS |
+| `NET-01` | 进行中 | namespace 内目标 IP+端口 allow/deny policy | 允许/拒绝可重复，guest 无法旁路；pcap 与协议证据一致 |
+| `NET-02` | 待做 | DHCP renewal、真实虚拟 AP 消失/恢复、lease 变化 | 不重启 guest 完成 renewal 或 reacquire，前后 HTTP 与 pcap 对齐 |
+| `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
+| `NET-04` | 待做 | namespace/DNS/TLS/pcap/reconnect 接入 CI 和 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed |
+| `CORE2-01` | 待做 | 服务托管的 GDB VHCI 改为 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
+| `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
+| `FW-01` | 进行中 | 只读 FAT12/16/32 parser 和 fixture；随后评估 SPIFFS | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
 | `FW-02` | 待做 | eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 待做 | 扩大 ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、启动/失败层，不混算 |
-| `FW-04` | 待做 | WebBurner 网页流式导入和 chunk artifact upload | 大镜像无需先落完整宿主临时文件，校验和与 manifest 保持 |
-| `SVC-01` | 待做 | 拆出 worker supervisor、注册/心跳、drain、re-attach | 服务重启可收敛 worker，active lease 有明确接管或失败状态 |
-| `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | 启动延迟/CPU/RSS/队列/回收可观测，租户状态不泄漏 |
-| `HW-01` | 待做 | 代表设备同固件 SHA 的真机 UART/画面/网络/外设计划 | evidence 标记 hardware validation，虚拟结果不冒充 |
-| `TAB5-01` | 决策 | 决定重建/扩展 P4 后端并关闭动态外设数据面 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 controller |
-| `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和视觉回归 | 每台设备有独立尺寸/结构/截图阈值，不只改通用 CSS |
+| `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、boot 层，不混算 PASS |
+| `FW-04` | 待做 | WebBurner 流式导入和 chunk artifact upload | 大镜像不先落完整宿主临时文件，hash/manifest 保持一致 |
+| `SVC-01` | 待做 | worker supervisor、注册/心跳、drain、re-attach | 服务重启可收敛 worker，lease 有明确接管或失败状态 |
+| `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态不泄漏 |
+| `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation，虚拟结果不冒充 |
+| `TAB5-01` | 决策 | 重建或扩展 P4 backend | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 |
+| `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和截图阈值 | 每台设备有独立尺寸/结构/回归，不只改通用 CSS |
+| `CZ-01` | 待做 | CardputerZero 系统与驱动长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
-执行顺序以 `NET-04`、`CORE2-01`、`FW-01/02`、`SVC-01` 为当前主线；
-`NET-01/02/03` 是网络正式化的可并行前置，`HW-01` 在对应功能稳定后立即
-补同路径真机证据。
+## P0：网络策略、隔离与 CI
 
-当前执行顺序：
+### NET-01 目标 egress policy
 
-1. 把 Linux namespace、pcap、错误密码和 reconnect 接入正式 CI/worker；
-2. 将 Core2 native-VHCI GDB bridge 生产化为 QEMU 内部或无调试器后端；
-3. 扩充 FirmwareManifest 的静态审查、安全 key 流程和跨固件回归；
-4. 再推进 Tab5、worker pool、视觉保真和 CardputerZero 的长期项。
+现状边界：namespace controlled DNS、TLS Host allowlist、pcap、错误密码和
+link down/up 已有 virtual-device evidence；仍缺任意目标 IP+端口策略。
 
-## P0：网络隔离、观测与重连
+交付：
 
-已有能力：
+- 在 namespace gateway 上实现 destination IP+port allowlist/denylist；
+- guest 不能通过 user-net 默认路由、DNS rebinding 或直连旁路；
+- 允许/拒绝、DNS、TLS 和 pcap 来自同一次 guest 运行。
 
-- S3/C6 的 11 条设备级 QEMU unified 路径；
-- Core2 环境门控 unified path；
-- 受控本地 HTTP、DNS、UDP、HCI BLE 和外部 Bumble peer；
-- 固件自建 SoftAP 的 loopback `hostfwd` provisioning 诊断。
+### NET-02 DHCP renewal 与 AP 丢失
 
-本轮已完成：
+现有断线恢复是 guest `WLAN.disconnect()` 叠加 QMP link down/up，不等于
+DHCP lease renewal，也不等于真实虚拟 AP/radio 被移除。
 
-- Linux `network_sandbox` 创建 private namespace，并确保无外部路由；
-- 无法创建 namespace 时 fail-closed，不降级到 host networking；
-- 受控 HTTP/BLE peer 可在同一 namespace 内运行；
-- QEMU radio session 默认记录 pcap，并生成 flow/DNS/DHCP/ARP/payload
-  hash 摘要；
-- StickS3 错误密码负向用例 PASS；
-- StickS3 guest WLAN 断开 + QMP link down/up + 重新 DHCP + `/after` HTTP
-  PASS；
-- Linux arm64 重建 QEMU guest 并在 private namespace 内完成 DHCP、受控
-  HTTP、DNS deny、pcap 和 `UNIFIED_STICKS3_READY`；
-- Core2 OpenMAC 公网 DNS/HTTP PASS。
-- `0027-esp32s3-gdma-external-memory.patch` 让 GDMA 在正常内部 DRAM
-  路径失败时使用 SoC 系统地址空间访问外部内存；
-- TLS/Host allowlist fixture 在 trusted-host 下完成 WiFi/DHCP、测试 CA
-  加载、HTTPS 握手、允许 Host 200、拒绝 Host 403 和 pcap 联合 PASS。
-- 同一 fixture 在 Linux arm64 private namespace 中完成相同断言，并确认
-  无外部路由、DNS 无响应和 allowlist evidence。
-- namespace 内临时 mount namespace 只向 QEMU 子树绑定
-  `nameserver 127.0.0.1`；controlled DNS 对允许域名返回 A，对拒绝域名和
-  UIFlow/NTP 后台域名返回 NXDOMAIN。
+交付：
 
-仍待完成：
+- 不重启 guest 观察到 lease renewal；
+- 移除实际虚拟 AP/radio 后进入可观察失败状态；
+- 恢复后重新 DHCP，并通过前后 HTTP 和 pcap 对齐。
 
-1. 增加面向目标地址/端口的通用 egress allowlist；
-2. 增加 DHCP renewal、真实 AP 消失/恢复和 lease 变化；
-3. 把 multi-device 通信隔离和 host-to-device 访问做成容量测试；
-4. 将 pcap 保留策略、对象存储和审计接入 worker；
-5. 把 Linux integration test 接入 CI 和正式 worker 生命周期。
+### NET-03 双设备 fabric
 
-验收：Linux CI 中两个 virtual device 仅通过预期 lab fabric 通信；
-guest 路径实际产生 pcap 和 reconnect 证据；不可信固件无法访问宿主 LAN
-或控制面。
+交付：
 
-## P0：Core2 稳定性与原生无线
+- 两台 guest 位于独立 namespace 和唯一 bridge/fabric；
+- 只允许预期 peer 和端口；
+- host-to-device 入口、workstation LAN、云元数据和控制面均不可达。
 
-已有能力：
+### NET-04 CI 与 worker
 
-- 显示、触摸、AXP2101、INA3221、MPU6886、PCF8563、扬声器和麦克风；
-- OpenMAC WiFi scan/association/DHCP/受控 HTTP；
-- UART1 HCI-offload BLE NUS 的完整外部 GATT；
-- `core2-unified` 在同一 guest 合并板级、WiFi 和 HCI BLE。
+交付：
 
-本轮已完成：
+- Linux integration test、pcap retention 和 evidence upload 进入正式 worker；
+- namespace 创建/权限失败时 fail-closed；
+- 超时、残留进程、临时盘和失败重试都有结构化结果。
 
-- 失败复现确认两核都在 idle WAITI，属于 interrupt-WDT/timer starvation，
-  而非 cache illegal-access callback；
-- `tcg,thread=single` + 确定性 icount 后 10/10 次无重试首轮 PASS；
-- Core2 6 个 peripheral case、UI device-matrix 和完整 67-case 矩阵均改为
-  默认零重试；最新全矩阵 67/67、274/274，全部 `attempts=1`；
-- RX8130/PCF8563 改为从 boot epoch 起按 QEMU 虚拟时钟推进，修复
-  deterministic guest 的 RTC 秒值不前进；
-- Core2 DNS、公网 HTTP 和同一 guest HCI-offload BLE 回归通过；
-- Device Service `core2-unified` 同步使用确定性调度并通过 pcap evidence。
-- stock UIFlow2 internal-controller VHCI 经外部 Bumble controller 完成
-  scan/connect/NUS subscribe/write/notify，独立 runner 5/5 PASS。
-- `unified_core2 --ble-transport native-vhci` 在同一 guest 合并 board、
-  frame/touch、音频、QOM、WiFi/DHCP、公网 DNS/HTTP 和外部 NUS GATT，
-  3/3 PASS。
-- Device Service `qemu-unified/profile=core2-native-vhci` 完成真实
-  `/api/v1` lease，network evidence 全 PASS，evidence ZIP 含 frame、PCM、
-  QOM、pcap、bridge 和 peer log。
+## P0：Core2 生产化
 
-仍待完成：
+### CORE2-01 无 GDB VHCI
 
-1. 把 GDB 诊断桥改为 QEMU 内部或 Device Service worker 管理的无调试器
-   VHCI backend；
-2. 执行真正的 Espressif BT baseband/controller firmware，而不是在 VHCI
-   边界用 Bumble 接管 controller；
-3. 物理 cache/PSRAM 时序与确定性 QEMU 调度差异；
-4. RF、coexistence、生产 payload/throughput、soak 和真机同路径验证。
+现有 stock native-VHCI 通过 GDB 拦截 `esp_vhci_host_*` 并转给 Bumble。
+
+交付：
+
+- QEMU 内部或无调试器 backend 完成同一 H2C/C2H 数据面；
+- 同一 stock 固件和 ELF 通过 scan/connect/NUS subscribe/write/notify；
+- Device Service 单 lease、pcap、bridge log 和 peer evidence 不回退。
+
+### CORE2-02 controller 与物理边界
+
+交付：
+
+- Espressif BT controller/baseband 协议语义，而不是只在 VHCI 边界替换；
+- physical cache/PSRAM 对比、coexistence、throughput 和 long soak；
+- 真机同路径证据区分 virtual/firmware/hardware 结论。
 
 ## P0：通用固件审查
 
-已有能力：
+### FW-01 文件系统与权限
 
-- merged 和 segmented flash；
-- UIFlow1/UIFlow2、ESP-IDF、Arduino、MicroPython 及兼容自定义镜像；
-- 静态镜像、分区、文件系统和字符串分析；
-- 公开 community firmware 下载和热门固件批量仿真。
+LittleFS 文件/目录、大小、SHA256、敏感路径脱敏和 SPDX 已支持。下一项是
+有严格文件/簇上限的只读 FAT12/16/32 parser；SPIFFS 实现前保持
+`UNSUPPORTED`。
 
-本轮已完成：
+验收：
 
-- 版本化 FirmwareManifest schema 和格式校验；
-- WebBurner `manifest.json`、M5Burner sidecar、ESP-IDF `flasher_args.json`、
-  merged/segmented/ZIP 导入；
-- sparse 镜像补齐、完整 Flash SHA、partition/app 分析和 provenance；
-- ELF/MAP/sdkconfig/resource 保留；
-- SoC、Flash、PSRAM、secure boot/Flash Encryption 状态和 capability
-  mismatch 的结构化拒绝；
-- Device Service `kind=manifest` 创建路径；
-- 三个真实公开固件样本 round-trip。
-- 脱敏 URL、凭据/私钥特征、高熵编码块和 SPDX/CycloneDX SBOM 摘要。
+- FAT/SPIFFS 返回可验证清单或明确 `UNSUPPORTED`；
+- 资源项记录来源、哈希、权限策略和许可结论；
+- `unknown` 安全状态不能被写成 PASS；
+- 所有 listing 有截断标记和资源上限。
 
-仍待完成：
+### FW-02 安全配置
 
-1. 继续补 SPIFFS/FAT、文件权限/敏感资产审批和许可证策略；
-2. 真实 eFuse、生产 secure boot/Flash Encryption key 流程；
-3. 更广的 ESP-IDF/Arduino/MicroPython/vendor 兼容回归集；
-4. 从 WebBurner 网页直接流式导入和 artifact chunk 上传；
-5. 对真机与虚拟设备分别生成同一测试计划的 evidence。
+- 识别 secure boot、Flash Encryption、eFuse 和 key 状态；
+- 明确镜像声明 / 运行态 / 真机验证三层；
+- 测试 key、生产 key 和拒绝路径不进入仓库或公开日志；
+- 无权威输入时保持 `unknown`。
 
-## P1：Tab5 后端补齐
+### FW-03 跨厂商回归
 
-当前可用：虚拟烧录、UIFlow2 启动、1280×720 framebuffer、触摸、
-RS-485、C6 ESP-Hosted 和静态 I2C register probe。
+- 扩充 ESP-IDF、Arduino、MicroPython 和 vendor 样本；
+- 每样本记录 importer、chip/board/partition、capability 和 boot 层；
+- 不得把结构 PASS、UI PASS、功能 PASS 或安全 PASS 混成一个结论。
 
-仍待完成：
+### FW-04 流式上传
 
-- 动态 I2C/RTC 状态机；
-- P4 I2S/PCM；
+- WebBurner 页面直接流式导入；
+- chunk upload 有大小、hash、顺序和重试约束；
+- 不要求大镜像先完整写入宿主临时文件；
+- 最终 artifact 与 manifest 可重复校验。
+
+## P1：服务 worker 与调度
+
+当前是单机模块化单体；历史会话可恢复，但活动 QEMU 进程不能跨服务重启接管。
+
+顺序：
+
+1. supervisor、端口、临时目录和 evidence collector 拆成 worker；
+2. 注册、心跳、drain、re-attach 和故障收敛；
+3. runtime image cache、少量 warm pool；
+4. 队列、配额、对象存储、retention、审计和租户隔离；
+5. 可疑固件使用 disposable VM / copy-on-write flash；
+6. 观测 start latency、CPU/RSS、queue time、失败率和 cleanup。
+
+## P1：Tab5
+
+当前是 `partial`：virtual flash、boot、1280×720 framebuffer、touch mailbox、
+RS-485、C6 ESP-Hosted 和静态 I2C 可用。
+
+未完成：
+
+- dynamic I2C/RTC/IMU/INA226/PI4IOE/IP2326 状态机；
+- P4 I2S/PCM、ES7210/ES8388；
 - MIPI-CSI/SC2356；
 - P4 USB Host；
 - SDIO block backend；
 - controller-level ST7123 touch；
-- IP2326 充放电、终止和运行中状态；
-- P4 ↔ C6 ESP-Hosted 的 UIFlow2/ESP-IDF end-to-end association、DHCP 和
-  受控请求。
+- P4↔C6 ESP-Hosted end-to-end association/DHCP/DNS/TCP。
 
-建议先决定“重建可扩展 P4 后端”还是“继续扩展闭源 esp-emu”。没有这个
-前提，不承诺 Tab5 剩余外设完成日期。
-
-## P1：服务 worker 与调度
-
-当前 v1 服务是单机模块化单体：
-
-- active session 进程是本地状态；
-- service 重启后历史可恢复，但 active emulator 不能接管；
-- 无 warm pool、无 remote worker registry、无跨主机调度；
-- 容量为 12 个全局 session、8 个同型号 session 的工作站默认值。
-
-后续顺序：
-
-1. 把进程 supervisor、端口、临时目录和 evidence 收集拆成 worker；
-2. 控制面与 worker 注册、心跳、re-attach、drain 和故障收敛；
-3. 先缓存 runtime image，再增加少量 hot model 的 warm pool；
-4. 增加队列、配额、对象存储、pcap/evidence retention 和审计；
-5. 对可疑固件使用 disposable VM/copy-on-write flash；
-6. 观测启动 latency、CPU/RSS、队列时间、失败率和 cleanup。
+先决定重建/扩展 P4 backend；没有该前提不承诺日期。详见
+[Tab5 暂缓项](tab5-deferred-backlog.md) 和
+[P4 外设后端要求](p4-peripheral-backend-requirements.md)。
 
 ## P1：视觉保真
 
-StopWatch 目前是唯一的参考质量外壳，其余设备主要是通用近似模型。该项不是
-显示器适配问题，需要独立完成：
-
-- 外形尺寸和结构资料；
-- 分层机身、屏幕、按钮、接口和材质；
-- 物理 hitbox 与 framebuffer clipping；
-- 每台设备的视觉回归截图和误差阈值；
-- 不把近似 CSS 外壳描述成物理模型。
+StopWatch 是当前唯一参考质量外壳。其余设备需要独立完成尺寸、分层机体、
+屏幕开孔、按键、接口、材质、物理 hitbox、framebuffer clipping 和截图阈值。
 
 见 [设备视觉保真 Backlog](device-visual-fidelity-backlog.md)。
 
 ## P2：CardputerZero
 
-CardputerZero 已有独立 ARM64 Linux 后端和多项数据面验证，但它不属于
-ESP32/UIFlow2 产品路径，也不由当前 Device Service `/api/v1` 管理。
-
-仍待完成：
-
-- 完整系统启动和服务回归；
-- 更严格的 USB/Low-Speed 时序；
-- SR9900A 真实网络性能与隔离；
-- 摄像头、音频、电源和键盘长期稳定性；
-- 真机同路径验证。
+CardputerZero 是独立 ARM64 Linux 后端，不属于 ESP32/UIFlow2 `/api/v1`
+设备路径。仍缺完整启动/服务回归、USB split timing、网络性能与隔离、
+摄像头/音频/电源/键盘 soak 和真机同路径验证。
 
 ## 发布门禁
 
 发布或外部结论前至少完成：
 
 1. 最新平台测试、runtime coverage、peripheral catalog 和 QEMU profiles check；
-2. 受影响设备组的 targeted matrix；
+2. 受影响设备组 targeted matrix；
 3. 共享 QEMU/控制器变更时跑最新 67-case 全矩阵；
-4. 使用目标 commit 和同主机架构重新构建运行时；
-5. 公共/发布声明按真机或 validated virtual-device path 分层；
-6. 更新 README、当前状态、API/OpenAPI、专题文档和工作记录后再发布。
+4. 用目标 commit 和同主机架构重建 runtime；
+5. 声明分层为 hardware validation 或 virtual-device validation；
+6. 更新 README、当前状态、API/OpenAPI、专题文档和工作记录；
+7. 外部结论附 full-commit-SHA permalink 和可复现 evidence。

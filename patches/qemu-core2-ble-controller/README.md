@@ -1,5 +1,7 @@
 # Core2 classic ESP32 BT controller bootstrap
 
+Last reviewed: `2026-10-24`
+
 This patch follows `qemu-core2-openmac-wifi` and adds the missing classic
 ESP32 Bluetooth shared-memory and control-register block used by stock
 UIFlow2 NimBLE.
@@ -26,9 +28,18 @@ CORE2_BLE_ADVERTISE_OK
 CORE2_BLE_RESULT: PASSED
 ```
 
-This proves the guest-side NimBLE to VHCI to controller control and
-advertising-enable path. It does not yet prove over-the-air advertising,
-external discovery, connection, GATT, ACL data, or real hardware behavior.
+This patch alone proves the guest-side NimBLE to VHCI control and
+advertising-enable path. It does not provide a bit-exact controller or
+baseband.
+
+The later `tests/uiflow2/core2_native_vhci/` runner keeps the stock
+internal-controller firmware and bridges the real VHCI H2C/C2H boundary to
+Bumble. An external peer completes scan/connect/NUS subscribe/write and the
+guest notification ACK 5/5. `unified_core2 --ble-transport native-vhci` keeps
+board, WiFi, public DNS/HTTP and that BLE path in one guest 3/3, and
+`qemu-unified/profile=core2-native-vhci` exposes it through Device Service.
+The bridge still depends on GDB; RF, pairing/security, coexistence and physical
+behavior remain out of scope.
 
 Apply after the OpenMAC WiFi patch:
 

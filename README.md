@@ -1,5 +1,7 @@
 # M5Stack Firmware Simulation and Review Platform
 
+Last reconciled: `2026-10-24`
+
 [![CI](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml)
 
 面向 M5Stack 多主控固件启动、烧录、UI 预览、外设联调和自动测试的模拟平台。
@@ -30,6 +32,15 @@ MicroPython 和其他完整 Flash 固件。
 [代码与验证入口地图](docs/code-map.md)。
 第一次阅读建议从 [文档导航与新鲜度规则](docs/README.md) 开始；该页会区分
 当前事实、契约、历史调查和待办，避免把旧计划当成当前能力。
+
+### 最近收敛的主线
+
+| 主线 | 已交付 | 验证证据 | 仍开放 |
+| --- | --- | --- | --- |
+| 网络隔离与受控访问 | Linux private network/mount namespace、fail-closed、controlled DNS、TLS/SNI Host allowlist、QEMU pcap | [`controlled-dns-pass.json`](tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json) | 任意目标 IP/端口策略、DHCP renewal、真实 AP 丢失、双设备 fabric、正式 CI/worker |
+| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、单 lease unified | [`native-vhci-service.json`](tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) | 去掉 GDB bridge、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
+| 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、脱敏静态审查、SBOM、LittleFS 文件清单与 SPDX | [`filesystem-inventory.json`](tests/firmware/evidence-2026-10-24-filesystem-inventory.json) | FAT/SPIFFS、运行时权限/许可策略、生产 key/eFuse、流式上传、跨厂商回归 |
+| 共享 QEMU 回归 | AES/GDMA 外部内存读取修复；S3/C6/Core2 全矩阵首轮通过 | [`gdma-external-memory-matrix.json`](tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) | 新共享控制器改动后重新跑受影响矩阵；真机同路径证据 |
 
 ## 剩余工作
 

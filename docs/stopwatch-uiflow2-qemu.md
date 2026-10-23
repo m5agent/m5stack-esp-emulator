@@ -1,5 +1,8 @@
 # StopWatch QEMU：官方 UIFlow2 启动修复
 
+> 历史调查：本文固定记录 StopWatch 首轮启动修复。当前 14 台设备、网络和
+> 统一运行时应以 [项目当前状态](project-status.md) 为准。
+
 ## 结论
 
 官方 `UIFlow2-StopWatch-v2.5.3` merged image 已能在 `M5StopWatch-QEMU` 的 `m5stopwatch` machine 中启动到 UIFlow2 启动器，并在 CO5300 上显示 466×466 UI。

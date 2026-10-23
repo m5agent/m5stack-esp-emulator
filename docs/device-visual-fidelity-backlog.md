@@ -2,6 +2,9 @@
 
 Date: `2026-10-22`
 
+Last reviewed: `2026-10-24`. The priority and StopWatch reference boundary
+remain current; no new physical visual measurements are implied.
+
 Status: `DEFERRED — specialist visual-modeling work`
 
 Owner: future stronger visual/3D modeling agent
