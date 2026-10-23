@@ -7,6 +7,10 @@ scan/association/DHCP/HTTP and UART1 HCI BLE in one ESP32-C6 QEMU guest.
 
 The network lane uses the repository's open virtual AP and QEMU user networking.
 BLE is an HCI-offload path to Bumble, not a native C6 controller/radio claim.
+The guest also resolves and fetches `example.com`; pass
+`--require-public-network` when the host's outbound DNS and HTTP path must be
+part of the acceptance result. This is plain IPv4 HTTP on port 80, not a TLS
+or certificate-validation test.
 
 Build configuration:
 
@@ -30,5 +34,6 @@ PYTHONPATH=.work/py python3 tests/uiflow2/unified_nesso/make_image.py \
 
 PYTHONPATH=.work/py python3 tests/uiflow2/unified_nesso/run_test.py \
   --image /tmp/m5-nesso-unified.bin \
-  --out-dir /tmp/m5-nesso-unified
+  --out-dir /tmp/m5-nesso-unified \
+  --require-public-network
 ```

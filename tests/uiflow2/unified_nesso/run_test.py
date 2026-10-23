@@ -169,6 +169,7 @@ def main() -> int:
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--qemu", type=Path, default=DEFAULT_QEMU)
     parser.add_argument("--rom-dir", type=Path, default=DEFAULT_ROM_DIR)
+    parser.add_argument("--require-public-network", action="store_true")
     args = parser.parse_args()
 
     image = args.image.resolve()
@@ -359,12 +360,19 @@ def main() -> int:
         **{f"peer:{marker}": marker in peer for marker in PEER_MARKERS},
         "http:controlled_request": http_requests
         == [{"path": "/unified", "host": "qemu.test"}],
+        "network:public_dns": "UNIFIED_NESSO_PUBLIC_DNS" in serial,
+        "network:public_http": "UNIFIED_NESSO_PUBLIC_HTTP_PASS" in serial,
         "frame:nonblank": before_stats[0] > 100,
         "frame:touch_redraw": frame_changed,
         "rmt:nec": rmt_nec["status"] == "PASS",
         "pcm:buzzer": pcm["status"] == "PASS",
     }
-    status = "PASS" if all(checks.values()) else "FAIL"
+    required_checks = {
+        name: passed
+        for name, passed in checks.items()
+        if args.require_public_network or not name.startswith("network:public_")
+    }
+    status = "PASS" if all(required_checks.values()) else "FAIL"
     evidence = {
         "schema_version": 1,
         "scope": "simulation-only-not-hardware-validation",
@@ -408,6 +416,13 @@ def main() -> int:
         "network": {
             "wifi": "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
             "ble": "PASS via UART1 HCI offload",
+            "public_dns": (
+                "PASS" if checks["network:public_dns"] else "FAIL"
+            ),
+            "public_http": (
+                "PASS" if checks["network:public_http"] else "FAIL"
+            ),
+            "public_required": args.require_public_network,
         },
         "gatt": {
             "name": "M5-NESSO-UNIFIED",
@@ -419,6 +434,8 @@ def main() -> int:
             "real-hardware behavior",
             "native ESP32-C6 Bluetooth controller/radio model",
             "RF privacy, security, range or performance",
+            "public TLS certificate validation",
+            "stable public DNS or HTTP availability",
         ],
     }
     (out / "evidence.json").write_text(

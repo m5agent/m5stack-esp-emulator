@@ -2,7 +2,7 @@
 
 This single UIFlow2 program exercises the StickS3 display, A button, M5PM1
 power telemetry, BMI270 IMU, ES8311 speaker, `network.WLAN`, a controlled
-HTTP endpoint and `BLEUARTServer` from one guest.
+HTTP endpoint, public DNS/HTTP and `BLEUARTServer` from one guest.
 
 The probe is intentionally simulation-only. The acceptance runner must start
 one QEMU process, route UART1 H4 to the external BLE controller, collect
@@ -25,9 +25,19 @@ CONFIG_BT_NIMBLE_HCI_UART_FLOW_CTRL=0
 ```
 
 Preserve the public merged image's NVS, PHY and flash layout, then replace its
-bootloader, partition table, app, system filesystem and user filesystem with
-the matching local build. The user filesystem must contain these probe files.
+bootloader, partition table and app from the matching local build, retain the
+base system filesystem, and replace the user filesystem with the probe files.
 The resulting image must remain exactly 8 MiB.
+
+Build the merged image with:
+
+```bash
+PYTHONPATH=.work/py python3 \
+  tests/uiflow2/unified_sticks3/make_image.py \
+  --base platform/.cache/firmware/sticks3/uiflow2.bin \
+  --build-dir .work/uiflow-core2-2.5.3/m5stack/build-M5STACK_StickS3-unified \
+  --out /tmp/m5-sticks3-unified.bin
+```
 
 ## Run
 
@@ -39,12 +49,17 @@ port `18080`, launches one `m5sticks3` QEMU process with
 PYTHONPATH=.work/py python3 \
   tests/uiflow2/unified_sticks3/run_test.py \
   --image /path/to/sticks3-unified.bin \
-  --out-dir /tmp/m5-sticks3-unified
+  --out-dir /tmp/m5-sticks3-unified \
+  --require-public-network
 ```
 
 The evidence bundle checks display/button redraw, M5PM1 power, BMI270 IMU,
 ES8311 speaker PCM and PA state, WiFi scan/association/DHCP, controlled HTTP,
-and external BLE NUS discovery/subscription/write/guest-RX/notify.
+public DNS/HTTP, and external BLE NUS
+discovery/subscription/write/guest-RX/notify. The public check depends on the
+host's outbound DNS and HTTP path; omit `--require-public-network` for a
+fully local CI gate. Public coverage is plain IPv4 HTTP on port 80, not TLS or
+certificate validation.
 
 This is simulation-only evidence. The WiFi model is an open AP on one fixed
 virtual channel, and BLE is host-controller HCI over UART1 rather than a

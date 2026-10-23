@@ -6,9 +6,9 @@
   "profile": "nesso-board-hci-ble",
   "terminal": "complete",
   "firmware": {
-    "path": "/private/tmp/m5-nesso-unified-wifi-ble.bin",
+    "path": "/private/tmp/m5-nesso-unified-public.bin",
     "bytes": 16777216,
-    "sha256": "85ca38378ebc67ce7c4319a3511a4762ad93aae17f9246c34e7333dd66135c97"
+    "sha256": "375fd6a33fe505bc7eda03bfda08e17baa5f259be8b13db596e5ed84ab35e64c"
   },
   "checks": {
     "serial:UNIFIED_NESSO_BOARD 23": true,
@@ -36,6 +36,8 @@
     "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
     "peer:BLE_BUMBLE_PASS": true,
     "http:controlled_request": true,
+    "network:public_dns": true,
+    "network:public_http": true,
     "frame:nonblank": true,
     "frame:touch_redraw": true,
     "rmt:nec": true,
@@ -46,7 +48,7 @@
       135,
       240
     ],
-    "before_nonblack": 2583,
+    "before_nonblack": 2858,
     "before_unique_colors": 16,
     "after_nonblack": 7423,
     "after_unique_colors": 17,
@@ -68,10 +70,10 @@
       "detail": "PCM bytes=230400 samples=115200 nonzero=61725 peak_to_peak=65535"
     }
   },
-  "serial_bytes": 1316,
-  "serial_sha256": "ce0dbe928e25e4cd2255bc5ff295775e74acdaf607e9ff3c7a9820244ad0d488",
+  "serial_bytes": 1553,
+  "serial_sha256": "953754651c306f88bb9efb0f751572640637dc64e8f7634e795d64ec91f21afb",
   "peer_log_bytes": 4499,
-  "peer_log_sha256": "ee60d490b54330f24c666193856111e87a145fb12c9334ef7688e5c9c84732d1",
+  "peer_log_sha256": "43026b44c5bf90936fef594712bf2f221dcf6fe363b38cc9a83f168b5f7fe7b2",
   "http_requests": [
     {
       "path": "/unified",
@@ -80,7 +82,10 @@
   ],
   "network": {
     "wifi": "PASS via QEMU ESP32-C6 MAC/DMA and SLiRP",
-    "ble": "PASS via UART1 HCI offload"
+    "ble": "PASS via UART1 HCI offload",
+    "public_dns": "PASS",
+    "public_http": "PASS",
+    "public_required": true
   },
   "gatt": {
     "name": "M5-NESSO-UNIFIED",
@@ -91,6 +96,8 @@
   "not_claimed": [
     "real-hardware behavior",
     "native ESP32-C6 Bluetooth controller/radio model",
-    "RF privacy, security, range or performance"
+    "RF privacy, security, range or performance",
+    "public TLS certificate validation",
+    "stable public DNS or HTTP availability"
   ]
 }

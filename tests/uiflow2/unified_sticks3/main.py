@@ -10,6 +10,8 @@ from M5 import *
 SSID = "myssid"
 HTTP_HOST = "10.0.2.2"
 HTTP_PORT = 18080
+PUBLIC_HOST = "example.com"
+PUBLIC_PORT = 80
 BLE_NAME = "M5-STICKS3-UNIFIED"
 
 state = {
@@ -92,12 +94,42 @@ def probe_http():
         sock.close()
 
 
+def probe_public_http():
+    addresses = socket.getaddrinfo(PUBLIC_HOST, PUBLIC_PORT)
+    address = next(
+        info[-1] for info in addresses
+        if len(info[-1][0].split(".")) == 4
+    )
+    emit("UNIFIED_STICKS3_PUBLIC_DNS", address[0])
+
+    sock = socket.socket()
+    sock.settimeout(10)
+    try:
+        sock.connect(address)
+        sock.send(
+            b"GET / HTTP/1.0\r\n"
+            b"Host: example.com\r\n"
+            b"Connection: close\r\n\r\n"
+        )
+        response = sock.recv(512)
+        emit("UNIFIED_STICKS3_PUBLIC_HTTP", repr(response[:128]))
+        if not response.startswith(b"HTTP/"):
+            raise RuntimeError("public HTTP response is invalid")
+        emit("UNIFIED_STICKS3_PUBLIC_HTTP_PASS")
+    finally:
+        sock.close()
+
+
 def main():
     global log_uart
 
-    from hardware import UART
+    try:
+        from hardware import UART
 
-    log_uart = UART(0, baudrate=115200, tx=43, rx=44)
+        log_uart = UART(0, baudrate=115200, tx=43, rx=44)
+    except Exception as error:
+        print("UNIFIED_STICKS3_UART_FALLBACK", repr(error))
+        log_uart = None
     emit("UNIFIED_STICKS3_MAIN")
 
     M5.begin()
@@ -167,6 +199,10 @@ def main():
         except Exception as error:
             state["http"] = "fail"
             emit("UNIFIED_STICKS3_HTTP_ERROR", repr(error))
+        try:
+            probe_public_http()
+        except Exception as error:
+            emit("UNIFIED_STICKS3_PUBLIC_HTTP_ERROR", repr(error))
 
     try:
         from bleuart import BLEUARTServer

@@ -16,6 +16,8 @@ WIFI_SSID = "myssid"
 WIFI_BSSID = b"\x10\x01\x00\xc4\x0a\x50"
 HTTP_HOST = "10.0.2.2"
 HTTP_PORT = 18091
+PUBLIC_HOST = "example.com"
+PUBLIC_PORT = 80
 EXPECTED_POWER = (100, 4300, 1)
 EXPECTED_ACCEL = (0.25, -0.50, 0.75)
 EXPECTED_GYRO = (10.0, -20.0, 30.0)
@@ -139,6 +141,32 @@ def probe_http():
         connection.close()
 
 
+def probe_public_http():
+    addresses = socket.getaddrinfo(PUBLIC_HOST, PUBLIC_PORT)
+    address = next(
+        info[-1] for info in addresses
+        if len(info[-1][0].split(".")) == 4
+    )
+    print("UNIFIED_NESSO_PUBLIC_DNS", address[0])
+
+    connection = socket.socket()
+    connection.settimeout(10)
+    try:
+        connection.connect(address)
+        connection.send(
+            b"GET / HTTP/1.0\r\n"
+            b"Host: example.com\r\n"
+            b"Connection: close\r\n\r\n"
+        )
+        response = connection.recv(512)
+        print("UNIFIED_NESSO_PUBLIC_HTTP", repr(response[:128]))
+        if not response.startswith(b"HTTP/"):
+            raise RuntimeError("public HTTP response is invalid")
+        print("UNIFIED_NESSO_PUBLIC_HTTP_PASS")
+    finally:
+        connection.close()
+
+
 print("UNIFIED_NESSO_MAIN")
 M5.begin()
 print("UNIFIED_NESSO_BOARD", M5.getBoard())
@@ -218,6 +246,10 @@ print("UNIFIED_NESSO_BUZZER 3500")
 
 connect_wifi()
 probe_http()
+try:
+    probe_public_http()
+except Exception as error:
+    print("UNIFIED_NESSO_PUBLIC_HTTP_ERROR", repr(error))
 
 from bleuart import BLEUARTServer
 

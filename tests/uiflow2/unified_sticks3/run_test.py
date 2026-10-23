@@ -139,6 +139,7 @@ def main() -> int:
     parser.add_argument("--qemu", type=Path, default=DEFAULT_QEMU)
     parser.add_argument("--rom-dir", type=Path, default=DEFAULT_ROM_DIR)
     parser.add_argument("--http-port", type=int, default=HTTP_PORT)
+    parser.add_argument("--require-public-network", action="store_true")
     args = parser.parse_args()
 
     image = args.image.resolve()
@@ -316,6 +317,10 @@ def main() -> int:
         },
         "http:controlled_request": http_requests
         == [{"path": "/unified", "host": "qemu.test"}],
+        "network:public_dns": "UNIFIED_STICKS3_PUBLIC_DNS" in serial,
+        "network:public_http": (
+            "UNIFIED_STICKS3_PUBLIC_HTTP_PASS" in serial
+        ),
         "frame:nonblank": before_stats[0] > 16 and after_stats[0] > 16,
         "frame:button_changed": frame_changed,
         "qom:power": qom.get("/machine/m5pm1.vbat-mv") == 4000,
@@ -323,7 +328,12 @@ def main() -> int:
         "qom:imu": qom.get("/machine/bmi270.accel-z") == 1,
         "audio:pcm_nonzero": bool(pcm) and any(pcm),
     }
-    status = "PASS" if all(checks.values()) else "PARTIAL"
+    required_checks = {
+        name: passed
+        for name, passed in checks.items()
+        if args.require_public_network or not name.startswith("network:public_")
+    }
+    status = "PASS" if all(required_checks.values()) else "PARTIAL"
     evidence = {
         "schema_version": 1,
         "scope": "simulation-only-not-hardware-validation",
@@ -353,6 +363,17 @@ def main() -> int:
         },
         "qom": qom,
         "http_requests": http_requests,
+        "network": {
+            "wifi": "PASS via QEMU ESP32-S3 MAC/DMA and SLiRP",
+            "ble": "PASS via UART1 HCI offload",
+            "public_dns": (
+                "PASS" if checks["network:public_dns"] else "FAIL"
+            ),
+            "public_http": (
+                "PASS" if checks["network:public_http"] else "FAIL"
+            ),
+            "public_required": args.require_public_network,
+        },
         "serial_bytes": len(serial_bytes),
         "serial_sha256": sha256(serial_bytes),
         "peer_log_bytes": len(peer_bytes),
@@ -361,6 +382,8 @@ def main() -> int:
             "real-hardware behavior",
             "native ESP32-S3 Bluetooth controller model",
             "RF privacy, security, range or performance",
+            "public TLS certificate validation",
+            "stable public DNS or HTTP availability",
         ],
     }
     (out / "evidence.json").write_text(

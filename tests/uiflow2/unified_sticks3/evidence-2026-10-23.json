@@ -3,61 +3,83 @@
   "scope": "simulation-only-not-hardware-validation",
   "status": "PASS",
   "device_id": "sticks3",
-  "firmware_sha256": "dc653e73ca231dc89ed4c32a3cd67e40580cbdbd9944548b1b917996b6e61171",
+  "firmware": {
+    "path": "/private/tmp/m5-sticks3-unified-public.bin",
+    "bytes": 8388608,
+    "sha256": "9c12fe83013c0e735b2af0f7f3ef28299cee43118404fed3bb08db005fa59bdf"
+  },
   "checks": {
-    "board": true,
-    "display_nonblank": true,
-    "button_redraw": true,
-    "power": true,
-    "imu": true,
-    "speaker_pcm": true,
-    "speaker_pa": true,
-    "wifi_scan": true,
-    "wifi_association": true,
-    "wifi_dhcp": true,
-    "http_controlled_200": true,
-    "ble_advertising": true,
-    "ble_connect": true,
-    "ble_nus_discovery": true,
-    "ble_nus_subscription": true,
-    "ble_nus_write": true,
-    "ble_guest_rx": true,
-    "ble_notify_ack": true
+    "serial:UNIFIED_STICKS3_BOARD 26": true,
+    "serial:UNIFIED_STICKS3_IMU": true,
+    "serial:UNIFIED_STICKS3_POWER": true,
+    "serial:UNIFIED_STICKS3_AUDIO_PASS": true,
+    "serial:UNIFIED_STICKS3_WIFI_CONNECTED 10.0.2.15": true,
+    "serial:UNIFIED_STICKS3_HTTP_PASS": true,
+    "serial:UNIFIED_STICKS3_BLE_READY": true,
+    "serial:UNIFIED_STICKS3_BLE_RX": true,
+    "serial:UNIFIED_STICKS3_BLE_ACK_SENT": true,
+    "serial:UNIFIED_STICKS3_READY": true,
+    "serial:UNIFIED_STICKS3_BTN_A 1": true,
+    "peer:BLE_BUMBLE_FOUND": true,
+    "peer:BLE_BUMBLE_CONNECTED": true,
+    "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
+    "peer:BLE_BUMBLE_SUBSCRIBED": true,
+    "peer:BLE_BUMBLE_WRITE": true,
+    "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
+    "peer:BLE_BUMBLE_PASS": true,
+    "http:controlled_request": true,
+    "network:public_dns": true,
+    "network:public_http": true,
+    "frame:nonblank": true,
+    "frame:button_changed": true,
+    "qom:power": true,
+    "qom:audio_pa": true,
+    "qom:imu": true,
+    "audio:pcm_nonzero": true
   },
   "frame": {
-    "size": [135, 240],
-    "before_nonblack_pixels": 8076,
-    "before_unique_colors": 31,
-    "after_nonblack_pixels": 8054,
-    "after_unique_colors": 31,
-    "changed_after_key": true
+    "before": {
+      "nonblack": 8076,
+      "colors": 31
+    },
+    "after": {
+      "nonblack": 8054,
+      "colors": 31
+    },
+    "changed": true
   },
   "audio": {
-    "bytes": 66560,
-    "nonzero_bytes": 64540,
-    "sha256": "731fa3d1f42a1fbde058957b95766bcb2c0bf134f3cb28a514f48be0bbead556"
+    "bytes": 67584,
+    "nonzeros": 65532,
+    "sha256": "e07103139f37f5593361014113dce0e2c861ea9d1e9e30f806266ed9d1e2bdba"
   },
-  "wifi": {
-    "ssid": "myssid",
-    "channel": 1,
-    "ipv4": "10.0.2.15",
-    "http_path": "/unified",
-    "http_status": 200
+  "qom": {
+    "/machine/m5pm1.vbat-mv": 4000,
+    "/machine/m5pm1.pa-enabled": true,
+    "/machine/bmi270.accel-z": 1
   },
-  "ble": {
-    "transport": "UART1 H4",
-    "controller": "Bumble",
-    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
-    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
-    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
-    "payload": "M5_STICKS3_UNIFIED",
-    "notification": "ACK:M5_STICKS3_UNIFIED"
+  "http_requests": [
+    {
+      "path": "/unified",
+      "host": "qemu.test"
+    }
+  ],
+  "network": {
+    "wifi": "PASS via QEMU ESP32-S3 MAC/DMA and SLiRP",
+    "ble": "PASS via UART1 HCI offload",
+    "public_dns": "PASS",
+    "public_http": "PASS",
+    "public_required": true
   },
+  "serial_bytes": 2128,
+  "serial_sha256": "42647a25c493384a8d23464f14bdca12ce48572c815b7a9e1f8a5368a7d9af4a",
+  "peer_log_bytes": 407,
+  "peer_log_sha256": "40f32d8ee56482be3877308d0104fd7e3639a5af79514b0090063fb514cb77a4",
   "not_claimed": [
     "real-hardware behavior",
     "native ESP32-S3 Bluetooth controller model",
-    "WPA2 or WPA3 behavior",
-    "RF security, range or performance",
-    "untrusted-firmware sandboxing"
+    "RF privacy, security, range or performance",
+    "public TLS certificate validation",
+    "stable public DNS or HTTP availability"
   ]
 }
