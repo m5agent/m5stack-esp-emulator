@@ -8,20 +8,51 @@ permissions:
   contents: read
 
 jobs:
-  catalog-and-profiles:
+  platform-contracts:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validate device catalog and QEMU profiles
+      - name: Run platform tests and contract checks
+        env:
+          PYTHONPATH: platform/tools
         run: |
-          python3 platform/tests/test_catalog.py
-          python3 platform/tests/test_qemu_profiles.py
-          python3 platform/tests/test_peripheral_catalog.py
+          python3 -m unittest discover \
+            -s platform/tests -p 'test_*.py'
           python3 platform/tools/qemu_profiles.py --check
           python3 platform/tools/peripheral_catalog.py --check
+          python3 platform/tools/runtime_coverage.py --check
       - name: Compile Python entry points
         run: |
           python3 -m compileall -q platform tests
+
+  network-namespace-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Linux network fixtures
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes iproute2 nftables
+      - name: Run fail-closed exact IPv4 egress test
+        run: |
+          sudo sysctl --write net.ipv4.ip_forward=1
+          sudo env \
+            "PATH=$PATH" \
+            "PYTHONPATH=$GITHUB_WORKSPACE/platform/tools" \
+            python3 tests/network/egress_allowlist/run_test.py \
+            --out-dir /tmp/m5-egress-allowlist
+      - name: Preserve network evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-namespace-evidence
+          path: /tmp/m5-egress-allowlist
+          if-no-files-found: warn
