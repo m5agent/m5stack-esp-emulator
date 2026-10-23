@@ -90,12 +90,21 @@ QEMU 不应从任意 host 线程直接调用 `notify_host_recv`。
 
 ### HCI-1：QEMU chardev/socket transport
 
+状态：`transport-only PASS`。补丁与证据：
+
+- `patches/qemu-core2-native-hci/0001-esp32-native-hci-transport.patch`
+- `tests/uiflow2/core2_native_hci/evidence-2026-10-24-transport-pass.json`
+
+已实现：
+
 - 新增 QEMU 设备或 `hw/misc` 模块，提供 `chardev`-backed H4 transport；
 - worker 只做 socket read/write、H4 packetization 和 bounded queue；
 - 通过 QOM 暴露 counters、last error、peer connected、RX/TX packet counts；
 - QEMU shutdown 必须关闭 fd、worker 和 timer，无残留线程/进程。
 
-验收：qtest/单测覆盖分包、backpressure、断连、超时和 shutdown。
+验收结果：targeted `m5core2` paused-QEMU test 覆盖分片 event/ACL、
+`32` packet queue 上限、overflow drop、peer open/close、counters 和 clean
+shutdown。该 PASS 只覆盖 host transport，不覆盖 guest VHCI。
 
 ### HCI-2：H2C guest→QEMU
 

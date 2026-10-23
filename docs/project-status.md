@@ -114,6 +114,9 @@
   [QEMU 内部 native HCI backend](core2-native-hci-backend.md)：host
   transport worker、bounded queue、vCPU-safe C2H commit 和 `5/5` lease
   门禁；在此之前不再把 GDB 桥单次 PASS 写成稳定能力。
+  HCI-1 的 QEMU chardev/H4 transport-only 切片已通过分片 ACL、32 packet
+  bounded queue、overflow、peer close 和 clean shutdown；guest VHCI
+  H2C/C2H 尚未接入。
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
   `/after` HTTP。

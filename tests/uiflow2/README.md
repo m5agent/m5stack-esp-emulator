@@ -61,6 +61,18 @@ PYTHONPATH=.work/py python3 tests/uiflow2/unified_core2/run_test.py \
 同时返回 board/frame/QOM/audio/WiFi/公网/BLE，并保留 pcap、bridge 和 peer
 evidence；当前仍依赖服务托管的 GDB bridge。
 
+Device Service repeated lease 目前为 `1/2`，失败在 C2H callback 注入，
+因此单 lease PASS 不等于稳定后端。QEMU 内部替代路线的第一个
+transport-only 切片为：
+
+```bash
+python3 tests/uiflow2/core2_native_hci/test_transport.py
+```
+
+该测试只验证 H4 chardev framing、bounded queue、overflow、peer lifecycle
+和 shutdown，不验证 guest VHCI/BLE。设计和阶段门禁见
+`docs/core2-native-hci-backend.md`。
+
 Core2 peripheral 和 device matrix 现在都显式使用
 `tcg,thread=single` + `icount shift=auto,align=off,sleep=off`。matrices
 不再配置自动重试；若 case 声明 `retries`，runner 默认拒绝运行，只有显式

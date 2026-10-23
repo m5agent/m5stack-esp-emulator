@@ -1,0 +1,363 @@
+diff --git a/include/hw/xtensa/esp32_native_hci.h b/include/hw/xtensa/esp32_native_hci.h
+new file mode 100644
+--- /dev/null
++++ b/include/hw/xtensa/esp32_native_hci.h
+@@ -0,0 +1,57 @@
++/*
++ * Classic ESP32 native HCI transport.
++ *
++ * This frontend owns H4 packet framing and bounded host/guest queues.
++ * Board-specific VHCI shared-memory integration is intentionally separate.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#ifndef HW_XTENSA_ESP32_NATIVE_HCI_H
++#define HW_XTENSA_ESP32_NATIVE_HCI_H
++
++#include "chardev/char-fe.h"
++#include "hw/qdev-core.h"
++#include "qom/object.h"
++
++#define TYPE_ESP32_NATIVE_HCI "esp32-native-hci"
++OBJECT_DECLARE_SIMPLE_TYPE(Esp32NativeHciState, ESP32_NATIVE_HCI)
++
++#define ESP32_NATIVE_HCI_QUEUE_DEPTH 32
++#define ESP32_NATIVE_HCI_PACKET_MAX 2048
++#define ESP32_NATIVE_HCI_RX_BUFFER_SIZE 8192
++
++typedef struct Esp32NativeHciPacket {
++    uint16_t length;
++    uint8_t data[ESP32_NATIVE_HCI_PACKET_MAX];
++} Esp32NativeHciPacket;
++
++struct Esp32NativeHciState {
++    DeviceState parent_obj;
++
++    CharBackend chr;
++    Esp32NativeHciPacket tx_queue[ESP32_NATIVE_HCI_QUEUE_DEPTH];
++    Esp32NativeHciPacket rx_queue[ESP32_NATIVE_HCI_QUEUE_DEPTH];
++    uint8_t rx_buffer[ESP32_NATIVE_HCI_RX_BUFFER_SIZE];
++
++    uint32_t rx_buffer_length;
++    uint32_t rx_queue_head;
++    uint32_t rx_queue_count;
++    uint32_t tx_queue_head;
++    uint32_t tx_queue_count;
++    uint32_t last_error;
++
++    uint64_t rx_bytes;
++    uint64_t rx_packets;
++    uint64_t tx_bytes;
++    uint64_t tx_packets;
++    uint64_t malformed_packets;
++    uint64_t dropped_packets;
++    uint64_t peer_opened;
++    uint64_t peer_closed;
++};
++
++bool esp32_native_hci_send_h2c(Esp32NativeHciState *s,
++                               const uint8_t *data, size_t size,
++                               Error **errp);
++
++#endif
+diff --git a/hw/xtensa/esp32_native_hci.c b/hw/xtensa/esp32_native_hci.c
+new file mode 100644
+--- /dev/null
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -0,0 +1,285 @@
++/*
++ * Classic ESP32 native HCI transport.
++ *
++ * The transport accepts controller-to-host H4 packets from a chardev and
++ * exposes bounded queues for the board-specific VHCI adapter. The first
++ * milestone intentionally does not touch guest memory or CPU registers.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/module.h"
++#include "qapi/error.h"
++#include "hw/qdev-properties.h"
++#include "hw/qdev-properties-system.h"
++#include "hw/xtensa/esp32_native_hci.h"
++
++enum {
++    ESP32_NATIVE_HCI_ERROR_NONE = 0,
++    ESP32_NATIVE_HCI_ERROR_MALFORMED = 1,
++    ESP32_NATIVE_HCI_ERROR_QUEUE_FULL = 2,
++    ESP32_NATIVE_HCI_ERROR_WRITE = 3,
++};
++
++static size_t h4_packet_length(const uint8_t *data, size_t available)
++{
++    size_t payload;
++
++    if (available < 1) {
++        return 0;
++    }
++    switch (data[0]) {
++    case 0x01:
++        if (available < 4) {
++            return 0;
++        }
++        return 4 + data[3];
++    case 0x02:
++        if (available < 5) {
++            return 0;
++        }
++        payload = data[3] | ((size_t)data[4] << 8);
++        return 5 + payload;
++    case 0x03:
++        if (available < 4) {
++            return 0;
++        }
++        return 4 + data[3];
++    case 0x04:
++        if (available < 3) {
++            return 0;
++        }
++        return 3 + data[2];
++    default:
++        return SIZE_MAX;
++    }
++}
++
++static void consume_rx_buffer(Esp32NativeHciState *s)
++{
++    while (s->rx_buffer_length) {
++        size_t length = h4_packet_length(s->rx_buffer, s->rx_buffer_length);
++        Esp32NativeHciPacket *packet;
++        uint32_t tail;
++
++        if (length == 0) {
++            return;
++        }
++        if (length == SIZE_MAX ||
++            length > ESP32_NATIVE_HCI_PACKET_MAX) {
++            s->malformed_packets++;
++            s->last_error = ESP32_NATIVE_HCI_ERROR_MALFORMED;
++            s->rx_buffer_length--;
++            memmove(s->rx_buffer, s->rx_buffer + 1,
++                    s->rx_buffer_length);
++            continue;
++        }
++        if (length > s->rx_buffer_length) {
++            return;
++        }
++        if (s->rx_queue_count == ESP32_NATIVE_HCI_QUEUE_DEPTH) {
++            s->dropped_packets++;
++            s->last_error = ESP32_NATIVE_HCI_ERROR_QUEUE_FULL;
++        } else {
++            tail = (s->rx_queue_head + s->rx_queue_count) %
++                   ESP32_NATIVE_HCI_QUEUE_DEPTH;
++            packet = &s->rx_queue[tail];
++            packet->length = length;
++            memcpy(packet->data, s->rx_buffer, length);
++            s->rx_queue_count++;
++            s->rx_packets++;
++        }
++        s->rx_buffer_length -= length;
++        memmove(s->rx_buffer, s->rx_buffer + length,
++                s->rx_buffer_length);
++    }
++}
++
++static int esp32_native_hci_can_receive(void *opaque)
++{
++    Esp32NativeHciState *s = opaque;
++
++    return sizeof(s->rx_buffer) - s->rx_buffer_length;
++}
++
++static void esp32_native_hci_receive(void *opaque, const uint8_t *buf,
++                                     int size)
++{
++    Esp32NativeHciState *s = opaque;
++    size_t take;
++    size_t room;
++
++    if (size <= 0) {
++        return;
++    }
++    room = sizeof(s->rx_buffer) - s->rx_buffer_length;
++    take = MIN((size_t)size, room);
++    if (take < size) {
++        s->malformed_packets++;
++        s->dropped_packets += size - take;
++        s->last_error = ESP32_NATIVE_HCI_ERROR_QUEUE_FULL;
++    }
++    memcpy(s->rx_buffer + s->rx_buffer_length, buf, take);
++    s->rx_buffer_length += take;
++    s->rx_bytes += take;
++    consume_rx_buffer(s);
++}
++
++static void esp32_native_hci_event(void *opaque, QEMUChrEvent event)
++{
++    Esp32NativeHciState *s = opaque;
++
++    switch (event) {
++    case CHR_EVENT_OPENED:
++        s->peer_opened++;
++        qemu_chr_fe_accept_input(&s->chr);
++        break;
++    case CHR_EVENT_CLOSED:
++        s->peer_closed++;
++        s->rx_buffer_length = 0;
++        break;
++    default:
++        break;
++    }
++}
++
++static bool esp32_native_hci_flush_tx(Esp32NativeHciState *s, Error **errp)
++{
++    while (s->tx_queue_count) {
++        Esp32NativeHciPacket *packet =
++            &s->tx_queue[s->tx_queue_head];
++        int written = qemu_chr_fe_write_all(
++            &s->chr, packet->data, packet->length);
++
++        if (written != packet->length) {
++            s->last_error = ESP32_NATIVE_HCI_ERROR_WRITE;
++            error_setg(errp, "esp32-native-hci: chardev write failed");
++            return false;
++        }
++        s->tx_bytes += packet->length;
++        s->tx_packets++;
++        s->tx_queue_head =
++            (s->tx_queue_head + 1) % ESP32_NATIVE_HCI_QUEUE_DEPTH;
++        s->tx_queue_count--;
++    }
++    return true;
++}
++
++bool esp32_native_hci_send_h2c(Esp32NativeHciState *s,
++                               const uint8_t *data, size_t size,
++                               Error **errp)
++{
++    uint32_t tail;
++
++    if (!data || !size || size > ESP32_NATIVE_HCI_PACKET_MAX) {
++        error_setg(errp, "esp32-native-hci: invalid H2C packet");
++        return false;
++    }
++    if (!qemu_chr_fe_backend_connected(&s->chr)) {
++        s->last_error = ESP32_NATIVE_HCI_ERROR_WRITE;
++        error_setg(errp, "esp32-native-hci: HCI peer is disconnected");
++        return false;
++    }
++    if (s->tx_queue_count == ESP32_NATIVE_HCI_QUEUE_DEPTH) {
++        s->last_error = ESP32_NATIVE_HCI_ERROR_QUEUE_FULL;
++        error_setg(errp, "esp32-native-hci: H2C queue is full");
++        return false;
++    }
++    tail = (s->tx_queue_head + s->tx_queue_count) %
++           ESP32_NATIVE_HCI_QUEUE_DEPTH;
++    s->tx_queue[tail].length = size;
++    memcpy(s->tx_queue[tail].data, data, size);
++    s->tx_queue_count++;
++    return esp32_native_hci_flush_tx(s, errp);
++}
++
++static void esp32_native_hci_realize(DeviceState *dev, Error **errp)
++{
++    Esp32NativeHciState *s = ESP32_NATIVE_HCI(dev);
++
++    qemu_chr_fe_set_handlers(&s->chr,
++                             esp32_native_hci_can_receive,
++                             esp32_native_hci_receive,
++                             esp32_native_hci_event,
++                             NULL, s, NULL, true);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "rx-bytes", &s->rx_bytes, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "rx-packets", &s->rx_packets, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "tx-bytes", &s->tx_bytes, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "tx-packets", &s->tx_packets, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "malformed-packets", &s->malformed_packets,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "dropped-packets", &s->dropped_packets,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "peer-opened", &s->peer_opened,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "peer-closed", &s->peer_closed,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "rx-queue-depth", &s->rx_queue_count,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "tx-queue-depth", &s->tx_queue_count,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "last-error", &s->last_error,
++        OBJ_PROP_FLAG_READ);
++}
++
++static void esp32_native_hci_unrealize(DeviceState *dev)
++{
++    Esp32NativeHciState *s = ESP32_NATIVE_HCI(dev);
++
++    qemu_chr_fe_set_handlers(&s->chr, NULL, NULL, NULL, NULL,
++                             NULL, NULL, false);
++}
++
++static void esp32_native_hci_reset(DeviceState *dev)
++{
++    Esp32NativeHciState *s = ESP32_NATIVE_HCI(dev);
++
++    s->rx_buffer_length = 0;
++    s->rx_queue_head = 0;
++    s->rx_queue_count = 0;
++    s->tx_queue_head = 0;
++    s->tx_queue_count = 0;
++    s->last_error = ESP32_NATIVE_HCI_ERROR_NONE;
++}
++
++static Property esp32_native_hci_properties[] = {
++    DEFINE_PROP_CHR("chardev", Esp32NativeHciState, chr),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
++static void esp32_native_hci_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++
++    dc->realize = esp32_native_hci_realize;
++    dc->unrealize = esp32_native_hci_unrealize;
++    dc->user_creatable = true;
++    device_class_set_legacy_reset(dc, esp32_native_hci_reset);
++    device_class_set_props(dc, esp32_native_hci_properties);
++    set_bit(DEVICE_CATEGORY_MISC, dc->categories);
++}
++
++static const TypeInfo esp32_native_hci_info = {
++    .name = TYPE_ESP32_NATIVE_HCI,
++    .parent = TYPE_DEVICE,
++    .instance_size = sizeof(Esp32NativeHciState),
++    .class_init = esp32_native_hci_class_init,
++};
++
++static void esp32_native_hci_register_types(void)
++{
++    type_register_static(&esp32_native_hci_info);
++}
++
++type_init(esp32_native_hci_register_types)
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -23,6 +23,7 @@
+ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32', if_true: files(
+   'esp32.c',
+   'esp32_intc.c',
++  'esp32_native_hci.c',
+   '../m5stopwatch/m5core2.c',
+   '../m5stopwatch/m5_i2s_esp32.c',
+ ))
