@@ -36,6 +36,7 @@ Device Service lease
 | 公网 | StickS3、Nesso N1 和 Core2 在对应同 guest 路径完成 IPv4 DNS/HTTP | 只证明一次可达的 IPv4 HTTP；不证明任意云服务、TLS 固定或长期稳定 |
 | 负向认证 | 错误密码要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker 同时成立 | 当前实际 AP 类型有限 |
 | 断线和恢复 | guest `WLAN.disconnect()` 叠加 QMP `wifi0` link down/up 后重新 DHCP，并通过 `/after` HTTP | 不是物理 AP/radio 消失，也不是 DHCP renewal |
+| DHCP renewal | ESP-IDF guest 调用 `netifapi_dhcp_renew()`；pcap 同事务包含初次 DORA 后的 `REQUEST/ACK`，lease 86400、地址保持、随后 HTTP 200 | 仿真 lease renewal，不是物理 AP/RF |
 | Linux 隔离 | StickS3 QEMU guest 位于 private network namespace；无外部路由，namespace 创建失败时 fail-closed | 单设备、受控 fixture；不是恶意固件 VM |
 | DNS/TLS allowlist | private mount namespace 注入临时 `resolv.conf`；允许域名 A，拒绝和 UIFlow/NTP 后台域名 NXDOMAIN；测试 CA TLS 允许 200、拒绝 403；pcap 一致 | Host/DNS 决策与网络 destination policy 分开记录 |
 | 精确 IPv4 egress | nftables input/output 默认 drop；exact IP+protocol+port；同 IP 其他端口和同端口其他 IP 均超时；`1.1.1.1:80` 经 veth/NAT 200/301；namespace/NAT 清理 | 外部 IPv6、CIDR 和域名不作为隐式端点 |
@@ -54,7 +55,7 @@ Device Service lease
 
 ## 尚未证明
 
-- DHCP renewal、真实 AP 消失/恢复和 lease 变化；
+- 真实 AP 消失/恢复和重新分配不同 lease；
 - WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
 - 两台设备通过唯一预期 lab fabric 通信；
 - namespace、pcap retention 和 evidence upload 的正式 CI/worker 生命周期；
@@ -138,14 +139,14 @@ QEMU 子树看到 127.0.0.1 resolver；HTTPS 网关使用临时 CA 和 Host allo
 | Phase | Status | Next acceptance |
 | --- | --- | --- |
 | N0 单设备 WiFi/DHCP/HTTP | DONE | 保留回归 |
-| N1 可控 DNS/TLS/IP-port/负向/重连/pcap | DONE | 保留回归；DHCP renewal 在 N2 |
+| N1 可控 DNS/TLS/IP-port/DHCP-renew/负向/重连/pcap | DONE | 保留回归 |
 | N2 S3/C6 单 guest board+radio | DONE | 新 profile 必须带设备级 evidence |
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
 | N4 Linux CI、双设备 fabric | IN PROGRESS | CI 可重复，namespace/nft 失败保持 fail-closed，两 guest 隔离 |
 | N5 Core2 production BLE/PHY | PARTIAL | 非 GDB backend、controller semantics、coexistence soak |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
-下一项最小交付是 `NET-02`：DHCP renewal、真实 AP 丢失/恢复，以及随后的
+下一项最小交付是 `NET-02`：真实虚拟 AP/radio 丢失/恢复。随后补
 `NET-03` 双设备 fabric。精确 IPv4 endpoint policy 已由 nftables 在隔离
 namespace 内执行，外部 IPv4 通过 per-session veth/NAT；策略或依赖不可用时
 fail-closed。

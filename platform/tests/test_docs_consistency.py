@@ -36,12 +36,15 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/core2_openmac_wifi/README.md",
             "tests/network/egress_allowlist/README.md",
             "tests/network/egress_allowlist/run_test.py",
+            "tests/network/idf_dhcp_renewal/README.md",
+            "tests/network/idf_dhcp_renewal/run_test.py",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json",
             "tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json",
+            "tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
@@ -98,6 +101,7 @@ class DocsConsistencyTests(unittest.TestCase):
                 ROOT / "tests" / "uiflow2" / "README.md",
                 ROOT / "tests" / "network" / "core2_openmac_wifi" / "README.md",
                 ROOT / "tests" / "network" / "egress_allowlist" / "README.md",
+                ROOT / "tests" / "network" / "idf_dhcp_renewal" / "README.md",
                 ROOT / "patches" / "qemu-core2-openmac-wifi" / "README.md",
                 ROOT / "patches" / "qemu-core2-ble-controller" / "README.md",
                 *sorted(DOCS.glob("*.md")),
@@ -143,6 +147,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "This is not a generic destination-IP/port allowlist",
             "通用 destination allowlist",
             "still not prove arbitrary destination IP/port",
+            "DHCP renewal remains `NOT RUN`",
+            "DHCP renewal has not been validated",
         ):
             self.assertNotIn(stale, active)
 
@@ -213,6 +219,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "IP/端口 egress",
             status,
         )
+        self.assertIn("DHCP renewal", status)
         self.assertIn("## 新鲜度台账", (DOCS / "README.md").read_text())
         self.assertIn("## 可执行任务板", backlog)
         self.assertNotIn("本轮已完成", backlog)

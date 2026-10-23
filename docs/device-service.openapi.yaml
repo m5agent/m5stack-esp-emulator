@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.10.0
+  version: 1.11.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -995,7 +995,8 @@ components:
           additionalProperties: true
           description: >
             PASS with a hashed pcap summary, CAPTURING while QEMU is running,
-            or NOT_RUN with a reason.
+            or NOT_RUN with a reason. DHCP summaries distinguish initial DORA,
+            renewal requests and correlated ACKs without retaining payloads.
         expected_markers:
           type: array
           items:

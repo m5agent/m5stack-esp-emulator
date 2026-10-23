@@ -104,13 +104,14 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/network_egress.py` | exact IPv4 IP/协议/端口、nftables、per-session veth/NAT 和清理 |
 | `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled DNS、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
 | `platform/tools/network_lane.py` | `esp-emu` 诊断/Provisioning 网络 lane |
-| `platform/tools/pcap_summary.py` | flow、DNS、DHCP、ARP、egress scope 和 payload hash |
+| `platform/tools/pcap_summary.py` | flow、DNS、DHCP message/transaction/renewal、ARP、egress scope 和 payload hash |
 | `platform/tools/ble_probe.py` | 外部 BLE peer / GATT 验证 |
 | `platform/tools/hci_stream.py` | H4 command/event/ACL 分包 |
 | `platform/tools/runtime_interfaces.py` | 对外汇总设备、外设和运行时可注入接口 |
 | `tests/uiflow2/core2_native_vhci/` | stock Core2 VHCI→Bumble GATT runner |
 | `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | QEMU GDB H2C/C2H bridge |
 | `tests/network/tls_allowlist/` | 测试 CA、namespace-local HTTPS gateway、Host 允许/拒绝和 pcap 断言 |
+| `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
 | `tests/network/` | 隔离、错误密码、断线重连和 Core2 网络夹具 |
 
 QEMU 主路径必须在同一个 guest 内同时具备板级外设、网络和 HCI/BT 数据面。
@@ -158,6 +159,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | 错误密码/重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证和 link fault 后恢复 |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
 | Exact IPv4 egress | `tests/network/egress_allowlist/` | nftables 默认 drop、允许/拒绝端口与 IP、`1.1.1.1:80` veth/NAT、namespace/NAT 清理 |
+| DHCP renewal | `tests/network/idf_dhcp_renewal/` | guest 调用 renew API；pcap 区分初次 DORA 与后续 REQUEST/ACK，lease/地址/HTTP 联合 PASS |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |
 | 公共 API | `/api/v1` Device Service | 可观察、可保留的 session/evidence |
 

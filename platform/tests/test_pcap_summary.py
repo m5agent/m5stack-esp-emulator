@@ -133,6 +133,39 @@ def dns_query(name: str = "example.com") -> bytes:
     )
 
 
+def dhcp_packet(
+    *,
+    operation: int,
+    xid: int,
+    message_type: int,
+    client_address: str = "0.0.0.0",
+    assigned_address: str = "0.0.0.0",
+    requested_ip: str | None = None,
+    server_id: str | None = None,
+    lease_seconds: int | None = None,
+) -> bytes:
+    packet = bytearray(244)
+    packet[0] = operation
+    packet[1] = 1
+    packet[2] = 6
+    struct.pack_into(">I", packet, 4, xid)
+    packet[12:16] = bytes(map(int, client_address.split(".")))
+    packet[16:20] = bytes(map(int, assigned_address.split(".")))
+    packet[28:34] = b"\x02\x00\x00\x00\x00\x01"
+    packet[236:240] = b"\x63\x82\x53\x63"
+    options = bytearray((53, 1, message_type))
+    if requested_ip:
+        options.extend((50, 4, *map(int, requested_ip.split("."))))
+    if server_id:
+        options.extend((54, 4, *map(int, server_id.split("."))))
+    if lease_seconds is not None:
+        options.extend((51, 4))
+        options.extend(struct.pack(">I", lease_seconds))
+    options.append(255)
+    packet[240 : 240 + len(options)] = options
+    return bytes(packet[: 240 + len(options)])
+
+
 class PcapSummaryTests(unittest.TestCase):
     def test_summarizes_dns_tcp_dhcp_without_payloads(self):
         dhcp = ethernet(
@@ -215,6 +248,135 @@ class PcapSummaryTests(unittest.TestCase):
             summary = summarize_pcap(path, include_dns_names=False)
         self.assertEqual(summary["dns"]["queries"], [])
         self.assertFalse(summary["dns"]["names_included"])
+
+    def test_distinguishes_initial_and_renewal_dhcp_transactions(self):
+        initial_xid = 0x11223344
+        renewal_xid = 0x55667788
+        frames = [
+            ethernet(
+                ipv4_udp(
+                    dhcp_packet(
+                        operation=1,
+                        xid=initial_xid,
+                        message_type=1,
+                    ),
+                    source="0.0.0.0",
+                    destination="255.255.255.255",
+                    source_port=68,
+                    destination_port=67,
+                )
+            ),
+            ethernet(
+                ipv4_udp(
+                    dhcp_packet(
+                        operation=2,
+                        xid=initial_xid,
+                        message_type=2,
+                        assigned_address="10.0.2.15",
+                        server_id="10.0.2.2",
+                        lease_seconds=120,
+                    ),
+                    source="10.0.2.2",
+                    destination="255.255.255.255",
+                    source_port=67,
+                    destination_port=68,
+                )
+            ),
+            ethernet(
+                ipv4_udp(
+                    dhcp_packet(
+                        operation=1,
+                        xid=initial_xid,
+                        message_type=3,
+                        requested_ip="10.0.2.15",
+                        server_id="10.0.2.2",
+                    ),
+                    source="0.0.0.0",
+                    destination="255.255.255.255",
+                    source_port=68,
+                    destination_port=67,
+                )
+            ),
+            ethernet(
+                ipv4_udp(
+                    dhcp_packet(
+                        operation=2,
+                        xid=initial_xid,
+                        message_type=5,
+                        assigned_address="10.0.2.15",
+                        server_id="10.0.2.2",
+                        lease_seconds=120,
+                    ),
+                    source="10.0.2.2",
+                    destination="255.255.255.255",
+                    source_port=67,
+                    destination_port=68,
+                )
+            ),
+            ethernet(
+                ipv4_udp(
+                    dhcp_packet(
+                        operation=1,
+                        xid=renewal_xid,
+                        message_type=3,
+                        client_address="10.0.2.15",
+                    ),
+                    source="10.0.2.15",
+                    destination="10.0.2.2",
+                    source_port=68,
+                    destination_port=67,
+                )
+            ),
+            ethernet(
+                ipv4_udp(
+                    dhcp_packet(
+                        operation=2,
+                        xid=renewal_xid,
+                        message_type=5,
+                        client_address="10.0.2.15",
+                        assigned_address="10.0.2.15",
+                        server_id="10.0.2.2",
+                        lease_seconds=120,
+                    ),
+                    source="10.0.2.2",
+                    destination="10.0.2.15",
+                    source_port=67,
+                    destination_port=68,
+                )
+            ),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "dhcp.pcap"
+            path.write_bytes(pcap(frames))
+            summary = summarize_pcap(path)
+
+        dhcp = summary["dhcp"]
+        self.assertEqual(dhcp["selecting_requests"], 1)
+        self.assertEqual(dhcp["renewal_requests"], 1)
+        self.assertEqual(dhcp["renewal_acks"], 1)
+        self.assertEqual(
+            dhcp["message_types"],
+            {
+                "ack": 2,
+                "discover": 1,
+                "offer": 1,
+                "request": 2,
+            },
+        )
+        transactions = {
+            row["xid"]: row for row in dhcp["transactions"]
+        }
+        self.assertFalse(transactions["11223344"]["renewal"])
+        self.assertTrue(transactions["55667788"]["renewal"])
+        self.assertEqual(
+            transactions["55667788"]["message_sequence"],
+            ["REQUEST", "ACK"],
+        )
+        self.assertEqual(
+            transactions["55667788"]["lease_seconds"],
+            120,
+        )
+        self.assertEqual(dhcp["guest_addresses"], ["10.0.2.15"])
 
     def test_rejects_pcapng_and_other_linktypes(self):
         with tempfile.TemporaryDirectory() as tmp:

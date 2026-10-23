@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-idf-dhcp-renewal",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "virtual-device-dhcp-renewal-not-hardware-rf",
+  "firmware": {
+    "image_sha256": "5d990abc6d6b81c71b5e7d243f06171d8c6dd6c09c269e94549f51954957de46",
+    "manifest_id": "05eeea6cca27ad87441064313b0ecb0b52dbfb9a7c76423076ae810bae7734a0",
+    "source_format": "flasher-args"
+  },
+  "runtime": {
+    "device_id": "sticks3",
+    "runtime": "qemu-wifi",
+    "profile": "uiflow2-sticks3-wifi",
+    "service_path": "/api/v1"
+  },
+  "checks": {
+    "manifest_roundtrip": true,
+    "guest_initial_dhcp": true,
+    "guest_renew_api": true,
+    "dhcp_renewal_request_observed": true,
+    "dhcp_renewal_ack_observed": true,
+    "renewal_sequence_request_ack": true,
+    "lease_seconds_observed": true,
+    "dhcp_address_preserved": true,
+    "controlled_http_after_renewal": true,
+    "pcap_written": true
+  },
+  "dhcp": {
+    "message_types": {
+      "ack": 2,
+      "discover": 1,
+      "offer": 1,
+      "request": 2
+    },
+    "selecting_requests": 1,
+    "renewal_requests": 1,
+    "renewal_acks": 1,
+    "lease_seconds": 86400,
+    "guest_address": "10.0.2.15",
+    "transactions": [
+      {
+        "xid": "00000001",
+        "message_sequence": [
+          "DISCOVER",
+          "OFFER",
+          "REQUEST",
+          "ACK",
+          "REQUEST",
+          "ACK"
+        ],
+        "renewal": true,
+        "client_address": "10.0.2.15",
+        "requested_ip": "10.0.2.15",
+        "server_id": "10.0.2.2",
+        "lease_seconds": 86400
+      }
+    ]
+  },
+  "not_claimed": [
+    "physical AP loss or RF behavior",
+    "WPA2/WPA3 security",
+    "physical hardware",
+    "malicious-firmware safety"
+  ]
+}

@@ -40,7 +40,7 @@ Not implemented yet:
 - resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
 - formal CI/worker lifecycle for the Linux namespace lane;
-- external IPv6 allowlisting, DHCP renewal and multi-device lab fabric;
+- external IPv6 allowlisting, real AP loss and multi-device lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
 

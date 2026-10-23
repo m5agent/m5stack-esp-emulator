@@ -237,7 +237,7 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- Linux namespace CI integration, DHCP renewal, real AP loss/recovery, a
+- Linux namespace CI integration, real AP loss/recovery, a
   two-device lab fabric and external IPv6 endpoint enforcement;
 - production Core2 VHCI backend, bit-exact BT controller and physical
   cache/PSRAM equivalence, coexistence and soak;

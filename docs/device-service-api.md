@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Status: local MVP with unified-device runtime contract `1.10.0` and bounded
+Status: local MVP with unified-device runtime contract `1.11.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -342,6 +342,11 @@ QEMU radio sessions capture Ethernet traffic by default through QEMU
 and payload SHA256 values; raw payloads are not copied into the summary.
 Evidence ZIPs include `network/capture.pcap` and
 `network/pcap-summary.json`.
+
+DHCP summaries include message-type counts, bounded transaction records,
+selecting/renewal request counts, renewal ACK correlation, lease/T1/T2 values
+when advertised, and the assigned address. This distinguishes initial
+`DISCOVER/OFFER/REQUEST/ACK` from a later unicast `REQUEST/ACK` renewal.
 
 `network.policy` provides a fail-closed isolation envelope:
 

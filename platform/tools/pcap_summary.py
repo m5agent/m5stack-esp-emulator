@@ -11,7 +11,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-
 PCAP_MAGIC = {
     b"\xd4\xc3\xb2\xa1": ("<", 1_000_000),
     b"\xa1\xb2\xc3\xd4": (">", 1_000_000),
@@ -24,7 +23,18 @@ SLIRP_REDIRECT_NETWORK = ipaddress.IPv4Network("198.18.0.0/15")
 MAX_RECORDED_DNS_NAMES = 256
 MAX_RECORDED_FLOWS = 512
 MAX_RECORDED_PAYLOAD_HASHES = 16
+MAX_RECORDED_DHCP_TRANSACTIONS = 64
 MAX_CAPTURE_BYTES = 512 * 1024 * 1024
+DHCP_MESSAGE_TYPES = {
+    1: "DISCOVER",
+    2: "OFFER",
+    3: "REQUEST",
+    4: "DECLINE",
+    5: "ACK",
+    6: "NAK",
+    7: "RELEASE",
+    8: "INFORM",
+}
 
 
 class PcapError(ValueError):
@@ -217,12 +227,61 @@ def _ipv6(packet: bytes) -> dict[str, Any] | None:
     }
 
 
+def _ipv4_text(payload: bytes, offset: int) -> str | None:
+    if offset + 4 > len(payload):
+        return None
+    address = str(ipaddress.IPv4Address(payload[offset : offset + 4]))
+    return None if address == "0.0.0.0" else address
+
+
+def _dhcp_options(payload: bytes) -> dict[str, int | str]:
+    if len(payload) < 240 or payload[236:240] != b"\x63\x82\x53\x63":
+        return {}
+    result: dict[str, int | str] = {}
+    cursor = 240
+    while cursor < len(payload):
+        option = payload[cursor]
+        cursor += 1
+        if option == 0:
+            continue
+        if option == 255:
+            break
+        if cursor >= len(payload):
+            break
+        length = payload[cursor]
+        cursor += 1
+        if cursor + length > len(payload):
+            break
+        value = payload[cursor : cursor + length]
+        cursor += length
+        if option == 53 and length == 1:
+            message_type = DHCP_MESSAGE_TYPES.get(value[0])
+            if message_type is not None:
+                result["message_type"] = message_type
+        elif option == 50 and length == 4:
+            requested = _ipv4_text(value, 0)
+            if requested:
+                result["requested_ip"] = requested
+        elif option == 54 and length == 4:
+            server = _ipv4_text(value, 0)
+            if server:
+                result["server_id"] = server
+        elif option in {51, 58, 59} and length == 4:
+            name = {
+                51: "lease_seconds",
+                58: "t1_seconds",
+                59: "t2_seconds",
+            }[option]
+            result[name] = struct.unpack(">I", value)[0]
+    return result
+
+
 def _dhcp(
     payload: bytes,
     *,
     source_port: int,
     destination_port: int,
-) -> tuple[str, str | None] | None:
+) -> dict[str, Any] | None:
     if not ({source_port, destination_port} & {67, 68}):
         return None
     if len(payload) < 236:
@@ -231,7 +290,14 @@ def _dhcp(
             if source_port == 67 or destination_port == 68
             else "request"
         )
-        return direction, None
+        return {
+            "direction": direction,
+            "xid": None,
+            "message_type": None,
+            "client_address": None,
+            "requested_ip": None,
+            "server_id": None,
+        }
     operation = payload[0]
     if operation not in {1, 2}:
         direction = (
@@ -239,12 +305,31 @@ def _dhcp(
             if source_port == 67 or destination_port == 68
             else "request"
         )
-        return direction, None
+        return {
+            "direction": direction,
+            "xid": None,
+            "message_type": None,
+            "client_address": None,
+            "requested_ip": None,
+            "server_id": None,
+        }
     direction = "reply" if operation == 2 else "request"
-    client_address = str(ipaddress.IPv4Address(payload[16:20]))
-    if client_address == "0.0.0.0":
-        return direction, None
-    return direction, client_address
+    assigned = _ipv4_text(payload, 16)
+    current = _ipv4_text(payload, 12)
+    options = _dhcp_options(payload)
+    return {
+        "direction": direction,
+        "xid": payload[4:8].hex(),
+        "message_type": options.get("message_type"),
+        "client_address": assigned or current,
+        "requested_ip": options.get("requested_ip"),
+        "server_id": options.get("server_id"),
+        **{
+            key: options[key]
+            for key in ("lease_seconds", "t1_seconds", "t2_seconds")
+            if key in options
+        },
+    }
 
 
 def summarize_pcap(
@@ -287,6 +372,12 @@ def summarize_pcap(
             "requests": 0,
             "replies": 0,
             "guest_addresses": [],
+            "message_types": {},
+            "selecting_requests": 0,
+            "renewal_requests": 0,
+            "renewal_acks": 0,
+            "transactions": [],
+            "transactions_truncated": False,
         },
         "arp_packets": 0,
         "egress_destinations": [],
@@ -325,13 +416,14 @@ def summarize_pcap(
     dns_responses: list[str] = []
     destinations: dict[tuple[str, int, str], dict[str, Any]] = {}
     guest_addresses: set[str] = set()
+    dhcp_transactions: dict[str, dict[str, Any]] = {}
     protocols = result["protocols"]
     offset = 24
     while offset < len(data):
         if offset + 16 > len(data):
             result["truncated_records"] += 1
             break
-        seconds, fraction, captured_length, original_length = struct.unpack_from(
+        seconds, fraction, captured_length, _original_length = struct.unpack_from(
             f"{byte_order}IIII", data, offset
         )
         offset += 16
@@ -451,13 +543,75 @@ def summarize_pcap(
                 destination_port=destination_port,
             )
             if dhcp is not None:
-                direction, client_address = dhcp
+                direction = dhcp["direction"]
+                client_address = dhcp["client_address"]
                 result["dhcp"]["packets"] += 1
                 result["dhcp"][
                     "replies" if direction == "reply" else "requests"
                 ] += 1
                 if client_address:
                     guest_addresses.add(client_address)
+                message_type = dhcp["message_type"]
+                if message_type:
+                    key = message_type.lower()
+                    result["dhcp"]["message_types"][key] = (
+                        result["dhcp"]["message_types"].get(key, 0) + 1
+                    )
+                request_kind = None
+                if direction == "request" and message_type == "REQUEST":
+                    if client_address:
+                        request_kind = "renewal"
+                        result["dhcp"]["renewal_requests"] += 1
+                    elif dhcp["requested_ip"]:
+                        request_kind = "selecting"
+                        result["dhcp"]["selecting_requests"] += 1
+                xid = dhcp["xid"]
+                if xid:
+                    transaction = dhcp_transactions.get(xid)
+                    if (
+                        transaction is None
+                        and len(dhcp_transactions)
+                        < MAX_RECORDED_DHCP_TRANSACTIONS
+                    ):
+                        transaction = {
+                            "xid": xid,
+                            "message_sequence": [],
+                            "renewal": False,
+                            "client_address": None,
+                            "requested_ip": None,
+                            "server_id": None,
+                            "lease_seconds": None,
+                            "t1_seconds": None,
+                            "t2_seconds": None,
+                        }
+                        dhcp_transactions[xid] = transaction
+                    elif transaction is None:
+                        result["dhcp"]["transactions_truncated"] = True
+                    if transaction is not None:
+                        if message_type and len(
+                            transaction["message_sequence"]
+                        ) < 32:
+                            transaction["message_sequence"].append(
+                                message_type
+                            )
+                        if request_kind == "renewal":
+                            transaction["renewal"] = True
+                        for key in (
+                            "client_address",
+                            "requested_ip",
+                            "server_id",
+                            "lease_seconds",
+                            "t1_seconds",
+                            "t2_seconds",
+                        ):
+                            if dhcp.get(key) is not None:
+                                transaction[key] = dhcp[key]
+                        if (
+                            direction == "reply"
+                            and message_type == "ACK"
+                            and transaction["renewal"]
+                        ):
+                            result["dhcp"]["renewal_acks"] += 1
         if protocol == "UDP" and {source_port, destination_port} & {53, 5353}:
             names, direction = dns_names(transport_payload)
             if direction is None:
@@ -484,6 +638,13 @@ def summarize_pcap(
     result["dns"]["queries"] = dns_queries
     result["dns"]["responses"] = dns_responses
     result["dhcp"]["guest_addresses"] = sorted(guest_addresses)
+    result["dhcp"]["transactions"] = sorted(
+        dhcp_transactions.values(),
+        key=lambda row: row["xid"],
+    )
+    result["dhcp"]["message_types"] = dict(
+        sorted(result["dhcp"]["message_types"].items())
+    )
     result["egress_destinations"] = sorted(
         destinations.values(),
         key=lambda row: (
