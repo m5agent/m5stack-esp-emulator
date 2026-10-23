@@ -14,7 +14,16 @@ MicroPython 和其他完整 Flash 固件。
 - 12 台 QEMU-backed ESP32 + Tab5 可通过设备服务创建和烧录。
 - 13 台设备已完成登记外设的模拟数据面；Tab5 外设状态仍为 `partial`。
 - CardputerZero 使用独立 ARM64 Linux 后端，不属于 ESP32/UIFlow2 路径。
-- 设备服务已在 `127.0.0.1:8787` 提供会话租用、固件烧录、串口、画面和输入 API。
+- S3/C6 已有 11 条设备级 QEMU WiFi/BLE 验证路径；Core2 在环境门控下提供
+  第 12 条 `core2-unified` 路径；共 12 个 unified profile，规范 runtime 为
+  `qemu-unified`，`qemu-ble` 仅保留兼容。
+- 最近一次 UIFlow2 外设全矩阵为 `67/67` 用例、`274/274` 检查 PASS；
+  当前平台单元测试为 `182/182` PASS。
+- 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
+  QOM、网络和 evidence API。
+
+完整设备矩阵、证据日期和风险边界见
+[项目当前状态](docs/project-status.md)。
 
 ## 剩余工作
 
@@ -22,16 +31,18 @@ MicroPython 和其他完整 Flash 固件。
 | --- | --- | --- |
 | 高保真逐设备外观建模 | `TODO` | 仅 StopWatch 接近参考质量，其余 13 台仍是通用近似外壳 |
 | Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
-| 网络模拟统一接入 | `TODO` | `esp-emu` 已有 WiFi/Ethernet 后端，尚未接入所有设备和自动测试 |
+| 网络隔离与安全回归 | `partial` | S3/C6/Core2 unified path 已通；namespace、pcap、DNS policy、错误密码和重连仍待补 |
 | 通用固件正式入口 | `partial` | Device Service 已支持 merged/segmented 与热门 M5Burner 批量仿真测试；仍需 WebBurner 导入和标准化 manifest |
 | 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
-| 最新全量矩阵与真机验证 | `NOT RUN` | 当前结论均为仿真证据 |
+| Core2 稳定性与原生无线 | `partial` | unified WiFi/HCI BLE 已通；cache/PSRAM 间歇崩溃、原生 BT peer、DNS/公网未完成 |
+| 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 高难度外观建模已单独记录，供后续更强的视觉/3D Agent 接手：
 
+- [项目当前状态](docs/project-status.md)
+- [完整项目 Backlog](docs/project-backlog.md)
 - [设备高保真建模 Backlog](docs/device-visual-fidelity-backlog.md)
 - [热门用户固件仿真矩阵](docs/user-firmware-simulation-matrix.md)
-- [完整项目 Backlog](docs/project-backlog.md)
 - [Tab5 暂缓项](docs/tab5-deferred-backlog.md)
 - [网络模拟方案](docs/network-simulation-plan.md)
 - [统一设备运行时契约](docs/unified-device-runtime.md)
@@ -89,7 +100,7 @@ curl -sS -H 'Content-Type: application/json' \
 - `GET /api/v1/storage` 查看磁盘、历史与缓存占用，写入前保留最低空闲空间；
 - 全局和单设备并发限制、TTL 自动回收。
 
-当前工作站默认允许 `8` 个活动会话，同一型号最多 `6` 个。可通过
+当前工作站默认允许 `12` 个活动会话，同一型号最多 `8` 个。可通过
 `M5_SERVICE_MAX_SESSIONS`、`M5_SERVICE_MAX_PER_DEVICE` 或对应 CLI 参数调整；
 满载时超出容量仍返回 `429` 和 `Retry-After`。
 
@@ -115,7 +126,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；OpenMAC 可选补丁已完成 stock UIFlow2 WiFi 扫描、关联、DHCP/IP 和受控 HTTP，外网 DNS 与 BLE 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；环境门控 `core2-unified` 已完成 WiFi DHCP/受控 HTTP 与 HCI-offload BLE GATT；原生 BT controller、DNS/公网和 cache/PSRAM 稳定性未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -156,7 +167,8 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
 commit 与主机架构的 `.work/` 运行时：
 
 - `.work/M5StopWatch-QEMU/`：按补丁构建的 QEMU；
-- `.work/esp-emu-versions/0.50.0/`：P4/C6 使用的 `esp-emu`；
+- `.work/esp-emu-versions/0.50.0/`：Tab5 P4 和 network 诊断 lane 使用的
+  `esp-emu`；
 - Espressif QEMU ROM/eFuse 文件；
 - 可选 `UIFLOW_MICROPYTHON_DIR`：UIFlow2 源码 checkout；
 - 内置 UIFlow2 缓存：`python3 platform/tools/fetch_firmware.py <device>`；
@@ -175,6 +187,7 @@ PYTHONPATH=platform/tools python3 -m unittest discover \
   -s platform/tests -p 'test_*.py'
 python3 platform/tools/runtime_coverage.py --check
 python3 platform/tools/peripheral_catalog.py --check
+python3 platform/tools/qemu_profiles.py --check
 ```
 
 相关外设用例：
@@ -193,6 +206,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ## 文档索引
 
+- [项目当前状态](docs/project-status.md)
 - [项目 Backlog](docs/project-backlog.md)
 - [设备服务架构](docs/simulator-service-architecture.md)
 - [设备服务 API](docs/device-service-api.md)
@@ -201,6 +215,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - [外设仿真架构](docs/peripheral-simulation-architecture.md)
 - [固件审查工作流](docs/firmware-review-and-simulation-workflow.md)
 - [网络模拟方案](docs/network-simulation-plan.md)
+- [网络诊断 lane](docs/network-lane.md)
 - [统一设备运行时契约](docs/unified-device-runtime.md)
 - [Tab5 暂缓项](docs/tab5-deferred-backlog.md)
 - [维护与验证规则](AGENTS.md)
@@ -208,7 +223,12 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ## 边界
 
 - 仿真 PASS 不等于真机 PASS。
-- 当前网络模拟尚未接入统一设备服务。
+- S3/C6/Core2 的 QEMU 网络是 MAC/DMA 与 user-net 数据面，不是完整
+  PHY/RF/天线模型。
+- BLE 默认是 HCI-UART offload 到 Bumble；只有 Core2 原生 advertising
+  bootstrap 和原生 controller 缺口另行标注。
+- `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
+  固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。
 - CardputerZero 不是 UIFlow2/ESP32 固件目标。
 - 公开仓库不包含第三方固件、ROM、设备标识或云端凭据。

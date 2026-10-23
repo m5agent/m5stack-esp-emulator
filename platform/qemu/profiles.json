@@ -150,9 +150,9 @@
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-21",
-        "status": "display-keyboard-peripherals-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 240x135 UI; TCA8418 keys, shared-SPI microSD, ST25R3916 NFC Cap and CC1101 Sub-GHz Cap all pass."
+        "date": "2026-10-23",
+        "status": "display-keyboard-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 240x135 UI; TCA8418 keys, shared-SPI microSD, ST25R3916 NFC Cap, CC1101 Sub-GHz Cap, ES8311/NS4150B audio, microphone PCM, WiFi DHCP/HTTP and UART1 HCI BLE pass in one QEMU guest."
       }
     },
     {
@@ -345,9 +345,9 @@
         "UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct"
       ],
       "validation": {
-        "date": "2026-10-22",
-        "status": "display-touch-peripherals-simulated",
-        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; touch, PWR, AXP2101 power telemetry, PCF8563 RTC, BMI270/BMM150, LTR553 ALS/proximity, audio, camera capture and MAX3421E USB host all pass through their board data planes. Visual boundary: palette/alpha PNG startup-menu images show stripe artifacts, reproduced with the reference firmware and with an opaque RGBA PNG test; ordinary RGB PNG and opaque drawing remain correct."
+        "date": "2026-10-23",
+        "status": "display-touch-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 320x240 UI; touch, PWR, AXP2101 power telemetry, PCF8563 RTC, BMI270/BMM150, LTR553 ALS/proximity, audio, camera capture, MAX3421E USB host, WiFi DHCP/HTTP and UART1 HCI BLE pass in one QEMU guest. Visual boundary: palette/alpha PNG startup-menu images show stripe artifacts, reproduced with the reference firmware and with an opaque RGBA PNG test; ordinary RGB PNG and opaque drawing remain correct."
       }
     },
     {
@@ -386,7 +386,7 @@
       "validation": {
         "date": "2026-10-23",
         "status": "board-peripherals-wifi-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 runs hardware.RGB/WS2812, GPIO9 press/release, GPIO7 blue LED, RMT NEC IR, QEMU ESP32-C6 WiFi scan/association/DHCP/HTTP and UART1 HCI BLE NUS in one C6 guest. The same image passes in the standalone runner and one Device Service qemu-ble lease."
+        "detail": "Official UIFlow2 v2.5.3 runs hardware.RGB/WS2812, GPIO9 press/release, GPIO7 blue LED, RMT NEC IR, QEMU ESP32-C6 WiFi scan/association/DHCP/HTTP and UART1 HCI BLE NUS in one C6 guest. The same image passes in the standalone runner, a public-network probe and one Device Service qemu-unified lease."
       }
     },
     {
@@ -430,7 +430,7 @@
       "validation": {
         "date": "2026-10-23",
         "status": "display-touch-peripherals-wifi-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, PI4IOE expanders, BQ27220/AW32001, BMI270, SX1262 LoRa, RMT IR, I2S buzzer, QEMU ESP32-C6 WiFi DHCP/HTTP and UART1 HCI BLE NUS pass in one C6 guest. The same image passes in the standalone runner and one Device Service qemu-ble lease; stock hardware.RGB() remains NOT RUN."
+        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, PI4IOE expanders, BQ27220/AW32001, BMI270, SX1262 LoRa, RMT IR, I2S buzzer, QEMU ESP32-C6 WiFi DHCP/HTTP, example.com IPv4 DNS/HTTP and UART1 HCI BLE NUS pass in one C6 guest. The same image passes in the standalone runner and one Device Service qemu-unified lease; stock hardware.RGB() remains NOT RUN."
       }
     },
     {
@@ -822,9 +822,9 @@
       },
       "blockers": [],
       "validation": {
-        "date": "2026-10-22",
-        "status": "display-input-peripherals-simulated",
-        "detail": "Official UIFlow2 v2.5.3 renders a 135x240 UI; A/B/P buttons, M5PM1 power telemetry, BMI270 accel/gyro, ES8311 audio, microphone PCM, IR and RGB paths all pass through their controller data planes."
+        "date": "2026-10-23",
+        "status": "display-input-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 135x240 UI; A/B/P buttons, M5PM1 power telemetry, BMI270 accel/gyro, ES8311 audio and microphone PCM, IR, WiFi DHCP/HTTP and UART1 HCI BLE pass in one QEMU guest. The same guest also completes public IPv4 DNS and HTTP."
       }
     },
     {
@@ -889,7 +889,12 @@
         }
       },
       "board_work": [],
-      "blockers": []
+      "blockers": [],
+      "validation": {
+        "date": "2026-10-23",
+        "status": "display-touch-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 passes the 466x466 CO5300 display/touch, M5PM1/M5IOE1 power and audio, BMI270, RX8130 RTC, vibration motor, WiFi DHCP/HTTP and UART1 HCI BLE in one QEMU guest."
+      }
     },
     {
       "id": "tab5",

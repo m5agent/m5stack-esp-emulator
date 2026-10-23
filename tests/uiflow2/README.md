@@ -96,12 +96,24 @@ Nesso N1 单 guest 联合探针：
 ```bash
 PYTHONPATH=.work/py python3 tests/uiflow2/unified_nesso/run_test.py \
   --image /tmp/m5-nesso-unified.bin \
-  --out-dir /tmp/m5-nesso-unified
+  --out-dir /tmp/m5-nesso-unified \
+  --require-public-network
 ```
 
 它同时运行 135x240 显示/触摸、PI4IOE、BQ27220/AW32001、BMI270、
 SX1262 回环、RMT IR、蜂鸣器 PCM、QEMU ESP32-C6 WiFi DHCP/HTTP 和
-UART1 HCI BLE。stock `hardware.RGB()` 不在该探针的 PASS 范围内。
+UART1 HCI BLE。加 `--require-public-network` 时还要求同 guest 的
+`example.com` IPv4 DNS/HTTP；不加则保留完全本地的 CI 门禁。
+stock `hardware.RGB()` 不在该探针的 PASS 范围内。
+
+StickS3 对应命令：
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/unified_sticks3/run_test.py \
+  --image /tmp/m5-sticks3-unified.bin \
+  --out-dir /tmp/m5-sticks3-unified \
+  --require-public-network
+```
 
 StackChan 的 IMU/AW9523/INA226/IR 联合探针：
 

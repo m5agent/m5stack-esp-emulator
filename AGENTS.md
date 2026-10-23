@@ -49,6 +49,7 @@ PYTHONPATH=platform/tools python3 -m unittest discover \
   -s platform/tests -p 'test_*.py'
 python3 platform/tools/runtime_coverage.py --check
 python3 platform/tools/peripheral_catalog.py --check
+python3 platform/tools/qemu_profiles.py --check
 ```
 
 ### Peripheral change
@@ -191,44 +192,40 @@ diagnostics in `internal/records/`.
   compatibility boundary when reviewing a production image.
 - Core2 has an intermittent flash/cache startup panic; retries may let a
   simulation case pass but do not prove the startup issue is fixed.
-- QEMU S3/LX6 PHY code is a bring-up stub, not WiFi. The `esp-emu` runtime has
-  WiFi/Ethernet backends, but that path is not yet integrated into every device
-  matrix. Keep board/UI evidence and network evidence separate until a
-  same-instance implementation is verified.
-- The current `esp-emu` network lane covers S3/C6/P4, not Core2's ESP32 LX6.
-  Do not describe a Core2 WiFi test as supported until a separate LX6 WiFi/PHY
-  path or alternative runtime is implemented and verified.
+- S3/C6 use device-level QEMU WiFi MAC/DMA plus SLiRP in the 11 unified
+  profiles. This is functional virtual networking, not a complete PHY, RF,
+  antenna, WPA2/WPA3 or security model.
+- Core2 exposes environment-gated `core2-unified` with OpenMAC WiFi and
+  UART1 HCI-offload BLE when `M5_CORE2_RADIO_QEMU` selects the matching QEMU.
+  The native ESP32 BT controller external peer/GATT, DNS/public networking and
+  cache/PSRAM startup stability remain open.
+- The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
+  portals and unreworked firmware. It does not provide same-instance board
+  framebuffer/input/QOM evidence.
+- `user,restrict=yes` and loopback `hostfwd` are not an untrusted-firmware
+  sandbox. Use disposable VM/network namespace isolation for hostile images.
 
 ## Remaining work
 
-The current milestone has 13 complete simulated devices and Tab5 as the only
-incomplete device. A reliable Tab5 estimate requires an extensible or
-rebuildable P4 backend. With that prerequisite, the peripheral work is roughly
-4–6 serial work weeks, or 2–3 weeks with parallel workstreams. Without that
-backend change, do not promise a completion date for the missing data paths.
+Current device capability and the latest validation snapshot are maintained in
+`docs/project-status.md`. Only unfinished work belongs in
+`docs/project-backlog.md`.
 
-Before calling the current milestone complete, run a clean latest full matrix.
-Validated virtual-device results are accepted milestone evidence when they
-exercise the same implementation paths and include reproducible session,
-boot, input, frame and data-plane markers. Physical-hardware validation remains
-required only for claims that depend on physical measurements or behavior the
-virtual model does not implement.
+The main open streams are:
 
-Network simulation, generic firmware intake and the leased simulator-worker
-service are tracked in `docs/project-backlog.md`. The recommended service model
-is one exclusive device instance per lease, cached backend images, a small
-optional warm pool, and disposable copy-on-write flash for review jobs. See
-`docs/simulator-service-architecture.md`.
+- network namespace/egress policy, pcap, reconnect and security-mode coverage;
+- Core2 cache/PSRAM stability, native BT controller peer/GATT and DNS/public
+  networking;
+- generic-firmware manifest/WebBurner intake and capability mismatch reporting;
+- remote worker supervision, warm pools, multi-host scheduling and hardened
+  untrusted-firmware isolation;
+- Tab5 missing P4 data paths behind the closed-source backend;
+- physical-hardware validation and per-device visual fidelity.
 
-High-fidelity per-device visual modeling is a separate deferred specialist task
-tracked in `docs/device-visual-fidelity-backlog.md`. StopWatch is the only
-reference-quality shell today; do not claim that the generic CSS shell is a
-physical model of the other devices.
-
-The v1 local device service is implemented by
-`platform/tools/device_service.py` and exposed by `platform/tools/serve.py`.
-It supports leased QEMU-backed ESP32 sessions plus a partial Tab5 esp-emu
-session, reference or uploaded firmware, serial/frame/input/QOM/reset APIs,
-and excludes CardputerZero and network emulation. Tab5 QOM is unavailable and
-uploaded Tab5 screenshots require a matching ELF. Its contract is `docs/device-service-api.md` and
-`docs/device-service.openapi.yaml`.
+The v1 local Device Service is implemented by `platform/tools/device_service.py`
+and exposed by `platform/tools/serve.py`. It supports leased QEMU-backed ESP32
+sessions, QEMU unified radio profiles, a partial Tab5 esp-emu session, the
+separate network diagnostic lane, reference or uploaded firmware, and
+serial/frame/input/QOM/evidence APIs. CardputerZero remains an independent
+Linux backend and is not managed by `/api/v1`. Its contract is
+`docs/device-service-api.md` and `docs/device-service.openapi.yaml`.

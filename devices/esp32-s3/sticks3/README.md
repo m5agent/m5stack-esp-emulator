@@ -26,8 +26,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-button-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 135x240 UI；A/B/P 按键、电池/充电、BMI270 加速度计和陀螺仪数据闭环通过。
+- 验证：`display-input-peripherals-wifi-ble-pass` (2026-10-23)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU S3 guest 内通过 135x240 显示、A/B/P 按键、M5PM1、BMI270、ES8311 音频、IR、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE；另在相同 guest 完成 example.com IPv4 DNS/HTTP。
 
 
 

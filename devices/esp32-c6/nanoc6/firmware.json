@@ -13,13 +13,13 @@
   "runtime": {
     "backend": "qemu-esp32c6",
     "chip": "esp32c6",
-    "status": "boot-capable",
+    "status": "headless-ready",
     "display_protocol": "none",
     "execution": "native-qemu",
     "validation": {
       "date": "2026-10-23",
       "status": "board-peripherals-wifi-ble-pass",
-      "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 hardware.RGB/WS2812、GPIO9 按键、GPIO7 蓝色 LED、RMT NEC 红外、QEMU ESP32-C6 WiFi 扫描/关联/DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner 与 Device Service 单个 qemu-ble lease 均通过。"
+      "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 hardware.RGB/WS2812、GPIO9 按键、GPIO7 蓝色 LED、RMT NEC 红外、QEMU ESP32-C6 WiFi 扫描/关联/DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner、公网探针和 Device Service 单个 qemu-unified lease 均通过。"
     }
   },
   "cache_path": "platform/.cache/firmware/nanoc6/uiflow2.bin"

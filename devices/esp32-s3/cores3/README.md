@@ -26,8 +26,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-peripherals-simulated` (2026-10-22)
-- 详情：官方 UIFlow2 v2.5.3 渲染 320x240 UI；触摸、PWR、电池/充电、RTC、BMI270、BMM150、LTR553 环境光/接近、AW9523、扬声器、麦克风、GC0308 camera.snapshot() 和 MAX3421E USB Host 通过。
+- 验证：`display-touch-peripherals-wifi-ble-pass` (2026-10-23)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 320x240 显示/触摸、电源/RTC/IMU/ALS、AW9523、扬声器、麦克风、GC0308 camera.snapshot()、MAX3421E USB Host、WiFi DHCP/HTTP 和 UART1 HCI BLE。启动菜单透明/调色板图像仍有独立视觉边界。
 
 
 

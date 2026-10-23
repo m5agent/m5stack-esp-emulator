@@ -3,7 +3,7 @@
 - SKU：`C122`
 - 分组：`ESP32-C6`
 - 外壳：`无屏控制台`
-- 运行时：`boot-capable`
+- 运行时：`headless-ready`
 - 外设仿真：`simulated`
 - UIFlow2：`支持`，m5ui：`不支持`
 - UIFlow2 固件：v2.5.3 / `1897200000000001159`
@@ -24,10 +24,10 @@
 
 ## 模拟状态
 
-boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/外设仍在收口。
+headless-ready：真实固件、板级外设和串口/数据面已打通（无显示/画面契约）。
 
 - 验证：`board-peripherals-wifi-ble-pass` (2026-10-23)
-- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 hardware.RGB/WS2812、GPIO9 按键、GPIO7 蓝色 LED、RMT NEC 红外、QEMU ESP32-C6 WiFi 扫描/关联/DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner 与 Device Service 单个 qemu-ble lease 均通过。
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 hardware.RGB/WS2812、GPIO9 按键、GPIO7 蓝色 LED、RMT NEC 红外、QEMU ESP32-C6 WiFi 扫描/关联/DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner、公网探针和 Device Service 单个 qemu-unified lease 均通过。
 
 
 

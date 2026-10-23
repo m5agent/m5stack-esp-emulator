@@ -1,6 +1,6 @@
 # UIFlow2 外设 API 测试矩阵
 
-日期：`2026-10-22`
+日期：`2026-10-23`
 
 本矩阵验证的是 QEMU 中的完整控制器/总线路径，而不是在 Python 测试代码里伪造
 API 返回值。当前结果只代表仿真验收，不是实机验收。
@@ -102,16 +102,13 @@ StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 
 ```text
 configured cases   67
 configured checks  274
-last clean full     67 cases / 272 checks PASS
-latest targeted     7 cases / 38 checks PASS
+last clean full     67 cases / 274 checks PASS
+last full run       2026-10-23 16:55 +08:00
 ```
 
-最近一次干净的全量运行是摄像头帧流变更前的 67/67 用例、272/272 检查；
-之后新增 CoreS3 摄像头帧流和运行中状态序列，按用户要求未再次跑全量，
-只运行 7 个受影响用例并通过 38/38 检查。另做 6 次 Core2
-启动压力复跑时命中 1 次已知 MicroPython cache panic，重启后通过；失败
-串口保留为 `serial.attempt-1.log`。该启动稳定性问题单独记录，不归因或
-掩盖 AXP192 外设数据面。
+最近一次干净的全量运行包含 S3 QIO read-phase 修复后的新 QEMU 二进制，
+67/67 用例、274/274 检查全部通过。Core2 的间歇 cache/PSRAM 启动问题仍是
+独立风险；重试通过不能视为稳定性修复。
 
 NanoC6 无显示屏，额外使用 `run_nanoc6_peripherals.py` 验证 RGB、按键和蓝灯，
 不计入上述需要截图的 peripheral matrix 统计。上述汇总来自全量矩阵运行；

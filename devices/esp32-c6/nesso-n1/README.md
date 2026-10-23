@@ -27,7 +27,7 @@
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-touch-peripherals-wifi-ble-pass` (2026-10-23)
-- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 135x240 显示、触摸/按键、PI4IOE、BQ27220/AW32001、BMI270、SX1262 LoRa、RMT 红外、I2S 蜂鸣器、QEMU ESP32-C6 WiFi DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner 与 Device Service 单个 qemu-ble lease 均通过，stock hardware.RGB() 仍为 NOT RUN。
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 135x240 显示、触摸/按键、PI4IOE、BQ27220/AW32001、BMI270、SX1262 LoRa、RMT 红外、I2S 蜂鸣器、QEMU ESP32-C6 WiFi DHCP/HTTP、example.com IPv4 DNS/HTTP 和 UART1 HCI BLE NUS；独立 runner 与 Device Service 单个 qemu-unified lease 均通过，stock hardware.RGB() 仍为 NOT RUN。
 
 
 

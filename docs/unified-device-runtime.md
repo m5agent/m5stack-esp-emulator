@@ -2,6 +2,11 @@
 
 Date: `2026-10-23`
 
+Current device availability is tracked in
+[Project current status](project-status.md); unfinished work is tracked in the
+[project backlog](project-backlog.md). This document defines the acceptance
+contract for a complete virtual device, not the deployment status page.
+
 ## Decision
 
 The final simulator contract is one Device Service lease, one QEMU

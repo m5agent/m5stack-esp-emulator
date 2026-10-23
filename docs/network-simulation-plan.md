@@ -4,8 +4,10 @@ Date: `2026-10-23`
 
 ## Current state
 
-Network support exists in the `esp-emu` runtime, but it is not yet integrated
-as a validated feature of every M5Stack virtual host.
+The primary product path is now one QEMU guest per Device Service lease with
+the board model, WiFi MAC/DMA and, where applicable, HCI BLE. The `esp-emu`
+network lane remains a diagnostic and provisioning backend rather than a
+whole-device acceptance path.
 
 What is already available:
 
@@ -104,15 +106,14 @@ Validated through `2026-10-23`:
 
 What is not yet proven:
 
-- an unmodified UIFlow2 firmware connecting to a virtual SSID and reaching a
-  controlled TCP/UDP endpoint;
-- automatic internet access for every cardputer-zero and Tab5 path; the
-  validated S3 and C6 unified profiles use QEMU SLiRP and have controlled HTTP
+- stable public-network access for Tab5 and CardputerZero backends; the
+  validated S3/C6 unified profiles use QEMU SLiRP and have controlled HTTP
   coverage;
-- simultaneous board-level QEMU peripherals and WiFi/BLE in one guest instance
-  for the remaining CardputerZero and Tab5 backends;
 - packet capture, DNS policy, TLS/HTTP test services and multi-device isolation
   in the regular regression matrix;
+- wrong-password, link-loss, DHCP renewal and reconnect behavior;
+- WPA2/WPA3 behavior for the QEMU unified AP model; the current virtual AP is
+  open and single-channel;
 - stock Core2 UIFlow2 DNS and external internet access: the optional OpenMAC
   patch completes scan, association, DHCP and controlled HTTP, but DNS and
   external internet behavior remain unverified;
@@ -132,7 +133,6 @@ log or PHY-ready register therefore does not by itself mean the device is online
 | Device class | Current network path | Status |
 | --- | --- | --- |
 | StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and StamPLC | QEMU `misc.esp32s3.wifi` + board model + UART1/2 H4 BLE | Unified Device Service lease PASS for display/input/device state/audio where available, WiFi DHCP/HTTP and external BLE GATT |
-| Remaining modeled ESP32-S3 boards | `esp-emu` WiFi SoftAP + user/TAP backend | Diagnostic lane exists; device-local QEMU unified migration pending |
 | ESP32-C6 boards, including NanoC6 and Nesso N1 | QEMU `misc.esp32c6.wifi` + board model + UART1 H4 BLE | Unified Device Service lease PASS for board peripherals, WiFi DHCP/HTTP and external BLE GATT |
 | ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
 | ESP32 LX6 Core2 | Optional OpenMAC WiFi, UART1 HCI BLE and board models in one `m5core2` guest; separate OpenETH fixture | `core2-unified` PASS 3/3 first attempts for board/peripherals + WiFi DHCP/HTTP + external BLE GATT; native-controller peer/GATT, DNS and external internet `NOT RUN`; wider cache startup boundary remains |
@@ -244,12 +244,14 @@ itself. For untrusted firmware:
 | --- | --- | --- |
 | N0 | One-device UIFlow2 WiFi proof through `esp-emu` | DONE for StickS3 WLAN/DHCP and C6 NanoC6/Nesso WiFi+BLE; ESP-IDF adds TCP |
 | N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP, BLE and loopback hostfwd API DONE; isolated resolver, automated SoftAP portal assertions and pcap policy pending |
-| N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | 3–5 working days |
+| N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | S3/C6 device-level unified paths DONE; reconnect/security and P4 end-to-end remain pending |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |
 | N5 | Core2 ESP32 LX6 WiFi/PHY and BLE controller path or alternative runtime | WiFi data path DONE; native controller/advertising DONE; HCI-offload external GATT DONE; same-instance `core2-unified` board + WiFi + external GATT PASS 3/3 first attempts; native-controller peer/GATT, DNS and external network remain open |
-| N6 | Same-instance QEMU board + WiFi/radio model | DONE for all validated S3 slices, both C6 boards and environment-gated Core2 board+WiFi+BLE HCI-offload in one guest; native BT controller/radio closure remains open |
+| N6 | Same-instance QEMU board + WiFi/radio model | DONE for all validated S3 slices, both C6 boards and environment-gated Core2 board+WiFi+BLE HCI-offload in one guest; public DNS/HTTP is proven on StickS3 and Nesso N1; native BT controller/radio closure remains open |
 
 N6 is the primary product contract. N0–N3 remain the reusable fixture layer,
-and N5 closes the Core2 SoC-specific gap. “All simulated devices online” requires
-N6 completion per device; no across-device inference is allowed.
+and N5 closes the Core2 SoC-specific gap. “All simulated devices online” means
+the per-device status in [`project-status.md`](project-status.md), not a
+family-wide inference. Tab5 and CardputerZero are not covered by this
+ESP32-QEMU statement.

@@ -39,7 +39,14 @@
       "properties": {
         "backend": {"type": "string"},
         "chip": {"type": "string"},
-        "status": {"enum": ["reference-ready", "boot-capable", "backend-required"]},
+        "status": {
+          "enum": [
+            "reference-ready",
+            "headless-ready",
+            "boot-capable",
+            "backend-required"
+          ]
+        },
         "display_protocol": {"type": "string"},
         "execution": {"enum": ["native-qemu", "esp-emu-native", "browser-wasm", "external"]},
         "page": {"type": "string"},

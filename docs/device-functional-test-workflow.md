@@ -1,6 +1,6 @@
 # Virtual-device functional-test workflow
 
-Status: implemented routing rule, `2026-10-22`.
+Status: implemented routing rule, updated `2026-10-23`.
 
 This document separates two workflows that previously shared the same Agent
 context:

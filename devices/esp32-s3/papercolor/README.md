@@ -26,8 +26,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-peripherals-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 400x600 六色电子纸 UI；按键、SHT4X、ES8311/ES7210 音频、SPI microSD 和两颗 RMT WS2812 RGB LED 均已闭环。
+- 验证：`display-input-peripherals-wifi-ble-pass` (2026-10-23)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 400x600 六色电子纸、按键、M5PM1、SHT4X、ES8311/ES7210 音频、SPI microSD、RMT RGB/IR、WiFi DHCP/HTTP 和 UART1 HCI BLE。
 
 
 

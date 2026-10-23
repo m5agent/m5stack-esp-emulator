@@ -46,6 +46,7 @@ GET /health
 | 状态 | 设备中心行为 |
 | --- | --- |
 | `reference-ready` | 可执行显示、输入、截图和自动化测试 |
+| `headless-ready` | 无显示设备；固件、串口、板级外设和自动化数据面可用 |
 | `boot-capable` | 可执行固件启动/串口任务；显示任务需检查 `display_protocol` |
 | `backend-required` | 只登记设备，不调度固件执行任务 |
 

@@ -1,5 +1,9 @@
 # 设备档案矩阵
 
+项目级能力和最新验证快照见
+[`docs/project-status.md`](../docs/project-status.md)；本页只描述设备登记与
+运行时分类。
+
 | 分组 | 型号 | SoC | 显示 | UIFlow2 | m5ui | 运行时 |
 | --- | --- | --- | --- | --- | --- | --- |
 | ESP32-S3 | StickS3 | ESP32-S3 | 135×240 | 支持 | 否 | reference-ready |
@@ -11,7 +15,7 @@
 | ESP32-S3 | StackChan | ESP32-S3 | 320×240 触摸 + 舵机 | 支持 | 是 | reference-ready |
 | ESP32-S3 | AtomS3R | ESP32-S3 | 128×128 | 支持 | 否 | reference-ready |
 | ESP32-S3 | StamPLC | ESP32-S3FN8 | 135×240 | 支持 | 否 | reference-ready |
-| ESP32-C6 | NanoC6 | ESP32-C6FH4 | 无屏 | 支持 | 否 | boot-capable |
+| ESP32-C6 | NanoC6 | ESP32-C6FH4 | 无屏 | 支持 | 否 | headless-ready |
 | ESP32-C6 | Arduino Nesso N1 | ESP32-C6 | 135×240 触摸 | 支持 | 否 | reference-ready |
 | ESP32-P4 | Tab5 | ESP32-P4 + C6 | 1280×720 触摸 | 支持 | 是 | ready |
 | ESP32 LX6 | Core2 | ESP32-D0WDQ6-V3 | 320×240 触摸 | 支持 | 是 | reference-ready |
@@ -19,7 +23,8 @@
 
 `catalog.source.json` 是设备档案的权威源；运行 `python3 platform/tools/generate_catalog.py` 重新生成目录和每个设备的 JSON/README。
 
-> `reference-ready` 当前表示显示和输入重绘闭环。IMU、摄像头、音频等外设 API
+> `reference-ready` 当前表示显示和输入重绘闭环；`headless-ready` 表示无屏
+> 设备的固件、串口、板级外设和自动化数据面闭环。IMU、摄像头、音频等外设 API
 > 的完整度以 [`docs/uiflow2-peripheral-test-matrix.md`](../docs/uiflow2-peripheral-test-matrix.md)
 > 为准。
 
@@ -42,4 +47,5 @@ python3 tests/uiflow2/run_device_matrix.py --device nesso-n1
 `before.png`/`after.png`。ESP32-S3/C6/P4 先通过 `esp-emu` + `esptool`
 执行 `write-flash`，Core2 通过 QEMU ESP32 ROM + `esptool --no-stub`
 写入，写完均逐字节校验完整虚拟 flash。NanoC6 无显示屏，检查
-USB-Serial-JTAG 启动标记；其余有屏设备均已进入 `reference-ready`。
+USB-Serial-JTAG、RGB、IR、WiFi 和 BLE 标记，并以 `headless-ready` 表示；
+其余有屏设备均已进入 `reference-ready`。

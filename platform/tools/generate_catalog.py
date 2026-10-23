@@ -12,6 +12,7 @@ CATALOG = ROOT / "devices" / "catalog.json"
 
 STATUS_LABEL = {
     "reference-ready": "reference-ready：真实固件、画面和输入已打通",
+    "headless-ready": "headless-ready：真实固件、板级外设和串口/数据面已打通（无显示/画面契约）",
     "boot-capable": "boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/外设仍在收口",
     "backend-required": "backend-required：UIFlow2 不适用，独立架构后端按外设状态单独验收",
 }
@@ -129,6 +130,11 @@ def write_device(device: dict, groups: dict[str, dict]) -> dict:
 - `index.html`：打开对应模拟页面
 - `web/`：仅设备专属运行时使用
 """
+    extra_path = (
+        SOURCE.parent / group["path"] / device["id"] / "README.extra.md"
+    )
+    if extra_path.is_file():
+        readme += "\n" + extra_path.read_text().rstrip() + "\n"
     (out_dir / "README.md").write_text(readme)
 
     page = device["runtime"].get("page") or f"/platform/web/device.html?device={group['path']}/{device['id']}"

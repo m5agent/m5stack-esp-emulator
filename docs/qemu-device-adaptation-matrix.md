@@ -1,6 +1,10 @@
 # 虚拟主机适配矩阵
 
-日期：`2026-10-21`
+日期：`2026-10-23`
+
+本文记录 SoC、板级模型和测试工程的技术适配关系。当前可用能力、网络状态
+和剩余风险以 [项目当前状态](project-status.md) 为准，未完成工作以
+[项目 Backlog](project-backlog.md) 为准。
 
 ## 结论
 
@@ -18,7 +22,7 @@
 当前除 CardputerZero 外的 13 台 ESP32 主控均已进入统一运行时矩阵：
 12 台有显式显示/输入路径的设备完成首帧和输入重绘，NanoC6 完成无屏控制台验收。
 
-截至 2026-10-21 已验收：
+截至 2026-10-23 已验收：
 
 - StopWatch：466x466 圆屏、触摸注入；
 - StickS3：135x240、A/B GPIO；
@@ -40,7 +44,8 @@
   Bumble controller 完成外部扫描、连接、NUS GATT 发现、订阅、写入、
   guest 接收和 notify 回读，连续 5/5 PASS。它不等同于原生 ESP32
   controller 射频模型，也不覆盖 RF、配对/安全、共存或真机行为。Device
-  Service 的 `qemu-ble` / `core2-hci-gatt` profile 已在同一 QEMU session
+  Service 的 `qemu-unified`（旧版 `qemu-ble` 兼容）/ `core2-hci-gatt`
+  profile 已在同一 QEMU session
   复现该交换并保留 serial/frame/QOM/peer evidence。新的环境门控
   `core2-unified` profile 又把 OpenMAC WiFi、UART1 HCI BLE、显示/触摸、
   AXP2101/INA3221、IMU/RTC 和扬声器/麦克风合入同一 `m5core2` guest；

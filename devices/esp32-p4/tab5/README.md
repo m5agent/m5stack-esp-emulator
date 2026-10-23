@@ -29,6 +29,24 @@ reference-ready：真实固件、画面和输入已打通。
 - 验证：`display-touch-rs485-pass-peripherals-partial` (2026-10-22)
 - 详情：UIFlow2 P4 firmware boots with the C6 ESP-Hosted bridge, renders a physical 1280x720 landscape frame through the real M5GFX drawing path, and redraws after touch. Tab5 I2C reaches G31/G32 through the P4 controller: INA226 preload reaches Power as 8000mV/1248mA/87%, machine.RTC writes and reads RX8130, both PI4IOE IDs/output writeback pass, and CHG_STAT=0x00/0x40 reaches Power.isCharging() as charging/discharging. SIT3088 RS-485 passes through UART1 G20/G21 and direction G34. BMI270 identity, dynamic I2C/time injection, IP2326 analog current/termination behavior and the remaining native P4 data planes remain partial.
 
+
+
+## 未完成的板级数据面
+
+- SC2356 MIPI CSI-2 controller/frame path is absent from esp-emu 0.50.0
+- ES8388/ES7210 I2S register and PCM endpoints are absent from esp-emu 0.50.0
+- ESP32-P4 USB Host controller and endpoint attachment are absent
+- ST7123 touch is currently a firmware GDB mailbox, not an I2C chip model
+- Tab5 SDIO storage is not wired to a host block backend
+- Tab5 PI4IOE CHG_STAT/CHG_EN and Power.isCharging() decode pass for charging and discharging, but IP2326 analog current/termination behavior and hot state injection remain partial; BMI270 identity, dynamic sensor values, GPIO side effects and interrupts also remain partial
+
+## 文件
+
+- `device.json`：设备中心与页面使用的完整档案
+- `firmware.json`：UIFlow2 固件定位与缓存约定
+- `index.html`：打开对应模拟页面
+- `web/`：仅设备专属运行时使用
+
 ### 当前可用的部分
 
 - 官方 UIFlow2 镜像可启动，真实 M5GFX 绘制路径输出 1280×720 帧；
@@ -56,19 +74,3 @@ Tab5 不是“完全不能用”，但也还不是可以无条件审查任意生
 
 完整待办和恢复条件见
 [`docs/tab5-deferred-backlog.md`](../../../docs/tab5-deferred-backlog.md)。
-
-## 未完成的板级数据面
-
-- SC2356 MIPI CSI-2 controller/frame path is absent from esp-emu 0.50.0
-- ES8388/ES7210 I2S register and PCM endpoints are absent from esp-emu 0.50.0
-- ESP32-P4 USB Host controller and endpoint attachment are absent
-- ST7123 touch is currently a firmware GDB mailbox, not an I2C chip model
-- Tab5 SDIO storage is not wired to a host block backend
-- Tab5 PI4IOE CHG_STAT/CHG_EN and Power.isCharging() decode pass for charging and discharging, but IP2326 analog current/termination behavior and hot state injection remain partial; BMI270 identity, dynamic sensor values, GPIO side effects and interrupts also remain partial
-
-## 文件
-
-- `device.json`：设备中心与页面使用的完整档案
-- `firmware.json`：UIFlow2 固件定位与缓存约定
-- `index.html`：打开对应模拟页面
-- `web/`：仅设备专属运行时使用

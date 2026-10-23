@@ -1,6 +1,6 @@
 # Simulator host service architecture
 
-Date: `2026-10-22`
+Date: `2026-10-23`
 
 ## Implementation status
 
@@ -16,6 +16,10 @@ Implemented:
 - real esptool-backed first-run flash preparation plus cached flash images;
 - one isolated flash copy per session;
 - serial/log/frame/input/QOM/reset/delete APIs;
+- one-guest `qemu-unified` board/WiFi/BLE profiles and a separate
+  `runtime=network` diagnostic lane;
+- loopback SoftAP provisioning portals through `firmware_ap_password` and
+  `hostfwd`;
 - restart-safe session history and last-known evidence restoration;
 - bounded stopped/failed history with age, count and byte limits;
 - stopped-session Flash release by default and reference-aware cache GC;
@@ -185,9 +189,11 @@ Use different output paths for different consumers:
 
 Real-time rendering should not force every model to run continuously.
 
-## Generic firmware artifact
+## Firmware artifact contract
 
-A future firmware manifest should accept either:
+The v1 service already accepts a merged image or explicit flash segments. A
+normalized review manifest should preserve the same content plus provenance,
+ELF/MAP/sdkconfig and security metadata. It should accept either:
 
 ```json
 {
@@ -222,12 +228,18 @@ be stored with the artifact for review evidence.
 
 ### Phase S0: local process runner
 
+Status: implemented for the v1 service, including isolated per-session flash
+and retained evidence.
+
 - one process per lease on the current workstation;
 - JSON job manifest and evidence directory;
 - no shared mutable flash;
 - preserve existing matrix runners.
 
 ### Phase S1: remote worker API
+
+Status: API surface exists locally; remote worker supervision, re-attach and
+multi-host scheduling remain open.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
@@ -236,12 +248,17 @@ be stored with the artifact for review evidence.
 
 ### Phase S2: warm/cold pool
 
+Status: planned. Current sessions are cold/on-demand.
+
 - `min_ready` for selected preview models;
 - isolated review pool;
 - snapshot/overlay management;
 - scheduler capacity and queue metrics.
 
 ### Phase S3: production hardening
+
+Status: planned. Current service is trusted-local and not an untrusted-firmware
+sandbox.
 
 - container/VM isolation for untrusted firmware;
 - network egress policy and pcap retention;

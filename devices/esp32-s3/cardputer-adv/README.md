@@ -26,8 +26,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-keyboard-peripherals-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 240x135 UI，TCA8418 键盘事件后计数重绘；SPI2 上的 microSD、ST25R3916 NFC Cap 和 CC1101 Sub-GHz Cap 均完成数据面闭环。
+- 验证：`display-keyboard-peripherals-wifi-ble-pass` (2026-10-23)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 240x135 显示、TCA8418 键盘、BMI270、ES8311/NS4150B 音频、麦克风、SPI microSD、ST25R3916 NFC、CC1101、WiFi DHCP/HTTP 和 UART1 HCI BLE。
 
 
 

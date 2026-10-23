@@ -54,9 +54,9 @@
     "display_protocol": "spi-gc9107",
     "execution": "native-qemu",
     "validation": {
-      "date": "2026-10-20",
-      "status": "display-button-pass",
-      "detail": "官方 UIFlow2 v2.5.3 渲染 128x128 UI；GPIO41 按键、BMI270 和 BMM150 数据闭环通过。"
+      "date": "2026-10-23",
+      "status": "display-input-peripherals-wifi-ble-pass",
+      "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 128x128 显示、GPIO41 按键、BMI270、BMM150、LP5562 RGB、RMT IR、WiFi DHCP/HTTP 和 UART1 HCI BLE。"
     }
   },
   "uiflow2": {

@@ -26,8 +26,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`uiflow2-ui-touch-pass` (2026-10-20)
-- 详情：官方 UIFlow2 v2.5.3 渲染 466x466 圆屏 UI；BMI270、CST820 触摸、M5PM1 电源、RX8130 RTC 和 A/B/PWR 按键闭环通过。
+- 验证：`display-touch-peripherals-wifi-ble-pass` (2026-10-23)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 466x466 圆屏、CST820 触摸、BMI270、M5PM1、M5IOE1/AW8737A 音频、RX8130、振动马达、WiFi DHCP/HTTP 和 UART1 HCI BLE。
 
 
 

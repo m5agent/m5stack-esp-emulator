@@ -26,8 +26,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-touch-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 480x800 四阶灰度 UI；BMI270、M5PM1、IP2315 充电状态、RX8130 RTC、触摸、按键和 SDMMC 块读写闭环通过。
+- 验证：`display-touch-peripherals-wifi-ble-pass` (2026-10-23)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 480x800 四阶灰度 UI、BMI270、M5PM1/IP2315、RX8130、触摸/按键、SDMMC、扬声器、NFC、LoRa、RGB、WiFi DHCP/HTTP 和 UART1 HCI BLE。
 
 
 
