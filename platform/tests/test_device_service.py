@@ -355,6 +355,46 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
         self.assertEqual(caught.exception.code, "invalid_runtime_env")
 
+    def test_qemu_unified_runtime_selects_single_guest_profiles(self):
+        unified = device_service_module.parse_qemu_ble_execution(
+            self.service.specs["sticks3"],
+            {"profile": "uiflow2-sticks3-unified"},
+            runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+        )
+        self.assertEqual(unified["profile"], "uiflow2-sticks3-unified")
+        legacy = device_service_module.parse_qemu_ble_execution(
+            self.service.specs["sticks3"],
+            {"profile": "uiflow2-sticks3-unified"},
+            runtime=device_service_module.QEMU_BLE_RUNTIME,
+        )
+        self.assertEqual(legacy["profile"], "uiflow2-sticks3-unified")
+        nesso = device_service_module.parse_qemu_ble_execution(
+            self.service.specs["nesso-n1"],
+            {"profile": "nesso-unified"},
+            runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+        )
+        self.assertEqual(nesso["profile"], "nesso-unified")
+        with self.assertRaises(ServiceError) as radio_only:
+            device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                {"profile": "uiflow2-sticks3-wifi"},
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(
+            radio_only.exception.code,
+            "qemu_unified_profile_required",
+        )
+        with self.assertRaises(ServiceError) as unsupported_device:
+            device_service_module.parse_qemu_ble_execution(
+                self.service.specs["tab5"],
+                {"profile": "uiflow2-sticks3-unified"},
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(
+            unsupported_device.exception.code,
+            "qemu_unified_not_supported",
+        )
+
     def test_network_profile_requires_supported_chip_and_elf(self):
         with self.assertRaises(ServiceError) as core2:
             device_service_module.parse_network_execution(
@@ -1163,7 +1203,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ready_marker="UNIFIED_STICKS3_READY",
             ready_timeout=10,
             ready_conditions=None,
-            runtime="qemu-ble",
+            runtime="qemu-unified",
             network_config={
                 "profile": "uiflow2-sticks3-unified",
                 "nic": "misc.esp32s3.wifi",
@@ -2722,7 +2762,9 @@ class DeviceServiceHttpTests(unittest.TestCase):
     def test_openapi_is_served(self):
         with urlopen(self.base + "/api/v1/openapi.yaml", timeout=5) as response:
             self.assertEqual(response.status, 200)
-            self.assertIn(b"openapi: 3.1.0", response.read())
+            document = response.read()
+            self.assertIn(b"openapi: 3.1.0", document)
+            self.assertIn(b"qemu-unified", document)
 
     def test_storage_stats_and_manual_prune(self):
         status, storage = self.request("/api/v1/storage")

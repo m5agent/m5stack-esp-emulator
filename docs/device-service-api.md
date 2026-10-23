@@ -1,6 +1,7 @@
 # Device Service API v1
 
-Status: local MVP with bounded storage retention implemented on `2026-10-23`.
+Status: local MVP with unified-device runtime contract `1.4.0` and bounded
+storage retention implemented on `2026-10-23`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
 firmware artifact into an isolated virtual-flash copy, and exposes serial,
@@ -12,6 +13,11 @@ Current scope:
 - Tab5: enabled through esp-emu, with `peripheral_status=partial` and explicit
   warnings;
 - excluded: CardputerZero;
+- single-device runtime: `qemu-unified` is the canonical runtime for one
+  board + radio evidence bundle when the selected profile supplies the
+  requested surfaces. `qemu-wifi` is a WiFi-only variant of the same QEMU
+  guest, `qemu-ble` remains a compatibility alias, and `runtime=network` is a
+  diagnostic lane rather than a complete-device test;
 - network emulation: `runtime=network` remains available for diagnosis on
   S3/C6; StickS3 also supports a Wi-Fi-only board lease through
   `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV, StopWatch,
@@ -253,11 +259,28 @@ A session is one exclusive emulator lease. It has one device profile, one
 immutable source firmware, one private flash copy, one QEMU process and one
 serial log set.
 
-`runtime` is `qemu` by default. Set it to `network` to run S3/C6 firmware
-through the separate `esp-emu` network/BLE lane. Network sessions do not expose
-framebuffer, input, QOM or same-instance board state; those remain in the QEMU
-lane. StickS3 also has a unified `qemu-ble` profile described below that keeps
-network and board evidence in one QEMU instance.
+`runtime` is `qemu` by default. Use `qemu-unified` for the canonical complete
+virtual-device path and pair it with one of the `*-unified` profiles. It starts
+one QEMU guest containing the board model, WiFi path and (where applicable) the
+HCI/BLE path, then returns frame, serial, input, device-state, audio and radio
+evidence from that same session.
+
+The legacy `qemu-ble` runtime remains accepted for compatibility and for
+radio-specific profiles such as `core2-ble-advertise`,
+`core2-hci-gatt` and `nanoc6-hci-ble`. Do not infer full-device coverage from a
+runtime name alone; use the profile matrix below.
+
+| Runtime | Intended use | Whole-device evidence |
+| --- | --- | --- |
+| `qemu-unified` | Canonical board + radio profile ending in `-unified` | Yes, when the profile passes |
+| `qemu-wifi` | Board + WiFi firmware without external BLE | Board and WiFi only |
+| `qemu-ble` | Legacy alias for unified profiles and radio-specific diagnostics | Depends on profile |
+| `network` | Separate `esp-emu` network/BLE diagnostic lane | No framebuffer, input, QOM or same-instance board state |
+
+`runtime=network` runs S3/C6 firmware through the separate `esp-emu` lane. It
+does not expose framebuffer, input, QOM or same-instance board state, so its
+result cannot be combined with another session to claim a complete-device
+PASS.
 
 Use `runtime=qemu-wifi` with `network.profile=uiflow2-sticks3-wifi` for a
 StickS3 application that needs the board framebuffer, input and public
@@ -266,8 +289,9 @@ internet without an external BLE controller. This lane starts the QEMU
 
 Core2 has experimental `qemu-wifi` and `qemu-ble` runtimes when the service
 starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing the
-classic ESP32 WiFi and Bluetooth models. `M5_CORE2_WIFI_QEMU` remains a
-compatibility alias for existing deployments.
+classic ESP32 WiFi and Bluetooth models. The canonical combined path is
+`runtime=qemu-unified` with `profile=core2-unified`.
+`M5_CORE2_WIFI_QEMU` remains a compatibility alias for existing deployments.
 
 ```json
 {
@@ -368,7 +392,7 @@ Nesso N1 extends the same C6 unified lane to its full board peripheral set:
 ```json
 {
   "device_id": "nesso-n1",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 120,
   "network": {
     "profile": "nesso-unified",
@@ -392,7 +416,7 @@ UART1 instance:
 ```json
 {
   "device_id": "core2",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 90,
   "network": {
     "profile": "core2-unified",
@@ -415,7 +439,7 @@ The StickS3 unified profile closes WiFi and BLE in that same instance:
 ```json
 {
   "device_id": "sticks3",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-sticks3-unified",
@@ -441,7 +465,7 @@ CoreS3 uses the same one-guest contract:
 ```json
 {
   "device_id": "cores3",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-cores3-unified",
@@ -463,7 +487,7 @@ Cardputer ADV uses the same one-guest contract:
 ```json
 {
   "device_id": "cardputer-adv",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-cardputer-adv-unified",
@@ -484,7 +508,7 @@ StopWatch uses the same one-guest contract:
 ```json
 {
   "device_id": "stopwatch",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-stopwatch-unified",
@@ -505,7 +529,7 @@ AtomS3R uses the same one-guest contract:
 ```json
 {
   "device_id": "atoms3r",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-atoms3r-unified",
@@ -524,7 +548,7 @@ PaperColor uses the same one-guest contract:
 ```json
 {
   "device_id": "papercolor",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-papercolor-unified",
@@ -544,7 +568,7 @@ PaperMono uses the same one-guest contract:
 ```json
 {
   "device_id": "papermono",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-papermono-unified",
@@ -564,7 +588,7 @@ StackChan uses the same one-guest contract:
 ```json
 {
   "device_id": "stackchan",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-stackchan-unified",
@@ -587,7 +611,7 @@ StamPLC uses the same one-guest contract:
 ```json
 {
   "device_id": "stamplc",
-  "runtime": "qemu-ble",
+  "runtime": "qemu-unified",
   "ready_timeout_seconds": 60,
   "network": {
     "profile": "uiflow2-stamplc-unified",
@@ -670,12 +694,14 @@ Profiles are:
   `elf_artifact_id`; successful BLE requires GATT discovery, subscription,
   write, and guest-side delivery.
 
-For `qemu-wifi` and `qemu-ble` sessions, `GET /sessions/{id}/network`
-recomputes evidence from the current serial and peer logs. Live session
-snapshots refresh non-PASS network evidence, and stop captures the final
-evidence before terminating the guest. A stopping session therefore retains
-the markers observed at the end of its run instead of the initial empty-serial
-`PARTIAL` result.
+For `qemu-wifi`, `qemu-unified` and legacy `qemu-ble` sessions,
+`GET /sessions/{id}/network` recomputes evidence from the current serial and
+peer logs. Live session snapshots refresh non-PASS network evidence, and stop
+captures the final evidence before terminating the guest. A stopping session
+therefore retains the markers observed at the end of its run instead of the
+initial empty-serial `PARTIAL` result. For a unified session this endpoint
+describes the radio slice of the same guest; frame, input, device-state and
+audio evidence remain attached to the same session and evidence ZIP.
 
 `network.net_mode` accepts `user` or `user,restrict=yes`. Validated test
 profiles default to `user`; callers may explicitly select restricted mode.
@@ -1006,14 +1032,15 @@ restart.
 
 - `runtime=network` sessions are diagnostic lanes; StickS3, CoreS3,
   Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan,
-  StamPLC, NanoC6 and Nesso N1 instead use `runtime=qemu-ble` with their
-  unified profiles for one combined guest;
+  StamPLC, NanoC6 and Nesso N1 instead use `runtime=qemu-unified` with their
+  unified profiles for one combined guest (`qemu-ble` remains a legacy alias);
 - unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
   HCI-offload over UART1 (UART2 on StackChan), not a native S3 PHY/radio
   model;
 - Core2 radio support is limited to the environment-gated experimental
-  `qemu-wifi` and `qemu-ble` runtimes. `core2-unified` combines OpenMAC WiFi,
-  UART1 BLE NUS and board peripherals in one `m5core2` guest;
+  `qemu-wifi` and `qemu-ble` runtimes. `qemu-unified` with
+  `profile=core2-unified` combines OpenMAC WiFi, UART1 BLE NUS and board
+  peripherals in one `m5core2` guest;
   `core2-ble-advertise` stops at native controller/advertising control;
   `core2-hci-gatt` closes external Bumble GATT without WiFi but neither is a
   native radio model;

@@ -156,6 +156,15 @@ UNIFIED_HTTP_PORTS = {
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
+QEMU_UNIFIED_RUNTIME = "qemu-unified"
+QEMU_RADIO_RUNTIMES = frozenset(
+    {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}
+)
+QEMU_QMP_RUNTIMES = frozenset({"qemu", *QEMU_RADIO_RUNTIMES})
+QEMU_SESSION_RUNTIMES = frozenset({"qemu", "network", *QEMU_RADIO_RUNTIMES})
+SINGLE_GUEST_PROFILES = frozenset(
+    {*UNIFIED_PROFILES, NESSO_UNIFIED_PROFILE}
+)
 CORE2_HCI_GATT_MARKERS = (
     "CORE2_HCI_BLE_READY",
     "CORE2_HCI_BLE_RX",
@@ -735,6 +744,8 @@ def parse_qemu_wifi_execution(
 def parse_qemu_ble_execution(
     spec: DeviceSpec,
     value: Any,
+    *,
+    runtime: str = QEMU_BLE_RUNTIME,
 ) -> dict:
     if value is None:
         value = {}
@@ -782,15 +793,26 @@ def parse_qemu_ble_execution(
         default_profile = NESSO_UNIFIED_PROFILE
     else:
         raise ServiceError(
-            "qemu_ble_not_supported",
-            "qemu-ble is not supported for this device",
+            (
+                "qemu_unified_not_supported"
+                if runtime == QEMU_UNIFIED_RUNTIME
+                else "qemu_ble_not_supported"
+            ),
+            f"{runtime} is not supported for this device",
             409,
         )
     profile = value.get("profile", default_profile)
+    if runtime == QEMU_UNIFIED_RUNTIME and profile not in SINGLE_GUEST_PROFILES:
+        raise ServiceError(
+            "qemu_unified_profile_required",
+            f"{profile!r} is a radio-specific profile; "
+            "runtime=qemu-unified requires a single-guest unified profile",
+            400,
+        )
     if profile not in supported_profiles:
         raise ServiceError(
             "unsupported_network_profile",
-            f"unsupported qemu-ble profile: {profile!r}",
+            f"unsupported {runtime} profile: {profile!r}",
             400,
         )
     expected_markers = value.get("expected_markers", [])
@@ -1697,15 +1719,13 @@ class DeviceSession:
                 "error": self.error,
                 "display": self.spec.display,
                 "display_available": (
-                    self.runtime
-                    in {"qemu", QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
+                    self.runtime in QEMU_QMP_RUNTIMES
                     and self.spec.has_display
                 ),
                 "last_frame_available": self.last_frame_path.is_file(),
                 "last_frame_captured_at": frame_meta.get("captured_at"),
                 "device_state_supported": bool(
-                    self.runtime
-                    in {"qemu", QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
+                    self.runtime in QEMU_QMP_RUNTIMES
                     and self.spec.state_probes
                 ),
                 "last_device_state_available": self.device_state_path.is_file(),
@@ -1741,7 +1761,7 @@ class DeviceSession:
             self._persist_session()
 
     def _build_network_evidence(self) -> dict:
-        if self.runtime not in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
+        if self.runtime not in QEMU_RADIO_RUNTIMES:
             raise ServiceError(
                 "network_evidence_not_supported",
                 "network evidence is available only for qemu radio sessions",
@@ -2294,7 +2314,7 @@ class DeviceSession:
                 "real-hardware behavior",
                 "BLE" if self.runtime == QEMU_WIFI_RUNTIME else "WiFi",
                 "external BLE peer/GATT"
-                if self.runtime == QEMU_BLE_RUNTIME
+                if self.runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}
                 else "external peer coverage",
                 "malware sandboxing",
             ],
@@ -2329,7 +2349,7 @@ class DeviceSession:
             self._record_event("flash_prepared", **self.flash_info)
             self._persist_session()
             self._set_state("booting")
-            if self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
+            if self.runtime in QEMU_RADIO_RUNTIMES:
                 self._provision_qemu_radio(prepared["path"])
             else:
                 self._launch()
@@ -2798,7 +2818,7 @@ class DeviceSession:
         unified = self.network_config.get("profile") in UNIFIED_PROFILES
         core2_radio = (
             self.spec.id == "core2"
-            and self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
+            and self.runtime in QEMU_RADIO_RUNTIMES
         )
         qemu_path = (
             core2_radio_qemu_path()
@@ -2807,7 +2827,7 @@ class DeviceSession:
         )
         profile = self.network_config.get("profile")
         hci_gatt = (
-            self.runtime == QEMU_BLE_RUNTIME
+            self.runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}
             and profile
             in {
                 CORE2_HCI_GATT_PROFILE,
@@ -3679,8 +3699,7 @@ class DeviceSession:
         if (
             "frames" in include
             and self.spec.has_display
-            and self.runtime
-            in {"qemu", QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
+            and self.runtime in QEMU_QMP_RUNTIMES
         ):
             try:
                 frame = self.frame_metrics()
@@ -3741,8 +3760,7 @@ class DeviceSession:
         if (
             "qom" in include
             and self.spec.service_kind == "qemu"
-            and self.runtime
-            in {"qemu", QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
+            and self.runtime in QEMU_QMP_RUNTIMES
         ):
             try:
                 snapshot = self.qom_snapshot(path="/machine", depth=2, max_nodes=500)
@@ -3768,7 +3786,7 @@ class DeviceSession:
                 if path.is_file():
                     files[name] = path.read_bytes()
             manifest["network"] = self.network_evidence()
-        elif self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
+        elif self.runtime in QEMU_RADIO_RUNTIMES:
             network_payload = self.network_evidence()
             files["network/evidence.json"] = (
                 json.dumps(network_payload, ensure_ascii=False, indent=2) + "\n"
@@ -3903,7 +3921,7 @@ class DeviceSession:
                     self.device_state()
                 except ServiceError:
                     pass
-            if self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
+            if self.runtime in QEMU_RADIO_RUNTIMES:
                 try:
                     self.network_evidence()
                 except ServiceError:
@@ -4604,12 +4622,7 @@ class DeviceService:
                 continue
             runtime = (
                 record.get("runtime")
-                if record.get("runtime") in {
-                    "qemu",
-                    "network",
-                    QEMU_WIFI_RUNTIME,
-                    QEMU_BLE_RUNTIME,
-                }
+                if record.get("runtime") in QEMU_SESSION_RUNTIMES
                 else "qemu"
             )
             network_config = (
@@ -4851,7 +4864,7 @@ class DeviceService:
         *,
         runtime: str = "qemu",
     ) -> dict:
-        if runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
+        if runtime in QEMU_RADIO_RUNTIMES:
             data = image.read_bytes()
             info = validate_complete_flash_image(
                 data,
@@ -4974,15 +4987,11 @@ class DeviceService:
             source_artifacts = []
 
         runtime = payload.get("runtime", "qemu")
-        if runtime not in {
-            "qemu",
-            "network",
-            QEMU_WIFI_RUNTIME,
-            QEMU_BLE_RUNTIME,
-        }:
+        if runtime not in QEMU_SESSION_RUNTIMES:
             raise ServiceError(
                 "unsupported_runtime",
-                "runtime must be qemu, network, qemu-wifi or qemu-ble",
+                "runtime must be qemu, network, qemu-wifi, qemu-ble "
+                "or qemu-unified",
                 400,
             )
         network_config = None
@@ -4999,10 +5008,11 @@ class DeviceService:
                 spec,
                 payload.get("network"),
             )
-        elif runtime == QEMU_BLE_RUNTIME:
+        elif runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}:
             network_config = parse_qemu_ble_execution(
                 spec,
                 payload.get("network"),
+                runtime=runtime,
             )
             if (
                 network_config.get("profile") == CORE2_HCI_GATT_PROFILE

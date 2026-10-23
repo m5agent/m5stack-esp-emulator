@@ -124,8 +124,9 @@ BLE GATT discovery/write. Each session exposes all checks through one
 
 Status: **PASS for the simulation-only StickS3, CoreS3, Cardputer ADV,
 StopWatch, AtomS3R, PaperColor, PaperMono, StackChan, StamPLC, NanoC6,
-Nesso N1 and Core2 slices** through `runtime=qemu-ble`, the twelve unified
-profiles, and retained Device Service evidence containing
+Nesso N1 and Core2 slices** through `runtime=qemu-unified` (legacy `qemu-ble`
+remains accepted), the twelve unified profiles, and retained Device Service
+evidence ZIPs containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
 manifest hashes. S3/C6 probes use one open fixed-channel virtual AP; Core2
 OpenMAC advertises its open test-AP set and associates with `myssid`.
