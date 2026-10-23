@@ -81,6 +81,14 @@ transport side; callback status was 0. The unresolved boundary is the
 controller-response lifecycle and the vCPU safe point/context used to enter
 firmware callbacks, not the H4 byte parser.
 
+A follow-up safe-point audit also saved and restored common caller-saved Xtensa
+special registers (`SAR`, `LITBASE`, loop registers, `M0-M3`, `THREADPTR`,
+`ATOMCTL` and related state) before invoking callbacks at arbitrary CPU0 safe
+points. The guest still returned ACK 12 twice and crashed with
+`LoadProhibited`. Direct callback injection is therefore not a valid general
+controller-notification context. Evidence:
+`evidence-2026-10-24-hci3b-safe-point-audit.json`.
+
 A local C2H experiment invoked the guest `vhci_send` address and made the
 function return, but the firmware still timed out waiting for the controller
 acknowledgement. That confirms `vhci_send` is not a direct H4 packet-ingest

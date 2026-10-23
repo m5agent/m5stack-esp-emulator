@@ -45,6 +45,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-diagnostic.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-safe-point-audit.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
@@ -456,6 +457,16 @@ class DocsConsistencyTests(unittest.TestCase):
             hci3b["progression"]["guest_sent_first_att_response"]
         )
         self.assertFalse(hci3b["progression"]["gatt_service_discovery"])
+        safe_point = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci3b-safe-point-audit.json"
+            ).read_text()
+        )
+        self.assertEqual(safe_point["status"], "FAIL")
+        self.assertFalse(safe_point["progression"]["ble_connected"])
+        self.assertFalse(safe_point["experiment_retained"])
 
     def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
         workstreams = (DOCS / "workstreams.md").read_text()

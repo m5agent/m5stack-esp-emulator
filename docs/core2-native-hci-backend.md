@@ -192,6 +192,11 @@ Bumble。Reset 已通过；`HCI-3a` 现在能交付第一个 C2H 响应并推进
 5. 仅固定 CPU0 idle、任意 CPU0 safe point、扩大无丢弃队列三种实验均未解决，
    已从运行时恢复。
 
+后续 safe-point audit 又保存/恢复了 `SAR`、`LITBASE`、循环寄存器、
+`M0-M3`、`THREADPTR`、`ATOMCTL` 等 common caller-saved 特殊寄存器，再在
+任意 CPU0 safe point 注入 callback；guest 仍在 BLE 初始化阶段两次
+`ack returned 12`，随后 `LoadProhibited` 崩溃。该实验也已回退。
+
 下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
 调整固定 sleep 或换 CPU：
 

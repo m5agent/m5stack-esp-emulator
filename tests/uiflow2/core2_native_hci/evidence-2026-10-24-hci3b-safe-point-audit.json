@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-safe-point-audit",
+  "scope": "virtual-device callback injection at arbitrary CPU0 safe point",
+  "status": "FAIL",
+  "stage": "HCI-3b",
+  "firmware": {
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "a0e919b13b387f919639a0ca68787ed9625d4054cbe62f767475985852d57c15",
+  "hypothesis": "At arbitrary CPU0 safe points the nested guest-call ABI was missing restored caller-saved Xtensa special registers.",
+  "registers_saved_and_restored": [
+    "LBEG",
+    "LEND",
+    "LCOUNT",
+    "SAR",
+    "BR",
+    "LITBASE",
+    "SCOMPARE1",
+    "ACCLO",
+    "ACCHI",
+    "M0-M3",
+    "THREADPTR",
+    "ATOMCTL",
+    "CPENABLE"
+  ],
+  "progression": {
+    "hci_reset": true,
+    "read_local_version": true,
+    "read_buffer_size": true,
+    "read_bd_addr": true,
+    "set_event_mask": true,
+    "advertisement_started": false,
+    "ble_connected": false
+  },
+  "terminal_signals": {
+    "serial": [
+      "NimBLE: HCI process ack returned 12 (twice)",
+      "Guru Meditation Error: Core 1 panic'ed (LoadProhibited)",
+      "Rebooting"
+    ],
+    "pc": "0x402630cc"
+  },
+  "conclusion": "Restoring common caller-saved special registers is insufficient. Directly invoking the registered host callback at an arbitrary CPU0 safe point corrupts the controller/host lifecycle and can crash the guest. The implementation must model a controller-to-host notification/response transaction at a domain-valid context.",
+  "experiment_retained": false,
+  "qemu_patch_reverse_check": "PASS",
+  "not_claimed": [
+    "complete HCI/GATT",
+    "bit-exact controller/baseband",
+    "physical hardware"
+  ]
+}
