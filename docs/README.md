@@ -5,12 +5,13 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
-## 先看这四页
+## 先看这五页
 
-1. [项目当前状态](project-status.md)：现在能做什么、已经验证什么、仍有什么风险。
-2. [项目 Backlog](project-backlog.md)：尚未完成的工作、优先级、依赖和验收条件。
-3. [代码与验证入口地图](code-map.md)：实现落在哪些模块、测试如何复现、证据在哪里。
-4. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
+1. [工作流总台账](workstreams.md)：按工作流串起当前状态、代码、证据和下一任务。
+2. [项目当前状态](project-status.md)：现在能做什么、已经验证什么、仍有什么风险。
+3. [项目 Backlog](project-backlog.md)：尚未完成的工作、优先级、依赖和验收条件。
+4. [代码与验证入口地图](code-map.md)：实现落在哪些模块、测试如何复现、证据在哪里。
+5. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
    board/WiFi/BLE/evidence 的产品验收边界。
 
 如果页面之间冲突，以当前代码、生成后的 catalog/coverage、最新测试证据和
@@ -35,7 +36,8 @@
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络、Core2、FirmwareManifest 与 235 项平台测试 |
+| [工作流总台账](workstreams.md) | 当前工作台账 | `2026-10-24` | 交付状态、代码/证据入口和未完成 Task ID |
+| [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络、Core2、FirmwareManifest 与 236 项平台测试 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.11.0`；nftables exact egress + DHCP lifecycle |
@@ -58,6 +60,7 @@
 
 ### 状态、计划与维护
 
+- [工作流总台账](workstreams.md)
 - [项目当前状态](project-status.md)
 - [项目 Backlog](project-backlog.md)
 - [代码与验证入口地图](code-map.md)

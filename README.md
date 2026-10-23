@@ -22,12 +22,14 @@ MicroPython 和其他完整 Flash 固件。
 - 最新 UIFlow2 外设全矩阵在 `2026-10-24 00:11 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
   `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
-  下首轮通过。当前平台单元测试为 `235/235` PASS。
+  下首轮通过。当前平台单元测试为 `236/236` PASS。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
 
 完整设备矩阵、证据日期和风险边界见
 [项目当前状态](docs/project-status.md)。
+按工作流查看“已交付、验证入口、未完成 Task ID”见
+[工作流总台账](docs/workstreams.md)。
 代码入口、模块职责和验证证据分层见
 [代码与验证入口地图](docs/code-map.md)。
 第一次阅读建议从 [文档导航与新鲜度规则](docs/README.md) 开始；该页会区分
@@ -57,6 +59,7 @@ MicroPython 和其他完整 Flash 固件。
 关键索引：
 
 - [文档导航与新鲜度规则](docs/README.md)
+- [工作流总台账](docs/workstreams.md)
 - [项目当前状态](docs/project-status.md)
 - [完整项目 Backlog](docs/project-backlog.md)
 - [代码与验证入口地图](docs/code-map.md)

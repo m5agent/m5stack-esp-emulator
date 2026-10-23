@@ -4,7 +4,8 @@ Last reviewed: `2026-10-24`
 
 共享基础设施，不含具体产品档案。当前能力以
 [`docs/project-status.md`](../docs/project-status.md) 为准，代码和证据入口见
-[`docs/code-map.md`](../docs/code-map.md)。
+[`docs/code-map.md`](../docs/code-map.md)，按工作流查看交付和待办见
+[`docs/workstreams.md`](../docs/workstreams.md)。
 
 ```text
 platform/
@@ -55,8 +56,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱；worker/VM 生命周期仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
-  PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；该能力仍不是任意
-  公网目标 IP/端口 allowlist。
+  PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
+  已在同一隔离路径验证 exact IPv4 IP/协议/端口和 veth/NAT，上述内容也不
+  等于任意 IPv6、CIDR 或恶意固件沙箱。
 
 完整契约见
 [`docs/device-service-api.md`](../docs/device-service-api.md) 和

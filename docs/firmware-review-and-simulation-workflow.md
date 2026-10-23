@@ -420,11 +420,17 @@ evidence/
 
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
-1. 文件系统提取、敏感资产/权限审批、证书链校验和许可证策略；
+1. SPIFFS 只读清单、运行时权限/许可审批、证书链校验和许可证策略；
+   LittleFS 与 FAT12/16/32 文件清单、哈希和 SPDX 已具备；
 2. 正式 CI/worker、外部 IPv6 egress、真实 AP 丢失和双设备 lab fabric；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
+
+网络部分已经具备 controlled DNS、TLS/Host allowlist、精确 IPv4
+IP/协议/端口 egress、pcap 和 DHCP renewal；仍未完成的是真实 AP 丢失、
+双设备 fabric、正式 worker/CI 和外部 IPv6。固件文件系统 PASS 只表示清单
+可解析且结果可追踪，不表示镜像安全或许可证合规。
 
 ## 11. 结论
 

@@ -44,6 +44,69 @@
 代码和文档发生冲突时，优先级是：本次实测 evidence 与同 commit 生成物 >
 源 catalog/profile/API 契约 > `project-status.md` > 专题说明 > 历史文档。
 
+## 平台工具完整清单
+
+下表中的 `platform/tools/*.py` 都由文档测试检查，新增顶层工具时
+`platform/tests/test_docs_consistency.py` 会要求同步本页。
+
+| 路径 | 职责 | 主要调用方 |
+| --- | --- | --- |
+| `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
+| `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
+| `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
+| `platform/tools/fetch_firmware.py` | 查询、校验、下载和缓存公开 M5Burner 固件 | 本地准备、固件矩阵 |
+| `platform/tools/firmware_manifest.py` | merged/segmented/ZIP/WebBurner 导入和 manifest | CLI、Device Service |
+| `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 | manifest、矩阵 |
+| `platform/tools/firmware_filesystems.py` | LittleFS 与 FAT12/16/32 只读清单、哈希和 SPDX | manifest |
+| `platform/tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查、SBOM 摘要 | manifest |
+| `platform/tools/user_firmware_matrix.py` | 热门公开固件经 Device Service 的批量仿真 | 回归操作员 |
+| `platform/tools/network_policy.py` | isolation/egress/DNS/TLS/pcap 策略校验 | Device Service |
+| `platform/tools/network_egress.py` | 精确 IPv4 IP/协议/端口、veth/NAT 和清理 | Device Service、隔离测试 |
+| `platform/tools/network_sandbox.py` | Linux private net/mount namespace 与 controlled DNS | 隔离 runner、worker |
+| `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
+| `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
+| `platform/tools/ble_probe.py` | 外部 BLE peer、scan/connect/GATT 验证 | unified/BLE runners |
+| `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
+| `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
+| `platform/tools/qemu_profiles.py` | 检查/查询 machine、profile、runtime 和资产 | CI、设备中心 |
+| `platform/tools/peripheral_catalog.py` | 检查设备硬件需求、模型、blocker 和覆盖 | CI |
+| `platform/tools/peripheral_inventory.py` | 生成设备中心可消费的外设/控制清单 | `serve.py`、设备页 |
+| `platform/tools/runtime_coverage.py` | 检查 simulated 模型到设备级运行证据的映射 | CI |
+| `platform/tools/runtime_interfaces.py` | 从 evidence/case 生成 QOM、输入和文件接口 | 设备中心 |
+| `platform/tools/generate_catalog.py` | 从源 catalog 生成设备 JSON/README | 发布与 CI |
+| `platform/tools/export_bundle.py` | 导出可移植设备/运行时资产包 | 部署 |
+
+## 测试入口归属
+
+| 入口 | 负责范围 | 何时运行 |
+| --- | --- | --- |
+| `platform/tests/` | API、catalog、manifest、network、文档和工具契约 | 每次代码改动 |
+| `tests/uiflow2/run_device_matrix.py` | 设备首帧、输入、烧录和板型 smoke | 设备/固件 profile 改动 |
+| `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
+| `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
+| `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
+| `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal 和重连 | 网络策略/运行时改动 |
+| `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT 证据 | manifest/filesystem 改动 |
+| `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
+
+`run_profile_ui_test.py`、`run_peripheral_matrix.py` 和直接 QEMU 启动是仓库
+回归开发入口；Agent 触发的普通固件功能测试必须走 Device Service，避免产生
+不可观察、不可保留的临时结果。
+
+## 当前代码组织债务
+
+2026-10-24 的静态盘点显示：
+
+| 位置 | 规模/现象 | 处理原则 |
+| --- | --- | --- |
+| `platform/tools/device_service.py` | 约 6700 行，覆盖 7 类生命周期职责 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
+| `platform/tests/test_device_service.py` | 约 3500 行 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
+| `tests/uiflow2/run_peripheral_matrix.py` | 约 2900 行 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
+| `tests/uiflow2/unified_*/` | 12 个 profile 有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
+
+这些是维护成本，不是当前功能失败。没有 API 契约测试和同路径 evidence
+保护时，不做跨文件大重构。
+
 ## 运行链路
 
 ### Device Service

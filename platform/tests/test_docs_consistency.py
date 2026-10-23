@@ -16,6 +16,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "README.md",
             "AGENTS.md",
             "docs/README.md",
+            "docs/workstreams.md",
             "docs/project-status.md",
             "docs/project-backlog.md",
             "docs/unified-device-runtime.md",
@@ -149,6 +150,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "still not prove arbitrary destination IP/port",
             "DHCP renewal remains `NOT RUN`",
             "DHCP renewal has not been validated",
+            "仍不是任意 公网目标 IP/端口 allowlist",
+            "generic allowlisted egress and object-backed",
+            "文件系统提取、敏感资产/权限审批",
         ):
             self.assertNotIn(stale, active)
 
@@ -185,6 +189,14 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "docs/code-map.md",
             (ROOT / "README.md").read_text(),
+        )
+        self.assertIn(
+            "docs/workstreams.md",
+            (ROOT / "README.md").read_text(),
+        )
+        self.assertIn(
+            "workstreams.md",
+            status,
         )
         self.assertIn(
             "## P0 收口",
@@ -296,6 +308,29 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(matrix["peripheral_matrix"]["cases"], 67)
         self.assertEqual(matrix["peripheral_matrix"]["checks"], 274)
         self.assertFalse(matrix["peripheral_matrix"]["retry_used"])
+
+    def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
+        workstreams = (DOCS / "workstreams.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+
+        for tool in sorted((ROOT / "platform" / "tools").glob("*.py")):
+            self.assertIn(
+                f"`platform/tools/{tool.name}`",
+                code_map,
+                f"platform/tools/{tool.name} is missing from docs/code-map.md",
+            )
+
+        task_ids = sorted(
+            set(re.findall(r"^\| `([A-Z][A-Z0-9-]+)` \|", backlog, re.M))
+        )
+        self.assertTrue(task_ids)
+        for task_id in task_ids:
+            self.assertIn(
+                f"`{task_id}`",
+                workstreams,
+                f"backlog task {task_id} is missing from docs/workstreams.md",
+            )
 
     def test_documented_platform_test_count_is_current(self) -> None:
         suite = unittest.defaultTestLoader.discover(

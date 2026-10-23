@@ -5,6 +5,8 @@
 本文是项目能力的当前快照。代码、生成目录和自动化测试是权威来源；专题文档
 负责解释实现和边界，[项目 Backlog](project-backlog.md) 只记录尚未完成的
 工作，[代码与验证入口地图](code-map.md) 说明实现和证据位置。
+需要按工作流查看交付状态、代码面和下一 Task ID 时，先看
+[工作流总台账](workstreams.md)。
 
 ## 总览
 
@@ -23,7 +25,7 @@
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
   `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
   QEMU 虚拟时钟推进。
-- 当前平台测试：`235/235` PASS；runtime coverage、peripheral catalog 和
+- 当前平台测试：`236/236` PASS；runtime coverage、peripheral catalog 和
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
@@ -53,7 +55,7 @@
 | 设备与板级契约 | 已完成 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 14 台设备登记；13 台达到登记外设的模拟数据面；catalog、coverage、profile 校验通过 | 新设备逐项登记；视觉保真另列 |
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | QEMU patch `0027` 后最新 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成，生产后端开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、Device Service lease PASS | 去掉 GDB bridge；bit-exact BT；物理 cache/PSRAM 与 soak |
-| Device Service | v1 已实现，生产服务开放 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.11.0 | worker 化、活动进程恢复、warm pool、多机调度与 VM 隔离 |
+| Device Service | 本地 v1 可用，生产服务化未完成 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.11.0 | worker 化、活动进程恢复、warm pool、多机调度、VM 隔离和编排模块拆分 |
 | FirmwareManifest | v1 + 静态审查 + LittleFS/FAT 清单 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态、capability mismatch、脱敏 finding、SBOM、LittleFS/FAT12/16/32 文件哈希/敏感路径/SPDX | SPIFFS、运行时权限、许可策略、生产 key/eFuse、跨厂商回归、流式上传 |
 | 网络隔离与取证 | Linux 单机路径闭环，正式 worker 开放 | `network_egress.py`、`network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、DHCP renewal probe | namespace/controlled DNS/TLS、nftables exact IPv4 egress、veth/NAT、DHCP DORA+renew lifecycle、pcap、错误密码、link fault/reconnect 和清理 PASS | 真实 AP 丢失、双设备 fabric、CI/worker、外部 IPv6 |
 | 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
@@ -205,6 +207,7 @@
 ## 文档职责
 
 - `README.md`：入口、当前摘要、快速开始和文档导航。
+- `workstreams.md`：按工作流汇总当前交付、代码/证据入口和未完成 Task ID。
 - 本文：当前能力与设备状态。
 - `docs/project-backlog.md`：只列未完成事项、优先级和依赖。
 - `docs/code-map.md`：代码入口、验证命令、证据目录和文档维护规则。

@@ -56,6 +56,7 @@
 | `FW-04` | 待做 | WebBurner 流式导入和 chunk artifact upload | 大镜像不先落完整宿主临时文件，hash/manifest 保持一致 |
 | `SVC-01` | 待做 | worker supervisor、注册/心跳、drain、re-attach | 服务重启可收敛 worker，lease 有明确接管或失败状态 |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态不泄漏 |
+| `SVC-03` | 待做 | 拆分 `device_service.py` 的固件存储、运行时适配器、证据和会话状态机 | 对外 API/evidence 不回归；单文件职责和测试边界清晰 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation，虚拟结果不冒充 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 |
 | `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和截图阈值 | 每台设备有独立尺寸/结构/回归，不只改通用 CSS |
@@ -157,6 +158,23 @@ helper；实现前保持 `UNSUPPORTED`。
 4. 队列、配额、对象存储、retention、审计和租户隔离；
 5. 可疑固件使用 disposable VM / copy-on-write flash；
 6. 观测 start latency、CPU/RSS、queue time、失败率和 cleanup。
+
+### SVC-03 Device Service 编排拆分
+
+`platform/tools/device_service.py` 当前约为 6700 行，同时承担会话模型、
+固件存储、QEMU/esp-emu 启动、网络策略、输入、证据、历史恢复和 HTTP
+适配。继续叠加能力会扩大回归面。
+
+拆分顺序：
+
+1. 先固定 `/api/v1`、session JSON、evidence ZIP 和历史恢复的契约测试；
+2. 拆出 content-addressed firmware/artifact store；
+3. 拆出 QEMU、Tab5、network 三类 runtime adapter；
+4. 拆出 evidence collector 和 lifecycle/history repository；
+5. 最后收敛 HTTP handler，不在拆分过程中改变 API 语义。
+
+验收必须保留当前平台测试、目标设备 unified lease、停止后历史恢复和
+evidence ZIP 的字段兼容性。
 
 ## P1：Tab5
 

@@ -32,6 +32,10 @@ Implemented:
   evidence;
 - a controlled namespace-local DNS resolver using a temporary private
   resolver configuration, with A/NXDOMAIN and query-log evidence;
+- nftables default-drop exact IPv4 IP/protocol/port egress with a
+  per-session veth/NAT path and verified cleanup;
+- guest-issued DHCP renewal with DORA baseline, later REQUEST/ACK, retained
+  address, HTTP continuity and pcap summaries;
 - versioned FirmwareManifest import and structured capability mismatch.
 
 Not implemented yet:
@@ -40,7 +44,8 @@ Not implemented yet:
 - resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
 - formal CI/worker lifecycle for the Linux namespace lane;
-- external IPv6 allowlisting, real AP loss and multi-device lab fabric;
+- external IPv6/CIDR/domain-set allowlisting, real AP loss and multi-device
+  lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
 
@@ -278,7 +283,8 @@ the overall service is still trusted-local and not an untrusted-firmware
 sandbox.
 
 - container/VM isolation for untrusted firmware;
-- generic allowlisted egress and object-backed pcap/evidence retention;
+- worker-enforced dual-stack policy beyond the delivered exact IPv4 path, and
+  object-backed pcap/evidence retention;
 - worker health, eviction and teardown verification;
 - multi-host scheduling and artifact storage.
 
