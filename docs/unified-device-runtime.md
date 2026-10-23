@@ -71,6 +71,11 @@ complete simulated device or as a unified-device PASS.
   H2C/C2H are bridged to Bumble, and an external peer completes NUS discovery,
   subscription, write, guest receive and notify ACK 5/5. This is validated
   controller-boundary behavior, not a bit-exact Espressif BT baseband model.
+- The same stock VHCI transport is now selectable in
+  `tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci`.
+  Display/touch, audio, QOM, WiFi/DHCP, public DNS/HTTP and the external NUS
+  GATT exchange share one QEMU guest and passed 3/3. It is still a standalone
+  runner, not yet a Device Service profile.
 - NanoC6 combines real UIFlow2 RGB/button/IR paths, QEMU ESP32-C6 WiFi
   scan/association/DHCP/HTTP and UART1 HCI BLE in one C6 guest.
 - Nesso N1 combines its display/touch and peripheral set with QEMU ESP32-C6
@@ -95,7 +100,7 @@ complete simulated device or as a unified-device PASS.
   Device Service `profile=core2-hci-gatt` exposes the same exchange plus
   serial/frame/QOM/peer evidence through one `/api/v1` lease.
   The remaining native boundary is the classic ESP32 controller/baseband
-  implementation and production integration of the bridge, not UIFlow2's
+  implementation and Device Service integration of the bridge, not UIFlow2's
   Python BLE API.
 
 ## Integration rule
@@ -123,8 +128,9 @@ finished chip model.
   controller blocks; OpenETH is not a substitute for stock `network.WLAN`.
   Current optional patches cover WiFi user-net and BLE advertising control.
   The stock VHCI bridge now closes external advertising/connection/GATT at the
-  controller API boundary, while HCI-UART offload remains a separate test
-  build. Neither executes the bit-exact Espressif BT baseband/controller.
+  controller API boundary in both BLE-only and same-guest unified runners,
+  while HCI-UART offload remains a separate test build. Neither executes the
+  bit-exact Espressif BT baseband/controller.
 
 ## Acceptance milestone
 
@@ -147,8 +153,9 @@ summary. S3/C6 probes use one open fixed-channel virtual AP; Core2
 OpenMAC advertises its open test-AP set and associates with `myssid`.
 WPA2/WPA3 security behavior is not modelled. Device Service BLE remains
 host-controller HCI data over an HCI-UART test build. The separate stock Core2
-VHCI runner reaches external GATT without that firmware rebuild, but uses a
-GDB-to-Bumble controller bridge rather than a bit-exact ESP32 controller.
+VHCI runners reach external GATT without that firmware rebuild, including a
+same-guest board+WiFi+public-network variant, but use a GDB-to-Bumble
+controller bridge rather than a bit-exact ESP32 controller.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
 stable access to arbitrary internet services. Core2 now includes public DNS

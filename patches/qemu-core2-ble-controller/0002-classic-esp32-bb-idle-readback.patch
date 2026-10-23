@@ -1,0 +1,11 @@
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -683,6 +683,6 @@ static void esp32_soc_realize(DeviceState *dev, Error **errp)
+         sys_mem, "esp32.unknown_wifi", DR_REG_NRX_BASE, 0x1000, -1);
+     esp32_soc_add_unimp_device(
+-        sys_mem, "esp32.unknown_wifi1", DR_REG_BB_BASE, 0x1000, -1);
++        sys_mem, "esp32.unknown_wifi1", DR_REG_BB_BASE, 0x1000, 0);
+ 
+     /* Emulation of a fake register used to mark that the chip is run via QEMU */
+     MemoryRegion *apbctrl_mem = g_new(MemoryRegion, 1);

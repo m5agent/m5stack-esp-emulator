@@ -206,9 +206,11 @@ diagnostics in `internal/records/`.
   DNS/public HTTP and deterministic TCG/icount startup are validated.
 - The standalone stock Core2 UIFlow2 native-VHCI runner uses a GDB bridge to
   hand HCI to Bumble and passed external NUS GATT 5/5 without rebuilding for
-  UART HCI. This is stock-firmware controller-boundary evidence, not a
-  bit-exact Espressif BT baseband/controller model. Production QEMU/Device
-  Service integration and physical cache/PSRAM equivalence remain open.
+  UART HCI. The extended `unified_core2` runner also combines board, frame,
+  touch, audio, QOM, WiFi/public network and native-VHCI BLE in one guest,
+  3/3. This is stock-firmware controller-boundary evidence, not a bit-exact
+  Espressif BT baseband/controller model. Device Service integration and
+  physical cache/PSRAM equivalence remain open.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.

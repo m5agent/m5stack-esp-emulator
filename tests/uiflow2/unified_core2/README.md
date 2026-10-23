@@ -60,3 +60,19 @@ internal-controller build and bridges the real VHCI boundary to Bumble,
 reaching external NUS GATT 5/5. Its GDB bridge is not yet part of this unified
 lease, and bit-exact Espressif BT baseband/controller execution remains
 `NOT RUN`.
+
+The same runner can instead select the stock native-VHCI transport:
+
+```bash
+python3 tests/uiflow2/unified_core2/run_test.py \
+  --image /tmp/core2-native-vhci-unified.bin \
+  --out-dir /tmp/core2-native-vhci-unified \
+  --ble-transport native-vhci \
+  --attempts 3 --require-all-attempts
+```
+
+This path keeps display/touch, audio, QOM, WiFi, public DNS/HTTP and native
+VHCI BLE in one guest and is recorded in
+`evidence-2026-10-23-native-vhci.json` as 3/3 PASS. It requires the classic
+ESP32 BB idle-readback patch and a matching symbol ELF. It remains a
+standalone GDB bridge rather than a Device Service profile.

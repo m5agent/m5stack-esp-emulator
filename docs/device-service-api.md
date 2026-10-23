@@ -416,10 +416,11 @@ QOM paths:
 ```
 
 This service profile proves stock UIFlow2 NimBLE activation, GAP configuration,
-controller reset and advertising enable. A separate standalone runner now
-bridges the same stock firmware's VHCI boundary to Bumble and passes external
-NUS GATT 5/5, but that GDB-based bridge is not yet exposed as a Device Service
-runtime.
+controller reset and advertising enable. Separate standalone runners now
+bridge the same stock firmware's VHCI boundary to Bumble; the BLE-only runner
+passes external NUS GATT 5/5 and the same-guest board+WiFi+public-network
+variant passes 3/3. Those GDB-based runners are not yet exposed as a Device
+Service runtime.
 
 The `core2-hci-gatt` profile exercises the separate HCI-offload lane:
 
@@ -516,10 +517,10 @@ NS4168 speaker, SPM1423 microphone, WiFi DHCP/HTTP, public IPv4 DNS/HTTP and
 external HCI-offload BLE NUS in one guest. Ten independent first attempts
 passed 10/10 with no retry under deterministic TCG/icount scheduling. This is
 simulation-only evidence and is not equivalent to physical cache/PSRAM timing.
-The service profile still uses HCI-offload. A separate stock VHCI runner now
-passes external NUS GATT 5/5 without rebuilding for UART HCI, but it is not yet
-merged into this unified lease and it executes Bumble in place of the
-bit-exact Espressif BT baseband/controller.
+The service profile still uses HCI-offload. Separate stock VHCI runners now
+pass external NUS GATT 5/5 and same-guest unified 3/3 without rebuilding for
+UART HCI, but they are not yet merged into this lease and execute Bumble in
+place of the bit-exact Espressif BT baseband/controller.
 
 The StickS3 unified profile closes WiFi and BLE in that same instance:
 

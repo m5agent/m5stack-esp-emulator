@@ -108,6 +108,15 @@ class NativeVhciBridge:
         _, receive = self._callbacks()
         self.injecting = True
         self.injection_thread.switch()
+        send_enabled = self.send_breakpoint.enabled
+        idle_enabled = (
+            self.idle_breakpoint.enabled
+            if self.idle_breakpoint is not None
+            else False
+        )
+        self.send_breakpoint.enabled = False
+        if self.idle_breakpoint is not None:
+            self.idle_breakpoint.enabled = False
         try:
             result = gdb.parse_and_eval(
                 "((int (*)(unsigned char *, unsigned short))"
@@ -120,6 +129,9 @@ class NativeVhciBridge:
                     flush=True,
                 )
         finally:
+            self.send_breakpoint.enabled = send_enabled
+            if self.idle_breakpoint is not None:
+                self.idle_breakpoint.enabled = idle_enabled
             self.injecting = False
 
     def drain_pending(self) -> int:
@@ -182,12 +194,15 @@ class SendPacketBreakpoint(gdb.Breakpoint):
         print(f"NATIVE_VHCI_H2C {packet.hex()}", flush=True)
         self.bridge.disarm_idle_wait()
         self.bridge.socket.sendall(packet)
+        self.bridge.send_breakpoint.enabled = False
         try:
             gdb.execute("return", to_string=True)
         except gdb.error as error:
             print(f"NATIVE_VHCI_RETURN_ERROR {error}", flush=True)
+            self.bridge.send_breakpoint.enabled = True
             return True
         self.bridge.wait_and_inject(timeout=2.0)
+        self.bridge.send_breakpoint.enabled = True
         self.bridge.arm_idle_wait()
         return False
 

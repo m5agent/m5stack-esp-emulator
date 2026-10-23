@@ -46,7 +46,9 @@ What this does **not** prove:
 The separate `tests/uiflow2/core2_native_vhci/` runner now passes external NUS
 GATT 5/5 through the stock firmware's VHCI boundary and a Bumble controller.
 That closes controller-boundary behavior in this diagnostic runner, but not the
-bit-exact internal controller implementation.
+bit-exact internal controller implementation. The
+`unified_core2 --ble-transport native-vhci` path also passes 3/3 with board,
+WiFi and public network in the same guest after BB idle readback was fixed.
 
 Do not remove the deterministic runtime options or replace them with
 unconditional high retry counts. A future failure with these options should

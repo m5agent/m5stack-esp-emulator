@@ -36,7 +36,7 @@ MicroPython 和其他完整 Flash 固件。
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace 内 guest、pcap 摘要、错误密码和 StickS3 断线重连已通；正式 CI/worker、DHCP renewal 和 allowlist/TLS 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入和 capability mismatch 已通；深层静态审查与生产 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
-| Core2 稳定性与原生无线 | `mostly complete` | unified WiFi、DNS/公网、HCI-offload GATT、stock internal-controller VHCI→Bumble GATT 5/5 和 10/10 无重试启动已通；生产化 QEMU VHCI bridge、bit-exact BT controller 与物理等价性未完成 |
+| Core2 稳定性与原生无线 | `mostly complete` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5，以及同一 guest board+WiFi+public network+native-VHCI BLE 3/3 已通；Device Service 内生产化、bit-exact BT controller 与物理等价性未完成 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 关键索引：
@@ -129,7 +129,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；`core2-unified` 已完成 WiFi、公网 DNS/HTTP、HCI-offload GATT 和 10/10 首轮启动；stock UIFlow2 的 internal-controller VHCI 路径经外部 Bumble 完成 NUS GATT 5/5。生产化 VHCI bridge、bit-exact controller 和物理 cache/PSRAM 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；`core2-unified` 已完成 WiFi、公网 DNS/HTTP、HCI-offload GATT 和 10/10 首轮启动；stock UIFlow2 的 native-VHCI BLE 独立 5/5，并在同一 runner/guest 与 board、WiFi、公网、frame/QOM 合并 3/3。Device Service 内生产化、bit-exact controller 和物理 cache/PSRAM 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -231,8 +231,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - S3/C6/Core2 的 QEMU 网络是 MAC/DMA 与 user-net 数据面，不是完整
   PHY/RF/天线模型。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
-  internal-controller VHCI→Bumble 路径，已完成外部 NUS GATT 5/5，但仍是
-  GDB 诊断桥，不是 bit-exact ESP32 BT baseband/controller 模型。
+  internal-controller VHCI→Bumble 路径，独立 BLE 外部 NUS GATT 5/5，
+  同一 guest 的 board+WiFi+公网+native-VHCI BLE 3/3；但它仍是 GDB 诊断桥，
+  尚未进入 Device Service 单 lease，也不是 bit-exact ESP32 BT
+  baseband/controller 模型。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

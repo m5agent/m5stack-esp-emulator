@@ -42,3 +42,13 @@ For external GATT through the stock internal-controller VHCI path, use:
 PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_vhci/run_test.py \
   --attempts 5
 ```
+
+The same guest board/WiFi path is available through:
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/unified_core2/run_test.py \
+  --image /tmp/core2-native-vhci-unified.bin \
+  --out-dir /tmp/core2-native-vhci-unified \
+  --ble-transport native-vhci \
+  --attempts 3 --require-all-attempts
+```

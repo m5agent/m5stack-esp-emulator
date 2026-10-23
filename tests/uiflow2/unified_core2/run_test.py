@@ -30,6 +30,9 @@ DEFAULT_QEMU = (
 )
 DEFAULT_ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
+NATIVE_BRIDGE_GDB = (
+    ROOT / "tests/uiflow2/core2_radio_probe/native_vhci_bridge.gdb"
+)
 HTTP_PORT = 18089
 FLASH_SIZE = 16 << 20
 
@@ -71,6 +74,20 @@ def free_port() -> int:
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
         return sock.getsockname()[1]
+
+
+def default_gdb() -> Path:
+    explicit = os.environ.get("M5_XTENSA_GDB")
+    if explicit:
+        return Path(explicit)
+    candidates = sorted(
+        (Path.home() / ".espressif/tools/xtensa-esp-elf-gdb").glob(
+            "*/xtensa-esp-elf-gdb/bin/xtensa-esp32-elf-gdb"
+        )
+    )
+    if candidates:
+        return candidates[-1]
+    return Path("xtensa-esp32-elf-gdb")
 
 
 class ControlledHttp:
@@ -200,18 +217,22 @@ def run_attempt(
     )
 
     hci_port = free_port()
+    gdb_port = free_port()
     qmp_path = Path("/tmp") / (
         f"m5-core2-unified-{os.getpid()}-{attempt_index}.sock"
     )
+    bridge_path = attempt_dir / "native-vhci-gdb.log"
     qmp_path.unlink(missing_ok=True)
     peer_process: subprocess.Popen | None = None
     qemu: subprocess.Popen | None = None
+    gdb_process: subprocess.Popen | None = None
     qmp = None
     before = None
     after = None
     qom = {}
     terminal = "timeout"
     try:
+        env["BLE_HCI_TRACE"] = "1"
         with peer_path.open("wb") as peer_log:
             peer_process = subprocess.Popen(
                 [
@@ -263,19 +284,30 @@ def run_attempt(
             "none",
             "-serial",
             f"file:{serial_path}",
-            "-chardev",
-            (
-                f"socket,id=hci,host=127.0.0.1,"
-                f"port={hci_port},nodelay=on"
-            ),
-            "-serial",
-            "chardev:hci",
             "-qmp",
             f"unix:{qmp_path},server=on,wait=off",
             "-nic",
             "user,model=misc.esp32_wifi,id=wifi0",
             "-no-reboot",
         ]
+        if args.ble_transport == "native-vhci":
+            command[1:1] = [
+                "-S",
+                "-gdb",
+                f"tcp::{gdb_port}",
+            ]
+        else:
+            command.extend(
+                [
+                    "-chardev",
+                    (
+                        f"socket,id=hci,host=127.0.0.1,"
+                        f"port={hci_port},nodelay=on"
+                    ),
+                    "-serial",
+                    "chardev:hci",
+                ]
+            )
         with (attempt_dir / "qemu.stdout").open("wb") as stdout, (
             attempt_dir / "qemu.stderr"
         ).open("wb") as stderr:
@@ -287,6 +319,25 @@ def run_attempt(
                 stderr=stderr,
                 start_new_session=True,
             )
+        if args.ble_transport == "native-vhci":
+            bridge_env = env.copy()
+            bridge_env["M5_NATIVE_BT_HCI_PORT"] = str(hci_port)
+            bridge_env["M5_NATIVE_GDB_PORT"] = str(gdb_port)
+            with bridge_path.open("wb") as bridge_output:
+                gdb_process = subprocess.Popen(
+                    [
+                        str(args.gdb),
+                        "-q",
+                        "-batch",
+                        "-x",
+                        str(NATIVE_BRIDGE_GDB),
+                    ],
+                    cwd=ROOT,
+                    env=bridge_env,
+                    stdout=bridge_output,
+                    stderr=subprocess.STDOUT,
+                    start_new_session=True,
+                )
         qmp = wait_qmp(qmp_path, timeout=30)
         if not wait_for_text(
             serial_path, "UNIFIED_CORE2_IO_CONFIG_READY", 25
@@ -376,6 +427,7 @@ def run_attempt(
                 qmp.close()
             except OSError:
                 pass
+        stop_process(gdb_process)
         stop_process(qemu)
         stop_process(peer_process)
         qmp_path.unlink(missing_ok=True)
@@ -384,6 +436,8 @@ def run_attempt(
     serial = serial_bytes.decode(errors="replace")
     peer_bytes = peer_path.read_bytes()
     peer = peer_bytes.decode(errors="replace")
+    bridge_bytes = bridge_path.read_bytes() if bridge_path.is_file() else b""
+    bridge = bridge_bytes.decode(errors="replace")
     pcm = speaker_path.read_bytes() if speaker_path.is_file() else b""
     microphone = (
         microphone_source.read_bytes() if microphone_source.is_file() else b""
@@ -437,6 +491,16 @@ def run_attempt(
         "audio:pcm_peak_to_peak": pcm_peak_to_peak > 64,
         "microphone:source": microphone_nonzero > 1000,
     }
+    if args.ble_transport == "native-vhci":
+        checks.update(
+            {
+                "bridge:ready": "NATIVE_VHCI_BRIDGE_READY" in bridge,
+                "bridge:h2c": "NATIVE_VHCI_H2C" in bridge,
+                "bridge:c2h": "NATIVE_VHCI_C2H" in bridge,
+                "bridge:acl_h2c": "NATIVE_VHCI_H2C 0201" in bridge,
+                "bridge:acl_c2h": "NATIVE_VHCI_C2H 0201" in bridge,
+            }
+        )
     status = (
         "PASS" if terminal == "pass" and all(checks.values()) else "FAIL"
     )
@@ -473,6 +537,7 @@ def run_attempt(
         "serial_sha256": sha256(serial_bytes),
         "peer_log_bytes": len(peer_bytes),
         "peer_log_sha256": sha256(peer_bytes),
+        "bridge_log_sha256": sha256(bridge_bytes),
     }
 
 
@@ -485,12 +550,21 @@ def main() -> int:
     parser.add_argument("--qemu", type=Path, default=DEFAULT_QEMU)
     parser.add_argument("--rom-dir", type=Path, default=DEFAULT_ROM_DIR)
     parser.add_argument("--http-port", type=int, default=HTTP_PORT)
+    parser.add_argument(
+        "--ble-transport",
+        choices=("hci-uart", "native-vhci"),
+        default="hci-uart",
+    )
+    parser.add_argument("--gdb", type=Path, default=default_gdb())
+    parser.add_argument("--require-all-attempts", action="store_true")
     args = parser.parse_args()
 
     image = args.image.resolve()
     if not image.is_file() or image.stat().st_size != FLASH_SIZE:
         raise SystemExit(f"Core2 image must be exactly 16 MiB: {image}")
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    if args.ble_transport == "native-vhci" and not args.gdb.exists():
+        raise SystemExit(f"GDB does not exist: {args.gdb}")
     attempts = []
     with ControlledHttp(args.http_port) as probe:
         for attempt_index in range(1, args.attempts + 1):
@@ -506,18 +580,27 @@ def main() -> int:
                 f"attempt={attempt_index} status={result['status']} "
                 f"terminal={result['terminal']}"
             )
-            if result["status"] == "PASS":
+            if result["status"] == "PASS" and not args.require_all_attempts:
                 break
             probe.requests.clear()
 
     passed = [attempt for attempt in attempts if attempt["status"] == "PASS"]
-    status = "PASS" if passed else "FAIL"
+    status = (
+        "PASS"
+        if (
+            len(passed) == len(attempts)
+            if args.require_all_attempts
+            else bool(passed)
+        )
+        else "FAIL"
+    )
     selected = passed[0] if passed else attempts[-1]
     evidence = {
         "schema_version": 1,
         "scope": "simulation-only-not-hardware-validation",
         "status": status,
         "device_id": "core2",
+        "ble_transport": args.ble_transport,
         "firmware": {
             "path": str(image),
             "bytes": image.stat().st_size,
@@ -525,9 +608,14 @@ def main() -> int:
         },
         "attempts": attempts,
         "selected_attempt": selected["attempt"],
+        "require_all_attempts": args.require_all_attempts,
         "not_claimed": [
             "real-hardware behavior",
-            "native ESP32 Bluetooth controller/radio model",
+            (
+                "bit-exact Espressif BT baseband/controller implementation"
+                if args.ble_transport == "native-vhci"
+                else "native ESP32 Bluetooth controller/radio model"
+            ),
             "RF privacy, security, range or performance",
             "hardware equivalence of deterministic TCG/icount scheduling",
         ],

@@ -65,6 +65,6 @@ response, serial digest and a bounded set of fatal error lines.
 - Core2 sessions expose the supported 4 MiB PSRAM model. Radio/unified runs
   now use deterministic TCG/icount scheduling and passed 10/10 independent
   first attempts; this mitigates the virtual interrupt-WDT reproduction but
-  does not prove physical cache/PSRAM timing. A separate stock VHCI bridge
-  passes external NUS GATT 5/5, but bit-exact Espressif BT controller behavior
-  is still `NOT RUN`.
+  does not prove physical cache/PSRAM timing. Stock VHCI paths pass external
+  NUS GATT 5/5 standalone and board+WiFi+public+BLE 3/3 in one guest, but
+  bit-exact Espressif BT controller behavior is still `NOT RUN`.

@@ -12,6 +12,9 @@ The model currently provides:
 - free-running clock and completion-bit behavior for the ROM clock helpers;
 - RWIP/BLE reset completion and fine-timer-mask state needed by
   `ea_prog_timer()`.
+- zero-valued BB idle readback at the classic ESP32 `0x3ff5d000` page, so
+  Wi-Fi/BLE coexistence can observe `phy_force_wifi_chan()` complete instead
+  of spinning on an unimplemented all-ones region.
 
 With this patch, the stock Core2 UIFlow2 probe reaches:
 
@@ -32,4 +35,5 @@ Apply after the OpenMAC WiFi patch:
 ```bash
 git apply /path/to/patches/qemu-core2-openmac-wifi/0001-esp32-openmac-wifi-model.patch
 git apply /path/to/patches/qemu-core2-ble-controller/0001-classic-esp32-bt-controller-bootstrap.patch
+git apply /path/to/patches/qemu-core2-ble-controller/0002-classic-esp32-bb-idle-readback.patch
 ```
