@@ -10,7 +10,7 @@ SSID = "myssid"
 TLS_IP = "10.0.2.2"
 TLS_PORT = __TLS_PORT__
 SERVER_NAME = "allowed.lab.test"
-CA_DER_B64 = "__CA_DER_B64__"
+CA_PEM_B64 = "__CA_PEM_B64__"
 log_uart = None
 
 
@@ -85,13 +85,16 @@ if not station.isconnected():
 emit("TLS_WIFI_READY", station.ifconfig()[0])
 
 try:
-    emit("TLS_CA_DECODE_BEGIN")
-    ca_der = binascii.a2b_base64(CA_DER_B64)
-    emit("TLS_CA_DECODE_DONE", len(ca_der))
+    emit("TLS_CA_PAYLOAD_DECODE_BEGIN")
+    ca_pem = binascii.a2b_base64(CA_PEM_B64)
+    emit("TLS_CA_PAYLOAD_DECODE_DONE", len(ca_pem))
+    with open("/flash/ca.pem", "wb") as ca_file:
+        ca_file.write(ca_pem)
+    emit("TLS_CA_FILE_WRITTEN", len(ca_pem))
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     emit("TLS_CONTEXT_READY")
     context.verify_mode = ssl.CERT_REQUIRED
-    context.load_verify_locations(ca_der)
+    context.load_verify_locations(cafile="/flash/ca.pem")
     emit("TLS_CA_LOADED")
 
     allowed_status = tls_request(

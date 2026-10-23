@@ -213,7 +213,7 @@ Tab5、Core2、CardputerZero。
   状态热切换仍未闭环。
 - Core2 v1.4：ESP32 LX6 已接入同一 QEMU 源码树，官方 UIFlow2 已进入 `main.py`，M5GFX 识别 320x240、AXP2101 与 FT5x06；完整帧和触摸重绘已通过。ESP32 classic I2S0/I2S1 模型直接消费 IDF `lldesc_t` 链，NS4168 扬声器可抓取非静音 PCM，SPM1423 PDM 麦克风可注入 PCM，ALDO3 功放使能断言通过。测试保持 `-m 0`，并新增 `tcg,thread=single` + deterministic icount 消除 idle timer starvation；10/10 次首轮 PASS。HCI-offload lane 使用 UART1 FIFO/chardev；stock native-VHCI lane 拦截内置-controller 固件自己的 `esp_vhci_host_*` 并桥到 Bumble。新增 BB idle readback 补丁后，`unified_core2` 在同一 guest 通过 board、WiFi、公网、frame/QOM 和 native-VHCI 外部 NUS GATT 3/3。证据见 `tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json` 与 `tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json`。
 - Core2 peripheral 和 UI/device matrix 现在也使用同一确定性调度，默认拒绝
-  自动重试；2026-10-23 22:44 的完整矩阵为 67/67、274/274，所有 case
+  自动重试；2026-10-24 00:11 的完整矩阵为 67/67、274/274，所有 case
   `attempts=1`。RX8130/PCF8563 从 boot epoch 起按 QEMU 虚拟时钟推进，
   避免 host wall clock 与 deterministic guest sleep 不一致。证据见
   `tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json`。

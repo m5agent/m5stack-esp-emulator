@@ -1,6 +1,6 @@
 # Network simulation plan
 
-Date: `2026-10-23`
+Date: `2026-10-24`
 
 ## Current state
 
@@ -125,11 +125,11 @@ What is not yet proven:
 - stable public-network access for Tab5 and CardputerZero backends; the
   validated S3/C6 unified profiles use QEMU SLiRP and have controlled HTTP
   coverage;
-- TLS/HTTP test services, allowlisted external egress and multi-device lab
-  fabric in the regular regression matrix. A namespace-local TLS/Host
-  allowlist fixture exists, but its S3 guest currently stalls while creating
-  `ssl.SSLContext` after an ESP32-S3 AES/GDMA read error; this is `FAIL`, not a
-  TLS PASS or an external-egress allowlist;
+- Linux namespace execution of the TLS/Host allowlist fixture, allowlisted
+  external egress and multi-device lab fabric in the regular regression
+  matrix. The trusted-host TLS path now passes with a generated test CA,
+  HTTP 200/403 Host decisions and pcap evidence; generic destination
+  allowlisting is still a separate, open capability;
 - DHCP renewal and loss of an actual AP/radio source; current reconnect proof
   uses a guest WLAN disconnect plus QEMU backend link down/up;
 - WPA2/WPA3 behavior for the QEMU unified AP model; the current virtual AP is
@@ -282,7 +282,7 @@ itself. For untrusted firmware:
 | Phase | Work | Estimate |
 | --- | --- | --- |
 | N0 | One-device UIFlow2 WiFi proof through `esp-emu` | DONE for StickS3 WLAN/DHCP and C6 NanoC6/Nesso WiFi+BLE; ESP-IDF adds TCP |
-| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP, BLE, loopback hostfwd, wrong-password negative case, QEMU pcap summary and Linux no-egress namespace runner DONE; TLS/Host allowlist fixture is wired but blocked by S3 AES/GDMA, and generic egress allowlist plus multi-device fabric remain |
+| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP, BLE, loopback hostfwd, wrong-password negative case, QEMU pcap summary, Linux no-egress namespace runner and trusted-host TLS/Host allowlist DONE; Linux namespace TLS, generic egress allowlist and multi-device fabric remain |
 | N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | S3/C6 device-level unified paths and StickS3 reconnect PASS; DHCP renewal, real AP disappearance and P4 end-to-end remain |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | Linux namespace guest/deny proof DONE; formal CI integration and multi-device fabric remain 3–5 working days |

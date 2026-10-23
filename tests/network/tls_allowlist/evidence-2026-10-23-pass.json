@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-tls-host-allowlist",
+  "scope": "virtual-device-lab-tls-not-hardware-rf",
+  "date": "2026-10-23",
+  "status": "PASS",
+  "isolation": "trusted-host",
+  "qemu_patch": "patches/qemu-m5stack-peripherals/0027-esp32s3-gdma-external-memory.patch",
+  "base_image_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "built_image_sha256": "b6b1fd1c741a87f715ee190876a2b1d008d8172750230ef948e553cca49a5fd7",
+  "certificate_sha256": "c8f71b429692cf393e5956ed7ed7c67070c1445734b8348a6c12664dae08a21c",
+  "checks": {
+    "TLS_WIFI_READY": true,
+    "TLS_CONTEXT_READY": true,
+    "TLS_CA_LOADED": true,
+    "TLS_ALLOWED PASS": true,
+    "TLS_DENIED PASS": true,
+    "TLS_ALLOWLIST_RESULT PASS": true,
+    "tls_allow_and_deny": true,
+    "dhcp": true,
+    "tls_port_observed": true,
+    "pcap_written": true
+  },
+  "tls_requests": [
+    {
+      "path": "/allowed",
+      "host": "allowed.lab.test",
+      "decision": "allow",
+      "status": "200"
+    },
+    {
+      "path": "/denied",
+      "host": "denied.lab.test",
+      "decision": "deny",
+      "status": "403"
+    }
+  ],
+  "packet_capture": {
+    "bytes": 12354,
+    "sha256": "d8d8765f7d6d72d58694919a7888f0403aa71e1b1d9734d9693e6b537455f6d9",
+    "packets": 78,
+    "tls_flows": 2,
+    "dhcp": "PASS"
+  },
+  "not_claimed": [
+    "real-hardware TLS or RF behavior",
+    "Linux network namespace TLS",
+    "arbitrary public-internet allowlisting",
+    "certificate-pinned or mutual-TLS firmware",
+    "malicious-firmware safety"
+  ]
+}

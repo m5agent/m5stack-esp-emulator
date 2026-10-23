@@ -1,7 +1,7 @@
 # 固件审查与仿真测试工作流
 
 - 状态：工作流基线，持续更新
-- 日期：2026-10-23
+- 日期：2026-10-24
 - 适用对象：UIFlow/UIFlow2、ESP-IDF、Arduino、MicroPython 和自研 ESP32 固件
 - 相关文档：
   - [项目当前状态](project-status.md)
@@ -422,7 +422,7 @@ evidence/
 
 1. 文件系统提取、敏感资产/权限审批、证书链校验和许可证策略；
 2. 正式 CI/worker、可控 resolver、通用 egress allowlist、双设备 lab fabric，
-   以及修复当前 S3 TLS 测试 CA fixture 的 AES/GDMA blocker；
+   以及 Linux namespace 下的 TLS/Host allowlist 回归；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。

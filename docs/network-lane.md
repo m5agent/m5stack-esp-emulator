@@ -1,6 +1,6 @@
 # 网络诊断 lane
 
-日期：`2026-10-23`
+日期：`2026-10-24`
 
 ## 定位
 
@@ -105,10 +105,11 @@ lane 的 framebuffer/板级结果拼接。
 
 TLS 测试 CA 和 Host allowlist 的独立 fixture 位于
 [`tests/network/tls_allowlist/`](../tests/network/tls_allowlist/README.md)。
-它已覆盖测试 CA 生成、namespace-local HTTPS gateway、Host 允许/拒绝日志和
-pcap 断言，但当前 S3 guest 在 `ssl.SSLContext` 创建阶段被 AES/GDMA
-数据面阻断，因此状态是 `FAIL`。它只验证 lab gateway 的 Host 决策，不证明
-任意公网 destination allowlist。
+它在 trusted-host 下已覆盖测试 CA 生成、HTTPS gateway、Host 允许 200 /
+拒绝 403、请求决策日志和 pcap 断言。`0027` QEMU patch 修复了 AES/GDMA
+访问外部内存时的读失败。当前 Linux namespace TLS 仍为 `NOT RUN`；该
+fixture 只验证 lab gateway 的 Host 决策，不证明任意公网 destination
+allowlist。
 
 ## 证据边界
 

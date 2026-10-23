@@ -9,7 +9,6 @@ import json
 import os
 import shutil
 import signal
-import ssl
 import subprocess
 import sys
 import tempfile
@@ -78,8 +77,10 @@ def make_certificate(root: Path) -> tuple[Path, Path]:
             "-newkey",
             "rsa:2048",
             "-nodes",
-            "-days",
-            "1",
+            "-not_before",
+            "19700101000000Z",
+            "-not_after",
+            "20350101000000Z",
             "-subj",
             "/CN=allowed.lab.test",
             "-addext",
@@ -96,11 +97,6 @@ def make_certificate(root: Path) -> tuple[Path, Path]:
     return cert, key
 
 
-def der_bytes(cert: Path) -> bytes:
-    value = ssl.PEM_cert_to_DER_cert(cert.read_text())
-    return value if isinstance(value, bytes) else value.encode("latin1")
-
-
 def build_probe(
     out_dir: Path,
     cert: Path,
@@ -110,8 +106,8 @@ def build_probe(
     shutil.copyfile(PROBE / "boot.py", generated_probe / "boot.py")
     source = (PROBE / "main.py").read_text()
     source = source.replace("__TLS_PORT__", str(TLS_PORT))
-    ca_b64 = base64.b64encode(der_bytes(cert)).decode("ascii")
-    source = source.replace("__CA_DER_B64__", ca_b64)
+    ca_b64 = base64.b64encode(cert.read_bytes()).decode("ascii")
+    source = source.replace("__CA_PEM_B64__", ca_b64)
     (generated_probe / "main.py").write_text(source)
     command = [
         sys.executable,
@@ -362,7 +358,8 @@ def main() -> int:
         "tls_allow_and_deny": requests == expected_requests,
         "dhcp": bool(capture.get("dhcp", {}).get("guest_addresses")),
         "tls_port_observed": any(
-            flow.get("dst_port") == TLS_PORT
+            flow.get("protocol") == "TCP"
+            and flow.get("destination", "").endswith(f":{TLS_PORT}")
             for flow in capture.get("flows", [])
         ),
         "pcap_written": bool(capture),

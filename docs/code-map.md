@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-10-23`
+日期：`2026-10-24`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -115,11 +115,11 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | 单设备统一运行时 | `tests/uiflow2/unified_*` | 单 QEMU guest 的板级、WiFi 和 HCI BLE |
 | Core2 stock VHCI BLE | `tests/uiflow2/core2_native_vhci/run_test.py` | 内置-controller 固件边界的外部 NUS GATT |
 | Core2 unified native VHCI | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | Device Service/独立 runner 的同 guest board+WiFi+公网+native-VHCI BLE |
-| Core2 zero-retry + full matrix | `tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json` | deterministic peripheral/UI、RTC 虚拟时钟、67/67 首轮无重试 |
+| GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码/重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证和 link fault 后恢复 |
-| TLS/Host allowlist | `tests/network/tls_allowlist/` | 当前仅证明 fixture 接线和 WiFi/DHCP；S3 `SSLContext` 有 AES/GDMA blocker，不能算 PASS |
+| TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | trusted-host 下 WiFi/DHCP、测试 CA、HTTPS、允许 200/拒绝 403 和 pcap PASS；Linux namespace TLS `NOT RUN` |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |
 | 公共 API | `/api/v1` Device Service | 可观察、可保留的 session/evidence |
 

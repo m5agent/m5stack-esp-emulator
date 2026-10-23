@@ -1,6 +1,6 @@
 # Simulator host service architecture
 
-Date: `2026-10-23`
+Date: `2026-10-24`
 
 ## Implementation status
 
@@ -27,8 +27,8 @@ Implemented:
 - Linux fail-closed network namespaces for QEMU radio sessions;
 - QEMU `filter-dump` pcap plus flow/DNS/DHCP/ARP/payload-hash summaries;
 - `POST /sessions/{id}/network-fault` for link down/up reconnect tests;
-- a repository-level TLS/Host allowlist fixture with generated test CA and
-  namespace-local HTTPS gateway wiring;
+- a passing trusted-host TLS/Host allowlist fixture with generated test CA,
+  HTTPS gateway, 200/403 Host decisions and pcap evidence;
 - versioned FirmwareManifest import and structured capability mismatch.
 
 Not implemented yet:
@@ -37,8 +37,7 @@ Not implemented yet:
 - resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
 - formal CI/worker lifecycle for the Linux namespace lane;
-- a passing S3 TLS path (the fixture currently stalls in `ssl.SSLContext`
-  creation after an AES/GDMA read error), controlled resolver, generic
+- Linux namespace execution of the TLS fixture, controlled resolver, generic
   destination allowlisting and multi-device lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
@@ -277,7 +276,7 @@ the overall service is still trusted-local and not an untrusted-firmware
 sandbox.
 
 - container/VM isolation for untrusted firmware;
-- a passing TLS test service, generic allowlisted egress and object-backed
+- Linux namespace TLS, generic allowlisted egress and object-backed
   pcap/evidence retention;
 - worker health, eviction and teardown verification;
 - multi-host scheduling and artifact storage.

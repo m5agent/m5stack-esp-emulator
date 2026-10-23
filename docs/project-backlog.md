@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-23`
+日期：`2026-10-24`
 
 本文只记录仍未完成的工作。已完成能力和验证证据统一见
 [项目当前状态](project-status.md)，代码和测试入口见
@@ -23,7 +23,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-01` | 进行中 | 已加入 namespace-local TLS/Host allowlist fixture；修复 S3 AES/GDMA 导致 `SSLContext` 卡死，再补可控 resolver 和通用 egress allowlist | 允许/拒绝目标可重复，guest 无法旁路；pcap 和摘要一致 |
+| `NET-01` | 进行中 | trusted-host TLS/Host allowlist 和 AES/GDMA 外部内存路径已完成；继续补 Linux namespace TLS、可控 resolver 和通用 egress allowlist | 允许/拒绝目标可重复，guest 无法旁路；pcap 和摘要一致 |
 | `NET-02` | 待做 | 增加 DHCP renewal、AP 消失/恢复和 lease 变化 | 同一 guest 观测到 renewal 或 reacquire，前后 HTTP 与 pcap 对齐 |
 | `NET-03` | 待做 | 双设备 private lab fabric 与宿主 LAN 隔离 | 两台 guest 仅通过预期 fabric 通信，控制面和宿主 LAN 不可达 |
 | `NET-04` | 待做 | 把 Linux namespace/reconnect/pcap 接入正式 CI 与 worker | CI 可重复产出 evidence；namespace 创建失败保持 fail-closed |
@@ -72,13 +72,14 @@
 - Linux arm64 重建 QEMU guest 并在 private namespace 内完成 DHCP、受控
   HTTP、DNS deny、pcap 和 `UNIFIED_STICKS3_READY`；
 - Core2 OpenMAC 公网 DNS/HTTP PASS。
-- TLS/Host allowlist fixture 已完成 gateway、测试 CA、Host 决策日志和
-  pcap 断言接线；当前 S3 guest 能完成 WiFi/DHCP，但在
-  `ssl.SSLContext` 创建阶段不返回，QEMU 同步报告 AES/GDMA read error。
+- `0027-esp32s3-gdma-external-memory.patch` 让 GDMA 在正常内部 DRAM
+  路径失败时使用 SoC 系统地址空间访问外部内存；
+- TLS/Host allowlist fixture 在 trusted-host 下完成 WiFi/DHCP、测试 CA
+  加载、HTTPS 握手、允许 Host 200、拒绝 Host 403 和 pcap 联合 PASS。
 
 仍待完成：
 
-1. 修复 S3 AES/GDMA 数据面并让 TLS Host allowlist fixture 稳定 PASS；
+1. 在 Linux namespace 内执行同一 TLS/Host allowlist fixture；
 2. 增加可控 resolver 和面向目标地址/端口的通用 egress allowlist；
 3. 增加 DHCP renewal、真实 AP 消失/恢复和 lease 变化；
 4. 把 multi-device 通信隔离和 host-to-device 访问做成容量测试；

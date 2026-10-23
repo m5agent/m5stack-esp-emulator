@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "uiflow2-full-matrix-after-gdma-external-memory",
+  "generated_at": "2026-10-24T00:11:44.900005+08:00",
+  "source_base_commit": "dd705e8b8dfdb3bab927e9f4d1a7561a684466bc",
+  "qemu": {
+    "sha256": "86ef63cc30df1d166f31912298f6b7a773479836c7681b462e38b5132656b057",
+    "accel": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off"
+  },
+  "qemu_patch": {
+    "file": "patches/qemu-m5stack-peripherals/0027-esp32s3-gdma-external-memory.patch",
+    "reverse_check": "PASS"
+  },
+  "peripheral_matrix": {
+    "summary_sha256": "3097d84cbe43136256c9ba658e88ca43b1067c15279490d980247c150bc8efcd",
+    "cases": 67,
+    "checks": 274,
+    "pass": 67,
+    "fail": 0,
+    "checks_pass": 274,
+    "attempts_per_case": 1,
+    "retry_used": false
+  },
+  "core2_cases": {
+    "core2-peripherals": {
+      "attempts": 1,
+      "serial_sha256": "941562c4b34d0ebcbd50bf2f22876f733b611b5e94c7a4b5fb10403e210c6bcf"
+    },
+    "core2-audio": {
+      "attempts": 1,
+      "serial_sha256": "47a3e3ac38213ea243c9ec8c0dc0e8df4ea99cfc53dd44c518789a78ca236484"
+    },
+    "core2-mic": {
+      "attempts": 1,
+      "serial_sha256": "a2bc080e710cb81d0a2c0ac9d04b786533bc1fe48798948b3df5423d5db94e6f"
+    },
+    "core2-power-monitor": {
+      "attempts": 1,
+      "serial_sha256": "a35081be86928094798c00e641c815b69691a147afbb57d30b92850445a253e2"
+    },
+    "core2-imu": {
+      "attempts": 1,
+      "serial_sha256": "8c3014ff562cc34510dfdd95b75896ea1c8a8d24f9f808cb3386ec04b76ab8c2"
+    },
+    "core2-axp192": {
+      "attempts": 1,
+      "serial_sha256": "96150645005b02c87dd862e556975f57a4f2343cebe95d8af0cbf22f4e492c35"
+    }
+  },
+  "not_claimed": [
+    "physical hardware",
+    "physical cache/PSRAM equivalence",
+    "bit-exact Espressif Bluetooth controller",
+    "RF, power, acoustic or optical equivalence"
+  ]
+}

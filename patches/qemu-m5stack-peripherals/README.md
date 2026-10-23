@@ -117,6 +117,7 @@ git apply /path/to/0023-user-firmware-hot-samples.patch
 git apply /path/to/0024-esp32s3-qio-read-phase.patch
 git apply /path/to/0025-esp32c6-wifi-mac.patch
 git apply /path/to/0026-m5stack-rtc-virtual-clock.patch
+git apply /path/to/0027-esp32s3-gdma-external-memory.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -190,6 +191,14 @@ advance from a boot-time epoch on QEMU's virtual clock instead of host wall
 time. Core2 deterministic `icount` execution can run a guest 1.2-second RTC
 probe faster than host time; host-clock RTCs therefore appeared frozen. The
 firmware-facing register layout and QOM offsets are unchanged.
+
+`0027-esp32s3-gdma-external-memory.patch` keeps the normal internal-DRAM
+descriptor path and falls back to the SoC system address space when an AES
+descriptor points into the ESP32-S3 external-memory window. UIFlow2
+`ssl.SSLContext` previously stalled while an AES payload read returned
+`MEMTX_ERROR`; the stock TLS path now reaches the certificate parser and HTTPS
+gateway. The fallback uses the modelled cache/PSRAM path and does not expose
+arbitrary host memory.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and

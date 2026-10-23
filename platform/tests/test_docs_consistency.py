@@ -34,7 +34,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/tls_allowlist/README.md",
             "tests/network/tls_allowlist/run_test.py",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
+            "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
+            "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
         ):
             self.assertTrue((ROOT / relative).is_file(), relative)
@@ -109,6 +111,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "DNS, external internet access and BLE are not covered",
             "the ST7789 panel first frame is still black",
             "It does not yet validate the first frame",
+            "TLS fixture 在当前 S3 QEMU 上停在",
+            "currently stalls while creating",
+            "TLS/Host allowlist fixture is wired but blocked",
             "网络模拟暂不开放",
         ):
             self.assertNotIn(stale, active)
@@ -132,7 +137,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(f"`{service_count}` 台设备", status)
         self.assertEqual(qemu_count, 12)
         self.assertIn("`67/67` 用例、`274/274` 检查 PASS", status)
-        self.assertIn("2026-10-23 22:44 +08:00", status)
+        self.assertIn("2026-10-24 00:11 +08:00", status)
         self.assertIn("`retry_used=false`", status)
         self.assertIn("`qemu-unified`", (ROOT / "README.md").read_text())
         self.assertIn(
@@ -162,9 +167,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "core2-native-vhci",
             (DOCS / "qemu-device-adaptation-matrix.md").read_text(),
         )
-        self.assertIn("AES/GDMA", status)
+        self.assertIn("trusted-host TLS + Host allowlist", status)
+        self.assertIn("QEMU patch `0027`", status)
         self.assertIn(
-            "AES/GDMA",
+            "trusted-host TLS path now passes",
             (DOCS / "network-simulation-plan.md").read_text(),
         )
         tls_evidence = json.loads(
@@ -176,6 +182,26 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertEqual(tls_evidence["status"], "FAIL")
         self.assertIn("aes_gdma", tls_evidence["blocker"])
+        tls_pass = json.loads(
+            (
+                ROOT
+                / "tests/network/tls_allowlist/"
+                "evidence-2026-10-23-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(tls_pass["status"], "PASS")
+        self.assertTrue(tls_pass["checks"]["tls_allow_and_deny"])
+        self.assertTrue(tls_pass["checks"]["tls_port_observed"])
+        matrix = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/"
+                "evidence-2026-10-24-gdma-external-memory-matrix.json"
+            ).read_text()
+        )
+        self.assertEqual(matrix["peripheral_matrix"]["cases"], 67)
+        self.assertEqual(matrix["peripheral_matrix"]["checks"], 274)
+        self.assertFalse(matrix["peripheral_matrix"]["retry_used"])
 
     def test_documented_platform_test_count_is_current(self) -> None:
         suite = unittest.defaultTestLoader.discover(

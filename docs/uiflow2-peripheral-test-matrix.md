@@ -103,7 +103,7 @@ StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 
 configured cases   67
 configured checks  274
 last clean full     67 cases / 274 checks PASS
-last full run       2026-10-23 22:44 +08:00
+last full run       2026-10-24 00:11 +08:00
 attempts            1 per case
 retry_used          false for every case
 ```
