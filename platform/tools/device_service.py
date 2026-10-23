@@ -4227,26 +4227,77 @@ class DeviceSession:
                 "session has no QEMU network profile",
                 409,
             )
+        target = payload.get("target", "link")
+        if target not in {"link", "radio"}:
+            raise ServiceError(
+                "invalid_network_fault",
+                "network fault target must be link or radio",
+                400,
+            )
         up = action == "up"
-        result = self._qmp_execute(
-            "set_link",
-            {"name": "wifi0", "up": up},
-        )
+        qom_path = None
+        if target == "radio":
+            qom_path = self._radio_qom_path()
+            result = self._qmp_execute(
+                "qom-set",
+                {
+                    "path": qom_path,
+                    "property": "radio-enabled",
+                    "value": up,
+                },
+            )
+        else:
+            result = self._qmp_execute(
+                "set_link",
+                {"name": "wifi0", "up": up},
+            )
         self._record_event(
             "network_fault",
             action=action,
+            target=target,
             netdev="wifi0",
+            qom_path=qom_path,
             up=up,
         )
         return {
             "session_id": self.id,
             "network_fault": {
                 "action": action,
+                "target": target,
                 "netdev": "wifi0",
+                "qom_path": qom_path,
                 "up": up,
                 "qmp_result": result.get("return"),
             },
         }
+
+    def _radio_qom_path(self) -> str:
+        listing = self._qmp_call(
+            "qom-list",
+            path="/machine/unattached",
+        )["return"]
+        candidates = [
+            f"/machine/unattached/{entry['name']}"
+            for entry in listing
+            if entry.get("type")
+            in {
+                "child<misc.esp32_wifi>",
+                "child<misc.esp32c6.wifi>",
+                "child<misc.esp32s3.wifi>",
+            }
+        ]
+        for path in candidates:
+            properties = self._qmp_call("qom-list", path=path)["return"]
+            if any(
+                entry.get("name") == "radio-enabled"
+                for entry in properties
+            ):
+                return path
+        raise ServiceError(
+            "radio_fault_not_supported",
+            "this QEMU WiFi model has no radio-enabled QOM property",
+            409,
+        )
 
     def qom_get(self, path: str, prop: str) -> dict:
         with self._lock:

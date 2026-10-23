@@ -47,6 +47,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json",
             "tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json",
             "tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json",
+            "tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
@@ -318,6 +319,16 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertEqual(ci_egress["status"], "PASS")
         self.assertTrue(all(ci_egress["checks"].values()))
+        radio_loss = json.loads(
+            (
+                ROOT
+                / "tests/network/reconnect_probe/"
+                "evidence-2026-10-24-radio-loss-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(radio_loss["status"], "PASS")
+        self.assertTrue(all(radio_loss["checks"].values()))
+        self.assertEqual(radio_loss["fault"]["target"], "radio")
 
     def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
         workstreams = (DOCS / "workstreams.md").read_text()

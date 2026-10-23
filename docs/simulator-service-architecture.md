@@ -26,7 +26,8 @@ Implemented:
 - optional Bearer token.
 - Linux fail-closed network namespaces for QEMU radio sessions;
 - QEMU `filter-dump` pcap plus flow/DNS/DHCP/ARP/payload-hash summaries;
-- `POST /sessions/{id}/network-fault` for link down/up reconnect tests;
+- `POST /sessions/{id}/network-fault` for `wifi0` link control or
+  `radio-enabled` QOM removal/restoration;
 - passing trusted-host and Linux-private-namespace TLS/Host allowlist runs
   with generated test CA, HTTPS gateway, 200/403 Host decisions and pcap
   evidence;
@@ -44,8 +45,7 @@ Not implemented yet:
 - resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
 - formal CI/worker lifecycle for the Linux namespace lane;
-- external IPv6/CIDR/domain-set allowlisting, real AP loss and multi-device
-  lab fabric;
+- external IPv6/CIDR/domain-set allowlisting and multi-device lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
 

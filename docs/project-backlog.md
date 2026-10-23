@@ -19,7 +19,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络策略与 CI | AP 丢失、双设备 fabric、正式 worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
+| P0 | 网络策略与 worker | 双设备 fabric、自托管 QEMU worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
 | P0 | Core2 生产化 | 非 GDB VHCI、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
 | P0 | 通用固件审查 | SPIFFS、权限/许可策略、eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
 | P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
@@ -31,8 +31,8 @@
 
 ## 当前执行顺序
 
-1. `NET-02` / `NET-03`：完成真实 AP 丢失/恢复和双设备 fabric。
-2. `NET-04` / `SVC-01`：把现有网络隔离和 evidence 路径接入正式 CI/worker。
+1. `NET-03`：完成双设备 lab fabric。
+2. `NET-04` / `SVC-01`：把 Linux policy CI 和 QEMU evidence 路径接入正式 worker。
 3. `CORE2-01`：移除 GDB bridge，再做 `CORE2-02` 的 controller 和物理过程验证。
 4. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
 5. `FW-02/03/04`：生产 key/eFuse、跨厂商样本和流式上传。
@@ -44,7 +44,6 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-02` | 进行中 | 移除实际虚拟 AP/radio 后观察失败，再恢复并重新 DHCP | 不重启 guest，前后 HTTP 与 pcap 对齐 |
 | `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
 | `NET-04` | 进行中 | GitHub Actions 已跑 namespace/egress；继续接 QEMU runtime、pcap/reconnect 和正式 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain/re-attach |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
@@ -63,16 +62,6 @@
 | `CZ-01` | 待做 | CardputerZero 系统与驱动长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：网络策略、隔离与 CI
-
-### NET-02 真实 AP 丢失与恢复
-
-本任务只覆盖真实虚拟 AP/radio 消失/恢复；已完成能力见当前状态页。
-
-交付：
-
-- 移除实际虚拟 AP/radio 后进入可观察失败状态；
-- 恢复后重新 DHCP，并通过前后 HTTP 和 pcap 对齐；
-- 不重启 guest。
 
 ### NET-03 双设备 fabric
 

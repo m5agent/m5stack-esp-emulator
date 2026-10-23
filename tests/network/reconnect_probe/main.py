@@ -61,8 +61,11 @@ try:
 
     station.disconnect()
     emit("DISCONNECTED")
+    time.sleep(1)
+    emit("RADIO_DOWN_SCAN", len(station.scan()))
     time.sleep(5)
     emit("AIR_GAP_DONE")
+    emit("RADIO_RESTORED_SCAN", len(station.scan()))
 
     emit("CONNECT_BEGIN", 2)
     station.connect(SSID)

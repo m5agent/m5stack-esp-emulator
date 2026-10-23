@@ -33,7 +33,7 @@
 | `platform/qemu/` | QEMU machine、runtime profile、资产和 blocker 注册表 | 是 |
 | `patches/` | 可重放的 QEMU/板级补丁源；必须从匹配 worktree 生成和反向验证 | 是 |
 | `tests/uiflow2/` | 外设、UI、统一运行时、Core2 无线和证据包 | 是 |
-| `tests/network/` | namespace、DNS、TLS、错误密码、重连和 Core2 网络夹具 | 是 |
+| `tests/network/` | namespace、DNS、TLS、错误密码、radio/AP 重连和 Core2 网络夹具 | 是 |
 | `tests/firmware/` | FirmwareManifest、静态审查和文件系统清单证据 | 是 |
 | `devices/` | 源设备清单、生成后的设备档案、固件来源和说明 | 是 |
 | `platform/web/` | 设备目录、Live session、输入和 3D 外壳 | 是 |
@@ -85,7 +85,7 @@
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
-| `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal 和重连 | 网络策略/运行时改动 |
+| `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal 和 radio/AP 重连 | 网络策略/运行时改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 
@@ -175,7 +175,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | QEMU GDB H2C/C2H bridge |
 | `tests/network/tls_allowlist/` | 测试 CA、namespace-local HTTPS gateway、Host 允许/拒绝和 pcap 断言 |
 | `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
-| `tests/network/` | 隔离、错误密码、断线重连和 Core2 网络夹具 |
+| `tests/network/` | 隔离、错误密码、radio/AP 丢失重连和 Core2 网络夹具 |
 
 QEMU 主路径必须在同一个 guest 内同时具备板级外设、网络和 HCI/BT 数据面。
 `runtime=network` 只用于诊断，不能和另一条 QEMU 板级结果拼成整机 PASS。
@@ -219,7 +219,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |
 | FAT inventory | `tests/firmware/evidence-2026-10-24-fat-inventory.json` | 合成 FAT12/16/32、LFN、循环链、多簇哈希、敏感路径、erased partition 与真实 PaperColor FAT12 样本 |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
-| 错误密码/重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证和 link fault 后恢复 |
+| 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证、radio/AP 移除、scan `1→0→1`、重新 DHCP 和前后 HTTP |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
 | Exact IPv4 egress | `tests/network/egress_allowlist/` | nftables 默认 drop、允许/拒绝端口与 IP、`1.1.1.1:80` veth/NAT、namespace/NAT 清理 |
 | DHCP renewal | `tests/network/idf_dhcp_renewal/` | guest 调用 renew API；pcap 区分初次 DORA 与后续 REQUEST/ACK，lease/地址/HTTP 联合 PASS |

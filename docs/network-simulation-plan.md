@@ -35,7 +35,7 @@ Device Service lease
 | Device Service | `qemu-unified/profile=core2-native-vhci` 单 lease 返回 frame、QOM、pcap、bridge 和 peer evidence | 仅证明该 runtime/profile 和对应固件 SHA |
 | 公网 | StickS3、Nesso N1 和 Core2 在对应同 guest 路径完成 IPv4 DNS/HTTP | 只证明一次可达的 IPv4 HTTP；不证明任意云服务、TLS 固定或长期稳定 |
 | 负向认证 | 错误密码要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker 同时成立 | 当前实际 AP 类型有限 |
-| 断线和恢复 | guest `WLAN.disconnect()` 叠加 QMP `wifi0` link down/up 后重新 DHCP，并通过 `/after` HTTP | 不是物理 AP/radio 消失，也不是 DHCP renewal |
+| AP/radio 丢失与恢复 | `radio-enabled=false` 后 scan `1→0`、恢复后 `0→1`；同一 guest 重新 DHCP 并通过 `/after` HTTP，pcap 含两次 DORA | 虚拟 WiFi 模型状态，不是物理 RF；不是 DHCP renewal |
 | DHCP renewal | ESP-IDF guest 调用 `netifapi_dhcp_renew()`；pcap 同事务包含初次 DORA 后的 `REQUEST/ACK`，lease 86400、地址保持、随后 HTTP 200 | 仿真 lease renewal，不是物理 AP/RF |
 | Linux 隔离 | StickS3 QEMU guest 位于 private network namespace；无外部路由，namespace 创建失败时 fail-closed | 单设备、受控 fixture；不是恶意固件 VM |
 | Linux CI | GitHub Ubuntu runner 执行完整平台测试和 nftables exact IPv4 veth/NAT fixture | 验证策略引擎、清理和 CI 稳定性；没有 QEMU guest |
@@ -54,10 +54,11 @@ Device Service lease
 - [精确 IPv4 IP/端口和 NAT 证据](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json)
 - [TLS guest under nftables policy](../tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json)
 - [GDMA 外部内存修复和全矩阵](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json)
+- [StickS3 radio/AP 丢失与同 guest 恢复](../tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json)
 
 ## 尚未证明
 
-- 真实 AP 消失/恢复和重新分配不同 lease；
+- 物理 RF 消失/恢复、信道/速率变化或重新分配不同 lease；
 - WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
 - 两台设备通过唯一预期 lab fabric 通信；
 - namespace、pcap retention 和 evidence upload 的正式 CI/worker 生命周期；
@@ -118,7 +119,7 @@ QEMU 子树看到 127.0.0.1 resolver；HTTPS 网关使用临时 CA 和 Host allo
 | DNS | 允许/拒绝查询到达受控 resolver 并有 pcap |
 | TCP/UDP | guest 与 namespace 内 peer 完成请求/响应或 datagram |
 | Wrong credential | 认证失败、重试、无 DHCP/HTTP、明确失败 marker |
-| Link recovery | link down/up 后重新 DHCP，前后请求和 pcap 对齐 |
+| Radio/AP recovery | radio 移除后 scan 为空，恢复后重新 DHCP，前后请求和 pcap 对齐 |
 | DHCP renewal | 不重启 guest 观察到 lease renewal |
 | Real AP loss | 移除实际虚拟 radio/AP 后恢复，而不是只调用 guest disconnect |
 | Multi-device | 两台 guest 只能通过预期 lab fabric 通信 |
@@ -148,7 +149,6 @@ QEMU 子树看到 127.0.0.1 resolver；HTTPS 网关使用临时 CA 和 Host allo
 | N5 Core2 production BLE/PHY | PARTIAL | 非 GDB backend、controller semantics、coexistence soak |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
-下一项最小交付是 `NET-02`：真实虚拟 AP/radio 丢失/恢复。随后补
-`NET-03` 双设备 fabric。精确 IPv4 endpoint policy 已由 nftables 在隔离
-namespace 内执行，外部 IPv4 通过 per-session veth/NAT；策略或依赖不可用时
-fail-closed。
+虚拟 radio/AP 丢失恢复已完成，下一步是 `NET-03` 双设备 fabric。精确 IPv4
+endpoint policy 已由 nftables 在隔离 namespace 内执行，外部 IPv4 通过
+per-session veth/NAT；策略或依赖不可用时 fail-closed。

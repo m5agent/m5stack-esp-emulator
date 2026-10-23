@@ -321,7 +321,7 @@ TLS 正文通常不可见。若固件没有证书固定，可使用专用测试 
   -> 4. 选择设备 profile、安全策略和隔离网络
   -> 5. 仿真启动，记录串口和首帧
   -> 6. UI、API、外设和驱动回归
-  -> 7. 网络、DNS、link fault/reconnect、局域网扫描和外传审计
+  -> 7. 网络、DNS、radio/AP 丢失重连、局域网扫描和外传审计
   -> 8. Flash/NVS/文件系统前后差异
   -> 9. 异常规则和人工复核
   -> 10. 必要时真机隔离网络复核
@@ -337,8 +337,8 @@ python3 platform/tools/firmware_manifest.py /path/to/package \
 
 QEMU radio session 默认生成 `network/capture.pcap` 和
 `network/pcap-summary.json`。`POST /sessions/{id}/network-fault` 可执行
-link down/up；连接恢复 PASS 还必须包含 guest 重新 DHCP 和一次新的受控
-数据面请求。
+link down/up，或用 `target=radio` 停止/恢复 WiFi 模型信标和管理帧；连接
+恢复 PASS 还必须包含 guest 扫描、重新 DHCP 和一次新的受控数据面请求。
 
 最终提交前要求：
 
@@ -415,22 +415,22 @@ evidence/
 3. 脱敏 URL、凭据/私钥特征、高熵编码块与 SBOM 摘要；
 4. QEMU pcap、DNS/DHCP/ARP/flow/payload-hash 摘要；
 5. Linux private namespace、fail-closed 和单 guest 无外网路径；
-6. 错误密码负向用例与 StickS3 link fault/reconnect；
+6. 错误密码负向用例与 StickS3 radio/AP 丢失/reconnect；
 7. Device Service session 的统一 evidence ZIP。
 
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
 1. SPIFFS 只读清单、运行时权限/许可审批、证书链校验和许可证策略；
    LittleFS 与 FAT12/16/32 文件清单、哈希和 SPDX 已具备；
-2. 正式 CI/worker、外部 IPv6 egress、真实 AP 丢失和双设备 lab fabric；
+2. 正式 CI/worker、外部 IPv6 egress 和双设备 lab fabric；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
 
 网络部分已经具备 controlled DNS、TLS/Host allowlist、精确 IPv4
-IP/协议/端口 egress、pcap 和 DHCP renewal；仍未完成的是真实 AP 丢失、
-双设备 fabric、正式 worker/CI 和外部 IPv6。固件文件系统 PASS 只表示清单
-可解析且结果可追踪，不表示镜像安全或许可证合规。
+IP/协议/端口 egress、pcap、DHCP renewal 和虚拟 radio/AP 丢失恢复；仍未
+完成的是双设备 fabric、自托管 QEMU worker 和外部 IPv6。固件文件系统 PASS
+只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 
 ## 11. 结论
 

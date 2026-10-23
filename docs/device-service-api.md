@@ -964,7 +964,7 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | GET | `/api/v1/sessions/{id}` | Session status |
 | GET | `/api/v1/sessions/{id}/events` | Lifecycle event timeline |
 | GET | `/api/v1/sessions/{id}/network` | Machine-readable network/BLE evidence |
-| POST | `/api/v1/sessions/{id}/network-fault` | Set the QEMU `wifi0` link down/up for reconnect tests |
+| POST | `/api/v1/sessions/{id}/network-fault` | Set `wifi0` link state or toggle the WiFi model's `radio-enabled` QOM property |
 | GET | `/api/v1/sessions/{id}/device-state` | Live or last-known normalized device state |
 | POST | `/api/v1/sessions/{id}/wait` | Wait for serial/frame readiness; `wait_for_completion=true` waits for a one-shot network session to finish |
 | GET | `/api/v1/sessions/{id}/evidence` | Download a hashed evidence ZIP |
@@ -1083,20 +1083,27 @@ second full-size image.
 ### Network fault and reconnect evidence
 
 ```bash
-curl -sS -H 'Content-Type: application/json' -d '{"action":"down"}' \
+curl -sS -H 'Content-Type: application/json' \
+  -d '{"action":"down","target":"radio"}' \
   http://127.0.0.1:8787/api/v1/sessions/$SID/network-fault
 
 sleep 2
 
-curl -sS -H 'Content-Type: application/json' -d '{"action":"up"}' \
+curl -sS -H 'Content-Type: application/json' \
+  -d '{"action":"up","target":"radio"}' \
   http://127.0.0.1:8787/api/v1/sessions/$SID/network-fault
 ```
 
-The action invokes QMP `set_link` on `wifi0` and records a `network_fault`
-timeline event. A reconnect PASS needs guest-side DHCP/data-plane evidence
-after link restoration; the link command alone is not a PASS. The retained
-StickS3 probe also performs a guest WLAN disconnect and HTTP `/before` and
-`/after` requests, yielding a pcap with the full before/after exchange.
+`target=link` (the compatibility default) invokes QMP `set_link` on `wifi0`.
+`target=radio` locates the QEMU WiFi device's `radio-enabled` QOM property,
+stops/starts beacon and management replies, and records the QOM path in the
+timeline event. The radio action requires a model exposing that property; an
+unsupported model returns `radio_fault_not_supported`.
+
+A reconnect PASS needs guest-side failure/recovery and DHCP/data-plane
+evidence after radio restoration; the control command alone is not a PASS.
+The retained StickS3 probe also performs HTTP `/before` and `/after` requests,
+yielding a pcap with the full before/after exchange.
 
 ### Read serial incrementally
 

@@ -403,7 +403,7 @@ paths:
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/network-fault:
     post:
-      summary: Inject a QEMU link fault for reconnect tests
+      summary: Remove or restore a QEMU link/radio for reconnect tests
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -417,7 +417,15 @@ paths:
                 action:
                   type: string
                   enum: [down, up]
-                  description: Sets the QEMU wifi0 backend link state through QMP set_link.
+                  description: Stops or restores the selected link/radio target.
+                target:
+                  type: string
+                  enum: [link, radio]
+                  default: link
+                  description: >
+                    link uses QMP set_link on wifi0; radio toggles the QEMU
+                    WiFi model's radio-enabled QOM property so beacons and
+                    management replies stop.
       responses:
         "200":
           description: Link state changed

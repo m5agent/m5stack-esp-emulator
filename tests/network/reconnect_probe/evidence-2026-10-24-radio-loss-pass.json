@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-radio-loss-recovery",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "virtual-device-network-radio-not-hardware-rf",
+  "validation": {
+    "source": "Device Service local qemu-wifi lease",
+    "device_id": "sticks3",
+    "runtime": "qemu-wifi",
+    "profile": "uiflow2-sticks3-wifi",
+    "qemu_sha256": "8342b75c8ab2ccfd23ff0303f85539fe93fe5e74fd476d4f0b902ab607061e60",
+    "firmware_sha256": "c033ac5c8fd022e14603db42f2d1e2178bbfd9c39a57725cfad7055a02aede1f",
+    "serial_sha256": "475d029f90279d996690cd5451767e7ce0b1f2893250154d9dc89696ad9968fe"
+  },
+  "fault": {
+    "target": "radio",
+    "qom_path": "/machine/unattached/device[0]",
+    "property": "radio-enabled",
+    "down_value": false,
+    "up_value": true
+  },
+  "checks": {
+    "initial_scan_nonempty": true,
+    "first_dhcp_lease": true,
+    "before_http_status_200": true,
+    "radio_down_scan_empty": true,
+    "radio_restored_scan_nonempty": true,
+    "second_dhcp_lease": true,
+    "after_http_status_200": true,
+    "network_marker_pass": true,
+    "pcap_pass": true,
+    "pcap_two_dhcp_exchanges": true
+  },
+  "serial_markers": [
+    "RECONNECT SCAN 1",
+    "RECONNECT DHCP 1 <guest-address>",
+    "RECONNECT HTTP /before HTTP/1.0 200 OK",
+    "RECONNECT BEFORE_HTTP_PASS",
+    "RECONNECT DISCONNECTED",
+    "RECONNECT RADIO_DOWN_SCAN 0",
+    "RECONNECT AIR_GAP_DONE",
+    "RECONNECT RADIO_RESTORED_SCAN 1",
+    "RECONNECT DHCP 2 <guest-address>",
+    "RECONNECT HTTP /after HTTP/1.0 200 OK",
+    "RECONNECT AFTER_HTTP_PASS",
+    "RECONNECT RESULT: PASSED"
+  ],
+  "packet_capture": {
+    "status": "PASS",
+    "dhcp": {
+      "discover": 2,
+      "offer": 2,
+      "request": 2,
+      "ack": 2,
+      "lease_address_stable": true
+    },
+    "controlled_http_before_after": 2
+  },
+  "not_claimed": [
+    "physical RF or antenna behavior",
+    "WPA2 or WPA3 security",
+    "hardware timing or power",
+    "malware safety",
+    "a new DHCP server or a different lease address"
+  ]
+}

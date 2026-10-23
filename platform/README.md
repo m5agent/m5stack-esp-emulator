@@ -41,7 +41,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - 内容寻址 firmware/artifact 和版本化 FirmwareManifest；
 - merged/segmented/ZIP 导入与 capability mismatch；
 - QEMU 与 Tab5 session 生命周期、TTL、容量和存储回收；
-- 串口、framebuffer、输入、QOM、reset、network-fault 和 evidence ZIP；
+- 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
+  evidence ZIP；
 - `runtime=qemu-unified` 的 S3/C6/Core2 单 guest 板级 + 网络 + BLE；
 - Core2 `profile=core2-native-vhci` 的 stock firmware VHCI → Bumble 路径；
 - QEMU pcap、flow/DNS/DHCP/ARP 和 payload-hash 摘要；

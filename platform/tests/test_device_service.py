@@ -784,6 +784,94 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "invalid_network_fault",
         )
 
+    def test_qemu_network_fault_can_remove_and_restore_radio(self):
+        spec = self.service.specs["sticks3"]
+        firmware = Path(self.tmp.name) / "radio-fault-firmware.bin"
+        firmware.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="a" * 32,
+            spec=spec,
+            firmware_id="b" * 64,
+            firmware_path=firmware,
+            firmware_sha="b" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker=None,
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-wifi",
+            network_config={
+                "profile": "uiflow2-sticks3-wifi",
+                "nic": "misc.esp32s3.wifi",
+                "net_mode": "user",
+            },
+        )
+        listing = {
+            "return": [
+                {
+                    "name": "device[0]",
+                    "type": "child<misc.esp32s3.wifi>",
+                },
+                {
+                    "name": "device[1]",
+                    "type": "child<gd25q64>",
+                },
+            ]
+        }
+        properties = {
+            "return": [
+                {"name": "radio-enabled", "type": "bool"},
+                {"name": "netdev", "type": "str"},
+            ]
+        }
+        with (
+            mock.patch.object(
+                session,
+                "_qmp_call",
+                side_effect=[listing, properties, listing, properties],
+            ) as qom_list,
+            mock.patch.object(
+                session,
+                "_qmp_execute",
+                return_value={"return": {}},
+            ) as execute,
+        ):
+            down = session.network_fault(
+                {"action": "down", "target": "radio"}
+            )
+            up = session.network_fault(
+                {"action": "up", "target": "radio"}
+            )
+        self.assertEqual(
+            down["network_fault"]["qom_path"],
+            "/machine/unattached/device[0]",
+        )
+        self.assertEqual(up["network_fault"]["target"], "radio")
+        self.assertEqual(qom_list.call_count, 4)
+        self.assertEqual(
+            execute.call_args_list,
+            [
+                mock.call(
+                    "qom-set",
+                    {
+                        "path": "/machine/unattached/device[0]",
+                        "property": "radio-enabled",
+                        "value": False,
+                    },
+                ),
+                mock.call(
+                    "qom-set",
+                    {
+                        "path": "/machine/unattached/device[0]",
+                        "property": "radio-enabled",
+                        "value": True,
+                    },
+                ),
+            ],
+        )
+
     def test_network_profile_requires_supported_chip_and_elf(self):
         with self.assertRaises(ServiceError) as core2:
             device_service_module.parse_network_execution(
