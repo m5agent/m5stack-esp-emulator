@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Status: local MVP implemented on `2026-10-23`.
+Status: local MVP with bounded storage retention implemented on `2026-10-23`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
 firmware artifact into an isolated virtual-flash copy, and exposes serial,
@@ -27,6 +27,9 @@ Current scope:
   and last-known evidence are restored from each session directory after a
   service restart;
 - evidence: serial/QEMU logs remain under the configured state directory.
+- storage: stopped/failed history is bounded by age, count and bytes; session
+  Flash files are released after stop unless explicitly retained, and
+  unreferenced artifact/firmware/prepared-flash caches are garbage-collected.
 
 The architecture and future pooling direction are documented in
 [`simulator-service-architecture.md`](simulator-service-architecture.md).
@@ -51,6 +54,31 @@ M5_SERVICE_MAX_SESSIONS=12 \
 M5_SERVICE_MAX_PER_DEVICE=8 \
 ./start.sh
 ```
+
+Storage retention defaults can be changed with:
+
+| Variable | Default | Meaning |
+| --- | ---: | --- |
+| `M5_SERVICE_HISTORY_TTL` | 604800 | seconds before stopped/failed history is pruned; `0` disables age pruning |
+| `M5_SERVICE_MAX_HISTORY_SESSIONS` | 100 | maximum retained stopped/failed sessions; `0` disables the count limit |
+| `M5_SERVICE_MAX_HISTORY_BYTES` | 2147483648 | maximum retained history bytes; `0` disables the byte limit |
+| `M5_SERVICE_MAX_CACHE_BYTES` | 4294967296 | target maximum for artifact/firmware/flash-cache data |
+| `M5_SERVICE_CACHE_GRACE` | 86400 | seconds before an unreferenced cache entry becomes eligible for GC |
+| `M5_SERVICE_MIN_FREE_BYTES` | 2147483648 | free-space reserve required before writes or new leases |
+| `M5_SERVICE_RETAIN_SESSION_FLASH` | false | retain every stopped session's full mutable Flash |
+| `M5_SERVICE_STORAGE_PRUNE_INTERVAL` | 30 | janitor storage-prune interval in seconds |
+
+The janitor never deletes provisioning, flashing, booting or running sessions.
+Manual inspection and pruning are available through:
+
+```bash
+curl -sS http://127.0.0.1:8787/api/v1/storage
+curl -sS -X POST \
+  'http://127.0.0.1:8787/api/v1/storage/prune?include_cache=1'
+```
+
+`POST /storage/prune` applies the same retention pass as the background janitor.
+Use `include_cache=0` to prune only session history.
 
 ### Capacity sizing
 
@@ -686,6 +714,8 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | GET | `/api/v1/devices` | Device catalog; add `?include_unsupported=0` to hide disabled rows |
 | GET | `/api/v1/devices/{device_id}` | One device profile |
 | GET | `/api/v1/capacity` | Global and per-device active lease counts |
+| GET | `/api/v1/storage` | Session/cache/disk usage and retention limits |
+| POST | `/api/v1/storage/prune` | Apply retention; `include_cache=0` skips cache GC |
 | POST | `/api/v1/artifacts` | Upload a binary artifact |
 | GET | `/api/v1/artifacts/{artifact_id}` | Artifact metadata |
 | DELETE | `/api/v1/artifacts/{artifact_id}` | Delete an artifact |
@@ -716,8 +746,8 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | GET | `/api/v1/sessions/{id}/flash/diff?before=...&after=...` | Diff flash snapshots |
 | POST | `/api/v1/sessions/{id}/reset` | Reset the guest |
 | POST | `/api/v1/sessions/{id}/renew` | Extend the lease |
-| POST | `/api/v1/sessions/{id}/stop` | Stop the session |
-| DELETE | `/api/v1/sessions/{id}` | Stop and optionally purge session files |
+| POST | `/api/v1/sessions/{id}/stop` | Stop; full Flash is released unless `retain_flash=true` |
+| DELETE | `/api/v1/sessions/{id}` | Stop and optionally purge session files; supports `retain_flash=1` |
 
 ## Quick examples
 
@@ -792,9 +822,11 @@ curl -sS -H 'Content-Type: application/json' \
 `GET /sessions/{id}/network` returns the final `evidence.json`, including
 checks, artifact hashes, log hashes and explicit simulation-only limits.
 
-Add `flash` to include the full isolated virtual flash. The ZIP always contains
+Add `flash` to include the full isolated virtual flash while it is still
+available. A stopped session releases it by default, so request the evidence
+ZIP before stop or stop with `retain_flash=1`. The ZIP always contains
 `manifest.json` with session timeline, file hashes, device warnings and flash
-metadata.
+metadata; released images remain represented by their firmware hash.
 
 ### QOM and flash snapshots
 
@@ -919,13 +951,17 @@ curl -sS -H 'Content-Type: application/json' \
   http://127.0.0.1:8787/api/v1/sessions/<session-id>/renew
 
 curl -sS -X DELETE \
-  'http://127.0.0.1:8787/api/v1/sessions/<session-id>?purge=1'
+  'http://127.0.0.1:8787/api/v1/sessions/<session-id>?purge=0&retain_flash=0'
 ```
 
 Without `purge=1`, `session.json`, the event timeline, serial/QEMU logs, the
-last frame and device state remain under the state directory. The session is
-removed from the active capacity count immediately and is restored as history
-after a service restart.
+last frame and device state remain under the state directory. The mutable
+`virtual-flash.bin` is deleted by default because it is the largest per-session
+artifact and is usually not needed after the evidence bundle and frame are
+collected. Pass `retain_flash=1` when a stopped session must continue to support
+flash reads, snapshots or before/after diffs. The session is removed from the
+active capacity count immediately and is restored as history after a service
+restart.
 
 ## Concurrency and lifecycle rules
 
@@ -936,7 +972,17 @@ after a service restart.
 - capacity limits can be changed with `--max-sessions`, `--max-per-device`,
   `M5_SERVICE_MAX_SESSIONS`, or `M5_SERVICE_MAX_PER_DEVICE`;
 - expired sessions are stopped by a janitor thread;
-- stopped/failed sessions remain queryable across service restarts;
+- expired sessions release their mutable Flash unless
+  `M5_SERVICE_RETAIN_SESSION_FLASH=1`;
+- stopped/failed sessions remain queryable across service restarts while they
+  satisfy the configured age/count/byte retention limits;
+- the janitor prunes the oldest stopped/failed sessions first and never touches
+  active states;
+- unreferenced artifact, firmware and prepared-flash cache entries become
+  eligible for GC after `M5_SERVICE_CACHE_GRACE`; protected entries referenced
+  by a retained session or firmware record remain;
+- writes and new leases fail with HTTP `507 storage_exhausted` before consuming
+  the configured free-space reserve;
 - a session that was still active when the service stopped is restored as
   `failed`, with `interrupted=true`, an explicit error and an `interrupted`
   lifecycle event; it never consumes active capacity;
@@ -944,8 +990,9 @@ after a service restart.
 - the web dashboard shows active leases plus sessions completed in the last
   30 minutes when a last-known frame or serial-only view is available;
   “显示全部历史” expands the list;
-- `DELETE /sessions?state=stopped&purge=1` removes old sessions and their
-  per-session flash copies;
+- `DELETE /sessions?state=stopped&purge=1` removes stopped/failed history and
+  their per-session files; a later `POST /storage/prune?include_cache=1`
+  garbage-collects caches that are no longer referenced;
 - a guest reset does not make a session safe for a different tenant;
 - delete and recreate for tenant isolation.
 - `running` is an emulator-process state; use serial markers or screenshots to

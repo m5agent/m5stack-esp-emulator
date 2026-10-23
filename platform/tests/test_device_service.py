@@ -13,8 +13,10 @@ import time
 import unittest
 import zipfile
 from dataclasses import replace
+from datetime import datetime, timedelta, timezone
 from http.server import ThreadingHTTPServer
 from pathlib import Path
+from unittest import mock
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -30,6 +32,7 @@ from device_service import (
     MAX_ARTIFACT_BYTES,
     QMP,
     ServiceError,
+    StoragePolicy,
 )
 from serve import Handler, _wait_for_session
 
@@ -2097,13 +2100,22 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "direct_flash_layout_invalid",
         )
 
-    def _stopped_session(self, firmware: bytes = b"\xff" * 1024):
-        spec = self.service.specs["sticks3"]
-        firmware_path = Path(self.tmp.name) / "firmware.bin"
+    def _stopped_session(
+        self,
+        firmware: bytes = b"\xff" * 1024,
+        *,
+        service: DeviceService | None = None,
+        session_id: str = "a" * 32,
+        created_at: str | None = None,
+        completed_at: str | None = None,
+    ):
+        service = service or self.service
+        spec = service.specs["sticks3"]
+        firmware_path = service.state_dir / f"firmware-{session_id}.bin"
         firmware_path.write_bytes(firmware)
         session = DeviceSession(
-            self.service,
-            session_id="a" * 32,
+            service,
+            session_id=session_id,
             spec=spec,
             firmware_id="f" * 64,
             firmware_path=firmware_path,
@@ -2114,12 +2126,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ready_marker=None,
             ready_timeout=10,
             ready_conditions=None,
+            created_at=created_at,
+            completed_at=completed_at,
         )
         session.serial0.write_text("ready\n")
         session.virtual_flash = session.dir / "virtual-flash.bin"
         session.virtual_flash.write_bytes(firmware)
         session.state = "stopped"
-        self.service._sessions[session.id] = session
+        session._persist_session()
+        service._sessions[session.id] = session
         return session
 
     def test_session_history_filter_and_clear(self):
@@ -2128,6 +2143,204 @@ class DeviceServiceUnitTests(unittest.TestCase):
         cleared = self.service.clear_stopped(purge=True)
         self.assertEqual(cleared["cleared"], 1)
         self.assertNotIn(session.id, self.service._sessions)
+
+    def test_stop_releases_virtual_flash_by_default(self):
+        session = self._stopped_session(session_id="b" * 32)
+        flash_path = session.dir / "virtual-flash.bin"
+        self.assertTrue(flash_path.is_file())
+
+        result = session.stop(purge=False)
+
+        self.assertFalse(flash_path.exists())
+        self.assertFalse(result["flash_retained"])
+        self.assertTrue((session.dir / "serial.log").is_file())
+        self.assertTrue(session.session_record_path.is_file())
+
+    def test_stop_can_retain_virtual_flash(self):
+        session = self._stopped_session(session_id="c" * 32)
+        flash_path = session.dir / "virtual-flash.bin"
+
+        result = session.stop(purge=False, retain_flash=True)
+
+        self.assertTrue(flash_path.is_file())
+        self.assertTrue(result["flash_retained"])
+
+    def test_service_close_does_not_rewrite_stopped_history(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            service = DeviceService(
+                state_dir=Path(tmp),
+                storage_policy=StoragePolicy(
+                    min_free_bytes=0,
+                    prune_interval_seconds=3600,
+                ),
+            )
+            session = self._stopped_session(
+                service=service,
+                session_id="e" * 32,
+            )
+            flash_path = session.dir / "virtual-flash.bin"
+            self.assertTrue(flash_path.is_file())
+
+            service.close_all()
+
+            self.assertTrue(flash_path.is_file())
+
+    def test_history_retention_prunes_oldest_sessions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            service = DeviceService(
+                state_dir=Path(tmp),
+                storage_policy=StoragePolicy(
+                    history_ttl_seconds=0,
+                    max_history_sessions=2,
+                    max_history_bytes=0,
+                    cache_grace_seconds=3600,
+                    min_free_bytes=0,
+                    prune_interval_seconds=3600,
+                ),
+            )
+            try:
+                sessions = [
+                    self._stopped_session(
+                        service=service,
+                        session_id=f"{index:032x}",
+                        created_at=f"2026-10-23T00:0{index}:00+00:00",
+                        completed_at=f"2026-10-23T00:0{index}:30+00:00",
+                    )
+                    for index in range(1, 4)
+                ]
+
+                result = service.prune_storage(include_cache=False)
+
+                self.assertEqual(result["pruned_sessions"], 1)
+                self.assertNotIn(sessions[0].id, service._sessions)
+                self.assertIn(sessions[1].id, service._sessions)
+                self.assertIn(sessions[2].id, service._sessions)
+            finally:
+                service.close_all()
+
+    def test_cache_gc_keeps_firmware_referenced_by_history(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            service = DeviceService(
+                state_dir=Path(tmp),
+                storage_policy=StoragePolicy(
+                    history_ttl_seconds=0,
+                    max_history_sessions=100,
+                    max_history_bytes=0,
+                    max_cache_bytes=0,
+                    cache_grace_seconds=0,
+                    min_free_bytes=0,
+                    prune_interval_seconds=3600,
+                ),
+            )
+            try:
+                artifact_a = service.upload_artifact(b"A" * 1024)
+                firmware_a = service.create_firmware(
+                    {
+                        "device_id": "sticks3",
+                        "kind": "merged",
+                        "artifact_id": artifact_a["artifact_id"],
+                    }
+                )
+                artifact_b = service.upload_artifact(b"B" * 2048)
+                firmware_b = service.create_firmware(
+                    {
+                        "device_id": "sticks3",
+                        "kind": "merged",
+                        "artifact_id": artifact_b["artifact_id"],
+                    }
+                )
+                session = self._stopped_session(
+                    service=service,
+                    session_id="d" * 32,
+                )
+                session.firmware_id = firmware_b["firmware_id"]
+                session.firmware_sha = firmware_b["sha256"]
+                session.source_artifacts = [artifact_b["artifact_id"]]
+                session._persist_session()
+
+                cache_root = service.state_dir / "flash-cache" / "sticks3"
+                cache_root.mkdir(parents=True)
+                cache_a = cache_root / f"{firmware_a['firmware_id']}.bin"
+                cache_b = cache_root / f"{firmware_b['firmware_id']}.bin"
+                cache_a.write_bytes(b"A")
+                cache_b.write_bytes(b"B")
+
+                result = service.prune_storage(include_cache=True)
+
+                self.assertEqual(result["cache"]["firmware_removed"], 1)
+                self.assertEqual(result["cache"]["artifacts_removed"], 1)
+                self.assertFalse(service.firmware._meta(firmware_a["firmware_id"]).exists())
+                self.assertFalse(service.artifacts._meta(artifact_a["artifact_id"]).exists())
+                self.assertFalse(cache_a.exists())
+                self.assertTrue(service.firmware._meta(firmware_b["firmware_id"]).is_file())
+                self.assertTrue(service.artifacts._meta(artifact_b["artifact_id"]).is_file())
+                self.assertTrue(cache_b.is_file())
+            finally:
+                service.close_all()
+
+    def test_cache_gc_enforces_total_cache_limit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            service = DeviceService(
+                state_dir=Path(tmp),
+                storage_policy=StoragePolicy(
+                    history_ttl_seconds=0,
+                    max_history_sessions=100,
+                    max_history_bytes=0,
+                    max_cache_bytes=9 * 1024 * 1024,
+                    cache_grace_seconds=3600,
+                    min_free_bytes=0,
+                    prune_interval_seconds=3600,
+                ),
+            )
+            try:
+                firmware = []
+                for index in range(2):
+                    artifact = service.upload_artifact(bytes([index]) * 1024)
+                    record = service.create_firmware(
+                        {
+                            "device_id": "sticks3",
+                            "kind": "merged",
+                            "artifact_id": artifact["artifact_id"],
+                        }
+                    )
+                    firmware.append(record)
+                    meta_path = service.firmware._meta(record["firmware_id"])
+                    meta = json.loads(meta_path.read_text())
+                    meta["created_at"] = (
+                        datetime.now(timezone.utc)
+                        - timedelta(seconds=120 - index)
+                    ).isoformat()
+                    meta_path.write_text(json.dumps(meta))
+
+                result = service.prune_storage(include_cache=True)
+
+                self.assertGreaterEqual(result["cache"]["firmware_removed"], 1)
+                self.assertLessEqual(
+                    service.storage_stats()["firmware"]["bytes"],
+                    9 * 1024 * 1024,
+                )
+            finally:
+                service.close_all()
+
+    def test_storage_reserve_rejects_low_disk(self):
+        service = DeviceService(
+            state_dir=Path(self.tmp.name) / "storage-reserve",
+            storage_policy=StoragePolicy(min_free_bytes=50),
+        )
+        try:
+            usage = mock.Mock(total=100, used=99, free=1)
+            with mock.patch.object(
+                device_service_module.shutil,
+                "disk_usage",
+                return_value=usage,
+            ):
+                with self.assertRaises(ServiceError) as caught:
+                    service._ensure_storage_capacity(10)
+            self.assertEqual(caught.exception.code, "storage_exhausted")
+            self.assertEqual(caught.exception.status, 507)
+            self.assertEqual(caught.exception.extra["required_bytes"], 60)
+        finally:
+            service.close_all()
 
     def test_list_sessions_does_not_block_capacity_during_snapshot(self):
         session = self._stopped_session()
@@ -2489,6 +2702,22 @@ class DeviceServiceHttpTests(unittest.TestCase):
         with urlopen(self.base + "/api/v1/openapi.yaml", timeout=5) as response:
             self.assertEqual(response.status, 200)
             self.assertIn(b"openapi: 3.1.0", response.read())
+
+    def test_storage_stats_and_manual_prune(self):
+        status, storage = self.request("/api/v1/storage")
+        self.assertEqual(status, 200)
+        self.assertIn("sessions", storage)
+        self.assertIn("policy", storage)
+        self.assertIn("free_bytes", storage["disk"])
+
+        status, pruned = self.request(
+            "/api/v1/storage/prune?include_cache=0",
+            method="POST",
+            data=b"",
+        )
+        self.assertEqual(status, 200)
+        self.assertIn("pruned_sessions", pruned)
+        self.assertFalse(pruned["cache"]["freed_bytes"])
 
     def test_artifact_and_firmware_round_trip(self):
         status, artifact = self.request(

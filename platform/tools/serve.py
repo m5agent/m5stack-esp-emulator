@@ -214,6 +214,8 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.get_device(parts[1])
             elif method == "GET" and parts == ["capacity"]:
                 response = service.capacity()
+            elif method == "GET" and parts == ["storage"]:
+                response = service.storage_stats()
             elif method == "GET" and parts == ["openapi.yaml"]:
                 spec = ROOT / "docs/device-service.openapi.yaml"
                 if not spec.is_file():
@@ -440,6 +442,13 @@ class Handler(SimpleHTTPRequestHandler):
                         "invalid_request", "firmware_id is required", 400
                     )
                 response = service.firmware.analyze(firmware_id)
+            elif method == "POST" and parts == ["storage", "prune"]:
+                include_cache = query.get("include_cache", ["1"])[0] not in {
+                    "0",
+                    "false",
+                    "no",
+                }
+                response = service.prune_storage(include_cache=include_cache)
             elif method == "POST" and parts == ["sessions"]:
                 response = service.create_session(self._read_json())
                 status = 202
@@ -471,12 +480,29 @@ class Handler(SimpleHTTPRequestHandler):
                 elif action == "wait":
                     response = _wait_for_session(session, payload)
                 elif action == "stop":
-                    response = session.stop(purge=bool(payload.get("purge", False)))
+                    retain_flash = payload.get("retain_flash")
+                    response = session.stop(
+                        purge=bool(payload.get("purge", False)),
+                        retain_flash=(
+                            bool(retain_flash)
+                            if retain_flash is not None
+                            else None
+                        ),
+                    )
                 else:
                     raise ServiceError("not_found", "unknown session action", 404)
             elif method == "DELETE" and len(parts) == 2 and parts[0] == "sessions":
                 purge = query.get("purge", ["0"])[0] in {"1", "true", "yes"}
-                response = service.delete_session(parts[1], purge=purge)
+                retain_flash = query.get("retain_flash", [""])[0]
+                response = service.delete_session(
+                    parts[1],
+                    purge=purge,
+                    retain_flash=(
+                        retain_flash.lower() in {"1", "true", "yes"}
+                        if retain_flash
+                        else None
+                    ),
+                )
             elif method == "DELETE" and len(parts) == 2 and parts[0] == "artifacts":
                 response = service.artifacts.delete(parts[1])
             elif method == "DELETE" and parts == ["sessions"]:
@@ -488,7 +514,15 @@ class Handler(SimpleHTTPRequestHandler):
                         400,
                     )
                 purge = query.get("purge", ["1"])[0] in {"1", "true", "yes"}
-                response = service.clear_stopped(purge=purge)
+                retain_flash = query.get("retain_flash", [""])[0]
+                response = service.clear_stopped(
+                    purge=purge,
+                    retain_flash=(
+                        retain_flash.lower() in {"1", "true", "yes"}
+                        if retain_flash
+                        else None
+                    ),
+                )
             else:
                 raise ServiceError("not_found", "not found", 404)
 
@@ -667,6 +701,7 @@ def main() -> None:
     print(f"Device API: http://{args.bind}:{args.port}/api/devices")
     print(f"Peripheral API: http://{args.bind}:{args.port}/api/peripherals")
     print(f"Leased service API: http://{args.bind}:{args.port}/api/v1")
+    print(f"Storage usage: http://{args.bind}:{args.port}/api/v1/storage")
     print(
         "Peripheral interfaces: "
         f"http://{args.bind}:{args.port}/api/peripheral-interfaces"

@@ -25,7 +25,9 @@ general virtual-device entry point.
    an application PASS.
 5. Collect serial, frame, normalized device state, input/QOM evidence and the
    evidence ZIP through the session API.
-6. Stop with `DELETE /api/v1/sessions/{id}` and no `purge=1`.
+6. Stop with `DELETE /api/v1/sessions/{id}` and no `purge=1`; collected
+   metadata, logs and the last frame remain, while the full mutable Flash is
+   released unless `retain_flash=1` is requested.
 7. Re-read `GET /api/v1/sessions` or the Live sessions page and confirm the
    stopped session, last frame and lifecycle events are retained.
 
@@ -36,7 +38,14 @@ Each session directory now contains:
 - `session.json`: identity, device, firmware, lifecycle and timestamps;
 - `events.json`: lifecycle timeline;
 - `last-frame.png` and `last-frame.json`: retained visual evidence;
-- `serial*.log`, QEMU logs, virtual flash and optional QOM/device-state files.
+- `serial*.log`, QEMU logs and optional QOM/device-state files;
+- `virtual-flash.bin` while active, or after stop when `retain_flash=1` is
+  explicitly requested.
+
+Stopped/failed history is retained within configured age, count and byte
+limits. A background janitor uses `GET /api/v1/storage` for observability and
+prunes unreferenced artifact/firmware/prepared-flash caches after the configured
+grace period.
 
 On startup, a stopped/failed record is restored as history. A record that was
 still active when the service stopped is restored as `failed` with

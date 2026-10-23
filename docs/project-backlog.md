@@ -154,13 +154,15 @@ Implemented on 2026-10-22:
 - serial, frame, input, QOM, reset and log APIs.
 - restart-safe stopped/failed session history, events, last frame and device
   state; active processes are marked interrupted rather than silently lost.
+- bounded history retention, stopped-session Flash release, reference-aware
+  cache GC, storage observability and a free-space write guard.
 
 Still backlog:
 
 - resumable active emulator processes across service restart;
 - prestarted warm pool;
 - remote worker scheduling and multi-host capacity;
-- untrusted-firmware isolation and quota enforcement;
+- untrusted-firmware isolation and broader per-tenant resource quotas;
 - network namespace and pcap integration.
 
 ## P1: Tab5 deferred peripheral closure
