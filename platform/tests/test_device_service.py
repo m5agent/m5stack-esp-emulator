@@ -12,6 +12,7 @@ import threading
 import time
 import unittest
 import zipfile
+from dataclasses import replace
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import HTTPError
@@ -147,6 +148,42 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertFalse(rows["cardputer-zero"]["supported"])
         self.assertFalse(rows["tab5"]["features"]["network"])
         self.assertTrue(payload["network_enabled"])
+
+    def test_missing_runtime_files_are_reported(self):
+        spec = self.service.specs["sticks3"]
+        self.service.specs["sticks3"] = replace(
+            spec,
+            qemu=ROOT / "__missing_qemu__",
+            rom_dir=ROOT / "__missing_rom_dir__",
+            flash_emulator=ROOT / "__missing_esp_emu__",
+        )
+
+        rows = {
+            row["device_id"]: row
+            for row in self.service.list_devices()["devices"]
+        }
+        row = rows["sticks3"]
+        expected = [
+            "__missing_qemu__",
+            "__missing_rom_dir__",
+            "__missing_esp_emu__",
+        ]
+        self.assertFalse(row["backend_ready"])
+        self.assertFalse(row["creatable"])
+        self.assertEqual(row["missing_runtime_files"], expected)
+
+        with self.assertRaises(ServiceError) as caught:
+            self.service.create_session(
+                {"device_id": "sticks3", "ttl_seconds": 60}
+            )
+        error = caught.exception
+        self.assertEqual(error.code, "backend_not_ready")
+        self.assertEqual(error.status, 503)
+        self.assertEqual(error.extra["missing"], expected)
+        self.assertEqual(
+            error.extra["documentation"],
+            "docs/deployment.md",
+        )
 
     def test_merged_firmware_is_padded_to_device_flash(self):
         artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)

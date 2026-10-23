@@ -816,6 +816,12 @@ components:
           type: boolean
         creatable:
           type: boolean
+        backend_ready:
+          type: boolean
+        missing_runtime_files:
+          type: array
+          items:
+            type: string
         reference_available:
           type: boolean
         flash_size:

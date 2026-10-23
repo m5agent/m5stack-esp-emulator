@@ -886,6 +886,29 @@ class DeviceSpec:
             and (self.flash_emulator is None or self.flash_emulator.is_file())
         )
 
+    @property
+    def missing_backend_files(self) -> list[Path]:
+        if self.service_kind == "tab5":
+            return [
+                path
+                for path in (
+                    self.emulator,
+                    self.rom,
+                    self.efuse,
+                    self.c6_firmware,
+                    self.reference_path,
+                )
+                if path is not None and not path.is_file()
+            ]
+        missing = []
+        if not self.qemu.is_file():
+            missing.append(self.qemu)
+        if not self.rom_dir.is_dir():
+            missing.append(self.rom_dir)
+        if self.flash_emulator is not None and not self.flash_emulator.is_file():
+            missing.append(self.flash_emulator)
+        return missing
+
 
 def load_device_specs() -> dict[str, DeviceSpec]:
     matrix = json.loads(MATRIX.read_text())
@@ -4254,6 +4277,10 @@ class DeviceService:
             "supported": spec.supported,
             "creatable": spec.supported and backend_ready,
             "backend_ready": backend_ready,
+            "missing_runtime_files": [
+                Path(os.path.relpath(path, ROOT)).as_posix()
+                for path in spec.missing_backend_files
+            ],
             "reference_available": reference_available,
             "backend": spec.backend,
             "machine": spec.machine,
@@ -4453,10 +4480,24 @@ class DeviceService:
                 "unsupported_device", spec.reason or "device is not enabled", 409
             )
         if not spec.backend_ready:
+            missing = [
+                Path(os.path.relpath(path, ROOT)).as_posix()
+                for path in spec.missing_backend_files
+            ]
+            detail = (
+                f"; missing: {', '.join(missing)}"
+                if missing
+                else ""
+            )
             raise ServiceError(
                 "backend_not_ready",
-                f"runtime files are missing for {device_id}",
+                (
+                    f"runtime files are missing for {device_id}{detail}; "
+                    "see docs/deployment.md"
+                ),
                 503,
+                missing=missing,
+                documentation="docs/deployment.md",
             )
         firmware_id = payload.get("firmware_id")
         if firmware_id:

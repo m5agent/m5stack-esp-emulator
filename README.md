@@ -49,6 +49,13 @@ MicroPython 和其他完整 Flash 固件。
 - 设备服务 API：<http://127.0.0.1:8787/api/v1>
 - OpenAPI：<http://127.0.0.1:8787/api/v1/openapi.yaml>
 
+这条命令不需要 `.work/`，可以启动设备目录、只读设备清单和 OpenAPI 页面。
+`.work/` 是本地构建与运行时缓存，已被 `.gitignore` 排除；全新 clone
+**不会**包含它，因此也不能只靠 clone 创建 QEMU 会话。
+
+需要创建、烧录和操作虚拟设备时，请按
+[部署与运行时资产](docs/deployment.md) 准备对应资产。
+
 也可以直接启动：
 
 ```bash
@@ -138,7 +145,9 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
 
 ## 本地开发依赖
 
-浏览器设备目录和 API 只需要 Python 3。完整 QEMU/esp-emu 回归还需要：
+设备目录、只读设备清单 API 和 OpenAPI 只需要 Python 3。需要 lease、
+烧录、串口、截图或输入的 `/api/v1/sessions` 路径时，还必须有匹配当前
+commit 与主机架构的 `.work/` 运行时：
 
 - `.work/M5StopWatch-QEMU/`：按补丁构建的 QEMU；
 - `.work/esp-emu-versions/0.50.0/`：P4/C6 使用的 `esp-emu`；
@@ -149,6 +158,7 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
   `python3 platform/tools/fetch_firmware.py --firmware-id <id> --device-slug <slug> --analyze --chip-id 0x9 --cache /tmp/m5-firmware`。
 
 固件、ROM、QEMU 二进制和构建目录均被 `.gitignore` 排除。
+`fetch_firmware.py` 只下载参考固件，不会生成 QEMU 运行时。
 
 ## 验证入口
 

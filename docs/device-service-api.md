@@ -124,6 +124,8 @@ Important fields:
 - `creatable`
 - `reference_available`
 - `backend_ready`
+- `missing_runtime_files`: repo-relative backend paths that prevent a session;
+  empty when `backend_ready=true`.
 - `flash_size`
 - `display`
 - `features.flash/serial/screenshot/input/qom`
@@ -137,6 +139,10 @@ Important fields:
   the device matrix, such as `usb-jtag` for C6 UIFlow2.
 - Tab5 `features.qom` is `false`; its touch path uses the GDB mailbox currently
   used by the validated Tab5 runtime.
+
+`backend_ready=false` is a deployment state, not evidence that the device model
+is broken. A fresh source clone has no ignored `.work/` runtime assets; see
+[Deployment and runtime assets](deployment.md).
 
 ### Artifact
 
