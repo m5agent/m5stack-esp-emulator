@@ -114,6 +114,7 @@ git apply /path/to/0020-m5ioe1-pa-output-state.patch
 git apply /path/to/0021-esp32s3-uart2-chardev.patch
 git apply /path/to/0022-sticks3-st7789-panel-id.patch
 git apply /path/to/0023-user-firmware-hot-samples.patch
+git apply /path/to/0024-esp32s3-qio-read-phase.patch
 ninja -C build qemu-system-xtensa
 ```
 
@@ -163,6 +164,13 @@ restores coprocessor enable state, separates CO5300 QSPI command framing,
 infers unreliable SPI panel D/C phases from DCS commands and pixel lengths,
 adds the second StamPLC PI4IOE expander with unique QOM names, and attaches
 AtomS3R's ES8311/PI4IOE devices.
+
+`0024-esp32s3-qio-read-phase.patch` completes the S3 `0xEB` QIO read phase for
+the m25p80 model. Arduino ESP32 4.4 supplies one programmed dummy byte while
+m25p80 consumes a mode byte and four dummy bytes; the four-byte shortfall
+shifted every read so NVS returned empty values, LittleFS data was corrupt and
+display assets repeated. The fix is limited to QIO reads selected on flash
+CS0.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and
