@@ -101,9 +101,9 @@
 
 | 位置 | 规模/现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | 约 6840 行，覆盖 7 类生命周期职责 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
-| `platform/tests/test_device_service.py` | 约 3660 行 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
-| `tests/uiflow2/run_peripheral_matrix.py` | 约 2900 行 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
+| `platform/tools/device_service.py` | 大型单文件编排热区，覆盖会话、存储、runtime、证据和生命周期 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
+| `platform/tests/test_device_service.py` | 大型 service 契约测试文件 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
+| `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | 12 个 profile 有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 
 这些是维护成本，不是当前功能失败。没有 API 契约测试和同路径 evidence
@@ -130,7 +130,7 @@ HTTP / browser
 | 路径 | 职责 |
 | --- | --- |
 | `platform/tools/serve.py` | HTTP 服务、静态页面和 `/api/v1` 路由入口 |
-| `platform/tools/device_service.py` | lease、固件存储、会话生命周期、QEMU/esp-emu 编排、证据包 |
+| `platform/tools/device_service.py` | lease、artifact/firmware 存储、可恢复 chunk upload、会话生命周期、QEMU/esp-emu 编排、证据包 |
 | `platform/tools/storage_policy.py` | 会话历史、Flash 保留与缓存 GC |
 | `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查 |
 | `platform/web/` | 设备目录、会话观察和浏览器设备外壳 |
@@ -145,6 +145,7 @@ HTTP / browser
 M5Burner / WebBurner / ESP-IDF / merged / segmented
   -> firmware_manifest.py
   -> normalized flash + manifest.json
+  -> optional resumable /api/v1/artifact-uploads/<id>/chunks
   -> POST /api/v1/firmware (kind=manifest)
   -> capability/security preflight
   -> session
@@ -224,6 +225,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |
 | FAT inventory | `tests/firmware/evidence-2026-10-24-fat-inventory.json` | 合成 FAT12/16/32、LFN、循环链、多簇哈希、敏感路径、erased partition 与真实 PaperColor FAT12 样本 |
+| Resumable artifact upload | `tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json`; `DeviceServiceUnitTests.test_streamed_*`; `DeviceServiceHttpTests.test_streamed_artifact_http_upload` | 连续 offset、per-chunk/final hash、失败 append 回滚、resume、abort 和 abandoned staging GC |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证、radio/AP 移除、scan `1→0→1`、重新 DHCP 和前后 HTTP |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |

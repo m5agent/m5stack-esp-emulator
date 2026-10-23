@@ -424,7 +424,8 @@ evidence/
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
 1. SPIFFS 只读清单、运行时权限/许可审批、证书链校验和许可证策略；
-   LittleFS 与 FAT12/16/32 文件清单、哈希和 SPDX 已具备；
+   LittleFS/FAT、SPDX 和 resumable chunk upload backend 已具备，
+   WebBurner UI 接线仍开放；
 2. 正式 CI/worker、外部 IPv6 egress 和双设备 lab fabric；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；

@@ -21,7 +21,7 @@
 | --- | --- | --- | --- |
 | P0 | 网络策略与 worker | 双设备 fabric、自托管 QEMU worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
 | P0 | Core2 生产化 | 去掉 GDB 暂停/注入/return 控制、重复 lease 稳定门禁、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
-| P0 | 通用固件审查 | SPIFFS、权限/许可策略、真机 eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
+| P0 | 通用固件审查 | WebBurner UI chunk 接线、SPIFFS、权限/许可策略、真机 eFuse/安全启动/key 流程、跨厂商回归 | 多格式镜像；生产安全配置 |
 | P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
 | P1 | 外部 IPv6 egress | v6 veth/route/NAT 与 exact endpoint 规则 | worker 双栈配置；当前 IPv6 请求会被拒绝 |
 | P1 | 服务 worker 与调度 | supervisor、heartbeat、drain/re-attach、warm pool、多机容量 | 生产部署；对象存储；审计 |
@@ -39,7 +39,8 @@
 4. `NET-04` / `SVC-01`：把 Linux policy CI 和 QEMU evidence 路径接入正式
    worker。
 5. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
-6. `FW-04/03/02`：流式上传、跨厂商样本，再补生产 key/eFuse 与真机路径。
+6. `FW-04/03/02`：把已交付 chunk API 接入 WebBurner UI、扩跨厂商样本，
+   再补生产 key/eFuse 与真机路径。
 7. `CORE2-02`、`HW-01`、`NET-05`：controller/物理边界、同路径真机证据和
    外部 IPv6 端点策略。
 8. Tab5、worker pool、视觉保真和 CardputerZero 作为后续专项推进。
@@ -56,7 +57,7 @@
 | `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
 | `FW-02` | 进行中 | 包内安全摘要已支持；继续做真机 eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、boot 层，不混算 PASS |
-| `FW-04` | 待做 | WebBurner 流式导入和 chunk artifact upload | 大镜像不先落完整宿主临时文件，hash/manifest 保持一致 |
+| `FW-04` | 进行中 | chunk artifact upload backend 已通过；继续接 WebBurner 页面、重试和取消 | 大镜像不先落完整宿主临时文件，hash/manifest 保持一致 |
 | `SVC-01` | 待做 | worker supervisor、注册/心跳、drain、re-attach | 服务重启可收敛 worker，lease 有明确接管或失败状态 |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态不泄漏 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的固件存储、运行时适配器、证据和会话状态机 | 对外 API/evidence 不回归；单文件职责和测试边界清晰 |
@@ -176,10 +177,23 @@ helper；实现前保持 `UNSUPPORTED`。
 
 ### FW-04 流式上传
 
-- WebBurner 页面直接流式导入；
-- chunk upload 有大小、hash、顺序和重试约束；
-- 不要求大镜像先完整写入宿主临时文件；
-- 最终 artifact 与 manifest 可重复校验。
+已交付：
+
+- `POST /api/v1/artifact-uploads` 创建可恢复 upload session；
+- 8 MiB 以下连续 chunk，严格 offset 和 per-chunk SHA256；
+- `GET` 读取 received bytes/next offset，可连接中断后续传；
+- complete 时流式校验最终 size/SHA256 并原子发布普通 artifact；
+- metadata 原子替换；chunk 写入或 metadata 提交失败时回滚到最后一个已确认
+  offset；
+- abort 清理 staging 文件，janitor 按 grace period 回收中断上传和已完成
+  upload 记录；
+- service-level 和 HTTP round-trip 回归。
+
+仍未完成：
+
+- WebBurner 页面直接调用 chunk API、进度/重试/取消 UI；
+- 浏览器刷新后恢复 upload session；
+- 最终 manifest 与 chunk artifact 的浏览器端端到端校验。
 
 ## P1：服务 worker 与调度
 
@@ -196,9 +210,9 @@ helper；实现前保持 `UNSUPPORTED`。
 
 ### SVC-03 Device Service 编排拆分
 
-`platform/tools/device_service.py` 当前为 `6843` 行，同时承担会话模型、
-固件存储、QEMU/esp-emu 启动、网络策略、输入、证据、历史恢复和 HTTP
-适配。继续叠加能力会扩大回归面。
+`platform/tools/device_service.py` 是大型单文件编排热区，同时承担会话模型、
+固件存储、QEMU/esp-emu 启动、网络策略、输入、证据、历史恢复和 HTTP 适配。
+继续叠加能力会扩大回归面；规模以当前源码为准，不在文档保存易漂移的行数。
 
 拆分顺序：
 

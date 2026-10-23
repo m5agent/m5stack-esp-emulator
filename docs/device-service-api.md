@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.11.0` and bounded
+Status: local MVP with unified-device runtime contract `1.12.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -41,7 +41,8 @@ Current scope:
   capability/security preflight.
 - storage: stopped/failed history is bounded by age, count and bytes; session
   Flash files are released after stop unless explicitly retained, and
-  unreferenced artifact/firmware/prepared-flash caches are garbage-collected.
+  unreferenced artifact/firmware/prepared-flash caches and abandoned upload
+  staging are garbage-collected.
 
 The architecture and future pooling direction are documented in
 [`simulator-service-architecture.md`](simulator-service-architecture.md).
@@ -213,6 +214,54 @@ Response:
   "created_at": "..."
 }
 ```
+
+Large WebBurner/browser uploads can use a resumable chunk path so the complete
+artifact is not buffered as one request:
+
+```http
+POST /api/v1/artifact-uploads
+Content-Type: application/json
+```
+
+```json
+{
+  "expected_size": 8388608,
+  "expected_sha256": "<final-sha256>",
+  "name": "web-burner.bin",
+  "content_type": "application/octet-stream"
+}
+```
+
+Then append contiguous raw chunks, at most 8 MiB each:
+
+```http
+POST /api/v1/artifact-uploads/<upload-id>/chunks
+Content-Type: application/octet-stream
+X-Chunk-Offset: 0
+X-Chunk-SHA256: <chunk-sha256>
+```
+
+The response includes `received_bytes` and `next_offset`. Upload state remains
+available through `GET /api/v1/artifact-uploads/<upload-id>` so a client can
+resume after a dropped connection:
+
+```http
+POST /api/v1/artifact-uploads/<upload-id>/complete
+```
+
+Completion verifies the full size and SHA256, atomically publishes the normal
+content-addressed artifact, and returns the same metadata shape as direct
+upload. `DELETE /api/v1/artifact-uploads/<upload-id>` aborts an incomplete
+upload. Chunks must be contiguous and non-overlapping; a wrong offset or chunk
+hash fails with `409` and leaves the accepted prefix intact.
+
+An append is committed only after the staging write and atomic metadata replace
+both succeed. A write, `fsync` or metadata failure truncates the staging file
+back to the last acknowledged offset and returns `500 upload_write_failed`;
+clients can query the upload and retry from `next_offset`. Upload metadata
+contains no artifact body. The cache janitor removes interrupted staging data
+and expired completed upload records after `M5_SERVICE_CACHE_GRACE`, while a
+completed artifact follows normal content-addressed artifact retention.
 
 ### Firmware
 
@@ -556,9 +605,9 @@ UART1 instance:
 }
 ```
 
-The image uses the Core2 HCI-UART build, QEMU `-m 0`, `misc.esp32_wifi`,
-UART1 H4, a Bumble controller/peer and a controlled HTTP endpoint on port
-`18089`. QOM is written while the guest runs.
+The image uses the Core2 HCI-UART build, QEMU `-m 0`, the OpenMAC
+`misc.esp32_wifi` device, UART1 H4, a Bumble controller/peer and a controlled
+HTTP endpoint on port `18089`. QOM is written while the guest runs.
 The profile exercises display/touch, AXP2101, INA3221, MPU6886, PCF8563,
 NS4168 speaker, SPM1423 microphone, WiFi DHCP/HTTP, public IPv4 DNS/HTTP and
 external HCI-offload BLE NUS in one guest. Ten independent first attempts
@@ -1253,6 +1302,8 @@ restart.
 - unreferenced artifact, firmware and prepared-flash cache entries become
   eligible for GC after `M5_SERVICE_CACHE_GRACE`; protected entries referenced
   by a retained session or firmware record remain;
+- abandoned resumable-upload staging and expired upload-control records are
+  removed by the same janitor;
 - writes and new leases fail with HTTP `507 storage_exhausted` before consuming
   the configured free-space reserve;
 - a session that was still active when the service stopped is restored as

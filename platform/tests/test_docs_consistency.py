@@ -11,6 +11,13 @@ DOCS = ROOT / "docs"
 
 
 class DocsConsistencyTests(unittest.TestCase):
+    def _platform_test_count(self) -> int:
+        suite = unittest.defaultTestLoader.discover(
+            str(ROOT / "platform" / "tests"),
+            pattern="test_*.py",
+        )
+        return suite.countTestCases()
+
     def test_required_contract_documents_exist(self) -> None:
         for relative in (
             "README.md",
@@ -62,6 +69,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-filesystem-inventory.json",
             "tests/firmware/evidence-2026-10-24-fat-inventory.json",
             "tests/firmware/evidence-2026-10-24-efuse-security.json",
+            "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "patches/qemu-core2-openmac-wifi/README.md",
             "patches/qemu-core2-ble-controller/README.md",
         ):
@@ -188,6 +196,11 @@ class DocsConsistencyTests(unittest.TestCase):
             "文件系统提取、敏感资产/权限审批",
             "243/243",
             "guest VHCI 未接入",
+            "`243` 项",
+            "`7f8343d",
+            "6.8k 行",
+            "6840 行",
+            "6843 行",
         ):
             self.assertNotIn(stale, active)
 
@@ -214,8 +227,11 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(catalog["generated_at"], review_date)
         self.assertEqual(qemu_count, 12)
         self.assertIn("`67/67` 用例、`274/274` 检查 PASS", status)
-        self.assertIn("平台套件共 `243` 项", status)
-        self.assertIn("`241` 项通过、`2` 项环境相关测试跳过", status)
+        self.assertIn(
+            f"平台套件共 `{self._platform_test_count()}` 项",
+            status,
+        )
+        self.assertIn("项环境相关测试跳过", status)
         self.assertIn("2026-10-24 00:11 +08:00", status)
         self.assertIn("`retry_used=false`", status)
         self.assertIn("`qemu-unified`", (ROOT / "README.md").read_text())
@@ -383,6 +399,19 @@ class DocsConsistencyTests(unittest.TestCase):
             efuse_security["capability_preflight"]["status"],
             "REJECTED",
         )
+        upload_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-streaming-artifact-upload.json"
+            ).read_text()
+        )
+        self.assertEqual(upload_evidence["status"], "PASS")
+        self.assertTrue(all(upload_evidence["checks"].values()))
+        self.assertTrue(
+            upload_evidence["checks"]["failed_append_rollback"]
+        )
+        self.assertTrue(upload_evidence["checks"]["abandoned_upload_gc"])
 
     def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
         workstreams = (DOCS / "workstreams.md").read_text()
@@ -408,11 +437,7 @@ class DocsConsistencyTests(unittest.TestCase):
             )
 
     def test_documented_platform_test_count_is_current(self) -> None:
-        suite = unittest.defaultTestLoader.discover(
-            str(ROOT / "platform" / "tests"),
-            pattern="test_*.py",
-        )
-        count = suite.countTestCases()
+        count = self._platform_test_count()
         expected = f"`{count}` 项"
         for relative in ("README.md", "docs/project-status.md"):
             document = (ROOT / relative).read_text()
@@ -441,6 +466,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("allowed_hosts", openapi)
         self.assertIn("allowed_endpoints", openapi)
         self.assertIn("controlled", openapi)
+        self.assertIn("artifact-uploads", openapi)
 
 
 if __name__ == "__main__":

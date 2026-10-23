@@ -10,6 +10,7 @@ warning.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import io
 import json
 import os
@@ -104,6 +105,7 @@ EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
 MAX_ARTIFACT_BYTES = 96 * 1024 * 1024
+MAX_ARTIFACT_CHUNK_BYTES = 8 * 1024 * 1024
 MAX_SERIAL_READ = 256 * 1024
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 ALLOWED_RUNTIME_ENV = {
@@ -1502,6 +1504,338 @@ class ArtifactStore:
                 json.dumps(record, ensure_ascii=False, indent=2) + "\n"
             )
         return record
+
+    def _upload_dir(self) -> Path:
+        return self.root / ".uploads"
+
+    def _upload_meta(self, upload_id: str) -> Path:
+        return self._upload_dir() / f"{upload_id}.json"
+
+    def _upload_part(self, upload_id: str) -> Path:
+        return self._upload_dir() / f"{upload_id}.part"
+
+    def _load_upload(self, upload_id: str) -> dict:
+        if (
+            not isinstance(upload_id, str)
+            or len(upload_id) != 32
+            or any(char not in "0123456789abcdef" for char in upload_id)
+        ):
+            raise ServiceError("unknown_upload", "invalid upload id", 404)
+        meta = self._upload_meta(upload_id)
+        if not meta.is_file():
+            raise ServiceError(
+                "unknown_upload", f"unknown upload: {upload_id}", 404
+            )
+        try:
+            return json.loads(meta.read_text())
+        except (OSError, json.JSONDecodeError) as error:
+            raise ServiceError(
+                "invalid_upload_state",
+                f"upload metadata is unreadable: {upload_id}",
+                409,
+            ) from error
+
+    def _save_upload(self, record: dict) -> None:
+        upload_dir = self._upload_dir()
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        target = self._upload_meta(record["upload_id"])
+        temp = upload_dir / f".{target.name}.{uuid.uuid4().hex}.tmp"
+        try:
+            with temp.open("w") as sink:
+                sink.write(
+                    json.dumps(record, ensure_ascii=False, indent=2) + "\n"
+                )
+                sink.flush()
+                os.fsync(sink.fileno())
+            temp.replace(target)
+        finally:
+            temp.unlink(missing_ok=True)
+
+    def prune_uploads(self, *, now: float, grace_seconds: float) -> dict:
+        """Remove abandoned staging data while preserving recent resumable state."""
+        upload_dir = self._upload_dir()
+        if not upload_dir.is_dir():
+            return {"files_removed": 0, "bytes_removed": 0}
+        cutoff = float(now) - max(0.0, float(grace_seconds))
+        removed: list[Path] = []
+        with self._lock:
+            metadata = {
+                path.stem: path
+                for path in upload_dir.glob("*.json")
+                if path.is_file()
+            }
+            parts = {
+                path.stem: path
+                for path in upload_dir.glob("*.part")
+                if path.is_file()
+            }
+            referenced_parts: set[str] = set()
+            for upload_id, meta in metadata.items():
+                try:
+                    age_is_old = meta.stat().st_mtime < cutoff
+                except OSError:
+                    continue
+                if not age_is_old:
+                    continue
+                part = parts.get(upload_id)
+                if part is not None:
+                    referenced_parts.add(upload_id)
+                    removed.append(part)
+                removed.append(meta)
+            for upload_id, part in parts.items():
+                if upload_id in referenced_parts:
+                    continue
+                try:
+                    if part.stat().st_mtime < cutoff:
+                        removed.append(part)
+                except OSError:
+                    continue
+            for temp in upload_dir.glob(".*.tmp"):
+                try:
+                    if temp.is_file() and temp.stat().st_mtime < cutoff:
+                        removed.append(temp)
+                except OSError:
+                    continue
+            bytes_removed = 0
+            unique_removed = {path for path in removed if path.exists()}
+            removed_count = 0
+            for path in unique_removed:
+                try:
+                    size = path.stat().st_size
+                    path.unlink(missing_ok=True)
+                    removed_count += 1
+                    bytes_removed += size
+                except OSError:
+                    continue
+        return {
+            "files_removed": removed_count,
+            "bytes_removed": bytes_removed,
+        }
+
+    def begin_upload(
+        self,
+        *,
+        expected_size: int,
+        expected_sha256: str,
+        name: str = "",
+        content_type: str = "application/octet-stream",
+    ) -> dict:
+        if (
+            not isinstance(expected_size, int)
+            or isinstance(expected_size, bool)
+            or expected_size <= 0
+        ):
+            raise ServiceError(
+                "invalid_upload", "expected_size must be positive", 400
+            )
+        if expected_size > MAX_ARTIFACT_BYTES:
+            raise ServiceError(
+                "artifact_too_large",
+                f"artifact exceeds {MAX_ARTIFACT_BYTES} bytes",
+                413,
+            )
+        if not _is_sha256(expected_sha256):
+            raise ServiceError(
+                "invalid_upload", "expected_sha256 must be a SHA256", 400
+            )
+        upload_id = uuid.uuid4().hex
+        record = {
+            "upload_id": upload_id,
+            "status": "uploading",
+            "expected_size": expected_size,
+            "expected_sha256": expected_sha256.lower(),
+            "received_bytes": 0,
+            "chunks": 0,
+            "name": name or f"artifact-{upload_id[:12]}.bin",
+            "content_type": content_type or "application/octet-stream",
+            "created_at": iso_now(),
+            "updated_at": iso_now(),
+            "artifact_id": None,
+        }
+        with self._lock:
+            self._upload_dir().mkdir(parents=True, exist_ok=True)
+            self._upload_part(upload_id).write_bytes(b"")
+            self._save_upload(record)
+        return record
+
+    def append_upload_chunk(
+        self,
+        upload_id: str,
+        *,
+        offset: int,
+        data: bytes,
+        sha256: str,
+    ) -> dict:
+        if not data:
+            raise ServiceError("empty_chunk", "chunk must not be empty", 400)
+        if len(data) > MAX_ARTIFACT_CHUNK_BYTES:
+            raise ServiceError(
+                "chunk_too_large",
+                f"chunk exceeds {MAX_ARTIFACT_CHUNK_BYTES} bytes",
+                413,
+            )
+        if not isinstance(offset, int) or isinstance(offset, bool) or offset < 0:
+            raise ServiceError("invalid_offset", "offset must be non-negative", 400)
+        if not _is_sha256(sha256):
+            raise ServiceError(
+                "invalid_chunk", "chunk SHA256 header is required", 400
+            )
+        actual_sha256 = hashlib.sha256(data).hexdigest()
+        if not hmac.compare_digest(actual_sha256, sha256.lower()):
+            raise ServiceError(
+                "chunk_hash_mismatch", "chunk SHA256 does not match body", 409
+            )
+        with self._lock:
+            record = self._load_upload(upload_id)
+            if record.get("status") != "uploading":
+                raise ServiceError(
+                    "upload_closed", "upload is not accepting chunks", 409
+                )
+            received = int(record.get("received_bytes", 0))
+            expected_size = int(record["expected_size"])
+            if offset != received:
+                raise ServiceError(
+                    "invalid_chunk_offset",
+                    f"expected offset {received}, got {offset}",
+                    409,
+                )
+            if received + len(data) > expected_size:
+                raise ServiceError(
+                    "chunk_exceeds_artifact",
+                    "chunk would exceed expected_size",
+                    413,
+                )
+            part = self._upload_part(upload_id)
+            if not part.is_file():
+                raise ServiceError(
+                    "upload_data_missing",
+                    "upload staging file is missing",
+                    409,
+                )
+            if part.stat().st_size != received:
+                raise ServiceError(
+                    "upload_data_mismatch",
+                    (
+                        f"upload staging file has {part.stat().st_size} bytes, "
+                        f"metadata records {received}"
+                    ),
+                    409,
+                )
+            try:
+                with part.open("r+b") as sink:
+                    sink.seek(received)
+                    written = sink.write(data)
+                    if written != len(data):
+                        raise OSError(
+                            f"short chunk write: {written} of {len(data)} bytes"
+                        )
+                    sink.flush()
+                    os.fsync(sink.fileno())
+                record["received_bytes"] = received + len(data)
+                record["chunks"] = int(record.get("chunks", 0)) + 1
+                record["updated_at"] = iso_now()
+                self._save_upload(record)
+            except Exception as error:
+                try:
+                    with part.open("r+b") as sink:
+                        sink.truncate(received)
+                        sink.flush()
+                        os.fsync(sink.fileno())
+                except OSError as rollback_error:
+                    raise ServiceError(
+                        "upload_rollback_failed",
+                        "failed to restore the last committed upload offset",
+                        500,
+                    ) from rollback_error
+                if isinstance(error, ServiceError):
+                    raise
+                raise ServiceError(
+                    "upload_write_failed",
+                    "artifact chunk could not be committed",
+                    500,
+                ) from error
+            return {
+                **record,
+                "next_offset": record["received_bytes"],
+            }
+
+    def complete_upload(self, upload_id: str) -> dict:
+        with self._lock:
+            record = self._load_upload(upload_id)
+            if record.get("status") == "completed":
+                return self.get(str(record["artifact_id"]))
+            if record.get("status") != "uploading":
+                raise ServiceError(
+                    "upload_closed", "upload cannot be completed", 409
+                )
+            part = self._upload_part(upload_id)
+            if not part.is_file():
+                raise ServiceError(
+                    "upload_data_missing", "upload staging file is missing", 409
+                )
+            received = int(record.get("received_bytes", 0))
+            if received != int(record["expected_size"]):
+                raise ServiceError(
+                    "incomplete_upload",
+                    (
+                        f"received {received} of "
+                        f"{record['expected_size']} bytes"
+                    ),
+                    409,
+                )
+            digest = hashlib.sha256()
+            with part.open("rb") as source:
+                for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                    digest.update(chunk)
+            artifact_id = digest.hexdigest()
+            if not hmac.compare_digest(
+                artifact_id, str(record["expected_sha256"])
+            ):
+                raise ServiceError(
+                    "artifact_hash_mismatch",
+                    "completed artifact SHA256 does not match expected_sha256",
+                    409,
+                )
+            data_path = self._data(artifact_id)
+            if data_path.exists():
+                part.unlink(missing_ok=True)
+            else:
+                part.replace(data_path)
+            artifact = {
+                "artifact_id": artifact_id,
+                "sha256": artifact_id,
+                "size": received,
+                "name": record["name"],
+                "content_type": record["content_type"],
+                "created_at": iso_now(),
+            }
+            self._meta(artifact_id).write_text(
+                json.dumps(artifact, ensure_ascii=False, indent=2) + "\n"
+            )
+            record["status"] = "completed"
+            record["artifact_id"] = artifact_id
+            record["updated_at"] = iso_now()
+            self._save_upload(record)
+            return artifact
+
+    def get_upload(self, upload_id: str) -> dict:
+        with self._lock:
+            return self._load_upload(upload_id)
+
+    def abort_upload(self, upload_id: str) -> dict:
+        with self._lock:
+            record = self._load_upload(upload_id)
+            if record.get("status") == "completed":
+                raise ServiceError(
+                    "upload_closed", "completed upload cannot be aborted", 409
+                )
+            self._upload_part(upload_id).unlink(missing_ok=True)
+            self._upload_meta(upload_id).unlink(missing_ok=True)
+            return {
+                "upload_id": upload_id,
+                "aborted": True,
+                "received_bytes": record.get("received_bytes", 0),
+            }
 
     def read(self, artifact_id: str) -> bytes:
         if not isinstance(artifact_id, str) or not _is_sha256(artifact_id):
@@ -5764,6 +6098,62 @@ class DeviceService:
             data, name=name, content_type=content_type or "application/octet-stream"
         )
 
+    def begin_artifact_upload(
+        self,
+        *,
+        expected_size: int,
+        expected_sha256: str,
+        name: str = "",
+        content_type: str = "",
+    ) -> dict:
+        if (
+            not isinstance(expected_size, int)
+            or isinstance(expected_size, bool)
+            or expected_size <= 0
+        ):
+            raise ServiceError(
+                "invalid_upload", "expected_size must be positive", 400
+            )
+        if expected_size > MAX_ARTIFACT_BYTES:
+            raise ServiceError(
+                "artifact_too_large",
+                f"artifact exceeds {MAX_ARTIFACT_BYTES} bytes",
+                413,
+            )
+        self._ensure_storage_capacity(expected_size)
+        return self.artifacts.begin_upload(
+            expected_size=expected_size,
+            expected_sha256=expected_sha256,
+            name=name,
+            content_type=content_type or "application/octet-stream",
+        )
+
+    def append_artifact_upload(
+        self,
+        upload_id: str,
+        *,
+        offset: int,
+        data: bytes,
+        sha256: str,
+    ) -> dict:
+        if data:
+            self._ensure_storage_capacity(len(data))
+        return self.artifacts.append_upload_chunk(
+            upload_id,
+            offset=offset,
+            data=data,
+            sha256=sha256,
+        )
+
+    def get_artifact_upload(self, upload_id: str) -> dict:
+        return self.artifacts.get_upload(upload_id)
+
+    def complete_artifact_upload(self, upload_id: str) -> dict:
+        return self.artifacts.complete_upload(upload_id)
+
+    def abort_artifact_upload(self, upload_id: str) -> dict:
+        return self.artifacts.abort_upload(upload_id)
+
     def create_firmware(self, payload: dict) -> dict:
         spec = self.specs.get(str(payload.get("device_id") or ""))
         if spec is not None:
@@ -6338,6 +6728,7 @@ class DeviceService:
             "artifacts_removed": 0,
             "firmware_removed": 0,
             "flash_cache_removed": 0,
+            "uploads_removed": 0,
             "freed_bytes": 0,
         }
         if include_cache:
@@ -6378,6 +6769,10 @@ class DeviceService:
         )
         cache_bytes_before = sum(
             directory_size_bytes(root) for root in cache_roots
+        )
+        upload_prune = self.artifacts.prune_uploads(
+            now=now,
+            grace_seconds=grace,
         )
 
         firmware_records = self.firmware.list()
@@ -6540,6 +6935,7 @@ class DeviceService:
             "artifacts_removed": len(removed_artifacts),
             "firmware_removed": len(removed_firmware_ids),
             "flash_cache_removed": len(removed_flash_cache),
+            "uploads_removed": upload_prune["files_removed"],
             "freed_bytes": max(0, cache_bytes_before - cache_bytes_after),
         }
 

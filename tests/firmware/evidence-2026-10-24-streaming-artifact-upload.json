@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "kind": "m5stack-streaming-artifact-upload",
+  "status": "PASS",
+  "scope": "service and HTTP resumable artifact upload",
+  "limits": {
+    "artifact_bytes": 100663296,
+    "chunk_bytes": 8388608
+  },
+  "service_round_trip": {
+    "payload_bytes": 69632,
+    "chunks": 2,
+    "resume_probe": "wrong offset rejected before accepted tail chunk",
+    "artifact_hash_verified": true,
+    "abort_cleanup_verified": true,
+    "failed_append_rollback_verified": true
+  },
+  "http_round_trip": {
+    "payload_bytes": 557056,
+    "chunks": 2,
+    "create_status": 202,
+    "chunk_status": 202,
+    "resume_get_status": 200,
+    "complete_status": 201,
+    "artifact_metadata_status": 200,
+    "abort_status": 200
+  },
+  "negative_round_trips": {
+    "chunk_hash_mismatch": "409 chunk_hash_mismatch",
+    "incomplete_complete": "409 incomplete_upload",
+    "final_hash_mismatch": "409 artifact_hash_mismatch",
+    "oversized_chunk": "413 chunk_too_large",
+    "failed_fsync": "500 upload_write_failed with staging restored to committed offset"
+  },
+  "storage_gc": {
+    "abandoned_staging_files_removed": 2,
+    "grace_period_enforced": true
+  },
+  "checks": {
+    "expected_size_enforced": true,
+    "chunk_limit_enforced": true,
+    "chunk_hash_required": true,
+    "contiguous_offsets_enforced": true,
+    "resume_metadata_available": true,
+    "final_hash_verified": true,
+    "ordinary_artifact_published": true,
+    "abort_cleanup": true,
+    "failed_append_rollback": true,
+    "abandoned_upload_gc": true
+  },
+  "not_claimed": [
+    "WebBurner browser progress/retry/cancel UI",
+    "browser refresh recovery",
+    "cross-vendor large firmware upload",
+    "physical hardware"
+  ]
+}

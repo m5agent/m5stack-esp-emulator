@@ -98,7 +98,7 @@ complete simulated device or as a unified-device PASS.
   This is not a worker VM sandbox or external IPv6 implementation.
 - `esp-emu` has validated WiFi/BLE behavior on S3/C6, including same-instance
   WiFi + BLE inside one `esp-emu` guest.
-- The QEMU classic-ESP32 path contains a `misc.esp32_wifi` model and
+- The QEMU classic-ESP32 path contains the OpenMAC `misc.esp32_wifi` model and
   completes scan, association, DHCP and controlled HTTP in the same guest.
   A following BT bootstrap exposes the 64 KiB BT RAM/control page and lets
   stock UIFlow2 activate NimBLE and enable advertising.

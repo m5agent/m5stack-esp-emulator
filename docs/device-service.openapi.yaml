@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.11.0
+  version: 1.12.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -95,6 +95,116 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+  /artifact-uploads:
+    post:
+      summary: Start a resumable streaming artifact upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArtifactUploadCreate"
+      responses:
+        "202":
+          description: Upload session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactUpload"
+        "400":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /artifact-uploads/{upload_id}:
+    get:
+      summary: Read streaming upload state
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+      responses:
+        "200":
+          description: Upload state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactUpload"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Abort a streaming upload
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+      responses:
+        "200":
+          description: Upload aborted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactUploadAbort"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /artifact-uploads/{upload_id}/chunks:
+    post:
+      summary: Append one contiguous artifact chunk
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+        - name: X-Chunk-Offset
+          in: header
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+        - name: X-Chunk-SHA256
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{64}$"
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "202":
+          description: Chunk accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactUploadProgress"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /artifact-uploads/{upload_id}/complete:
+    post:
+      summary: Verify and commit a streaming artifact
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+      responses:
+        "201":
+          description: Artifact committed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artifact"
+        "409":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
   /artifacts:
     get:
       summary: List uploaded artifacts
@@ -847,6 +957,13 @@ components:
       required: true
       schema:
         type: string
+    UploadId:
+      name: upload_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[0-9a-f]{32}$"
   responses:
     Error:
       description: Service error
@@ -1013,6 +1130,84 @@ components:
           type: array
           items:
             type: string
+    ArtifactUploadCreate:
+      type: object
+      required: [expected_size, expected_sha256]
+      properties:
+        expected_size:
+          type: integer
+          minimum: 1
+          maximum: 100663296
+        expected_sha256:
+          type: string
+          pattern: "^[0-9a-fA-F]{64}$"
+        name:
+          type: string
+        content_type:
+          type: string
+    ArtifactUpload:
+      type: object
+      required:
+        - upload_id
+        - status
+        - expected_size
+        - expected_sha256
+        - received_bytes
+        - chunks
+        - name
+        - content_type
+        - created_at
+        - updated_at
+      properties:
+        upload_id:
+          type: string
+          pattern: "^[0-9a-f]{32}$"
+        status:
+          type: string
+          enum: [uploading, completed]
+        expected_size:
+          type: integer
+        expected_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        received_bytes:
+          type: integer
+        chunks:
+          type: integer
+        name:
+          type: string
+        content_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        artifact_id:
+          type:
+            - string
+            - "null"
+          pattern: "^[0-9a-f]{64}$"
+    ArtifactUploadProgress:
+      allOf:
+        - $ref: "#/components/schemas/ArtifactUpload"
+        - type: object
+          required: [next_offset]
+          properties:
+            next_offset:
+              type: integer
+    ArtifactUploadAbort:
+      type: object
+      required: [upload_id, aborted, received_bytes]
+      properties:
+        upload_id:
+          type: string
+          pattern: "^[0-9a-f]{32}$"
+        aborted:
+          type: boolean
+        received_bytes:
+          type: integer
     Artifact:
       type: object
       required: [artifact_id, sha256, size, name]

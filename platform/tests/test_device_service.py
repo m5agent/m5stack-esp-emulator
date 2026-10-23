@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import json
+import hashlib
 import io
+import json
 import os
 import socket
 import struct
@@ -30,6 +31,7 @@ from device_service import (
     DeviceService,
     DeviceSession,
     MAX_ARTIFACT_BYTES,
+    MAX_ARTIFACT_CHUNK_BYTES,
     QMP,
     ServiceError,
     StoragePolicy,
@@ -484,6 +486,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(DEFAULT_MAX_SESSIONS, 12)
         self.assertEqual(DEFAULT_MAX_PER_DEVICE, 8)
         self.assertEqual(MAX_ARTIFACT_BYTES, 96 * 1024 * 1024)
+        self.assertEqual(MAX_ARTIFACT_CHUNK_BYTES, 8 * 1024 * 1024)
 
     def test_ble_profiles_use_longer_default_ready_timeout(self):
         for profile in (
@@ -521,6 +524,209 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.service.artifacts.delete(artifact["artifact_id"])
         self.assertEqual(self.service.artifacts.list(), [])
+
+    def test_streamed_artifact_upload_is_content_checked_and_resumable(self):
+        payload = b"streamed-firmware" * 4096
+        first = payload[:20000]
+        second = payload[20000:]
+        upload = self.service.begin_artifact_upload(
+            expected_size=len(payload),
+            expected_sha256=hashlib.sha256(payload).hexdigest(),
+            name="streamed.bin",
+            content_type="application/octet-stream",
+        )
+        progress = self.service.append_artifact_upload(
+            upload["upload_id"],
+            offset=0,
+            data=first,
+            sha256=hashlib.sha256(first).hexdigest(),
+        )
+        self.assertEqual(progress["next_offset"], len(first))
+        resumed = self.service.artifacts.get_upload(upload["upload_id"])
+        self.assertEqual(resumed["received_bytes"], len(first))
+        with self.assertRaises(ServiceError) as caught:
+            self.service.append_artifact_upload(
+                upload["upload_id"],
+                offset=0,
+                data=second,
+                sha256=hashlib.sha256(second).hexdigest(),
+            )
+        self.assertEqual(caught.exception.code, "invalid_chunk_offset")
+        self.service.append_artifact_upload(
+            upload["upload_id"],
+            offset=len(first),
+            data=second,
+            sha256=hashlib.sha256(second).hexdigest(),
+        )
+        artifact = self.service.complete_artifact_upload(upload["upload_id"])
+        self.assertEqual(
+            artifact["artifact_id"], hashlib.sha256(payload).hexdigest()
+        )
+        self.assertEqual(
+            self.service.artifacts.read(artifact["artifact_id"]), payload
+        )
+        completed = self.service.artifacts.get_upload(upload["upload_id"])
+        self.assertEqual(completed["status"], "completed")
+
+        aborted = self.service.begin_artifact_upload(
+            expected_size=4,
+            expected_sha256=hashlib.sha256(b"stop").hexdigest(),
+        )
+        self.assertTrue(
+            self.service.artifacts.abort_upload(aborted["upload_id"])["aborted"]
+        )
+
+    def test_streamed_artifact_upload_rejects_bad_hash_and_incomplete_state(self):
+        payload = b"verified-prefix"
+        upload = self.service.begin_artifact_upload(
+            expected_size=len(payload),
+            expected_sha256=hashlib.sha256(payload).hexdigest(),
+        )
+        with self.assertRaises(ServiceError) as caught:
+            self.service.append_artifact_upload(
+                upload["upload_id"],
+                offset=0,
+                data=payload,
+                sha256="0" * 64,
+            )
+        self.assertEqual(caught.exception.code, "chunk_hash_mismatch")
+        self.assertEqual(
+            self.service.get_artifact_upload(upload["upload_id"])[
+                "received_bytes"
+            ],
+            0,
+        )
+
+        first = payload[:4]
+        self.service.append_artifact_upload(
+            upload["upload_id"],
+            offset=0,
+            data=first,
+            sha256=hashlib.sha256(first).hexdigest(),
+        )
+        with self.assertRaises(ServiceError) as caught:
+            self.service.complete_artifact_upload(upload["upload_id"])
+        self.assertEqual(caught.exception.code, "incomplete_upload")
+
+        bad_final = self.service.begin_artifact_upload(
+            expected_size=len(payload),
+            expected_sha256="1" * 64,
+        )
+        self.service.append_artifact_upload(
+            bad_final["upload_id"],
+            offset=0,
+            data=payload,
+            sha256=hashlib.sha256(payload).hexdigest(),
+        )
+        with self.assertRaises(ServiceError) as caught:
+            self.service.complete_artifact_upload(bad_final["upload_id"])
+        self.assertEqual(caught.exception.code, "artifact_hash_mismatch")
+        self.service.abort_artifact_upload(bad_final["upload_id"])
+
+    def test_streamed_artifact_upload_rejects_oversized_chunk(self):
+        upload = self.service.begin_artifact_upload(
+            expected_size=8,
+            expected_sha256=hashlib.sha256(b"12345678").hexdigest(),
+        )
+        with mock.patch.object(
+            device_service_module,
+            "MAX_ARTIFACT_CHUNK_BYTES",
+            4,
+        ):
+            with self.assertRaises(ServiceError) as caught:
+                self.service.append_artifact_upload(
+                    upload["upload_id"],
+                    offset=0,
+                    data=b"12345",
+                    sha256=hashlib.sha256(b"12345").hexdigest(),
+                )
+        self.assertEqual(caught.exception.code, "chunk_too_large")
+        self.assertEqual(caught.exception.status, 413)
+
+    def test_streamed_artifact_upload_rolls_back_failed_append(self):
+        upload = self.service.begin_artifact_upload(
+            expected_size=5,
+            expected_sha256=hashlib.sha256(b"chunk").hexdigest(),
+        )
+        part = self.service.artifacts._upload_part(upload["upload_id"])
+        fsync_calls = 0
+
+        def fail_once_then_succeed(_fd):
+            nonlocal fsync_calls
+            fsync_calls += 1
+            if fsync_calls == 1:
+                raise OSError("simulated disk failure")
+
+        with mock.patch.object(
+            device_service_module.os,
+            "fsync",
+            side_effect=fail_once_then_succeed,
+        ):
+            with self.assertRaises(ServiceError) as caught:
+                self.service.append_artifact_upload(
+                    upload["upload_id"],
+                    offset=0,
+                    data=b"chunk",
+                    sha256=hashlib.sha256(b"chunk").hexdigest(),
+                )
+        self.assertEqual(caught.exception.code, "upload_write_failed")
+        self.assertEqual(part.read_bytes(), b"")
+        self.assertEqual(
+            self.service.get_artifact_upload(upload["upload_id"])[
+                "received_bytes"
+            ],
+            0,
+        )
+        self.service.abort_artifact_upload(upload["upload_id"])
+
+    def test_storage_gc_removes_abandoned_upload_staging(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            service = DeviceService(
+                state_dir=Path(tmp),
+                storage_policy=StoragePolicy(
+                    history_ttl_seconds=0,
+                    max_history_sessions=100,
+                    max_history_bytes=0,
+                    max_cache_bytes=0,
+                    cache_grace_seconds=60,
+                    min_free_bytes=0,
+                    prune_interval_seconds=3600,
+                ),
+            )
+            try:
+                payload = b"abandoned staging"
+                upload = service.begin_artifact_upload(
+                    expected_size=len(payload),
+                    expected_sha256=hashlib.sha256(payload).hexdigest(),
+                )
+                service.append_artifact_upload(
+                    upload["upload_id"],
+                    offset=0,
+                    data=payload,
+                    sha256=hashlib.sha256(payload).hexdigest(),
+                )
+                upload_dir = service.artifacts._upload_dir()
+                old = time.time() - 120
+                for path in upload_dir.glob(f"{upload['upload_id']}.*"):
+                    os.utime(path, (old, old))
+
+                result = service.prune_storage(
+                    include_cache=True,
+                    now=time.time(),
+                )
+
+                self.assertEqual(result["cache"]["uploads_removed"], 2)
+                self.assertFalse(
+                    service.artifacts._upload_part(upload["upload_id"]).exists()
+                )
+                self.assertFalse(
+                    service.artifacts._upload_meta(upload["upload_id"]).exists()
+                )
+                with self.assertRaises(ServiceError) as caught:
+                    service.get_artifact_upload(upload["upload_id"])
+                self.assertEqual(caught.exception.code, "unknown_upload")
+            finally:
+                service.close_all()
 
     def test_runtime_env_is_narrowly_allowlisted(self):
         with self.assertRaises(ServiceError) as caught:
@@ -3578,6 +3784,88 @@ class DeviceServiceHttpTests(unittest.TestCase):
         status, fetched = self.request(f"/api/v1/firmware/{firmware['firmware_id']}")
         self.assertEqual(status, 200)
         self.assertEqual(fetched["sha256"], firmware["sha256"])
+
+    def test_streamed_artifact_http_upload(self):
+        payload = b"web-burner-stream" * 32768
+        first = payload[:200000]
+        second = payload[200000:]
+        status, upload = self.request(
+            "/api/v1/artifact-uploads",
+            method="POST",
+            data=json.dumps(
+                {
+                    "expected_size": len(payload),
+                    "expected_sha256": hashlib.sha256(payload).hexdigest(),
+                    "name": "web-burner.bin",
+                    "content_type": "application/octet-stream",
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 202)
+        upload_id = upload["upload_id"]
+        status, progress = self.request(
+            f"/api/v1/artifact-uploads/{upload_id}/chunks",
+            method="POST",
+            data=first,
+            headers={
+                "Content-Type": "application/octet-stream",
+                "X-Chunk-Offset": "0",
+                "X-Chunk-SHA256": hashlib.sha256(first).hexdigest(),
+            },
+        )
+        self.assertEqual(status, 202)
+        self.assertEqual(progress["next_offset"], len(first))
+        status, resumed = self.request(
+            f"/api/v1/artifact-uploads/{upload_id}"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(resumed["received_bytes"], len(first))
+        status, progress = self.request(
+            f"/api/v1/artifact-uploads/{upload_id}/chunks",
+            method="POST",
+            data=second,
+            headers={
+                "Content-Type": "application/octet-stream",
+                "X-Chunk-Offset": str(len(first)),
+                "X-Chunk-SHA256": hashlib.sha256(second).hexdigest(),
+            },
+        )
+        self.assertEqual(status, 202)
+        self.assertEqual(progress["next_offset"], len(payload))
+        status, artifact = self.request(
+            f"/api/v1/artifact-uploads/{upload_id}/complete",
+            method="POST",
+            data=b"",
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(
+            artifact["artifact_id"], hashlib.sha256(payload).hexdigest()
+        )
+        status, stored = self.request(
+            f"/api/v1/artifacts/{artifact['artifact_id']}"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(stored["size"], len(payload))
+
+        status, aborted = self.request(
+            "/api/v1/artifact-uploads",
+            method="POST",
+            data=json.dumps(
+                {
+                    "expected_size": 1,
+                    "expected_sha256": hashlib.sha256(b"x").hexdigest(),
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 202)
+        status, deleted = self.request(
+            f"/api/v1/artifact-uploads/{aborted['upload_id']}",
+            method="DELETE",
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(deleted["aborted"])
 
     def test_device_state_endpoint(self):
         spec = self.service.specs["sticks3"]

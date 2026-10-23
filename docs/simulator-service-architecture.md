@@ -11,7 +11,8 @@ Implemented:
 
 - device catalog and capability discovery;
 - exclusive session leases with TTL and capacity limits;
-- content-addressed artifact upload;
+- content-addressed direct artifact upload and resumable chunk upload with
+  write rollback, abort and abandoned-staging GC;
 - merged and segmented firmware composition;
 - real esptool-backed first-run flash preparation plus cached flash images;
 - one isolated flash copy per session;
@@ -44,7 +45,8 @@ Not implemented yet:
 - prestarted warm QEMU instances;
 - resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
-- formal CI/worker lifecycle for the Linux namespace lane;
+- self-hosted QEMU worker lifecycle for the Linux namespace lane; the
+  GitHub-hosted policy/egress fixture already runs in CI;
 - external IPv6/CIDR/domain-set allowlisting and multi-device lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
@@ -85,10 +87,11 @@ Stopped/failed history is pruned oldest-first by configurable age, count and
 byte limits. Active states are never selected. Artifact, firmware and prepared
 Flash caches use content-addressed identities plus reference checks; entries
 unreferenced by retained sessions or firmware are eligible for GC after a grace
-period. `GET /api/v1/storage` exposes current usage and policy, while
-`POST /api/v1/storage/prune` applies an immediate pass. The service reserves a
-configurable amount of free disk and rejects new writes with HTTP `507` before
-the reserve is consumed.
+period. The same janitor also removes abandoned `.uploads` staging data and
+expired completed upload records. `GET /api/v1/storage` exposes current usage
+and policy, while `POST /api/v1/storage/prune` applies an immediate pass. The
+service reserves a configurable amount of free disk and rejects new writes with
+HTTP `507` before the reserve is consumed.
 
 “Ready device” and “real-time rendering” are orthogonal. A service can keep a
 device ready and stream frames from it, or start it on demand and stream frames

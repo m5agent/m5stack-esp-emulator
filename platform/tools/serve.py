@@ -24,6 +24,7 @@ from device_service import (
     DEFAULT_MAX_SESSIONS,
     DEFAULT_STATE_DIR,
     MAX_ARTIFACT_BYTES,
+    MAX_ARTIFACT_CHUNK_BYTES,
     DeviceService,
     ServiceError,
 )
@@ -59,7 +60,10 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
         self.send_header(
             "Access-Control-Allow-Headers",
-            "Authorization, Content-Type, X-Artifact-Name, X-Artifact-Type",
+            (
+                "Authorization, Content-Type, X-Artifact-Name, "
+                "X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256"
+            ),
         )
         super().end_headers()
 
@@ -228,6 +232,12 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             elif method == "GET" and parts == ["artifacts"]:
                 response = {"artifacts": service.artifacts.list()}
+            elif (
+                method == "GET"
+                and len(parts) == 2
+                and parts[0] == "artifact-uploads"
+            ):
+                response = service.get_artifact_upload(parts[1])
             elif method == "GET" and len(parts) == 2 and parts[0] == "artifacts":
                 response = service.artifacts.get(parts[1])
             elif method == "GET" and len(parts) == 2 and parts[0] == "firmware":
@@ -420,6 +430,57 @@ class Handler(SimpleHTTPRequestHandler):
                         "invalid_qom", "path and property query values are required", 400
                     )
                 response = session.qom_get(path_value, prop)
+            elif method == "POST" and parts == ["artifact-uploads"]:
+                payload = self._read_json()
+                expected_size = payload.get("expected_size")
+                expected_sha256 = payload.get("expected_sha256")
+                if not isinstance(expected_sha256, str):
+                    raise ServiceError(
+                        "invalid_upload",
+                        "expected_sha256 is required",
+                        400,
+                    )
+                response = service.begin_artifact_upload(
+                    expected_size=expected_size,
+                    expected_sha256=expected_sha256,
+                    name=str(payload.get("name") or ""),
+                    content_type=str(payload.get("content_type") or ""),
+                )
+                status = 202
+            elif (
+                method == "POST"
+                and len(parts) == 3
+                and parts[0] == "artifact-uploads"
+                and parts[2] == "chunks"
+            ):
+                data = self._read_body(
+                    max_bytes=MAX_ARTIFACT_CHUNK_BYTES
+                )
+                offset_header = self.headers.get("X-Chunk-Offset", "")
+                chunk_sha256 = self.headers.get("X-Chunk-SHA256", "")
+                try:
+                    offset = int(offset_header, 0)
+                except ValueError as error:
+                    raise ServiceError(
+                        "invalid_chunk_offset",
+                        "X-Chunk-Offset must be an integer",
+                        400,
+                    ) from error
+                response = service.append_artifact_upload(
+                    parts[1],
+                    offset=offset,
+                    data=data,
+                    sha256=chunk_sha256,
+                )
+                status = 202
+            elif (
+                method == "POST"
+                and len(parts) == 3
+                and parts[0] == "artifact-uploads"
+                and parts[2] == "complete"
+            ):
+                response = service.complete_artifact_upload(parts[1])
+                status = 201
             elif method == "POST" and parts == ["artifacts"]:
                 data = self._read_body(max_bytes=MAX_ARTIFACT_BYTES)
                 response = service.upload_artifact(
@@ -505,6 +566,12 @@ class Handler(SimpleHTTPRequestHandler):
                         else None
                     ),
                 )
+            elif (
+                method == "DELETE"
+                and len(parts) == 2
+                and parts[0] == "artifact-uploads"
+            ):
+                response = service.abort_artifact_upload(parts[1])
             elif method == "DELETE" and len(parts) == 2 and parts[0] == "artifacts":
                 response = service.artifacts.delete(parts[1])
             elif method == "DELETE" and parts == ["sessions"]:

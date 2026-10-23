@@ -190,6 +190,30 @@ LittleFS/FAT 都不记录 Unix mode，因此运行时文件权限仍为 `NOT RUN
 LittleFS 清单依赖 `littlefs-python`；依赖缺失时返回 `UNAVAILABLE`，不会
 自动格式化或改写输入镜像。
 
+## 可恢复流式上传
+
+Device Service 现在还接受不把完整 artifact 放进 JSON/base64 的 chunk
+上传：
+
+1. `POST /api/v1/artifact-uploads` 声明 expected size 和 final SHA256；
+2. `POST /api/v1/artifact-uploads/<id>/chunks` 追加 ≤8 MiB 的连续 raw
+   chunk，`X-Chunk-Offset` 必须等于当前 received bytes，
+   `X-Chunk-SHA256` 必须匹配 chunk body；
+3. `GET /api/v1/artifact-uploads/<id>` 返回已接收字节和
+   `next_offset`，可连接中断后续传；
+4. `POST /api/v1/artifact-uploads/<id>/complete` 验证 total size 和完整
+   SHA256，再原子发布普通 content-addressed artifact；
+5. `DELETE /api/v1/artifact-uploads/<id>` 清理未完成 staging 文件。
+
+chunk 只在请求期间进入内存，staging artifact 直接顺序写盘；最终 manifest
+仍引用普通 artifact，不引入第二种下游格式。当前完成的是 WebBurner
+backend，页面进度、重试、取消和刷新恢复仍属于 `FW-04` UI 工作。
+
+每次 append 先写 staging 再原子替换 upload metadata；任何写入、`fsync` 或
+metadata 提交失败都会把 part 截断回最后一个已确认 offset，客户端可重新
+`GET` 后从 `next_offset` 续传。未完成上传、孤立 staging 文件和过期完成
+记录由 storage janitor 按 `M5_SERVICE_CACHE_GRACE` 回收。
+
 ## Device Service
 
 先上传规范化完整镜像，再创建 `kind=manifest` firmware：

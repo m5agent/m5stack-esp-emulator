@@ -39,6 +39,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 `platform/tools/serve.py` 暴露 HTTP 和 `/api/v1`：
 
 - 内容寻址 firmware/artifact 和版本化 FirmwareManifest；
+- 可恢复 chunk artifact upload，含连续 offset/hash、失败回滚和 staging GC；
 - merged/segmented/ZIP 导入与 capability mismatch；
 - QEMU 与 Tab5 session 生命周期、TTL、容量和存储回收；
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
@@ -52,9 +53,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 当前边界：
 
 - `core2-native-vhci` 已进入 `/api/v1`，但内部仍使用服务托管的 GDB bridge；
-  QEMU native-HCI 替代路径已完成 `HCI-1` transport 和 `HCI-2` 首个 H2C
-  Reset 捕获；`HCI-3` C2H guest delivery、repeated lease、bit-exact
-  Espressif BT baseband/controller 和物理 cache/PSRAM 等价性未完成。
+  QEMU native-HCI 替代路径已完成 `HCI-1` transport、`HCI-2` 首个 H2C
+  Reset 捕获和 `HCI-3a` 单包 C2H callback `5/5`；`HCI-3b` 完整
+  HCI/GATT、`HCI-4` repeated lease、bit-exact Espressif
+  BT baseband/controller 和物理 cache/PSRAM 等价性仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱；worker/VM 生命周期仍未完成。
