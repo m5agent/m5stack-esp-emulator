@@ -208,9 +208,11 @@ diagnostics in `internal/records/`.
   hand HCI to Bumble and passed external NUS GATT 5/5 without rebuilding for
   UART HCI. The extended `unified_core2` runner also combines board, frame,
   touch, audio, QOM, WiFi/public network and native-VHCI BLE in one guest,
-  3/3. This is stock-firmware controller-boundary evidence, not a bit-exact
-  Espressif BT baseband/controller model. Device Service integration and
-  physical cache/PSRAM equivalence remain open.
+  3/3. Device Service `core2-native-vhci` now exposes the same path in one
+  `/api/v1` lease with frame/QOM/pcap/peer/bridge evidence. This is
+  stock-firmware controller-boundary evidence, not a bit-exact Espressif BT
+  baseband/controller model. The GDB backend and physical cache/PSRAM
+  equivalence remain open.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.

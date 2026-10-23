@@ -185,6 +185,7 @@ def run_attempt(
         filter(None, [str(ROOT / ".work/py"), env.get("PYTHONPATH", "")])
     )
     env["BLE_HCI_TRACE"] = "1"
+    env["M5_NATIVE_BT_ELF"] = str(args.elf.resolve())
     probe: subprocess.Popen | None = None
     qemu: subprocess.Popen | None = None
     gdb: subprocess.Popen | None = None

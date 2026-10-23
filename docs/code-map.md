@@ -110,7 +110,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | 外设矩阵 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 的数据面 |
 | 单设备统一运行时 | `tests/uiflow2/unified_*` | 单 QEMU guest 的板级、WiFi 和 HCI BLE |
 | Core2 stock VHCI BLE | `tests/uiflow2/core2_native_vhci/run_test.py` | 内置-controller 固件边界的外部 NUS GATT |
-| Core2 unified native VHCI | `tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | 同 guest board+WiFi+公网+native-VHCI BLE |
+| Core2 unified native VHCI | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | Device Service/独立 runner 的同 guest board+WiFi+公网+native-VHCI BLE |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码/重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证和 link fault 后恢复 |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |

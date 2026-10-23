@@ -74,8 +74,9 @@ complete simulated device or as a unified-device PASS.
 - The same stock VHCI transport is now selectable in
   `tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci`.
   Display/touch, audio, QOM, WiFi/DHCP, public DNS/HTTP and the external NUS
-  GATT exchange share one QEMU guest and passed 3/3. It is still a standalone
-  runner, not yet a Device Service profile.
+  GATT exchange share one QEMU guest and passed 3/3. Device Service exposes
+  the same path as `qemu-unified/profile=core2-native-vhci` with a matching
+  `elf_artifact_id`.
 - NanoC6 combines real UIFlow2 RGB/button/IR paths, QEMU ESP32-C6 WiFi
   scan/association/DHCP/HTTP and UART1 HCI BLE in one C6 guest.
 - Nesso N1 combines its display/touch and peripheral set with QEMU ESP32-C6

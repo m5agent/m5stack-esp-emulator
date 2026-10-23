@@ -197,6 +197,7 @@ def run_attempt(
     )
     env["M5SW_I2S_PCM_FILE"] = str(speaker_path)
     env["M5SW_I2S_RX_PCM_FILE"] = str(microphone_source)
+    env["M5_NATIVE_BT_ELF"] = str(args.native_elf.resolve())
     subprocess.run(
         [
             sys.executable,
@@ -556,6 +557,11 @@ def main() -> int:
         default="hci-uart",
     )
     parser.add_argument("--gdb", type=Path, default=default_gdb())
+    parser.add_argument(
+        "--native-elf",
+        type=Path,
+        default=ROOT / ".work/uiflow2-core2-symbols/micropython.elf",
+    )
     parser.add_argument("--require-all-attempts", action="store_true")
     args = parser.parse_args()
 
@@ -565,6 +571,8 @@ def main() -> int:
     args.out_dir.mkdir(parents=True, exist_ok=True)
     if args.ble_transport == "native-vhci" and not args.gdb.exists():
         raise SystemExit(f"GDB does not exist: {args.gdb}")
+    if args.ble_transport == "native-vhci" and not args.native_elf.exists():
+        raise SystemExit(f"native ELF does not exist: {args.native_elf}")
     attempts = []
     with ControlledHttp(args.http_port) as probe:
         for attempt_index in range(1, args.attempts + 1):

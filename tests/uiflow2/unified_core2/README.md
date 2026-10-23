@@ -75,4 +75,6 @@ This path keeps display/touch, audio, QOM, WiFi, public DNS/HTTP and native
 VHCI BLE in one guest and is recorded in
 `evidence-2026-10-23-native-vhci.json` as 3/3 PASS. It requires the classic
 ESP32 BB idle-readback patch and a matching symbol ELF. It remains a
-standalone GDB bridge rather than a Device Service profile.
+GDB bridge, but the same path is exposed through Device Service as
+`qemu-unified/profile=core2-native-vhci`; the service-side run is recorded in
+`evidence-2026-10-23-native-vhci-service.json`.

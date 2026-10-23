@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Status: local MVP with unified-device runtime contract `1.6.0` and bounded
+Status: local MVP with unified-device runtime contract `1.7.0` and bounded
 storage retention implemented on `2026-10-23`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -23,7 +23,8 @@ Current scope:
   `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV, StopWatch,
   AtomS3R, PaperColor, PaperMono, StackChan and StamPLC use one combined
   WiFi+BLE+board QEMU lease through their unified profiles; environment-gated
-  Core2 adds `core2-unified` through the classic ESP32 OpenMAC/HCI QEMU path;
+  Core2 adds `core2-unified` through the classic ESP32 OpenMAC/HCI QEMU path
+  and `core2-native-vhci` through the stock VHCI bridge;
 - NanoC6 adds `nanoc6-hci-ble`: board peripherals, RMT WS2812/IR, QEMU C6
   WiFi DHCP/HTTP and UART1 HCI BLE run in one C6 guest;
 - Nesso N1 adds `nesso-unified`: display/touch, PI4IOE, power telemetry,
@@ -517,10 +518,40 @@ NS4168 speaker, SPM1423 microphone, WiFi DHCP/HTTP, public IPv4 DNS/HTTP and
 external HCI-offload BLE NUS in one guest. Ten independent first attempts
 passed 10/10 with no retry under deterministic TCG/icount scheduling. This is
 simulation-only evidence and is not equivalent to physical cache/PSRAM timing.
-The service profile still uses HCI-offload. Separate stock VHCI runners now
-pass external NUS GATT 5/5 and same-guest unified 3/3 without rebuilding for
-UART HCI, but they are not yet merged into this lease and execute Bumble in
-place of the bit-exact Espressif BT baseband/controller.
+The `core2-unified` service profile still uses HCI-offload. Stock VHCI runners
+also pass external NUS GATT 5/5 and same-guest unified 3/3 without rebuilding
+for UART HCI; they execute Bumble in place of the bit-exact Espressif BT
+baseband/controller.
+
+The stock-firmware path is exposed as a separate unified profile:
+
+```json
+{
+  "device_id": "core2",
+  "runtime": "qemu-unified",
+  "ready_timeout_seconds": 120,
+  "network": {
+    "profile": "core2-native-vhci",
+    "elf_artifact_id": "<matching-xtensa-elf-sha256>",
+    "attempts": 1,
+    "capture_pcap": true
+  }
+}
+```
+
+`elf_artifact_id` is mandatory and must point to the matching symbol ELF.
+The service starts one `m5core2` guest with `-m 0`, the OpenMAC WiFi NIC and
+a QEMU GDB endpoint. A supervised GDB bridge loads that ELF, intercepts the
+firmware's own `esp_vhci_host_*` H2C/C2H, suppresses the incomplete in-guest
+controller call, and forwards HCI to Bumble. A second Bumble peer performs
+NUS discovery, subscription, write and notification readback.
+
+`/network` returns `kind=m5stack-core2-unified-qemu-proof` with
+`profile=core2-native-vhci`, bridge H2C/C2H/ACL checks, peer checks and the
+packet-capture summary. The evidence ZIP includes the serial log,
+`native-vhci-gdb.log`, peer log, frame, audio PCM, QOM snapshot, pcap and
+manifest. The bridge remains a trusted-host diagnostic implementation and is
+not a bit-exact Espressif BT baseband/controller.
 
 The StickS3 unified profile closes WiFi and BLE in that same instance:
 
@@ -1195,10 +1226,10 @@ restart.
   `profile=core2-unified` combines OpenMAC WiFi, UART1 BLE NUS and board
   peripherals in one `m5core2` guest;
   `core2-ble-advertise` stops at native controller/advertising control;
-  `core2-hci-gatt` closes external Bumble GATT without WiFi. The standalone
-  `tests/uiflow2/core2_native_vhci/` runner additionally closes external NUS
-  GATT 5/5 through the stock firmware's VHCI boundary, but its GDB bridge is
-  not yet a production Device Service path or bit-exact controller model;
+  `core2-hci-gatt` closes external Bumble GATT without WiFi.
+  `core2-native-vhci` closes stock VHCI external NUS GATT together with
+  board/WiFi/public network in one service lease, but still depends on a GDB
+  bridge and is not a bit-exact controller model;
 - NanoC6 `nanoc6-hci-ble` closes board peripherals, QEMU C6 WiFi DHCP/HTTP
   and UART1 HCI BLE in one C6 guest;
 - Nesso N1 `nesso-unified` adds display/touch, PI4IOE, BQ27220/AW32001,
@@ -1219,9 +1250,9 @@ restart.
   layout and modeled controllers;
 - Core2 startup starvation is mitigated by deterministic TCG/icount scheduling
   (10/10 first attempts), but physical cache/PSRAM equivalence remains
-  unverified. Stock native-VHCI external GATT is PASS 5/5 in a standalone GDB
-  bridge; production QEMU integration and bit-exact controller internals
-  remain unverified;
+  unverified. Stock native-VHCI external GATT is PASS 5/5 and
+  `core2-native-vhci` passes through Device Service, but it still depends on a
+  GDB bridge and is not a bit-exact controller implementation;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See
   [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);

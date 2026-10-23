@@ -26,6 +26,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_vhci/README.md",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
+            "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
         ):
             self.assertTrue((ROOT / relative).is_file(), relative)
 
@@ -93,7 +94,8 @@ class DocsConsistencyTests(unittest.TestCase):
             status,
         )
         self.assertIn("native-VHCI BLE 5/5", status)
-        self.assertIn("同 guest unified native-VHCI 3/3", status)
+        self.assertIn("同 guest native-VHCI 3/3", status)
+        self.assertIn("core2-native-vhci", status)
 
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()

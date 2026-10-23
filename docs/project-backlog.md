@@ -11,7 +11,7 @@
 | 优先级 | 工作流 | 完成标准 | 依赖 / 主要风险 |
 | --- | --- | --- | --- |
 | P0 | 网络隔离、观测与重连 | namespace、DNS/egress policy、pcap、错误密码、断线重连的整机 CI 闭环 | Linux worker；CI/worker 生命周期、DHCP renewal 和真实 AP 消失 |
-| P0 | Core2 BT 生产化与物理等价性 | 将已验证的同 guest stock VHCI→Bumble bridge 收进 QEMU/Device Service 单 lease；bit-exact controller；物理 cache/PSRAM 时序 | LX6 baseband/controller 模型；真机 |
+| P0 | Core2 BT 生产化与物理等价性 | 将已进入 Device Service 的 GDB VHCI bridge 改为 QEMU 内部/无调试器后端；bit-exact controller；物理 cache/PSRAM 时序 | LX6 baseband/controller 模型；真机 |
 | P0 | 通用固件审查 | 更深静态审查、安全 key 真机流程和跨设备兼容回归 | 多厂商镜像格式；板级 profile 和 eFuse/安全启动差异 |
 | P0 | 发布前硬件验证 | 代表设备在同一固件 SHA 和测试计划上通过真机 UART/画面/网络/外设证据 | 物理设备和测试槽；虚拟结果只能标 virtual-device |
 | P1 | Tab5 后端补齐 | 重建或扩展 P4 后端，关闭 I2S/PCM、MIPI-CSI、USB Host、SDIO、动态 I2C、ST7123 controller | 闭源 `esp-emu 0.50.0`；建议 2–3 周并行工程 |
@@ -22,7 +22,7 @@
 当前执行顺序：
 
 1. 把 Linux namespace、pcap、错误密码和 reconnect 接入正式 CI/worker；
-2. 将 Core2 native-VHCI GDB bridge 生产化为 QEMU/Device Service 内部组件；
+2. 将 Core2 native-VHCI GDB bridge 生产化为 QEMU 内部或无调试器后端；
 3. 扩充 FirmwareManifest 的静态审查、安全 key 流程和跨固件回归；
 4. 再推进 Tab5、worker pool、视觉保真和 CardputerZero 的长期项。
 
@@ -82,11 +82,14 @@ guest 路径实际产生 pcap 和 reconnect 证据；不可信固件无法访问
 - `unified_core2 --ble-transport native-vhci` 在同一 guest 合并 board、
   frame/touch、音频、QOM、WiFi/DHCP、公网 DNS/HTTP 和外部 NUS GATT，
   3/3 PASS。
+- Device Service `qemu-unified/profile=core2-native-vhci` 完成真实
+  `/api/v1` lease，network evidence 全 PASS，evidence ZIP 含 frame、PCM、
+  QOM、pcap、bridge 和 peer log。
 
 仍待完成：
 
-1. 把 GDB 诊断桥改为 QEMU 内部或 Device Service worker 管理的稳定 VHCI
-   backend，把已通过的 standalone 同 guest 路径迁入 `/api/v1` 单 lease；
+1. 把 GDB 诊断桥改为 QEMU 内部或 Device Service worker 管理的无调试器
+   VHCI backend；
 2. 执行真正的 Espressif BT baseband/controller firmware，而不是在 VHCI
    边界用 Bumble 接管 controller；
 3. 物理 cache/PSRAM 时序与确定性 QEMU 调度差异；

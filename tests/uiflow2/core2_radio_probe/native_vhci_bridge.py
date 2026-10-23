@@ -10,10 +10,8 @@ import time
 import gdb
 from hci_stream import HciStreamParser
 
-VHCI_ENV_POINTER = 0x3FFCC0A4
+# Classic ESP32 VHCI environment layout in the matching ESP-IDF 5.5 build.
 VHCI_CALLBACK_OFFSET = 0x4E4
-API_SEND_PACKET = 0x403064D8
-IDLE_FUNCTION = "esp_cpu_wait_for_intr"
 INJECTION_BUFFER_SIZE = 4096
 
 
@@ -23,8 +21,18 @@ def _read_u32(address: int) -> int:
 
 
 class NativeVhciBridge:
-    def __init__(self, port: int) -> None:
+    def __init__(
+        self,
+        port: int,
+        *,
+        api_send_packet: int,
+        vhci_env_pointer: int,
+        idle_function: str,
+    ) -> None:
         self.port = port
+        self.api_send_packet = api_send_packet
+        self.vhci_env_pointer = vhci_env_pointer
+        self.idle_function = idle_function
         self.condition = threading.Condition()
         self.pending: queue.Queue[bytes] = queue.Queue()
         self.socket = self._connect(port)
@@ -89,7 +97,7 @@ class NativeVhciBridge:
         return self.injection_buffer
 
     def _callbacks(self) -> tuple[int, int]:
-        env = _read_u32(VHCI_ENV_POINTER)
+        env = _read_u32(self.vhci_env_pointer)
         if not env:
             raise RuntimeError("VHCI environment is not initialized")
         callback = _read_u32(env + VHCI_CALLBACK_OFFSET)
@@ -182,7 +190,7 @@ class NativeVhciBridge:
 
 class SendPacketBreakpoint(gdb.Breakpoint):
     def __init__(self, bridge: NativeVhciBridge) -> None:
-        super().__init__(f"*{API_SEND_PACKET}", internal=True)
+        super().__init__(f"*{bridge.api_send_packet}", internal=True)
         self.bridge = bridge
 
     def stop(self) -> bool:
@@ -209,7 +217,7 @@ class SendPacketBreakpoint(gdb.Breakpoint):
 
 class IdleBreakpoint(gdb.Breakpoint):
     def __init__(self, bridge: NativeVhciBridge, timeout: float) -> None:
-        super().__init__(IDLE_FUNCTION, internal=True)
+        super().__init__(bridge.idle_function, internal=True)
         self.bridge = bridge
         self.timeout = timeout
 
@@ -233,7 +241,14 @@ def start() -> None:
     gdb_port = int(os.environ["M5_NATIVE_GDB_PORT"])
     gdb.execute("set confirm off")
     gdb.execute(f"target remote :{gdb_port}")
-    _bridge = NativeVhciBridge(port)
+    _bridge = NativeVhciBridge(
+        port,
+        api_send_packet=int(
+            gdb.parse_and_eval("&API_vhci_host_send_packet")
+        ),
+        vhci_env_pointer=int(gdb.parse_and_eval("&vhci_env_p")),
+        idle_function="esp_cpu_wait_for_intr",
+    )
     print("NATIVE_VHCI_BRIDGE_READY", flush=True)
 
 

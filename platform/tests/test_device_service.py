@@ -912,6 +912,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(
                     row["network_profiles"],
                     [
+                        "core2-native-vhci",
                         "core2-unified",
                         "core2-openmac",
                         "core2-ble-advertise",
@@ -944,10 +945,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
         fake_qemu = Path(self.tmp.name) / "qemu-core2-radio"
         fake_qemu.write_bytes(b"fake")
         fake_qemu.chmod(0o755)
+        fake_gdb = Path(self.tmp.name) / "xtensa-gdb"
+        fake_gdb.write_bytes(b"fake")
+        fake_gdb.chmod(0o755)
         old_radio = os.environ.get("M5_CORE2_RADIO_QEMU")
         old_wifi = os.environ.get("M5_CORE2_WIFI_QEMU")
+        old_gdb = os.environ.get("M5_XTENSA_GDB")
         os.environ.pop("M5_CORE2_WIFI_QEMU", None)
         os.environ["M5_CORE2_RADIO_QEMU"] = str(fake_qemu)
+        os.environ["M5_XTENSA_GDB"] = str(fake_gdb)
         try:
             parsed = device_service_module.parse_qemu_ble_execution(
                 self.service.specs["core2"],
@@ -974,6 +980,27 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertEqual(
                 core2_unified["expected_markers"],
                 list(device_service_module.CORE2_UNIFIED_MARKERS),
+            )
+            elf_artifact_id = "a" * 64
+            native_vhci = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["core2"],
+                {
+                    "profile": "core2-native-vhci",
+                    "elf_artifact_id": elf_artifact_id,
+                },
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+            self.assertEqual(
+                native_vhci["profile"],
+                "core2-native-vhci",
+            )
+            self.assertEqual(
+                native_vhci["expected_markers"],
+                list(device_service_module.CORE2_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                native_vhci["elf_artifact_id"],
+                elf_artifact_id,
             )
             self.assertEqual(
                 device_service_module.UNIFIED_HTTP_PORTS[
@@ -1192,6 +1219,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 wrong_profile.exception.code,
                 "unsupported_network_profile",
             )
+            with self.assertRaises(ServiceError) as missing_elf:
+                device_service_module.parse_qemu_ble_execution(
+                    self.service.specs["core2"],
+                    {"profile": "core2-native-vhci"},
+                    runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+                )
+            self.assertEqual(missing_elf.exception.code, "elf_required")
         finally:
             if old_radio is None:
                 os.environ.pop("M5_CORE2_RADIO_QEMU", None)
@@ -1201,6 +1235,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 os.environ.pop("M5_CORE2_WIFI_QEMU", None)
             else:
                 os.environ["M5_CORE2_WIFI_QEMU"] = old_wifi
+            if old_gdb is None:
+                os.environ.pop("M5_XTENSA_GDB", None)
+            else:
+                os.environ["M5_XTENSA_GDB"] = old_gdb
 
     def test_network_session_runs_isolated_lane_and_retains_evidence(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"

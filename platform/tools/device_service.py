@@ -105,6 +105,9 @@ ALLOWED_RUNTIME_ENV = {
 }
 NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
+NATIVE_VHCI_GDB_SCRIPT = (
+    ROOT / "tests/uiflow2/core2_radio_probe/native_vhci_bridge.gdb"
+)
 DEFAULT_NETWORK_EMULATOR = (
     ROOT
     / ".work/esp-emu-versions/0.50.0"
@@ -129,6 +132,7 @@ CORE2_WIFI_PROFILE = "core2-openmac"
 CORE2_BLE_PROFILE = "core2-ble-advertise"
 CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
 CORE2_UNIFIED_PROFILE = "core2-unified"
+CORE2_NATIVE_VHCI_PROFILE = "core2-native-vhci"
 NANOC6_HCI_BLE_PROFILE = "nanoc6-hci-ble"
 NESSO_UNIFIED_PROFILE = "nesso-unified"
 STICKS3_WIFI_PROFILE = "uiflow2-sticks3-wifi"
@@ -154,6 +158,7 @@ UNIFIED_PROFILES = {
     STACKCHAN_UNIFIED_PROFILE,
     STAMPLC_UNIFIED_PROFILE,
     CORE2_UNIFIED_PROFILE,
+    CORE2_NATIVE_VHCI_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
     STICKS3_WIFI_PROFILE: 18080,
@@ -169,6 +174,7 @@ UNIFIED_HTTP_PORTS = {
     STACKCHAN_UNIFIED_PROFILE: 18087,
     STAMPLC_UNIFIED_PROFILE: 18088,
     CORE2_UNIFIED_PROFILE: 18089,
+    CORE2_NATIVE_VHCI_PROFILE: 18089,
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
@@ -301,6 +307,7 @@ UNIFIED_MARKERS = {
     STACKCHAN_UNIFIED_PROFILE: STACKCHAN_UNIFIED_MARKERS,
     STAMPLC_UNIFIED_PROFILE: STAMPLC_UNIFIED_MARKERS,
     CORE2_UNIFIED_PROFILE: CORE2_UNIFIED_MARKERS,
+    CORE2_NATIVE_VHCI_PROFILE: CORE2_UNIFIED_MARKERS,
 }
 UNIFIED_READY_MARKERS = {
     NANOC6_HCI_BLE_PROFILE: "NANOC6_HCI_READY",
@@ -315,6 +322,7 @@ UNIFIED_READY_MARKERS = {
     STACKCHAN_UNIFIED_PROFILE: "UNIFIED_STACKCHAN_READY",
     STAMPLC_UNIFIED_PROFILE: "UNIFIED_STAMPLC_READY",
     CORE2_UNIFIED_PROFILE: "UNIFIED_CORE2_READY",
+    CORE2_NATIVE_VHCI_PROFILE: "UNIFIED_CORE2_READY",
 }
 UNIFIED_HTTP_BODIES = {
     STICKS3_WIFI_PROFILE: b"STICKS3_WIFI_OK\n",
@@ -330,6 +338,7 @@ UNIFIED_HTTP_BODIES = {
     STACKCHAN_UNIFIED_PROFILE: b"UNIFIED_STACKCHAN_OK\n",
     STAMPLC_UNIFIED_PROFILE: b"UNIFIED_STAMPLC_OK\n",
     CORE2_UNIFIED_PROFILE: b"UNIFIED_CORE2_OK\n",
+    CORE2_NATIVE_VHCI_PROFILE: b"UNIFIED_CORE2_OK\n",
 }
 UNIFIED_BLE_IDENTITIES = {
     "nanoc6": NANOC6_BLE_IDENTITY,
@@ -820,6 +829,32 @@ def core2_radio_qemu_path() -> Path:
     return path
 
 
+def native_vhci_gdb_path() -> Path:
+    raw_path = os.environ.get("M5_XTENSA_GDB")
+    if raw_path:
+        path = Path(raw_path)
+    else:
+        candidates = sorted(
+            (
+                Path.home()
+                / ".espressif/tools/xtensa-esp-elf-gdb"
+            ).glob("*/xtensa-esp-elf-gdb/bin/xtensa-esp32-elf-gdb")
+        )
+        path = candidates[-1] if candidates else Path()
+    if (
+        not path
+        or not path.is_file()
+        or not os.access(path, os.X_OK)
+        or not NATIVE_VHCI_GDB_SCRIPT.is_file()
+    ):
+        raise ServiceError(
+            "native_bt_backend_unavailable",
+            "native Core2 VHCI requires an executable xtensa GDB and bridge",
+            503,
+        )
+    return path
+
+
 def parse_qemu_wifi_execution(
     spec: DeviceSpec,
     value: Any,
@@ -919,6 +954,7 @@ def parse_qemu_ble_execution(
             CORE2_BLE_PROFILE,
             CORE2_HCI_GATT_PROFILE,
             CORE2_UNIFIED_PROFILE,
+            CORE2_NATIVE_VHCI_PROFILE,
         }
         default_profile = CORE2_BLE_PROFILE
     elif spec.id == "sticks3":
@@ -1000,6 +1036,24 @@ def parse_qemu_ble_execution(
         expected_markers = list(NESSO_UNIFIED_MARKERS)
     elif profile in UNIFIED_MARKERS and not expected_markers:
         expected_markers = list(UNIFIED_MARKERS[profile])
+    elf_artifact_id = value.get("elf_artifact_id")
+    if elf_artifact_id is not None and (
+        not isinstance(elf_artifact_id, str)
+        or not _is_sha256(elf_artifact_id)
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.elf_artifact_id is invalid",
+            400,
+        )
+    if profile == CORE2_NATIVE_VHCI_PROFILE:
+        if not elf_artifact_id:
+            raise ServiceError(
+                "elf_required",
+                f"{profile} requires network.elf_artifact_id",
+                400,
+            )
+        native_vhci_gdb_path()
     attempts = value.get("attempts", 5)
     if not isinstance(attempts, int) or not 1 <= attempts <= 10:
         raise ServiceError(
@@ -1023,12 +1077,22 @@ def parse_qemu_ble_execution(
     )
     if spec.id == "core2":
         core2_radio_qemu_path()
+    if (
+        profile == CORE2_NATIVE_VHCI_PROFILE
+        and policy.isolation == "namespace"
+    ):
+        raise ServiceError(
+            "native_bt_isolation_unavailable",
+            "native Core2 VHCI currently requires trusted-host isolation",
+            409,
+        )
     return {
         "profile": profile,
         "expected_markers": expected_markers,
         "attempts": attempts,
         "capture_pcap": capture_pcap,
         "policy": policy.evidence(),
+        "elf_artifact_id": elf_artifact_id,
         "nic": (
             "misc.esp32_wifi"
             if spec.id == "core2"
@@ -1038,7 +1102,10 @@ def parse_qemu_ble_execution(
         ),
         "ble_name": (
             UNIFIED_BLE_IDENTITIES["core2"][0]
-            if profile == CORE2_UNIFIED_PROFILE
+            if profile in {
+                CORE2_UNIFIED_PROFILE,
+                CORE2_NATIVE_VHCI_PROFILE,
+            }
             else "M5-CORE2-HCI"
             if spec.id == "core2"
             else NANOC6_BLE_IDENTITY[0]
@@ -1261,6 +1328,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             ):
                 core2_radio_qemu_path()
                 network_profiles = [
+                    CORE2_NATIVE_VHCI_PROFILE,
                     CORE2_UNIFIED_PROFILE,
                     CORE2_WIFI_PROFILE,
                     CORE2_BLE_PROFILE,
@@ -1889,6 +1957,7 @@ class DeviceSession:
         self.stdout_path = self.dir / "qemu.stdout"
         self.stderr_path = self.dir / "qemu.stderr"
         self.hci_probe_log = self.dir / "ble-probe.log"
+        self.native_vhci_log = self.dir / "native-vhci-gdb.log"
         self.http_fixture_log = self.dir / "http-fixture.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
@@ -1897,7 +1966,9 @@ class DeviceSession:
         self.rmt_source = self.dir / "nec-source.rmt"
         self.rmt_capture = self.dir / "nec-capture.rmt"
         self.hci_port: int | None = None
+        self.gdb_port: int | None = None
         self._hci_probe: subprocess.Popen | None = None
+        self._native_vhci_gdb: subprocess.Popen | None = None
         self._http_fixture: UnifiedHttpFixture | None = None
         self._proc: subprocess.Popen | None = None
         self._qmp: QMP | None = None
@@ -2438,6 +2509,11 @@ class DeviceSession:
                 if self.hci_probe_log.is_file()
                 else ""
             )
+            native_bridge_log = (
+                self.native_vhci_log.read_text(errors="replace")
+                if self.native_vhci_log.is_file()
+                else ""
+            )
             serial_markers = [
                 str(marker)
                 for marker in self.network_config.get(
@@ -2470,6 +2546,22 @@ class DeviceSession:
             checks["http:controlled_request"] = http_requests == [
                 {"path": "/unified", "host": "qemu.test"}
             ]
+            if profile == CORE2_NATIVE_VHCI_PROFILE:
+                checks.update(
+                    {
+                        "bridge:ready": (
+                            "NATIVE_VHCI_BRIDGE_READY" in native_bridge_log
+                        ),
+                        "bridge:h2c": "NATIVE_VHCI_H2C" in native_bridge_log,
+                        "bridge:c2h": "NATIVE_VHCI_C2H" in native_bridge_log,
+                        "bridge:acl_h2c": (
+                            "NATIVE_VHCI_H2C 0201" in native_bridge_log
+                        ),
+                        "bridge:acl_c2h": (
+                            "NATIVE_VHCI_C2H 0201" in native_bridge_log
+                        ),
+                    }
+                )
             if all(checks.values()):
                 status = "PASS"
             elif serial.strip() or probe_log.strip():
@@ -2489,7 +2581,9 @@ class DeviceSession:
                     "guest_process_count": 1,
                     "wifi_nic": self.network_config.get("nic"),
                     "hci_transport": (
-                        "UART2 H4"
+                        "ESP32 VHCI via GDB bridge to Bumble"
+                        if profile == CORE2_NATIVE_VHCI_PROFILE
+                        else "UART2 H4"
                         if profile == STACKCHAN_UNIFIED_PROFILE
                         else "UART1 H4"
                     ),
@@ -2506,6 +2600,12 @@ class DeviceSession:
                 "peer_log_sha256": hashlib.sha256(
                     probe_log.encode()
                 ).hexdigest(),
+                "bridge_log_bytes": len(native_bridge_log.encode()),
+                "bridge_log_sha256": (
+                    hashlib.sha256(native_bridge_log.encode()).hexdigest()
+                    if profile == CORE2_NATIVE_VHCI_PROFILE
+                    else None
+                ),
                 "gatt": {
                     "name": ble_name,
                     "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
@@ -2517,7 +2617,9 @@ class DeviceSession:
                 "not_claimed": [
                     "real-hardware behavior",
                     (
-                        "native ESP32 WiFi PHY or Bluetooth controller model"
+                        "bit-exact Espressif BT baseband/controller"
+                        if profile == CORE2_NATIVE_VHCI_PROFILE
+                        else "native ESP32 WiFi PHY or Bluetooth controller model"
                         if self.spec.id == "core2"
                         else "native ESP32-S3 WiFi PHY or Bluetooth controller model"
                     ),
@@ -2808,6 +2910,7 @@ class DeviceSession:
                 for path in (
                     self.serial0,
                     self.hci_probe_log,
+                    self.native_vhci_log,
                     self.stdout_path,
                     self.stderr_path,
                     self.network_pcap,
@@ -2883,7 +2986,7 @@ class DeviceSession:
                 ],
             )
         )
-        if c6_hci:
+        if c6_hci or profile == CORE2_NATIVE_VHCI_PROFILE:
             env["BLE_HCI_TRACE"] = "1"
         command = [
             sys.executable,
@@ -2944,6 +3047,71 @@ class DeviceSession:
         raise ServiceError(
             "ble_peer_failed",
             "external BLE peer did not become ready",
+            504,
+        )
+
+    def _launch_native_vhci_gdb(self) -> None:
+        if self.hci_port is None or self.gdb_port is None:
+            raise RuntimeError("native VHCI ports are not allocated")
+        elf_artifact_id = self.network_config.get("elf_artifact_id")
+        if not elf_artifact_id:
+            raise RuntimeError("native VHCI ELF artifact is missing")
+        command = [
+            str(native_vhci_gdb_path()),
+            "-q",
+            "-batch",
+            "-x",
+            str(NATIVE_VHCI_GDB_SCRIPT),
+        ]
+        env = os.environ.copy()
+        env["PYTHONPATH"] = os.pathsep.join(
+            filter(
+                None,
+                [
+                    str(ROOT / ".work/py"),
+                    env.get("PYTHONPATH", ""),
+                ],
+            )
+        )
+        env["M5_NATIVE_BT_HCI_PORT"] = str(self.hci_port)
+        env["M5_NATIVE_GDB_PORT"] = str(self.gdb_port)
+        env["M5_NATIVE_BT_ELF"] = str(
+            self.service.artifacts.path(str(elf_artifact_id))
+        )
+        output = self.native_vhci_log.open("wb")
+        try:
+            self._native_vhci_gdb = subprocess.Popen(
+                command,
+                cwd=ROOT,
+                env=env,
+                stdout=output,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        finally:
+            output.close()
+        deadline = time.time() + 10
+        while time.time() < deadline:
+            if (
+                self.native_vhci_log.is_file()
+                and "NATIVE_VHCI_BRIDGE_READY"
+                in self.native_vhci_log.read_text(errors="replace")
+            ):
+                self._record_event(
+                    "native_vhci_bridge_started",
+                    pid=self._native_vhci_gdb.pid,
+                )
+                return
+            if self._native_vhci_gdb.poll() is not None:
+                raise ServiceError(
+                    "native_bt_backend_unavailable",
+                    "native VHCI GDB bridge exited during startup",
+                    503,
+                )
+            time.sleep(0.05)
+        raise ServiceError(
+            "native_bt_backend_unavailable",
+            "native VHCI GDB bridge did not become ready",
             504,
         )
 
@@ -3211,6 +3379,7 @@ class DeviceSession:
             else self.spec.qemu
         )
         profile = self.network_config.get("profile")
+        native_vhci = profile == CORE2_NATIVE_VHCI_PROFILE
         policy = NetworkPolicy.from_mapping(
             self.network_config.get("policy")
         )
@@ -3236,8 +3405,13 @@ class DeviceSession:
             self._launch_http_fixture()
         if profile == STACKCHAN_UNIFIED_PROFILE:
             self._prepare_stackchan_peripheral_inputs()
-        elif profile == CORE2_UNIFIED_PROFILE:
+        elif profile in {
+            CORE2_UNIFIED_PROFILE,
+            CORE2_NATIVE_VHCI_PROFILE,
+        }:
             self._prepare_core2_peripheral_inputs()
+        if native_vhci:
+            self.gdb_port = free_tcp_port()
         command = [
             str(qemu_path),
             "-M", self.spec.machine,
@@ -3245,6 +3419,12 @@ class DeviceSession:
             "-L", str(self.spec.rom_dir),
             "-display", "none",
         ]
+        if native_vhci:
+            command[1:1] = [
+                "-S",
+                "-gdb",
+                f"tcp::{self.gdb_port}",
+            ]
         if core2_radio:
             command.extend(
                 [
@@ -3273,7 +3453,7 @@ class DeviceSession:
             )
         else:
             command.extend(["-serial", f"file:{self.serial0}"])
-            if hci_gatt:
+            if hci_gatt and not native_vhci:
                 assert self.hci_port is not None
                 if profile == STACKCHAN_UNIFIED_PROFILE:
                     command.extend(["-serial", f"file:{self.serial1}"])
@@ -3326,8 +3506,13 @@ class DeviceSession:
                     f"driver={self.spec.efuse_driver},property=drive,value=efuse",
                 ]
             )
-        if self.spec.memory is not None:
-            command.extend(["-m", str(self.spec.memory)])
+        if self.spec.memory is not None or native_vhci:
+            command.extend(
+                [
+                    "-m",
+                    "0" if native_vhci else str(self.spec.memory),
+                ]
+            )
         env = os.environ.copy()
         env.update(self.spec.env)
         env.update(self.runtime_env)
@@ -3342,7 +3527,10 @@ class DeviceSession:
         if profile == STAMPLC_UNIFIED_PROFILE:
             env["M5SW_CAN_ECHO"] = "1"
             env["M5SW_RS485_ECHO"] = "1"
-        if profile == CORE2_UNIFIED_PROFILE:
+        if profile in {
+            CORE2_UNIFIED_PROFILE,
+            CORE2_NATIVE_VHCI_PROFILE,
+        }:
             env["M5SW_I2S_RX_PCM_FILE"] = str(self.microphone_source_pcm)
         if profile == NANOC6_HCI_BLE_PROFILE:
             env["M5SW_RMT_TX_FILE"] = str(self.rmt_capture)
@@ -3418,6 +3606,8 @@ class DeviceSession:
             stderr.close()
         self.pid = self._proc.pid
         self._persist_session()
+        if native_vhci:
+            self._launch_native_vhci_gdb()
         try:
             self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
         except RuntimeError as error:
@@ -3443,10 +3633,13 @@ class DeviceSession:
                 STAMPLC_UNIFIED_PROFILE,
                 STAMPLC_UNIFIED_QOM,
             )
-        elif profile == CORE2_UNIFIED_PROFILE:
+        elif profile in {
+            CORE2_UNIFIED_PROFILE,
+            CORE2_NATIVE_VHCI_PROFILE,
+        }:
             self._apply_profile_qom(
                 "UNIFIED_CORE2_IO_CONFIG_READY",
-                CORE2_UNIFIED_PROFILE,
+                str(profile),
                 CORE2_UNIFIED_QOM,
                 pause=False,
             )
@@ -4234,6 +4427,7 @@ class DeviceSession:
                 (stdout_name, self.stdout_path),
                 (stderr_name, self.stderr_path),
                 ("ble-probe.log", self.hci_probe_log),
+                ("native-vhci-gdb.log", self.native_vhci_log),
                 ("http-fixture.json", self.http_fixture_log),
                 ("c6.log", self.dir / "c6.log"),
             ):
@@ -4385,6 +4579,27 @@ class DeviceSession:
         return self.snapshot()
 
     def _terminate_process(self) -> None:
+        native_gdb = self._native_vhci_gdb
+        if native_gdb is not None and native_gdb.poll() is None:
+            try:
+                os.killpg(native_gdb.pid, signal.SIGTERM)
+            except (ProcessLookupError, PermissionError):
+                try:
+                    native_gdb.terminate()
+                except ProcessLookupError:
+                    pass
+            try:
+                native_gdb.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(native_gdb.pid, signal.SIGKILL)
+                except (ProcessLookupError, PermissionError):
+                    try:
+                        native_gdb.kill()
+                    except ProcessLookupError:
+                        pass
+                native_gdb.wait(timeout=5)
+        self._native_vhci_gdb = None
         proc = self._proc
         if proc is not None and proc.poll() is None:
             try:
@@ -5624,6 +5839,12 @@ class DeviceService:
                 payload["ready_marker"] = UNIFIED_READY_MARKERS[
                     network_config["profile"]
                 ]
+        if network_config:
+            elf_artifact_id = network_config.get("elf_artifact_id")
+            if elf_artifact_id:
+                self.artifacts.get(str(elf_artifact_id))
+                if elf_artifact_id not in source_artifacts:
+                    source_artifacts.append(str(elf_artifact_id))
 
         self._ensure_storage_capacity(spec.flash_size)
         with self._lock:
