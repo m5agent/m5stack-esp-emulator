@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.7.0
+  version: 1.8.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1259,12 +1259,25 @@ components:
               default: trusted-host
             egress:
               type: string
-              enum: [native, deny-all, lab-only]
+              enum: [native, deny-all, lab-only, allowlist]
               default: native
             dns:
               type: string
               enum: [slirp, deny]
               default: slirp
+            allowed_hosts:
+              type: array
+              maxItems: 32
+              uniqueItems: true
+              description: >
+                Required with egress=allowlist. Filters the Host header at the
+                controlled HTTP gateway. This is not a general destination-IP
+                or internet egress allowlist. Profiles without a controlled
+                HTTP fixture reject egress=allowlist with
+                allowlist_not_supported.
+              items:
+                type: string
+                pattern: "^[A-Za-z0-9.-]{1,253}$"
         console_mode:
           type: string
           enum: [auto, uart0, usb-jtag]

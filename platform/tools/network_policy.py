@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -14,8 +15,9 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 SANDBOX_RUNNER = ROOT / "platform/tools/network_sandbox.py"
 ISOLATION_MODES = {"trusted-host", "namespace"}
-EGRESS_MODES = {"native", "deny-all", "lab-only"}
+EGRESS_MODES = {"native", "deny-all", "lab-only", "allowlist"}
 DNS_MODES = {"slirp", "deny"}
+HOST_PATTERN = re.compile(r"^[a-z0-9.-]{1,253}$")
 
 
 class NetworkPolicyError(ValueError):
@@ -28,6 +30,7 @@ class NetworkPolicy:
     egress: str = "native"
     dns: str = "slirp"
     capture_pcap: bool = True
+    allowed_hosts: tuple[str, ...] = ()
 
     @classmethod
     def from_mapping(cls, value: Any) -> "NetworkPolicy":
@@ -38,6 +41,30 @@ class NetworkPolicy:
         isolation = value.get("isolation", "trusted-host")
         egress = value.get("egress", "native")
         dns = value.get("dns", "slirp")
+        raw_allowed_hosts = value.get("allowed_hosts", [])
+        if not isinstance(raw_allowed_hosts, list) or any(
+            not isinstance(host, str) for host in raw_allowed_hosts
+        ):
+            raise NetworkPolicyError(
+                "network.policy.allowed_hosts must be a string list"
+            )
+        allowed_hosts = tuple(
+            sorted(
+                {
+                    host.strip().lower()
+                    for host in raw_allowed_hosts
+                    if host.strip()
+                }
+            )
+        )
+        if any(not HOST_PATTERN.fullmatch(host) for host in allowed_hosts):
+            raise NetworkPolicyError(
+                "network.policy.allowed_hosts contains an invalid host"
+            )
+        if len(allowed_hosts) > 32:
+            raise NetworkPolicyError(
+                "network.policy.allowed_hosts exceeds 32 entries"
+            )
         if isolation not in ISOLATION_MODES:
             raise NetworkPolicyError(
                 f"network.policy.isolation must be one of "
@@ -62,17 +89,27 @@ class NetworkPolicy:
             )
         if isolation == "namespace" and egress == "native":
             raise NetworkPolicyError(
-                "isolation=namespace requires egress=deny-all or lab-only"
+                "isolation=namespace requires "
+                "egress=deny-all, lab-only or allowlist"
             )
-        if egress in {"deny-all", "lab-only"} and dns != "deny":
+        if egress in {"deny-all", "lab-only", "allowlist"} and dns != "deny":
             raise NetworkPolicyError(
                 "restricted egress requires dns=deny"
+            )
+        if egress == "allowlist" and not allowed_hosts:
+            raise NetworkPolicyError(
+                "egress=allowlist requires non-empty allowed_hosts"
+            )
+        if egress != "allowlist" and allowed_hosts:
+            raise NetworkPolicyError(
+                "allowed_hosts requires egress=allowlist"
             )
         return cls(
             isolation=isolation,
             egress=egress,
             dns=dns,
             capture_pcap=True,
+            allowed_hosts=allowed_hosts,
         )
 
     def evidence(self) -> dict:
@@ -81,8 +118,12 @@ class NetworkPolicy:
             "egress": self.egress,
             "dns": self.dns,
             "capture_pcap": self.capture_pcap,
+            "allowed_hosts": list(self.allowed_hosts),
             "claim": (
-                "Linux network namespace with no external route"
+                "Linux network namespace with no external route and "
+                "controlled HTTP Host allowlisting"
+                if self.egress == "allowlist"
+                else "Linux network namespace with no external route"
                 if self.isolation == "namespace"
                 else "trusted-host user networking"
             ),
@@ -90,6 +131,7 @@ class NetworkPolicy:
                 "malware safety",
                 "RF behavior",
                 "TLS certificate correctness",
+                "arbitrary destination-IP allowlisting",
                 "external internet allowlist",
             ],
         }

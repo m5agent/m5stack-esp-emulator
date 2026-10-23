@@ -456,6 +456,20 @@ def parse_network_policy(value: Any) -> NetworkPolicy:
         ) from error
 
 
+def require_allowlist_http_fixture(
+    profile: str,
+    policy: NetworkPolicy,
+) -> None:
+    if policy.egress != "allowlist" or profile in UNIFIED_HTTP_PORTS:
+        return
+    raise ServiceError(
+        "allowlist_not_supported",
+        "network.policy.egress=allowlist requires a profile with a "
+        "controlled HTTP fixture",
+        400,
+    )
+
+
 def qemu_pcap_options(path: Path, *, netdev: str = "wifi0") -> list[str]:
     return [
         "-object",
@@ -913,6 +927,7 @@ def parse_qemu_wifi_execution(
             400,
         )
     policy = parse_network_policy(value.get("policy"))
+    require_allowlist_http_fixture(profile, policy)
     if (
         policy.isolation == "namespace"
         and namespace_capability()["status"] != "PASS"
@@ -1062,6 +1077,7 @@ def parse_qemu_ble_execution(
             400,
         )
     policy = parse_network_policy(value.get("policy"))
+    require_allowlist_http_fixture(profile, policy)
     if (
         policy.isolation == "namespace"
         and namespace_capability()["status"] != "PASS"
@@ -3554,11 +3570,16 @@ class DeviceSession:
                         f"no controlled HTTP port for profile {profile}",
                         500,
                     )
-                sandbox_config["http"] = {
+                http_fixture: dict[str, Any] = {
                     "port": http_port,
                     "body": http_body.decode(),
                     "log": str(self.http_fixture_log),
                 }
+                if policy.allowed_hosts:
+                    http_fixture["allowed_hosts"] = list(
+                        policy.allowed_hosts
+                    )
+                sandbox_config["http"] = http_fixture
             if hci_gatt:
                 assert ble_probe_command is not None
                 sandbox_config["ble_probe"] = {

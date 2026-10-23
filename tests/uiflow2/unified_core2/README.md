@@ -57,9 +57,9 @@ BLE in this unified profile remains UART1 HCI-offload to Bumble. Native ESP32
 controller advertising enable is proven separately. The
 `tests/uiflow2/core2_native_vhci/` runner now keeps the stock
 internal-controller build and bridges the real VHCI boundary to Bumble,
-reaching external NUS GATT 5/5. Its GDB bridge is not yet part of this unified
-lease, and bit-exact Espressif BT baseband/controller execution remains
-`NOT RUN`.
+reaching external NUS GATT 5/5. The same transport is selectable in this
+unified runner, but bit-exact Espressif BT baseband/controller execution
+remains `NOT RUN`.
 
 The same runner can instead select the stock native-VHCI transport:
 

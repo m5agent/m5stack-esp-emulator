@@ -103,6 +103,13 @@ SoftAP 门户；UDP 当前只覆盖 station path。实际接口与错误码见
 S3/C6 的完整设备路径另外已经在 QEMU unified profile 中完成，不依赖本
 lane 的 framebuffer/板级结果拼接。
 
+TLS 测试 CA 和 Host allowlist 的独立 fixture 位于
+[`tests/network/tls_allowlist/`](../tests/network/tls_allowlist/README.md)。
+它已覆盖测试 CA 生成、namespace-local HTTPS gateway、Host 允许/拒绝日志和
+pcap 断言，但当前 S3 guest 在 `ssl.SSLContext` 创建阶段被 AES/GDMA
+数据面阻断，因此状态是 `FAIL`。它只验证 lab gateway 的 Host 决策，不证明
+任意公网 destination allowlist。
+
 ## 证据边界
 
 PASS 只证明本次运行时列出的数据面。它不证明：

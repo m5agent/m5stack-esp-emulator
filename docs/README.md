@@ -63,6 +63,7 @@
 - [网络诊断 lane](network-lane.md)
 - [Linux 隔离测试](../tests/network/linux_isolation/README.md)
 - [断线重连探针](../tests/network/reconnect_probe/README.md)
+- [TLS Host allowlist 探针](../tests/network/tls_allowlist/README.md)
 - [Core2 stock VHCI BLE](../tests/uiflow2/core2_native_vhci/README.md)
 
 ### 专项 Backlog

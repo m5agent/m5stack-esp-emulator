@@ -561,6 +561,27 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(parsed["policy"]["egress"], "lab-only")
         self.assertEqual(parsed["policy"]["dns"], "deny")
         self.assertTrue(parsed["capture_pcap"])
+        allowlist = dict(request)
+        allowlist["policy"] = {
+            "isolation": "namespace",
+            "egress": "allowlist",
+            "dns": "deny",
+            "allowed_hosts": ["qemu.test"],
+        }
+        with mock.patch.object(
+            device_service_module,
+            "namespace_capability",
+            return_value={"status": "PASS", "checks": {}, "errors": []},
+        ):
+            parsed = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                allowlist,
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(
+            parsed["policy"]["allowed_hosts"],
+            ["qemu.test"],
+        )
 
     def test_capture_summary_is_written_after_qemu_stops(self):
         spec = self.service.specs["sticks3"]
@@ -902,6 +923,22 @@ class DeviceServiceUnitTests(unittest.TestCase):
                     {"net_mode": "user,restrict=on"},
                 )
             self.assertEqual(restricted.exception.code, "invalid_network")
+            with self.assertRaises(ServiceError) as no_http_allowlist:
+                device_service_module.parse_qemu_wifi_execution(
+                    self.service.specs["core2"],
+                    {
+                        "policy": {
+                            "isolation": "namespace",
+                            "egress": "allowlist",
+                            "dns": "deny",
+                            "allowed_hosts": ["allowed.lab.test"],
+                        }
+                    },
+                )
+            self.assertEqual(
+                no_http_allowlist.exception.code,
+                "allowlist_not_supported",
+            )
             gated = DeviceService(
                 state_dir=Path(self.tmp.name) / "qemu-wifi-service",
                 max_sessions=1,
@@ -963,6 +1000,23 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 },
             )
             self.assertEqual(parsed["profile"], "core2-ble-advertise")
+            with self.assertRaises(ServiceError) as no_http_allowlist:
+                device_service_module.parse_qemu_ble_execution(
+                    self.service.specs["core2"],
+                    {
+                        "profile": "core2-ble-advertise",
+                        "policy": {
+                            "isolation": "namespace",
+                            "egress": "allowlist",
+                            "dns": "deny",
+                            "allowed_hosts": ["allowed.lab.test"],
+                        },
+                    },
+                )
+            self.assertEqual(
+                no_http_allowlist.exception.code,
+                "allowlist_not_supported",
+            )
             hci_gatt = device_service_module.parse_qemu_ble_execution(
                 self.service.specs["core2"],
                 {"profile": "core2-hci-gatt"},

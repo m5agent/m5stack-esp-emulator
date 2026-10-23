@@ -421,7 +421,8 @@ evidence/
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
 1. 文件系统提取、敏感资产/权限审批、证书链校验和许可证策略；
-2. 正式 CI/worker、egress allowlist、TLS 测试 CA 和双设备 lab fabric；
+2. 正式 CI/worker、可控 resolver、通用 egress allowlist、双设备 lab fabric，
+   以及修复当前 S3 TLS 测试 CA fixture 的 AES/GDMA blocker；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。

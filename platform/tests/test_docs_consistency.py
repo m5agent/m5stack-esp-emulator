@@ -31,6 +31,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
+            "tests/network/tls_allowlist/README.md",
+            "tests/network/tls_allowlist/run_test.py",
+            "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
         ):
@@ -99,6 +102,13 @@ class DocsConsistencyTests(unittest.TestCase):
             "Device Service integration of the bridge",
             "Service production bridge",
             "single-lease integration remains",
+            "GDB-based runners are not yet exposed as a Device Service runtime",
+            "not yet part of this unified lease",
+            "retries by default five times",
+            "cache startup panic is still intermittent",
+            "DNS, external internet access and BLE are not covered",
+            "the ST7789 panel first frame is still black",
+            "It does not yet validate the first frame",
             "网络模拟暂不开放",
         ):
             self.assertNotIn(stale, active)
@@ -152,6 +162,20 @@ class DocsConsistencyTests(unittest.TestCase):
             "core2-native-vhci",
             (DOCS / "qemu-device-adaptation-matrix.md").read_text(),
         )
+        self.assertIn("AES/GDMA", status)
+        self.assertIn(
+            "AES/GDMA",
+            (DOCS / "network-simulation-plan.md").read_text(),
+        )
+        tls_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/tls_allowlist/"
+                "evidence-2026-10-23-blocked.json"
+            ).read_text()
+        )
+        self.assertEqual(tls_evidence["status"], "FAIL")
+        self.assertIn("aes_gdma", tls_evidence["blocker"])
 
     def test_documented_platform_test_count_is_current(self) -> None:
         suite = unittest.defaultTestLoader.discover(
@@ -182,6 +206,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIsNotNone(markdown_version)
         self.assertIsNotNone(openapi_version)
         self.assertEqual(markdown_version.group(1), openapi_version.group(1))
+        self.assertIn("allowlist", openapi)
+        self.assertIn("allowed_hosts", openapi)
 
 
 if __name__ == "__main__":

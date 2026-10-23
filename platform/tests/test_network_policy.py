@@ -69,6 +69,49 @@ class NetworkPolicyTests(unittest.TestCase):
                 with self.assertRaises(NetworkPolicyError):
                     NetworkPolicy.from_mapping(value)
 
+    def test_allowlist_policy_requires_explicit_hosts(self):
+        policy = NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "deny",
+                "allowed_hosts": [
+                    "Allowed.Lab.Test",
+                    "10.0.2.2",
+                ],
+            }
+        )
+        self.assertEqual(
+            policy.allowed_hosts,
+            ("10.0.2.2", "allowed.lab.test"),
+        )
+        self.assertEqual(
+            policy.evidence()["allowed_hosts"],
+            ["10.0.2.2", "allowed.lab.test"],
+        )
+        for value in (
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "deny",
+            },
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "deny",
+                "allowed_hosts": ["bad host"],
+            },
+            {
+                "isolation": "namespace",
+                "egress": "deny-all",
+                "dns": "deny",
+                "allowed_hosts": ["allowed.lab.test"],
+            },
+        ):
+            with self.subTest(value=value):
+                with self.assertRaises(NetworkPolicyError):
+                    NetworkPolicy.from_mapping(value)
+
     def test_namespace_builder_fails_closed(self):
         with mock.patch(
             "network_policy.namespace_capability",

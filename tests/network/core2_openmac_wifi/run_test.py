@@ -200,8 +200,10 @@ def main() -> int:
         default=Path("/tmp/core2-openmac-wifi"),
     )
     parser.add_argument("--timeout", type=float, default=12)
-    parser.add_argument("--attempts", type=int, default=5)
+    parser.add_argument("--attempts", type=int, default=1)
     args = parser.parse_args()
+    if not 1 <= args.attempts <= 10:
+        parser.error("--attempts must be between 1 and 10")
 
     for label, path in (
         ("QEMU", args.qemu),

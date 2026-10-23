@@ -20,7 +20,7 @@ MicroPython 和其他完整 Flash 固件。
 - 最新 UIFlow2 外设全矩阵在 `2026-10-23 22:44 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
   `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
-  下首轮通过。当前平台单元测试为 `221/221` PASS。
+  下首轮通过。当前平台单元测试为 `223/223` PASS。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
 
@@ -37,7 +37,7 @@ MicroPython 和其他完整 Flash 固件。
 | --- | --- | --- |
 | 高保真逐设备外观建模 | `TODO` | 仅 StopWatch 接近参考质量，其余 13 台仍是通用近似外壳 |
 | Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
-| 网络隔离与安全回归 | `mostly complete` | Linux namespace 内 guest、pcap 摘要、错误密码和 StickS3 断线重连已通；正式 CI/worker、DHCP renewal 和 allowlist/TLS 仍待补 |
+| 网络隔离与安全回归 | `mostly complete` | Linux namespace 内 guest、pcap 摘要、错误密码和 StickS3 断线重连已通；TLS/Host allowlist fixture 已加入但被 S3 AES/GDMA 阻断，正式 CI/worker、可控 resolver、DHCP renewal 和通用 egress allowlist 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、capability mismatch、脱敏静态审查和 SBOM 摘要已通；文件系统深度解析、许可策略与生产 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
 | Core2 稳定性与原生无线 | `mostly complete` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3 和 Device Service `core2-native-vhci` lease PASS；非 GDB 生产实现、bit-exact BT controller 与物理等价性未完成 |
@@ -226,6 +226,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - [固件审查工作流](docs/firmware-review-and-simulation-workflow.md)
 - [网络模拟方案](docs/network-simulation-plan.md)
 - [网络诊断 lane](docs/network-lane.md)
+- [TLS Host allowlist fixture](tests/network/tls_allowlist/README.md)
 - [固件清单与 WebBurner 导入](docs/firmware-manifest.md)
 - [统一设备运行时契约](docs/unified-device-runtime.md)
 - [Tab5 暂缓项](docs/tab5-deferred-backlog.md)

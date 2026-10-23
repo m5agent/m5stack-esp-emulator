@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-tls-host-allowlist",
+  "scope": "virtual-device-lab-tls-not-hardware-rf",
+  "date": "2026-10-23",
+  "status": "FAIL",
+  "isolation": "trusted-host",
+  "base_image_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "checks": {
+    "TLS_WIFI_READY": true,
+    "TLS_CONTEXT_READY": false,
+    "TLS_CA_LOADED": false,
+    "TLS_ALLOWED PASS": false,
+    "TLS_DENIED PASS": false,
+    "TLS_ALLOWLIST_RESULT PASS": false,
+    "dhcp": true,
+    "tls_port_observed": false,
+    "pcap_written": true
+  },
+  "blocker": "ssl_context_creation_stalls_after_esp32s3_aes_gdma_read_error",
+  "qemu_error": "[AES] Error reading from GDMA buffer",
+  "not_run": [
+    "TLS allow decision",
+    "TLS deny decision",
+    "TLS Host allowlist result"
+  ],
+  "not_claimed": [
+    "real-hardware TLS or RF behavior",
+    "arbitrary public-internet allowlisting",
+    "certificate-pinned or mutual-TLS firmware",
+    "malicious-firmware safety"
+  ]
+}

@@ -1,9 +1,10 @@
 # StickS3 UIFlow2 Local UI Test
 
-Status: **WIP**. The test reaches UIFlow2 `main.py`, `M5.begin()` returns
-success and M5GFX reports board 26 (`board_M5StickS3`), but the ST7789 panel
-first frame is still black. The remaining blocker is the QEMU SPI panel
-command/data/DC/MISO path.
+Status: active fixture used by the current device matrix. The earlier
+black-first-frame blocker in the QEMU SPI panel command/data/DC/MISO path has
+been resolved. The matrix now verifies the 135x240 first frame, a non-blank
+application frame and GPIO A/B input redraw with a fixed post-frame pixel
+marker.
 
 ## Why eFuse is needed
 
@@ -58,5 +59,12 @@ STICKS3_BOARD 26
 
 ## Boundary
 
-This is a StickS3-specific local test. It does not yet validate the first
-frame, A/B button redraw, or touch (StickS3 has no touch panel).
+This directory supplies the StickS3 UIFlow2 image/probe. Full UI acceptance is
+performed by:
+
+```bash
+python3 tests/uiflow2/run_device_matrix.py --device sticks3
+```
+
+StickS3 has no touch panel. Current evidence and peripheral scope are tracked
+in [`docs/uiflow2-peripheral-test-matrix.md`](../../../docs/uiflow2-peripheral-test-matrix.md).

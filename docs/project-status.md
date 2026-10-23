@@ -23,7 +23,7 @@
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
   `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
   QEMU 虚拟时钟推进。
-- 当前平台测试：`221/221` PASS；runtime coverage、peripheral catalog 和
+- 当前平台测试：`223/223` PASS；runtime coverage、peripheral catalog 和
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
@@ -31,7 +31,7 @@
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、link fault/reconnect、Linux arm64 private namespace 无外网整机路径 | 正式 CI/worker 生命周期、allowlist/TLS、DHCP renewal、双设备 lab fabric |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、link fault/reconnect、Linux arm64 private namespace 无外网整机路径；namespace-local TLS/Host allowlist fixture 已落地 | TLS fixture 在当前 S3 QEMU 上停在 `SSLContext` 创建并伴随 AES/GDMA read error；正式 CI/worker、可控 resolver、通用 egress allowlist、DHCP renewal、双设备 lab fabric |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、Device Service `core2-native-vhci` PASS | 非 GDB 生产实现、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM 摘要 | 文件系统/资源权限审查、许可策略、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
@@ -42,9 +42,9 @@
 | 设备与板级契约 | 已完成 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 14 台设备登记；13 台达到登记外设的模拟数据面；catalog、coverage、profile 校验通过 | 新设备逐项登记；视觉保真另列 |
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | 22:44 的 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成，生产后端开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、Device Service lease PASS | 去掉 GDB bridge；bit-exact BT；物理 cache/PSRAM 与 soak |
-| Device Service | v1 已实现，生产服务开放 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.7.0 | worker 化、活动进程恢复、warm pool、多机调度与 VM 隔离 |
+| Device Service | v1 已实现，生产服务开放 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.8.0 | worker 化、活动进程恢复、warm pool、多机调度与 VM 隔离 |
 | FirmwareManifest | v1 + 静态审查已实现 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_static_review.py`、`fetch_firmware.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态、capability mismatch、脱敏 URL/凭据/高熵 finding 和 SBOM 摘要 | 文件系统/资源权限、许可策略、生产 key/eFuse、跨厂商回归、流式上传 |
-| 网络隔离与取证 | Linux 单机路径闭环，正式 worker 开放 | `network_policy.py`、`network_sandbox.py`、`pcap_summary.py` | namespace 无外网、pcap、错误密码、link down/up、重新 DHCP 与前后 HTTP | allowlist/TLS、DHCP renewal、真实 AP 丢失、双设备 fabric、CI/worker |
+| 网络隔离与取证 | Linux 单机路径闭环，正式 worker 开放 | `network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、`tests/network/tls_allowlist/` | namespace 无外网、pcap、错误密码、link down/up、重新 DHCP 与前后 HTTP；TLS/Host allowlist fixture 可启动并完成 WiFi/DHCP | S3 `SSLContext` 被 AES/GDMA 阻断；可控 resolver、通用 egress allowlist、DHCP renewal、真实 AP 丢失、双设备 fabric、CI/worker |
 | 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
 | 物理硬件验证 | `NOT RUN` | Device Test Center 路径 | 当前仅有 virtual-device validation | 代表设备使用同固件 SHA 和同测试计划做实机证据 |
 
@@ -167,8 +167,10 @@
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径
-   已 PASS；它不等同于恶意固件沙箱，文件系统/资源隔离和 egress allowlist
-   仍需 worker/VM 层实现。
+   已 PASS；它不等同于恶意固件沙箱。namespace-local TLS/Host allowlist
+   fixture 已写入，但当前 S3 guest 在 `ssl.SSLContext` 创建阶段被
+   AES/GDMA 路径阻断，不能记为 TLS PASS；通用 destination allowlist、
+   resolver 和 worker/VM 隔离仍待实现。
 5. **通用固件兼容性**：SoC 相同不代表板级、分区、安全配置和控制器全部
    兼容。
 6. **视觉保真**：除 StopWatch 外，设备外壳仍主要是近似模型。

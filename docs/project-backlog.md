@@ -23,7 +23,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-01` | 待做 | 增加 egress allowlist、可控 resolver 和 TLS 测试 CA | 允许/拒绝目标可重复，guest 无法旁路；pcap 和摘要一致 |
+| `NET-01` | 进行中 | 已加入 namespace-local TLS/Host allowlist fixture；修复 S3 AES/GDMA 导致 `SSLContext` 卡死，再补可控 resolver 和通用 egress allowlist | 允许/拒绝目标可重复，guest 无法旁路；pcap 和摘要一致 |
 | `NET-02` | 待做 | 增加 DHCP renewal、AP 消失/恢复和 lease 变化 | 同一 guest 观测到 renewal 或 reacquire，前后 HTTP 与 pcap 对齐 |
 | `NET-03` | 待做 | 双设备 private lab fabric 与宿主 LAN 隔离 | 两台 guest 仅通过预期 fabric 通信，控制面和宿主 LAN 不可达 |
 | `NET-04` | 待做 | 把 Linux namespace/reconnect/pcap 接入正式 CI 与 worker | CI 可重复产出 evidence；namespace 创建失败保持 fail-closed |
@@ -72,14 +72,18 @@
 - Linux arm64 重建 QEMU guest 并在 private namespace 内完成 DHCP、受控
   HTTP、DNS deny、pcap 和 `UNIFIED_STICKS3_READY`；
 - Core2 OpenMAC 公网 DNS/HTTP PASS。
+- TLS/Host allowlist fixture 已完成 gateway、测试 CA、Host 决策日志和
+  pcap 断言接线；当前 S3 guest 能完成 WiFi/DHCP，但在
+  `ssl.SSLContext` 创建阶段不返回，QEMU 同步报告 AES/GDMA read error。
 
 仍待完成：
 
-1. 增加 allowlist、TLS 测试 CA 和可控 resolver；
-2. 增加 DHCP renewal、真实 AP 消失/恢复和 lease 变化；
-3. 把 multi-device 通信隔离和 host-to-device 访问做成容量测试；
-4. 将 pcap 保留策略、对象存储和审计接入 worker；
-5. 把 Linux integration test 接入 CI 和正式 worker 生命周期。
+1. 修复 S3 AES/GDMA 数据面并让 TLS Host allowlist fixture 稳定 PASS；
+2. 增加可控 resolver 和面向目标地址/端口的通用 egress allowlist；
+3. 增加 DHCP renewal、真实 AP 消失/恢复和 lease 变化；
+4. 把 multi-device 通信隔离和 host-to-device 访问做成容量测试；
+5. 将 pcap 保留策略、对象存储和审计接入 worker；
+6. 把 Linux integration test 接入 CI 和正式 worker 生命周期。
 
 验收：Linux CI 中两个 virtual device 仅通过预期 lab fabric 通信；
 guest 路径实际产生 pcap 和 reconnect 证据；不可信固件无法访问宿主 LAN

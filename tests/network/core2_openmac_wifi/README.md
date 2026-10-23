@@ -52,10 +52,19 @@ PYTHONPATH=.work/py python3 \
 ```
 
 The runner writes an isolated flash copy, serial/stdout/stderr logs, and
-`evidence.json`. It retries by default five times because the existing Core2
-cache startup panic is still intermittent and occurs before WiFi activation.
+`evidence.json`. It performs one attempt by default. Use `--attempts N`
+explicitly for a diagnostic repeat run; a later attempt is not allowed to
+replace a failed first-attempt result in evidence.
+
+Core2 radio launches use `tcg,thread=single` plus deterministic `icount`.
+That scheduling change removed the previously observed first-attempt
+interrupt-WDT reproduction and passed 10/10 independent runs. It does not prove
+physical cache/PSRAM timing.
 
 ## Known boundary
 
-The AP name and QEMU user-net topology are fixed by the bring-up model. DNS,
-external internet access and BLE are not covered.
+This probe itself covers scan, association, DHCP and controlled IPv4 HTTP. The
+separate `tests/uiflow2/unified_core2/` path adds public DNS/HTTP plus BLE in
+the same guest, including the stock native-VHCI variant. The AP name and QEMU
+user-net topology remain fixed by the bring-up model, and RF/coexistence are
+still out of scope.

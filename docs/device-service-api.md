@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Status: local MVP with unified-device runtime contract `1.7.0` and bounded
+Status: local MVP with unified-device runtime contract `1.8.0` and bounded
 storage retention implemented on `2026-10-23`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -349,8 +349,9 @@ Evidence ZIPs include `network/capture.pcap` and
 {
   "policy": {
     "isolation": "namespace",
-    "egress": "lab-only",
-    "dns": "deny"
+    "egress": "allowlist",
+    "dns": "deny",
+    "allowed_hosts": ["allowed.lab.test"]
   }
 }
 ```
@@ -361,6 +362,11 @@ controlled HTTP/BLE peers inside the same namespace. If namespace creation is
 not permitted, the session fails with `network_isolation_unavailable` instead
 of falling back to host networking. `egress=lab-only` permits only the
 namespace-local fixture; external DNS and TCP are intentionally unavailable.
+`egress=allowlist` additionally requires a non-empty `allowed_hosts` list and
+applies that list to the controlled HTTP gateway's `Host` header. It is not a
+generic destination-IP/port allowlist and does not by itself expose external
+internet egress. Profiles without a controlled HTTP fixture reject this mode
+with `allowlist_not_supported`.
 
 Use `runtime=qemu-wifi` with `network.profile=uiflow2-sticks3-wifi` for a
 StickS3 application that needs the board framebuffer, input and public
@@ -421,8 +427,8 @@ This service profile proves stock UIFlow2 NimBLE activation, GAP configuration,
 controller reset and advertising enable. Separate standalone runners now
 bridge the same stock firmware's VHCI boundary to Bumble; the BLE-only runner
 passes external NUS GATT 5/5 and the same-guest board+WiFi+public-network
-variant passes 3/3. Those GDB-based runners are not yet exposed as a Device
-Service runtime.
+variant passes 3/3. The same GDB-based path is exposed as
+`qemu-unified/profile=core2-native-vhci` with a mandatory matching ELF.
 
 The `core2-hci-gatt` profile exercises the separate HCI-offload lane:
 

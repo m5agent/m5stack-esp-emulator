@@ -8,6 +8,7 @@ import json
 import os
 import signal
 import socket
+import ssl
 import struct
 import subprocess
 import sys
@@ -62,8 +63,17 @@ def route_table_has_external_route() -> bool:
     return False
 
 
-def write_isolation_evidence(path: Path) -> None:
+def write_isolation_evidence(
+    path: Path,
+    config: dict[str, Any] | None = None,
+) -> None:
     interfaces = sorted(name for _, name in socket.if_nameindex())
+    policy = (config or {}).get("policy", {})
+    if not isinstance(policy, dict):
+        policy = {}
+    http = (config or {}).get("http", {})
+    if not isinstance(http, dict):
+        http = {}
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(
@@ -73,8 +83,10 @@ def write_isolation_evidence(path: Path) -> None:
                 "private_network_namespace": True,
                 "interfaces": interfaces,
                 "external_route": False,
-                "egress": "deny-all",
-                "dns": "deny",
+                "egress": policy.get("egress", "deny-all"),
+                "dns": policy.get("dns", "deny"),
+                "allowed_hosts": policy.get("allowed_hosts", []),
+                "tls_gateway": bool(http.get("tls")),
             },
             indent=2,
         )
@@ -89,32 +101,64 @@ class ControlledHttp:
         port: int,
         body: bytes,
         log_path: Path | None,
+        allowed_hosts: tuple[str, ...] | None = None,
+        tls: dict[str, Any] | None = None,
     ):
         self.requests: list[dict[str, str]] = []
         self.lock = threading.Lock()
+        self.allowed_hosts = (
+            set(allowed_hosts or ())
+            if allowed_hosts is not None
+            else None
+        )
         owner = self
 
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self) -> None:
-                with owner.lock:
-                    owner.requests.append(
+                host_header = self.headers.get("Host", "")
+                host = host_header.rsplit(":", 1)[0].lower()
+                allowed = (
+                    owner.allowed_hosts is None
+                    or host in owner.allowed_hosts
+                )
+                status = 200 if allowed else 403
+                request = {
+                    "path": self.path,
+                    "host": self.headers.get("Host", ""),
+                }
+                if owner.allowed_hosts is not None:
+                    request.update(
                         {
-                            "path": self.path,
-                            "host": self.headers.get("Host", ""),
+                            "decision": "allow" if allowed else "deny",
+                            "status": str(status),
                         }
                     )
+                with owner.lock:
+                    owner.requests.append(request)
                     owner.persist()
-                self.send_response(200)
+                self.send_response(status)
                 self.send_header("Content-Type", "text/plain")
-                self.send_header("Content-Length", str(len(body)))
+                response_body = body if allowed else b"host not allowed\n"
+                self.send_header("Content-Length", str(len(response_body)))
                 self.end_headers()
-                self.wfile.write(body)
+                self.wfile.write(response_body)
 
             def log_message(self, _format: str, *_args: object) -> None:
                 return
 
         self.log_path = log_path
         self.server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+        if tls is not None:
+            certfile = tls.get("certfile")
+            keyfile = tls.get("keyfile")
+            if not isinstance(certfile, str) or not isinstance(keyfile, str):
+                raise SandboxError("sandbox TLS certfile/keyfile are required")
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(certfile, keyfile)
+            self.server.socket = context.wrap_socket(
+                self.server.socket,
+                server_side=True,
+            )
         self.thread = threading.Thread(
             target=self.server.serve_forever,
             name="m5-sandbox-http",
@@ -234,7 +278,7 @@ def run(config: dict[str, Any], command: list[str]) -> int:
         )
     evidence_path = config.get("isolation_evidence")
     if evidence_path:
-        write_isolation_evidence(Path(str(evidence_path)))
+        write_isolation_evidence(Path(str(evidence_path)), config)
 
     http_config = config.get("http")
     http: ControlledHttp | None = None
@@ -264,10 +308,30 @@ def run(config: dict[str, Any], command: list[str]) -> int:
             if not isinstance(body, str):
                 raise SandboxError("sandbox HTTP body must be a string")
             raw_log = http_config.get("log")
+            raw_allowed_hosts = http_config.get("allowed_hosts")
+            if raw_allowed_hosts is not None and (
+                not isinstance(raw_allowed_hosts, list)
+                or any(
+                    not isinstance(host, str)
+                    for host in raw_allowed_hosts
+                )
+            ):
+                raise SandboxError(
+                    "sandbox http allowed_hosts must be a string list"
+                )
+            tls_config = http_config.get("tls")
+            if tls_config is not None and not isinstance(tls_config, dict):
+                raise SandboxError("sandbox TLS config must be an object")
             http = ControlledHttp(
                 port=port,
                 body=body.encode(),
                 log_path=Path(str(raw_log)) if raw_log else None,
+                allowed_hosts=(
+                    tuple(raw_allowed_hosts)
+                    if raw_allowed_hosts is not None
+                    else None
+                ),
+                tls=tls_config,
             )
             http.start()
 
