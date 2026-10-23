@@ -615,6 +615,13 @@ Profiles are:
   `elf_artifact_id`; successful BLE requires GATT discovery, subscription,
   write, and guest-side delivery.
 
+For `qemu-wifi` and `qemu-ble` sessions, `GET /sessions/{id}/network`
+recomputes evidence from the current serial and peer logs. Live session
+snapshots refresh non-PASS network evidence, and stop captures the final
+evidence before terminating the guest. A stopping session therefore retains
+the markers observed at the end of its run instead of the initial empty-serial
+`PARTIAL` result.
+
 `network.net_mode` accepts `user` or `user,restrict=yes`. Validated test
 profiles default to `user`; callers may explicitly select restricted mode.
 Use `user` for unrecognized firmware only inside a disposable VM.

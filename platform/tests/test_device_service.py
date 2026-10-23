@@ -200,6 +200,48 @@ class DeviceServiceUnitTests(unittest.TestCase):
             8 << 20,
         )
 
+    def test_qemu_wifi_network_result_refreshes_before_stop(self):
+        spec = self.service.specs["sticks3"]
+        firmware = Path(self.tmp.name) / "sticks3-wifi.bin"
+        firmware.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="c" * 32,
+            spec=spec,
+            firmware_id="d" * 64,
+            firmware_path=firmware,
+            firmware_sha="d" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker=None,
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-wifi",
+            network_config={
+                "profile": "uiflow2-sticks3-wifi",
+                "nic": "misc.esp32s3.wifi",
+                "net_mode": "user",
+                "expected_markers": ["APP DNS_OK", "APP HTTP 200"],
+                "attempts": 1,
+            },
+            network_result={
+                "status": "PARTIAL",
+                "checks": {"marker:1": False, "marker:2": False},
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text("APP DNS_OK api.example\nAPP HTTP 200 128\n")
+
+        live = session.snapshot()
+        self.assertEqual(live["network"]["status"], "PASS")
+        self.assertTrue(all(live["network"]["checks"].values()))
+
+        stopped = session.stop(purge=True)
+        self.assertEqual(stopped["state"], "stopped")
+        self.assertEqual(stopped["network"]["status"], "PASS")
+        self.assertTrue(all(stopped["network"]["checks"].values()))
+
     def test_core2_and_tab5_use_exact_host_image(self):
         for device_id in ("core2", "tab5"):
             with self.subTest(device_id=device_id):

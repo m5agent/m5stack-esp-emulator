@@ -1578,6 +1578,13 @@ class DeviceSession:
                     state_meta = json.loads(self.device_state_path.read_text())
                 except json.JSONDecodeError:
                     state_meta = {}
+            if (
+                self.runtime == QEMU_WIFI_RUNTIME
+                and self.network_config
+                and self.state in ACTIVE_STATES
+                and (self.network_result or {}).get("status") != "PASS"
+            ):
+                self.network_result = self._build_network_evidence()
             return {
                 "session_id": self.id,
                 "device_id": self.spec.id,
@@ -1651,7 +1658,7 @@ class DeviceSession:
             self._record_event("state", **{"from": previous, "to": state})
             self._persist_session()
 
-    def network_evidence(self) -> dict:
+    def _build_network_evidence(self) -> dict:
         if self.runtime not in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
             raise ServiceError(
                 "network_evidence_not_supported",
@@ -2006,6 +2013,17 @@ class DeviceSession:
                 "malware sandboxing",
             ],
         }
+
+    def network_evidence(self) -> dict:
+        evidence = self._build_network_evidence()
+        previous = self.network_result or {}
+        self.network_result = evidence
+        if (
+            previous.get("status") != evidence.get("status")
+            or previous.get("checks") != evidence.get("checks")
+        ):
+            self._persist_session()
+        return evidence
 
     def _provision(self) -> None:
         try:
@@ -3487,6 +3505,11 @@ class DeviceSession:
             if self.state == "running" and self.spec.state_probes:
                 try:
                     self.device_state()
+                except ServiceError:
+                    pass
+            if self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}:
+                try:
+                    self.network_evidence()
                 except ServiceError:
                     pass
             self.state = "stopping"
