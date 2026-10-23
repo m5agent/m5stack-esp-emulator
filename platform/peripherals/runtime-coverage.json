@@ -35,6 +35,11 @@
       "test": "tests/uiflow2/unified_cores3/run_test.py",
       "evidence": "tests/uiflow2/unified_cores3/evidence-2026-10-23.json"
     },
+    "cardputer-adv-unified": {
+      "device": "cardputer-adv",
+      "test": "tests/uiflow2/unified_cardputer/run_test.py",
+      "evidence": "tests/uiflow2/unified_cardputer/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -65,6 +70,12 @@
       "touch-ft5x06",
       "bmi270",
       "aw88298"
+    ],
+    "cardputer-adv-unified": [
+      "keyboard-tca8418",
+      "bmi270",
+      "es8311",
+      "ns4150b"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -301,6 +312,9 @@
         "cardputer-adv-audio",
         "cardputer-adv-mic",
         "cardputer-adv-ir"
+      ],
+      "external": [
+        "cardputer-adv-unified"
       ],
       "models": [
         "keyboard-tca8418",

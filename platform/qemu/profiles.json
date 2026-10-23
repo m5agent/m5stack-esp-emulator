@@ -100,6 +100,19 @@
         "audio",
         "sd"
       ],
+      "runtime_state": {
+        "imu": {
+          "path": "/machine/bmi270",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        }
+      },
       "board_work": [
         "audio peripheral polish"
       ],

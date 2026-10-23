@@ -43,6 +43,16 @@ class QemuProfileTest(unittest.TestCase):
         self.assertIn("accel-z", state["imu"]["properties"])
         self.assertIn("gyro-z", state["imu"]["properties"])
 
+    def test_cardputer_runtime_state_probe(self):
+        row = next(
+            row for row in self.registry["devices"]
+            if row["id"] == "cardputer-adv"
+        )
+        state = row["runtime_state"]
+        self.assertEqual(state["imu"]["path"], "/machine/bmi270")
+        self.assertIn("accel-z", state["imu"]["properties"])
+        self.assertIn("gyro-z", state["imu"]["properties"])
+
     def test_s3_hosts_are_ready(self):
         ready = {
             row["id"]

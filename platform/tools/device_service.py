@@ -104,13 +104,16 @@ CORE2_BLE_PROFILE = "core2-ble-advertise"
 CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
 STICKS3_UNIFIED_PROFILE = "uiflow2-sticks3-unified"
 CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
+CARDPUTER_ADV_UNIFIED_PROFILE = "uiflow2-cardputer-adv-unified"
 UNIFIED_PROFILES = {
     STICKS3_UNIFIED_PROFILE,
     CORES3_UNIFIED_PROFILE,
+    CARDPUTER_ADV_UNIFIED_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
     STICKS3_UNIFIED_PROFILE: 18080,
     CORES3_UNIFIED_PROFILE: 18081,
+    CARDPUTER_ADV_UNIFIED_PROFILE: 18082,
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
@@ -140,6 +143,32 @@ CORES3_UNIFIED_MARKERS = (
     "UNIFIED_CORES3_BLE_RX",
     "UNIFIED_CORES3_BLE_ACK_SENT",
 )
+CARDPUTER_ADV_UNIFIED_MARKERS = (
+    "UNIFIED_CARDPUTER_WIFI_CONNECTED",
+    "UNIFIED_CARDPUTER_HTTP_PASS",
+    "UNIFIED_CARDPUTER_BLE_RX",
+    "UNIFIED_CARDPUTER_BLE_ACK_SENT",
+)
+UNIFIED_MARKERS = {
+    STICKS3_UNIFIED_PROFILE: STICKS3_UNIFIED_MARKERS,
+    CORES3_UNIFIED_PROFILE: CORES3_UNIFIED_MARKERS,
+    CARDPUTER_ADV_UNIFIED_PROFILE: CARDPUTER_ADV_UNIFIED_MARKERS,
+}
+UNIFIED_READY_MARKERS = {
+    STICKS3_UNIFIED_PROFILE: "UNIFIED_STICKS3_READY",
+    CORES3_UNIFIED_PROFILE: "UNIFIED_CORES3_READY",
+    CARDPUTER_ADV_UNIFIED_PROFILE: "UNIFIED_CARDPUTER_READY",
+}
+UNIFIED_HTTP_BODIES = {
+    STICKS3_UNIFIED_PROFILE: b"UNIFIED_STICKS3_OK\n",
+    CORES3_UNIFIED_PROFILE: b"UNIFIED_CORES3_OK\n",
+    CARDPUTER_ADV_UNIFIED_PROFILE: b"UNIFIED_CARDPUTER_OK\n",
+}
+UNIFIED_BLE_IDENTITIES = {
+    "sticks3": ("M5-STICKS3-UNIFIED", "M5_STICKS3_UNIFIED"),
+    "cores3": ("M5-CORES3-UNIFIED", "M5_CORES3_UNIFIED"),
+    "cardputer-adv": ("M5-CPTR-ADV-UNIFIED", "M5_CPTR_ADV"),
+}
 
 
 def iso_now() -> str:
@@ -522,6 +551,9 @@ def parse_qemu_ble_execution(
     elif spec.id == "cores3":
         supported_profiles = {CORES3_UNIFIED_PROFILE}
         default_profile = CORES3_UNIFIED_PROFILE
+    elif spec.id == "cardputer-adv":
+        supported_profiles = {CARDPUTER_ADV_UNIFIED_PROFILE}
+        default_profile = CARDPUTER_ADV_UNIFIED_PROFILE
     else:
         raise ServiceError(
             "qemu_ble_not_supported",
@@ -551,10 +583,8 @@ def parse_qemu_ble_execution(
         )
     if profile == CORE2_HCI_GATT_PROFILE and not expected_markers:
         expected_markers = list(CORE2_HCI_GATT_MARKERS)
-    elif profile == STICKS3_UNIFIED_PROFILE and not expected_markers:
-        expected_markers = list(STICKS3_UNIFIED_MARKERS)
-    elif profile == CORES3_UNIFIED_PROFILE and not expected_markers:
-        expected_markers = list(CORES3_UNIFIED_MARKERS)
+    elif profile in UNIFIED_MARKERS and not expected_markers:
+        expected_markers = list(UNIFIED_MARKERS[profile])
     attempts = value.get("attempts", 5)
     if not isinstance(attempts, int) or not 1 <= attempts <= 10:
         raise ServiceError(
@@ -576,11 +606,7 @@ def parse_qemu_ble_execution(
         "ble_name": (
             "M5-CORE2-HCI"
             if spec.id == "core2"
-            else (
-                "M5-STICKS3-UNIFIED"
-                if spec.id == "sticks3"
-                else "M5-CORES3-UNIFIED"
-            )
+            else UNIFIED_BLE_IDENTITIES[spec.id][0]
         ),
     }
 
@@ -745,6 +771,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, STICKS3_UNIFIED_PROFILE)
             if device_id == "cores3" and network_chip:
                 network_profiles.insert(0, CORES3_UNIFIED_PROFILE)
+            if device_id == "cardputer-adv" and network_chip:
+                network_profiles.insert(0, CARDPUTER_ADV_UNIFIED_PROFILE)
             if (
                 device_id == "core2"
                 and (
@@ -1397,12 +1425,8 @@ class DeviceSession:
         )
         profile = self.network_config.get("profile")
         if profile in UNIFIED_PROFILES:
-            unified = profile == STICKS3_UNIFIED_PROFILE
-            default_markers = (
-                STICKS3_UNIFIED_MARKERS
-                if unified
-                else CORES3_UNIFIED_MARKERS
-            )
+            default_markers = UNIFIED_MARKERS[profile]
+            ble_name, ble_payload = UNIFIED_BLE_IDENTITIES[self.spec.id]
             probe_log = (
                 self.hci_probe_log.read_text(errors="replace")
                 if self.hci_probe_log.is_file()
@@ -1473,19 +1497,12 @@ class DeviceSession:
                     probe_log.encode()
                 ).hexdigest(),
                 "gatt": {
+                    "name": ble_name,
                     "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
                     "subscribe": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
                     "write": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
-                    "payload": (
-                        "M5_STICKS3_UNIFIED"
-                        if unified
-                        else "M5_CORES3_UNIFIED"
-                    ),
-                    "notification": (
-                        "ACK:M5_STICKS3_UNIFIED"
-                        if unified
-                        else "ACK:M5_CORES3_UNIFIED"
-                    ),
+                    "payload": ble_payload,
+                    "notification": "ACK:" + ble_payload,
                 },
                 "not_claimed": [
                     "real-hardware behavior",
@@ -1748,16 +1765,7 @@ class DeviceSession:
         profile = self.network_config.get("profile")
         unified = profile in UNIFIED_PROFILES
         if unified:
-            name_prefix = (
-                "M5-STICKS3-UNIFIED"
-                if self.spec.id == "sticks3"
-                else "M5-CORES3-UNIFIED"
-            )
-            payload = (
-                "M5_STICKS3_UNIFIED"
-                if self.spec.id == "sticks3"
-                else "M5_CORES3_UNIFIED"
-            )
+            name_prefix, payload = UNIFIED_BLE_IDENTITIES[self.spec.id]
         else:
             name_prefix = "M5-CORE2-HCI"
             payload = "M5_CORE2_HCI"
@@ -1831,13 +1839,9 @@ class DeviceSession:
 
     def _launch_http_fixture(self) -> None:
         profile = self.network_config.get("profile")
-        body = (
-            b"UNIFIED_STICKS3_OK\n"
-            if profile == STICKS3_UNIFIED_PROFILE
-            else b"UNIFIED_CORES3_OK\n"
-        )
+        body = UNIFIED_HTTP_BODIES.get(profile)
         port = UNIFIED_HTTP_PORTS.get(profile)
-        if port is None:
+        if body is None or port is None:
             raise ServiceError(
                 "http_fixture_failed",
                 f"no controlled HTTP port for profile {profile}",
@@ -3861,17 +3865,13 @@ class DeviceService:
                 payload = dict(payload)
                 payload["ready_marker"] = "CORE2_HCI_BLE_ACK_SENT"
             elif (
-                network_config.get("profile") == STICKS3_UNIFIED_PROFILE
+                network_config.get("profile") in UNIFIED_READY_MARKERS
                 and payload.get("ready_marker") is None
             ):
                 payload = dict(payload)
-                payload["ready_marker"] = "UNIFIED_STICKS3_READY"
-            elif (
-                network_config.get("profile") == CORES3_UNIFIED_PROFILE
-                and payload.get("ready_marker") is None
-            ):
-                payload = dict(payload)
-                payload["ready_marker"] = "UNIFIED_CORES3_READY"
+                payload["ready_marker"] = UNIFIED_READY_MARKERS[
+                    network_config["profile"]
+                ]
 
         with self._lock:
             active = [
@@ -4051,12 +4051,16 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-unified": (
-                    "enabled-sticks3-cores3-wifi-ble"
+                    "enabled-sticks3-cores3-cardputer-adv-wifi-ble"
                     if any(
                         profile in self.specs[device_id].network_profiles
                         for device_id, profile in (
                             ("sticks3", STICKS3_UNIFIED_PROFILE),
                             ("cores3", CORES3_UNIFIED_PROFILE),
+                            (
+                                "cardputer-adv",
+                                CARDPUTER_ADV_UNIFIED_PROFILE,
+                            ),
                         )
                     )
                     else "disabled"
