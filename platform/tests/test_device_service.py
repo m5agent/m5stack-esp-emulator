@@ -431,6 +431,77 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(generic["expected_markers"], ["APP_READY"])
         self.assertEqual(generic["net_mode"], "user,restrict=yes")
         self.assertEqual(generic["console_mode"], "auto")
+        provisioning = device_service_module.parse_network_execution(
+            self.service.specs["sticks3"],
+            {
+                "profile": "generic-observe",
+                "firmware_ap_password": "captive123",
+                "hostfwd": [
+                    {
+                        "protocol": "tcp",
+                        "host_port": 18080,
+                        "guest_port": 80,
+                    }
+                ],
+            },
+        )
+        self.assertEqual(
+            provisioning["hostfwd"],
+            ["tcp:127.0.0.1:18080-:80"],
+        )
+        self.assertEqual(
+            provisioning["firmware_ap_password"],
+            "captive123",
+        )
+        open_ap = device_service_module.parse_network_execution(
+            self.service.specs["sticks3"],
+            {
+                "profile": "generic-observe",
+                "firmware_ap_password": "",
+            },
+        )
+        self.assertEqual(open_ap["firmware_ap_password"], "")
+        for invalid in (
+            {
+                "firmware_ap_password": "short",
+            },
+            {
+                "hostfwd": [
+                    {
+                        "protocol": "tcp",
+                        "host_port": 80,
+                        "guest_port": 80,
+                    }
+                ],
+            },
+            {
+                "hostfwd": [
+                    {
+                        "protocol": "tcp",
+                        "host_port": 18080,
+                        "guest_port": 80,
+                    },
+                    {
+                        "protocol": "tcp",
+                        "host_port": 18080,
+                        "guest_port": 81,
+                    },
+                ],
+            },
+        ):
+            with self.subTest(invalid=invalid):
+                with self.assertRaises(ServiceError) as bad_provisioning:
+                    device_service_module.parse_network_execution(
+                        self.service.specs["sticks3"],
+                        {
+                            "profile": "generic-observe",
+                            **invalid,
+                        },
+                    )
+                self.assertEqual(
+                    bad_provisioning.exception.code,
+                    "invalid_network",
+                )
         bootstrapped = device_service_module.parse_network_execution(
             self.service.specs["cardputer-adv"],
             {
@@ -980,6 +1051,14 @@ class DeviceServiceUnitTests(unittest.TestCase):
                         "profile": "generic-observe",
                         "timeout_seconds": 10,
                         "expected_markers": ["APP_READY"],
+                        "firmware_ap_password": "captive123",
+                        "hostfwd": [
+                            {
+                                "protocol": "tcp",
+                                "host_port": 18080,
+                                "guest_port": 80,
+                            }
+                        ],
                         "i2c_devices": [
                             "0:0x34,fill=0,reg=0x03=0x4a"
                         ],
@@ -1012,6 +1091,100 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 argv[i2c_index + 1],
                 "0:0x34,fill=0x00,reg=0x03=0x4A",
             )
+            firmware_ap_index = argv.index("--firmware-ap-password")
+            self.assertEqual(
+                argv[firmware_ap_index + 1],
+                "captive123",
+            )
+            hostfwd_index = argv.index("--hostfwd")
+            self.assertEqual(
+                argv[hostfwd_index + 1],
+                "tcp:127.0.0.1:18080-:80",
+            )
+            persisted = json.loads(
+                (session.dir / "session.json").read_text()
+            )
+            self.assertEqual(
+                persisted["network"]["wifi_password"],
+                "<redacted>",
+            )
+            self.assertEqual(
+                persisted["network"]["firmware_ap_password"],
+                "<redacted>",
+            )
+            self.assertNotIn(
+                "mypassword",
+                (session.dir / "session.json").read_text(),
+            )
+            self.assertNotIn(
+                "captive123",
+                (session.dir / "session.json").read_text(),
+            )
+        finally:
+            device_service_module.NETWORK_LANE = old_lane
+            if old_emulator is None:
+                os.environ.pop("M5_NETWORK_EMULATOR", None)
+            else:
+                os.environ["M5_NETWORK_EMULATOR"] = old_emulator
+
+    def test_network_session_stop_collects_runner_evidence(self):
+        fake_lane = Path(self.tmp.name) / "graceful-network-lane.py"
+        fake_lane.write_text(
+            "#!/usr/bin/env python3\n"
+            "import argparse,json,pathlib,signal,sys,time\n"
+            "p=argparse.ArgumentParser()\n"
+            "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
+            "a,_=p.parse_known_args()\n"
+            "a.out_dir.mkdir(parents=True,exist_ok=True)\n"
+            "def stop(_signum,_frame):\n"
+            "    e={'status':'PARTIAL','checks':{},'stop_requested':True}\n"
+            "    (a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            "    sys.exit(0)\n"
+            "signal.signal(signal.SIGTERM,stop)\n"
+            "while True: time.sleep(0.1)\n"
+        )
+        fake_lane.chmod(0o755)
+        fake_emulator = Path(self.tmp.name) / "esp-emu"
+        fake_emulator.write_bytes(b"fake")
+        old_lane = device_service_module.NETWORK_LANE
+        device_service_module.NETWORK_LANE = fake_lane
+        old_emulator = os.environ.get("M5_NETWORK_EMULATOR")
+        os.environ["M5_NETWORK_EMULATOR"] = str(fake_emulator)
+        try:
+            artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)
+            firmware = self.service.create_firmware(
+                {
+                    "device_id": "sticks3",
+                    "kind": "merged",
+                    "artifact_id": artifact["artifact_id"],
+                }
+            )
+            created = self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "firmware_id": firmware["firmware_id"],
+                    "runtime": "network",
+                    "network": {
+                        "profile": "generic-observe",
+                        "timeout_seconds": 60,
+                    },
+                }
+            )
+            session = self.service.get_session(created["session_id"])
+            deadline = time.time() + 5
+            while time.time() < deadline:
+                if session.state == "running":
+                    break
+                time.sleep(0.02)
+            self.assertEqual(session.state, "running")
+            time.sleep(0.1)
+            stopped = session.stop(purge=False)
+            self.assertEqual(stopped["state"], "stopped")
+            self.assertEqual(stopped["network"]["status"], "PARTIAL")
+            evidence = json.loads(
+                (session.network_dir / "evidence.json").read_text()
+            )
+            self.assertTrue(evidence["stop_requested"])
         finally:
             device_service_module.NETWORK_LANE = old_lane
             if old_emulator is None:

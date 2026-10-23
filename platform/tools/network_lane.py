@@ -17,7 +17,7 @@ import time
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -109,6 +109,28 @@ def normalize_i2c_device(value: str) -> str:
     return ",".join(canonical)
 
 
+def normalize_hostfwd(value: str) -> str:
+    """Validate and canonicalize one loopback-only firmware host forward."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("host forward must be a non-empty string")
+    match = re.fullmatch(
+        r"(tcp|udp):127\.0\.0\.1:(\d{1,5})-:(\d{1,5})",
+        value,
+    )
+    if not match:
+        raise ValueError(
+            "host forward must use tcp|udp:127.0.0.1:HOST_PORT-:GUEST_PORT"
+        )
+    protocol, host_port_text, guest_port_text = match.groups()
+    host_port = int(host_port_text)
+    guest_port = int(guest_port_text)
+    if not 1024 <= host_port <= 65535:
+        raise ValueError("host forward host port must be between 1024 and 65535")
+    if not 1 <= guest_port <= 65535:
+        raise ValueError("host forward guest port must be between 1 and 65535")
+    return f"{protocol}:127.0.0.1:{host_port}-:{guest_port}"
+
+
 @dataclass(frozen=True)
 class Artifact:
     role: str
@@ -136,9 +158,11 @@ class LaneConfig:
     timeout: float
     ssid: str
     password: str
+    firmware_ap_password: str | None
     wifi_auth: str
     psram_size: str
     net_mode: str
+    hostfwd: list[str]
     console_mode: str
     wifi: bool
     ble: bool
@@ -323,10 +347,18 @@ def build_emulator_command(
         command.extend(["--psram-size", config.psram_size])
     for i2c_device in config.i2c_devices:
         command.extend(["--i2c-dev", i2c_device])
+    net_mode = config.net_mode
+    if config.hostfwd:
+        if not net_mode.startswith("user"):
+            raise LaneError("host forward requires a user network backend")
+        forwarded = ",".join(
+            f"hostfwd={normalize_hostfwd(value)}" for value in config.hostfwd
+        )
+        net_mode = f"{net_mode},{forwarded}"
     command.extend(
         [
             "--net",
-            config.net_mode,
+            net_mode,
             "--wifi-ssid",
             config.ssid,
             "--wifi-password",
@@ -341,6 +373,10 @@ def build_emulator_command(
             "never",
         ]
     )
+    if config.firmware_ap_password is not None:
+        command.extend(
+            ["--wifi-fw-ap-password", config.firmware_ap_password]
+        )
     injection: dict[str, Any] = {}
     if config.elf is not None:
         command.extend(["--elf", str(config.elf)])
@@ -419,8 +455,14 @@ def build_emulator_command(
     return command, injection
 
 
-def redact_command(command: list[str], password: str) -> str:
-    safe = [entry.replace(password, "<redacted>") if password else entry for entry in command]
+def redact_command(command: list[str], passwords: str | Iterable[str | None]) -> str:
+    if isinstance(passwords, str):
+        secrets = [passwords]
+    else:
+        secrets = [value for value in passwords if value]
+    safe = list(command)
+    for password in sorted(secrets, key=len, reverse=True):
+        safe = [entry.replace(password, "<redacted>") for entry in safe]
     return shlex.join(safe)
 
 
@@ -784,15 +826,25 @@ def execute(config: LaneConfig) -> dict:
         config,
         firmware_copy=firmware_copy,
     )
-    public_command = redact_command(command, config.password)
-    if config.password:
+    secrets = [config.password, config.firmware_ap_password]
+    public_command = redact_command(command, secrets)
+    for secret in secrets:
+        if not secret:
+            continue
         for stage in injection.get("stages", []):
             stage["payload"] = stage["payload"].replace(
-                config.password, "<redacted>"
+                secret, "<redacted>"
             )
 
     ble_proc: subprocess.Popen | None = None
     emu_proc: subprocess.Popen | None = None
+    stop_requested = threading.Event()
+
+    def request_stop(_signum: int, _frame: object) -> None:
+        stop_requested.set()
+
+    previous_sigterm = signal.getsignal(signal.SIGTERM)
+    signal.signal(signal.SIGTERM, request_stop)
     use_bumble = (
         config.profile in {"uiflow2-sticks3", "esp-idf-coex"}
         or config.profile == "generic-observe"
@@ -815,7 +867,10 @@ def execute(config: LaneConfig) -> dict:
             )
             deadline = time.monotonic() + config.timeout + 10
             ble_exited_at: float | None = None
-            while time.monotonic() < deadline:
+            while (
+                time.monotonic() < deadline
+                and not stop_requested.is_set()
+            ):
                 if emu_proc.poll() is not None:
                     break
                 serial_snapshot = read_text(serial_path)
@@ -873,7 +928,7 @@ def execute(config: LaneConfig) -> dict:
                         break
                 time.sleep(0.25)
             else:
-                timed_out = True
+                timed_out = not stop_requested.is_set()
     finally:
         terminate_process(emu_proc)
         terminate_process(ble_proc)
@@ -881,11 +936,13 @@ def execute(config: LaneConfig) -> dict:
             lab_server.close()
         if udp_server is not None:
             udp_server.close()
+        signal.signal(signal.SIGTERM, previous_sigterm)
 
     duration = round(time.monotonic() - started, 3)
     serial = read_text(serial_path)
-    if config.password:
-        serial = serial.replace(config.password, "<redacted>")
+    for secret in secrets:
+        if secret:
+            serial = serial.replace(secret, "<redacted>")
     serial_path.write_text(serial)
     ble_log = read_text(ble_log_path)
 
@@ -948,7 +1005,11 @@ def execute(config: LaneConfig) -> dict:
                 "ssid": config.ssid,
                 "password": "<redacted>",
                 "auth": config.wifi_auth,
+                "firmware_ap_password_configured": (
+                    config.firmware_ap_password is not None
+                ),
             },
+            "hostfwd": list(config.hostfwd),
             "ble": {
                 "enabled": config.ble,
                 "observer": (
@@ -988,6 +1049,7 @@ def execute(config: LaneConfig) -> dict:
             "status": status,
             "passed": passed,
             "timed_out": timed_out,
+            "stop_requested": stop_requested.is_set(),
             "duration_seconds": duration,
             "emulator_exit_code": emu_proc.returncode if emu_proc else None,
             "ble_probe_exit_code": ble_proc.returncode if ble_proc else None,
@@ -1003,6 +1065,8 @@ def execute(config: LaneConfig) -> dict:
             "TLS certificate validation",
             "device safety or malware sandboxing",
             "Bluedroid or Classic Bluetooth compatibility",
+            "physical phone WiFi and captive-portal UX fidelity",
+            "WPA3-SAE-only or hidden-SSID firmware APs",
         ],
     }
     if config.profile == "generic-observe" and evidence["status"] != "PASS":
@@ -1040,12 +1104,29 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--ssid", default="myssid")
     parser.add_argument("--password", default="mypassword")
     parser.add_argument(
+        "--firmware-ap-password",
+        help=(
+            "password for a firmware-created soft AP; use an empty string "
+            "for an open AP"
+        ),
+    )
+    parser.add_argument(
         "--wifi-auth",
         choices=("wpa2-wpa3", "wpa3-sae", "wpa2-psk", "open"),
         default="wpa2-wpa3",
     )
     parser.add_argument("--psram-size", default="8M")
     parser.add_argument("--net-mode", default="user")
+    parser.add_argument(
+        "--hostfwd",
+        action="append",
+        default=[],
+        type=normalize_hostfwd,
+        help=(
+            "loopback-only forward in "
+            "tcp|udp:127.0.0.1:HOST_PORT-:GUEST_PORT form; repeatable"
+        ),
+    )
     parser.add_argument(
         "--console-mode",
         choices=("auto", "uart0", "usb-jtag"),
@@ -1097,9 +1178,11 @@ def main(argv: list[str] | None = None) -> int:
         timeout=args.timeout,
         ssid=args.ssid,
         password=args.password,
+        firmware_ap_password=args.firmware_ap_password,
         wifi_auth=args.wifi_auth,
         psram_size=args.psram_size,
         net_mode=args.net_mode,
+        hostfwd=list(args.hostfwd),
         console_mode=args.console_mode,
         wifi=True if args.wifi is None else args.wifi,
         ble=False if args.ble is None else args.ble,
@@ -1124,7 +1207,10 @@ def main(argv: list[str] | None = None) -> int:
             firmware_copy=firmware_copy,
         )
         payload = {
-            "command": redact_command(command, config.password),
+            "command": redact_command(
+                command,
+                [config.password, config.firmware_ap_password],
+            ),
             "injection": injection,
         }
         print(json.dumps(payload, indent=2) if args.json else payload["command"])

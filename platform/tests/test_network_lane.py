@@ -23,6 +23,7 @@ from network_lane import (  # noqa: E402
     check_smoke_evidence,
     check_uiflow2_evidence,
     execute,
+    normalize_hostfwd,
     normalize_i2c_device,
     redact_command,
 )
@@ -39,9 +40,11 @@ def config(tmp: Path, **changes) -> LaneConfig:
         "timeout": 30,
         "ssid": "myssid",
         "password": "mypassword",
+        "firmware_ap_password": None,
         "wifi_auth": "wpa2-wpa3",
         "psram_size": "8M",
         "net_mode": "user",
+        "hostfwd": [],
         "console_mode": "uart0",
         "wifi": True,
         "ble": True,
@@ -200,6 +203,51 @@ class NetworkLaneTests(unittest.TestCase):
         self.assertNotIn("mypassword", rendered)
         self.assertIn("<redacted>", rendered)
         self.assertIn("myssid", rendered)
+
+    def test_firmware_soft_ap_forward_is_loopback_only_and_redacted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = Path(directory)
+            row = config(
+                tmp,
+                profile="generic-observe",
+                ble=False,
+                firmware_ap_password="captive123",
+                hostfwd=[
+                    normalize_hostfwd(
+                        "tcp:127.0.0.1:18080-:80"
+                    )
+                ],
+            )
+            command, _ = build_emulator_command(
+                row,
+                firmware_copy=tmp / "runtime.bin",
+            )
+        net_index = command.index("--net")
+        self.assertEqual(
+            command[net_index + 1],
+            "user,hostfwd=tcp:127.0.0.1:18080-:80",
+        )
+        password_index = command.index("--wifi-fw-ap-password")
+        self.assertEqual(command[password_index + 1], "captive123")
+        rendered = redact_command(
+            command,
+            ["mypassword", "captive123"],
+        )
+        self.assertNotIn("mypassword", rendered)
+        self.assertNotIn("captive123", rendered)
+        self.assertIn("hostfwd=tcp:127.0.0.1:18080-:80", rendered)
+
+    def test_host_forward_rejects_non_loopback_or_invalid_ports(self):
+        for value in (
+            "tcp:0.0.0.0:18080-:80",
+            "tcp:127.0.0.1:80-:80",
+            "tcp:127.0.0.1:18080-:0",
+            "sctp:127.0.0.1:18080-:80",
+            "tcp:127.0.0.1:18080-:80\n",
+        ):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    normalize_hostfwd(value)
 
     def test_uiflow2_parser_requires_wifi_and_ble_data_planes(self):
         serial = """

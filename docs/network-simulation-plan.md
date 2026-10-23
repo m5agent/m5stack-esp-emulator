@@ -78,6 +78,10 @@ Validated through `2026-10-23`:
   controlled UDP request/reply through the user-mode gateway;
 - the Device Service exposes `runtime=network` one-shot sessions and a
   `/sessions/{id}/network` evidence endpoint;
+- Device Service `network` sessions expose `firmware_ap_password` and up to
+  eight loopback-only `hostfwd` entries, allowing an `esp-emu` guest to join a
+  firmware-created SoftAP and serve its provisioning portal through
+  `127.0.0.1`; physical-phone captive-portal behavior is not modeled;
 - the classic ESP32 QEMU machine's `open_eth` device reaches DHCP and downloads
   a complete 1 MiB HTTP body in the `core2_openeth` ESP-IDF fixture.
 - an optional OpenMAC WiFi model imported into QEMU 9.2.2 lets stock Core2
@@ -199,6 +203,12 @@ For firmware that starts its own AP, let the emulator join it and use
 `hostfwd` from the host. This tests captive portal and local provisioning flows
 without a physical phone or router.
 
+The Device Service exposes this as `network.firmware_ap_password` plus
+`network.hostfwd` on `runtime=network`. Forwards bind only to loopback. The
+portal path is usable while the one-shot session is running, but automated
+captive-portal HTTP assertions and a virtual phone network namespace are still
+pending.
+
 ## Required test matrix
 
 | Capability | Minimum assertion |
@@ -233,7 +243,7 @@ itself. For untrusted firmware:
 | Phase | Work | Estimate |
 | --- | --- | --- |
 | N0 | One-device UIFlow2 WiFi proof through `esp-emu` | DONE for StickS3 WLAN/DHCP and C6 NanoC6/Nesso WiFi+BLE; ESP-IDF adds TCP |
-| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP and BLE harness DONE; isolated resolver and pcap policy pending |
+| N1 | Reusable harness: SSID/password, DHCP/DNS/TCP/UDP assertions, packet summary, `hostfwd` | WiFi/DHCP/DNS/TCP/UDP, BLE and loopback hostfwd API DONE; isolated resolver, automated SoftAP portal assertions and pcap policy pending |
 | N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | 3–5 working days |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |

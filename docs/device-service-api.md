@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Status: local MVP with unified-device runtime contract `1.4.0` and bounded
+Status: local MVP with unified-device runtime contract `1.5.0` and bounded
 storage retention implemented on `2026-10-23`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -693,6 +693,52 @@ Profiles are:
   profile runs an external Bumble observer and requires
   `elf_artifact_id`; successful BLE requires GATT discovery, subscription,
   write, and guest-side delivery.
+
+#### Firmware-created SoftAP and provisioning portal
+
+`generic-observe` can join a SoftAP created by the firmware and expose selected
+TCP/UDP guest ports on loopback for provisioning review:
+
+```json
+{
+  "device_id": "sticks3",
+  "firmware_id": "<firmware-id>",
+  "runtime": "network",
+  "network": {
+    "profile": "generic-observe",
+    "timeout_seconds": 120,
+    "expected_markers": ["PROVISIONING_READY"],
+    "firmware_ap_password": "<firmware-ap-password>",
+    "hostfwd": [
+      {
+        "protocol": "tcp",
+        "host_port": 18080,
+        "guest_port": 80
+      }
+    ]
+  }
+}
+```
+
+While the session is running, the reviewer can open
+`http://127.0.0.1:18080/` or drive the portal from an automated HTTP client.
+The host address is fixed to `127.0.0.1`; callers cannot bind a forward to the
+workstation LAN. Host ports must be in `1024-65535`, guest ports in `1-65535`,
+and duplicate `protocol`/`host_port` pairs are rejected. A session accepts at
+most eight forwards.
+
+`firmware_ap_password` is optional. When omitted, esp-emu uses
+`wifi_password`; an explicit empty string selects an open AP. Both passwords
+are redacted from persisted session JSON, command evidence and serial logs.
+The engine supports open and WPA2-PSK firmware APs. WPA3-SAE-only and hidden
+SSIDs are `NOT RUN`. TCP `hostfwd` reaches the firmware AP while that path is
+up and otherwise uses the station path; UDP `hostfwd` reaches only the station
+path.
+
+This path drives the real guest portal and can prove its HTTP behavior. It does
+not emulate a physical phone OS, captive-portal detection, mDNS discovery or
+RF behavior, and it does not provide framebuffer/input from the same guest.
+Keep those boundaries explicit in firmware-review evidence.
 
 For `qemu-wifi`, `qemu-unified` and legacy `qemu-ble` sessions,
 `GET /sessions/{id}/network` recomputes evidence from the current serial and

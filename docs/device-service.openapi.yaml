@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.4.0
+  version: 1.5.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1090,6 +1090,42 @@ components:
           type: string
           maxLength: 63
           writeOnly: true
+        firmware_ap_password:
+          type: string
+          maxLength: 63
+          writeOnly: true
+          description: >
+            Password used when esp-emu joins a SoftAP created by the firmware.
+            Use an empty string for an open AP. Open and WPA2-PSK APs are
+            supported; WPA3-SAE-only and hidden SSIDs are not. The value is
+            redacted from session records, command evidence and serial logs.
+        hostfwd:
+          type: array
+          maxItems: 8
+          description: >
+            Loopback-only TCP/UDP forwards from the review host into the guest.
+            Host addresses are fixed to 127.0.0.1. These forwards can expose a
+            firmware provisioning portal without connecting the guest to the
+            workstation LAN. TCP forwards reach a firmware-created SoftAP and
+            its station path; UDP forwards currently reach only the station
+            path. A live session exposes the normalized forwards in its
+            network snapshot.
+          items:
+            type: object
+            additionalProperties: false
+            required: [protocol, host_port, guest_port]
+            properties:
+              protocol:
+                type: string
+                enum: [tcp, udp]
+              host_port:
+                type: integer
+                minimum: 1024
+                maximum: 65535
+              guest_port:
+                type: integer
+                minimum: 1
+                maximum: 65535
         wifi_auth:
           type: string
           enum: [wpa2-wpa3, wpa3-sae, wpa2-psk, open]

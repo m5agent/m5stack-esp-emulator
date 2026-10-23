@@ -21,9 +21,11 @@ Deliverables:
 6. separate Core2 ESP32 LX6 WiFi/PHY path;
 7. same-instance board + WiFi model only if later required.
 
-Implemented on 2026-10-22:
+Implemented on 2026-10-22/23:
 
 - reusable isolated network/BLE runner with redacted, hashed evidence;
+- Device Service `network.hostfwd` and `network.firmware_ap_password` expose
+  loopback-only firmware SoftAP portals for provisioning diagnosis;
 - StickS3, CoreS3, NanoC6 and Nesso N1 network fixtures for WiFi/DHCP and a
   controlled HTTP/TCP download;
 - StickS3 UIFlow2 BLE server observed by an external Bumble GATT peer;

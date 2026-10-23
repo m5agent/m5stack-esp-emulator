@@ -64,6 +64,25 @@ by `esp-emu` for HCI interception. The Device Service selects
 `user,restrict=yes` for this profile by default. This is the fallback for
 firmware whose startup protocol is not known in advance.
 
+For a firmware-created SoftAP, add `--firmware-ap-password` and one or more
+loopback `--hostfwd` entries:
+
+```bash
+PYTHONPATH=.work/py python3 platform/tools/network_lane.py \
+  --profile generic-observe \
+  --chip esp32s3 \
+  --firmware /path/to/provisioning.bin \
+  --firmware-ap-password '<firmware-ap-password>' \
+  --hostfwd tcp:127.0.0.1:18080-:80 \
+  --timeout 120 \
+  --out-dir /tmp/m5-softap-provisioning
+```
+
+The normalized forward is visible as `http://127.0.0.1:18080/` while the
+emulator is running. Host addresses are fixed to loopback. Open and WPA2-PSK
+firmware APs are exercised; a physical phone OS, captive-portal detection,
+WPA3-SAE-only APs and hidden SSIDs are not.
+
 For a generic run that does not reach its required markers, `evidence.json`
 includes a non-fatal `diagnosis` object. The categories distinguish board
 detection, crash/assert, reboot, peripheral initialization, guest marker

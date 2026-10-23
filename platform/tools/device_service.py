@@ -60,7 +60,7 @@ from firmware_analysis import (  # noqa: E402
     expected_chip_id,
     parse_partition_table,
 )
-from network_lane import normalize_i2c_device  # noqa: E402
+from network_lane import normalize_hostfwd, normalize_i2c_device  # noqa: E402
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
@@ -378,8 +378,9 @@ def iso_now() -> str:
 
 def redacted_network_config(config: dict | None) -> dict:
     safe = dict(config or {})
-    if safe.get("password"):
-        safe["password"] = "<redacted>"
+    for key in ("password", "wifi_password", "firmware_ap_password"):
+        if key in safe and safe[key] is not None:
+            safe[key] = "<redacted>"
     return safe
 
 
@@ -505,6 +506,67 @@ def parse_network_execution(
             "network.net_mode must be 'user' or 'user,restrict=yes'",
             400,
         )
+    raw_hostfwd = value.get("hostfwd", [])
+    if not isinstance(raw_hostfwd, list) or len(raw_hostfwd) > 8:
+        raise ServiceError(
+            "invalid_network",
+            "network.hostfwd must contain at most 8 entries",
+            400,
+        )
+    hostfwd: list[str] = []
+    seen_forwards: set[tuple[str, int]] = set()
+    for index, item in enumerate(raw_hostfwd):
+        if not isinstance(item, dict):
+            raise ServiceError(
+                "invalid_network",
+                f"network.hostfwd[{index}] must be an object",
+                400,
+            )
+        protocol = item.get("protocol")
+        host_port = item.get("host_port")
+        guest_port = item.get("guest_port")
+        if protocol not in {"tcp", "udp"}:
+            raise ServiceError(
+                "invalid_network",
+                f"network.hostfwd[{index}].protocol must be tcp or udp",
+                400,
+            )
+        if (
+            isinstance(host_port, bool)
+            or not isinstance(host_port, int)
+            or not 1024 <= host_port <= 65535
+            or isinstance(guest_port, bool)
+            or not isinstance(guest_port, int)
+            or not 1 <= guest_port <= 65535
+        ):
+            raise ServiceError(
+                "invalid_network",
+                (
+                    f"network.hostfwd[{index}] ports must use host 1024-65535 "
+                    "and guest 1-65535"
+                ),
+                400,
+            )
+        key = (str(protocol), host_port)
+        if key in seen_forwards:
+            raise ServiceError(
+                "invalid_network",
+                f"network.hostfwd contains duplicate {protocol}/{host_port}",
+                400,
+            )
+        seen_forwards.add(key)
+        try:
+            hostfwd.append(
+                normalize_hostfwd(
+                    f"{protocol}:127.0.0.1:{host_port}-:{guest_port}"
+                )
+            )
+        except ValueError as error:
+            raise ServiceError(
+                "invalid_network",
+                f"network.hostfwd[{index}] is invalid: {error}",
+                400,
+            ) from error
     console_mode = value.get(
         "console_mode",
         (
@@ -530,6 +592,7 @@ def parse_network_execution(
 
     ssid = value.get("wifi_ssid", "myssid")
     password = value.get("wifi_password", "mypassword")
+    firmware_ap_password = value.get("firmware_ap_password")
     wifi_auth = value.get("wifi_auth", "wpa2-wpa3")
     psram_size = value.get(
         "psram_size",
@@ -542,6 +605,19 @@ def parse_network_execution(
     if not isinstance(password, str) or len(password) > 63:
         raise ServiceError(
             "invalid_network", "network.wifi_password is invalid", 400
+        )
+    if firmware_ap_password is not None and (
+        not isinstance(firmware_ap_password, str)
+        or len(firmware_ap_password) > 63
+        or (firmware_ap_password and len(firmware_ap_password) < 8)
+    ):
+        raise ServiceError(
+            "invalid_network",
+            (
+                "network.firmware_ap_password must be empty for an open AP "
+                "or 8-63 characters"
+            ),
+            400,
         )
     if wifi_auth not in {"wpa2-wpa3", "wpa3-sae", "wpa2-psk", "open"}:
         raise ServiceError(
@@ -640,6 +716,7 @@ def parse_network_execution(
         "tcp": tcp,
         "wifi_ssid": ssid,
         "wifi_password": password,
+        "firmware_ap_password": firmware_ap_password,
         "wifi_auth": wifi_auth,
         "psram_size": psram_size,
         "ble_name": ble_name,
@@ -647,6 +724,7 @@ def parse_network_execution(
         "elf_artifact_id": elf_artifact_id,
         "expected_markers": expected_markers,
         "net_mode": net_mode,
+        "hostfwd": hostfwd,
         "console_mode": console_mode,
         "i2c_devices": i2c_devices,
     }
@@ -1702,6 +1780,13 @@ class DeviceSession:
                     {
                         "status": "RUNNING",
                         "profile": self.network_config.get("profile"),
+                        "hostfwd": list(
+                            self.network_config.get("hostfwd", [])
+                        ),
+                        "firmware_ap_password_configured": (
+                            self.network_config.get("firmware_ap_password")
+                            is not None
+                        ),
                     }
                     if self.network_config
                     else None
@@ -3933,7 +4018,24 @@ class DeviceSession:
                 except (OSError, RuntimeError):
                     pass
             self._terminate_process()
-            self.state = "stopped"
+            if self.runtime == "network":
+                evidence = self.network_evidence()
+                if evidence.get("status") != "RUNNING":
+                    self.network_result = evidence
+            network_status = str(
+                (self.network_result or {}).get("status", "RUNNING")
+            )
+            if self.runtime == "network" and network_status not in {
+                "PASS",
+                "PARTIAL",
+                "RUNNING",
+            }:
+                self.state = "failed"
+                self.error = (
+                    f"network lane completed with status {network_status}"
+                )
+            else:
+                self.state = "stopped"
             self.completed_at = iso_now()
             self._record_event("stopped", purge=purge)
             if not purge and not retain_flash:
@@ -4041,6 +4143,15 @@ class NetworkDeviceSession(DeviceSession):
                     str(self.service.artifacts.path(str(elf_artifact_id))),
                 ]
             )
+        firmware_ap_password = self.network_config.get(
+            "firmware_ap_password"
+        )
+        if firmware_ap_password is not None:
+            command.extend(
+                ["--firmware-ap-password", str(firmware_ap_password)]
+            )
+        for hostfwd in self.network_config.get("hostfwd", []):
+            command.extend(["--hostfwd", str(hostfwd)])
         for marker in self.network_config.get("expected_markers", []):
             command.extend(["--expect", str(marker)])
         for i2c_device in self.network_config.get("i2c_devices", []):
