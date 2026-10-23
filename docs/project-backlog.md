@@ -20,7 +20,7 @@
 | 优先级 | 工作流 | 完成标准 | 依赖 / 风险 |
 | --- | --- | --- | --- |
 | P0 | 网络策略与 worker | 双设备 fabric、自托管 QEMU worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
-| P0 | Core2 生产化 | 非 GDB VHCI、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
+| P0 | Core2 生产化 | 去掉 GDB 暂停/注入/return 控制、重复 lease 稳定门禁、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
 | P0 | 通用固件审查 | SPIFFS、权限/许可策略、真机 eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
 | P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
 | P1 | 外部 IPv6 egress | v6 veth/route/NAT 与 exact endpoint 规则 | worker 双栈配置；当前 IPv6 请求会被拒绝 |
@@ -33,7 +33,9 @@
 
 1. `NET-03`：完成双设备 lab fabric。
 2. `NET-04` / `SVC-01`：把 Linux policy CI 和 QEMU evidence 路径接入正式 worker。
-3. `CORE2-01`：移除 GDB bridge，再做 `CORE2-02` 的 controller 和物理过程验证。
+3. `CORE2-01`：先完成同 commit 的重复 Device Service lease，再移除 GDB
+   暂停、callback 注入和 synthetic return 控制；随后做 `CORE2-02` 的
+   controller 和物理过程验证。
 4. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
 5. `FW-02/03/04`：生产 key/eFuse、跨厂商样本和流式上传。
 6. `HW-01`：对应功能稳定后立即补同路径真机证据。
@@ -47,7 +49,7 @@
 | `NET-03` | 待做 | 两个 guest 的 private lab fabric | 两台 guest 只通过预期 fabric 通信，宿主 LAN/控制面不可达 |
 | `NET-04` | 进行中 | GitHub Actions 已跑 namespace/egress；继续接 QEMU runtime、pcap/reconnect 和正式 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain/re-attach |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
-| `CORE2-01` | 待做 | 服务托管的 GDB VHCI 改为 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
+| `CORE2-01` | 进行中 | ELF 符号查询已固定；先建立重复 lease 稳定性门禁，再把 GDB 暂停/注入/return 改为 QEMU 内部或无调试器后端 | 同一 stock 固件通过重复 lease；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
 | `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
 | `FW-02` | 进行中 | 包内安全摘要已支持；继续做真机 eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -85,10 +87,25 @@
 
 ### CORE2-01 无 GDB VHCI
 
-现有 stock native-VHCI 通过 GDB 拦截 `esp_vhci_host_*` 并转给 Bumble。
+已经完成：
+
+- 从匹配 Xtensa ELF 解析 `API_vhci_host_send_packet`、`vhci_env_p` 和
+  `esp_cpu_wait_for_intr`，Device Service 与独立 runner 传固定地址；
+- pinned-symbol standalone 外部 NUS GATT `5/5`；
+- pinned-symbol 同 guest board+WiFi+公网+native-VHCI BLE `3/3`；
+- Device Service `core2-native-vhci` 已有一个带 symbol event 的单 lease
+  PASS。
+
+仍未完成：
+
+- GDB 仍负责 guest 暂停、breakpoint/callback 注入和 synthetic return；
+- 尚未形成同 commit、固定次数的重复 Device Service lease 门禁；
+- 尚无 QEMU 内部或无调试器 backend。
 
 交付：
 
+- 先跑固定次数独立 lease，失败分类必须区分 target running、
+  `INJECT_REJECTED`、double exception、GDB exit 和 peer timeout；
 - QEMU 内部或无调试器 backend 完成同一 H2C/C2H 数据面；
 - 同一 stock 固件和 ELF 通过 scan/connect/NUS subscribe/write/notify；
 - Device Service 单 lease、pcap、bridge log 和 peer evidence 不回退。

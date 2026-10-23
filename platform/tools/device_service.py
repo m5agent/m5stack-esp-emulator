@@ -81,6 +81,10 @@ from network_policy import (  # noqa: E402
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
+from xtensa_elf_symbols import (  # noqa: E402
+    ElfSymbolError,
+    core2_native_vhci_addresses,
+)
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 DEFAULT_MAX_SESSIONS = 12
@@ -1865,6 +1869,21 @@ def _is_sha256(value: str) -> bool:
     return len(value) == 64 and all(c in "0123456789abcdef" for c in value)
 
 
+def default_session_ready_timeout(
+    network_config: dict[str, Any] | None,
+) -> float:
+    profile = (network_config or {}).get("profile")
+    if profile in {
+        CORE2_HCI_GATT_PROFILE,
+        CORE2_NATIVE_VHCI_PROFILE,
+        NANOC6_HCI_BLE_PROFILE,
+        NESSO_UNIFIED_PROFILE,
+        *UNIFIED_PROFILES,
+    }:
+        return 90.0
+    return 30.0
+
+
 def _timestamp_age_seconds(value: Any, *, now: float | None = None) -> float | None:
     if not isinstance(value, str) or not value:
         return None
@@ -3131,8 +3150,25 @@ class DeviceSession:
         )
         env["M5_NATIVE_BT_HCI_PORT"] = str(self.hci_port)
         env["M5_NATIVE_GDB_PORT"] = str(self.gdb_port)
-        env["M5_NATIVE_BT_ELF"] = str(
-            self.service.artifacts.path(str(elf_artifact_id))
+        elf_path = self.service.artifacts.path(str(elf_artifact_id))
+        env["M5_NATIVE_BT_ELF"] = str(elf_path)
+        try:
+            symbols = core2_native_vhci_addresses(elf_path)
+        except ElfSymbolError as error:
+            raise ServiceError(
+                "native_bt_elf_invalid",
+                f"native VHCI ELF symbols are unavailable: {error}",
+                409,
+            ) from error
+        env.update(
+            {
+                name: f"0x{value:08x}"
+                for name, value in symbols.items()
+            }
+        )
+        self._record_event(
+            "native_vhci_symbols",
+            **symbols,
         )
         output = self.native_vhci_log.open("wb")
         try:
@@ -6033,7 +6069,12 @@ class DeviceService:
                     + ", ".join(str(key) for key in invalid_env),
                     400,
                 )
-            ready_timeout = float(payload.get("ready_timeout_seconds", 30))
+            ready_timeout = float(
+                payload.get(
+                    "ready_timeout_seconds",
+                    default_session_ready_timeout(network_config),
+                )
+            )
             if runtime == "network":
                 session_class = NetworkDeviceSession
             elif spec.service_kind == "tab5":

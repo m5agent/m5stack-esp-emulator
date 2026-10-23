@@ -33,6 +33,7 @@ from device_service import (
     QMP,
     ServiceError,
     StoragePolicy,
+    default_session_ready_timeout,
 )
 from serve import Handler, _wait_for_session
 
@@ -483,6 +484,28 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(DEFAULT_MAX_SESSIONS, 12)
         self.assertEqual(DEFAULT_MAX_PER_DEVICE, 8)
         self.assertEqual(MAX_ARTIFACT_BYTES, 96 * 1024 * 1024)
+
+    def test_ble_profiles_use_longer_default_ready_timeout(self):
+        for profile in (
+            "core2-native-vhci",
+            "core2-hci-gatt",
+            "nanoc6-hci-ble",
+            "nesso-unified",
+            "uiflow2-sticks3-unified",
+        ):
+            with self.subTest(profile=profile):
+                self.assertEqual(
+                    default_session_ready_timeout(
+                        {"profile": profile}
+                    ),
+                    90.0,
+                )
+        self.assertEqual(
+            default_session_ready_timeout(
+                {"profile": "uiflow2-sticks3-wifi"}
+            ),
+            30.0,
+        )
 
     def test_catalog_exposes_sku_and_coverage(self):
         row = self.service.get_device("cores3")

@@ -10,10 +10,12 @@ import shutil
 import signal
 import socket
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "platform/tools"))
 PROBE_DIR = Path(__file__).resolve().parent
 FILES_DIR = ROOT / "tests/uiflow2/core2_hci_ble"
 PROFILE_RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
@@ -30,6 +32,8 @@ DEFAULT_QEMU = (
     ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
 )
 DEFAULT_ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
+
+from xtensa_elf_symbols import core2_native_vhci_addresses  # noqa: E402
 
 SERIAL_MARKERS = (
     "CORE2_HCI_BOOT",
@@ -186,6 +190,15 @@ def run_attempt(
     )
     env["BLE_HCI_TRACE"] = "1"
     env["M5_NATIVE_BT_ELF"] = str(args.elf.resolve())
+    native_symbols = None
+    if args.symbol_source == "pinned":
+        native_symbols = core2_native_vhci_addresses(args.elf)
+        env.update(
+            {
+                name: f"0x{value:08x}"
+                for name, value in native_symbols.items()
+            }
+        )
     probe: subprocess.Popen | None = None
     qemu: subprocess.Popen | None = None
     gdb: subprocess.Popen | None = None
@@ -337,6 +350,7 @@ def run_attempt(
         "serial_sha256": sha256(serial_path),
         "peer_log_sha256": sha256(peer_log),
         "bridge_log_sha256": sha256(bridge_log),
+        "native_symbols": native_symbols,
         "serial_path": display_path(serial_path),
         "peer_log_path": display_path(peer_log),
         "bridge_log_path": display_path(bridge_log),
@@ -360,6 +374,12 @@ def main() -> int:
     parser.add_argument("--timeout", type=float, default=75)
     parser.add_argument("--peer-timeout", type=float, default=60)
     parser.add_argument("--notification-timeout", type=float, default=20)
+    parser.add_argument(
+        "--symbol-source",
+        choices=("pinned", "gdb"),
+        default="pinned",
+        help="resolve VHCI addresses from ELF metadata or debugger expressions",
+    )
     args = parser.parse_args()
     for label, path in (
         ("base image", args.base),
@@ -416,6 +436,7 @@ def main() -> int:
             "gdb": display_path(args.gdb),
             "gdb_bridge": display_path(NATIVE_BRIDGE_PY),
             "gdb_bridge_sha256": sha256(NATIVE_BRIDGE_PY),
+            "symbol_source": args.symbol_source,
             "controller_boundary": "ESP32 VHCI host API",
             "external_controller": "Bumble",
         },

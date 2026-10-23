@@ -20,6 +20,24 @@ def _read_u32(address: int) -> int:
     return int.from_bytes(inferior.read_memory(address, 4).tobytes(), "little")
 
 
+def _address(symbol: str, environment: str) -> int:
+    configured = os.environ.get(environment)
+    if configured:
+        return int(configured, 0)
+    print(
+        f"NATIVE_VHCI_SYMBOL_FALLBACK {symbol} {environment}",
+        flush=True,
+    )
+    return int(gdb.parse_and_eval(f"&{symbol}"))
+
+
+def _idle_breakpoint(environment: str) -> str:
+    configured = os.environ.get(environment)
+    if configured:
+        return f"*{configured}"
+    return "esp_cpu_wait_for_intr"
+
+
 class NativeVhciBridge:
     def __init__(
         self,
@@ -243,11 +261,15 @@ def start() -> None:
     gdb.execute(f"target remote :{gdb_port}")
     _bridge = NativeVhciBridge(
         port,
-        api_send_packet=int(
-            gdb.parse_and_eval("&API_vhci_host_send_packet")
+        api_send_packet=_address(
+            "API_vhci_host_send_packet",
+            "M5_NATIVE_VHCI_SEND_PC",
         ),
-        vhci_env_pointer=int(gdb.parse_and_eval("&vhci_env_p")),
-        idle_function="esp_cpu_wait_for_intr",
+        vhci_env_pointer=_address(
+            "vhci_env_p",
+            "M5_NATIVE_VHCI_ENV_PTR",
+        ),
+        idle_function=_idle_breakpoint("M5_NATIVE_VHCI_IDLE_PC"),
     )
     print("NATIVE_VHCI_BRIDGE_READY", flush=True)
 

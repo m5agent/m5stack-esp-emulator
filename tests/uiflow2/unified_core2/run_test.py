@@ -16,6 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tests/uiflow2"))
+sys.path.insert(0, str(ROOT / "platform/tools"))
 
 from run_profile_ui_test import (  # noqa: E402
     canonicalize_screendump,
@@ -24,6 +25,7 @@ from run_profile_ui_test import (  # noqa: E402
     wait_qmp,
     write_rgb_png,
 )
+from xtensa_elf_symbols import core2_native_vhci_addresses  # noqa: E402
 
 DEFAULT_QEMU = (
     ROOT / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
@@ -198,6 +200,13 @@ def run_attempt(
     env["M5SW_I2S_PCM_FILE"] = str(speaker_path)
     env["M5SW_I2S_RX_PCM_FILE"] = str(microphone_source)
     env["M5_NATIVE_BT_ELF"] = str(args.native_elf.resolve())
+    native_symbols = core2_native_vhci_addresses(args.native_elf)
+    env.update(
+        {
+            name: f"0x{value:08x}"
+            for name, value in native_symbols.items()
+        }
+    )
     subprocess.run(
         [
             sys.executable,
@@ -539,6 +548,7 @@ def run_attempt(
         "peer_log_bytes": len(peer_bytes),
         "peer_log_sha256": sha256(peer_bytes),
         "bridge_log_sha256": sha256(bridge_bytes),
+        "native_symbols": native_symbols,
     }
 
 

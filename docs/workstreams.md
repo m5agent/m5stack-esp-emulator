@@ -30,10 +30,10 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新 `67/67` case、`274/274` check，全部首轮无重试 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、Device Service lease | `CORE2-01` 无 GDB 后端；`CORE2-02` controller、物理 cache/PSRAM、coexistence/soak |
+| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3、Device Service 单 lease | `CORE2-01` 移除 GDB 暂停/注入/return 控制面并建立重复 lease 门禁；`CORE2-02` controller、物理 cache/PSRAM、coexistence/soak |
 | 网络隔离、策略与取证 | `DELIVERED`（单机与 Linux policy CI） | `network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；GitHub Actions policy fixture | `NET-03` 双设备 fabric、`NET-04` 自托管 QEMU worker、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT 清单 | `FW-01` SPIFFS/权限/许可策略、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归、`FW-04` 流式上传 |
-| Device Service | `PILOT` | `serve.py`、`device_service.py`、`storage_policy.py`、`docs/device-service-api.md` | lease、烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` worker 生命周期、`SVC-02` warm pool/多机、`SVC-03` 拆分 6.7k 行编排热区 |
+| Device Service | `PILOT` | `serve.py`、`device_service.py`、`storage_policy.py`、`docs/device-service-api.md` | lease、烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` worker 生命周期、`SVC-02` warm pool/多机、`SVC-03` 拆分 6.8k 行编排热区 |
 | 热门公开固件仿真 | `PILOT` | `fetch_firmware.py`、`user_firmware_matrix.py` | 按 M5Burner 热度选样并通过 `/api/v1` 留下 session/evidence | 更大样本面、跨厂商统计、长时间稳定性 |
 | 浏览器目录与设备页 | `DELIVERED`（本地） | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、Live sessions、输入和证据浏览 | `UI-01` 逐设备高保真外壳与视觉回归 |
 | Tab5 P4/C6 | `PARTIAL` | `esp-emu 0.50.0`、Tab5 patches、`tests/uiflow2/tab5_*` | 烧录、启动、1280×720、触摸、RS-485、静态 I2C | `TAB5-01` I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123、P4↔C6 端到端网络 |
@@ -43,7 +43,8 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 ## 当前执行顺序
 
 1. 先关 P0 中能形成稳定回归边界的工作：`CORE2-01`、`FW-01`，同时为
-   `HW-01` 准备同固件路径。
+   `HW-01` 准备同固件路径。Core2 已完成 ELF 符号固定，下一步先做重复
+   Device Service lease，再替换 GDB 的暂停、callback 注入和 return 控制。
 2. 把已跑通路径产品化：`NET-04`、`SVC-01`，随后处理 `SVC-03` 的
    编排模块拆分，避免继续扩大单文件热区。
 3. 再扩展覆盖面：`NET-03`、`NET-05`、`FW-02` 至 `FW-04`、

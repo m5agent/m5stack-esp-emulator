@@ -462,7 +462,10 @@ controller reset and advertising enable. Separate standalone runners now
 bridge the same stock firmware's VHCI boundary to Bumble; the BLE-only runner
 passes external NUS GATT 5/5 and the same-guest board+WiFi+public-network
 variant passes 3/3. The same GDB-based path is exposed as
-`qemu-unified/profile=core2-native-vhci` with a mandatory matching ELF.
+`qemu-unified/profile=core2-native-vhci` with a mandatory matching ELF. The
+service resolves fixed VHCI symbol addresses from that ELF before launching
+the guest; GDB still controls breakpoints, callback injection and the synthetic
+send-frame return.
 
 The `core2-hci-gatt` profile exercises the separate HCI-offload lane:
 
@@ -582,17 +585,23 @@ The stock-firmware path is exposed as a separate unified profile:
 
 `elf_artifact_id` is mandatory and must point to the matching symbol ELF.
 The service starts one `m5core2` guest with `-m 0`, the OpenMAC WiFi NIC and
-a QEMU GDB endpoint. A supervised GDB bridge loads that ELF, intercepts the
-firmware's own `esp_vhci_host_*` H2C/C2H, suppresses the incomplete in-guest
-controller call, and forwards HCI to Bumble. A second Bumble peer performs
-NUS discovery, subscription, write and notification readback.
+a QEMU GDB endpoint. Before launch, the service strictly resolves
+`API_vhci_host_send_packet`, `vhci_env_p` and `esp_cpu_wait_for_intr` from the
+ELF and records the addresses as a `native_vhci_symbols` event. The supervised
+GDB bridge consumes those fixed addresses, intercepts the firmware's own
+`esp_vhci_host_*` H2C/C2H, suppresses the incomplete in-guest controller call,
+and forwards HCI to Bumble. A second Bumble peer performs NUS discovery,
+subscription, write and notification readback.
 
 `/network` returns `kind=m5stack-core2-unified-qemu-proof` with
 `profile=core2-native-vhci`, bridge H2C/C2H/ACL checks, peer checks and the
 packet-capture summary. The evidence ZIP includes the serial log,
 `native-vhci-gdb.log`, peer log, frame, audio PCM, QOM snapshot, pcap and
 manifest. The bridge remains a trusted-host diagnostic implementation and is
-not a bit-exact Espressif BT baseband/controller.
+not a bit-exact Espressif BT baseband/controller. GDB remains in the guest
+control path even though symbol lookup is no longer debugger-mediated.
+`ready_timeout_seconds` defaults to `90` for this profile; an explicit value
+overrides it.
 
 The StickS3 unified profile closes WiFi and BLE in that same instance:
 
@@ -1276,8 +1285,10 @@ restart.
   `core2-ble-advertise` stops at native controller/advertising control;
   `core2-hci-gatt` closes external Bumble GATT without WiFi.
   `core2-native-vhci` closes stock VHCI external NUS GATT together with
-  board/WiFi/public network in one service lease, but still depends on a GDB
-  bridge and is not a bit-exact controller model;
+  board/WiFi/public network in one service lease. VHCI symbol addresses come
+  from the matching ELF; GDB still controls pause, callback injection and the
+  synthetic return, so it is not yet a no-debugger or bit-exact controller
+  model;
 - NanoC6 `nanoc6-hci-ble` closes board peripherals, QEMU C6 WiFi DHCP/HTTP
   and UART1 HCI BLE in one C6 guest;
 - Nesso N1 `nesso-unified` adds display/touch, PI4IOE, BQ27220/AW32001,
@@ -1299,8 +1310,10 @@ restart.
 - Core2 startup starvation is mitigated by deterministic TCG/icount scheduling
   (10/10 first attempts), but physical cache/PSRAM equivalence remains
   unverified. Stock native-VHCI external GATT is PASS 5/5 and
-  `core2-native-vhci` passes through Device Service, but it still depends on a
-  GDB bridge and is not a bit-exact controller implementation;
+  `core2-native-vhci` has passed through Device Service. Symbol lookup is
+  pinned from ELF, while pause/callback injection/synthetic return still use
+  GDB; repeated-lease stability and a bit-exact controller implementation
+  remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See
   [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);

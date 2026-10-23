@@ -54,6 +54,7 @@
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
 | `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
+| `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表严格解析 Core2 native-VHCI 固定地址 | Device Service、Core2 runners |
 | `platform/tools/fetch_firmware.py` | 查询、校验、下载和缓存公开 M5Burner 固件 | 本地准备、固件矩阵 |
 | `platform/tools/firmware_manifest.py` | merged/segmented/ZIP/WebBurner 导入和 manifest | CLI、Device Service |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 | manifest、矩阵 |
@@ -99,8 +100,8 @@
 
 | 位置 | 规模/现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | 约 6700 行，覆盖 7 类生命周期职责 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
-| `platform/tests/test_device_service.py` | 约 3500 行 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
+| `platform/tools/device_service.py` | 约 6840 行，覆盖 7 类生命周期职责 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
+| `platform/tests/test_device_service.py` | 约 3660 行 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 约 2900 行 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | 12 个 profile 有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 
@@ -172,7 +173,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/hci_stream.py` | H4 command/event/ACL 分包 |
 | `platform/tools/runtime_interfaces.py` | 对外汇总设备、外设和运行时可注入接口 |
 | `tests/uiflow2/core2_native_vhci/` | stock Core2 VHCI→Bumble GATT runner |
-| `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | QEMU GDB H2C/C2H bridge |
+| `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | QEMU GDB H2C/C2H bridge；符号地址来自固定环境变量，GDB 仍负责暂停、callback 注入和 synthetic return |
 | `tests/network/tls_allowlist/` | 测试 CA、namespace-local HTTPS gateway、Host 允许/拒绝和 pcap 断言 |
 | `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
 | `tests/network/` | 隔离、错误密码、radio/AP 丢失重连和 Core2 网络夹具 |
@@ -212,8 +213,8 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | 平台单元/契约 | `platform/tests/` | 解析、目录一致性、API、manifest、网络策略和文档契约 |
 | 外设矩阵 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 的数据面 |
 | 单设备统一运行时 | `tests/uiflow2/unified_*` | 单 QEMU guest 的板级、WiFi 和 HCI BLE |
-| Core2 stock VHCI BLE | `tests/uiflow2/core2_native_vhci/run_test.py` | 内置-controller 固件边界的外部 NUS GATT |
-| Core2 unified native VHCI | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | Device Service/独立 runner 的同 guest board+WiFi+公网+native-VHCI BLE |
+| Core2 stock VHCI BLE | `tests/uiflow2/core2_native_vhci/run_test.py --symbol-source pinned` | ELF 固定符号下，内置-controller 固件边界的外部 NUS GATT 5/5；`gdb` 仅保留作符号查询对照 |
+| Core2 unified native VHCI | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | Device Service/独立 runner 的同 guest board+WiFi+公网+native-VHCI BLE，符号来自匹配 ELF |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |

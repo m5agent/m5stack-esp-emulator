@@ -75,8 +75,14 @@ python3 tests/uiflow2/unified_core2/run_test.py \
 
 This path keeps display/touch, audio, QOM, WiFi, public DNS/HTTP and native
 VHCI BLE in one guest and is recorded in
-`evidence-2026-10-23-native-vhci.json` as 3/3 PASS. It requires the classic
-ESP32 BB idle-readback patch and a matching symbol ELF. It remains a
-GDB bridge, but the same path is exposed through Device Service as
+`evidence-2026-10-24-native-vhci-pinned.json` as 3/3 PASS. The runner parses
+the matching Xtensa ELF with `xtensa_elf_symbols.py` and passes the three VHCI
+addresses as fixed environment values, so GDB no longer performs symbol
+lookup. It requires the classic ESP32 BB idle-readback patch.
+
+The same path is exposed through Device Service as
 `qemu-unified/profile=core2-native-vhci`; the service-side run is recorded in
-`evidence-2026-10-23-native-vhci-service.json`.
+`evidence-2026-10-23-native-vhci-service.json`. GDB still pauses the guest,
+invokes firmware callbacks and supplies the synthetic send-frame return.
+Repeated-lease stability and removal of that GDB control plane remain open in
+`CORE2-01`.

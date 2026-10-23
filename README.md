@@ -22,7 +22,7 @@ MicroPython 和其他完整 Flash 固件。
 - 最新 UIFlow2 外设全矩阵在 `2026-10-24 00:11 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
   `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
-  下首轮通过。当前平台单元测试为 `239/239` PASS。
+  下首轮通过。当前平台单元测试为 `243/243` PASS。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
 - GitHub Actions 已运行完整平台测试，并在 Ubuntu runner 上执行 fail-closed
@@ -42,7 +42,7 @@ MicroPython 和其他完整 Flash 固件。
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap | [`radio-loss-pass.json`](tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json) | 双设备 fabric、自托管 QEMU worker、外部 IPv6 |
-| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、单 lease unified | [`native-vhci-service.json`](tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) | 去掉 GDB bridge、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
+| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、单 lease unified | [`native-vhci-pinned.json`](tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json) | 去掉 GDB 控制面、重复 lease 稳定性、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
 | 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32 文件清单与 SPDX | [`efuse-security.json`](tests/firmware/evidence-2026-10-24-efuse-security.json) | SPIFFS、运行时权限/许可策略、真机 key/eFuse、流式上传、跨厂商回归 |
 | 共享 QEMU 回归 | AES/GDMA 外部内存读取修复；S3/C6/Core2 全矩阵首轮通过 | [`gdma-external-memory-matrix.json`](tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) | 新共享控制器改动后重新跑受影响矩阵；真机同路径证据 |
 
@@ -55,7 +55,7 @@ MicroPython 和其他完整 Flash 固件。
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT 和 DHCP renewal 已通；自托管 QEMU worker、双设备 fabric 和外部 IPv6 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS 与 FAT12/16/32 文件清单已通；SPIFFS、许可策略与真机 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
-| Core2 稳定性与原生无线 | `mostly complete` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3 和 Device Service `core2-native-vhci` lease PASS；非 GDB 生产实现、bit-exact BT controller 与物理等价性未完成 |
+| Core2 稳定性与原生无线 | `mostly complete` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、VHCI 地址由 ELF 固定和 Device Service `core2-native-vhci` 单 lease PASS；GDB 仍负责暂停/注入/synthetic return，重复 lease 稳定性、bit-exact BT controller 与物理等价性未完成 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 关键索引：
@@ -152,7 +152,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；stock UIFlow2 native-VHCI BLE 独立 5/5、同 guest unified 3/3，并已通过 Device Service `qemu-unified/profile=core2-native-vhci` 单 lease，输出 frame/QOM/pcap/peer/bridge evidence。非 GDB 生产实现、bit-exact controller 和物理 cache/PSRAM 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；stock UIFlow2 native-VHCI BLE 独立 5/5、同 guest unified 3/3，VHCI 地址已从 ELF 固定，并已通过 Device Service `qemu-unified/profile=core2-native-vhci` 单 lease。GDB 仍负责 guest 暂停、callback 注入和 synthetic return；重复 lease 稳定生产实现、bit-exact controller 和物理 cache/PSRAM 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -263,8 +263,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
   internal-controller VHCI→Bumble 路径，独立 BLE 外部 NUS GATT 5/5，
   同一 guest 的 board+WiFi+公网+native-VHCI BLE 3/3，并已进入 Device Service
-  单 lease。它仍是 GDB 诊断桥，不是 bit-exact ESP32 BT
-  baseband/controller 模型。
+  单 lease。VHCI 符号地址已由匹配 ELF 固定，不再由 GDB 查询；GDB 仍用于
+  guest 暂停、callback 注入和 synthetic return，因此它仍是诊断桥，不是
+  bit-exact ESP32 BT baseband/controller 模型。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

@@ -1237,9 +1237,11 @@ components:
             speaker/microphone, OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE
             in one m5core2 guest when M5_CORE2_RADIO_QEMU is configured.
             core2-native-vhci runs the stock internal-controller build,
-            requires network.elf_artifact_id, bridges the real ESP32 VHCI
-            boundary to Bumble, and keeps board/frame/QOM, OpenMAC WiFi,
-            public network and external NUS GATT in one lease.
+            requires network.elf_artifact_id, pins the ESP32 VHCI symbol
+            addresses from that ELF, bridges the real VHCI boundary to
+            Bumble, and keeps board/frame/QOM, OpenMAC WiFi, public network
+            and external NUS GATT in one lease. GDB still controls pause,
+            callback injection and synthetic return.
             nanoc6-hci-ble runs NanoC6 RGB/button/IR, QEMU ESP32-C6 WiFi
             DHCP/HTTP and UART1 HCI BLE in one ESP32-C6 guest.
             nesso-unified runs Nesso N1 display/touch, PI4IOE, power telemetry,

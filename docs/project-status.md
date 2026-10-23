@@ -25,7 +25,7 @@
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
   `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
   QEMU 虚拟时钟推进。
-- 当前平台测试：`239/239` PASS；runtime coverage、peripheral catalog 和
+- 当前平台测试：`243/243` PASS；runtime coverage、peripheral catalog 和
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
@@ -42,13 +42,14 @@
 | 2026-10-24 | 固件审查 | FirmwareManifest 增加 LittleFS 与只读 FAT12/16/32 文件清单、SHA256、LFN、敏感路径脱敏与 SPDX 提取 | [`fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json) |
 | 2026-10-24 | 固件安全配置 | FirmwareManifest 解析脱敏 `espefuse summary --format json`，区分镜像、sdkconfig、分区 flag 与 eFuse 证据；原始 key/value 不落输出；启用安全启动/加密仍被 capability preflight 拒绝 | [`efuse-security.json`](../tests/firmware/evidence-2026-10-24-efuse-security.json) |
 | 2026-10-24 | Core2 | 确定性启动与零重试门禁合入；stock native-VHCI BLE、同 guest board+WiFi+公网+BLE GATT、Device Service 单 lease 证据已归档 | [`native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) |
+| 2026-10-24 | Core2 VHCI 符号 | 从匹配 Xtensa ELF 解析 `API_vhci_host_send_packet`、`vhci_env_p`、`esp_cpu_wait_for_intr` 固定地址；standalone BLE `5/5`、同 guest unified `3/3`；GDB 不再负责符号查询，仍负责暂停、callback 注入和 synthetic return | [`native-vhci-pinned.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json) |
 
 ## P0 收口
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；GitHub Actions Linux policy CI PASS | 自托管 QEMU worker、双设备 lab fabric、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、Device Service `core2-native-vhci` PASS | 非 GDB 生产实现、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号、Device Service `core2-native-vhci` 单 lease PASS | 去掉 GDB 暂停/注入/return 控制面、重复 lease 稳定门禁、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
 ## 工程工作流总表
@@ -57,7 +58,7 @@
 | --- | --- | --- | --- | --- |
 | 设备与板级契约 | 已完成 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 14 台设备登记；13 台达到登记外设的模拟数据面；catalog、coverage、profile 校验通过 | 新设备逐项登记；视觉保真另列 |
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | QEMU patch `0027` 后最新 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
-| Core2 LX6 | 功能路径完成，生产后端开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、Device Service lease PASS | 去掉 GDB bridge；bit-exact BT；物理 cache/PSRAM 与 soak |
+| Core2 LX6 | 功能路径完成，GDB 控制面开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、ELF 固定符号、Device Service 单 lease PASS | 去掉 GDB 暂停/注入/return 控制面并建立重复 lease 稳定门禁；bit-exact BT；物理 cache/PSRAM 与 soak |
 | Device Service | 本地 v1 可用，生产服务化未完成 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.11.0 | worker 化、活动进程恢复、warm pool、多机调度、VM 隔离和编排模块拆分 |
 | FirmwareManifest | v1 + 静态审查 + eFuse 安全摘要 + LittleFS/FAT 清单 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、sdkconfig/分区/eFuse 分层、capability mismatch、脱敏 finding、SBOM、LittleFS/FAT12/16/32 文件哈希/敏感路径/SPDX | SPIFFS、运行时权限、许可策略、真机 key/eFuse、跨厂商回归、流式上传 |
 | 网络隔离与取证 | Linux 单机与 GitHub Actions policy 路径闭环，正式 worker 开放 | `network_egress.py`、`network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、reconnect probe | namespace/controlled DNS/TLS、nftables exact IPv4 egress、veth/NAT、DHCP DORA+renew lifecycle、pcap、错误密码、radio/AP 丢失恢复和清理 PASS；GitHub Actions Linux job PASS | 自托管 QEMU worker、双设备 fabric、外部 IPv6 |
@@ -101,10 +102,13 @@
   和 guest notify 回读。独立 BLE runner 连续 5/5 PASS；扩展后的
   `unified_core2` runner 又在同一 guest 中合并 display/touch、音频、
   QOM、WiFi/DHCP、公网 DNS/HTTP 和 native-VHCI BLE，连续 3/3 PASS。
-  该路径现已作为 `runtime=qemu-unified`、
+  GDB 不再通过 `parse_and_eval` 查询 VHCI 符号；Device Service 和独立
+  runner 都从匹配 ELF 解析固定地址并作为环境变量传入。该路径现已作为
+  `runtime=qemu-unified`、
   `profile=core2-native-vhci` 暴露到 Device Service：一个 lease 同时返回
   board/WiFi/公网/frame/QOM/BLE PASS，并从 evidence ZIP 提供 bridge、
-  peer、pcap 和 manifest。实现仍依赖 GDB 诊断桥，没有执行 bit-exact
+  peer、pcap 和 manifest。GDB 仍用于 guest 暂停、callback 注入和
+  synthetic return，重复 lease 稳定性尚未形成门禁；也没有执行 bit-exact
   Espressif BT baseband/controller 固件。
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
@@ -145,7 +149,7 @@
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS | 原生 BT controller 与 C6 WiFi PHY |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、扬声器、麦克风、WiFi、公网 DNS/HTTP、HCI-offload BLE、stock native-VHCI BLE GATT | `core2-unified` 与 `core2-native-vhci` Device Service lease PASS；native-VHCI BLE 5/5；同 guest 3/3 | 非 GDB 生产实现、bit-exact BT controller、物理 cache/PSRAM 等价性 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、扬声器、麦克风、WiFi、公网 DNS/HTTP、HCI-offload BLE、stock native-VHCI BLE GATT、ELF 固定 VHCI 符号 | `core2-unified` 与 `core2-native-vhci` Device Service 单 lease PASS；native-VHCI BLE 5/5；同 guest 3/3 | 移除 GDB 暂停/注入/return 控制面、重复 lease 稳定门禁、bit-exact BT controller、物理 cache/PSRAM 等价性 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
@@ -160,6 +164,10 @@
   [`tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json`](../tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json)
 - Core2 same-guest unified native-VHCI evidence:
   [`tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json)
+- Core2 pinned-symbol standalone native-VHCI evidence:
+  [`tests/uiflow2/core2_native_vhci/evidence-2026-10-24-symbol-pinned.json`](../tests/uiflow2/core2_native_vhci/evidence-2026-10-24-symbol-pinned.json)
+- Core2 pinned-symbol same-guest unified evidence:
+  [`tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json)
 - Core2 Device Service native-VHCI evidence:
   [`tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
 - GDMA external-memory fix + latest full matrix evidence:
@@ -199,8 +207,10 @@
    PASS。
 2. **Core2 调度与 BT 等价性**：确定性 TCG/icount 已消除当前虚拟启动 WDT
    复现；native-VHCI 已在同一 guest 与 WiFi/公网/board 合并 3/3，并进入
-   Device Service。但 GDB bridge 不是无调试器的生产模型，也不等于
-   bit-exact Espressif BT controller 或物理 cache/PSRAM 时序。
+   Device Service。VHCI 符号已经固定，但 GDB 仍控制暂停、callback 注入
+   和 synthetic return；重复 lease 稳定性仍需门禁。该路径不是无调试器的
+   生产模型，也不等于 bit-exact Espressif BT controller 或物理
+   cache/PSRAM 时序。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径
