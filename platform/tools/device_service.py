@@ -107,17 +107,20 @@ STICKS3_UNIFIED_PROFILE = "uiflow2-sticks3-unified"
 CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
 CARDPUTER_ADV_UNIFIED_PROFILE = "uiflow2-cardputer-adv-unified"
 STOPWATCH_UNIFIED_PROFILE = "uiflow2-stopwatch-unified"
+ATOMS3R_UNIFIED_PROFILE = "uiflow2-atoms3r-unified"
 UNIFIED_PROFILES = {
     STICKS3_UNIFIED_PROFILE,
     CORES3_UNIFIED_PROFILE,
     CARDPUTER_ADV_UNIFIED_PROFILE,
     STOPWATCH_UNIFIED_PROFILE,
+    ATOMS3R_UNIFIED_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
     STICKS3_UNIFIED_PROFILE: 18080,
     CORES3_UNIFIED_PROFILE: 18081,
     CARDPUTER_ADV_UNIFIED_PROFILE: 18082,
     STOPWATCH_UNIFIED_PROFILE: 18083,
+    ATOMS3R_UNIFIED_PROFILE: 18084,
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
@@ -159,29 +162,39 @@ STOPWATCH_UNIFIED_MARKERS = (
     "UNIFIED_STOPWATCH_BLE_RX",
     "UNIFIED_STOPWATCH_BLE_ACK_SENT",
 )
+ATOMS3R_UNIFIED_MARKERS = (
+    "UNIFIED_ATOMS3R_WIFI_CONNECTED",
+    "UNIFIED_ATOMS3R_HTTP_PASS",
+    "UNIFIED_ATOMS3R_BLE_RX",
+    "UNIFIED_ATOMS3R_BLE_ACK_SENT",
+)
 UNIFIED_MARKERS = {
     STICKS3_UNIFIED_PROFILE: STICKS3_UNIFIED_MARKERS,
     CORES3_UNIFIED_PROFILE: CORES3_UNIFIED_MARKERS,
     CARDPUTER_ADV_UNIFIED_PROFILE: CARDPUTER_ADV_UNIFIED_MARKERS,
     STOPWATCH_UNIFIED_PROFILE: STOPWATCH_UNIFIED_MARKERS,
+    ATOMS3R_UNIFIED_PROFILE: ATOMS3R_UNIFIED_MARKERS,
 }
 UNIFIED_READY_MARKERS = {
     STICKS3_UNIFIED_PROFILE: "UNIFIED_STICKS3_READY",
     CORES3_UNIFIED_PROFILE: "UNIFIED_CORES3_READY",
     CARDPUTER_ADV_UNIFIED_PROFILE: "UNIFIED_CARDPUTER_READY",
     STOPWATCH_UNIFIED_PROFILE: "UNIFIED_STOPWATCH_READY",
+    ATOMS3R_UNIFIED_PROFILE: "UNIFIED_ATOMS3R_READY",
 }
 UNIFIED_HTTP_BODIES = {
     STICKS3_UNIFIED_PROFILE: b"UNIFIED_STICKS3_OK\n",
     CORES3_UNIFIED_PROFILE: b"UNIFIED_CORES3_OK\n",
     CARDPUTER_ADV_UNIFIED_PROFILE: b"UNIFIED_CARDPUTER_OK\n",
     STOPWATCH_UNIFIED_PROFILE: b"UNIFIED_STOPWATCH_OK\n",
+    ATOMS3R_UNIFIED_PROFILE: b"UNIFIED_ATOMS3R_OK\n",
 }
 UNIFIED_BLE_IDENTITIES = {
     "sticks3": ("M5-STICKS3-UNIFIED", "M5_STICKS3_UNIFIED"),
     "cores3": ("M5-CORES3-UNIFIED", "M5_CORES3_UNIFIED"),
     "cardputer-adv": ("M5-CPTR-ADV-UNIFIED", "M5_CPTR_ADV"),
     "stopwatch": ("M5-STOPWATCH-UNIFIED", "M5_STOPWATCH_U"),
+    "atoms3r": ("M5-ATOMS3R-UNIFIED", "M5_ATOMS3R_U"),
 }
 
 
@@ -580,6 +593,9 @@ def parse_qemu_ble_execution(
     elif spec.id == "stopwatch":
         supported_profiles = {STOPWATCH_UNIFIED_PROFILE}
         default_profile = STOPWATCH_UNIFIED_PROFILE
+    elif spec.id == "atoms3r":
+        supported_profiles = {ATOMS3R_UNIFIED_PROFILE}
+        default_profile = ATOMS3R_UNIFIED_PROFILE
     else:
         raise ServiceError(
             "qemu_ble_not_supported",
@@ -802,6 +818,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, CARDPUTER_ADV_UNIFIED_PROFILE)
             if device_id == "stopwatch" and network_chip:
                 network_profiles.insert(0, STOPWATCH_UNIFIED_PROFILE)
+            if device_id == "atoms3r" and network_chip:
+                network_profiles.insert(0, ATOMS3R_UNIFIED_PROFILE)
             if (
                 device_id == "core2"
                 and (
@@ -4094,7 +4112,7 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-unified": (
-                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-wifi-ble"
+                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-wifi-ble"
                     if any(
                         profile in self.specs[device_id].network_profiles
                         for device_id, profile in (
@@ -4105,6 +4123,7 @@ class DeviceService:
                                 CARDPUTER_ADV_UNIFIED_PROFILE,
                             ),
                             ("stopwatch", STOPWATCH_UNIFIED_PROFILE),
+                            ("atoms3r", ATOMS3R_UNIFIED_PROFILE),
                         )
                     )
                     else "disabled"

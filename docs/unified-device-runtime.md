@@ -39,6 +39,9 @@ complete simulated device or as a unified-device PASS.
 - The StopWatch machine uses the same NIC with its 466x466 CO5300 display,
   CST820 touch, M5PM1 power, M5IOE1 G10/AW8737A amplifier, BMI270, ES8311
   audio, WiFi DHCP/HTTP and external HCI BLE exchange in one guest.
+- The AtomS3R machine uses the same NIC with its 128x128 display, GPIO41
+  button, BMI270, BMM150, LP5562, WiFi DHCP/HTTP and external HCI BLE
+  exchange in one guest.
 - The StickS3 unified HCI-UART build routes real NimBLE H4 traffic through
   QEMU UART1 to a Bumble controller. An external peer completes NUS discovery,
   subscription, write, guest receive and notify ACK in the same QEMU process.
@@ -85,20 +88,21 @@ finished chip model.
 
 ## Acceptance milestone
 
-First vertical slices are StickS3, CoreS3, Cardputer ADV and StopWatch. Each
-runs one UIFlow2 image in one QEMU guest that simultaneously shows a non-black
-frame, accepts a physical key/touch event, reads device state and audio,
-associates with the virtual WiFi SSID, obtains DHCP, completes a controlled
-HTTP request, and completes BLE GATT discovery/write. Each session exposes all
-checks through one `/api/v1` lease and retains a combined evidence bundle.
+First vertical slices are StickS3, CoreS3, Cardputer ADV, StopWatch and
+AtomS3R. Each runs one UIFlow2 image in one QEMU guest that simultaneously
+shows a non-black frame, accepts a physical key/touch event, reads device
+state and audio where available, associates with the virtual WiFi SSID,
+obtains DHCP, completes a controlled HTTP request, and completes BLE GATT
+discovery/write. Each session exposes all checks through one `/api/v1` lease
+and retains a combined evidence bundle.
 
-Status: **PASS for the simulation-only StickS3, CoreS3, Cardputer ADV and
-StopWatch slices** through `runtime=qemu-ble`, the four unified profiles, and
-retained Device Service evidence ZIPs containing serial, frame, audio PCM,
-QOM, network, BLE peer log and manifest hashes. All probes use an open virtual
-AP on one fixed channel; WPA2/WPA3 security behavior is not modelled. BLE is
-host-controller HCI data over an HCI-UART test build, not a native ESP32-S3
-radio/controller model.
+Status: **PASS for the simulation-only StickS3, CoreS3, Cardputer ADV,
+StopWatch and AtomS3R slices** through `runtime=qemu-ble`, the five unified
+profiles, and retained Device Service evidence ZIPs containing serial, frame,
+audio PCM where present, QOM, network, BLE peer log and manifest hashes. All
+probes use an open virtual AP on one fixed channel; WPA2/WPA3 security
+behavior is not modelled. BLE is host-controller HCI data over an HCI-UART
+test build, not a native ESP32-S3 radio/controller model.
 
 The S3 NIC models the guest-visible MAC, DMA descriptors, interrupt and
 user-net frame path, but not a complete PHY/rate/security/RF model. The classic

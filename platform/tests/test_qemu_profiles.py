@@ -61,6 +61,19 @@ class QemuProfileTest(unittest.TestCase):
         self.assertIn("accel-z", state["imu"]["properties"])
         self.assertIn("gyro-z", state["imu"]["properties"])
 
+    def test_atoms3r_runtime_state_probe(self):
+        row = next(
+            row for row in self.registry["devices"]
+            if row["id"] == "atoms3r"
+        )
+        state = row["runtime_state"]
+        self.assertEqual(state["imu"]["path"], "/machine/bmi270")
+        self.assertIn("accel-z", state["imu"]["properties"])
+        self.assertEqual(state["magnetometer"]["path"], "/machine/bmm150")
+        self.assertIn("mag-z", state["magnetometer"]["properties"])
+        self.assertEqual(state["led"]["path"], "/machine/lp5562")
+        self.assertIn("red-pwm", state["led"]["properties"])
+
     def test_s3_hosts_are_ready(self):
         ready = {
             row["id"]

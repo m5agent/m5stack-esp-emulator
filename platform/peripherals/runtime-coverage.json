@@ -45,6 +45,11 @@
       "test": "tests/uiflow2/unified_stopwatch/run_test.py",
       "evidence": "tests/uiflow2/unified_stopwatch/evidence-2026-10-23.json"
     },
+    "atoms3r-unified": {
+      "device": "atoms3r",
+      "test": "tests/uiflow2/unified_atoms3r/run_test.py",
+      "evidence": "tests/uiflow2/unified_atoms3r/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -89,6 +94,12 @@
       "bmi270",
       "es8311",
       "aw8737a"
+    ],
+    "atoms3r-unified": [
+      "bmi270",
+      "bmm150",
+      "lp5562",
+      "gpio-button"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -281,6 +292,9 @@
         "atoms3r-peripherals",
         "atoms3r-lp5562",
         "atoms3r-ir"
+      ],
+      "external": [
+        "atoms3r-unified"
       ],
       "models": [
         "bmi270",

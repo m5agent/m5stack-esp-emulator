@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "atoms3r",
+  "firmware_sha256": "142f4e4baccf9602b8231ccf1922079d5c56c4f50650fbdf41ee14da88a1f129",
+  "consecutive_passes": 3,
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "button_redraw": true,
+    "imu_accel_gyro": true,
+    "magnetometer": true,
+    "lp5562_pwm": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [128, 128],
+    "before_nonblack_pixels": 4190,
+    "before_unique_colors": 30,
+    "after_nonblack_pixels": 4168,
+    "after_unique_colors": 30,
+    "changed_after_button": true
+  },
+  "device_state": {
+    "accel_z_g": 1,
+    "gyro_z_dps": 0,
+    "mag_xyz_ut": [0, 0, 0],
+    "lp5562_pwm_rgb": [128, 64, 32]
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_port": 18084,
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART1 H4",
+    "controller": "Bumble",
+    "name": "M5-ATOMS3R-UNIFIED",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_ATOMS3R_U",
+    "notification": "ACK:M5_ATOMS3R_U"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 Bluetooth controller model",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "untrusted-firmware sandboxing"
+  ]
+}

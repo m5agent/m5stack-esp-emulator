@@ -61,16 +61,48 @@
         "gpio-button"
       ],
       "peripherals": [
-        "bmi270"
+        "bmi270",
+        "bmm150",
+        "lp5562",
+        "ir"
       ],
+      "runtime_state": {
+        "imu": {
+          "path": "/machine/bmi270",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        },
+        "magnetometer": {
+          "path": "/machine/bmm150",
+          "properties": [
+            "mag-x",
+            "mag-y",
+            "mag-z"
+          ]
+        },
+        "led": {
+          "path": "/machine/lp5562",
+          "properties": [
+            "red-pwm",
+            "green-pwm",
+            "blue-pwm"
+          ]
+        }
+      },
       "board_work": [
-        "IR/IMU peripheral polish"
+        "IR physical-range characterization"
       ],
       "blockers": [],
       "validation": {
         "date": "2026-10-20",
-        "status": "display-button-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 128x128 UI and GPIO41 button injection redraws the counter."
+        "status": "display-input-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 128x128 UI; GPIO41 input, BMI270, BMM150, LP5562, WiFi DHCP/HTTP and HCI-UART BLE pass through their runtime data paths."
       }
     },
     {

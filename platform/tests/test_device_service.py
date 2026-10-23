@@ -96,6 +96,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(rows["atoms3r"]["network_status"], "validated")
         self.assertTrue(rows["atoms3r"]["features"]["network"])
+        self.assertTrue(rows["atoms3r"]["features"]["device_state"])
+        self.assertIn(
+            "uiflow2-atoms3r-unified",
+            rows["atoms3r"]["network_profiles"],
+        )
         for validated_s3 in (
             "papercolor",
             "papermono",
@@ -157,7 +162,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(capacity["modes"]["qemu-ble"], "disabled")
         self.assertEqual(
             capacity["modes"]["qemu-unified"],
-            "enabled-sticks3-cores3-cardputer-adv-stopwatch-wifi-ble",
+            "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-wifi-ble",
         )
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
@@ -477,9 +482,28 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 ],
                 18083,
             )
+            atoms3r = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["atoms3r"],
+                {},
+            )
+            self.assertEqual(
+                atoms3r["profile"],
+                "uiflow2-atoms3r-unified",
+            )
+            self.assertEqual(atoms3r["nic"], "misc.esp32s3.wifi")
+            self.assertEqual(
+                atoms3r["expected_markers"],
+                list(device_service_module.ATOMS3R_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                device_service_module.UNIFIED_HTTP_PORTS[
+                    device_service_module.ATOMS3R_UNIFIED_PROFILE
+                ],
+                18084,
+            )
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_ble_execution(
-                    self.service.specs["atoms3r"],
+                    self.service.specs["papercolor"],
                     {},
                 )
             self.assertEqual(
@@ -1125,6 +1149,67 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertTrue(all(evidence["checks"].values()))
         self.assertEqual(evidence["gatt"]["name"], "M5-STOPWATCH-UNIFIED")
         self.assertEqual(evidence["gatt"]["payload"], "M5_STOPWATCH_U")
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_atoms3r_unified_qemu_evidence(self):
+        spec = self.service.specs["atoms3r"]
+        firmware_path = Path(self.tmp.name) / "atoms3r-unified.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="d" * 32,
+            spec=spec,
+            firmware_id="e" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="e" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_ATOMS3R_READY",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "uiflow2-atoms3r-unified",
+                "nic": "misc.esp32s3.wifi",
+                "expected_markers": list(
+                    device_service_module.ATOMS3R_UNIFIED_MARKERS
+                ),
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "UNIFIED_ATOMS3R_WIFI_CONNECTED 10.0.2.15\n"
+            "UNIFIED_ATOMS3R_HTTP_PASS\n"
+            "UNIFIED_ATOMS3R_BLE_RX b'M5_ATOMS3R_U'\n"
+            "UNIFIED_ATOMS3R_BLE_ACK_SENT\n"
+            "UNIFIED_ATOMS3R_READY\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-ATOMS3R-UNIFIED'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_ATOMS3R_U\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_ATOMS3R_U\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}])
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-atoms3r-unified-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(evidence["gatt"]["name"], "M5-ATOMS3R-UNIFIED")
+        self.assertEqual(evidence["gatt"]["payload"], "M5_ATOMS3R_U")
         session.state = "stopped"
         session._proc = None
         session._qmp = None
