@@ -17,8 +17,9 @@ MicroPython 和其他完整 Flash 固件。
 - S3/C6 已有 11 条设备级 QEMU WiFi/BLE 验证路径；Core2 在环境门控下提供
   第 12 条 `core2-unified` 路径；共 12 个 unified profile，规范 runtime 为
   `qemu-unified`，`qemu-ble` 仅保留兼容。
-- 最近一次 UIFlow2 外设全矩阵为 `67/67` 用例、`274/274` 检查 PASS；
-  当前平台单元测试为 `213/213` PASS。
+- 最近一次 UIFlow2 外设全矩阵在 `2026-10-23 19:31 +08:00` 为 `67/67`
+  用例、`274/274` 检查 PASS；该里程碑早于 `7823bef` 的 Core2 BB readback
+  补丁，发布前仍需复跑。当前平台单元测试为 `215/215` PASS。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
 
@@ -26,6 +27,8 @@ MicroPython 和其他完整 Flash 固件。
 [项目当前状态](docs/project-status.md)。
 代码入口、模块职责和验证证据分层见
 [代码与验证入口地图](docs/code-map.md)。
+第一次阅读建议从 [文档导航与新鲜度规则](docs/README.md) 开始；该页会区分
+当前事实、契约、历史调查和待办，避免把旧计划当成当前能力。
 
 ## 剩余工作
 
@@ -41,6 +44,7 @@ MicroPython 和其他完整 Flash 固件。
 
 关键索引：
 
+- [文档导航与新鲜度规则](docs/README.md)
 - [项目当前状态](docs/project-status.md)
 - [完整项目 Backlog](docs/project-backlog.md)
 - [代码与验证入口地图](docs/code-map.md)
@@ -209,6 +213,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ## 文档索引
 
+- [文档导航与新鲜度规则](docs/README.md)
 - [项目当前状态](docs/project-status.md)
 - [项目 Backlog](docs/project-backlog.md)
 - [代码与验证入口地图](docs/code-map.md)

@@ -19,6 +19,30 @@
 | P1 | 热门外壳高保真 | 每台设备独立尺寸、结构、屏幕开孔、按键和 hitbox，并有视觉回归 | 实测尺寸/结构资料；专门视觉/3D 工作 |
 | P2 | CardputerZero 系统收口 | 系统启动、驱动、音频、摄像头、网络、USB 回归和真机证据 | 独立 Linux 后端；不属于 ESP32/UIFlow2 |
 
+## 可执行任务板
+
+| ID | 状态 | 下一项最小交付 | 验收 |
+| --- | --- | --- | --- |
+| `NET-01` | 待做 | 增加 egress allowlist、可控 resolver 和 TLS 测试 CA | 允许/拒绝目标可重复，guest 无法旁路；pcap 和摘要一致 |
+| `NET-02` | 待做 | 增加 DHCP renewal、AP 消失/恢复和 lease 变化 | 同一 guest 观测到 renewal 或 reacquire，前后 HTTP 与 pcap 对齐 |
+| `NET-03` | 待做 | 双设备 private lab fabric 与宿主 LAN 隔离 | 两台 guest 仅通过预期 fabric 通信，控制面和宿主 LAN 不可达 |
+| `NET-04` | 待做 | 把 Linux namespace/reconnect/pcap 接入正式 CI 与 worker | CI 可重复产出 evidence；namespace 创建失败保持 fail-closed |
+| `CORE2-01` | 待做 | 将服务托管的 GDB VHCI bridge 改成 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
+| `CORE2-02` | 待做 | 执行 Espressif BT controller/baseband 语义并补物理 cache/PSRAM 时序 | controller 级协议与真机收敛；同路径 soak、coexistence 和 RF 边界可证 |
+| `FW-01` | 待做 | 文件系统、URL/凭据、高熵载荷和 SBOM 静态审查 | 风险项结构化输出，安全状态 `unknown` 不被伪装成 PASS |
+| `FW-02` | 待做 | eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
+| `FW-03` | 待做 | 扩大 ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、启动/失败层，不混算 |
+| `FW-04` | 待做 | WebBurner 网页流式导入和 chunk artifact upload | 大镜像无需先落完整宿主临时文件，校验和与 manifest 保持 |
+| `SVC-01` | 待做 | 拆出 worker supervisor、注册/心跳、drain、re-attach | 服务重启可收敛 worker，active lease 有明确接管或失败状态 |
+| `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | 启动延迟/CPU/RSS/队列/回收可观测，租户状态不泄漏 |
+| `HW-01` | 待做 | 代表设备同固件 SHA 的真机 UART/画面/网络/外设计划 | evidence 标记 hardware validation，虚拟结果不冒充 |
+| `TAB5-01` | 决策 | 决定重建/扩展 P4 后端并关闭动态外设数据面 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C 和 ST7123 controller |
+| `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和视觉回归 | 每台设备有独立尺寸/结构/截图阈值，不只改通用 CSS |
+
+执行顺序以 `NET-04`、`CORE2-01`、`FW-01/02`、`SVC-01` 为当前主线；
+`NET-01/02/03` 是网络正式化的可并行前置，`HW-01` 在对应功能稳定后立即
+补同路径真机证据。
+
 当前执行顺序：
 
 1. 把 Linux namespace、pcap、错误密码和 reconnect 接入正式 CI/worker；

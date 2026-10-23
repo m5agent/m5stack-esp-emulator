@@ -104,12 +104,15 @@ configured cases   67
 configured checks  274
 last clean full     67 cases / 274 checks PASS
 last full run       2026-10-23 19:31 +08:00
+current full matrix  NOT RUN after 7823bef Core2 BB readback patch
 ```
 
 最近一次干净的全量运行包含 S3 QIO read-phase 修复后的新 QEMU 二进制，
-67/67 用例、274/274 检查全部通过。Core2 后续新增确定性 TCG/icount 调度，
-统一 probe 10/10 次无重试首轮 PASS；该结果不等同于物理 cache/PSRAM 时序
-验证。
+67/67 用例、274/274 检查全部通过。此后 Core2 又新增确定性 TCG/icount
+调度、stock native-VHCI 路径和共享 BB idle readback 补丁；这些 targeted
+结果分别通过，但 19:31 的全矩阵发生在 `7823bef` 之前，不能继续作为当前
+commit 的发布级全矩阵结论，发布前必须复跑。targeted 结果也不等同于物理
+cache/PSRAM 时序验证。
 
 NanoC6 无显示屏，额外使用 `run_nanoc6_peripherals.py` 验证 RGB、按键和蓝灯，
 不计入上述需要截图的 peripheral matrix 统计。上述汇总来自全量矩阵运行；

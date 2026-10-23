@@ -90,19 +90,19 @@ complete simulated device or as a unified-device PASS.
   CI; the default regression path remains a controlled local HTTP fixture.
 - `esp-emu` has validated WiFi/BLE behavior on S3/C6, including same-instance
   WiFi + BLE inside one `esp-emu` guest.
-- The QEMU classic-ESP32 experiment contains a `misc.esp32_wifi` model and
+- The QEMU classic-ESP32 path contains a `misc.esp32_wifi` model and
   completes scan, association, DHCP and controlled HTTP in the same guest.
   A following BT bootstrap exposes the 64 KiB BT RAM/control page and lets
   stock UIFlow2 activate NimBLE and enable advertising.
-- The native QEMU Core2 BT bootstrap alone does not expose a usable external
-  peer; the external GATT result currently depends on the VHCI GDB bridge.
-  A separate HCI-offload build routes NimBLE's H4 traffic through QEMU UART1
-  to Bumble and also passes external scan/connect/NUS write/notify 5/5.
-  Device Service `profile=core2-hci-gatt` exposes the same exchange plus
-  serial/frame/QOM/peer evidence through one `/api/v1` lease.
-  The remaining native boundary is the classic ESP32 controller/baseband
-  implementation and Device Service integration of the bridge, not UIFlow2's
-  Python BLE API.
+- Device Service `profile=core2-native-vhci` now exposes the stock
+  internal-controller path through one `/api/v1` lease. A real lease passed
+  board/display/touch, QOM, audio, WiFi/DHCP, controlled HTTP, public DNS/HTTP
+  and external NUS GATT, and retained frame, pcap, bridge and peer evidence.
+  A separate HCI-offload build also routes NimBLE's H4 traffic through QEMU
+  UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
+  The remaining native boundary is removing the GDB dependency and executing
+  a bit-exact classic ESP32 controller/baseband, not UIFlow2's Python BLE API
+  or Device Service integration.
 
 ## Integration rule
 
@@ -156,7 +156,9 @@ WPA2/WPA3 security behavior is not modelled. Device Service BLE remains
 host-controller HCI data over an HCI-UART test build. The separate stock Core2
 VHCI runners reach external GATT without that firmware rebuild, including a
 same-guest board+WiFi+public-network variant, but use a GDB-to-Bumble
-controller bridge rather than a bit-exact ESP32 controller.
+controller bridge rather than a bit-exact ESP32 controller. That bridge is
+available as `qemu-unified/profile=core2-native-vhci`; replacing the debug
+backend is the open production item.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
 stable access to arbitrary internet services. Core2 now includes public DNS

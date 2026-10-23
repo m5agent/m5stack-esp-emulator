@@ -54,6 +54,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/unified_core2/run_test.py \
 ```
 
 当前为 3/3 PASS；镜像必须是匹配的 stock internal-controller UIFlow2 构建。
+同一路径已进入 Device Service：
+`runtime=qemu-unified`、`profile=core2-native-vhci`，真实 `/api/v1` lease
+同时返回 board/frame/QOM/audio/WiFi/公网/BLE，并保留 pcap、bridge 和 peer
+evidence；当前仍依赖服务托管的 GDB bridge。
 
 本轮跨设备问题、修复和证据见
 [`docs/uiflow2-cross-device-regression-audit.md`](../../docs/uiflow2-cross-device-regression-audit.md)。

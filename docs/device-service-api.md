@@ -367,10 +367,11 @@ StickS3 application that needs the board framebuffer, input and public
 internet without an external BLE controller. This lane starts the QEMU
 `misc.esp32s3.wifi` NIC and does not start the HCI/Bumble peer.
 
-Core2 has experimental `qemu-wifi` and `qemu-ble` runtimes when the service
-starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing the
-classic ESP32 WiFi and Bluetooth models. The canonical combined path is
-`runtime=qemu-unified` with `profile=core2-unified`.
+Core2 retains `qemu-wifi` and `qemu-ble` as compatibility runtimes when the
+service starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing
+the classic ESP32 WiFi and Bluetooth models. The canonical combined paths are
+`runtime=qemu-unified` with `profile=core2-unified` or
+`profile=core2-native-vhci`.
 `M5_CORE2_WIFI_QEMU` remains a compatibility alias for existing deployments.
 
 ```json
@@ -1221,8 +1222,8 @@ restart.
 - unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
   HCI-offload over UART1 (UART2 on StackChan), not a native S3 PHY/radio
   model;
-- Core2 radio support is limited to the environment-gated experimental
-  `qemu-wifi` and `qemu-ble` runtimes. `qemu-unified` with
+- Core2 radio support remains environment-gated; `qemu-wifi` and `qemu-ble`
+  are compatibility runtimes. `qemu-unified` with
   `profile=core2-unified` combines OpenMAC WiFi, UART1 BLE NUS and board
   peripherals in one `m5core2` guest;
   `core2-ble-advertise` stops at native controller/advertising control;

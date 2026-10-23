@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import json
 import re
 import unittest
 from pathlib import Path
@@ -14,6 +15,7 @@ class DocsConsistencyTests(unittest.TestCase):
         for relative in (
             "README.md",
             "AGENTS.md",
+            "docs/README.md",
             "docs/project-status.md",
             "docs/project-backlog.md",
             "docs/unified-device-runtime.md",
@@ -23,6 +25,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/firmware-manifest.md",
             "docs/network-simulation-plan.md",
             "docs/network-lane.md",
+            "platform/README.md",
+            "tests/uiflow2/README.md",
             "tests/uiflow2/core2_native_vhci/README.md",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
@@ -30,14 +34,27 @@ class DocsConsistencyTests(unittest.TestCase):
         ):
             self.assertTrue((ROOT / relative).is_file(), relative)
 
+    def test_documentation_index_covers_every_document(self) -> None:
+        index = (DOCS / "README.md").read_text()
+        linked = set(
+            re.findall(r"\]\(([^)#]+\.md)(?:#[^)]*)?\)", index)
+        )
+        for path in sorted(DOCS.rglob("*.md")):
+            relative = path.relative_to(DOCS).as_posix()
+            if relative == "README.md":
+                continue
+            self.assertIn(relative, linked, relative)
+
     def test_relative_markdown_links_exist(self) -> None:
         paths = [
             ROOT / "README.md",
             ROOT / "AGENTS.md",
+            ROOT / "platform" / "README.md",
             ROOT / "devices" / "README.md",
             *sorted((ROOT / "devices").rglob("README.md")),
             *sorted((ROOT / "devices").rglob("README.extra.md")),
             *sorted(DOCS.glob("*.md")),
+            *sorted((ROOT / "tests").rglob("README.md")),
         ]
         pattern = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
         for path in paths:
@@ -59,6 +76,8 @@ class DocsConsistencyTests(unittest.TestCase):
             for path in (
                 ROOT / "README.md",
                 ROOT / "AGENTS.md",
+                ROOT / "platform" / "README.md",
+                ROOT / "tests" / "uiflow2" / "README.md",
                 *sorted(DOCS.glob("*.md")),
             )
         )
@@ -72,13 +91,32 @@ class DocsConsistencyTests(unittest.TestCase):
             "cache/WDT startup instability remains a known simulation-only blocker",
             "原生 BT controller 外部 peer/GATT 仍为 NOT RUN",
             "native-controller peer/GATT remains `NOT RUN`",
+            "GDB bridge 仍未进入 Device Service",
+            "Device Service integration of the bridge",
+            "Service production bridge",
+            "single-lease integration remains",
+            "网络模拟暂不开放",
         ):
             self.assertNotIn(stale, active)
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()
-        self.assertIn("`14` 台设备", status)
-        self.assertIn("`13` 台设备", status)
+        source = json.loads((ROOT / "devices" / "catalog.source.json").read_text())
+        profiles = json.loads(
+            (ROOT / "platform" / "qemu" / "profiles.json").read_text()
+        )
+        device_count = len(source["devices"])
+        qemu_count = sum(
+            device["backend"].startswith("qemu-")
+            for device in profiles["devices"]
+        )
+        service_count = qemu_count + sum(
+            device["backend"] == "esp-emulator-native"
+            for device in profiles["devices"]
+        )
+        self.assertIn(f"`{device_count}` 台设备", status)
+        self.assertIn(f"`{service_count}` 台设备", status)
+        self.assertEqual(qemu_count, 12)
         self.assertIn("`67/67` 用例、`274/274` 检查 PASS", status)
         self.assertIn("`qemu-unified`", (ROOT / "README.md").read_text())
         self.assertIn(
@@ -96,6 +134,32 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("native-VHCI BLE 5/5", status)
         self.assertIn("同 guest native-VHCI 3/3", status)
         self.assertIn("core2-native-vhci", status)
+        self.assertIn(
+            "profile=core2-native-vhci",
+            (DOCS / "unified-device-runtime.md").read_text(),
+        )
+        self.assertIn(
+            "core2-native-vhci",
+            (DOCS / "network-simulation-plan.md").read_text(),
+        )
+        self.assertIn(
+            "core2-native-vhci",
+            (DOCS / "qemu-device-adaptation-matrix.md").read_text(),
+        )
+
+    def test_documented_platform_test_count_is_current(self) -> None:
+        suite = unittest.defaultTestLoader.discover(
+            str(ROOT / "platform" / "tests"),
+            pattern="test_*.py",
+        )
+        count = suite.countTestCases()
+        expected = f"`{count}/{count}` PASS"
+        for relative in ("README.md", "docs/project-status.md"):
+            self.assertIn(
+                expected,
+                (ROOT / relative).read_text(),
+                f"{relative} must document {count} platform tests",
+            )
 
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()

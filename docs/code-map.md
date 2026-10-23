@@ -5,12 +5,14 @@
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
 [项目当前状态](project-status.md)，未完成事项只看
-[项目 Backlog](project-backlog.md)。
+[项目 Backlog](project-backlog.md)。完整文档分类和新鲜度规则见
+[文档导航](README.md)。
 
 ## 单一事实源
 
 | 问题 | 权威入口 |
 | --- | --- |
+| 文档应从哪里读、哪些是历史页 | [文档导航与新鲜度规则](README.md) |
 | 现在到底支持什么 | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、最新测试与 [项目当前状态](project-status.md) |
 | 还有什么没做 | [项目 Backlog](project-backlog.md) |
 | Device Service 如何调用 | [Device Service API](device-service-api.md) 与 [OpenAPI](device-service.openapi.yaml) |
@@ -135,3 +137,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 - API 变更：同步 `docs/device-service-api.md`、OpenAPI 和 tests。
 - 设备/外设变更：同步源清单、生成目录、契约、coverage 和矩阵文档。
 - 验证结果：写回测试 evidence 或 `agent-work-logs`，不要只留在会话里。
+- 新文档：先登记到 [文档导航](README.md)，并标明它是当前事实、契约、
+  专题说明还是历史证据。
+- 被推翻的当前结论：在所有当前入口删除旧陈述，在历史页保留原日期并写明
+  取代关系；不要只在新页面加一句更正而留下互相矛盾的主入口。
