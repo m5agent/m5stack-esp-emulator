@@ -45,14 +45,14 @@ def main() -> None:
     chunk_size = len(args.led) * SYMBOLS_PER_LED
     expected = bytes(channel for led in args.led for channel in led)
     observed = []
-    for offset in range(0, len(symbols) - chunk_size + 1, chunk_size):
+    for offset in range(0, len(symbols) - chunk_size + 1):
         decoded = decode_chunk(symbols[offset:offset + chunk_size])
         if decoded is None:
             continue
         observed.append(decoded)
         if decoded == expected:
             print(f"WS2812 PASS expected={expected.hex()} "
-                  f"chunk={offset // chunk_size}")
+                  f"offset={offset}")
             return
     raise SystemExit(f"WS2812 mismatch expected={expected.hex()} "
                      f"observed={[value.hex() for value in observed]}")

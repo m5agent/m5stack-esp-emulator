@@ -35,6 +35,7 @@ git apply /path/to/0016-gigadevice-status2-qio.patch
 git apply /path/to/0017-issi-status2-qio.patch
 git apply /path/to/0003-modem-syscon-clock-bits.patch
 git apply /path/to/0004-user-firmware-hot-samples.patch
+git apply /path/to/0005-c6-uart-timeout-registers.patch
 ```
 
 补丁不包含 C6 根目录 `meson.build` 的本地构建绕过。
@@ -42,6 +43,8 @@ git apply /path/to/0004-user-firmware-hot-samples.patch
 ## 验证边界
 
 - NanoC6：官方 UIFlow2 v2.5.3 可启动自定义 `/boot.py`、`/main.py`，`M5.begin()` 返回板型 140；无显示屏。
+- NanoC6：C6 UART `TOUT_CONF`、FIFO reset、阈值寄存器按 C6 布局建模，
+  UART1 HCI Reset/LE 命令可经 Bumble 回包并完成 NUS GATT 写与通知。
 - NanoC6：`hardware.IR.tx()` 经 ESP32-C6 RMT 发送 NEC `0x56/0xA3`。
 - NanoC6：`hardware.RGB()` 打开 GPIO19 RGBPWR，GPIO20 WS2812 GRB 解码为
   `00ff00`；GPIO9 按下/释放、GPIO7 蓝灯开关均通过 GPIO 寄存器验证。

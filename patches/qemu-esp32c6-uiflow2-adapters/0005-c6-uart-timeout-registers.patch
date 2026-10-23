@@ -1,0 +1,122 @@
+diff --git a/hw/char/esp32c6_uart.c b/hw/char/esp32c6_uart.c
+index 4fd2604..3176e61 100644
+--- a/hw/char/esp32c6_uart.c
++++ b/hw/char/esp32c6_uart.c
+@@ -11,12 +11,82 @@
+ #include "qemu/module.h"
+ #include "hw/char/esp32c6_uart.h"
+ 
++static uint64_t esp32c6_uart_read(void *opaque, hwaddr addr, unsigned int size)
++{
++    ESP32C6UARTClass *class = ESP32C6_UART_GET_CLASS(opaque);
++    ESP32C6UARTState *s = ESP32C6_UART(opaque);
++
++    switch (addr) {
++    case A_ESP32C6_UART_CONF1:
++        return s->parent.conf1;
++    case A_ESP32C6_UART_MEM_CONF:
++        return s->parent.parent.reg[R_ESP32C6_UART_MEM_CONF];
++    case A_ESP32C6_UART_TOUT_CONF:
++        return s->tout_conf;
++    default:
++        return class->parent_uart_read(opaque, addr, size);
++    }
++}
++
++static void esp32c6_uart_write(void *opaque, hwaddr addr,
++                              uint64_t value, unsigned int size)
++{
++    ESP32C6UARTClass *class = ESP32C6_UART_GET_CLASS(opaque);
++    ESP32C6UARTState *s = ESP32C6_UART(opaque);
++    ESP32UARTState *uart = &s->parent.parent;
++
++    switch (addr) {
++    case A_ESP32C6_UART_CONF0_SYNC:
++        if (FIELD_EX32(value, ESP32C6_UART_CONF0_SYNC, RXFIFO_RST)) {
++            fifo8_reset(&uart->rx_fifo);
++            qemu_chr_fe_accept_input(&uart->chr);
++        }
++        if (FIELD_EX32(value, ESP32C6_UART_CONF0_SYNC, TXFIFO_RST)) {
++            fifo8_reset(&uart->tx_fifo);
++        }
++        class->parent_uart_write(opaque, addr, value, size);
++        esp32_uart_update_irq(uart);
++        break;
++    case A_ESP32C6_UART_CONF1:
++        s->parent.conf1 = value;
++        uart->reg[R_ESP32C6_UART_CONF1] = value;
++        uart->rx_full_threshold =
++            FIELD_EX32(value, ESP32C6_UART_CONF1, RXFIFO_FULL_THRHD);
++        uart->tx_empty_threshold =
++            FIELD_EX32(value, ESP32C6_UART_CONF1, TXFIFO_EMPTY_THRHD);
++        esp32_uart_update_irq(uart);
++        break;
++    case A_ESP32C6_UART_MEM_CONF:
++        uart->reg[R_ESP32C6_UART_MEM_CONF] = value;
++        break;
++    case A_ESP32C6_UART_TOUT_CONF:
++        s->tout_conf = value;
++        uart->rx_tout_ena =
++            FIELD_EX32(value, ESP32C6_UART_TOUT_CONF, RX_TOUT_EN) != 0;
++        uart->rx_tout_thres =
++            FIELD_EX32(value, ESP32C6_UART_TOUT_CONF, RX_TOUT_THRHD);
++        esp32_uart_set_rx_timeout(uart);
++        esp32_uart_update_irq(uart);
++        break;
++    default:
++        class->parent_uart_write(opaque, addr, value, size);
++        break;
++    }
++}
++
+ static void esp32c6_uart_init(Object *obj)
+ {
+ }
+ 
+ static void esp32c6_uart_class_init(ObjectClass *klass, void *data)
+ {
++    ESP32UARTClass *uart = ESP32_UART_CLASS(klass);
++    ESP32C6UARTClass *c6 = ESP32C6_UART_CLASS(klass);
++
++    c6->parent_uart_read = uart->uart_read;
++    c6->parent_uart_write = uart->uart_write;
++    uart->uart_read = esp32c6_uart_read;
++    uart->uart_write = esp32c6_uart_write;
+ }
+ 
+ static const TypeInfo esp32c6_uart_info = {
+diff --git a/include/hw/char/esp32c6_uart.h b/include/hw/char/esp32c6_uart.h
+index e49532e..fa6d42e 100644
+--- a/include/hw/char/esp32c6_uart.h
++++ b/include/hw/char/esp32c6_uart.h
+@@ -18,8 +18,30 @@
+ 
+ typedef struct ESP32C6UARTState {
+     ESP32C3UARTState parent;
++    uint32_t tout_conf;
+ } ESP32C6UARTState;
+ 
+ typedef struct ESP32C6UARTClass {
+     ESP32C3UARTClass parent_class;
++
++    uint64_t (*parent_uart_read)(void *opaque, hwaddr addr, unsigned int size);
++    void (*parent_uart_write)(void *opaque, hwaddr addr, uint64_t value,
++                              unsigned int size);
+ } ESP32C6UARTClass;
++
++REG32(ESP32C6_UART_CONF1, 0x24)
++    FIELD(ESP32C6_UART_CONF1, RXFIFO_FULL_THRHD, 0, 8)
++    FIELD(ESP32C6_UART_CONF1, TXFIFO_EMPTY_THRHD, 8, 8)
++
++REG32(ESP32C6_UART_CONF0_SYNC, 0x20)
++    FIELD(ESP32C6_UART_CONF0_SYNC, RXFIFO_RST, 22, 1)
++    FIELD(ESP32C6_UART_CONF0_SYNC, TXFIFO_RST, 23, 1)
++
++REG32(ESP32C6_UART_MEM_CONF, 0x60)
++    FIELD(ESP32C6_UART_MEM_CONF, MEM_FORCE_PD, 25, 1)
++    FIELD(ESP32C6_UART_MEM_CONF, MEM_FORCE_PU, 26, 1)
++
++REG32(ESP32C6_UART_TOUT_CONF, 0x64)
++    FIELD(ESP32C6_UART_TOUT_CONF, RX_TOUT_EN, 0, 1)
++    FIELD(ESP32C6_UART_TOUT_CONF, RX_TOUT_FLOW_DIS, 1, 1)
++    FIELD(ESP32C6_UART_TOUT_CONF, RX_TOUT_THRHD, 2, 10)

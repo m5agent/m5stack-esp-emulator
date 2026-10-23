@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import sys
 import traceback
 from typing import Any
@@ -27,6 +28,35 @@ def advertisement_name(advertisement: Any) -> str:
         if value:
             return str(value)
     return ""
+
+
+def trace_hci_transport(transport: Any) -> None:
+    """Trace complete H4 packets in each direction without changing framing."""
+
+    if os.getenv("BLE_HCI_TRACE") != "1":
+        return
+
+    original_source = transport.source
+    original_sink = transport.sink
+
+    class TracedSource:
+        metadata = getattr(original_source, "metadata", None)
+
+        def set_packet_sink(self, sink: Any) -> None:
+            class TracedSink:
+                def on_packet(self, packet: Any) -> None:
+                    emit("BLE_HCI_GUEST_TO_BUMBLE", bytes(packet).hex())
+                    sink.on_packet(packet)
+
+            original_source.set_packet_sink(TracedSink())
+
+    class TracedSink:
+        def on_packet(self, packet: Any) -> None:
+            emit("BLE_HCI_BUMBLE_TO_GUEST", bytes(packet).hex())
+            original_sink.on_packet(packet)
+
+    transport.source = TracedSource()
+    transport.sink = TracedSink()
 
 
 def install_controller_compatibility(controller_class: Any, hci_module: Any) -> None:
@@ -124,6 +154,7 @@ async def observe(args: argparse.Namespace) -> int:
         return 2
 
     emu_transport = await open_transport(f"tcp-server:_:{args.port}")
+    trace_hci_transport(emu_transport)
     link = LocalLink()
     emu_controller = Controller(
         "network-lane-emu",

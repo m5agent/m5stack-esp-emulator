@@ -3,8 +3,9 @@
 
 This module is intentionally a local, trusted-workstation service. It owns the
 process lifecycle for QEMU/esp-emu-backed ESP32 devices and exposes an HTTP
-API through serve.py. Network emulation is outside this first service scope;
-Tab5 is supported with an explicit partial-peripheral warning.
+API through serve.py. Selected devices support same-instance QEMU WiFi/BLE or
+HCI-offload profiles; Tab5 is supported with an explicit partial-peripheral
+warning.
 """
 from __future__ import annotations
 
@@ -112,6 +113,7 @@ CORE2_WIFI_PROFILE = "core2-openmac"
 CORE2_BLE_PROFILE = "core2-ble-advertise"
 CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
 CORE2_UNIFIED_PROFILE = "core2-unified"
+NANOC6_HCI_BLE_PROFILE = "nanoc6-hci-ble"
 STICKS3_WIFI_PROFILE = "uiflow2-sticks3-wifi"
 STICKS3_UNIFIED_PROFILE = "uiflow2-sticks3-unified"
 CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
@@ -162,6 +164,18 @@ CORE2_HCI_PROBE_MARKERS = (
     "BLE_BUMBLE_NOTIFICATION_OK",
     "BLE_BUMBLE_PASS",
 )
+NANOC6_HCI_BLE_MARKERS = (
+    "NANOC6_HCI_BOARD 140",
+    "NANOC6_HCI_RGB 1 00FF00",
+    "NANOC6_HCI_BLUE 1",
+    "NANOC6_HCI_IR 0x56 0xA3",
+    "NANOC6_HCI_BUTTON_PRESS",
+    "NANOC6_HCI_BUTTON_RELEASE",
+    "NANOC6_HCI_BLE_RX",
+    "NANOC6_HCI_BLE_ACK_SENT",
+    "NANOC6_HCI_READY",
+)
+NANOC6_BLE_IDENTITY = ("M5-NANOC6-HCI", "M5_NANOC6_HCI")
 STICKS3_UNIFIED_MARKERS = (
     "UNIFIED_STICKS3_WIFI_CONNECTED",
     "UNIFIED_STICKS3_HTTP_PASS",
@@ -727,6 +741,9 @@ def parse_qemu_ble_execution(
     elif spec.id == "stamplc":
         supported_profiles = {STAMPLC_UNIFIED_PROFILE}
         default_profile = STAMPLC_UNIFIED_PROFILE
+    elif spec.id == "nanoc6":
+        supported_profiles = {NANOC6_HCI_BLE_PROFILE}
+        default_profile = NANOC6_HCI_BLE_PROFILE
     else:
         raise ServiceError(
             "qemu_ble_not_supported",
@@ -756,6 +773,8 @@ def parse_qemu_ble_execution(
         )
     if profile == CORE2_HCI_GATT_PROFILE and not expected_markers:
         expected_markers = list(CORE2_HCI_GATT_MARKERS)
+    elif profile == NANOC6_HCI_BLE_PROFILE and not expected_markers:
+        expected_markers = list(NANOC6_HCI_BLE_MARKERS)
     elif profile in UNIFIED_MARKERS and not expected_markers:
         expected_markers = list(UNIFIED_MARKERS[profile])
     attempts = value.get("attempts", 5)
@@ -774,6 +793,8 @@ def parse_qemu_ble_execution(
         "nic": (
             "misc.esp32_wifi"
             if spec.id == "core2"
+            else None
+            if spec.id == "nanoc6"
             else "misc.esp32s3.wifi"
         ),
         "ble_name": (
@@ -781,6 +802,8 @@ def parse_qemu_ble_execution(
             if profile == CORE2_UNIFIED_PROFILE
             else "M5-CORE2-HCI"
             if spec.id == "core2"
+            else NANOC6_BLE_IDENTITY[0]
+            if spec.id == "nanoc6"
             else UNIFIED_BLE_IDENTITIES[spec.id][0]
         ),
     }
@@ -961,6 +984,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, STACKCHAN_UNIFIED_PROFILE)
             if device_id == "stamplc" and network_chip:
                 network_profiles.insert(0, STAMPLC_UNIFIED_PROFILE)
+            if device_id == "nanoc6" and network_chip:
+                network_profiles.insert(0, NANOC6_HCI_BLE_PROFILE)
             if (
                 device_id == "core2"
                 and (
@@ -1616,6 +1641,145 @@ class DeviceSession:
             else ""
         )
         profile = self.network_config.get("profile")
+        if profile == NANOC6_HCI_BLE_PROFILE:
+            probe_log = (
+                self.hci_probe_log.read_text(errors="replace")
+                if self.hci_probe_log.is_file()
+                else ""
+            )
+            serial_markers = [
+                str(marker)
+                for marker in self.network_config.get(
+                    "expected_markers",
+                    NANOC6_HCI_BLE_MARKERS,
+                )
+            ]
+            checks = {
+                f"serial:{marker}": marker in serial
+                for marker in serial_markers
+            }
+            checks.update(
+                {
+                    f"peer:{marker}": marker in probe_log
+                    for marker in CORE2_HCI_PROBE_MARKERS
+                }
+            )
+
+            def rmt_check(script: str, *arguments: str) -> dict:
+                if not self.rmt_capture.is_file():
+                    return {
+                        "status": "NOT_RUN",
+                        "reason": "RMT capture file is missing",
+                    }
+                env = os.environ.copy()
+                env["PYTHONPATH"] = os.pathsep.join(
+                    filter(
+                        None,
+                        [
+                            str(ROOT / ".work/py"),
+                            env.get("PYTHONPATH", ""),
+                        ],
+                    )
+                )
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(TEST_TOOLS / script),
+                        str(self.rmt_capture),
+                        *arguments,
+                    ],
+                    cwd=ROOT,
+                    env=env,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    check=False,
+                )
+                return {
+                    "status": "PASS" if result.returncode == 0 else "FAIL",
+                    "detail": result.stdout.strip(),
+                }
+
+            ws2812 = rmt_check(
+                "check_rmt_ws2812.py",
+                "--led",
+                "0,255,0",
+            )
+            nec = rmt_check(
+                "check_rmt_nec.py",
+                "--address",
+                "0x56",
+                "--command",
+                "0xa3",
+            )
+            checks["rmt:ws2812_green"] = ws2812["status"] == "PASS"
+            checks["rmt:nec"] = nec["status"] == "PASS"
+            if all(checks.values()):
+                status = "PASS"
+            elif serial.strip() or probe_log.strip():
+                status = "PARTIAL"
+            else:
+                status = "RUNNING" if self.state in ACTIVE_STATES else "FAIL"
+            rmt_bytes = (
+                self.rmt_capture.read_bytes()
+                if self.rmt_capture.is_file()
+                else b""
+            )
+            ble_name, ble_payload = NANOC6_BLE_IDENTITY
+            return {
+                "schema_version": 1,
+                "kind": "m5stack-nanoc6-board-hci-ble-qemu-proof",
+                "scope": "simulation-only-not-hardware-validation",
+                "status": status,
+                "session_id": self.id,
+                "device_id": self.spec.id,
+                "profile": profile,
+                "runtime": {
+                    "name": "qemu",
+                    "guest_process_count": 1,
+                    "console": "USB-Serial-JTAG",
+                    "hci_transport": "UART1 H4",
+                    "ble_controller": "Bumble",
+                    "ble_peer": "external Bumble peer",
+                    "wifi": "NOT RUN",
+                    "wifi_reason": (
+                        "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane"
+                    ),
+                },
+                "checks": checks,
+                "expected_markers": serial_markers,
+                "serial_bytes": len(serial.encode()),
+                "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
+                "peer_log_bytes": len(probe_log.encode()),
+                "peer_log_sha256": hashlib.sha256(
+                    probe_log.encode()
+                ).hexdigest(),
+                "rmt": {
+                    "bytes": len(rmt_bytes),
+                    "sha256": (
+                        hashlib.sha256(rmt_bytes).hexdigest()
+                        if rmt_bytes
+                        else None
+                    ),
+                    "ws2812": ws2812,
+                    "nec": nec,
+                },
+                "gatt": {
+                    "name": ble_name,
+                    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+                    "subscribe": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+                    "write": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+                    "payload": ble_payload,
+                    "notification": "ACK:" + ble_payload,
+                },
+                "not_claimed": [
+                    "real-hardware behavior",
+                    "WiFi on the QEMU ESP32-C6 machine",
+                    "native ESP32-C6 Bluetooth controller/radio model",
+                    "RF privacy, security, range or performance",
+                    "untrusted-firmware sandboxing",
+                ],
+            }
         if profile in UNIFIED_PROFILES:
             default_markers = UNIFIED_MARKERS[profile]
             ble_name, ble_payload = UNIFIED_BLE_IDENTITIES[self.spec.id]
@@ -1883,7 +2047,11 @@ class DeviceSession:
                     )
                 if (
                     self.network_config.get("profile")
-                    in {CORE2_HCI_GATT_PROFILE, *UNIFIED_PROFILES}
+                    in {
+                        CORE2_HCI_GATT_PROFILE,
+                        NANOC6_HCI_BLE_PROFILE,
+                        *UNIFIED_PROFILES,
+                    }
                 ):
                     self._wait_hci_probe_result(self.ready_timeout)
                 self.network_result = self.network_evidence()
@@ -1964,8 +2132,12 @@ class DeviceSession:
             raise RuntimeError(f"BLE probe is missing: {BLE_PROBE}")
         profile = self.network_config.get("profile")
         unified = profile in UNIFIED_PROFILES
+        nanoc6_hci = profile == NANOC6_HCI_BLE_PROFILE
+        extended_exchange = unified or nanoc6_hci
         if unified:
             name_prefix, payload = UNIFIED_BLE_IDENTITIES[self.spec.id]
+        elif nanoc6_hci:
+            name_prefix, payload = NANOC6_BLE_IDENTITY
         else:
             name_prefix = "M5-CORE2-HCI"
             payload = "M5_CORE2_HCI"
@@ -1980,6 +2152,8 @@ class DeviceSession:
                 ],
             )
         )
+        if nanoc6_hci:
+            env["BLE_HCI_TRACE"] = "1"
         output = self.hci_probe_log.open("wb")
         try:
             self._hci_probe = subprocess.Popen(
@@ -1996,11 +2170,11 @@ class DeviceSession:
                     "--expect-notification-prefix",
                     "ACK:",
                     "--notification-timeout",
-                    "15" if unified else "10",
+                    "15" if extended_exchange else "10",
                     "--timeout",
-                    "40" if unified else "25",
+                    "40" if extended_exchange else "25",
                     "--write-delay",
-                    "2" if unified else "1",
+                    "2" if extended_exchange else "1",
                     "--linger",
                     "20" if unified else "15",
                 ],
@@ -2181,6 +2355,45 @@ class DeviceSession:
             property_count=len(setup),
         )
 
+    def _exercise_nanoc6_button(self) -> None:
+        def wait_for_serial(marker: str, timeout: float = 10) -> None:
+            deadline = time.time() + timeout
+            while time.time() < deadline:
+                if (
+                    self.serial0.is_file()
+                    and marker in self.serial0.read_text(errors="replace")
+                ):
+                    return
+                if self._proc is None or self._proc.poll() is not None:
+                    raise ServiceError(
+                        "session_exited",
+                        "NanoC6 QEMU exited before button input injection",
+                        409,
+                    )
+                time.sleep(0.05)
+            raise ServiceError(
+                "ready_timeout",
+                f"NanoC6 serial marker timed out: {marker}",
+                408,
+            )
+
+        wait_for_serial("NANOC6_HCI_BUTTON_READY")
+        self._qmp_call(
+            "qom-set",
+            path="/machine",
+            property="button-gpio9",
+            value=True,
+        )
+        wait_for_serial("NANOC6_HCI_BUTTON_PRESS")
+        self._qmp_call(
+            "qom-set",
+            path="/machine",
+            property="button-gpio9",
+            value=False,
+        )
+        wait_for_serial("NANOC6_HCI_BUTTON_RELEASE")
+        self._record_event("nanoc6_button_input", press=True, release=True)
+
     def _launch(self) -> None:
         assert self.virtual_flash is not None
         efuse = self.dir / "efuse.bin"
@@ -2208,7 +2421,12 @@ class DeviceSession:
         profile = self.network_config.get("profile")
         hci_gatt = (
             self.runtime == QEMU_BLE_RUNTIME
-            and profile in {CORE2_HCI_GATT_PROFILE, *UNIFIED_PROFILES}
+            and profile
+            in {
+                CORE2_HCI_GATT_PROFILE,
+                NANOC6_HCI_BLE_PROFILE,
+                *UNIFIED_PROFILES,
+            }
         )
         if hci_gatt:
             self._launch_hci_probe()
@@ -2224,14 +2442,13 @@ class DeviceSession:
             "-drive", f"file={self.virtual_flash},if=mtd,format=raw",
             "-L", str(self.spec.rom_dir),
             "-display", "none",
-            "-serial", f"file:{self.serial0}",
         ]
-        if hci_gatt:
+        if profile == NANOC6_HCI_BLE_PROFILE:
             assert self.hci_port is not None
-            if profile == STACKCHAN_UNIFIED_PROFILE:
-                command.extend(["-serial", f"file:{self.serial1}"])
             command.extend(
                 [
+                    "-serial",
+                    "null",
                     "-chardev",
                     (
                         "socket,id=hci,host=127.0.0.1,"
@@ -2239,10 +2456,29 @@ class DeviceSession:
                     ),
                     "-serial",
                     "chardev:hci",
+                    "-serial",
+                    f"file:{self.serial0}",
                 ]
             )
         else:
-            command.extend(["-serial", f"file:{self.serial1}"])
+            command.extend(["-serial", f"file:{self.serial0}"])
+            if hci_gatt:
+                assert self.hci_port is not None
+                if profile == STACKCHAN_UNIFIED_PROFILE:
+                    command.extend(["-serial", f"file:{self.serial1}"])
+                command.extend(
+                    [
+                        "-chardev",
+                        (
+                            "socket,id=hci,host=127.0.0.1,"
+                            f"port={self.hci_port},nodelay=on"
+                        ),
+                        "-serial",
+                        "chardev:hci",
+                    ]
+                )
+            else:
+                command.extend(["-serial", f"file:{self.serial1}"])
         command.extend(
             ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]
         )
@@ -2293,6 +2529,9 @@ class DeviceSession:
             env["M5SW_RS485_ECHO"] = "1"
         if profile == CORE2_UNIFIED_PROFILE:
             env["M5SW_I2S_RX_PCM_FILE"] = str(self.microphone_source_pcm)
+        if profile == NANOC6_HCI_BLE_PROFILE:
+            env["M5SW_RMT_TX_FILE"] = str(self.rmt_capture)
+            env["M5SW_RMT_TRACE"] = "1"
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
@@ -2317,6 +2556,8 @@ class DeviceSession:
                 504,
             ) from error
         self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+        if profile == NANOC6_HCI_BLE_PROFILE:
+            self._exercise_nanoc6_button()
         if profile == STACKCHAN_UNIFIED_PROFILE:
             self._apply_profile_qom(
                 "UNIFIED_STACKCHAN_IMU_CONFIG_READY",
@@ -3081,6 +3322,13 @@ class DeviceSession:
                     "bytes": len(data),
                     "sha256": hashlib.sha256(data).hexdigest(),
                 }
+        if profile == NANOC6_HCI_BLE_PROFILE and self.rmt_capture.is_file():
+            data = self.rmt_capture.read_bytes()
+            files["rmt/capture.bin"] = data
+            manifest.setdefault("device_data", {})["rmt/capture.bin"] = {
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
         if (
             "qom" in include
             and self.spec.service_kind == "qemu"
@@ -4279,6 +4527,12 @@ class DeviceService:
                 payload = dict(payload)
                 payload["ready_marker"] = "CORE2_HCI_BLE_ACK_SENT"
             elif (
+                network_config.get("profile") == NANOC6_HCI_BLE_PROFILE
+                and payload.get("ready_marker") is None
+            ):
+                payload = dict(payload)
+                payload["ready_marker"] = "NANOC6_HCI_BLE_ACK_SENT"
+            elif (
                 network_config.get("profile") in UNIFIED_READY_MARKERS
                 and payload.get("ready_marker") is None
             ):
@@ -4494,7 +4748,19 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-ble": (
-                    "enabled-core2-experimental"
+                    "enabled-core2-experimental-nanoc6-hci"
+                    if (
+                        CORE2_BLE_PROFILE
+                        in self.specs["core2"].network_profiles
+                        and NANOC6_HCI_BLE_PROFILE
+                        in self.specs["nanoc6"].network_profiles
+                    )
+                    else "enabled-nanoc6-hci"
+                    if (
+                        NANOC6_HCI_BLE_PROFILE
+                        in self.specs["nanoc6"].network_profiles
+                    )
+                    else "enabled-core2-experimental"
                     if CORE2_BLE_PROFILE
                     in self.specs["core2"].network_profiles
                     else "disabled"

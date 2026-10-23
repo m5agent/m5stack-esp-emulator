@@ -72,6 +72,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
             rows["sticks3"]["network_profiles"],
         )
         self.assertEqual(rows["nanoc6"]["network_status"], "validated")
+        self.assertIn(
+            "nanoc6-hci-ble",
+            rows["nanoc6"]["network_profiles"],
+        )
         self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
         self.assertEqual(rows["cores3"]["network_status"], "validated")
         self.assertTrue(rows["cores3"]["features"]["network"])
@@ -225,7 +229,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "enabled-separate-lane",
         )
         self.assertEqual(capacity["modes"]["qemu-wifi"], "enabled-sticks3")
-        self.assertEqual(capacity["modes"]["qemu-ble"], "disabled")
+        self.assertEqual(
+            capacity["modes"]["qemu-ble"],
+            "enabled-nanoc6-hci",
+        )
         self.assertEqual(
             capacity["modes"]["qemu-unified"],
             "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-wifi-ble",
@@ -447,7 +454,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-ble"],
-                    "enabled-core2-experimental",
+                    "enabled-core2-experimental-nanoc6-hci",
                 )
             finally:
                 gated.close_all()
@@ -497,6 +504,20 @@ class DeviceServiceUnitTests(unittest.TestCase):
                     device_service_module.CORE2_UNIFIED_PROFILE
                 ],
                 18089,
+            )
+            nanoc6 = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["nanoc6"],
+                {},
+            )
+            self.assertEqual(nanoc6["profile"], "nanoc6-hci-ble")
+            self.assertIsNone(nanoc6["nic"])
+            self.assertEqual(
+                nanoc6["expected_markers"],
+                list(device_service_module.NANOC6_HCI_BLE_MARKERS),
+            )
+            self.assertEqual(
+                nanoc6["ble_name"],
+                "M5-NANOC6-HCI",
             )
             unified = device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
@@ -1681,6 +1702,91 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(evidence["runtime"]["wifi_nic"], "misc.esp32_wifi")
         self.assertEqual(evidence["gatt"]["name"], "M5-CORE2-UNIFIED")
         self.assertEqual(evidence["gatt"]["payload"], "M5_CORE2_UNIFIED")
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_nanoc6_hci_ble_qemu_evidence(self):
+        spec = self.service.specs["nanoc6"]
+        firmware_path = Path(self.tmp.name) / "nanoc6-hci-ble.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="6" * 32,
+            spec=spec,
+            firmware_id="7" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="7" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="NANOC6_HCI_BLE_ACK_SENT",
+            ready_timeout=20,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "nanoc6-hci-ble",
+                "nic": None,
+                "expected_markers": list(
+                    device_service_module.NANOC6_HCI_BLE_MARKERS
+                ),
+                "attempts": 3,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "NANOC6_HCI_BOARD 140\n"
+            "NANOC6_HCI_RGB 1 00FF00\n"
+            "NANOC6_HCI_BLUE 1\n"
+            "NANOC6_HCI_IR 0x56 0xA3\n"
+            "NANOC6_HCI_BUTTON_PRESS\n"
+            "NANOC6_HCI_BUTTON_RELEASE\n"
+            "NANOC6_HCI_BLE_RX b'M5_NANOC6_HCI'\n"
+            "NANOC6_HCI_BLE_ACK_SENT\n"
+            "NANOC6_HCI_READY\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-NANOC6-HCI'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_NANOC6_HCI\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_NANOC6_HCI\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+
+        green = 0x00FF00
+        ws2812_words = [
+            0x2000 if green & (1 << (23 - index)) else 0x1000
+            for index in range(24)
+        ]
+        payload = 0x56 | ((0x56 ^ 0xFF) << 8)
+        payload |= 0xA3 << 16
+        payload |= (0xA3 ^ 0xFF) << 24
+        nec_words = [9000 | (4500 << 16)]
+        for index in range(32):
+            nec_words.append(
+                560 | ((1690 if payload & (1 << index) else 560) << 16)
+            )
+        nec_words.append(560)
+        session.rmt_capture.write_bytes(
+            b"".join(word.to_bytes(4, "little") for word in ws2812_words + nec_words)
+        )
+
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-nanoc6-board-hci-ble-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(evidence["runtime"]["hci_transport"], "UART1 H4")
+        self.assertEqual(evidence["runtime"]["wifi"], "NOT RUN")
+        self.assertEqual(evidence["rmt"]["ws2812"]["status"], "PASS")
+        self.assertEqual(evidence["rmt"]["nec"]["status"], "PASS")
+        self.assertEqual(evidence["gatt"]["name"], "M5-NANOC6-HCI")
+        self.assertEqual(evidence["gatt"]["payload"], "M5_NANOC6_HCI")
         session.state = "stopped"
         session._proc = None
         session._qmp = None

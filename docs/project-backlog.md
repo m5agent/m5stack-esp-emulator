@@ -62,6 +62,11 @@ Implemented on 2026-10-22:
   lease and retains serial, frame, QOM and Bumble peer evidence.
 - C6 QEMU adds GigaDevice/ISSI QIO and MODEM_SYSCON PHY clock semantics.
   Public NanoC6/Nesso firmware passes the former flash/PHY assertions.
+- NanoC6 QEMU now runs RGB/button/IR and UART1 HCI BLE in one C6 guest.
+  The C6 UART timeout/FIFO-reset register layout is modeled, and both the
+  direct runner and a Device Service lease close the Bumble NUS GATT exchange.
+  C6 WiFi remains on the separate esp-emu lane because the QEMU machine has no
+  C6 WiFi MAC/PHY data plane.
 
 Still open:
 

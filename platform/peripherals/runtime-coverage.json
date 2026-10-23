@@ -25,6 +25,11 @@
       "test": "tests/uiflow2/run_nanoc6_peripherals.py",
       "evidence": "tests/uiflow2/nanoc6_peripherals/evidence-2026-10-22.json"
     },
+    "nanoc6-hci-ble": {
+      "device": "nanoc6",
+      "test": "tests/uiflow2/nanoc6_hci_ble/run_test.py",
+      "evidence": "tests/uiflow2/nanoc6_hci_ble/evidence-2026-10-23.json"
+    },
     "sticks3-unified": {
       "device": "sticks3",
       "test": "tests/uiflow2/unified_sticks3/run_test.py",
@@ -319,6 +324,7 @@
     "cardputer-zero-camera": ["camera-imx219"],
     "cardputer-zero-ethernet": ["ethernet-sr9900a", "usb-hub-gl852g"],
     "nanoc6-peripherals": ["gpio-button", "gpio-led", "rgb-led", "ir-tx-c6"],
+    "nanoc6-hci-ble": ["gpio-button", "gpio-led", "rgb-led", "ir-tx-c6"],
     "tab5-hosted-peripherals": ["esp32c6-hosted"],
     "tab5-rs485": ["rs485"],
     "tab5-peripheral-scenarios": []
@@ -599,7 +605,7 @@
       ]
     },
     "nanoc6": {
-      "external": ["nanoc6-peripherals"],
+      "external": ["nanoc6-peripherals", "nanoc6-hci-ble"],
       "models": [
         "gpio-button",
         "gpio-led",

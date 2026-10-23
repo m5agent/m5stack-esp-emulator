@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "nanoc6",
+  "profile": "nanoc6-board-hci-ble",
+  "consecutive_passes": 3,
+  "runs": [
+    {
+      "serial_sha256": "a4bc1f59ced30d4827d20c4628b119f7a25ab24f881acbb04414f97dc4628d38",
+      "peer_log_sha256": "2e58883b3797cb2a6a084c469125128aa74dd0959d9f28dad9d8a93eb52bbd37"
+    },
+    {
+      "serial_sha256": "a4bc1f59ced30d4827d20c4628b119f7a25ab24f881acbb04414f97dc4628d38",
+      "peer_log_sha256": "422ae29cf99aa586aa38f68f25d15263064a4ed83b06d0ffc4c35bf6da4e74ed"
+    },
+    {
+      "serial_sha256": "a4bc1f59ced30d4827d20c4628b119f7a25ab24f881acbb04414f97dc4628d38",
+      "peer_log_sha256": "599e7037a81d1fd35f6454b7fb9525e9c46fceca96ee47405006cbbe72811034"
+    }
+  ],
+  "firmware": {
+    "path": "/private/tmp/m5-nanoc6-hci-ble.bin",
+    "bytes": 4194304,
+    "sha256": "6335a6d18d9a6c43f0dcda67e9692beed5a72a9e6ca18e1830dc91d25e87efc9"
+  },
+  "checks": {
+    "serial:NANOC6_HCI_BOARD 140": true,
+    "serial:NANOC6_HCI_RGB 1 00FF00": true,
+    "serial:NANOC6_HCI_BLUE 1": true,
+    "serial:NANOC6_HCI_IR 0x56 0xA3": true,
+    "serial:NANOC6_HCI_BUTTON_READY": true,
+    "serial:NANOC6_HCI_BUTTON_PRESS": true,
+    "serial:NANOC6_HCI_BUTTON_RELEASE": true,
+    "serial:NANOC6_HCI_BLUE 0": true,
+    "serial:NANOC6_HCI_READY": true,
+    "serial:NANOC6_HCI_BLE_READY": true,
+    "serial:NANOC6_HCI_BLE_RX": true,
+    "serial:NANOC6_HCI_BLE_ACK_SENT": true,
+    "peer:BLE_BUMBLE_FOUND": true,
+    "peer:BLE_BUMBLE_CONNECTED": true,
+    "peer:BLE_BUMBLE_GATT_DISCOVERED": true,
+    "peer:BLE_BUMBLE_SUBSCRIBED": true,
+    "peer:BLE_BUMBLE_WRITE": true,
+    "peer:BLE_BUMBLE_NOTIFICATION_OK": true,
+    "peer:BLE_BUMBLE_PASS": true,
+    "gpio:rgb_power": true,
+    "gpio:blue_on": true,
+    "gpio:button_idle_high": true,
+    "gpio:blue_off": true,
+    "gpio:button_release_high": true,
+    "rmt:ws2812_green": true,
+    "rmt:nec": true
+  },
+  "gpio": {
+    "before": {
+      "gpio7": true,
+      "gpio9": true,
+      "gpio19": true
+    },
+    "after": {
+      "gpio7": false,
+      "gpio9": true,
+      "gpio19": true
+    }
+  },
+  "rmt": {
+    "capture_bytes": 328,
+    "capture_sha256": "666821946b3596fe483a011b6517c5e96ebddabd87d73a164a1a43b8a742b118",
+    "ws2812_check": "WS2812 PASS expected=00ff00 offset=16",
+    "nec_check": "PASS NEC offset=48 address=0x56 command=0xa3"
+  },
+  "serial_bytes": 739,
+  "serial_sha256": "a4bc1f59ced30d4827d20c4628b119f7a25ab24f881acbb04414f97dc4628d38",
+  "peer_log_bytes": 4472,
+  "peer_log_sha256": "a1e72b2daad2599f08a5ba8eceaaa8439c76c968d304b5ba7bc7831f44fb2b59",
+  "network": {
+    "wifi": "NOT RUN",
+    "wifi_reason": "QEMU ESP32-C6 machine has no WiFi MAC/PHY data plane",
+    "ble": "PASS via UART1 HCI offload"
+  },
+  "device_service": {
+    "profile": "nanoc6-hci-ble",
+    "status": "PASS",
+    "guest_process_count": 1,
+    "evidence_zip_sha256": "3feb4e8f06772a334c3848e943866ca966f2239d3ffc3e32a3fb957983e8e457"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "WiFi on the QEMU C6 machine",
+    "native ESP32-C6 Bluetooth controller/radio model",
+    "RF privacy, security, range or performance"
+  ]
+}

@@ -18,6 +18,8 @@ Current scope:
   AtomS3R, PaperColor, PaperMono, StackChan and StamPLC use one combined
   WiFi+BLE+board QEMU lease through their unified profiles; environment-gated
   Core2 adds `core2-unified` through the classic ESP32 OpenMAC/HCI QEMU path;
+- NanoC6 adds `nanoc6-hci-ble`: board peripherals, RMT WS2812/IR and UART1
+  HCI BLE run in one C6 guest, while WiFi remains explicitly `NOT RUN`;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -299,6 +301,29 @@ serial and `ble-probe.log`.
 
 This is HCI offload. It does not claim a native ESP32 radio/controller model,
 RF behavior, pairing/security or production throughput.
+
+NanoC6 uses the same HCI-offload boundary without claiming C6 WiFi:
+
+```json
+{
+  "device_id": "nanoc6",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 60,
+  "network": {
+    "profile": "nanoc6-hci-ble",
+    "attempts": 3
+  }
+}
+```
+
+The firmware is built with the C6 internal controller disabled and HCI UART1
+on GPIO16/17. The USB-Serial-JTAG console remains on QEMU serial2; UART0 is
+unused and UART1 is attached to Bumble. The service injects GPIO9 press/release
+through QOM and captures WS2812/IR symbols while an external peer completes the
+NUS GATT exchange. `/network` returns
+`kind=m5stack-nanoc6-board-hci-ble-qemu-proof`, with
+`runtime.wifi=NOT RUN` and the reason that the QEMU C6 machine has no WiFi
+MAC/PHY data plane.
 
 Core2 also has a combined WiFi and BLE profile through the same board/QMP/
 UART1 instance:
@@ -905,6 +930,9 @@ after a service restart.
   `core2-ble-advertise` stops at native controller/advertising control;
   `core2-hci-gatt` closes external Bumble GATT without WiFi but neither is a
   native radio model;
+- NanoC6 `nanoc6-hci-ble` closes board peripherals and UART1 HCI BLE in one
+  C6 guest, but WiFi is `NOT RUN` because the QEMU C6 machine has no WiFi
+  MAC/PHY data plane;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the

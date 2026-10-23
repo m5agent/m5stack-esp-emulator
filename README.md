@@ -100,7 +100,7 @@ curl -sS -H 'Content-Type: application/json' \
 | 分组 | 设备 | 状态 |
 | --- | --- | --- |
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；外观除 StopWatch 外为近似模型 |
-| ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过 |
+| ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；NanoC6 已将板级外设与 UART1 HCI BLE 放入同一 QEMU guest，C6 QEMU WiFi 仍为 `NOT RUN` |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
 | ESP32 LX6 | Core2 | 显示、触摸和外设通过；OpenMAC 可选补丁已完成 stock UIFlow2 WiFi 扫描、关联、DHCP/IP 和受控 HTTP，外网 DNS 与 BLE 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
