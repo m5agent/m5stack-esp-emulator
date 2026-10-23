@@ -52,9 +52,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱；worker/VM 生命周期仍未完成。
-- TLS/Host allowlist fixture 已在 trusted-host 下 PASS，QEMU patch `0027`
-  闭合 AES/GDMA 外部内存读取；Linux namespace TLS 尚未执行，且该能力
-  仍不是任意公网目标 allowlist。
+- TLS/Host allowlist fixture 已在 trusted-host 和 Linux private namespace
+  下 PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；该能力仍不是
+  任意公网目标 allowlist。
 
 完整契约见
 [`docs/device-service-api.md`](../docs/device-service-api.md) 和

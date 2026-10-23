@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-tls-host-allowlist",
+  "scope": "virtual-device-linux-network-namespace-tls-not-hardware-rf",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "isolation": "namespace",
+  "base_image_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "built_image_sha256": "1d7b13890fc4f5bdcfce69c7fbb9e4f1109b746463b3f7fe906b27448e06e22c",
+  "certificate_sha256": "7bb5e78d9eac10d01619e712415959fa495d932dfd428952493a72bd8354b440",
+  "qemu": {
+    "platform": "linux-arm64",
+    "sha256": "abab392c14f9074b7787face2c616be7bf93bc3b53f945b97c9fd70e25a23670",
+    "patch": "patches/qemu-m5stack-peripherals/0027-esp32s3-gdma-external-memory.patch"
+  },
+  "checks": {
+    "TLS_WIFI_READY": true,
+    "TLS_CONTEXT_READY": true,
+    "TLS_CA_LOADED": true,
+    "TLS_ALLOWED PASS": true,
+    "TLS_DENIED PASS": true,
+    "TLS_ALLOWLIST_RESULT PASS": true,
+    "tls_allow_and_deny": true,
+    "dhcp": true,
+    "tls_port_observed": true,
+    "pcap_written": true,
+    "private_namespace": true,
+    "no_external_route": true,
+    "allowlist_evidence": true
+  },
+  "tls_requests": [
+    {
+      "path": "/allowed",
+      "host": "allowed.lab.test",
+      "decision": "allow",
+      "status": "200"
+    },
+    {
+      "path": "/denied",
+      "host": "denied.lab.test",
+      "decision": "deny",
+      "status": "403"
+    }
+  ],
+  "packet_capture": {
+    "bytes": 12751,
+    "sha256": "2ef8fd2fd7474603aa574a750fd5c66f965a245fe08233ad149532e13a905b1d",
+    "packets": 82,
+    "dns_responses": 0,
+    "dhcp": "PASS"
+  },
+  "not_claimed": [
+    "real-hardware TLS or RF behavior",
+    "arbitrary public-internet egress allowlisting",
+    "certificate-pinned or mutual-TLS firmware",
+    "malicious-firmware safety"
+  ]
+}

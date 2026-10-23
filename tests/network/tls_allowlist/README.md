@@ -1,7 +1,7 @@
 # TLS host allowlist probe
 
-Status: `PASS` on the current ESP32-S3 QEMU trusted-host path after
-`0027-esp32s3-gdma-external-memory.patch`.
+Status: `PASS` on ESP32-S3 QEMU in both trusted-host and Linux private
+namespace after `0027-esp32s3-gdma-external-memory.patch`.
 
 The intended assertion is that an ESP32-S3 UIFlow2 guest can:
 
@@ -37,7 +37,12 @@ certificate deliberately starts at the Unix epoch so it remains valid in a
 guest that has not completed SNTP yet. The successful snapshot is
 [`evidence-2026-10-23-pass.json`](evidence-2026-10-23-pass.json).
 
+Linux arm64 QEMU was rebuilt from the same source with patch `0027` and run
+inside a private network namespace. That run additionally reports
+`private_namespace=true`, `no_external_route=true`, and no DNS responses.
+Evidence:
+[`evidence-2026-10-24-linux-namespace-pass.json`](evidence-2026-10-24-linux-namespace-pass.json).
+
 The test covers a namespace-local TLS gateway allowlist. It does not claim
 arbitrary public-internet allowlisting, certificate pinning, mutual TLS,
-hardware RF behavior or malicious-firmware safety. The recorded run uses
-trusted-host isolation; Linux namespace TLS remains `NOT RUN`.
+hardware RF behavior or malicious-firmware safety.

@@ -119,7 +119,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码/重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证和 link fault 后恢复 |
-| TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | trusted-host 下 WiFi/DHCP、测试 CA、HTTPS、允许 200/拒绝 403 和 pcap PASS；Linux namespace TLS `NOT RUN` |
+| TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | trusted-host 与 Linux private namespace 下 WiFi/DHCP、测试 CA、HTTPS、允许 200/拒绝 403 和 pcap PASS |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |
 | 公共 API | `/api/v1` Device Service | 可观察、可保留的 session/evidence |
 
