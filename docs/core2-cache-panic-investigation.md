@@ -41,7 +41,12 @@ What this does **not** prove:
 - physical ESP32 cache/PSRAM timing is equivalent;
 - every Core2 firmware/configuration is stable;
 - icount timing matches real silicon;
-- the native ESP32 Bluetooth controller is modeled.
+- the bit-exact Espressif Bluetooth baseband/controller is modeled.
+
+The separate `tests/uiflow2/core2_native_vhci/` runner now passes external NUS
+GATT 5/5 through the stock firmware's VHCI boundary and a Bumble controller.
+That closes controller-boundary behavior in this diagnostic runner, but not the
+bit-exact internal controller implementation.
 
 Do not remove the deterministic runtime options or replace them with
 unconditional high retry counts. A future failure with these options should

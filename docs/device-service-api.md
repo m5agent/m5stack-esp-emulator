@@ -415,9 +415,11 @@ QOM paths:
 }
 ```
 
-This scope currently proves stock UIFlow2 NimBLE activation, GAP configuration,
-controller reset and advertising enable. It does not provide an external BLE
-peer, over-the-air observation, connection or GATT data-plane evidence.
+This service profile proves stock UIFlow2 NimBLE activation, GAP configuration,
+controller reset and advertising enable. A separate standalone runner now
+bridges the same stock firmware's VHCI boundary to Bumble and passes external
+NUS GATT 5/5, but that GDB-based bridge is not yet exposed as a Device Service
+runtime.
 
 The `core2-hci-gatt` profile exercises the separate HCI-offload lane:
 
@@ -514,8 +516,10 @@ NS4168 speaker, SPM1423 microphone, WiFi DHCP/HTTP, public IPv4 DNS/HTTP and
 external HCI-offload BLE NUS in one guest. Ten independent first attempts
 passed 10/10 with no retry under deterministic TCG/icount scheduling. This is
 simulation-only evidence and is not equivalent to physical cache/PSRAM timing.
-The native ESP32 Bluetooth controller still has no external radio/controller
-model; HCI-offload is not native-controller evidence.
+The service profile still uses HCI-offload. A separate stock VHCI runner now
+passes external NUS GATT 5/5 without rebuilding for UART HCI, but it is not yet
+merged into this unified lease and it executes Bumble in place of the
+bit-exact Espressif BT baseband/controller.
 
 The StickS3 unified profile closes WiFi and BLE in that same instance:
 
@@ -1190,8 +1194,10 @@ restart.
   `profile=core2-unified` combines OpenMAC WiFi, UART1 BLE NUS and board
   peripherals in one `m5core2` guest;
   `core2-ble-advertise` stops at native controller/advertising control;
-  `core2-hci-gatt` closes external Bumble GATT without WiFi but neither is a
-  native radio model;
+  `core2-hci-gatt` closes external Bumble GATT without WiFi. The standalone
+  `tests/uiflow2/core2_native_vhci/` runner additionally closes external NUS
+  GATT 5/5 through the stock firmware's VHCI boundary, but its GDB bridge is
+  not yet a production Device Service path or bit-exact controller model;
 - NanoC6 `nanoc6-hci-ble` closes board peripherals, QEMU C6 WiFi DHCP/HTTP
   and UART1 HCI BLE in one C6 guest;
 - Nesso N1 `nesso-unified` adds display/touch, PI4IOE, BQ27220/AW32001,
@@ -1211,8 +1217,10 @@ restart.
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;
 - Core2 startup starvation is mitigated by deterministic TCG/icount scheduling
-  (10/10 first attempts), but physical cache/PSRAM equivalence and the native
-  Bluetooth controller remain unverified;
+  (10/10 first attempts), but physical cache/PSRAM equivalence remains
+  unverified. Stock native-VHCI external GATT is PASS 5/5 in a standalone GDB
+  bridge; production QEMU integration and bit-exact controller internals
+  remain unverified;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See
   [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);

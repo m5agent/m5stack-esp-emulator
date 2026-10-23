@@ -4,10 +4,9 @@ These diagnostics replace only `/boot.py` and `/main.py` in the official
 Core2 UIFlow2 v2.5.3 LittleFS partition and execute the firmware's real WiFi
 or BLE path.
 
-The default QEMU `m5core2` binary has no classic ESP32 WiFi MAC/PHY or complete
-Bluetooth data-plane model. The probes therefore default to recording the
-exact point reached by the stock paths and must not be mixed with the separate
-OpenETH fixture.
+The probes run with deterministic TCG/icount. The optional QEMU radio patches
+provide the classic ESP32 WiFi data path and Bluetooth controller bootstrap;
+the bootstrap alone does not create external BLE connections.
 
 Run:
 
@@ -34,6 +33,12 @@ PYTHONPATH=.work/py python3 tests/uiflow2/core2_radio_probe/run_test.py \
 ```
 
 `--retry-after-main-failure` keeps retrying only when the image reached
-`main.py` but did not complete the requested radio result. It exists for the
-known intermittent Core2 cache startup issue and does not turn a failed radio
-marker into a PASS.
+`main.py` but did not complete the requested radio result. It remains a
+diagnostic option; PASS evidence uses first attempts.
+
+For external GATT through the stock internal-controller VHCI path, use:
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_vhci/run_test.py \
+  --attempts 5
+```

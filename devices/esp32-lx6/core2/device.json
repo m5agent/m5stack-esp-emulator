@@ -62,7 +62,7 @@
     "validation": {
       "date": "2026-10-23",
       "status": "display-input-peripherals-wifi-ble-pass",
-      "detail": "官方 UIFlow2 v2.5.3 在同一 m5core2 guest 内通过 320x240 显示/触摸、AXP2101、INA3221、MPU6886、PCF8563、NS4168 扬声器、SPM1423 麦克风、OpenMAC WiFi DHCP/HTTP、example.com IPv4 DNS/HTTP 和 UART1 HCI BLE；确定性 TCG/icount 调度下 10/10 次无重试首轮启动通过，QOM 注入不暂停 guest，QEMU 仍使用 -m 0；原生 BT controller 外部 peer/GATT 仍为 NOT RUN。"
+      "detail": "官方 UIFlow2 v2.5.3 在同一 m5core2 guest 内通过 320x240 显示/触摸、AXP2101、INA3221、MPU6886、PCF8563、NS4168 扬声器、SPM1423 麦克风、OpenMAC WiFi DHCP/HTTP、example.com IPv4 DNS/HTTP 和 UART1 HCI BLE；确定性 TCG/icount 调度下 10/10 次无重试首轮启动通过，QOM 注入不暂停 guest，QEMU 仍使用 -m 0。另一条 stock internal-controller VHCI 路径经外部 Bumble controller 完成 scan/connect/NUS subscribe/write/notify 5/5；GDB bridge 尚未生产化，Espressif BT baseband/controller 的 bit-exact 执行仍为 NOT RUN。"
     }
   },
   "uiflow2": {

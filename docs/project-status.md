@@ -20,7 +20,7 @@
   runtime 为 `qemu-unified`，`qemu-ble` 仅为兼容别名。
 - 最近一次完整 UIFlow2 外设矩阵在 `2026-10-23 19:31 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS，包含全部 6 个 Core2 case。
-- 当前平台测试：`210/210` PASS；runtime coverage、peripheral catalog 和
+- 当前平台测试：`213/213` PASS；runtime coverage、peripheral catalog 和
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
@@ -29,7 +29,7 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、link fault/reconnect、Linux arm64 private namespace 无外网整机路径 | 正式 CI/worker 生命周期、allowlist/TLS、DHCP renewal、双设备 lab fabric |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload BLE GATT | 原生 ESP32 BT controller 外部 peer/GATT、物理 cache/PSRAM 等价性、RF/coexistence/soak |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock internal-controller VHCI→Bumble 外部 NUS GATT 5/5 | QEMU 内生产化 VHCI bridge、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch | 更深静态审查、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
 ## 现在可以做什么
@@ -58,10 +58,14 @@
   还在同一 guest 中完成 `example.com` 的 IPv4 公网 HTTP。
 - BLE 使用 UIFlow2 HCI-UART 测试构建，经 QEMU UART 到 Bumble controller，
   由外部 Bumble peer 完成 scan/connect/NUS/GATT write/notify。
-- Core2 的 unified profile 使用 OpenMAC WiFi 加 HCI-offload BLE；原生
-  ESP32 Bluetooth controller 的外部 peer/GATT 仍未闭环。Core2 已通过
-  同一 guest 的公网 IPv4 DNS/HTTP，并使用确定性 TCG/icount 调度完成
-  10/10 次无重试首轮启动。
+- Core2 的 Device Service unified profile 仍使用 OpenMAC WiFi 加
+  UART1 HCI-offload BLE。另有一个 standalone stock UIFlow2 路径：不重建
+  HCI-UART 固件，在 QEMU 的 native ESP32 VHCI host API 边界把 H2C/C2H
+  交给 Bumble controller；外部 peer 已完成 scan/connect/NUS subscribe/write
+  和 guest notify 回读，连续 5/5 PASS。该路径目前由 GDB 诊断桥实现，尚未
+  合并进 Device Service 的单一生产进程，也没有执行 bit-exact Espressif
+  BT baseband/controller 固件。Core2 同一 guest 的公网 IPv4 DNS/HTTP 和
+  10/10 无重试首轮启动仍保持 PASS。
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
   `/after` HTTP。
@@ -100,7 +104,7 @@
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS | 原生 BT controller 与 C6 WiFi PHY |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、扬声器、麦克风、WiFi、公网 DNS/HTTP、HCI BLE | 环境门控 `core2-unified` PASS；10/10 无重试首轮启动 | 原生 BT controller；物理 cache/PSRAM 等价性 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、扬声器、麦克风、WiFi、公网 DNS/HTTP、HCI-offload BLE、stock native-VHCI BLE GATT | 环境门控 `core2-unified` PASS；native-VHCI GATT 5/5；10/10 无重试首轮启动 | 生产化 VHCI bridge、bit-exact BT controller、物理 cache/PSRAM 等价性 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
@@ -111,6 +115,8 @@
 - [代码与验证入口地图](code-map.md)
 - Core2 10-run evidence:
   [`tests/uiflow2/unified_core2/evidence-2026-10-23-icount-public.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-icount-public.json)
+- Core2 native-VHCI GATT evidence:
+  [`tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json`](../tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json)
 - Linux guest-in-namespace evidence:
   [`tests/network/linux_isolation/evidence-2026-10-23-linux.json`](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
 - [网络模拟方案](network-simulation-plan.md)
@@ -122,8 +128,9 @@
 
 1. **仿真边界**：QEMU/esp-emu PASS 不等于 RF、功耗、声学、光学或机械真机
    PASS。
-2. **Core2 调度等价性**：确定性 TCG/icount 已消除当前虚拟启动 WDT 复现，
-   但这不等于物理 cache/PSRAM 时序已验证。
+2. **Core2 调度与 BT 等价性**：确定性 TCG/icount 已消除当前虚拟启动 WDT
+   复现；native-VHCI GATT 已通，但 GDB bridge 不是生产 QEMU 模型，也不等于
+   bit-exact Espressif BT controller 或物理 cache/PSRAM 时序。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径

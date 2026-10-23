@@ -84,6 +84,11 @@ def run_qemu(
     serial_path.unlink(missing_ok=True)
     command = [
         str(qemu),
+        "-snapshot",
+        "-accel",
+        "tcg,thread=single",
+        "-icount",
+        "shift=auto,align=off,sleep=off",
         "-m",
         "0",
         "-M",

@@ -23,6 +23,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/firmware-manifest.md",
             "docs/network-simulation-plan.md",
             "docs/network-lane.md",
+            "tests/uiflow2/core2_native_vhci/README.md",
+            "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
         ):
             self.assertTrue((ROOT / relative).is_file(), relative)
 
@@ -66,6 +68,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "network namespaces and packet capture",
             "连续 3/3 首轮 PASS",
             "cache/WDT startup instability remains a known simulation-only blocker",
+            "原生 BT controller 外部 peer/GATT 仍为 NOT RUN",
+            "native-controller peer/GATT remains `NOT RUN`",
         ):
             self.assertNotIn(stale, active)
 
@@ -87,6 +91,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "## P0 收口",
             status,
         )
+        self.assertIn("native-VHCI GATT 5/5", status)
 
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()

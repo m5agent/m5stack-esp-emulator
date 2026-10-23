@@ -268,15 +268,17 @@
       },
       "board_work": [
         "ILI9342 pixel-stream/live-frame polish",
-        "PSRAM/cache stability"
+        "PSRAM/cache stability",
+        "production native-VHCI bridge"
       ],
       "blockers": [
-        "PSRAM/cache stability remains"
+        "PSRAM/cache stability remains",
+        "bit-exact ESP32 BT baseband/controller remains NOT RUN"
       ],
       "validation": {
         "date": "2026-10-23",
         "status": "display-input-peripherals-wifi-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 runs the 320x240 display/touch, AXP2101, INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE in one m5core2 guest. QOM injection runs without pausing the guest to avoid the known Core2 cache/watchdog failure; QEMU -m 0 is still required."
+        "detail": "Official UIFlow2 v2.5.3 runs the 320x240 display/touch, AXP2101, INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE in one m5core2 guest. QOM injection runs without pausing the guest to avoid the known Core2 cache/watchdog failure; QEMU -m 0 is still required. A separate stock internal-controller VHCI runner bridges HCI to Bumble and passes external NUS subscribe/write/notify 5/5, but the GDB bridge is not yet production service integration and the Espressif BT baseband/controller is not bit-exact."
       }
     },
     {

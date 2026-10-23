@@ -30,6 +30,19 @@ python3 tests/uiflow2/run_device_matrix.py --device tab5
 矩阵直接读取该像素。墨水屏只做局部状态刷新，避免把 Spectra 6 长时间卡在
 未完成的整帧写入。
 
+Core2 stock internal-controller BLE：
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_vhci/run_test.py \
+  --attempts 5 \
+  --out-dir /tmp/core2-native-vhci
+```
+
+该 runner 不重建 HCI-UART 固件，而是在 QEMU GDB 中拦截固件自己的
+`esp_vhci_host_*` H2C/C2H，接 Bumble controller/peer。当前 milestone 为
+外部 NUS GATT 5/5 PASS；bit-exact Espressif BT baseband/controller 仍
+`NOT RUN`。
+
 本轮跨设备问题、修复和证据见
 [`docs/uiflow2-cross-device-regression-audit.md`](../../docs/uiflow2-cross-device-regression-audit.md)。
 

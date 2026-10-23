@@ -53,6 +53,10 @@ an interrupt-watchdog failure.
 PASS runs, including public DNS/HTTP. The older
 `evidence-2026-10-23.json` remains as pre-mitigation history.
 
-BLE remains UART1 HCI-offload to Bumble. Native ESP32 controller advertising
-enable is proven separately, but native over-the-air
-advertising/connection/GATT remains `NOT RUN`.
+BLE in this unified profile remains UART1 HCI-offload to Bumble. Native ESP32
+controller advertising enable is proven separately. The
+`tests/uiflow2/core2_native_vhci/` runner now keeps the stock
+internal-controller build and bridges the real VHCI boundary to Bumble,
+reaching external NUS GATT 5/5. Its GDB bridge is not yet part of this unified
+lease, and bit-exact Espressif BT baseband/controller execution remains
+`NOT RUN`.
