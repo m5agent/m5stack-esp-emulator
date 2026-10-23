@@ -37,14 +37,75 @@ from device_service import (
 from serve import Handler, _wait_for_session
 
 
+def hermetic_flash_preparer(
+    spec: device_service_module.DeviceSpec,
+    image: Path,
+    firmware_sha: str,
+    work_dir: Path,
+) -> dict:
+    data = image.read_bytes()
+    if len(data) > spec.flash_size:
+        raise ValueError("firmware exceeds device flash size")
+    target = work_dir / "virtual-flash.bin"
+    target.write_bytes(data.ljust(spec.flash_size, b"\xff"))
+    return {
+        "transport": "test-host-image",
+        "verified": True,
+        "flash_size": spec.flash_size,
+        "firmware_sha256": firmware_sha,
+        "virtual_flash": str(target),
+    }
+
+
 class DeviceServiceUnitTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
+        runtime = Path(self.tmp.name) / "runtime"
+        runtime.mkdir()
+        qemu = runtime / "qemu-system-xtensa"
+        qemu.write_text("#!/bin/sh\nexit 0\n")
+        qemu.chmod(0o755)
+        rom_dir = runtime / "pc-bios"
+        rom_dir.mkdir()
+        esp_emu = runtime / "esp-emu"
+        esp_emu.write_text("#!/bin/sh\nexit 0\n")
+        esp_emu.chmod(0o755)
+        emulator_rom = runtime / "esp32p4_rev0_rom.elf"
+        emulator_rom.write_bytes(b"test rom")
+        efuse = runtime / "efuse.bin"
+        efuse.write_bytes(b"\0" * 4096)
+        c6_firmware = runtime / "c6.bin"
+        c6_firmware.write_bytes(b"test c6 firmware")
+        tab5_reference = runtime / "tab5-reference.bin"
+        tab5_reference.write_bytes(b"\xff" * (16 << 20))
+        specs = {}
+        for device_id, spec in device_service_module.load_device_specs().items():
+            if spec.service_kind == "tab5":
+                spec = replace(
+                    spec,
+                    emulator=esp_emu,
+                    rom=emulator_rom,
+                    efuse=efuse,
+                    c6_firmware=c6_firmware,
+                    reference_path=tab5_reference,
+                )
+            else:
+                spec = replace(
+                    spec,
+                    qemu=qemu,
+                    rom_dir=rom_dir,
+                    flash_emulator=(
+                        esp_emu if spec.flash_emulator is not None else None
+                    ),
+                )
+            specs[device_id] = spec
         self.service = DeviceService(
             state_dir=Path(self.tmp.name),
             max_sessions=2,
             max_per_device=1,
+            flash_preparer=hermetic_flash_preparer,
         )
+        self.service.specs = specs
 
     def tearDown(self):
         self.service.close_all()
