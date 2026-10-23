@@ -916,6 +916,7 @@ def import_package(
                 "psram_size": None,
                 "partition_table": analysis.get("partition_table"),
                 "application": analysis.get("app_descriptor"),
+                "filesystems": analysis.get("filesystems", []),
             },
             "security": _security_metadata(analysis, sdkconfig_path),
             "provenance": {
@@ -970,6 +971,66 @@ def import_package(
                         "redacted in the manifest"
                     ),
                     path="review.findings",
+                )
+            )
+        filesystems = manifest["target"].get("filesystems", [])
+        unavailable_filesystems = [
+            row
+            for row in filesystems
+            if row.get("status")
+            in {"UNAVAILABLE", "UNSUPPORTED", "INVALID", "PARTIAL"}
+        ]
+        if unavailable_filesystems:
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "filesystem_inventory_incomplete",
+                    (
+                        "one or more data filesystems could not be fully "
+                        "inventoried"
+                    ),
+                    path="target.filesystems",
+                )
+            )
+        sensitive_files = [
+            file
+            for filesystem in filesystems
+            for file in filesystem.get("sensitive_files", [])
+        ]
+        if sensitive_files:
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "filesystem_sensitive_file",
+                    (
+                        f"{len(sensitive_files)} sensitive-looking "
+                        "filesystem path(s) require review"
+                    ),
+                    path="target.filesystems",
+                )
+            )
+            review.setdefault("findings", []).extend(
+                {
+                    "code": "filesystem_sensitive_path",
+                    "category": "filesystem",
+                    "severity": "warning",
+                    "message": (
+                        "sensitive-looking filesystem path; path and content "
+                        "are represented by hashes"
+                    ),
+                    "path_sha256": file["path_sha256"],
+                    "evidence_sha256": file["sha256"],
+                }
+                for file in sensitive_files[:64]
+            )
+            review["status"] = "REVIEW_REQUIRED"
+        if any(
+            row.get("limits", {}).get("files_truncated")
+            for row in filesystems
+        ):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "filesystem_inventory_truncated",
+                    "filesystem inventory reached a listing limit",
+                    path="target.filesystems",
                 )
             )
         if review["sbom"]["status"] == "NOT_PROVIDED":

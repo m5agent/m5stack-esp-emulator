@@ -37,9 +37,11 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 2. 校验 segment 偏移不重叠且不越界；
 3. 将 sparse merged 镜像补齐为目标设备完整 Flash；
 4. 分析 bootloader、partition table、app image 和 app descriptor；
-5. 静态扫描 URL、凭据特征、私钥标记和高熵编码块，并汇总 SBOM；
-6. 生成完整镜像、资源副本和 `*.manifest.json`；
-7. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需 capabilities。
+5. 从 data partition 识别 LittleFS，枚举文件路径、大小、SHA256、脚本/证书/
+  配置类型、敏感路径和 SPDX 许可证声明；
+6. 静态扫描 URL、凭据特征、私钥标记和高熵编码块，并汇总 SBOM；
+7. 生成完整镜像、资源副本和 `*.manifest.json`；
+8. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需 capabilities。
 
 ## Manifest 结构
 
@@ -49,6 +51,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | --- | --- |
 | `artifact` | 规范化完整镜像或分段 artifact 的路径、大小、SHA256 |
 | `target` | SoC、chip ID、Flash、PSRAM、分区表、应用描述 |
+| `target.filesystems` | LittleFS 分区、文件路径/大小/SHA256、敏感路径和许可证声明 |
 | `security` | 安全启动、Flash Encryption、eFuse 和 secure version 边界 |
 | `provenance` | M5Burner ID、版本、来源 URL/类型、license |
 | `resources` | ELF、MAP、sdkconfig、flasher args、SBOM |
@@ -115,6 +118,24 @@ JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名�
 
 `REVIEW_REQUIRED` 表示有人需要查看脱敏 finding；它不自动等于恶意固件，也不会
 绕过 SoC/capability 的兼容性检查。
+
+## 文件系统清单
+
+当前支持 LittleFS 数据分区：
+
+- 从 merged/segmented flash 的 data partition 直接挂载；
+- 自动尝试常见 block size，并记录实际 block size/count；
+- 为每个常规文件记录路径、大小、SHA256、类型和
+  `permissions=not-recorded`；
+- 对 `.key`、`.env`、credential/secret 等敏感路径只保留脱敏标记、
+  路径哈希和内容哈希；
+- 从 LICENSE/NOTICE/COPYING 文件提取 `SPDX-License-Identifier`；
+- 文件数、目录数达到上限时显式记录 truncation。
+
+SPIFFS 和 FAT 目前只做分区识别并返回 `UNSUPPORTED`，不会伪装成已解析。
+LittleFS 不记录 Unix mode，因此文件权限仍为 `NOT RUN`。
+LittleFS 清单依赖 `littlefs-python`；依赖缺失时返回 `UNAVAILABLE`，不会
+自动格式化或改写输入镜像。
 
 ## Device Service
 
@@ -186,6 +207,8 @@ JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名�
 review 状态为 `REVIEW_REQUIRED`，分别记录 URL、凭据特征、高熵编码块和
 SBOM 缺失；输出 manifest 中未出现原始 query、凭据值或编码载荷。证据：
 [`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)。
+StickS3 UIFlow2 `sys`/`vfs` LittleFS 清单与哈希证据：
+[`tests/firmware/evidence-2026-10-24-filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json)。
 
 ## 边界
 

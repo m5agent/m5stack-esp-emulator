@@ -40,6 +40,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
+            "tests/firmware/evidence-2026-10-24-filesystem-inventory.json",
         ):
             self.assertTrue((ROOT / relative).is_file(), relative)
 

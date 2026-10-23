@@ -52,6 +52,64 @@ def build_flash() -> bytes:
     return bytes(image)
 
 
+def build_flash_with_littlefs() -> bytes:
+    work_py = ROOT / ".work/py"
+    if not work_py.is_dir():
+        raise unittest.SkipTest("littlefs-python test runtime is unavailable")
+    if str(work_py) not in sys.path:
+        sys.path.insert(0, str(work_py))
+    try:
+        from littlefs import LittleFS, UserContext
+    except (ImportError, OSError) as error:
+        raise unittest.SkipTest(
+            f"littlefs-python is unavailable: {error}"
+        ) from error
+
+    context = UserContext(buffsize=0x8000)
+    filesystem = LittleFS(
+        context=context,
+        block_size=4096,
+        block_count=8,
+    )
+    filesystem.makedirs("/res", exist_ok=True)
+    filesystem.makedirs("/certs", exist_ok=True)
+    with filesystem.open("/main.py", "wb") as handle:
+        handle.write(b"print('hello')\n")
+    with filesystem.open("/res/LICENSE", "wb") as handle:
+        handle.write(b"SPDX-License-Identifier: MIT\n")
+    with filesystem.open("/certs/device.key", "wb") as handle:
+        handle.write(b"not-a-real-private-key\n")
+    filesystem.unmount()
+
+    image = bytearray(b"\xff" * 0x28000)
+    boot = build_image(descriptor=False)
+    image[: len(boot)] = boot
+    app = build_image()
+    image[0x10000 : 0x10000 + len(app)] = app
+    image[0x20000 : 0x20000 + len(context.buffer)] = bytes(
+        context.buffer
+    )
+    entries = []
+    for subtype, offset, size, label in (
+        (0, 0x10000, 0x2000, b"factory"),
+        (0x83, 0x20000, 0x8000, b"storage"),
+    ):
+        entry = bytearray(32)
+        struct.pack_into("<H", entry, 0, 0x50AA)
+        entry[2] = 0 if subtype == 0 else 1
+        entry[3] = subtype
+        struct.pack_into("<II", entry, 4, offset, size)
+        entry[12 : 12 + len(label)] = label
+        entries.append(entry)
+    payload = b"".join(entries)
+    md5_entry = bytearray(32)
+    struct.pack_into("<H", md5_entry, 0, 0xEBEB)
+    md5_entry[16:32] = hashlib.md5(payload).digest()
+    image[0x8000 : 0x8000 + len(payload)] = payload
+    image[0x8000 + len(payload) : 0x8020 + len(payload)] = md5_entry
+    return bytes(image)
+
+
 class FirmwareAnalysisTests(unittest.TestCase):
     def test_parses_partition_table_and_app_descriptor(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -175,6 +233,28 @@ class FirmwareAnalysisTests(unittest.TestCase):
         self.assertTrue(result["valid"], result["errors"])
         self.assertFalse(result["app_images"][0]["present"])
         self.assertTrue(result["app_images"][1]["valid"])
+
+    def test_littlefs_inventory_hashes_files_and_redacts_sensitive_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "littlefs.bin"
+            path.write_bytes(build_flash_with_littlefs())
+            result = analyze_firmware(path, expected_chip_id_value=0x0009)
+
+        self.assertTrue(result["valid"], result["errors"])
+        filesystem = result["filesystems"][0]
+        self.assertEqual(filesystem["type"], "littlefs")
+        self.assertEqual(filesystem["status"], "PASS")
+        self.assertEqual(filesystem["block_size"], 4096)
+        self.assertEqual(filesystem["declared_licenses"], ["MIT"])
+        self.assertEqual(len(filesystem["sensitive_files"]), 1)
+        self.assertEqual(
+            filesystem["sensitive_files"][0]["path"],
+            "<redacted-sensitive-path>",
+        )
+        file_paths = {row["path"] for row in filesystem["files"]}
+        self.assertIn("/main.py", file_paths)
+        self.assertIn("/res/LICENSE", file_paths)
+        self.assertIn("<redacted-sensitive-path>", file_paths)
 
 
 if __name__ == "__main__":

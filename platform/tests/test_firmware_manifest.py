@@ -19,7 +19,10 @@ from firmware_manifest import (  # noqa: E402
     validate_capabilities,
     validate_manifest_structure,
 )
-from test_firmware_analysis import build_flash  # noqa: E402
+from test_firmware_analysis import (  # noqa: E402
+    build_flash,
+    build_flash_with_littlefs,
+)
 
 
 class FirmwareManifestTests(unittest.TestCase):
@@ -261,6 +264,34 @@ class FirmwareManifestTests(unittest.TestCase):
         legacy = dict(manifest)
         legacy.pop("review")
         self.assertEqual(validate_manifest_structure(legacy), [])
+
+    def test_manifest_includes_littlefs_inventory_and_sensitive_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "littlefs.bin"
+            image.write_bytes(build_flash_with_littlefs())
+            manifest = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )["manifest"]
+
+        filesystem = manifest["target"]["filesystems"][0]
+        self.assertEqual(filesystem["status"], "PASS")
+        self.assertEqual(filesystem["declared_licenses"], ["MIT"])
+        self.assertTrue(filesystem["sensitive_files"])
+        self.assertEqual(manifest["review"]["status"], "REVIEW_REQUIRED")
+        self.assertTrue(
+            any(
+                issue["code"] == "filesystem_sensitive_file"
+                for issue in manifest["validation"]["warnings"]
+            )
+        )
+        self.assertNotIn(
+            "certs/device.key",
+            json.dumps(manifest, sort_keys=True),
+        )
 
     def test_soc_and_flash_mismatches_are_rejected(self):
         profile = load_device_profile("sticks3")

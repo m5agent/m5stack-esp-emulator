@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "kind": "firmware-filesystem-inventory",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "sample": {
+    "device": "sticks3",
+    "firmware_id": "1897200000000001693",
+    "image_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8"
+  },
+  "filesystems": [
+    {
+      "label": "sys",
+      "type": "littlefs",
+      "offset": 5509120,
+      "size": 1048576,
+      "partition_sha256": "0ad80bfe8dfd6f3c737f1a65799a31b83189610efd913887109152f9d4376d0a",
+      "block_size": 4096,
+      "file_count": 39,
+      "directory_count": 5,
+      "total_file_bytes": 632603,
+      "declared_licenses": [],
+      "sensitive_file_count": 0
+    },
+    {
+      "label": "vfs",
+      "type": "littlefs",
+      "offset": 6557696,
+      "size": 1826816,
+      "partition_sha256": "168e3d1550af5b64b23fc075bdaa5ab521ff755c721966194b47bd939e9cea68",
+      "block_size": 4096,
+      "file_count": 17,
+      "directory_count": 7,
+      "total_file_bytes": 16306,
+      "declared_licenses": [],
+      "sensitive_file_count": 0
+    }
+  ],
+  "implementation_checks": {
+    "file_sha256": "PASS",
+    "path_redaction": "PASS",
+    "spdx_extraction": "PASS",
+    "manifest_integration": "PASS",
+    "fat_inventory": "NOT RUN",
+    "spiffs_inventory": "NOT RUN"
+  },
+  "not_claimed": [
+    "runtime file permissions",
+    "license compliance",
+    "FAT extraction",
+    "SPIFFS extraction",
+    "malicious-firmware safety"
+  ]
+}

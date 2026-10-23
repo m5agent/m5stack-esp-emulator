@@ -70,6 +70,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |
 | `tools/firmware_analysis.py` | ESP image、分区、应用描述和静态分析 |
+| `tools/firmware_filesystems.py` | LittleFS 文件清单、哈希、敏感路径脱敏和 SPDX 提取 |
 | `tools/fetch_firmware.py` | 公开 M5Burner 固件查询、下载和缓存 |
 | `tools/user_firmware_matrix.py` | 热门用户固件仿真矩阵 |
 | `tools/network_policy.py` | isolation、egress、controlled DNS、Host allowlist 和 pcap 策略 |

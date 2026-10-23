@@ -267,6 +267,12 @@ def analyze_firmware(
         data,
         image_size=declared_size,
     )
+    from firmware_filesystems import inventory_flash_filesystems
+
+    result["filesystems"] = inventory_flash_filesystems(
+        data,
+        result["partition_table"],
+    )
     partition_table = result["partition_table"]
     if not partition_table["valid"]:
         result["warnings"].append(
