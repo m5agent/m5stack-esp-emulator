@@ -833,7 +833,7 @@ components:
           type: array
           items:
             type: string
-            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
         network_console:
           type: string
           enum: [auto, uart0, usb-jtag]
@@ -956,7 +956,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe, core2-openmac, core2-ble-advertise, core2-hci-gatt]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe, core2-openmac, core2-ble-advertise, core2-hci-gatt]
         wifi:
           type: boolean
         ble:
@@ -1000,6 +1000,9 @@ components:
             uiflow2-atoms3r-unified runs the AtomS3R display, button,
             BMI270, BMM150, LP5562, WiFi DHCP/HTTP and HCI-UART BLE in one
             QEMU guest.
+            uiflow2-papercolor-unified runs the PaperColor 400x600 display,
+            buttons, M5PM1, SHT40, ES8311/AW8737A audio, WiFi DHCP/HTTP and
+            HCI-UART BLE in one QEMU guest.
         console_mode:
           type: string
           enum: [auto, uart0, usb-jtag]

@@ -14,9 +14,9 @@ Current scope:
 - excluded: CardputerZero;
 - network emulation: `runtime=network` remains available for diagnosis on
   S3/C6; StickS3 also supports a Wi-Fi-only board lease through
-  `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV, StopWatch and
-  AtomS3R use one combined WiFi+BLE+board QEMU lease through their unified
-  profiles;
+  `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV, StopWatch,
+  AtomS3R and PaperColor use one combined WiFi+BLE+board QEMU lease through
+  their unified profiles;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -408,6 +408,26 @@ BMM150, LP5562 RGB PWM, WiFi scan/association/DHCP and a controlled HTTP
 request on port `18084`, plus HCI-UART BLE NUS discovery/subscription/write
 and notification.
 
+PaperColor uses the same one-guest contract:
+
+```json
+{
+  "device_id": "papercolor",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 60,
+  "network": {
+    "profile": "uiflow2-papercolor-unified",
+    "attempts": 2
+  }
+}
+```
+
+The PaperColor image exercises the 400x600 Spectra 6 display, GPIO buttons,
+M5PM1 power, SHT40, ES8311/AW8737A audio, WiFi scan/association/DHCP and a
+controlled HTTP request on port `18085`, plus HCI-UART BLE NUS
+discovery/subscription/write and notification. GPIO43 is the e-paper DC pin,
+so the probe routes its audit UART output through GPIO44/45.
+
 State machine:
 
 ```text
@@ -776,8 +796,8 @@ after a service restart.
 ## Current limitations
 
 - `runtime=network` sessions are diagnostic lanes; StickS3, CoreS3,
-  Cardputer ADV, StopWatch and AtomS3R instead use `runtime=qemu-ble` with
-  their unified profiles for one combined guest;
+  Cardputer ADV, StopWatch, AtomS3R and PaperColor instead use
+  `runtime=qemu-ble` with their unified profiles for one combined guest;
 - unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
   HCI-offload over UART1, not a native S3 PHY/radio model;
 - Core2 radio support is limited to the environment-gated experimental
@@ -789,8 +809,9 @@ after a service restart.
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
   matching reference ELF;
 - normalized `device-state` probes currently exist for StickS3, CoreS3,
-  Cardputer ADV, StopWatch and AtomS3R; other devices expose session
-  metadata, framebuffer and serial without inventing component values;
+  Cardputer ADV, StopWatch, AtomS3R and PaperColor; other devices expose
+  session metadata, framebuffer and serial without inventing component
+  values;
 - emulator processes are not resumed across service restarts; only stopped,
   failed and interrupted history is reconstructed;
 - reference firmware must already exist in `platform/.cache/firmware`;

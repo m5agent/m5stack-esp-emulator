@@ -108,12 +108,14 @@ CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
 CARDPUTER_ADV_UNIFIED_PROFILE = "uiflow2-cardputer-adv-unified"
 STOPWATCH_UNIFIED_PROFILE = "uiflow2-stopwatch-unified"
 ATOMS3R_UNIFIED_PROFILE = "uiflow2-atoms3r-unified"
+PAPERCOLOR_UNIFIED_PROFILE = "uiflow2-papercolor-unified"
 UNIFIED_PROFILES = {
     STICKS3_UNIFIED_PROFILE,
     CORES3_UNIFIED_PROFILE,
     CARDPUTER_ADV_UNIFIED_PROFILE,
     STOPWATCH_UNIFIED_PROFILE,
     ATOMS3R_UNIFIED_PROFILE,
+    PAPERCOLOR_UNIFIED_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
     STICKS3_UNIFIED_PROFILE: 18080,
@@ -121,6 +123,7 @@ UNIFIED_HTTP_PORTS = {
     CARDPUTER_ADV_UNIFIED_PROFILE: 18082,
     STOPWATCH_UNIFIED_PROFILE: 18083,
     ATOMS3R_UNIFIED_PROFILE: 18084,
+    PAPERCOLOR_UNIFIED_PROFILE: 18085,
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
@@ -168,12 +171,19 @@ ATOMS3R_UNIFIED_MARKERS = (
     "UNIFIED_ATOMS3R_BLE_RX",
     "UNIFIED_ATOMS3R_BLE_ACK_SENT",
 )
+PAPERCOLOR_UNIFIED_MARKERS = (
+    "UNIFIED_PAPERCOLOR_WIFI_CONNECTED",
+    "UNIFIED_PAPERCOLOR_HTTP_PASS",
+    "UNIFIED_PAPERCOLOR_BLE_RX",
+    "UNIFIED_PAPERCOLOR_BLE_ACK_SENT",
+)
 UNIFIED_MARKERS = {
     STICKS3_UNIFIED_PROFILE: STICKS3_UNIFIED_MARKERS,
     CORES3_UNIFIED_PROFILE: CORES3_UNIFIED_MARKERS,
     CARDPUTER_ADV_UNIFIED_PROFILE: CARDPUTER_ADV_UNIFIED_MARKERS,
     STOPWATCH_UNIFIED_PROFILE: STOPWATCH_UNIFIED_MARKERS,
     ATOMS3R_UNIFIED_PROFILE: ATOMS3R_UNIFIED_MARKERS,
+    PAPERCOLOR_UNIFIED_PROFILE: PAPERCOLOR_UNIFIED_MARKERS,
 }
 UNIFIED_READY_MARKERS = {
     STICKS3_UNIFIED_PROFILE: "UNIFIED_STICKS3_READY",
@@ -181,6 +191,7 @@ UNIFIED_READY_MARKERS = {
     CARDPUTER_ADV_UNIFIED_PROFILE: "UNIFIED_CARDPUTER_READY",
     STOPWATCH_UNIFIED_PROFILE: "UNIFIED_STOPWATCH_READY",
     ATOMS3R_UNIFIED_PROFILE: "UNIFIED_ATOMS3R_READY",
+    PAPERCOLOR_UNIFIED_PROFILE: "UNIFIED_PAPERCOLOR_READY",
 }
 UNIFIED_HTTP_BODIES = {
     STICKS3_UNIFIED_PROFILE: b"UNIFIED_STICKS3_OK\n",
@@ -188,6 +199,7 @@ UNIFIED_HTTP_BODIES = {
     CARDPUTER_ADV_UNIFIED_PROFILE: b"UNIFIED_CARDPUTER_OK\n",
     STOPWATCH_UNIFIED_PROFILE: b"UNIFIED_STOPWATCH_OK\n",
     ATOMS3R_UNIFIED_PROFILE: b"UNIFIED_ATOMS3R_OK\n",
+    PAPERCOLOR_UNIFIED_PROFILE: b"UNIFIED_PAPERCOLOR_OK\n",
 }
 UNIFIED_BLE_IDENTITIES = {
     "sticks3": ("M5-STICKS3-UNIFIED", "M5_STICKS3_UNIFIED"),
@@ -195,6 +207,7 @@ UNIFIED_BLE_IDENTITIES = {
     "cardputer-adv": ("M5-CPTR-ADV-UNIFIED", "M5_CPTR_ADV"),
     "stopwatch": ("M5-STOPWATCH-UNIFIED", "M5_STOPWATCH_U"),
     "atoms3r": ("M5-ATOMS3R-UNIFIED", "M5_ATOMS3R_U"),
+    "papercolor": ("M5-PAPERCOLOR-UNIFIED", "M5_PAPERCOLOR_U"),
 }
 
 
@@ -596,6 +609,9 @@ def parse_qemu_ble_execution(
     elif spec.id == "atoms3r":
         supported_profiles = {ATOMS3R_UNIFIED_PROFILE}
         default_profile = ATOMS3R_UNIFIED_PROFILE
+    elif spec.id == "papercolor":
+        supported_profiles = {PAPERCOLOR_UNIFIED_PROFILE}
+        default_profile = PAPERCOLOR_UNIFIED_PROFILE
     else:
         raise ServiceError(
             "qemu_ble_not_supported",
@@ -820,6 +836,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, STOPWATCH_UNIFIED_PROFILE)
             if device_id == "atoms3r" and network_chip:
                 network_profiles.insert(0, ATOMS3R_UNIFIED_PROFILE)
+            if device_id == "papercolor" and network_chip:
+                network_profiles.insert(0, PAPERCOLOR_UNIFIED_PROFILE)
             if (
                 device_id == "core2"
                 and (
@@ -4112,7 +4130,7 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-unified": (
-                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-wifi-ble"
+                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-wifi-ble"
                     if any(
                         profile in self.specs[device_id].network_profiles
                         for device_id, profile in (
@@ -4124,6 +4142,7 @@ class DeviceService:
                             ),
                             ("stopwatch", STOPWATCH_UNIFIED_PROFILE),
                             ("atoms3r", ATOMS3R_UNIFIED_PROFILE),
+                            ("papercolor", PAPERCOLOR_UNIFIED_PROFILE),
                         )
                     )
                     else "disabled"

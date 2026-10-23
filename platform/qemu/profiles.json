@@ -427,14 +427,34 @@
         "rgb-led",
         "ir"
       ],
+      "runtime_state": {
+        "power": {
+          "path": "/machine/m5pm1",
+          "properties": [
+            "vbat-mv",
+            "vin-mv",
+            "vinout-mv",
+            "charging",
+            "temperature-c",
+            "gpio-input-bits"
+          ]
+        },
+        "sensor": {
+          "path": "/machine/sht40",
+          "properties": [
+            "temperature-c",
+            "humidity-pct"
+          ]
+        }
+      },
       "board_work": [
         "Spectra 6 waveform timing polish"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-21",
-        "status": "display-peripherals-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders 400x600; key input, SHT4X, ES8311/ES7210 audio, SPI microSD and two RMT WS2812 RGB LEDs pass automated checks."
+        "date": "2026-10-23",
+        "status": "display-input-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 renders a 400x600 color frame; key input, M5PM1, SHT4X, ES8311/AW8737A audio, WiFi DHCP/HTTP and HCI-UART BLE pass through their runtime data paths."
       }
     },
     {

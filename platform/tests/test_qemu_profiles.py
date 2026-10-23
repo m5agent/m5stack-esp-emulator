@@ -74,6 +74,18 @@ class QemuProfileTest(unittest.TestCase):
         self.assertEqual(state["led"]["path"], "/machine/lp5562")
         self.assertIn("red-pwm", state["led"]["properties"])
 
+    def test_papercolor_runtime_state_probe(self):
+        row = next(
+            row for row in self.registry["devices"]
+            if row["id"] == "papercolor"
+        )
+        state = row["runtime_state"]
+        self.assertEqual(state["power"]["path"], "/machine/m5pm1")
+        self.assertIn("vbat-mv", state["power"]["properties"])
+        self.assertEqual(state["sensor"]["path"], "/machine/sht40")
+        self.assertIn("temperature-c", state["sensor"]["properties"])
+        self.assertIn("humidity-pct", state["sensor"]["properties"])
+
     def test_s3_hosts_are_ready(self):
         ready = {
             row["id"]

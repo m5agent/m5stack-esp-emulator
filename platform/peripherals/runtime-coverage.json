@@ -50,6 +50,11 @@
       "test": "tests/uiflow2/unified_atoms3r/run_test.py",
       "evidence": "tests/uiflow2/unified_atoms3r/evidence-2026-10-23.json"
     },
+    "papercolor-unified": {
+      "device": "papercolor",
+      "test": "tests/uiflow2/unified_papercolor/run_test.py",
+      "evidence": "tests/uiflow2/unified_papercolor/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -100,6 +105,14 @@
       "bmm150",
       "lp5562",
       "gpio-button"
+    ],
+    "papercolor-unified": [
+      "m5pm1",
+      "sht40",
+      "es8311",
+      "aw8737a",
+      "gpio-button",
+      "pwr-button"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -366,6 +379,9 @@
         "papercolor-mic",
         "papercolor-ir",
         "papercolor-rgb"
+      ],
+      "external": [
+        "papercolor-unified"
       ],
       "models": [
         "m5pm1",
