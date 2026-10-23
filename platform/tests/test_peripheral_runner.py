@@ -29,6 +29,36 @@ class PeripheralRunnerTests(unittest.TestCase):
         wait_index = command.index("--post-input-wait") + 1
         self.assertEqual(command[wait_index], "3.0")
 
+    def test_core2_cases_use_deterministic_scheduling_without_retries(self):
+        spec = importlib.util.spec_from_file_location(
+            "peripheral_matrix", RUNNER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        core2_cases = [
+            case for case in module.CASES if case["machine"] == "m5core2"
+        ]
+        self.assertEqual(len(core2_cases), 6)
+        for case in core2_cases:
+            self.assertIs(case.get("deterministic"), True, case["id"])
+            self.assertNotIn("retries", case, case["id"])
+            command = module.command_for(case, ROOT / ".work/test")
+            self.assertIn("--deterministic", command, case["id"])
+
+        device_matrix = json.loads(
+            (ROOT / "tests" / "uiflow2" / "device_matrix.json").read_text()
+        )
+        core2_device = next(
+            device for device in device_matrix["devices"]
+            if device["id"] == "core2"
+        )
+        self.assertIs(core2_device.get("deterministic"), True)
+        self.assertNotIn("retries", core2_device)
+        self.assertEqual(core2_device["wait"], 18)
+        self.assertEqual(core2_device["input"], "longpress:160,183,1.5")
+
     def test_device_group_lists_exact_cases(self):
         result = subprocess.run(
             [

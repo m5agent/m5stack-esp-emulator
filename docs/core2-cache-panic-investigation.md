@@ -50,6 +50,20 @@ bit-exact internal controller implementation. The
 `unified_core2 --ble-transport native-vhci` path also passes 3/3 with board,
 WiFi and public network in the same guest after BB idle readback was fixed.
 
+The same deterministic scheduler is now applied to all six Core2 peripheral
+cases and the Core2 UI device-matrix path. Automatic retries were removed from
+both matrices, and either runner now refuses a case that declares `retries`
+unless `--allow-retries` is passed explicitly. A fresh full matrix completed
+67/67 cases and 274/274 checks with `attempts=1` and `retry_used=false` for
+every case; Core2 completed 5/5 repeated touch/RTC/power probes without a
+retry.
+
+The RTC probe exposed a second timing boundary: RX8130 and PCF8563 were based
+on host `time(NULL)`, while `time.sleep_ms()` in a deterministic guest follows
+QEMU virtual time. Their models now start from a host epoch captured at device
+realize and advance on `QEMU_CLOCK_VIRTUAL`. This keeps the power-on date
+realistic while making guest sleeps and register ticks coherent.
+
 Do not remove the deterministic runtime options or replace them with
 unconditional high retry counts. A future failure with these options should
 preserve the exact serial/QMP/QEMU configuration and be treated as a new
@@ -107,11 +121,13 @@ one six-run focused reproduction hit it once.
 
 ## Current mitigation
 
-- Raw Core2 peripheral cases use `-m 0`.
-- Radio/unified Core2 runs use `tcg,thread=single` plus deterministic icount.
-- Retry counters and failed-attempt evidence remain available for diagnosis,
-  but the public Core2 evidence is based on first-attempt PASS results.
+- Raw Core2 peripheral/UI cases use `-m 0`.
+- Peripheral, UI, radio and unified Core2 runs use `tcg,thread=single` plus
+  deterministic icount.
+- Matrix retries are rejected by default and only available through the
+  explicit `--allow-retries` diagnostic switch.
 - Device Service Core2 radio launches use the same deterministic options.
+- RX8130/PCF8563 advance on QEMU virtual time from a boot epoch.
 
 ## Next investigation
 
@@ -119,9 +135,9 @@ one six-run focused reproduction hit it once.
    WDT expiry timestamps to quantify the TCG starvation window.
 2. Compare default TCG multi-thread, single-thread and icount over larger
    repeated matrices and other classic ESP32 images.
-3. Validate that QOM/FIFO/audio activity cannot starve timers under icount.
-4. Add a long-running soak test beyond one boot/readiness cycle.
-5. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
+3. Add a long-running soak test with concurrent QOM/FIFO/audio activity beyond
+   one boot/readiness cycle.
+4. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
    collected.
 
 ## Reproduction

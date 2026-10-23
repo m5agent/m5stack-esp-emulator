@@ -18,11 +18,12 @@
 - S3/C6 已形成 `11` 条设备级 QEMU WiFi 验证路径；Core2 在
   `M5_CORE2_RADIO_QEMU` 环境门控下提供第 `12` 条 unified profile。规范
   runtime 为 `qemu-unified`，`qemu-ble` 仅为兼容别名。
-- 最近一次完整 UIFlow2 外设矩阵在 `2026-10-23 19:31 +08:00` 完成：
-  `67/67` 用例、`274/274` 检查 PASS，包含全部 6 个 Core2 case。该 run
-  早于 `7823bef` 的 Core2 BB idle readback 共享补丁；它是里程碑证据，
-  但发布级“当前全矩阵”仍为 `NOT RUN`，需要在本 commit 上复跑。
-- 当前平台测试：`215/215` PASS；runtime coverage、peripheral catalog 和
+- 最新完整 UIFlow2 外设矩阵在 `2026-10-23 22:44 +08:00` 完成：
+  `67/67` 用例、`274/274` 检查 PASS，包含全部 6 个 Core2 case；每个
+  case 都是 `attempts=1`、`retry_used=false`。Core2 使用
+  `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
+  QEMU 虚拟时钟推进。
+- 当前平台测试：`216/216` PASS；runtime coverage、peripheral catalog 和
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
@@ -39,7 +40,7 @@
 | 工作流 | 当前状态 | 主要代码 | 已验证内容 | 下一道边界 |
 | --- | --- | --- | --- | --- |
 | 设备与板级契约 | 已完成 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 14 台设备登记；13 台达到登记外设的模拟数据面；catalog、coverage、profile 校验通过 | 新设备逐项登记；视觉保真另列 |
-| QEMU/S3/C6 外设 | 里程碑通过，发布矩阵待复跑 | `patches/`、`tests/uiflow2/` | 19:31 的 67/67、274/274 检查；11 条 S3/C6 unified 设备路径；Core2 targeted/native 路径后续通过 | `7823bef` 后复跑 release 级全矩阵 |
+| QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | 22:44 的 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成，生产后端开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、Device Service lease PASS | 去掉 GDB bridge；bit-exact BT；物理 cache/PSRAM 与 soak |
 | Device Service | v1 已实现，生产服务开放 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.7.0 | worker 化、活动进程恢复、warm pool、多机调度与 VM 隔离 |
 | FirmwareManifest | v1 已实现 | `firmware_manifest.py`、`firmware_analysis.py`、`fetch_firmware.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态和 capability mismatch | 深层静态审查、生产 key/eFuse、跨厂商回归、流式上传 |
@@ -143,6 +144,8 @@
   [`tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json)
 - Core2 Device Service native-VHCI evidence:
   [`tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
+- Core2 zero-retry + full matrix evidence:
+  [`tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json`](../tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json)
 - Linux guest-in-namespace evidence:
   [`tests/network/linux_isolation/evidence-2026-10-23-linux.json`](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
 - [网络模拟方案](network-simulation-plan.md)

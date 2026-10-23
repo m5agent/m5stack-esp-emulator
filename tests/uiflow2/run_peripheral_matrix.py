@@ -1775,7 +1775,13 @@ CASES = [
         "qom": [],
         "efuse_driver": "none",
         "memory": "0",
-        "retries": 5,
+        "deterministic": True,
+        "serial_expect": [
+            "CORE2_PERIPHERAL_MAIN",
+            "CORE2_RTC 2026-10-22 06:07:08",
+            "CORE2_TOUCH",
+            "CORE2_PWR",
+        ],
         "post_frame_color": "310,230,00FF00",
         "frame_color": {"x": 310, "y": 230, "label": "Core2 peripherals"},
     },
@@ -1806,7 +1812,7 @@ CASES = [
         "allow_static_frame": True,
         "efuse_driver": "none",
         "memory": "0",
-        "retries": 2,
+        "deterministic": True,
         "env": {
             "M5SW_I2S_PCM_FILE": "{out_dir}/speaker.pcm",
         },
@@ -1846,7 +1852,7 @@ CASES = [
         "allow_static_frame": True,
         "efuse_driver": "none",
         "memory": "0",
-        "retries": 2,
+        "deterministic": True,
         "pcm_tone_source": {
             "output": "{out_dir}/microphone.pcm",
             "frequency": "440",
@@ -1889,7 +1895,7 @@ CASES = [
         "allow_static_frame": True,
         "efuse_driver": "none",
         "memory": "0",
-        "retries": 2,
+        "deterministic": True,
         "frame_color": {"x": 4, "y": 4, "label": "Core2 INA3221"},
     },
     {
@@ -2021,7 +2027,7 @@ CASES = [
         "allow_static_frame": True,
         "efuse_driver": "none",
         "memory": "0",
-        "retries": 2,
+        "deterministic": True,
         "frame_color": {"x": 4, "y": 4, "label": "Core2 IMU"},
     },
     {
@@ -2056,7 +2062,7 @@ CASES = [
         "env": {
             "M5SW_CORE2_PMIC": "axp192",
         },
-        "retries": 2,
+        "deterministic": True,
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "Core2 AXP192"},
     },
@@ -2467,6 +2473,8 @@ def command_for(case: dict, out_dir: Path,
         command.extend(["--efuse-pkg-version", case["efuse_pkg_version"]])
     if "memory" in case:
         command.extend(["--memory", case["memory"]])
+    if case.get("deterministic"):
+        command.append("--deterministic")
     for input_spec in case["inputs"]:
         command.extend(["--input", input_spec])
     for path, prop, value in case.get("qom", []):
@@ -2523,6 +2531,14 @@ def main() -> None:
         action="store_true",
         help="print the selected cases as JSON without executing them",
     )
+    parser.add_argument(
+        "--allow-retries",
+        action="store_true",
+        help=(
+            "allow cases that explicitly configure retries; disabled by "
+            "default so a retry success cannot be reported as a clean PASS"
+        ),
+    )
     args = parser.parse_args()
     filter_requested = bool(args.case or args.device)
     selected = set(args.case)
@@ -2568,6 +2584,12 @@ def main() -> None:
     for case in CASES:
         if filter_requested and case["id"] not in selected:
             continue
+        if int(case.get("retries", 0)) and not args.allow_retries:
+            raise SystemExit(
+                f"{case['id']}: retries are configured; remove them for "
+                "clean regression evidence or pass --allow-retries for "
+                "diagnostic-only runs"
+            )
         if not any(case.get(key) for key in (
             "serial_expect", "serial1_expect", "qom_expect", "pcm",
             "rmt_nec", "rmt_ws2812", "disk", "frame_color",
@@ -2618,7 +2640,9 @@ def main() -> None:
             case_env[key] = value.format(out_dir=case_out)
         stdout_path = args.out_dir / f"{case['id']}.stdout"
         stderr_path = args.out_dir / f"{case['id']}.stderr"
+        attempts_run = 0
         for attempt in range(case.get("retries", 0) + 1):
+            attempts_run = attempt + 1
             mode = "wb" if attempt == 0 else "ab"
             with stdout_path.open(mode) as stdout, \
                     stderr_path.open(mode) as stderr:
@@ -2819,6 +2843,8 @@ def main() -> None:
             "output": str(case_out),
             "before": str(case_out / "before.png"),
             "after": str(case_out / "after.png"),
+            "attempts": attempts_run,
+            "retry_used": attempts_run > 1,
             "checks": checks,
             "evidence_sources": evidence,
             **({"validation": validation_output}

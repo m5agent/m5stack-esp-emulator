@@ -31,6 +31,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
+            "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
         ):
             self.assertTrue((ROOT / relative).is_file(), relative)
 
@@ -87,6 +88,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "same-instance board + WiFi model only if later required",
             "network simulation has not yet been integrated",
             "network namespaces and packet capture",
+            "current full matrix  NOT RUN after 7823bef",
+            "发布级“当前全矩阵”仍为 `NOT RUN`",
             "连续 3/3 首轮 PASS",
             "cache/WDT startup instability remains a known simulation-only blocker",
             "原生 BT controller 外部 peer/GATT 仍为 NOT RUN",
@@ -118,6 +121,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(f"`{service_count}` 台设备", status)
         self.assertEqual(qemu_count, 12)
         self.assertIn("`67/67` 用例、`274/274` 检查 PASS", status)
+        self.assertIn("2026-10-23 22:44 +08:00", status)
+        self.assertIn("`retry_used=false`", status)
         self.assertIn("`qemu-unified`", (ROOT / "README.md").read_text())
         self.assertIn(
             "runtime=qemu-unified",

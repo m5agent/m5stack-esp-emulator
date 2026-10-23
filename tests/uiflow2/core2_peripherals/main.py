@@ -17,8 +17,10 @@ log = None
 
 
 def emit(*parts):
+    message = " ".join(str(part) for part in parts)
+    print(message)
     if log:
-        log.write(" ".join(str(part) for part in parts) + "\n")
+        log.write(message + "\n")
 
 
 def draw():

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "kind": "uiflow2-zero-retry-core2-and-full-matrix",
+  "generated_at": "2026-10-23T22:44:45.580304+08:00",
+  "source_base_commit": "88c88ab46b23da09c9216bc603133d69bacfb250",
+  "qemu": {
+    "sha256": "cb648115dcbc59184663eb15882d2f65960f48d397805f2605dff0a6a945050d",
+    "accel": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off"
+  },
+  "peripheral_matrix": {
+    "summary_sha256": "6fc3e5473600399a559560398b3c665c3f17724c84db27c0239df775f2da3509",
+    "cases": 67,
+    "checks": 274,
+    "pass": 67,
+    "fail": 0,
+    "attempts_per_case": 1,
+    "retry_used": false,
+    "all_frames_present": true,
+    "serial_panic_or_failure_markers": 0
+  },
+  "core2_cases": {
+    "core2-peripherals": {
+      "attempts": 1,
+      "serial_sha256": "c39e0f1912f82ef2463712279442777d31c772a53c71571e85e1705a63afbdcf"
+    },
+    "core2-audio": {
+      "attempts": 1,
+      "serial_sha256": "5ac26bb68560e3b64b54a34e86ff58996950ec1ddd21834800758ec7004fbbc0"
+    },
+    "core2-mic": {
+      "attempts": 1,
+      "serial_sha256": "4be0c043d5876c746c2b6ade87f4c173cbacc038c49548fc081d2378721033df"
+    },
+    "core2-power-monitor": {
+      "attempts": 1,
+      "serial_sha256": "d4ca9559930c2d875d9a276d95d2bae943d4a4968a672a8277095222560b1246"
+    },
+    "core2-imu": {
+      "attempts": 1,
+      "serial_sha256": "eb43386f31298978c496c588b69b8c248a2177c8fb7b447997a4eb6c9f856825"
+    },
+    "core2-axp192": {
+      "attempts": 1,
+      "serial_sha256": "f5ba92c6759d208c4eb6a41b0de780e95270a513d4963ec43549ae0911214c7c"
+    }
+  },
+  "core2_peripherals_repeat": {
+    "attempts": 5,
+    "pass": 5,
+    "retry_used": false,
+    "serial_sha256": [
+      "be4fbb1e1e100cd6fd9a2bf59c09773e3a6e3e618b8fd4d7369e5d78a6c7c2d7",
+      "b3c11afedbddb49857d8605d82398ba4ae86979f517c4fc1e7d0b41b337402c3",
+      "557ecd55de4bd36e6337845f2b7638a7762a50565535094b8ae447eb275af697",
+      "6e8ddf8532ffc302152ac41843f793a52e4844de000ad74358d56d7cd3c5f634",
+      "5e66f791ef2cc7080dfa5ccdbf00b9cb3cef0ecd65d640eaa6626b685e40fd0e"
+    ]
+  },
+  "core2_ui": {
+    "summary_sha256": "f68b452724ccb32329fdec8cf79a81ac0e85904d473da735deb67d1a106dbb9e",
+    "flash_transport": "qemu-esptool",
+    "flash_verified": true,
+    "attempts": 1,
+    "retry_used": false,
+    "virtual_flash_sha256": "64926d908455424c82edd2ec6878a05117ae088bcd441fd5ebf20415555291af",
+    "serial_sha256": "fb8794096f40f92edf9e50dbd4041aaf2e288b7271cd7ca02ed92b336a6850d9",
+    "after_png_sha256": "4204403e5fd1d16a2d39a39d07dae0bdc5bab4eda8e69ad607463d7f45b2e38f",
+    "marker_rgb": [0, 255, 0],
+    "touch_marker": "CORE2_TOUCH 159 182 1"
+  },
+  "rtc_patch": {
+    "file": "patches/qemu-m5stack-peripherals/0026-m5stack-rtc-virtual-clock.patch",
+    "reverse_check": "PASS",
+    "clock": "QEMU_CLOCK_VIRTUAL",
+    "models": ["RX8130", "PCF8563"]
+  },
+  "not_claimed": [
+    "physical hardware",
+    "physical cache/PSRAM equivalence",
+    "bit-exact Espressif Bluetooth controller",
+    "RF, power, acoustic or optical equivalence"
+  ]
+}

@@ -185,11 +185,12 @@
       "vfs_size": "0x7DF000",
       "flash_size": "0x1000000",
       "expected_size": "320x240",
-      "input": "longpress:160,183,1.0",
-      "post_input_wait": 0.8,
+      "input": "longpress:160,183,1.5",
+      "post_input_wait": 3.0,
+      "wait": 18,
       "post_frame_color": "2,2,00FF00",
       "memory": "0",
-      "retries": 2
+      "deterministic": true
     },
     {
       "id": "nesso-n1",

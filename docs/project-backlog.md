@@ -99,6 +99,10 @@ guest 路径实际产生 pcap 和 reconnect 证据；不可信固件无法访问
 - 失败复现确认两核都在 idle WAITI，属于 interrupt-WDT/timer starvation，
   而非 cache illegal-access callback；
 - `tcg,thread=single` + 确定性 icount 后 10/10 次无重试首轮 PASS；
+- Core2 6 个 peripheral case、UI device-matrix 和完整 67-case 矩阵均改为
+  默认零重试；最新全矩阵 67/67、274/274，全部 `attempts=1`；
+- RX8130/PCF8563 改为从 boot epoch 起按 QEMU 虚拟时钟推进，修复
+  deterministic guest 的 RTC 秒值不前进；
 - Core2 DNS、公网 HTTP 和同一 guest HCI-offload BLE 回归通过；
 - Device Service `core2-unified` 同步使用确定性调度并通过 pcap evidence。
 - stock UIFlow2 internal-controller VHCI 经外部 Bumble controller 完成

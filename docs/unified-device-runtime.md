@@ -65,7 +65,9 @@ complete simulated device or as a unified-device PASS.
   DHCP/HTTP, public IPv4 DNS/HTTP and UART1 HCI BLE in one `m5core2` guest.
   QOM injection does not pause the guest, and radio launches use deterministic
   `tcg,thread=single` plus `icount`; ten independent first attempts passed
-  10/10 with no retry.
+  10/10 with no retry. The same scheduler now applies to all six Core2
+  peripheral cases and the Core2 UI matrix; the latest 67-case full matrix
+  passed every case on its first attempt with automatic retries disabled.
 - A separate stock UIFlow2 Core2 runner leaves the built-in controller build
   unchanged and intercepts the firmware's real `esp_vhci_host_*` boundary.
   H2C/C2H are bridged to Bumble, and an external peer completes NUS discovery,

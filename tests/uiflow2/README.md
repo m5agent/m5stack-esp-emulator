@@ -59,6 +59,12 @@ PYTHONPATH=.work/py python3 tests/uiflow2/unified_core2/run_test.py \
 同时返回 board/frame/QOM/audio/WiFi/公网/BLE，并保留 pcap、bridge 和 peer
 evidence；当前仍依赖服务托管的 GDB bridge。
 
+Core2 peripheral 和 device matrix 现在都显式使用
+`tcg,thread=single` + `icount shift=auto,align=off,sleep=off`。matrices
+不再配置自动重试；若 case 声明 `retries`，runner 默认拒绝运行，只有显式
+`--allow-retries` 才执行诊断重试。2026-10-23 22:44 的完整矩阵为
+`67/67`、`274/274`，全部 `attempts=1`。
+
 本轮跨设备问题、修复和证据见
 [`docs/uiflow2-cross-device-regression-audit.md`](../../docs/uiflow2-cross-device-regression-audit.md)。
 

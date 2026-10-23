@@ -484,6 +484,14 @@ def main():
     )
     parser.add_argument("--prog-size", type=int, default=32)
     parser.add_argument("--memory", help="optional QEMU -m value")
+    parser.add_argument(
+        "--deterministic",
+        action="store_true",
+        help=(
+            "use tcg,thread=single plus deterministic icount scheduling; "
+            "required for stable Core2 peripheral runs"
+        ),
+    )
     parser.add_argument("--efuse-pkg-version", type=int, choices=(0, 1), default=0)
     parser.add_argument(
         "--efuse-driver",
@@ -554,6 +562,11 @@ def main():
         ])
     if args.memory:
         command[1:1] = ["-m", args.memory]
+    if args.deterministic:
+        command[1:1] = [
+            "-accel", "tcg,thread=single",
+            "-icount", "shift=auto,align=off,sleep=off",
+        ]
     if args.qemu_log:
         command.extend(["-d", args.qemu_log])
     efuse_driver = args.efuse_driver

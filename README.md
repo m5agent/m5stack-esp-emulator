@@ -17,9 +17,10 @@ MicroPython 和其他完整 Flash 固件。
 - S3/C6 已有 11 条设备级 QEMU WiFi/BLE 验证路径；Core2 在环境门控下提供
   第 12 条 `core2-unified` 路径；共 12 个 unified profile，规范 runtime 为
   `qemu-unified`，`qemu-ble` 仅保留兼容。
-- 最近一次 UIFlow2 外设全矩阵在 `2026-10-23 19:31 +08:00` 为 `67/67`
-  用例、`274/274` 检查 PASS；该里程碑早于 `7823bef` 的 Core2 BB readback
-  补丁，发布前仍需复跑。当前平台单元测试为 `215/215` PASS。
+- 最新 UIFlow2 外设全矩阵在 `2026-10-23 22:44 +08:00` 完成：
+  `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
+  `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
+  下首轮通过。当前平台单元测试为 `216/216` PASS。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
 

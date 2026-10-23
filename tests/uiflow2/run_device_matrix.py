@@ -72,6 +72,8 @@ def ui_command(
         command.extend(["--efuse-pkg-version", str(device["efuse_pkg_version"])])
     if "memory" in device:
         command.extend(["--memory", device["memory"]])
+    if device.get("deterministic"):
+        command.append("--deterministic")
     if "post_frame_color" in device:
         command.extend(["--post-frame-color", device["post_frame_color"]])
     serial_expect = device.get("serial_expect", [])
@@ -421,6 +423,14 @@ def main() -> None:
         default="esp-emu",
         help="flash the test image through esptool where supported",
     )
+    parser.add_argument(
+        "--allow-retries",
+        action="store_true",
+        help=(
+            "allow devices that explicitly configure retries; disabled by "
+            "default so a retry success cannot be reported as a clean PASS"
+        ),
+    )
     args = parser.parse_args()
 
     matrix = json.loads(MATRIX.read_text())
@@ -444,6 +454,12 @@ def main() -> None:
     for device in devices:
         print(f"[{device['id']}] {device['mode']}", flush=True)
         if device["mode"] == "ui":
+            if int(device.get("retries", 0)) and not args.allow_retries:
+                raise SystemExit(
+                    f"{device['id']}: retries are configured; remove them "
+                    "for clean regression evidence or pass --allow-retries "
+                    "for diagnostic-only runs"
+                )
             attempts = int(device.get("retries", 0)) + 1
             for attempt in range(attempts):
                 attempt_root = (
@@ -459,6 +475,7 @@ def main() -> None:
                     args.flash_transport,
                 )
                 result["attempts"] = attempt + 1
+                result["retry_used"] = attempt > 0
                 if result["status"] == "PASS":
                     break
         elif device["mode"] == "console":

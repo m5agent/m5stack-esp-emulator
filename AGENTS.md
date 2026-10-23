@@ -195,9 +195,12 @@ diagnostics in `internal/records/`.
   framebuffer/touch tests, RS-485, C6 ESP-Hosted and static I2C probes. Do not
   describe `partial` as “unusable”; document the flashing layout and ROM/eFuse
   compatibility boundary when reviewing a production image.
-- Core2 radio runs use deterministic TCG/icount after the idle interrupt-WDT
-  reproduction; ten independent first attempts passed 10/10. This does not
-  prove physical cache/PSRAM timing.
+- Core2 peripheral, UI, radio and unified runs use deterministic TCG/icount
+  after the idle interrupt-WDT reproduction. Peripheral/UI matrices reject
+  configured retries by default; the latest full matrix passed 67/67 cases
+  with every case on its first attempt. RX8130/PCF8563 advance on the QEMU
+  virtual clock so guest RTC sleeps remain coherent. This does not prove
+  physical cache/PSRAM timing.
 - S3/C6 use device-level QEMU WiFi MAC/DMA plus SLiRP in the 11 unified
   profiles. This is functional virtual networking, not a complete PHY, RF,
   antenna, WPA2/WPA3 or security model.

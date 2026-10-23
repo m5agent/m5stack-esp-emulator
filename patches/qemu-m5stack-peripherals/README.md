@@ -116,6 +116,7 @@ git apply /path/to/0022-sticks3-st7789-panel-id.patch
 git apply /path/to/0023-user-firmware-hot-samples.patch
 git apply /path/to/0024-esp32s3-qio-read-phase.patch
 git apply /path/to/0025-esp32c6-wifi-mac.patch
+git apply /path/to/0026-m5stack-rtc-virtual-clock.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -183,6 +184,12 @@ modelled. The patch is validated with NanoC6 and Nesso N1 in the same C6 guest
 as their board peripherals and UART1 HCI BLE path. Apply it after `0023` on
 the M5StopWatch-QEMU ESP32-C6 worktree; it is not a standalone patch against
 the upstream C6 machine.
+
+`0026-m5stack-rtc-virtual-clock.patch` makes the RX8130 and PCF8563 models
+advance from a boot-time epoch on QEMU's virtual clock instead of host wall
+time. Core2 deterministic `icount` execution can run a guest 1.2-second RTC
+probe faster than host time; host-clock RTCs therefore appeared frozen. The
+firmware-facing register layout and QOM offsets are unchanged.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and
