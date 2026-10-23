@@ -6,9 +6,11 @@ possible, uploads each merged image through the Device Service `/api/v1`, boots
 it, injects the board's primary input, captures serial and frame evidence, and
 stops the session with `purge=0`.
 
-This is simulation-only evidence. It does not establish real-hardware
-validation and must not be used by itself to publish a fix, issue reply, review
-or release note.
+This is virtual-device validation evidence. It may support an external fix,
+issue reply, review or release note when the selected firmware boots, reaches a
+non-blank application frame, responds to the configured input and records no
+fatal serial signature. Results must still be labeled as virtual-device
+validation rather than physical-hardware measurements.
 
 ## Run
 

@@ -204,9 +204,12 @@ rebuildable P4 backend. With that prerequisite, the peripheral work is roughly
 4–6 serial work weeks, or 2–3 weeks with parallel workstreams. Without that
 backend change, do not promise a completion date for the missing data paths.
 
-Before calling the current milestone complete, run a clean latest full matrix
-and perform real-hardware validation on the same implementation paths. Until
-then, all simulator results remain simulation-only evidence.
+Before calling the current milestone complete, run a clean latest full matrix.
+Validated virtual-device results are accepted milestone evidence when they
+exercise the same implementation paths and include reproducible session,
+boot, input, frame and data-plane markers. Physical-hardware validation remains
+required only for claims that depend on physical measurements or behavior the
+virtual model does not implement.
 
 Network simulation, generic firmware intake and the leased simulator-worker
 service are tracked in `docs/project-backlog.md`. The recommended service model

@@ -45,7 +45,10 @@ does not consume active-session capacity.
 
 ## Boundaries
 
-- QEMU simulation is not real-hardware validation.
+- Label QEMU results as virtual-device validation, not physical-hardware
+  measurements. A validated virtual device is accepted validation evidence for
+  the external verification gate when it exercises the same firmware path and
+  retains reproducible session evidence.
 - Agent-triggered direct QEMU runners bypass session observability and must not
   be used for functional-test requests.
 - The browser's default view shows active sessions and sessions completed in

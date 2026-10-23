@@ -3,8 +3,8 @@
 
 The tool deliberately performs functional execution through /api/v1 instead of
 starting a QEMU or esp-emu process directly. Downloaded binaries and session
-evidence stay in ignored cache directories. This is simulation evidence, not
-real-hardware validation.
+evidence stay in ignored cache directories. This produces virtual-device
+validation evidence; it must not be labeled as a physical-hardware measurement.
 """
 from __future__ import annotations
 

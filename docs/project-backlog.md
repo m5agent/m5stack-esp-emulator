@@ -196,5 +196,6 @@ See [`device-visual-fidelity-backlog.md`](device-visual-fidelity-backlog.md).
 
 - Fix the Core2 intermittent cache panic rather than relying on retries.
 - Run the latest clean full matrix before a milestone.
-- Add real-hardware validation on the same implementation paths for any public
-  or release-facing claim.
+- Keep reproducible virtual-device evidence on the same implementation paths
+  for public or release-facing claims; add physical hardware only when the
+  claim depends on measurements or behavior the virtual model does not expose.
