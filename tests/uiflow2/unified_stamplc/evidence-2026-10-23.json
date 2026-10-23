@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "stamplc",
+  "firmware": {
+    "bytes": 8388608,
+    "sha256": "e2cb2140e303551cc2a33915ddb0e5d8880f5c85e0e1fee90837f8d0c28dd2d3"
+  },
+  "consecutive_passes": 3,
+  "runs": [
+    {
+      "serial_sha256": "2229405cd2286a6f2de7b514e13be1a865225820e1c4af49df614bf3914eff99",
+      "peer_log_sha256": "79db5e8155f20f3e5ee3c7b92f1ac1afa19e4a7cde262a8f3ee0197236808c2d"
+    },
+    {
+      "serial_sha256": "ca3cf9ef89bf4d77a46b7176f37d9d3ca392675754b998c195957a145528f8cb",
+      "peer_log_sha256": "16436098ce39a02a691419d68f1fc789fe85a6aa5bf221db9342479eb877886d"
+    },
+    {
+      "serial_sha256": "61e0426f7a2cfc3fd0c91dfae5966df797dcd562c050e9384ea34bf2cf219ed2",
+      "peer_log_sha256": "1da4aaddf640543f40872a23b5dc4cbb6e719b51c9eca18bea0076776a53bdc9"
+    }
+  ],
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "key_redraw": true,
+    "relay_readback": true,
+    "digital_inputs": true,
+    "rgb_readback": true,
+    "lm75": true,
+    "ina226": true,
+    "rtc_rx8130": true,
+    "can_tx_rx": true,
+    "rs485_tx_rx": true,
+    "buzzer_pcm": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [
+      240,
+      135
+    ],
+    "before_nonblack_pixels": 4196,
+    "before_unique_colors": 16,
+    "after_nonblack_pixels": 4174,
+    "after_unique_colors": 16,
+    "changed_after_key": true
+  },
+  "audio": {
+    "bytes": 66560,
+    "nonzero_bytes": 34426,
+    "peak_to_peak": 255,
+    "sha256": "87e5dc4fe24b7e1c70e0ddfdf1bec9a2cd7eb8663e897c46e603533df5ac017c"
+  },
+  "device_state": {
+    "lm75_temperature_c": 37.5,
+    "ina226_bus_voltage_mv": 4000,
+    "ina226_current_ma": 250,
+    "aw9523_input_bits": 61680,
+    "rx8130_unix_time": 1792652901
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_host": "10.0.2.2",
+    "http_port": 18088,
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART1 H4",
+    "hci_uart": {
+      "port": 1,
+      "rx_gpio": 40,
+      "tx_gpio": 41,
+      "baudrate": 921600
+    },
+    "controller": "Bumble",
+    "name": "M5-STAMPLC-UNIFIED",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_STAMPLC_U",
+    "notification": "ACK:M5_STAMPLC_U"
+  },
+  "device_service_validation": {
+    "runtime": "qemu-ble",
+    "profile": "uiflow2-stamplc-unified",
+    "uploaded_image_sha256": "e2cb2140e303551cc2a33915ddb0e5d8880f5c85e0e1fee90837f8d0c28dd2d3",
+    "guest_process_count": 1,
+    "network_status": "PASS",
+    "frame_changed_after_key": true,
+    "before_png_sha256": "77609093501a6b9f77b711b45241607aa3f7b3c7331ec3d01ac775fbc640d224",
+    "after_png_sha256": "6d88e9962f5e5f8e8f8b159e73fda884ad80c3c38261abedfd7c05b6ddc50190",
+    "device_state_components": [
+      "temperature",
+      "power-monitor",
+      "rtc",
+      "io-expander",
+      "front-panel"
+    ],
+    "evidence_zip_sha256": "19f09d737a4e0eb14659690abece833b0c5407f42b9459af157669ed19e0c50b",
+    "evidence_zip_entries": [
+      "serial.log",
+      "qemu.stdout",
+      "qemu.stderr",
+      "ble-probe.log",
+      "frames/current.png",
+      "audio/speaker.pcm",
+      "qom/snapshot.json",
+      "network/evidence.json",
+      "flash/virtual-flash.bin",
+      "manifest.json"
+    ]
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 WiFi PHY or Bluetooth controller model",
+    "public internet access",
+    "physical relay contact or isolated input behavior",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "untrusted-firmware sandboxing"
+  ]
+}

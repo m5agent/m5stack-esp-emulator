@@ -674,20 +674,58 @@
       "peripherals": [
         "relay",
         "digital-input",
+        "pi4ioe5v6408",
+        "aw9523",
         "rs485",
         "can",
         "buzzer",
-        "ina226"
+        "ina226",
+        "lm75",
+        "rx8130"
       ],
+      "runtime_state": {
+        "temperature": {
+          "path": "/machine/lm75-48",
+          "properties": [
+            "temperature-c"
+          ]
+        },
+        "power-monitor": {
+          "path": "/machine/ina226-40",
+          "properties": [
+            "bus-voltage-mv",
+            "current-ma",
+            "shunt-ohms"
+          ]
+        },
+        "rtc": {
+          "path": "/machine/rx8130-32",
+          "properties": [
+            "unix-time"
+          ]
+        },
+        "io-expander": {
+          "path": "/machine/aw9523-59",
+          "properties": [
+            "input-bits"
+          ]
+        },
+        "front-panel": {
+          "path": "/machine/pi4ioe-43",
+          "properties": [
+            "input-bits"
+          ]
+        }
+      },
       "board_work": [
         "Relay/digital-input and INA226 closure",
         "CAN/RS485 virtual peer and buzzer data paths"
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-21",
-        "status": "display-key-bus-actuator-pass",
-        "detail": "UIFlow2 v2.5.3 renders 240x135; PI4IOE input/relay, INA226, LM75, TWAI CAN G42/G43, PWR485 UART2 G0/G39/G46, and the G44 I2S buzzer path all pass automated checks."
+        "date": "2026-10-23",
+        "status": "display-input-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 passes the 240x135 display, key/RGB, relays/inputs, INA226, LM75, RX8130, TWAI CAN, PWR-485, buzzer PCM, WiFi DHCP/HTTP and UART1 HCI BLE in one QEMU guest. All 6 StamPLC peripheral cases pass."
       }
     },
     {

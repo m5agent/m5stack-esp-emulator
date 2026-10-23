@@ -111,6 +111,7 @@ ATOMS3R_UNIFIED_PROFILE = "uiflow2-atoms3r-unified"
 PAPERCOLOR_UNIFIED_PROFILE = "uiflow2-papercolor-unified"
 PAPERMONO_UNIFIED_PROFILE = "uiflow2-papermono-unified"
 STACKCHAN_UNIFIED_PROFILE = "uiflow2-stackchan-unified"
+STAMPLC_UNIFIED_PROFILE = "uiflow2-stamplc-unified"
 UNIFIED_PROFILES = {
     STICKS3_UNIFIED_PROFILE,
     CORES3_UNIFIED_PROFILE,
@@ -120,6 +121,7 @@ UNIFIED_PROFILES = {
     PAPERCOLOR_UNIFIED_PROFILE,
     PAPERMONO_UNIFIED_PROFILE,
     STACKCHAN_UNIFIED_PROFILE,
+    STAMPLC_UNIFIED_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
     STICKS3_UNIFIED_PROFILE: 18080,
@@ -130,6 +132,7 @@ UNIFIED_HTTP_PORTS = {
     PAPERCOLOR_UNIFIED_PROFILE: 18085,
     PAPERMONO_UNIFIED_PROFILE: 18086,
     STACKCHAN_UNIFIED_PROFILE: 18087,
+    STAMPLC_UNIFIED_PROFILE: 18088,
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
@@ -195,6 +198,12 @@ STACKCHAN_UNIFIED_MARKERS = (
     "UNIFIED_STACKCHAN_BLE_RX",
     "UNIFIED_STACKCHAN_BLE_ACK_SENT",
 )
+STAMPLC_UNIFIED_MARKERS = (
+    "UNIFIED_STAMPLC_WIFI_CONNECTED",
+    "UNIFIED_STAMPLC_HTTP_PASS",
+    "UNIFIED_STAMPLC_BLE_RX",
+    "UNIFIED_STAMPLC_BLE_ACK_SENT",
+)
 UNIFIED_MARKERS = {
     STICKS3_UNIFIED_PROFILE: STICKS3_UNIFIED_MARKERS,
     CORES3_UNIFIED_PROFILE: CORES3_UNIFIED_MARKERS,
@@ -204,6 +213,7 @@ UNIFIED_MARKERS = {
     PAPERCOLOR_UNIFIED_PROFILE: PAPERCOLOR_UNIFIED_MARKERS,
     PAPERMONO_UNIFIED_PROFILE: PAPERMONO_UNIFIED_MARKERS,
     STACKCHAN_UNIFIED_PROFILE: STACKCHAN_UNIFIED_MARKERS,
+    STAMPLC_UNIFIED_PROFILE: STAMPLC_UNIFIED_MARKERS,
 }
 UNIFIED_READY_MARKERS = {
     STICKS3_UNIFIED_PROFILE: "UNIFIED_STICKS3_READY",
@@ -214,6 +224,7 @@ UNIFIED_READY_MARKERS = {
     PAPERCOLOR_UNIFIED_PROFILE: "UNIFIED_PAPERCOLOR_READY",
     PAPERMONO_UNIFIED_PROFILE: "UNIFIED_PAPERMONO_READY",
     STACKCHAN_UNIFIED_PROFILE: "UNIFIED_STACKCHAN_READY",
+    STAMPLC_UNIFIED_PROFILE: "UNIFIED_STAMPLC_READY",
 }
 UNIFIED_HTTP_BODIES = {
     STICKS3_UNIFIED_PROFILE: b"UNIFIED_STICKS3_OK\n",
@@ -224,6 +235,7 @@ UNIFIED_HTTP_BODIES = {
     PAPERCOLOR_UNIFIED_PROFILE: b"UNIFIED_PAPERCOLOR_OK\n",
     PAPERMONO_UNIFIED_PROFILE: b"UNIFIED_PAPERMONO_OK\n",
     STACKCHAN_UNIFIED_PROFILE: b"UNIFIED_STACKCHAN_OK\n",
+    STAMPLC_UNIFIED_PROFILE: b"UNIFIED_STAMPLC_OK\n",
 }
 UNIFIED_BLE_IDENTITIES = {
     "sticks3": ("M5-STICKS3-UNIFIED", "M5_STICKS3_UNIFIED"),
@@ -234,6 +246,7 @@ UNIFIED_BLE_IDENTITIES = {
     "papercolor": ("M5-PAPERCOLOR-UNIFIED", "M5_PAPERCOLOR_U"),
     "papermono": ("M5-PAPERMONO-UNIFIED", "M5_PAPERMONO_U"),
     "stackchan": ("M5-STACKCHAN-UNIFIED", "M5_STACKCHAN_U"),
+    "stamplc": ("M5-STAMPLC-UNIFIED", "M5_STAMPLC_U"),
 }
 STACKCHAN_UNIFIED_QOM = (
     ("/machine/aw9523", "input-bits", 61439),
@@ -255,6 +268,14 @@ STACKCHAN_UNIFIED_QOM = (
     ("/machine/bmi270", "gyro-x", 10),
     ("/machine/bmi270", "gyro-y", -20),
     ("/machine/bmi270", "gyro-z", 30),
+)
+STAMPLC_UNIFIED_QOM = (
+    ("/machine/lm75-48", "temperature-c", 37.5),
+    ("/machine/ina226-40", "bus-voltage-mv", 4000),
+    ("/machine/ina226-40", "current-ma", 250),
+    ("/machine/ina226-40", "shunt-ohms", 0.08),
+    ("/machine/aw9523-59", "input-bits", 61680),
+    ("/machine/rx8130-32", "unix-time", 1792630923),
 )
 
 
@@ -665,6 +686,9 @@ def parse_qemu_ble_execution(
     elif spec.id == "stackchan":
         supported_profiles = {STACKCHAN_UNIFIED_PROFILE}
         default_profile = STACKCHAN_UNIFIED_PROFILE
+    elif spec.id == "stamplc":
+        supported_profiles = {STAMPLC_UNIFIED_PROFILE}
+        default_profile = STAMPLC_UNIFIED_PROFILE
     else:
         raise ServiceError(
             "qemu_ble_not_supported",
@@ -895,6 +919,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 network_profiles.insert(0, PAPERMONO_UNIFIED_PROFILE)
             if device_id == "stackchan" and network_chip:
                 network_profiles.insert(0, STACKCHAN_UNIFIED_PROFILE)
+            if device_id == "stamplc" and network_chip:
+                network_profiles.insert(0, STAMPLC_UNIFIED_PROFILE)
             if (
                 device_id == "core2"
                 and (
@@ -2029,8 +2055,12 @@ class DeviceSession:
                 )
         self._record_event("stackchan_peripheral_inputs_prepared")
 
-    def _apply_stackchan_qom(self) -> None:
-        marker = "UNIFIED_STACKCHAN_IMU_CONFIG_READY"
+    def _apply_profile_qom(
+        self,
+        marker: str,
+        profile: str,
+        setup: tuple[tuple[str, str, Any], ...],
+    ) -> None:
         deadline = time.time() + 20
         while time.time() < deadline:
             serial = (
@@ -2056,7 +2086,7 @@ class DeviceSession:
         assert self._qmp is not None
         try:
             self._qmp.cmd("stop")
-            for path, prop, value in STACKCHAN_UNIFIED_QOM:
+            for path, prop, value in setup:
                 self._qmp.cmd("qom-set", path=path, property=prop, value=value)
             self._qmp.cmd("cont")
         except (OSError, RuntimeError) as error:
@@ -2066,13 +2096,13 @@ class DeviceSession:
                 pass
             raise ServiceError(
                 "qom_error",
-                f"StackChan runtime state injection failed: {error}",
+                f"{profile} runtime state injection failed: {error}",
                 503,
             ) from error
         self._record_event(
             "profile_qom_applied",
-            profile=STACKCHAN_UNIFIED_PROFILE,
-            property_count=len(STACKCHAN_UNIFIED_QOM),
+            profile=profile,
+            property_count=len(setup),
         )
 
     def _launch(self) -> None:
@@ -2174,6 +2204,9 @@ class DeviceSession:
             env["M5SW_RMT_RX_FILE"] = str(self.rmt_source)
             env["M5SW_RMT_TX_FILE"] = str(self.rmt_capture)
             env["M5SW_RMT_TRACE"] = "1"
+        if profile == STAMPLC_UNIFIED_PROFILE:
+            env["M5SW_CAN_ECHO"] = "1"
+            env["M5SW_RS485_ECHO"] = "1"
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
@@ -2199,7 +2232,17 @@ class DeviceSession:
             ) from error
         self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
         if profile == STACKCHAN_UNIFIED_PROFILE:
-            self._apply_stackchan_qom()
+            self._apply_profile_qom(
+                "UNIFIED_STACKCHAN_IMU_CONFIG_READY",
+                STACKCHAN_UNIFIED_PROFILE,
+                STACKCHAN_UNIFIED_QOM,
+            )
+        elif profile == STAMPLC_UNIFIED_PROFILE:
+            self._apply_profile_qom(
+                "UNIFIED_STAMPLC_IO_CONFIG_READY",
+                STAMPLC_UNIFIED_PROFILE,
+                STAMPLC_UNIFIED_QOM,
+            )
 
     def _qmp_call(self, name: str, **arguments):
         with self._lock:
@@ -4304,7 +4347,7 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-unified": (
-                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-wifi-ble"
+                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-wifi-ble"
                     if any(
                         profile in self.specs[device_id].network_profiles
                         for device_id, profile in (
@@ -4319,6 +4362,7 @@ class DeviceService:
                             ("papercolor", PAPERCOLOR_UNIFIED_PROFILE),
                             ("papermono", PAPERMONO_UNIFIED_PROFILE),
                             ("stackchan", STACKCHAN_UNIFIED_PROFILE),
+                            ("stamplc", STAMPLC_UNIFIED_PROFILE),
                         )
                     )
                     else "disabled"

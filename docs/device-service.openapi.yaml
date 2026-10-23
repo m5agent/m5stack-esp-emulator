@@ -833,7 +833,7 @@ components:
           type: array
           items:
             type: string
-            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
         network_console:
           type: string
           enum: [auto, uart0, usb-jtag]
@@ -956,7 +956,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe, core2-openmac, core2-ble-advertise, core2-hci-gatt]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe, core2-openmac, core2-ble-advertise, core2-hci-gatt]
         wifi:
           type: boolean
         ble:
@@ -1009,6 +1009,9 @@ components:
             uiflow2-stackchan-unified runs the StackChan 320x240 display,
             touch, camera, IMU/magnetometer, power/audio/IR/NFC/servo,
             WiFi DHCP/HTTP and UART2 HCI BLE in one QEMU guest.
+            uiflow2-stamplc-unified runs the StamPLC 240x135 display,
+            keys/RGB, relay/input banks, CAN, PWR-485, buzzer, WiFi
+            DHCP/HTTP and UART1 HCI BLE in one QEMU guest.
         console_mode:
           type: string
           enum: [auto, uart0, usb-jtag]

@@ -798,13 +798,13 @@ CASES = [
             "STAMPLC_RTC 2026-10-22 07:08:09",
         ],
         "qom": [
-            ("/machine/ina226", "bus-voltage-mv", "12000"),
-            ("/machine/ina226", "current-ma", "500"),
-            ("/machine/ina226", "shunt-ohms", "0.08"),
+            ("/machine/ina226-40", "bus-voltage-mv", "12000"),
+            ("/machine/ina226-40", "current-ma", "500"),
+            ("/machine/ina226-40", "shunt-ohms", "0.08"),
         ],
         "qom_steps": [
-            (1.0, "/machine/ina226", "bus-voltage-mv", "15000"),
-            (0, "/machine/ina226", "current-ma", "750"),
+            (1.0, "/machine/ina226-40", "bus-voltage-mv", "15000"),
+            (0, "/machine/ina226-40", "current-ma", "750"),
         ],
         "qom_sequence_settle": 1.5,
     },
@@ -2083,7 +2083,7 @@ CASES = [
         "wait": "8",
         "inputs": ["key:a"],
         "qom_set_boot": [
-            ("/machine/lm75", "temperature-c", "37.5"),
+            ("/machine/lm75-48", "temperature-c", "37.5"),
         ],
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "StamPLC LM75"},
@@ -2148,7 +2148,7 @@ CASES = [
         "wait": "5",
         "inputs": ["key:a"],
         "qom": [
-            ("/machine/aw9523", "input-bits", "61680"),
+            ("/machine/aw9523-59", "input-bits", "61680"),
         ],
         "allow_static_frame": True,
         "frame_color": {"x": 4, "y": 4, "label": "StamPLC onboard IO"},

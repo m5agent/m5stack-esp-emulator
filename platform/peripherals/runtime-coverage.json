@@ -65,6 +65,11 @@
       "test": "tests/uiflow2/unified_stackchan/run_test.py",
       "evidence": "tests/uiflow2/unified_stackchan/evidence-2026-10-23.json"
     },
+    "stamplc-unified": {
+      "device": "stamplc",
+      "test": "tests/uiflow2/unified_stamplc/run_test.py",
+      "evidence": "tests/uiflow2/unified_stamplc/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -153,6 +158,16 @@
       "ir-tx-rx",
       "rgb-led",
       "servo"
+    ],
+    "stamplc-unified": [
+      "pi4ioe5v6408",
+      "aw9523",
+      "ina226",
+      "lm75",
+      "rx8130",
+      "can",
+      "rs485",
+      "buzzer"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -474,6 +489,9 @@
         "stamplc-rs485",
         "stamplc-buzzer",
         "stamplc-lm75"
+      ],
+      "external": [
+        "stamplc-unified"
       ],
       "models": [
         "pi4ioe5v6408",

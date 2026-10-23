@@ -120,6 +120,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "uiflow2-stackchan-unified",
             rows["stackchan"]["network_profiles"],
         )
+        self.assertTrue(rows["stamplc"]["features"]["device_state"])
+        self.assertIn(
+            "uiflow2-stamplc-unified",
+            rows["stamplc"]["network_profiles"],
+        )
         for validated_s3 in (
             "papercolor",
             "papermono",
@@ -181,7 +186,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(capacity["modes"]["qemu-ble"], "disabled")
         self.assertEqual(
             capacity["modes"]["qemu-unified"],
-            "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-wifi-ble",
+            "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-wifi-ble",
         )
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
@@ -577,9 +582,28 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 ],
                 18087,
             )
+            stamplc = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["stamplc"],
+                {},
+            )
+            self.assertEqual(
+                stamplc["profile"],
+                "uiflow2-stamplc-unified",
+            )
+            self.assertEqual(stamplc["nic"], "misc.esp32s3.wifi")
+            self.assertEqual(
+                stamplc["expected_markers"],
+                list(device_service_module.STAMPLC_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                device_service_module.UNIFIED_HTTP_PORTS[
+                    device_service_module.STAMPLC_UNIFIED_PROFILE
+                ],
+                18088,
+            )
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_ble_execution(
-                    self.service.specs["stamplc"],
+                    self.service.specs["tab5"],
                     {},
                 )
             self.assertEqual(
@@ -1470,6 +1494,68 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(evidence["runtime"]["hci_transport"], "UART2 H4")
         self.assertEqual(evidence["gatt"]["name"], "M5-STACKCHAN-UNIFIED")
         self.assertEqual(evidence["gatt"]["payload"], "M5_STACKCHAN_U")
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_stamplc_unified_qemu_evidence(self):
+        spec = self.service.specs["stamplc"]
+        firmware_path = Path(self.tmp.name) / "stamplc-unified.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="c" * 32,
+            spec=spec,
+            firmware_id="4" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="4" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_STAMPLC_READY",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "uiflow2-stamplc-unified",
+                "nic": "misc.esp32s3.wifi",
+                "expected_markers": list(
+                    device_service_module.STAMPLC_UNIFIED_MARKERS
+                ),
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "UNIFIED_STAMPLC_WIFI_CONNECTED 10.0.2.15\n"
+            "UNIFIED_STAMPLC_HTTP_PASS\n"
+            "UNIFIED_STAMPLC_BLE_RX b'M5_STAMPLC_U'\n"
+            "UNIFIED_STAMPLC_BLE_ACK_SENT\n"
+            "UNIFIED_STAMPLC_READY\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-STAMPLC-UNIFIED'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_STAMPLC_U\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_STAMPLC_U\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}])
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-stamplc-unified-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(evidence["runtime"]["hci_transport"], "UART1 H4")
+        self.assertEqual(evidence["gatt"]["name"], "M5-STAMPLC-UNIFIED")
+        self.assertEqual(evidence["gatt"]["payload"], "M5_STAMPLC_U")
         session.state = "stopped"
         session._proc = None
         session._qmp = None

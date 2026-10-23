@@ -15,7 +15,7 @@ Current scope:
 - network emulation: `runtime=network` remains available for diagnosis on
   S3/C6; StickS3 also supports a Wi-Fi-only board lease through
   `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV, StopWatch,
-  AtomS3R, PaperColor, PaperMono and StackChan use one combined
+  AtomS3R, PaperColor, PaperMono, StackChan and StamPLC use one combined
   WiFi+BLE+board QEMU lease through their unified profiles;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
@@ -471,6 +471,26 @@ servo pins. The service pauses the guest at the post-driver IMU setup marker,
 injects the configured peripheral state, and resumes it before readiness.
 Its evidence ZIP also retains microphone source PCM and NEC IR capture.
 
+StamPLC uses the same one-guest contract:
+
+```json
+{
+  "device_id": "stamplc",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 60,
+  "network": {
+    "profile": "uiflow2-stamplc-unified",
+    "attempts": 2
+  }
+}
+```
+
+The StamPLC image exercises the 240x135 ST7789 display, keys/RGB,
+AW9523 relay/input banks, INA226, LM75, RX8130, TWAI CAN, PWR-485 and the
+G44 buzzer together with WiFi DHCP/HTTP on port `18088` and UART1 HCI BLE.
+UART2 remains the PWR-485 bus on G0/G39/G46; UART1 HCI uses the documented
+custom G40/G41 pins.
+
 State machine:
 
 ```text
@@ -839,9 +859,9 @@ after a service restart.
 ## Current limitations
 
 - `runtime=network` sessions are diagnostic lanes; StickS3, CoreS3,
-  Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono and StackChan
-  instead use `runtime=qemu-ble` with their unified profiles for one
-  combined guest;
+  Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and
+  StamPLC instead use `runtime=qemu-ble` with their unified profiles for
+  one combined guest;
 - unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
   HCI-offload over UART1 (UART2 on StackChan), not a native S3 PHY/radio
   model;
@@ -854,9 +874,9 @@ after a service restart.
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
   matching reference ELF;
 - normalized `device-state` probes currently exist for StickS3, CoreS3,
-  Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono and StackChan;
-  other devices expose session metadata, framebuffer and serial without
-  inventing component values;
+  Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and
+  StamPLC; other devices expose session metadata, framebuffer and serial
+  without inventing component values;
 - emulator processes are not resumed across service restarts; only stopped,
   failed and interrupted history is reconstructed;
 - reference firmware must already exist in `platform/.cache/firmware`;

@@ -26,8 +26,8 @@
 
 reference-ready：真实固件、画面和输入已打通。
 
-- 验证：`display-key-bus-actuator-pass` (2026-10-21)
-- 详情：官方 UIFlow2 v2.5.3 渲染 240x135 UI；PI4IOE 按键/继电器/输入、RGB、INA226、LM75、TWAI CAN G42/G43、PWR485 UART2 G0/G39/G46 和 G44 I2S 蜂鸣器闭环通过。
+- 验证：`display-input-peripherals-wifi-ble-pass` (2026-10-23)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 240x135 显示、按键/RGB、继电器/光耦输入、INA226、LM75、RX8130、TWAI CAN、PWR-485、蜂鸣器 PCM、WiFi DHCP/HTTP 以及 UART1 HCI BLE；StamPLC 6/6 外设矩阵通过。
 
 
 
