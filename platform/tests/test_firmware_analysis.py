@@ -2,16 +2,24 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import random
 import struct
 import sys
 import tempfile
 import unittest
+from itertools import pairwise
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
-from firmware_analysis import analyze_firmware, analyze_esp_image, parse_partition_table
+from firmware_analysis import (
+    analyze_esp_image,
+    analyze_firmware,
+    parse_partition_table,
+)
+from firmware_filesystems import inventory_data_partition
 
 
 def build_image(chip_id: int = 0x0009, descriptor: bool = True) -> bytes:
@@ -93,6 +101,324 @@ def build_flash_with_littlefs() -> bytes:
     for subtype, offset, size, label in (
         (0, 0x10000, 0x2000, b"factory"),
         (0x83, 0x20000, 0x8000, b"storage"),
+    ):
+        entry = bytearray(32)
+        struct.pack_into("<H", entry, 0, 0x50AA)
+        entry[2] = 0 if subtype == 0 else 1
+        entry[3] = subtype
+        struct.pack_into("<II", entry, 4, offset, size)
+        entry[12 : 12 + len(label)] = label
+        entries.append(entry)
+    payload = b"".join(entries)
+    md5_entry = bytearray(32)
+    struct.pack_into("<H", md5_entry, 0, 0xEBEB)
+    md5_entry[16:32] = hashlib.md5(payload).digest()
+    image[0x8000 : 0x8000 + len(payload)] = payload
+    image[0x8000 + len(payload) : 0x8020 + len(payload)] = md5_entry
+    return bytes(image)
+
+
+def _fat_short_name_checksum(name: bytes) -> int:
+    value = 0
+    for byte in name:
+        value = (((value & 1) << 7) + (value >> 1) + byte) & 0xFF
+    return value
+
+
+def _fat_short_name_11(name: str) -> bytes:
+    if name == ".":
+        return b".       " + b"   "
+    if name == "..":
+        return b"..      " + b"   "
+    stem, dot, suffix = name.rpartition(".")
+    if not dot:
+        stem, suffix = name, ""
+    encoded = stem.upper().encode("ascii")[:8].ljust(8, b" ")
+    return encoded + suffix.upper().encode("ascii")[:3].ljust(3, b" ")
+
+
+def _fat_lfn_entries(name: str, short_name: bytes) -> bytes:
+    if name.upper() == short_name.decode("ascii").strip():
+        return b""
+    encoded = name.encode("utf-16le")
+    characters = [
+        int.from_bytes(encoded[offset : offset + 2], "little")
+        for offset in range(0, len(encoded), 2)
+    ]
+    chunks = [
+        characters[offset : offset + 13]
+        for offset in range(0, len(characters), 13)
+    ]
+    checksum = _fat_short_name_checksum(short_name)
+    rows = bytearray()
+    for sequence in range(len(chunks), 0, -1):
+        chunk = chunks[sequence - 1]
+        padded = chunk + [0] * (13 - len(chunk))
+        if len(chunk) < 13:
+            padded[len(chunk)] = 0
+            for index in range(len(chunk) + 1, 13):
+                padded[index] = 0xFFFF
+        entry = bytearray(32)
+        entry[0] = sequence | (0x40 if sequence == len(chunks) else 0)
+        entry[11] = 0x0F
+        entry[13] = checksum
+        for index, value in enumerate(padded):
+            offsets = (
+                1,
+                3,
+                5,
+                7,
+                9,
+                14,
+                16,
+                18,
+                20,
+                22,
+                24,
+                28,
+                30,
+            )
+            entry[offsets[index] : offsets[index] + 2] = value.to_bytes(
+                2, "little"
+            )
+        rows.extend(entry)
+    return bytes(rows)
+
+
+def _fat_directory_entry(
+    name: str,
+    *,
+    short_name: str | None = None,
+    attributes: int = 0x20,
+    cluster: int = 0,
+    size: int = 0,
+) -> bytes:
+    short = _fat_short_name_11(short_name or name)
+    entry = bytearray(32)
+    entry[:11] = short
+    entry[11] = attributes
+    struct.pack_into("<H", entry, 20, (cluster >> 16) & 0xFFFF)
+    struct.pack_into("<H", entry, 26, cluster & 0xFFFF)
+    struct.pack_into("<I", entry, 28, size)
+    return _fat_lfn_entries(name, short) + bytes(entry)
+
+
+def build_fat_volume(fat_type: str) -> bytes:
+    if fat_type not in {"fat12", "fat16", "fat32"}:
+        raise ValueError(fat_type)
+    sector_size = 512
+    sectors_per_cluster = 1
+    cluster_size = sector_size * sectors_per_cluster
+    reserved_sectors = 1
+    fat_count = 2
+    root_entry_count = 0 if fat_type == "fat32" else 32
+    if fat_type == "fat12":
+        total_sectors = 128
+        fat_sectors = 1
+    elif fat_type == "fat16":
+        total_sectors = 5000
+        fat_sectors = 20
+    else:
+        total_sectors = 256
+        fat_sectors = 3
+    root_dir_sectors = (
+        root_entry_count * 32 + sector_size - 1
+    ) // sector_size
+    first_data_sector = (
+        reserved_sectors + fat_count * fat_sectors + root_dir_sectors
+    )
+    cluster_count = (
+        total_sectors - first_data_sector
+    ) // sectors_per_cluster
+
+    cluster_payloads: list[bytearray] = []
+    chains: list[list[int]] = []
+
+    def allocate(payload: bytes = b"") -> list[int]:
+        chunks = [
+            payload[offset : offset + cluster_size]
+            for offset in range(0, len(payload), cluster_size)
+        ] or [b""]
+        chain: list[int] = []
+        for chunk in chunks:
+            cluster = len(cluster_payloads) + 2
+            cluster_payloads.append(
+                bytearray(chunk.ljust(cluster_size, b"\x00"))
+            )
+            chain.append(cluster)
+        if len(cluster_payloads) > cluster_count:
+            raise AssertionError("test FAT volume is too small")
+        chains.append(chain)
+        return chain
+
+    root_chain = allocate() if fat_type == "fat32" else []
+    main_payload = b"print('fat fixture')\n" + b"x" * 684
+    main_chain = allocate(main_payload)
+    res_chain = allocate()
+    certs_chain = allocate()
+    configs_chain = allocate()
+    license_payload = b"SPDX-License-Identifier: Apache-2.0\n"
+    license_chain = allocate(license_payload)
+    key_payload = b"not-a-real-private-key\n"
+    key_chain = allocate(key_payload)
+    long_name = "long_configuration.json"
+    config_payload = b'{"enabled":true}\n'
+    config_chain = allocate(config_payload)
+
+    def directory(parent: int) -> bytes:
+        return (
+            _fat_directory_entry(
+                ".",
+                short_name=".",
+                attributes=0x10,
+                cluster=parent,
+            )
+            + _fat_directory_entry(
+                "..",
+                short_name="..",
+                attributes=0x10,
+                cluster=0,
+            )
+        )
+
+    root_entries = (
+        _fat_directory_entry(
+            "main.py",
+            cluster=main_chain[0],
+            size=len(main_payload),
+        )
+        + _fat_directory_entry(
+            "RES",
+            attributes=0x10,
+            cluster=res_chain[0],
+        )
+        + _fat_directory_entry(
+            "CERTS",
+            attributes=0x10,
+            cluster=certs_chain[0],
+        )
+        + _fat_directory_entry(
+            "CONFIGS",
+            attributes=0x10,
+            cluster=configs_chain[0],
+        )
+    )
+    res_entries = directory(res_chain[0]) + _fat_directory_entry(
+        "LICENSE",
+        cluster=license_chain[0],
+        size=len(license_payload),
+    )
+    certs_entries = directory(certs_chain[0]) + _fat_directory_entry(
+        "device.key",
+        cluster=key_chain[0],
+        size=len(key_payload),
+    )
+    configs_entries = directory(configs_chain[0]) + _fat_directory_entry(
+        long_name,
+        short_name="LONGC~1.JSON",
+        cluster=config_chain[0],
+        size=len(config_payload),
+    )
+
+    def write_cluster(chain: list[int], payload: bytes) -> None:
+        for index, cluster in enumerate(chain):
+            chunk = payload[
+                index * cluster_size : (index + 1) * cluster_size
+            ]
+            cluster_payloads[cluster - 2] = bytearray(
+                chunk.ljust(cluster_size, b"\x00")
+            )
+
+    if root_chain:
+        write_cluster(root_chain, root_entries)
+    write_cluster(res_chain, res_entries)
+    write_cluster(certs_chain, certs_entries)
+    write_cluster(configs_chain, configs_entries)
+
+    volume = bytearray(total_sectors * sector_size)
+    volume[0:3] = b"\xeb\x3c\x90"
+    volume[3:11] = b"M5TEST  "
+    struct.pack_into("<H", volume, 11, sector_size)
+    volume[13] = sectors_per_cluster
+    struct.pack_into("<H", volume, 14, reserved_sectors)
+    volume[16] = fat_count
+    struct.pack_into("<H", volume, 17, root_entry_count)
+    if total_sectors < 0x10000:
+        struct.pack_into("<H", volume, 19, total_sectors)
+    else:
+        struct.pack_into("<I", volume, 32, total_sectors)
+    volume[21] = 0xF8
+    struct.pack_into("<H", volume, 24, 32)
+    struct.pack_into("<H", volume, 26, 64)
+    if fat_type == "fat32":
+        struct.pack_into("<I", volume, 36, fat_sectors)
+        struct.pack_into("<I", volume, 44, root_chain[0])
+        volume[82:90] = b"FAT32   "
+    else:
+        struct.pack_into("<H", volume, 22, fat_sectors)
+        label = b"FAT12   " if fat_type == "fat12" else b"FAT16   "
+        volume[54:62] = label
+    volume[510:512] = b"\x55\xaa"
+
+    fat = bytearray(fat_sectors * sector_size)
+
+    def set_fat_entry(cluster: int, value: int) -> None:
+        if fat_type == "fat12":
+            offset = cluster + cluster // 2
+            raw = fat[offset] | fat[offset + 1] << 8
+            if cluster & 1:
+                raw = (raw & 0x000F) | ((value & 0x0FFF) << 4)
+            else:
+                raw = (raw & 0xF000) | (value & 0x0FFF)
+            fat[offset] = raw & 0xFF
+            fat[offset + 1] = (raw >> 8) & 0xFF
+        elif fat_type == "fat16":
+            struct.pack_into("<H", fat, cluster * 2, value & 0xFFFF)
+        else:
+            struct.pack_into("<I", fat, cluster * 4, value & 0x0FFFFFFF)
+
+    eoc = {
+        "fat12": 0x0FFF,
+        "fat16": 0xFFFF,
+        "fat32": 0x0FFFFFFF,
+    }[fat_type]
+    set_fat_entry(0, eoc)
+    set_fat_entry(1, eoc)
+    for chain in chains:
+        for current, following in pairwise(chain):
+            set_fat_entry(current, following)
+        set_fat_entry(chain[-1], eoc)
+
+    fat_offset = reserved_sectors * sector_size
+    for copy_index in range(fat_count):
+        start = fat_offset + copy_index * len(fat)
+        volume[start : start + len(fat)] = fat
+
+    if fat_type != "fat32":
+        root_offset = (
+            reserved_sectors + fat_count * fat_sectors
+        ) * sector_size
+        volume[root_offset : root_offset + len(root_entries)] = root_entries
+
+    for index, payload in enumerate(cluster_payloads):
+        start = (first_data_sector + index * sectors_per_cluster) * sector_size
+        volume[start : start + len(payload)] = payload
+    return bytes(volume)
+
+
+def build_flash_with_fat(fat_type: str = "fat16") -> bytes:
+    volume = build_fat_volume(fat_type)
+    data_offset = 0x30000
+    image = bytearray(b"\xff" * (data_offset + len(volume)))
+    boot = build_image(descriptor=False)
+    image[: len(boot)] = boot
+    app = build_image()
+    image[0x10000 : 0x10000 + len(app)] = app
+    image[data_offset : data_offset + len(volume)] = volume
+    entries = []
+    for subtype, offset, size, label in (
+        (0, 0x10000, 0x20000, b"factory"),
+        (0x81, data_offset, len(volume), b"storage"),
     ):
         entry = bytearray(32)
         struct.pack_into("<H", entry, 0, 0x50AA)
@@ -255,6 +581,113 @@ class FirmwareAnalysisTests(unittest.TestCase):
         self.assertIn("/main.py", file_paths)
         self.assertIn("/res/LICENSE", file_paths)
         self.assertIn("<redacted-sensitive-path>", file_paths)
+
+    def test_fat_inventory_supports_fat12_fat16_and_fat32(self):
+        for fat_type in ("fat12", "fat16", "fat32"):
+            with self.subTest(fat_type=fat_type):
+                with tempfile.TemporaryDirectory() as tmp:
+                    path = Path(tmp) / f"{fat_type}.bin"
+                    path.write_bytes(build_flash_with_fat(fat_type))
+                    result = analyze_firmware(
+                        path,
+                        expected_chip_id_value=0x0009,
+                    )
+
+                self.assertTrue(result["valid"], result["errors"])
+                filesystem = result["filesystems"][0]
+                self.assertEqual(filesystem["type"], "fat")
+                self.assertEqual(filesystem["fat_type"], fat_type)
+                self.assertEqual(filesystem["status"], "PASS")
+                self.assertEqual(
+                    filesystem["declared_licenses"],
+                    ["Apache-2.0"],
+                )
+                self.assertEqual(filesystem["file_count"], 4)
+                self.assertEqual(filesystem["directory_count"], 3)
+                paths = {row["path"] for row in filesystem["files"]}
+                self.assertIn("/main.py", paths)
+                self.assertIn("/RES/LICENSE", paths)
+                self.assertIn(
+                    "/CONFIGS/long_configuration.json",
+                    paths,
+                )
+                self.assertIn("<redacted-sensitive-path>", paths)
+                self.assertNotIn(
+                    "device.key",
+                    json.dumps(result),
+                )
+                main = next(
+                    row for row in filesystem["files"]
+                    if row["path"] == "/main.py"
+                )
+                expected = (
+                    b"print('fat fixture')\n" + b"x" * 684
+                )
+                self.assertEqual(len(expected), main["size"])
+                self.assertEqual(
+                    main["sha256"],
+                    hashlib.sha256(expected).hexdigest(),
+                )
+                self.assertEqual(len(filesystem["sensitive_files"]), 1)
+
+    def test_fat_cycle_is_partial_not_a_pass(self):
+        volume = bytearray(build_fat_volume("fat12"))
+        fat_offset = 512
+        cluster = 2
+        offset = fat_offset + cluster + cluster // 2
+        raw = volume[offset] | volume[offset + 1] << 8
+        raw = (raw & 0xF000) | cluster
+        volume[offset] = raw & 0xFF
+        volume[offset + 1] = (raw >> 8) & 0xFF
+
+        result = inventory_data_partition(
+            bytes(volume),
+            {
+                "label": "storage",
+                "subtype": 0x81,
+                "offset": 0,
+                "size": len(volume),
+            },
+        )
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result["status"], "PARTIAL")
+        self.assertTrue(
+            any("loop" in error for error in result["errors"]),
+            result["errors"],
+        )
+
+    def test_erased_fat_partition_is_unformatted(self):
+        result = inventory_data_partition(
+            b"\xff" * 4096,
+            {
+                "label": "storage",
+                "subtype": 0x81,
+                "offset": 0,
+                "size": 4096,
+            },
+        )
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result["status"], "UNFORMATTED")
+
+    def test_malformed_fat_inputs_are_rejected_without_exception(self):
+        random_source = random.Random(0xFA7)
+        for size in (512, 1024, 4096, 16384):
+            with self.subTest(size=size):
+                data = bytearray(random_source.randbytes(size))
+                data[510:512] = b"\x55\xaa"
+                result = inventory_data_partition(
+                    bytes(data),
+                    {
+                        "label": "storage",
+                        "subtype": 0x81,
+                        "offset": 0,
+                        "size": size,
+                    },
+                )
+                self.assertIsNotNone(result)
+                self.assertEqual(result["status"], "INVALID")
 
 
 if __name__ == "__main__":

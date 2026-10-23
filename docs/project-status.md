@@ -23,7 +23,7 @@
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
   `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
   QEMU 虚拟时钟推进。
-- 当前平台测试：`225/225` PASS；runtime coverage、peripheral catalog 和
+- 当前平台测试：`230/230` PASS；runtime coverage、peripheral catalog 和
   QEMU profiles 校验通过。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
@@ -33,7 +33,7 @@
 | --- | --- | --- | --- |
 | 2026-10-24 | 网络隔离 | private net/mount namespace、fail-closed、controlled DNS、TLS/Host allowlist、200/403 与 pcap 联合 PASS | [`controlled-dns-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json) |
 | 2026-10-24 | 共享 QEMU | ESP32-S3 AES/GDMA 外部内存读取修复；最新全矩阵 `67/67` case、`274/274` check，全部首轮无重试 | [`gdma-external-memory-matrix.json`](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) |
-| 2026-10-24 | 固件审查 | FirmwareManifest 增加 LittleFS 文件/目录、大小、SHA256、敏感路径脱敏与 SPDX 清单 | [`filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json) |
+| 2026-10-24 | 固件审查 | FirmwareManifest 增加 LittleFS 与只读 FAT12/16/32 文件清单、SHA256、LFN、敏感路径脱敏与 SPDX 提取 | [`fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json) |
 | 2026-10-24 | Core2 | 确定性启动与零重试门禁合入；stock native-VHCI BLE、同 guest board+WiFi+公网+BLE GATT、Device Service 单 lease 证据已归档 | [`native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) |
 
 ## P0 收口
@@ -42,7 +42,7 @@
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap 摘要、错误密码、guest 断网 + backend link down/up + 重新 DHCP/HTTP；Linux namespace controlled DNS、TLS + Host allowlist 完成允许 A/200、拒绝 NXDOMAIN/403 和 pcap 联合 PASS；QEMU patch `0027` 闭合 AES/GDMA 外部内存读取 | 正式 CI/worker、通用 destination IP/port allowlist、DHCP renewal、真实 AP 丢失、双设备 lab fabric |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、Device Service `core2-native-vhci` PASS | 非 GDB 生产实现、bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 等价性、RF/coexistence/soak |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM 摘要、LittleFS 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS/FAT 解包、运行时权限、许可策略、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、安全状态 `unknown` 保持、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、生产 key/eFuse 流程、跨厂商回归、WebBurner 流式上传 |
 
 ## 工程工作流总表
 
@@ -52,7 +52,7 @@
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | QEMU patch `0027` 后最新 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成，生产后端开放 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、Device Service lease PASS | 去掉 GDB bridge；bit-exact BT；物理 cache/PSRAM 与 soak |
 | Device Service | v1 已实现，生产服务开放 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py` | lease、上传/烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.9.0 | worker 化、活动进程恢复、warm pool、多机调度与 VM 隔离 |
-| FirmwareManifest | v1 + 静态审查 + LittleFS 清单 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态、capability mismatch、脱敏 finding、SBOM、LittleFS 文件哈希/敏感路径/SPDX | SPIFFS/FAT、运行时权限、许可策略、生产 key/eFuse、跨厂商回归、流式上传 |
+| FirmwareManifest | v1 + 静态审查 + LittleFS/FAT 清单 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、安全状态、capability mismatch、脱敏 finding、SBOM、LittleFS/FAT12/16/32 文件哈希/敏感路径/SPDX | SPIFFS、运行时权限、许可策略、生产 key/eFuse、跨厂商回归、流式上传 |
 | 网络隔离与取证 | Linux 单机路径闭环，正式 worker 开放 | `network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、`tests/network/tls_allowlist/` | namespace 无外网、controlled DNS、pcap、错误密码、link down/up、重新 DHCP 与前后 HTTP；TLS Host allowlist（200/403）及 QEMU AES/GDMA 外部内存路径 PASS | 通用 destination egress allowlist、DHCP renewal、真实 AP 丢失、双设备 fabric、CI/worker |
 | 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
 | 物理硬件验证 | `NOT RUN` | Device Test Center 路径 | 当前仅有 virtual-device validation | 代表设备使用同固件 SHA 和同测试计划做实机证据 |
@@ -164,6 +164,10 @@
   [`tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json)
 - Firmware redacted static review evidence:
   [`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)
+- LittleFS inventory evidence:
+  [`tests/firmware/evidence-2026-10-24-filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json)
+- FAT12/16/32 inventory and real-sample evidence:
+  [`tests/firmware/evidence-2026-10-24-fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json)
 - Linux guest-in-namespace evidence:
   [`tests/network/linux_isolation/evidence-2026-10-23-linux.json`](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
 - [网络模拟方案](network-simulation-plan.md)

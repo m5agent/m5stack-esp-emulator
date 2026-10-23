@@ -37,8 +37,8 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 2. 校验 segment 偏移不重叠且不越界；
 3. 将 sparse merged 镜像补齐为目标设备完整 Flash；
 4. 分析 bootloader、partition table、app image 和 app descriptor；
-5. 从 data partition 识别 LittleFS，枚举文件路径、大小、SHA256、脚本/证书/
-  配置类型、敏感路径和 SPDX 许可证声明；
+5. 从 data partition 识别 LittleFS/FAT，枚举文件路径、大小、SHA256、
+   脚本/证书/配置类型、敏感路径和 SPDX 许可证声明；
 6. 静态扫描 URL、凭据特征、私钥标记和高熵编码块，并汇总 SBOM；
 7. 生成完整镜像、资源副本和 `*.manifest.json`；
 8. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需 capabilities。
@@ -51,7 +51,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | --- | --- |
 | `artifact` | 规范化完整镜像或分段 artifact 的路径、大小、SHA256 |
 | `target` | SoC、chip ID、Flash、PSRAM、分区表、应用描述 |
-| `target.filesystems` | LittleFS 分区、文件路径/大小/SHA256、敏感路径和许可证声明 |
+| `target.filesystems` | LittleFS/FAT 分区、文件路径/大小/SHA256、敏感路径和许可证声明 |
 | `security` | 安全启动、Flash Encryption、eFuse 和 secure version 边界 |
 | `provenance` | M5Burner ID、版本、来源 URL/类型、license |
 | `resources` | ELF、MAP、sdkconfig、flasher args、SBOM |
@@ -126,7 +126,7 @@ JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名�
 | 文件系统 | 当前行为 | 证据 / 边界 |
 | --- | --- | --- |
 | LittleFS | 只读挂载、目录/文件清单、大小、SHA256、敏感路径脱敏、SPDX 提取 | 真实 StickS3 UIFlow2 `sys`/`vfs` 分区 PASS |
-| FAT12/16/32 | 分区可识别，但内容清单返回 `UNSUPPORTED` | 尚未实现只读 parser；不能用“挂载失败”冒充 `PASS` |
+| FAT12/16/32 | 只读 BPB/FAT 解析、目录递归、LFN、文件 SHA256、敏感路径和 SPDX | 合成 FAT12/16/32 与真实 PaperColor FAT12 样本；不挂载宿主文件系统 |
 | SPIFFS | 分区可识别，但内容清单返回 `UNSUPPORTED` | 尚未实现可审计 host parser；不能根据文件名/字符串猜测 |
 
 LittleFS 数据分区的具体行为：
@@ -140,8 +140,18 @@ LittleFS 数据分区的具体行为：
 - 从 LICENSE/NOTICE/COPYING 文件提取 `SPDX-License-Identifier`；
 - 文件数、目录数达到上限时显式记录 truncation。
 
-SPIFFS 和 FAT 目前只做分区识别并返回 `UNSUPPORTED`，不会伪装成已解析。
-LittleFS 不记录 Unix mode，因此文件权限仍为 `NOT RUN`。
+FAT 解析器：
+
+- 校验 bytes/sector、sectors/cluster、reserved/FAT/root/data 几何和 FAT 表容量；
+- 支持 FAT12、FAT16、FAT32 cluster chain 与 FAT32 root cluster；
+- 校验 LFN sequence/checksum，异常时回退 8.3 名称；
+- 拒绝循环链、越界 cluster、bad/free cluster、无效子目录和超限目录项；
+- 对 0x00/0xFF 全填充的 FAT 分区返回 `UNFORMATTED`，不伪造空文件清单；
+- 对截断、表不一致或无效 boot sector 返回 `INVALID/PARTIAL`；
+- 不挂载或执行镜像，不恢复已删除文件，也不检查文件 slack space。
+
+SPIFFS 目前只做分区识别并返回 `UNSUPPORTED`，不会伪装成已解析。
+LittleFS/FAT 都不记录 Unix mode，因此运行时文件权限仍为 `NOT RUN`。
 LittleFS 清单依赖 `littlefs-python`；依赖缺失时返回 `UNAVAILABLE`，不会
 自动格式化或改写输入镜像。
 
@@ -219,7 +229,19 @@ StickS3 UIFlow2 `sys`/`vfs` LittleFS 清单与哈希证据：
 [`tests/firmware/evidence-2026-10-24-filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json)。
 其中 `sys` 为 39 个文件、5 个目录、632603 bytes，`vfs` 为 17 个文件、
 7 个目录、16306 bytes；两个分区均完成 manifest round-trip。该样本
-证明 LittleFS 路径，不代表 FAT/SPIFFS 已支持。
+证明 LittleFS 路径；文件中的 `fat_inventory=NOT RUN` 是该次只含
+LittleFS 样本的历史边界，FAT 支持由下面的独立 follow-up evidence 证明。
+
+FAT 证据：
+[`tests/firmware/evidence-2026-10-24-fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json)
+包含：
+
+- 合成 FAT12/FAT16/FAT32 的 LFN、嵌套目录、多簇文件、敏感 `.key` 路径、
+  SPDX 和 manifest round-trip；
+- 循环 cluster chain 被标记 `PARTIAL`，不会错误 PASS；
+- 全 0xFF 的 FAT 分区被标记 `UNFORMATTED`；
+- 真实 PaperColor FAT12 样本解析出 11 个 PNG 文件及其 SHA256；一个未初始化的
+  `System Volume Information` 子目录被安全拒绝，所以该样本整体保持 `PARTIAL`。
 
 ## 边界
 
@@ -233,6 +255,5 @@ StickS3 UIFlow2 `sys`/`vfs` LittleFS 清单与哈希证据：
 - license/provenance 缺失不会自动变成合法授权；
 - 真机安全启动、Flash Encryption 和生产 key 流程仍须真机验证。
 
-下一步先实现有严格文件/簇上限的只读 FAT12/16/32 解析和 fixture；
-SPIFFS 要么实现窄范围只读 parser，要么从 ESP-IDF 源码构建可审计 helper，
-在直接测试前保持 `UNSUPPORTED`。
+下一步实现 SPIFFS：要么实现窄范围只读 parser，要么从 ESP-IDF 源码构建
+可审计 helper；在直接测试前保持 `UNSUPPORTED`。

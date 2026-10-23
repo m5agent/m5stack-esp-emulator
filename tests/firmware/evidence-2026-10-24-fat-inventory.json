@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "kind": "firmware-fat-inventory",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "implementation": {
+    "module": "platform/tools/firmware_filesystems.py",
+    "formats": [
+      "fat12",
+      "fat16",
+      "fat32"
+    ],
+    "checks": {
+      "boot_sector_geometry": "PASS",
+      "fat12_chain": "PASS",
+      "fat16_chain": "PASS",
+      "fat32_chain": "PASS",
+      "long_file_names": "PASS",
+      "directory_recursion": "PASS",
+      "multi_cluster_file_hash": "PASS",
+      "sensitive_path_redaction": "PASS",
+      "spdx_extraction": "PASS",
+      "cluster_loop_rejection": "PASS",
+      "erased_partition_classification": "PASS",
+      "malformed_input_rejection": "PASS",
+      "uninitialized_subdirectory_rejection": "PASS",
+      "manifest_integration": "PASS"
+    }
+  },
+  "synthetic_fixtures": {
+    "fat12": {
+      "status": "PASS",
+      "file_count": 4,
+      "directory_count": 3,
+      "sensitive_file_count": 1,
+      "declared_licenses": [
+        "Apache-2.0"
+      ]
+    },
+    "fat16": {
+      "status": "PASS",
+      "file_count": 4,
+      "directory_count": 3,
+      "sensitive_file_count": 1,
+      "declared_licenses": [
+        "Apache-2.0"
+      ]
+    },
+    "fat32": {
+      "status": "PASS",
+      "file_count": 4,
+      "directory_count": 3,
+      "sensitive_file_count": 1,
+      "declared_licenses": [
+        "Apache-2.0"
+      ]
+    }
+  },
+  "real_sample": {
+    "device": "papercolor",
+    "firmware_id": "1897200000000000148",
+    "image_sha256": "a3f5ca4ae89dd724dd8f9b2d800fd9749af84bf0cf2fffbf99cdf822b285f419",
+    "image_size": 16777216,
+    "label": "storage",
+    "partition_sha256": "37f07c05d95392d952203947d27df25163291b0d556c57162bb2d120fe1d9267",
+    "fat_sha256": "ced0579af54271f3efef0d6d75232ebd70652663265a030eb0fa983c55ca2f6d",
+    "fat_type": "fat12",
+    "bytes_per_sector": 4096,
+    "cluster_size": 4096,
+    "cluster_count": 1513,
+    "status": "PARTIAL",
+    "file_count": 11,
+    "directory_count": 1,
+    "total_file_bytes": 2880321,
+    "errors": [
+      "System Volume Information is not a valid populated directory: it has no . and .. entries"
+    ],
+    "files": [
+      {
+        "path": "/imaged001.png",
+        "size": 26536,
+        "sha256": "4ac28522972b0c6612831a4780677c92492e6c796d08a1e70437c44f0e329d49"
+      },
+      {
+        "path": "/imaged002.png",
+        "size": 108533,
+        "sha256": "79752c5d9488a410f31a9682110422d63d3f75fd785937f98a29ef8e73b197aa"
+      },
+      {
+        "path": "/imaged003.png",
+        "size": 338589,
+        "sha256": "b5063e5757c9d3b20647520d671af145138e77ade27cfe382722095f1b8358a9"
+      },
+      {
+        "path": "/imaged004.png",
+        "size": 373475,
+        "sha256": "71d018ae58a5ff6e71a6908ae13f05a2af08a647d80167b36ba1f96303460cba"
+      },
+      {
+        "path": "/imaged005.png",
+        "size": 452024,
+        "sha256": "b625a299597ac4e87efa640f4fdffde054a5991044071705e0f69bf03e8de413"
+      },
+      {
+        "path": "/imaged006.png",
+        "size": 147104,
+        "sha256": "99b50313ca65a1bcda7e6f1986aea3a14f6539774ff11122cc120dd867cf30b4"
+      },
+      {
+        "path": "/imaged007.png",
+        "size": 253041,
+        "sha256": "11b1d7329b6f913836716b4c7852ffad1482b94689442430a75af551ab77dcdc"
+      },
+      {
+        "path": "/imageN002.png",
+        "size": 147104,
+        "sha256": "d4dc1e8577544fff9814fabb43366a6226a237c7001b2377bd95a1c86ac45c0e"
+      },
+      {
+        "path": "/imaged008.png",
+        "size": 510163,
+        "sha256": "7b999b59021f8f7dd69af4c2b24f71216734bf013cb51357300f246ccd971847"
+      },
+      {
+        "path": "/imageN001.png",
+        "size": 261876,
+        "sha256": "aad2a2dd166c1d3ec50edc4e2b6a6df3ea9fb09fd4167eb7f82e4478a2e458aa"
+      },
+      {
+        "path": "/imaged011.png",
+        "size": 261876,
+        "sha256": "4309ad6e198540db2c42b460f9c8929b230aaff01b7f7ca32732c470b1bbc97f"
+      }
+    ]
+  },
+  "additional_samples": {
+    "erased_fat_partitions": {
+      "status": "UNFORMATTED",
+      "samples": [
+        "atoms3r/1897200000000001680",
+        "stamplc/1897200000000002905"
+      ]
+    }
+  },
+  "limits": {
+    "max_files": 512,
+    "max_directories": 512,
+    "max_directory_entries": 65536,
+    "max_depth": 32,
+    "files_truncated": false,
+    "directories_truncated": false
+  },
+  "not_claimed": [
+    "deleted file recovery",
+    "file slack-space inspection",
+    "runtime file permissions",
+    "license compliance",
+    "physical hardware",
+    "SPIFFS inventory"
+  ]
+}

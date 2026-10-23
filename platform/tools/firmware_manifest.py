@@ -978,7 +978,13 @@ def import_package(
             row
             for row in filesystems
             if row.get("status")
-            in {"UNAVAILABLE", "UNSUPPORTED", "INVALID", "PARTIAL"}
+            in {
+                "UNAVAILABLE",
+                "UNSUPPORTED",
+                "UNFORMATTED",
+                "INVALID",
+                "PARTIAL",
+            }
         ]
         if unavailable_filesystems:
             manifest["validation"]["warnings"].append(
@@ -1024,6 +1030,7 @@ def import_package(
             review["status"] = "REVIEW_REQUIRED"
         if any(
             row.get("limits", {}).get("files_truncated")
+            or row.get("limits", {}).get("directories_truncated")
             for row in filesystems
         ):
             manifest["validation"]["warnings"].append(

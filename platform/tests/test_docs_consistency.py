@@ -42,6 +42,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/firmware/evidence-2026-10-23-static-review.json",
             "tests/firmware/evidence-2026-10-24-filesystem-inventory.json",
+            "tests/firmware/evidence-2026-10-24-fat-inventory.json",
             "patches/qemu-core2-openmac-wifi/README.md",
             "patches/qemu-core2-ble-controller/README.md",
         ):
@@ -131,6 +132,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "QOM injection runs without pausing the guest to avoid the known Core2 cache/watchdog failure",
             "PSRAM/cache stability remains",
             "It does not yet prove over-the-air advertising, external discovery",
+            "FAT inventory is not implemented",
+            "SPIFFS/FAT 解包",
+            "FAT/SPIFFS 返回可验证清单",
         ):
             self.assertNotIn(stale, active)
 

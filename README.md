@@ -22,7 +22,7 @@ MicroPython 和其他完整 Flash 固件。
 - 最新 UIFlow2 外设全矩阵在 `2026-10-24 00:11 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
   `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
-  下首轮通过。当前平台单元测试为 `225/225` PASS。
+  下首轮通过。当前平台单元测试为 `230/230` PASS。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
 
@@ -39,7 +39,7 @@ MicroPython 和其他完整 Flash 固件。
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux private network/mount namespace、fail-closed、controlled DNS、TLS/SNI Host allowlist、QEMU pcap | [`controlled-dns-pass.json`](tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json) | 任意目标 IP/端口策略、DHCP renewal、真实 AP 丢失、双设备 fabric、正式 CI/worker |
 | Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、单 lease unified | [`native-vhci-service.json`](tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) | 去掉 GDB bridge、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak |
-| 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、脱敏静态审查、SBOM、LittleFS 文件清单与 SPDX | [`filesystem-inventory.json`](tests/firmware/evidence-2026-10-24-filesystem-inventory.json) | FAT/SPIFFS、运行时权限/许可策略、生产 key/eFuse、流式上传、跨厂商回归 |
+| 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、脱敏静态审查、SBOM、LittleFS/FAT12/16/32 文件清单与 SPDX | [`fat-inventory.json`](tests/firmware/evidence-2026-10-24-fat-inventory.json) | SPIFFS、运行时权限/许可策略、生产 key/eFuse、流式上传、跨厂商回归 |
 | 共享 QEMU 回归 | AES/GDMA 外部内存读取修复；S3/C6/Core2 全矩阵首轮通过 | [`gdma-external-memory-matrix.json`](tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) | 新共享控制器改动后重新跑受影响矩阵；真机同路径证据 |
 
 ## 剩余工作
@@ -49,7 +49,7 @@ MicroPython 和其他完整 Flash 固件。
 | 高保真逐设备外观建模 | `TODO` | 仅 StopWatch 接近参考质量，其余 13 台仍是通用近似外壳 |
 | Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace 内 guest、pcap 摘要、错误密码、StickS3 断线重连、可控 DNS、TLS/Host allowlist 已通；正式 CI/worker、DHCP renewal 和通用 destination egress allowlist 仍待补 |
-| 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、capability mismatch、脱敏静态审查、SBOM 和 LittleFS 文件清单已通；SPIFFS/FAT、许可策略与生产 key 流程仍待补 |
+| 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、capability mismatch、脱敏静态审查、SBOM、LittleFS 与 FAT12/16/32 文件清单已通；SPIFFS、许可策略与生产 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持停止/失败会话、事件、末帧和设备态跨重启恢复；尚无 warm pool、活动进程续跑和多机调度 |
 | Core2 稳定性与原生无线 | `mostly complete` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3 和 Device Service `core2-native-vhci` lease PASS；非 GDB 生产实现、bit-exact BT controller 与物理等价性未完成 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
@@ -192,6 +192,7 @@ commit 与主机架构的 `.work/` 运行时：
 - 可选 `UIFLOW_MICROPYTHON_DIR`：UIFlow2 源码 checkout；
 - LittleFS 清单：`python3 -m pip install littlefs-python`（缺失时 manifest
   记录 `UNAVAILABLE`）；
+- FAT12/16/32 清单使用内置只读 parser，不需要宿主挂载或额外工具；
 - 内置 UIFlow2 缓存：`python3 platform/tools/fetch_firmware.py <device>`；
 - 任意公开社区固件：
   `python3 platform/tools/fetch_firmware.py --firmware-id <id> --device-slug <slug> --analyze --chip-id 0x9 --cache /tmp/m5-firmware`。

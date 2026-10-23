@@ -236,7 +236,7 @@ The main open streams are:
   DHCP renewal, real AP loss/recovery and a two-device lab fabric;
 - production Core2 VHCI backend, bit-exact BT controller and physical
   cache/PSRAM equivalence, coexistence and soak;
-- FAT/SPIFFS inventory, runtime permissions/license policy, production
+- SPIFFS inventory, runtime permissions/license policy, production
   security-key flows, streaming upload and broader cross-firmware compatibility;
 - remote worker supervision, warm pools, multi-host scheduling and hardened
   untrusted-firmware isolation;

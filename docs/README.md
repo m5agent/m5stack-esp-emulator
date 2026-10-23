@@ -35,12 +35,12 @@
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络、Core2、FirmwareManifest 与 225 项平台测试 |
+| [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络、Core2、FirmwareManifest 与 230 项平台测试 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.9.0` |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 例外已纳入 service |
-| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | LittleFS 清单已通；FAT/SPIFFS 仍 `UNSUPPORTED` |
+| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | LittleFS/FAT12/16/32 清单已通；SPIFFS 仍 `UNSUPPORTED` |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace、controlled DNS、TLS/Host allowlist、pcap 已通 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |

@@ -21,7 +21,7 @@
 | --- | --- | --- | --- |
 | P0 | 网络策略与 CI | destination IP/port allowlist、DHCP renewal、AP 丢失、双设备 fabric、正式 worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
 | P0 | Core2 生产化 | 非 GDB VHCI、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
-| P0 | 通用固件审查 | FAT/SPIFFS、权限/许可策略、eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
+| P0 | 通用固件审查 | SPIFFS、权限/许可策略、eFuse/安全启动/key 流程、跨厂商回归、流式上传 | 多格式镜像；生产安全配置 |
 | P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
 | P1 | 服务 worker 与调度 | supervisor、heartbeat、drain/re-attach、warm pool、多机容量 | 生产部署；对象存储；审计 |
 | P1 | Tab5 后端补齐 | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123、IP2326 | 可扩展 P4 backend 或重建 |
@@ -34,7 +34,7 @@
 2. `NET-02` / `NET-03`：完成 DHCP renewal、真实 AP 丢失/恢复和双设备 fabric。
 3. `NET-04` / `SVC-01`：把现有网络隔离和 evidence 路径接入正式 CI/worker。
 4. `CORE2-01`：移除 GDB bridge，再做 `CORE2-02` 的 controller 和物理过程验证。
-5. `FW-01`：先补只读 FAT12/16/32，再处理 SPIFFS、权限和许可策略。
+5. `FW-01`：完成 SPIFFS、权限和许可策略；FAT12/16/32 已进入主线。
 6. `FW-02/03/04`：生产 key/eFuse、跨厂商样本和流式上传。
 7. `HW-01`：对应功能稳定后立即补同路径真机证据。
 8. Tab5、worker pool、视觉保真和 CardputerZero 作为后续专项推进。
@@ -49,7 +49,7 @@
 | `NET-04` | 待做 | namespace/DNS/TLS/pcap/reconnect 接入 CI 和 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed |
 | `CORE2-01` | 待做 | 服务托管的 GDB VHCI 改为 QEMU 内部或无调试器后端 | 同一 stock 固件无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
-| `FW-01` | 进行中 | 只读 FAT12/16/32 parser 和 fixture；随后评估 SPIFFS | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
+| `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
 | `FW-02` | 待做 | eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、boot 层，不混算 PASS |
 | `FW-04` | 待做 | WebBurner 流式导入和 chunk artifact upload | 大镜像不先落完整宿主临时文件，hash/manifest 保持一致 |
@@ -124,13 +124,14 @@ DHCP lease renewal，也不等于真实虚拟 AP/radio 被移除。
 
 ### FW-01 文件系统与权限
 
-LittleFS 文件/目录、大小、SHA256、敏感路径脱敏和 SPDX 已支持。下一项是
-有严格文件/簇上限的只读 FAT12/16/32 parser；SPIFFS 实现前保持
-`UNSUPPORTED`。
+LittleFS 和 FAT12/16/32 已支持文件/目录、大小、SHA256、敏感路径脱敏和
+SPDX；FAT parser 包含 LFN 校验、循环链拒绝、目录/文件上限和 erased
+partition 分类。下一项是 SPIFFS 只读 parser 或基于 ESP-IDF 的可审计 host
+helper；实现前保持 `UNSUPPORTED`。
 
 验收：
 
-- FAT/SPIFFS 返回可验证清单或明确 `UNSUPPORTED`；
+- SPIFFS 返回可验证清单或明确 `UNSUPPORTED`；
 - 资源项记录来源、哈希、权限策略和许可结论；
 - `unknown` 安全状态不能被写成 PASS；
 - 所有 listing 有截断标记和资源上限。

@@ -21,6 +21,7 @@ from firmware_manifest import (  # noqa: E402
 )
 from test_firmware_analysis import (  # noqa: E402
     build_flash,
+    build_flash_with_fat,
     build_flash_with_littlefs,
 )
 
@@ -290,6 +291,39 @@ class FirmwareManifestTests(unittest.TestCase):
         )
         self.assertNotIn(
             "certs/device.key",
+            json.dumps(manifest, sort_keys=True),
+        )
+
+    def test_manifest_includes_fat_inventory_and_sensitive_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "fat.bin"
+            image.write_bytes(build_flash_with_fat())
+            manifest = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )["manifest"]
+
+        filesystem = manifest["target"]["filesystems"][0]
+        self.assertEqual(filesystem["type"], "fat")
+        self.assertEqual(filesystem["fat_type"], "fat16")
+        self.assertEqual(filesystem["status"], "PASS")
+        self.assertEqual(filesystem["declared_licenses"], ["Apache-2.0"])
+        self.assertTrue(filesystem["sensitive_files"])
+        self.assertEqual(
+            filesystem["sensitive_files"][0]["path"],
+            "<redacted-sensitive-path>",
+        )
+        self.assertTrue(
+            any(
+                issue["code"] == "filesystem_sensitive_file"
+                for issue in manifest["validation"]["warnings"]
+            )
+        )
+        self.assertNotIn(
+            "device.key",
             json.dumps(manifest, sort_keys=True),
         )
 
