@@ -1,6 +1,6 @@
 # Project backlog
 
-Date: `2026-10-22`
+Date: `2026-10-23`
 
 This backlog separates product-facing work from the already completed
 UIFlow2 board/peripheral validation. Estimates are engineering ranges, not
@@ -72,6 +72,10 @@ Implemented on 2026-10-22:
   guest. QEMU ESP32-C6 WiFi DHCP/HTTP and UART1 HCI BLE run alongside those
   peripherals; the direct runner and one Device Service lease both retain
   unified evidence. Stock `hardware.RGB()` remains separately unverified.
+- StickS3 and Nesso N1 now also resolve `example.com` and complete an IPv4
+  public HTTP request in the same guest as their board peripherals and BLE.
+  Public access is opt-in because host DNS and internet availability do not
+  provide a deterministic CI dependency.
 
 Still open:
 

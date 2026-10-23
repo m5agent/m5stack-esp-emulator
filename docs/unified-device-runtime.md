@@ -67,6 +67,10 @@ complete simulated device or as a unified-device PASS.
 - The StickS3 unified HCI-UART build routes real NimBLE H4 traffic through
   QEMU UART1 to a Bumble controller. An external peer completes NUS discovery,
   subscription, write, guest receive and notify ACK in the same QEMU process.
+- The StickS3 and Nesso N1 unified runners can additionally require public
+  DNS and an IPv4 HTTP request in that same guest. This is an opt-in
+  host-network check because external availability is not deterministic in
+  CI; the default regression path remains a controlled local HTTP fixture.
 - `esp-emu` has validated WiFi/BLE behavior on S3/C6, including same-instance
   WiFi + BLE inside one `esp-emu` guest.
 - The QEMU classic-ESP32 experiment contains a `misc.esp32_wifi` model and
@@ -127,6 +131,9 @@ manifest hashes. S3/C6 probes use one open fixed-channel virtual AP; Core2
 OpenMAC advertises its open test-AP set and associates with `myssid`.
 WPA2/WPA3 security behavior is not modelled. BLE is host-controller HCI data
 over an HCI-UART test build, not a native ESP32 radio/controller model.
+StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
+started with `--require-public-network`; this does not imply TLS validation or
+stable access to arbitrary internet services.
 
 The S3/C6 NIC models the guest-visible MAC, DMA descriptors, interrupt and
 user-net frame path, but not a complete PHY/rate/security/RF model. The classic
