@@ -1693,7 +1693,11 @@ class DeviceSession:
                 },
                 "not_claimed": [
                     "real-hardware behavior",
-                    "native ESP32-S3 WiFi PHY or Bluetooth controller model",
+                    (
+                        "native ESP32 WiFi PHY or Bluetooth controller model"
+                        if self.spec.id == "core2"
+                        else "native ESP32-S3 WiFi PHY or Bluetooth controller model"
+                    ),
                     "RF security, range or performance",
                     "untrusted-firmware sandboxing",
                 ],
