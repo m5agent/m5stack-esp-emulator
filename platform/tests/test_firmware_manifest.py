@@ -23,6 +23,7 @@ from test_firmware_analysis import (  # noqa: E402
     build_flash,
     build_flash_with_fat,
     build_flash_with_littlefs,
+    build_flash_with_spiffs,
 )
 
 
@@ -33,6 +34,26 @@ class FirmwareManifestTests(unittest.TestCase):
         )
         self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
         self.assertEqual(schema["properties"]["schema_version"]["const"], 1)
+
+    def test_imports_spiffs_inventory_without_sensitive_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "spiffs.bin"
+            image.write_bytes(build_flash_with_spiffs())
+            manifest = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )["manifest"]
+
+        filesystem = manifest["target"]["filesystems"][0]
+        self.assertEqual(filesystem["type"], "spiffs")
+        self.assertEqual(filesystem["status"], "PASS")
+        self.assertEqual(filesystem["declared_licenses"], ["BSD-3-Clause"])
+        self.assertEqual(filesystem["file_count"], 4)
+        self.assertNotIn("device.key", json.dumps(manifest))
+        self.assertEqual(validate_manifest_structure(manifest), [])
 
     def test_imports_sparse_merged_image_and_preserves_provenance(self):
         with tempfile.TemporaryDirectory() as tmp:

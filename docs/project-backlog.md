@@ -23,7 +23,7 @@
 | --- | --- | --- | --- |
 | P0 | 网络产品化 | 远程 worker 注册、队列、调度和活动 QEMU re-attach | Linux worker；持久化状态；证据回传 |
 | P0 | Core2 native HCI | 无 GDB 完成完整 HCI/GATT，并连续 `5/5` | classic ESP32 VHCI queue/IRQ 语义或 in-process controller |
-| P0 | 通用固件安全 | SPIFFS、权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
+| P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
@@ -37,7 +37,7 @@
    in-process controller transaction，再做 `HCI-4`。
 2. `NET-04` / `SVC-01`：在本地 worker lifecycle 基础上完成远程注册、
    持久队列、调度和活动实例 re-attach；`NET-05` 独立推进 IPv6。
-3. `FW-01`：补 SPIFFS、运行时权限和许可策略；随后 `FW-03` 扩跨厂商样本，
+3. `FW-01`：补运行时权限和许可策略；随后 `FW-03` 扩跨厂商样本，
    `FW-02` 做生产 key/eFuse 与真机安全配置。
 4. `CORE2-02`、`HW-01`：controller/baseband 物理边界和同路径真机证据。
 5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
@@ -51,7 +51,7 @@
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
 | `CORE2-01` | 进行中 | `HCI-3b` device/IRQ queue 或 in-process controller，随后 `HCI-4` repeated lease | 同一 stock 固件无 GDB 完成 NUS GATT，Device Service `5/5` |
 | `CORE2-02` | 待做 | bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和 soak | 物理边界可证；真机/RF 结论不冒充 |
-| `FW-01` | 进行中 | SPIFFS 只读清单或明确 `UNSUPPORTED`；运行时权限/许可策略 | 文件清单可追踪；资源权限和许可结论可审计 |
+| `FW-01` | 进行中 | 运行时权限/许可策略与资源审批 | 文件清单可追踪；资源权限和许可结论可审计 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 跨厂商回归集 | 每样本分层记录导入、capability、boot 和功能 |
 | `SVC-01` | 进行中 | 活动 QEMU re-attach 与远程 supervisor 契约 | 服务重启可接管或明确失败，不产生假 running |
@@ -150,12 +150,12 @@ evidence 中成立。
 
 ### FW-01 文件系统、权限与许可
 
-当前缺口：LittleFS 与 FAT12/16/32 已有只读清单；SPIFFS、运行时文件权限和
-可审计许可策略仍开放。
+当前缺口：LittleFS、FAT12/16/32 和常见 ESP-IDF SPIFFS 配置已有只读清单；
+运行时文件权限和可审计许可策略仍开放。
 
 验收：
 
-- SPIFFS 返回可验证清单，或明确、结构化地返回 `UNSUPPORTED`；
+- 不支持的 SPIFFS 配置明确返回 `INVALID`，不能猜测文件名；
 - 每个资源项记录来源、哈希、权限策略和许可结论；
 - listing 有资源上限和截断标记；
 - `unknown` 安全状态不能被写成 PASS。

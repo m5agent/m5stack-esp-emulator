@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-spiffs-inventory",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "implementation": {
+    "source": "platform/tools/firmware_filesystems.py",
+    "mode": "read-only",
+    "supported_configs": [
+      {
+        "page_size": 256,
+        "block_size": 4096,
+        "object_name_len": 32,
+        "metadata_len": 4
+      },
+      {
+        "page_size": 256,
+        "block_size": 65536,
+        "object_name_len": 32,
+        "metadata_len": 4
+      },
+      {
+        "page_size": 256,
+        "block_size": 4096,
+        "object_name_len": 64,
+        "metadata_len": 4
+      },
+      {
+        "page_size": 256,
+        "block_size": 65536,
+        "object_name_len": 64,
+        "metadata_len": 4
+      },
+      {
+        "page_size": 512,
+        "block_size": 4096,
+        "object_name_len": 32,
+        "metadata_len": 4
+      },
+      {
+        "page_size": 512,
+        "block_size": 65536,
+        "object_name_len": 32,
+        "metadata_len": 4
+      },
+      {
+        "page_size": 256,
+        "block_size": 4096,
+        "object_name_len": 32,
+        "metadata_len": 0
+      },
+      {
+        "page_size": 256,
+        "block_size": 65536,
+        "object_name_len": 32,
+        "metadata_len": 0
+      }
+    ],
+    "lut_validation": true,
+    "config_selection": "highest complete-object and valid-data-page score",
+    "not_claimed": [
+      "deleted object recovery",
+      "runtime permissions",
+      "license compliance"
+    ]
+  },
+  "automated_synthetic_coverage": {
+    "status": "PASS",
+    "test": "platform/tests/test_firmware_analysis.py",
+    "config_count": 8,
+    "multi_index_for_every_config": true,
+    "corrupt_lut": "INVALID",
+    "random_malformed_inputs": "INVALID"
+  },
+  "canonical_spiffsgen_fixture": {
+    "generator": "ESP-IDF v5.5.4 spiffsgen.py",
+    "image_size": 16384,
+    "image_sha256": "6951389cf0f200e011b5d4603a1e29405697b54e95f9291e7248a30c6d6b819c",
+    "status": "PASS",
+    "lut_validated": true,
+    "file_count": 3,
+    "directory_count": 2,
+    "index_page_count": 3,
+    "data_page_count": 3,
+    "declared_licenses": [
+      "MIT"
+    ],
+    "files": [
+      {
+        "path": "/main.py",
+        "size": 26,
+        "sha256": "ecc0aa70b40fedebbdb925b32b3ef36621447f7c5399f831f2b232ec6c0ca72c"
+      },
+      {
+        "path": "/res/LICENSE",
+        "size": 29,
+        "sha256": "f58783d38481ddcedebde2b7909d322fc272c80ce387e1d3679a29e356d6a00b"
+      },
+      {
+        "path": "<redacted-sensitive-path>",
+        "size": 16,
+        "sha256": "7dfb354042ee25c27f1ebfc6eb72a8ac6a00249b17b86214c99b19b2897c6675"
+      }
+    ],
+    "sensitive_path_count": 1
+  },
+  "multi_index_fixture": {
+    "generator": "ESP-IDF v5.5.4 spiffsgen.py",
+    "image_size": 131072,
+    "image_sha256": "8d01925bc717ab5813d5ec4193e4d4ac9676be6e9765f8dcecc16c612cba79c3",
+    "file_size": 60000,
+    "file_sha256": "bcf401f8183d6eae2a91e13275735999a5d6f9f9289718e799cb6591d46acb5d",
+    "index_page_count": 3,
+    "data_page_count": 240,
+    "status": "PASS",
+    "lut_validated": true,
+    "sha256_match": true
+  },
+  "negative_cases": {
+    "erased_partition": "UNFORMATTED",
+    "unsupported_or_malformed_layout": "INVALID",
+    "lookup_table_mismatch": "INVALID",
+    "random_malformed_inputs": "INVALID",
+    "exceptions": 0
+  },
+  "manifest_integration": {
+    "status": "PASS",
+    "sensitive_path_absent_from_serialized_manifest": true,
+    "filesystem_count": 1
+  }
+}

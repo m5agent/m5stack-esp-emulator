@@ -78,7 +78,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/fetch_firmware.py` | 查询、校验、下载和缓存公开 M5Burner 固件 | 本地准备、固件矩阵 |
 | `platform/tools/firmware_manifest.py` | merged/segmented/ZIP/WebBurner 导入和 manifest | CLI、Device Service |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 | manifest、矩阵 |
-| `platform/tools/firmware_filesystems.py` | LittleFS 与 FAT12/16/32 只读清单、哈希和 SPDX | manifest |
+| `platform/tools/firmware_filesystems.py` | LittleFS、FAT12/16/32 与 SPIFFS 只读清单、LUT/对象页校验、哈希和 SPDX | manifest |
 | `platform/tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查、SBOM 摘要 | manifest |
 | `platform/tools/user_firmware_matrix.py` | 热门公开固件经 Device Service 的批量仿真 | 回归操作员 |
 | `platform/tools/network_policy.py` | isolation/egress/DNS/TLS/pcap 策略校验 | Device Service |
@@ -108,7 +108,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连和双 guest lab fabric | 网络策略/运行时改动 |
-| `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT 证据 | manifest/filesystem 改动 |
+| `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 | `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
 
@@ -189,7 +189,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | --- | --- |
 | `platform/tools/fetch_firmware.py` | 公开 M5Burner 固件查询、校验、下载与缓存 |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 |
-| `platform/tools/firmware_filesystems.py` | LittleFS 挂载与 FAT12/16/32 只读解析、文件哈希、敏感路径脱敏和 SPDX 提取 |
+| `platform/tools/firmware_filesystems.py` | LittleFS 挂载、FAT12/16/32 与 SPIFFS 只读解析、文件哈希、敏感路径脱敏和 SPDX 提取 |
 | `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、manifest 和 capability mismatch |
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
@@ -259,12 +259,13 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 native HCI `HCI-1` | `patches/qemu-core2-native-hci/`；`tests/uiflow2/core2_native_hci/test_transport.py` | QEMU H4 chardev framing、bounded queue、overflow、peer lifecycle、counters 和 clean shutdown PASS |
 | Core2 guest H2C `HCI-2` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` 并转发 peer |
 | Core2 C2H callback `HCI-3a` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py --enable-c2h` | 诊断性单包路径：从 ELF 分配 guest buffer，调用注册的 `notify_host_recv` 和 send-available；Reset Complete 后 guest 发出下一条 H2C，targeted `5/5`；不能扩展为产品 C2H 后端 |
-| Core2 full HCI/GATT `HCI-3b` | `tests/uiflow2/core2_native_hci/run_full.py`；三份 `evidence-2026-10-24-hci3b-*.json` | 无 GDB、真实 Bumble controller/peer；已到连接和首个 ATT 交互，第二个 ATT request 后 guest Reset。safe-point callback 与 nested `r_eif_send` 分别导致 LoadProhibited 和 cache-disabled 异常，实验均已回退 |
+| Core2 full HCI/GATT `HCI-3b` | `tests/uiflow2/core2_native_hci/run_full.py`；四份 `evidence-2026-10-24-hci3b-*.json` | 无 GDB、真实 Bumble controller/peer；relay 已到连接和首个 ATT 交互，第二个 ATT request 后 guest Reset。API-boundary hook 后续到 NUS discovery/subscription，但 final write/notify 超时。safe-point callback 与 nested `r_eif_send` 分别导致 LoadProhibited 和 cache-disabled 异常，实验均已回退 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |
 | FAT inventory | `tests/firmware/evidence-2026-10-24-fat-inventory.json` | 合成 FAT12/16/32、LFN、循环链、多簇哈希、敏感路径、erased partition 与真实 PaperColor FAT12 样本 |
+| SPIFFS inventory | `tests/firmware/evidence-2026-10-24-spiffs-inventory.json` | 8 个声明配置的自包含多索引样本、LUT mismatch/随机损坏负例、ESP-IDF canonical `spiffsgen.py` 镜像和 manifest 脱敏 |
 | Resumable artifact upload | `tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json`; `DeviceServiceUnitTests.test_streamed_*`; `DeviceServiceHttpTests.test_streamed_artifact_http_upload` | 连续 offset、per-chunk/final hash、失败 append 回滚、resume、abort 和 abandoned staging GC |
 | WebBurner browser intake | `platform/web/firmware.html`; `platform/tests/test_firmware_upload.mjs`; `tests/firmware/evidence-2026-10-24-webburner-ui.json` | 9.44 MiB / 3 chunk、浏览器 SHA256、进度重试、刷新续接、取消清理和 WebBurner ZIP → manifest import |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |

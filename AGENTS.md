@@ -266,8 +266,8 @@ The main open streams are:
   IPv6 endpoint enforcement;
 - production Core2 VHCI backend, bit-exact BT controller and physical
   cache/PSRAM equivalence, coexistence and soak;
-- SPIFFS inventory, runtime permissions/license policy, production
-  security-key flows and broader cross-firmware compatibility;
+- runtime permissions/license policy, production security-key flows and
+  broader cross-firmware compatibility;
 - warm pools, multi-host scheduling and hardened untrusted-firmware isolation;
 - Tab5 missing P4 data paths behind the closed-source backend;
 - physical-hardware validation and per-device visual fidelity.

@@ -91,6 +91,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-23-static-review.json",
             "tests/firmware/evidence-2026-10-24-filesystem-inventory.json",
             "tests/firmware/evidence-2026-10-24-fat-inventory.json",
+            "tests/firmware/evidence-2026-10-24-spiffs-inventory.json",
             "tests/firmware/evidence-2026-10-24-efuse-security.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
@@ -244,6 +245,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "two-device lab fabric and external",
             "现网 Agent Review API 已具备",
             "| `HCI-3a` C2H callback | `PASS` |",
+            "SPIFFS 仍 `UNSUPPORTED`",
+            "SPIFFS 目前只做分区识别",
+            "SPIFFS inventory is not implemented",
+            "SPIFFS 解包",
         ):
             self.assertNotIn(stale, active)
 
@@ -343,6 +348,44 @@ class DocsConsistencyTests(unittest.TestCase):
             (DOCS / "validation-ledger.md").read_text(),
         )
         self.assertIn("DHCP renewal", status)
+        self.assertIn("SPIFFS", status)
+        firmware_manifest = (DOCS / "firmware-manifest.md").read_text()
+        self.assertIn("SPIFFS 解析器", firmware_manifest)
+        self.assertIn("spiffsgen.py", firmware_manifest)
+        self.assertIn("LUT", firmware_manifest)
+        self.assertIn("8 个声明", firmware_manifest)
+        self.assertNotIn("SPIFFS 目前只做分区识别", firmware_manifest)
+        spiffs_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/evidence-2026-10-24-spiffs-inventory.json"
+            ).read_text()
+        )
+        self.assertEqual(spiffs_evidence["status"], "PASS")
+        self.assertTrue(
+            spiffs_evidence["implementation"]["lut_validation"]
+        )
+        self.assertEqual(
+            len(spiffs_evidence["implementation"]["supported_configs"]),
+            8,
+        )
+        canonical = spiffs_evidence["canonical_spiffsgen_fixture"]
+        self.assertEqual(canonical["status"], "PASS")
+        self.assertTrue(canonical["lut_validated"])
+        self.assertEqual(canonical["declared_licenses"], ["MIT"])
+        self.assertEqual(canonical["sensitive_path_count"], 1)
+        self.assertNotIn(
+            "device.key",
+            json.dumps(spiffs_evidence),
+        )
+        self.assertEqual(
+            spiffs_evidence["negative_cases"]["lookup_table_mismatch"],
+            "INVALID",
+        )
+        self.assertIn(
+            "spiffs-inventory.json",
+            code_map,
+        )
         self.assertIn("## 新鲜度台账", (DOCS / "README.md").read_text())
         self.assertIn("## 可执行任务板", backlog)
         self.assertNotIn("本轮已完成", backlog)

@@ -665,6 +665,510 @@ def _blank_partition_value(data: bytes) -> int | None:
     return None
 
 
+SPIFFS_CONFIGS = (
+    (256, 4096, 32, 4),
+    (256, 65536, 32, 4),
+    (256, 4096, 64, 4),
+    (256, 65536, 64, 4),
+    (512, 4096, 32, 4),
+    (512, 65536, 32, 4),
+    (256, 4096, 32, 0),
+    (256, 65536, 32, 0),
+)
+
+
+def _valid_spiffs_name(raw: bytes) -> str | None:
+    value = raw.split(b"\x00", 1)[0]
+    if not value or len(value) > 512:
+        return None
+    try:
+        name = value.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+    if any(ord(char) < 0x20 for char in name):
+        return None
+    return name
+
+
+def _spiffs_lut_obj_id(
+    data: bytes,
+    page_ix: int,
+    *,
+    block_size: int,
+    pages_per_block: int,
+    lookup_pages: int,
+) -> int:
+    block = page_ix // pages_per_block
+    block_page = page_ix % pages_per_block
+    if block_page < lookup_pages:
+        return 0xFFFF
+    offset = (
+        block * block_size
+        + (block_page - lookup_pages) * 2
+    )
+    if offset + 2 > len(data):
+        return 0xFFFF
+    return _u16(data, offset)
+
+
+def _parse_spiffs_config(
+    data: bytes,
+    *,
+    page_size: int,
+    block_size: int,
+    name_len: int,
+    meta_len: int,
+) -> dict | None:
+    if (
+        page_size <= 0
+        or block_size <= 0
+        or block_size % page_size
+        or len(data) < block_size
+        or len(data) % block_size
+    ):
+        return None
+    pages_per_block = block_size // page_size
+    lookup_pages = (
+        pages_per_block * 2 + page_size - 1
+    ) // page_size
+    if lookup_pages >= pages_per_block:
+        return None
+    page_count = len(data) // page_size
+    index_header_len = 8 + 4 + 1 + name_len + meta_len
+    if index_header_len + 2 > page_size:
+        return None
+    head_entries = (page_size - index_header_len) // 2
+    continuation_entries = (page_size - 8) // 2
+    if head_entries <= 0 or continuation_entries <= 0:
+        return None
+
+    index_pages: dict[tuple[int, int], dict] = {}
+    for page_ix in range(page_count):
+        block_page = page_ix % pages_per_block
+        if block_page < lookup_pages:
+            continue
+        offset = page_ix * page_size
+        page = data[offset : offset + page_size]
+        if len(page) < index_header_len:
+            continue
+        stored_obj_id = _u16(page, 0)
+        flags = page[4]
+        if not stored_obj_id & 0x8000:
+            continue
+        if (
+            _spiffs_lut_obj_id(
+                data,
+                page_ix,
+                block_size=block_size,
+                pages_per_block=pages_per_block,
+                lookup_pages=lookup_pages,
+            )
+            != stored_obj_id
+        ):
+            continue
+        if (
+            flags & 0x01
+            or flags & 0x02
+            or flags & 0x04
+            or not flags & 0x40
+            or not flags & 0x80
+        ):
+            continue
+        span_ix = _u16(page, 2)
+        if span_ix > 0x7FFF:
+            continue
+        if span_ix == 0:
+            size = _u32(page, 8)
+            obj_type = page[12]
+            if obj_type != 1:
+                continue
+            name = _valid_spiffs_name(page[13 : 13 + name_len])
+            if name is None:
+                continue
+            entries_start = index_header_len
+        else:
+            size = None
+            name = None
+            entries_start = 8
+        entries: list[int] = []
+        for entry_offset in range(entries_start, page_size - 1, 2):
+            data_page_ix = _u16(page, entry_offset)
+            if data_page_ix == 0xFFFF:
+                break
+            if data_page_ix >= page_count:
+                return None
+            entries.append(data_page_ix)
+        key = (stored_obj_id & 0x7FFF, span_ix)
+        candidate = {
+            "page_ix": page_ix,
+            "size": size,
+            "name": name,
+            "entries": entries,
+            "span_ix": span_ix,
+        }
+        previous = index_pages.get(key)
+        if previous is None or page_ix > previous["page_ix"]:
+            index_pages[key] = candidate
+
+    object_ids = sorted({obj_id for obj_id, span_ix in index_pages if span_ix == 0})
+    if not object_ids:
+        return None
+
+    return {
+        **{
+            "page_size": page_size,
+            "block_size": block_size,
+            "pages_per_block": pages_per_block,
+            "lookup_pages": lookup_pages,
+            "obj_name_len": name_len,
+            "meta_len": meta_len,
+            "head_entries": head_entries,
+            "continuation_entries": continuation_entries,
+        },
+        "object_ids": object_ids,
+        "index_pages": index_pages,
+        "page_count": page_count,
+    }
+
+
+def _score_spiffs_candidate(data: bytes, parsed: dict) -> tuple[int, int, int, int]:
+    page_size = parsed["page_size"]
+    data_content_len = page_size - 5
+    index_pages = parsed["index_pages"]
+    complete_objects = 0
+    valid_data_pages = 0
+    for obj_id in parsed["object_ids"]:
+        header = index_pages.get((obj_id, 0))
+        if header is None:
+            continue
+        expected_data_pages = (
+            header["size"] + data_content_len - 1
+        ) // data_content_len
+        expected_index_pages = (
+            1
+            if expected_data_pages <= parsed["head_entries"]
+            else 1
+            + (
+                expected_data_pages
+                - parsed["head_entries"]
+                + parsed["continuation_entries"]
+                - 1
+            )
+            // parsed["continuation_entries"]
+        )
+        page_indexes: list[int] = []
+        for span in range(expected_index_pages):
+            page = index_pages.get((obj_id, span))
+            if page is None:
+                break
+            page_indexes.extend(page["entries"])
+        else:
+            object_valid_pages = 0
+            for data_span_ix, data_page_ix in enumerate(page_indexes):
+                if data_span_ix >= expected_data_pages:
+                    break
+                offset = data_page_ix * page_size
+                page = data[offset : offset + page_size]
+                if (
+                    len(page) >= 5
+                    and _u16(page, 0) == obj_id
+                    and _u16(page, 2) == data_span_ix
+                    and page[4] == 0xFC
+                    and _spiffs_lut_obj_id(
+                        data,
+                        data_page_ix,
+                        block_size=parsed["block_size"],
+                        pages_per_block=parsed["pages_per_block"],
+                        lookup_pages=parsed["lookup_pages"],
+                    )
+                    == obj_id
+                ):
+                    valid_data_pages += 1
+                    object_valid_pages += 1
+                else:
+                    break
+            if object_valid_pages == expected_data_pages:
+                complete_objects += 1
+    return (
+        complete_objects,
+        valid_data_pages,
+        len(index_pages),
+        len(parsed["object_ids"]),
+    )
+
+
+def _list_spiffs(data: bytes, partition: dict) -> dict:
+    candidates: list[dict] = []
+    attempts: list[dict] = []
+    for page_size, block_size, name_len, meta_len in SPIFFS_CONFIGS:
+        candidate = _parse_spiffs_config(
+            data,
+            page_size=page_size,
+            block_size=block_size,
+            name_len=name_len,
+            meta_len=meta_len,
+        )
+        attempt = {
+            "page_size": page_size,
+            "block_size": block_size,
+            "obj_name_len": name_len,
+            "meta_len": meta_len,
+            "match": candidate is not None,
+        }
+        if candidate is not None:
+            complete, valid_pages, index_pages, objects = (
+                _score_spiffs_candidate(data, candidate)
+            )
+            candidate["score"] = (
+                complete,
+                valid_pages,
+                index_pages,
+                objects,
+            )
+            attempt["score"] = {
+                "complete_objects": complete,
+                "valid_data_pages": valid_pages,
+                "index_pages": index_pages,
+                "objects": objects,
+            }
+        attempts.append(attempt)
+        if candidate is not None:
+            candidates.append(candidate)
+
+    parsed = (
+        max(
+            candidates,
+            key=lambda item: item["score"],
+        )
+        if candidates
+        else None
+    )
+
+    if parsed is None:
+        blank = _blank_partition_value(data)
+        if blank is not None:
+            return {
+                **partition,
+                "type": "spiffs",
+                "status": "UNFORMATTED",
+                "errors": [
+                    "SPIFFS partition appears erased or zero-filled"
+                ],
+                "config_attempts": attempts,
+            }
+        return {
+            **partition,
+            "type": "spiffs",
+            "status": "INVALID",
+            "errors": [
+                "no supported SPIFFS object index page was found"
+            ],
+            "config_attempts": attempts,
+        }
+
+    page_size = parsed["page_size"]
+    index_pages = parsed["index_pages"]
+    files: list[dict] = []
+    directories: set[str] = {"/"}
+    redacted_directories: list[dict] = []
+    sensitive_files: list[dict] = []
+    license_files: list[dict] = []
+    declared_licenses: set[str] = set()
+    listing_errors: list[str] = []
+    total_file_bytes = 0
+    files_truncated = False
+    data_content_len = page_size - 5
+    total_index_pages = 0
+    total_data_pages = 0
+
+    for obj_id in parsed["object_ids"]:
+        header = index_pages.get((obj_id, 0))
+        if header is None:
+            continue
+        name: str = header["name"]
+        size: int = header["size"]
+        display_path, path_hash, redacted = _public_path(name)
+        if len(files) >= MAX_FILES:
+            files_truncated = True
+            break
+        expected_data_pages = (
+            size + data_content_len - 1
+        ) // data_content_len
+        expected_index_pages = (
+            1
+            if expected_data_pages <= parsed["head_entries"]
+            else 1
+            + (
+                expected_data_pages
+                - parsed["head_entries"]
+                + parsed["continuation_entries"]
+                - 1
+            )
+            // parsed["continuation_entries"]
+        )
+        page_indexes: list[int] = []
+        for span in range(expected_index_pages):
+            index_page = index_pages.get((obj_id, span))
+            if index_page is None:
+                listing_errors.append(
+                    f"{display_path}: missing SPIFFS index span {span}"
+                )
+                break
+            page_indexes.extend(index_page["entries"])
+        digest = hashlib.sha256()
+        prefix = bytearray()
+        remaining = size
+        read_bytes = 0
+        for data_span_ix, data_page_ix in enumerate(page_indexes):
+            if remaining <= 0:
+                break
+            offset = data_page_ix * page_size
+            page = data[offset : offset + page_size]
+            if len(page) < 5:
+                listing_errors.append(
+                    f"{display_path}: truncated SPIFFS data page"
+                )
+                break
+            stored_obj_id = _u16(page, 0)
+            stored_span_ix = _u16(page, 2)
+            flags = page[4]
+            if (
+                stored_obj_id != obj_id
+                or stored_span_ix != data_span_ix
+                or flags & 0x01
+                or flags & 0x02
+                or not flags & 0x04
+                or not flags & 0x40
+                or not flags & 0x80
+                or _spiffs_lut_obj_id(
+                    data,
+                    data_page_ix,
+                    block_size=parsed["block_size"],
+                    pages_per_block=parsed["pages_per_block"],
+                    lookup_pages=parsed["lookup_pages"],
+                )
+                != obj_id
+            ):
+                listing_errors.append(
+                    f"{display_path}: invalid SPIFFS data page"
+                )
+                break
+            take = min(remaining, data_content_len)
+            chunk = page[5 : 5 + take]
+            digest.update(chunk)
+            if len(prefix) < MAX_LICENSE_BYTES:
+                prefix.extend(chunk[: MAX_LICENSE_BYTES - len(prefix)])
+            remaining -= take
+            read_bytes += take
+        if read_bytes != size:
+            listing_errors.append(
+                f"{display_path}: expected {size} bytes, read {read_bytes}"
+            )
+            continue
+
+        kind = _file_kind(name)
+        row = {
+            "path": display_path,
+            "size": size,
+            "sha256": digest.hexdigest(),
+            "kind": kind,
+            "permissions": "not-recorded",
+            "object_id": obj_id,
+            "index_page_count": expected_index_pages,
+            "data_page_count": read_bytes // data_content_len
+            + (1 if read_bytes % data_content_len else 0),
+        }
+        if path_hash is not None:
+            row["path_sha256"] = path_hash
+            row["redacted"] = redacted
+        files.append(row)
+        total_file_bytes += size
+        total_index_pages += expected_index_pages
+        total_data_pages += row["data_page_count"]
+
+        path_parts = [part for part in name.split("/") if part]
+        for count in range(1, len(path_parts)):
+            directory = "/" + "/".join(path_parts[:count])
+            if len(directories) >= MAX_DIRECTORIES:
+                break
+            if directory in directories:
+                continue
+            directories.add(directory)
+            shown, directory_hash, _ = _public_path(directory)
+            if directory_hash is not None:
+                redacted_directories.append(
+                    {
+                        "path": shown,
+                        "path_sha256": directory_hash,
+                    }
+                )
+
+        if kind == "sensitive":
+            sensitive_files.append(
+                {
+                    "path": display_path,
+                    "path_sha256": _sha256(name.encode()),
+                    "sha256": digest.hexdigest(),
+                }
+            )
+        if kind == "license":
+            text = bytes(prefix).decode("utf-8", errors="ignore")
+            licenses = sorted(
+                {value.strip() for value in SPDX_RE.findall(text)}
+            )
+            declared_licenses.update(licenses)
+            license_files.append(
+                {
+                    "path": display_path,
+                    "sha256": digest.hexdigest(),
+                    "declared_licenses": licenses,
+                }
+            )
+
+    return {
+        **partition,
+        "type": "spiffs",
+        "status": "PARTIAL" if listing_errors else "PASS",
+        "errors": listing_errors[:32],
+        "page_size": page_size,
+        "block_size": parsed["block_size"],
+        "block_count": len(data) // parsed["block_size"],
+        "pages_per_block": parsed["pages_per_block"],
+        "lookup_pages_per_block": parsed["lookup_pages"],
+        "object_name_len": parsed["obj_name_len"],
+        "metadata_len": parsed["meta_len"],
+        "selected_config": {
+            "page_size": parsed["page_size"],
+            "block_size": parsed["block_size"],
+            "object_name_len": parsed["obj_name_len"],
+            "metadata_len": parsed["meta_len"],
+        },
+        "lut_validated": True,
+        "index_page_count": total_index_pages,
+        "data_page_count": total_data_pages,
+        "file_count": len(files),
+        "directory_count": max(0, len(directories) - 1),
+        "total_file_bytes": total_file_bytes,
+        "files": files,
+        "directories": sorted(directories - {"/"}),
+        "redacted_directories": redacted_directories,
+        "sensitive_files": sensitive_files,
+        "license_files": license_files,
+        "declared_licenses": sorted(declared_licenses),
+        "limits": {
+            "files_truncated": files_truncated,
+            "max_files": MAX_FILES,
+            "max_directories": MAX_DIRECTORIES,
+        },
+        "config_attempts": attempts,
+        "not_claimed": [
+            "deleted object recovery",
+            "runtime permissions",
+            "license compliance",
+        ],
+    }
+
+
 def _list_littlefs(data: bytes, partition: dict) -> dict:
     try:
         from littlefs import LittleFS, UserContext
@@ -841,12 +1345,7 @@ def inventory_data_partition(data: bytes, partition: dict) -> dict | None:
     if subtype == LITTLEFS_SUBTYPE or b"littlefs" in window[:64]:
         return _list_littlefs(window, header)
     if subtype == SPIFFS_SUBTYPE:
-        return {
-            **header,
-            "type": "spiffs",
-            "status": "UNSUPPORTED",
-            "errors": ["SPIFFS inventory is not implemented"],
-        }
+        return _list_spiffs(window, header)
     if subtype == FAT_SUBTYPE:
         if _blank_partition_value(window) is not None:
             return {

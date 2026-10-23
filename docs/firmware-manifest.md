@@ -38,7 +38,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 2. 校验 segment 偏移不重叠且不越界；
 3. 将 sparse merged 镜像补齐为目标设备完整 Flash；
 4. 分析 bootloader、partition table、app image 和 app descriptor；
-5. 从 data partition 识别 LittleFS/FAT，枚举文件路径、大小、SHA256、
+5. 从 data partition 识别 LittleFS/FAT/SPIFFS，枚举文件路径、大小、SHA256、
    脚本/证书/配置类型、敏感路径和 SPDX 许可证声明；
 6. 静态扫描 URL、凭据特征、私钥标记和高熵编码块，并汇总 SBOM；
 7. 生成完整镜像、资源副本和 `*.manifest.json`；
@@ -53,7 +53,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | --- | --- |
 | `artifact` | 规范化完整镜像或分段 artifact 的路径、大小、SHA256 |
 | `target` | SoC、chip ID、Flash、PSRAM、分区表、应用描述 |
-| `target.filesystems` | LittleFS/FAT 分区、文件路径/大小/SHA256、敏感路径和许可证声明 |
+| `target.filesystems` | LittleFS/FAT/SPIFFS 分区、文件路径/大小/SHA256、敏感路径和许可证声明 |
 | `security` | 安全启动、Flash Encryption、配置态、eFuse 摘要和 secure version 边界 |
 | `provenance` | M5Burner ID、版本、来源 URL/类型、license |
 | `resources` | ELF、MAP、sdkconfig、flasher args、SBOM |
@@ -162,7 +162,7 @@ QEMU profile 没有建模对应的密钥和启动链。
 | --- | --- | --- |
 | LittleFS | 只读挂载、目录/文件清单、大小、SHA256、敏感路径脱敏、SPDX 提取 | 真实 StickS3 UIFlow2 `sys`/`vfs` 分区 PASS |
 | FAT12/16/32 | 只读 BPB/FAT 解析、目录递归、LFN、文件 SHA256、敏感路径和 SPDX | 合成 FAT12/16/32 与真实 PaperColor FAT12 样本；不挂载宿主文件系统 |
-| SPIFFS | 分区可识别，但内容清单返回 `UNSUPPORTED` | 尚未实现可审计 host parser；不能根据文件名/字符串猜测 |
+| SPIFFS | 只读 LUT/对象查找/索引/数据页解析、文件路径/大小/SHA256、敏感路径和 SPDX | ESP-IDF canonical `spiffsgen.py` 镜像和 8 个声明的自包含多索引配置；只支持下表明确列出的 little-endian、默认未对齐 object-index 布局 |
 
 LittleFS 数据分区的具体行为：
 
@@ -185,8 +185,26 @@ FAT 解析器：
 - 对截断、表不一致或无效 boot sector 返回 `INVALID/PARTIAL`；
 - 不挂载或执行镜像，不恢复已删除文件，也不检查文件 slack space。
 
-SPIFFS 目前只做分区识别并返回 `UNSUPPORTED`，不会伪装成已解析。
-LittleFS/FAT 都不记录 Unix mode，因此运行时文件权限仍为 `NOT RUN`。
+SPIFFS 解析器：
+
+- 从 data partition 扫描 active object-index page，不挂载或执行镜像；
+- 自动尝试 page size `256/512`、block size `4096/65536`、object-name
+  length `32/64` 与 metadata length `4/0` 的 8 个声明组合，并记录
+  `config_attempts`；
+- 对每个候选按完整对象数、有效 data page、index page 和 object 数评分，
+  避免 4096/65536 block 同时看似可解析时被第一个候选误选；
+- 校验每页对应的 block LUT object ID、index/data page object ID、span、
+  flags、data page 顺序和页号范围；LUT 与 page header 不一致的页不会被
+  当成文件；
+- 按 object index 顺序拼接 data page，记录文件大小、SHA256 和类型；
+- 支持跨多个 object-index page 的文件，并记录 index/data page 数量；
+- 对 `.key`、`.env`、credential/secret 路径只保留脱敏标记和路径哈希；
+- 对 erased 分区返回 `UNFORMATTED`，无法识别时返回 `INVALID`，不猜测文件名；
+- 暂不声明 big-endian，或
+  `SPIFFS_ALIGNED_OBJECT_INDEX_TABLES=1` 的镜像；
+- 不恢复已删除对象，也不执行镜像中的代码。
+
+LittleFS/FAT/SPIFFS 都不记录 Unix mode，因此运行时文件权限仍为 `NOT RUN`。
 LittleFS 清单依赖 `littlefs-python`；依赖缺失时返回 `UNAVAILABLE`，不会
 自动格式化或改写输入镜像。
 
@@ -315,6 +333,19 @@ FAT 证据：
 - 真实 PaperColor FAT12 样本解析出 11 个 PNG 文件及其 SHA256；一个未初始化的
   `System Volume Information` 子目录被安全拒绝，所以该样本整体保持 `PARTIAL`。
 
+SPIFFS 证据：
+[`tests/firmware/evidence-2026-10-24-spiffs-inventory.json`](../tests/firmware/evidence-2026-10-24-spiffs-inventory.json)
+记录：
+
+- 8 个声明配置均有自包含回归，每个配置的主文件跨多个 object-index page；
+- ESP-IDF v5.5.4 `spiffsgen.py` canonical 镜像完成 LUT 校验、文件哈希、
+  SPDX 和敏感路径脱敏；
+- 60000-byte canonical 多索引文件从 3 个 index page 拼接 240 个 data
+  page，SHA256 与输入一致；
+- LUT mismatch、随机损坏和 erased 分区分别得到确定结果，不抛异常也不产生
+  伪造文件；
+- FirmwareManifest integration 不序列化敏感文件原始路径。
+
 ## 边界
 
 - 镜像文件本身不能证明 eFuse/OEM key 状态；
@@ -331,5 +362,5 @@ FAT 证据：
 - license/provenance 缺失不会自动变成合法授权；
 - 真机安全启动、Flash Encryption 和生产 key 流程仍须真机验证。
 
-下一步实现 SPIFFS：要么实现窄范围只读 parser，要么从 ESP-IDF 源码构建
-可审计 helper；在直接测试前保持 `UNSUPPORTED`。
+文件系统内容清单已经覆盖 LittleFS、FAT12/16/32 和常见 ESP-IDF SPIFFS
+配置；仍未完成的是运行时权限、证书/许可审批和更完整的产品级许可策略。

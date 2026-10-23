@@ -61,9 +61,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   QEMU native-HCI 替代路径已完成 `HCI-1` transport、`HCI-2` 首个 H2C
   Reset 捕获和 `HCI-3a` 诊断性单包 C2H `5/5`；该 callback 路线不是产品
   后端；`HCI-3b` 已到连接和首个
-  ATT 交互，但任意 safe-point callback 与 nested `r_eif_send` 已证伪并
-  回退。下一步必须是 guest-visible C2H IRQ/queue 或 in-process controller
-  transaction。`HCI-4` repeated lease、bit-exact Espressif
+  ATT 交互，API-boundary 审计进一步到 NUS subscription，但 final
+  write/notify transaction 超时；任意 safe-point callback 与 nested
+  `r_eif_send` 已证伪并回退。下一步必须是 guest-visible C2H IRQ/queue 或
+  in-process controller transaction。`HCI-4` repeated lease、bit-exact Espressif
   BT baseband/controller 和物理 cache/PSRAM 等价性仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
@@ -94,7 +95,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入与脱敏 eFuse 安全摘要 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |
 | `tools/firmware_analysis.py` | ESP image、分区、应用描述和静态分析 |
-| `tools/firmware_filesystems.py` | LittleFS 与只读 FAT12/16/32 文件清单、哈希、敏感路径脱敏和 SPDX 提取 |
+| `tools/firmware_filesystems.py` | LittleFS、只读 FAT12/16/32 和 ESP-IDF SPIFFS 文件清单、LUT/对象页校验、哈希、敏感路径脱敏和 SPDX 提取 |
 | `tools/fetch_firmware.py` | 公开 M5Burner 固件查询、下载和缓存 |
 | `tools/user_firmware_matrix.py` | 热门用户固件仿真矩阵 |
 | `tools/network_policy.py` | isolation、egress、controlled DNS、Host allowlist 和 pcap 策略 |

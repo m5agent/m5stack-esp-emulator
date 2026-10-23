@@ -25,6 +25,7 @@
 | 共享 WiFi + 全矩阵 | patch `0028` 后 S3/C6/Core2 `67/67` case、`274/274` check，全部 `attempts=1`、`retry_used=false`；Cardputer-ADV 键盘 settle 已加固 | [`dual-guest-fabric-matrix.json`](../tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) |
 | 共享 QEMU | ESP32-S3 AES/GDMA 外部内存读取修复；当轮全矩阵 `67/67`、`274/274`，全部首轮无重试 | [`gdma-external-memory-matrix.json`](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) |
 | 固件文件系统 | LittleFS 与只读 FAT12/16/32 文件清单、SHA256、LFN、敏感路径脱敏与 SPDX 提取 | [`fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json) |
+| SPIFFS 文件清单 | 8 个声明配置的自包含多索引样本 PASS；LUT 与 page header 不一致、随机损坏输入均 `INVALID`；ESP-IDF `spiffsgen.py` canonical 镜像和 60000-byte 多索引文件 PASS | [`spiffs-inventory.json`](../tests/firmware/evidence-2026-10-24-spiffs-inventory.json) |
 | 固件上传 | 可恢复 chunk artifact upload 的连续 offset、per-chunk/final SHA256、失败回滚、原子 metadata、abort 和 staging GC | [`streaming-artifact-upload.json`](../tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json) |
 | WebBurner | 浏览器流式 SHA256、4 MiB 多 chunk、进度/重试/取消、刷新恢复和 package → FirmwareManifest import；9.44 MiB 三 chunk 探针 PASS | [`webburner-ui.json`](../tests/firmware/evidence-2026-10-24-webburner-ui.json) |
 | 固件安全配置 | 解析脱敏 `espefuse summary --format json`，区分镜像、sdkconfig、分区 flag 与 eFuse 证据；安全启动/Flash Encryption preflight 按预期拒绝 | [`efuse-security.json`](../tests/firmware/evidence-2026-10-24-efuse-security.json) |

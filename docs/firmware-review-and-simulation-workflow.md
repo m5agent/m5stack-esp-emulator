@@ -426,8 +426,8 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
-1. SPIFFS 只读清单、运行时权限/许可审批、证书链校验和许可证策略；
-   LittleFS/FAT、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
+1. 运行时权限/许可审批、证书链校验和许可证策略；
+   LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
 2. 远程 QEMU worker 注册/调度和活动进程 re-attach；本地 worker
    heartbeat/drain、GitHub-hosted Linux policy/egress CI 和双设备 lab fabric
    已具备，外部 IPv6 egress 仍开放；

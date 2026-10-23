@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `264` 项，`264` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `267` 项，`267` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - WebBurner 浏览器 SHA256/upload client Node 测试 `2/2 PASS`；真实页面对
   `9.44 MiB`、`3` chunk 的 WebBurner ZIP 完成上传、manifest 导入和刷新恢复。
@@ -52,7 +52,7 @@
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
 | S3/C6/Core2 单实例无线 | 12 个 unified profile；S3/C6 整机路径 PASS，Core2 为环境门控且 GDB/native-HCI 生产化未闭环 | `qemu-unified` 可返回 frame/QOM/network/evidence | `NOT RUN` | 已能验证应用网络与 BLE 数据面，不是完整 RF/PHY |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具和本地 worker lifecycle control 已通过；远程 worker、活动进程 re-attach 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
-| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
+| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
 | 服务生命周期 | 停止/失败历史可恢复、容量与 GC 可用；worker heartbeat/drain/resume、租约和重启分类可用 | 活动进程不能跨重启接管，无远程注册、warm pool/多机调度 | 不适用 | 本地 worker 控制面，不是完整云端服务 |
 
 ## 验证证据
@@ -68,7 +68,7 @@
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions Linux policy CI PASS | 远程 QEMU worker、活动进程 re-attach、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB internal-controller relay 在第二个 ATT request 后 `ack returned 12` 并 Reset。API-boundary 审计已完成广播、连接、NUS discovery 和订阅，但最终 write/notify 事务仍失败；safe-point callback 与 nested `r_eif_send` 均已证伪并回退。下一步是实现显式 API transaction + C2H device/IRQ queue，随后 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取 | 运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
 
 ## 工作流入口
 

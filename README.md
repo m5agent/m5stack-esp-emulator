@@ -23,8 +23,8 @@ MicroPython 和其他完整 Flash 固件。
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
   `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
   下首轮通过。该轮包含双 guest WiFi patch `0028`。本轮在同一工作树执行
-  本地平台套件，共 `264` 项，
-  `264` 项通过、`0` 项跳过。
+  本地平台套件，共 `267` 项，
+  `267` 项通过、`0` 项跳过。
 - 网络新增一台 namespace 内的 QEMU socket L2 switch 夹具：两台 StickS3
   guest 各自完成 DHCP，A 通过真实 guest TCP 访问 B，双侧 pcap 同时包含
   双向流量；switch 按配置 MAC 绑定连接槽位；宿主控制面、公网 IPv4、
@@ -56,8 +56,8 @@ MicroPython 和其他完整 Flash 固件。
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap、双 guest DHCP/TCP/双侧 pcap 隔离 | [`two-guest-pass.json`](tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json) | 远程 worker、活动 QEMU re-attach、外部 IPv6 |
-| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、native-HCI `HCI-1` transport PASS、`HCI-2` 无 GDB 捕获首个 `01030c00`、`HCI-3a` 诊断性单包 C2H callback `5/5` | [`c2h-delivery.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json) | `HCI-3b` 已到广播/连接和首个 ATT 交互，但第二个 ATT request 后复位；safe-point callback 与 nested `r_eif_send` 两条路线已失败并回退。下一步实现 C2H device/IRQ queue 或 in-process controller，再做 `HCI-4` repeated lease；GDB 控制面、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak 仍开放 |
-| 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、写入回滚和 staging GC、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32 文件清单与 SPDX | [`webburner-ui.json`](tests/firmware/evidence-2026-10-24-webburner-ui.json) | SPIFFS、运行时权限/许可策略、真机 key/eFuse、跨厂商回归 |
+| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、native-HCI `HCI-1` transport PASS、`HCI-2` 无 GDB 捕获首个 `01030c00`、`HCI-3a` 诊断性单包 C2H callback `5/5`、`HCI-3b` API-boundary 审计到 NUS subscription | [`c2h-delivery.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json)、[`api-boundary-audit.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json) | `HCI-3b` 最终 write/notify transaction 仍超时，safe-point callback 与 nested `r_eif_send` 路线已失败并回退。下一步实现 C2H device/IRQ queue 或 in-process controller，再做 `HCI-4` repeated lease；GDB 控制面、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak 仍开放 |
+| 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、写入回滚和 staging GC、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单与 SPDX | [`spiffs-inventory.json`](tests/firmware/evidence-2026-10-24-spiffs-inventory.json)、[`webburner-ui.json`](tests/firmware/evidence-2026-10-24-webburner-ui.json) | 运行时权限/许可策略、真机 key/eFuse、跨厂商回归 |
 | 共享 QEMU 回归 | 双 guest WiFi patch `0028` 合入后，S3/C6/Core2 全矩阵 `67/67` 首轮通过；键盘测试补齐 10 秒启动 settle | [`dual-guest-fabric-matrix.json`](tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) | 后续共享控制器改动重跑受影响矩阵；真机同路径证据 |
 
 ## 剩余工作
@@ -67,9 +67,9 @@ MicroPython 和其他完整 Flash 固件。
 | 高保真逐设备外观建模 | `TODO` | 仅 StopWatch 接近参考质量，其余 13 台仍是通用近似外壳 |
 | Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT、DHCP renewal、两台 QEMU guest 的私有 lab fabric 和本地 worker heartbeat/drain 已通；远程 worker、活动 QEMU re-attach 和外部 IPv6 仍待补 |
-| 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、浏览器 chunk 上传与刷新恢复、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS 与 FAT12/16/32 文件清单已通；SPIFFS、许可策略与真机 key 流程仍待补 |
+| 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、浏览器 chunk 上传与刷新恢复、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单已通；许可策略与真机 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持 worker heartbeat/drain/resume、租约状态和重启后 abandoned-lease 分类，以及停止/失败会话、事件、末帧和设备态恢复；尚无活动 QEMU 进程 re-attach、warm pool 和多机调度 |
-| Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、ELF 固定地址和 Device Service 单 lease 已通；native-HCI 到 `HCI-3a` 仅证明诊断性单包 callback。`HCI-3b` 已确认不能用任意 safe-point callback 或 nested guest RPC 继续；下一步是设备/IRQ 队列或 in-process controller transaction，再做 `HCI-4` repeated lease。GDB 控制面、bit-exact controller 与物理等价性仍未完成 |
+| Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、ELF 固定地址和 Device Service 单 lease 已通；native-HCI `HCI-3a` 证明诊断性单包 callback，`HCI-3b` API-boundary 审计推进到 NUS subscription。最终 write/notify 仍未闭环，已确认不能用任意 safe-point callback 或 nested guest RPC 继续；下一步是设备/IRQ 队列或 in-process controller transaction，再做 `HCI-4` repeated lease。GDB 控制面、bit-exact controller 与物理等价性仍未完成 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 关键索引：
@@ -218,6 +218,7 @@ commit 与主机架构的 `.work/` 运行时：
 - LittleFS 清单：`python3 -m pip install littlefs-python`（缺失时 manifest
   记录 `UNAVAILABLE`）；
 - FAT12/16/32 清单使用内置只读 parser，不需要宿主挂载或额外工具；
+- SPIFFS 常见 page/block/name/meta 配置使用内置只读 parser，不执行镜像；
 - 内置 UIFlow2 缓存：`python3 platform/tools/fetch_firmware.py <device>`；
 - 任意公开社区固件：
   `python3 platform/tools/fetch_firmware.py --firmware-id <id> --device-slug <slug> --analyze --chip-id 0x9 --cache /tmp/m5-firmware`。

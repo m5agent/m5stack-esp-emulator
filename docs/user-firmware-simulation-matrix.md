@@ -70,4 +70,6 @@ response, serial digest and a bounded set of fatal error lines.
   not a proven cache fault. This does not prove physical cache/PSRAM timing.
   Stock VHCI paths pass external
   NUS GATT 5/5 standalone and board+WiFi+public+BLE 3/3 in one guest, but
-  bit-exact Espressif BT controller behavior is still `NOT RUN`.
+  the native-HCI API-boundary audit stops after NUS subscription when the
+  final write/notify transaction times out. Bit-exact Espressif BT controller
+  behavior is still `NOT RUN`.

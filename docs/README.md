@@ -3,7 +3,7 @@
 日期：`2026-10-24`
 
 本页对账到当前工作树、生成物和最近一次本地全量验证快照。平台套件共
-`264` 项，`264` 项通过、`0` 项跳过；
+`267` 项，`267` 项通过、`0` 项跳过；
 `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验均为
 `PASS`；浏览器 SHA256/upload client Node 测试 `2/2 PASS`。这里记录的是
 证据快照，不把“测试总数”写成“全部功能或真机通过”。
@@ -60,7 +60,7 @@
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.14.0`；Worker heartbeat/drain/resume、WebBurner browser intake、resumable chunk upload、atomic append rollback、staging GC、nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 地址已固定，GDB 控制面仍开放 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | `HCI-1` PASS；`HCI-2` 首包 PARTIAL；`HCI-3a` 仅诊断性单包 PASS；`HCI-3b` diagnostic FAIL，API-boundary hook 到 NUS discovery/subscription 但 final write/notify 仍失败；`HCI-4` 开放 |
-| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32 清单已通；SPIFFS 仍 `UNSUPPORTED` |
+| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单已通；SPIFFS 8 个声明配置有自包含多索引回归；运行时权限/许可策略仍开放 |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复和双 guest lab fabric 已通；QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |

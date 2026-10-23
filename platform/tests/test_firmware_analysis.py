@@ -19,7 +19,7 @@ from firmware_analysis import (
     analyze_firmware,
     parse_partition_table,
 )
-from firmware_filesystems import inventory_data_partition
+from firmware_filesystems import SPIFFS_CONFIGS, inventory_data_partition
 
 
 def build_image(chip_id: int = 0x0009, descriptor: bool = True) -> bytes:
@@ -436,6 +436,195 @@ def build_flash_with_fat(fat_type: str = "fat16") -> bytes:
     return bytes(image)
 
 
+def build_spiffs_volume(
+    *,
+    page_size: int = 256,
+    block_size: int = 4096,
+    obj_name_len: int = 32,
+    metadata_len: int = 4,
+    multi_index: bool = False,
+) -> bytes:
+    pages_per_block = block_size // page_size
+    lookup_pages = max(1, pages_per_block * 2 // page_size)
+    content_len = page_size - 5
+    index_header_len = 8 + 4 + 1 + obj_name_len + metadata_len
+    head_entries = (page_size - index_header_len) // 2
+    continuation_entries = (page_size - 8) // 2
+    if head_entries <= 0 or continuation_entries <= 0:
+        raise ValueError("SPIFFS fixture geometry has no index entries")
+    files = (
+        ("/main.py", b"print('spiffs fixture')\n" + b"m" * 620),
+        (
+            "/res/LICENSE",
+            b"SPDX-License-Identifier: BSD-3-Clause\n",
+        ),
+        ("/certs/device.key", b"not-a-real-spiffs-key\n"),
+        (
+            "/configs/settings.json",
+            b'{"enabled":true,"mode":"safe"}\n',
+        ),
+    )
+    if multi_index:
+        main_size = content_len * (head_entries + 2)
+        files = (
+            (
+                "/main.py",
+                (
+                    b"print('spiffs multi-index fixture')\n"
+                    + (b"0123456789abcdef" * ((main_size // 16) + 1))
+                )[:main_size],
+            ),
+            *files[1:],
+        )
+
+    data_counts = [
+        (len(contents) + content_len - 1) // content_len
+        for _, contents in files
+    ]
+    index_counts = [
+        1
+        if data_count <= head_entries
+        else 1
+        + (
+            data_count
+            - head_entries
+            + continuation_entries
+            - 1
+        )
+        // continuation_entries
+        for data_count in data_counts
+    ]
+    usable_pages = pages_per_block - lookup_pages
+    required_pages = sum(data_counts) + sum(index_counts)
+    block_count = max(
+        1,
+        (required_pages + usable_pages - 1) // usable_pages,
+    )
+    volume = bytearray(b"\xff" * (block_size * block_count))
+    next_page = 0
+
+    def alloc_page() -> int:
+        nonlocal next_page
+        while next_page < len(volume) // page_size:
+            block_page = next_page % pages_per_block
+            if block_page < lookup_pages:
+                next_page += 1
+                continue
+            result = next_page
+            next_page += 1
+            return result
+        raise ValueError("SPIFFS fixture volume is too small")
+
+    def set_lut(page_ix: int, obj_id: int) -> None:
+        block = page_ix // pages_per_block
+        block_page = page_ix % pages_per_block
+        struct.pack_into(
+            "<H",
+            volume,
+            block * block_size + (block_page - lookup_pages) * 2,
+            obj_id,
+        )
+
+    for obj_id, (name, contents) in enumerate(files, start=1):
+        chunks = [
+            contents[offset : offset + content_len]
+            for offset in range(0, len(contents), content_len)
+        ]
+        if not chunks:
+            chunks = [b""]
+        page_groups: list[list[bytes]] = []
+        remaining_chunks = list(chunks)
+        page_groups.append(remaining_chunks[:head_entries])
+        del remaining_chunks[:head_entries]
+        while remaining_chunks:
+            page_groups.append(
+                remaining_chunks[:continuation_entries]
+            )
+            del remaining_chunks[:continuation_entries]
+
+        index_pages = [alloc_page() for _ in page_groups]
+        data_pages: list[int] = []
+        for chunk in chunks:
+            page_ix = alloc_page()
+            data_pages.append(page_ix)
+            set_lut(page_ix, obj_id)
+            span_ix = len(data_pages) - 1
+            page = bytearray(b"\xff" * page_size)
+            struct.pack_into("<HHB", page, 0, obj_id, span_ix, 0xFC)
+            page[5 : 5 + len(chunk)] = chunk
+            start = page_ix * page_size
+            volume[start : start + page_size] = page
+
+        encoded = name.encode("utf-8")
+        if len(encoded) >= obj_name_len:
+            raise ValueError("SPIFFS fixture path exceeds object-name length")
+        data_offset = 0
+        for span_ix, (index_page, page_group) in enumerate(
+            zip(index_pages, page_groups, strict=True)
+        ):
+            set_lut(index_page, obj_id | 0x8000)
+            index = bytearray(b"\xff" * page_size)
+            struct.pack_into(
+                "<HHB",
+                index,
+                0,
+                obj_id | 0x8000,
+                span_ix,
+                0xF8,
+            )
+            entry_offset = 8
+            if span_ix == 0:
+                struct.pack_into("<I", index, 8, len(contents))
+                index[12] = 1
+                index[
+                    13 : 13 + obj_name_len + metadata_len
+                ] = b"\x00" * (obj_name_len + metadata_len)
+                index[13 : 13 + len(encoded)] = encoded
+                entry_offset = index_header_len
+            for _ in page_group:
+                struct.pack_into(
+                    "<H",
+                    index,
+                    entry_offset,
+                    data_pages[data_offset],
+                )
+                entry_offset += 2
+                data_offset += 1
+            start = index_page * page_size
+            volume[start : start + page_size] = index
+    return bytes(volume)
+
+
+def build_flash_with_spiffs(**kwargs) -> bytes:
+    volume = build_spiffs_volume(**kwargs)
+    data_offset = 0x30000
+    image = bytearray(b"\xff" * (data_offset + len(volume)))
+    boot = build_image(descriptor=False)
+    image[: len(boot)] = boot
+    app = build_image()
+    image[0x10000 : 0x10000 + len(app)] = app
+    image[data_offset : data_offset + len(volume)] = volume
+    entries = []
+    for subtype, offset, size, label in (
+        (0, 0x10000, 0x20000, b"factory"),
+        (0x82, data_offset, len(volume), b"storage"),
+    ):
+        entry = bytearray(32)
+        struct.pack_into("<H", entry, 0, 0x50AA)
+        entry[2] = 0 if subtype == 0 else 1
+        entry[3] = subtype
+        struct.pack_into("<II", entry, 4, offset, size)
+        entry[12 : 12 + len(label)] = label
+        entries.append(entry)
+    payload = b"".join(entries)
+    md5_entry = bytearray(32)
+    struct.pack_into("<H", md5_entry, 0, 0xEBEB)
+    md5_entry[16:32] = hashlib.md5(payload).digest()
+    image[0x8000 : 0x8000 + len(payload)] = payload
+    image[0x8000 + len(payload) : 0x8020 + len(payload)] = md5_entry
+    return bytes(image)
+
+
 class FirmwareAnalysisTests(unittest.TestCase):
     def test_parses_partition_table_and_app_descriptor(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -688,6 +877,151 @@ class FirmwareAnalysisTests(unittest.TestCase):
                 )
                 self.assertIsNotNone(result)
                 self.assertEqual(result["status"], "INVALID")
+
+    def test_spiffs_inventory_hashes_files_and_redacts_sensitive_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "spiffs.bin"
+            path.write_bytes(build_flash_with_spiffs())
+            result = analyze_firmware(path, expected_chip_id_value=0x0009)
+
+        self.assertTrue(result["valid"], result["errors"])
+        filesystem = result["filesystems"][0]
+        self.assertEqual(filesystem["type"], "spiffs")
+        self.assertEqual(filesystem["status"], "PASS")
+        self.assertEqual(filesystem["page_size"], 256)
+        self.assertEqual(filesystem["block_size"], 4096)
+        self.assertEqual(
+            filesystem["declared_licenses"],
+            ["BSD-3-Clause"],
+        )
+        self.assertEqual(filesystem["file_count"], 4)
+        self.assertEqual(filesystem["directory_count"], 3)
+        paths = {row["path"] for row in filesystem["files"]}
+        self.assertIn("/main.py", paths)
+        self.assertIn("/res/LICENSE", paths)
+        self.assertIn("/configs/settings.json", paths)
+        self.assertIn("<redacted-sensitive-path>", paths)
+        self.assertNotIn("device.key", json.dumps(result))
+        main = next(
+            row
+            for row in filesystem["files"]
+            if row["path"] == "/main.py"
+        )
+        expected = b"print('spiffs fixture')\n" + b"m" * 620
+        self.assertEqual(main["size"], len(expected))
+        self.assertEqual(
+            main["sha256"],
+            hashlib.sha256(expected).hexdigest(),
+        )
+        self.assertEqual(len(filesystem["sensitive_files"]), 1)
+        self.assertTrue(filesystem["lut_validated"])
+
+        for config in SPIFFS_CONFIGS:
+            page_size, block_size, obj_name_len, metadata_len = config
+            with self.subTest(
+                page_size=page_size,
+                block_size=block_size,
+                obj_name_len=obj_name_len,
+                metadata_len=metadata_len,
+            ):
+                volume = build_spiffs_volume(
+                    page_size=page_size,
+                    block_size=block_size,
+                    obj_name_len=obj_name_len,
+                    metadata_len=metadata_len,
+                    multi_index=True,
+                )
+                inventory = inventory_data_partition(
+                    volume,
+                    {
+                        "label": "storage",
+                        "subtype": 0x82,
+                        "offset": 0,
+                        "size": len(volume),
+                    },
+                )
+                self.assertIsNotNone(inventory)
+                self.assertEqual(inventory["status"], "PASS")
+                self.assertTrue(inventory["lut_validated"])
+                self.assertEqual(
+                    inventory["selected_config"],
+                    {
+                        "page_size": page_size,
+                        "block_size": block_size,
+                        "object_name_len": obj_name_len,
+                        "metadata_len": metadata_len,
+                    },
+                )
+                main = next(
+                    row
+                    for row in inventory["files"]
+                    if row["path"] == "/main.py"
+                )
+                self.assertGreater(main["index_page_count"], 1)
+                self.assertGreater(main["data_page_count"], 1)
+
+    def test_unformatted_and_malformed_spiffs_inputs(self):
+        result = inventory_data_partition(
+            b"\xff" * 4096,
+            {
+                "label": "storage",
+                "subtype": 0x82,
+                "offset": 0,
+                "size": 4096,
+            },
+        )
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result["status"], "UNFORMATTED")
+
+        random_source = random.Random(0x5F1F5)
+        for size in (4096, 16384):
+            with self.subTest(kind="random", size=size):
+                result = inventory_data_partition(
+                    random_source.randbytes(size),
+                    {
+                        "label": "storage",
+                        "subtype": 0x82,
+                        "offset": 0,
+                        "size": size,
+                    },
+                )
+                self.assertIsNotNone(result)
+                self.assertEqual(result["status"], "INVALID")
+                self.assertNotIn("files", result)
+
+        corrupted = bytearray(build_spiffs_volume())
+        page_size = 256
+        block_size = 4096
+        pages_per_block = 4096 // page_size
+        lookup_pages = 1
+        corrupted_index_count = 0
+        for block in range(len(corrupted) // block_size):
+            for block_page in range(lookup_pages, pages_per_block):
+                lut_offset = (
+                    block * block_size
+                    + (block_page - lookup_pages) * 2
+                )
+                lut_obj_id = int.from_bytes(
+                    corrupted[lut_offset : lut_offset + 2],
+                    "little",
+                )
+                if lut_obj_id & 0x8000:
+                    corrupted[lut_offset : lut_offset + 2] = b"\xff\xff"
+                    corrupted_index_count += 1
+        self.assertGreater(corrupted_index_count, 0)
+        result = inventory_data_partition(
+            bytes(corrupted),
+            {
+                "label": "storage",
+                "subtype": 0x82,
+                "offset": 0,
+                "size": len(corrupted),
+            },
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(result["status"], "INVALID")
+        self.assertNotIn("files", result)
 
 
 if __name__ == "__main__":
