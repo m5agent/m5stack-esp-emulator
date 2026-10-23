@@ -1,10 +1,12 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.3.0
+  version: 1.4.0
   description: >
-    Leased, on-demand virtual M5Stack device service. QEMU board sessions and
-    separate esp-emu network/BLE sessions use isolated firmware copies.
+    Leased, on-demand virtual M5Stack device service. QEMU unified sessions
+    keep board and radio evidence in one guest; separate esp-emu network/BLE
+    sessions remain available for diagnostics. Every session uses an isolated
+    firmware copy.
     CardputerZero is outside this API version. Tab5 is available through
     esp-emu with partial peripheral status.
 servers:
@@ -383,17 +385,19 @@ paths:
                       additionalProperties: true
   /sessions/{session_id}/network:
     get:
-      summary: Read machine-readable network or BLE evidence
+      summary: Read machine-readable radio evidence for one session
       parameters:
         - $ref: "#/components/parameters/SessionId"
       responses:
         "200":
-          description: Network lane evidence, or RUNNING before completion
+          description: >
+            WiFi/BLE slice of the current QEMU lease, or RUNNING before
+            completion. Unified profiles also keep frame, input, device-state
+            and audio evidence in the same session.
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: true
+                $ref: "#/components/schemas/NetworkEvidence"
         "409":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/device-state:
@@ -652,8 +656,7 @@ paths:
                   - type: object
                     properties:
                       runtime:
-                        type: string
-                        enum: [qemu, network]
+                        $ref: "#/components/schemas/RuntimeName"
                       stdout:
                         type: string
                       stderr:
@@ -902,6 +905,67 @@ components:
         features:
           type: object
           additionalProperties: true
+    RuntimeName:
+      type: string
+      enum: [qemu, network, qemu-wifi, qemu-ble, qemu-unified]
+      description: >
+        Execution envelope for a session. qemu-unified is the canonical
+        one-guest board + radio runtime for *-unified profiles. qemu-ble is a
+        compatibility alias used by existing unified clients and by
+        radio-specific legacy profiles. qemu-wifi keeps the board and WiFi in
+        one guest without starting the external BLE peer. network is the
+        separate esp-emu diagnostic lane and cannot establish a whole-device
+        PASS by itself.
+    NetworkEvidence:
+      type: object
+      additionalProperties: true
+      required: [schema_version, kind, scope, status]
+      properties:
+        schema_version:
+          type: integer
+        kind:
+          type: string
+        scope:
+          type: string
+          example: simulation-only-not-hardware-validation
+        status:
+          type: string
+          enum: [RUNNING, PASS, PARTIAL, FAIL]
+        session_id:
+          type: string
+        device_id:
+          type: string
+        profile:
+          type: string
+        runtime:
+          type: object
+          additionalProperties: true
+          properties:
+            name:
+              type: string
+            guest_process_count:
+              type: integer
+              minimum: 1
+            wifi_nic:
+              type: string
+            hci_transport:
+              type: string
+            ble_controller:
+              type: string
+            ble_peer:
+              type: string
+        checks:
+          type: object
+          additionalProperties:
+            type: boolean
+        expected_markers:
+          type: array
+          items:
+            type: string
+        not_claimed:
+          type: array
+          items:
+            type: string
     Artifact:
       type: object
       required: [artifact_id, sha256, size, name]
@@ -997,14 +1061,18 @@ components:
           additionalProperties:
             type: string
         runtime:
-          type: string
-          enum: [qemu, network, qemu-wifi, qemu-ble]
+          allOf:
+            - $ref: "#/components/schemas/RuntimeName"
           default: qemu
         network:
           $ref: "#/components/schemas/NetworkExecution"
     NetworkExecution:
       type: object
       required: [profile]
+      description: >
+        Select the profile for the requested device. runtime=qemu-unified
+        requires a one-guest *-unified profile. runtime=qemu-ble remains
+        accepted for compatibility and for radio-specific profiles.
       properties:
         profile:
           type: string
@@ -1147,8 +1215,7 @@ components:
         firmware_source:
           type: string
         runtime:
-          type: string
-          enum: [qemu, network]
+          $ref: "#/components/schemas/RuntimeName"
         network:
           type: object
           nullable: true
