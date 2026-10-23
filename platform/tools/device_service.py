@@ -102,6 +102,7 @@ NETWORK_STATUSES = {
 CORE2_WIFI_PROFILE = "core2-openmac"
 CORE2_BLE_PROFILE = "core2-ble-advertise"
 CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
+CORE2_UNIFIED_PROFILE = "core2-unified"
 STICKS3_WIFI_PROFILE = "uiflow2-sticks3-wifi"
 STICKS3_UNIFIED_PROFILE = "uiflow2-sticks3-unified"
 CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
@@ -122,6 +123,7 @@ UNIFIED_PROFILES = {
     PAPERMONO_UNIFIED_PROFILE,
     STACKCHAN_UNIFIED_PROFILE,
     STAMPLC_UNIFIED_PROFILE,
+    CORE2_UNIFIED_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
     STICKS3_UNIFIED_PROFILE: 18080,
@@ -133,6 +135,7 @@ UNIFIED_HTTP_PORTS = {
     PAPERMONO_UNIFIED_PROFILE: 18086,
     STACKCHAN_UNIFIED_PROFILE: 18087,
     STAMPLC_UNIFIED_PROFILE: 18088,
+    CORE2_UNIFIED_PROFILE: 18089,
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
@@ -204,6 +207,12 @@ STAMPLC_UNIFIED_MARKERS = (
     "UNIFIED_STAMPLC_BLE_RX",
     "UNIFIED_STAMPLC_BLE_ACK_SENT",
 )
+CORE2_UNIFIED_MARKERS = (
+    "UNIFIED_CORE2_WIFI_CONNECTED",
+    "UNIFIED_CORE2_HTTP_PASS",
+    "UNIFIED_CORE2_BLE_RX",
+    "UNIFIED_CORE2_BLE_ACK_SENT",
+)
 UNIFIED_MARKERS = {
     STICKS3_UNIFIED_PROFILE: STICKS3_UNIFIED_MARKERS,
     CORES3_UNIFIED_PROFILE: CORES3_UNIFIED_MARKERS,
@@ -214,6 +223,7 @@ UNIFIED_MARKERS = {
     PAPERMONO_UNIFIED_PROFILE: PAPERMONO_UNIFIED_MARKERS,
     STACKCHAN_UNIFIED_PROFILE: STACKCHAN_UNIFIED_MARKERS,
     STAMPLC_UNIFIED_PROFILE: STAMPLC_UNIFIED_MARKERS,
+    CORE2_UNIFIED_PROFILE: CORE2_UNIFIED_MARKERS,
 }
 UNIFIED_READY_MARKERS = {
     STICKS3_UNIFIED_PROFILE: "UNIFIED_STICKS3_READY",
@@ -225,6 +235,7 @@ UNIFIED_READY_MARKERS = {
     PAPERMONO_UNIFIED_PROFILE: "UNIFIED_PAPERMONO_READY",
     STACKCHAN_UNIFIED_PROFILE: "UNIFIED_STACKCHAN_READY",
     STAMPLC_UNIFIED_PROFILE: "UNIFIED_STAMPLC_READY",
+    CORE2_UNIFIED_PROFILE: "UNIFIED_CORE2_READY",
 }
 UNIFIED_HTTP_BODIES = {
     STICKS3_UNIFIED_PROFILE: b"UNIFIED_STICKS3_OK\n",
@@ -236,6 +247,7 @@ UNIFIED_HTTP_BODIES = {
     PAPERMONO_UNIFIED_PROFILE: b"UNIFIED_PAPERMONO_OK\n",
     STACKCHAN_UNIFIED_PROFILE: b"UNIFIED_STACKCHAN_OK\n",
     STAMPLC_UNIFIED_PROFILE: b"UNIFIED_STAMPLC_OK\n",
+    CORE2_UNIFIED_PROFILE: b"UNIFIED_CORE2_OK\n",
 }
 UNIFIED_BLE_IDENTITIES = {
     "sticks3": ("M5-STICKS3-UNIFIED", "M5_STICKS3_UNIFIED"),
@@ -247,6 +259,7 @@ UNIFIED_BLE_IDENTITIES = {
     "papermono": ("M5-PAPERMONO-UNIFIED", "M5_PAPERMONO_U"),
     "stackchan": ("M5-STACKCHAN-UNIFIED", "M5_STACKCHAN_U"),
     "stamplc": ("M5-STAMPLC-UNIFIED", "M5_STAMPLC_U"),
+    "core2": ("M5-CORE2-UNIFIED", "M5_CORE2_UNIFIED"),
 }
 STACKCHAN_UNIFIED_QOM = (
     ("/machine/aw9523", "input-bits", 61439),
@@ -276,6 +289,21 @@ STAMPLC_UNIFIED_QOM = (
     ("/machine/ina226-40", "shunt-ohms", 0.08),
     ("/machine/aw9523-59", "input-bits", 61680),
     ("/machine/rx8130-32", "unix-time", 1792630923),
+)
+CORE2_UNIFIED_QOM = (
+    ("/machine/axp2101", "vbat-mv", 4000),
+    ("/machine/axp2101", "vin-mv", 5000),
+    ("/machine/axp2101", "charging", True),
+    ("/machine/ina3221-40", "bus1-mv", 4800),
+    ("/machine/ina3221-40", "current1-ma", 240),
+    ("/machine/ina3221-40", "shunt-ohms", 0.01),
+    ("/machine/pcf8563", "unix-time", 1792630923),
+    ("/machine/mpu6886", "accel-x", 0.25),
+    ("/machine/mpu6886", "accel-y", -0.5),
+    ("/machine/mpu6886", "accel-z", 0.75),
+    ("/machine/mpu6886", "gyro-x", 10),
+    ("/machine/mpu6886", "gyro-y", -20),
+    ("/machine/mpu6886", "gyro-z", 30),
 )
 
 
@@ -660,6 +688,7 @@ def parse_qemu_ble_execution(
         supported_profiles = {
             CORE2_BLE_PROFILE,
             CORE2_HCI_GATT_PROFILE,
+            CORE2_UNIFIED_PROFILE,
         }
         default_profile = CORE2_BLE_PROFILE
     elif spec.id == "sticks3":
@@ -739,7 +768,9 @@ def parse_qemu_ble_execution(
             else "misc.esp32s3.wifi"
         ),
         "ble_name": (
-            "M5-CORE2-HCI"
+            UNIFIED_BLE_IDENTITIES["core2"][0]
+            if profile == CORE2_UNIFIED_PROFILE
+            else "M5-CORE2-HCI"
             if spec.id == "core2"
             else UNIFIED_BLE_IDENTITIES[spec.id][0]
         ),
@@ -930,11 +961,12 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             ):
                 core2_radio_qemu_path()
                 network_profiles = [
+                    CORE2_UNIFIED_PROFILE,
                     CORE2_WIFI_PROFILE,
                     CORE2_BLE_PROFILE,
                     CORE2_HCI_GATT_PROFILE,
                 ]
-                network_status = "unverified"
+                network_status = "validated"
             reason = excluded_reason
             if not backend and reason is None:
                 reason = (
@@ -2055,11 +2087,39 @@ class DeviceSession:
                 )
         self._record_event("stackchan_peripheral_inputs_prepared")
 
+    def _prepare_core2_peripheral_inputs(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tests/uiflow2/make_pcm_tone.py"),
+                str(self.microphone_source_pcm),
+                "--frequency",
+                "440",
+                "--sample-rate",
+                "16000",
+                "--seconds",
+                "1",
+                "--amplitude",
+                "12000",
+            ],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(
+                "Core2 fixture generation failed: " + result.stdout.strip()
+            )
+        self._record_event("core2_peripheral_inputs_prepared")
+
     def _apply_profile_qom(
         self,
         marker: str,
         profile: str,
         setup: tuple[tuple[str, str, Any], ...],
+        pause: bool = True,
     ) -> None:
         deadline = time.time() + 20
         while time.time() < deadline:
@@ -2085,15 +2145,18 @@ class DeviceSession:
             )
         assert self._qmp is not None
         try:
-            self._qmp.cmd("stop")
+            if pause:
+                self._qmp.cmd("stop")
             for path, prop, value in setup:
                 self._qmp.cmd("qom-set", path=path, property=prop, value=value)
-            self._qmp.cmd("cont")
-        except (OSError, RuntimeError) as error:
-            try:
+            if pause:
                 self._qmp.cmd("cont")
-            except (OSError, RuntimeError):
-                pass
+        except (OSError, RuntimeError) as error:
+            if pause:
+                try:
+                    self._qmp.cmd("cont")
+                except (OSError, RuntimeError):
+                    pass
             raise ServiceError(
                 "qom_error",
                 f"{profile} runtime state injection failed: {error}",
@@ -2140,6 +2203,8 @@ class DeviceSession:
             self._launch_http_fixture()
         if profile == STACKCHAN_UNIFIED_PROFILE:
             self._prepare_stackchan_peripheral_inputs()
+        elif profile == CORE2_UNIFIED_PROFILE:
+            self._prepare_core2_peripheral_inputs()
         command = [
             str(qemu_path),
             "-M", self.spec.machine,
@@ -2169,18 +2234,24 @@ class DeviceSession:
             ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]
         )
         if self.runtime == QEMU_WIFI_RUNTIME or unified:
-            s3_wifi = (
-                unified
-                or self.network_config.get("profile") == STICKS3_WIFI_PROFILE
-            )
+            configured_nic = self.network_config.get("nic")
+            if configured_nic:
+                nic = configured_nic
+            else:
+                s3_wifi = (
+                    unified
+                    or self.network_config.get("profile")
+                    == STICKS3_WIFI_PROFILE
+                )
+                nic = (
+                    "misc.esp32s3.wifi"
+                    if s3_wifi
+                    else "misc.esp32_wifi"
+                )
             command.extend(
                 [
                     "-nic",
-                    (
-                        "user,model=misc.esp32s3.wifi,id=wifi0"
-                        if s3_wifi
-                        else "user,model=misc.esp32_wifi,id=wifi0"
-                    ),
+                    f"user,model={nic},id=wifi0",
                 ]
             )
         if self.spec.efuse_driver != "none":
@@ -2207,6 +2278,8 @@ class DeviceSession:
         if profile == STAMPLC_UNIFIED_PROFILE:
             env["M5SW_CAN_ECHO"] = "1"
             env["M5SW_RS485_ECHO"] = "1"
+        if profile == CORE2_UNIFIED_PROFILE:
+            env["M5SW_I2S_RX_PCM_FILE"] = str(self.microphone_source_pcm)
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
@@ -2242,6 +2315,13 @@ class DeviceSession:
                 "UNIFIED_STAMPLC_IO_CONFIG_READY",
                 STAMPLC_UNIFIED_PROFILE,
                 STAMPLC_UNIFIED_QOM,
+            )
+        elif profile == CORE2_UNIFIED_PROFILE:
+            self._apply_profile_qom(
+                "UNIFIED_CORE2_IO_CONFIG_READY",
+                CORE2_UNIFIED_PROFILE,
+                CORE2_UNIFIED_QOM,
+                pause=False,
             )
 
     def _qmp_call(self, name: str, **arguments):
@@ -2947,17 +3027,24 @@ class DeviceSession:
                 "nonzeros": sum(value != 0 for value in pcm),
                 "sha256": hashlib.sha256(pcm).hexdigest(),
             }
-        if self.network_config.get("profile") == STACKCHAN_UNIFIED_PROFILE:
-            for name, path in (
+        profile = self.network_config.get("profile")
+        if profile in {STACKCHAN_UNIFIED_PROFILE, CORE2_UNIFIED_PROFILE}:
+            data_entries = [
                 ("audio/microphone-source.pcm", self.microphone_source_pcm),
-                ("ir/nec-source.rmt", self.rmt_source),
-                ("ir/nec-capture.rmt", self.rmt_capture),
-            ):
+            ]
+            if profile == STACKCHAN_UNIFIED_PROFILE:
+                data_entries.extend(
+                    (
+                        ("ir/nec-source.rmt", self.rmt_source),
+                        ("ir/nec-capture.rmt", self.rmt_capture),
+                    )
+                )
+            for name, path in data_entries:
                 if not path.is_file():
                     continue
                 data = path.read_bytes()
                 files[name] = data
-                manifest.setdefault("stackchan_data", {})[name] = {
+                manifest.setdefault("device_data", {})[name] = {
                     "bytes": len(data),
                     "sha256": hashlib.sha256(data).hexdigest(),
                 }
@@ -4308,6 +4395,31 @@ class DeviceService:
             by_device: dict[str, int] = {}
             for session in active:
                 by_device[session.spec.id] = by_device.get(session.spec.id, 0) + 1
+        unified_s3 = any(
+            profile in self.specs[device_id].network_profiles
+            for device_id, profile in (
+                ("sticks3", STICKS3_UNIFIED_PROFILE),
+                ("cores3", CORES3_UNIFIED_PROFILE),
+                ("cardputer-adv", CARDPUTER_ADV_UNIFIED_PROFILE),
+                ("stopwatch", STOPWATCH_UNIFIED_PROFILE),
+                ("atoms3r", ATOMS3R_UNIFIED_PROFILE),
+                ("papercolor", PAPERCOLOR_UNIFIED_PROFILE),
+                ("papermono", PAPERMONO_UNIFIED_PROFILE),
+                ("stackchan", STACKCHAN_UNIFIED_PROFILE),
+                ("stamplc", STAMPLC_UNIFIED_PROFILE),
+            )
+        )
+        unified_core2 = (
+            CORE2_UNIFIED_PROFILE in self.specs["core2"].network_profiles
+        )
+        qemu_unified = (
+            "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-"
+            "papercolor-papermono-stackchan-stamplc"
+            + ("-core2" if unified_core2 else "")
+            + "-wifi-ble"
+            if unified_s3 or unified_core2
+            else "disabled"
+        )
         return {
             "max_sessions": self.max_sessions,
             "active_sessions": len(active),
@@ -4346,27 +4458,7 @@ class DeviceService:
                     in self.specs["core2"].network_profiles
                     else "disabled"
                 ),
-                "qemu-unified": (
-                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-wifi-ble"
-                    if any(
-                        profile in self.specs[device_id].network_profiles
-                        for device_id, profile in (
-                            ("sticks3", STICKS3_UNIFIED_PROFILE),
-                            ("cores3", CORES3_UNIFIED_PROFILE),
-                            (
-                                "cardputer-adv",
-                                CARDPUTER_ADV_UNIFIED_PROFILE,
-                            ),
-                            ("stopwatch", STOPWATCH_UNIFIED_PROFILE),
-                            ("atoms3r", ATOMS3R_UNIFIED_PROFILE),
-                            ("papercolor", PAPERCOLOR_UNIFIED_PROFILE),
-                            ("papermono", PAPERMONO_UNIFIED_PROFILE),
-                            ("stackchan", STACKCHAN_UNIFIED_PROFILE),
-                            ("stamplc", STAMPLC_UNIFIED_PROFILE),
-                        )
-                    )
-                    else "disabled"
-                ),
+                "qemu-unified": qemu_unified,
                 "tab5": "enabled-partial",
                 "flash": "prepared-cache + exact artifact",
             },

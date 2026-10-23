@@ -70,6 +70,11 @@
       "test": "tests/uiflow2/unified_stamplc/run_test.py",
       "evidence": "tests/uiflow2/unified_stamplc/evidence-2026-10-23.json"
     },
+    "core2-unified": {
+      "device": "core2",
+      "test": "tests/uiflow2/unified_core2/run_test.py",
+      "evidence": "tests/uiflow2/unified_core2/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -168,6 +173,16 @@
       "can",
       "rs485",
       "buzzer"
+    ],
+    "core2-unified": [
+      "axp2101",
+      "ina3221",
+      "touch-ft5x06",
+      "mpu6886",
+      "pcf8563",
+      "ns4168",
+      "spm1423",
+      "pwr-button"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -547,6 +562,9 @@
         "core2-power-monitor",
         "core2-imu",
         "core2-axp192"
+      ],
+      "external": [
+        "core2-unified"
       ],
       "models": [
         "axp2101",

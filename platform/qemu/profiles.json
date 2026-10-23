@@ -231,6 +231,41 @@
         "ns4168",
         "spm1423"
       ],
+      "runtime_state": {
+        "power": {
+          "path": "/machine/axp2101",
+          "properties": [
+            "vbat-mv",
+            "vin-mv",
+            "charging"
+          ]
+        },
+        "power-monitor": {
+          "path": "/machine/ina3221-40",
+          "properties": [
+            "bus1-mv",
+            "current1-ma",
+            "shunt-ohms"
+          ]
+        },
+        "imu": {
+          "path": "/machine/mpu6886",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        },
+        "rtc": {
+          "path": "/machine/pcf8563",
+          "properties": [
+            "unix-time"
+          ]
+        }
+      },
       "board_work": [
         "ILI9342 pixel-stream/live-frame polish",
         "PSRAM/cache stability"
@@ -239,9 +274,9 @@
         "PSRAM/cache stability remains"
       ],
       "validation": {
-        "date": "2026-10-21",
-        "status": "display-touch-audio-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders 320x240, accepts touch, reads MPU6886 accel/gyro, captures nonzero NS4168 speaker PCM through ESP32 I2S1, injects SPM1423 PCM through I2S0 PDM RX, and reads INA3221 power telemetry through I2C0. The board uses the documented Core2 v1.1 AXP2101 + INA3221 hardware. QEMU -m 0 is still required for best PSRAM/cache stability."
+        "date": "2026-10-23",
+        "status": "display-input-peripherals-wifi-ble-pass",
+        "detail": "Official UIFlow2 v2.5.3 runs the 320x240 display/touch, AXP2101, INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE in one m5core2 guest. QOM injection runs without pausing the guest to avoid the known Core2 cache/watchdog failure; QEMU -m 0 is still required."
       }
     },
     {

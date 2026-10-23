@@ -55,6 +55,11 @@ complete simulated device or as a unified-device PASS.
 - The StamPLC machine keeps its display, keys/RGB, relay/input banks, CAN,
   PWR-485 and buzzer in the same guest as WiFi DHCP/HTTP and external UART1
   HCI BLE. UART2 remains the PWR-485 bus on G0/G39/G46.
+- The environment-gated Core2 machine combines display/touch,
+  AXP2101/INA3221, MPU6886, PCF8563, NS4168/SPM1423 audio, OpenMAC WiFi
+  DHCP/HTTP and UART1 HCI BLE in one `m5core2` guest. QOM injection does not
+  pause the guest because early QMP stop/continue triggers the known
+  cache/watchdog failure.
 - The StickS3 unified HCI-UART build routes real NimBLE H4 traffic through
   QEMU UART1 to a Bumble controller. An external peer completes NUS discovery,
   subscription, write, guest receive and notify ACK in the same QEMU process.
@@ -102,22 +107,23 @@ finished chip model.
 ## Acceptance milestone
 
 First vertical slices are StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R,
-PaperColor, PaperMono, StackChan and StamPLC. Each runs one UIFlow2 image in
-one QEMU guest that simultaneously shows a non-black frame, accepts a
-physical key/touch event,
+PaperColor, PaperMono, StackChan, StamPLC and environment-gated Core2. Each
+runs one UIFlow2 image in one QEMU guest that simultaneously shows a non-black
+frame, accepts a physical key/touch event,
 reads device state and audio where available, associates with the virtual
 WiFi SSID, obtains DHCP, completes a controlled HTTP request, and completes
 BLE GATT discovery/write. Each session exposes all checks through one
 `/api/v1` lease and retains a combined evidence bundle.
 
 Status: **PASS for the simulation-only StickS3, CoreS3, Cardputer ADV,
-StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and StamPLC slices**
-through `runtime=qemu-ble`, the nine unified profiles, and retained Device
-Service evidence ZIPs containing
+StopWatch, AtomS3R, PaperColor, PaperMono, StackChan, StamPLC and Core2
+slices** through `runtime=qemu-ble`, the ten unified profiles, and retained
+Device Service evidence ZIPs containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
-manifest hashes. All probes use an open virtual AP on one fixed channel;
+manifest hashes. S3 probes use one open fixed-channel virtual AP; Core2
+OpenMAC advertises its open test-AP set and associates with `myssid`.
 WPA2/WPA3 security behavior is not modelled. BLE is host-controller HCI data
-over an HCI-UART test build, not a native ESP32-S3 radio/controller model.
+over an HCI-UART test build, not a native ESP32 radio/controller model.
 
 The S3 NIC models the guest-visible MAC, DMA descriptors, interrupt and
 user-net frame path, but not a complete PHY/rate/security/RF model. The classic

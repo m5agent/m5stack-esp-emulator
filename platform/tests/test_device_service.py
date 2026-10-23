@@ -387,13 +387,18 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(
                     row["network_profiles"],
                     [
+                        "core2-unified",
                         "core2-openmac",
                         "core2-ble-advertise",
                         "core2-hci-gatt",
                     ],
                 )
-                self.assertEqual(row["network_status"], "unverified")
-                self.assertFalse(row["features"]["network"])
+                self.assertEqual(row["network_status"], "validated")
+                self.assertTrue(row["features"]["network"])
+                self.assertEqual(
+                    gated.capacity()["modes"]["qemu-unified"],
+                    "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-core2-wifi-ble",
+                )
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-wifi"],
                     "enabled-sticks3-and-core2",
@@ -435,6 +440,21 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertEqual(
                 hci_gatt["expected_markers"],
                 list(device_service_module.CORE2_HCI_GATT_MARKERS),
+            )
+            core2_unified = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["core2"],
+                {"profile": "core2-unified"},
+            )
+            self.assertEqual(core2_unified["profile"], "core2-unified")
+            self.assertEqual(
+                core2_unified["expected_markers"],
+                list(device_service_module.CORE2_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                device_service_module.UNIFIED_HTTP_PORTS[
+                    device_service_module.CORE2_UNIFIED_PROFILE
+                ],
+                18089,
             )
             unified = device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
@@ -1556,6 +1576,69 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(evidence["runtime"]["hci_transport"], "UART1 H4")
         self.assertEqual(evidence["gatt"]["name"], "M5-STAMPLC-UNIFIED")
         self.assertEqual(evidence["gatt"]["payload"], "M5_STAMPLC_U")
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_core2_unified_qemu_evidence(self):
+        spec = self.service.specs["core2"]
+        firmware_path = Path(self.tmp.name) / "core2-unified.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="b" * 32,
+            spec=spec,
+            firmware_id="5" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="5" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_CORE2_READY",
+            ready_timeout=20,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "core2-unified",
+                "nic": "misc.esp32_wifi",
+                "expected_markers": list(
+                    device_service_module.CORE2_UNIFIED_MARKERS
+                ),
+                "attempts": 3,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "UNIFIED_CORE2_WIFI_CONNECTED 10.0.2.15\n"
+            "UNIFIED_CORE2_HTTP_PASS\n"
+            "UNIFIED_CORE2_BLE_RX b'M5_CORE2_UNIFIED'\n"
+            "UNIFIED_CORE2_BLE_ACK_SENT\n"
+            "UNIFIED_CORE2_READY\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-CORE2-UNIFIED'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_CORE2_UNIFIED\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_CORE2_UNIFIED\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}])
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-core2-unified-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(evidence["runtime"]["hci_transport"], "UART1 H4")
+        self.assertEqual(evidence["runtime"]["wifi_nic"], "misc.esp32_wifi")
+        self.assertEqual(evidence["gatt"]["name"], "M5-CORE2-UNIFIED")
+        self.assertEqual(evidence["gatt"]["payload"], "M5_CORE2_UNIFIED")
         session.state = "stopped"
         session._proc = None
         session._qmp = None

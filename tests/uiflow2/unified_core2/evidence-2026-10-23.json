@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "core2",
+  "firmware": {
+    "bytes": 16777216,
+    "sha256": "d6c377088848f59c66f11563a13ba039be6b5a3b0e4e2ca641ae7b27c682512e"
+  },
+  "consecutive_passes": 3,
+  "runs": [
+    {
+      "serial_sha256": "1186777fd5be0e867e09fa5f6d8a19177819ad87559fabc578cff2b66ec91fc9",
+      "peer_log_sha256": "9b65911e4e7501ae82846cf44f2e3e562b48efca7b1fbf6d5cada06c6273e00d"
+    },
+    {
+      "serial_sha256": "6eb3e60a6522e6434ad31388300df5e1d13ef235425b01241b4c0e335fd57924",
+      "peer_log_sha256": "4c3d955ee1f60313fb8e0c281a2765d2bbcfc25f3e74b0a04c379f47f1bca33a"
+    },
+    {
+      "serial_sha256": "908887a20bddd24fe7e48aa648e370db61f013916afeaed0d7927886c52b41e9",
+      "peer_log_sha256": "5794a8d2d0aa4523da4310452389c01ff75e3ab2a92f8592d90335d27282f3b2"
+    }
+  ],
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "touch_redraw": true,
+    "axp2101": true,
+    "ina3221": true,
+    "mpu6886": true,
+    "pcf8563": true,
+    "speaker_pcm": true,
+    "microphone_pcm": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [
+      320,
+      240
+    ],
+    "before_nonblack_pixels": 8935,
+    "before_unique_colors": 30,
+    "after_nonblack_pixels": 16783,
+    "after_unique_colors": 45,
+    "changed_after_touch": true
+  },
+  "audio": {
+    "speaker_bytes": 792064,
+    "speaker_nonzero_bytes": 462826,
+    "speaker_peak_to_peak": 255,
+    "microphone_source_bytes": 32000,
+    "microphone_source_nonzero_bytes": 31760,
+    "microphone_source_sha256": "7bf26780838b452847af12b4bb1c1eb56b303132f46659e8c913a3a01a5a6e9b"
+  },
+  "device_state": {
+    "axp2101_vbat_mv": 4000,
+    "axp2101_vin_mv": 5000,
+    "axp2101_charging": true,
+    "ina3221_bus1_mv": 4800,
+    "ina3221_current1_ma": 240,
+    "mpu6886_accel_x": 0.25,
+    "mpu6886_gyro_x": 10,
+    "pcf8563_unix_time": 1792649247
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_host": "10.0.2.2",
+    "http_port": 18089,
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART1 H4",
+    "controller": "Bumble",
+    "name": "M5-CORE2-UNIFIED",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_CORE2_UNIFIED",
+    "notification": "ACK:M5_CORE2_UNIFIED"
+  },
+  "runtime_notes": {
+    "qom_injection_pauses_guest": false,
+    "reason": "QMP stop/cont during early Core2 board setup reproducibly led to an interrupt-watchdog cache crash; QOM writes while the guest runs passed 3/3 first attempts.",
+    "qemu_memory_mb": 0
+  },
+  "device_service_validation": {
+    "runtime": "qemu-ble",
+    "profile": "core2-unified",
+    "environment_gate": "M5_CORE2_RADIO_QEMU",
+    "uploaded_image_sha256": "d6c377088848f59c66f11563a13ba039be6b5a3b0e4e2ca641ae7b27c682512e",
+    "guest_process_count": 1,
+    "network_status": "PASS",
+    "frame_changed_after_touch": true,
+    "before_png_sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b",
+    "after_png_sha256": "4c3a51659ee10347ae38b55e6b5c7a2681d6b7f138a4e5a8ee82d574b501dfed",
+    "device_state_components": [
+      "power",
+      "power-monitor",
+      "imu",
+      "rtc"
+    ],
+    "evidence_zip_sha256": "290ed26c922860fda2b02eab8fd6a3dfca8cb0a3315e24fc1aabef45843037b0",
+    "evidence_zip_entries": [
+      "serial.log",
+      "qemu.stdout",
+      "qemu.stderr",
+      "ble-probe.log",
+      "frames/current.png",
+      "audio/speaker.pcm",
+      "audio/microphone-source.pcm",
+      "qom/snapshot.json",
+      "network/evidence.json",
+      "flash/virtual-flash.bin",
+      "manifest.json"
+    ]
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32 Bluetooth controller/radio model",
+    "public internet access",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "elimination of the wider Core2 cache startup boundary",
+    "untrusted-firmware sandboxing"
+  ]
+}

@@ -41,7 +41,11 @@
   guest 接收和 notify 回读，连续 5/5 PASS。它不等同于原生 ESP32
   controller 射频模型，也不覆盖 RF、配对/安全、共存或真机行为。Device
   Service 的 `qemu-ble` / `core2-hci-gatt` profile 已在同一 QEMU session
-  复现该交换并保留 serial/frame/QOM/peer evidence。
+  复现该交换并保留 serial/frame/QOM/peer evidence。新的环境门控
+  `core2-unified` profile 又把 OpenMAC WiFi、UART1 HCI BLE、显示/触摸、
+  AXP2101/INA3221、IMU/RTC 和扬声器/麦克风合入同一 `m5core2` guest；
+  连续 3/3 首轮 PASS。早期 QMP stop/continue 会触发 interrupt-watchdog
+  cache crash，因此 QOM 注入改为在 guest 运行时写入，不暂停 CPU。
 - NanoC6：无显示屏，验证 UIFlow2 控制台启动、板型探测、GPIO19/20 WS2812、
   GPIO9 按键、GPIO7 蓝色 LED 和红外发送。
 - Tab5：物理横向 1280x720、ST7123 触摸和 P4/C6 ESP-Hosted。

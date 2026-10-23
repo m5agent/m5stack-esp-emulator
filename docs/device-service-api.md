@@ -16,7 +16,8 @@ Current scope:
   S3/C6; StickS3 also supports a Wi-Fi-only board lease through
   `uiflow2-sticks3-wifi`, while StickS3, CoreS3, Cardputer ADV, StopWatch,
   AtomS3R, PaperColor, PaperMono, StackChan and StamPLC use one combined
-  WiFi+BLE+board QEMU lease through their unified profiles;
+  WiFi+BLE+board QEMU lease through their unified profiles; environment-gated
+  Core2 adds `core2-unified` through the classic ESP32 OpenMAC/HCI QEMU path;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -298,6 +299,30 @@ serial and `ble-probe.log`.
 
 This is HCI offload. It does not claim a native ESP32 radio/controller model,
 RF behavior, pairing/security or production throughput.
+
+Core2 also has a combined WiFi and BLE profile through the same board/QMP/
+UART1 instance:
+
+```json
+{
+  "device_id": "core2",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 90,
+  "network": {
+    "profile": "core2-unified",
+    "attempts": 3
+  }
+}
+```
+
+The image uses the Core2 HCI-UART build, QEMU `-m 0`, `misc.esp32_wifi`,
+UART1 H4, a Bumble controller/peer and a controlled HTTP endpoint on port
+`18089`. QOM is written while the guest runs because QMP stop/continue during
+early Core2 setup reproducibly triggered the interrupt-watchdog cache crash.
+The profile exercises display/touch, AXP2101, INA3221, MPU6886, PCF8563,
+NS4168 speaker, SPM1423 microphone, WiFi DHCP/HTTP and external BLE NUS in
+one guest. It remains simulation-only and does not eliminate the wider Core2
+cache startup boundary.
 
 The StickS3 unified profile closes WiFi and BLE in that same instance:
 
@@ -866,17 +891,19 @@ after a service restart.
   HCI-offload over UART1 (UART2 on StackChan), not a native S3 PHY/radio
   model;
 - Core2 radio support is limited to the environment-gated experimental
-  `qemu-wifi` and `qemu-ble` runtimes. `core2-ble-advertise` stops at native
-  controller/advertising control; `core2-hci-gatt` closes an external Bumble
-  scan/connect/NUS GATT write+notify data plane but is not a native radio model;
+  `qemu-wifi` and `qemu-ble` runtimes. `core2-unified` combines OpenMAC WiFi,
+  UART1 BLE NUS and board peripherals in one `m5core2` guest;
+  `core2-ble-advertise` stops at native controller/advertising control;
+  `core2-hci-gatt` closes external Bumble GATT without WiFi but neither is a
+  native radio model;
 - CardputerZero is not enabled;
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
   matching reference ELF;
 - normalized `device-state` probes currently exist for StickS3, CoreS3,
   Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and
-  StamPLC; other devices expose session metadata, framebuffer and serial
-  without inventing component values;
+  StamPLC, plus environment-gated Core2; other devices expose session
+  metadata, framebuffer and serial without inventing component values;
 - emulator processes are not resumed across service restarts; only stopped,
   failed and interrupted history is reconstructed;
 - reference firmware must already exist in `platform/.cache/firmware`;

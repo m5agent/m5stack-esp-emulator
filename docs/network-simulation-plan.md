@@ -60,6 +60,9 @@ Validated through `2026-10-23`:
   INA226, LM75, RX8130, TWAI CAN, PWR-485, buzzer, WiFi
   scan/association/DHCP/HTTP and UART1 HCI BLE NUS in one guest process and
   exposes the combined evidence through one Device Service lease;
+- the environment-gated Core2 unified profile keeps display/touch,
+  AXP2101/INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone,
+  OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE NUS in one `m5core2` guest;
 - the same UIFlow2 guest instance passes WiFi association/DHCP together with
   the BLE GATT exchange;
 - same-source UIFlow2 NanoC6 and Nesso N1 builds pass WiFi scan/association/
@@ -121,14 +124,15 @@ log or PHY-ready register therefore does not by itself mean the device is online
 | Remaining modeled ESP32-S3 boards | `esp-emu` WiFi SoftAP + user/TAP backend | Diagnostic lane exists; device-local QEMU unified migration pending |
 | ESP32-C6 boards, including NanoC6 and Nesso N1 | `esp-emu` WiFi SoftAP + user/TAP backend | Device-local UIFlow2 WiFi+BLE PASS on same-source NanoC6 and Nesso N1 builds; ESP-IDF coexist also PASS |
 | ESP32-P4 Tab5 | C6 `network_adapter` over ESP-Hosted, C6 process has `--net user` | Transport starts; P4 UIFlow2 end-to-end association/DHCP/DNS/TCP is pending |
-| ESP32 LX6 Core2 | Optional OpenMAC WiFi and BT bootstrap QEMU models; separate OpenETH fixture; HCI-UART offload lane | Stock UIFlow2 WiFi scan + association + DHCP/IP + controlled HTTP PASS; native BLE active/config/advertising-enable PASS; HCI-offload external scan/connect/GATT write/notify `PASS 5/5` and Device Service session PASS; native-controller peer/GATT, DNS and external internet `NOT RUN` |
+| ESP32 LX6 Core2 | Optional OpenMAC WiFi, UART1 HCI BLE and board models in one `m5core2` guest; separate OpenETH fixture | `core2-unified` PASS 3/3 first attempts for board/peripherals + WiFi DHCP/HTTP + external BLE GATT; native-controller peer/GATT, DNS and external internet `NOT RUN`; wider cache startup boundary remains |
 | CardputerZero | Linux SR9900A Ethernet through the independent ARM64 backend | Ethernet frame path exists; this is not WiFi and not the UIFlow2 ESP32 path |
 
 “All simulated devices online” means one Device Service lease and one guest per
 device. StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R, PaperColor,
 PaperMono, StackChan and StamPLC meet that simulator-only bar. The remaining
 devices must be migrated individually; a PASS from the diagnostic `esp-emu`
-lane or from another device cannot be inherited.
+lane or from another device cannot be inherited. Environment-gated Core2 also
+meets the unified bar through its separate classic-ESP32 OpenMAC/HCI path.
 
 ## Recommended architecture
 
@@ -226,8 +230,8 @@ itself. For untrusted firmware:
 | N2 | Attach the harness to all S3/C6/P4 profiles and add reconnect/security cases | 3–5 working days |
 | N3 | Tab5 P4 ↔ C6 ESP-Hosted end-to-end network proof | 2–4 working days |
 | N4 | Isolated CI runner, egress policy and multi-device lab fabric | 3–5 working days |
-| N5 | Core2 ESP32 LX6 WiFi/PHY and BLE controller path or alternative runtime | WiFi data path DONE; native controller/advertising DONE; HCI-offload external GATT DONE 5/5; native-controller peer/GATT, DNS and external network remain open |
-| N6 | Same-instance QEMU board + WiFi/radio model | DONE for StickS3, CoreS3, Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and StamPLC board+WiFi+BLE HCI-offload in one guest; Core2 WiFi is available and native BT controller/radio closure remains open; other devices pending |
+| N5 | Core2 ESP32 LX6 WiFi/PHY and BLE controller path or alternative runtime | WiFi data path DONE; native controller/advertising DONE; HCI-offload external GATT DONE; same-instance `core2-unified` board + WiFi + external GATT PASS 3/3 first attempts; native-controller peer/GATT, DNS and external network remain open |
+| N6 | Same-instance QEMU board + WiFi/radio model | DONE for all validated S3 slices and environment-gated Core2 board+WiFi+BLE HCI-offload in one guest; native BT controller/radio closure remains open; C6 QEMU and other devices pending |
 
 N6 is the primary product contract. N0–N3 remain the reusable fixture layer,
 and N5 closes the Core2 SoC-specific gap. “All simulated devices online” requires
