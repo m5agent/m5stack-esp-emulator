@@ -61,6 +61,7 @@ from firmware_analysis import (  # noqa: E402
     parse_partition_table,
 )
 from network_lane import normalize_i2c_device  # noqa: E402
+from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
 
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 DEFAULT_MAX_SESSIONS = 12
@@ -1388,9 +1389,42 @@ class FirmwareStore:
             return self.analyze(firmware_id)
         return json.loads(analysis_path.read_text())
 
+    def list(self) -> list[dict]:
+        with self._lock:
+            records = [
+                json.loads(path.read_text())
+                for path in self.root.glob("*.json")
+                if not path.name.endswith(".analysis.json")
+            ]
+        return sorted(
+            records,
+            key=lambda item: item.get("created_at", ""),
+            reverse=True,
+        )
+
+    def delete(self, firmware_id: str) -> dict:
+        record = self.get(firmware_id)
+        with self._lock:
+            self._data(firmware_id).unlink(missing_ok=True)
+            self._meta(firmware_id).unlink(missing_ok=True)
+            (self.root / f"{firmware_id}.analysis.json").unlink(
+                missing_ok=True
+            )
+        return {"firmware_id": firmware_id, "deleted": True, "record": record}
+
 
 def _is_sha256(value: str) -> bool:
     return len(value) == 64 and all(c in "0123456789abcdef" for c in value)
+
+
+def _timestamp_age_seconds(value: Any, *, now: float | None = None) -> float | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        timestamp = datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return None
+    return max(0.0, (now or time.time()) - timestamp)
 
 
 def rgb_metrics(pixels: bytes) -> tuple[int, int]:
@@ -1651,6 +1685,10 @@ class DeviceSession:
                     else None
                 ),
                 "flash": self.flash_info,
+                "flash_retained": bool(
+                    self.virtual_flash is not None
+                    and self.virtual_flash.is_file()
+                ),
                 "serial_bytes": serial_size,
                 "created_at": self.created_at,
                 "expires_at": datetime.fromtimestamp(
@@ -1683,6 +1721,8 @@ class DeviceSession:
         self.error = self.error or f"process exited with code {returncode}"
         self.completed_at = self.completed_at or iso_now()
         self._record_event("process_exited", returncode=returncode)
+        if not self.service.storage_policy.retain_session_flash:
+            self._release_virtual_flash()
         self._persist_session()
 
     def start(self) -> None:
@@ -3502,7 +3542,12 @@ class DeviceSession:
 
     def flash_get(self, output_format: str = "sha256") -> tuple[bytes | None, dict]:
         if self.virtual_flash is None or not self.virtual_flash.is_file():
-            raise ServiceError("flash_not_available", "session flash is unavailable", 409)
+            raise ServiceError(
+                "flash_not_available",
+                "session flash was released; stop with retain_flash=1 "
+                "when the full image is required",
+                409,
+            )
         data = self.virtual_flash.read_bytes()
         digest = hashlib.sha256(data).hexdigest()
         metadata = {
@@ -3734,9 +3779,17 @@ class DeviceSession:
             manifest["flash"] = {
                 "size": len(flash_data),
                 "sha256": hashlib.sha256(flash_data).hexdigest(),
+                "retained": True,
             }
             if "flash" in include:
                 files["flash/virtual-flash.bin"] = flash_data
+        elif self.flash_info:
+            manifest["flash"] = {
+                "size": self.spec.flash_size,
+                "sha256": self.firmware_sha,
+                "retained": False,
+                "reason": "session flash released after stop",
+            }
         for name, data in files.items():
             manifest["files"][name] = {
                 "size": len(data),
@@ -3812,10 +3865,30 @@ class DeviceSession:
         except FileNotFoundError:
             pass
 
-    def stop(self, purge: bool = False) -> dict:
+    def _release_virtual_flash(self) -> int:
+        path = self.virtual_flash
+        if path is None or not path.is_file():
+            self.virtual_flash = None
+            return 0
+        size = path.stat().st_size
+        path.unlink(missing_ok=True)
+        self.virtual_flash = None
+        self._record_event("flash_released", bytes=size)
+        return size
+
+    def stop(
+        self, purge: bool = False, *, retain_flash: bool | None = None
+    ) -> dict:
+        retain_flash = (
+            self.service.storage_policy.retain_session_flash
+            if retain_flash is None
+            else bool(retain_flash)
+        )
         with self._lock:
             if self.state in {"stopped", "failed"}:
                 self._terminate_process()
+                if not purge and not retain_flash:
+                    self._release_virtual_flash()
                 result = self.snapshot()
                 if purge:
                     shutil.rmtree(self.dir, ignore_errors=True)
@@ -3845,6 +3918,8 @@ class DeviceSession:
             self.state = "stopped"
             self.completed_at = iso_now()
             self._record_event("stopped", purge=purge)
+            if not purge and not retain_flash:
+                self._release_virtual_flash()
             result = self.snapshot()
             self._persist_session()
         if purge:
@@ -4051,6 +4126,8 @@ class NetworkDeviceSession(DeviceSession):
                 returncode=returncode,
                 evidence=self._network_evidence_path().name,
             )
+            if not self.service.storage_policy.retain_session_flash:
+                self._release_virtual_flash()
             self._persist_session()
 
     def _terminate_process(self) -> None:
@@ -4380,9 +4457,18 @@ class Tab5DeviceSession(DeviceSession):
         self._record_event("reset")
         return {"session_id": self.id, "state": self.state, "reset": True}
 
-    def stop(self, purge: bool = False) -> dict:
+    def stop(
+        self, purge: bool = False, *, retain_flash: bool | None = None
+    ) -> dict:
+        retain_flash = (
+            self.service.storage_policy.retain_session_flash
+            if retain_flash is None
+            else bool(retain_flash)
+        )
         with self._lock:
             if self.state in {"stopped", "failed"}:
+                if not purge and not retain_flash:
+                    self._release_virtual_flash()
                 result = self.snapshot()
                 if purge:
                     shutil.rmtree(self.dir, ignore_errors=True)
@@ -4397,6 +4483,8 @@ class Tab5DeviceSession(DeviceSession):
             self.state = "stopped"
             self.completed_at = iso_now()
             self._record_event("stopped", purge=purge)
+            if not purge and not retain_flash:
+                self._release_virtual_flash()
             result = self.snapshot()
             self._persist_session()
         if purge:
@@ -4414,9 +4502,11 @@ class DeviceService:
         default_ttl: int = 1800,
         api_token: str | None = None,
         flash_preparer=None,
+        storage_policy: StoragePolicy | None = None,
     ):
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(parents=True, exist_ok=True)
+        self.storage_policy = storage_policy or StoragePolicy.from_env()
         self.specs = load_device_specs()
         self.raw_matrix = json.loads(MATRIX.read_text())
         self.artifacts = ArtifactStore(self.state_dir / "artifacts")
@@ -4432,6 +4522,8 @@ class DeviceService:
         self._lock = threading.RLock()
         self._flash_lock = threading.Lock()
         self._reference_cache: dict[str, dict] = {}
+        self._last_storage_prune_at: float | None = None
+        self._last_storage_prune: dict[str, Any] = {}
         self._restore_history()
         self._stop = threading.Event()
         self._janitor = threading.Thread(
@@ -4683,11 +4775,16 @@ class DeviceService:
     def upload_artifact(
         self, data: bytes, *, name: str = "", content_type: str = ""
     ) -> dict:
+        if data and len(data) <= MAX_ARTIFACT_BYTES:
+            self._ensure_storage_capacity(len(data))
         return self.artifacts.create(
             data, name=name, content_type=content_type or "application/octet-stream"
         )
 
     def create_firmware(self, payload: dict) -> dict:
+        spec = self.specs.get(str(payload.get("device_id") or ""))
+        if spec is not None:
+            self._ensure_storage_capacity(spec.flash_size)
         return self.firmware.create(payload)
 
     def reference_info(self, spec: DeviceSpec) -> dict:
@@ -4934,6 +5031,7 @@ class DeviceService:
                     network_config["profile"]
                 ]
 
+        self._ensure_storage_capacity(spec.flash_size)
         with self._lock:
             active = [
                 session
@@ -5029,15 +5127,26 @@ class DeviceService:
             ]
         return {"sessions": [session.snapshot() for session in sessions]}
 
-    def delete_session(self, session_id: str, purge: bool = False) -> dict:
+    def delete_session(
+        self,
+        session_id: str,
+        purge: bool = False,
+        *,
+        retain_flash: bool | None = None,
+    ) -> dict:
         session = self.get_session(session_id)
-        result = session.stop(purge=purge)
+        result = session.stop(purge=purge, retain_flash=retain_flash)
         if purge:
             with self._lock:
                 self._sessions.pop(session_id, None)
         return result
 
-    def clear_stopped(self, purge: bool = True) -> dict:
+    def clear_stopped(
+        self,
+        purge: bool = True,
+        *,
+        retain_flash: bool | None = None,
+    ) -> dict:
         with self._lock:
             sessions = [
                 session
@@ -5046,7 +5155,14 @@ class DeviceService:
             ]
             known_ids = set(self._sessions)
         for session in sessions:
-            session.stop(purge=purge)
+            session.stop(
+                purge=purge,
+                retain_flash=(
+                    True
+                    if not purge and retain_flash is None
+                    else retain_flash
+                ),
+            )
             if purge:
                 with self._lock:
                     self._sessions.pop(session.id, None)
@@ -5065,6 +5181,375 @@ class DeviceService:
             "cleared": len(sessions),
             "orphaned_cleared": len(orphaned),
             "purged": purge,
+        }
+
+    def _ensure_storage_capacity(self, additional_bytes: int = 0) -> None:
+        reserve = max(0, self.storage_policy.min_free_bytes)
+        required = reserve + max(0, int(additional_bytes))
+        usage = shutil.disk_usage(self.state_dir)
+        if usage.free < required:
+            raise ServiceError(
+                "storage_exhausted",
+                (
+                    f"insufficient free space: {usage.free} bytes available, "
+                    f"{required} bytes required including the reserve"
+                ),
+                507,
+                available_bytes=usage.free,
+                required_bytes=required,
+                reserve_bytes=reserve,
+            )
+
+    def storage_stats(self) -> dict:
+        with self._lock:
+            sessions = list(self._sessions.values())
+            active = [
+                session for session in sessions if session.state in ACTIVE_STATES
+            ]
+            history = [
+                session
+                for session in sessions
+                if session.state in {"stopped", "failed"}
+            ]
+        sessions_root = self.state_dir / "sessions"
+        artifacts_root = self.state_dir / "artifacts"
+        firmware_root = self.state_dir / "firmware"
+        flash_cache_root = self.state_dir / "flash-cache"
+        sessions_bytes = directory_size_bytes(sessions_root)
+        artifacts_bytes = directory_size_bytes(artifacts_root)
+        firmware_bytes = directory_size_bytes(firmware_root)
+        flash_cache_bytes = directory_size_bytes(flash_cache_root)
+        disk = shutil.disk_usage(self.state_dir)
+        return {
+            "bytes": directory_size_bytes(self.state_dir),
+            "disk": {
+                "total_bytes": disk.total,
+                "used_bytes": disk.used,
+                "free_bytes": disk.free,
+                "reserve_bytes": self.storage_policy.min_free_bytes,
+            },
+            "sessions": {
+                "active": len(active),
+                "retained": len(history),
+                "directories": len(
+                    [path for path in sessions_root.glob("*") if path.is_dir()]
+                )
+                if sessions_root.is_dir()
+                else 0,
+                "bytes": sessions_bytes,
+                "flash_retained": sum(
+                    1
+                    for session in sessions
+                    if session.virtual_flash is not None
+                    and session.virtual_flash.is_file()
+                ),
+            },
+            "artifacts": {
+                "entries": len(self.artifacts.list()),
+                "bytes": artifacts_bytes,
+            },
+            "firmware": {
+                "entries": len(self.firmware.list()),
+                "bytes": firmware_bytes,
+            },
+            "flash_cache": {
+                "entries": (
+                    len([path for path in flash_cache_root.rglob("*.bin") if path.is_file()])
+                    if flash_cache_root.is_dir()
+                    else 0
+                ),
+                "bytes": flash_cache_bytes,
+            },
+            "policy": self.storage_policy.as_dict(),
+            "last_prune_at": (
+                datetime.fromtimestamp(
+                    self._last_storage_prune_at,
+                    timezone.utc,
+                ).isoformat()
+                if self._last_storage_prune_at is not None
+                else None
+            ),
+            "last_prune": dict(self._last_storage_prune),
+        }
+
+    def prune_storage(
+        self,
+        *,
+        include_cache: bool = True,
+        now: float | None = None,
+    ) -> dict:
+        now = time.time() if now is None else float(now)
+        policy = self.storage_policy
+        with self._lock:
+            history = [
+                session
+                for session in self._sessions.values()
+                if session.state in {"stopped", "failed"}
+            ]
+        rows = []
+        for session in history:
+            rows.append(
+                {
+                    "session": session,
+                    "sort_at": session.completed_at or session.created_at,
+                    "age": _timestamp_age_seconds(
+                        session.completed_at or session.created_at,
+                        now=now,
+                    ),
+                    "bytes": directory_size_bytes(session.dir),
+                }
+            )
+        rows.sort(key=lambda row: row["sort_at"])
+        selected: list[dict] = []
+        selected_ids: set[str] = set()
+
+        def select(row: dict) -> None:
+            session_id = row["session"].id
+            if session_id not in selected_ids:
+                selected.append(row)
+                selected_ids.add(session_id)
+
+        if policy.history_ttl_seconds > 0:
+            for row in rows:
+                if (
+                    row["age"] is not None
+                    and row["age"] > policy.history_ttl_seconds
+                ):
+                    select(row)
+        remaining = [row for row in rows if row["session"].id not in selected_ids]
+        if (
+            policy.max_history_sessions > 0
+            and len(remaining) > policy.max_history_sessions
+        ):
+            for row in remaining[: len(remaining) - policy.max_history_sessions]:
+                select(row)
+        remaining = [row for row in rows if row["session"].id not in selected_ids]
+        retained_bytes = sum(row["bytes"] for row in remaining)
+        if policy.max_history_bytes > 0:
+            for row in remaining:
+                if retained_bytes <= policy.max_history_bytes:
+                    break
+                select(row)
+                retained_bytes -= row["bytes"]
+
+        removed_sessions = []
+        freed_session_bytes = 0
+        for row in selected:
+            session = row["session"]
+            if session.state not in {"stopped", "failed"}:
+                continue
+            bytes_before = directory_size_bytes(session.dir)
+            self.delete_session(session.id, purge=True)
+            removed_sessions.append(session.id)
+            freed_session_bytes += bytes_before
+
+        cache_result = {
+            "artifacts_removed": 0,
+            "firmware_removed": 0,
+            "flash_cache_removed": 0,
+            "freed_bytes": 0,
+        }
+        if include_cache:
+            cache_result = self._prune_firmware_caches(now=now)
+
+        result = {
+            "pruned_sessions": len(removed_sessions),
+            "session_ids": removed_sessions,
+            "freed_session_bytes": freed_session_bytes,
+            "cache": cache_result,
+            "freed_bytes": freed_session_bytes + cache_result["freed_bytes"],
+            "policy": policy.as_dict(),
+        }
+        self._last_storage_prune_at = now
+        self._last_storage_prune = result
+        return result
+
+    def _prune_firmware_caches(self, *, now: float) -> dict:
+        policy = self.storage_policy
+        grace = max(0, policy.cache_grace_seconds)
+        with self._lock:
+            sessions = list(self._sessions.values())
+        session_firmware_ids = {
+            session.firmware_id for session in sessions if session.firmware_id
+        }
+        session_firmware_shas = {
+            session.firmware_sha for session in sessions if session.firmware_sha
+        }
+        session_artifact_ids = {
+            artifact_id
+            for session in sessions
+            for artifact_id in session.source_artifacts
+        }
+        cache_roots = (
+            self.state_dir / "artifacts",
+            self.state_dir / "firmware",
+            self.state_dir / "flash-cache",
+        )
+        cache_bytes_before = sum(
+            directory_size_bytes(root) for root in cache_roots
+        )
+
+        firmware_records = self.firmware.list()
+        kept_firmware = []
+        removed_firmware_ids = []
+        for record in firmware_records:
+            firmware_id = str(record.get("firmware_id") or "")
+            age = _timestamp_age_seconds(record.get("created_at"), now=now)
+            if (
+                firmware_id
+                and firmware_id not in session_firmware_ids
+                and age is not None
+                and age >= grace
+            ):
+                self.firmware.delete(firmware_id)
+                removed_firmware_ids.append(firmware_id)
+            else:
+                kept_firmware.append(record)
+
+        artifacts_kept_by_firmware = set()
+        for record in kept_firmware:
+            source = record.get("source")
+            if not isinstance(source, dict):
+                continue
+            artifact_id = source.get("artifact_id")
+            if isinstance(artifact_id, str):
+                artifacts_kept_by_firmware.add(artifact_id)
+            for segment in source.get("segments", []):
+                if isinstance(segment, dict) and isinstance(
+                    segment.get("artifact_id"), str
+                ):
+                    artifacts_kept_by_firmware.add(segment["artifact_id"])
+
+        kept_firmware_ids = {
+            str(record.get("firmware_id"))
+            for record in kept_firmware
+            if record.get("firmware_id")
+        }
+        removed_artifacts = []
+        for record in self.artifacts.list():
+            artifact_id = str(record.get("artifact_id") or "")
+            age = _timestamp_age_seconds(record.get("created_at"), now=now)
+            if (
+                artifact_id
+                and artifact_id not in session_artifact_ids
+                and artifact_id not in artifacts_kept_by_firmware
+                and age is not None
+                and age >= grace
+            ):
+                self.artifacts.delete(artifact_id)
+                removed_artifacts.append(artifact_id)
+
+        flash_cache_root = self.state_dir / "flash-cache"
+        protected_hashes = session_firmware_shas | kept_firmware_ids
+        removed_flash_cache = []
+        if flash_cache_root.is_dir():
+            for path in sorted(flash_cache_root.rglob("*.bin")):
+                if path.stem in protected_hashes:
+                    continue
+                age = max(0.0, now - path.stat().st_mtime)
+                if age >= grace:
+                    path.unlink(missing_ok=True)
+                    removed_flash_cache.append(path)
+            for directory in sorted(
+                [path for path in flash_cache_root.rglob("*") if path.is_dir()],
+                key=lambda path: len(path.parts),
+                reverse=True,
+            ):
+                try:
+                    directory.rmdir()
+                except OSError:
+                    pass
+
+        cache_bytes_after = sum(
+            directory_size_bytes(root) for root in cache_roots
+        )
+        if policy.max_cache_bytes > 0 and cache_bytes_after > policy.max_cache_bytes:
+            eviction_grace = min(grace, 60)
+            for record in sorted(
+                self.firmware.list(),
+                key=lambda item: item.get("created_at", ""),
+            ):
+                if cache_bytes_after <= policy.max_cache_bytes:
+                    break
+                firmware_id = str(record.get("firmware_id") or "")
+                age = _timestamp_age_seconds(record.get("created_at"), now=now)
+                if (
+                    not firmware_id
+                    or firmware_id in session_firmware_ids
+                    or (age is not None and age < eviction_grace)
+                ):
+                    continue
+                self.firmware.delete(firmware_id)
+                removed_firmware_ids.append(firmware_id)
+                for cached in flash_cache_root.rglob(f"{firmware_id}.bin"):
+                    cached.unlink(missing_ok=True)
+                    removed_flash_cache.append(cached)
+                cache_bytes_after = sum(
+                    directory_size_bytes(root) for root in cache_roots
+                )
+
+            protected_artifacts = set(session_artifact_ids)
+            for record in self.firmware.list():
+                source = record.get("source")
+                if not isinstance(source, dict):
+                    continue
+                artifact_id = source.get("artifact_id")
+                if isinstance(artifact_id, str):
+                    protected_artifacts.add(artifact_id)
+                for segment in source.get("segments", []):
+                    if isinstance(segment, dict) and isinstance(
+                        segment.get("artifact_id"), str
+                    ):
+                        protected_artifacts.add(segment["artifact_id"])
+            for record in sorted(
+                self.artifacts.list(),
+                key=lambda item: item.get("created_at", ""),
+            ):
+                if cache_bytes_after <= policy.max_cache_bytes:
+                    break
+                artifact_id = str(record.get("artifact_id") or "")
+                age = _timestamp_age_seconds(record.get("created_at"), now=now)
+                if (
+                    not artifact_id
+                    or artifact_id in protected_artifacts
+                    or (age is not None and age < eviction_grace)
+                ):
+                    continue
+                self.artifacts.delete(artifact_id)
+                removed_artifacts.append(artifact_id)
+                cache_bytes_after = sum(
+                    directory_size_bytes(root) for root in cache_roots
+                )
+
+            cached_files = sorted(
+                [
+                    path
+                    for path in flash_cache_root.rglob("*.bin")
+                    if path.stem not in session_firmware_shas
+                    and path.stem not in protected_hashes
+                ],
+                key=lambda path: path.stat().st_mtime,
+            )
+            for path in cached_files:
+                if cache_bytes_after <= policy.max_cache_bytes:
+                    break
+                age = max(0.0, now - path.stat().st_mtime)
+                if age < eviction_grace:
+                    continue
+                path.unlink(missing_ok=True)
+                removed_flash_cache.append(path)
+                cache_bytes_after = sum(
+                    directory_size_bytes(root) for root in cache_roots
+                )
+
+        cache_bytes_after = sum(
+            directory_size_bytes(root) for root in cache_roots
+        )
+        return {
+            "artifacts_removed": len(removed_artifacts),
+            "firmware_removed": len(removed_firmware_ids),
+            "flash_cache_removed": len(removed_flash_cache),
+            "freed_bytes": max(0, cache_bytes_before - cache_bytes_after),
         }
 
     def session_events(self, session_id: str) -> dict:
@@ -5166,6 +5651,7 @@ class DeviceService:
         }
 
     def _janitor_loop(self) -> None:
+        last_storage_prune = 0.0
         while not self._stop.wait(2):
             now = time.time()
             expired = []
@@ -5181,7 +5667,16 @@ class DeviceService:
                         expired.append(session)
             for session in expired:
                 try:
-                    session.stop()
+                    session.stop(retain_flash=False)
+                except Exception:
+                    pass
+            if (
+                now - last_storage_prune
+                >= self.storage_policy.prune_interval_seconds
+            ):
+                last_storage_prune = now
+                try:
+                    self.prune_storage()
                 except Exception:
                     pass
 
@@ -5190,6 +5685,12 @@ class DeviceService:
         with self._lock:
             sessions = list(self._sessions.values())
         for session in sessions:
+            if session.state in {"stopped", "failed"}:
+                try:
+                    session._terminate_process()
+                except Exception:
+                    pass
+                continue
             try:
                 session.stop()
             except Exception:

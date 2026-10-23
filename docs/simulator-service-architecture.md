@@ -17,6 +17,8 @@ Implemented:
 - one isolated flash copy per session;
 - serial/log/frame/input/QOM/reset/delete APIs;
 - restart-safe session history and last-known evidence restoration;
+- bounded stopped/failed history with age, count and byte limits;
+- stopped-session Flash release by default and reference-aware cache GC;
 - optional Bearer token.
 
 Not implemented yet:
@@ -50,6 +52,22 @@ were validated with non-black frames; the batch used about 2.27 of the host's
 10 CPU cores, 1.46 GiB aggregate RSS and 1.12 GiB physical footprint. These
 values are deployment policy and can be changed through CLI flags or
 environment variables.
+
+## Retention and storage
+
+The mutable per-session Flash is the dominant storage cost. It remains present
+while a lease is active and is released when the lease stops unless the caller
+explicitly requests `retain_flash=1` or the service is configured with
+`M5_SERVICE_RETAIN_SESSION_FLASH=1`.
+
+Stopped/failed history is pruned oldest-first by configurable age, count and
+byte limits. Active states are never selected. Artifact, firmware and prepared
+Flash caches use content-addressed identities plus reference checks; entries
+unreferenced by retained sessions or firmware are eligible for GC after a grace
+period. `GET /api/v1/storage` exposes current usage and policy, while
+`POST /api/v1/storage/prune` applies an immediate pass. The service reserves a
+configurable amount of free disk and rejects new writes with HTTP `507` before
+the reserve is consumed.
 
 “Ready device” and “real-time rendering” are orthogonal. A service can keep a
 device ready and stream frames from it, or start it on demand and stream frames

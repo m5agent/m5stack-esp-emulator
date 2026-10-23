@@ -127,7 +127,10 @@ blocker instead of spending more time on host-side workarounds.
 - General firmware functional tests, including uploaded UIFlow2 images, must
   use the Device Service at `/api/v1` on port `8787`: upload/compose firmware,
   create a visible session, collect serial/frame/state/input/QOM evidence, and
-  stop it with `purge=0` so it remains in history.
+  stop it with `purge=0` so metadata, logs and the last frame remain in history.
+  Request the evidence ZIP before stop. The full mutable virtual Flash is
+  released on stop by default; add `retain_flash=1` only when flash
+  snapshots/diffs or the raw image are part of the required evidence.
 - Do not start `run_profile_ui_test.py`, `run_peripheral_matrix.py`, or QEMU
   directly for an agent-triggered functional test. Direct runners are for
   repository regression development and do not create observable sessions.

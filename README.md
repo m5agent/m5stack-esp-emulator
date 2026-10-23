@@ -83,6 +83,10 @@ curl -sS -H 'Content-Type: application/json' \
 - 按键/触摸/拖拽、QOM、reset、renew、stop；
 - application readiness、evidence ZIP、QOM/flash snapshot/diff；
 - 停止会话前保存最后一帧，历史会话仍可查看串口和最后画面；
+- stopped/failed 历史按时间、条数和字节数自动回收；停止后默认释放整份
+  可变虚拟 Flash，仅在需要 Flash 快照/diff 时用 `retain_flash=1` 保留；
+- 无引用的 artifact、firmware 和 prepared-flash 缓存按 grace period GC；
+- `GET /api/v1/storage` 查看磁盘、历史与缓存占用，写入前保留最低空闲空间；
 - 全局和单设备并发限制、TTL 自动回收。
 
 当前工作站默认允许 `8` 个活动会话，同一型号最多 `6` 个。可通过
@@ -96,6 +100,8 @@ curl -sS -H 'Content-Type: application/json' \
 完成会话；`显示全部历史` 可展开更早记录。API 可用
 `GET /api/v1/sessions?include_stopped=0` 只取活动租约，也可从页面或
 `DELETE /api/v1/sessions?state=stopped&purge=1` 清理历史。
+清除历史后可用 `POST /api/v1/storage/prune?include_cache=1` 同步回收不再
+被会话或 firmware 引用的 artifact、firmware 和 prepared-flash 缓存。
 
 完整接口和示例见：
 
