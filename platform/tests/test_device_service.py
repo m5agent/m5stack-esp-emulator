@@ -71,6 +71,11 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(rows["nesso-n1"]["network_status"], "validated")
         self.assertEqual(rows["cores3"]["network_status"], "validated")
         self.assertTrue(rows["cores3"]["features"]["network"])
+        self.assertTrue(rows["cores3"]["features"]["device_state"])
+        self.assertIn(
+            "uiflow2-cores3-unified",
+            rows["cores3"]["network_profiles"],
+        )
         self.assertEqual(rows["stopwatch"]["network_status"], "validated")
         self.assertTrue(rows["stopwatch"]["features"]["network"])
         self.assertEqual(rows["cardputer-adv"]["network_status"], "validated")
@@ -387,6 +392,25 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertEqual(
                 unified["expected_markers"],
                 list(device_service_module.STICKS3_UNIFIED_MARKERS),
+            )
+            cores3 = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["cores3"],
+                {},
+            )
+            self.assertEqual(
+                cores3["profile"],
+                "uiflow2-cores3-unified",
+            )
+            self.assertEqual(cores3["nic"], "misc.esp32s3.wifi")
+            self.assertEqual(
+                cores3["expected_markers"],
+                list(device_service_module.CORES3_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                device_service_module.UNIFIED_HTTP_PORTS[
+                    device_service_module.CORES3_UNIFIED_PROFILE
+                ],
+                18081,
             )
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_ble_execution(
@@ -819,6 +843,104 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session.state = "stopped"
         session._proc = None
         session._qmp = None
+
+    def test_cores3_unified_qemu_evidence(self):
+        spec = self.service.specs["cores3"]
+        firmware_path = Path(self.tmp.name) / "cores3-unified.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="5" * 32,
+            spec=spec,
+            firmware_id="6" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="6" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_CORES3_READY",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={
+                "profile": "uiflow2-cores3-unified",
+                "nic": "misc.esp32s3.wifi",
+                "expected_markers": list(
+                    device_service_module.CORES3_UNIFIED_MARKERS
+                ),
+                "attempts": 5,
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "UNIFIED_CORES3_WIFI_CONNECTED 10.0.2.15\n"
+            "UNIFIED_CORES3_HTTP_PASS\n"
+            "UNIFIED_CORES3_BLE_RX b'M5_CORES3_UNIFIED'\n"
+            "UNIFIED_CORES3_BLE_ACK_SENT\n"
+            "UNIFIED_CORES3_READY\n"
+        )
+        session.hci_probe_log.write_text(
+            "BLE_PROBE_READY\n"
+            "BLE_BUMBLE_FOUND name='M5-CORES3-UNIFIED'\n"
+            "BLE_BUMBLE_CONNECTED\n"
+            "BLE_BUMBLE_GATT_DISCOVERED\n"
+            "BLE_BUMBLE_SUBSCRIBED\n"
+            "BLE_BUMBLE_WRITE M5_CORES3_UNIFIED\n"
+            "BLE_BUMBLE_NOTIFICATION_OK ACK:M5_CORES3_UNIFIED\n"
+            "BLE_BUMBLE_PASS\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps([{"path": "/unified", "host": "qemu.test"}])
+        )
+        evidence = session.network_evidence()
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-cores3-unified-qemu-proof",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(
+            evidence["gatt"]["payload"],
+            "M5_CORES3_UNIFIED",
+        )
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_stop_failed_session_releases_unified_fixture(self):
+        spec = self.service.specs["cores3"]
+        firmware_path = Path(self.tmp.name) / "failed-cores3.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="7" * 32,
+            spec=spec,
+            firmware_id="8" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="8" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_CORES3_READY",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-ble",
+            network_config={"profile": "uiflow2-cores3-unified"},
+        )
+
+        class FakeFixture:
+            closed = False
+
+            def close(self):
+                self.closed = True
+
+        fixture = FakeFixture()
+        session.state = "failed"
+        session._http_fixture = fixture
+        result = session.stop(purge=False)
+        self.assertEqual(result["state"], "failed")
+        self.assertTrue(fixture.closed)
+        self.assertIsNone(session._http_fixture)
 
     def test_qemu_wifi_requires_and_directly_uses_complete_flash_image(self):
         spec = self.service.specs["core2"]

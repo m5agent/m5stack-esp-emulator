@@ -230,6 +230,29 @@
         "ltr553",
         "usb-host"
       ],
+      "runtime_state": {
+        "power": {
+          "path": "/machine/axp2101",
+          "properties": [
+            "vbat-mv",
+            "vin-mv",
+            "charging",
+            "battery-level",
+            "speaker-enabled"
+          ]
+        },
+        "imu": {
+          "path": "/machine/bmi270",
+          "properties": [
+            "accel-x",
+            "accel-y",
+            "accel-z",
+            "gyro-x",
+            "gyro-y",
+            "gyro-z"
+          ]
+        }
+      },
       "board_work": [
         "BMI270 data path",
         "BMM150 magnetometer",

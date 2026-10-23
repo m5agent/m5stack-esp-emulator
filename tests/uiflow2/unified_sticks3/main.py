@@ -73,7 +73,13 @@ def probe_http():
         sock.send(
             b"GET /unified HTTP/1.0\r\nHost: qemu.test\r\n\r\n"
         )
-        response = sock.recv(512)
+        response = bytearray()
+        while b"UNIFIED_STICKS3_OK" not in response and len(response) < 2048:
+            chunk = sock.recv(512)
+            if not chunk:
+                break
+            response.extend(chunk)
+        response = bytes(response)
         emit("UNIFIED_STICKS3_HTTP", repr(response))
         if (
             not response.startswith(b"HTTP/")

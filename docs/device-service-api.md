@@ -12,9 +12,9 @@ Current scope:
 - Tab5: enabled through esp-emu, with `peripheral_status=partial` and explicit
   warnings;
 - excluded: CardputerZero;
-- network emulation: `runtime=network` remains available for S3/C6; StickS3
-  additionally supports one combined WiFi+BLE+board QEMU lease through the
-  `uiflow2-sticks3-unified` profile;
+- network emulation: `runtime=network` remains available for diagnosis on
+  S3/C6; StickS3 and CoreS3 use one combined WiFi+BLE+board QEMU lease through
+  `uiflow2-sticks3-unified` and `uiflow2-cores3-unified`;
 - sessions: active leases are process-local; stopped/failed metadata, events
   and last-known evidence are restored from each session directory after a
   service restart;
@@ -317,6 +317,28 @@ evidence.
 This profile proves a functional open virtual AP on one fixed channel and an
 HCI-offload BLE controller. It does not claim WPA2/WPA3, native S3 RF/PHY,
 RF-range/security behavior or a native ESP32-S3 Bluetooth controller model.
+
+CoreS3 uses the same one-guest contract:
+
+```json
+{
+  "device_id": "cores3",
+  "runtime": "qemu-ble",
+  "ready_timeout_seconds": 60,
+  "network": {
+    "profile": "uiflow2-cores3-unified",
+    "attempts": 2
+  }
+}
+```
+
+The CoreS3 image exercises the 320x240 display, touch redraw, AXP2101 power
+state, BMI270 IMU, AW88298 speaker PCM, WiFi scan/association/DHCP and a
+controlled HTTP request on port `18081`, plus HCI-UART BLE
+NUS discovery/subscription/write and notification. `/network` returns
+`kind=m5stack-cores3-unified-qemu-proof`; the evidence ZIP includes the frame,
+audio PCM, QOM snapshot, serial, BLE peer log, HTTP request record and network
+evidence.
 
 State machine:
 
@@ -685,9 +707,9 @@ after a service restart.
 
 ## Current limitations
 
-- `runtime=network` sessions remain a separate lane; StickS3 can instead use
-  `runtime=qemu-ble` with `uiflow2-sticks3-unified` for one combined guest;
-- unified StickS3 WiFi is an open AP on one fixed virtual channel and BLE is
+- `runtime=network` sessions are diagnostic lanes; StickS3 and CoreS3 instead
+  use `runtime=qemu-ble` with their unified profiles for one combined guest;
+- unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
   HCI-offload over UART1, not a native S3 PHY/radio model;
 - Core2 radio support is limited to the environment-gated experimental
   `qemu-wifi` and `qemu-ble` runtimes. `core2-ble-advertise` stops at native
@@ -697,9 +719,9 @@ after a service restart.
 - Tab5 camera/audio/USB/SDIO and dynamic peripheral state remain incomplete;
 - uploaded Tab5 firmware can boot, but screenshot/input currently require the
   matching reference ELF;
-- normalized `device-state` probes currently exist for StickS3; other devices
-  expose session metadata, framebuffer and serial without inventing component
-  values;
+- normalized `device-state` probes currently exist for StickS3 and CoreS3;
+  other devices expose session metadata, framebuffer and serial without
+  inventing component values;
 - emulator processes are not resumed across service restarts; only stopped,
   failed and interrupted history is reconstructed;
 - reference firmware must already exist in `platform/.cache/firmware`;

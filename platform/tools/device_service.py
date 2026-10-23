@@ -103,6 +103,15 @@ CORE2_WIFI_PROFILE = "core2-openmac"
 CORE2_BLE_PROFILE = "core2-ble-advertise"
 CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
 STICKS3_UNIFIED_PROFILE = "uiflow2-sticks3-unified"
+CORES3_UNIFIED_PROFILE = "uiflow2-cores3-unified"
+UNIFIED_PROFILES = {
+    STICKS3_UNIFIED_PROFILE,
+    CORES3_UNIFIED_PROFILE,
+}
+UNIFIED_HTTP_PORTS = {
+    STICKS3_UNIFIED_PROFILE: 18080,
+    CORES3_UNIFIED_PROFILE: 18081,
+}
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
 CORE2_HCI_GATT_MARKERS = (
@@ -125,6 +134,14 @@ STICKS3_UNIFIED_MARKERS = (
     "UNIFIED_STICKS3_BLE_RX",
     "UNIFIED_STICKS3_BLE_ACK_SENT",
 )
+CORES3_UNIFIED_MARKERS = (
+    "UNIFIED_CORES3_WIFI_CONNECTED",
+    "UNIFIED_CORES3_HTTP_PASS",
+    "UNIFIED_CORES3_BLE_RX",
+    "UNIFIED_CORES3_BLE_ACK_SENT",
+)
+
+
 def iso_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -169,9 +186,14 @@ def atomic_write_json(path: Path, payload: Any) -> None:
 
 
 class UnifiedHttpFixture:
-    """Controlled HTTP endpoint used by the unified StickS3 probe."""
+    """Controlled HTTP endpoint used by a unified board probe."""
 
-    def __init__(self, log_path: Path):
+    def __init__(
+        self,
+        log_path: Path,
+        body: bytes = b"UNIFIED_STICKS3_OK\n",
+        port: int = 18080,
+    ):
         self.requests: list[dict[str, str]] = []
         self.log_path = log_path
         owner = self
@@ -183,7 +205,6 @@ class UnifiedHttpFixture:
                     "host": self.headers.get("Host", ""),
                 }
                 owner.requests.append(record)
-                body = b"UNIFIED_STICKS3_OK\n"
                 self.send_response(200)
                 self.send_header("Content-Type", "text/plain")
                 self.send_header("Content-Length", str(len(body)))
@@ -193,7 +214,7 @@ class UnifiedHttpFixture:
             def log_message(self, _format: str, *_args: object) -> None:
                 return
 
-        self.server = ThreadingHTTPServer(("127.0.0.1", 18080), Handler)
+        self.server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
         self.thread = threading.Thread(
             target=self.server.serve_forever,
             name="m5-unified-http",
@@ -498,6 +519,9 @@ def parse_qemu_ble_execution(
     elif spec.id == "sticks3":
         supported_profiles = {STICKS3_UNIFIED_PROFILE}
         default_profile = STICKS3_UNIFIED_PROFILE
+    elif spec.id == "cores3":
+        supported_profiles = {CORES3_UNIFIED_PROFILE}
+        default_profile = CORES3_UNIFIED_PROFILE
     else:
         raise ServiceError(
             "qemu_ble_not_supported",
@@ -529,6 +553,8 @@ def parse_qemu_ble_execution(
         expected_markers = list(CORE2_HCI_GATT_MARKERS)
     elif profile == STICKS3_UNIFIED_PROFILE and not expected_markers:
         expected_markers = list(STICKS3_UNIFIED_MARKERS)
+    elif profile == CORES3_UNIFIED_PROFILE and not expected_markers:
+        expected_markers = list(CORES3_UNIFIED_MARKERS)
     attempts = value.get("attempts", 5)
     if not isinstance(attempts, int) or not 1 <= attempts <= 10:
         raise ServiceError(
@@ -550,7 +576,11 @@ def parse_qemu_ble_execution(
         "ble_name": (
             "M5-CORE2-HCI"
             if spec.id == "core2"
-            else "M5-STICKS3-UNIFIED"
+            else (
+                "M5-STICKS3-UNIFIED"
+                if spec.id == "sticks3"
+                else "M5-CORES3-UNIFIED"
+            )
         ),
     }
 
@@ -713,6 +743,8 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             if device_id == "sticks3" and network_chip:
                 network_profiles.insert(0, "uiflow2-sticks3")
                 network_profiles.insert(0, STICKS3_UNIFIED_PROFILE)
+            if device_id == "cores3" and network_chip:
+                network_profiles.insert(0, CORES3_UNIFIED_PROFILE)
             if (
                 device_id == "core2"
                 and (
@@ -1364,7 +1396,13 @@ class DeviceSession:
             else ""
         )
         profile = self.network_config.get("profile")
-        if profile == STICKS3_UNIFIED_PROFILE:
+        if profile in UNIFIED_PROFILES:
+            unified = profile == STICKS3_UNIFIED_PROFILE
+            default_markers = (
+                STICKS3_UNIFIED_MARKERS
+                if unified
+                else CORES3_UNIFIED_MARKERS
+            )
             probe_log = (
                 self.hci_probe_log.read_text(errors="replace")
                 if self.hci_probe_log.is_file()
@@ -1374,7 +1412,7 @@ class DeviceSession:
                 str(marker)
                 for marker in self.network_config.get(
                     "expected_markers",
-                    STICKS3_UNIFIED_MARKERS,
+                    default_markers,
                 )
             ]
             http_requests: list[dict] = []
@@ -1410,7 +1448,7 @@ class DeviceSession:
                 status = "RUNNING" if self.state in ACTIVE_STATES else "FAIL"
             return {
                 "schema_version": 1,
-                "kind": "m5stack-sticks3-unified-qemu-proof",
+                "kind": f"m5stack-{self.spec.id}-unified-qemu-proof",
                 "scope": "simulation-only-not-hardware-validation",
                 "status": status,
                 "session_id": self.id,
@@ -1438,8 +1476,16 @@ class DeviceSession:
                     "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
                     "subscribe": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
                     "write": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
-                    "payload": "M5_STICKS3_UNIFIED",
-                    "notification": "ACK:M5_STICKS3_UNIFIED",
+                    "payload": (
+                        "M5_STICKS3_UNIFIED"
+                        if unified
+                        else "M5_CORES3_UNIFIED"
+                    ),
+                    "notification": (
+                        "ACK:M5_STICKS3_UNIFIED"
+                        if unified
+                        else "ACK:M5_CORES3_UNIFIED"
+                    ),
                 },
                 "not_claimed": [
                     "real-hardware behavior",
@@ -1620,10 +1666,7 @@ class DeviceSession:
                     )
                 if (
                     self.network_config.get("profile")
-                    in {
-                        CORE2_HCI_GATT_PROFILE,
-                        STICKS3_UNIFIED_PROFILE,
-                    }
+                    in {CORE2_HCI_GATT_PROFILE, *UNIFIED_PROFILES}
                 ):
                     self._wait_hci_probe_result(self.ready_timeout)
                 self.network_result = self.network_evidence()
@@ -1702,13 +1745,22 @@ class DeviceSession:
     def _launch_hci_probe(self) -> None:
         if not BLE_PROBE.is_file():
             raise RuntimeError(f"BLE probe is missing: {BLE_PROBE}")
-        unified = (
-            self.network_config.get("profile") == STICKS3_UNIFIED_PROFILE
-        )
-        name_prefix = (
-            "M5-STICKS3-UNIFIED" if unified else "M5-CORE2-HCI"
-        )
-        payload = "M5_STICKS3_UNIFIED" if unified else "M5_CORE2_HCI"
+        profile = self.network_config.get("profile")
+        unified = profile in UNIFIED_PROFILES
+        if unified:
+            name_prefix = (
+                "M5-STICKS3-UNIFIED"
+                if self.spec.id == "sticks3"
+                else "M5-CORES3-UNIFIED"
+            )
+            payload = (
+                "M5_STICKS3_UNIFIED"
+                if self.spec.id == "sticks3"
+                else "M5_CORES3_UNIFIED"
+            )
+        else:
+            name_prefix = "M5-CORE2-HCI"
+            payload = "M5_CORE2_HCI"
         self.hci_port = free_tcp_port()
         env = os.environ.copy()
         env["PYTHONPATH"] = os.pathsep.join(
@@ -1778,15 +1830,32 @@ class DeviceSession:
         )
 
     def _launch_http_fixture(self) -> None:
+        profile = self.network_config.get("profile")
+        body = (
+            b"UNIFIED_STICKS3_OK\n"
+            if profile == STICKS3_UNIFIED_PROFILE
+            else b"UNIFIED_CORES3_OK\n"
+        )
+        port = UNIFIED_HTTP_PORTS.get(profile)
+        if port is None:
+            raise ServiceError(
+                "http_fixture_failed",
+                f"no controlled HTTP port for profile {profile}",
+                500,
+            )
         try:
-            self._http_fixture = UnifiedHttpFixture(self.http_fixture_log)
+            self._http_fixture = UnifiedHttpFixture(
+                self.http_fixture_log,
+                body=body,
+                port=port,
+            )
         except OSError as error:
             raise ServiceError(
                 "http_fixture_failed",
                 f"controlled HTTP fixture could not start: {error}",
                 503,
             ) from error
-        self._record_event("http_fixture_started", port=18080)
+        self._record_event("http_fixture_started", port=port)
 
     def _launch(self) -> None:
         assert self.virtual_flash is not None
@@ -1802,9 +1871,7 @@ class DeviceSession:
             self.qmp_path.unlink()
         except FileNotFoundError:
             pass
-        unified = (
-            self.network_config.get("profile") == STICKS3_UNIFIED_PROFILE
-        )
+        unified = self.network_config.get("profile") in UNIFIED_PROFILES
         core2_radio = (
             self.spec.id == "core2"
             and self.runtime in {QEMU_WIFI_RUNTIME, QEMU_BLE_RUNTIME}
@@ -1817,7 +1884,7 @@ class DeviceSession:
         profile = self.network_config.get("profile")
         hci_gatt = (
             self.runtime == QEMU_BLE_RUNTIME
-            and profile in {CORE2_HCI_GATT_PROFILE, STICKS3_UNIFIED_PROFILE}
+            and profile in {CORE2_HCI_GATT_PROFILE, *UNIFIED_PROFILES}
         )
         if hci_gatt:
             self._launch_hci_probe()
@@ -2594,7 +2661,7 @@ class DeviceSession:
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
         if (
-            self.network_config.get("profile") == STICKS3_UNIFIED_PROFILE
+            self.network_config.get("profile") in UNIFIED_PROFILES
             and self.speaker_pcm.is_file()
         ):
             pcm = self.speaker_pcm.read_bytes()
@@ -2695,15 +2762,21 @@ class DeviceSession:
         if hci_probe is not None and hci_probe.poll() is None:
             try:
                 os.killpg(hci_probe.pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
+            except (ProcessLookupError, PermissionError):
+                try:
+                    hci_probe.terminate()
+                except ProcessLookupError:
+                    pass
             try:
                 hci_probe.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 try:
                     os.killpg(hci_probe.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
+                except (ProcessLookupError, PermissionError):
+                    try:
+                        hci_probe.kill()
+                    except ProcessLookupError:
+                        pass
                 hci_probe.wait(timeout=5)
         self._hci_probe = None
         if self._qmp is not None:
@@ -2720,6 +2793,7 @@ class DeviceSession:
     def stop(self, purge: bool = False) -> dict:
         with self._lock:
             if self.state in {"stopped", "failed"}:
+                self._terminate_process()
                 result = self.snapshot()
                 if purge:
                     shutil.rmtree(self.dir, ignore_errors=True)
@@ -3792,6 +3866,12 @@ class DeviceService:
             ):
                 payload = dict(payload)
                 payload["ready_marker"] = "UNIFIED_STICKS3_READY"
+            elif (
+                network_config.get("profile") == CORES3_UNIFIED_PROFILE
+                and payload.get("ready_marker") is None
+            ):
+                payload = dict(payload)
+                payload["ready_marker"] = "UNIFIED_CORES3_READY"
 
         with self._lock:
             active = [
@@ -3971,9 +4051,14 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-unified": (
-                    "enabled-sticks3-wifi-ble"
-                    if STICKS3_UNIFIED_PROFILE
-                    in self.specs["sticks3"].network_profiles
+                    "enabled-sticks3-cores3-wifi-ble"
+                    if any(
+                        profile in self.specs[device_id].network_profiles
+                        for device_id, profile in (
+                            ("sticks3", STICKS3_UNIFIED_PROFILE),
+                            ("cores3", CORES3_UNIFIED_PROFILE),
+                        )
+                    )
                     else "disabled"
                 ),
                 "tab5": "enabled-partial",

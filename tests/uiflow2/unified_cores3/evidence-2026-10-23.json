@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "device_id": "cores3",
+  "firmware_sha256": "089fbc7859550ed5c2a263c7fa2f47e623a03bcac86233653bbb8cc1fb8715a3",
+  "checks": {
+    "board": true,
+    "display_nonblank": true,
+    "touch_redraw": true,
+    "power": true,
+    "imu": true,
+    "speaker_pcm": true,
+    "speaker_enabled": true,
+    "wifi_scan": true,
+    "wifi_association": true,
+    "wifi_dhcp": true,
+    "http_controlled_200": true,
+    "ble_advertising": true,
+    "ble_connect": true,
+    "ble_nus_discovery": true,
+    "ble_nus_subscription": true,
+    "ble_nus_write": true,
+    "ble_guest_rx": true,
+    "ble_notify_ack": true
+  },
+  "frame": {
+    "size": [320, 240],
+    "before_nonblack_pixels": 16794,
+    "before_unique_colors": 31,
+    "after_nonblack_pixels": 16782,
+    "after_unique_colors": 31,
+    "changed_after_touch": true
+  },
+  "audio": {
+    "bytes": 34304,
+    "nonzero_bytes": 33481,
+    "sha256": "d0ee65667dcd9e944f5f515165ecb4993a2e02a2eb6075de3a567c5cbd15fcfc"
+  },
+  "wifi": {
+    "ssid": "myssid",
+    "channel": 1,
+    "ipv4": "10.0.2.15",
+    "http_port": 18081,
+    "http_path": "/unified",
+    "http_status": 200
+  },
+  "ble": {
+    "transport": "UART1 H4",
+    "controller": "Bumble",
+    "service": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "rx_characteristic": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "tx_characteristic": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "payload": "M5_CORES3_UNIFIED",
+    "notification": "ACK:M5_CORES3_UNIFIED"
+  },
+  "not_claimed": [
+    "real-hardware behavior",
+    "native ESP32-S3 Bluetooth controller model",
+    "WPA2 or WPA3 behavior",
+    "RF security, range or performance",
+    "untrusted-firmware sandboxing"
+  ]
+}

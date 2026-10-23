@@ -33,6 +33,16 @@ class QemuProfileTest(unittest.TestCase):
         self.assertIn("accel-z", state["imu"]["properties"])
         self.assertIn("gyro-z", state["imu"]["properties"])
 
+    def test_cores3_runtime_state_probe(self):
+        row = next(row for row in self.registry["devices"] if row["id"] == "cores3")
+        state = row["runtime_state"]
+        self.assertEqual(state["power"]["path"], "/machine/axp2101")
+        self.assertIn("vbat-mv", state["power"]["properties"])
+        self.assertIn("speaker-enabled", state["power"]["properties"])
+        self.assertEqual(state["imu"]["path"], "/machine/bmi270")
+        self.assertIn("accel-z", state["imu"]["properties"])
+        self.assertIn("gyro-z", state["imu"]["properties"])
+
     def test_s3_hosts_are_ready(self):
         ready = {
             row["id"]

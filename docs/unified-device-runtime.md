@@ -30,6 +30,9 @@ complete simulated device or as a unified-device PASS.
   Stock UIFlow2 `network.WLAN` completes scan, association, DHCP and a
   controlled HTTP request while the same `m5sticks3` guest drives the panel,
   PMIC, IMU, buttons and I2S speaker.
+- The same QEMU S3 NIC is integrated into the `m5cores3` machine. One CoreS3
+  guest runs its 320x240 display, touch, AXP2101, BMI270, AW88298 speaker,
+  WiFi association/DHCP/HTTP and external HCI BLE exchange.
 - The StickS3 unified HCI-UART build routes real NimBLE H4 traffic through
   QEMU UART1 to a Bumble controller. An external peer completes NUS discovery,
   subscription, write, guest receive and notify ACK in the same QEMU process.
@@ -76,22 +79,29 @@ finished chip model.
 
 ## Acceptance milestone
 
-First vertical slice: a StickS3 UIFlow2 image in one QEMU guest simultaneously
-shows a non-black frame, accepts a physical key/touch event, reads IMU/audio
-state, associates with the virtual WiFi SSID, obtains DHCP, completes a
-controlled HTTP request, and completes BLE GATT discovery/write. The session
-must expose all of these through one `/api/v1` lease and retain the evidence
-after completion.
+First vertical slices are StickS3 and CoreS3. Each runs one UIFlow2 image in one
+QEMU guest that simultaneously shows a non-black frame, accepts a physical
+key/touch event, reads device state and audio, associates with the virtual WiFi
+SSID, obtains DHCP, completes a controlled HTTP request, and completes BLE GATT
+discovery/write. Each session exposes all checks through one `/api/v1` lease and
+retains a combined evidence bundle.
 
-Status: **PASS for the simulation-only StickS3 slice** through
-`runtime=qemu-ble`, `network.profile=uiflow2-sticks3-unified` and one retained
-Device Service evidence ZIP containing serial, frame, audio PCM, QOM, network,
-BLE peer log and manifest hashes. The probe uses an open virtual AP; WPA2/WPA3
-security behavior is not yet modelled. BLE is host-controller HCI data over an
+Status: **PASS for the simulation-only StickS3 and CoreS3 slices** through
+`runtime=qemu-ble`, the `uiflow2-sticks3-unified` and
+`uiflow2-cores3-unified` profiles, and retained Device Service evidence ZIPs
+containing serial, frame, audio PCM, QOM, network, BLE peer log and manifest
+hashes. Both probes use an open virtual AP on one fixed channel; WPA2/WPA3
+security behavior is not modelled. BLE is host-controller HCI data over an
 HCI-UART test build, not a native ESP32-S3 radio/controller model.
 
-For the rollout, repeat the same contract on CoreS3, Cardputer ADV,
-StopWatch, NanoC6/Nesso N1, and then Core2. Each device gets explicit network
-and board-peripheral status; no family-wide PASS is inferred from another
-device's result.
+The S3 NIC models the guest-visible MAC, DMA descriptors, interrupt and
+user-net frame path, but not a complete PHY/rate/security/RF model. The classic
+ESP32 LX6 path still contains separate PHY bring-up stubs. A successful boot log
+or PHY-ready register therefore does not by itself mean that the device is
+online.
+
+For the rollout, repeat the same contract on Cardputer ADV, StopWatch,
+NanoC6/Nesso N1, and then Core2. Each device gets explicit network and
+board-peripheral status; no family-wide PASS is inferred from another device's
+result.
 

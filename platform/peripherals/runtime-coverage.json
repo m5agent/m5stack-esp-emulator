@@ -30,6 +30,11 @@
       "test": "tests/uiflow2/unified_sticks3/run_test.py",
       "evidence": "tests/uiflow2/unified_sticks3/evidence-2026-10-23.json"
     },
+    "cores3-unified": {
+      "device": "cores3",
+      "test": "tests/uiflow2/unified_cores3/run_test.py",
+      "evidence": "tests/uiflow2/unified_cores3/evidence-2026-10-23.json"
+    },
     "tab5-hosted-peripherals": {
       "device": "tab5",
       "test": "tests/uiflow2/run_tab5_ui_test.py",
@@ -54,6 +59,12 @@
       "gpio-button",
       "pwr-button",
       "aw8737a"
+    ],
+    "cores3-unified": [
+      "axp2101",
+      "touch-ft5x06",
+      "bmi270",
+      "aw88298"
     ],
     "sticks3-peripherals": ["m5pm1", "bmi270", "gpio-button", "pwr-button"],
     "sticks3-audio": ["es8311", "aw8737a"],
@@ -261,6 +272,9 @@
         "cores3-audio",
         "cores3-mic",
         "cores3-aw9523-full"
+      ],
+      "external": [
+        "cores3-unified"
       ],
       "models": [
         "axp2101",
