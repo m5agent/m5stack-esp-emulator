@@ -84,6 +84,7 @@ from network_policy import (  # noqa: E402
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
+from worker_registry import WorkerRegistry, WorkerRegistryError  # noqa: E402
 from xtensa_elf_symbols import (  # noqa: E402
     ElfSymbolError,
     core2_native_vhci_addresses,
@@ -2325,6 +2326,9 @@ class DeviceSession:
         flash_info: dict | None = None,
         restored: bool = False,
         interrupted: bool = False,
+        worker_id: str | None = None,
+        worker_generation: int | None = None,
+        worker_lease_active: bool = False,
     ):
         self.service = service
         self.id = session_id
@@ -2390,6 +2394,13 @@ class DeviceSession:
         self.events: list[dict] = [dict(event) for event in (events or [])]
         self.restored = restored
         self.interrupted = interrupted
+        self.worker_id = worker_id or service.worker.worker_id
+        self.worker_generation = (
+            int(worker_generation)
+            if worker_generation is not None
+            else service.worker.generation
+        )
+        self._worker_lease_active = bool(worker_lease_active)
         if events is None:
             self._record_event(
                 "created", device_id=spec.id, firmware_id=firmware_id
@@ -2408,6 +2419,44 @@ class DeviceSession:
 
     def _persist_events(self) -> None:
         atomic_write_json(self.events_path, self.events)
+
+    def _release_worker_lease(
+        self,
+        *,
+        state: str | None = None,
+        error: str | None = None,
+    ) -> str | None:
+        if not self._worker_lease_active:
+            return None
+        network_status = (self.network_result or {}).get("status")
+        result = {
+            "device_id": self.spec.id,
+            "state": state or self.state,
+            "runtime": self.runtime,
+            "firmware_sha256": self.firmware_sha,
+            "network_status": network_status,
+            "network_pcap_available": self.network_pcap.is_file(),
+            "evidence_available": self.last_frame_path.is_file()
+            or self.serial0.is_file(),
+            "error": error or self.error,
+        }
+        try:
+            self.service.worker.release_lease(self.id, result=result)
+        except Exception as release_error:
+            message = str(release_error)
+            self._record_event(
+                "worker_lease_release_failed",
+                error=message,
+            )
+            return message
+        self._worker_lease_active = False
+        self._record_event(
+            "worker_lease_released",
+            worker_id=self.worker_id,
+            generation=self.worker_generation,
+            result_state=result["state"],
+        )
+        return None
 
     def _session_record(self) -> dict:
         return {
@@ -2437,6 +2486,8 @@ class DeviceSession:
             "error": self.error,
             "restored": self.restored,
             "interrupted": self.interrupted,
+            "worker_id": self.worker_id,
+            "worker_generation": self.worker_generation,
         }
 
     def _persist_session(self) -> None:
@@ -2528,6 +2579,11 @@ class DeviceSession:
                 "event_count": len(self.events),
                 "restored": self.restored,
                 "interrupted": self.interrupted,
+                "worker": {
+                    "worker_id": self.worker_id,
+                    "generation": self.worker_generation,
+                    "lease_active": self._worker_lease_active,
+                },
             }
 
     def _handle_process_exit(self, returncode: int | None) -> None:
@@ -2539,6 +2595,10 @@ class DeviceSession:
             self._finalize_network_capture()
         if not self.service.storage_policy.retain_session_flash:
             self._release_virtual_flash()
+        self._release_worker_lease(
+            state="failed",
+            error=self.error,
+        )
         self._persist_session()
 
     def start(self) -> None:
@@ -3262,6 +3322,10 @@ class DeviceSession:
             self._terminate_process()
             if self.runtime in QEMU_RADIO_RUNTIMES:
                 self._finalize_network_capture()
+            self._release_worker_lease(
+                state="failed",
+                error=str(error),
+            )
 
     def _provision_qemu_radio(self, clean_flash: Path) -> None:
         attempts = int(self.network_config.get("attempts", 5))
@@ -5178,6 +5242,10 @@ class DeviceSession:
                 self._terminate_process()
                 if self.runtime in QEMU_RADIO_RUNTIMES:
                     self._finalize_network_capture()
+                self._release_worker_lease(
+                    state=self.state,
+                    error=self.error,
+                )
                 if not purge and not retain_flash:
                     self._release_virtual_flash()
                 result = self.snapshot()
@@ -5229,6 +5297,10 @@ class DeviceSession:
                 self.state = "stopped"
             self.completed_at = iso_now()
             self._record_event("stopped", purge=purge)
+            self._release_worker_lease(
+                state=self.state,
+                error=self.error,
+            )
             if not purge and not retain_flash:
                 self._release_virtual_flash()
             result = self.snapshot()
@@ -5823,6 +5895,10 @@ class DeviceService:
         api_token: str | None = None,
         flash_preparer=None,
         storage_policy: StoragePolicy | None = None,
+        worker_id: str | None = None,
+        worker_state_path: Path | None = None,
+        worker_heartbeat_interval: float | None = None,
+        worker_stale_after: float | None = None,
     ):
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(parents=True, exist_ok=True)
@@ -5844,7 +5920,59 @@ class DeviceService:
         self._reference_cache: dict[str, dict] = {}
         self._last_storage_prune_at: float | None = None
         self._last_storage_prune: dict[str, Any] = {}
-        self._restore_history()
+        heartbeat_interval = float(
+            worker_heartbeat_interval
+            if worker_heartbeat_interval is not None
+            else os.environ.get("M5_WORKER_HEARTBEAT_INTERVAL", "5")
+        )
+        stale_after = float(
+            worker_stale_after
+            if worker_stale_after is not None
+            else os.environ.get("M5_WORKER_STALE_AFTER", "15")
+        )
+        capabilities = {
+            "qemu": any(
+                spec.supported and spec.backend.startswith("qemu-")
+                for spec in self.specs.values()
+            ),
+            "network_namespace": (
+                "probe-on-admission"
+                if sys.platform == "linux"
+                else "unavailable"
+            ),
+            "network_namespace_platform": sys.platform,
+            "pcap": True,
+            "tab5": any(
+                spec.supported and spec.service_kind == "tab5"
+                for spec in self.specs.values()
+            ),
+        }
+        self.worker = WorkerRegistry(
+            worker_state_path
+            or Path(
+                os.environ.get(
+                    "M5_WORKER_STATE_PATH",
+                    str(self.state_dir / "worker.json"),
+                )
+            ),
+            worker_id=worker_id or os.environ.get("M5_WORKER_ID") or None,
+            heartbeat_interval=heartbeat_interval,
+            stale_after=stale_after,
+            capabilities=capabilities,
+        )
+        try:
+            self.worker.start()
+        except WorkerRegistryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+        try:
+            self._restore_history()
+        except Exception:
+            self.worker.close()
+            raise
         self._stop = threading.Event()
         self._janitor = threading.Thread(
             target=self._janitor_loop,
@@ -5999,6 +6127,16 @@ class DeviceService:
                 ),
                 restored=True,
                 interrupted=interrupted,
+                worker_id=(
+                    record.get("worker_id")
+                    if isinstance(record.get("worker_id"), str)
+                    else None
+                ),
+                worker_generation=(
+                    int(record["worker_generation"])
+                    if isinstance(record.get("worker_generation"), int)
+                    else None
+                ),
             )
             virtual_flash = record_path.parent / "virtual-flash.bin"
             session.virtual_flash = virtual_flash if virtual_flash.is_file() else None
@@ -6419,6 +6557,18 @@ class DeviceService:
                 missing=missing,
                 documentation="docs/deployment.md",
             )
+        worker_snapshot = self.worker_status()
+        if not worker_snapshot["accepting_leases"]:
+            raise ServiceError(
+                "worker_not_accepting",
+                (
+                    f"worker is not accepting leases "
+                    f"(state={worker_snapshot['state']}, "
+                    f"stale={worker_snapshot['stale']})"
+                ),
+                503,
+                worker=worker_snapshot,
+            )
         firmware_id = payload.get("firmware_id")
         if firmware_id:
             firmware = self.firmware.get(str(firmware_id))
@@ -6542,6 +6692,17 @@ class DeviceService:
                 ready_conditions, dict
             ):
                 raise ServiceError("invalid_ready", "ready must be an object", 400)
+            worker_owner = payload.get("owner")
+            if worker_owner is not None and (
+                not isinstance(worker_owner, str)
+                or len(worker_owner) > 128
+                or any(ord(char) < 32 for char in worker_owner)
+            ):
+                raise ServiceError(
+                    "invalid_worker_owner",
+                    "owner must be at most 128 printable characters",
+                    400,
+                )
             runtime_env = payload.get("runtime_env", {})
             if runtime_env is None:
                 runtime_env = {}
@@ -6575,22 +6736,55 @@ class DeviceService:
                 session_class = Tab5DeviceSession
             else:
                 session_class = DeviceSession
-            session = session_class(
-                self,
-                session_id=uuid.uuid4().hex,
-                spec=spec,
-                firmware_id=firmware_id,
-                firmware_path=firmware_path,
-                firmware_sha=firmware_sha,
-                firmware_source=source,
-                source_artifacts=source_artifacts,
-                ttl_seconds=ttl,
-                ready_marker=ready_marker,
-                ready_timeout=ready_timeout,
-                ready_conditions=ready_conditions,
-                runtime_env=runtime_env,
-                runtime=runtime,
-                network_config=network_config,
+            session_id = uuid.uuid4().hex
+            try:
+                self.worker.reserve_lease(
+                    session_id,
+                    owner=worker_owner,
+                )
+            except WorkerRegistryError as error:
+                raise ServiceError(
+                    error.code,
+                    error.message,
+                    error.status,
+                ) from error
+            try:
+                session = session_class(
+                    self,
+                    session_id=session_id,
+                    spec=spec,
+                    firmware_id=firmware_id,
+                    firmware_path=firmware_path,
+                    firmware_sha=firmware_sha,
+                    firmware_source=source,
+                    source_artifacts=source_artifacts,
+                    ttl_seconds=ttl,
+                    ready_marker=ready_marker,
+                    ready_timeout=ready_timeout,
+                    ready_conditions=ready_conditions,
+                    runtime_env=runtime_env,
+                    runtime=runtime,
+                    network_config=network_config,
+                    worker_id=self.worker.worker_id,
+                    worker_generation=self.worker.generation,
+                    worker_lease_active=True,
+                )
+            except Exception:
+                self.worker.release_lease(
+                    session_id,
+                    result={
+                        "device_id": device_id,
+                        "state": "failed",
+                        "runtime": runtime,
+                        "firmware_sha256": firmware_sha,
+                        "error": "session construction failed",
+                    },
+                )
+                raise
+            session._record_event(
+                "worker_lease_reserved",
+                worker_id=self.worker.worker_id,
+                generation=self.worker.generation,
             )
             self._sessions[session.id] = session
         session.start()
@@ -7102,12 +7296,18 @@ class DeviceService:
             if qemu_ble_devices
             else "disabled"
         )
+        worker = self._worker_summary()
         return {
             "max_sessions": self.max_sessions,
             "active_sessions": len(active),
-            "available_sessions": max(0, self.max_sessions - len(active)),
+            "available_sessions": (
+                max(0, self.max_sessions - len(active))
+                if worker["accepting_leases"]
+                else 0
+            ),
             "max_per_device": self.max_per_device,
             "by_device": by_device,
+            "worker": worker,
             "modes": {
                 "network": (
                     "enabled-separate-lane"
@@ -7140,6 +7340,72 @@ class DeviceService:
                 "flash": "prepared-cache + exact artifact",
             },
         }
+
+    def _worker_summary(self) -> dict:
+        snapshot = self.worker_status()
+        return {
+            key: snapshot.get(key)
+            for key in (
+                "worker_id",
+                "instance_id",
+                "generation",
+                "state",
+                "pid",
+                "started_at",
+                "heartbeat_at",
+                "heartbeat_age_seconds",
+                "stale",
+                "accepting_leases",
+                "active_lease_count",
+                "active_lease_ids",
+                "drained_at",
+            )
+        }
+
+    def worker_status(self) -> dict:
+        try:
+            return self.worker.snapshot()
+        except WorkerRegistryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def drain_worker(self) -> dict:
+        try:
+            worker = self.worker.drain()
+        except WorkerRegistryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+        with self._lock:
+            active = [
+                {
+                    "session_id": session.id,
+                    "device_id": session.spec.id,
+                    "state": session.state,
+                    "expires_at": datetime.fromtimestamp(
+                        session.expires_at,
+                        timezone.utc,
+                    ).isoformat(),
+                }
+                for session in self._sessions.values()
+                if session.state in ACTIVE_STATES
+            ]
+        return {"worker": worker, "active_sessions": active}
+
+    def resume_worker(self) -> dict:
+        try:
+            return {"worker": self.worker.resume()}
+        except WorkerRegistryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
 
     def _janitor_loop(self) -> None:
         last_storage_prune = 0.0
@@ -7186,6 +7452,7 @@ class DeviceService:
                 session.stop()
             except Exception:
                 pass
+        self.worker.close()
 
 
 def _padded(data: bytes, size: int) -> bytes:

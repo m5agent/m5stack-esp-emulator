@@ -247,7 +247,9 @@ diagnostics in `internal/records/`.
   RF/WPA2/WPA3 validation or a production multi-tenant worker boundary.
 - `user,restrict=yes` and loopback `hostfwd` are not an untrusted-firmware
   sandbox. The Linux fail-closed namespace runner and guest path are validated;
-  filesystem/resource isolation and formal worker/VM lifecycle remain open.
+  filesystem/resource isolation, active QEMU process re-attach and formal
+  worker/VM lifecycle remain open. The local worker registry covers identity,
+  generation, heartbeat, drain/resume and restart lease classification only.
 
 ## Remaining work
 
@@ -257,13 +259,13 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- self-hosted QEMU worker integration and external IPv6 endpoint enforcement;
+- remote worker registration/scheduling, active QEMU re-attach and external
+  IPv6 endpoint enforcement;
 - production Core2 VHCI backend, bit-exact BT controller and physical
   cache/PSRAM equivalence, coexistence and soak;
 - SPIFFS inventory, runtime permissions/license policy, production
   security-key flows and broader cross-firmware compatibility;
-- remote worker supervision, warm pools, multi-host scheduling and hardened
-  untrusted-firmware isolation;
+- warm pools, multi-host scheduling and hardened untrusted-firmware isolation;
 - Tab5 missing P4 data paths behind the closed-source backend;
 - physical-hardware validation and per-device visual fidelity.
 

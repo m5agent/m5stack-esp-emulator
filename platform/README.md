@@ -44,6 +44,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   取消、刷新恢复和 package → manifest import；
 - merged/segmented/ZIP 导入与 capability mismatch；
 - QEMU 与 Tab5 session 生命周期、TTL、容量和存储回收；
+- 本地 worker 的稳定 ID、generation、heartbeat、独占状态目录、
+  active/abandoned lease、drain/resume 和 recent-result 记录；
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
   evidence ZIP；
 - `runtime=qemu-unified` 的 S3/C6/Core2 单 guest 板级 + 网络 + BLE；
@@ -63,7 +65,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   BT baseband/controller 和物理 cache/PSRAM 等价性仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
-- trusted-host 网络 namespace 不是恶意固件沙箱；worker/VM 生命周期仍未完成。
+- trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、
+  heartbeat、drain/resume 和重启租约分类已实现；活动 QEMU 进程 re-attach、
+  远程调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
   已在同一隔离路径验证 exact IPv4 IP/协议/端口和 veth/NAT，上述内容也不
@@ -84,6 +88,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | 路径 | 职责 |
 | --- | --- |
 | `tools/device_service.py` | session、lease、runtime 编排、证据和状态机 |
+| `tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、lease、drain/resume 和重启失败分类 |
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入与脱敏 eFuse 安全摘要 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |
 | `tools/firmware_analysis.py` | ESP image、分区、应用描述和静态分析 |
@@ -102,6 +107,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
+| `../tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain/resume、进程组清理和下一代 abandoned lease 分类 |
 
 ## 目录服务 API
 

@@ -1,12 +1,13 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.13.0
+  version: 1.14.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
     sessions remain available for diagnostics. Every session uses an isolated
-    firmware copy.
+    firmware copy. The local worker persists heartbeat, lease, drain and
+    restart-classification state under an exclusive state-directory lock.
     CardputerZero is outside this API version. Tab5 is available through
     esp-emu with partial peripheral status.
 servers:
@@ -67,6 +68,55 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Capacity"
+  /worker:
+    get:
+      summary: Read the local worker lifecycle state
+      responses:
+        "200":
+          description: Worker identity, generation, heartbeat and lease state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+        "503":
+          $ref: "#/components/responses/Error"
+  /worker/drain:
+    post:
+      summary: Stop admitting new leases and drain active leases
+      responses:
+        "200":
+          description: Worker and currently active session leases
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker, active_sessions]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/Worker"
+                  active_sessions:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+        "409":
+          $ref: "#/components/responses/Error"
+  /worker/resume:
+    post:
+      summary: Resume lease admission for a drained worker
+      responses:
+        "200":
+          description: Worker resumed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/Worker"
+        "409":
+          $ref: "#/components/responses/Error"
   /storage:
     get:
       summary: Read retained-session, cache and disk usage
@@ -1336,6 +1386,10 @@ components:
           type: integer
           minimum: 30
           default: 1800
+        owner:
+          type: string
+          maxLength: 128
+          description: Optional non-secret label stored with the worker lease.
         ready_marker:
           type: string
         ready_timeout_seconds:
@@ -1666,6 +1720,17 @@ components:
         interrupted:
           type: boolean
           description: True when a previously active session lost its runtime because the service restarted.
+        worker:
+          type: object
+          additionalProperties: false
+          required: [worker_id, generation, lease_active]
+          properties:
+            worker_id:
+              type: string
+            generation:
+              type: integer
+            lease_active:
+              type: boolean
         last_frame_available:
           type: boolean
         last_frame_captured_at:
@@ -1768,3 +1833,59 @@ components:
     Capacity:
       type: object
       additionalProperties: true
+      properties:
+        worker:
+          $ref: "#/components/schemas/Worker"
+    Worker:
+      type: object
+      additionalProperties: true
+      required: [schema_version, worker_id, generation, state, accepting_leases]
+      properties:
+        schema_version:
+          type: integer
+        worker_id:
+          type: string
+        instance_id:
+          type: string
+        generation:
+          type: integer
+        state:
+          type: string
+          enum: [starting, ready, draining, drained, stopped]
+        pid:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        heartbeat_at:
+          type: string
+          format: date-time
+        heartbeat_age_seconds:
+          type: number
+          nullable: true
+        stale:
+          type: boolean
+        accepting_leases:
+          type: boolean
+        active_lease_count:
+          type: integer
+        active_lease_ids:
+          type: array
+          items:
+            type: string
+        drained_at:
+          type: string
+          nullable: true
+        capabilities:
+          type: object
+          additionalProperties: true
+        abandoned_leases:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        recent_results:
+          type: array
+          items:
+            type: object
+            additionalProperties: true

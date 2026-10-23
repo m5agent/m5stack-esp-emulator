@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-local-worker-lifecycle",
+  "scope": "virtual-device-worker-control-not-remote-scheduler",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "duration_seconds": 3.267,
+  "checks": {
+    "worker_ready": true,
+    "heartbeat_fresh": true,
+    "worker_identity_stable": true,
+    "reference_normalized": true,
+    "active_lease_visible": true,
+    "drain_state": true,
+    "drain_blocks_new_lease": true,
+    "active_session_survives_drain": true,
+    "drained_after_last_lease": true,
+    "lease_result_recorded": true,
+    "pcap_result_recorded": true,
+    "resume_ready": true,
+    "process_group_cleanup": true,
+    "generation_advanced": true,
+    "abandoned_lease_recorded": true,
+    "interrupted_session_failed": true,
+    "restart_has_no_active_lease": true
+  },
+  "worker": {
+    "initial": {
+      "worker_id": "worker-lab",
+      "instance_id": "856a7d5f017f45cfb400506ca229a19c",
+      "generation": 1,
+      "state": "ready",
+      "accepting_leases": true
+    },
+    "restarted": {
+      "worker_id": "worker-lab",
+      "instance_id": "a267c278b1644fd4a4afee78b4fb344f",
+      "generation": 2,
+      "state": "ready",
+      "accepting_leases": true,
+      "abandoned_lease_count": 1,
+      "abandoned_lease_id_sha256": [
+        "6c667742934d6cc4fdf4a22c174c41ac21b66917fb41c4c09222ef35007fc3d8"
+      ]
+    }
+  },
+  "sessions": {
+    "first": {
+      "id_sha256": "c1d354fe2aa383bfa1c8562966ac621126c4002b32600fa16829b3feb6221654",
+      "state": "running",
+      "runtime": "qemu-wifi",
+      "firmware_sha256": "a5d027f6d2953edb9ece45cddea1490112d8e421ba563edc6e7c71cf7ac4f6ec",
+      "network_status": "PARTIAL",
+      "network_pcap_available": true,
+      "frame_sha256": "72bf95e3ae18e1b43989b18caff8c4b73e2cd33d41cb0599ba744e520ce5cd8f"
+    },
+    "restored_after_crash": {
+      "id_sha256": "6c667742934d6cc4fdf4a22c174c41ac21b66917fb41c4c09222ef35007fc3d8",
+      "state": "failed",
+      "restored": true,
+      "interrupted": true,
+      "error": "service restarted before the session completed; previous state was running"
+    }
+  },
+  "not_claimed": [
+    "remote worker registration",
+    "task queueing or multi-host scheduling",
+    "active QEMU process re-attach",
+    "warm pool behavior",
+    "physical hardware"
+  ]
+}

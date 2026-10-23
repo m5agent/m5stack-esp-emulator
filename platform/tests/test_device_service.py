@@ -523,6 +523,34 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(capacity["modes"]["tab5"], "enabled-partial")
 
+    def test_worker_drain_blocks_admission_until_resume(self):
+        worker = self.service.worker_status()
+        self.assertEqual(worker["state"], "ready")
+        self.assertTrue(worker["accepting_leases"])
+
+        draining = self.service.drain_worker()
+        self.assertEqual(draining["worker"]["state"], "drained")
+        self.assertEqual(
+            self.service.capacity()["worker"]["state"],
+            "drained",
+        )
+        self.assertEqual(
+            self.service.capacity()["available_sessions"],
+            0,
+        )
+        with self.assertRaises(ServiceError) as caught:
+            self.service.create_session(
+                {"device_id": "sticks3", "ttl_seconds": 60}
+            )
+        self.assertEqual(caught.exception.code, "worker_not_accepting")
+        self.assertEqual(caught.exception.status, 503)
+
+        resumed = self.service.resume_worker()
+        self.assertEqual(resumed["worker"]["state"], "ready")
+        self.assertTrue(
+            self.service.capacity()["worker"]["accepting_leases"]
+        )
+
     def test_default_capacity_matches_measured_workstation_profile(self):
         self.assertEqual(DEFAULT_MAX_SESSIONS, 12)
         self.assertEqual(DEFAULT_MAX_PER_DEVICE, 8)
@@ -1887,6 +1915,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
                 self.assertIn("network/evidence.json", archive.namelist())
                 self.assertIn("network-runner.stdout", archive.namelist())
+            self.service.close_all()
             restored_service = DeviceService(
                 state_dir=Path(self.tmp.name),
                 max_sessions=1,
@@ -3737,6 +3766,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session._record_event("stopped")
         session._persist_session()
 
+        self.service.close_all()
         restarted = DeviceService(
             state_dir=self.service.state_dir,
             max_sessions=2,
@@ -3768,7 +3798,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session.completed_at = None
         session.pid = 12345
         session._persist_session()
+        self.service.worker.reserve_lease(session.id)
 
+        self.service._stop.set()
+        self.service.worker.close()
         restarted = DeviceService(
             state_dir=self.service.state_dir,
             max_sessions=2,
@@ -3782,6 +3815,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.assertTrue(rows[0]["interrupted"])
             self.assertIn("service restarted", rows[0]["error"])
             self.assertEqual(restarted.capacity()["active_sessions"], 0)
+            worker = restarted.worker_status()
+            self.assertEqual(worker["generation"], 2)
+            self.assertEqual(worker["active_lease_count"], 0)
+            self.assertEqual(
+                worker["abandoned_leases"][-1]["lease_id"],
+                session.id,
+            )
             events = restarted.session_events(session.id)["events"]
             self.assertEqual(events[-1]["event"], "interrupted")
             self.assertEqual(events[-1]["previous_state"], "running")
@@ -3826,6 +3866,23 @@ class DeviceServiceHttpTests(unittest.TestCase):
             capacity["modes"]["network"],
             "enabled-separate-lane",
         )
+        self.assertEqual(capacity["worker"]["state"], "ready")
+        self.assertFalse(capacity["worker"]["stale"])
+
+        status, draining = self.request(
+            "/api/v1/worker/drain",
+            method="POST",
+            data=b"",
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(draining["worker"]["state"], "drained")
+        status, resumed = self.request(
+            "/api/v1/worker/resume",
+            method="POST",
+            data=b"",
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(resumed["worker"]["state"], "ready")
 
     def test_openapi_is_served(self):
         with urlopen(self.base + "/api/v1/openapi.yaml", timeout=5) as response:

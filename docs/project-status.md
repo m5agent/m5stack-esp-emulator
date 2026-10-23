@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `260` 项，`260` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `264` 项，`264` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - WebBurner 浏览器 SHA256/upload client Node 测试 `2/2 PASS`；真实页面对
   `9.44 MiB`、`3` chunk 的 WebBurner ZIP 完成上传、manifest 导入和刷新恢复。
@@ -32,6 +32,9 @@
   后，定向用例和最终全矩阵均通过。
 - 当前窄校验：runtime coverage、peripheral catalog 和 QEMU profiles
   均 `PASS`。
+- 本地 Device Service worker 已持久化稳定身份、generation、heartbeat、
+  active lease、drain/resume 和 abandoned-lease 分类；状态目录由独占锁
+  防止双进程接管。生产远程注册和活动 QEMU 进程 re-attach 仍未实现。
 - 双设备网络实验已在 private Linux namespace 内用 QEMU socket L2 switch
   实跑两台 StickS3：两端均完成 DHCP，A 通过 guest TCP 访问 B，双侧 pcap
   都包含双向请求/响应，switch 按配置 MAC 绑定连接槽位；宿主控制面、
@@ -47,9 +50,9 @@
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
 | S3/C6/Core2 单实例无线 | 12 个 unified profile；S3/C6 整机路径 PASS，Core2 为环境门控且 GDB/native-HCI 生产化未闭环 | `qemu-unified` 可返回 frame/QOM/network/evidence | `NOT RUN` | 已能验证应用网络与 BLE 数据面，不是完整 RF/PHY |
-| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具已通过；自托管 worker 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
+| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具和本地 worker lifecycle control 已通过；远程 worker、活动进程 re-attach 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
-| 服务生命周期 | 停止/失败历史可恢复、容量与 GC 可用 | 活动进程不能跨重启接管，无 warm pool/多机调度 | 不适用 | 本地 MVP，不是完整云端服务 |
+| 服务生命周期 | 停止/失败历史可恢复、容量与 GC 可用；worker heartbeat/drain/resume、租约和重启分类可用 | 活动进程不能跨重启接管，无远程注册、warm pool/多机调度 | 不适用 | 本地 worker 控制面，不是完整云端服务 |
 
 ## 最近里程碑
 
@@ -61,6 +64,7 @@
 | 2026-10-24 | AP/radio loss | StickS3 guest 先 DHCP/HTTP；QOM `radio-enabled=false` 后扫描为 0，恢复后扫描为 1，同一 guest 再 DHCP 并完成 `/after` HTTP；pcap 含两组 DORA | [`radio-loss-pass.json`](../tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json) |
 | 2026-10-24 | DHCP renewal | ESP-IDF guest 调用 `netifapi_dhcp_renew()`；pcap 同事务出现初次 DORA 后再接 `REQUEST/ACK`，renewal request/ack 各 1，地址保持并通过 HTTP | [`renewal-pass.json`](../tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json) |
 | 2026-10-24 | 双设备 lab fabric | private namespace 内两台 StickS3 完成 DHCP；A→B TCP `19123` 请求/响应成功，两侧 pcap 均有双向 payload hash；宿主、公网、metadata、默认路由不可达，namespace 已清理 | [`two-guest-pass.json`](../tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json) |
+| 2026-10-24 | 本地 worker lifecycle | 真实 StickS3 `qemu-wifi` lease：心跳、active lease、drain 阻断新租约、活动会话和 pcap 继续、停止后 drained、resume；强杀服务进程组后下一 generation 将旧 lease 标为 abandoned，会话恢复为 interrupted failed | [`worker-lifecycle-pass.json`](../tests/network/worker_lifecycle/evidence-2026-10-24-pass.json) |
 | 2026-10-24 | 共享 WiFi + 全矩阵 | patch `0028` 的双 guest WLAN 生命周期进入同一 QEMU build；Cardputer-ADV 键盘 settle 加固后，S3/C6/Core2 `67/67` case、`274/274` check 首轮 PASS，全部 `attempts=1`、`retry_used=false` | [`dual-guest-fabric-matrix.json`](../tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) |
 | 2026-10-24 | 共享 QEMU | ESP32-S3 AES/GDMA 外部内存读取修复；当轮全矩阵 `67/67` case、`274/274` check，全部首轮无重试 | [`gdma-external-memory-matrix.json`](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json) |
 | 2026-10-24 | 固件审查 | FirmwareManifest 增加 LittleFS 与只读 FAT12/16/32 文件清单、SHA256、LFN、敏感路径脱敏与 SPDX 提取 | [`fat-inventory.json`](../tests/firmware/evidence-2026-10-24-fat-inventory.json) |
@@ -79,7 +83,7 @@
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；GitHub Actions Linux policy CI PASS | 自托管 QEMU worker、外部 IPv6 |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions Linux policy CI PASS | 远程 QEMU worker、活动进程 re-attach、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB `run_full.py` 已到广播/连接和首个 ATT 交互，但第二个 ATT request 后 guest `ack returned 12` 并 Reset；任意 safe-point callback 与 nested `r_eif_send` 均已证伪并回退。下一步是实现 C2H device/IRQ queue 或 in-process controller transaction，随后 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS 与 FAT12/16/32 文件清单/哈希/敏感路径/SPDX 提取 | SPIFFS 解包、运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
 
@@ -90,9 +94,9 @@
 | 设备与板级契约 | 已完成 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 14 台设备登记；13 台达到登记外设的模拟数据面；catalog、coverage、profile 校验通过 | 新设备逐项登记；视觉保真另列 |
 | QEMU/S3/C6 外设 | 当前全矩阵通过 | `patches/`、`tests/uiflow2/` | QEMU patch `0028` 后最新 67/67、274/274，全部首轮无重试；11 条 S3/C6 unified 设备路径；Core2 targeted/native/UI 路径通过 | 新共享控制器变更后重新跑受影响矩阵/全矩阵 |
 | Core2 LX6 | 功能路径完成；native-HCI 单包 C2H 已通过，完整 sequence 已有序失败取证 | `patches/qemu-core2-*`、`tests/uiflow2/core2_*` | 10/10 确定性首轮启动、WiFi/公网、HCI-offload、stock VHCI 5/5、同 guest 3/3、ELF 固定符号、Device Service 单 lease PASS；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` `5/5`；`HCI-3b` diagnostic FAIL 固定在第二个 ATT request，safe-point/nested-entry 实验已回退 | 实现 guest-visible controller-to-host IRQ/queue 或 in-process controller transaction；随后 `HCI-4` Device Service `5/5`；bit-exact BT、物理 cache/PSRAM 与 soak 另列 |
-| Device Service | 本地 v1 可用，生产服务化未完成 | `platform/tools/device_service.py`、`serve.py`、`storage_policy.py`、`platform/web/firmware.*` | lease、WebBurner/firmware package import、direct/resumable chunk 上传、烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.13.0 | worker 化、活动进程恢复、warm pool、多机调度、VM 隔离和编排模块拆分 |
+| Device Service | 本地 v1 + worker lifecycle controller 可用，生产服务化未完成 | `platform/tools/device_service.py`、`serve.py`、`worker_registry.py`、`storage_policy.py`、`platform/web/firmware.*` | lease、worker heartbeat/drain/resume、独占状态目录、generation/abandoned lease、WebBurner/firmware package import、direct/resumable chunk 上传、烧录、frame/serial/input/QOM/audio/network/evidence、存储回收、API 1.14.0 | 远程 worker 注册/调度、活动 QEMU 进程 re-attach、warm pool、多机、VM 隔离和编排模块拆分 |
 | FirmwareManifest | v1 + 静态审查 + eFuse 安全摘要 + LittleFS/FAT 清单 + WebBurner browser intake | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`device_service.py`、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、8 MiB API chunk、4 MiB browser chunk、browser SHA256/progress/retry/cancel/refresh、failed-append rollback、staging GC、capability mismatch、SBOM、LittleFS/FAT | SPIFFS、运行时权限、许可策略、真机 key/eFuse、跨厂商回归 |
-| 网络隔离与取证 | Linux 单机、双 guest lab fabric 与 GitHub Actions policy 路径闭环，正式 worker 开放 | `network_fabric.py`、`network_egress.py`、`network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、reconnect probe | namespace/controlled DNS/TLS、nftables exact IPv4 egress、veth/NAT、DHCP DORA+renew lifecycle、pcap、错误密码、radio/AP 丢失恢复、双 guest DHCP/TCP/双侧 pcap 和清理 PASS；GitHub Actions Linux job PASS | 自托管 QEMU worker、外部 IPv6 |
+| 网络隔离与取证 | Linux 单机、双 guest lab fabric、本地 worker lifecycle 与 GitHub Actions policy 路径闭环，远程 worker 开放 | `worker_registry.py`、`network_fabric.py`、`network_egress.py`、`network_policy.py`、`network_sandbox.py`、`pcap_summary.py`、reconnect probe | namespace/controlled DNS/TLS、nftables exact IPv4 egress、veth/NAT、DHCP DORA+renew lifecycle、pcap、错误密码、radio/AP 丢失恢复、双 guest DHCP/TCP/双侧 pcap、本地 worker heartbeat/drain/restart classification 和清理 PASS；GitHub Actions Linux job PASS | 远程 QEMU worker、活动进程 re-attach、外部 IPv6 |
 | 浏览器与目录 | 可用 | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、会话观察、外设/运行时接口 | warm pool 的前端状态与视觉保真 |
 | 物理硬件验证 | `NOT RUN` | Device Test Center 路径 | 当前仅有 virtual-device validation | 代表设备使用同固件 SHA 和同测试计划做实机证据 |
 
@@ -104,6 +108,8 @@
 ### 虚拟设备与 Device Service
 
 - 通过 `/api/v1` 租用、烧录、启动、停止和恢复 13 台设备的历史会话。
+- `GET /api/v1/worker` 查看本地 worker heartbeat/lease；`POST /worker/drain`
+  停止接纳新会话，`POST /worker/resume` 恢复接纳。
 - 使用完整 merged 镜像或 bootloader/partition/app/filesystem 分段镜像。
 - 采集串口、framebuffer、输入结果、QOM、设备状态、音频 PCM、网络和
   BLE peer evidence。
@@ -239,6 +245,8 @@
   [`tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json`](../tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json)
 - Two-guest private QEMU lab fabric:
   [`tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json`](../tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json)
+- Local worker drain/restart lifecycle:
+  [`tests/network/worker_lifecycle/evidence-2026-10-24-pass.json`](../tests/network/worker_lifecycle/evidence-2026-10-24-pass.json)
 - StickS3 TLS under nftables IP/port policy:
   [`tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json)
 - DHCP renewal through Device Service:
@@ -282,7 +290,8 @@
    也已完成测试 CA、HTTPS 握手、200/403 和 pcap 联合验证。nftables 精确
    IPv4 IP/协议/端口、veth/NAT 和清理已 PASS；两台 guest 的 DHCP、TCP、
    双侧 pcap 与宿主隔离也已 PASS。它仍不等同于恶意固件沙箱、生产 worker
-   或 RF，worker/VM 隔离和外部 IPv6 仍待实现。
+   或 RF；本地 worker heartbeat/drain 已实现，活动进程 re-attach、远程调度、
+   VM 隔离和外部 IPv6 仍待实现。
 5. **通用固件兼容性**：SoC 相同不代表板级、分区、安全配置和控制器全部
    兼容。
 6. **视觉保真**：除 StopWatch 外，设备外壳仍主要是近似模型。

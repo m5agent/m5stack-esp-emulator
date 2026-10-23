@@ -220,6 +220,8 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.capacity()
             elif method == "GET" and parts == ["storage"]:
                 response = service.storage_stats()
+            elif method == "GET" and parts == ["worker"]:
+                response = service.worker_status()
             elif method == "GET" and parts == ["openapi.yaml"]:
                 spec = ROOT / "docs/device-service.openapi.yaml"
                 if not spec.is_file():
@@ -513,6 +515,10 @@ class Handler(SimpleHTTPRequestHandler):
                     "no",
                 }
                 response = service.prune_storage(include_cache=include_cache)
+            elif method == "POST" and parts == ["worker", "drain"]:
+                response = service.drain_worker()
+            elif method == "POST" and parts == ["worker", "resume"]:
+                response = service.resume_worker()
             elif method == "POST" and parts == ["sessions"]:
                 response = service.create_session(self._read_json())
                 status = 202
@@ -756,6 +762,29 @@ def main() -> None:
     )
     parser.add_argument("--session-ttl", type=int, default=1800)
     parser.add_argument("--api-token", default=os.environ.get("M5_SERVICE_API_TOKEN"))
+    parser.add_argument(
+        "--worker-id",
+        default=os.environ.get("M5_WORKER_ID"),
+    )
+    parser.add_argument(
+        "--worker-state",
+        type=Path,
+        default=(
+            Path(os.environ["M5_WORKER_STATE_PATH"])
+            if os.environ.get("M5_WORKER_STATE_PATH")
+            else None
+        ),
+    )
+    parser.add_argument(
+        "--worker-heartbeat-interval",
+        type=float,
+        default=float(os.environ.get("M5_WORKER_HEARTBEAT_INTERVAL", "5")),
+    )
+    parser.add_argument(
+        "--worker-stale-after",
+        type=float,
+        default=float(os.environ.get("M5_WORKER_STALE_AFTER", "15")),
+    )
     args = parser.parse_args()
     os.chdir(ROOT)
     mimetypes.add_type("application/wasm", ".wasm")
@@ -765,6 +794,10 @@ def main() -> None:
         max_per_device=args.max_per_device,
         default_ttl=args.session_ttl,
         api_token=args.api_token,
+        worker_id=args.worker_id,
+        worker_state_path=args.worker_state,
+        worker_heartbeat_interval=args.worker_heartbeat_interval,
+        worker_stale_after=args.worker_stale_after,
     )
     Handler.service = service
     Handler.api_token = args.api_token
@@ -774,6 +807,7 @@ def main() -> None:
     print(f"Peripheral API: http://{args.bind}:{args.port}/api/peripherals")
     print(f"Leased service API: http://{args.bind}:{args.port}/api/v1")
     print(f"Storage usage: http://{args.bind}:{args.port}/api/v1/storage")
+    print(f"Worker lifecycle: http://{args.bind}:{args.port}/api/v1/worker")
     print(
         "Peripheral interfaces: "
         f"http://{args.bind}:{args.port}/api/peripheral-interfaces"

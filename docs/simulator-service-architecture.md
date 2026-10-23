@@ -22,6 +22,9 @@ Implemented:
 - loopback SoftAP provisioning portals through `firmware_ap_password` and
   `hostfwd`;
 - restart-safe session history and last-known evidence restoration;
+- a persistent local worker record with stable identity, exclusive state-dir
+  lock, process generation, heartbeat, lease admission, drain/resume and
+  abandoned-lease classification after restart;
 - bounded stopped/failed history with age, count and byte limits;
 - stopped-session Flash release by default and reference-aware cache GC;
 - optional Bearer token.
@@ -47,8 +50,7 @@ Not implemented yet:
 - prestarted warm QEMU instances;
 - resumable active emulator processes across service restart;
 - remote worker pool and multi-host scheduling;
-- self-hosted QEMU worker lifecycle for the Linux namespace lane; the
-  GitHub-hosted policy/egress fixture already runs in CI;
+- remote worker registration, queueing, heartbeat ingestion and scheduling;
 - external IPv6/CIDR/domain-set allowlisting;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
@@ -265,13 +267,16 @@ and retained evidence.
 
 ### Phase S1: remote worker API
 
-Status: API surface exists locally; remote worker supervision, re-attach and
-multi-host scheduling remain open.
+Status: local worker lifecycle API exists; remote worker supervision, active
+emulator re-attach and multi-host scheduling remain open.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
 - cached runtime images;
 - per-model and global concurrency limits.
+- persistent worker heartbeat, drain/resume and restart lease classification
+  are implemented for the local process;
+- remote registration and running QEMU re-attach remain open.
 
 ### Phase S2: warm/cold pool
 

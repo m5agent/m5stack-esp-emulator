@@ -54,6 +54,7 @@
 | --- | --- | --- |
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
+| `platform/tools/worker_registry.py` | 本地 worker identity、独占锁、generation、heartbeat、lease、drain/resume 和重启分类 | Device Service、worker 测试 |
 | `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
 | `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表严格解析 Core2 native-VHCI 固定地址 | Device Service、Core2 runners |
 | `platform/tools/fetch_firmware.py` | 查询、校验、下载和缓存公开 M5Burner 固件 | 本地准备、固件矩阵 |
@@ -91,6 +92,7 @@
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连和双 guest lab fabric | 网络策略/运行时改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
+| `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
 
 `run_profile_ui_test.py`、`run_peripheral_matrix.py` 和直接 QEMU 启动是仓库
 回归开发入口；Agent 触发的普通固件功能测试必须走 Device Service，避免产生
@@ -143,6 +145,7 @@ HTTP / browser
 | --- | --- |
 | `platform/tools/serve.py` | HTTP 服务、静态页面和 `/api/v1` 路由入口 |
 | `platform/tools/device_service.py` | lease、artifact/firmware 存储、可恢复 chunk upload、会话生命周期、QEMU/esp-emu 编排、证据包 |
+| `platform/tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、租约和 drain 状态机 |
 | `platform/tools/storage_policy.py` | 会话历史、Flash 保留与缓存 GC |
 | `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查 |
 | `platform/web/` | 设备目录、会话观察和浏览器设备外壳 |
@@ -195,6 +198,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `tests/network/tls_allowlist/` | 测试 CA、namespace-local HTTPS gateway、Host 允许/拒绝和 pcap 断言 |
 | `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
 | `tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 TAP/bridge primitive |
+| `tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain、resume、强杀清理和下一代 abandoned lease 分类 |
 | `tests/network/` | 隔离、错误密码、radio/AP 丢失重连和 Core2 网络夹具 |
 
 QEMU 主路径必须在同一个 guest 内同时具备板级外设、网络和 HCI/BT 数据面。
@@ -253,6 +257,8 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | 双设备 lab fabric | `tests/network/lab_fabric/`、patches `0028` | private namespace 内两台 QEMU guest 完成 DORA、A→B TCP 和双侧 pcap；宿主、公网、metadata、默认路由不可达并按预期清理。QEMU 运行路径是 socket switch；TAP/bridge 是独立 primitive |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |
 | 公共 API | `/api/v1` Device Service | 可观察、可保留的 session/evidence |
+| Worker lifecycle | `/api/v1/worker`、`/worker/drain`、`/worker/resume`；`platform/tests/test_worker_registry.py` | stable ID、独占状态目录、heartbeat、generation、drain/resume、active/abandoned lease 和 bounded results；不含远程调度或活动 QEMU re-attach |
+| Worker restart integration | `tests/network/worker_lifecycle/evidence-2026-10-24-pass.json` | 真实 QEMU session 跨 drain 保持；停止后 drained；SIGKILL 后 generation 2 记录 abandoned lease 并将会话恢复为 interrupted failed；进程组清理 PASS |
 
 设备级 PASS 至少要有固件 hash、runtime/profile、输入、串口、frame 和对应
 数据面证据。进程启动、版本匹配或单条日志不能单独作为应用 PASS。

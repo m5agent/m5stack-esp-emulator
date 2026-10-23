@@ -19,7 +19,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络策略与 worker | 自托管 QEMU worker 生命周期 | Linux worker；QEMU network backend；fail-closed |
+| P0 | 网络策略与 worker | 远程 QEMU worker 注册/调度和活动进程 re-attach | Linux worker；QEMU network backend；fail-closed |
 | P0 | Core2 生产化 | 去掉 GDB 暂停/注入/return 控制、重复 lease 稳定门禁、controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | classic ESP32 BT/PHY；真机 |
 | P0 | 通用固件审查 | SPIFFS、权限/许可策略、真机 eFuse/安全启动/key 流程、跨厂商回归 | 多格式镜像；生产安全配置 |
 | P0 | 真机同路径验证 | 代表设备用同固件 SHA、同测试计划通过 UART/画面/网络/外设 | 物理设备和测试槽 |
@@ -47,14 +47,14 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | GitHub Actions 已跑 namespace/egress；继续接 QEMU runtime、pcap/reconnect 和正式 worker | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain/re-attach |
+| `NET-04` | 进行中 | GitHub Actions 和双 guest fabric 已通过；本地 worker identity/heartbeat/drain/resume/abandoned lease 已实现。下一项是远程注册、任务队列和活动 QEMU re-attach | CI 可重复产出 evidence；namespace 失败保持 fail-closed；worker 可 drain，并在重启后明确接管或失败 |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/NAT 与清理有同次 evidence |
 | `CORE2-01` | 进行中 | ELF 符号查询已固定；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 单包 C2H callback `5/5`；`HCI-3b` 已到首个 ATT 交互。下一最小交付是 guest-visible C2H IRQ/queue 或 in-process controller transaction，随后 `HCI-4` repeated lease | 同一 stock 固件通过 Device Service `5/5`；最终无 GDB 完成外部 NUS GATT，evidence 不回退 |
 | `CORE2-02` | 待做 | BT controller/baseband 语义、物理 cache/PSRAM、coexistence/soak | controller 协议与真机收敛；物理边界和长时间稳定性可证 |
 | `FW-01` | 进行中 | 评估并实现 SPIFFS 只读 parser/host helper；继续补权限与许可策略 | 文件系统返回可验证清单或明确 `UNSUPPORTED`；权限/许可结论可追踪 |
 | `FW-02` | 进行中 | 包内安全摘要已支持；继续做真机 eFuse、secure boot、Flash Encryption 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 固件回归集 | 每个样本记录导入、capability、boot 层，不混算 PASS |
-| `SVC-01` | 待做 | worker supervisor、注册/心跳、drain、re-attach | 服务重启可收敛 worker，lease 有明确接管或失败状态 |
+| `SVC-01` | 进行中 | supervisor/heartbeat/drain/resume、独占状态目录和 lease 失败分类已完成；下一项是活动进程 re-attach | 服务重启可收敛 worker，lease 有明确接管或失败状态 |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态不泄漏 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的固件存储、运行时适配器、证据和会话状态机 | 对外 API/evidence 不回归；单文件职责和测试边界清晰 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation，虚拟结果不冒充 |
@@ -71,8 +71,10 @@
 - GitHub Actions 的完整平台测试和 namespace/egress fail-closed 回归已完成；
 - 双 guest lab fabric 已作为独立 QEMU virtual-device fixture 通过，并由 CI
   单独执行 TAP/bridge primitive；
+- 本地 worker 持久化 ID、generation、heartbeat、active lease、
+  drain/resume、独占锁、pcap result 和重启后 abandoned-lease 分类已完成；
 - QEMU runtime、pcap retention、reconnect evidence 进入自托管 Linux worker；
-- worker 注册、心跳、drain、重排和 evidence 上传可观测；
+- 远程 worker 注册、任务重排、活动进程 re-attach 和 evidence 上传仍待完成；
 - namespace 创建/权限失败时 fail-closed；
 - 超时、残留进程、临时盘和失败重试都有结构化结果。
 

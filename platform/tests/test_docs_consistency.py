@@ -59,7 +59,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/idf_dhcp_renewal/README.md",
             "tests/network/idf_dhcp_renewal/run_test.py",
             "platform/tools/network_fabric.py",
+            "platform/tools/worker_registry.py",
             "platform/tests/test_network_fabric.py",
+            "platform/tests/test_worker_registry.py",
             "tests/network/lab_fabric/README.md",
             "tests/network/lab_fabric/run_test.py",
             "tests/network/lab_fabric/check_fabric.py",
@@ -69,6 +71,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/lab_fabric/role_b/main.py",
             "tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json",
             "patches/qemu-m5stack-peripherals/0028-esp32-wifi-dual-guest-fabric.patch",
+            "tests/network/worker_lifecycle/README.md",
+            "tests/network/worker_lifecycle/run_test.py",
+            "tests/network/worker_lifecycle/evidence-2026-10-24-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
@@ -301,6 +306,11 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("HCI-3a", status)
         self.assertIn("HCI-3b", status)
         self.assertIn("`01030c00`", status)
+        self.assertIn("worker heartbeat", status)
+        self.assertIn(
+            "evidence-2026-10-24-pass.json",
+            (ROOT / "tests/network/worker_lifecycle/README.md").read_text(),
+        )
         self.assertIn(
             "profile=core2-native-vhci",
             (DOCS / "unified-device-runtime.md").read_text(),
@@ -518,6 +528,32 @@ class DocsConsistencyTests(unittest.TestCase):
             self.assertIn("QEMU socket", document)
         self.assertIn("双 guest", workstreams)
         self.assertIn("TAP/bridge", status)
+        worker_lifecycle = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_lifecycle/"
+                "evidence-2026-10-24-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(worker_lifecycle["status"], "PASS")
+        self.assertEqual(len(worker_lifecycle["checks"]), 17)
+        self.assertTrue(all(worker_lifecycle["checks"].values()))
+        self.assertEqual(
+            worker_lifecycle["worker"]["restarted"]["generation"],
+            2,
+        )
+        self.assertEqual(
+            worker_lifecycle["worker"]["restarted"][
+                "abandoned_lease_count"
+            ],
+            1,
+        )
+        self.assertTrue(
+            worker_lifecycle["checks"]["interrupted_session_failed"]
+        )
+        self.assertTrue(
+            worker_lifecycle["checks"]["pcap_result_recorded"]
+        )
         efuse_security = json.loads(
             (
                 ROOT
@@ -689,6 +725,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("controlled", openapi)
         self.assertIn("artifact-uploads", openapi)
         self.assertIn("/firmware/import", openapi)
+        self.assertIn("/worker/drain", openapi)
+        self.assertIn("accepting_leases", openapi)
 
     def test_webburner_browser_surface_is_wired(self) -> None:
         html = (ROOT / "platform/web/firmware.html").read_text()

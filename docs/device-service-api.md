@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.13.0` and bounded
+Status: local MVP with unified-device runtime contract `1.14.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -32,9 +32,9 @@ Current scope:
 - Nesso N1 adds `nesso-unified`: display/touch, PI4IOE, power telemetry,
   BMI270, SX1262, IR, buzzer, QEMU C6 WiFi DHCP/HTTP and UART1 HCI BLE run in
   one C6 guest;
-- sessions: active leases are process-local; stopped/failed metadata, events
-  and last-known evidence are restored from each session directory after a
-  service restart;
+- sessions: active leases are process-local and reserved in a persistent
+  worker registry; stopped/failed metadata, events and last-known evidence are
+  restored from each session directory after a service restart;
 - evidence: serial/QEMU logs remain under the configured state directory.
   QEMU radio sessions add pcap summaries, network policy evidence and a
   link-fault control for reconnect tests; versioned firmware manifests add
@@ -81,6 +81,18 @@ Storage retention defaults can be changed with:
 | `M5_SERVICE_RETAIN_SESSION_FLASH` | false | retain every stopped session's full mutable Flash |
 | `M5_SERVICE_STORAGE_PRUNE_INTERVAL` | 30 | janitor storage-prune interval in seconds |
 
+Local worker identity and heartbeat can be controlled with:
+
+| Variable | Default | Meaning |
+| --- | ---: | --- |
+| `M5_WORKER_ID` | generated | stable worker identity persisted across process generations |
+| `M5_WORKER_STATE_PATH` | `<state-dir>/worker.json` | worker lifecycle and lease record |
+| `M5_WORKER_HEARTBEAT_INTERVAL` | 5 | heartbeat write interval in seconds |
+| `M5_WORKER_STALE_AFTER` | 15 | age at which a heartbeat is marked stale |
+
+Only one live service process may own a worker state directory. A second
+process fails closed with `409 worker_state_locked`.
+
 The janitor never deletes provisioning, flashing, booting or running sessions.
 Manual inspection and pruning are available through:
 
@@ -92,6 +104,28 @@ curl -sS -X POST \
 
 `POST /storage/prune` applies the same retention pass as the background janitor.
 Use `include_cache=0` to prune only session history.
+
+### Local worker lifecycle
+
+`GET /worker` returns the stable worker ID, process instance ID, generation,
+heartbeat, stale state, active lease IDs, abandoned leases and bounded recent
+results. `POST /worker/drain` stops new lease admission while allowing active
+sessions to finish; the state becomes `drained` when the last active lease is
+released. `POST /worker/resume` restores admission.
+
+Each session records the worker ID and generation that owned it. When a new
+service generation finds active leases in the previous `worker.json`, those
+leases are recorded under `abandoned_leases` and the corresponding session
+records are restored as interrupted `failed` history. Stopped/failed sessions
+and their last-known evidence remain readable.
+
+`POST /sessions` accepts an optional non-secret `owner` label of at most 128
+printable characters. The label is stored with the worker lease and does not
+grant access or identity.
+
+This is local worker lifecycle control, not a remote scheduler. Running QEMU
+process re-attach, remote registration, queueing, warm pools and multi-host
+placement remain `NOT RUN`.
 
 ### Capacity sizing
 
@@ -1045,6 +1079,9 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | GET | `/api/v1/devices` | Device catalog; add `?include_unsupported=0` to hide disabled rows |
 | GET | `/api/v1/devices/{device_id}` | One device profile |
 | GET | `/api/v1/capacity` | Global and per-device active lease counts |
+| GET | `/api/v1/worker` | Local worker identity, heartbeat, state, leases and restart classification |
+| POST | `/api/v1/worker/drain` | Stop new lease admission; active sessions continue |
+| POST | `/api/v1/worker/resume` | Resume admission after a drain |
 | GET | `/api/v1/storage` | Session/cache/disk usage and retention limits |
 | POST | `/api/v1/storage/prune` | Apply retention; `include_cache=0` skips cache GC |
 | POST | `/api/v1/artifacts` | Upload a binary artifact |
