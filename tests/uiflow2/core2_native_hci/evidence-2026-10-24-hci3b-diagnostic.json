@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-full-sequence-diagnostic",
+  "scope": "virtual-device complete HCI/GATT through QEMU native HCI",
+  "status": "FAIL",
+  "stage": "HCI-3b",
+  "firmware": {
+    "file": "uiflow2-ui-test.bin",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "ea8ea3a121a8e069686e06c7c267264ec04511cbb34be0e485799dd925a99fb0",
+  "symbols": {
+    "vhci_env_p": "0x3ffcc0a4",
+    "malloc": "0x4009945c",
+    "esp_cpu_wait_for_intr": "0x40093578"
+  },
+  "progression": {
+    "controller_ready": true,
+    "advertisement_found": true,
+    "ble_connected": true,
+    "first_att_request_reached_guest": true,
+    "guest_sent_first_att_response": true,
+    "second_att_request_reached_native_hci": true,
+    "gatt_service_discovery": false,
+    "guest_received_write": false,
+    "guest_sent_ack": false,
+    "notification_ack_observed": false
+  },
+  "counters": {
+    "h2c_packets": 53,
+    "h2c_bytes": 377,
+    "c2h_delivered": 55,
+    "c2h_errors": 0,
+    "c2h_last_status": 0,
+    "c2h_send_available": 4,
+    "rx_queue_depth": 0,
+    "tx_queue_depth": 0,
+    "malformed_packets": 73,
+    "dropped_packets": 2,
+    "last_error": 0
+  },
+  "terminal_signals": {
+    "serial": "NimBLE: HCI process ack returned 12",
+    "guest_reset": "HCI Reset 01030c00 was sent again after the second ATT request",
+    "peer": "GATT timeout for ATT_READ_BY_GROUP_TYPE_REQUEST"
+  },
+  "diagnostic_findings": {
+    "h4_rx_parser_alignment": "PASS",
+    "partial_h2c_length_writes": 73,
+    "partial_write_note": "Temporary instrumentation showed all 73 malformed counters were non-final writes to the VHCI length field; valid full-length writes were still forwarded to Bumble.",
+    "callback_status": "PASS for every delivered packet",
+    "failure_boundary": "The complete packet bytes reach Bumble, and C2H packets are delivered with status 0, but the host reset path is triggered after the second ATT request. The unresolved boundary is controller-response lifecycle and the vCPU safe point used to enter firmware callbacks.",
+    "rejected_fixes": [
+      "pinning callbacks only to CPU0 left queued C2H packets undispatched while CPU0 was running",
+      "allowing callbacks at arbitrary CPU0 safe points caused BLE initialization timeout",
+      "removing RX drops without changing the callback transaction did not fix service discovery"
+    ]
+  },
+  "not_claimed": [
+    "complete HCI/GATT sequence",
+    "Device Service repeated lease",
+    "bit-exact Espressif BT controller/baseband",
+    "physical hardware"
+  ]
+}

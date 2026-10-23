@@ -44,6 +44,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-guest-h2c.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery-5x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-diagnostic.json",
+            "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
@@ -440,6 +442,20 @@ class DocsConsistencyTests(unittest.TestCase):
                 "import_resumed_after_refresh"
             ]
         )
+        hci3b = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci3b-diagnostic.json"
+            ).read_text()
+        )
+        self.assertEqual(hci3b["stage"], "HCI-3b")
+        self.assertEqual(hci3b["status"], "FAIL")
+        self.assertTrue(hci3b["progression"]["ble_connected"])
+        self.assertTrue(
+            hci3b["progression"]["guest_sent_first_att_response"]
+        )
+        self.assertFalse(hci3b["progression"]["gatt_service_discovery"])
 
     def test_workstreams_and_platform_tool_inventory_are_current(self) -> None:
         workstreams = (DOCS / "workstreams.md").read_text()

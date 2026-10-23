@@ -14,7 +14,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-1` host transport | `PASS` | `patches/qemu-core2-native-hci/0001-esp32-native-hci-transport.patch` | H4 framing、bounded queue、overflow、peer lifecycle、QOM counters 和 clean shutdown 已通过 targeted test |
 | `HCI-2` H2C | `PARTIAL` | 同一补丁的 `env-pointer-address` poller；`test_guest_h2c.py` | 不启动 GDB 已捕获真实 stock HCI Reset `01030c00`；完整命令序列需要 C2H 才能继续 |
 | `HCI-3a` C2H callback | `PASS` | `c2h-allocator-address`、注册 callback 调用、send-available 和 QOM counters | Reset Complete 已交付 guest 的 `notify_host_recv`，callback status 为 0，guest 随后发出 Read Local Version；连续 `5/5` |
-| `HCI-3b` complete sequence | `OPEN` | 无稳定门禁 | Bumble 全初始化在部分探索运行中能到广播/连接，但完整 HCI/GATT sequence 仍会停住或 Reset，不能作为 PASS |
+| `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | `run_full.py`、`evidence-2026-10-24-hci3b-diagnostic.json` | 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset，不能作为 PASS |
 | `HCI-4` stability | `OPEN` | 无门禁 | 还没有无 GDB 的 Device Service 连续 `5/5` 完整 GATT 证据 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
@@ -180,13 +180,28 @@ Bumble。Reset 已通过；`HCI-3a` 现在能交付第一个 C2H 响应并推进
 
 #### HCI-3b 下一项
 
-1. 用真实 Bumble controller 连续跑完整 init，记录每个 C2H 的 type、batch、
-   callback status 和下一条 H2C；
-2. 解决 connection 后 event/ACL batch 的 CPU safe point 和 FreeRTOS wake
-   顺序，目标是外部 peer 完成 scan/connect/service discovery；
-3. 出现 callback reject、guest reset、ACK 错序或 ATT timeout 时让测试明确
-   FAIL，不自动 retry；
-4. 通过后再接 NUS subscribe/write/notify，并进入 `HCI-4` repeated lease。
+`run_full.py` 已建立真实 Bumble controller/peer 的完整门禁。当前实测：
+
+1. controller、广播、scan、connect 和第一个 ATT request/response PASS；
+2. 第二个 ATT request 已到达 QEMU，但 guest 随后
+   `HCI process ack returned 12`，发送 HCI Reset，Bumble ATT discovery
+   timeout；
+3. callback 每次返回 status 0，H4 parser 没有 RX 错位；
+4. 临时诊断确认 `malformed-packets` 是 VHCI length 字段的非最终写入，
+   不是 C2H/H4 数据损坏；
+5. 仅固定 CPU0 idle、任意 CPU0 safe point、扩大无丢弃队列三种实验均未解决，
+   已从运行时恢复。
+
+下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
+调整固定 sleep 或换 CPU：
+
+- 在 H2C send 与对应 C2H response 之间保持可验证的 transaction；
+- 让 callback 在 host controller 的确定安全上下文中执行；
+- 明确 FreeRTOS task wake/ACK 与 vCPU resume 的关系；
+- 每一步都要求 Bumble ATT/GATT 前进，失败不 retry。
+
+完整 sequence 通过后再接 NUS subscribe/write/notify，并进入 `HCI-4`
+repeated lease。
 
 ### HCI-4：稳定性门禁
 

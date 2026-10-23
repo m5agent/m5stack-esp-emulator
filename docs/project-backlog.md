@@ -98,7 +98,7 @@
 | `HCI-1` host transport | `PASS` | H4 command/event/ACL/SCO framing、32 packet bounded queue、overflow/drop、peer lifecycle、counters、clean shutdown | guest VHCI 数据面 |
 | `HCI-2` H2C | `PARTIAL` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` | controller response 后的完整 H2C 命令序列 |
 | `HCI-3a` C2H callback | `PASS` | Reset Complete 经 firmware `notify_host_recv` 交付，callback status 0，send-available 后 guest 发出下一条 H2C；targeted `5/5` | packet order/flow control 和完整 controller sequence |
-| `HCI-3b` complete sequence | `OPEN` | 探索性 Bumble 运行可到广播/连接 | 完整 HCI init、ATT/GATT service discovery 必须稳定，不靠 retry |
+| `HCI-3b` complete sequence | `OPEN` | `run_full.py` 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest `ack returned 12` 并 Reset | 完整 HCI init、ATT/GATT service discovery 必须稳定，不靠 retry |
 | `HCI-4` stability | `OPEN` | 现有 GDB 诊断桥有过单 lease PASS | Device Service 连续 `5/5`、无 GDB callback injection/synthetic return、故障分类 |
 
 已经完成：
@@ -114,8 +114,12 @@
 
 仍未完成：
 
-- `HCI-3a` 已把单个 Reset Complete 交给 guest 的注册 callback；`HCI-3b`
-  仍需稳定多 packet Bumble event/ACL、广播、连接和 ATT/GATT sequence；
+- `HCI-3a` 已把单个 Reset Complete 交给 guest 的注册 callback；无 GDB
+  `run_full.py` 已让 Bumble 完成广播、连接和首个 ATT request/response，
+  但第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset；
+- 临时诊断确认 73 个 `malformed-packets` 是 VHCI length 字段的非最终写入，
+  不是 H4 RX 错位；callback status 均为 0，失败边界是 controller response
+  transaction 与 callback safe context；
 - `HCI-4` 尚无以 Device Service `/api/v1` 连续 `5/5` 的无 GDB 门禁；
 - GDB 仍负责 guest 暂停、breakpoint/callback 注入和 synthetic return；
 - 尚未形成同 commit、固定次数的重复 Device Service lease 门禁；
