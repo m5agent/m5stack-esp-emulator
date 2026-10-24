@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-control-plane-restart-continuity",
+  "date": "2026-10-25",
+  "status": "FAIL",
+  "scope": "diagnostic-failure-before-runtime-qemu-nic-fix",
+  "control_plane": {
+    "restart_reused_state": true,
+    "restart_downtime_seconds": 2.2
+  },
+  "job": {
+    "job_id": "<job-id>",
+    "lease_id": "<lease-id>",
+    "status": "failed",
+    "result_state": "FAIL"
+  },
+  "failure": {
+    "first_error": "cannot access local variable 'nic' where it is not associated with a value",
+    "device_id": "sticks3",
+    "runtime": "qemu",
+    "network_profile": null,
+    "session_state": "failed",
+    "interpretation": "runtime=qemu without network profile reached the shared S3 WiFi environment block while nic was uninitialized"
+  },
+  "checks": {
+    "job_claimed_before_restart": true,
+    "worker_control_reconnected": true,
+    "same_lease_reported": true,
+    "terminal_completed": false,
+    "terminal_pass": false,
+    "evidence_zip_present": false,
+    "runtime_session_stopped": false
+  },
+  "root_cause_fix": {
+    "change": "initialize nic to None before conditional unified/qemu-wifi command construction",
+    "runtime_qemu_regression": "initialized for non-network QEMU sessions",
+    "successor_evidence": "evidence-2026-10-25-central-restart-pass.json"
+  },
+  "not_claimed": [
+    "this FAIL is not a firmware defect",
+    "the failure is not a control-plane reconnect failure",
+    "physical hardware validation"
+  ]
+}

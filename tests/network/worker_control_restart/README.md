@@ -16,3 +16,9 @@ PYTHONPATH=platform/tools python3 \
 The fixture proves control-plane restart continuity and same-lease evidence
 reporting. It does not move QEMU between hosts, replace the runtime service,
 restore companion helpers, or validate physical hardware.
+
+The first run is retained as a FAIL:
+[`evidence-2026-10-25-initial-runtime-qemu-failure.json`](evidence-2026-10-25-initial-runtime-qemu-failure.json).
+It exposed an uninitialized `nic` lookup for `runtime=qemu` sessions without a
+network profile. The pass evidence is linked as its successor after that code
+path was initialized and retested.

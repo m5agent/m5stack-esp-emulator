@@ -1839,6 +1839,22 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertTrue(all(restart_evidence["checks"].values()))
         self.assertEqual(restart_evidence["job"]["status"], "completed")
         self.assertEqual(restart_evidence["job"]["result_state"], "PASS")
+        initial_restart_failure = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_control_restart/"
+                "evidence-2026-10-25-initial-runtime-qemu-failure.json"
+            ).read_text()
+        )
+        self.assertEqual(initial_restart_failure["status"], "FAIL")
+        self.assertIn(
+            "cannot access local variable 'nic'",
+            initial_restart_failure["failure"]["first_error"],
+        )
+        self.assertEqual(
+            initial_restart_failure["root_cause_fix"]["successor_evidence"],
+            "evidence-2026-10-25-central-restart-pass.json",
+        )
         self.assertIn("--control-reconnect-timeout", worker_code)
         self.assertIn("--control-reconnect-timeout", api)
         openapi = (DOCS / "device-service.openapi.yaml").read_text()
