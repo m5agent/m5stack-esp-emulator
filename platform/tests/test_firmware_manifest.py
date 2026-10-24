@@ -637,6 +637,8 @@ class FirmwareManifestTests(unittest.TestCase):
             (root / "sdkconfig").write_text(
                 "CONFIG_ESP_WIFI_ENABLED=y\n"
                 "CONFIG_BT_ENABLED=y\n"
+                "CONFIG_BT_CLASSIC_ENABLED=y\n"
+                "CONFIG_ZB_ENABLED=y\n"
                 "CONFIG_SPIRAM=y\n"
             )
             result = import_package(
@@ -659,6 +661,16 @@ class FirmwareManifestTests(unittest.TestCase):
                     "capability": "ble",
                     "source": "sdkconfig",
                     "flag": "CONFIG_BT_ENABLED",
+                },
+                {
+                    "capability": "classic-bluetooth",
+                    "source": "sdkconfig",
+                    "flag": "CONFIG_BT_CLASSIC_ENABLED",
+                },
+                {
+                    "capability": "ieee802154",
+                    "source": "sdkconfig",
+                    "flag": "CONFIG_ZB_ENABLED",
                 },
                 {
                     "capability": "psram",

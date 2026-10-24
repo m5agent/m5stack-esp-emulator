@@ -3077,6 +3077,17 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertEqual(security_conflicts["status"], "PASS")
         self.assertTrue(all(security_conflicts["checks"].values()))
+        radio_detection = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-radio-capability-detection.json"
+            ).read_text()
+        )
+        self.assertEqual(radio_detection["status"], "PASS")
+        self.assertTrue(all(radio_detection["checks"].values()))
+        self.assertIn("CONFIG_BT_CLASSIC_ENABLED", manifest_code)
+        self.assertIn("CONFIG_ZB_ENABLED", manifest_code)
 
 
 if __name__ == "__main__":

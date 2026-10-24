@@ -78,9 +78,11 @@ KNOWN_CAPABILITIES = {
     "button",
     "camera",
     "can",
+    "classic-bluetooth",
     "display",
     "gpio",
     "imu",
+    "ieee802154",
     "ir",
     "keyboard",
     "lora",
@@ -98,12 +100,17 @@ KNOWN_CAPABILITIES = {
 CAPABILITY_ALIASES = {
     "bluetooth": "ble",
     "bluetooth-low-energy": "ble",
+    "classic bluetooth": "classic-bluetooth",
     "display-output": "display",
     "framebuffer": "display",
     "lcd": "display",
     "magnetometer": "imu",
     "screen": "display",
     "storage": "sd",
+    "thread": "ieee802154",
+    "openthread": "ieee802154",
+    "ieee-802154": "ieee802154",
+    "zigbee": "ieee802154",
 }
 SDKCONFIG_CAPABILITY_FLAGS = (
     ("wifi", ("CONFIG_ESP_WIFI_ENABLED", "CONFIG_WIFI_ENABLED")),
@@ -113,6 +120,18 @@ SDKCONFIG_CAPABILITY_FLAGS = (
             "CONFIG_BT_ENABLED",
             "CONFIG_BT_BLUEDROID_ENABLED",
             "CONFIG_BT_NIMBLE_ENABLED",
+        ),
+    ),
+    (
+        "classic-bluetooth",
+        ("CONFIG_BT_CLASSIC_ENABLED",),
+    ),
+    (
+        "ieee802154",
+        (
+            "CONFIG_IEEE802154_ENABLED",
+            "CONFIG_OPENTHREAD_ENABLED",
+            "CONFIG_ZB_ENABLED",
         ),
     ),
     ("psram", ("CONFIG_SPIRAM", "CONFIG_SPIRAM_BOOT_INIT")),

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sdkconfig-radio-capability-detection",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "static-sdkconfig-capability-detection-not-code-path-or-runtime",
+  "device_id": "cardputer-adv",
+  "detected": [
+    {
+      "capability": "wifi",
+      "source": "sdkconfig",
+      "flag": "CONFIG_ESP_WIFI_ENABLED"
+    },
+    {
+      "capability": "ble",
+      "source": "sdkconfig",
+      "flag": "CONFIG_BT_ENABLED"
+    },
+    {
+      "capability": "classic-bluetooth",
+      "source": "sdkconfig",
+      "flag": "CONFIG_BT_CLASSIC_ENABLED"
+    },
+    {
+      "capability": "ieee802154",
+      "source": "sdkconfig",
+      "flag": "CONFIG_ZB_ENABLED"
+    },
+    {
+      "capability": "psram",
+      "source": "sdkconfig",
+      "flag": "CONFIG_SPIRAM"
+    }
+  ],
+  "checks": {
+    "wifi_flag_detected": true,
+    "generic_bt_flag_detected_as_ble": true,
+    "classic_bluetooth_flag_detected_separately": true,
+    "zigbee_flag_detected_as_ieee802154": true,
+    "psram_flag_detected": true,
+    "missing_profile_capability_is_warning": true,
+    "manifest_remains_pass": true,
+    "no_hard_rejection_from_detected_only": true
+  },
+  "not_claimed": [
+    "that CONFIG_BT_ENABLED alone proves a BLE application path",
+    "that CONFIG_ZB_ENABLED proves Zigbee commissioning",
+    "runtime radio behavior",
+    "physical hardware validation"
+  ]
+}

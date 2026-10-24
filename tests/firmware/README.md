@@ -72,6 +72,11 @@ profile missing a detected capability receives a warning rather than an
 automatic rejection; strict rejection remains tied to explicit required
 capabilities.
 
+Radio build flags retain their protocol boundary in
+[`evidence-2026-10-25-radio-capability-detection.json`](evidence-2026-10-25-radio-capability-detection.json):
+Classic Bluetooth and Zigbee/802.15.4 are detected separately from the
+generic BLE flag, without claiming runtime use.
+
 For the Core2 public-firmware runtime gap, focused I2C tracing distinguishes a
 successful AXP2101 chip-id read from the later legacy controller/board-bus
 routing failure. The next controller transaction targets address `0x51` and

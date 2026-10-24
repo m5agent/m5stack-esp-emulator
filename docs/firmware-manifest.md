@@ -378,11 +378,14 @@ required 不匹配才升级为结构化错误。WebBurner 的两个
 
 - `CONFIG_ESP_WIFI_ENABLED` / `CONFIG_WIFI_ENABLED` → `wifi`；
 - `CONFIG_BT_ENABLED` / Bluedroid / NimBLE 开关 → `ble`；
+- `CONFIG_BT_CLASSIC_ENABLED` → `classic-bluetooth`；
+- `CONFIG_IEEE802154_ENABLED` / OpenThread / Zigbee 开关 → `ieee802154`；
 - `CONFIG_SPIRAM` / `CONFIG_SPIRAM_BOOT_INIT` → `psram`。
 
 detected entry 带 source 和 flag；若目标 profile 没有该能力，只产生
 `detected_capability_unavailable` warning，不拒绝 manifest。原因是一个编译
-开关不能证明应用代码实际使用了该外设；严格门禁仍由 required capability
+开关不能证明应用代码实际使用了该外设；Zigbee 构建开关也不等于
+commissioning/join 成功。严格门禁仍由 required capability 和运行态数据面
 表达。
 
 如果 manifest 声明了 `target.psram_size`，创建 session 时还会按所选
