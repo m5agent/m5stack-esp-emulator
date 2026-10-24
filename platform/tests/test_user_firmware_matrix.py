@@ -18,6 +18,8 @@ from user_firmware_matrix import (  # noqa: E402
     download_candidates,
     error_lines,
     inputs_for_device,
+    refresh_selected_sample,
+    sample_result_key,
     ServiceClient,
 )
 
@@ -74,6 +76,47 @@ class UserFirmwareMatrixTests(unittest.TestCase):
             )
         self.assertEqual(len(selection["selected"]), 1)
         self.assertTrue(resolve.call_args.kwargs["force"])
+
+    def test_resume_refresh_rebinds_cached_firmware_to_current_bytes(self):
+        sample = {
+            "device_id": "atoms3r",
+            "firmware_id": "firmware-1",
+            "burner_device_slug": "atoms3r",
+            "sha256": "0" * 64,
+            "path": "/old/firmware.bin",
+        }
+        with tempfile.TemporaryDirectory() as directory, (
+            mock.patch(
+                "user_firmware_matrix.resolve_community_firmware",
+                return_value={
+                    "bytes": 8,
+                    "sha256": "1" * 64,
+                    "url": "https://cdn.example/firmware.bin",
+                },
+            )
+        ) as resolve, mock.patch(
+            "user_firmware_matrix.analyze_firmware",
+            return_value={"valid": True},
+        ), mock.patch(
+            "user_firmware_matrix.expected_chip_id",
+            return_value=9,
+        ):
+            refreshed = refresh_selected_sample(
+                sample,
+                base_url="https://burner.example",
+                cache_dir=Path(directory),
+                device_soc="esp32s3",
+            )
+        self.assertTrue(resolve.call_args.kwargs["force"])
+        self.assertEqual(refreshed["sha256"], "1" * 64)
+        self.assertEqual(
+            sample_result_key(refreshed),
+            f"atoms3r:firmware-1:{'1' * 64}",
+        )
+        self.assertNotEqual(
+            sample_result_key(sample),
+            sample_result_key(refreshed),
+        )
 
     @mock.patch("user_firmware_matrix.request_json")
     def test_service_client_wait_timeout_tracks_observation_window(

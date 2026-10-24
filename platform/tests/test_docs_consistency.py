@@ -539,7 +539,14 @@ class DocsConsistencyTests(unittest.TestCase):
 
         self.assertIn("# Public CDN objects may change", tool)
         self.assertIn("force=True", tool)
+        self.assertIn("def refresh_selected_sample", tool)
+        self.assertIn("def sample_result_key", tool)
+        self.assertIn("selection[\"selected\"] = refreshed_samples", tool)
         self.assertIn("test_public_matrix_refreshes_cached_firmware", tool_tests)
+        self.assertIn(
+            "test_resume_refresh_rebinds_cached_firmware_to_current_bytes",
+            tool_tests,
+        )
         self.assertIn("historical artifacts", matrix)
         self.assertIn("Current public-artifact refresh checkpoint", matrix)
         self.assertIn(

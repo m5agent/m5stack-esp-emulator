@@ -8,9 +8,12 @@ possible, uploads each merged image through the Device Service `/api/v1`, boots
 it, injects a small board-appropriate input probe set, captures serial and
 frame evidence after every probe, and stops the session with `purge=0`.
 Each run resolves the current public version and force-refreshes the selected
-BIN. A cached file is never treated as the current artifact merely because its
+BIN. `--resume` keeps the selected samples and completed-result history, but
+still re-downloads every selected BIN and rebinds its SHA before execution. A
+cached file is never treated as the current artifact merely because its
 firmware ID and version ID are unchanged; public CDN objects have been observed
-to change behind those identifiers.
+to change behind those identifiers. Result keys include
+`device:firmware:sha256`, so changed bytes cannot reuse a completed result.
 
 All PASS/PARTIAL counts below are bound to the SHA-256 values stored in the
 committed evidence. They describe those historical artifacts, not whatever the

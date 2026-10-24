@@ -441,6 +441,63 @@ def download_candidates(
     }
 
 
+def refresh_selected_sample(
+    sample: Mapping[str, Any],
+    *,
+    base_url: str,
+    cache_dir: Path,
+    device_soc: str,
+) -> dict[str, Any]:
+    device_id = str(sample.get("device_id") or "")
+    firmware_id = str(sample.get("firmware_id") or "")
+    target_slug = str(sample.get("burner_device_slug") or "")
+    if not device_id or not firmware_id or not target_slug:
+        raise MatrixError("resume sample lacks device, firmware or target slug")
+    destination = cache_dir / device_id / f"{firmware_id}.bin"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    result = resolve_community_firmware(
+        firmware_id,
+        destination,
+        api_base=base_url,
+        device_slug=target_slug,
+        force=True,
+        analyze=False,
+        expected_chip_id_value=None,
+    )
+    analysis = analyze_firmware(
+        destination,
+        expected_chip_id_value=expected_chip_id(device_soc),
+    )
+    if not analysis.get("valid"):
+        raise MatrixError(
+            "refreshed static image is incompatible: "
+            + ", ".join(analysis.get("errors", []))
+        )
+    refreshed = dict(sample)
+    refreshed.update(
+        {
+            "path": str(destination),
+            "bytes": result["bytes"],
+            "sha256": result["sha256"],
+            "url": result["url"],
+            "metadata": result,
+            "static_analysis": analysis,
+            "refreshed_at": utc_now(),
+        }
+    )
+    return refreshed
+
+
+def sample_result_key(sample: Mapping[str, Any]) -> str:
+    return ":".join(
+        (
+            str(sample.get("device_id") or ""),
+            str(sample.get("firmware_id") or ""),
+            str(sample.get("sha256") or ""),
+        )
+    )
+
+
 class ServiceClient:
     def __init__(self, base_url: str, timeout: float = 90):
         self.base_url = base_url.rstrip("/")
@@ -1033,7 +1090,45 @@ def main() -> None:
                 raise SystemExit(
                     f"resume plan is missing {device_id}; remove --resume or rerun"
                 )
-            selections.append(existing[device_id])
+            selection = dict(existing[device_id])
+            _, target_slug = BURNER_TARGETS[device_id]
+            samples = selection.get("selected")
+            if not isinstance(samples, list) or not samples:
+                raise SystemExit(f"resume plan has no samples for {device_id}")
+            refreshed_samples = []
+            for index, sample in enumerate(samples, start=1):
+                if not isinstance(sample, Mapping):
+                    raise SystemExit(
+                        f"resume plan has invalid sample {device_id}[{index}]"
+                    )
+                try:
+                    refreshed_samples.append(
+                        refresh_selected_sample(
+                            sample,
+                            base_url=args.burner_url,
+                            cache_dir=args.cache_dir,
+                            device_soc=str(
+                                devices[device_id].get("soc") or ""
+                            ),
+                        )
+                    )
+                except Exception as error:
+                    raise SystemExit(
+                        f"resume refresh failed for {device_id} "
+                        f"sample {index}: {error}"
+                    ) from error
+            selection["selected"] = refreshed_samples
+            selection["refreshed_at"] = utc_now()
+            if target_slug != selection.get("target_slug"):
+                raise SystemExit(f"resume target slug changed for {device_id}")
+            selections.append(selection)
+        plan = {
+            **(plan if isinstance(plan, dict) else {}),
+            "retrieved_at": utc_now(),
+            "device_service_url": args.service_url,
+            "devices": selections,
+        }
+        atomic_write_json(plan_path, plan)
     else:
         for device_id in selected_devices:
             target_name, target_slug = BURNER_TARGETS[device_id]
@@ -1090,7 +1185,7 @@ def main() -> None:
             while len(samples_by_rank) <= index:
                 samples_by_rank.append([])
             sample = dict(sample)
-            sample["sample_key"] = f"{sample['device_id']}:{sample['firmware_id']}"
+            sample["sample_key"] = sample_result_key(sample)
             samples_by_rank[index].append(sample)
 
     all_results = list(previous_results.values())
