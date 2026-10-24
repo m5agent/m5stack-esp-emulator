@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.17.0` and bounded
+Status: local MVP with unified-device runtime contract `1.18.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -36,7 +36,9 @@ Current scope:
   one C6 guest;
 - sessions: active leases are process-local and reserved in a persistent
   worker registry; stopped/failed metadata, events and last-known evidence are
-  restored from each session directory after a service restart;
+  restored from each session directory after a service restart. A running
+  local QEMU can be re-attached only after PID start-time, session QMP
+  ownership and `query-status=running` checks;
 - evidence: serial/QEMU logs remain under the configured state directory.
   QEMU radio sessions add pcap summaries, network policy evidence and a
   link-fault control for reconnect tests; versioned firmware manifests add
@@ -117,9 +119,13 @@ released. `POST /worker/resume` restores admission.
 
 Each session records the worker ID and generation that owned it. When a new
 service generation finds active leases in the previous `worker.json`, those
-leases are recorded under `abandoned_leases` and the corresponding session
-records are restored as interrupted `failed` history. Stopped/failed sessions
-and their last-known evidence remain readable.
+leases are recorded under `abandoned_leases`. A QEMU session can be re-adopted
+only when its persisted PID start time still matches, its command line owns the
+session-specific QMP socket, QMP responds, and `query-status` reports
+`running`. The new service generation then reserves a fresh local lease and
+sets `reattached_process=true` / `recovery_scope=qemu-control-plane`.
+Unverified, expired or incompatible sessions become interrupted `failed`
+history. Stopped/failed sessions and their last-known evidence remain readable.
 
 `POST /sessions` accepts an optional non-secret `owner` label of at most 128
 printable characters. The label is stored with the worker lease and does not
@@ -127,9 +133,10 @@ grant access or identity.
 
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
-not execute jobs, transfer an evidence bundle, recover a live QEMU process or
-place work across a production multi-host scheduler. Active-process re-attach,
-warm pools and multi-host placement remain `NOT RUN`.
+not execute jobs, transfer an evidence bundle or place work across a production
+multi-host scheduler. Local QEMU/QMP control-plane re-attach is implemented;
+companion HTTP/BLE helper continuity, evidence-stream continuity and production
+multi-host placement remain `NOT RUN`.
 
 ### Remote worker directory MVP
 
@@ -1513,9 +1520,11 @@ restart.
   removed by the same janitor;
 - writes and new leases fail with HTTP `507 storage_exhausted` before consuming
   the configured free-space reserve;
-- a session that was still active when the service stopped is restored as
-  `failed`, with `interrupted=true`, an explicit error and an `interrupted`
-  lifecycle event; it never consumes active capacity;
+- a session that was still active when the service stopped is re-attached only
+  after PID start-time, QMP-socket ownership and `query-status=running` checks;
+  unverified sessions become `failed` with `interrupted=true` and an explicit
+  event. Re-attach restores QEMU/QMP control only, not companion helper or
+  evidence-stream continuity;
 - `GET /sessions?include_stopped=0` hides stopped/failed history from a UI;
 - the web dashboard shows active leases plus sessions completed in the last
   30 minutes when a last-known frame or serial-only view is available;
@@ -1563,8 +1572,9 @@ restart.
   Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan and
   StamPLC, plus environment-gated Core2; other devices expose session
   metadata, framebuffer and serial without inventing component values;
-- emulator processes are not resumed across service restarts; only stopped,
-  failed and interrupted history is reconstructed;
+- a verified running QEMU process can be re-attached across service restart;
+  Tab5/network lanes, paused QEMU, stale PIDs, changed start times and missing
+  QMP sockets remain interrupted history;
 - reference firmware must already exist in `platform/.cache/firmware`;
 - custom firmware must match the selected device's SoC, flash size, partition
   layout and modeled controllers;

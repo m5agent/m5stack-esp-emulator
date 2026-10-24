@@ -41,7 +41,13 @@
   活实例冲突，记录 heartbeat/drain/stop、capability 和有界结果元数据。
   持久 job queue 已支持幂等提交、capability matching、claim/lease、
   heartbeat、超时重试、worker 失联回收和 terminal result；队列不执行
-  job，活动 QEMU 进程 re-attach 和生产多机 scheduler 仍未实现。
+  job。正在运行的本地 QEMU 可在 PID start-time、QMP socket ownership 和
+  `query-status=running` 全部匹配后 re-attach；仅恢复 QEMU/QMP 控制面，
+  不恢复 companion HTTP/BLE helper 或 evidence 流。生产多机 scheduler 仍
+  未实现。
+- restart reattach 已用真实 StickS3 QEMU 做 live `1/1`：只 SIGKILL 服务
+  进程时 QEMU 保持运行，第二代服务在同状态目录中接管同一 PID、重建
+  worker lease，并通过 stop 清理 QEMU 进程。
 - 双设备网络实验已在 private Linux namespace 内用 QEMU socket L2 switch
   实跑两台 StickS3：两端均完成 DHCP，A 通过 guest TCP 访问 B，双侧 pcap
   都包含双向请求/响应，switch 按配置 MAC 绑定连接槽位；宿主控制面、
@@ -63,9 +69,9 @@
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
 | S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 HCI-4 五 lease PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证应用网络与 BLE 数据面，不是完整 RF/PHY 或 bit-exact BT controller |
-| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、远程目录和 durable lease supervisor 已通过契约/运行测试；独立 executor、活动进程 re-attach 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
+| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录和 durable lease supervisor 已通过契约/运行测试；独立 executor、跨主机/companion continuity 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
-| 服务生命周期 | 停止/失败历史可恢复、容量与 GC 可用；本地 worker heartbeat/drain/resume、租约和重启分类可用；远程目录、持久 job queue、worker lease 与失联回收有契约/API 测试 | 活动进程不能跨重启接管，无独立 executor、warm pool、生产多机调度 | 不适用 | 已有 durable queue 和远程 lease 基础，不是完整云端服务 |
+| 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；远程目录、持久 job queue、worker lease 与失联回收 | 无独立 executor、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
 
 ## 验证证据
 
@@ -78,7 +84,7 @@
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、远程注册目录、durable job queue/lease supervisor；GitHub Actions Linux policy CI PASS | 独立 job executor、活动进程 re-attach、生产多机调度、外部 IPv6 |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程注册目录、durable job queue/lease supervisor；GitHub Actions Linux policy CI PASS | 独立 job executor、companion/evidence continuity、跨主机 reattach、生产多机调度、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；规范 profile `core2-native-hci` 连续五个独立服务 lease 通过 | GDB 旧路径 repeated lease 仅 `1/2`，不再作为生产后端。新路径不使用 GDB，同时返回 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence。旧 MTU 失败已定位为 24-byte PDU 超过默认 MTU 23；合法 17-byte PDU 闭环。剩余是 bit-exact controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机同路径 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist 策略 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、跨厂商回归 |
 
@@ -238,9 +244,9 @@
    也已完成测试 CA、HTTPS 握手、200/403 和 pcap 联合验证。nftables 精确
    IPv4 IP/协议/端口、veth/NAT 和清理已 PASS；两台 guest 的 DHCP、TCP、
    双侧 pcap 与宿主隔离也已 PASS。它仍不等同于恶意固件沙箱、生产 worker
-  或 RF；本地 worker lifecycle、远程注册目录和 durable job queue 已实现，
-  独立 executor、活动进程 re-attach、生产多机调度、VM 隔离和外部 IPv6
-  仍待实现。
+  或 RF；本地 worker lifecycle、QEMU/QMP reattach、远程注册目录和
+  durable job queue 已实现，独立 executor、companion/evidence continuity、
+  跨主机 reattach、生产多机调度、VM 隔离和外部 IPv6 仍待实现。
 5. **通用固件兼容性**：SoC 相同不代表板级、分区、安全配置和控制器全部
    兼容。
 6. **视觉保真**：除 StopWatch 外，设备外壳仍主要是近似模型。

@@ -7,6 +7,7 @@ import json
 import os
 import socket
 import struct
+import subprocess
 import sys
 import tempfile
 import threading
@@ -3825,41 +3826,123 @@ class DeviceServiceUnitTests(unittest.TestCase):
         finally:
             restarted.close_all()
 
-    def test_running_orphan_is_restored_as_interrupted_history(self):
-        session = self._stopped_session()
-        session.state = "running"
-        session.completed_at = None
-        session.pid = 12345
-        session._persist_session()
-        self.service.worker.reserve_lease(session.id)
+    def test_running_orphan_is_rejected_and_verified_process_is_reattached(
+        self,
+    ):
+        orphan = self._stopped_session(session_id="a" * 32)
+        orphan.state = "running"
+        orphan.completed_at = None
+        orphan.pid = 12345
+        orphan._persist_session()
+        self.service.worker.reserve_lease(orphan.id)
+
+        reattached = self._stopped_session(session_id="d" * 32)
+        process = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                "import time; time.sleep(60)",
+                str(reattached.qmp_path),
+            ]
+        )
+        identity = device_service_module.inspect_process(process.pid)
+        self.assertTrue(identity["exists"])
+        reattached.state = "running"
+        reattached.completed_at = None
+        reattached.pid = process.pid
+        reattached.process_start_token = identity["start_token"]
+        reattached._worker_lease_active = True
+        reattached._persist_session()
+        self.service.worker.reserve_lease(reattached.id)
+
+        stale = self._stopped_session(session_id="e" * 32)
+        stale.state = "running"
+        stale.completed_at = None
+        stale.pid = process.pid
+        stale.process_start_token = "stale-start-token"
+        stale._persist_session()
+        self.service.worker.reserve_lease(stale.id)
 
         self.service._stop.set()
         self.service.worker.close()
-        restarted = DeviceService(
-            state_dir=self.service.state_dir,
-            max_sessions=2,
-            max_per_device=1,
+        fake_qmp = mock.MagicMock()
+        fake_qmp.cmd.side_effect = lambda command, **arguments: (
+            {"return": {"status": "running"}}
+            if command == "query-status"
+            else {"return": {}}
         )
         try:
-            rows = restarted.list_sessions()["sessions"]
-            self.assertEqual(len(rows), 1)
-            self.assertEqual(rows[0]["state"], "failed")
-            self.assertTrue(rows[0]["restored"])
-            self.assertTrue(rows[0]["interrupted"])
-            self.assertIn("service restarted", rows[0]["error"])
-            self.assertEqual(restarted.capacity()["active_sessions"], 0)
-            worker = restarted.worker_status()
-            self.assertEqual(worker["generation"], 2)
-            self.assertEqual(worker["active_lease_count"], 0)
-            self.assertEqual(
-                worker["abandoned_leases"][-1]["lease_id"],
-                session.id,
-            )
-            events = restarted.session_events(session.id)["events"]
-            self.assertEqual(events[-1]["event"], "interrupted")
-            self.assertEqual(events[-1]["previous_state"], "running")
+            with mock.patch.object(
+                device_service_module,
+                "wait_qmp",
+                return_value=fake_qmp,
+            ):
+                restarted = DeviceService(
+                    state_dir=self.service.state_dir,
+                    max_sessions=3,
+                    max_per_device=3,
+                )
+            try:
+                orphan_row = restarted.get_session(orphan.id).snapshot()
+                self.assertEqual(orphan_row["state"], "failed")
+                self.assertTrue(orphan_row["restored"])
+                self.assertTrue(orphan_row["interrupted"])
+                self.assertFalse(orphan_row["reattached_process"])
+                self.assertIn("service restarted", orphan_row["error"])
+
+                stale_row = restarted.get_session(stale.id).snapshot()
+                self.assertEqual(stale_row["state"], "failed")
+                self.assertTrue(stale_row["interrupted"])
+                self.assertFalse(stale_row["reattached_process"])
+                self.assertIn("safe re-attach rejected", stale_row["error"])
+
+                live_row = restarted.get_session(reattached.id).snapshot()
+                self.assertEqual(live_row["state"], "running")
+                self.assertTrue(live_row["restored"])
+                self.assertFalse(live_row["interrupted"])
+                self.assertTrue(live_row["reattached_process"])
+                self.assertEqual(
+                    live_row["recovery_scope"],
+                    "qemu-control-plane",
+                )
+                self.assertEqual(restarted.capacity()["active_sessions"], 1)
+                worker = restarted.worker_status()
+                self.assertEqual(worker["generation"], 2)
+                self.assertEqual(worker["active_lease_count"], 1)
+                self.assertEqual(
+                    worker["active_lease_ids"],
+                    [reattached.id],
+                )
+                abandoned_ids = {
+                    lease["lease_id"]
+                    for lease in worker["abandoned_leases"]
+                }
+                self.assertIn(orphan.id, abandoned_ids)
+                self.assertIn(stale.id, abandoned_ids)
+                self.assertIn(reattached.id, abandoned_ids)
+
+                orphan_events = restarted.session_events(orphan.id)["events"]
+                self.assertEqual(orphan_events[-1]["event"], "interrupted")
+                self.assertEqual(
+                    orphan_events[-1]["previous_state"],
+                    "running",
+                )
+                live_events = restarted.session_events(
+                    reattached.id
+                )["events"]
+                self.assertEqual(live_events[-1]["event"], "reattached")
+                self.assertEqual(
+                    live_events[-1]["recovery_scope"],
+                    "qemu-control-plane",
+                )
+            finally:
+                restarted.close_all()
+            process.wait(timeout=5)
+            self.assertIsNotNone(process.poll())
         finally:
-            restarted.close_all()
+            if process.poll() is None:
+                process.terminate()
+                process.wait(timeout=5)
 
 
 class DeviceServiceHttpTests(unittest.TestCase):

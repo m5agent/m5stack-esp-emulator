@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.17.0
+  version: 1.18.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -13,6 +13,9 @@ info:
     job queue stores idempotent requests, capability requirements, worker
     leases, retries and terminal results. It is a pull-based queue and
     supervisor, not an executor or active-process re-attach mechanism.
+    A local running QEMU process can be re-attached after PID start-time,
+    session QMP ownership and query-status checks; this restores QEMU/QMP
+    control only, not companion helper or evidence-stream continuity.
     CardputerZero is outside this API version. Tab5 is available through
     esp-emu with partial peripheral status.
 servers:
@@ -2066,7 +2069,21 @@ components:
           description: True when the record was reconstructed from persisted session metadata.
         interrupted:
           type: boolean
-          description: True when a previously active session lost its runtime because the service restarted.
+          description: >
+            True when a previously active session could not be safely
+            re-attached after service restart.
+        reattached_process:
+          type: boolean
+          description: >
+            True when the current service accepted a previously orphaned QEMU
+            process only after PID start-time and QMP ownership checks.
+        recovery_scope:
+          type: [string, "null"]
+          enum: [qemu-control-plane, null]
+          description: >
+            Re-attach currently restores QEMU/QMP control only. Companion
+            HTTP/BLE helper processes and external evidence continuity are not
+            implied.
         worker:
           type: object
           additionalProperties: false

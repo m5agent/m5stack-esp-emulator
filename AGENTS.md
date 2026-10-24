@@ -256,12 +256,14 @@ diagnostics in `internal/records/`.
   RF/WPA2/WPA3 validation or a production multi-tenant worker boundary.
 - `user,restrict=yes` and loopback `hostfwd` are not an untrusted-firmware
   sandbox. The Linux fail-closed namespace runner and guest path are validated;
-  filesystem/resource isolation, active QEMU process re-attach and formal
+  filesystem/resource isolation, companion/evidence continuity and formal
   worker/VM lifecycle remain open. The local worker registry covers identity,
-  generation, heartbeat, drain/resume and restart lease classification. The
-  remote directory and durable job queue add idempotent enqueue,
-  capability-matched claim, lease heartbeat, expiry retry and stale/stopped
-  worker reconciliation, but they do not execute jobs or re-attach QEMU.
+  generation, heartbeat, drain/resume and restart lease classification. A
+  running local QEMU is re-attached only after PID start-time, session QMP
+  socket ownership and `query-status=running` checks. The remote directory and
+  durable job queue add idempotent enqueue, capability-matched claim, lease
+  heartbeat, expiry retry and stale/stopped worker reconciliation, but they do
+  not execute jobs.
 
 ## Remaining work
 
@@ -271,8 +273,8 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- remote job execution and multi-host scheduling, active QEMU re-attach and
-  external IPv6 endpoint enforcement;
+- remote job execution, companion/evidence continuity, cross-host QEMU
+  re-attach, multi-host scheduling and external IPv6 endpoint enforcement;
 - Core2 bit-exact BT controller/baseband and physical cache/PSRAM
   equivalence, coexistence and soak;
 - runtime permissions/license policy, production security-key flows and

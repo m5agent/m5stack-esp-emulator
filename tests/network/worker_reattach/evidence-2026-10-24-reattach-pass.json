@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-local-qemu-restart-reattach",
+  "scope": "local-qemu-control-plane",
+  "validation": "virtual-device-infrastructure",
+  "status": "PASS",
+  "checks": {
+    "pid_start_time_match": "PASS",
+    "session_qmp_ownership": "PASS",
+    "qmp_query_status_running": "PASS",
+    "new_worker_generation_lease": "PASS",
+    "reattached_session_running": "PASS",
+    "recovery_scope_qemu_control_plane": "PASS",
+    "missing_identity_rejected": "PASS",
+    "stale_start_time_rejected": "PASS",
+    "interrupted_event_written": "PASS",
+    "clean_stop_and_process_exit": "PASS"
+  },
+  "live_service_reattach": {
+    "status": "PASS",
+    "initial_service": "running QEMU session",
+    "service_kill": "SIGKILL to service PID only",
+    "qemu_survived_service_kill": true,
+    "restarted_service_reattached": true,
+    "pid_stable_across_reattach": true,
+    "worker_generation": 2,
+    "recovery_scope": "qemu-control-plane",
+    "stop_terminated_reattached_qemu": true
+  },
+  "tests": {
+    "targeted": "1/1 PASS",
+    "live_service_restart": "1/1 PASS",
+    "device_service": "82/82 PASS",
+    "platform_suite": "289/289 PASS"
+  },
+  "not_claimed": [
+    "Tab5 or network-lane re-attach",
+    "companion HTTP/BLE helper continuity",
+    "evidence stream continuity",
+    "cross-host process re-attach",
+    "multi-host scheduling",
+    "hardware validation"
+  ]
+}

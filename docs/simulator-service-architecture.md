@@ -268,9 +268,9 @@ and retained evidence.
 ### Phase S1: remote worker API
 
 Status: local worker lifecycle, a persistent remote-worker registration
-directory and a durable pull-based job queue exist; an independent remote
-executor, evidence-bundle transfer, active emulator re-attach and multi-host
-scheduling remain open.
+directory, a durable pull-based job queue and verified local QEMU/QMP restart
+re-attach exist; an independent remote executor, companion/evidence
+continuity, cross-host re-attach and multi-host scheduling remain open.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
@@ -283,8 +283,10 @@ scheduling remain open.
 - `jobs.json` implements idempotent enqueue, capability-matched claim,
   lease heartbeat, expiry retry, terminal result, cancel and stale/stopped
   worker reconciliation;
-- independent executor ownership, evidence transfer, production capacity
-  scheduling and running QEMU re-attach remain open.
+- a local QEMU process is re-attached only when PID start time, session QMP
+  socket ownership and `query-status=running` agree;
+- independent executor ownership, companion HTTP/BLE/evidence continuity,
+  cross-host re-attach and production capacity scheduling remain open.
 
 ### Phase S2: warm/cold pool
 

@@ -49,6 +49,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   active/abandoned lease、drain/resume 和 recent-result 记录；
 - 远程 worker 的持久 job queue、幂等提交、capability 匹配、claim、lease
   heartbeat、worker 失联回收、超时重试和 terminal result；
+- 本地 QEMU 的 PID start-time、QMP socket ownership 和
+  `query-status=running` 三重校验后 re-attach；仅恢复 QEMU/QMP 控制面；
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
   evidence ZIP；
 - `runtime=qemu-unified` 的 S3/C6/Core2 单 guest 板级 + 网络 + BLE；
@@ -72,8 +74,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、
   heartbeat、drain/resume 和重启租约分类，以及远程 worker 注册目录已实现；
   durable job queue 已支持幂等提交、claim/lease、expiry retry 和 worker
-  失联回收；独立 executor、活动 QEMU 进程 re-attach、生产多机调度和 VM
-  隔离仍未完成。
+  失联回收；本地 QEMU/QMP 控制面已完成 ownership 校验后的 reattach。
+  独立 executor、companion/BLE/evidence continuity、跨主机 reattach、生产
+  多机调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
   已在同一隔离路径验证 exact IPv4 IP/协议/端口和 veth/NAT，上述内容也不

@@ -561,6 +561,47 @@ def atomic_write_json(path: Path, payload: Any) -> None:
     os.replace(temporary, path)
 
 
+def inspect_process(pid: int) -> dict[str, Any]:
+    """Return a PID identity snapshot suitable for safe re-attach."""
+
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
+        return {"exists": False, "start_token": None, "command": None}
+    try:
+        os.kill(pid, 0)
+    except (ProcessLookupError, PermissionError):
+        return {"exists": False, "start_token": None, "command": None}
+
+    def probe(field: str) -> str | None:
+        try:
+            result = subprocess.run(
+                [
+                    "ps",
+                    "-ww",
+                    "-p",
+                    str(pid),
+                    "-o",
+                    f"{field}=",
+                ],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                timeout=2,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        value = result.stdout.strip()
+        return value if result.returncode == 0 and value else None
+
+    start_token = probe("lstart")
+    command = probe("command")
+    return {
+        "exists": bool(start_token and command),
+        "start_token": start_token,
+        "command": command,
+    }
+
+
 class UnifiedHttpFixture:
     """Controlled HTTP endpoint used by a unified board probe."""
 
@@ -2351,6 +2392,9 @@ class DeviceSession:
         worker_id: str | None = None,
         worker_generation: int | None = None,
         worker_lease_active: bool = False,
+        process_start_token: str | None = None,
+        reattached_process: bool = False,
+        persist: bool = True,
     ):
         self.service = service
         self.id = session_id
@@ -2378,6 +2422,8 @@ class DeviceSession:
         self.state = initial_state
         self.error = error
         self.pid: int | None = None
+        self.process_start_token = process_start_token
+        self._reattached_process = bool(reattached_process)
         self.flash_info = flash_info
         self.virtual_flash: Path | None = None
         self.qmp_path = Path("/tmp") / f"m5-service-{session_id}.sock"
@@ -2427,7 +2473,8 @@ class DeviceSession:
             self._record_event(
                 "created", device_id=spec.id, firmware_id=firmware_id
             )
-        self._persist_session()
+        if persist:
+            self._persist_session()
 
     def _record_event(self, event: str, **details) -> None:
         self.events.append(
@@ -2487,6 +2534,8 @@ class DeviceSession:
             "device_id": self.spec.id,
             "state": self.state,
             "pid": self.pid,
+            "process_start_token": self.process_start_token,
+            "reattached_process": self._reattached_process,
             "firmware_id": self.firmware_id,
             "firmware_sha256": self.firmware_sha,
             "firmware_source": self.firmware_source,
@@ -2510,10 +2559,109 @@ class DeviceSession:
             "interrupted": self.interrupted,
             "worker_id": self.worker_id,
             "worker_generation": self.worker_generation,
+            "worker_lease_active": self._worker_lease_active,
         }
 
     def _persist_session(self) -> None:
         atomic_write_json(self.session_record_path, self._session_record())
+
+    def _process_identity_matches(self) -> bool:
+        if self.pid is None or not self.process_start_token:
+            return False
+        identity = inspect_process(self.pid)
+        return bool(
+            identity["exists"]
+            and identity["start_token"] == self.process_start_token
+            and str(self.qmp_path) in str(identity["command"] or "")
+        )
+
+    def reattach(self) -> dict:
+        if self.runtime not in QEMU_QMP_RUNTIMES:
+            raise ServiceError(
+                "reattach_unsupported",
+                "runtime has no re-attachable QMP control plane",
+                409,
+            )
+        if self.state not in ACTIVE_STATES:
+            raise ServiceError(
+                "reattach_not_active",
+                "session is not in an active state",
+                409,
+            )
+        if not self._process_identity_matches():
+            raise ServiceError(
+                "reattach_identity_mismatch",
+                "PID/start-time/QMP ownership does not match the session",
+                409,
+            )
+        qmp: QMP | None = None
+        try:
+            qmp = wait_qmp(self.qmp_path, timeout=5)
+            qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+            status_result = qmp.cmd("query-status")
+            status = (status_result.get("return") or {}).get("status")
+            if status != "running":
+                raise ServiceError(
+                    "reattach_not_running",
+                    f"QEMU status is {status!r}, not running",
+                    409,
+                )
+            if self._worker_lease_active:
+                self.service.worker.reserve_lease(
+                    self.id,
+                    owner="service-restart-reattach",
+                )
+        except ServiceError:
+            if qmp is not None:
+                qmp.close()
+            raise
+        except (OSError, RuntimeError, WorkerRegistryError) as error:
+            if qmp is not None:
+                qmp.close()
+            raise ServiceError(
+                "reattach_unavailable",
+                f"QMP/worker lease could not be re-attached: {error}",
+                409,
+            ) from error
+        self._qmp = qmp
+        self._proc = None
+        self._reattached_process = True
+        self.restored = True
+        self.interrupted = False
+        self.completed_at = None
+        self.error = None
+        self.worker_generation = self.service.worker.generation
+        self._record_event(
+            "reattached",
+            pid=self.pid,
+            previous_state=self.state,
+            qmp_status=status,
+            recovery_scope="qemu-control-plane",
+        )
+        self._persist_session()
+        return {
+            "pid": self.pid,
+            "qmp_status": status,
+            "worker_generation": self.worker_generation,
+            "recovery_scope": "qemu-control-plane",
+        }
+
+    def mark_interrupted(self, previous_state: str, reason: str) -> None:
+        self.state = "failed"
+        self.error = (
+            "service restarted before the session completed; "
+            f"previous state was {previous_state}: {reason}"
+        )
+        self.completed_at = self.completed_at or iso_now()
+        self.interrupted = True
+        self._reattached_process = False
+        self._worker_lease_active = False
+        self._record_event(
+            "interrupted",
+            previous_state=previous_state,
+            reason=reason,
+        )
+        self._persist_session()
 
     def snapshot(self) -> dict:
         with self._lock:
@@ -2523,6 +2671,15 @@ class DeviceSession:
                 and self.state in ACTIVE_STATES
             ):
                 self._handle_process_exit(self._proc.returncode)
+            elif (
+                self._reattached_process
+                and self.state in ACTIVE_STATES
+                and not self._process_identity_matches()
+            ):
+                self._handle_process_exit(
+                    None,
+                    reason="re-attached QEMU process disappeared or changed identity",
+                )
             serial_size = self.serial0.stat().st_size if self.serial0.exists() else 0
             frame_meta = {}
             if self.last_frame_meta_path.is_file():
@@ -2601,6 +2758,12 @@ class DeviceSession:
                 "event_count": len(self.events),
                 "restored": self.restored,
                 "interrupted": self.interrupted,
+                "reattached_process": self._reattached_process,
+                "recovery_scope": (
+                    "qemu-control-plane"
+                    if self._reattached_process
+                    else None
+                ),
                 "worker": {
                     "worker_id": self.worker_id,
                     "generation": self.worker_generation,
@@ -2608,11 +2771,21 @@ class DeviceSession:
                 },
             }
 
-    def _handle_process_exit(self, returncode: int | None) -> None:
+    def _handle_process_exit(
+        self,
+        returncode: int | None,
+        *,
+        reason: str | None = None,
+    ) -> None:
         self.state = "failed"
-        self.error = self.error or f"process exited with code {returncode}"
+        self.error = (
+            self.error
+            or reason
+            or f"process exited with code {returncode}"
+        )
         self.completed_at = self.completed_at or iso_now()
         self._record_event("process_exited", returncode=returncode)
+        self._reattached_process = False
         if self.runtime in QEMU_RADIO_RUNTIMES:
             self._finalize_network_capture()
         if not self.service.storage_policy.retain_session_flash:
@@ -4190,6 +4363,13 @@ class DeviceSession:
             stdout.close()
             stderr.close()
         self.pid = self._proc.pid
+        identity = inspect_process(self.pid)
+        self.process_start_token = (
+            str(identity["start_token"])
+            if identity["exists"] and identity["start_token"]
+            else None
+        )
+        self._reattached_process = False
         self._persist_session()
         if native_vhci:
             self._launch_native_vhci_gdb()
@@ -5222,6 +5402,8 @@ class DeviceSession:
         return self.snapshot()
 
     def _terminate_process(self) -> None:
+        external_pid = self.pid if self._reattached_process else None
+        external_start = self.process_start_token
         native_gdb = self._native_vhci_gdb
         if native_gdb is not None and native_gdb.poll() is None:
             try:
@@ -5251,6 +5433,34 @@ class DeviceSession:
             except subprocess.TimeoutExpired:
                 proc.kill()
                 proc.wait(timeout=5)
+        if external_pid is not None:
+            def owns_external_process() -> bool:
+                identity = inspect_process(external_pid)
+                return bool(
+                    identity["exists"]
+                    and identity["start_token"] == external_start
+                    and str(self.qmp_path)
+                    in str(identity["command"] or "")
+                )
+
+            if owns_external_process():
+                try:
+                    os.kill(external_pid, signal.SIGTERM)
+                except (ProcessLookupError, PermissionError):
+                    pass
+                deadline = time.time() + 5
+                while time.time() < deadline and owns_external_process():
+                    time.sleep(0.05)
+                if owns_external_process():
+                    try:
+                        os.kill(external_pid, signal.SIGKILL)
+                    except (ProcessLookupError, PermissionError):
+                        pass
+                    deadline = time.time() + 5
+                    while time.time() < deadline and owns_external_process():
+                        time.sleep(0.05)
+            self._reattached_process = False
+            self.pid = None
         http_fixture = self._http_fixture
         if http_fixture is not None:
             try:
@@ -5285,10 +5495,11 @@ class DeviceSession:
             except OSError:
                 pass
             self._qmp = None
-        try:
-            self.qmp_path.unlink()
-        except FileNotFoundError:
-            pass
+        if not self._process_identity_matches():
+            try:
+                self.qmp_path.unlink()
+            except FileNotFoundError:
+                pass
 
     def _release_virtual_flash(self) -> int:
         path = self.virtual_flash
@@ -6060,7 +6271,7 @@ class DeviceService:
         self._janitor.start()
 
     def _restore_history(self) -> None:
-        """Restore retained metadata without reviving old QEMU processes."""
+        """Restore history and safely re-attach only verified live QEMU PIDs."""
 
         sessions_root = self.state_dir / "sessions"
         if not sessions_root.is_dir():
@@ -6087,7 +6298,8 @@ class DeviceService:
             if spec is None or session_id in self._sessions:
                 continue
             persisted_state = str(record.get("state") or "failed")
-            interrupted = persisted_state in ACTIVE_STATES or persisted_state == "stopping"
+            was_active = persisted_state in ACTIVE_STATES
+            interrupted = was_active or persisted_state == "stopping"
             restored_state = "failed" if interrupted else persisted_state
             if restored_state not in {"stopped", "failed"}:
                 restored_state = "failed"
@@ -6133,6 +6345,35 @@ class DeviceService:
                 if record.get("runtime") in QEMU_SESSION_RUNTIMES
                 else "qemu"
             )
+            try:
+                persisted_pid = (
+                    int(record["pid"])
+                    if isinstance(record.get("pid"), int)
+                    else None
+                )
+            except (TypeError, ValueError):
+                persisted_pid = None
+            process_start_token = (
+                record.get("process_start_token")
+                if isinstance(record.get("process_start_token"), str)
+                else None
+            )
+            worker_lease_active = bool(
+                record.get("worker_lease_active")
+            )
+            reattach_candidate = bool(
+                was_active
+                and runtime in QEMU_QMP_RUNTIMES
+                and persisted_pid is not None
+                and persisted_pid > 0
+                and process_start_token
+                and expires_at > time.time()
+            )
+            if reattach_candidate:
+                interrupted = False
+                restored_state = persisted_state
+                completed_at = None
+                error = None
             network_config = (
                 record.get("network")
                 if isinstance(record.get("network"), dict)
@@ -6215,15 +6456,29 @@ class DeviceService:
                     if isinstance(record.get("worker_generation"), int)
                     else None
                 ),
+                worker_lease_active=worker_lease_active,
+                process_start_token=process_start_token,
+                persist=False,
             )
             virtual_flash = record_path.parent / "virtual-flash.bin"
             session.virtual_flash = virtual_flash if virtual_flash.is_file() else None
-            if interrupted:
-                session._record_event(
-                    "interrupted",
-                    previous_state=persisted_state,
-                    reason="service restarted before session completion",
+            session.pid = persisted_pid
+            if not reattach_candidate:
+                session._worker_lease_active = False
+            if reattach_candidate:
+                try:
+                    session.reattach()
+                except ServiceError as error:
+                    session.mark_interrupted(
+                        persisted_state,
+                        f"safe re-attach rejected: {error.message}",
+                    )
+            elif interrupted:
+                session.mark_interrupted(
+                    persisted_state,
+                    "service restarted before session completion",
                 )
+            else:
                 session._persist_session()
             self._sessions[session.id] = session
 
@@ -7684,6 +7939,18 @@ class DeviceService:
                         and session._proc.poll() is not None
                     ):
                         session._handle_process_exit(session._proc.returncode)
+                    elif (
+                        session.state in ACTIVE_STATES
+                        and session._reattached_process
+                        and not session._process_identity_matches()
+                    ):
+                        session._handle_process_exit(
+                            None,
+                            reason=(
+                                "re-attached QEMU process disappeared "
+                                "or changed identity"
+                            ),
+                        )
                     if session.state in ACTIVE_STATES and session.expires_at <= now:
                         expired.append(session)
             for session in expired:

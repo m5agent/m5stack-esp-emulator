@@ -94,6 +94,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_lifecycle/evidence-2026-10-24-pass.json",
             "tests/network/worker_queue/README.md",
             "tests/network/worker_queue/evidence-2026-10-24-queue-pass.json",
+            "tests/network/worker_reattach/README.md",
+            "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
@@ -689,6 +691,37 @@ class DocsConsistencyTests(unittest.TestCase):
             "active QEMU process re-attach",
             worker_queue["not_claimed"],
         )
+        reattach = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_reattach/"
+                "evidence-2026-10-24-reattach-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(reattach["status"], "PASS")
+        self.assertEqual(
+            reattach["scope"],
+            "local-qemu-control-plane",
+        )
+        self.assertTrue(all(reattach["checks"].values()))
+        self.assertEqual(
+            reattach["live_service_reattach"]["status"],
+            "PASS",
+        )
+        self.assertTrue(
+            reattach["live_service_reattach"][
+                "qemu_survived_service_kill"
+            ]
+        )
+        self.assertTrue(
+            reattach["live_service_reattach"][
+                "restarted_service_reattached"
+            ]
+        )
+        self.assertIn(
+            "companion HTTP/BLE helper continuity",
+            reattach["not_claimed"],
+        )
         efuse_security = json.loads(
             (
                 ROOT
@@ -1149,6 +1182,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("/jobs/{job_id}/result", openapi)
         self.assertIn("WorkerJobList", openapi)
         self.assertIn("idempotency_key", openapi)
+        self.assertIn("reattached_process", openapi)
+        self.assertIn("qemu-control-plane", openapi)
         self.assertIn("RemoteWorkerRegistration", openapi)
         self.assertIn("accepting_leases", openapi)
         self.assertIn("Remote worker directory MVP", markdown)
