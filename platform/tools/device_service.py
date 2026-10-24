@@ -75,6 +75,7 @@ from ble_runtime_limits import (  # noqa: E402
     MAX_BLE_LINGER_SECONDS,
     MAX_BLE_RECONNECT_CYCLES,
     MAX_BLE_RECONNECT_DELAY_SECONDS,
+    reconnect_workload_timeout_seconds,
 )
 from network_egress import (  # noqa: E402
     EgressEndpoint,
@@ -2410,6 +2411,33 @@ def default_session_ready_timeout(
     }:
         return 90.0
     return 30.0
+
+
+def effective_session_ready_timeout(
+    network_config: dict[str, Any] | None,
+    requested_timeout: float | None = None,
+) -> float:
+    """Keep application readiness and BLE reconnect workload budgets aligned."""
+    timeout = float(
+        default_session_ready_timeout(network_config)
+        if requested_timeout is None
+        else requested_timeout
+    )
+    config = network_config or {}
+    if config.get("profile") not in {
+        CORE2_HCI_GATT_PROFILE,
+        CORE2_NATIVE_VHCI_PROFILE,
+        NANOC6_HCI_BLE_PROFILE,
+        NESSO_UNIFIED_PROFILE,
+        *UNIFIED_PROFILES,
+    }:
+        return timeout
+    cycles = int(config.get("ble_reconnect_cycles", 1))
+    delay = float(config.get("ble_reconnect_delay_seconds", 2))
+    return max(
+        timeout,
+        reconnect_workload_timeout_seconds(cycles, delay),
+    )
 
 
 def _timestamp_age_seconds(value: Any, *, now: float | None = None) -> float | None:
@@ -7291,11 +7319,9 @@ class DeviceService:
                         "M5SW_CORE2_PMIC must be axp192 or axp2101",
                         400,
                     )
-            ready_timeout = float(
-                payload.get(
-                    "ready_timeout_seconds",
-                    default_session_ready_timeout(network_config),
-                )
+            ready_timeout = effective_session_ready_timeout(
+                network_config,
+                payload.get("ready_timeout_seconds"),
             )
             if runtime == "network":
                 session_class = NetworkDeviceSession

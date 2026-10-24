@@ -39,6 +39,7 @@ from device_service import (
     ServiceError,
     StoragePolicy,
     default_session_ready_timeout,
+    effective_session_ready_timeout,
 )
 from serve import Handler, _wait_for_session
 from test_firmware_analysis import build_flash
@@ -716,6 +717,30 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 {"profile": "uiflow2-sticks3-wifi"}
             ),
             30.0,
+        )
+
+    def test_reconnect_workload_extends_ready_timeout_budget(self):
+        requested = 180.0
+        effective = effective_session_ready_timeout(
+            {
+                "profile": "core2-native-hci",
+                "ble_reconnect_cycles": 121,
+                "ble_reconnect_delay_seconds": 2,
+            },
+            requested,
+        )
+
+        self.assertGreater(effective, 900)
+        self.assertEqual(
+            effective_session_ready_timeout(
+                {
+                    "profile": "uiflow2-sticks3-wifi",
+                    "ble_reconnect_cycles": 121,
+                    "ble_reconnect_delay_seconds": 2,
+                },
+                requested,
+            ),
+            requested,
         )
 
     def test_catalog_exposes_sku_and_coverage(self):

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-reconnect-readiness-failure",
+  "date": "2026-10-25",
+  "stage": "CORE2-02",
+  "gate_result": "FAIL",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "firmware": {
+    "sha256": "4e1012c419d04e7188bb8c45476f6f5eb4d509f227bc4e385a805ce011916e02",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "d970ddb54bf5fa070cf10d721f024f20a342a3837e3d19b564300f74f3f16fc1",
+  "attempts_requested": 3,
+  "attempts_completed": 1,
+  "attempts_passed": 0,
+  "attempts_failed": 1,
+  "ble_reconnect_cycles": 121,
+  "ble_reconnect_delay_seconds": 2,
+  "requested_readiness_timeout_seconds": 180,
+  "observed": {
+    "guest_boot_and_ready": "PASS",
+    "frame_bytes": 3710,
+    "frame_sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b",
+    "wifi_dhcp_http": "PASS",
+    "public_dns_http": "PASS",
+    "ble_cycles_passed": 29,
+    "ble_cycle_30_started": true,
+    "peer_gatt_timeout": false,
+    "guest_panic": false,
+    "network_evidence": "PARTIAL because the requested 121 cycles did not finish",
+    "pcap_bytes": 8128,
+    "evidence_zip_bytes": 59574,
+    "runner_failure_phase": "wait_running",
+    "session_error": "timed out waiting for external BLE peer completion",
+    "qemu_cleanup": "process exited before service teardown"
+  },
+  "root_cause": {
+    "component": "Device Service and Core2 service runner",
+    "condition": "The 121-cycle workload inherited a fixed 180-second readiness budget even though the measured workload rate is about 6.2 seconds per completed cycle.",
+    "impact": "The runner observed 29 completed cycles and cycle 30 starting while the service terminated the otherwise progressing session.",
+    "classification": "readiness_budget_mismatch_not_controller_failure"
+  },
+  "resolution": {
+    "change": "Use one shared workload-aware reconnect budget in the Device Service and runner.",
+    "formula": "min(7200, 60 + cycles * (6 + reconnect_delay_seconds)) seconds",
+    "effective_timeout_seconds_for_121_cycle_2_second_delay": 1028,
+    "regression_tests": [
+      "platform/tests/test_ble_runtime_limits.py",
+      "platform/tests/test_device_service.py::DeviceServiceUnitTests.test_reconnect_workload_extends_ready_timeout_budget"
+    ]
+  },
+  "raw_aggregate_sha256": "53ba6d51ef2fc315555eab48e64abf08af2baf35036a01b941465a0840accd52",
+  "superseded_by": null,
+  "not_claimed": [
+    "bit-exact Espressif BT controller/baseband",
+    "physical hardware or RF validation",
+    "malware sandboxing"
+  ]
+}

@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 from ble_runtime_limits import (  # noqa: E402
     MAX_BLE_HOLD_SECONDS,
     MAX_BLE_RECONNECT_CYCLES,
+    reconnect_workload_timeout_seconds,
 )
 from qemu_accel import CORE2_TCG_TB_SIZE_MIB  # noqa: E402
 
@@ -854,6 +855,14 @@ def main() -> int:
         if not path.is_file():
             parser.error(f"{label} does not exist: {path}")
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    reconnect_delay_seconds = 2
+    effective_timeout = max(
+        args.timeout,
+        reconnect_workload_timeout_seconds(
+            args.ble_reconnect_cycles,
+            reconnect_delay_seconds,
+        ),
+    )
     input_hashes = freeze_input_hashes(
         args.image,
         args.elf,
@@ -885,7 +894,7 @@ def main() -> int:
             str(firmware["firmware_id"]),
             elf_artifact,
             args.out_dir / f"attempt-{attempt}",
-            args.timeout,
+            effective_timeout,
             args.hold_seconds,
             args.ble_reconnect_cycles,
         )
@@ -977,6 +986,8 @@ def main() -> int:
         "hold_seconds_per_attempt": args.hold_seconds,
         "ble_linger_seconds": max(20, args.hold_seconds + 60),
         "ble_reconnect_cycles": args.ble_reconnect_cycles,
+        "ready_timeout_seconds_requested": args.timeout,
+        "ready_timeout_seconds_effective": effective_timeout,
         "first_failure": (
             {
                 key: failed_runs[0].get(key)
