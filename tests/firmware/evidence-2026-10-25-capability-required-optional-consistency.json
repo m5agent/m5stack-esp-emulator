@@ -11,7 +11,8 @@
     "optional_unsupported_capability_is_warning": true,
     "unknown_required_capability_is_warning": true,
     "unknown_optional_capability_is_warning": true,
-    "optional_mismatch_keeps_firmware_candidate": true
+    "optional_mismatch_keeps_firmware_candidate": true,
+    "http_optional_mismatch_does_not_reject_import": true
   },
   "examples": {
     "required_camera_on_sticks3": {
@@ -29,6 +30,7 @@
   },
   "test_entries": [
     "platform/tests/test_firmware_manifest.py",
+    "platform/tests/test_device_service.py",
     "platform/tests/test_docs_consistency.py"
   ],
   "not_claimed": [

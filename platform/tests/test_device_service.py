@@ -4738,6 +4738,33 @@ class DeviceServiceHttpTests(unittest.TestCase):
                 for issue in mismatch["error"]["issues"]
             )
         )
+        status, optional_firmware = self.request(
+            "/api/v1/firmware/import",
+            method="POST",
+            data=json.dumps(
+                {
+                    "device_id": "sticks3",
+                    "artifact_id": artifact["artifact_id"],
+                    "required_capabilities": ["wifi"],
+                    "optional_capabilities": ["camera"],
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(
+            optional_firmware["manifest"]["validation"]["status"],
+            "PASS",
+        )
+        self.assertIn(
+            "unsupported_optional_capability",
+            {
+                warning["code"]
+                for warning in optional_firmware["manifest"]["validation"][
+                    "warnings"
+                ]
+            },
+        )
         invalid_request = Request(
             self.base + "/api/v1/firmware/import",
             method="POST",
