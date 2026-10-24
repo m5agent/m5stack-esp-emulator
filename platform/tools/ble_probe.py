@@ -6,9 +6,9 @@ import argparse
 import asyncio
 import os
 import sys
+import time
 import traceback
 from typing import Any
-
 
 NUS_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
 NUS_RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
@@ -17,6 +17,8 @@ NUS_TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 
 def emit(marker: str, detail: str = "") -> None:
     suffix = f" {detail}" if detail else ""
+    if os.getenv("BLE_TRACE_TIMESTAMPS") == "1":
+        suffix += f" t={time.time_ns()}"
     print(f"{marker}{suffix}", flush=True)
 
 

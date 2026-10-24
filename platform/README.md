@@ -60,17 +60,13 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - `core2-native-vhci` 已进入 `/api/v1`，但内部仍使用服务托管的 GDB bridge；
   QEMU native-HCI 替代路径已完成 `HCI-1` transport、`HCI-2` 首个 H2C
   Reset 捕获和 `HCI-3a` 诊断性单包 C2H `5/5`；该 callback 路线不是产品
-  后端；`HCI-3b` 已到连接和首个
-  ATT 交互；API-boundary 的 HLI event/ACL 路径进一步到 NUS
-  discovery/subscription 和外部 NUS write，但 guest 没有 write/ACK marker
-  或 notification；同 build `2/2` 为 notification timeout，失败快照已有
-  H2C `EIO`，断链后累计更多写失败。HLI 真实 event 路径连续 5/5 把池化
-  Reset Complete 交付给 guest，并从 `01030c00` 推进到 `01011000`。任意
-  safe-point callback 与
-  nested `r_eif_send` 已证伪并回退。下一步是 guest ATT
-  dispatch/notify、ACL mbuf 和 controller ACK/flow control；`HCI-4`
-  repeated lease、bit-exact Espressif BT baseband/controller 和物理
-  cache/PSRAM 等价性仍未完成。
+  后端；`HCI-3b` 已用 `0003` API-boundary H2C、HLI event/ACL 和 `0004`
+  CCOUNT TB-yield 完成完整外部 NUS GATT `5/5`。旧 notification timeout
+  已确认是 21-byte probe 形成 24-byte ATT PDU、超过默认 MTU 23；合法
+  15-byte probe / 17-byte ATT PDU 命中 ATT、Python handler、notify 和
+  Bumble ACK。下一步是 `HCI-4` Device Service repeated lease 和生产 GDB
+  控制面移除；bit-exact Espressif BT baseband/controller 和物理 cache/PSRAM
+  等价性仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

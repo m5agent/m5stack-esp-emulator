@@ -1,0 +1,34 @@
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -63,10 +63,16 @@
+ {
+     XtensaCPU *cpu = env_archcpu(env);
+     uint64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    static unsigned int trace_count;
+ 
+     env->ccount_time = now;
+     env->sregs[CCOUNT] = env->ccount_base +
+         (uint32_t)clock_ns_to_ticks(cpu->clock, now - env->time_base);
++    if (getenv("M5SW_CCOUNT_TRACE") && now > 1000000000
++        && (trace_count++ & 4095) == 0) {
++        fprintf(stderr, "[ccount] cpu=%d now=%" PRIu64 " value=%u\n",
++                env_cpu(env)->cpu_index, now, env->sregs[CCOUNT]);
++    }
+ }
+ 
+ void HELPER(wsr_ccount)(CPUXtensaState *env, uint32_t v)
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -2125,6 +2125,12 @@
+     translator_io_start(&dc->base);
+     gen_helper_update_ccount(tcg_env);
+     tcg_gen_mov_i32(arg[0].out, cpu_SR[par[0]]);
++    /*
++     * Timing loops poll CCOUNT until the virtual clock advances. End the
++     * translation block after the read so tightly looping guests cannot
++     * observe a frozen value inside one TB.
++     */
++    dc->base.is_jmp = DISAS_TOO_MANY;
+ #endif
+ }
+ 

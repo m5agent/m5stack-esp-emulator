@@ -68,11 +68,10 @@ callback 注入，因此单 lease PASS 不等于稳定后端。QEMU 内部替代
 | 阶段 | 状态 | 验证入口 |
 | --- | --- | --- |
 | `HCI-1` host transport | `PASS` | `core2_native_hci/test_transport.py` |
-| `HCI-2` guest H2C | `PARTIAL` | `core2_native_hci/test_guest_h2c.py`，只到首个 Reset |
+| `HCI-2` guest H2C | `PASS` | `core2_native_hci/test_guest_h2c.py` 捕获首个 Reset；完整命令流由 `HCI-3b` 验证 |
 | `HCI-3a` guest C2H callback | `PASS` | `core2_native_hci/test_guest_h2c.py --enable-c2h`，targeted `5/5` |
 | `HCI-3b` HLI event | `PASS` | `core2_native_hci/test_hli_event.py`；池化 Reset Complete 经 event 13 交付，`01030c00 → 01011000` 连续 `5/5` |
-| `HCI-3b` HLI event/ACL | `PARTIAL` | `core2_native_hci/run_full.py --hli-c2h` 到 NUS discovery/subscription 和外部 NUS write；guest write/ACK marker 与 notification 未出现，同 build `2/2` 为 notification timeout，失败快照已有 H2C `EIO` |
-| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | 内部 controller relay 在第二个 ATT request 后 `ack returned 12`；API-boundary 在 NUS write 后 notification timeout。`EIO` 与 failure/teardown 重叠，尚未完成 packet 级归因 |
+| `HCI-3b` complete HCI/GATT | `PASS` | `core2_native_hci/run_full.py --hli-c2h` 使用 15-byte probe / 17-byte ATT PDU，完成 NUS discovery/subscription/write/notify 和 Bumble ACK，连续 `5/5` |
 | `HCI-4` repeated lease | `OPEN` | 仍需无 GDB 的 Device Service `5/5` |
 
 ```bash

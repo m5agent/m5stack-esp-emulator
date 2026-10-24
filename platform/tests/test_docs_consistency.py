@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import unittest
@@ -54,7 +55,11 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-queue-diagnostic.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-api-notification-fail.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
+            "patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch",
+            "patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
@@ -862,24 +867,83 @@ class DocsConsistencyTests(unittest.TestCase):
             ],
             2,
         )
-        self.assertFalse(
+        self.assertTrue(
             notification_fail["experiment"][
                 "reproducible_from_committed_worktree"
             ]
         )
+        self.assertEqual(
+            notification_fail["superseded_by"],
+            "evidence-2026-10-24-hli-api-gatt-5x.json",
+        )
+        gatt_pass = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hli-api-gatt-5x.json"
+            ).read_text()
+        )
+        self.assertEqual(gatt_pass["stage"], "HCI-3b")
+        self.assertEqual(gatt_pass["gate_result"], "PASS")
+        self.assertEqual(gatt_pass["status"], "PASS")
+        self.assertEqual(gatt_pass["att"]["pdu_bytes"], 17)
+        self.assertEqual(len(gatt_pass["runs"]), 5)
+        self.assertTrue(
+            all(run["status"] == "PASS" for run in gatt_pass["runs"])
+        )
+        self.assertTrue(
+            all(
+                run["l2cap_mtu_rejects"] == 0
+                and run["python_gatts_on_write"] == 1
+                and run["python_notify"] == 1
+                for run in gatt_pass["runs"]
+            )
+        )
+        self.assertEqual(
+            gatt_pass["patch_validation"]["git_apply_check"],
+            "PASS",
+        )
+        oversize = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-oversize-att-mtu.json"
+            ).read_text()
+        )
+        self.assertEqual(oversize["status"], "FAIL")
+        self.assertTrue(oversize["expected_failure"])
+        self.assertEqual(oversize["input"]["att_pdu_bytes"], 24)
+        self.assertEqual(oversize["input"]["default_att_mtu"], 23)
+        self.assertEqual(
+            oversize["counters"]["trace_l2cap_mtu_reject"],
+            1,
+        )
+        self.assertEqual(
+            oversize["superseded_by"],
+            "evidence-2026-10-24-hli-api-gatt-5x.json",
+        )
+        for patch_name, hash_key in (
+            (
+                "0003-esp32-native-hci-api-transaction.patch",
+                "0003_sha256",
+            ),
+            ("0004-xtensa-ccount-tb-yield.patch", "0004_sha256"),
+        ):
+            patch_bytes = (
+                ROOT / "patches/qemu-core2-native-hci" / patch_name
+            ).read_bytes()
+            self.assertEqual(
+                gatt_pass["patch_validation"][hash_key],
+                hashlib.sha256(patch_bytes).hexdigest(),
+            )
         self.assertIn(
             "API boundary",
             (DOCS / "core2-native-hci-backend.md").read_text(),
         )
         for document in (status, workstreams, backlog, code_map):
-            self.assertIn("safe-point", document)
-            self.assertIn("r_eif_send", document)
             self.assertIn("HLI", document)
-            self.assertIn("notification timeout", document)
-            self.assertIn("EIO", document)
-        for document in (status, workstreams, backlog):
-            self.assertIn("HLI", document)
-            self.assertIn("in-process controller", document)
+            self.assertIn("HCI-3b", document)
+            self.assertIn("5/5", document)
         dns_probe = (
             ROOT / "tests/network/idf_dns_udp/README.md"
         ).read_text()

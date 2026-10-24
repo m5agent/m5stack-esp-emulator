@@ -14,11 +14,10 @@ controller/baseband or prove a complete GATT sequence.
 | Stage | Status | Evidence |
 | --- | --- | --- |
 | `HCI-1` host transport | `PASS` | `evidence-2026-10-24-transport-pass.json` |
-| `HCI-2` guest H2C | `PARTIAL` | `evidence-2026-10-24-guest-h2c.json`; first Reset only |
+| `HCI-2` guest H2C | `PASS` | `evidence-2026-10-24-guest-h2c.json`; first Reset capture, extended by the complete `HCI-3b` flow |
 | `HCI-3a` guest C2H callback | `DIAGNOSTIC PASS` | `evidence-2026-10-24-c2h-delivery.json` and `evidence-2026-10-24-c2h-delivery-5x.json`; Reset Complete then next H2C. This narrow callback route is not the production C2H backend |
 | `HCI-3b` HLI event | `PASS` | `evidence-2026-10-24-hli-event-5x.json`; pool-allocated Reset Complete through event 13 advances `01030c00` to `01011000` in 5/5 runs |
-| `HCI-3b` HLI event/ACL diagnostic | `PARTIAL` | `evidence-2026-10-24-hci3b-hli-api-notification-fail.json`; HLI delivers event and ACL traffic through NUS discovery/subscription and an external NUS write, but no guest write/ACK marker or notification follows in two matched runs |
-| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | Internal-controller relay resets after the second ATT request. The API-boundary path reaches subscription and NUS write, then Bumble times out waiting for notification. H2C `EIO` overlaps the failure/teardown window; packet-level ordering remains open |
+| `HCI-3b` complete HCI/GATT | `PASS` | `evidence-2026-10-24-hli-api-gatt-5x.json`; 15-byte probe / 17-byte ATT PDU completes discovery, subscription, write, Python handler, notification and Bumble ACK in 5/5 runs |
 | `HCI-4` repeated lease | `OPEN` | Still provided by the GDB diagnostic bridge at `1/2` |
 
 Build the patched QEMU, then run:
@@ -81,11 +80,11 @@ This flag requires the local experimental QEMU HLI/API-boundary hooks. They
 are not part of the committed `0001`/`0002` patch series, so the command is a
 diagnostic overlay rather than a reproducible current backend.
 
-The current diagnostic fails at `HCI-3b`. The peer finds and connects to the
-advertiser, the first ATT request/response exchange crosses both directions,
-and the second ATT request reaches QEMU. The guest then logs
-`HCI process ack returned 12`, sends HCI Reset again, and service discovery
-times out.
+The final `HCI-3b` diagnostic passes. The earlier timeout was caused by the
+21-byte `M5_CORE2_NATIVE_PROBE` payload: its ATT PDU is 24 bytes, which
+exceeds the guest's default 23-byte ATT MTU, so `ble_l2cap_rx` drops it before
+ATT dispatch. The default 15-byte `M5_CORE2_PROBE` produces a 17-byte ATT PDU
+and completes the full NUS GATT exchange.
 
 Evidence:
 `evidence-2026-10-24-hci3b-diagnostic.json`.
@@ -176,13 +175,17 @@ advance, not an `HCI-3b` PASS.
 Evidence:
 `evidence-2026-10-24-hci3b-api-boundary-audit.json`.
 
-The HLI follow-up delivered event and ACL packets with empty HLI/meta queues.
-Two matched runs completed discovery, connection, NUS discovery and CCCD
-subscription, then sent the NUS write. The guest emitted neither the write/ACK
-markers nor a notification. Both runs timed out waiting for notification; each
-failure snapshot already contained one HLI error and one H2C write error with
-`errno=5`, with more writes failing during peer teardown. Packet-level timing
-is required before assigning the first `EIO` as a cause.
+With the legal 17-byte ATT PDU, the HLI/API-boundary path is stable:
+
+- 39 HLI events and 9 ACL buffers;
+- no L2CAP MTU rejection, malformed packet or dropped packet;
+- ATT write, Python GATT handler and Python notify path for the NUS RX data;
+- Bumble receives `ACK:M5_CORE2_PROBE`;
+- five consecutive passes with no transaction H2C errors.
+
+The HCI peer may be closed immediately after `BLE_BUMBLE_PASS`; any later
+`EIO` is recorded under `post_sequence_teardown` and is not part of the GATT
+transaction result.
 
 The next implementation must make H2C send, matching C2H delivery,
 `notify_host_recv`, and `notify_host_send_available` one explicit transaction.

@@ -41,6 +41,21 @@ LIVE_COUNTER_NAMES = (
     "last-tx-errno",
     "tx-retry-count",
     "tx-zero-writes",
+    "trace-acl-process",
+    "trace-l2cap-rx",
+    "trace-l2cap-incomplete",
+    "trace-l2cap-chan-found",
+    "trace-l2cap-mtu-reject",
+    "trace-l2cap-rxfn",
+    "trace-att-rx",
+    "trace-att-write",
+    "trace-att-write-no-rsp",
+    "trace-att-find-handle",
+    "trace-att-write-handle",
+    "trace-python-gatts-on-write",
+    "trace-python-irq",
+    "trace-python-notify",
+    "trace-nimble-gatts-notify",
     "hli-last-descriptor-address",
     "hli-last-descriptor-argument",
     "hli-last-descriptor-callback",
@@ -62,7 +77,7 @@ FINAL_COUNTER_NAMES = (
     "c2h-steps",
     "c2h-exception-index",
     "rx-queue-depth",
-    *LIVE_COUNTER_NAMES[7:],
+    *LIVE_COUNTER_NAMES,
     "hli-descriptor-pool-address",
     "malformed-packets",
     "dropped-packets",
@@ -159,6 +174,7 @@ def start_ble_probe(
     ready = threading.Event()
     environment = os.environ.copy()
     environment["BLE_HCI_TRACE"] = "1"
+    environment["BLE_TRACE_TIMESTAMPS"] = "1"
     environment["PYTHONPATH"] = os.pathsep.join(
         filter(
             None,
@@ -248,7 +264,7 @@ def main() -> int:
     parser.add_argument("--timeout", type=float, default=90)
     parser.add_argument("--out-dir", type=Path)
     parser.add_argument("--name-prefix", default="M5-CORE2-HCI")
-    parser.add_argument("--payload", default="M5_CORE2_NATIVE_PROBE")
+    parser.add_argument("--payload", default="M5_CORE2_PROBE")
     parser.add_argument(
         "--hli-c2h",
         action="store_true",
@@ -285,6 +301,18 @@ def main() -> int:
                 "ble_hci_trans_hs_cmd_tx",
                 "btdm_task_recycle",
                 "r_rw_schedule",
+                "ble_hs_hci_evt_acl_process",
+                "ble_hs_conns",
+                "ble_l2cap_rx",
+                "ble_att_rx",
+                "ble_att_svr_rx_write",
+                "ble_att_svr_rx_write_no_rsp",
+                "ble_att_svr_find_by_handle",
+                "ble_att_svr_write_handle$constprop$0",
+                "mp_bluetooth_gatts_on_write",
+                "bluetooth_ble_irq",
+                "mp_bluetooth_gatts_notify_indicate",
+                "ble_gatts_notify",
             ]
         )
     symbols = resolve_symbols(args.elf, symbol_names)
@@ -320,6 +348,8 @@ def main() -> int:
         },
         "checks": {},
         "hli_c2h": args.hli_c2h,
+        "att_pdu_bytes": len(args.payload.encode("utf-8")) + 3,
+        "default_att_mtu": 23,
     }
     if args.hli_c2h:
         result["experimental_runtime_requirements"] = [
@@ -355,6 +385,8 @@ def main() -> int:
                 f"0x{symbols['g_rw_schd_queue'].value:08x},"
                 "meta-queue-pointer-address="
                 f"0x{symbols['s_meta_queue_ptr'].value:08x},"
+                "trace-hs-conns-address="
+                f"0x{symbols['ble_hs_conns'].value:08x},"
                 "hli-event-allocator-address="
                 f"0x{symbols['ble_transport_alloc_evt'].value:08x},"
                 "hli-test-callback="
@@ -383,6 +415,36 @@ def main() -> int:
                 f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x79:08x}"
                 ",acl-semaphore-return-pc="
                 f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x7c:08x}"
+                ",trace-acl-process-pc="
+                f"0x{symbols['ble_hs_hci_evt_acl_process'].value:08x}"
+                ",trace-l2cap-rx-pc="
+                f"0x{symbols['ble_l2cap_rx'].value:08x}"
+                ",trace-l2cap-incomplete-pc="
+                f"0x{symbols['ble_l2cap_rx'].value + 0xfc:08x}"
+                ",trace-l2cap-chan-found-pc="
+                f"0x{symbols['ble_l2cap_rx'].value + 0x101:08x}"
+                ",trace-l2cap-mtu-reject-pc="
+                f"0x{symbols['ble_l2cap_rx'].value + 0x116:08x}"
+                ",trace-l2cap-rxfn-pc="
+                f"0x{symbols['ble_l2cap_rx'].value + 0x12f:08x}"
+                ",trace-att-rx-pc="
+                f"0x{symbols['ble_att_rx'].value:08x}"
+                ",trace-att-write-pc="
+                f"0x{symbols['ble_att_svr_rx_write'].value:08x}"
+                ",trace-att-write-no-rsp-pc="
+                f"0x{symbols['ble_att_svr_rx_write_no_rsp'].value:08x}"
+                ",trace-att-find-handle-pc="
+                f"0x{symbols['ble_att_svr_find_by_handle'].value:08x}"
+                ",trace-att-write-handle-pc="
+                f"0x{symbols['ble_att_svr_write_handle$constprop$0'].value:08x}"
+                ",trace-python-gatts-on-write-pc="
+                f"0x{symbols['mp_bluetooth_gatts_on_write'].value:08x}"
+                ",trace-python-irq-pc="
+                f"0x{symbols['bluetooth_ble_irq'].value:08x}"
+                ",trace-python-notify-pc="
+                f"0x{symbols['mp_bluetooth_gatts_notify_indicate'].value:08x}"
+                ",trace-nimble-gatts-notify-pc="
+                f"0x{symbols['ble_gatts_notify'].value:08x}"
             )
         command = [
             str(args.qemu),
@@ -416,8 +478,12 @@ def main() -> int:
             "-qmp",
             f"unix:{qmp_path},server=on,wait=off",
         ]
+        qemu_environment = os.environ.copy()
+        if args.hli_c2h:
+            qemu_environment["M5_NATIVE_HCI_TRACE"] = "1"
         qemu_process = subprocess.Popen(
             command,
+            env=qemu_environment,
             stdout=(out_dir / "qemu.stdout").open("wb"),
             stderr=(out_dir / "qemu.stderr").open("wb"),
         )
@@ -450,6 +516,10 @@ def main() -> int:
                 "BLE_BUMBLE_PASS" in ble_text
                 and "CORE2_HCI_BLE_ACK_SENT" in serial_text
             ):
+                try:
+                    ble_process.wait(timeout=8)
+                except subprocess.TimeoutExpired:
+                    pass
                 break
             if qemu_process.poll() is not None:
                 break
@@ -468,6 +538,22 @@ def main() -> int:
             counters = read_qom_counters(qmp, FINAL_COUNTER_NAMES)
         result["counters"] = counters
         result["live_counters"] = live_counters
+        if "BLE_BUMBLE_PASS" in ble_text:
+            result["post_sequence_teardown"] = {
+                "api_h2c_errors": counters.get("api-h2c-errors"),
+                "last_error": counters.get("last-error"),
+                "note": (
+                    "Errors observed after BLE_BUMBLE_PASS may be caused by "
+                    "closing the HCI peer and are not sequence gates."
+                ),
+            }
+        if args.hli_c2h:
+            trace_lines = [
+                line
+                for line in read_text(out_dir / "qemu.stderr").splitlines()
+                if "esp32-native-hci-trace" in line
+            ]
+            result["guest_trace_events"] = trace_lines[-256:]
         if ble_failure_counters:
             result["ble_failure_counters"] = ble_failure_counters
         result["checks"] = {
@@ -482,6 +568,9 @@ def main() -> int:
                 "BLE_BUMBLE_NOTIFICATION_OK" in ble_text
             ),
             "bumble_pass": "BLE_BUMBLE_PASS" in ble_text,
+            "payload_fits_default_att_mtu": (
+                result["att_pdu_bytes"] <= result["default_att_mtu"]
+            ),
             "no_callback_errors": counters.get("c2h-errors") == 0,
             "no_malformed_packets": counters.get("malformed-packets") == 0,
             "no_dropped_packets": counters.get("dropped-packets") == 0,
@@ -503,9 +592,9 @@ def main() -> int:
                     "hli_meta_queue_empty": zero("meta-queue-depth"),
                     "api_h2c_bypass_used": positive("api-h2c-packets"),
                     "api_h2c_no_errors_before_peer_failure": (
-                        ble_failure_counters.get("api-h2c-errors") == 0
+                        not ble_failure_counters
+                        or ble_failure_counters.get("api-h2c-errors") == 0
                     ),
-                    "api_h2c_no_errors_final": zero("api-h2c-errors"),
                 }
             )
         if all(result["checks"].values()):

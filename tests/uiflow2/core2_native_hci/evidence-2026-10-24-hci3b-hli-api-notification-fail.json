@@ -6,6 +6,7 @@
   "status": "FAIL",
   "validation": "virtual-device validation",
   "scope": "stock Core2 firmware, QEMU API-boundary H2C, firmware HLI event/ACL delivery and external Bumble NUS exchange",
+  "superseded_by": "evidence-2026-10-24-hli-api-gatt-5x.json",
   "firmware": {
     "file": "uiflow2-ui-test.bin",
     "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680",
@@ -66,12 +67,14 @@
     "api_h2c_errors_at_failure_snapshot": 1,
     "note": "A prior experimental build had hli-errors=0, but it did not include the same hook set as this rebuilt diagnostic. These two matched runs are the current comparison baseline."
   },
-  "blocker": "The guest-side NUS write path produced no notification/ACK before Bumble timed out; HLI/API transaction completion and controller flow-control remain unproven",
+  "blocker_at_time": "The guest-side NUS write path produced no notification/ACK before Bumble timed out; the test payload was later found to exceed the default ATT MTU",
   "secondary_observation": "notification timeout is the first application-level failure marker. One H2C write error is already present at that visible failure snapshot, and more EIO writes accumulate during teardown. The current evidence cannot assign the earliest EIO to a packet or prove whether it precedes the notification timeout, so it must not be used as the sole root cause",
+  "root_cause": "The 21-byte probe produced a 24-byte ATT PDU, exceeding the guest default ATT MTU of 23. Protocol-stack tracing later showed one L2CAP MTU rejection before ATT dispatch.",
+  "resolution": "A 15-byte probe produces a 17-byte ATT PDU; HLI/API-boundary H2C then completes ATT write, Python handler, notification and Bumble ACK in 5/5 runs.",
   "experiment": {
-    "retained": false,
-    "reproducible_from_committed_worktree": false,
-    "note": "The API-boundary, HLI ACL and controller-semaphore hooks lived in the ignored QEMU worktree. Only this diagnostic record and the run_full.py diagnostics are retained; the same-source QEMU binary is not reproducible from the committed patch series."
+    "retained": true,
+    "reproducible_from_committed_worktree": true,
+    "note": "The hooks are retained in 0003-esp32-native-hci-api-transaction.patch and 0004-xtensa-ccount-tb-yield.patch. This evidence remains the negative case for the invalid probe size."
   },
   "not_claimed": [
     "complete HCI/GATT sequence",

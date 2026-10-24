@@ -52,7 +52,7 @@
 | 能力面 | 虚拟设备验证 | 本地服务化 | 真机 | 当前结论 |
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
-| S3/C6/Core2 单实例无线 | 12 个 unified profile；S3/C6 整机路径 PASS，Core2 为环境门控且 GDB/native-HCI 生产化未闭环 | `qemu-unified` 可返回 frame/QOM/network/evidence | `NOT RUN` | 已能验证应用网络与 BLE 数据面，不是完整 RF/PHY |
+| S3/C6/Core2 单实例无线 | 12 个 unified profile；S3/C6 整机路径 PASS，Core2 为环境门控；native-HCI HCI-3b 独立 GATT PASS，GDB bridge 与 HCI-4 服务化未闭环 | `qemu-unified` 可返回 frame/QOM/network/evidence | `NOT RUN` | 已能验证应用网络与 BLE 数据面，不是完整 RF/PHY |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle 和远程 worker 注册目录已通过契约/运行测试；worker supervisor、活动进程 re-attach 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
 | 服务生命周期 | 停止/失败历史可恢复、容量与 GC 可用；本地 worker heartbeat/drain/resume、租约和重启分类可用；远程 worker 注册目录与结果元数据 API 有契约测试 | 活动进程不能跨重启接管，无持久任务队列、worker supervisor、warm pool/多机调度 | 不适用 | 已有单机控制面和远程注册基础，不是完整云端服务 |
@@ -69,7 +69,7 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、远程 worker 注册目录；GitHub Actions Linux policy CI PASS | 持久任务队列、worker supervisor、活动进程 re-attach、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5`、HLI 真实 event `5/5`、HLI event/ACL 的 API-boundary 路径到 NUS discovery/subscription 和外部 NUS write | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB internal-controller relay 在第二个 ATT request 后 `ack returned 12` 并 Reset。API-boundary 审计已到订阅和外部 NUS write，但 guest 没有 write/ACK marker 或 notification；同 build 两次都在 notification timeout 失败，失败快照已有 `1` 次 H2C `EIO`，断链后累计 `15` 次。当前不能证明首个 `EIO` 早于 timeout，也不能把它当作唯一根因。safe-point callback 与 nested `r_eif_send` 均已证伪并回退。剩余重点是 guest NUS write dispatch/notify、ACL mbuf 和 controller ACK/flow control；随后做 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` PASS、`HCI-3a` 诊断性单包 C2H `5/5`、`HCI-3b` 无 GDB HLI/API-boundary H2C + 外部 NUS GATT `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`，但 QEMU 内部替代路径已通过 `HCI-3b`。旧 notification timeout 已定位为测试载荷错误：21-byte probe 形成 24-byte ATT PDU，超过默认 MTU 23；改用 15-byte probe 后 17-byte ATT PDU 完整通过，Python handler/notify 和 Bumble ACK 均为 `5/5`。实现已整理为 `0003`/`0004` patch。剩余重点是 `HCI-4` Device Service `5/5`、删除 GDB 诊断桥、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist 策略 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、跨厂商回归 |
 
 ## 工作流入口
@@ -138,12 +138,11 @@
   | 阶段 | 状态 | 当前边界 |
   | --- | --- | --- |
   | `HCI-1` transport | `PASS` | 分片 ACL、32 packet bounded queue、overflow、peer close、counters 和 clean shutdown |
-  | `HCI-2` H2C | `PARTIAL` | 不启动 GDB，已捕获真实 stock HCI Reset `01030c00`；后续 H2C 依赖 controller response |
+  | `HCI-2` H2C | `PASS` | 不启动 GDB，真实 stock HCI Reset `01030c00` 和完整 H2C 命令流均已通过 |
   | `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | 真实 Bumble Reset Complete 经 firmware `notify_host_recv` 交付，callback status 0；send-available 后 guest 从 HCI Reset 推进到 Read Local Version，targeted `5/5`。后续审计不支持把它当作产品后端 |
   | `HCI-3b` HLI event | `PASS` | guest `ble_transport_alloc_evt(0)` + event 13 + `ble_transport_to_hs_evt_impl`；真实 Reset Complete 后 `01030c00 → 01011000`，连续 `5/5`，队列清空且无 malformed/dropped |
-  | `HCI-3b` API-boundary diagnostic | `PARTIAL` | HLI event/ACL 投递已到 NUS discovery/subscription 和外部 NUS write；guest 没有 write/ACK marker 或 notification，同 build 两次均为 notification timeout，失败快照已有一次 H2C `EIO` |
-  | `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | internal-controller relay 在第二个 ATT request 后 ack 12 并 Reset；API-boundary hook 已到订阅和 NUS write，但 guest write dispatch/notify 未完成。下一步定位 NUS write 语义、ACL mbuf 生命周期和 controller ACK/flow control |
-  | `HCI-4` stability | `OPEN` | 尚无以 Device Service `/api/v1` 连续 `5/5`、无 GDB callback/synthetic return 的完整 GATT 门禁 |
+  | `HCI-3b` complete sequence | `PASS` | `0003` API-boundary H2C + HLI event/ACL，`0004` CCOUNT TB-yield；15-byte probe / 17-byte ATT PDU 完成外部 NUS GATT、Python write/notify 和 Bumble ACK，连续 `5/5` |
+  | `HCI-4` stability | `OPEN` | `HCI-3b` 独立 runner 已 `5/5`；尚无以 Device Service `/api/v1` 连续 `5/5`、无 GDB callback/synthetic return 的完整 GATT 门禁 |
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
   `/after` HTTP。
@@ -186,7 +185,7 @@
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS | 原生 BT controller 与 C6 WiFi PHY |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、扬声器、麦克风、WiFi、公网 DNS/HTTP、HCI-offload BLE、stock native-VHCI BLE GATT、ELF 固定 VHCI 符号 | `core2-unified` 与 `core2-native-vhci` Device Service 单 lease PASS；native-VHCI BLE 5/5；同 guest 3/3；QEMU native-HCI 到 NUS subscription/NUS write | 移除 GDB 暂停/注入/return 控制面、guest write/notify、ACL/ACK/flow-control、重复 lease 稳定门禁、bit-exact BT controller、物理 cache/PSRAM 等价性 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、扬声器、麦克风、WiFi、公网 DNS/HTTP、HCI-offload BLE、stock native-VHCI BLE GATT、ELF 固定 VHCI 符号、QEMU native-HCI 完整 NUS GATT | `core2-unified` 与 `core2-native-vhci` Device Service 单 lease PASS；native-VHCI BLE 5/5；同 guest 3/3；QEMU native-HCI `HCI-3b` 5/5 | 移除 GDB 暂停/注入/return 控制面、`HCI-4` Device Service repeated lease、bit-exact BT controller、物理 cache/PSRAM 等价性 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
@@ -210,17 +209,14 @@
    Device Service。VHCI 符号已经固定，但 GDB 仍控制暂停、callback 注入
    和 synthetic return。QEMU 内部 relay 已完成 transport、首个 H2C、
    诊断性单包 C2H callback、HLI 真实 Reset Complete `5/5`，以及 HLI
-   event/ACL 到 NUS discovery/subscription 的 API-boundary 诊断。HLI 已
-   证明池化 buffer 能经固件 ISR/controller task 安全进入 NimBLE。最新失败
-   发生在外部 NUS write 之后、guest write/ACK marker 和 notification 之前；
-   同 build 两次 Bumble 都报 notification timeout；失败快照已有一次 H2C
-   `EIO`，peer 断开后又累计到 `15` 次。当前无法证明首个 `EIO` 与 timeout
-   的先后，因此它既不能被当成唯一根因，也不能被忽略。完整 sequence 的失败
-   证据也排除了任意 safe-point 回调与 nested guest RPC。下一步重点是 guest
-   NUS write dispatch/notify、ACL mbuf 生命周期、H2C transaction 和
-   controller ACK/flow control；若语义仍无法闭合，则退回
-   in-process controller transaction。该路径不是无调试器的生产模型，也不等于 bit-exact
-   Espressif BT controller 或物理 cache/PSRAM 时序。
+   event/ACL + API-boundary H2C 的完整外部 NUS GATT `5/5`。HLI 已证明
+   池化 buffer 能经固件 ISR/controller task 安全进入 NimBLE；QEMU trace
+   进一步证明 write 在旧 21-byte probe 下因 24-byte ATT PDU 超过默认 MTU
+   23 而在 L2CAP 被拒绝。改用 15-byte probe 后，L2CAP、ATT、
+   `mp_bluetooth_gatts_on_write`、Python notify 和 Bumble ACK 全部命中。
+   safe-point 回调与 nested guest RPC 仍已证伪。下一步重点是 `HCI-4`
+   Device Service repeated lease、删除 GDB 控制面、bit-exact Espressif BT
+   controller 和物理 cache/PSRAM 时序验证。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径

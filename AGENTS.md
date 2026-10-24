@@ -218,27 +218,20 @@ diagnostics in `internal/records/`.
   stock-firmware controller-boundary evidence, not a bit-exact Espressif BT
   baseband/controller model. The GDB backend and physical cache/PSRAM
   equivalence remain open.
-- The QEMU native-HCI replacement is staged: `HCI-1` host transport and
-  `HCI-2` first stock Reset capture pass. `HCI-3a` is a diagnostic
-  single-packet check: it invokes the firmware's registered receive callback,
-  observes status 0, calls send-available and sees the guest emit its next H2C
-  command. It is not a reusable controller backend. The complete Bumble
-  HCI/GATT sequence (`HCI-3b`) still resets after the first ATT exchange.
-  Saving
-  additional Xtensa special registers and invoking callbacks at arbitrary CPU0
-  safe points did not fix it, and nesting the firmware's real
-  `r_eif_send -> vhci_send` path as a guest RPC failed with a cache-disabled
-  memory access. Those experiments were reverted. The retained HLI patch now
-  posts an event-13 work item into the firmware's real
-  `g_rw_schd_queue`/meta queue and the guest ISR/controller task consumes it
-  after `INTSET[29]`. A pool-allocated Reset Complete is delivered through
-  `ble_transport_to_hs_evt_impl`; the guest advances from `01030c00` to
-  `01011000` in 5/5 runs. The next implementation must deliver controller ACL
-  data and close ACK/flow control while establishing an explicit API-boundary
-  H2C transaction, or use an in-process controller model. No-GDB repeated
-  Device Service leases (`HCI-4`) and a bit-exact controller remain open; do
-  not call a command-event-only HLI path or direct callback injection a
-  finished native Bluetooth backend.
+- The QEMU native-HCI replacement is staged: `HCI-1` host transport,
+  `HCI-2` H2C, `HCI-3a` diagnostic callback and `HCI-3b` full external NUS
+  GATT pass. `0003-esp32-native-hci-api-transaction.patch` owns H2C at the
+  firmware API boundary, delivers event/ACL data through the real HLI
+  `g_rw_schd_queue`/meta queue and interrupts the guest controller task.
+  `0004-xtensa-ccount-tb-yield.patch` preserves deterministic CCOUNT polling.
+  With a 15-byte probe (17-byte ATT PDU), discovery, subscription, write,
+  Python GATT handler, notification and Bumble ACK pass in 5/5 independent
+  runs. The earlier 21-byte probe failed because its 24-byte ATT PDU exceeded
+  the guest default MTU of 23; it was not a controller ACK defect. No-GDB
+  repeated Device Service leases (`HCI-4`), production GDB-control removal,
+  bit-exact controller/baseband and physical cache/PSRAM equivalence remain
+  open. Do not describe this virtual HCI boundary as RF or a finished
+  bit-exact controller.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.

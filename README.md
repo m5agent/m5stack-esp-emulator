@@ -58,7 +58,7 @@ MicroPython 和其他完整 Flash 固件。
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap、双 guest DHCP/TCP/双侧 pcap 隔离、远程 worker 注册目录 | [`two-guest-pass.json`](tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json) | 持久任务队列、worker supervisor、活动 QEMU re-attach、外部 IPv6 |
-| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、native-HCI `HCI-1` transport PASS、`HCI-2` 无 GDB 捕获首个 `01030c00`、`HCI-3a` 诊断性单包 C2H callback `5/5`、HLI 真实 event/ACL 投递、API-boundary 到 NUS discovery/subscription 和外部 NUS write | [`c2h-delivery.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json)、[`api-boundary-audit.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json)、[`hli-event-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json)、[`notification-fail.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-api-notification-fail.json) | `HCI-3b` 在 NUS write 后没有 guest write/ACK marker 或 notification；同 build 两次都在 notification timeout 失败，失败快照已有 `1` 次 H2C `EIO`，断链后累计 `15` 次。当前不能证明首个 `EIO` 早于 timeout，也不能把它当作唯一根因。下一步定位 guest NUS write dispatch/notify、ACL mbuf 和 controller ACK/flow control，再做 `HCI-4` repeated lease；GDB 控制面、bit-exact BT controller、物理 cache/PSRAM、coexistence/soak 仍开放 |
+| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、native-HCI `HCI-1` transport PASS、`HCI-2` 无 GDB 捕获首个 `01030c00`、`HCI-3a` 诊断性单包 C2H callback `5/5`、`HCI-3b` 无 GDB HLI/API-boundary H2C 和外部 NUS GATT `5/5` | [`hli-api-gatt-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json)、[`0003-esp32-native-hci-api-transaction.patch`](patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch)、[`0004-xtensa-ccount-tb-yield.patch`](patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch) | `HCI-3b` 已闭环。旧失败来自 21-byte probe 形成 24-byte ATT PDU、超过默认 MTU 23，在 `ble_l2cap_rx` 被拒绝；改为 15-byte probe 后 ATT/GATT/notify 全链路 `5/5`。下一步是 `HCI-4` Device Service `/api/v1` 连续 `5/5`、删除 GDB 诊断桥，再做 bit-exact BT controller、物理 cache/PSRAM、coexistence/soak 和真机同路径 |
 | 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、写入回滚和 staging GC、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单与 SPDX、声明级许可 allowlist/denylist | [`spiffs-inventory.json`](tests/firmware/evidence-2026-10-24-spiffs-inventory.json)、[`webburner-ui.json`](tests/firmware/evidence-2026-10-24-webburner-ui.json) | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse、跨厂商回归 |
 | 共享 QEMU 回归 | 双 guest WiFi patch `0028` 合入后，S3/C6/Core2 全矩阵 `67/67` 首轮通过；键盘测试补齐 10 秒启动 settle | [`dual-guest-fabric-matrix.json`](tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) | 后续共享控制器改动重跑受影响矩阵；真机同路径证据 |
 
@@ -71,7 +71,7 @@ MicroPython 和其他完整 Flash 固件。
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT、DHCP renewal、两台 QEMU guest 的私有 lab fabric、本地 worker lifecycle 和远程 worker 注册目录已通；持久任务队列、worker supervisor、活动 QEMU re-attach 和外部 IPv6 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、浏览器 chunk 上传与刷新恢复、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单和声明级许可 allowlist/denylist 已通；运行时权限、完整源码级许可审批与真机 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持本地 worker heartbeat/drain/resume、租约状态、重启后 abandoned-lease 分类、远程 worker 注册目录，以及停止/失败会话、事件、末帧和设备态恢复；尚无持久任务队列、worker supervisor、活动 QEMU 进程 re-attach、warm pool 和多机调度 |
-| Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、ELF 固定地址和 Device Service 单 lease 已通；native-HCI `HCI-3a` 证明诊断性单包 callback，HLI event 连续 5/5，API-boundary 的 HLI event/ACL 路径又完成 NUS discovery/subscription 并收到外部 NUS write。guest 未给出 write/ACK marker 或 notification；同 build 两次都是 notification timeout，失败快照已有一次 H2C 写错误，断链后累计 `EIO`。下一步是 guest NUS write dispatch/notify、ACL mbuf 和 controller ACK/flow control，再做 `HCI-4` repeated lease。GDB 控制面、bit-exact controller 与物理等价性仍未完成 |
+| Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、ELF 固定地址和 Device Service 单 lease 已通；native-HCI `HCI-3a` 完成诊断性 callback，HLI/API-boundary 路径用合法 17-byte ATT PDU 完成外部 NUS GATT，连续 `5/5`。QEMU 实现已整理为 `0003`/`0004` patch。下一步是 `HCI-4` Device Service repeated lease、删除 GDB 诊断桥、bit-exact controller 与物理等价性 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 关键索引：
@@ -293,12 +293,12 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   C2H callback；`HCI-3b` 的 HLI event 路径已使用 guest 池化 buffer 投递
   真实 Reset Complete，经 event 13 和 `ble_transport_to_hs_evt_impl`
   连续 5/5 推进到 Read Local Version。API-boundary 诊断又通过 HLI 投递
-  event 和 ACL，完成 NUS discovery/subscription 并收到外部 NUS write。guest
-  没有产生 write/ACK marker 或 notification；同 build 两次 Bumble 都在
-  notification timeout 失败，失败快照已有一次 H2C `EIO`，peer 断开后
-  累计更多写失败。`EIO` 与收尾重叠，但不是已经被证明的唯一根因。guest
-  write dispatch、完整 controller transaction 和 notification 仍未形成完整
-  后端。
+  event 和 ACL，完成 NUS discovery/subscription、外部 NUS write、Python
+  GATT write handler 和 notification ACK，连续 `5/5` PASS。旧失败已确认是
+  21-byte probe 加 3-byte ATT header 后超过默认 MTU 23；改为 15-byte probe
+  后 ATT PDU 为 17 bytes，`ble_l2cap_rx` 不再拒绝。该路径已固化为
+  `0003` native-HCI transaction patch 和 `0004` Xtensa CCOUNT TB-yield
+  patch；Device Service `HCI-4` repeated lease 仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

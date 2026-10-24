@@ -121,23 +121,15 @@ complete simulated device or as a unified-device PASS.
   that invokes the registered receive callback with status 0, emits
   send-available and observes the guest's next H2C command. The callback
   route is not accepted as the production controller-to-host backend.
-  The `HCI-3b` diagnostic reaches connect and the first ATT
-  exchange, then resets after the second ATT request. Safe-point callback
-  injection and a nested call into `r_eif_send -> vhci_send` both failed and
-  were reverted. A retained HLI patch used a pool-allocated event buffer and
-  event 13 to deliver a real Reset Complete through
-  `ble_transport_to_hs_evt_impl`; the guest advanced from `01030c00` to
-  `01011000` in 5/5 runs. A later API-boundary diagnostic delivered HLI events
-  and ACL buffers, reached advertising, connection, NUS discovery,
-  subscription and an external NUS write, but the guest produced no write/ACK
-  marker or notification. Two matched runs reported notification timeout; one
-  H2C write error was already visible in each failure snapshot and more `EIO`
-  writes accumulated during teardown. The current trace cannot order the first
-  `EIO` against the timeout. The replacement must still explain the guest ATT
-  write/notify path and close ACL ownership plus controller ACK/flow control,
-  or use an in-process controller transaction.
-  Complete Bumble HCI/GATT sequence (`HCI-3b`) and repeated Device Service
-  leases remain open, so the unified acceptance status above is unchanged.
+  The retained HLI patch delivered a real Reset Complete in 5/5 runs, and the
+  `0003` API-boundary transaction plus `0004` CCOUNT TB-yield now complete the
+  full external NUS GATT sequence in 5/5 runs. The previous notification
+  timeout was a probe-size error: 21 payload bytes produced a 24-byte ATT PDU
+  over the default 23-byte MTU. A 15-byte probe yields a 17-byte ATT PDU and
+  reaches L2CAP, ATT, the Python GATT write handler, notify and the Bumble ACK.
+  `HCI-3b` is closed in the standalone runner. `HCI-4` repeated Device Service
+  leases and removal of the production GDB control plane remain open, so the
+  unified acceptance status above is unchanged.
 
 ## Integration rule
 

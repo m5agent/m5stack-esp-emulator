@@ -1,0 +1,1309 @@
+--- a/target/xtensa/cpu.h
++++ b/target/xtensa/cpu.h
+@@ -307,6 +307,12 @@
+ } interrupt_type;
+ 
+ typedef struct CPUArchState CPUXtensaState;
++typedef bool (*XtensaNativeHciSendCallback)(void *opaque, CPUState *cs,
++                                            uint32_t data, uint32_t length);
++#define XTENSA_NATIVE_HCI_TRACE_SLOTS 15
++typedef void (*XtensaNativeHciTraceCallback)(
++    void *opaque, CPUState *cs, uint32_t pc,
++    uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);
+ 
+ typedef struct xtensa_tlb_entry {
+     uint32_t vaddr;
+@@ -510,6 +516,21 @@
+     const XtensaConfig *config;
+     uint32_t regs[16];
+     uint32_t pc;
++    uint32_t native_hci_send_hook_pc;
++    uint32_t native_hci_send_return_pc;
++    uint32_t native_hci_cmd_semaphore_hook_pc;
++    uint32_t native_hci_cmd_semaphore_return_pc;
++    uint32_t native_hci_acl_semaphore_hook_pc;
++    uint32_t native_hci_acl_semaphore_return_pc;
++    uint32_t native_hci_recycle_hook_pc;
++    uint32_t native_hci_recycle_return_pc;
++    uint32_t native_hci_sleep_post_hook_pc;
++    uint32_t native_hci_sleep_post_return_pc;
++    uint32_t native_hci_trace_pcs[XTENSA_NATIVE_HCI_TRACE_SLOTS];
++    XtensaNativeHciSendCallback native_hci_send_callback;
++    void *native_hci_send_opaque;
++    XtensaNativeHciTraceCallback native_hci_trace_callback;
++    void *native_hci_trace_opaque;
+     uint32_t sregs[256];
+     uint32_t uregs[256];
+     uint32_t phys_regs[MAX_NAREG];
+--- a/target/xtensa/helper.h
++++ b/target/xtensa/helper.h
+@@ -5,6 +5,9 @@
+ 
+ DEF_HELPER_1(sync_windowbase, void, env)
+ DEF_HELPER_4(entry, void, env, i32, i32, i32)
++DEF_HELPER_3(native_hci_send_packet, void, env, i32, i32)
++DEF_HELPER_1(native_hci_semaphore_take_bypass, void, env)
++DEF_HELPER_2(native_hci_trace_pc, void, env, i32)
+ DEF_HELPER_2(test_ill_retw, void, env, i32)
+ DEF_HELPER_2(test_underflow_retw, void, env, i32)
+ DEF_HELPER_2(retw, void, env, i32)
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -36,6 +36,29 @@
+ 
+ #ifndef CONFIG_USER_ONLY
+ 
++void HELPER(native_hci_send_packet)(CPUXtensaState *env,
++                                    uint32_t data, uint32_t length)
++{
++    if (env->native_hci_send_callback) {
++        env->native_hci_send_callback(
++            env->native_hci_send_opaque, env_cpu(env), data, length);
++    }
++}
++
++void HELPER(native_hci_semaphore_take_bypass)(CPUXtensaState *env)
++{
++    env->regs[10] = 1;
++}
++
++void HELPER(native_hci_trace_pc)(CPUXtensaState *env, uint32_t pc)
++{
++    if (env->native_hci_trace_callback) {
++        env->native_hci_trace_callback(
++            env->native_hci_trace_opaque, env_cpu(env), pc,
++            env->regs[10], env->regs[11], env->regs[12], env->regs[13]);
++    }
++}
++
+ void HELPER(update_ccount)(CPUXtensaState *env)
+ {
+     XtensaCPU *cpu = env_archcpu(env);
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -1140,6 +1140,59 @@
+     CPUXtensaState *env = cpu_env(cpu);
+     target_ulong page_start;
+ 
++    if (env->native_hci_send_hook_pc &&
++        dc->pc == env->native_hci_send_hook_pc) {
++        gen_helper_native_hci_send_packet(
++            tcg_env, cpu_R[10], cpu_R[11]);
++        dc->base.pc_next = env->native_hci_send_return_pc;
++        dc->pc = env->native_hci_send_return_pc;
++        dc->base.is_jmp = DISAS_TOO_MANY;
++        return;
++    }
++
++    if (env->native_hci_cmd_semaphore_hook_pc &&
++        dc->pc == env->native_hci_cmd_semaphore_hook_pc) {
++        gen_helper_native_hci_semaphore_take_bypass(tcg_env);
++        dc->base.pc_next = env->native_hci_cmd_semaphore_return_pc;
++        dc->pc = env->native_hci_cmd_semaphore_return_pc;
++        dc->base.is_jmp = DISAS_TOO_MANY;
++        return;
++    }
++
++    if (env->native_hci_acl_semaphore_hook_pc &&
++        dc->pc == env->native_hci_acl_semaphore_hook_pc) {
++        gen_helper_native_hci_semaphore_take_bypass(tcg_env);
++        dc->base.pc_next = env->native_hci_acl_semaphore_return_pc;
++        dc->pc = env->native_hci_acl_semaphore_return_pc;
++        dc->base.is_jmp = DISAS_TOO_MANY;
++        return;
++    }
++
++    if (env->native_hci_recycle_hook_pc &&
++        dc->pc == env->native_hci_recycle_hook_pc) {
++        dc->base.pc_next = env->native_hci_recycle_return_pc;
++        dc->pc = env->native_hci_recycle_return_pc;
++        dc->base.is_jmp = DISAS_TOO_MANY;
++        return;
++    }
++
++    if (env->native_hci_sleep_post_hook_pc &&
++        dc->pc == env->native_hci_sleep_post_hook_pc) {
++        dc->base.pc_next = env->native_hci_sleep_post_return_pc;
++        dc->pc = env->native_hci_sleep_post_return_pc;
++        dc->base.is_jmp = DISAS_TOO_MANY;
++        return;
++    }
++
++    for (unsigned i = 0; i < XTENSA_NATIVE_HCI_TRACE_SLOTS; i++) {
++        if (env->native_hci_trace_pcs[i] &&
++            dc->pc == env->native_hci_trace_pcs[i]) {
++            gen_helper_native_hci_trace_pc(
++                tcg_env, tcg_constant_i32(dc->pc));
++            break;
++        }
++    }
++
+     /* These two conditions only apply to the first insn in the TB,
+        but this is the first TranslateOps hook that allows exiting.  */
+     if ((tb_cflags(dc->base.tb) & CF_USE_ICOUNT)
+--- a/hw/xtensa/esp32_native_hci.c
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -14,8 +14,10 @@
+ #include "qemu/timer.h"
+ #include "qapi/error.h"
+ #include "exec/cpu-common.h"
++#include "exec/exec-all.h"
+ #include "exec/address-spaces.h"
+ #include "exec/memory.h"
++#include "exec/tb-flush.h"
+ #include "hw/qdev-properties.h"
+ #include "hw/qdev-properties-system.h"
+ #include "hw/xtensa/esp32_native_hci.h"
+@@ -48,11 +50,164 @@
+ 
+ static void esp32_native_hci_schedule_c2h(Esp32NativeHciState *s);
+ static void esp32_native_hci_c2h_retry(void *opaque);
++static void esp32_native_hci_tx_retry(void *opaque);
++static bool esp32_native_hci_flush_tx(Esp32NativeHciState *s, Error **errp);
+ static void esp32_native_hci_post_hli(CPUState *cs,
+                                       run_on_cpu_data data);
+ static bool esp32_native_hci_guest_call(CPUState *cs, uint32_t function,
+                                         uint32_t arg0, uint32_t arg1,
++                                        uint32_t arg2, uint32_t arg3,
+                                         uint32_t *status, uint32_t *steps);
++static bool esp32_native_hci_read_u32(CPUState *cs, uint32_t address,
++                                      uint32_t *value);
++
++static void esp32_native_hci_trace(void *opaque,
++                                   CPUState *cs,
++                                   uint32_t pc,
++                                   uint32_t a2,
++                                   uint32_t a3,
++                                   uint32_t a4,
++                                   uint32_t a5)
++{
++    Esp32NativeHciState *s = opaque;
++    struct {
++        const char *name;
++        uint64_t pc;
++        uint64_t *counter;
++    } traces[] = {
++        {"acl_process", s->trace_acl_process_pc, &s->trace_acl_process},
++        {"l2cap_rx", s->trace_l2cap_rx_pc, &s->trace_l2cap_rx},
++        {"l2cap_incomplete", s->trace_l2cap_incomplete_pc,
++         &s->trace_l2cap_incomplete},
++        {"l2cap_chan_found", s->trace_l2cap_chan_found_pc,
++         &s->trace_l2cap_chan_found},
++        {"l2cap_mtu_reject", s->trace_l2cap_mtu_reject_pc,
++         &s->trace_l2cap_mtu_reject},
++        {"l2cap_rxfn", s->trace_l2cap_rxfn_pc, &s->trace_l2cap_rxfn},
++        {"att_rx", s->trace_att_rx_pc, &s->trace_att_rx},
++        {"att_write", s->trace_att_write_pc, &s->trace_att_write},
++        {"att_write_no_rsp", s->trace_att_write_no_rsp_pc,
++         &s->trace_att_write_no_rsp},
++        {"att_find_handle", s->trace_att_find_handle_pc,
++         &s->trace_att_find_handle},
++        {"att_write_handle", s->trace_att_write_handle_pc,
++         &s->trace_att_write_handle},
++        {"python_gatts_on_write", s->trace_python_gatts_on_write_pc,
++         &s->trace_python_gatts_on_write},
++        {"python_irq", s->trace_python_irq_pc, &s->trace_python_irq},
++        {"python_notify", s->trace_python_notify_pc,
++         &s->trace_python_notify},
++        {"nimble_gatts_notify", s->trace_nimble_gatts_notify_pc,
++         &s->trace_nimble_gatts_notify},
++    };
++    size_t i;
++
++    for (i = 0; i < ARRAY_SIZE(traces); i++) {
++        if (!traces[i].pc || pc != traces[i].pc) {
++            continue;
++        }
++        (*traces[i].counter)++;
++        fprintf(stderr,
++                "esp32-native-hci-trace name=%s t=%" PRId64
++                " pc=0x%08x cpu=%d a2=0x%08x a3=0x%08x"
++                " a4=0x%08x a5=0x%08x\n",
++                traces[i].name,
++                qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
++                pc, cs->cpu_index, a2, a3, a4, a5);
++        if (strcmp(traces[i].name, "acl_process") == 0) {
++            uint32_t data_address = 0;
++            uint16_t data_length = 0;
++            uint8_t data[64] = {0};
++            char hex[sizeof(data) * 2 + 1] = {0};
++            size_t data_size = 0;
++            size_t j;
++
++            if (esp32_native_hci_read_u32(
++                    cs, a2, &data_address) &&
++                data_address &&
++                cpu_memory_rw_debug(
++                    cs, a2 + 6, (uint8_t *)&data_length,
++                    sizeof(data_length), false) == 0) {
++                data_size = MIN((size_t)data_length, sizeof(data));
++                if (cpu_memory_rw_debug(
++                        cs, data_address, data, data_size, false) == 0) {
++                    for (j = 0; j < data_size; j++) {
++                        snprintf(hex + j * 2, sizeof(hex) - j * 2,
++                                 "%02x", data[j]);
++                    }
++                    fprintf(stderr,
++                            "esp32-native-hci-trace-acl t=%" PRId64
++                            " om=0x%08x data=0x%08x len=%u hex=%s\n",
++                            qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
++                            a2, data_address, data_length, hex);
++                }
++            }
++        }
++        if (strcmp(traces[i].name, "att_write") == 0) {
++            uint32_t rxom_address = 0;
++            uint32_t om_address = 0;
++            uint32_t data_address = 0;
++            uint16_t data_length = 0;
++            uint8_t data[64] = {0};
++            char hex[sizeof(data) * 2 + 1] = {0};
++            size_t data_size = 0;
++            size_t j;
++
++            if (esp32_native_hci_read_u32(cs, a4, &rxom_address) &&
++                rxom_address &&
++                esp32_native_hci_read_u32(cs, rxom_address, &om_address) &&
++                om_address &&
++                esp32_native_hci_read_u32(cs, om_address, &data_address) &&
++                data_address &&
++                cpu_memory_rw_debug(
++                    cs, om_address + 6, (uint8_t *)&data_length,
++                    sizeof(data_length), false) == 0) {
++                data_size = MIN((size_t)data_length, sizeof(data));
++                if (cpu_memory_rw_debug(
++                        cs, data_address, data, data_size, false) == 0) {
++                    for (j = 0; j < data_size; j++) {
++                        snprintf(hex + j * 2, sizeof(hex) - j * 2,
++                                 "%02x", data[j]);
++                    }
++                    fprintf(stderr,
++                            "esp32-native-hci-trace-att-write"
++                            " t=%" PRId64 " om=0x%08x data=0x%08x"
++                            " len=%u hex=%s\n",
++                            qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
++                            om_address, data_address, data_length, hex);
++                }
++            }
++        }
++        if (strcmp(traces[i].name, "l2cap_rx") == 0 &&
++            s->trace_hs_conns_address) {
++            uint32_t conn = 0;
++            uint32_t rx_frags = 0;
++            uint16_t rx_len = 0;
++            uint16_t rx_cid = 0;
++
++            if (esp32_native_hci_read_u32(
++                    cs, (uint32_t)s->trace_hs_conns_address,
++                    &conn) &&
++                conn &&
++                esp32_native_hci_read_u32(
++                    cs, conn + 60, &rx_frags) &&
++                cpu_memory_rw_debug(
++                    cs, conn + 64, (uint8_t *)&rx_len,
++                    sizeof(rx_len), false) == 0 &&
++                cpu_memory_rw_debug(
++                    cs, conn + 66, (uint8_t *)&rx_cid,
++                    sizeof(rx_cid), false) == 0) {
++                fprintf(stderr,
++                        "esp32-native-hci-trace-l2cap-state"
++                        " t=%" PRId64 " conn=0x%08x rx_frags=0x%08x"
++                        " rx_len=%u rx_cid=%u\n",
++                        qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
++                        conn, rx_frags, rx_len, rx_cid);
++            }
++        }
++        return;
++    }
++}
+ 
+ static void esp32_native_hci_schedule_hli(Esp32NativeHciState *s)
+ {
+@@ -60,8 +215,10 @@
+         !s->meta_queue_pointer_address ||
+         !s->vhci_env_address ||
+         !s->h2c_packets ||
+-        s->hli_test_event == UINT32_MAX ||
+-        s->hli_scheduled) {
++        s->hli_scheduled ||
++        s->hli_post_pending ||
++        (!s->hli_c2h && s->hli_test_event == UINT32_MAX) ||
++        (s->hli_c2h && !s->rx_queue_count)) {
+         return;
+     }
+     s->hli_scheduled = true;
+@@ -171,7 +328,7 @@
+     s->rx_buffer_length += take;
+     s->rx_bytes += take;
+     consume_rx_buffer(s);
+-    if (s->rx_queue_count) {
++    if (s->rx_queue_count && !s->hli_c2h) {
+         timer_mod(s->c2h_timer,
+                   qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+                   ESP32_NATIVE_HCI_C2H_SETTLE_NS);
+@@ -181,15 +338,28 @@
+ static void esp32_native_hci_event(void *opaque, QEMUChrEvent event)
+ {
+     Esp32NativeHciState *s = opaque;
++    Error *error = NULL;
+ 
+     switch (event) {
+     case CHR_EVENT_OPENED:
+         s->peer_opened++;
+         qemu_chr_fe_accept_input(&s->chr);
++        esp32_native_hci_flush_tx(s, &error);
++        if (error) {
++            qemu_log_mask(LOG_GUEST_ERROR,
++                          "esp32-native-hci: TX flush failed: %s\n",
++                          error_get_pretty(error));
++            error_free(error);
++            error = NULL;
++        }
+         break;
+     case CHR_EVENT_CLOSED:
+         s->peer_closed++;
+         s->rx_buffer_length = 0;
++        s->tx_queue_head = 0;
++        s->tx_queue_count = 0;
++        s->tx_queue_offset = 0;
++        timer_del(s->tx_timer);
+         break;
+     default:
+         break;
+@@ -339,21 +509,73 @@
+     return false;
+ }
+ 
++static bool esp32_native_hci_hli_ensure_scratch(
++    CPUState *cs,
++    Esp32NativeHciState *s)
++{
++    uint32_t status = 0;
++    uint32_t steps = 0;
++
++    if (!s->c2h_allocator_address) {
++        return false;
++    }
++    if (!s->c2h_scratch_address) {
++        if (!esp32_native_hci_guest_call(
++                cs, s->c2h_allocator_address,
++            s->c2h_scratch_size, 0, 0, 0, &status, &steps) ||
++            !status) {
++            return false;
++        }
++        s->c2h_scratch_address = status;
++    }
++    if (!s->hli_descriptor_pool_address) {
++        if (!s->hli_descriptor_pool_size ||
++            s->hli_descriptor_pool_size < 8 ||
++            !esp32_native_hci_guest_call(
++                cs, s->c2h_allocator_address,
++                s->hli_descriptor_pool_size, 0, 0, 0,
++                &status, &steps) ||
++            !status) {
++            return false;
++        }
++        s->hli_descriptor_pool_address = status;
++        s->hli_descriptor_cursor = 0;
++    }
++    return true;
++}
++
++static uint32_t esp32_native_hci_hli_descriptor(
++    Esp32NativeHciState *s)
++{
++    uint32_t count = s->hli_descriptor_pool_size / 8;
++    uint32_t address =
++        (uint32_t)s->hli_descriptor_pool_address +
++        (s->hli_descriptor_cursor % count) * 8;
++
++    s->hli_descriptor_cursor = (s->hli_descriptor_cursor + 1) % count;
++    return address;
++}
++
+ static void esp32_native_hci_post_hli(CPUState *cs,
+                                       run_on_cpu_data data)
+ {
+     Esp32NativeHciState *s = data.host_ptr;
+     CPUXtensaState *env = cpu_env(cs);
++    Esp32NativeHciPacket *packet = NULL;
+     uint8_t event[8] = {0};
+     uint32_t queue_item;
+     uint32_t queue;
+     uint32_t meta_queue;
++    uint32_t descriptor_address;
+     uint32_t new_end = 0;
+     uint32_t status = 0;
+     uint32_t steps = 0;
+-    uint32_t callback_argument;
++    uint32_t callback = 0;
++    uint32_t callback_argument = 0;
++    uint32_t work_event;
+     uint8_t event_data[ESP32_NATIVE_HCI_EVENT_MAX] = {0};
+     size_t event_length = 0;
++    size_t payload_length;
+     bool was_empty = false;
+ 
+     s->hli_scheduled = false;
+@@ -368,7 +590,87 @@
+         s->hli_errors++;
+         return;
+     }
+-    if (s->hli_test_event == 13) {
++    if (s->hli_c2h) {
++        if (!s->rx_queue_count) {
++            return;
++        }
++        if (!esp32_native_hci_hli_ensure_scratch(cs, s)) {
++            s->hli_errors++;
++            return;
++        }
++        packet = &s->rx_queue[s->rx_queue_head];
++        payload_length = packet->length - 1;
++        work_event = 13;
++        if (packet->data[0] == 0x04) {
++            if (packet->length < 3 ||
++                payload_length != 2 + packet->data[2] ||
++                !s->hli_event_allocator_address ||
++                !s->hli_test_callback ||
++                !s->hli_event_buffer_size ||
++                s->hli_event_buffer_size > sizeof(event_data) ||
++                s->hli_event_buffer_size < payload_length) {
++                s->hli_errors++;
++                return;
++            }
++            if (!esp32_native_hci_guest_call(
++                    cs, s->hli_event_allocator_address,
++                    0, 0, 0, 0, &status, &steps) ||
++                !status) {
++                s->hli_errors++;
++                return;
++            }
++            s->hli_event_buffer_address = status;
++            s->hli_event_length = payload_length;
++            if (cpu_memory_rw_debug(
++                    cs, s->hli_event_buffer_address,
++                    packet->data + 1, payload_length, true) != 0) {
++                s->hli_errors++;
++                return;
++            }
++            s->hli_event_buffers++;
++            s->hli_c2h_events++;
++            callback = s->hli_test_callback;
++            callback_argument = (uint32_t)s->hli_event_buffer_address;
++        } else if (packet->data[0] == 0x02) {
++            if (packet->length < 5 ||
++                payload_length !=
++                    4 + (packet->data[3] |
++                         ((size_t)packet->data[4] << 8)) ||
++                !s->hli_acl_allocator_address ||
++                !s->hli_acl_callback ||
++                !s->hli_os_mbuf_append_address) {
++                s->hli_errors++;
++                return;
++            }
++            if (!esp32_native_hci_guest_call(
++                    cs, s->hli_acl_allocator_address,
++                    0, 0, 0, 0, &status, &steps) ||
++                !status) {
++                s->hli_errors++;
++                return;
++            }
++            s->hli_acl_mbuf_address = status;
++            if (cpu_memory_rw_debug(
++                    cs, s->c2h_scratch_address,
++                    packet->data + 1, payload_length, true) != 0 ||
++                !esp32_native_hci_guest_call(
++                    cs, s->hli_os_mbuf_append_address,
++                    (uint32_t)s->hli_acl_mbuf_address,
++                    (uint32_t)s->c2h_scratch_address,
++                    (uint32_t)payload_length, 0, &status, &steps) ||
++                status != 0) {
++                s->hli_errors++;
++                return;
++            }
++            s->hli_acl_buffers++;
++            s->hli_c2h_acls++;
++            callback = s->hli_acl_callback;
++            callback_argument = (uint32_t)s->hli_acl_mbuf_address;
++        } else {
++            s->hli_errors++;
++            return;
++        }
++    } else if (s->hli_test_event == 13) {
+         if (!esp32_native_hci_parse_hex_bytes(
+                 s->hli_event_data, event_data, sizeof(event_data),
+                 &event_length) ||
+@@ -389,20 +691,14 @@
+             s->hli_errors++;
+             return;
+         }
+-        if (!s->c2h_scratch_address) {
+-            if (!esp32_native_hci_guest_call(
+-                    cs, s->c2h_allocator_address,
+-                    s->c2h_scratch_size, 0, &status, &steps) ||
+-                !status) {
+-                s->hli_errors++;
+-                return;
+-            }
+-            s->c2h_scratch_address = status;
++        if (!esp32_native_hci_hli_ensure_scratch(cs, s)) {
++            s->hli_errors++;
++            return;
+         }
+         if (s->hli_event_allocator_address) {
+             if (!esp32_native_hci_guest_call(
+                     cs, s->hli_event_allocator_address, 0, 0,
+-                    &status, &steps) ||
++                    0, 0, &status, &steps) ||
+                 !status) {
+                 s->hli_errors++;
+                 return;
+@@ -416,23 +712,38 @@
+                 return;
+             }
+             s->hli_event_buffers++;
++            callback = s->hli_test_callback;
+             callback_argument = (uint32_t)s->hli_event_buffer_address;
+         } else {
++            callback = s->hli_test_callback;
+             callback_argument = (uint32_t)s->hli_test_argument;
+         }
++        work_event = 13;
++    } else {
++        work_event = s->hli_test_event;
++    }
++    if (work_event == 13) {
++        if (s->hli_c2h) {
++            descriptor_address = esp32_native_hci_hli_descriptor(s);
++        } else {
++            descriptor_address =
++                (uint32_t)s->c2h_scratch_address;
++        }
+         if (!esp32_native_hci_write_u32(
+-                cs, s->c2h_scratch_address,
++                cs, descriptor_address,
+                 callback_argument) ||
+             !esp32_native_hci_write_u32(
+-                cs, s->c2h_scratch_address + 4,
+-                (uint32_t)s->hli_test_callback)) {
++                cs, descriptor_address + 4, callback)) {
+             s->hli_errors++;
+             return;
+         }
++        s->hli_last_descriptor_address = descriptor_address;
++        s->hli_last_descriptor_argument = callback_argument;
++        s->hli_last_descriptor_callback = callback;
+         event[0] = 13;
+-        memcpy(event + 4, &s->c2h_scratch_address, sizeof(uint32_t));
++        memcpy(event + 4, &descriptor_address, sizeof(uint32_t));
+     } else {
+-        event[0] = s->hli_test_event;
++        event[0] = work_event;
+     }
+     if (!esp32_native_hci_hli_queue_put(
+             cs, queue, event, sizeof(event),
+@@ -455,8 +766,16 @@
+         qatomic_or(&env->sregs[INTSET], BIT(29));
+         check_interrupts(env);
+     }
+-    s->hli_last_event = s->hli_test_event;
+-    s->hli_test_event = UINT32_MAX;
++    if (s->hli_c2h) {
++        s->rx_queue_head =
++            (s->rx_queue_head + 1) % ESP32_NATIVE_HCI_QUEUE_DEPTH;
++        s->rx_queue_count--;
++        s->c2h_delivered++;
++    }
++    s->hli_last_event = work_event;
++    if (!s->hli_c2h) {
++        s->hli_test_event = UINT32_MAX;
++    }
+     s->hli_post_end = new_end;
+     s->hli_posted = true;
+     s->hli_post_pending = true;
+@@ -576,6 +895,7 @@
+ 
+ static bool esp32_native_hci_guest_call(CPUState *cs, uint32_t function,
+                                         uint32_t arg0, uint32_t arg1,
++                                        uint32_t arg2, uint32_t arg3,
+                                         uint32_t *status, uint32_t *steps)
+ {
+     CPUXtensaState *env = cpu_env(cs);
+@@ -614,6 +934,8 @@
+      */
+     env->regs[10] = arg0;
+     env->regs[11] = arg1;
++    env->regs[12] = arg2;
++    env->regs[13] = arg3;
+     env->pc = function;
+     env->windowbase_next = env->sregs[WINDOW_BASE] + 2;
+     cs->exception_index = -1;
+@@ -732,8 +1054,8 @@
+     if (!s->c2h_scratch_address) {
+         s->c2h_inflight = true;
+         injected = esp32_native_hci_guest_call(
+-            cs, s->c2h_allocator_address, s->c2h_scratch_size, 0,
+-            &status, &steps);
++            cs, s->c2h_allocator_address, s->c2h_scratch_size, 0, 0,
++            0, &status, &steps);
+         s->c2h_inflight = false;
+         if (!injected || !status) {
+             s->last_error = ESP32_NATIVE_HCI_ERROR_CALLBACK_FAULT;
+@@ -764,8 +1086,8 @@
+         s->c2h_last_pc = receive;
+         s->c2h_return_pc = cpu_env(cs)->pc;
+         injected = esp32_native_hci_guest_call(
+-            cs, receive, s->c2h_scratch_address, packet->length,
+-            &status, &steps);
++            cs, receive, s->c2h_scratch_address, packet->length, 0,
++            0, &status, &steps);
+         s->c2h_last_status = status;
+         s->c2h_exit_pc = cpu_env(cs)->pc;
+         s->c2h_exception_index = (uint32_t)cs->exception_index;
+@@ -794,7 +1116,7 @@
+ 
+     if (batch_delivered && send_available) {
+         injected = esp32_native_hci_guest_call(
+-            cs, send_available, 0, 0, &status, &steps);
++            cs, send_available, 0, 0, 0, 0, &status, &steps);
+         if (!injected) {
+             s->last_error = ESP32_NATIVE_HCI_ERROR_CALLBACK_FAULT;
+             s->c2h_errors++;
+@@ -816,7 +1138,8 @@
+     CPUState *target_cpu;
+     CPUState *next_cpu;
+ 
+-    if (!s->env_pointer_address ||
++    if (s->hli_c2h ||
++        !s->env_pointer_address ||
+         (!s->c2h_scratch_address && !s->c2h_allocator_address) ||
+         !s->rx_queue_count ||
+         s->c2h_scheduled || s->c2h_inflight) {
+@@ -864,6 +1187,9 @@
+     Error *error = NULL;
+ 
+     s->h2c_length_value = length;
++    if (s->api_vhci_send_hook_pc) {
++        return;
++    }
+     if (!length) {
+         return;
+     }
+@@ -964,16 +1290,36 @@
+     while (s->tx_queue_count) {
+         Esp32NativeHciPacket *packet =
+             &s->tx_queue[s->tx_queue_head];
+-        int written = qemu_chr_fe_write_all(
+-            &s->chr, packet->data, packet->length);
+-
+-        if (written != packet->length) {
++        int written = qemu_chr_fe_write(
++            &s->chr,
++            packet->data + s->tx_queue_offset,
++            packet->length - s->tx_queue_offset);
++
++        if (written < 0 &&
++            errno != EAGAIN && errno != EWOULDBLOCK) {
++            s->last_tx_errno = errno;
+             s->last_error = ESP32_NATIVE_HCI_ERROR_WRITE;
++            qemu_log_mask(LOG_GUEST_ERROR,
++                          "esp32-native-hci: TX write failed "
++                          "written=%d errno=%u pending=%u offset=%u\n",
++                          written, errno, s->tx_queue_count,
++                          s->tx_queue_offset);
+             error_setg(errp, "esp32-native-hci: chardev write failed");
+             return false;
+         }
+-        s->tx_bytes += packet->length;
++        if (written <= 0) {
++            if (written == 0) {
++                s->tx_zero_writes++;
++            }
++            return true;
++        }
++        s->tx_bytes += written;
++        s->tx_queue_offset += written;
++        if (s->tx_queue_offset < packet->length) {
++            return true;
++        }
+         s->tx_packets++;
++        s->tx_queue_offset = 0;
+         s->tx_queue_head =
+             (s->tx_queue_head + 1) % ESP32_NATIVE_HCI_QUEUE_DEPTH;
+         s->tx_queue_count--;
+@@ -981,6 +1327,29 @@
+     return true;
+ }
+ 
++static void esp32_native_hci_tx_retry(void *opaque)
++{
++    Esp32NativeHciState *s = opaque;
++    Error *error = NULL;
++
++    if (!s->tx_queue_count) {
++        return;
++    }
++    s->tx_retry_count++;
++    if (!esp32_native_hci_flush_tx(s, &error)) {
++        qemu_log_mask(LOG_GUEST_ERROR,
++                      "esp32-native-hci: TX flush failed: %s\n",
++                      error_get_pretty(error));
++        error_free(error);
++        return;
++    }
++    if (s->tx_queue_count) {
++        timer_mod(s->tx_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_REALTIME) +
++                  ESP32_NATIVE_HCI_HLI_POLL_NS);
++    }
++}
++
+ bool esp32_native_hci_send_h2c(Esp32NativeHciState *s,
+                                const uint8_t *data, size_t size,
+                                Error **errp)
+@@ -1004,20 +1373,143 @@
+     tail = (s->tx_queue_head + s->tx_queue_count) %
+            ESP32_NATIVE_HCI_QUEUE_DEPTH;
+     s->tx_queue[tail].length = size;
++    if (s->tx_queue_count == 0) {
++        s->tx_queue_offset = 0;
++    }
+     memcpy(s->tx_queue[tail].data, data, size);
+     s->tx_queue_count++;
+-    return esp32_native_hci_flush_tx(s, errp);
++    if (!esp32_native_hci_flush_tx(s, errp)) {
++        return false;
++    }
++    if (s->tx_queue_count) {
++        timer_mod(s->tx_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_REALTIME) +
++                  ESP32_NATIVE_HCI_HLI_POLL_NS);
++    }
++    return true;
++}
++
++static bool esp32_native_hci_api_send_packet(
++    void *opaque,
++    CPUState *cs,
++    uint32_t data,
++    uint32_t length)
++{
++    Esp32NativeHciState *s = opaque;
++    uint8_t packet[ESP32_NATIVE_HCI_PACKET_MAX];
++    size_t packet_length;
++    Error *error = NULL;
++
++    length &= 0xffff;
++    if (!data || !length || length > sizeof(packet) ||
++        cpu_memory_rw_debug(cs, data, packet, length, false) != 0) {
++        s->api_h2c_errors++;
++        s->last_error = ESP32_NATIVE_HCI_ERROR_WRITE;
++        return false;
++    }
++    packet_length = h4_packet_length(packet, length);
++    if (packet_length == 0 ||
++        packet_length != length) {
++        s->api_h2c_errors++;
++        s->last_error = ESP32_NATIVE_HCI_ERROR_MALFORMED;
++        return false;
++    }
++    if (!esp32_native_hci_send_h2c(s, packet, length, &error)) {
++        s->api_h2c_errors++;
++        qemu_log_mask(LOG_GUEST_ERROR,
++                      "esp32-native-hci: API H2C send failed: %s\n",
++                      error_get_pretty(error));
++        error_free(error);
++        return false;
++    }
++    s->h2c_packets++;
++    s->h2c_bytes += length;
++    s->api_h2c_packets++;
++    s->last_error = ESP32_NATIVE_HCI_ERROR_NONE;
++    return true;
+ }
+ 
+ static void esp32_native_hci_realize(DeviceState *dev, Error **errp)
+ {
+     Esp32NativeHciState *s = ESP32_NATIVE_HCI(dev);
++    CPUState *cpu;
+ 
+     qemu_chr_fe_set_handlers(&s->chr,
+                              esp32_native_hci_can_receive,
+                              esp32_native_hci_receive,
+                              esp32_native_hci_event,
+                              NULL, s, NULL, true);
++    if (s->api_vhci_send_hook_pc) {
++        if (!s->api_vhci_send_return_pc) {
++            error_setg(errp,
++                       "esp32-native-hci: API send hook requires a return PC");
++            return;
++        }
++        CPU_FOREACH(cpu) {
++            CPUXtensaState *env = cpu_env(cpu);
++
++            env->native_hci_send_hook_pc =
++                (uint32_t)s->api_vhci_send_hook_pc;
++            env->native_hci_send_return_pc =
++                (uint32_t)s->api_vhci_send_return_pc;
++            env->native_hci_cmd_semaphore_hook_pc =
++                (uint32_t)s->cmd_semaphore_hook_pc;
++            env->native_hci_cmd_semaphore_return_pc =
++                (uint32_t)s->cmd_semaphore_return_pc;
++            env->native_hci_acl_semaphore_hook_pc =
++                (uint32_t)s->acl_semaphore_hook_pc;
++            env->native_hci_acl_semaphore_return_pc =
++                (uint32_t)s->acl_semaphore_return_pc;
++            env->native_hci_recycle_hook_pc =
++                (uint32_t)s->recycle_hook_pc;
++            env->native_hci_recycle_return_pc =
++                (uint32_t)s->recycle_return_pc;
++            env->native_hci_sleep_post_hook_pc =
++                (uint32_t)s->sleep_post_hook_pc;
++            env->native_hci_sleep_post_return_pc =
++                (uint32_t)s->sleep_post_return_pc;
++            QEMU_BUILD_BUG_ON(
++                ARRAY_SIZE(env->native_hci_trace_pcs) !=
++                ESP32_NATIVE_HCI_TRACE_SLOTS);
++            env->native_hci_trace_pcs[0] =
++                (uint32_t)s->trace_acl_process_pc;
++            env->native_hci_trace_pcs[1] =
++                (uint32_t)s->trace_l2cap_rx_pc;
++            env->native_hci_trace_pcs[2] =
++                (uint32_t)s->trace_l2cap_incomplete_pc;
++            env->native_hci_trace_pcs[3] =
++                (uint32_t)s->trace_l2cap_chan_found_pc;
++            env->native_hci_trace_pcs[4] =
++                (uint32_t)s->trace_l2cap_mtu_reject_pc;
++            env->native_hci_trace_pcs[5] =
++                (uint32_t)s->trace_l2cap_rxfn_pc;
++            env->native_hci_trace_pcs[6] =
++                (uint32_t)s->trace_att_rx_pc;
++            env->native_hci_trace_pcs[7] =
++                (uint32_t)s->trace_att_write_pc;
++            env->native_hci_trace_pcs[8] =
++                (uint32_t)s->trace_att_write_no_rsp_pc;
++            env->native_hci_trace_pcs[9] =
++                (uint32_t)s->trace_att_find_handle_pc;
++            env->native_hci_trace_pcs[10] =
++                (uint32_t)s->trace_att_write_handle_pc;
++            env->native_hci_trace_pcs[11] =
++                (uint32_t)s->trace_python_gatts_on_write_pc;
++            env->native_hci_trace_pcs[12] =
++                (uint32_t)s->trace_python_irq_pc;
++            env->native_hci_trace_pcs[13] =
++                (uint32_t)s->trace_python_notify_pc;
++            env->native_hci_trace_pcs[14] =
++                (uint32_t)s->trace_nimble_gatts_notify_pc;
++            env->native_hci_send_callback =
++                esp32_native_hci_api_send_packet;
++            env->native_hci_send_opaque = s;
++            env->native_hci_trace_callback =
++                esp32_native_hci_trace;
++            env->native_hci_trace_opaque = s;
++            tb_flush(cpu);
++        }
++    }
+     object_property_add_uint64_ptr(
+         OBJECT(dev), "rx-bytes", &s->rx_bytes, OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
+@@ -1090,6 +1582,18 @@
+         OBJECT(dev), "tx-queue-depth", &s->tx_queue_count,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint32_ptr(
++        OBJECT(dev), "tx-queue-offset", &s->tx_queue_offset,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "last-tx-errno", &s->last_tx_errno,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "tx-retry-count", &s->tx_retry_count,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "tx-zero-writes", &s->tx_zero_writes,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
+         OBJECT(dev), "last-error", &s->last_error,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint32_ptr(
+@@ -1111,8 +1615,68 @@
+         OBJECT(dev), "hli-event-buffers", &s->hli_event_buffers,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-acl-buffers", &s->hli_acl_buffers,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-c2h-events", &s->hli_c2h_events,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-c2h-acls", &s->hli_c2h_acls,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "api-h2c-packets", &s->api_h2c_packets,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "api-h2c-errors", &s->api_h2c_errors,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
+         OBJECT(dev), "hli-errors", &s->hli_errors,
+         OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-acl-process", &s->trace_acl_process,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-l2cap-rx", &s->trace_l2cap_rx,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-l2cap-incomplete",
++        &s->trace_l2cap_incomplete, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-l2cap-chan-found",
++        &s->trace_l2cap_chan_found, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-l2cap-mtu-reject",
++        &s->trace_l2cap_mtu_reject, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-l2cap-rxfn",
++        &s->trace_l2cap_rxfn, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-att-rx", &s->trace_att_rx,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-att-write", &s->trace_att_write,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-att-write-no-rsp",
++        &s->trace_att_write_no_rsp, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-att-find-handle",
++        &s->trace_att_find_handle, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-att-write-handle",
++        &s->trace_att_write_handle, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-python-gatts-on-write",
++        &s->trace_python_gatts_on_write, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-python-irq", &s->trace_python_irq,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-python-notify",
++        &s->trace_python_notify, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-nimble-gatts-notify",
++        &s->trace_nimble_gatts_notify, OBJ_PROP_FLAG_READ);
+     object_property_add_uint32_ptr(
+         OBJECT(dev), "hli-valid", &s->hli_valid,
+         OBJ_PROP_FLAG_READ);
+@@ -1152,6 +1716,21 @@
+     object_property_add_uint64_ptr(
+         OBJECT(dev), "hli-event-buffer-address",
+         &s->hli_event_buffer_address, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-acl-mbuf-address",
++        &s->hli_acl_mbuf_address, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-descriptor-pool-address",
++        &s->hli_descriptor_pool_address, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-last-descriptor-address",
++        &s->hli_last_descriptor_address, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-last-descriptor-argument",
++        &s->hli_last_descriptor_argument, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-last-descriptor-callback",
++        &s->hli_last_descriptor_callback, OBJ_PROP_FLAG_READ);
+     object_property_add_uint32_ptr(
+         OBJECT(dev), "hli-event-length", &s->hli_event_length,
+         OBJ_PROP_FLAG_READ);
+@@ -1171,12 +1750,37 @@
+ static void esp32_native_hci_unrealize(DeviceState *dev)
+ {
+     Esp32NativeHciState *s = ESP32_NATIVE_HCI(dev);
++    CPUState *cpu;
+ 
+     qemu_chr_fe_set_handlers(&s->chr, NULL, NULL, NULL, NULL,
+                              NULL, NULL, false);
++    CPU_FOREACH(cpu) {
++        CPUXtensaState *env = cpu_env(cpu);
++
++        if (env->native_hci_send_opaque == s) {
++            env->native_hci_send_hook_pc = 0;
++            env->native_hci_send_return_pc = 0;
++            env->native_hci_cmd_semaphore_hook_pc = 0;
++            env->native_hci_cmd_semaphore_return_pc = 0;
++            env->native_hci_acl_semaphore_hook_pc = 0;
++            env->native_hci_acl_semaphore_return_pc = 0;
++            env->native_hci_recycle_hook_pc = 0;
++            env->native_hci_recycle_return_pc = 0;
++            env->native_hci_sleep_post_hook_pc = 0;
++            env->native_hci_sleep_post_return_pc = 0;
++            memset(env->native_hci_trace_pcs, 0,
++                   sizeof(env->native_hci_trace_pcs));
++            env->native_hci_send_callback = NULL;
++            env->native_hci_send_opaque = NULL;
++            env->native_hci_trace_callback = NULL;
++            env->native_hci_trace_opaque = NULL;
++            tb_flush(cpu);
++        }
++    }
+     timer_del(s->poll_timer);
+     timer_del(s->c2h_timer);
+     timer_del(s->hli_timer);
++    timer_del(s->tx_timer);
+     esp32_native_hci_unmap_h2c_length(s);
+ }
+ 
+@@ -1189,6 +1793,8 @@
+     s->rx_queue_count = 0;
+     s->tx_queue_head = 0;
+     s->tx_queue_count = 0;
++    s->tx_queue_offset = 0;
++    timer_del(s->tx_timer);
+     s->h2c_length_value = 0;
+     s->last_error = ESP32_NATIVE_HCI_ERROR_NONE;
+     esp32_native_hci_unmap_h2c_length(s);
+@@ -1214,6 +1820,9 @@
+     s->hli_queue_depth = 0;
+     s->meta_queue_depth = 0;
+     s->hli_event_buffer_address = 0;
++    s->hli_acl_mbuf_address = 0;
++    s->hli_descriptor_pool_address = 0;
++    s->hli_descriptor_cursor = 0;
+     if (s->scheduler_queue_address &&
+         s->meta_queue_pointer_address) {
+         timer_mod(s->hli_timer,
+@@ -1234,8 +1843,69 @@
+                        Esp32NativeHciState, scheduler_queue_address, 0),
+     DEFINE_PROP_UINT64("meta-queue-pointer-address",
+                        Esp32NativeHciState, meta_queue_pointer_address, 0),
++    DEFINE_PROP_UINT64("trace-hs-conns-address",
++                       Esp32NativeHciState, trace_hs_conns_address, 0),
++    DEFINE_PROP_UINT64("api-vhci-send-hook-pc",
++                       Esp32NativeHciState, api_vhci_send_hook_pc, 0),
++    DEFINE_PROP_UINT64("api-vhci-send-return-pc",
++                       Esp32NativeHciState, api_vhci_send_return_pc, 0),
++    DEFINE_PROP_UINT64("cmd-semaphore-hook-pc",
++                       Esp32NativeHciState, cmd_semaphore_hook_pc, 0),
++    DEFINE_PROP_UINT64("cmd-semaphore-return-pc",
++                       Esp32NativeHciState, cmd_semaphore_return_pc, 0),
++    DEFINE_PROP_UINT64("acl-semaphore-hook-pc",
++                       Esp32NativeHciState, acl_semaphore_hook_pc, 0),
++    DEFINE_PROP_UINT64("acl-semaphore-return-pc",
++                       Esp32NativeHciState, acl_semaphore_return_pc, 0),
++    DEFINE_PROP_UINT64("recycle-hook-pc",
++                       Esp32NativeHciState, recycle_hook_pc, 0),
++    DEFINE_PROP_UINT64("recycle-return-pc",
++                       Esp32NativeHciState, recycle_return_pc, 0),
++    DEFINE_PROP_UINT64("sleep-post-hook-pc",
++                       Esp32NativeHciState, sleep_post_hook_pc, 0),
++    DEFINE_PROP_UINT64("sleep-post-return-pc",
++                       Esp32NativeHciState, sleep_post_return_pc, 0),
++    DEFINE_PROP_UINT64("trace-acl-process-pc",
++                       Esp32NativeHciState, trace_acl_process_pc, 0),
++    DEFINE_PROP_UINT64("trace-l2cap-rx-pc",
++                       Esp32NativeHciState, trace_l2cap_rx_pc, 0),
++    DEFINE_PROP_UINT64("trace-l2cap-incomplete-pc",
++                       Esp32NativeHciState, trace_l2cap_incomplete_pc, 0),
++    DEFINE_PROP_UINT64("trace-l2cap-chan-found-pc",
++                       Esp32NativeHciState, trace_l2cap_chan_found_pc, 0),
++    DEFINE_PROP_UINT64("trace-l2cap-mtu-reject-pc",
++                       Esp32NativeHciState, trace_l2cap_mtu_reject_pc, 0),
++    DEFINE_PROP_UINT64("trace-l2cap-rxfn-pc",
++                       Esp32NativeHciState, trace_l2cap_rxfn_pc, 0),
++    DEFINE_PROP_UINT64("trace-att-rx-pc",
++                       Esp32NativeHciState, trace_att_rx_pc, 0),
++    DEFINE_PROP_UINT64("trace-att-write-pc",
++                       Esp32NativeHciState, trace_att_write_pc, 0),
++    DEFINE_PROP_UINT64("trace-att-write-no-rsp-pc",
++                       Esp32NativeHciState, trace_att_write_no_rsp_pc, 0),
++    DEFINE_PROP_UINT64("trace-att-find-handle-pc",
++                       Esp32NativeHciState, trace_att_find_handle_pc, 0),
++    DEFINE_PROP_UINT64("trace-att-write-handle-pc",
++                       Esp32NativeHciState, trace_att_write_handle_pc, 0),
++    DEFINE_PROP_UINT64("trace-python-gatts-on-write-pc",
++                       Esp32NativeHciState,
++                       trace_python_gatts_on_write_pc, 0),
++    DEFINE_PROP_UINT64("trace-python-irq-pc",
++                       Esp32NativeHciState, trace_python_irq_pc, 0),
++    DEFINE_PROP_UINT64("trace-python-notify-pc",
++                       Esp32NativeHciState, trace_python_notify_pc, 0),
++    DEFINE_PROP_UINT64("trace-nimble-gatts-notify-pc",
++                       Esp32NativeHciState,
++                       trace_nimble_gatts_notify_pc, 0),
+     DEFINE_PROP_UINT64("hli-event-allocator-address",
+                        Esp32NativeHciState, hli_event_allocator_address, 0),
++    DEFINE_PROP_UINT64("hli-acl-allocator-address",
++                       Esp32NativeHciState, hli_acl_allocator_address, 0),
++    DEFINE_PROP_UINT64("hli-os-mbuf-append-address",
++                       Esp32NativeHciState, hli_os_mbuf_append_address, 0),
++    DEFINE_PROP_UINT64("hli-acl-callback",
++                       Esp32NativeHciState, hli_acl_callback, 0),
++    DEFINE_PROP_BOOL("hli-c2h", Esp32NativeHciState, hli_c2h, false),
+     DEFINE_PROP_UINT32("hli-test-event",
+                        Esp32NativeHciState, hli_test_event,
+                        UINT32_MAX),
+@@ -1247,6 +1917,9 @@
+                        Esp32NativeHciState, hli_event_data),
+     DEFINE_PROP_UINT32("hli-event-buffer-size",
+                        Esp32NativeHciState, hli_event_buffer_size, 70),
++    DEFINE_PROP_UINT32("hli-descriptor-pool-size",
++                       Esp32NativeHciState, hli_descriptor_pool_size,
++                       256),
+     DEFINE_PROP_UINT32("c2h-scratch-size",
+                        Esp32NativeHciState, c2h_scratch_size,
+                        ESP32_NATIVE_HCI_PACKET_MAX),
+@@ -1263,6 +1936,8 @@
+                                 esp32_native_hci_c2h_retry, s);
+     s->hli_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
+                                 esp32_native_hci_hli_poll, s);
++    s->tx_timer = timer_new_ns(QEMU_CLOCK_REALTIME,
++                               esp32_native_hci_tx_retry, s);
+ }
+ 
+ static void esp32_native_hci_finalize(Object *obj)
+@@ -1272,9 +1947,11 @@
+     timer_free(s->poll_timer);
+     timer_free(s->c2h_timer);
+     timer_free(s->hli_timer);
++    timer_free(s->tx_timer);
+     s->poll_timer = NULL;
+     s->c2h_timer = NULL;
+     s->hli_timer = NULL;
++    s->tx_timer = NULL;
+ }
+ 
+ static void esp32_native_hci_class_init(ObjectClass *klass, void *data)
+--- a/include/hw/xtensa/esp32_native_hci.h
++++ b/include/hw/xtensa/esp32_native_hci.h
+@@ -21,6 +21,7 @@
+ #define ESP32_NATIVE_HCI_QUEUE_DEPTH 32
+ #define ESP32_NATIVE_HCI_PACKET_MAX 2048
+ #define ESP32_NATIVE_HCI_RX_BUFFER_SIZE 8192
++#define ESP32_NATIVE_HCI_TRACE_SLOTS 15
+ 
+ typedef struct Esp32NativeHciPacket {
+     uint16_t length;
+@@ -34,6 +35,7 @@
+     QEMUTimer *poll_timer;
+     QEMUTimer *c2h_timer;
+     QEMUTimer *hli_timer;
++    QEMUTimer *tx_timer;
+     MemoryRegion h2c_length_mmio;
+     Esp32NativeHciPacket tx_queue[ESP32_NATIVE_HCI_QUEUE_DEPTH];
+     Esp32NativeHciPacket rx_queue[ESP32_NATIVE_HCI_QUEUE_DEPTH];
+@@ -44,6 +46,8 @@
+     uint32_t rx_queue_count;
+     uint32_t tx_queue_head;
+     uint32_t tx_queue_count;
++    uint32_t tx_queue_offset;
++    uint32_t last_tx_errno;
+     uint32_t last_error;
+     uint64_t env_pointer_address;
+     uint32_t vhci_env_address;
+@@ -52,14 +56,55 @@
+     uint64_t c2h_allocator_address;
+     uint64_t scheduler_queue_address;
+     uint64_t meta_queue_pointer_address;
++    uint64_t trace_hs_conns_address;
++    uint64_t api_vhci_send_hook_pc;
++    uint64_t api_vhci_send_return_pc;
++    uint64_t cmd_semaphore_hook_pc;
++    uint64_t cmd_semaphore_return_pc;
++    uint64_t acl_semaphore_hook_pc;
++    uint64_t acl_semaphore_return_pc;
++    uint64_t recycle_hook_pc;
++    uint64_t recycle_return_pc;
++    uint64_t sleep_post_hook_pc;
++    uint64_t sleep_post_return_pc;
++    uint64_t vhci_send_semaphore_address;
++    uint64_t sleep_disable_address;
+     uint64_t hli_event_allocator_address;
++    uint64_t hli_acl_allocator_address;
++    uint64_t hli_os_mbuf_append_address;
++    uint64_t hli_acl_callback;
++    uint64_t hli_send_available_callback;
++    uint64_t hli_task_post_address;
+     uint64_t hli_test_callback;
+     uint64_t hli_test_argument;
++    uint64_t trace_acl_process_pc;
++    uint64_t trace_l2cap_rx_pc;
++    uint64_t trace_l2cap_incomplete_pc;
++    uint64_t trace_l2cap_chan_found_pc;
++    uint64_t trace_l2cap_mtu_reject_pc;
++    uint64_t trace_l2cap_rxfn_pc;
++    uint64_t trace_att_rx_pc;
++    uint64_t trace_att_write_pc;
++    uint64_t trace_att_write_no_rsp_pc;
++    uint64_t trace_att_find_handle_pc;
++    uint64_t trace_att_write_handle_pc;
++    uint64_t trace_python_gatts_on_write_pc;
++    uint64_t trace_python_irq_pc;
++    uint64_t trace_python_notify_pc;
++    uint64_t trace_nimble_gatts_notify_pc;
+     uint64_t hli_event_buffer_address;
++    uint64_t hli_acl_mbuf_address;
++    uint64_t hli_descriptor_pool_address;
++    uint64_t hli_last_descriptor_address;
++    uint64_t hli_last_descriptor_argument;
++    uint64_t hli_last_descriptor_callback;
+     char *hli_event_data;
+     uint32_t vhci_callback_address;
+     uint32_t vhci_receive_address;
+     uint32_t c2h_scratch_size;
++    uint32_t hli_descriptor_pool_size;
++    uint32_t hli_descriptor_cursor;
++    uint32_t api_h2c_credits;
+     uint32_t hli_event_buffer_size;
+     uint32_t hli_event_length;
+     uint32_t c2h_last_status;
+@@ -84,12 +129,15 @@
+     uint32_t meta_queue_depth;
+     uint32_t hli_post_end;
+     uint32_t hli_valid;
++    bool hli_c2h;
+     bool h2c_length_mapped;
+     bool c2h_scheduled;
+     bool c2h_inflight;
+     bool hli_scheduled;
+     bool hli_posted;
+     bool hli_post_pending;
++    bool hli_send_available_pending;
++    bool sleep_disabled;
+ 
+     uint64_t rx_bytes;
+     uint64_t rx_packets;
+@@ -109,7 +157,32 @@
+     uint64_t hli_posts;
+     uint64_t hli_consumed;
+     uint64_t hli_event_buffers;
++    uint64_t hli_acl_buffers;
++    uint64_t hli_c2h_events;
++    uint64_t hli_c2h_acls;
++    uint64_t hli_send_available_posts;
++    uint64_t api_h2c_packets;
++    uint64_t api_h2c_errors;
++    uint64_t api_credit_refills;
++    uint64_t api_sleep_disabled;
++    uint64_t tx_retry_count;
++    uint64_t tx_zero_writes;
+     uint64_t hli_errors;
++    uint64_t trace_acl_process;
++    uint64_t trace_l2cap_rx;
++    uint64_t trace_l2cap_incomplete;
++    uint64_t trace_l2cap_chan_found;
++    uint64_t trace_l2cap_mtu_reject;
++    uint64_t trace_l2cap_rxfn;
++    uint64_t trace_att_rx;
++    uint64_t trace_att_write;
++    uint64_t trace_att_write_no_rsp;
++    uint64_t trace_att_find_handle;
++    uint64_t trace_att_write_handle;
++    uint64_t trace_python_gatts_on_write;
++    uint64_t trace_python_irq;
++    uint64_t trace_python_notify;
++    uint64_t trace_nimble_gatts_notify;
+ };
+ 
+ bool esp32_native_hci_send_h2c(Esp32NativeHciState *s,

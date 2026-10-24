@@ -19,6 +19,10 @@ This patch adds the first QEMU-side slice of `CORE2-01`:
 - firmware HLI queue/meta-queue injection with `INTSET[29]`, guest
   `ble_transport_alloc_evt(0)` event buffers and event-13 callback delivery
   from the firmware controller task.
+- `0003` adds API-boundary H2C ownership, HLI ACL mbuf delivery, controller
+  work-item wake semantics and optional protocol-stack tracing.
+- `0004` ends a translated block after `rsr.ccount` so tightly polling Core2
+  guests observe the virtual clock advancing.
 
 The optional poller captures guest H2C packets from real VHCI shared memory
 without GDB. `HCI-3a` now delivers a controller event through the firmware's
@@ -26,7 +30,10 @@ registered receive callback and verifies the guest emits its next H2C command.
 The HLI event test delivers a pool-allocated HCI Reset Complete through
 `ble_transport_to_hs_evt_impl`; the guest advances from `01030c00` to
 `01011000` in 5/5 runs.
-Complete Bumble initialization/GATT is still open as `HCI-3b`; see
+`HCI-3b` now completes external NUS GATT in 5/5 runs. The previous timeout
+used a 21-byte probe whose ATT PDU is 24 bytes, exceeding the default 23-byte
+MTU. The default 15-byte probe produces a 17-byte PDU and reaches ATT, the
+Python write/notify path and the Bumble ACK. See
 [the native HCI design](../../docs/core2-native-hci-backend.md).
 
 Apply after `patches/qemu-core2-ble-controller/`:
@@ -34,12 +41,18 @@ Apply after `patches/qemu-core2-ble-controller/`:
 ```bash
 git apply /path/to/patches/qemu-core2-native-hci/0001-esp32-native-hci-transport.patch
 git apply /path/to/patches/qemu-core2-native-hci/0002-esp32-native-hci-hli-event.patch
+git apply /path/to/patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch
+git apply /path/to/patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch
 ninja -C build qemu-system-xtensa
 python3 tests/uiflow2/core2_native_hci/test_transport.py
 python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
   --image /path/to/stock/core2-uiflow2.bin --enable-c2h
 python3 tests/uiflow2/core2_native_hci/test_hli_event.py \
   --image /path/to/stock/core2-uiflow2.bin
+PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_hci/run_full.py \
+  --image /path/to/stock/core2-uiflow2.bin \
+  --elf /path/to/matching/micropython.elf \
+  --hli-c2h
 ```
 
 The evidence for the transport-only slice is
@@ -48,8 +61,8 @@ The C2H callback evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json`.
 The HLI real-event evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json`.
-The experimental HLI/API-boundary diagnostic delivered events and ACLs through
-the subscription and external NUS write, but the guest produced no
-write/notification acknowledgement; its evidence is
-`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-api-notification-fail.json`.
-None of these is a complete guest BLE or bit-exact controller PASS.
+The full HLI/API-boundary GATT evidence is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json`.
+The earlier notification-fail evidence is retained as the negative case that
+identified the default-MTU probe-size error. These are virtual-device results,
+not bit-exact controller or physical hardware validation.
