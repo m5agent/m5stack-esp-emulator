@@ -47,6 +47,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - QEMU 与 Tab5 session 生命周期、TTL、容量和存储回收；
 - 本地 worker 的稳定 ID、generation、heartbeat、独占状态目录、
   active/abandoned lease、drain/resume 和 recent-result 记录；
+- 远程 worker 的持久 job queue、幂等提交、capability 匹配、claim、lease
+  heartbeat、worker 失联回收、超时重试和 terminal result；
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
   evidence ZIP；
 - `runtime=qemu-unified` 的 S3/C6/Core2 单 guest 板级 + 网络 + BLE；
@@ -69,8 +71,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、
   heartbeat、drain/resume 和重启租约分类，以及远程 worker 注册目录已实现；
-  持久任务队列、worker supervisor、活动 QEMU 进程 re-attach 和 VM 隔离仍
-  未完成。
+  durable job queue 已支持幂等提交、claim/lease、expiry retry 和 worker
+  失联回收；独立 executor、活动 QEMU 进程 re-attach、生产多机调度和 VM
+  隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
   已在同一隔离路径验证 exact IPv4 IP/协议/端口和 veth/NAT，上述内容也不
@@ -92,6 +95,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | --- | --- |
 | `tools/device_service.py` | session、lease、runtime 编排、证据和状态机 |
 | `tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、lease、drain/resume 和重启失败分类 |
+| `tools/worker_directory.py` | 远程 worker identity/generation 注册、stale/drain/stop、capability 与有界结果目录 |
+| `tools/worker_queue.py` | 持久 job queue、idempotency、capability 匹配、lease/heartbeat、超时重试和 supervisor 回收 |
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入与脱敏 eFuse 安全摘要 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |
 | `tools/firmware_analysis.py` | ESP image、分区、应用描述和静态分析 |

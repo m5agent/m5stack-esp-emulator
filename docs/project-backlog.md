@@ -21,7 +21,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络产品化 | 持久任务队列、worker supervisor、调度和活动 QEMU re-attach | Linux worker；远程注册目录；证据回传 |
+| P0 | 网络产品化 | job executor、活动 QEMU re-attach、生产调度和 evidence 回传 | Linux worker；远程目录；durable queue/lease supervisor |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
@@ -33,9 +33,9 @@
 
 ## 当前执行顺序
 
-1. `NET-04` / `SVC-01`：在本地 worker lifecycle 和远程注册目录基础上完成
-   持久队列、worker supervisor、调度和活动实例 re-attach；`NET-05` 独立
-   推进 IPv6。
+1. `NET-04` / `SVC-01`：在 durable job queue、远程注册目录和 lease
+   supervisor 基础上补独立 executor、多机调度和活动实例 re-attach；
+   `NET-05` 独立推进 IPv6。
 2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后 `FW-03`
    扩跨厂商样本，
    `FW-02` 做生产 key/eFuse 与真机安全配置。
@@ -47,13 +47,13 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 持久任务队列、worker supervisor、调度和活动 QEMU re-attach | worker 失联/重启可收敛；namespace 失败 fail-closed；evidence 可回传 |
+| `NET-04` | 进行中 | job executor、生产调度和活动 QEMU re-attach | worker 重启后 job/evidence 可收敛；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
 | `CORE2-02` | 待做 | bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和 soak | 物理边界可证；真机/RF 结论不冒充 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 跨厂商回归集 | 每样本分层记录导入、capability、boot 和功能 |
-| `SVC-01` | 进行中 | 持久队列、远程 supervisor 与活动 QEMU re-attach 契约 | 服务重启可接管或明确失败，不产生假 running |
+| `SVC-01` | 进行中 | executor 与活动 QEMU re-attach 契约 | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation |
@@ -71,16 +71,19 @@
   abandoned lease 和 bounded result 已实现；
 - 远程 worker 注册目录已实现 identity/generation、heartbeat、drain/stop、
   capability 和有界结果元数据，但它只是目录，不是 supervisor；
-- 没有持久任务队列、跨 worker 调度、容量租约和多机状态收敛；
+- durable job queue 已实现幂等提交、capability matching、claim/lease、
+  expiry retry、cancel/result 和 worker stale/stop/generation 回收；
+- 没有独立 job executor、跨 worker 容量调度、evidence bundle 回传和
+  多机状态收敛；
 - 服务重启后，仍在运行的活动 QEMU 进程不能 re-attach；
 - 双 guest lab fabric 和 Linux policy CI 尚未成为自托管 worker 的正式
   调度与 evidence replay 路径。
 
 下一项最小交付：
 
-1. 在现有 register/heartbeat/drain/result 契约上实现远程 worker supervisor
-   与失联收敛。
-2. 定义任务提交、排队、租约、取消、重试和 evidence 回传状态机。
+1. 在现有 queue claim/lease 契约上实现独立 worker executor，并绑定实际
+   session、QEMU PID/start time、generation 和 evidence。
+2. 实现跨 worker 容量调度、evidence bundle 回传、幂等重放和队列审计。
 3. 对活动 QEMU 实现“重新接管”或明确 `interrupted_failed`，禁止假装仍在
    running。
 4. 把 namespace、pcap、session history 和 cleanup 结果绑定到同一个 lease。
@@ -89,7 +92,8 @@
 
 - worker 强杀、重启、失联和 drain 都有确定终态；
 - 远程 worker 的 Linux policy 失败时 fail-closed；
-- 任务、实际执行 worker、generation、QEMU 进程和 evidence 可关联；
+- 任务、实际执行 worker、generation、QEMU PID/start time 和 evidence
+  可关联；
 - 活动实例 re-attach 有重复测试和清理证据。
 
 ### NET-05 外部 IPv6

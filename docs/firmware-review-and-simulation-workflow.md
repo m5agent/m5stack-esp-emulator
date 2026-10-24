@@ -429,9 +429,10 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 
 1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
    LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
-2. 远程 QEMU worker supervisor、持久队列/调度和活动进程 re-attach；本地
-   worker heartbeat/drain、远程 worker 注册目录、GitHub-hosted Linux
-   policy/egress CI 和双设备 lab fabric 已具备，外部 IPv6 egress 仍开放；
+2. 远程 QEMU job executor、生产调度和活动进程 re-attach；本地 worker
+   heartbeat/drain、远程目录、durable queue/lease supervisor、
+   GitHub-hosted Linux policy/egress CI 和双设备 lab fabric 已具备，
+   外部 IPv6 egress 仍开放；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
@@ -439,8 +440,9 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 网络部分已经具备 controlled DNS、TLS/Host allowlist、精确 IPv4
 IP/协议/端口 egress、pcap、DHCP renewal、虚拟 radio/AP 丢失恢复，以及
 两台 QEMU guest 的 DHCP/TCP/双侧 pcap/宿主隔离、本地 worker
-heartbeat/drain/restart classification 和远程 worker 注册目录；仍未完成的是
-worker supervisor、持久任务队列、活动进程 re-attach 和外部 IPv6。固件文件系统 PASS
+heartbeat/drain/restart classification、远程 worker 注册目录和 durable
+job queue/lease supervisor；仍未完成的是独立 executor、生产多机调度、
+活动进程 re-attach 和外部 IPv6。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 
 ## 11. 结论

@@ -88,6 +88,7 @@ from worker_directory import (  # noqa: E402
     WorkerDirectory,
     WorkerDirectoryError,
 )
+from worker_queue import WorkerJobQueue, WorkerQueueError  # noqa: E402
 from worker_registry import WorkerRegistry, WorkerRegistryError  # noqa: E402
 from xtensa_elf_symbols import (  # noqa: E402
     ElfSymbolError,
@@ -6034,6 +6035,9 @@ class DeviceService:
         self.worker_directory = WorkerDirectory(
             self.state_dir / "workers.json"
         )
+        self.worker_queue = WorkerJobQueue(
+            self.state_dir / "jobs.json"
+        )
         try:
             self.worker.start()
         except WorkerRegistryError as error:
@@ -7568,6 +7572,105 @@ class DeviceService:
                 error.status,
             ) from error
 
+    def list_remote_jobs(
+        self,
+        *,
+        status: str | None = None,
+        limit: int = 100,
+    ) -> dict:
+        try:
+            return self.worker_queue.list_jobs(
+                status=status,
+                limit=limit,
+            )
+        except WorkerQueueError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def submit_remote_job(self, payload: dict) -> dict:
+        try:
+            return {"job": self.worker_queue.submit(payload)}
+        except WorkerQueueError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def get_remote_job(self, job_id: str) -> dict:
+        try:
+            return {"job": self.worker_queue.get_job(job_id)}
+        except WorkerQueueError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def claim_remote_job(self, payload: dict) -> dict:
+        try:
+            workers = self.worker_directory.list_workers()["workers"]
+            return {
+                "job": self.worker_queue.claim(payload, workers)
+            }
+        except WorkerQueueError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def heartbeat_remote_job(
+        self,
+        job_id: str,
+        payload: dict,
+    ) -> dict:
+        try:
+            return {
+                "job": self.worker_queue.heartbeat(job_id, payload)
+            }
+        except WorkerQueueError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def record_remote_job_result(
+        self,
+        job_id: str,
+        payload: dict,
+    ) -> dict:
+        try:
+            return {
+                "job": self.worker_queue.result(job_id, payload)
+            }
+        except WorkerQueueError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def cancel_remote_job(
+        self,
+        job_id: str,
+        payload: dict,
+    ) -> dict:
+        try:
+            return {
+                "job": self.worker_queue.cancel(job_id, payload)
+            }
+        except WorkerQueueError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
     def _janitor_loop(self) -> None:
         last_storage_prune = 0.0
         while not self._stop.wait(2):
@@ -7588,6 +7691,12 @@ class DeviceService:
                     session.stop(retain_flash=False)
                 except Exception:
                     pass
+            try:
+                self.worker_queue.reconcile(
+                    self.worker_directory.list_workers()["workers"]
+                )
+            except Exception:
+                pass
             if (
                 now - last_storage_prune
                 >= self.storage_policy.prune_interval_seconds

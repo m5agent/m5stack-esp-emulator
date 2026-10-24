@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-remote-worker-durable-queue",
+  "scope": "contract-and-http-api",
+  "validation": "static-and-local-http",
+  "status": "PASS",
+  "queue": {
+    "state_file": "jobs.json",
+    "schema_version": 1,
+    "max_jobs": 1024,
+    "max_request_bytes": 65536,
+    "max_attempts": 10,
+    "default_lease_seconds": 60,
+    "state_mode": "0600",
+    "idempotent_submit": true,
+    "capability_claim": true,
+    "lease_heartbeat": true,
+    "expiry_retry": true,
+    "worker_reconciliation": true,
+    "terminal_result": true,
+    "operator_cancel": true
+  },
+  "checks": {
+    "idempotent_replay_and_conflict": "PASS",
+    "persistent_restart_recovery": "PASS",
+    "capability_matching_fifo_claim": "PASS",
+    "identity_bound_heartbeat": "PASS",
+    "lease_expiry_retry": "PASS",
+    "max_attempts_failure": "PASS",
+    "pass_result_and_cancel": "PASS",
+    "worker_stale_release": "PASS",
+    "worker_stopped_release": "PASS",
+    "worker_generation_release": "PASS",
+    "schema_and_payload_validation": "PASS",
+    "http_jobs_contract": "PASS"
+  },
+  "tests": {
+    "worker_queue": "6/6 PASS",
+    "device_service": "82/82 PASS",
+    "platform_suite": "289/289 PASS"
+  },
+  "not_claimed": [
+    "remote job execution",
+    "evidence bundle transfer",
+    "active QEMU process re-attach",
+    "production multi-host scheduling",
+    "untrusted-firmware sandbox",
+    "hardware validation"
+  ]
+}

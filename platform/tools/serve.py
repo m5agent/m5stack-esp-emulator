@@ -224,6 +224,17 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.worker_status()
             elif method == "GET" and parts == ["workers"]:
                 response = service.list_remote_workers()
+            elif method == "GET" and parts == ["jobs"]:
+                response = service.list_remote_jobs(
+                    status=query.get("status", [None])[0],
+                    limit=int(query.get("limit", ["100"])[0]),
+                )
+            elif (
+                method == "GET"
+                and len(parts) == 2
+                and parts[0] == "jobs"
+            ):
+                response = service.get_remote_job(parts[1])
             elif method == "GET" and parts == ["openapi.yaml"]:
                 spec = ROOT / "docs/device-service.openapi.yaml"
                 if not spec.is_file():
@@ -526,6 +537,36 @@ class Handler(SimpleHTTPRequestHandler):
                     self._read_json()
                 )
                 status = 201
+            elif method == "POST" and parts == ["jobs"]:
+                response = service.submit_remote_job(self._read_json())
+                status = 201
+            elif method == "POST" and parts == ["jobs", "claim"]:
+                response = service.claim_remote_job(self._read_json())
+            elif (
+                method == "POST"
+                and len(parts) == 3
+                and parts[0] == "jobs"
+            ):
+                action = parts[2]
+                payload = self._read_json(required=action != "cancel")
+                if action == "heartbeat":
+                    response = service.heartbeat_remote_job(
+                        parts[1], payload
+                    )
+                elif action == "result":
+                    response = service.record_remote_job_result(
+                        parts[1], payload
+                    )
+                elif action == "cancel":
+                    response = service.cancel_remote_job(
+                        parts[1], payload
+                    )
+                else:
+                    raise ServiceError(
+                        "not_found",
+                        "unknown remote job action",
+                        404,
+                    )
             elif (
                 method == "POST"
                 and len(parts) == 3

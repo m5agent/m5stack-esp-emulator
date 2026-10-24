@@ -3,7 +3,7 @@
 日期：`2026-10-24`
 
 本页对账到当前工作树、生成物和最近一次本地全量验证快照。平台套件共
-`283` 项，`283` 项通过、`0` 项跳过；
+`289` 项，`289` 项通过、`0` 项跳过；
 `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验均为
 `PASS`；浏览器 SHA256/upload client Node 测试 `2/2 PASS`。这里记录的是
 证据快照，不把“测试总数”写成“全部功能或真机通过”。
@@ -57,7 +57,7 @@
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期记录当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.15.0`；本地 worker heartbeat/drain/resume、远程 worker 注册目录、WebBurner browser intake、resumable chunk upload、atomic append rollback、staging GC、nftables exact egress + DHCP lifecycle |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.17.0`；本地 worker heartbeat/drain/resume、远程目录、durable job queue/lease supervisor、WebBurner browser intake、resumable chunk upload、staging GC、nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 14 个 unified profile；Core2 主路径为 `core2-native-hci`，`HCI-1` 至 `HCI-4` PASS；旧的 native-VHCI GDB 路径仅保留为诊断/兼容 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；五个独立 Device Service lease 同时通过 frame/QOM/WiFi/公网/NUS GATT/pcap，`gdb_bridge=false`；剩余是 bit-exact controller、物理等价性、coexistence/soak 和真机 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |
@@ -129,6 +129,7 @@
 - [DHCP renewal probe](../tests/network/idf_dhcp_renewal/README.md)
 - [双设备私有 lab fabric](../tests/network/lab_fabric/README.md)
 - [本地 worker drain/restart lifecycle](../tests/network/worker_lifecycle/README.md)
+- [远程 durable job queue 与 lease supervisor](../tests/network/worker_queue/README.md)
 - [Core2 stock VHCI BLE](../tests/uiflow2/core2_native_vhci/README.md)
 - [Core2 native HCI backend](core2-native-hci-backend.md)
 

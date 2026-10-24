@@ -75,9 +75,11 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/tools/network_fabric.py",
             "platform/tools/worker_registry.py",
             "platform/tools/worker_directory.py",
+            "platform/tools/worker_queue.py",
             "platform/tests/test_network_fabric.py",
             "platform/tests/test_worker_registry.py",
             "platform/tests/test_worker_directory.py",
+            "platform/tests/test_worker_queue.py",
             "tests/network/lab_fabric/README.md",
             "tests/network/lab_fabric/run_test.py",
             "tests/network/lab_fabric/check_fabric.py",
@@ -90,6 +92,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_lifecycle/README.md",
             "tests/network/worker_lifecycle/run_test.py",
             "tests/network/worker_lifecycle/evidence-2026-10-24-pass.json",
+            "tests/network/worker_queue/README.md",
+            "tests/network/worker_queue/evidence-2026-10-24-queue-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
@@ -664,6 +668,27 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertTrue(
             worker_lifecycle["checks"]["pcap_result_recorded"]
         )
+        worker_queue = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_queue/"
+                "evidence-2026-10-24-queue-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(worker_queue["status"], "PASS")
+        self.assertEqual(
+            worker_queue["scope"],
+            "contract-and-http-api",
+        )
+        self.assertTrue(all(worker_queue["checks"].values()))
+        self.assertEqual(
+            worker_queue["tests"]["platform_suite"],
+            "289/289 PASS",
+        )
+        self.assertIn(
+            "active QEMU process re-attach",
+            worker_queue["not_claimed"],
+        )
         efuse_security = json.loads(
             (
                 ROOT
@@ -1056,7 +1081,9 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("core2-native-vhci", core2_hci)
         self.assertIn("legacy", core2_hci.lower())
         self.assertIn("platform/tools/worker_directory.py", code_map)
+        self.assertIn("platform/tools/worker_queue.py", code_map)
         self.assertIn("platform/tests/test_worker_directory.py", code_map)
+        self.assertIn("platform/tests/test_worker_queue.py", code_map)
 
         task_ids = sorted(
             set(re.findall(r"^\| `([A-Z][A-Z0-9-]+)` \|", backlog, re.M))
@@ -1116,9 +1143,16 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("/worker/drain", openapi)
         self.assertIn("/workers", openapi)
         self.assertIn("/workers/{worker_id}/heartbeat", openapi)
+        self.assertIn("/jobs", openapi)
+        self.assertIn("/jobs/claim", openapi)
+        self.assertIn("/jobs/{job_id}/heartbeat", openapi)
+        self.assertIn("/jobs/{job_id}/result", openapi)
+        self.assertIn("WorkerJobList", openapi)
+        self.assertIn("idempotency_key", openapi)
         self.assertIn("RemoteWorkerRegistration", openapi)
         self.assertIn("accepting_leases", openapi)
         self.assertIn("Remote worker directory MVP", markdown)
+        self.assertIn("Durable remote job queue", markdown)
 
     def test_webburner_browser_surface_is_wired(self) -> None:
         html = (ROOT / "platform/web/firmware.html").read_text()

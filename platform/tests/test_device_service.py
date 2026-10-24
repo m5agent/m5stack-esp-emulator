@@ -3958,6 +3958,106 @@ class DeviceServiceHttpTests(unittest.TestCase):
             {worker["worker_id"] for worker in listing["workers"]},
         )
 
+        job_request = {
+            "label": "queue-contract",
+            "request": {
+                "device_id": "sticks3",
+                "profile": "uiflow2-sticks3-unified",
+            },
+            "required_capabilities": {"qemu": True},
+            "max_attempts": 2,
+            "idempotency_key": f"job-{uuid.uuid4().hex[:12]}",
+        }
+        status, submitted = self.request(
+            "/api/v1/jobs",
+            method="POST",
+            data=json.dumps(job_request).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        job_id = submitted["job"]["job_id"]
+        self.assertEqual(submitted["job"]["status"], "queued")
+        status, replay = self.request(
+            "/api/v1/jobs",
+            method="POST",
+            data=json.dumps(job_request).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(replay["job"]["job_id"], job_id)
+        self.assertTrue(replay["job"]["idempotent_replay"])
+
+        identity_payload = {
+            "worker_id": worker_id,
+            "instance_id": "instance-a",
+            "generation": 1,
+        }
+        status, claimed = self.request(
+            "/api/v1/jobs/claim",
+            method="POST",
+            data=json.dumps(identity_payload).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(claimed["job"]["job_id"], job_id)
+        self.assertEqual(claimed["job"]["status"], "leased")
+        lease_id = claimed["job"]["lease"]["lease_id"]
+
+        status, job_heartbeat = self.request(
+            f"/api/v1/jobs/{job_id}/heartbeat",
+            method="POST",
+            data=json.dumps(
+                {**identity_payload, "lease_id": lease_id}
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(
+            job_heartbeat["job"]["lease"]["lease_id"],
+            lease_id,
+        )
+        status, completed = self.request(
+            f"/api/v1/jobs/{job_id}/result",
+            method="POST",
+            data=json.dumps(
+                {
+                    **identity_payload,
+                    "lease_id": lease_id,
+                    "state": "PASS",
+                    "evidence_sha256": "b" * 64,
+                    "summary": {"checks": 4},
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(completed["job"]["status"], "completed")
+        status, jobs = self.request(
+            "/api/v1/jobs?status=completed&limit=10"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(jobs["counts"]["completed"], 1)
+        self.assertEqual(jobs["jobs"][0]["job_id"], job_id)
+        status, cancel_submit = self.request(
+            "/api/v1/jobs",
+            method="POST",
+            data=json.dumps(
+                {
+                    "label": "cancel-contract",
+                    "request": {"device_id": "sticks3"},
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        cancel_job_id = cancel_submit["job"]["job_id"]
+        status, cancelled = self.request(
+            f"/api/v1/jobs/{cancel_job_id}/cancel",
+            method="POST",
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(cancelled["job"]["status"], "cancelled")
+
         heartbeat_payload = {
             "instance_id": "instance-a",
             "generation": 1,

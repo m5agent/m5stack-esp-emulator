@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.16.0` and bounded
+Status: local MVP with unified-device runtime contract `1.17.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -125,9 +125,11 @@ and their last-known evidence remain readable.
 printable characters. The label is stored with the worker lease and does not
 grant access or identity.
 
-This is local worker lifecycle control, not a remote scheduler. Running QEMU
-process re-attach, persistent task queueing, worker supervision, warm pools
-and multi-host placement remain `NOT RUN`.
+This section describes local worker lifecycle control. The separate durable
+job queue below provides remote enqueue/claim/lease supervision, but it does
+not execute jobs, transfer an evidence bundle, recover a live QEMU process or
+place work across a production multi-host scheduler. Active-process re-attach,
+warm pools and multi-host placement remain `NOT RUN`.
 
 ### Remote worker directory MVP
 
@@ -169,6 +171,52 @@ list is empty. `stop` is terminal for the current generation. A result record
 contains only `lease_id`, result `state`, optional `evidence_sha256` and
 `completed_at`; it is an index to external evidence, not the evidence bundle.
 
+### Durable remote job queue
+
+`<state-dir>/jobs.json` persists jobs, idempotency keys, capability
+requirements, worker leases, retry counts and terminal results. The queue is
+pull-based: a ready registered worker claims the oldest compatible job, then
+heartbeats and reports a result. A request is limited to 64 KiB; the queue is
+bounded to 1024 jobs and 10 attempts per job.
+
+```bash
+curl -sS -X POST http://127.0.0.1:8787/api/v1/jobs \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "label": "sticks3-network-review",
+    "request": {
+      "device_id": "sticks3",
+      "runtime": "qemu-unified",
+      "profile": "uiflow2-sticks3-unified"
+    },
+    "required_capabilities": {"qemu": true, "pcap": true},
+    "max_attempts": 3,
+    "idempotency_key": "review-20261024-sticks3-a"
+  }'
+
+curl -sS -X POST http://127.0.0.1:8787/api/v1/jobs/claim \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "worker_id": "linux-east-1",
+    "instance_id": "boot-20261024-a",
+    "generation": 1
+  }'
+```
+
+The claim response includes a `lease_id` and lease expiry. The worker must
+heartbeat with the same identity and lease before expiry, then submit
+`PASS`, `PARTIAL`, `FAIL` or `REVIEW` to `/jobs/{id}/result`.
+`FAIL` is terminal for that attempt and marks the job failed; lease expiry,
+worker staleness, worker stop, a missing worker or a generation replacement
+requeues the job while attempts remain, otherwise marks it failed. Operator
+cancel is terminal. These transitions are persisted across service restart.
+The request is intended for non-secret job parameters; credentials, tokens
+and firmware payloads must remain in their dedicated stores.
+
+This queue is not a worker executor and does not make a lost QEMU process
+truthful. The worker still has to execute the claimed request and upload or
+index durable evidence.
+
 ### Capacity sizing
 
 The default of `12` global sessions and `8` sessions per model is a
@@ -190,9 +238,10 @@ captures completed in 18-39 ms.
 
 Per-device resource use varies with firmware activity and device backend. Use
 the environment variables or CLI flags to tune the limits for the host and
-workload. Capacity exhaustion still returns `429` with `Retry-After`; a durable
-batch queue is not implemented yet, so large bursts should retry or schedule
-leases within the advertised capacity.
+workload. Capacity exhaustion for immediate `/sessions` creation still returns
+`429` with `Retry-After`. Remote batch jobs can wait in the durable queue, but
+the current service does not auto-launch a worker or reserve capacity when a
+job is enqueued.
 
 For LAN access with a shared token:
 
@@ -1154,6 +1203,13 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | POST | `/api/v1/workers/{worker_id}/drain` | Stop accepting new remote leases and report draining/drained |
 | POST | `/api/v1/workers/{worker_id}/stop` | Mark the current remote generation stopped |
 | POST | `/api/v1/workers/{worker_id}/results` | Append bounded result metadata and optional evidence SHA256 |
+| GET | `/api/v1/jobs` | List durable jobs, status counts and optional status filter |
+| POST | `/api/v1/jobs` | Submit an idempotent capability-constrained job |
+| GET | `/api/v1/jobs/{job_id}` | Read one durable job |
+| POST | `/api/v1/jobs/claim` | Claim the oldest compatible job for a ready registered worker |
+| POST | `/api/v1/jobs/{job_id}/heartbeat` | Extend the identity-bound worker lease |
+| POST | `/api/v1/jobs/{job_id}/result` | Record a terminal result and optional evidence SHA256 |
+| POST | `/api/v1/jobs/{job_id}/cancel` | Cancel a queued or leased job |
 | GET | `/api/v1/storage` | Session/cache/disk usage and retention limits |
 | POST | `/api/v1/storage/prune` | Apply retention; `include_cache=0` skips cache GC |
 | POST | `/api/v1/artifacts` | Upload a binary artifact |

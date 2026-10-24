@@ -258,7 +258,10 @@ diagnostics in `internal/records/`.
   sandbox. The Linux fail-closed namespace runner and guest path are validated;
   filesystem/resource isolation, active QEMU process re-attach and formal
   worker/VM lifecycle remain open. The local worker registry covers identity,
-  generation, heartbeat, drain/resume and restart lease classification only.
+  generation, heartbeat, drain/resume and restart lease classification. The
+  remote directory and durable job queue add idempotent enqueue,
+  capability-matched claim, lease heartbeat, expiry retry and stale/stopped
+  worker reconciliation, but they do not execute jobs or re-attach QEMU.
 
 ## Remaining work
 
@@ -268,8 +271,8 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- remote worker supervision/scheduling, persistent queues, active QEMU
-  re-attach and external IPv6 endpoint enforcement;
+- remote job execution and multi-host scheduling, active QEMU re-attach and
+  external IPv6 endpoint enforcement;
 - Core2 bit-exact BT controller/baseband and physical cache/PSRAM
   equivalence, coexistence and soak;
 - runtime permissions/license policy, production security-key flows and

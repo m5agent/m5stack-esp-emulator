@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.16.0
+  version: 1.17.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -9,8 +9,10 @@ info:
     firmware copy. The local worker persists heartbeat, lease, drain and
     restart-classification state under an exclusive state-directory lock. A
     persistent directory records remote-worker identity, generation,
-    heartbeat, capabilities and bounded result metadata; it is not a task
-    queue or scheduler.
+    heartbeat, capabilities and bounded result metadata. A separate durable
+    job queue stores idempotent requests, capability requirements, worker
+    leases, retries and terminal results. It is a pull-based queue and
+    supervisor, not an executor or active-process re-attach mechanism.
     CardputerZero is outside this API version. Tab5 is available through
     esp-emu with partial peripheral status.
 servers:
@@ -260,6 +262,180 @@ paths:
         "404":
           $ref: "#/components/responses/Error"
         "409":
+          $ref: "#/components/responses/Error"
+  /jobs:
+    get:
+      summary: List durable remote-worker jobs
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, leased, completed, failed, cancelled]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 100
+      responses:
+        "200":
+          description: Persistent job queue snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerJobList"
+        "400":
+          $ref: "#/components/responses/Error"
+    post:
+      summary: Submit an idempotent durable job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerJobSubmit"
+      responses:
+        "201":
+          description: Job queued or an idempotent replay returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs/claim:
+    post:
+      summary: Claim the oldest matching queued job for a ready worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerJobClaim"
+      responses:
+        "200":
+          description: Claimed job, or null when no matching job is queued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    oneOf:
+                      - $ref: "#/components/schemas/WorkerJob"
+                      - type: "null"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs/{job_id}:
+    get:
+      summary: Read one durable job
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Job state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "404":
+          $ref: "#/components/responses/Error"
+  /jobs/{job_id}/heartbeat:
+    post:
+      summary: Extend a job lease owned by a specific worker generation
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerJobLeaseRequest"
+      responses:
+        "200":
+          description: Renewed job lease
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs/{job_id}/result:
+    post:
+      summary: Record a terminal result and optional evidence hash
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerJobResultRequest"
+      responses:
+        "200":
+          description: Completed or failed job
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs/{job_id}/cancel:
+    post:
+      summary: Cancel a queued or leased job
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  maxLength: 256
+      responses:
+        "200":
+          description: Cancelled job
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "404":
           $ref: "#/components/responses/Error"
   /storage:
     get:
@@ -1169,6 +1345,14 @@ components:
         type: string
     WorkerId:
       name: worker_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    JobId:
+      name: job_id
       in: path
       required: true
       schema:
@@ -2207,3 +2391,201 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/RemoteWorker"
+    WorkerJobIdentity:
+      type: object
+      required: [worker_id, instance_id, generation]
+      properties:
+        worker_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        instance_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        generation:
+          type: integer
+          minimum: 1
+    WorkerJobSubmit:
+      type: object
+      required: [request]
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 160
+        request:
+          type: object
+          additionalProperties: true
+          description: >
+            JSON request payload limited to 64 KiB. It must contain job
+            parameters rather than credentials, tokens or firmware bytes.
+        required_capabilities:
+          type: object
+          additionalProperties: true
+          description: Flat capability requirements matched against worker capabilities.
+        max_attempts:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 3
+        idempotency_key:
+          type: string
+          minLength: 1
+          maxLength: 160
+    WorkerJobClaim:
+      allOf:
+        - $ref: "#/components/schemas/WorkerJobIdentity"
+        - type: object
+          properties:
+            job_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+    WorkerJobLeaseRequest:
+      allOf:
+        - $ref: "#/components/schemas/WorkerJobIdentity"
+        - type: object
+          required: [lease_id]
+          properties:
+            lease_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+    WorkerJobResultRequest:
+      allOf:
+        - $ref: "#/components/schemas/WorkerJobLeaseRequest"
+        - type: object
+          required: [state]
+          properties:
+            state:
+              type: string
+              enum: [PASS, PARTIAL, FAIL, REVIEW]
+            evidence_sha256:
+              type: [string, "null"]
+              pattern: "^[0-9a-f]{64}$"
+            summary:
+              type: object
+              additionalProperties: true
+              description: JSON evidence summary limited to 8 KiB.
+    WorkerJobLease:
+      type: object
+      required:
+        - lease_id
+        - worker_id
+        - instance_id
+        - generation
+        - claimed_at
+        - heartbeat_at
+        - expires_at
+      properties:
+        lease_id:
+          type: string
+        worker_id:
+          type: string
+        instance_id:
+          type: string
+        generation:
+          type: integer
+        claimed_at:
+          type: string
+          format: date-time
+        heartbeat_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+    WorkerJob:
+      type: object
+      required:
+        - job_id
+        - status
+        - request
+        - required_capabilities
+        - max_attempts
+        - attempts
+        - created_at
+        - updated_at
+        - idempotent_replay
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, leased, completed, failed, cancelled]
+        label:
+          type: [string, "null"]
+        request:
+          type: object
+          additionalProperties: true
+        request_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        required_capabilities:
+          type: object
+          additionalProperties: true
+        max_attempts:
+          type: integer
+        attempts:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        lease:
+          oneOf:
+            - $ref: "#/components/schemas/WorkerJobLease"
+            - type: "null"
+        last_worker:
+          oneOf:
+            - $ref: "#/components/schemas/WorkerJobIdentity"
+            - type: "null"
+        last_released_at:
+          type: [string, "null"]
+          format: date-time
+        last_release_reason:
+          type: [string, "null"]
+        result:
+          type: [object, "null"]
+          additionalProperties: true
+        failure:
+          type: [object, "null"]
+          additionalProperties: true
+        idempotent_replay:
+          type: boolean
+    WorkerJobList:
+      type: object
+      required:
+        - schema_version
+        - job_count
+        - counts
+        - jobs
+      properties:
+        schema_version:
+          type: integer
+        updated_at:
+          type: [string, "null"]
+          format: date-time
+        job_count:
+          type: integer
+        counts:
+          type: object
+          required: [queued, leased, completed, failed, cancelled]
+          properties:
+            queued:
+              type: integer
+            leased:
+              type: integer
+            completed:
+              type: integer
+            failed:
+              type: integer
+            cancelled:
+              type: integer
+        jobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkerJob"
