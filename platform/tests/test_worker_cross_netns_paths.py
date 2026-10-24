@@ -60,6 +60,32 @@ class WorkerCrossNetnsPathTests(unittest.TestCase):
         self.assertNotIn("0123456789abcdef0123456789abcdef", redacted)
         self.assertNotIn("127.0.0.1", redacted)
 
+    def test_worker_result_facts_support_control_and_qemu_shapes(self):
+        runner = load_runner()
+        control_sha = "a" * 64
+        qemu_sha = "b" * 64
+
+        control = {
+            "result": "completed",
+            "evidence_sha256": control_sha,
+            "lease_id": "redacted-lease",
+        }
+        qemu = {
+            "result": {"state": "PASS", "evidence_sha256": qemu_sha},
+            "lease_observed": True,
+        }
+
+        self.assertEqual(
+            runner.worker_result_evidence_sha256(control),
+            control_sha,
+        )
+        self.assertTrue(runner.worker_result_lease_observed(control))
+        self.assertEqual(
+            runner.worker_result_evidence_sha256(qemu),
+            qemu_sha,
+        )
+        self.assertTrue(runner.worker_result_lease_observed(qemu))
+
 
 if __name__ == "__main__":
     unittest.main()

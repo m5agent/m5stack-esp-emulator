@@ -226,6 +226,22 @@ def qemu_process_lines(process_listing: str) -> list[str]:
     return processes
 
 
+def worker_result_evidence_sha256(worker_result: dict) -> str | None:
+    result = worker_result.get("result")
+    if isinstance(result, dict):
+        value = result.get("evidence_sha256")
+    else:
+        value = worker_result.get("evidence_sha256")
+    return value if isinstance(value, str) else None
+
+
+def worker_result_lease_observed(worker_result: dict) -> bool:
+    return (
+        worker_result.get("lease_observed") is True
+        or bool(worker_result.get("lease_id"))
+    )
+
+
 def registered_qemu_path(device_id: str = "sticks3") -> Path:
     matrix = json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())
     profile = next(
@@ -855,12 +871,12 @@ def main() -> int:
                 worker_result.get("registration", {}).get("instance_id")
             ),
             "job_id_present": bool(worker_result.get("job_claimed")),
-            "lease_observed": worker_result.get("lease_observed") is True,
+            "lease_observed": worker_result_lease_observed(worker_result),
             "request_sha256_present": bool(
                 worker_result.get("request_sha256")
             ),
             "result_evidence_sha256_present": bool(
-                worker_result.get("result", {}).get("evidence_sha256")
+                worker_result_evidence_sha256(worker_result)
             ),
             "terminal": worker_result.get("terminal"),
             "execution_plane": worker_result.get("execution_plane"),
