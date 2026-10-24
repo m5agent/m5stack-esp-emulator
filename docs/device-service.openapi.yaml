@@ -1541,15 +1541,22 @@ components:
               additionalProperties: false
               required:
                 - requested_psram_mib
+                - cli_requested_psram_mib
                 - effective_psram_mib
+                - effective_source
                 - policy
                 - claim
                 - physical_cache_psram_timing
               properties:
                 requested_psram_mib:
                   type: [integer, "null"]
+                cli_requested_psram_mib:
+                  type: [integer, "null"]
                 effective_psram_mib:
                   type: [integer, "null"]
+                effective_source:
+                  type: string
+                  example: validated-m5core2-qom
                 policy:
                   type: string
                   example: native-controller-no-psram

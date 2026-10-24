@@ -112,6 +112,11 @@
   计算 QEMU 哈希，因此本轮只能标记 `DIAGNOSTIC_PASS`，不能关闭
   “artifact-bound 两小时 soak”。runner 已改为首 lease 前冻结 firmware/
   ELF/QEMU 哈希、结束时拒绝资产漂移，并采样 host RSS。
+- 对同一次运行做 QOM 复核后发现，Core2 native-controller 虽然传入 CLI
+  `-m 0`，`m5core2` machine 仍解析为 `4 MiB` memory 和
+  `has_psram=true`。当前文档和 evidence 已分别记录 CLI request 与
+  QOM-effective memory；这不改变物理 8 MiB 与物理 cache/PSRAM 时序仍为
+  `NOT RUN` 的边界。
 - 首次 10 轮运行暴露了 Device Service 的独立等待缺陷：peer 已完成 5 轮并
   开始第 6 轮且 guest 未 panic，但 `_wait_hci_probe_result()` 把
   `ready_timeout_seconds` 硬截断为 30 秒，导致 session 被误判失败并终止

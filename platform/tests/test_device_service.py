@@ -484,7 +484,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         issue = caught.exception.extra["issues"][0]
         self.assertEqual(issue["code"], "runtime_psram_mismatch")
-        self.assertEqual(issue["available"], 0)
+        self.assertEqual(issue["available"], 4 << 20)
 
     def test_qemu_wifi_network_result_refreshes_before_stop(self):
         spec = self.service.specs["sticks3"]
@@ -556,17 +556,24 @@ class DeviceServiceUnitTests(unittest.TestCase):
         regular = device_service_module.qemu_runtime_memory(
             "4",
             "core2-unified",
+            "core2",
         )
         native = device_service_module.qemu_runtime_memory(
             "4",
             "core2-native-hci",
+            "core2",
         )
         self.assertEqual(regular["effective_psram_mib"], 4)
         self.assertEqual(regular["policy"], "qemu-emulated-psram")
-        self.assertEqual(native["effective_psram_mib"], 0)
+        self.assertEqual(native["cli_requested_psram_mib"], 0)
+        self.assertEqual(native["effective_psram_mib"], 4)
+        self.assertEqual(
+            native["effective_source"],
+            "validated-m5core2-qom",
+        )
         self.assertEqual(
             native["policy"],
-            "native-controller-no-psram",
+            "native-controller-machine-default-psram",
         )
         self.assertEqual(
             native["physical_cache_psram_timing"],
@@ -576,18 +583,20 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "4",
             "core2-native-hci",
             8 << 20,
+            "core2",
         )
         self.assertEqual(issue["code"], "runtime_psram_mismatch")
-        self.assertEqual(issue["available"], 0)
+        self.assertEqual(issue["available"], 4 << 20)
         self.assertEqual(
             issue["memory_policy"],
-            "native-controller-no-psram",
+            "native-controller-machine-default-psram",
         )
         self.assertIsNone(
             device_service_module.runtime_psram_mismatch(
                 "4",
                 "core2-unified",
                 4 << 20,
+                "core2",
             )
         )
 

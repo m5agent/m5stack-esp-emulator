@@ -223,6 +223,7 @@ SINGLE_GUEST_PROFILES = frozenset(
 def qemu_runtime_memory(
     memory: str | None,
     profile: str | None,
+    device_id: str | None = None,
 ) -> dict[str, Any]:
     """Describe the QEMU PSRAM selection without claiming physical timing."""
     requested: int | None
@@ -234,9 +235,16 @@ def qemu_runtime_memory(
         CORE2_NATIVE_VHCI_PROFILE,
         CORE2_NATIVE_HCI_PROFILE,
     }
-    effective = 0 if native_controller else requested
+    cli_requested = 0 if native_controller else requested
+    effective = cli_requested
+    effective_source = "qemu-cli-request"
+    if native_controller and device_id == "core2":
+        # The m5core2 machine resolves `-m 0` to its 4 MiB default memory.
+        # QOM evidence verifies memory=4 MiB and has_psram=true.
+        effective = 4
+        effective_source = "validated-m5core2-qom"
     if native_controller:
-        policy = "native-controller-no-psram"
+        policy = "native-controller-machine-default-psram"
     elif effective == 0:
         policy = "qemu-no-psram"
     elif effective is not None:
@@ -245,7 +253,9 @@ def qemu_runtime_memory(
         policy = "not-configured"
     return {
         "requested_psram_mib": requested,
+        "cli_requested_psram_mib": cli_requested,
         "effective_psram_mib": effective,
+        "effective_source": effective_source,
         "policy": policy,
         "claim": "qemu-memory-configuration-only",
         "physical_cache_psram_timing": "NOT RUN",
@@ -256,11 +266,12 @@ def runtime_psram_mismatch(
     memory: str | None,
     profile: str | None,
     required_bytes: object,
+    device_id: str | None = None,
 ) -> dict[str, Any] | None:
     """Return a structured preflight issue for an undersized QEMU PSRAM lane."""
     if not isinstance(required_bytes, int) or required_bytes <= 0:
         return None
-    runtime_memory = qemu_runtime_memory(memory, profile)
+    runtime_memory = qemu_runtime_memory(memory, profile, device_id)
     effective_mib = runtime_memory["effective_psram_mib"]
     if not isinstance(effective_mib, int):
         return None
@@ -3361,6 +3372,7 @@ class DeviceSession:
                     "memory": qemu_runtime_memory(
                         self.spec.memory,
                         profile,
+                        self.spec.id,
                     ),
                     "wifi_nic": self.network_config.get("nic"),
                     "hci_transport": (
@@ -4367,10 +4379,12 @@ class DeviceSession:
                     f"driver={self.spec.efuse_driver},property=drive,value=efuse",
                 ]
             )
-        # Keep the memory policy explicit: native-controller profiles retain
-        # the validated -m 0 lane, while other QEMU devices use their declared
-        # emulated PSRAM size. Board inventory size is not a runtime-memory
-        # claim, and neither setting proves physical cache/PSRAM timing.
+        # Keep the memory policy explicit: native-controller profiles request
+        # `-m 0`, while other QEMU devices use their declared emulated PSRAM
+        # size. The m5core2 machine resolves `-m 0` to its 4 MiB default, so
+        # evidence reports the QOM-effective value separately. Board inventory
+        # size is not a runtime-memory claim, and neither setting proves
+        # physical cache/PSRAM timing.
         if self.spec.memory is not None or native_bt:
             command.extend(
                 [
@@ -7160,6 +7174,7 @@ class DeviceService:
                 spec.memory,
                 profile,
                 manifest_psram,
+                spec.id,
             )
             if memory_issue is not None:
                 raise ServiceError(

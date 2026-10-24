@@ -669,11 +669,10 @@ returns HTTP `409 unsupported_firmware_capability` with `issues[]`; a model gap
 must not be reported as a firmware crash.
 
 QEMU memory is rechecked at session creation against the selected profile.
-For example, a manifest requiring PSRAM receives
-`issues[].code=runtime_psram_mismatch` when the native-controller lane uses
-`effective_psram_mib=0`, even if the physical board inventory declares more
-PSRAM. This preflight prevents a known memory-model mismatch from being
-misreported later as a firmware crash.
+For example, a manifest requiring more PSRAM than the effective runtime memory
+receives `issues[].code=runtime_psram_mismatch`, even if the physical board
+inventory declares more PSRAM. This preflight prevents a known memory-model
+mismatch from being misreported later as a firmware crash.
 
 ```http
 POST /api/v1/firmware
@@ -966,20 +965,24 @@ The preferred stock-firmware path is `core2-native-hci`:
 ```
 
 `elf_artifact_id` is mandatory and must point to the matching symbol ELF.
-The service starts one `m5core2` guest with `-m 0`, the OpenMAC WiFi NIC and
-the QEMU `esp32-native-hci` device. Before launch it strictly resolves every
+The service starts one `m5core2` guest with CLI `-m 0`, the OpenMAC WiFi NIC
+and the QEMU `esp32-native-hci` device. QOM reports the resolved machine
+memory as 4 MiB with `has_psram=true`; evidence keeps the CLI request and
+effective value separate. Before launch it strictly resolves every
 API-boundary, HLI queue, ATT trace and task-recycle address required by the
 device arguments. No QEMU GDB endpoint is created. Event and ACL delivery use
 the firmware HLI queue/IRQ; H2C ownership is isolated at
 `API_vhci_host_send_packet`. A second Bumble peer performs NUS discovery,
 subscription, write and notification readback.
 
-The network evidence `runtime.memory` object records the requested and
-effective QEMU PSRAM size, the selected policy, and
+The network evidence `runtime.memory` object records the requested CLI and
+QOM-effective QEMU PSRAM size, the selected policy, and
 `physical_cache_psram_timing=NOT RUN`. Native-controller profiles report
-`effective_psram_mib=0`; non-native profiles can report the configured QEMU
-model. This makes memory policy auditable without claiming physical PSRAM or
-cache timing.
+`cli_requested_psram_mib=0`; for Core2 the resolved
+`effective_psram_mib=4` comes from the current `m5core2` QOM. Other profiles
+report the CLI model unless another board-specific resolution is documented.
+This makes memory policy auditable without claiming physical PSRAM or cache
+timing.
 
 `/network` returns `kind=m5stack-core2-unified-qemu-proof`,
 `profile=core2-native-hci`, and
@@ -1473,14 +1476,13 @@ and firmware hash copy the prepared flash cache into a new per-session flash
 file.
 
 Core2 board inventory has 8 MiB PSRAM, while the QEMU machine currently caps
-its emulated PSRAM at 4 MiB. Non-native-controller Core2 sessions can expose
-that 4 MiB model; native-controller profiles currently use the conservative
-QEMU `-m 0` lane so radio/HCI results are not silently mixed with a larger
-memory model. Always read the session command/evidence memory field before
-comparing runs. Neither configuration is physical cache/PSRAM timing
-validation. Tab5 sessions attach the board's PI4IOE, INA226, RX8130 and BMI270
-register devices to I2C1 before boot, so application firmware sees the
-documented addresses rather than an empty bus.
+its emulated PSRAM at 4 MiB. Native-controller profiles request CLI `-m 0`,
+but the current `m5core2` machine resolves this to a 4 MiB QOM memory with
+`has_psram=true`; the evidence records both values. Always read the session
+evidence memory fields before comparing runs. Neither configuration is
+physical cache/PSRAM timing validation. Tab5 sessions attach the board's
+PI4IOE, INA226, RX8130 and BMI270 register devices to I2C1 before boot, so
+application firmware sees the documented addresses rather than an empty bus.
 
 ### Wait for boot
 

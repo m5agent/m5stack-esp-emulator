@@ -730,6 +730,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-hci4-active-ble-hold600-2x.json"
             ).read_text()
         )
+        resolved_psram = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-core2-native-hci-resolved-psram.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("20/30/60/120", project_snapshot)
@@ -775,6 +782,13 @@ class DocsConsistencyTests(unittest.TestCase):
             1,
         )[1].split("ble_reconnect_cycles:", 1)[0]
         self.assertIn("maximum: 7260", linger_schema)
+        self.assertEqual(resolved_psram["cli_memory_mib"], 0)
+        self.assertEqual(resolved_psram["resolved_memory_mib"], 4)
+        self.assertTrue(resolved_psram["has_psram"])
+        self.assertIn(
+            "not physical PSRAM or cache timing validation",
+            resolved_psram["scope"],
+        )
 
         self.assertEqual(evidence["status"], "PASS")
         self.assertEqual(evidence["attempts_requested"], 3)

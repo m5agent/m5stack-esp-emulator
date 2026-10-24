@@ -351,11 +351,11 @@ metadata 提交失败都会把 part 截断回最后一个已确认 offset，客�
 
 如果 manifest 声明了 `target.psram_size`，创建 session 时还会按所选
 runtime/profile 的实际 QEMU memory policy 重新检查。Core2
-`core2-native-hci` 当前使用 `effective_psram_mib=0`；要求 4 MiB 或 8 MiB
-PSRAM 的 manifest 会在启动前返回
-`unsupported_firmware_capability`，其 issue code 为
-`runtime_psram_mismatch`。物理 8 MiB、QEMU 4 MiB 模型和 native-controller
-`-m 0` 不能互相替代。
+`core2-native-hci` 的命令行请求为 `-m 0`，但当前 `m5core2` QOM 实际解析为
+`effective_psram_mib=4` 且 `has_psram=true`。因此要求 8 MiB PSRAM 的
+manifest 会在启动前返回 `unsupported_firmware_capability`，其 issue code
+为 `runtime_psram_mismatch`；要求 4 MiB 可以匹配当前 QEMU 模型。物理
+8 MiB、QEMU 4 MiB 模型和物理 cache/PSRAM 时序不能互相替代。
 
 ## 已验证样本
 

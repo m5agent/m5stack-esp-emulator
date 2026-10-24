@@ -143,8 +143,9 @@ functional PASS.
   ELF, so AP-frame and touch capture remain unavailable.
 - Core2 has 8 MiB physical PSRAM, but the current QEMU machine supports at most
   a 4 MiB emulated PSRAM model. Generic-firmware sessions can use that 4 MiB
-  model; native-controller runs currently use a conservative QEMU `-m 0`
-  lane. These are separate runtime-memory configurations, and neither proves
+  model. Native-controller runs request CLI `-m 0`, which the current
+  `m5core2` machine resolves to a 4 MiB QOM memory with `has_psram=true`.
+  These are separate runtime-memory configurations, and neither proves
   physical cache/PSRAM timing. Radio/unified runs now use deterministic
   TCG/icount scheduling and passed 10/10 independent first attempts; the
   reproduced failure was interrupt-WDT/timer starvation, not a proven cache
