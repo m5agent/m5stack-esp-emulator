@@ -72,13 +72,13 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   evidence ZIP，且 `gdb_bridge=false`。`0005` 恢复 guest-call sregs 并把
   HLI 注入限制在 halted/idle vCPU 后，两批 `5×10s` hold 运行 `10/10`
   PASS，3 个 `60s` hold `3/3`，2 个 `120s` hold `2/2`，每轮 HLI
-  health 为零错误。同一 guest 双轮 reconnect 也已在 3 个独立 lease 中
-  PASS；根因是 Bumble 为无响应 `0x0c35` 错误返回 Command Status，留下
-  stale ACK，修正后第二轮 guest RX/notification 均通过。旧
+  health 为零错误。同一 guest 五轮 reconnect 也已在 3 个独立 lease 中
+  PASS，每个 lease 的 5 轮均有 guest RX/notification；根因是 Bumble 为
+  无响应 `0x0c35` 错误返回 Command Status，留下 stale ACK。旧
   `core2-native-vhci` 仍使用
   服务托管的 GDB bridge，且 repeated lease 只有 `1/2`，因此只保留为
   显式诊断/兼容路径。bit-exact Espressif BT baseband/controller、
-  物理 cache/PSRAM、多小时 coexistence/soak 和真机仍未完成。
+  物理 cache/PSRAM、超过五轮、多小时 coexistence/soak 和真机仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

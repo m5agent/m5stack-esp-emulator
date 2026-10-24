@@ -853,14 +853,14 @@ GATT lifecycle:
   "network": {
     "profile": "core2-native-hci",
     "elf_artifact_id": "<matching-xtensa-elf-sha256>",
-    "ble_reconnect_cycles": 2,
+    "ble_reconnect_cycles": 5,
     "ble_reconnect_delay_seconds": 2
   }
 }
 ```
 
-The stock Core2 guest passes two cycles in three independent leases. The former
-failure was a stale ACK caused by the Bumble compatibility layer returning
+The stock Core2 guest passes five cycles in each of three independent leases.
+The former failure was a stale ACK caused by the Bumble compatibility layer returning
 Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. The fields still
 describe the peer workload and must be verified per firmware/runtime.
@@ -1597,17 +1597,21 @@ restart.
   service leases without GDB. Two independent `5×10s` hold batches also pass
   `10/10`; three `60s` holds pass `3/3`, and two `120s` holds pass `2/2`,
   with zero HLI errors and empty HLI/meta queues. Three independent leases also
-  pass two same-guest reconnect cycles; this is still not a multi-hour soak.
+  pass five same-guest reconnect cycles each, with balanced HLI 157/157 and
+  connection/L2CAP/GATT pools back at 3/9/3; this is still not a multi-hour soak.
   `network.ble_linger_seconds` can keep the external GATT peer connected
   beyond its initial exchange; two active-link `120s` holds pass `2/2` with
   `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`.
   `network.ble_reconnect_cycles` (1-10) asks one external peer process to run
   multiple complete scan/connect/GATT/disconnect cycles without restarting the
   guest; `network.ble_reconnect_delay_seconds` controls the pause before the
-  next scan. Stock Core2 passes two complete cycles after the peer compatibility
-  layer stopped returning a response for no-response opcode `0x0c35`;
+  next scan. Stock Core2 passes five complete cycles in each of three leases
+  after the peer compatibility layer stopped returning a response for
+  no-response opcode `0x0c35`;
   the historical failure and root cause remain in
   `evidence-2026-10-24-reconnect2-fail.json`;
+  the current five-cycle PASS evidence is
+  `evidence-2026-10-24-hci4-reconnect5-3x.json`;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

@@ -249,9 +249,11 @@ diagnostics in `internal/records/`.
   Historical
   `semphr_give_wrapper`, `PC=0` and Cache-error evidence remains tracked.
   This closes the repeated-start/two-minute virtual gate, not multi-hour soak,
-  physical cache/PSRAM equivalence, more than two reconnect cycles or
-  bit-exact controller behavior. Two-cycle same-guest reconnect now passes in
-  three independent stock-firmware leases. The former `ack returned 12`
+  physical cache/PSRAM equivalence, more than five reconnect cycles or
+  bit-exact controller behavior. Five-cycle same-guest reconnect now passes in
+  three independent stock-firmware leases, with 157/157 HLI posts/consumption
+  in each lease and all connection/L2CAP/GATT pools back at their free
+  baseline. The former `ack returned 12`
   failure was caused by the external Bumble compatibility layer returning an
   invalid Command Status for the no-response
   `HCI_Host_Number_of_Completed_Packets (0x0c35)` command; the next
@@ -306,7 +308,7 @@ The main open streams are:
 - cross-host job execution, TLS/mTLS and credential rotation,
   companion/evidence continuity, cross-host QEMU re-attach, multi-host
   scheduling and external IPv6 endpoint enforcement;
-- Core2 more than two reconnect cycles, multi-hour coexistence, bit-exact BT
+- Core2 more than five reconnect cycles, multi-hour coexistence, bit-exact BT
   controller/baseband, physical cache/PSRAM equivalence and hardware
   validation;
 - runtime permissions/license policy, production security-key flows and

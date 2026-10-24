@@ -66,6 +66,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
@@ -304,6 +305,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "same-guest disconnect lifecycle fails before re-advertising",
             "The stock Core2 guest currently returns aggregate `FAIL`",
             "stock guest reproduces without the test-only re-advertise call",
+            "more than two reconnect cycles",
+            "more than two connection cycles",
         ):
             self.assertNotIn(stale, active)
 
@@ -1362,6 +1365,41 @@ class DocsConsistencyTests(unittest.TestCase):
                 for run in reconnect_pass["runs"]
             )
         )
+        reconnect5_pass = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-reconnect5-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(reconnect5_pass["status"], "PASS")
+        self.assertEqual(reconnect5_pass["ble_reconnect_cycles"], 5)
+        self.assertEqual(reconnect5_pass["attempts_requested"], 3)
+        self.assertEqual(reconnect5_pass["attempts_passed"], 3)
+        self.assertEqual(
+            reconnect5_pass["firmware"]["sha256"],
+            reconnect_pass["firmware"]["sha256"],
+        )
+        self.assertEqual(
+            reconnect5_pass["qemu_sha256"],
+            reconnect_pass["qemu_sha256"],
+        )
+        self.assertTrue(
+            all(
+                run["status"] == "PASS"
+                and run["native_hci_health"]["trace-hs-sched-reset"] == 0
+                and run["native_hci_health"]["trace-gap-adv-start"] == 5
+                and run["native_hci_health"]["hli-posts"] == 157
+                and run["native_hci_health"]["hli-consumed"] == 157
+                and run["native_hci_health"]["hli-errors"] == 0
+                and run["native_hci_health"]["hli-queue-depth"] == 0
+                and run["native_hci_health"]["meta-queue-depth"] == 0
+                and run["native_hci_health"]["conn-pool-free"] == 3
+                and run["native_hci_health"]["l2cap-pool-free"] == 9
+                and run["native_hci_health"]["gatts-pool-free"] == 3
+                for run in reconnect5_pass["runs"]
+            )
+        )
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1400,6 +1438,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("0x0c35", backlog)
         self.assertIn("reconnect2-fail.json", ledger)
         self.assertIn("hci4-reconnect2-3x.json", ledger)
+        self.assertIn("hci4-reconnect5-3x.json", ledger)
         self.assertIn(
             "ble_reconnect_cycles",
             (DOCS / "device-service-api.md").read_text(),

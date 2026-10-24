@@ -160,7 +160,7 @@ finding:
   HLI/meta queues.
 
 These are virtual-device context fixes. They do not establish physical
-cache/PSRAM timing, more than two reconnect cycles, multi-minute/hour coexistence
+cache/PSRAM timing, more than five reconnect cycles, multi-minute/hour coexistence
 or hardware equivalence.
 
 ## Next investigation
