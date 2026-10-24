@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-guest-ipv6-namespace-e2e",
+  "date": "2026-10-25",
+  "observed_utc_date": "2026-10-24",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "scope": "single-guest-linux-namespace-not-physical-rf",
+  "runtime": {
+    "platform": "linux-arm64-container",
+    "machine": "m5sticks3",
+    "qemu_version": "9.2.2",
+    "network": {
+      "ipv6": "on",
+      "prefix": "fec0::/64",
+      "host": "fec0::2",
+      "isolation": "namespace",
+      "egress": "allowlist"
+    }
+  },
+  "hashes": {
+    "base_image": "e5361d9ef99bf878746aa293636594792ff5c0cb6c399ac1e1064514012c69ee",
+    "probe_image": "27ee83a5de1d298ebf48ae447873c2356c67bf588c3d3c7843fd3ba11910dd8f",
+    "qemu": "16c6d6185781b7ddfaa3e646adcd3dea2ecd851b319dd35ce502496432a95fb5",
+    "test_build_patch": "ebfe541a28cb5338eea5d1bac66bc0881ee52fd9e26554d9092aee53b7283523"
+  },
+  "checks": {
+    "wifi_ready": "PASS",
+    "ipv6_socket_family": "PASS",
+    "controlled_aaaa": "PASS",
+    "ipv6_http": "PASS",
+    "http_fixture_request": "PASS",
+    "denied_port_blocked": "PASS",
+    "private_namespace": "PASS",
+    "pcap_ipv6_flow": "PASS",
+    "namespace_cleanup": "PASS",
+    "qemu_process_reaped": "PASS",
+    "dns_closed": "PASS",
+    "http_closed": "PASS"
+  },
+  "dns": {
+    "allowlisted_name": "allowed.lab.test",
+    "query_type": "AAAA",
+    "decision": "allow",
+    "aaaa_result": "FEC0::2",
+    "background_denials": [
+      {
+        "name": "uiflow2.m5stack.com",
+        "query_type": "A",
+        "decision": "deny",
+        "status": "NXDOMAIN",
+        "observed_queries": 3
+      },
+      {
+        "name": "ntp.aliyun.com",
+        "query_type": "A",
+        "decision": "deny",
+        "status": "NXDOMAIN",
+        "observed_queries": 1
+      }
+    ]
+  },
+  "http": {
+    "path": "/ipv6",
+    "host": "allowed.lab.test",
+    "response": "HTTP/1.0 200 OK"
+  },
+  "pcap_destinations": [
+    {
+      "address": "fec0::2",
+      "port": 18095,
+      "protocol": "TCP",
+      "packets": 5
+    },
+    {
+      "address": "fec0::2",
+      "port": 18096,
+      "protocol": "TCP",
+      "packets": 2
+    }
+  ],
+  "raw_aggregate_sha256": "06b7861895f3b0511c2c64b25da3229fac1bea060c2c845735a0d67d6918c7c1",
+  "not_claimed": [
+    "public IPv6 reachability",
+    "physical RF or hardware",
+    "IPv6 throughput or loss under real radio",
+    "CIDR or domain-set policy",
+    "malware sandboxing"
+  ]
+}

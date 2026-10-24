@@ -25,14 +25,22 @@ def emit(*parts):
         print(line)
 
 
-def ipv6_info(host):
-    infos = socket.getaddrinfo(host, HTTP_PORT)
-    return next(
-        info
-        for info in infos
-        if ":" in str(info[-1][0])
-        and not str(info[-1][0]).lower().startswith("::ffff:")
+def ipv6_info(host, family):
+    infos = socket.getaddrinfo(
+        host,
+        HTTP_PORT,
+        family,
+        socket.SOCK_STREAM,
     )
+    for info in infos:
+        if len(info) < 5 or not isinstance(info[-1], (tuple, list)):
+            continue
+        if not info[-1]:
+            continue
+        address = str(info[-1][0])
+        if ":" in address and not address.lower().startswith("::ffff:"):
+            return info
+    raise RuntimeError("AAAA resolution returned no IPv6 address")
 
 
 def request(info, path):
@@ -108,8 +116,8 @@ def main():
     time.sleep(4)
 
     if CHECK_DNS:
-        info = ipv6_info(HOST)
-        if str(info[-1][0]) != ALLOWED_IP:
+        info = ipv6_info(HOST, family)
+        if str(info[-1][0]).lower() != ALLOWED_IP.lower():
             raise RuntimeError("AAAA returned %s" % (info[-1][0],))
         emit("IPV6_DNS_AAAA PASS", info[-1][0])
     else:

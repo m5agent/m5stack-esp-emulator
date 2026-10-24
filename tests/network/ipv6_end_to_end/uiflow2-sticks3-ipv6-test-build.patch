@@ -35,3 +35,31 @@ index 9876b666..a2881f98 100644
              #if MICROPY_HW_ENABLE_MDNS_QUERIES || MICROPY_HW_ENABLE_MDNS_RESPONDER
              if (!mdns_initialised) {
                  mdns_init();
+diff --git a/micropython/ports/esp32/modsocket.c b/micropython/ports/esp32/modsocket.c
+--- a/micropython/ports/esp32/modsocket.c
++++ b/micropython/ports/esp32/modsocket.c
+@@ -1001,6 +1001,24 @@ static mp_obj_t esp_socket_getaddrinfo(size_t n_args, const mp_obj_t *args) {
+                 mp_obj_new_int(ntohs(addr->sin_port))
+             };
+             addrinfo_objs[4] = mp_obj_new_tuple(2, inaddr_objs);
++#if LWIP_IPV6
++        } else if (resi->ai_family == AF_INET6) {
++            struct sockaddr_in6 *addr =
++                (struct sockaddr_in6 *)resi->ai_addr;
++            char buf[46];
++            ip6addr_ntoa_r(
++                (const ip6_addr_t *)&addr->sin6_addr,
++                buf,
++                sizeof(buf)
++            );
++            mp_obj_t inaddr6_objs[4] = {
++                mp_obj_new_str_from_cstr(buf),
++                mp_obj_new_int(ntohs(addr->sin6_port)),
++                mp_obj_new_int(ntohl(addr->sin6_flowinfo)),
++                mp_obj_new_int(addr->sin6_scope_id)
++            };
++            addrinfo_objs[4] = mp_obj_new_tuple(4, inaddr6_objs);
++#endif
+         }
+         mp_obj_list_append(ret_list, mp_obj_new_tuple(5, addrinfo_objs));
+     }

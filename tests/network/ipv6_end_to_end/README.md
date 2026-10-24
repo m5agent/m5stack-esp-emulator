@@ -101,10 +101,12 @@ The isolated run reads `isolation.json` and only marks namespace cleanup PASS
 when the sandbox records `cleanup_completed`, QEMU process reaping, DNS close
 and HTTP close. It no longer supplies a hard-coded cleanup result.
 
-The Linux namespace AAAA and denied-port portion remains `NOT RUN` until a
-Linux QEMU binary runs the same guest. The direct Mac result only closes IPv6
-TCP/HTTP. It does not claim public IPv6 reachability, RF behavior, throughput
-or physical hardware. SLiRP maps all addresses in its virtual IPv6 prefix to
-host loopback, so a denied virtual-address assertion is not meaningful on that
-path; exact denied-address behavior stays covered by the separate dual-stack
-egress gateway fixture.
+The Linux namespace AAAA and denied-port portion is now committed in
+`evidence-2026-10-25-ipv6-namespace-aaaa-http-pass.json`: one UIFlow2
+test-build guest resolves the controlled AAAA, completes IPv6 HTTP, receives a
+block on the non-allowlisted port, produces pcap evidence, and leaves the
+namespace/fixtures cleaned with QEMU reaped. It does not claim public IPv6
+reachability, RF behavior, throughput or physical hardware. SLiRP maps all
+addresses in its virtual IPv6 prefix to host loopback, so a denied
+virtual-address assertion is not meaningful on that path; exact denied-address
+behavior stays covered by the separate dual-stack egress gateway fixture.

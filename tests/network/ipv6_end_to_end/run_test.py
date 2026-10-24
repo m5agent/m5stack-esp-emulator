@@ -11,6 +11,7 @@ import signal
 import subprocess
 import sys
 import time
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -43,7 +44,9 @@ def stop_process(process: subprocess.Popen | None) -> None:
     except (OSError, ProcessLookupError):
         process.terminate()
     try:
-        process.wait(timeout=10)
+        # The namespace wrapper must terminate QEMU, close DNS/HTTP fixtures
+        # and atomically write cleanup evidence before it exits.
+        process.wait(timeout=20)
     except subprocess.TimeoutExpired:
         try:
             os.killpg(process.pid, signal.SIGKILL)
@@ -238,7 +241,8 @@ def main() -> int:
             },
             "dns": {
                 "mode": "controlled",
-                "host": "::1",
+                # libslirp forwards guest DNS over an IPv4 host socket.
+                "host": "127.0.0.1",
                 "port": 53,
                 "hosts": {"allowed.lab.test": ["fec0::2"]},
                 "log": str(out / "dns-requests.json"),
@@ -374,7 +378,7 @@ def main() -> int:
     evidence = {
         "schema_version": 1,
         "kind": "m5stack-firmware-guest-ipv6-e2e",
-        "date": "2026-10-24",
+        "date": date.today().isoformat(),
         "status": status,
         "scope": "virtual-device-not-physical-rf",
         "runtime": {
