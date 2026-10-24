@@ -1255,6 +1255,18 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("worker-local", status)
         self.assertIn("真实 worker-local QEMU", backlog)
         self.assertIn("本地 runtime API", workstreams)
+        endpoint_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_cross_netns/"
+                "evidence-2026-10-25-endpoint-advertisement-smoke.json"
+            ).read_text()
+        )
+        self.assertEqual(endpoint_evidence["status"], "PASS")
+        self.assertEqual(len(endpoint_evidence["checks"]), 14)
+        self.assertTrue(
+            endpoint_evidence["result"]["advertised_endpoint_present"]
+        )
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

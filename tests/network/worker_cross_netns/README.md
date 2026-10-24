@@ -26,6 +26,10 @@ The no-QEMU control-plane path was revalidated after the control/runtime API
 split in
 [`evidence-2026-10-25-control-runtime-split-smoke.json`](evidence-2026-10-25-control-runtime-split-smoke.json):
 all 13 checks passed and the token was absent from both service and worker logs.
+Endpoint advertisement is covered separately by
+[`evidence-2026-10-25-endpoint-advertisement-smoke.json`](evidence-2026-10-25-endpoint-advertisement-smoke.json):
+the central directory returned the registered worker endpoint and all 14
+control-plane checks passed.
 
 Run as Linux root with `CAP_NET_ADMIN` and `CAP_SYS_ADMIN`:
 

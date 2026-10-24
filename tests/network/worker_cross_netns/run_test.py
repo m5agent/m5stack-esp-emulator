@@ -60,6 +60,7 @@ def worker_probe(
         api,
         work_dir=work_dir,
         identity=identity,
+        endpoint=f"http://{WORKER_ADDRESS}:8787",
         capabilities={
             "qemu": False,
             "network_namespace": True,
@@ -129,6 +130,16 @@ def worker_probe(
     )
     agent.stop_worker()
     terminal = api.json(f"/api/v1/jobs/{job_id}")
+    workers = api.json("/api/v1/workers").get("workers", [])
+    registered_worker = next(
+        (
+            worker
+            for worker in workers
+            if isinstance(worker, dict)
+            and worker.get("worker_id") == identity["worker_id"]
+        ),
+        {},
+    )
     payload = {
         "registration": identity,
         "job_submitted": job["job_id"],
@@ -142,6 +153,10 @@ def worker_probe(
         "worker_stopped": True,
         "qemu_started": False,
         "device_session_created": False,
+        "advertised_endpoint_present": (
+            registered_worker.get("endpoint")
+            == f"http://{WORKER_ADDRESS}:8787"
+        ),
     }
     result_path.write_text(
         json.dumps(payload, indent=2) + "\n"
@@ -699,6 +714,9 @@ def main() -> int:
             "no_device_session_created": (
                 worker_result.get("device_session_created") is False
             ),
+            "advertised_endpoint_present": (
+                worker_result.get("advertised_endpoint_present") is True
+            ),
         }
     checks.update({
         "namespaces_cleaned": (
@@ -742,6 +760,9 @@ def main() -> int:
             "execution_plane": worker_result.get("execution_plane"),
             "firmware_sha256": worker_result.get("firmware_sha256"),
             "runtime": worker_result.get("runtime"),
+            "advertised_endpoint_present": worker_result.get(
+                "advertised_endpoint_present"
+            ),
         },
         "route": {"server_reachable": SERVER_ADDRESS in routes.stdout},
         "not_claimed": [

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-cross-network-namespace",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "worker-control-plane-only-not-qemu-executor-or-hardware",
+  "duration_seconds": 0.324,
+  "checks": {
+    "worker_exit_zero": true,
+    "server_terminated_after_test": true,
+    "worker_route_uses_veth": true,
+    "registration_recorded": true,
+    "job_submitted": true,
+    "job_claimed": true,
+    "worker_and_job_heartbeat": true,
+    "terminal_pass": true,
+    "worker_stopped": true,
+    "no_qemu_started": true,
+    "no_device_session_created": true,
+    "advertised_endpoint_present": true,
+    "namespaces_cleaned": true,
+    "token_not_logged": true
+  },
+  "result": {
+    "worker_id": "cross-netns-worker",
+    "instance_id_present": true,
+    "job_id_present": true,
+    "lease_id_present": true,
+    "request_sha256_present": true,
+    "result_evidence_sha256_present": true,
+    "terminal": "completed",
+    "advertised_endpoint_present": true
+  },
+  "route": {
+    "server_reachable": true
+  },
+  "not_claimed": [
+    "worker-local QEMU execution",
+    "companion or evidence-stream continuity",
+    "cross-host process reattach",
+    "multi-host production scheduling",
+    "physical hardware"
+  ]
+}
