@@ -46,6 +46,11 @@ This validates the network policy engine. It does not by itself prove a
 firmware guest, physical RF, general public-internet availability, CIDR or
 domain policy, IPv6 DNS/AAAA behavior or malware safety.
 
+The local repeat result is recorded in
+[`evidence-2026-10-24-dual-stack-docker-pass.json`](evidence-2026-10-24-dual-stack-docker-pass.json).
+GitHub Actions re-runs the same fixture on Ubuntu for the committed source:
+[`evidence-2026-10-24-dual-stack-github-actions-pass.json`](evidence-2026-10-24-dual-stack-github-actions-pass.json).
+
 GitHub Actions runs this deterministic fixture as the
 `network-namespace-policy` job together with the full platform suite. The
 successful Ubuntu runner evidence is

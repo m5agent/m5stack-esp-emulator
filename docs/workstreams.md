@@ -87,8 +87,9 @@ generation 的外部 side effect。
 
 `NET-05` 已从 Backlog 关闭：exact IPv4/IPv6 endpoint、双栈
 veth/route/NAT、IPv6 neighbor control 和清理已在 Linux virtual-network
-夹具连续通过。CIDR、domain-set、IPv6 DNS/AAAA 和恶意固件沙箱仍是不同
-能力，不计入 `NET-05` 的完成声明。
+夹具连续通过，并由同一 source commit 的 GitHub Actions policy job 复验。
+CIDR、domain-set、IPv6 DNS/AAAA 和恶意固件沙箱仍是不同能力，不计入
+`NET-05` 的完成声明。
 
 ## 代码边界
 

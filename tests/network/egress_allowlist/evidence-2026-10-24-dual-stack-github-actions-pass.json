@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-egress-dual-stack-ci-proof",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "linux-virtual-network-policy-not-firmware-or-hardware",
+  "validation": {
+    "source": "GitHub Actions",
+    "workflow": "CI",
+    "job": "network-namespace-policy",
+    "run_id": 40098666896,
+    "source_commit": "5db301ad1e0cea1e30c60d58fceaddf925144cf1",
+    "run_url": "https://github.com/m5agent/m5stack-esp-emulator/actions/runs/40098666896",
+    "runner": "ubuntu-latest"
+  },
+  "checks": {
+    "sandbox_exit_zero": true,
+    "ipv4_allowed_ip_port_connected": true,
+    "ipv4_denied_port_filtered": true,
+    "ipv4_denied_ip_filtered": true,
+    "ipv6_allowed_ip_port_connected": true,
+    "ipv6_denied_port_filtered": true,
+    "ipv6_denied_ip_filtered": true,
+    "allowed_servers_saw_one_request_each": true,
+    "denied_servers_saw_no_request": true,
+    "nftables_input_output_default_drop": true,
+    "ipv4_masquerade_observed_upstream": true,
+    "ipv6_masquerade_observed_upstream": true,
+    "inner_nat_table_cleaned": true,
+    "inner_namespace_cleaned": true,
+    "worker_namespace_cleaned": true,
+    "upstream_namespace_cleaned": true
+  },
+  "platform_regression": {
+    "job": "platform-contracts",
+    "full_platform_suite": "PASS",
+    "tests_passed": 336,
+    "tests_total": 336,
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS"
+  },
+  "allowed_endpoints": [
+    {
+      "protocol": "tcp",
+      "address": "<fixture-upstream-ipv4>",
+      "port": "<redacted-ephemeral-port>"
+    },
+    {
+      "protocol": "tcp",
+      "address": "2001:db8:6d35::1",
+      "port": "<redacted-ephemeral-port>"
+    }
+  ],
+  "not_claimed": [
+    "firmware guest behavior in this fixture",
+    "physical hardware or RF",
+    "general public internet availability",
+    "CIDR or domain-set policy",
+    "IPv6 DNS or AAAA policy",
+    "malware safety",
+    "self-hosted QEMU worker lifecycle"
+  ]
+}

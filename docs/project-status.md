@@ -84,8 +84,10 @@
   使用独立 ULA /126、default route、neighbor solicitation/advertisement
   控制例外和 masquerade。Linux worker→upstream 夹具连续 `2/2 PASS`，
   上游观察到的是 worker veth 源地址，内层 NAT table、inner/worker/upstream
-  namespaces 均已清理。该结果只覆盖虚拟网络策略，不是固件 guest 或公网
-  IPv6 可用性；CIDR、domain-set 和 IPv6 DNS/AAAA policy 仍未实现。
+  namespaces 均已清理；同一 source commit 的 GitHub Actions
+  `network-namespace-policy` job 再次 PASS。该结果只覆盖虚拟网络策略，
+  不是固件 guest 或公网 IPv6 可用性；CIDR、domain-set 和 IPv6 DNS/AAAA
+  policy 仍未实现。
 - Core2 `HCI-4` 已通过：规范的
   `runtime=qemu-unified/profile=core2-native-hci` 在五个独立
   Device Service lease 中同时验证 320×240 frame、27 节点 QOM、WiFi
