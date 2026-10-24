@@ -60,6 +60,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-extended-run-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-confirm-5x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold60-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
@@ -1163,6 +1164,30 @@ class DocsConsistencyTests(unittest.TestCase):
             halted_gate["patch_validation"]["reverse_apply_check"],
             "PASS",
         )
+        hold60 = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-hold60-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(hold60["gate_result"], "PASS")
+        self.assertEqual(hold60["attempts_requested"], 3)
+        self.assertEqual(hold60["attempts_passed"], 3)
+        self.assertEqual(hold60["hold_seconds_per_attempt"], 60)
+        self.assertTrue(all(run["status"] == "PASS" for run in hold60["runs"]))
+        self.assertTrue(
+            all(
+                run["native_hci_health"]["hli-errors"] == 0
+                and run["native_hci_health"]["hli-posts"]
+                == run["native_hci_health"]["hli-consumed"]
+                and run["native_hci_health"]["hli-queue-depth"] == 0
+                and run["native_hci_health"]["meta-queue-depth"] == 0
+                and run["native_hci_health"]["peer-closed"] == 1
+                and run["native_hci_health"]["last-error"] == 3
+                for run in hold60["runs"]
+            )
+        )
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1188,7 +1213,9 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("extended-run", status)
         self.assertIn("semphr_give_wrapper", status)
         self.assertIn("5×10s", status)
+        self.assertIn("60s", status)
         self.assertIn("hci4-halted-gate-5x.json", status)
+        self.assertIn("hci4-hold60-3x.json", status)
         self.assertIn("CORE2-02", backlog)
         self.assertIn("extended-run", backlog)
         self.assertIn("CORE2-02", workstreams)

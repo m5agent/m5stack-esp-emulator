@@ -37,7 +37,8 @@
   `core2-native-vhci` 仅保留为显式诊断/兼容路径。`CORE2-02` 的短时
   extended-run 已修复：恢复 caller-saved sregs，并只在 halted/idle vCPU
   注入 HLI allocator/callback；两批独立 `5×10s` 运行合计 `10/10`，每轮
-  `hli-errors=0`。之后才是分钟级/小时级 coexistence、bit-exact
+  `hli-errors=0`；3 个 `60s` hold 也 `3/3`。之后才是多小时 coexistence、
+  bit-exact
   controller/baseband、物理 cache/PSRAM 和真机。
 - **固件审查 P0**：Manifest、WebBurner、静态审查、安全配置分层和
   LittleFS/FAT/SPIFFS inventory、声明级许可 allowlist/denylist 已实现；
@@ -68,7 +69,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新 `67/67` case、`274/274` check，全部首轮无重试 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PILOT`（`HCI-4` 与短时 extended-run PASS） | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT 与 `HCI-4` 均 `5/5`；两批独立 `5×10s` hold `10/10`，每轮 HLI health 零错误 | `CORE2-02` 分钟级/小时级 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
+| Core2 稳定性与无线 | `PILOT`（functional + 10s/60s hold PASS） | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT 与 `HCI-4` 均 `5/5`；两批 `5×10s` `10/10`、3 个 `60s` hold `3/3`，每轮 HLI health 零错误 | `CORE2-02` 多小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 跨主机 executor/TLS/mTLS、credential rotation、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist、失败回滚与 staging GC | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_agent.py`、`storage_policy.py`、`docs/device-service-api.md` | 本地 lease/worker lifecycle；PID/start-time/QMP 验证后的 restart reattach；远程注册；durable queue、claim/lease/expiry/cancel/result；HTTP executor、evidence ZIP/SHA256、worker HMAC 和失联回收；烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` 跨主机 TLS/mTLS/rotation 与 companion/evidence continuity、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
@@ -87,7 +88,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
    companion/evidence continuity 与多机调度；`NET-05` 外部 IPv6 单列。
 2. 固件审查继续 `FW-01` 权限/许可，再处理 `FW-03` 跨厂商样本和
    `FW-02` 真机 key/eFuse。
-3. `CORE2-02` 在已通过的 `5×10s` 门禁上扩大 soak 时长和连接生命周期覆盖，
+3. `CORE2-02` 在已通过的 `5×10s` / `3×60s` 门禁上扩大 soak 时长和连接生命周期覆盖，
    再推进 controller/baseband、物理 cache/PSRAM 与 coexistence。
    `HW-01` 独立推进同固件真机路径。
 4. Tab5、视觉保真与 CardputerZero 是专项工作；没有后端、素材和真机证据时

@@ -57,7 +57,8 @@ MicroPython 和其他完整 Flash 固件。
 - Core2 的短时延长运行已闭环：`0005` 恢复 nested guest call 前后的
   caller-saved Xtensa sregs，并把 HLI allocator/callback 注入限制在
   halted/idle vCPU。两批独立 `5×10s` hold 运行合计 `10/10`；每轮
-  `hli-errors=0`、HLI/meta queue 深度为 0。此前的
+  `hli-errors=0`、HLI/meta queue 深度为 0。进一步扩大 hold 后，3 个独立
+  `60s` lease 也 `3/3` PASS，并覆盖 BLE peer 正常关闭后的尾态。此前的
   `semphr_give_wrapper`、`PC=0` 和 `Cache error` 证据保留为失败历史。
 - GitHub Actions 已运行完整平台测试，并在 Ubuntu runner 上执行 fail-closed
   namespace + nftables exact IPv4 egress、拒绝端口/IP、veth/NAT、清理和
@@ -79,7 +80,7 @@ MicroPython 和其他完整 Flash 固件。
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap、双 guest DHCP/TCP/双侧 pcap 隔离、远程目录、durable job queue、authenticated HTTP executor 和本地 QEMU/QMP restart reattach | [`executor-auth-pass.json`](tests/network/worker_executor/evidence-2026-10-24-executor-auth-pass.json) | 跨主机 executor/TLS/mTLS、credential rotation、companion/evidence continuity、跨主机 reattach、生产多机调度、外部 IPv6 |
-| Core2 稳定性与无线 | `HCI-4` 五 lease PASS；两批独立 `5×10s` extended-run `10/10` PASS，且每轮 HLI errors/queue depth 为零 | [`hci4-service-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json)、[`hci4-halted-gate-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json) | halt-gated HLI 注入和 sregs 恢复修复了短时 repeated-start 崩溃；分钟级/小时级 coexistence、物理 cache/PSRAM、bit-exact controller 与真机仍开放。旧 `core2-native-vhci` 仍是 GDB 诊断/兼容 profile |
+| Core2 稳定性与无线 | `HCI-4` 五 lease PASS；两批 `5×10s` `10/10`；3 个独立 `60s` hold `3/3` | [`hci4-halted-gate-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json)、[`hci4-hold60-3x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold60-3x.json) | halt-gated HLI 注入和 sregs 恢复修复了 repeated-start 崩溃；多小时 coexistence、物理 cache/PSRAM、bit-exact controller 与真机仍开放 |
 | 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、写入回滚和 staging GC、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单与 SPDX、声明级许可 allowlist/denylist | [`spiffs-inventory.json`](tests/firmware/evidence-2026-10-24-spiffs-inventory.json)、[`webburner-ui.json`](tests/firmware/evidence-2026-10-24-webburner-ui.json) | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse、跨厂商回归 |
 | 共享 QEMU 回归 | 双 guest WiFi patch `0028` 合入后，S3/C6/Core2 全矩阵 `67/67` 首轮通过；键盘测试补齐 10 秒启动 settle | [`dual-guest-fabric-matrix.json`](tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) | 后续共享控制器改动重跑受影响矩阵；真机同路径证据 |
 
@@ -92,7 +93,7 @@ MicroPython 和其他完整 Flash 固件。
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT、DHCP renewal、双 guest lab fabric、本地 worker lifecycle、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor 和 HMAC worker auth 已通；跨主机 executor/TLS/mTLS、rotation、companion/evidence continuity、跨主机 reattach、生产多机调度和外部 IPv6 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、浏览器 chunk 上传与刷新恢复、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单和声明级许可 allowlist/denylist 已通；运行时权限、完整源码级许可审批与真机 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持本地 worker heartbeat/drain/resume、PID/start-time/QMP 校验后的 restart reattach、远程目录、durable queue、HMAC-authenticated HTTP executor、claim/lease/expiry retry、worker 失联回收和 evidence ZIP/SHA256 回传；尚无跨主机 executor、TLS/mTLS、rotation、companion/BLE/evidence 连续接管、warm pool 和生产多机调度 |
-| Core2 稳定性与原生无线 | `partial` | `HCI-4` 五 lease 与两批 `5×10s` extended-run `10/10` 已通过，HLI health 为零错误；分钟级/小时级 coexistence、bit-exact Espressif BT controller/baseband、物理 cache/PSRAM 和真机同路径仍开放 |
+| Core2 稳定性与原生无线 | `partial` | `HCI-4` 五 lease、两批 `5×10s` 和 3 个 `60s` hold 已通过，HLI health 为零错误；多小时 coexistence、bit-exact Espressif BT controller/baseband、物理 cache/PSRAM 和真机同路径仍开放 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 关键索引：
@@ -192,7 +193,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease 与两批 `5×10s` extended-run，全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；更长 soak、bit-exact controller、coexistence 和物理 cache/PSRAM 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s` 和 3 个 `60s` hold，全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；多小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -309,8 +310,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   `runtime=qemu-unified/profile=core2-native-hci`：`HCI-4` 使用五个独立
   `/api/v1` lease 通过 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和
   evidence ZIP，且 `gdb_bridge=false`。`0005` 将 guest-call 注入限制在
-  halted/idle vCPU，并恢复 caller-saved sregs；两批 `5×10s` hold 运行
-  合计 `10/10`。旧的 `core2-native-vhci` 仍依赖
+  halted/idle vCPU，并恢复 caller-saved sregs；两批 `5×10s` 运行合计
+  `10/10`，3 个 `60s` hold 为 `3/3`。旧的 `core2-native-vhci` 仍依赖
   GDB 暂停、callback 注入和 synthetic return，只保留为显式诊断/兼容路径，
   不再作为新调用首选。该结果仍不是 bit-exact ESP32 BT
   baseband/controller、分钟级/小时级 soak、RF 或真机验证。当前 hook

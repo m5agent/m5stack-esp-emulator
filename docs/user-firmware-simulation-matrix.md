@@ -79,7 +79,8 @@ response, serial digest and a bounded set of fatal error lines.
   API-boundary H2C and CCOUNT TB-yield are retained in the `0003` and `0004`
   QEMU patches. `0005` restores caller-saved sregs around nested guest calls
   and gates HLI allocation/callback injection to halted/idle vCPU state.
-  Two independent `5×10s` hold batches pass `10/10`, with zero HLI errors and
-  empty HLI/meta queues. Bit-exact Espressif BT controller behavior, physical
-  cache/PSRAM equivalence, minute/hour coexistence/soak and hardware
+  Two independent `5×10s` batches pass `10/10`, and three `60s` holds pass
+  `3/3`, with zero HLI errors and empty HLI/meta queues. Bit-exact Espressif
+  BT controller behavior, physical cache/PSRAM equivalence, multi-hour
+  coexistence/soak and hardware
   validation remain `NOT RUN`.

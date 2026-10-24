@@ -153,7 +153,9 @@ finding:
   calls. Patch `0005` restores caller-saved Xtensa sregs and defers HLI
   allocator/callback injection until the vCPU is halted/idle. Two independent
   `5×10s` hold batches then passed `10/10`, with zero HLI errors and empty
-  HLI/meta queues.
+  HLI/meta queues. Three independent `60s` holds also passed `3/3`; the
+  expected BLE peer-close write tail is classified separately from HLI
+  errors.
 
 These are virtual-device context fixes. They do not establish physical
 cache/PSRAM timing, minute/hour coexistence or hardware equivalence.

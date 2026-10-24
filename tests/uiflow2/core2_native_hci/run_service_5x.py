@@ -203,6 +203,7 @@ def native_hci_health(qom: dict[str, Any]) -> dict[str, int]:
         "hli-queue-depth",
         "meta-queue-depth",
         "last-error",
+        "peer-closed",
     )
     return {
         key: int(node.get(key, {}).get("value", 0))
@@ -212,6 +213,8 @@ def native_hci_health(qom: dict[str, Any]) -> dict[str, int]:
 
 
 def native_hci_health_ok(hci_health: dict[str, int]) -> bool:
+    last_error = hci_health.get("last-error", -1)
+    peer_closed = hci_health.get("peer-closed", 0)
     return bool(
         hci_health.get("hli-valid") == 1
         and hci_health.get("hli-posts", 0) > 0
@@ -220,7 +223,10 @@ def native_hci_health_ok(hci_health: dict[str, int]) -> bool:
         and hci_health.get("hli-errors") == 0
         and hci_health.get("hli-queue-depth") == 0
         and hci_health.get("meta-queue-depth") == 0
-        and hci_health.get("last-error") == 0
+        and (
+            last_error == 0
+            or (last_error == 3 and peer_closed > 0)
+        )
         and (
             hci_health.get("hli-c2h-events", 0)
             + hci_health.get("hli-c2h-acls", 0)

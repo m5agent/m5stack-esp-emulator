@@ -243,5 +243,8 @@ The follow-up fix has two parts:
 The intermediate special-register-only build passed 4/5 and still hit a
 WiFi `Cache error`; the halted-gate build then passed two independent
 5-attempt, 10-second-hold batches, `10/10` total. The earlier failure remains
-tracked as history. This closes the current extended-run failure gate, not
-physical cache/PSRAM equivalence, long-duration coexistence or hardware.
+tracked as history. A further `3×60s` run passed `3/3`, including the normal
+BLE peer-close tail; `last-error=3` is accepted only when `peer-closed>0`,
+while every HLI error must remain zero. This closes the current short/minute
+extended-run failure gate, not physical cache/PSRAM equivalence, multi-hour
+coexistence or hardware.

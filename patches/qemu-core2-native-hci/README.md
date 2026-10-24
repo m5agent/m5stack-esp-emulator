@@ -86,6 +86,8 @@ The extended-run pass evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json`;
 the preceding identical-build confirmation batch is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-confirm-5x.json`;
+the longer three-by-60-second hold evidence is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold60-3x.json`;
 the earlier failure is retained as
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-extended-run-fail.json`.
 The earlier notification-fail evidence is retained as the negative case that

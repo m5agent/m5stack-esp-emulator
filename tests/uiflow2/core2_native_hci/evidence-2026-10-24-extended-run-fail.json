@@ -11,7 +11,7 @@
   "superseded_by": "evidence-2026-10-24-hci4-halted-gate-5x.json",
   "follow_up": {
     "status": "PASS",
-    "result": "Complete caller-saved special-register restoration plus halted/idle-only HLI injection passed two independent 5-attempt, 10-second-hold batches (10/10 total).",
+    "result": "Complete caller-saved special-register restoration plus halted/idle-only HLI injection passed two independent 5-attempt, 10-second-hold batches (10/10) and three independent 60-second holds (3/3).",
     "root_cause_boundary": "The failure was tied to nested guest execution at unsafe non-halted cache contexts; physical cache/PSRAM equivalence is still not claimed."
   },
   "baseline": {
