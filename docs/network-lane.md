@@ -95,6 +95,8 @@ SoftAP 门户；UDP 当前只覆盖 station path。实际接口与错误码见
 - 固件 self-SoftAP 的 join 与 loopback portal 转发；
 - 基于日志、配置和 marker 的启动 blocker 诊断。
 - 错误密码的认证拒绝、重试、无 DHCP/HTTP 负向证据；
+- QEMU S3 WPA2-PSK 正确密码的 M1-M4、成对密钥 CCMP RX、DHCP、DNS 和
+  TCP/443，以及错误密码 M2 MIC 拒绝的负向证据；
 - QEMU unified 会话的 pcap 流/DNS/DHCP 摘要；
 - StickS3 guest WLAN 主动断开叠加 QMP `wifi0` link-down/up 后的重新 DHCP
   和前后两次受控 HTTP。
@@ -122,7 +124,7 @@ PASS 只证明本次运行时列出的数据面。它不证明：
 - 真机 RF、天线、距离、功耗或干扰；
 - 稳定访问任意公网服务；
 - TLS 证书固定或云端业务正确；
-- WPA3-SAE-only、hidden SSID 或所有安全模式；
+- WPA3-SAE-only、WPA2 group-key multicast、hidden SSID 或所有安全模式；
 - Bluedroid、Classic Bluetooth 或任意手机互通；
 - 固件安全、租户隔离或恶意行为不存在。
 

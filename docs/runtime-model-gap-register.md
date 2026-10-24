@@ -66,6 +66,43 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
 完整功能 PASS。这个问题不再属于 RUNTIME-01，需要单独确认是固件缺陷还是新的
 运行时模型偏差。
 
+### RUNTIME-05：S3 QEMU AP WPA2-PSK 数据面
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `FIXED`（virtual-device validation） |
+| 影响 | 要求非空密码、WPA2 authmode threshold 或 EAPOL 的 ESP32-S3 固件 |
+| 首次路径 | 公开 OpenAI Voice Assistant 从 NVS 读取密码，将 Open threshold 提升为 WPA2 |
+| 原现象 | 旧 QEMU AP 只广播 Open auth，guest 持续 retry，不发生 association |
+| 修复证据 | [`openai-nvs-precondition.json`](../tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json) |
+| QEMU patch | [`0029-esp32s3-wpa2-psk-data-plane.patch`](../patches/qemu-m5stack-peripherals/0029-esp32s3-wpa2-psk-data-plane.patch) |
+
+修复包含：
+
+1. beacon/probe/association response 广告 WPA2-PSK RSN；
+2. 从 SSID/password 派生 PMK，并由 M1-M4 推导、安装 PTK/GTK；
+3. 验证 M2/M4 MIC；错误密码在 M2 拒绝并 deauthenticate，guest 可重试；
+4. S3 RX 在 radio 边界验证 CCMP，并向 closed WiFi firmware 提供其
+   hardware-decrypted CCMP 布局；
+5. 每次 WPA2 session 由 session id 派生 locally-administered MAC，同时写入
+   S3 eFuse fixture 和 QEMU NIC，避免 guest、supplicant 和 DHCP 地址不一致；
+6. DHCP reply 在 802.11 层按 pairwise-key unicast 交付，不绕过 guest
+   DHCP、ARP、DNS 或 TCP 栈。
+
+同一公开固件、同一 SHA 的结果：
+
+- 正确密码：4-way、associate、CCMP RX、DHCP、`api.openai.com` DNS、
+  TCP/443 和 HTTPS 尝试 PASS；
+- 错误密码：M2 MIC mismatch、reason 15 deauth、retry、无 association、
+  无 DHCP、无 HTTP PASS；
+- Open 密码回归仍 PASS；
+- pcap、串口、QEMU stderr marker、session-isolated NVS overlay 和清理绑定
+  同一 session。
+
+剩余边界：WPA3-SAE、WPA2 group-key multicast、真实 RF/PHY、channel/rate、
+漫游和物理网卡行为仍是 `NOT RUN`。该修复是 WPA2-PSK 成对密钥与单播管理/
+数据路径，不是完整无线安全栈。
+
 ## 当前缺口
 
 ### RUNTIME-02：C6 Zigbee/802.15.4 运行时未建模
@@ -137,26 +174,6 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 2. 提供不从仓库分发生产私钥的测试 slot/config fixture；
 3. 同一固件完成安全元件初始化并进入应用帧，安全芯片结论仍与功能帧分开。
 
-### RUNTIME-05：S3 QEMU AP 未广告 WPA2/RSN 安全
-
-| 字段 | 当前值 |
-| --- | --- |
-| 状态 | `OPEN` |
-| 影响 | 只有非空 WiFi 密码才允许连接，或显式把 authmode threshold 提升到 WPA2/WPA3 的 ESP32-S3 固件 |
-| 现象 | 公开 OpenAI Voice Assistant 从 NVS 读取非空密码后输出 `authmode threshold changes from OPEN to WPA2`，持续 retry 但不会关联当前 QEMU AP；把测试密码改为空字符串后，同一 BIN 正常关联、DHCP、解析 `api.openai.com` 并发起 TCP/443 |
-| 当前模型 | QEMU S3 AP beacon 按 Open auth 广播，模型没有 WPA2 RSN advertisement、EAPOL/4-way handshake 和密码验证数据面 |
-| 证据 | [`openai-nvs-precondition.json`](../tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json) |
-
-关闭条件：
-
-1. 根据明确的 profile/config 广告 WPA2-PSK（必要时再评估 WPA3）RSN 能力，
-   而不是只在宿主层返回“连接成功”；
-2. 覆盖正确密码关联、错误密码拒绝、重试、DHCP 和断线/重连；
-3. 由 guest 驱动完成 802.11 auth/association 与 EAPOL/4-way 路径，保留
-   pcap、串口和 controller/QOM 证据；
-4. 在模型关闭前，涉及非空密码的 QEMU WiFi 固件只能标记
-   `runtime_model_gap`，不能据此写固件 WiFi FAIL。
-
 ## 与固件矩阵的关系
 
 跨厂商矩阵的状态语义由
@@ -168,7 +185,7 @@ SHA；公开 CDN 的当前 BIN 会变化，刷新后必须重新执行，不能�
 仍按首帧、输入、串口生命周期或
 仅串口设备等独立原因记录，不能因为页面放在同一个矩阵中就合并为模型缺陷。
 `RUNTIME-05` 来自后续 OpenAI 首次启动对照，不属于那 21 个历史样本的原始
-`runtime_model_gap` 计数。
+`runtime_model_gap` 计数；它已由独立三组 Open/WPA2/错误密码证据关闭。
 
 新增 `runtime_model_gap` 时必须同时：
 

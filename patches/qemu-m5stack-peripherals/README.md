@@ -119,6 +119,7 @@ git apply /path/to/0025-esp32c6-wifi-mac.patch
 git apply /path/to/0026-m5stack-rtc-virtual-clock.patch
 git apply /path/to/0027-esp32s3-gdma-external-memory.patch
 git apply /path/to/0028-esp32-wifi-dual-guest-fabric.patch
+git apply /path/to/0029-esp32s3-wpa2-psk-data-plane.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -210,6 +211,15 @@ StickS3 guests through a private QEMU socket L2 switch: both complete
 DISCOVER/OFFER/REQUEST/ACK, exchange a real TCP request/reply in both pcap
 directions, and cannot reach the host, public IPv4 or metadata from the
 namespace.
+
+`0029-esp32s3-wpa2-psk-data-plane.patch` adds WPA2-PSK RSN advertisement,
+PBKDF2/PTK derivation, EAPOL M1-M4, MIC validation, CCMP encryption/decryption
+and the ESP32-S3 hardware-decrypted RX layout. Correct credentials now reach
+the guest WiFi callback, DHCP, DNS and TCP/443; wrong credentials fail at M2
+MIC and trigger deauthentication/retry. DHCP replies are delivered as
+pairwise-key 802.11 unicast so the guest receives a complete Ethernet/DHCP
+frame. The validated scope is WPA2-PSK pairwise/unicast; WPA3, group-key
+multicast and physical RF behavior are not claimed.
 
 StickS3 IR TX/RX, PaperMono/StackChan I2C NFC, PaperMono SX1262 LoRa,
 StackChan SCS servo, audio PCM capture/injection, Core2 v1.1 audio/INA3221 and

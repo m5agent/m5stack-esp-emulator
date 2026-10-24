@@ -28,6 +28,14 @@ class NetworkPolicyTests(unittest.TestCase):
             qemu_user_netdev(nic="misc.esp32s3.wifi", policy=policy),
             "user,model=misc.esp32s3.wifi,id=wifi0",
         )
+        self.assertEqual(
+            qemu_user_netdev(
+                nic="misc.esp32s3.wifi",
+                policy=policy,
+                mac="02:00:00:00:00:01",
+            ),
+            "user,model=misc.esp32s3.wifi,mac=02:00:00:00:00:01,id=wifi0",
+        )
         self.assertIn(
             "malware safety",
             policy.evidence()["not_claimed"],

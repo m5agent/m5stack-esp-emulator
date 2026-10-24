@@ -36,22 +36,26 @@ PYTHONPATH=platform/tools python3 \
 If `--firmware` is omitted, the runner force-refreshes the current public
 metadata and downloads the artifact into its cache.
 
-The two cases are:
+The three cases are:
 
 1. `wpa2-qemu-ap.nvs.bin` sets a non-empty password. The guest loads the
-   values and raises the authentication threshold to WPA2. The current QEMU AP
-   advertises Open auth, so association does not complete. This is a virtual
-   WiFi security-model gap, not an NVS failure.
+   values, raises the authentication threshold to WPA2, completes the four-way
+   EAPOL handshake, receives pairwise-key CCMP data, obtains DHCP, resolves
+   `api.openai.com` and opens TCP/443.
 2. `open-qemu-ap.nvs.bin` sets an empty password. The same guest loads the
    values, associates with the Open QEMU AP, obtains DHCP, resolves
    `api.openai.com`, opens TCP/443 and attempts the HTTPS request. The
    synthetic OpenAI key then fails, which is expected.
+3. `wrong-password.nvs.bin` supplies a password that does not match the QEMU
+   AP. The AP rejects M2 at MIC verification, deauthenticates the station and
+   the guest retries without obtaining DHCP or starting HTTP.
 
 The evidence result is `PASS` for the investigation and `PARTIAL` for the
 firmware's full behavior. A black framebuffer is not used as the root-cause
 signal: this firmware does not expose a provisioning or error UI before a
 successful cloud session. Real OpenAI credentials, Realtime/WebRTC media,
-physical WPA2 association, RF and hardware remain `NOT RUN`.
+physical WPA2 association, WPA3, group-key multicast delivery, RF and hardware
+remain `NOT RUN`.
 
 Canonical evidence:
 [`evidence-2026-10-25-openai-nvs-precondition.json`](../evidence-2026-10-25-openai-nvs-precondition.json).

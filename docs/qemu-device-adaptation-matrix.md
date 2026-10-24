@@ -11,7 +11,7 @@
 
 | 分组 | 设备数 | 主后端 | 产品定位 | 稳定边界 |
 | --- | ---: | --- | --- | --- |
-| ESP32-S3 | 9 | `qemu-esp32s3` | 单 guest 板级、WiFi 和 HCI BLE | 功能级 MAC/DMA/网络模型，不是 PHY/RF、功耗或电气模型 |
+| ESP32-S3 | 9 | `qemu-esp32s3` | 单 guest 板级、WiFi（含 WPA2-PSK pairwise/unicast）和 HCI BLE | 功能级 MAC/DMA/网络模型，不是 WPA3/group multicast、PHY/RF、功耗或电气模型 |
 | ESP32-C6 | 2 | `qemu-esp32c6` | 单 guest 板级、WiFi 和 HCI BLE | Zigbee/802.15.4 由 `RUNTIME-02` 单列 |
 | ESP32 LX6 | 1 | `qemu-esp32lx6` | Core2 板级、OpenMAC WiFi、BLE controller boundary | canonical BLE 路径为 `core2-native-hci`；legacy VHCI 仅诊断 |
 | ESP32-P4 | 1 | `esp-emulator-native` | Tab5 烧录、M5GFX framebuffer、touch mailbox 和部分 I2C | 闭源 P4 后端，外设仍为 `partial` |

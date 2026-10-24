@@ -532,6 +532,23 @@ def redacted_network_config(config: dict | None) -> dict:
     return safe
 
 
+def qemu_station_mac(session_id: str) -> str:
+    digest = hashlib.sha256(
+        f"m5stack-qemu-wifi:{session_id}".encode()
+    ).digest()
+    return ":".join(
+        f"{value:02x}"
+        for value in (0x02, digest[0], digest[1], digest[2], digest[3], digest[4])
+    )
+
+
+def set_s3_efuse_mac(efuse: bytearray, mac: str) -> None:
+    raw = bytes.fromhex(mac.replace(":", ""))
+    if len(raw) != 6 or len(efuse) < 30:
+        raise ValueError("ESP32-S3 eFuse MAC fixture is invalid")
+    efuse[24:30] = raw[::-1]
+
+
 def parse_int(value: Any, field: str) -> int:
     if isinstance(value, int):
         return value
@@ -843,6 +860,43 @@ def resolve_nvs_partition(
             409,
         )
     return dict(matches[0])
+
+
+def parse_qemu_wifi_security(value: dict) -> dict:
+    ssid = value.get("wifi_ssid", "myssid")
+    password = value.get("wifi_password", "")
+    wifi_auth = value.get("wifi_auth", "open")
+    if not isinstance(ssid, str) or not 1 <= len(ssid) <= 32:
+        raise ServiceError(
+            "invalid_network",
+            "network.wifi_ssid must be 1-32 characters",
+            400,
+        )
+    if not isinstance(password, str) or len(password) > 63:
+        raise ServiceError(
+            "invalid_network",
+            "network.wifi_password is invalid",
+            400,
+        )
+    if wifi_auth not in {"open", "wpa2-psk"}:
+        raise ServiceError(
+            "unsupported_wifi_security",
+            "QEMU WiFi currently supports only open or wpa2-psk",
+            409,
+        )
+    if wifi_auth == "wpa2-psk" and not 8 <= len(password) <= 63:
+        raise ServiceError(
+            "invalid_network",
+            "network.wifi_password must be 8-63 characters for wpa2-psk",
+            400,
+        )
+    if wifi_auth == "open":
+        password = ""
+    return {
+        "wifi_ssid": ssid,
+        "wifi_password": password,
+        "wifi_auth": wifi_auth,
+    }
 
 
 def parse_network_execution(
@@ -1253,10 +1307,12 @@ def parse_qemu_wifi_execution(
     )
     if spec.id == "core2":
         core2_radio_qemu_path()
+    security = parse_qemu_wifi_security(value)
     return {
         "profile": profile,
         "net_mode": net_mode,
         "nic": nic,
+        **security,
         "expected_markers": expected_markers,
         "attempts": attempts,
         "capture_pcap": capture_pcap,
@@ -1442,6 +1498,11 @@ def parse_qemu_ble_execution(
         )
     if spec.id == "core2":
         core2_radio_qemu_path()
+    security = (
+        parse_qemu_wifi_security(value)
+        if spec.backend == "qemu-esp32s3"
+        else {}
+    )
     if (
         profile in {
             CORE2_NATIVE_VHCI_PROFILE,
@@ -1456,6 +1517,7 @@ def parse_qemu_ble_execution(
         )
     return {
         "profile": profile,
+        **security,
         "expected_markers": expected_markers,
         "attempts": attempts,
         "capture_pcap": capture_pcap,
@@ -4483,6 +4545,14 @@ class DeviceSession:
         if "efuse_pkg_version" in self.service.raw_device(self.spec.id):
             pkg = int(self.service.raw_device(self.spec.id)["efuse_pkg_version"])
             efuse_data[36:40] = (pkg << 21).to_bytes(4, "little")
+        wifi_mac = (
+            qemu_station_mac(self.id)
+            if self.spec.backend == "qemu-esp32s3"
+            and self.network_config.get("wifi_auth") == "wpa2-psk"
+            else None
+        )
+        if wifi_mac:
+            set_s3_efuse_mac(efuse_data, wifi_mac)
         efuse.write_bytes(efuse_data)
         try:
             self.qmp_path.unlink()
@@ -4646,7 +4716,11 @@ class DeviceSession:
             command.extend(
                 [
                     "-nic",
-                    qemu_user_netdev(nic=nic, policy=policy),
+                    qemu_user_netdev(
+                        nic=nic,
+                        policy=policy,
+                        mac=wifi_mac,
+                    ),
                 ]
             )
             if self.network_config.get("capture_pcap", False):
@@ -4677,6 +4751,18 @@ class DeviceSession:
         env = os.environ.copy()
         env.update(self.spec.env)
         env.update(self.runtime_env)
+        if nic == "misc.esp32s3.wifi":
+            env["M5SW_WIFI_SSID"] = str(
+                self.network_config.get("wifi_ssid", "myssid")
+            )
+            env["M5SW_WIFI_PASSWORD"] = str(
+                self.network_config.get("wifi_password", "")
+            )
+            env["M5SW_WIFI_AUTH"] = str(
+                self.network_config.get("wifi_auth", "open")
+            )
+            if self.network_config.get("wifi_auth") == "wpa2-psk":
+                env["M5SW_S3_WIFI_TRACE"] = "1"
         if unified:
             env["M5SW_I2S_DMA_IRQ"] = "1"
             env["M5SW_I2S_PCM_FILE"] = str(self.speaker_pcm)

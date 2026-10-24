@@ -78,9 +78,10 @@ The public 24 KiB NVS partition is erased and the app reads
 Device Service applies a fixture only to the session Flash copy after checking
 the firmware partition label, offset and size. An open-AP fixture reaches
 association, DHCP, `api.openai.com` DNS and TCP/443. A non-empty-password
-fixture raises the WPA2 threshold but cannot associate with the current
-Open-auth QEMU AP, recorded as `RUNTIME-05`. Real credentials, Realtime/audio,
-cloud success, physical WPA2 and hardware remain `NOT RUN`.
+fixture completes WPA2-PSK four-way/EAPOL, pairwise CCMP RX, DHCP, DNS and
+TCP/443; a wrong-password control is rejected at M2 MIC and retries without
+DHCP. Real credentials, Realtime/audio, cloud success, WPA3, group-key
+multicast, physical WPA2 and hardware remain `NOT RUN`.
 
 The earlier
 [`refreshed-four-functional`](evidence-2026-10-25-refreshed-four-functional/)

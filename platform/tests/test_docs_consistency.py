@@ -144,6 +144,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/lab_fabric/role_b/main.py",
             "tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json",
             "patches/qemu-m5stack-peripherals/0028-esp32-wifi-dual-guest-fabric.patch",
+            "patches/qemu-m5stack-peripherals/0029-esp32s3-wpa2-psk-data-plane.patch",
             "tests/network/worker_lifecycle/README.md",
             "tests/network/worker_lifecycle/run_test.py",
             "tests/network/worker_lifecycle/evidence-2026-10-24-pass.json",
@@ -200,6 +201,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json",
             "tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json",
             "tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json",
+            "tests/uiflow2/evidence-2026-10-25-s3-wpa2-regression.json",
             "tests/firmware/openai_nvs_precondition/README.md",
             "tests/firmware/openai_nvs_precondition/run_test.py",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
@@ -777,17 +779,60 @@ class DocsConsistencyTests(unittest.TestCase):
                 "authmode threshold changes from OPEN to WPA2"
             ]
         )
-        self.assertFalse(
+        self.assertTrue(
             evidence["secure_run"]["markers"][
                 "wifi:connected with myssid"
             ]
+        )
+        self.assertTrue(evidence["secure_run"]["markers"]["got ip:"])
+        self.assertTrue(
+            evidence["secure_run"]["runtime_markers"][
+                "EAPOL 4/4 verified; WPA2-PSK ready"
+            ]
+        )
+        self.assertTrue(
+            evidence["wrong_password_run"]["runtime_markers"][
+                "EAPOL 2/4 MIC mismatch"
+            ]
+        )
+        self.assertFalse(
+            evidence["wrong_password_run"]["markers"][
+                "wifi:connected with myssid"
+            ]
+        )
+        self.assertFalse(
+            evidence["wrong_password_run"]["markers"]["got ip:"]
         )
         self.assertEqual(
             evidence["classification"]["nvs_precondition"],
             "CONFIRMED_EXTERNAL_CONFIGURATION_REQUIRED",
         )
-        for text in (status, backlog, workstreams, register, matrix, api):
+        self.assertTrue(
+            evidence["classification"]["qemu_wifi_security"].startswith(
+                "PASS:"
+            )
+        )
+        regression = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/"
+                "evidence-2026-10-25-s3-wpa2-regression.json"
+            ).read_text()
+        )
+        self.assertEqual(regression["results"]["cases"], 15)
+        self.assertEqual(regression["results"]["pass"], 15)
+        self.assertFalse(regression["results"]["retry_used"])
+        self.assertEqual(
+            regression["network_evidence"]["wpa2_correct_password"],
+            "PASS",
+        )
+        self.assertEqual(
+            regression["network_evidence"]["wpa2_wrong_password"],
+            "PASS_REJECTED_NO_DHCP",
+        )
+        for text in (status, backlog, workstreams, register, api):
             self.assertIn("RUNTIME-05", text)
+        self.assertNotIn("cannot associate", matrix)
         self.assertIn("session-isolated NVS", status)
         self.assertIn("nvs_image.py", api)
         self.assertIn("409\nnvs_not_supported", api)
@@ -858,18 +903,23 @@ class DocsConsistencyTests(unittest.TestCase):
                 "c6_chip_id_lost_after_software_reset",
             },
         )
-        self.assertEqual(register.count("| 状态 | `OPEN` |"), 4)
+        self.assertEqual(register.count("| 状态 | `OPEN` |"), 3)
         self.assertEqual(
             register.count(
                 "| 状态 | `FIXED`（virtual-device validation） |"
             ),
-            1,
+            2,
         )
         self.assertIn("RUNTIME-01", register)
         self.assertIn("RUNTIME-02", register)
         self.assertIn("RUNTIME-03", register)
         self.assertIn("RUNTIME-04", register)
         self.assertIn("RUNTIME-05", register)
+        self.assertIn("0029-esp32s3-wpa2-psk-data-plane.patch", register)
+        self.assertIn(
+            "WPA2-PSK 成对密钥",
+            status,
+        )
         self.assertIn("`LP_SW_HPSYS`", register)
         self.assertIn(
             "`Invalid chip id. Expected 13 read 12. Bootloader for wrong chip?`",

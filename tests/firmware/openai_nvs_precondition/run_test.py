@@ -33,6 +33,9 @@ OPEN_NVS_SHA256 = (
 SECURE_NVS_SHA256 = (
     "ab16f2a1842e40addce0ba26209595fef98d1b3f31113512375d5cfad70fe2bd"
 )
+WRONG_NVS_SHA256 = (
+    "444486b388235e5f4bcf8c6e34590d78ebcf19baf1cff521fbf593ddeb41dddf"
+)
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -112,6 +115,8 @@ def run_case(
     name: str,
     ready_marker: str,
     timeout: float,
+    qemu_wifi_auth: str,
+    qemu_wifi_password: str,
     observe_after_running: float = 0.0,
 ) -> dict:
     fixture = client.upload(fixture_path, fixture_path.name)
@@ -129,6 +134,9 @@ def run_case(
                 "expected_markers": [ready_marker],
                 "attempts": 1,
                 "capture_pcap": True,
+                "wifi_ssid": "myssid",
+                "wifi_password": qemu_wifi_password,
+                "wifi_auth": qemu_wifi_auth,
             },
             "nvs": {
                 "partition_label": "nvs",
@@ -154,10 +162,15 @@ def run_case(
         final_serial = serial_text(client, session_id)
         if final_serial:
             serial = final_serial
+        logs = client.get(
+            f"sessions/{session_id}/logs?offset=0&limit=1048576"
+        )
+        qemu_stderr = str(logs.get("qemu_stderr") or "")
         network = final.get("network")
         network = network if isinstance(network, dict) else {}
         return {
             "name": name,
+            "session_id": session_id,
             "fixture_sha256": fixture["sha256"],
             "states": states,
             "reached_running": "running" in states,
@@ -167,6 +180,8 @@ def run_case(
             "flash": final.get("flash"),
             "serial_bytes": len(serial.encode()),
             "serial_sha256": sha256_bytes(serial.encode()),
+            "qemu_stderr_bytes": len(qemu_stderr.encode()),
+            "qemu_stderr_sha256": sha256_bytes(qemu_stderr.encode()),
             "markers": {
                 marker: marker in serial
                 for marker in (
@@ -177,6 +192,18 @@ def run_case(
                     "wifi:connected with myssid",
                     "got ip:",
                     "Error perform http request",
+                )
+            },
+            "runtime_markers": {
+                marker: marker in qemu_stderr
+                for marker in (
+                    "EAPOL 1/4 sent",
+                    "EAPOL 2/4 verified",
+                    "EAPOL 3/4 sent",
+                    "EAPOL 4/4 verified; WPA2-PSK ready",
+                    "EAPOL 2/4 MIC mismatch",
+                    "deauthenticate station reason=15",
+                    "CCMP RX decrypted",
                 )
             },
             "network_status": network.get("status"),
@@ -241,6 +268,7 @@ def main() -> int:
 
     open_fixture = args.out_dir / "open-qemu-ap.nvs.bin"
     secure_fixture = args.out_dir / "wpa2-qemu-ap.nvs.bin"
+    wrong_fixture = args.out_dir / "wrong-password.nvs.bin"
     create_string_nvs_image(
         open_fixture,
         partition_size=nvs_size,
@@ -263,9 +291,25 @@ def main() -> int:
             }
         },
     )
+    create_string_nvs_image(
+        wrong_fixture,
+        partition_size=nvs_size,
+        namespaces={
+            "config": {
+                "wifi_ssid": "myssid",
+                "wifi_password": "wrongpass",
+                "openaikey": "test-openai-key-not-secret",
+            }
+        },
+    )
     open_sha = sha256_bytes(open_fixture.read_bytes())
     secure_sha = sha256_bytes(secure_fixture.read_bytes())
-    if open_sha != OPEN_NVS_SHA256 or secure_sha != SECURE_NVS_SHA256:
+    wrong_sha = sha256_bytes(wrong_fixture.read_bytes())
+    if (
+        open_sha != OPEN_NVS_SHA256
+        or secure_sha != SECURE_NVS_SHA256
+        or wrong_sha != WRONG_NVS_SHA256
+    ):
         raise RuntimeError("NVS fixture encoder output changed")
 
     client = ServiceClient(args.service_url, timeout=120)
@@ -282,9 +326,23 @@ def main() -> int:
         client,
         firmware_id=firmware["firmware_id"],
         fixture_path=secure_fixture,
-        name="wpa2-fixture-against-open-qemu-ap",
-        ready_marker="wifi:connected with myssid",
+        name="wpa2-fixture-against-qemu-wpa2-ap",
+        ready_marker="got ip:",
+        timeout=30,
+        qemu_wifi_auth="wpa2-psk",
+        qemu_wifi_password="mypassword",
+        observe_after_running=8,
+    )
+    wrong = run_case(
+        client,
+        firmware_id=firmware["firmware_id"],
+        fixture_path=wrong_fixture,
+        name="wrong-password-rejected-by-qemu-wpa2-ap",
+        ready_marker="retry to connect to the AP",
         timeout=20,
+        qemu_wifi_auth="wpa2-psk",
+        qemu_wifi_password="mypassword",
+        observe_after_running=3,
     )
     open_run = run_case(
         client,
@@ -293,10 +351,13 @@ def main() -> int:
         name="open-fixture-against-open-qemu-ap",
         ready_marker="got ip:",
         timeout=30,
+        qemu_wifi_auth="open",
+        qemu_wifi_password="",
         observe_after_running=8,
     )
 
     dns_queries = open_run["pcap"]["dns_queries"]
+    secure_dns_queries = secure["pcap"]["dns_queries"]
     checks = {
         "source_sha_binding": firmware_sha == EXPECTED_SOURCE_SHA256,
         "nvs_partition_is_blank_in_public_binary": (
@@ -305,6 +366,7 @@ def main() -> int:
         "fixture_encoder_matches_esp_idf_generator": (
             open_sha == OPEN_NVS_SHA256
             and secure_sha == SECURE_NVS_SHA256
+            and wrong_sha == WRONG_NVS_SHA256
         ),
         "secure_fixture_loads_nvs_config": secure["markers"][
             "NVS: WiFi SSID: myssid"
@@ -312,8 +374,41 @@ def main() -> int:
         "secure_fixture_exposes_wpa2_threshold": secure["markers"][
             "authmode threshold changes from OPEN to WPA2"
         ],
-        "secure_fixture_does_not_associate_with_open_qemu_ap": (
-            not secure["markers"]["wifi:connected with myssid"]
+        "secure_fixture_completes_4_way_handshake": all(
+            secure["runtime_markers"][marker]
+            for marker in (
+                "EAPOL 1/4 sent",
+                "EAPOL 2/4 verified",
+                "EAPOL 3/4 sent",
+                "EAPOL 4/4 verified; WPA2-PSK ready",
+            )
+        ),
+        "secure_fixture_associates": secure["markers"][
+            "wifi:connected with myssid"
+        ],
+        "secure_fixture_reaches_dhcp": secure["markers"]["got ip:"],
+        "secure_fixture_receives_ccmp_data": secure["runtime_markers"][
+            "CCMP RX decrypted"
+        ],
+        "secure_fixture_resolves_api_openai_com": (
+            "api.openai.com." in secure_dns_queries
+        ),
+        "secure_fixture_makes_tcp_443_attempt": (
+            secure["pcap"]["tcp_443_flows"] > 0
+        ),
+        "secure_fixture_attempts_https": (
+            secure["markers"]["Error perform http request"]
+        ),
+        "wrong_password_m2_mic_is_rejected": (
+            wrong["runtime_markers"]["EAPOL 2/4 MIC mismatch"]
+        ),
+        "wrong_password_is_deauthenticated": (
+            wrong["runtime_markers"]["deauthenticate station reason=15"]
+        ),
+        "wrong_password_retries_without_dhcp": (
+            wrong["markers"]["retry to connect to the AP"]
+            and not wrong["markers"]["wifi:connected with myssid"]
+            and not wrong["markers"]["got ip:"]
         ),
         "open_fixture_loads_nvs_config": open_run["markers"][
             "NVS: WiFi SSID: myssid"
@@ -337,7 +432,7 @@ def main() -> int:
             and run["nvs"].get("source_artifact_modified") is False
             and run["nvs"].get("base_flash_sha256")
             != run["nvs"].get("effective_flash_sha256")
-            for run in (secure, open_run)
+            for run in (secure, wrong, open_run)
         ),
     }
     evidence = {
@@ -369,12 +464,17 @@ def main() -> int:
             },
             "wpa2_qemu_ap": {
                 "sha256": secure_sha,
-                "wifi_auth": "wpa2-requested-by-guest",
+                "wifi_auth": "wpa2-psk",
+            },
+            "wrong_password": {
+                "sha256": wrong_sha,
+                "wifi_auth": "wpa2-psk",
             },
             "values_are_synthetic": True,
         },
         "checks": checks,
         "secure_run": secure,
+        "wrong_password_run": wrong,
         "open_run": open_run,
         "classification": {
             "nvs_precondition": (
@@ -385,8 +485,8 @@ def main() -> int:
                 "provide a provisioning or error UI before network success"
             ),
             "qemu_wifi_security": (
-                "MODEL_GAP: the current QEMU AP advertises Open auth while "
-                "the guest raises a non-empty password to a WPA2 threshold"
+                "PASS: WPA2-PSK 4-way handshake, pairwise CCMP RX, DHCP, "
+                "DNS and TCP/443; wrong password fails at M2 MIC"
             ),
             "cloud_function": "NOT RUN: no real OpenAI credential is used",
         },
@@ -394,6 +494,7 @@ def main() -> int:
             "real OpenAI account or Realtime API session",
             "voice audio input/output or WebRTC media behavior",
             "WPA2/WPA3 association on physical hardware",
+            "WPA2 group-key multicast delivery",
             "an on-device UI requirement",
             "physical hardware or RF validation",
         ],

@@ -26,6 +26,7 @@ ISOLATION_MODES = {"trusted-host", "namespace"}
 EGRESS_MODES = {"native", "deny-all", "lab-only", "allowlist"}
 DNS_MODES = {"slirp", "deny", "controlled"}
 HOST_PATTERN = re.compile(r"^[a-z0-9.-]{1,253}$")
+MAC_PATTERN = re.compile(r"^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$")
 
 
 class NetworkPolicyError(ValueError):
@@ -264,6 +265,7 @@ def qemu_user_netdev(
     *,
     nic: str,
     policy: NetworkPolicy,
+    mac: str | None = None,
 ) -> str:
     # QEMU user-mode restrict=yes also blocks 10.0.2.2 (host loopback), which
     # is where namespace-local lab fixtures listen. The namespace itself
@@ -271,7 +273,13 @@ def qemu_user_netdev(
     # SLiRP to reach those loopback fixtures.
     restricted = policy.egress == "deny-all"
     suffix = ",restrict=yes" if restricted else ""
-    return f"user{suffix},model={nic},id=wifi0"
+    address = ""
+    if mac is not None:
+        normalized = mac.strip().lower()
+        if not MAC_PATTERN.fullmatch(normalized):
+            raise NetworkPolicyError("QEMU station MAC is invalid")
+        address = f",mac={normalized}"
+    return f"user{suffix},model={nic}{address},id=wifi0"
 
 
 def main() -> int:

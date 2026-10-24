@@ -1898,6 +1898,10 @@ components:
           type: string
           maxLength: 63
           writeOnly: true
+          description: >
+            WPA passphrase. ESP32-S3 qemu-wifi supports WPA2-PSK with an
+            8-63 character passphrase or Open auth with an empty password.
+            The value is redacted from session snapshots and evidence.
         firmware_ap_password:
           type: string
           maxLength: 63
@@ -1937,6 +1941,11 @@ components:
         wifi_auth:
           type: string
           enum: [wpa2-wpa3, wpa3-sae, wpa2-psk, open]
+          description: >
+            Security mode. ESP32-S3 qemu-wifi currently accepts open or
+            wpa2-psk. WPA3-SAE is rejected with unsupported_wifi_security on
+            that runtime; the other values remain available to esp-emu
+            network profiles.
         psram_size:
           type: string
           enum: ["0", 2M, 4M, 8M, 16M, 32M, 64M]

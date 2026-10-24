@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-s3-wpa2-targeted-regression",
+  "date": "2026-10-25",
+  "scope": "virtual-device-validation-not-hardware",
+  "qemu": {
+    "base_commit": "da100c909249926b9f4458f18e4f2d216d08f51a",
+    "binary_sha256": "67447172bef7dcd7d867e30e8fff0a0b2e4ad779d5d3925eeb5d6e023efd039a",
+    "patch": "patches/qemu-m5stack-peripherals/0029-esp32s3-wpa2-psk-data-plane.patch",
+    "patch_sha256": "e43d86a9fc2b3303258228210d3d74e9e7e1b69298322b067325a8e32c4bb383",
+    "patch_forward_check": "PASS",
+    "patch_reverse_check": "PASS"
+  },
+  "command": [
+    "PYTHONPATH=.work/py",
+    "python3",
+    "tests/uiflow2/run_peripheral_matrix.py",
+    "--device",
+    "atoms3r",
+    "--device",
+    "sticks3",
+    "--device",
+    "cores3",
+    "--out-dir",
+    "/tmp/m5-runtime05-s3-regression"
+  ],
+  "results": {
+    "cases": 15,
+    "pass": 15,
+    "fail": 0,
+    "retry_used": false,
+    "devices": [
+      "atoms3r",
+      "sticks3",
+      "cores3"
+    ]
+  },
+  "network_evidence": {
+    "firmware_sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+    "evidence_sha256": "b5dd1add54a0fb2fdbe7d3a5227452faad04f6e80d5eb341219d327baaa77078",
+    "open_auth": "PASS",
+    "wpa2_correct_password": "PASS",
+    "wpa2_wrong_password": "PASS_REJECTED_NO_DHCP",
+    "dhcp_dns_tcp443": "PASS",
+    "group_key_multicast": "NOT RUN",
+    "wpa3": "NOT RUN",
+    "physical_rf": "NOT RUN"
+  }
+}

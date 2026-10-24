@@ -47,7 +47,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - S3/C6 单 guest board + WiFi + HCI-UART BLE profile；
 - 任意 ESP32-S3 backend 的 `runtime=qemu-wifi/profile=generic-observe`
   board+WiFi 最小观察路径，用于非 UIFlow、headless 和 network-first
-  固件；它不要求 HCI/BLE 或 UIFlow marker，也不提供 WPA2/RSN；
+  固件；它不要求 HCI/BLE 或 UIFlow marker，并支持 Open 与 WPA2-PSK；
+- S3 WPA2-PSK RSN、M1-M4、PTK/GTK、成对密钥 CCMP RX、正确/错误密码、
+  session-derived eFuse/NIC MAC 绑定和 unicast DHCP delivery；
 - Core2 OpenMAC WiFi、公网 DNS/HTTP 和 `core2-native-hci` controller
   boundary；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；
@@ -88,6 +90,7 @@ executor、companion/evidence continuity 和 CIDR/domain-set。
 | DNS | 允许/拒绝查询到达受控 resolver，并有 pcap 或结构化 query log |
 | TCP/UDP | guest 与 namespace 内 peer 完成请求/响应或 datagram |
 | Wrong credential | 认证失败、重试、无 DHCP/HTTP 和明确失败 marker 同时成立 |
+| WPA2-PSK | 正确密码完成 RSN、M1-M4、CCMP RX、DHCP/DNS/TCP；错误密码在 M2 MIC 拒绝且无 DHCP |
 | Radio/AP recovery | radio 移除后 scan 为空，恢复后重新 DHCP，前后请求和 pcap 对齐 |
 | DHCP renewal | 不重启 guest 观察到 lease renewal，且地址/HTTP 连续性成立 |
 | Multi-device | 两台 guest 只能通过预期 lab fabric 通信 |

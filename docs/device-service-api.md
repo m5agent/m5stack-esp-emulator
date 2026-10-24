@@ -828,6 +828,17 @@ StickS3 application that needs the board framebuffer, input and public
 internet without an external BLE controller. This lane starts the QEMU
 `misc.esp32s3.wifi` NIC and does not start the HCI/Bumble peer.
 
+ESP32-S3 `qemu-wifi/generic-observe` accepts `wifi_auth=open` or
+`wifi_auth=wpa2-psk`. WPA2-PSK validates the SSID/password, completes the
+RSN four-way exchange, installs PTK/GTK and supplies hardware-decrypted CCMP
+RX to the guest. The service derives a locally-administered synthetic MAC from
+the session id, writes it into the ESP32-S3 eFuse fixture and passes the same
+address to QEMU, so supplicant, DHCP and QEMU NIC no longer disagree about the
+station address. Correct credentials have reached DHCP, DNS and TCP/443;
+wrong credentials are rejected at M2 MIC and retried without DHCP. WPA3-SAE
+returns `unsupported_wifi_security`; WPA2 group-key multicast and RF behavior
+remain outside the current claim.
+
 Core2 retains `qemu-wifi` and `qemu-ble` as compatibility runtimes when the
 service starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing
 the classic ESP32 WiFi and Bluetooth models. The canonical combined paths are
@@ -1365,9 +1376,10 @@ namespace and string values. Its encoder is checked byte-for-byte against
 `esp-idf-nvs-partition-gen 0.3.0`. NVS provisioning data is a runtime fixture,
 not a firmware-quality PASS; tests must still distinguish missing user data,
 WiFi security behavior, cloud credentials and headless/application behavior.
-The current OpenAI comparison reaches DNS/TCP after an Open-auth fixture but
-cannot associate with a non-empty password because the virtual AP does not
-advertise WPA2/RSN; that runtime limitation is tracked as `RUNTIME-05`.
+The OpenAI comparison reaches DNS/TCP with both Open and WPA2-PSK fixtures.
+Its third control uses a wrong WPA2 password and verifies M2 MIC rejection,
+deauthentication, retry and no DHCP. This closes the former `RUNTIME-05`
+WPA2 model gap for the validated pairwise/unicast path.
 
 Network sessions use a validated scenario:
 

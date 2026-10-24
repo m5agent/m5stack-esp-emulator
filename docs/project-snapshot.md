@@ -38,10 +38,10 @@
 | ID | 状态 | 缺口 |
 | --- | --- | --- |
 | `RUNTIME-01` | `FIXED` | C6 软件复位后 chip-id 错误 |
+| `RUNTIME-05` | `FIXED` | S3 QEMU AP WPA2-PSK 数据面 |
 | `RUNTIME-02` | `OPEN` | C6 Zigbee/802.15.4 运行时未建模 |
 | `RUNTIME-03` | `OPEN` | Core2 legacy I2C controller/board-bus routing 未闭环 |
 | `RUNTIME-04` | `OPEN` | Core2 for AWS ATECC608 未建模 |
-| `RUNTIME-05` | `OPEN` | S3 QEMU AP 未广告 WPA2/RSN 安全 |
 
 ## Backlog Task 板
 
@@ -51,11 +51,10 @@
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
-| `FW-03` | 进行中 | API/WebBurner capability、Manifest、矩阵 SHA、SD fixture SHA 和 session-isolated NVS fixture 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 首次启动 NVS 前置条件已确认；下一步补 headless/cloud 执行预期，再扩更多设备与 firmware family |
+| `FW-03` | 进行中 | API/WebBurner capability、Manifest、矩阵 SHA、SD fixture SHA 和 session-isolated NVS fixture 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 首次启动 NVS 前置条件与 WPA2 正确/错误密码已确认；下一步补 headless/cloud/真实 key 执行预期，再扩更多设备与 firmware family |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture |
-| `RUNTIME-05` | 进行中 | 为 S3 QEMU AP 增加 WPA2/RSN advertisement、EAPOL/4-way 和正确/错误密码数据面 |
 | `SVC-01` | 进行中 | companion/evidence continuity、worker 主机自动发现与跨主机 reattach |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 |
@@ -66,7 +65,7 @@
 
 ## 文档与测试
 
-- 平台测试：`376` 项。
+- 平台测试：`377` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

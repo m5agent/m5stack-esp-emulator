@@ -125,7 +125,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连、双 guest lab fabric 和 worker-local QEMU | 网络策略/运行时改动 |
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS 证据 | manifest/filesystem/NVS 改动 |
-| `tests/firmware/openai_nvs_precondition/` | 对照空 NVS、Open/WPA2 虚拟 AP，区分首次启动配置与 WiFi 模型缺口 | NVS fixture、generic S3 qemu-wifi 或该样本分类改动 |
+| `tests/firmware/openai_nvs_precondition/` | 对照空 NVS、Open/WPA2 正确密码和错误密码，绑定 NVS overlay、EAPOL/CCMP、DHCP/DNS/TCP 与 pcap | NVS fixture、generic S3 qemu-wifi、S3 WPA2 或该样本分类改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 | `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
 | `platform/tests/test_worker_directory.py` | 远程 worker 注册、持久化、generation、stale/drain/stop、容量和结果元数据契约 | `/api/v1/workers` 或 `worker_directory.py` 改动 |
@@ -312,6 +312,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 evidence binding | `run_service_5x.py:tool_hashes`；`qemu_accel.py`；`ble_runtime_limits.py`；`platform/tests/test_docs_consistency.py` | runner 在首 lease 前记录工具哈希，运行期对 firmware/ELF/QEMU 做漂移检查；每轮检查 accelerator 为 bounded `tb-size=128`。该机制只绑定本轮实现，不替代设备功能或物理等价证据 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
+| S3 WPA2-PSK data plane | `patches/qemu-m5stack-peripherals/0029-esp32s3-wpa2-psk-data-plane.patch`；`tests/firmware/openai_nvs_precondition/run_test.py`；`tests/uiflow2/evidence-2026-10-25-s3-wpa2-regression.json` | WPA2 RSN、M1-M4、正确/错误密码、CCMP RX、eFuse/NIC MAC 绑定和 unicast DHCP；三组 Device Service session 均绑定同一 OpenAI BIN SHA，AtomS3R/StickS3/CoreS3 定向矩阵 15/15 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
 | Firmware license policy | `tests/firmware/evidence-2026-10-24-license-policy.json` | 声明来源汇总、allowlist/denylist、REVIEW/REJECTED 边界；不是完整源码扫描或法律意见 |
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |
@@ -323,8 +324,8 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Public artifact refresh invariant | `user_firmware_matrix.py:download_candidates`；`test_user_firmware_matrix.py`；`firmware-manifest.md` | 每个 matrix run 重新解析公开版本并 `force=True` 下载；同 firmware/version ID 的缓存不能证明当前 CDN 内容；新 SHA 必须重新执行 Device Service 才能继承功能结论 |
 | SD media fixture | `platform/tools/sd_image.py`；`test_sd_image.py`；Device Service `storage.sd_image_artifact_id` | 纯 Python 生成确定性 FAT32+MBR 或 FAT16 superfloppy raw image；Device Service 拒绝无 SD 模型的设备，校验 512-byte 对齐，复制到 session 后重新哈希并以 writable `if=sd` 挂载 |
 | NVS partition fixture | `platform/tools/nvs_image.py`；`test_nvs_image.py`；Device Service `nvs.image_artifact_id` | 生成与 ESP-IDF generator 逐字节一致的 NVSv2 namespace/string 数据；服务按固件分区表校验 label/offset/size，只覆盖 session Flash 副本并记录 base/effective SHA |
-| OpenAI first-boot NVS precondition | `tests/firmware/openai_nvs_precondition/run_test.py`；`evidence-2026-10-25-openai-nvs-precondition.json` | 公开 BIN 的 NVS 全空；Open 密码对照完成关联、DHCP、`api.openai.com` DNS 与 TCP/443；非空密码触发 WPA2 threshold 后被 Open-auth QEMU AP 阻断，登记 `RUNTIME-05` |
-| Refreshed public artifacts functional | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；`evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json`；`evidence-2026-10-25-openai-nvs-precondition.json` | 4 个当前公开 BIN 的 Device Service 结果为 `3 PASS / 1 PARTIAL`；XiaoZhi/EDC/CrossPoint 达到 frame/input 层 PASS；OpenAI 黑屏根因已拆分为空 NVS、headless/cloud 和 `RUNTIME-05`，不再记作显示控制器失败 |
+| OpenAI first-boot NVS precondition | `tests/firmware/openai_nvs_precondition/run_test.py`；`evidence-2026-10-25-openai-nvs-precondition.json` | 公开 BIN 的 NVS 全空；Open 与正确 WPA2-PSK 都完成关联、DHCP、`api.openai.com` DNS 与 TCP/443；WPA2 路径完成 M1-M4 和成对密钥 CCMP，错误密码在 M2 MIC 被拒绝且无 DHCP |
+| Refreshed public artifacts functional | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；`evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json`；`evidence-2026-10-25-openai-nvs-precondition.json` | 4 个当前公开 BIN 的 Device Service 结果为 `3 PASS / 1 PARTIAL`；XiaoZhi/EDC/CrossPoint 达到 frame/input 层 PASS；OpenAI 的 UI/input 规则仍为 PARTIAL，但空 NVS、WPA2 与错误密码前置条件已分层验证 |
 | 跨厂商公开固件 runtime matrix | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；S3/C6 与 Core2 evidence | 7 台设备、21 个公开样本；10 PASS / 11 PARTIAL；Core2 PMIC/AWS ATECC 与 C6 Zigbee 归类为 `runtime_model_gap` |
 | C6 Zigbee `thread-sim` 可行性 | `tests/firmware/c6_zigbee_thread_sim/run_feasibility.py`；`evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json` | 双实例 UDP relay 观察到双向 802.15.4 帧，但 commissioning/join 未完成；结果为 `PARTIAL/runtime_model_gap` |
 | 运行时模型缺口登记 | `runtime-model-gap-register.md`；C6 Flash/PMP patches；跨厂商与修复 evidence | `RUNTIME-01` 已关闭；`RUNTIME-02` 为 802.15.4 ACK/commissioning，`RUNTIME-03` 为 Core2 legacy I2C controller/board-bus routing，`RUNTIME-04` 为 ATECC608 |

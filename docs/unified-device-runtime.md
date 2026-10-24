@@ -114,8 +114,11 @@ being evaluated, and their logs must be included in the same evidence bundle.
 
 ## Boundaries
 
-- The S3/C6 NIC model covers guest-visible MAC/DMA, interrupts and a user-net
-  frame path, not RF, antenna, channel/rate or WPA2/WPA3 behavior.
+- The S3 NIC model covers guest-visible MAC/DMA, interrupts and user-net
+  frames. The validated `qemu-wifi/generic-observe` route additionally covers
+  WPA2-PSK RSN/M1-M4 and pairwise CCMP RX. It does not cover WPA3, group-key
+  multicast, RF, antenna or channel/rate behavior. The C6 path remains
+  Open-auth unless a profile explicitly states otherwise.
 - Core2 OpenMAC and native-HCI have functional data-plane evidence, not a
   bit-exact Espressif BT controller/baseband or physical cache/PSRAM timing.
 - Tab5 uses the closed-source P4 backend as a documented exception; missing

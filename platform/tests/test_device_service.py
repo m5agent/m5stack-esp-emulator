@@ -1400,8 +1400,21 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(parsed["profile"], "generic-observe")
         self.assertEqual(parsed["nic"], "misc.esp32s3.wifi")
+        self.assertEqual(parsed["wifi_auth"], "open")
         self.assertTrue(parsed["capture_pcap"])
         self.assertEqual(parsed["expected_markers"], ["got ip:"])
+
+        secured = device_service_module.parse_qemu_wifi_execution(
+            self.service.specs["atoms3r"],
+            {
+                "profile": "generic-observe",
+                "wifi_ssid": "myssid",
+                "wifi_password": "mypassword",
+                "wifi_auth": "wpa2-psk",
+            },
+        )
+        self.assertEqual(secured["wifi_auth"], "wpa2-psk")
+        self.assertEqual(secured["wifi_password"], "mypassword")
 
         with self.assertRaises(ServiceError) as unsupported:
             device_service_module.parse_qemu_wifi_execution(
@@ -1412,6 +1425,35 @@ class DeviceServiceUnitTests(unittest.TestCase):
             unsupported.exception.code,
             "unsupported_network_profile",
         )
+        with self.assertRaises(ServiceError) as wpa3:
+            device_service_module.parse_qemu_wifi_execution(
+                self.service.specs["atoms3r"],
+                {
+                    "profile": "generic-observe",
+                    "wifi_password": "mypassword",
+                    "wifi_auth": "wpa3-sae",
+                },
+            )
+        self.assertEqual(
+            wpa3.exception.code,
+            "unsupported_wifi_security",
+        )
+
+    def test_qemu_wifi_binds_s3_efuse_mac_to_station_address(self):
+        session_id = "a" * 32
+        mac = device_service_module.qemu_station_mac(session_id)
+        self.assertEqual(mac, device_service_module.qemu_station_mac(session_id))
+        self.assertTrue(mac.startswith("02:"))
+        self.assertEqual(len(mac.split(":")), 6)
+
+        efuse = bytearray(64)
+        device_service_module.set_s3_efuse_mac(efuse, mac)
+        self.assertEqual(
+            bytes(efuse[24:30]),
+            bytes.fromhex(mac.replace(":", ""))[::-1],
+        )
+        with self.assertRaises(ValueError):
+            device_service_module.set_s3_efuse_mac(bytearray(29), mac)
 
     def test_qemu_radio_capture_defaults_on_and_can_be_disabled(self):
         captured = device_service_module.parse_qemu_ble_execution(
