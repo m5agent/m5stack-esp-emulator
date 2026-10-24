@@ -2838,6 +2838,19 @@ class DeviceSession:
                 "source_artifacts": list(self.source_artifacts),
                 "runtime_env": dict(self.runtime_env),
                 "runtime": self.runtime,
+                "runtime_memory": (
+                    qemu_runtime_memory(
+                        self.spec.memory,
+                        (
+                            self.network_config.get("profile")
+                            if isinstance(self.network_config, dict)
+                            else None
+                        ),
+                        self.spec.id,
+                    )
+                    if self.runtime != "network"
+                    else None
+                ),
                 "network": self.network_result
                 or (
                     {

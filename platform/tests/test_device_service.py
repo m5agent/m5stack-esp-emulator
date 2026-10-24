@@ -3235,8 +3235,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertTrue(all(evidence["checks"].values()))
         self.assertEqual(evidence["runtime"]["hci_transport"], "UART1 H4")
         self.assertEqual(evidence["runtime"]["wifi_nic"], "misc.esp32_wifi")
+        self.assertEqual(
+            evidence["runtime"]["memory"]["effective_psram_mib"],
+            4,
+        )
         self.assertEqual(evidence["gatt"]["name"], "M5-CORE2-UNIFIED")
         self.assertEqual(evidence["gatt"]["payload"], "M5_CORE2_UNIFIED")
+        self.assertEqual(
+            session.snapshot()["runtime_memory"]["effective_psram_mib"],
+            4,
+        )
         session.state = "stopped"
         session._proc = None
         session._qmp = None

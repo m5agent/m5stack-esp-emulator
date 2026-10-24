@@ -1381,7 +1381,9 @@ and BLE GATT.
 The service stores the latest captured framebuffer as `last-frame.png` and
 `last-frame.json`. When a session stops, `frame.png` returns this last-known
 frame instead of failing. Session snapshots expose `last_frame_available` and
-`last_frame_captured_at`.
+`last_frame_captured_at`. QEMU sessions also expose `runtime_memory` with the
+CLI request, effective memory, resolution source and physical-timing
+`NOT RUN` boundary; `runtime=network` sessions set it to `null`.
 
 Devices with a normalized runtime-state probe also expose
 `GET /sessions/{id}/device-state`. StickS3 currently reports M5PM1 power state

@@ -1421,6 +1421,36 @@ components:
               type: string
             message:
               type: string
+    RuntimeMemory:
+      type: object
+      additionalProperties: false
+      required:
+        - requested_psram_mib
+        - cli_requested_psram_mib
+        - effective_psram_mib
+        - effective_source
+        - policy
+        - claim
+        - physical_cache_psram_timing
+      properties:
+        requested_psram_mib:
+          type: [integer, "null"]
+        cli_requested_psram_mib:
+          type: [integer, "null"]
+        effective_psram_mib:
+          type: [integer, "null"]
+        effective_source:
+          type: string
+          example: validated-m5core2-qom
+        policy:
+          type: string
+          example: native-controller-machine-default-psram
+        claim:
+          type: string
+          const: qemu-memory-configuration-only
+        physical_cache_psram_timing:
+          type: string
+          const: NOT RUN
     DeviceCatalog:
       type: object
       required: [service, api_version, network_enabled, devices]
@@ -1537,35 +1567,7 @@ components:
               type: integer
               minimum: 1
             memory:
-              type: object
-              additionalProperties: false
-              required:
-                - requested_psram_mib
-                - cli_requested_psram_mib
-                - effective_psram_mib
-                - effective_source
-                - policy
-                - claim
-                - physical_cache_psram_timing
-              properties:
-                requested_psram_mib:
-                  type: [integer, "null"]
-                cli_requested_psram_mib:
-                  type: [integer, "null"]
-                effective_psram_mib:
-                  type: [integer, "null"]
-                effective_source:
-                  type: string
-                  example: validated-m5core2-qom
-                policy:
-                  type: string
-                  example: native-controller-no-psram
-                claim:
-                  type: string
-                  const: qemu-memory-configuration-only
-                physical_cache_psram_timing:
-                  type: string
-                  const: NOT RUN
+              $ref: "#/components/schemas/RuntimeMemory"
             wifi_nic:
               type: string
             hci_transport:
@@ -2113,6 +2115,10 @@ components:
           type: string
         runtime:
           $ref: "#/components/schemas/RuntimeName"
+        runtime_memory:
+          allOf:
+            - $ref: "#/components/schemas/RuntimeMemory"
+          nullable: true
         network:
           type: object
           nullable: true
