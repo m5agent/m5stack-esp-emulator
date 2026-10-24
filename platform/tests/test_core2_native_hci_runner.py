@@ -66,6 +66,10 @@ class Core2NativeHciHealthTests(unittest.TestCase):
             "tcg,thread=single,tb-size=128",
         )
         self.assertIsNone(runner.parse_qemu_accelerator("qemu -M m5core2"))
+        self.assertEqual(
+            runner.EXPECTED_QEMU_ACCELERATOR,
+            "tcg,thread=single,tb-size=128",
+        )
 
     def test_input_hashes_are_frozen_before_execution(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

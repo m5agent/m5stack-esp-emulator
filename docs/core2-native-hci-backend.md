@@ -253,7 +253,8 @@ PSRAM：默认 `tb-size` 最多预留 `1 GiB`，macOS `vmmap` 的增长主要落
 `tcg,thread=single,tb-size=128`；120 秒 active-BLE 功能复测为 `PASS`，
 RSS `323600→323584 KiB`、phys footprint `214016→196608 KiB`，同时
 HLI `45/45` 且错误和队列为 0。最终 artifact-bound 两小时复测仍须完成，
-在此之前保留先前未限容运行的内存 `REVIEW` 历史。
+在此之前保留先前未限容运行的内存 `REVIEW` 历史。runner 已将
+`bounded_tcg_cache` 作为必需功能检查，accelerator 不是预期值时整轮 FAIL。
 
 已证伪并回退的路线：
 

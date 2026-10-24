@@ -23,9 +23,13 @@ from ble_runtime_limits import (  # noqa: E402
     MAX_BLE_HOLD_SECONDS,
     MAX_BLE_RECONNECT_CYCLES,
 )
+from qemu_accel import CORE2_TCG_TB_SIZE_MIB  # noqa: E402
 
 PROFILE = "core2-native-hci"
 READY_MARKER = "UNIFIED_CORE2_READY"
+EXPECTED_QEMU_ACCELERATOR = (
+    f"tcg,thread=single,tb-size={CORE2_TCG_TB_SIZE_MIB}"
+)
 TOOL_PATHS = {
     "runner": Path(__file__).resolve(),
     "device_service": ROOT / "platform/tools/device_service.py",
@@ -641,6 +645,9 @@ def run_attempt(
             )
         ),
         "native_hci_transport": transport == expected_transport,
+        "bounded_tcg_cache": (
+            qemu_accelerator == EXPECTED_QEMU_ACCELERATOR
+        ),
         "native_hci_health": native_hci_health_ok(hci_health),
         "hold_stable": hold_stable,
         "active_ble_link_during_hold": (
