@@ -5,8 +5,8 @@ Last reviewed: `2026-10-24`
 `platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
 M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
 possible, uploads each merged image through the Device Service `/api/v1`, boots
-it, injects the board's primary input, captures serial and frame evidence, and
-stops the session with `purge=0`.
+it, injects a small board-appropriate input probe set, captures serial and
+frame evidence after every probe, and stops the session with `purge=0`.
 
 This is virtual-device validation evidence. It may support an external fix,
 issue reply, review or release note when the selected firmware boots, reaches a
@@ -42,7 +42,8 @@ removed sample results without changing the stored hot-firmware selection.
 ## Status
 
 - `PASS`: the board rendered a non-blank application frame, the session stayed
-  running, and no configured fatal serial signature was observed.
+  running, no configured fatal serial signature was observed, and at least one
+  probe changed the frame or the serial transcript.
 - `PARTIAL`: boot or application output exists, but frame, input, device
   lifecycle or full application readiness is incomplete.
 - `FAIL`: boot did not reach the application, the session failed, or a fatal
@@ -52,7 +53,10 @@ removed sample results without changing the stored hot-firmware selection.
 
 The tool records the selected firmware ID, download count, SHA-256, static
 partition/image analysis, Device Service session ID, frame metrics, input
-response, serial digest and a bounded set of fatal error lines.
+response, per-probe frame hashes, `status_reason`, unmet requirements, serial
+digest and a bounded set of fatal error lines. Service startup failures are
+reported separately as `device_service_startup_failed`; they are not attributed
+to the firmware.
 
 ## Boundaries
 
@@ -61,6 +65,8 @@ response, serial digest and a bounded set of fatal error lines.
 - Some Burner device names have fewer than three compatible, non-baseline
   samples. The plan records the exact partial coverage instead of substituting
   an incompatible image.
+- NanoC6 has no display. Its serial-only runs remain `PARTIAL` by design even
+  when boot, input injection and serial output pass.
 - Tab5 service sessions attach the documented PI4IOE, INA226, RX8130 and
   BMI270 register devices to I2C1. Uploaded Tab5 images still lack a matching
   ELF, so AP-frame and touch capture remain unavailable.
