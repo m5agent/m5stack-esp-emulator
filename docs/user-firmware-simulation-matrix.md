@@ -90,6 +90,37 @@ The same Meshtastic SHA was rerun through Device Service with
 are maintained in the
 [runtime model-gap register](runtime-model-gap-register.md).
 
+### Core2 public firmware extension
+
+A separate 90-second Core2 run adds the three most-downloaded public Core2
+images. Combined with the six-device snapshot, current sample coverage is
+seven devices and 21 public non-baseline images: 10 `PASS`, 11 `PARTIAL` and
+zero `FAIL`.
+
+| Firmware | SHA-256 | Current result | Runtime model gap |
+| --- | --- | --- | --- |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | AXP PMIC register transaction returns I2C error; no frame |
+| `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | AXP PMIC read error; touch/PMIC discovery only, no frame |
+| `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
+
+The `UIFlow_Core2` sample was rerun with both default AXP2101 and the narrow
+`M5SW_CORE2_PMIC=axp192` runtime override. Both variants produce the same
+`OSError: I2C bus error (19)` and black frame, so this is not represented as a
+firmware-only failure.
+
+These are tracked as `RUNTIME-03` for the Core2 AXP PMIC I2C transaction and
+`RUNTIME-04` for the Core2 for AWS ATECC608 secure element. They remain
+`OPEN` until the relevant guest data paths complete.
+
+Evidence:
+[`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json).
+
+The 90-second run also exposed and fixed a matrix-client timeout: the HTTP
+`/wait` request used 90 seconds while the server was allowed to wait 90 seconds
+for a frame. The client now derives its request timeout from
+`observe_seconds + 15`; failed short-window and client-timeout snapshots remain
+separate.
+
 The evidence retains serial hashes and bounded error lines while keeping the
 model-vs-firmware boundary explicit. PARTIAL samples are not promoted to
 functional PASS.

@@ -93,6 +93,37 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
 On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不是承诺“所有 C6
 固件均可运行”。
 
+### RUNTIME-03：Core2 AXP PMIC I2C 事务未闭环
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN` |
+| 影响 | Core2 官方 UIFlow 与 FactoryTest 的 PMIC 初始化 |
+| 现象 | 固件能发现 AXP 地址，但 `disable_timer_interrupt()` 读取返回 `I2C bus error (19)`；随后可能触发 WDT 或停在 REPL，framebuffer 保持黑色 |
+| A/B 结果 | 默认 AXP2101 和 `M5SW_CORE2_PMIC=axp192` 均得到同一 I2C 错误与黑帧；AXP192 QOM 节点存在 |
+| 证据 | [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json) |
+
+关闭条件：
+
+1. 从公开固件资源或可重建源码确认失败的寄存器序列；
+2. 在 QEMU AXP192/AXP2101 模型中补齐事务语义和时序，不使用 host 假值；
+3. 同一固件 SHA 在 Device Service 中渲染非空应用帧并保持运行。
+
+### RUNTIME-04：Core2 for AWS ATECC608 未建模
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN` |
+| 影响 | `Core2_For_AWS` 及依赖 ATECC608 安全元件的固件 |
+| 现象 | ATECC608 初始化返回 `atcab_init` 失败，固件随后 `abort()`，无应用帧 |
+| 证据 | [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json) |
+
+关闭条件：
+
+1. 明确公开固件使用的 ATECC608 I2C 命令和必需配置区；
+2. 提供不从仓库分发生产私钥的测试 slot/config fixture；
+3. 同一固件完成安全元件初始化并进入应用帧，安全芯片结论仍与功能帧分开。
+
 ## 与固件矩阵的关系
 
 跨厂商矩阵的状态语义由

@@ -4,6 +4,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -15,10 +16,27 @@ from user_firmware_matrix import (  # noqa: E402
     detect_runtime_model_gaps,
     error_lines,
     inputs_for_device,
+    ServiceClient,
 )
 
 
 class UserFirmwareMatrixTests(unittest.TestCase):
+    @mock.patch("user_firmware_matrix.request_json")
+    def test_service_client_wait_timeout_tracks_observation_window(
+        self,
+        request_json,
+    ):
+        request_json.return_value = {"state": "running"}
+        client = ServiceClient("http://127.0.0.1:8787", timeout=90)
+
+        client.post(
+            "sessions/example/wait",
+            {"timeout_seconds": 90},
+            timeout=105,
+        )
+
+        self.assertEqual(request_json.call_args.kwargs["timeout"], 105)
+
     def test_baseline_filter_keeps_user_firmware(self):
         self.assertTrue(baseline_name("UIFlow Core2"))
         self.assertTrue(baseline_name("UIFlow2.0 StamPLC"))
@@ -188,6 +206,35 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(
             [gap["code"] for gap in software_reset],
             ["c6_chip_id_lost_after_software_reset"],
+        )
+
+    def test_detect_core2_pmic_and_atecc_model_gaps(self):
+        pmic = detect_runtime_model_gaps(
+            "M5Core2 initializing...\n"
+            "[E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1\n",
+            device_id="core2",
+        )
+        atecc = detect_runtime_model_gaps(
+            "Core2forAWS: ATECC608 secure element initialization error!\n"
+            "abort() was called at PC 0x400d4f3f on core 0\n",
+            device_id="core2",
+        )
+
+        self.assertEqual(
+            [gap["code"] for gap in pmic],
+            ["core2_pmic_i2c_model_gap"],
+        )
+        self.assertEqual(
+            [gap["code"] for gap in atecc],
+            ["core2_aws_atecc608_model_gap"],
+        )
+        self.assertEqual(
+            detect_runtime_model_gaps(
+                "M5Core2 initializing...\n"
+                "[E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1\n",
+                device_id="sticks3",
+            ),
+            [],
         )
 
 

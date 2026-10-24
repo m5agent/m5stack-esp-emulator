@@ -1246,7 +1246,9 @@ object when creating a session:
 }
 ```
 
-Only `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
+Core2 board-revision probes may additionally set
+`M5SW_CORE2_PMIC=axp192` or `M5SW_CORE2_PMIC=axp2101`. Only
+`M5SW_CORE2_PMIC`, `M5SW_I2S_DMA_IRQ`, `M5SW_I2S_PCM_FILE`,
 `M5SW_I2S_RX_PCM_FILE`, and `M5SW_I2S_TRACE` are accepted. This is a
 trusted-workstation control surface; do not expose it to untrusted tenants.
 

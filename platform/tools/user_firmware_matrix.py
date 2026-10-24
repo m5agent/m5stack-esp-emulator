@@ -450,12 +450,18 @@ class ServiceClient:
     def get(self, path: str) -> Any:
         return request_json(self.url(path), timeout=self.timeout)
 
-    def post(self, path: str, payload: Any = None) -> Any:
+    def post(
+        self,
+        path: str,
+        payload: Any = None,
+        *,
+        timeout: float | None = None,
+    ) -> Any:
         return request_json(
             self.url(path),
             method="POST",
             payload={} if payload is None else payload,
-            timeout=self.timeout,
+            timeout=self.timeout if timeout is None else timeout,
         )
 
     def delete(self, path: str) -> Any:
@@ -533,7 +539,10 @@ def inputs_for_device(device: Mapping[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
-def detect_runtime_model_gaps(serial: str) -> list[dict[str, str]]:
+def detect_runtime_model_gaps(
+    serial: str,
+    device_id: str | None = None,
+) -> list[dict[str, str]]:
     """Identify stable runtime signatures caused by unmodeled device features."""
 
     gaps: list[dict[str, str]] = []
@@ -564,6 +573,40 @@ def detect_runtime_model_gaps(serial: str) -> list[dict[str, str]]:
                 ),
             }
         )
+    if device_id == "core2":
+        if (
+            (
+                "pmic_axp" in serial
+                or "M5Core2 initializing" in serial
+            )
+            and (
+                "i2cRead returned Error -1" in serial
+                or "OSError: I2C bus error (19)" in serial
+            )
+        ):
+            gaps.append(
+                {
+                    "code": "core2_pmic_i2c_model_gap",
+                    "detail": (
+                        "official Core2 firmware reached PMIC discovery but "
+                        "failed an AXP192/AXP2101 register transaction"
+                    ),
+                }
+            )
+        if (
+            "ATECC608" in serial
+            and "Core2forAWS" in serial
+            and "abort() was called" in serial
+        ):
+            gaps.append(
+                {
+                    "code": "core2_aws_atecc608_model_gap",
+                    "detail": (
+                        "Core2 for AWS firmware aborted after the unmodeled "
+                        "ATECC608 secure element failed initialization"
+                    ),
+                }
+            )
     return gaps
 
 
@@ -741,6 +784,7 @@ def execute_sample(
                             "require_all": True,
                         },
                     },
+                    timeout=max(client.timeout, observe_seconds + 15),
                 )
                 result["frame_ready"] = True
                 result["ready_snapshot"] = ready
@@ -847,7 +891,10 @@ def execute_sample(
         result["serial_bytes"] = len(serial.encode("utf-8", errors="replace"))
         result["serial_sha256"] = hashlib.sha256(serial.encode("utf-8")).hexdigest()
         result["errors"] = error_lines(serial + "\n" + stderr)
-        runtime_model_gaps = detect_runtime_model_gaps(serial + "\n" + stderr)
+        runtime_model_gaps = detect_runtime_model_gaps(
+            serial + "\n" + stderr,
+            device_id=sample["device_id"],
+        )
         result["runtime_model_gaps"] = runtime_model_gaps
         log_path = out_dir / f"{sample['device_id']}-{sample['firmware_id']}-serial.log"
         log_path.write_text(serial, encoding="utf-8", errors="replace")

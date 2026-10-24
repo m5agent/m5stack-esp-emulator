@@ -23,7 +23,7 @@
 | --- | --- | --- | --- |
 | P0 | 网络产品化 | 自动发现/跨主机 worker 迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
-| P0 | 运行时模型缺口 | 决定并验证或明确拒绝 C6 Zigbee/802.15.4 路径 | Zigbee 控制器和无线数据面 |
+| P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 AXP PMIC I2C；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；PMIC 寄存器语义；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
@@ -62,6 +62,8 @@
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | 已有 6 台 S3/C6、18 个公开官方/社区样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
+| `RUNTIME-03` | 进行中 | 对齐 Core2 AXP192/AXP2101 `disable_timer_interrupt()` 等 PMIC 寄存器事务 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
+| `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |
 | `SVC-01` | 进行中 | companion/evidence continuity、worker 主机自动发现与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
@@ -238,6 +240,31 @@ On/Off 和离网生命周期。当前 backend 下不得用 host 伪造 Zigbee �
 如果无法取得权威控制器语义，则保留结构化 `runtime_model_gap`，明确不支持，
 不承诺全 C6 固件兼容。详情见
 [运行时模型缺口登记](runtime-model-gap-register.md)。
+
+### RUNTIME-03 Core2 AXP PMIC I2C
+
+当前缺口：`UIFlow_Core2` 与 `Core2FactoryTest` 都发现 AXP I2C 地址，但在
+`disable_timer_interrupt()` 路径读取寄存器时得到
+`OSError: I2C bus error (19)`。默认 AXP2101 和
+`M5SW_CORE2_PMIC=axp192` 都失败，AXP192 的 QOM 节点存在，说明不是简单
+“设备地址没挂上”。
+
+下一项最小交付：从公开固件资源确认寄存器序列和 I2C 事务类型，修 QEMU
+AXP192/AXP2101 数据面；`M5SW_CORE2_PMIC` 仍只允许通过受限 `runtime_env`
+选择，不得用 host 假值伪造启动结果。
+
+验收：同一 `UIFlow_Core2` SHA 在指定 PMIC 变体下进入应用帧并保持运行。
+
+### RUNTIME-04 Core2 for AWS ATECC608
+
+当前缺口：`Core2_For_AWS` 在 `ATECC608` 安全元件初始化失败后主动
+`abort()`。这是缺失板级安全元件模型，不能直接记成固件崩溃。
+
+下一项最小交付：为 QEMU 增加 ATECC608 I2C 命令和测试 slot/config fixture，
+禁止提交生产私钥；先让公开固件的安全元件初始化通过，再单独验证应用帧。
+
+验收：固件进入非空应用帧，安全元件和普通功能证据分层记录；若只能伪造
+返回值则继续 `runtime_model_gap`。
 
 ## P0：真机同路径
 

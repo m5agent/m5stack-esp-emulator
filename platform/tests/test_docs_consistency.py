@@ -169,6 +169,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json",
             "tests/firmware/evidence-2026-10-24-c6-soft-reset-flash-addressing.json",
             "tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json",
+            "tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",
@@ -397,6 +398,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json"
             ).read_text()
         )
+        core2_firmware = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-core2-public-firmware-model-gaps.json"
+            ).read_text()
+        )
         reset_evidence = reset_fix["device_service_revalidation"]
 
         gap_codes = {
@@ -411,7 +419,7 @@ class DocsConsistencyTests(unittest.TestCase):
                 "c6_chip_id_lost_after_software_reset",
             },
         )
-        self.assertEqual(register.count("| 状态 | `OPEN` |"), 1)
+        self.assertEqual(register.count("| 状态 | `OPEN` |"), 3)
         self.assertEqual(
             register.count(
                 "| 状态 | `FIXED`（virtual-device validation） |"
@@ -420,6 +428,8 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn("RUNTIME-01", register)
         self.assertIn("RUNTIME-02", register)
+        self.assertIn("RUNTIME-03", register)
+        self.assertIn("RUNTIME-04", register)
         self.assertIn("`LP_SW_HPSYS`", register)
         self.assertIn(
             "`Invalid chip id. Expected 13 read 12. Bootloader for wrong chip?`",
@@ -460,6 +470,19 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertTrue(zigbee["markers"]["light_started_steering"])
         self.assertFalse(zigbee["markers"]["light_joined_network"])
         self.assertFalse(zigbee["markers"]["light_received_on_off"])
+        self.assertEqual(core2_firmware["summary"]["pass"], 0)
+        self.assertEqual(core2_firmware["summary"]["partial"], 3)
+        self.assertEqual(core2_firmware["summary"]["fail"], 0)
+        self.assertEqual(
+            {
+                sample["runtime_model_gap"]["code"]
+                for sample in core2_firmware["samples"]
+            },
+            {
+                "core2_pmic_i2c_model_gap",
+                "core2_aws_atecc608_model_gap",
+            },
+        )
         self.assertEqual(
             reset_fix["official_matrix_regression"]["pass"],
             5,
@@ -483,6 +506,8 @@ class DocsConsistencyTests(unittest.TestCase):
         for text in (status, backlog, workstreams, firmware_matrix):
             self.assertIn("RUNTIME-01", text)
             self.assertIn("RUNTIME-02", text)
+            self.assertIn("RUNTIME-03", text)
+            self.assertIn("RUNTIME-04", text)
         self.assertIn(
             "runtime-model-gap-register.md",
             status,

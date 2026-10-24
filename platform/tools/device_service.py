@@ -124,11 +124,13 @@ MAX_ARTIFACT_CHUNK_BYTES = 8 * 1024 * 1024
 MAX_SERIAL_READ = 256 * 1024
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 ALLOWED_RUNTIME_ENV = {
+    "M5SW_CORE2_PMIC",
     "M5SW_I2S_DMA_IRQ",
     "M5SW_I2S_PCM_FILE",
     "M5SW_I2S_RX_PCM_FILE",
     "M5SW_I2S_TRACE",
 }
+CORE2_PMIC_VARIANTS = {"axp192", "axp2101"}
 NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
 NATIVE_VHCI_GDB_SCRIPT = (
@@ -7134,6 +7136,20 @@ class DeviceService:
                     + ", ".join(str(key) for key in invalid_env),
                     400,
                 )
+            core2_pmic = runtime_env.get("M5SW_CORE2_PMIC")
+            if core2_pmic is not None:
+                if device_id != "core2":
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_CORE2_PMIC is only valid for the core2 device",
+                        400,
+                    )
+                if core2_pmic not in CORE2_PMIC_VARIANTS:
+                    raise ServiceError(
+                        "invalid_runtime_env",
+                        "M5SW_CORE2_PMIC must be axp192 or axp2101",
+                        400,
+                    )
             ready_timeout = float(
                 payload.get(
                     "ready_timeout_seconds",

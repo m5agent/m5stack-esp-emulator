@@ -25,11 +25,14 @@ MicroPython 和其他完整 Flash 固件。
   交叉校验，README 不再复制会随提交变化的计数。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
-- 热门公开固件矩阵的历史快照覆盖 6 台 S3/C6 设备的 18 个非基线样本：
-  全部完成静态分析和服务执行，10 PASS / 8 PARTIAL；该快照最初把 C6
+- 热门公开固件矩阵已覆盖 7 台设备的 21 个非基线样本：
+  全部完成静态分析和服务执行，10 PASS / 11 PARTIAL；S3/C6 历史快照
+  为 6 台设备 18 个样本，Core2 新增 3 个热门官方固件，均为
+  `PARTIAL/runtime_model_gap`。历史快照最初把 C6
   Zigbee 与软件复位 chip-id 归为两个模型缺口。`RUNTIME-01` 已确认根因是
   16 MiB Flash legacy 写擦地址宽度与复位 PMP 状态并修复，重跑后该样本仍有
-  独立应用异常；`RUNTIME-02` Zigbee 仍未建模。边界与证据见
+  独立应用异常；`RUNTIME-02` Zigbee commissioning，以及 Core2
+  `RUNTIME-03` AXP PMIC I2C、`RUNTIME-04` AWS ATECC608 仍开放。边界与证据见
   [运行时模型缺口登记](docs/runtime-model-gap-register.md)。
 - worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS、真实 QEMU
   和 unified StickS3 job over mTLS，以及本地 QEMU restart reattach 已形成

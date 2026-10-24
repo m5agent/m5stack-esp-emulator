@@ -1766,8 +1766,12 @@ components:
           type: object
           description: >
             Trusted-local runtime overrides for the QEMU process. Only
-            M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE, M5SW_I2S_RX_PCM_FILE and
-            M5SW_I2S_TRACE are accepted.
+            M5SW_CORE2_PMIC, M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE,
+            M5SW_I2S_RX_PCM_FILE and M5SW_I2S_TRACE are accepted.
+          properties:
+            M5SW_CORE2_PMIC:
+              type: string
+              enum: [axp192, axp2101]
           additionalProperties:
             type: string
         runtime:

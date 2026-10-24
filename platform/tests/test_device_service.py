@@ -866,6 +866,28 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 }
             )
         self.assertEqual(caught.exception.code, "invalid_runtime_env")
+        with self.assertRaises(ServiceError) as wrong_device:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "runtime_env": {"M5SW_CORE2_PMIC": "axp192"},
+                }
+            )
+        self.assertEqual(
+            wrong_device.exception.code,
+            "invalid_runtime_env",
+        )
+        with self.assertRaises(ServiceError) as bad_variant:
+            self.service.create_session(
+                {
+                    "device_id": "core2",
+                    "runtime_env": {"M5SW_CORE2_PMIC": "axp999"},
+                }
+            )
+        self.assertEqual(
+            bad_variant.exception.code,
+            "invalid_runtime_env",
+        )
 
     def test_qemu_unified_runtime_selects_single_guest_profiles(self):
         unified = device_service_module.parse_qemu_ble_execution(

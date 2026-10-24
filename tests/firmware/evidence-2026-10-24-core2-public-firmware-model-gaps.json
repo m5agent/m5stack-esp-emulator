@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "kind": "user-firmware-runtime-matrix",
+  "validation": "virtual-device validation",
+  "device_id": "core2",
+  "runtime": "qemu",
+  "selection": {
+    "source": "public M5Burner MOST_DOWNLOADED",
+    "samples_requested": 3,
+    "samples_selected": 3
+  },
+  "execution": {
+    "observe_seconds": 90,
+    "settle_seconds": 5,
+    "jobs": 1,
+    "device_service": "/api/v1"
+  },
+  "summary": {
+    "pass": 0,
+    "partial": 3,
+    "fail": 0,
+    "frame_nonblack": 0,
+    "runtime_model_gaps": 3
+  },
+  "samples": [
+    {
+      "firmware_id": "1897200000000002280",
+      "name": "UIFlow_Core2",
+      "version": "v1.15.4",
+      "source": "OFFICIAL",
+      "downloads": 62950,
+      "sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+      "status": "PARTIAL",
+      "status_reason": "runtime_model_gap",
+      "serial_bytes": 14003,
+      "serial_sha256": "d872c6c21be407a30f127477f61412fc8250ee703942791e73fd9842c4de55be",
+      "frame_nonblack_pixels": 0,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "runtime_model_gap": {
+        "code": "core2_pmic_i2c_model_gap",
+        "detail": "official Core2 firmware reached PMIC discovery but failed an AXP192/AXP2101 register transaction"
+      },
+      "bounded_error": [
+        "Guru Meditation Error: Core 1 panic'ed (Interrupt wdt timeout on CPU1)",
+        "Rebooting..."
+      ]
+    },
+    {
+      "firmware_id": "1897200000000000926",
+      "name": "Core2FactoryTest",
+      "version": "v2.2",
+      "source": "OFFICIAL",
+      "downloads": 14856,
+      "sha256": "4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef",
+      "status": "PARTIAL",
+      "status_reason": "runtime_model_gap",
+      "serial_bytes": 1912,
+      "serial_sha256": "6b33e1d67f71c8fca858da74b916d99870d540799e5530becd2c2e7790ca1089",
+      "frame_nonblack_pixels": 0,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "runtime_model_gap": {
+        "code": "core2_pmic_i2c_model_gap",
+        "detail": "official Core2 firmware reached PMIC discovery but failed an AXP192/AXP2101 register transaction"
+      },
+      "observable_input_response": {
+        "serial_changed": true,
+        "frame_changed": false
+      }
+    },
+    {
+      "firmware_id": "1897200000000000568",
+      "name": "Core2_For_AWS",
+      "version": "v1.1",
+      "source": "OFFICIAL",
+      "downloads": 4169,
+      "sha256": "22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a",
+      "status": "PARTIAL",
+      "status_reason": "runtime_model_gap",
+      "serial_bytes": 9121,
+      "serial_sha256": "30bb72238d530bebefbea8fe3569314e869cb6e22f4609068dcb0b0c70f44da0",
+      "frame_nonblack_pixels": 0,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "runtime_model_gap": {
+        "code": "core2_aws_atecc608_model_gap",
+        "detail": "Core2 for AWS firmware aborted after the unmodeled ATECC608 secure element failed initialization"
+      },
+      "bounded_error": [
+        "abort() was called at PC 0x400d4f3f on core 0",
+        "Rebooting..."
+      ]
+    }
+  ],
+  "pmic_variant_ab": {
+    "firmware_id": "1897200000000002280",
+    "firmware_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "default": {
+      "pmic": "axp2101",
+      "i2c_error": "OSError: I2C bus error (19)",
+      "frame_nonblack_pixels": 0
+    },
+    "legacy": {
+      "pmic": "axp192",
+      "runtime_env": {
+        "M5SW_CORE2_PMIC": "axp192"
+      },
+      "i2c_error": "OSError: I2C bus error (19)",
+      "frame_nonblack_pixels": 0,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "qom_model_present": "/machine/axp192"
+    }
+  },
+  "tooling_correction": {
+    "issue": "90-second frame wait exceeded the matrix client's 90-second HTTP timeout",
+    "fix": "pass a wait timeout derived from observe_seconds plus 15 seconds",
+    "regression_test": "test_service_client_wait_timeout_tracks_observation_window",
+    "failed_attempts_retained": true
+  },
+  "not_run": [
+    "physical Core2 or Core2 for AWS hardware",
+    "physical PMIC/I2C timing",
+    "ATECC608 secure-element behavior",
+    "full device-family firmware coverage"
+  ]
+}

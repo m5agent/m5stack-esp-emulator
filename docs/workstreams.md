@@ -56,13 +56,14 @@ profile 和 evidence 为准。
   coexistence、bit-exact controller/baseband、物理 cache/PSRAM 和真机。
 - **固件审查 P0**：Manifest、WebBurner、静态审查、安全配置分层和
   LittleFS/FAT/SPIFFS inventory、声明级许可 allowlist/denylist 已实现；
-  6 台 S3/C6 的 18 个公开样本已形成运行时矩阵，C6 软件复位模型缺口已修复，
-  Zigbee 缺口仍开放；运行时
+  7 台设备的 21 个公开样本已形成运行时矩阵，C6 软件复位模型缺口已修复；
+  Zigbee、Core2 AXP PMIC I2C 和 Core2 for AWS ATECC608 缺口仍开放；运行时
   权限、完整源码级许可扫描/法律审批、真机 key/eFuse 闭环、更多设备和
   firmware family 仍开放。
 - **运行时模型缺口**：C6 软件复位 chip-id 错误已由 `RUNTIME-01` 关闭，
   根因是 16 MiB Flash 全局 4-byte 地址模式误解析 legacy 3-byte 写擦命令，
-  以及 C6 复位后遗留 PMP range。`RUNTIME-02` Zigbee/802.15.4 仍未建模；
+  以及 C6 复位后遗留 PMP range。`RUNTIME-02` Zigbee commissioning、
+  `RUNTIME-03` Core2 PMIC I2C 和 `RUNTIME-04` ATECC608 仍未建模；
   统一登记见
   [运行时模型缺口登记](runtime-model-gap-register.md)。
 - **代码/文档基线**：动态验证计数只在 `project-status.md` 维护；设备
@@ -70,7 +71,7 @@ profile 和 evidence 为准。
   `device_service.py` 编排热区、大型契约测试和文档契约测试混载，见
   `code-map.md`。
 - **下一手顺序**：推进 `NET-04` 远程 worker 和 `NET-05` IPv6；固件侧
-  继续 `FW-01`，随后 `RUNTIME-02`、`FW-03`、`FW-02`；
+  继续 `FW-01`，随后 `RUNTIME-02/03/04`、`FW-03`、`FW-02`；
   Core2 已通过 3 个独立 lease、每个 20/30/60/120 轮的 reconnect 和
   active-BLE 600s hold；下一项做两小时 soak、超过一百二十轮与更长
   coexistence，之后推进物理与
@@ -100,8 +101,8 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
 | Core2 稳定性与无线 | `PARTIAL`（首轮功能、10s/60s/120s、active-BLE 600s hold 与 20/30/60/120 轮 reconnect PASS） | `platform/tools/ble_runtime_limits.py`、`ble_probe.py`、`device_service.py`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT `5/5`；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`、2 个 active-BLE `600s` `2/2`；3 个独立 lease 各 20、30、60、120 轮的 GATT 均 PASS；120 轮每 lease HLI `3377/3377`、events `2297`、ACLs `1080`、无错误或 panic；共享 reconnect 上限为 `120` 并有 `121` 轮拒绝测试，hold 上限为 `7200s` | `CORE2-02` 超过一百二十轮、两小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、HTTPS/mTLS、SIGHUP rotation + activity drain + bounded credential overlap、generation-pointer fleet migration、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；真实 loopback TLS 1.3/mTLS、客户端证书拒绝/通过、signed worker 生命周期、真实 StickS3 QEMU job、unified board/WiFi/BLE job over mTLS、SIGHUP A/B + overlap rotation、activity drain 和 final cutover；双 worker 通过 generation pointer 自动迁移并写出 secret-free receipt，无需 worker SIGHUP；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` worker 主机自动发现/跨主机迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |
-| 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围；FW-03 runtime matrix `PARTIAL`） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist；6 台设备 18 个公开非基线样本 10 PASS / 8 PARTIAL，runtime model gap 独立分类 | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 更多设备和 firmware family 回归 |
-| 跨厂商运行时模型缺口 | `PARTIAL`（1 个 `OPEN`，1 个已修复） | `user_firmware_matrix.py`、`tests/firmware/c6_zigbee_thread_sim/run_feasibility.py`、C6 QEMU worktree、`tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json` | `RUNTIME-01` 已修复；`RUNTIME-02` 在 esp-emu `thread-sim` 中观察到双向 802.15.4 帧、协调器组网和 light steering，但 commissioning/join 未完成，分类 `PARTIAL/runtime_model_gap` | 补 MAC ACK/commissioning 语义或公开固件匹配 ELF；继续区分修复后样本的独立应用异常 |
+| 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围；FW-03 runtime matrix `PARTIAL`） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist；7 台设备 21 个公开非基线样本 10 PASS / 11 PARTIAL，runtime model gap 独立分类 | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 更多设备和 firmware family 回归 |
+| 跨厂商运行时模型缺口 | `PARTIAL`（3 个 `OPEN`，1 个已修复） | `user_firmware_matrix.py`、`tests/firmware/c6_zigbee_thread_sim/run_feasibility.py`、Core2 QEMU PMIC/C6 worktree、Zigbee 与 Core2 public-firmware evidence | `RUNTIME-01` 已修复；`RUNTIME-02` Zigbee commissioning、`RUNTIME-03` Core2 AXP PMIC I2C、`RUNTIME-04` Core2 for AWS ATECC608 仍为结构化 `runtime_model_gap` | 补 802.15.4 ACK/commissioning、PMIC 事务和安全元件 fixture |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py`、`docs/device-service-api.md` | 本地 lease/worker lifecycle；PID/start-time/QMP 验证后的 restart reattach；远程注册；durable queue、claim/lease/expiry/cancel/result；HTTPS/mTLS、SIGHUP rotation + activity drain + bounded overlap、generation-pointer migration/receipts、HTTP executor、evidence ZIP/SHA256、worker HMAC 和失联回收；烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` worker 主机自动发现、cross-host QEMU job 与 companion/evidence continuity、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
 | 热门公开固件仿真 | `PILOT` | `fetch_firmware.py`、`user_firmware_matrix.py` | 按 M5Burner 热度选样并通过 `/api/v1` 留下 session/evidence | 更大样本面、跨厂商统计、长时间稳定性 |
 | 浏览器目录与设备页 | `DELIVERED`（本地） | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、Live sessions、输入和证据浏览 | `UI-01` 逐设备高保真外壳与视觉回归 |
