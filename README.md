@@ -25,6 +25,9 @@ MicroPython 和其他完整 Flash 固件。
   不再复制会随提交变化的数字。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
+- 热门公开固件矩阵已覆盖 6 台 S3/C6 设备的 18 个非基线样本：全部完成
+  静态分析和服务执行，10 PASS / 8 PARTIAL；C6 Zigbee 与软件复位 chip-id
+  两类模型缺口已独立标记，不再混作固件 FAIL。
 - worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS、真实 QEMU
   和 unified StickS3 job over mTLS，以及本地 QEMU restart reattach 已形成
   可用主线；服务端证书/client CA、worker 客户证书和 token 已通过

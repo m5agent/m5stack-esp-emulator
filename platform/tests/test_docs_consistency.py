@@ -158,6 +158,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
             "tests/firmware/evidence-2026-10-24-public-manifest-web-conformance.json",
+            "tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json",
             "platform/web/firmware.html",
             "platform/web/firmware.css",
             "platform/web/firmware.js",
@@ -1760,6 +1761,73 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("security-rotation-overlap-job-pass.json", status)
         self.assertIn("真实 QEMU job over mTLS", status)
         self.assertIn("unified StickS3 job over mTLS", status)
+        firmware_cross_vendor = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-cross-vendor-runtime-model-gaps.json"
+            ).read_text()
+        )
+        self.assertEqual(firmware_cross_vendor["status"], "PARTIAL")
+        self.assertEqual(
+            firmware_cross_vendor["selection"]["devices"],
+            6,
+        )
+        self.assertEqual(
+            firmware_cross_vendor["selection"]["samples"],
+            18,
+        )
+        self.assertEqual(
+            firmware_cross_vendor["selection"]["official"],
+            8,
+        )
+        self.assertEqual(
+            firmware_cross_vendor["selection"]["community"],
+            10,
+        )
+        self.assertEqual(
+            firmware_cross_vendor["summary"]["status_counts"],
+            [
+                {"status": "PARTIAL", "count": 8},
+                {"status": "PASS", "count": 10},
+            ],
+        )
+        self.assertTrue(
+            firmware_cross_vendor["summary"]["static_analysis_valid"]
+        )
+        self.assertEqual(
+            firmware_cross_vendor["summary"]["runtime_model_gaps"],
+            2,
+        )
+        self.assertEqual(
+            firmware_cross_vendor["revalidation"]["samples"],
+            6,
+        )
+        self.assertEqual(
+            {
+                gap["code"]
+                for sample in firmware_cross_vendor["revalidation"][
+                    "runtime_model_gaps"
+                ]
+                for gap in sample["runtime_model_gaps"]
+            },
+            {
+                "zigbee_runtime_not_modeled",
+                "c6_chip_id_lost_after_software_reset",
+            },
+        )
+        self.assertIn(
+            "model_gap_classification",
+            firmware_cross_vendor["checks"],
+        )
+        self.assertIn(
+            "physical hardware, electrical or RF behavior",
+            firmware_cross_vendor["not_claimed"],
+        )
+        self.assertIn(
+            "cross-vendor-runtime-model-gaps.json",
+            status,
+        )
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1825,6 +1893,10 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn(
             "worker_tls/evidence-2026-10-24-security-rotation-overlap-job-pass.json",
+            ledger,
+        )
+        self.assertIn(
+            "firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json",
             ledger,
         )
         self.assertIn(

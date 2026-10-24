@@ -326,7 +326,9 @@ The main open streams are:
   controller/baseband, physical cache/PSRAM equivalence and hardware
   validation;
 - runtime permissions/license policy, production security-key flows and
-  broader cross-firmware compatibility;
+  broader cross-firmware compatibility; the current public matrix covers 18
+  samples across six S3/C6 devices and separates model gaps from firmware
+  failures, but does not cover the full fleet or LX6/P4;
 - warm pools, multi-host scheduling and hardened untrusted-firmware isolation;
 - Tab5 missing P4 data paths behind the closed-source backend;
 - physical-hardware validation and per-device visual fidelity.

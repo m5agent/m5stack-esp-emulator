@@ -57,7 +57,7 @@
 | `CORE2-02` | 进行中 | 已通过 3 个 lease 各自 20 轮的 GATT 与 `5×10s`、`3×60s`、`2×120s` active hold；下一项做多小时 hold 和 WiFi/BLE coexistence | 同一 guest 超过 20 轮完整 scan/connect/GATT/disconnect 无 retry PASS；每轮保留 serial/peer/pcap/evidence 与 HLI health；随后补 controller/baseband、物理 cache/PSRAM |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 跨厂商回归集 | 每样本分层记录导入、capability、boot 和功能 |
+| `FW-03` | 进行中 | 已有 6 台 S3/C6、18 个公开官方/社区样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
 | `SVC-01` | 进行中 | 自动化客户端批量迁移、companion/evidence continuity 与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
@@ -194,7 +194,9 @@ preflight 已有；真机 secure boot、Flash Encryption、eFuse 和生产 key
 
 ### FW-03 跨厂商回归
 
-当前缺口：ESP-IDF、Arduino、MicroPython 和 vendor 固件样本覆盖仍不足。
+当前缺口：已有 18 个公开样本覆盖 6 台 S3/C6 设备，并区分 10 PASS、8
+PARTIAL、2 个 runtime model gap；仍未覆盖全部设备、ESP32 LX6/P4、更多
+MicroPython/vendor framework 和失败根因闭环。
 
 验收：每个样本记录 importer、chip/board/profile、partition、capability、
 boot 和功能层；结构 PASS、UI PASS、功能 PASS、安全 PASS 不混算。

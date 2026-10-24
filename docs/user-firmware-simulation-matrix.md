@@ -50,6 +50,9 @@ removed sample results without changing the stored hot-firmware selection.
   panic/watchdog/assert was observed.
 - Devices without a display can only reach `PARTIAL`; serial boot alone is not
   application success.
+- `runtime_model_gap`: boot/application reached a stable runtime signature
+  explained by an unmodeled device capability. This remains `PARTIAL`, keeps
+  the original serial/error evidence and is not reported as firmware `FAIL`.
 
 The tool records the selected firmware ID, download count, SHA-256, static
 partition/image analysis, Device Service session ID, frame metrics, input
@@ -57,6 +60,28 @@ response, per-probe frame hashes, `status_reason`, unmet requirements, serial
 digest and a bounded set of fatal error lines. Service startup failures are
 reported separately as `device_service_startup_failed`; they are not attributed
 to the firmware.
+
+## Public cross-vendor sample evidence
+
+The committed
+[`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json)
+snapshot covers 18 hot public samples on six S3/C6 devices: 8 official and 10
+community builds. All 18 pass static image/partition analysis and execute
+through Device Service; 10 reach a non-blank frame, remain running and show an
+observable input response, while 8 remain `PARTIAL` for a missing frame, input
+response, serial-only device, fatal runtime evidence or an explicit model gap.
+
+Two samples are classified as `runtime_model_gap`:
+
+- NanoC6 Zigbee HA light blocks `Zigbee_main` and triggers the task watchdog;
+  the current C6 profile has no Zigbee radio/controller model.
+- Nesso N1 Meshtastic first enters the C6 ROM/application but a later
+  `LP_SW_HPSYS` reset reports chip id 12 instead of 13, exposing a QEMU C6
+  software-reset model defect.
+
+The evidence retains serial hashes and bounded error lines while keeping the
+model-vs-firmware boundary explicit. PARTIAL samples are not promoted to
+functional PASS.
 
 ## Boundaries
 
@@ -88,7 +113,7 @@ to the firmware.
   Two independent `5×10s` batches pass `10/10`, three `60s` holds pass
   `3/3`, two `120s` holds pass `2/2`, and two active-BLE `120s` holds pass
   `2/2`, with zero HLI errors and empty HLI/meta queues. Three independent
-  stock-firmware leases also complete two same-guest reconnect cycles. Bit-exact
-  Espressif BT controller behavior, physical cache/PSRAM equivalence, more than
-  two reconnect cycles, multi-hour coexistence/soak and hardware validation
-  remain `NOT RUN`.
+  stock-firmware leases also complete twenty same-guest reconnect cycles.
+  Bit-exact Espressif BT controller behavior, physical cache/PSRAM equivalence,
+  more than twenty reconnect cycles, multi-hour coexistence/soak and hardware
+  validation remain `NOT RUN`.

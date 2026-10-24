@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 from user_firmware_matrix import (  # noqa: E402
     baseline_name,
     classify_result,
+    detect_runtime_model_gaps,
     error_lines,
     inputs_for_device,
 )
@@ -148,6 +149,46 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(status, "PASS")
         self.assertEqual(reason, "application_frame_and_runtime_ok")
         self.assertEqual(gaps, [])
+
+    def test_detect_runtime_model_gaps_keeps_zigbee_watchdog_out_of_firmware_fail(self):
+        gaps = detect_runtime_model_gaps(
+            "app_main()\n"
+            "E (2599) task_wdt: Task watchdog got triggered.\n"
+            "E (2599) task_wdt: CPU 0: Zigbee_main\n"
+        )
+
+        self.assertEqual(
+            [gap["code"] for gap in gaps],
+            ["zigbee_runtime_not_modeled"],
+        )
+        status, reason, unmet = classify_result(
+            has_screenshot=False,
+            nonblack=0,
+            running=True,
+            crash=True,
+            serial_bytes=1024,
+            boot_error=None,
+            input_observed=True,
+            runtime_model_gaps=gaps,
+        )
+        self.assertEqual(status, "PARTIAL")
+        self.assertEqual(reason, "runtime_model_gap")
+        self.assertIn("zigbee_runtime_not_modeled", unmet[0])
+
+    def test_detect_runtime_model_gap_requires_c6_software_reset_context(self):
+        generic = detect_runtime_model_gaps(
+            "Invalid chip id. Expected 13 read 12. Bootloader for wrong chip?"
+        )
+        software_reset = detect_runtime_model_gaps(
+            "Invalid chip id. Expected 13 read 12. Bootloader for wrong chip?\n"
+            "rst:0x3 (LP_SW_HPSYS),boot:0x8"
+        )
+
+        self.assertEqual(generic, [])
+        self.assertEqual(
+            [gap["code"] for gap in software_reset],
+            ["c6_chip_id_lost_after_software_reset"],
+        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,941 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-cross-vendor-public-firmware-runtime-matrix",
+  "date": "2026-10-24",
+  "status": "PARTIAL",
+  "validation": "virtual-device validation",
+  "source_commit": "36e28d76b3c293975878d1980dbd5349d1a9efe4",
+  "code_state": "working-tree-including-runtime_model_gap-classifier",
+  "selection": {
+    "source": "public M5Burner firmware repository",
+    "sort": "MOST_DOWNLOADED",
+    "baseline_excluded": "UIFlow2 when compatible alternatives exist",
+    "devices": 6,
+    "samples": 18,
+    "official": 8,
+    "community": 10
+  },
+  "summary": {
+    "status_counts": [
+      {
+        "status": "PARTIAL",
+        "count": 8
+      },
+      {
+        "status": "PASS",
+        "count": 10
+      }
+    ],
+    "reason_counts": [
+      {
+        "reason": "application_frame_and_runtime_ok",
+        "count": 10
+      },
+      {
+        "reason": "application_frame_not_ready",
+        "count": 2
+      },
+      {
+        "reason": "fatal_after_application_frame",
+        "count": 1
+      },
+      {
+        "reason": "no_observable_input_response",
+        "count": 1
+      },
+      {
+        "reason": "runtime_model_gap",
+        "count": 2
+      },
+      {
+        "reason": "serial_only_device",
+        "count": 2
+      }
+    ],
+    "static_analysis_valid": true,
+    "input_observable": 13,
+    "runtime_model_gaps": 2
+  },
+  "devices": [
+    {
+      "device_id": "cardputer-adv",
+      "soc": "ESP32-S3FN8",
+      "samples": 3,
+      "status_counts": [
+        {
+          "status": "PARTIAL",
+          "count": 1
+        },
+        {
+          "status": "PASS",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "device_id": "cores3",
+      "soc": "ESP32-S3",
+      "samples": 3,
+      "status_counts": [
+        {
+          "status": "PARTIAL",
+          "count": 1
+        },
+        {
+          "status": "PASS",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "device_id": "nanoc6",
+      "soc": "ESP32-C6FH4",
+      "samples": 3,
+      "status_counts": [
+        {
+          "status": "PARTIAL",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "device_id": "nesso-n1",
+      "soc": "ESP32-C6",
+      "samples": 3,
+      "status_counts": [
+        {
+          "status": "PARTIAL",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "device_id": "sticks3",
+      "soc": "ESP32-S3-PICO-1-N8R8",
+      "samples": 3,
+      "status_counts": [
+        {
+          "status": "PASS",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "device_id": "stopwatch",
+      "soc": "ESP32-S3R8",
+      "samples": 3,
+      "status_counts": [
+        {
+          "status": "PASS",
+          "count": 3
+        }
+      ]
+    }
+  ],
+  "samples": [
+    {
+      "device_id": "cardputer-adv",
+      "burner_device_name": "Cardputer ADV",
+      "device_soc": "ESP32-S3FN8",
+      "firmware_id": "1897200000000003445",
+      "rank": 1,
+      "name": "WiFi CSI Radar ADV + m5 launcher",
+      "version": "2.0",
+      "source": "COMMUNITY",
+      "developer": "Zeloksa",
+      "downloads": 28161,
+      "bytes": 4194304,
+      "sha256": "86a37d207c7a9f093db62e1218afccbf87cadc80a37085938919081fc63cf431",
+      "status": "PARTIAL",
+      "status_reason": "no_observable_input_response",
+      "application_ready": true,
+      "serial_bytes": 481,
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": false,
+        "observed": false
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [
+        "input: no frame change or serial response after probes"
+      ],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "43a8f6d",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v5.5.4",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "app0",
+          "spiffs",
+          "coredump"
+        ]
+      }
+    },
+    {
+      "device_id": "cardputer-adv",
+      "burner_device_name": "Cardputer ADV",
+      "device_soc": "ESP32-S3FN8",
+      "firmware_id": "1897200000000001189",
+      "rank": 2,
+      "name": "Meshtastic For Cardputer-Adv",
+      "version": "v2.7.4",
+      "source": "COMMUNITY",
+      "developer": "ozbk",
+      "downloads": 19135,
+      "bytes": 2051680,
+      "sha256": "8b5788fb0cfe16fa16eecf5c29b7e97216eaa21c391ebe8f7fc74e56b5a22d6a",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 3386,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "esp-idf: v4.4.7 38eeba213a",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v4.4.7-dirty",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "app",
+          "flashApp",
+          "spiffs"
+        ]
+      }
+    },
+    {
+      "device_id": "cardputer-adv",
+      "burner_device_name": "Cardputer ADV",
+      "device_soc": "ESP32-S3FN8",
+      "firmware_id": "1897200000000002100",
+      "rank": 3,
+      "name": "Cardputer-Adv User Demo",
+      "version": "v0.3",
+      "source": "OFFICIAL",
+      "developer": "m5stack",
+      "downloads": 18758,
+      "bytes": 2690480,
+      "sha256": "7bb1532427c875445b16186b6139afa371f67ddbdc83ae5bfe4a9089c7883b74",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 251,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": false,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "ADV-V0.2-5-g452db44",
+        "project_name": "cardputer-adv",
+        "idf_version": "v5.4.2",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "phy_init",
+          "factory"
+        ]
+      }
+    },
+    {
+      "device_id": "cores3",
+      "burner_device_name": "CoreS3",
+      "device_soc": "ESP32-S3",
+      "firmware_id": "1897200000000003120",
+      "rank": 1,
+      "name": "CoreS3 UserDemo",
+      "version": "v0.15",
+      "source": "OFFICIAL",
+      "developer": "m5stack",
+      "downloads": 7884,
+      "bytes": 7154688,
+      "sha256": "220b7df231042cd53e4730c1957231bedc633227b9675fb77268789ec5a3f6cd",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 2457,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": false,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "esp-idf: v4.4.7 38eeba213a",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v4.4.7-dirty",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "factory"
+        ]
+      }
+    },
+    {
+      "device_id": "cores3",
+      "burner_device_name": "CoreS3",
+      "device_soc": "ESP32-S3",
+      "firmware_id": "1897200000000001077",
+      "rank": 2,
+      "name": "XiaoZhi Voice Assistant For CoreS3",
+      "version": "v2.2.2-NiHaoXiaoZhi",
+      "source": "OFFICIAL",
+      "developer": "m5stack",
+      "downloads": 2735,
+      "bytes": 9981049,
+      "sha256": "61ae6bf959644708539c6913c9ec34c7ea4231b6211583673e57be0c76a0e2f7",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 12494,
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": true,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "2.2.2",
+        "project_name": "xiaozhi",
+        "idf_version": "v5.5.2",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "phy_init",
+          "ota_0",
+          "ota_1",
+          "assets"
+        ]
+      }
+    },
+    {
+      "device_id": "cores3",
+      "burner_device_name": "CoreS3",
+      "device_soc": "ESP32-S3",
+      "firmware_id": "1897200000000002205",
+      "rank": 3,
+      "name": "M5Launcher for CoreS3 and CoreS3SE",
+      "version": "2.8.0",
+      "source": "COMMUNITY",
+      "developer": "bmorcelli",
+      "downloads": 1793,
+      "bytes": 1503472,
+      "sha256": "285b379543d376b3f39220c307e5dbb75a328879255d0f208a45e35d1ab0dfd3",
+      "status": "PARTIAL",
+      "status_reason": "application_frame_not_ready",
+      "application_ready": false,
+      "serial_bytes": 301,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": false,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [
+        "application_frame: no non-blank frame"
+      ],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "idf-master-104-g43a8f6d-dirty",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v5.5.4-dirty",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "phy_init",
+          "app0",
+          "coredump"
+        ]
+      }
+    },
+    {
+      "device_id": "nanoc6",
+      "burner_device_name": "NanoC6",
+      "device_soc": "ESP32-C6FH4",
+      "firmware_id": "1897200000000000174",
+      "rank": 1,
+      "name": "NanoC6 Factory Test",
+      "version": "v1.1",
+      "source": "OFFICIAL",
+      "developer": "m5stack",
+      "downloads": 740,
+      "bytes": 928432,
+      "sha256": "6ad2a3d3714b29ab9456f07d937e99065d2cb453afca2646d66325d6fc9c7178",
+      "status": "PARTIAL",
+      "status_reason": "serial_only_device",
+      "application_ready": true,
+      "serial_bytes": 4513,
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": false,
+        "observed": false
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [
+        "display: device profile has no display; frame validation is not applicable"
+      ],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32c6",
+        "app_version": "aa0ba2b-dirty",
+        "project_name": "nanoc6_factorytest",
+        "idf_version": "v5.2-166-ge0944287f3-dirty",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "phy_init",
+          "factory"
+        ]
+      }
+    },
+    {
+      "device_id": "nanoc6",
+      "burner_device_name": "NanoC6",
+      "device_soc": "ESP32-C6FH4",
+      "firmware_id": "1897200000000000021",
+      "rank": 2,
+      "name": "Evil-NanoC6",
+      "version": "v1.0",
+      "source": "COMMUNITY",
+      "developer": "7h30th3r0n3",
+      "downloads": 237,
+      "bytes": 4194304,
+      "sha256": "97dcb58378b67164eb397bd0904988932fa2210260a1ec67878e2e397f5b8618",
+      "status": "PARTIAL",
+      "status_reason": "serial_only_device",
+      "application_ready": true,
+      "serial_bytes": 374,
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": false,
+        "observed": false
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [
+        "display: device profile has no display; frame validation is not applicable"
+      ],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32c6",
+        "app_version": "bb76cb1",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v5.4.1-1-g2f7dcd862a-dirty",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "app0",
+          "app1",
+          "spiffs",
+          "coredump"
+        ]
+      }
+    },
+    {
+      "device_id": "nanoc6",
+      "burner_device_name": "NanoC6",
+      "device_soc": "ESP32-C6FH4",
+      "firmware_id": "1897200000000000271",
+      "rank": 3,
+      "name": "Zigbee HA On/Off light For NanoC6",
+      "version": "v1.0",
+      "source": "OFFICIAL",
+      "developer": "m5stack",
+      "downloads": 186,
+      "bytes": 568528,
+      "sha256": "a736daf26ca51983bf6a9bd30dd79c3148631291edf50acea1b8f29600183504",
+      "status": "PARTIAL",
+      "status_reason": "runtime_model_gap",
+      "application_ready": true,
+      "serial_bytes": 10685,
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": true,
+        "observed": true
+      },
+      "runtime_model_gaps": [
+        {
+          "code": "zigbee_runtime_not_modeled",
+          "detail": "Zigbee_main repeatedly blocked while the current C6 profile has no Zigbee radio/controller model"
+        }
+      ],
+      "unmet_requirements": [
+        "device_model: zigbee_runtime_not_modeled: Zigbee_main repeatedly blocked while the current C6 profile has no Zigbee radio/controller model"
+      ],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32c6",
+        "app_version": "c2d1836-dirty",
+        "project_name": "on_off_light_bulb",
+        "idf_version": "v5.5-dev-3372-g38628f98b9-dirty",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "phy_init",
+          "factory",
+          "zb_storage",
+          "zb_fct"
+        ]
+      }
+    },
+    {
+      "device_id": "nesso-n1",
+      "burner_device_name": "Arduino Nesso N1",
+      "device_soc": "ESP32-C6",
+      "firmware_id": "1897200000000000359",
+      "rank": 1,
+      "name": "Launcher",
+      "version": "2.6.6 Release",
+      "source": "COMMUNITY",
+      "developer": "GameCat7428",
+      "downloads": 265,
+      "bytes": 1657184,
+      "sha256": "53a01cdde00de8763767d6eefb48965a5d95326b4e88df0f26ad08fe1c00816d",
+      "status": "PARTIAL",
+      "status_reason": "fatal_after_application_frame",
+      "application_ready": true,
+      "serial_bytes": 5001,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [
+        "runtime: fatal serial signature after frame capture"
+      ],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32c6",
+        "app_version": "d92a200",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v5.4-dev-8591-g95db1a98d9",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "phy_init",
+          "app0",
+          "app1",
+          "sys",
+          "vfs",
+          "spiffs",
+          "coredump"
+        ]
+      }
+    },
+    {
+      "device_id": "nesso-n1",
+      "burner_device_name": "Arduino Nesso N1",
+      "device_soc": "ESP32-C6",
+      "firmware_id": "1897200000000001757",
+      "rank": 2,
+      "name": "Meshtastic unofficial",
+      "version": "2.7.20.79f469c landscape",
+      "source": "COMMUNITY",
+      "developer": "onimahoni",
+      "downloads": 246,
+      "bytes": 16777216,
+      "sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+      "status": "PARTIAL",
+      "status_reason": "runtime_model_gap",
+      "application_ready": true,
+      "serial_bytes": 15117,
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": false,
+        "observed": false
+      },
+      "runtime_model_gaps": [
+        {
+          "code": "c6_chip_id_lost_after_software_reset",
+          "detail": "the first boot entered the ESP32-C6 ROM, but a later LP_SW_HPSYS reset reported chip id 12 instead of 13"
+        }
+      ],
+      "unmet_requirements": [
+        "device_model: c6_chip_id_lost_after_software_reset: the first boot entered the ESP32-C6 ROM, but a later LP_SW_HPSYS reset reported chip id 12 instead of 13"
+      ],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32c6",
+        "app_version": "",
+        "project_name": "",
+        "idf_version": "5.1.4.240921",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "app",
+          "flashApp",
+          "spiffs"
+        ]
+      }
+    },
+    {
+      "device_id": "nesso-n1",
+      "burner_device_name": "Arduino Nesso N1",
+      "device_soc": "ESP32-C6",
+      "firmware_id": "1897200000000001876",
+      "rank": 3,
+      "name": "Bruce For Arduino Nesso N1",
+      "version": "1.15",
+      "source": "COMMUNITY",
+      "developer": "M5Hamster",
+      "downloads": 78,
+      "bytes": 3958704,
+      "sha256": "780a41bc61b330075ea2431437c87c1a35c81e3ed395be9777ed6f9bc5b62d95",
+      "status": "PARTIAL",
+      "status_reason": "application_frame_not_ready",
+      "application_ready": false,
+      "serial_bytes": 231,
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": false,
+        "observed": false
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [
+        "application_frame: no non-blank frame"
+      ],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32c6",
+        "app_version": "d9359ba",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v5.4-dev-9431-g30aaf64524",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "app0",
+          "spiffs",
+          "coredump"
+        ]
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "burner_device_name": "StickS3",
+      "device_soc": "ESP32-S3-PICO-1-N8R8",
+      "firmware_id": "1897200000000002734",
+      "rank": 1,
+      "name": "Bruce 1.15-m5stack-sticks3",
+      "version": "1.15",
+      "source": "COMMUNITY",
+      "developer": "Apead",
+      "downloads": 7183,
+      "bytes": 4207120,
+      "sha256": "410b79846d089b58756f0e6a4f2379ade6c5d1d6c95eb0f47ba6a23997219ffa",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 1427,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": false,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "d9359ba",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v5.4-dev-9431-g30aaf64524",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "app0",
+          "spiffs",
+          "coredump"
+        ]
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "burner_device_name": "StickS3",
+      "device_soc": "ESP32-S3-PICO-1-N8R8",
+      "firmware_id": "1897200000000001480",
+      "rank": 2,
+      "name": "StickS3 小智语音助手",
+      "version": "v2.2.6",
+      "source": "OFFICIAL",
+      "developer": "m5stack",
+      "downloads": 3382,
+      "bytes": 7477968,
+      "sha256": "118b2afbea04832ee323e4e6edf9ea6b64bbdf9ba3ab7535660f09447ab32dba",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 11015,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "2.2.6",
+        "project_name": "xiaozhi",
+        "idf_version": "v5.5.2",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "phy_init",
+          "ota_0",
+          "ota_1",
+          "assets"
+        ]
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "burner_device_name": "StickS3",
+      "device_soc": "ESP32-S3-PICO-1-N8R8",
+      "firmware_id": "1897200000000002608",
+      "rank": 3,
+      "name": "M5Launcher M5StickS3",
+      "version": "2.8.0",
+      "source": "COMMUNITY",
+      "developer": "bmorcelli",
+      "downloads": 2686,
+      "bytes": 1497808,
+      "sha256": "f1ed15f3cb29dbe9274f6f09c8c7772514dcda800b3fe1d067b2e2cd2ec468d2",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 301,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": false,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "idf-master-104-g43a8f6d-dirty",
+        "project_name": "arduino-lib-builder",
+        "idf_version": "v5.5.4-dirty",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "phy_init",
+          "app0",
+          "coredump"
+        ]
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "burner_device_name": "StopWatch",
+      "device_soc": "ESP32-S3R8",
+      "firmware_id": "1897200000000000047",
+      "rank": 1,
+      "name": "StopWatch User Demo",
+      "version": "v0.5",
+      "source": "OFFICIAL",
+      "developer": "m5stack",
+      "downloads": 272,
+      "bytes": 3854192,
+      "sha256": "6395799089341e0ae96072c2a3418d469d6797b2ab8ee0cab1c9ed24a42acbbe",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 10139,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "cf51acc",
+        "project_name": "StopWatch-UserDemo",
+        "idf_version": "v5.5.4",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "phy_init",
+          "ota_0",
+          "ota_1",
+          "storage",
+          "coredump"
+        ]
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "burner_device_name": "StopWatch",
+      "device_soc": "ESP32-S3R8",
+      "firmware_id": "1897200000000000855",
+      "rank": 2,
+      "name": "StopWatch小智语音助手",
+      "version": "v2.2.6",
+      "source": "OFFICIAL",
+      "developer": "m5stack",
+      "downloads": 161,
+      "bytes": 11240285,
+      "sha256": "6ed1ed429c275504c1cc32a1535f8f961b16509e87b231fd1dfd15fcff1fc21a",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 15151,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "2.2.6",
+        "project_name": "xiaozhi",
+        "idf_version": "v5.5.2",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "otadata",
+          "phy_init",
+          "ota_0",
+          "ota_1",
+          "assets"
+        ]
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "burner_device_name": "StopWatch",
+      "device_soc": "ESP32-S3R8",
+      "firmware_id": "1897200000000001385",
+      "rank": 3,
+      "name": "BadgeOS",
+      "version": "v0.4.0",
+      "source": "COMMUNITY",
+      "developer": "zhuzhe",
+      "downloads": 67,
+      "bytes": 6080784,
+      "sha256": "a63649a5049a76225884b66549645d51fb7d529520d7040e0915e9df912fe625",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 251,
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": false,
+        "observed": true
+      },
+      "runtime_model_gaps": [],
+      "unmet_requirements": [],
+      "static_analysis": {
+        "valid": true,
+        "chip": "esp32s3",
+        "app_version": "1f15259-dirty",
+        "project_name": "BadgeStudio",
+        "idf_version": "9c4bbcda",
+        "secure_version": 0,
+        "partition_labels": [
+          "nvs",
+          "phy_init",
+          "factory",
+          "storage",
+          "coredump"
+        ]
+      }
+    }
+  ],
+  "revalidation": {
+    "scope": "nanoc6-and-nesso-n1-model-gap-classification",
+    "samples": 6,
+    "status_counts": [
+      {
+        "status": "PARTIAL",
+        "count": 6
+      }
+    ],
+    "runtime_model_gaps": [
+      {
+        "device_id": "nanoc6",
+        "firmware_id": "1897200000000000271",
+        "name": "Zigbee HA On/Off light For NanoC6",
+        "status": "PARTIAL",
+        "status_reason": "runtime_model_gap",
+        "runtime_model_gaps": [
+          {
+            "code": "zigbee_runtime_not_modeled",
+            "detail": "Zigbee_main repeatedly blocked while the current C6 profile has no Zigbee radio/controller model"
+          }
+        ]
+      },
+      {
+        "device_id": "nesso-n1",
+        "firmware_id": "1897200000000001757",
+        "name": "Meshtastic unofficial",
+        "status": "PARTIAL",
+        "status_reason": "runtime_model_gap",
+        "runtime_model_gaps": [
+          {
+            "code": "c6_chip_id_lost_after_software_reset",
+            "detail": "the first boot entered the ESP32-C6 ROM, but a later LP_SW_HPSYS reset reported chip id 12 instead of 13"
+          }
+        ]
+      }
+    ]
+  },
+  "checks": {
+    "public_catalog_selection": "PASS",
+    "static_image_and_partition_analysis": "PASS",
+    "device_service_boot_and_frame_capture": "PASS",
+    "input_injection_records_request_and_frame_or_serial_response": "PASS",
+    "model_gap_classification": "PASS",
+    "all_samples_application_pass": "NOT ACHIEVED",
+    "full_device_fleet_coverage": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  },
+  "not_claimed": [
+    "physical hardware, electrical or RF behavior",
+    "that PARTIAL or runtime_model_gap means the firmware itself is defective",
+    "that PASS extends beyond the recorded sample SHA and device profile",
+    "full coverage of every M5Stack device or firmware family",
+    "secure boot or flash-encryption runtime state",
+    "license approval or legal review"
+  ]
+}

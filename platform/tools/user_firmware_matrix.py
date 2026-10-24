@@ -533,6 +533,40 @@ def inputs_for_device(device: Mapping[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
+def detect_runtime_model_gaps(serial: str) -> list[dict[str, str]]:
+    """Identify stable runtime signatures caused by unmodeled device features."""
+
+    gaps: list[dict[str, str]] = []
+    if "Zigbee_main" in serial and re.search(
+        r"task_wdt: Task watchdog got triggered",
+        serial,
+        re.IGNORECASE,
+    ):
+        gaps.append(
+            {
+                "code": "zigbee_runtime_not_modeled",
+                "detail": (
+                    "Zigbee_main repeatedly blocked while the current C6 "
+                    "profile has no Zigbee radio/controller model"
+                ),
+            }
+        )
+    if "LP_SW_HPSYS" in serial and re.search(
+        r"Invalid chip id\. Expected 13 read 12",
+        serial,
+    ):
+        gaps.append(
+            {
+                "code": "c6_chip_id_lost_after_software_reset",
+                "detail": (
+                    "the first boot entered the ESP32-C6 ROM, but a later "
+                    "LP_SW_HPSYS reset reported chip id 12 instead of 13"
+                ),
+            }
+        )
+    return gaps
+
+
 def classify_result(
     *,
     has_screenshot: bool,
@@ -542,6 +576,7 @@ def classify_result(
     serial_bytes: int,
     boot_error: str | None,
     input_observed: bool,
+    runtime_model_gaps: list[dict[str, str]] | None = None,
 ) -> tuple[str, str, list[str]]:
     """Classify runtime evidence without conflating firmware and model gaps."""
 
@@ -550,6 +585,15 @@ def classify_result(
             "PARTIAL",
             "device_service_startup_failed",
             [f"runtime_startup: {boot_error}"],
+        )
+    if runtime_model_gaps:
+        return (
+            "PARTIAL",
+            "runtime_model_gap",
+            [
+                f"device_model: {gap['code']}: {gap['detail']}"
+                for gap in runtime_model_gaps
+            ],
         )
     if has_screenshot:
         if nonblack < 16:
@@ -803,6 +847,8 @@ def execute_sample(
         result["serial_bytes"] = len(serial.encode("utf-8", errors="replace"))
         result["serial_sha256"] = hashlib.sha256(serial.encode("utf-8")).hexdigest()
         result["errors"] = error_lines(serial + "\n" + stderr)
+        runtime_model_gaps = detect_runtime_model_gaps(serial + "\n" + stderr)
+        result["runtime_model_gaps"] = runtime_model_gaps
         log_path = out_dir / f"{sample['device_id']}-{sample['firmware_id']}-serial.log"
         log_path.write_text(serial, encoding="utf-8", errors="replace")
         result["serial_log"] = str(log_path)
@@ -840,6 +886,7 @@ def execute_sample(
             serial_bytes=int(result["serial_bytes"]),
             boot_error=boot_error,
             input_observed=input_observed,
+            runtime_model_gaps=runtime_model_gaps,
         )
         result["status"] = status
         result["status_reason"] = status_reason
