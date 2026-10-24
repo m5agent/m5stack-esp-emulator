@@ -387,18 +387,22 @@ class WorkerAgent:
             "generation": self.generation,
         }
 
+    def _check_runtime_health(self) -> None:
+        if self.runtime_api is self.api:
+            return
+        try:
+            health = self.runtime_api.json("/api/health", timeout=10)
+        except Exception as error:
+            raise WorkerAgentError(
+                f"worker runtime health failed: {error}"
+            ) from error
+        if not isinstance(health, dict) or health.get("ok") is not True:
+            raise WorkerAgentError(
+                "worker runtime health did not return ok=true"
+            )
+
     def register(self) -> dict[str, Any]:
-        if self.runtime_api is not self.api:
-            try:
-                health = self.runtime_api.json("/api/health", timeout=10)
-            except Exception as error:
-                raise WorkerAgentError(
-                    f"worker runtime health failed: {error}"
-                ) from error
-            if not isinstance(health, dict) or health.get("ok") is not True:
-                raise WorkerAgentError(
-                    "worker runtime health did not return ok=true"
-                )
+        self._check_runtime_health()
         response = self.api.json(
             "/api/v1/workers",
             method="POST",
@@ -628,6 +632,7 @@ class WorkerAgent:
         }
 
     def work_once(self) -> bool:
+        self._check_runtime_health()
         if not self.registered:
             self.register()
         self.heartbeat_worker()

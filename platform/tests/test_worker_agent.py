@@ -293,6 +293,18 @@ class WorkerAgentTests(unittest.TestCase):
             unhealthy_agent.register()
         self.assertEqual(control_without_capacity.calls, [])
 
+        control_calls_before_recheck = len(control_api.calls)
+        runtime_api.health_ok = False
+        with self.assertRaisesRegex(
+            WorkerAgentError,
+            "runtime health did not return ok=true",
+        ):
+            agent.work_once()
+        self.assertEqual(
+            len(control_api.calls),
+            control_calls_before_recheck,
+        )
+
     def test_session_failure_is_reported_and_cleaned_up(self):
         api = FakeApi(session_states=["failed"])
         agent = self.agent(api)

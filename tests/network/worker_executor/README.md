@@ -22,7 +22,9 @@ and heartbeats centrally through `--service-url`, then creates, waits for,
 collects evidence from and stops the session through
 `--runtime-service-url`. When the runtime URL is omitted, both planes use the
 same service for same-host compatibility. A distinct runtime endpoint must
-return `/api/health` with `ok=true` before the worker registers or claims work.
+return `/api/health` with `ok=true` before each worker claim. A failed runtime
+health check prevents registration/claim and never turns into a queued-job
+failure on the central service.
 Use `--advertise-endpoint` when the central directory should store an
 externally reachable worker HTTP(S) endpoint; credentials, query strings and
 fragments are rejected by the directory contract.

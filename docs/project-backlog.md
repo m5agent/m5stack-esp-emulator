@@ -104,7 +104,7 @@
   claim/heartbeat/result，独立 runtime service 负责 session、evidence 和
   stop。单元契约已验证请求平面分离；Linux fixture 已加入 worker namespace
   内真实 QEMU/artifact/evidence 模式但尚未执行；runtime health 未通过时
-  worker 会在注册/claim 前失败，并可通过 `--advertise-endpoint` 登记
+  worker 会在每次 register/claim 前失败，并可通过 `--advertise-endpoint` 登记
   外部可达执行端点；自动发现和端到端门禁仍是下一步；
 - 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
   `query-status=running` 验证后 re-attach；Tab5/network lane、paused QEMU、
