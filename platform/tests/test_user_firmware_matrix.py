@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 
 from user_firmware_matrix import (  # noqa: E402
     baseline_name,
+    classify_result,
     error_lines,
     input_for_device,
 )
@@ -65,6 +66,48 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(touch["kind"], "touch")
         self.assertEqual((touch["x"], touch["y"]), (160, 120))
         self.assertEqual(key, {"kind": "key", "key": "a", "settle_seconds": 0.8})
+
+    def test_classify_result_keeps_device_service_startup_separate(self):
+        status, reason, gaps = classify_result(
+            has_screenshot=True,
+            nonblack=512,
+            running=False,
+            crash=False,
+            serial_bytes=100,
+            boot_error="QMP socket did not appear",
+        )
+
+        self.assertEqual(status, "PARTIAL")
+        self.assertEqual(reason, "device_service_startup_failed")
+        self.assertIn("QMP socket did not appear", gaps[0])
+
+    def test_classify_result_marks_serial_only_device_partial(self):
+        status, reason, gaps = classify_result(
+            has_screenshot=False,
+            nonblack=0,
+            running=True,
+            crash=False,
+            serial_bytes=512,
+            boot_error=None,
+        )
+
+        self.assertEqual(status, "PARTIAL")
+        self.assertEqual(reason, "serial_only_device")
+        self.assertIn("no display", gaps[0])
+
+    def test_classify_result_reports_fatal_after_frame(self):
+        status, reason, gaps = classify_result(
+            has_screenshot=True,
+            nonblack=1024,
+            running=True,
+            crash=True,
+            serial_bytes=1024,
+            boot_error=None,
+        )
+
+        self.assertEqual(status, "PARTIAL")
+        self.assertEqual(reason, "fatal_after_application_frame")
+        self.assertIn("fatal serial signature", gaps[0])
 
 
 if __name__ == "__main__":

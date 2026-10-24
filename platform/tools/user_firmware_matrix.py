@@ -514,6 +514,70 @@ def input_for_device(device: Mapping[str, Any]) -> dict[str, Any]:
     return {"kind": "key", "key": "a", "settle_seconds": 0.8}
 
 
+def classify_result(
+    *,
+    has_screenshot: bool,
+    nonblack: int,
+    running: bool,
+    crash: bool,
+    serial_bytes: int,
+    boot_error: str | None,
+) -> tuple[str, str, list[str]]:
+    """Classify runtime evidence without conflating firmware and model gaps."""
+
+    if boot_error:
+        return (
+            "PARTIAL",
+            "device_service_startup_failed",
+            [f"runtime_startup: {boot_error}"],
+        )
+    if has_screenshot:
+        if nonblack < 16:
+            if crash or not running:
+                return (
+                    "FAIL",
+                    "fatal_before_application_frame",
+                    [
+                        "application_frame: no non-blank frame",
+                        "runtime:" + (" fatal serial signature" if crash else " not running"),
+                    ],
+                )
+            return (
+                "PARTIAL",
+                "application_frame_not_ready",
+                ["application_frame: no non-blank frame"],
+            )
+        if crash:
+            return (
+                "PARTIAL",
+                "fatal_after_application_frame",
+                ["runtime: fatal serial signature after frame capture"],
+            )
+        if not running:
+            return (
+                "PARTIAL",
+                "session_not_running_after_frame",
+                ["runtime: session did not remain running"],
+            )
+        return "PASS", "application_frame_and_runtime_ok", []
+    if serial_bytes <= 0:
+        return "FAIL", "serial_not_ready", ["serial: no boot or application output"]
+    if crash or not running:
+        return (
+            "FAIL",
+            "fatal_without_display",
+            [
+                "runtime:" + (" fatal serial signature" if crash else " not running"),
+                "display: device profile has no display",
+            ],
+        )
+    return (
+        "PARTIAL",
+        "serial_only_device",
+        ["display: device profile has no display; frame validation is not applicable"],
+    )
+
+
 def wait_until_running(
     client: ServiceClient,
     session_id: str,
@@ -700,21 +764,22 @@ def execute_sample(
         nonblack = int((frame_info or {}).get("nonblack_pixels") or 0)
         running = final_snapshot.get("state") == "running"
         crash = bool(result["errors"])
-        if has_screenshot:
-            if nonblack >= 16 and running and not crash:
-                result["status"] = "PASS"
-            elif nonblack >= 16:
-                result["status"] = "PARTIAL"
-            elif crash or not running:
-                result["status"] = "FAIL"
-            else:
-                result["status"] = "PARTIAL"
-        else:
-            result["status"] = (
-                "PARTIAL"
-                if result["serial_bytes"] > 0 and running and not crash
-                else "FAIL"
-            )
+        boot_error = (
+            str(snapshot["error"])
+            if snapshot.get("state") == "failed" and snapshot.get("error")
+            else None
+        )
+        status, status_reason, unmet_requirements = classify_result(
+            has_screenshot=has_screenshot,
+            nonblack=nonblack,
+            running=running,
+            crash=crash,
+            serial_bytes=int(result["serial_bytes"]),
+            boot_error=boot_error,
+        )
+        result["status"] = status
+        result["status_reason"] = status_reason
+        result["unmet_requirements"] = unmet_requirements
         result["application_ready"] = nonblack >= 16 or (
             not has_screenshot and result["serial_bytes"] > 0 and running
         )
