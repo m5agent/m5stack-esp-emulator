@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-egress-dual-stack-allowlist",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "linux-virtual-network-policy-not-firmware-or-hardware",
+  "validation": {
+    "source": "isolated privileged Linux container",
+    "repeat_runs": 2,
+    "passed_runs": 2,
+    "runtime": "python:3.12-slim",
+    "kernel_helpers": [
+      "iproute2",
+      "nftables"
+    ],
+    "ipv4_forwarding": true,
+    "ipv6_forwarding": true
+  },
+  "topology": {
+    "isolated_qemu_namespace": true,
+    "separate_worker_namespace": true,
+    "separate_upstream_namespace": true,
+    "worker_ipv4_default_route": true,
+    "worker_ipv6_default_route": true,
+    "inner_veth_nat": true,
+    "ipv6_neighbor_control": true
+  },
+  "checks": {
+    "ipv4_allowed_ip_port_connected": true,
+    "ipv4_denied_port_filtered": true,
+    "ipv4_denied_ip_filtered": true,
+    "ipv6_allowed_ip_port_connected": true,
+    "ipv6_denied_port_filtered": true,
+    "ipv6_denied_ip_filtered": true,
+    "allowed_servers_saw_one_request_each": true,
+    "denied_servers_saw_no_request": true,
+    "nftables_input_output_default_drop": true,
+    "ipv4_masquerade_observed_upstream": true,
+    "ipv6_masquerade_observed_upstream": true,
+    "inner_nat_table_cleaned": true,
+    "inner_namespace_cleaned": true,
+    "worker_namespace_cleaned": true,
+    "upstream_namespace_cleaned": true
+  },
+  "allowed_endpoints": [
+    {
+      "protocol": "tcp",
+      "address": "<fixture-upstream-ipv4>",
+      "port": "<redacted-ephemeral-port>"
+    },
+    {
+      "protocol": "tcp",
+      "address": "2001:db8:6d35::1",
+      "port": "<redacted-ephemeral-port>"
+    }
+  ],
+  "denied_cases": [
+    "different IPv4 port on the allowed address",
+    "allowed IPv4 port on another address",
+    "different IPv6 port on the allowed address",
+    "allowed IPv6 port on another address"
+  ],
+  "not_claimed": [
+    "firmware guest behavior",
+    "physical hardware or RF",
+    "general public internet availability",
+    "CIDR or domain-set policy",
+    "IPv6 DNS or AAAA policy",
+    "malware safety"
+  ]
+}

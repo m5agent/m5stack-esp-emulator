@@ -19,6 +19,8 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-4` stability | `PASS` | `run_service_5x.py`、`evidence-2026-10-24-hci4-service-5x.json` | 规范 profile `core2-native-hci` 通过五个独立 `/api/v1` lease；每轮同时验证 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP，且 `gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | `0005-esp32-native-hci-guest-call-sregs.patch`、hold 60/120s evidence、`evidence-2026-10-24-hci4-active-ble-hold600-2x.json` | caller-saved sregs 与 halted/idle gate 后，两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `600s` hold 已通过；600s hold 的 peer 全程连接，HLI `45/45` 且队列/错误为 0 |
 | `CORE2-02` 7200s diagnostic | `DIAGNOSTIC PASS` | `evidence-2026-10-24-hci4-active-ble-hold7200-diagnostic.json` | WiFi/公网/active BLE GATT/frame/pcap 保持 7200 秒，HLI `45/45` 且错误/队列/peer-close 为 0；QEMU 在 run 中被临时重编，旧 runner 未冻结启动哈希，因此不关闭 artifact-bound 门禁 |
+| `CORE2-02` artifact-bound 7200s | `RUNNING / NOT RUN as PASS` | hash-freeze + RSS runner；`run_service_5x.py --hold-seconds 7200` | 新 run 在首 lease 前绑定 firmware/ELF/QEMU 哈希；只有完整 evidence 写出且运行期无资产漂移、WiFi/公网/GATT/frame/pcap/HLI health 与清理全部通过后才可改为 `PASS` |
+| Core2 runtime memory | `PASS` | `evidence-2026-10-24-core2-native-hci-resolved-psram.json`；`qemu_runtime_memory()` | 区分 CLI `-m 0` 与 QOM-effective `4 MiB` / `has_psram=true`；manifest preflight 使用有效值，物理 8 MiB cache/PSRAM timing 仍为 `NOT RUN` |
 | `CORE2-02` same-guest reconnect | `PASS` | `run_service_5x.py --ble-reconnect-cycles 20`、`0006-esp32-native-hci-observability.patch`、`evidence-2026-10-24-hci4-reconnect10-3x.json`、`evidence-2026-10-24-hci4-reconnect20-3x.json` | 修正 Bumble 对无响应 `0x0c35` 的非法 Command Status 后，先完成 3 个 lease 各 10 轮，再扩到各 20 轮；二十轮结果每 lease HLI 577/577、events 397、ACLs 180 清空，连接/L2CAP/GATT 池回到 `3/9/3` |
 | `CORE2-02` 30-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 30 --attempts 3`、`evidence-2026-10-24-hci4-reconnect30-3x.json` | 3 个独立 lease 各 30 轮；每 lease HLI `857/857`、events 587、ACLs 270、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
 | `CORE2-02` 60-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 60 --attempts 3`、`evidence-2026-10-24-hci4-reconnect60-3x.json` | 3 个独立 lease 各 60 轮；每 lease HLI `1697/1697`、events `1157`、ACLs `540`、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
@@ -237,6 +239,11 @@ post-pass peer teardown 仍可能产生 H2C `EIO`，runner 将其记录在
 
 因此正式路径继续使用 guest HLI IRQ/queue，而不从 QEMU device callback
 同步调用 guest 内部函数。
+
+当前还有一条 artifact-bound `7200s` active-BLE run 在途。该 run 不是新的
+完成声明：必须以 runner 输出、启动资产哈希、RSS 序列、WiFi/公网/GATT、
+frame/pcap、HLI health 和停止后清理共同验收。运行期间不得替换 QEMU 或
+复用旧 evidence 关闭门禁。
 
 已证伪并回退的路线：
 

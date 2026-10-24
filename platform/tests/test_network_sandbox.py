@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import http.client
+import ipaddress
 import io
 import json
 import shutil
@@ -23,6 +24,61 @@ import network_sandbox  # noqa: E402
 
 
 class NetworkSandboxTests(unittest.TestCase):
+    def test_expected_ipv6_gateway_routes_are_not_external(self):
+        host_ipv6 = "fd6d:1234:5678:9abc::1"
+        guest_network = ipaddress.ip_network("fd6d:1234:5678:9abc::/126")
+        lines = [
+            (
+                "00000000000000000000000000000000 00 "
+                "00000000000000000000000000000000 00 "
+                f"{ipaddress.IPv6Address(host_ipv6).packed.hex()} "
+                "00000400 00000001 00000000 00000001 m5g-test"
+            ),
+            (
+                f"{guest_network.network_address.packed.hex()} 7e "
+                "00000000000000000000000000000000 00 "
+                "00000000000000000000000000000000 "
+                "00000100 00000001 00000000 00000001 m5g-test"
+            ),
+            (
+                f"{ipaddress.IPv6Address('fd6d:1234:5678:9abc::2').packed.hex()} "
+                "80 00000000000000000000000000000000 00 "
+                "00000000000000000000000000000000 "
+                "00000000 00000001 00000000 00000000 m5g-test"
+            ),
+            (
+                "fe800000000000000000000000000000 40 "
+                "00000000000000000000000000000000 00 "
+                "00000000000000000000000000000000 "
+                "00000100 00000001 00000000 00000001 m5g-test"
+            ),
+        ]
+        with (
+            mock.patch.object(
+                network_sandbox.Path,
+                "is_file",
+                return_value=True,
+            ),
+            mock.patch.object(
+                network_sandbox.Path,
+                "read_text",
+                side_effect=lambda *args, **kwargs: (
+                    "Iface Destination Gateway Flags RefCnt Use Metric Mask\n"
+                    if len(args) > 0 and kwargs.get("errors") is None
+                    else "\n".join(lines)
+                ),
+            ),
+        ):
+            self.assertFalse(
+                network_sandbox.route_table_has_external_route(
+                    expected_interface="m5g-test",
+                    expected_gateway="10.213.0.1",
+                    expected_network="10.213.0.0",
+                    expected_ipv6_gateway=host_ipv6,
+                    expected_ipv6_network=str(guest_network),
+                )
+            )
+
     def test_non_linux_refuses_to_run(self):
         with mock.patch.object(network_sandbox.sys, "platform", "darwin"):
             with self.assertRaisesRegex(

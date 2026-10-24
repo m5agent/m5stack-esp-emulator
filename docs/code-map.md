@@ -89,7 +89,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查、SBOM 摘要 | manifest |
 | `platform/tools/user_firmware_matrix.py` | 热门公开固件经 Device Service 的批量仿真 | 回归操作员 |
 | `platform/tools/network_policy.py` | isolation/egress/DNS/TLS/pcap 策略校验 | Device Service |
-| `platform/tools/network_egress.py` | 精确 IPv4 IP/协议/端口、veth/NAT 和清理 | Device Service、隔离测试 |
+| `platform/tools/network_egress.py` | 精确 IPv4/IPv6 地址/协议/端口、双栈 veth/route/NAT、IPv6 neighbor control 和清理 | Device Service、隔离测试 |
 | `platform/tools/network_fabric.py` | private namespace、双 TAP/bridge DHCP primitive 和双 guest QEMU socket L2 switch | lab-fabric runner、CI |
 | `platform/tools/network_sandbox.py` | Linux private net/mount namespace 与 controlled DNS | 隔离 runner、worker |
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
@@ -231,7 +231,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | 路径 | 职责 |
 | --- | --- |
 | `platform/tools/network_policy.py` | `isolation`、`egress`、controlled DNS 和 pcap 策略 |
-| `platform/tools/network_egress.py` | exact IPv4 IP/协议/端口、nftables、per-session veth/NAT 和清理 |
+| `platform/tools/network_egress.py` | exact IPv4/IPv6 地址/协议/端口、nftables、per-session 双栈 veth/NAT、IPv6 neighbor control 和清理 |
 | `platform/tools/network_fabric.py` | private namespace、双 guest QEMU socket switch、DHCP reservation、TAP/bridge primitive |
 | `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled DNS、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
 | `platform/tools/network_lane.py` | `esp-emu` 诊断/Provisioning 网络 lane |
@@ -246,7 +246,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
 | `tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 TAP/bridge primitive |
 | `tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain、resume、强杀清理和下一代 abandoned lease 分类 |
-| `tests/network/` | 隔离、错误密码、radio/AP 丢失重连和 Core2 网络夹具 |
+| `tests/network/` | 隔离、错误密码、exact dual-stack egress、radio/AP 丢失重连和 Core2 网络夹具 |
 
 QEMU 主路径必须在同一个 guest 内同时具备板级外设、网络和 HCI/BT 数据面。
 `runtime=network` 只用于诊断，不能和另一条 QEMU 板级结果拼成整机 PASS。
@@ -319,7 +319,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | DNS/UDP 数据面 | `network_lane.py`、`tests/network/idf_dns_udp/`；`evidence-2026-10-24-dns-udp-pass.json` | host-forwarder DNS、host 收到固定 UDP 载荷、guest 收到同载荷回包；不冒充 controlled DNS policy |
 | Core2 WiFi-only deterministic repeat | `tests/network/core2_openmac_wifi/run_test.py`；`evidence-2026-10-24-deterministic-5x.json` | runner 显式传入 `tcg,thread=single` + `icount`；scan/association/DHCP/HTTP 独立 `5/5`，不含 BLE/DNS/公网 |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
-| Exact IPv4 egress | `tests/network/egress_allowlist/` | nftables 默认 drop、允许/拒绝端口与 IP、`1.1.1.1:80` veth/NAT、namespace/NAT 清理 |
+| Exact dual-stack egress | `tests/network/egress_allowlist/` | nftables 默认 drop、IPv4/IPv6 允许/拒绝端口与地址、worker→upstream 双栈 veth/NAT、源地址转换、IPv6 neighbor control、namespace/NAT 清理 |
 | DHCP renewal | `tests/network/idf_dhcp_renewal/` | guest 调用 renew API；pcap 区分初次 DORA 与后续 REQUEST/ACK，lease/地址/HTTP 联合 PASS |
 | 双设备 lab fabric | `tests/network/lab_fabric/`、patches `0028` | private namespace 内两台 QEMU guest 完成 DORA、A→B TCP 和双侧 pcap；宿主、公网、metadata、默认路由不可达并按预期清理。QEMU 运行路径是 socket switch；TAP/bridge 是独立 primitive |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |

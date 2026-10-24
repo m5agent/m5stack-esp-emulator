@@ -171,8 +171,8 @@ class NetworkPolicy:
             ],
             "controlled_resolver": self.dns == "controlled",
             "claim": (
-                "Linux network namespace with no external route and "
-                "kernel-enforced exact IP/protocol/port egress"
+                "Linux network namespace with kernel-enforced exact "
+                "IPv4/IPv6 protocol/address/port egress"
                 if self.egress == "allowlist"
                 else "Linux network namespace with no external route"
                 if self.isolation == "namespace"
@@ -182,7 +182,6 @@ class NetworkPolicy:
                 "malware safety",
                 "RF behavior",
                 "TLS certificate correctness",
-                "external IPv6 egress",
                 "domain-to-unlisted-IP substitution",
             ],
         }

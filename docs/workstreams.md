@@ -12,16 +12,44 @@
 - 带日期的证据：[验证证据台账](validation-ledger.md)。
 - 代码和测试入口：[代码与验证入口地图](code-map.md)。
 
+## 当前交付与在途
+
+| 工作流 | 已交付的可执行面 | 当前在途 | 下一验收门禁 |
+| --- | --- | --- | --- |
+| 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；13 台可创建、Tab5 `partial` | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
+| 网络与取证 | namespace、pcap、双 guest fabric、controlled DNS/TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、worker queue/auth/TLS/reauth | `NET-04` 跨主机 executor、主机发现、companion/evidence continuity | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
+| Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；120 轮 reconnect 和 600 秒 active-BLE 已通过 | artifact-bound `7200s` active-BLE soak；超过 120 轮、coexistence、teardown | 本轮启动资产哈希无漂移，运行期 WiFi/公网/GATT/pcap/HLI health 与清理全部成立；随后补 controller/物理边界 |
+| 通用固件审查 | manifest、capability/security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传 | `FW-01/02/03`；`RUNTIME-02/03/04` | 运行态权限/许可闭环、更多固件族、模型缺口关闭和同 SHA 真机安全流程 |
+| Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/companion 接管、warm pool、容量和大型编排模块拆分 |
+
+“当前在途”只表示工作已经启动，不是 PASS。尤其 Core2 的 `7200s` run
+只有在 runner 写出完整 evidence，确认启动 firmware/ELF/QEMU 哈希未漂移、
+RSS 有界、WiFi/公网/GATT/frame/pcap/HLI health 正常且 session 干净结束后，
+才能把 artifact-bound 门禁改成通过。
+
+## 未完成项执行顺序
+
+1. 完成当前 Core2 artifact-bound soak 审计；失败则先修稳定性和证据链，
+   不启动新的长稳“覆盖”旧失败。
+2. `NET-04` / `SVC-01`：补跨主机 worker、跨主机 QEMU executor/reattach、
+   companion/evidence continuity 和不可信固件隔离。
+3. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
+   BM8563 RTC 路径；`RUNTIME-04` 独立补 ATECC608 fixture；
+   `RUNTIME-02` 补 C6 802.15.4 commissioning 或保持显式不支持。
+4. `FW-01/02/03`：补运行态 ACL/许可、真实安全配置流程和更多设备/固件族。
+5. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
+6. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
+
 ## 工作流
 
 | 工作流 | 稳定代码面 | 权威状态 | 未完成 Task |
 | --- | --- | --- | --- |
 | 设备、板级与统一运行时 | `devices/`、`platform/qemu/`、`patches/`、`tests/uiflow2/` | `project-status.md` 的设备矩阵和统一运行时章节 | 无独立 Task；新增设备必须走 onboarding |
 | Device Service 与生命周期 | `serve.py`、`device_service.py`、`storage_policy.py` | `device-service-api.md`、`project-status.md` | `SVC-01`、`SVC-02`、`SVC-03` |
-| 网络隔离、双 guest lab fabric 与 worker | `network_*.py`、`worker_*.py`、`transport_security.py`、`tests/network/` | `network-simulation-plan.md`、`device-service-api.md` | `NET-04`、`NET-05` |
+| 网络隔离、双 guest lab fabric 与 worker | `network_*.py`、`worker_*.py`、`transport_security.py`、`tests/network/` | `network-simulation-plan.md`、`device-service-api.md` | `NET-04` |
 | Core2 无线与长稳 | `core2_native_hci/`、`unified_core2/`、`ble_probe.py`、`ble_runtime_limits.py` | `core2-native-hci-backend.md`、`project-status.md` | `CORE2-02` |
 | 固件导入、静态审查与安全 | `firmware_*.py`、`fetch_firmware.py`、`user_firmware_matrix.py`、`platform/web/firmware.*` | `firmware-manifest.md`、`user-firmware-simulation-matrix.md` | `FW-01`、`FW-02`、`FW-03` |
-| 运行时模型缺口 | runtime coverage、QEMU patches、firmware evidence | `runtime-model-gap-register.md` | `RUNTIME-01`（已关闭）、`RUNTIME-02`、`RUNTIME-03`、`RUNTIME-04` |
+| 运行时模型缺口 | runtime coverage、QEMU patches、firmware evidence | `runtime-model-gap-register.md` | `RUNTIME-02`、`RUNTIME-03`、`RUNTIME-04`；`RUNTIME-01` 已关闭 |
 | 真机同路径验证 | Device Test Center 和硬件证据流程 | `project-status.md` 的 hardware 边界 | `HW-01` |
 | Tab5 P4 后端 | `platform/runtime/wasm/`、P4 patches、`tests/uiflow2/tab5_*` | `tab5-deferred-backlog.md` | `TAB5-01` |
 | 设备视觉保真 | `platform/web/device-shell*`、设备 renderer | `device-visual-fidelity-backlog.md` | `UI-01` |
@@ -56,6 +84,11 @@
 Worker 工作流把 generation、durable lease、credential rotation 和
 generation-pointer migration 视为同一状态机边界；旧 agent 不得覆盖新
 generation 的外部 side effect。
+
+`NET-05` 已从 Backlog 关闭：exact IPv4/IPv6 endpoint、双栈
+veth/route/NAT、IPv6 neighbor control 和清理已在 Linux virtual-network
+夹具连续通过。CIDR、domain-set、IPv6 DNS/AAAA 和恶意固件沙箱仍是不同
+能力，不计入 `NET-05` 的完成声明。
 
 ## 代码边界
 

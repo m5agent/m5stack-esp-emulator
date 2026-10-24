@@ -28,6 +28,7 @@ from network_egress import (
     install_egress_rules,
     parse_endpoints,
     requires_external_gateway,
+    requires_external_ipv6,
 )
 from network_egress import (
     capability as egress_capability,
@@ -126,6 +127,8 @@ def route_table_has_external_route(
     expected_interface: str | None = None,
     expected_gateway: str | None = None,
     expected_network: str | None = None,
+    expected_ipv6_gateway: str | None = None,
+    expected_ipv6_network: str | None = None,
 ) -> bool:
     path = Path("/proc/net/route")
     if not path.is_file():
@@ -168,22 +171,62 @@ def route_table_has_external_route(
         return True
     ipv6 = Path("/proc/net/ipv6_route")
     if ipv6.is_file():
+        ipv6_gateway_value = (
+            ipaddress.IPv6Address(expected_ipv6_gateway).packed.hex()
+            if expected_ipv6_gateway
+            else None
+        )
+        ipv6_network = (
+            ipaddress.ip_network(expected_ipv6_network, strict=False)
+            if expected_ipv6_network
+            else None
+        )
         for line in ipv6.read_text(errors="replace").splitlines():
             fields = line.split()
             if not fields or fields[-1] == "lo":
                 continue
+            destination = fields[0] if fields else ""
+            prefix_length = (
+                int(fields[1], 16)
+                if len(fields) > 1
+                else -1
+            )
+            gateway = fields[4] if len(fields) > 4 else ""
+            destination_network = None
+            if destination and prefix_length >= 0:
+                try:
+                    destination_network = ipaddress.IPv6Network(
+                        (
+                            str(ipaddress.IPv6Address(int(destination, 16))),
+                            prefix_length,
+                        ),
+                        strict=False,
+                    )
+                except ValueError:
+                    destination_network = None
             if (
                 expected_interface
                 and fields[-1] == expected_interface
-                and len(fields) > 1
                 and (
                     (
-                        fields[0].startswith("fe8")
-                        and fields[1] == "40"
+                        destination.startswith("fe8")
+                        and prefix_length == 64
                     )
                     or (
-                        fields[0].startswith("ff")
-                        and fields[1] == "08"
+                        destination.startswith("ff")
+                        and prefix_length == 8
+                    )
+                    or (
+                        destination == "0" * 32
+                        and prefix_length == 0
+                        and ipv6_gateway_value is not None
+                        and gateway == ipv6_gateway_value
+                    )
+                    or (
+                        ipv6_network is not None
+                        and destination_network is not None
+                        and destination_network.subnet_of(ipv6_network)
+                        and gateway == "0" * 32
                     )
                 )
             ):
@@ -630,10 +673,35 @@ def run(
             )
         except ValueError as error:
             raise SandboxError("sandbox gateway metadata is invalid") from error
+        expected_ipv6_gateway = None
+        expected_ipv6_network = None
+        if bool(gateway.get("ipv6_required")):
+            guest_ipv6_address = str(gateway.get("guest_ipv6_address", ""))
+            try:
+                expected_ipv6_network = str(
+                    ipaddress.ip_network(
+                        (
+                            f"{guest_ipv6_address}/"
+                            f"{gateway.get('ipv6_prefix_length', 126)}"
+                        ),
+                        strict=False,
+                    )
+                )
+                expected_ipv6_gateway = str(
+                    ipaddress.IPv6Address(
+                        str(gateway.get("host_ipv6_address", ""))
+                    )
+                )
+            except ValueError as error:
+                raise SandboxError(
+                    "sandbox IPv6 gateway metadata is invalid"
+                ) from error
         if route_table_has_external_route(
             expected_interface=str(gateway.get("guest_interface", "")),
             expected_gateway=str(gateway.get("host_address", "")),
             expected_network=network,
+            expected_ipv6_gateway=expected_ipv6_gateway,
+            expected_ipv6_network=expected_ipv6_network,
         ):
             raise SandboxError(
                 "gateway namespace has an unexpected external route"
@@ -810,10 +878,15 @@ def run_with_gateway(
     *,
     config_path: Path,
 ) -> int:
-    capability = egress_capability(require_gateway=True)
+    endpoints = _egress_endpoints(config)
+    ipv6_required = requires_external_ipv6(endpoints)
+    capability = egress_capability(
+        require_gateway=True,
+        require_ipv6=ipv6_required,
+    )
     if capability["status"] != "PASS":
         raise SandboxError("; ".join(capability["errors"]))
-    gateway = EgressGateway.allocate()
+    gateway = EgressGateway.allocate(ipv6_required=ipv6_required)
     process: subprocess.Popen | None = None
     previous: dict[int, Any] = {}
     terminating = False

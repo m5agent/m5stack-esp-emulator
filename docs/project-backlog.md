@@ -25,9 +25,8 @@
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
-| P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 保持 3 个独立 lease × 120 轮 PASS；在 active-BLE `600s` 与未绑定资产的两小时诊断保持基础上完成 artifact-bound `7200s` soak，并继续验证超过一百二十轮与 coexistence，最后评估 bit-exact controller、cache/PSRAM | 120 轮 GATT、active-BLE 600s 与 `7200s` 行为诊断已通过；artifact-bound 两小时门禁仍待补；reconnect 参数上限为 120；物理或权威模型证据 |
+| P1 | Core2 长稳与物理/controller 等价性 | 审计进行中的 artifact-bound `7200s` soak；继续保持 3 个独立 lease × 120 轮 PASS，并验证超过一百二十轮、coexistence、teardown 与 bit-exact controller/cache/PSRAM | 新 runner 已冻结 firmware/ELF/QEMU 输入哈希并采样 RSS；在 evidence 完成前仍是 `NOT RUN as PASS`；reconnect 参数上限为 120 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -38,16 +37,16 @@
    目录、lease supervisor、worker HMAC、SIGHUP TLS/token rotation、
    同主机 generation-pointer 批量迁移和本地 QEMU/QMP reattach 基础上补
    自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、
-   companion/evidence continuity 和多机调度；
-   `NET-05` 独立推进 IPv6。
+   companion/evidence continuity 和多机调度。
 2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后推进
    `RUNTIME-02` C6 Zigbee 决策，再扩 `FW-03` 跨厂商样本；
    `FW-02` 做生产 key/eFuse 与真机安全配置。
 3. `CORE2-02`：`5×10s`、`3×60s`、`2×120s` extended-run 和同 guest
    20、30、60、3 个独立 lease × 120 轮 reconnect 和 active-BLE `600s` 已通过；
-   `7200s` active-BLE 行为诊断为 `DIAGNOSTIC_PASS`，但 QEMU 在 run 中被重编，
-   下一项用已修复 hash-freeze/RSS runner 重跑 artifact-bound 两小时 soak，
-   再补超过一百二十轮和 WiFi/BLE coexistence。
+   `7200s` active-BLE 行为诊断为 `DIAGNOSTIC_PASS`，但 QEMU 在 run 中被重编。
+   修复后的 hash-freeze/RSS runner 已启动新的 artifact-bound 两小时 soak；
+   本轮 evidence 完成前不记 PASS，之后再补超过一百二十轮和 WiFi/BLE
+   coexistence。
    之后处理 controller/baseband 物理边界。
    `HW-01` 独立推进同路径真机证据。
 4. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
@@ -58,8 +57,7 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 自动主机发现/跨主机 worker 迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
-| `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 和一次未绑定资产的 `7200s` 行为诊断已通过；reconnect 上限为 `1–120`，hold 上限为 `7200s`。下一项重跑 artifact-bound 两小时 soak，再做超过一百二十轮、coexistence 和 teardown | 超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；artifact-bound `7200s` PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
+| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 和一次未绑定资产的 `7200s` 行为诊断已通过；新的 artifact-bound `7200s` soak 正在运行，reconnect 上限为 `1–120`，hold 上限为 `7200s`。完成后再做超过一百二十轮、coexistence 和 teardown | 当前 soak 的启动资产哈希无漂移、RSS/HLI/网络/GATT/frame/pcap 和清理全部 PASS；超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | 已有 7 台设备、21 个公开非基线样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
@@ -123,14 +121,6 @@
 - 本地 reattach 有 PID reuse、stale start-time、QMP 缺失、正常停止和残留清理
   证据；跨主机/companion reattach 仍待补。
 
-### NET-05 外部 IPv6
-
-当前缺口：exact IPv4 IP/protocol/port 已通过，外部 IPv6、IPv6 DNS、
-veth/route、NAT 和清理尚未实现；IPv6 请求必须继续拒绝，不能隐式放行。
-
-验收：允许与拒绝端点可重复；policy、guest 访问、pcap 和 cleanup 在同一次
-evidence 中成立。
-
 ## P1：Core2 物理与 controller 边界
 
 设计见 [Core2 native HCI backend](core2-native-hci-backend.md)。
@@ -151,7 +141,7 @@ guest-call 上下文问题并修复：
   halted/idle vCPU 注入 HLI allocator/callback；
 - 后续 `3×60s` hold 也 `3/3` PASS，2 个 `120s` hold 为 `2/2`，覆盖
   BLE peer 正常关闭后的尾态；
-- 第一轮 GATT、active-BLE 120 秒 hold 和同一 guest 二十轮重连均已通过。
+- 第一轮 GATT、active-BLE 120 秒 hold 和同一 guest 多轮重连均已通过。
   reconnect blocker 根因是外部 Bumble compatibility 层错误地为无响应的
   `HCI_Host_Number_of_Completed_Packets (0x0c35)` 返回 Command Status；
   下一命令消费 stale ACK 后触发 `BLE_HS_ECONTROLLER (12)` 与 reset。
@@ -267,7 +257,10 @@ Controller/device trace 已确认 AXP2101 chip id `0x4a` 可以读出。随后
 下一项最小交付：在 trace 中补 I2C port id、SCL/SDA pins、目标 QEMU bus
 和板级 slave bus；取得匹配 UIFlow1 源码/frozen bytecode 后确认 BM8563
 实际使用的 controller/address API；修 routing 而不是把同一设备复制到多条
-总线。若后续事务到达 AXP 设备，再修对应数据面；
+总线。公开 `M5Stack_MicroPython` 当前没有找到匹配旧 UIFlow1 类，frozen
+MPY 提取也尚未成功，因此下一步要在独立 QEMU 构建中先记录 port/pin/GPIO
+mux/bus handoff；当前 Core2 soak 期间不得替换正在使用的 QEMU。若后续事务
+到达 AXP 设备，再修对应数据面；
 `M5SW_CORE2_PMIC` 仍只允许通过受限 `runtime_env` 选择，不得用 host 假值
 伪造启动结果。
 

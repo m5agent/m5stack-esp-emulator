@@ -59,7 +59,7 @@
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [工作流总台账](workstreams.md) | 工作流导航 | `2026-10-24` | 只维护工作流归属、稳定代码入口和未完成 Task ID |
+| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-24` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-24` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task 和测试规模 |
 | [项目当前状态](project-status.md) | 当前结论 | `2026-10-24` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务、依赖和验收 |
@@ -70,7 +70,7 @@
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-24` | native-HCI 数据面、legacy GDB 对照、长稳门禁和物理边界 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | 导入、规范化、安全检查、文件系统、许可策略和 evidence 分层 |
 | [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件 |
-| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-24` | 网络模式、测试矩阵、安全边界和证据要求；动态结果看状态页 |
+| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-24` | 网络模式、exact dual-stack egress、测试矩阵、安全边界和证据要求；动态结果看状态页 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 外设数据面覆盖；最新计数和边界见项目当前状态 |

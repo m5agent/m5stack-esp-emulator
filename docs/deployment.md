@@ -60,10 +60,11 @@ curl -fsS http://127.0.0.1:8787/api/v1/devices
 
 网络隔离和 pcap 还需要目标机具备 QEMU `filter-dump`，Linux worker 还需要
 创建 private network namespace 的系统权限，以及 `iproute2`、`nftables`
-和 `CAP_NET_ADMIN`/`CAP_SYS_ADMIN`。外部 IPv4 allowlist 还要求
-`net.ipv4.ip_forward=1`；每个 session 会创建临时 veth 和 NAT table，并在
-停止/失败时清理。依赖或规则安装失败会 fail-closed，不能用宿主网络继续
-启动。模块和证据入口见
+和 `CAP_NET_ADMIN`/`CAP_SYS_ADMIN`。外部 IPv4 allowlist 要求
+`net.ipv4.ip_forward=1`，外部 IPv6 allowlist 还要求
+`net.ipv6.conf.all.forwarding=1`；每个 session 会创建临时 IPv4/IPv6
+veth 路由和 `inet` NAT table，并在停止/失败时清理。依赖或规则安装失败会
+fail-closed，不能用宿主网络继续启动。模块和证据入口见
 [代码与验证入口地图](code-map.md)。
 
 ### 方案 A：恢复匹配的运行时包

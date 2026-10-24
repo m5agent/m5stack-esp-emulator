@@ -438,21 +438,21 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
    durable queue/lease supervisor、HTTPS/mTLS、SIGHUP TLS/token
    rotation + activity drain + bounded overlap、同主机 authenticated
    executor、GitHub-hosted Linux
-   policy/egress CI 和双设备 lab fabric 已具备，外部 IPv6 egress 仍开放；
+   policy/egress CI 和双设备 lab fabric 已具备；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 关闭 C6 Zigbee/802.15.4 运行时模型缺口；软件复位 chip-id 已修复，
    修复后的独立应用异常继续单独分类；
 5. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 6. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
 
-网络部分已经具备 controlled DNS、TLS/Host allowlist、精确 IPv4
-IP/协议/端口 egress、pcap、DHCP renewal、虚拟 radio/AP 丢失恢复，以及
+网络部分已经具备 controlled DNS、TLS/Host allowlist、精确 IPv4/IPv6
+地址/协议/端口 egress、pcap、DHCP renewal、虚拟 radio/AP 丢失恢复，以及
 两台 QEMU guest 的 DHCP/TCP/双侧 pcap/宿主隔离、本地 worker
 heartbeat/drain/restart classification、远程 worker 注册目录和 durable
 job queue/lease supervisor。同主机独立 HTTP executor 已完成真实 QEMU
 job、evidence ZIP/SHA256 回报和 worker HMAC；仍未完成的是跨主机
-executor/reattach、companion/evidence continuity、生产多机调度和外部
-IPv6。固件文件系统 PASS
+executor/reattach、companion/evidence continuity、生产多机调度、CIDR/
+domain-set policy 和 IPv6 DNS/AAAA policy。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 
 ## 11. 结论

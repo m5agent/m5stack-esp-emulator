@@ -751,15 +751,16 @@ when advertised, and the assigned address. This distinguishes initial
 `isolation=namespace` is Linux-only. For `lab-only`, the service creates a
 private namespace with no external route and starts controlled HTTP/BLE peers
 inside it. For `allowlist`, nftables input/output chains default to `drop`;
-only exact IPv4 `protocol + address + port` endpoints, established/related
-flows, and required loopback control ports are accepted.
+only exact IPv4 or IPv6 `protocol + address + port` endpoints,
+established/related flows, IPv6 neighbor discovery, and required loopback
+control ports are accepted.
 
 `allowed_endpoints` accepts at most 64 exact endpoints. A guest-visible
 `10.0.2.2` endpoint is enforced against the SLiRP host-loopback socket; other
-IPv4 endpoints use a per-session veth and temporary worker-side NAT table.
-External IPv6 endpoints, CIDRs and domains are rejected rather than treated as
-implicitly allowed. Loopback allowances are derived internally from controlled
-DNS, HTTP/TLS fixtures and HCI/GDB control ports; callers cannot grant arbitrary
+IPv4 and IPv6 endpoints use a per-session veth and temporary worker-side NAT
+table. CIDRs and domains are rejected rather than treated as implicitly
+allowed. Loopback allowances are derived internally from controlled DNS,
+HTTP/TLS fixtures and HCI/GDB control ports; callers cannot grant arbitrary
 host-loopback services through `allowed_endpoints`.
 
 `egress=allowlist` requires at least one of `allowed_hosts` or
@@ -776,8 +777,9 @@ records and the HTTP gateway's `Host` decision, while `allowed_endpoints`
 controls the actual network destination.
 
 The Linux worker must provide root or equivalent `NET_ADMIN`/`SYS_ADMIN`
-capabilities, `nftables`, and for external IPv4 endpoints `iproute2` plus
-`net.ipv4.ip_forward=1`. Preflight failure returns
+capabilities, `nftables`, and `iproute2`. External IPv4 endpoints require
+`net.ipv4.ip_forward=1`; external IPv6 endpoints additionally require
+`net.ipv6.conf.all.forwarding=1`. Preflight failure returns
 `egress_policy_unavailable`; readiness/rule installation failure remains
 fail-closed. Every temporary namespace, veth pair and NAT table is removed when
 the session stops.

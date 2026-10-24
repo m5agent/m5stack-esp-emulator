@@ -2012,12 +2012,14 @@ components:
               type: array
               maxItems: 64
               description: >
-                Exact IPv4 protocol/address/port egress grants for
+                Exact IPv4 or IPv6 protocol/address/port egress grants for
                 egress=allowlist. 10.0.2.2 is mapped to the QEMU SLiRP host
                 loopback socket; other IPv4 destinations use a per-session
-                veth and temporary NAT table. External IPv6, CIDRs and domains
-                are rejected. Profiles with a controlled HTTP fixture add the
-                fixture endpoint automatically.
+                veth and temporary NAT table. External IPv6 destinations use
+                the same veth gateway with IPv6 routing, neighbor discovery
+                control and masquerade. CIDRs and domains are rejected.
+                Profiles with a controlled HTTP fixture add the fixture
+                endpoint automatically.
               items:
                 type: object
                 additionalProperties: false
@@ -2028,8 +2030,10 @@ components:
                     enum: [tcp, udp]
                   address:
                     type: string
-                    format: ipv4
-                    description: Exact IPv4 address.
+                    oneOf:
+                      - format: ipv4
+                      - format: ipv6
+                    description: Exact IPv4 or IPv6 address.
                   port:
                     type: integer
                     minimum: 1

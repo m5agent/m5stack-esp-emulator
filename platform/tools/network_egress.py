@@ -62,14 +62,14 @@ def parse_endpoint(value: object) -> EgressEndpoint:
         raise EgressError(
             "network.policy.allowed_endpoints.address must be an IP address"
         ) from error
+    if isinstance(address, ipaddress.IPv6Address):
+        mapped = address.ipv4_mapped
+        if mapped is not None:
+            address = mapped
     if address.is_unspecified or address.is_multicast:
         raise EgressError(
             "network.policy.allowed_endpoints.address cannot be unspecified "
             "or multicast"
-        )
-    if address.version == 6 and not address.is_loopback:
-        raise EgressError(
-            "external IPv6 egress endpoints are not supported"
         )
     if not isinstance(port, int) or isinstance(port, bool) or not 1 <= port <= 65535:
         raise EgressError(
@@ -111,6 +111,14 @@ def requires_external_gateway(endpoints: tuple[EgressEndpoint, ...]) -> bool:
     )
 
 
+def requires_external_ipv6(endpoints: tuple[EgressEndpoint, ...]) -> bool:
+    return any(
+        (address := translated_address(endpoint)).version == 6
+        and not address.is_loopback
+        for endpoint in endpoints
+    )
+
+
 def _port_set(ports: set[int]) -> str:
     return "{ " + ", ".join(str(port) for port in sorted(ports)) + " }"
 
@@ -142,6 +150,12 @@ def build_egress_ruleset(
     output_rules: list[str] = [
         "    ct state established,related accept",
     ]
+    ipv6_neighbor_control = (
+        "    icmpv6 type { nd-neighbor-solicit, "
+        "nd-neighbor-advert } accept"
+    )
+    input_rules.append(ipv6_neighbor_control)
+    output_rules.append(ipv6_neighbor_control)
     if loopback_tcp:
         ports = _port_set(loopback_tcp)
         input_rules.append(
@@ -220,34 +234,48 @@ def _run(command: list[str]) -> None:
         )
 
 
-def _default_interface() -> str:
+def _default_interface(family: int, *, required: bool = True) -> str:
     completed = subprocess.run(
-        [IP, "-4", "route", "show", "default"],
+        [IP, f"-{family}", "route", "show", "default"],
         text=True,
         capture_output=True,
         check=False,
     )
     if completed.returncode != 0:
-        raise EgressError("cannot inspect the worker default route")
+        if not required:
+            return ""
+        raise EgressError(
+            f"cannot inspect the worker IPv{family} default route"
+        )
     for line in completed.stdout.splitlines():
         fields = line.split()
         if "dev" in fields:
             index = fields.index("dev")
             if index + 1 < len(fields):
                 return fields[index + 1]
-    raise EgressError("external egress requires a worker default route")
+    if not required:
+        return ""
+    raise EgressError(
+        f"external egress requires a worker IPv{family} default route"
+    )
 
 
-def _require_ipv4_forwarding() -> None:
-    path = Path("/proc/sys/net/ipv4/ip_forward")
-    try:
-        enabled = path.read_text().strip()
-    except OSError as error:
-        raise EgressError(f"cannot inspect IPv4 forwarding: {error}") from error
-    if enabled != "1":
-        raise EgressError(
-            "external egress requires net.ipv4.ip_forward=1"
-        )
+def _require_forwarding(*, ipv6_required: bool) -> None:
+    paths = [Path("/proc/sys/net/ipv4/ip_forward")]
+    if ipv6_required:
+        paths.append(Path("/proc/sys/net/ipv6/conf/all/forwarding"))
+    for path in paths:
+        family = "IPv6" if "ipv6" in str(path) else "IPv4"
+        try:
+            enabled = path.read_text().strip()
+        except OSError as error:
+            raise EgressError(
+                f"cannot inspect {family} forwarding: {error}"
+            ) from error
+        if enabled != "1":
+            raise EgressError(
+                f"external egress requires {family} forwarding"
+            )
 
 
 @dataclass
@@ -259,16 +287,24 @@ class EgressGateway:
     guest_address: str
     prefix_length: int
     default_interface: str
+    default_ipv6_interface: str
     nat_table: str
+    ipv6_required: bool
+    host_ipv6_address: str
+    guest_ipv6_address: str
+    ipv6_prefix_length: int
     started: bool = False
 
     @classmethod
-    def allocate(cls) -> EgressGateway:
+    def allocate(cls, *, ipv6_required: bool = False) -> EgressGateway:
         token = secrets.token_hex(8)
         index = int(token[:8], 16) % 16384
         third = (index >> 6) & 0xFF
         fourth = (index & 0x3F) * 4
         suffix = token[:6]
+        ipv6_prefix = (
+            f"fd6d:{token[:4]}:{token[4:8]}:{token[8:12]}"
+        )
         return cls(
             namespace=f"m5eg-{suffix}",
             host_interface=f"m5h-{suffix}",
@@ -277,7 +313,12 @@ class EgressGateway:
             guest_address=f"10.213.{third}.{fourth + 2}",
             prefix_length=30,
             default_interface="",
+            default_ipv6_interface="",
             nat_table=f"m5nat_{suffix}",
+            ipv6_required=ipv6_required,
+            host_ipv6_address=f"{ipv6_prefix}::1",
+            guest_ipv6_address=f"{ipv6_prefix}::2",
+            ipv6_prefix_length=126,
         )
 
     def metadata(self) -> dict:
@@ -290,14 +331,24 @@ class EgressGateway:
             "guest_address": self.guest_address,
             "prefix_length": self.prefix_length,
             "default_interface": self.default_interface,
+            "default_ipv6_interface": self.default_ipv6_interface,
             "nat_table": self.nat_table,
+            "ipv6_required": self.ipv6_required,
+            "host_ipv6_address": self.host_ipv6_address,
+            "guest_ipv6_address": self.guest_ipv6_address,
+            "ipv6_prefix_length": self.ipv6_prefix_length,
         }
 
     def start(self) -> None:
         _require_binary(IP)
         _require_binary(NFT)
-        _require_ipv4_forwarding()
-        self.default_interface = _default_interface()
+        _require_forwarding(ipv6_required=self.ipv6_required)
+        self.default_interface = _default_interface(4)
+        if self.ipv6_required:
+            self.default_ipv6_interface = _default_interface(
+                6,
+                required=False,
+            )
         try:
             _run([IP, "netns", "add", self.namespace])
             _run(
@@ -323,6 +374,22 @@ class EgressGateway:
                     self.host_interface,
                 ]
             )
+            if self.ipv6_required:
+                _run(
+                    [
+                        IP,
+                        "-6",
+                        "addr",
+                        "add",
+                        (
+                            f"{self.host_ipv6_address}/"
+                            f"{self.ipv6_prefix_length}"
+                        ),
+                        "dev",
+                        self.host_interface,
+                        "nodad",
+                    ]
+                )
             _run([IP, "link", "set", self.host_interface, "up"])
             _run(
                 [
@@ -368,6 +435,24 @@ class EgressGateway:
                     self.guest_interface,
                 ]
             )
+            if self.ipv6_required:
+                _run(
+                    [
+                        IP,
+                        "-6",
+                        "-n",
+                        self.namespace,
+                        "addr",
+                        "add",
+                        (
+                            f"{self.guest_ipv6_address}/"
+                            f"{self.ipv6_prefix_length}"
+                        ),
+                        "dev",
+                        self.guest_interface,
+                        "nodad",
+                    ]
+                )
             _run(
                 [
                     IP,
@@ -380,15 +465,50 @@ class EgressGateway:
                     self.host_address,
                 ]
             )
-            nat_script = (
-                f"table ip {self.nat_table} {{\n"
-                "  chain postrouting {\n"
-                "    type nat hook postrouting priority srcnat; "
-                "policy accept;\n"
-                f'    ip saddr {self.guest_address} '
-                f'oifname "{self.default_interface}" masquerade\n'
-                "  }\n"
-                "}\n"
+            if self.ipv6_required:
+                _run(
+                    [
+                        IP,
+                        "-6",
+                        "-n",
+                        self.namespace,
+                        "route",
+                        "add",
+                        "default",
+                        "via",
+                        self.host_ipv6_address,
+                    ]
+                )
+            nat_rules = [
+                (
+                    f'    ip saddr {self.guest_address} '
+                    f'oifname "{self.default_interface}" masquerade'
+                )
+            ]
+            if (
+                self.ipv6_required
+                and self.default_ipv6_interface
+            ):
+                nat_rules.append(
+                    (
+                        f"    ip6 saddr {self.guest_ipv6_address} "
+                        f'oifname "{self.default_ipv6_interface}" '
+                        "masquerade"
+                    )
+                )
+            nat_script = "\n".join(
+                [
+                    f"table inet {self.nat_table} {{",
+                    "  chain postrouting {",
+                    (
+                        "    type nat hook postrouting priority srcnat; "
+                        "policy accept;"
+                    ),
+                    *nat_rules,
+                    "  }",
+                    "}",
+                    "",
+                ]
             )
             completed = subprocess.run(
                 [NFT, "-f", "-"],
@@ -411,7 +531,7 @@ class EgressGateway:
         if self.nat_table:
             try:
                 subprocess.run(
-                    [NFT, "delete", "table", "ip", self.nat_table],
+                    [NFT, "delete", "table", "inet", self.nat_table],
                     text=True,
                     capture_output=True,
                     check=False,
@@ -431,18 +551,28 @@ class EgressGateway:
         self.started = False
 
 
-def capability(*, require_gateway: bool = False) -> dict:
+def capability(
+    *,
+    require_gateway: bool = False,
+    require_ipv6: bool = False,
+) -> dict:
     checks = {
         "linux": sys.platform == "linux",
         "root": os.geteuid() == 0 if hasattr(os, "geteuid") else False,
         "nft": shutil.which(NFT) is not None,
     }
-    if require_gateway:
+    if require_gateway or require_ipv6:
         checks["ip"] = shutil.which(IP) is not None
+    if require_gateway:
         checks["ipv4_forwarding"] = False
         path = Path("/proc/sys/net/ipv4/ip_forward")
         if path.is_file():
             checks["ipv4_forwarding"] = path.read_text().strip() == "1"
+    if require_ipv6:
+        checks["ipv6_forwarding"] = False
+        path = Path("/proc/sys/net/ipv6/conf/all/forwarding")
+        if path.is_file():
+            checks["ipv6_forwarding"] = path.read_text().strip() == "1"
     errors = [
         f"missing egress capability: {name}"
         for name, value in checks.items()

@@ -143,6 +143,34 @@ class NetworkPolicyTests(unittest.TestCase):
             endpoint_only.allowed_endpoints,
             (EgressEndpoint("tcp", "1.1.1.1", 80),),
         )
+        dual_stack = NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "deny",
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "2001:db8:6d35::1",
+                        "port": 443,
+                    }
+                ],
+            }
+        )
+        self.assertEqual(
+            dual_stack.evidence()["allowed_endpoints"],
+            [
+                {
+                    "protocol": "tcp",
+                    "address": "2001:db8:6d35::1",
+                    "port": 443,
+                }
+            ],
+        )
+        self.assertNotIn(
+            "external IPv6 egress",
+            dual_stack.evidence()["not_claimed"],
+        )
         for value in (
             {
                 "isolation": "namespace",

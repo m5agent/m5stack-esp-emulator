@@ -115,6 +115,13 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 4. 若后续 trace 到达 AXP 设备，再判断是否仍需补 AXP192/AXP2101 寄存器语义；
 5. 同一固件 SHA 在 Device Service 中渲染非空应用帧并保持运行。
 
+当前调查边界：公开 `M5Stack_MicroPython` 尚未找到匹配该旧 UIFlow1 样本的
+类实现，frozen MPY 提取也尚未成功。已确认 AXP `0x34` probe 和 chip id
+`0x4a` 正常，下一个 `0x51` controller transaction 已无 ACK，而且失败发生
+在下一次 AXP `0x34` 访问之前；因此不能继续用 PMIC 寄存器补丁解释当前首个
+失败点。下一轮需要在不影响活动 soak 的独立 QEMU 构建中记录 port、GPIO mux
+和板级 bus handoff。
+
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 
 | 字段 | 当前值 |

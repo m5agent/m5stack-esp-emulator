@@ -31,7 +31,7 @@ Device Service lease
 | --- | --- | --- | --- |
 | User-mode lab | QEMU user net + 实例内 HTTP/BLE peer | scan、association、DHCP、DNS、TCP/UDP 和重连逻辑 | 宿主/公网隔离，真实 RF |
 | Controlled DNS/TLS | Linux network + mount namespace、测试 CA、Host allowlist | 允许/拒绝决策、证书路径和 pcap 一致 | 任意公网服务或证书固定 |
-| Exact IPv4 egress | nftables + per-session veth/NAT | 精确 IP、协议和端口的允许/拒绝及清理 | IPv6、CIDR、domain-set 或完整恶意固件沙箱 |
+| Exact dual-stack egress | nftables + per-session IPv4/IPv6 veth/NAT | 精确 IPv4/IPv6 地址、协议和端口的允许/拒绝及清理 | CIDR、domain-set、IPv6 DNS policy 或完整恶意固件沙箱 |
 | Firmware SoftAP | `runtime=network`、AP 密码和 loopback `hostfwd` | 固件自建 provisioning portal | 手机、captive portal OS 或真实 roaming |
 | Multi-device lab fabric | private namespace 内的 QEMU socket L2 switch | 两台 guest 的 DHCP、私有 TCP 和双侧 pcap | TAP primitive、RF、WPA2/WPA3 或生产 worker |
 | CardputerZero Ethernet | 独立 Linux ARM64 后端 | SR9900A/r8152 Ethernet frame 数据面 | WiFi 或 ESP32/UIFlow2 网络 |
@@ -49,7 +49,8 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   boundary；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；
 - controlled DNS、测试 CA、DNS/TLS allowlist、Host 决策和 pcap 摘要；
-- nftables exact IPv4 egress、veth/NAT、fail-closed 和清理；
+- nftables exact IPv4/IPv6 egress、双栈 veth/NAT、IPv6 neighbor
+  discovery control、fail-closed 和清理；
 - 错误密码、radio/AP 丢失、DHCP renewal 和同 guest 重连负向/恢复探针；
 - private namespace 内两台 QEMU guest 的 socket L2 fabric；
 - Device Service 的 pcap、network evidence 和 `network-fault` API；
@@ -60,7 +61,8 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 
 当前仍未完成的网络产品化和协议项只列在
 [项目 Backlog](project-backlog.md)，重点包括 `NET-04` 跨主机 worker/
-QEMU executor、companion/evidence continuity 和 `NET-05` 外部 IPv6。
+QEMU executor、companion/evidence continuity；`NET-05` 已完成代码与
+Linux 数据面验证，外部发布前仍需核对目标 commit 的 CI evidence。
 
 ## Required test matrix
 
@@ -109,7 +111,7 @@ QEMU executor、companion/evidence continuity 和 `NET-05` 外部 IPv6。
 ## Evidence entries
 
 - [Controlled DNS/TLS](../tests/network/tls_allowlist/README.md)
-- [Exact IPv4 egress](../tests/network/egress_allowlist/README.md)
+- [Exact dual-stack egress](../tests/network/egress_allowlist/README.md)
 - [DHCP renewal](../tests/network/idf_dhcp_renewal/README.md)
 - [Wrong password](../tests/network/wrong_password/README.md)
 - [Radio/AP reconnect](../tests/network/reconnect_probe/README.md)

@@ -61,8 +61,9 @@ Implemented:
   evidence;
 - a controlled namespace-local DNS resolver using a temporary private
   resolver configuration, with A/NXDOMAIN and query-log evidence;
-- nftables default-drop exact IPv4 IP/protocol/port egress with a
-  per-session veth/NAT path and verified cleanup;
+- nftables default-drop exact IPv4/IPv6 address/protocol/port egress with a
+  per-session dual-stack veth/NAT path, IPv6 neighbor control and verified
+  cleanup;
 - guest-issued DHCP renewal with DORA baseline, later REQUEST/ACK, retained
   address, HTTP continuity and pcap summaries;
 - a two-guest StickS3 lab fabric inside a private namespace, with reserved
@@ -75,7 +76,7 @@ Not implemented yet:
 - companion HTTP/BLE helper and evidence-stream continuity across restart;
 - automatic worker-host discovery, cross-host credential migration, cross-host
   QEMU execution/re-attach, and production multi-host capacity scheduling;
-- external IPv6/CIDR/domain-set allowlisting;
+- CIDR/domain-set allowlisting and IPv6 DNS/AAAA policy;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
@@ -340,8 +341,8 @@ the overall service is still trusted-local and not an untrusted-firmware
 sandbox.
 
 - container/VM isolation for untrusted firmware;
-- worker-enforced dual-stack policy beyond the delivered exact IPv4 path, and
-  object-backed pcap/evidence retention;
+- worker-enforced CIDR/domain-set policy beyond the delivered exact
+  dual-stack address path, and object-backed pcap/evidence retention;
 - worker health, eviction and teardown verification;
 - multi-host scheduling and artifact storage.
 
