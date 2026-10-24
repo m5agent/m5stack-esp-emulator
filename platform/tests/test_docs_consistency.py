@@ -560,6 +560,8 @@ class DocsConsistencyTests(unittest.TestCase):
     def test_public_firmware_identity_is_bound_to_refreshed_bytes(self) -> None:
         matrix = (DOCS / "user-firmware-simulation-matrix.md").read_text()
         manifest = (DOCS / "firmware-manifest.md").read_text()
+        api = (DOCS / "device-service-api.md").read_text()
+        openapi = (DOCS / "device-service.openapi.yaml").read_text()
         tool = (ROOT / "platform/tools/user_firmware_matrix.py").read_text()
         tool_tests = (
             ROOT / "platform/tests/test_user_firmware_matrix.py"
@@ -577,8 +579,12 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn("historical artifacts", matrix)
         self.assertIn("Current public-artifact refresh checkpoint", matrix)
-        self.assertIn("2 PASS / 2 PARTIAL / 0 FAIL", matrix)
+        self.assertIn("3 PASS / 1 PARTIAL / 0 FAIL", matrix)
+        self.assertIn("3 PASS / 1 PARTIAL / 0 FAIL", matrix)
         self.assertIn("runtime_fixture_gap", matrix)
+        self.assertIn("fat32-mbr", matrix)
+        self.assertIn("storage.sd_image_artifact_id", api)
+        self.assertIn("StorageExecution:", openapi)
         self.assertIn(
             "公开 CDN 的 URL 和版本元数据不构成不可变内容承诺",
             manifest,
@@ -648,6 +654,51 @@ class DocsConsistencyTests(unittest.TestCase):
                 ROOT
                 / "tests/firmware/"
                 "evidence-2026-10-25-refreshed-four-functional"
+                / sample["frame"]["path"]
+            )
+            self.assertTrue(screenshot.is_file(), str(screenshot))
+        refreshed_sd_functional = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-refreshed-four-functional-sd-mbr/"
+                "evidence.json"
+            ).read_text()
+        )
+        self.assertEqual(refreshed_sd_functional["status"], "PARTIAL")
+        self.assertEqual(
+            refreshed_sd_functional["summary"],
+            {"samples": 4, "pass": 3, "partial": 1, "fail": 0},
+        )
+        self.assertEqual(
+            refreshed_sd_functional["storage_fixture"]["filesystem"],
+            "FAT32",
+        )
+        self.assertEqual(
+            refreshed_sd_functional["storage_fixture"]["partition_layout"],
+            "MBR",
+        )
+        sd_by_firmware = {
+            sample["firmware_id"]: sample
+            for sample in refreshed_sd_functional["samples"]
+        }
+        self.assertEqual(
+            sd_by_firmware["2091144466157694978"]["status"],
+            "PASS",
+        )
+        self.assertEqual(
+            sd_by_firmware["2091144466157694978"]["frame"]["sha256"],
+            "076f70454f693443987c5153480fac825939b5cdcb6fa9be604c65fc75943d1e",
+        )
+        self.assertEqual(
+            sd_by_firmware["1897200000000000358"]["status_reason"],
+            "application_frame_not_ready",
+        )
+        for sample in refreshed_sd_functional["samples"]:
+            screenshot = (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-refreshed-four-functional-sd-mbr"
                 / sample["frame"]["path"]
             )
             self.assertTrue(screenshot.is_file(), str(screenshot))

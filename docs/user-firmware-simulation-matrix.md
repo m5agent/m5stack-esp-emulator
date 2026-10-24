@@ -54,6 +54,18 @@ python3 platform/tools/user_firmware_matrix.py \
 
 Use `--resume` with the same output directory to retry missing or intentionally
 removed sample results without changing the stored hot-firmware selection.
+Storage-dependent PaperMono tests can add a session-isolated SD fixture:
+
+```bash
+python3 platform/tools/sd_image.py \
+  --out /tmp/m5-sd.img --format fat32-mbr --size-mib 64
+
+python3 platform/tools/user_firmware_matrix.py \
+  --devices papermono --sd-image /tmp/m5-sd.img ...
+```
+
+The fixture SHA becomes part of the result key, so a firmware cannot reuse a
+PASS obtained without the required SD media.
 
 ## Status
 
@@ -104,7 +116,7 @@ The exact refreshed SHA-256 values and static checks are committed separately:
 [`refreshed-public-artifacts-static.json`](../tests/firmware/evidence-2026-10-25-refreshed-public-artifacts-static.json).
 That record remains the historical `STATIC_PASS / FUNCTIONAL_NOT_RUN`
 checkpoint. The later functional run is tracked independently in
-[`evidence-2026-10-25-refreshed-four-functional/evidence.json`](../tests/firmware/evidence-2026-10-25-refreshed-four-functional/evidence.json).
+[`evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json`](../tests/firmware/evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json).
 
 Full FirmwareManifest imports are also retained in
 [`refreshed-public-artifacts-manifest.json`](../tests/firmware/evidence-2026-10-25-refreshed-public-artifacts-manifest.json):
@@ -113,19 +125,27 @@ all four manifest validations are `PASS`, all four static reviews remain
 different from the downloaded source SHA; both hashes are recorded.
 
 Device Service execution of the refreshed bytes completed with
-`2 PASS / 2 PARTIAL / 0 FAIL`:
+`3 PASS / 1 PARTIAL / 0 FAIL`:
 
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
 | `XiaoZhi Voice Assistant For AtomS3R` | `74e714fcef825025c5df61cffeaefed3d5c01b97da4298b42be098740127dae4` | `PASS` | 128x128 Wi-Fi provisioning UI, frame and input response. Six nonfatal ES8311 audio writes failed; voice, audio, provisioning completion and cloud connectivity are `NOT RUN` |
 | `OpenAI Voice Assistant For AtomS3R` | `b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3` | `PARTIAL` | Stable black frame; NVS user data was absent and `app_main()` returned without provisioning/error UI. Trusted user-data fixture versus firmware precondition defect remains unresolved |
 | `阅读卡片 \| EDC Book` | `06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986` | `PASS` | 480x800 EDC Book launch/continue-reading screen with observable input change. External book-file ingestion and longer reader navigation remain `NOT RUN` |
-| `CrossPoint-PaperMono-CJK` | `e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935` | `PARTIAL` | Repeated SDMMC OCR failure (`0x107`) produced an SD card error page. Classified as `runtime_fixture_gap`, not firmware `FAIL`, because generic sessions attach no initialized SD image |
+| `CrossPoint-PaperMono-CJK` | `e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935` | `PASS` | With a deterministic 64 MiB FAT32+MBR SD fixture mounted as a session-isolated writable drive, the firmware reaches the recent-books main menu and responds to input. Book ingestion, EPUB rendering, Wi-Fi/OPDS and persistence remain `NOT RUN` |
 
-The run retains four Device Service sessions, final screenshots, serial
-digests, normalized artifact hashes and exact input/frame observations. The
-matrix now detects this SD fixture gap before its generic frame/input PASS
-rules can promote an error page.
+An earlier run without storage produced `2 PASS / 2 PARTIAL`: CrossPoint
+initialized the SD controller but could not mount a card and rendered
+`SD card error`, classified as `runtime_fixture_gap`, not firmware `FAIL`.
+That historical result remains in
+[`refreshed-four-functional/evidence.json`](../tests/firmware/evidence-2026-10-25-refreshed-four-functional/evidence.json).
+The final run supersedes only the storage axis; OpenAI Voice Assistant remains
+black because user data is absent from NVS.
+
+The final run retains four Device Service sessions, final screenshots, serial
+digests, normalized artifact hashes, session storage SHA and exact
+input/frame observations. The matrix now includes the storage fixture SHA in
+the result key and never mounts the source artifact directly.
 
 Two samples are classified as `runtime_model_gap`:
 

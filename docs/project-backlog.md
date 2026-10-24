@@ -38,9 +38,9 @@
    harness 失败 evidence 保留，最终 artifact-bound `7200s`
    extended-run host-memory 门禁也已 PASS。
 2. `FW-03`：当前 AtomS3R/PaperMono 四样本已完成强制刷新、Manifest 和
-   Device Service 执行，结果为 `2 PASS / 2 PARTIAL`；下一步补通用 SD
-   media fixture、厘清 OpenAI 首次启动所需 NVS 数据，再扩更多设备与
-   firmware family。
+   Device Service 执行；加入 session-isolated FAT32+MBR SD fixture 后为
+   `3 PASS / 1 PARTIAL`。下一步厘清 OpenAI 首次启动所需 NVS 数据，再扩
+   更多设备与 firmware family。
 3. `NET-04` / `SVC-01`：在现有 durable queue、HTTPS/mTLS、rotation/drain、
    同主机 generation-pointer migration 和本地 QEMU/QMP reattach 上补自动
    主机发现/跨主机迁移；先用 control/runtime 双端点跑真实 worker-local
@@ -58,7 +58,7 @@
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 进行中 | API/WebBurner capability、Manifest 和矩阵 SHA 绑定已完成；当前 AtomS3R/PaperMono 四样本绑定实际 SHA 后为 `2 PASS / 2 PARTIAL / 0 FAIL`。下一步为 PaperMono 提供 initialized SD media fixture，区分 OpenAI Voice Assistant 的 NVS 前置条件与固件缺陷，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储前置条件可重复注入 |
+| `FW-03` | 进行中 | API/WebBurner capability、Manifest、矩阵 SHA 与 SD fixture SHA 绑定已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。下一步区分 OpenAI Voice Assistant 的 NVS 首次启动前置条件与固件缺陷，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储前置条件可重复注入 |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |
