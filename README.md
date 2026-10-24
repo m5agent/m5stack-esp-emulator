@@ -28,6 +28,9 @@ MicroPython 和其他完整 Flash 固件。
 - Worker 在 job 已 claim 后对 central control-plane transient failure 做
   有界 heartbeat/result 重试；控制面同 state 重启后会重新注册并完成原
   lease/evidence，worker-local runtime QEMU session 保持运行。
+- Runtime Device Service 使用同一 state dir 重启时，worker 对已知 session
+  retry status/evidence/stop；新服务按 PID start-time、QMP ownership 和
+  running 状态重新接管同一 QEMU，再由原 job 提交 evidence。
 - 固件输入覆盖 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented
   flash、WebBurner/M5Burner 包、文件系统清单、静态审查和 capability
   mismatch。

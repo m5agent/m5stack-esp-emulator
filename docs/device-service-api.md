@@ -250,7 +250,15 @@ its unchanged identity/generation, retries heartbeat/result and keeps the
 worker-local runtime session/evidence path unchanged. Claim itself is not
 blindly retried because the job queue has no stable claim-request dedup token;
 a future claim-recovery protocol must add one. This does not restart or
-migrate the runtime service.
+restart the worker-local runtime.
+
+After a concrete runtime `session_id` exists, `WorkerAgent` also retries
+transient runtime status/evidence/stop requests for
+`--runtime-reconnect-timeout`. A runtime Device Service can restart on the same
+port/state directory and re-attach the surviving QEMU only after PID
+start-time, session QMP ownership and `query-status=running` all agree.
+Session creation itself is not blindly retried because it also lacks a stable
+create-request dedup token.
 The request is intended for non-secret job parameters; credentials, tokens
 and firmware payloads must remain in their dedicated stores.
 

@@ -176,6 +176,62 @@ class FakeRuntimeApi:
         raise AssertionError((method, path, payload))
 
 
+class TransientRuntimeApi(FakeRuntimeApi):
+    def __init__(self):
+        super().__init__()
+        self.session_failures = 2
+        self.evidence_failures = 2
+
+    def json(self, path, *, method="GET", payload=None, timeout=60):
+        if (
+            path == f"/api/v1/sessions/{'b' * 32}"
+            and self.session_failures
+        ):
+            self.session_failures -= 1
+            self.calls.append((method, path, payload))
+            raise WorkerAgentError(
+                "stub runtime restart",
+                transient=True,
+            )
+        return super().json(
+            path,
+            method=method,
+            payload=payload,
+            timeout=timeout,
+        )
+
+    def request(self, path, *, method="GET", payload=None, timeout=60):
+        if "/evidence?" in path and self.evidence_failures:
+            self.evidence_failures -= 1
+            self.calls.append((method, path, payload))
+            raise WorkerAgentError(
+                "stub runtime evidence unavailable",
+                transient=True,
+            )
+        return super().request(
+            path,
+            method=method,
+            payload=payload,
+            timeout=timeout,
+        )
+
+
+class TransientRuntimeCreateApi(FakeRuntimeApi):
+    def json(self, path, *, method="GET", payload=None, timeout=60):
+        if path == "/api/v1/sessions" and method == "POST":
+            self.calls.append((method, path, payload))
+            raise WorkerAgentError(
+                "stub create response lost",
+                transient=True,
+            )
+        return super().json(
+            path,
+            method=method,
+            payload=payload,
+            timeout=timeout,
+        )
+
+
 class WorkerAgentTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
@@ -192,6 +248,7 @@ class WorkerAgentTests(unittest.TestCase):
         endpoint=None,
         heartbeat_interval=15,
         control_reconnect_timeout=30,
+        runtime_reconnect_timeout=30,
     ):
         identity = initialize_identity(self.work_dir, "worker-test")
         return WorkerAgent(
@@ -203,6 +260,7 @@ class WorkerAgentTests(unittest.TestCase):
             capabilities={"qemu": True},
             heartbeat_interval=heartbeat_interval,
             control_reconnect_timeout=control_reconnect_timeout,
+            runtime_reconnect_timeout=runtime_reconnect_timeout,
         )
 
     def test_identity_generation_is_persistent_and_bounded(self):
@@ -387,6 +445,57 @@ class WorkerAgentTests(unittest.TestCase):
                 for call in unsafe_claim_api.calls
             ),
             1,
+        )
+
+    def test_known_runtime_session_retries_status_and_evidence(self):
+        control_api = FakeApi()
+        runtime_api = TransientRuntimeApi()
+        agent = self.agent(
+            control_api,
+            runtime_api=runtime_api,
+            runtime_reconnect_timeout=2,
+        )
+
+        self.assertTrue(agent.work_once())
+
+        session_path = f"/api/v1/sessions/{'b' * 32}"
+        self.assertEqual(
+            sum(call[1] == session_path for call in runtime_api.calls),
+            3,
+        )
+        self.assertEqual(
+            sum("/evidence?" in call[1] for call in runtime_api.calls),
+            3,
+        )
+        self.assertEqual(runtime_api.session_failures, 0)
+        self.assertEqual(runtime_api.evidence_failures, 0)
+        result = json.loads(
+            (self.work_dir / "job-test" / "result.json").read_text()
+        )
+        self.assertEqual(result["state"], "PASS")
+
+        create_api = TransientRuntimeCreateApi()
+        create_agent = self.agent(
+            FakeApi(),
+            runtime_api=create_api,
+            runtime_reconnect_timeout=2,
+        )
+        self.assertTrue(create_agent.work_once())
+        self.assertEqual(
+            sum(
+                call[1] == "/api/v1/sessions"
+                and call[0] == "POST"
+                for call in create_api.calls
+            ),
+            1,
+        )
+        create_result = json.loads(
+            (self.work_dir / "job-test" / "result.json").read_text()
+        )
+        self.assertEqual(create_result["state"], "FAIL")
+        self.assertIn(
+            "create response lost",
+            create_result["summary"]["error"],
         )
 
     def test_session_failure_is_reported_and_cleaned_up(self):

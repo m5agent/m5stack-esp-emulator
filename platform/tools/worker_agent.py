@@ -387,6 +387,7 @@ class WorkerAgent:
         session_timeout: float = 120.0,
         heartbeat_interval: float = 15.0,
         control_reconnect_timeout: float = 30.0,
+        runtime_reconnect_timeout: float = 30.0,
     ):
         self.api = api
         self.runtime_api = runtime_api or api
@@ -402,6 +403,10 @@ class WorkerAgent:
         self.control_reconnect_timeout = max(
             0.0,
             float(control_reconnect_timeout),
+        )
+        self.runtime_reconnect_timeout = max(
+            0.0,
+            float(runtime_reconnect_timeout),
         )
         self.registered = False
         self._registration_lock = threading.RLock()
@@ -500,6 +505,80 @@ class WorkerAgent:
             recover_registration=True,
         )
 
+    def _runtime_recovery(
+        self,
+        operation: Callable[[], Any],
+        *,
+        timeout: float | None = None,
+    ) -> Any:
+        recovery_timeout = (
+            self.runtime_reconnect_timeout
+            if timeout is None
+            else max(0.0, float(timeout))
+        )
+        deadline = time.monotonic() + recovery_timeout
+        retry_reported = False
+        while True:
+            try:
+                result = operation()
+                if retry_reported:
+                    log_worker_event("worker runtime service reconnected")
+                return result
+            except WorkerAgentError as error:
+                if not error.transient:
+                    raise
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise
+                if not retry_reported:
+                    retry_reported = True
+                    log_worker_event(
+                        "worker runtime service unavailable; retrying"
+                    )
+                time.sleep(min(CONTROL_RECONNECT_RETRY_SECONDS, remaining))
+
+    def _runtime_json(
+        self,
+        path: str,
+        *,
+        method: str = "GET",
+        payload: dict[str, Any] | None = None,
+        timeout: float = 60,
+        api: Api | None = None,
+        reconnect_timeout: float | None = None,
+    ) -> Any:
+        runtime_api = api or self.runtime_api
+        return self._runtime_recovery(
+            lambda: runtime_api.json(
+                path,
+                method=method,
+                payload=payload,
+                timeout=timeout,
+            ),
+            timeout=reconnect_timeout,
+        )
+
+    def _runtime_request(
+        self,
+        path: str,
+        *,
+        method: str = "GET",
+        payload: dict[str, Any] | None = None,
+        timeout: float = 60,
+        api: Api | None = None,
+        reconnect_timeout: float | None = None,
+    ) -> tuple[int, bytes, str]:
+        runtime_api = api or self.runtime_api
+        return self._runtime_recovery(
+            lambda: runtime_api.request(
+                path,
+                method=method,
+                payload=payload,
+                timeout=timeout,
+            ),
+            timeout=reconnect_timeout,
+        )
+
     def register(self) -> dict[str, Any]:
         return self._control_recovery(
             self._register_once,
@@ -590,8 +669,13 @@ class WorkerAgent:
         deadline = time.time() + self.session_timeout
         latest: dict[str, Any] = {}
         while time.time() < deadline:
-            latest = runtime_api.json(
+            latest = self._runtime_json(
                 f"/api/v1/sessions/{session_id}",
+                api=runtime_api,
+                reconnect_timeout=min(
+                    self.runtime_reconnect_timeout,
+                    max(0.0, deadline - time.time()),
+                ),
             )
             state = latest.get("state")
             if state == "running":
@@ -615,9 +699,10 @@ class WorkerAgent:
     ) -> tuple[bytes, str, Path]:
         runtime_api = api or self.api
         query = urlencode({"include": ",".join(include)})
-        status, evidence, _content_type = runtime_api.request(
+        status, evidence, _content_type = self._runtime_request(
             f"/api/v1/sessions/{session_id}/evidence?{query}",
             timeout=self.session_timeout,
+            api=runtime_api,
         )
         if status != 200 or not evidence.startswith(b"PK\x03\x04"):
             raise WorkerAgentError("evidence endpoint did not return a ZIP")
@@ -699,11 +784,12 @@ class WorkerAgent:
         finally:
             if session_id is not None:
                 try:
-                    runtime_api.json(
+                    self._runtime_json(
                         f"/api/v1/sessions/{session_id}?purge=0",
                         method="DELETE",
                         payload={},
                         timeout=60,
+                        api=runtime_api,
                     )
                 except Exception as error:
                     summary.setdefault("cleanup_error", str(error)[:1000])
@@ -921,6 +1007,13 @@ def parse_arguments() -> argparse.Namespace:
             os.environ.get("M5_WORKER_CONTROL_RECONNECT_TIMEOUT", "30")
         ),
     )
+    parser.add_argument(
+        "--runtime-reconnect-timeout",
+        type=float,
+        default=float(
+            os.environ.get("M5_WORKER_RUNTIME_RECONNECT_TIMEOUT", "30")
+        ),
+    )
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--max-jobs", type=int)
     return parser.parse_args()
@@ -948,6 +1041,8 @@ def main() -> int:
         raise SystemExit("--max-jobs must be positive")
     if args.control_reconnect_timeout < 0:
         raise SystemExit("--control-reconnect-timeout must be non-negative")
+    if args.runtime_reconnect_timeout < 0:
+        raise SystemExit("--runtime-reconnect-timeout must be non-negative")
     if args.token and args.token_file:
         raise SystemExit("--token and --token-file are mutually exclusive")
     direct_credential_paths = (
@@ -1171,6 +1266,7 @@ def main() -> int:
         session_timeout=args.session_timeout,
         heartbeat_interval=args.heartbeat_interval,
         control_reconnect_timeout=args.control_reconnect_timeout,
+        runtime_reconnect_timeout=args.runtime_reconnect_timeout,
     )
 
     def stop(_signum: int, _frame: Any) -> None:

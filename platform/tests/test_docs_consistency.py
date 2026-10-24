@@ -1855,8 +1855,28 @@ class DocsConsistencyTests(unittest.TestCase):
             initial_restart_failure["root_cause_fix"]["successor_evidence"],
             "evidence-2026-10-25-central-restart-pass.json",
         )
+        runtime_restart_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_runtime_restart/"
+                "evidence-2026-10-25-runtime-restart-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(runtime_restart_evidence["status"], "PASS")
+        self.assertEqual(len(runtime_restart_evidence["checks"]), 15)
+        self.assertTrue(all(runtime_restart_evidence["checks"].values()))
+        self.assertTrue(
+            runtime_restart_evidence["runtime_restart"]["same_pid"]
+        )
+        self.assertTrue(
+            runtime_restart_evidence["runtime_restart"][
+                "reattached_process"
+            ]
+        )
         self.assertIn("--control-reconnect-timeout", worker_code)
+        self.assertIn("--runtime-reconnect-timeout", worker_code)
         self.assertIn("--control-reconnect-timeout", api)
+        self.assertIn("--runtime-reconnect-timeout", api)
         openapi = (DOCS / "device-service.openapi.yaml").read_text()
         self.assertIn("WorkerJobStoredResult:", openapi)
         self.assertIn("lease_id:", openapi)
