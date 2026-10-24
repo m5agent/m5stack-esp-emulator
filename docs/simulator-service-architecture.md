@@ -307,8 +307,11 @@ TLS/token rotation with active-request draining exist; bounded old/new
 credentials, manual staged migration and a two-worker atomic-generation
 pointer migration with secret-free receipts are implemented; authenticated
 multicast discovery and worker bootstrap without a hard-coded control URL are
-implemented within one multicast domain. Cross-subnet/NAT discovery,
-cross-host QEMU execution, companion/evidence continuity,
+implemented within one multicast domain. A worker also survives a central
+control-plane restart through bounded transient retry, idempotent re-register,
+same-lease heartbeat and terminal evidence reporting while its runtime QEMU
+session remains untouched. Cross-subnet/NAT discovery, cross-host QEMU
+execution, companion/evidence continuity,
 cross-host re-attach and multi-host scheduling remain open.
 
 Discovery requires an active API token and an explicitly advertised externally
@@ -345,6 +348,10 @@ limited to one discovery domain and does not traverse arbitrary NAT/subnets.
   it claims/heartbeats on the central service, while the optional runtime
   service creates and owns the QEMU session, provides evidence and performs
   cleanup;
+- after a job is claimed, transient control-plane network/429/5xx failures are
+  retried for a bounded interval; after restart the worker re-registers the
+  same identity/generation and reports the original lease/evidence. Claim
+  itself needs a future stable dedup token before automatic retry;
 - the two-namespace Linux fixture proves that separation with a real
   worker-local StickS3 QEMU session and central claim/heartbeat/result; it is
   not a physically cross-host run;
@@ -353,10 +360,10 @@ limited to one discovery domain and does not traverse arbitrary NAT/subnets.
   path/body identity binding;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- NAT/cross-subnet worker discovery, cross-host credential migration, a real
-  cross-host QEMU execution fixture, companion
-  HTTP/BLE/evidence continuity, cross-host re-attach and production capacity
-  scheduling remain open.
+- NAT/cross-subnet worker discovery, runtime-service restart/re-attach,
+  cross-host credential migration, a real cross-host QEMU execution fixture,
+  companion HTTP/BLE/evidence continuity, cross-host re-attach and production
+  capacity scheduling remain open.
 
 ### Phase S2: warm/cold pool
 

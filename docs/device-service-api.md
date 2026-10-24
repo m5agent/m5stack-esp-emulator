@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.25.0` and bounded
+Status: local MVP with unified-device runtime contract `1.26.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -239,6 +239,18 @@ heartbeat with the same identity and lease before expiry, then submit
 worker staleness, worker stop, a missing worker or a generation replacement
 requeues the job while attempts remain, otherwise marks it failed. Operator
 cancel is terminal. These transitions are persisted across service restart.
+The terminal job result stores the originating `lease_id` and worker identity,
+so evidence can be tied back to the exact claim after the lease itself is
+closed.
+
+After a job is claimed, `WorkerAgent` retries transient control-plane network
+failures and HTTP 429/5xx for up to `--control-reconnect-timeout` (default 30
+seconds). If the central service restarts, the agent idempotently re-registers
+its unchanged identity/generation, retries heartbeat/result and keeps the
+worker-local runtime session/evidence path unchanged. Claim itself is not
+blindly retried because the job queue has no stable claim-request dedup token;
+a future claim-recovery protocol must add one. This does not restart or
+migrate the runtime service.
 The request is intended for non-secret job parameters; credentials, tokens
 and firmware payloads must remain in their dedicated stores.
 

@@ -4698,6 +4698,7 @@ class DeviceSession:
         command.extend(
             ["-qmp", f"unix:{self.qmp_path},server=on,wait=off"]
         )
+        nic: str | None = None
         if self.runtime == QEMU_WIFI_RUNTIME or unified:
             configured_nic = self.network_config.get("nic")
             if configured_nic:

@@ -109,6 +109,43 @@ class FakeCredentialApi:
         self.ssl_context = ssl_context
 
 
+class TransientResultApi(FakeApi):
+    def __init__(self):
+        super().__init__(session_states=["running"])
+        self.result_failures = 2
+
+    def json(self, path, *, method="GET", payload=None, timeout=60):
+        if path == "/api/v1/jobs/job-test/result" and self.result_failures:
+            self.result_failures -= 1
+            self.calls.append((method, path, payload))
+            raise WorkerAgentError(
+                "stub control service restart",
+                transient=True,
+            )
+        return super().json(
+            path,
+            method=method,
+            payload=payload,
+            timeout=timeout,
+        )
+
+
+class TransientClaimApi(FakeApi):
+    def json(self, path, *, method="GET", payload=None, timeout=60):
+        if path == "/api/v1/jobs/claim":
+            self.calls.append((method, path, payload))
+            raise WorkerAgentError(
+                "stub claim connection lost",
+                transient=True,
+            )
+        return super().json(
+            path,
+            method=method,
+            payload=payload,
+            timeout=timeout,
+        )
+
+
 class FakeRuntimeApi:
     def __init__(self):
         self.calls = []
@@ -154,6 +191,7 @@ class WorkerAgentTests(unittest.TestCase):
         runtime_api=None,
         endpoint=None,
         heartbeat_interval=15,
+        control_reconnect_timeout=30,
     ):
         identity = initialize_identity(self.work_dir, "worker-test")
         return WorkerAgent(
@@ -164,6 +202,7 @@ class WorkerAgentTests(unittest.TestCase):
             endpoint=endpoint,
             capabilities={"qemu": True},
             heartbeat_interval=heartbeat_interval,
+            control_reconnect_timeout=control_reconnect_timeout,
         )
 
     def test_identity_generation_is_persistent_and_bounded(self):
@@ -303,6 +342,51 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertEqual(
             len(control_api.calls),
             control_calls_before_recheck,
+        )
+
+    def test_transient_control_restart_reregisters_and_reports_same_lease(self):
+        api = TransientResultApi()
+        agent = self.agent(
+            api,
+            control_reconnect_timeout=2,
+        )
+
+        self.assertTrue(agent.work_once())
+
+        registration_calls = [
+            call for call in api.calls if call[1] == "/api/v1/workers"
+        ]
+        result_calls = [
+            call for call in api.calls if call[1] == "/api/v1/jobs/job-test/result"
+        ]
+        self.assertGreaterEqual(len(registration_calls), 2)
+        self.assertEqual(len(result_calls), 3)
+        result = json.loads(
+            (self.work_dir / "job-test" / "result.json").read_text()
+        )
+        self.assertEqual(result["state"], "PASS")
+        self.assertEqual(
+            result["evidence_sha256"],
+            hashlib.sha256(api.evidence).hexdigest(),
+        )
+
+        unsafe_claim_api = TransientClaimApi()
+        unsafe_claim_agent = self.agent(
+            unsafe_claim_api,
+            control_reconnect_timeout=2,
+        )
+        unsafe_claim_agent.register()
+        with self.assertRaisesRegex(
+            WorkerAgentError,
+            "claim connection lost",
+        ):
+            unsafe_claim_agent.claim()
+        self.assertEqual(
+            sum(
+                call[1] == "/api/v1/jobs/claim"
+                for call in unsafe_claim_api.calls
+            ),
+            1,
         )
 
     def test_session_failure_is_reported_and_cleaned_up(self):

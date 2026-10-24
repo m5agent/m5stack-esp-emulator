@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.25.0
+  version: 1.26.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -13,6 +13,9 @@ info:
     job queue stores idempotent requests, capability requirements, worker
     leases, retries and terminal results. It is a pull-based queue and
     supervisor, not an executor or active-process re-attach mechanism.
+    The worker agent retries transient control-plane failures, re-registers
+    idempotently after a control-plane restart and reports the original lease
+    while the worker-local runtime remains active.
     A local running QEMU process can be re-attached after PID start-time,
     session QMP ownership and query-status checks; this restores QEMU/QMP
     control only, not companion helper or evidence-stream continuity.
@@ -2661,6 +2664,32 @@ components:
               type: object
               additionalProperties: true
               description: JSON evidence summary limited to 8 KiB.
+    WorkerJobStoredResult:
+      type: object
+      required:
+        - state
+        - lease_id
+        - evidence_sha256
+        - summary
+        - worker
+        - completed_at
+      properties:
+        state:
+          type: string
+          enum: [PASS, PARTIAL, FAIL, REVIEW]
+        lease_id:
+          type: string
+        evidence_sha256:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{64}$"
+        summary:
+          type: object
+          additionalProperties: true
+        worker:
+          $ref: "#/components/schemas/WorkerJobIdentity"
+        completed_at:
+          type: string
+          format: date-time
     WorkerJobLease:
       type: object
       required:
@@ -2742,8 +2771,9 @@ components:
         last_release_reason:
           type: [string, "null"]
         result:
-          type: [object, "null"]
-          additionalProperties: true
+          oneOf:
+            - $ref: "#/components/schemas/WorkerJobStoredResult"
+            - type: "null"
         failure:
           type: [object, "null"]
           additionalProperties: true

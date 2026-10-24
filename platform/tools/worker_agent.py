@@ -44,10 +44,22 @@ DEFAULT_EVIDENCE_INCLUDE = (
     "qom",
 )
 TERMINAL_SESSION_STATES = {"stopped", "failed"}
+CONTROL_RECONNECT_RETRY_SECONDS = 0.5
 
 
 class WorkerAgentError(RuntimeError):
     """Raised when the worker cannot register, claim or report a job."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status: int | None = None,
+        transient: bool = False,
+    ):
+        super().__init__(message)
+        self.status = status
+        self.transient = transient
 
 
 def log_worker_event(message: str) -> None:
@@ -332,10 +344,15 @@ class Api:
         except urllib.error.HTTPError as error:
             body = error.read()
             raise WorkerAgentError(
-                f"{path} returned HTTP {error.code}: {body[:1000]!r}"
+                f"{path} returned HTTP {error.code}: {body[:1000]!r}",
+                status=error.code,
+                transient=error.code >= 500 or error.code == 429,
             ) from error
         except (urllib.error.URLError, OSError) as error:
-            raise WorkerAgentError(f"{path} request failed: {error}") from error
+            raise WorkerAgentError(
+                f"{path} request failed: {error}",
+                transient=True,
+            ) from error
 
     def json(
         self,
@@ -369,6 +386,7 @@ class WorkerAgent:
         poll_seconds: float = 1.0,
         session_timeout: float = 120.0,
         heartbeat_interval: float = 15.0,
+        control_reconnect_timeout: float = 30.0,
     ):
         self.api = api
         self.runtime_api = runtime_api or api
@@ -381,7 +399,13 @@ class WorkerAgent:
         self.poll_seconds = max(0.1, float(poll_seconds))
         self.session_timeout = max(5.0, float(session_timeout))
         self.heartbeat_interval = max(1.0, float(heartbeat_interval))
+        self.control_reconnect_timeout = max(
+            0.0,
+            float(control_reconnect_timeout),
+        )
         self.registered = False
+        self._registration_lock = threading.RLock()
+        self._control_retry_active = False
         if hasattr(self.api, "worker_identity"):
             self.api.worker_identity = self.identity
 
@@ -407,30 +431,86 @@ class WorkerAgent:
                 "worker runtime health did not return ok=true"
             )
 
-    def register(self) -> dict[str, Any]:
-        self._check_runtime_health()
-        response = self.api.json(
-            "/api/v1/workers",
-            method="POST",
-            payload={
-                **self.identity,
-                "stale_after_seconds": max(
-                    10,
-                    int(self.heartbeat_interval * 3),
-                ),
-                "endpoint": self.endpoint,
-                "capabilities": self.capabilities,
-                "active_lease_ids": [],
-            },
+    def _register_once(self) -> dict[str, Any]:
+        with self._registration_lock:
+            self._check_runtime_health()
+            response = self.api.json(
+                "/api/v1/workers",
+                method="POST",
+                payload={
+                    **self.identity,
+                    "stale_after_seconds": max(
+                        10,
+                        int(self.heartbeat_interval * 3),
+                    ),
+                    "endpoint": self.endpoint,
+                    "capabilities": self.capabilities,
+                    "active_lease_ids": [],
+                },
+            )
+            self.registered = True
+            return response["worker"]
+
+    def _control_recovery(
+        self,
+        operation: Callable[[], Any],
+        *,
+        recover_registration: bool,
+    ) -> Any:
+        deadline = time.monotonic() + self.control_reconnect_timeout
+        retry_reported = False
+        while True:
+            try:
+                if recover_registration and not self.registered:
+                    self._register_once()
+                result = operation()
+                if retry_reported:
+                    self._control_retry_active = False
+                    log_worker_event("worker control plane reconnected")
+                return result
+            except WorkerAgentError as error:
+                if not error.transient:
+                    raise
+                self.registered = False
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    self._control_retry_active = False
+                    raise
+                if not retry_reported:
+                    retry_reported = True
+                    self._control_retry_active = True
+                    log_worker_event("worker control plane unavailable; retrying")
+                time.sleep(min(CONTROL_RECONNECT_RETRY_SECONDS, remaining))
+
+    def _control_json(
+        self,
+        path: str,
+        *,
+        method: str = "GET",
+        payload: dict[str, Any] | None = None,
+        timeout: float = 60,
+    ) -> Any:
+        return self._control_recovery(
+            lambda: self.api.json(
+                path,
+                method=method,
+                payload=payload,
+                timeout=timeout,
+            ),
+            recover_registration=True,
         )
-        self.registered = True
-        return response["worker"]
+
+    def register(self) -> dict[str, Any]:
+        return self._control_recovery(
+            self._register_once,
+            recover_registration=False,
+        )
 
     def heartbeat_worker(
         self,
         active_lease_ids: list[str] | None = None,
     ) -> dict[str, Any]:
-        response = self.api.json(
+        response = self._control_json(
             f"/api/v1/workers/{self.worker_id}/heartbeat",
             method="POST",
             payload={
@@ -446,7 +526,7 @@ class WorkerAgent:
         if not self.registered:
             return
         try:
-            self.api.json(
+            self._control_json(
                 f"/api/v1/workers/{self.worker_id}/stop",
                 method="POST",
                 payload=self.identity,
@@ -468,7 +548,7 @@ class WorkerAgent:
         job_id: str,
         lease_id: str,
     ) -> dict[str, Any]:
-        response = self.api.json(
+        response = self._control_json(
             f"/api/v1/jobs/{job_id}/heartbeat",
             method="POST",
             payload={
@@ -487,7 +567,7 @@ class WorkerAgent:
         evidence_sha256: str | None,
         summary: dict[str, Any],
     ) -> dict[str, Any]:
-        response = self.api.json(
+        response = self._control_json(
             f"/api/v1/jobs/{job_id}/result",
             method="POST",
             payload={
@@ -834,6 +914,13 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--poll-seconds", type=float, default=1.0)
     parser.add_argument("--session-timeout", type=float, default=120.0)
     parser.add_argument("--heartbeat-interval", type=float, default=15.0)
+    parser.add_argument(
+        "--control-reconnect-timeout",
+        type=float,
+        default=float(
+            os.environ.get("M5_WORKER_CONTROL_RECONNECT_TIMEOUT", "30")
+        ),
+    )
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--max-jobs", type=int)
     return parser.parse_args()
@@ -859,6 +946,8 @@ def main() -> int:
         raise SystemExit("--advertise-endpoint must use http:// or https://")
     if args.max_jobs is not None and args.max_jobs < 1:
         raise SystemExit("--max-jobs must be positive")
+    if args.control_reconnect_timeout < 0:
+        raise SystemExit("--control-reconnect-timeout must be non-negative")
     if args.token and args.token_file:
         raise SystemExit("--token and --token-file are mutually exclusive")
     direct_credential_paths = (
@@ -1081,6 +1170,7 @@ def main() -> int:
         poll_seconds=args.poll_seconds,
         session_timeout=args.session_timeout,
         heartbeat_interval=args.heartbeat_interval,
+        control_reconnect_timeout=args.control_reconnect_timeout,
     )
 
     def stop(_signum: int, _frame: Any) -> None:

@@ -1827,6 +1827,23 @@ class DocsConsistencyTests(unittest.TestCase):
             ]
             is False
         )
+        restart_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_control_restart/"
+                "evidence-2026-10-25-central-restart-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(restart_evidence["status"], "PASS")
+        self.assertEqual(len(restart_evidence["checks"]), 13)
+        self.assertTrue(all(restart_evidence["checks"].values()))
+        self.assertEqual(restart_evidence["job"]["status"], "completed")
+        self.assertEqual(restart_evidence["job"]["result_state"], "PASS")
+        self.assertIn("--control-reconnect-timeout", worker_code)
+        self.assertIn("--control-reconnect-timeout", api)
+        openapi = (DOCS / "device-service.openapi.yaml").read_text()
+        self.assertIn("WorkerJobStoredResult:", openapi)
+        self.assertIn("lease_id:", openapi)
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

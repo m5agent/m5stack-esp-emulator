@@ -25,6 +25,9 @@ MicroPython 和其他完整 Flash 固件。
 - Remote worker 可通过 active-token HMAC 签名的 IPv4 multicast beacon 自动
   发现 control URL；发现只覆盖同一 multicast domain，NAT/跨子网仍需显式
   端点或后续网络方案。
+- Worker 在 job 已 claim 后对 central control-plane transient failure 做
+  有界 heartbeat/result 重试；控制面同 state 重启后会重新注册并完成原
+  lease/evidence，worker-local runtime QEMU session 保持运行。
 - 固件输入覆盖 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented
   flash、WebBurner/M5Burner 包、文件系统清单、静态审查和 capability
   mismatch。

@@ -21,7 +21,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络产品化 | 同 multicast domain 的 worker discovery 已完成；NAT/跨子网发现、跨主机 worker 迁移/QEMU executor、companion/evidence continuity、跨主机 reattach 和生产调度仍待做 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP reattach |
+| P0 | 网络产品化 | 同 multicast domain 的 worker discovery、central control-plane restart continuity 已完成；NAT/跨子网发现、runtime-service restart、跨主机 worker 迁移/QEMU executor、companion/evidence continuity、跨主机 reattach 和生产调度仍待做 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
@@ -60,7 +60,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。active-token multicast beacon 已让 worker 无需硬编码 control URL 自动发现并注册，错误/旧 token 被拒绝。下一步补 NAT/跨子网发现、跨主机迁移、跨主机 reattach、companion/evidence continuity、生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。active-token multicast discovery 和 central control-plane 2.2 秒重启后的同 worker/lease/evidence 收敛已 PASS。下一步补 NAT/跨子网发现、runtime-service restart、跨主机迁移/reattach、companion/evidence continuity、生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -68,7 +68,7 @@
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |
-| `SVC-01` | 进行中 | companion/evidence continuity、NAT/跨子网 discovery 与跨主机 reattach；同一 multicast domain 的 authenticated discovery 已完成 | 服务重启可接管或明确失败，不产生假 running |
+| `SVC-01` | 进行中 | central control-plane restart 后的同 lease/evidence continuity 已完成；companion/runtime-service continuity、NAT/跨子网 discovery 与跨主机 reattach 仍待做 | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation |
@@ -118,6 +118,11 @@
 - 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
   `query-status=running` 验证后 re-attach；Tab5/network lane、paused QEMU、
   companion HTTP/BLE helper、evidence 流和跨主机进程仍不能接管；
+- central control plane 与 worker runtime 分为两个真实 Device Service 时，
+  worker 对 transient network/429/5xx 使用有界 retry。central 用同一 state
+  dir 停止并重启 2.2 秒后，worker 自动重注册，原 identity/generation、
+  lease、evidence、terminal PASS 和 runtime QEMU cleanup 均收敛。该结果
+  不覆盖 runtime service 重启或跨主机进程迁移；
 - 双 guest lab fabric 和 Linux policy CI 尚未成为自托管 worker 的正式
   调度与 evidence replay 路径。
 
@@ -129,8 +134,9 @@
    NAT/跨子网 discovery、跨主机 QEMU job 和外部 side-effect fencing，
    禁止旧 agent 覆盖新 generation。
 2. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。
-3. 在本地 QEMU/QMP reattach 之上补 companion 状态重建、evidence 流连续性和
-   跨主机接管；无法证明 ownership 时明确 `interrupted_failed`。
+3. 在本地 QEMU/QMP reattach 和 central control-plane retry 之上补 runtime
+   service 重启、companion 状态重建、evidence 流连续性和跨主机接管；
+   无法证明 ownership 时明确 `interrupted_failed`。
 4. 把 namespace、pcap、session history 和 cleanup 结果绑定到同一个 lease。
 
 验收：
@@ -358,9 +364,11 @@ SHA 真机记录。
 ### SVC-01 活动实例接管
 
 与 `NET-04` 共用 worker 状态机。本地 QEMU/QMP 已按 PID start-time、QMP
-ownership 和 running 状态完成“接管或明确失败”；下一步补 companion
-HTTP/BLE helper、evidence 流、Tab5/network lane 和跨主机接管，再实现 warm
-pool。不能把已失去父进程或 ownership 不匹配的进程默认为 running。
+ownership 和 running 状态完成“接管或明确失败”；central control-plane
+重启后 worker 也已通过有界 retry 收敛原 lease/evidence。下一步补 runtime
+service 重启、companion HTTP/BLE helper、evidence 流、Tab5/network lane 和
+跨主机接管，再实现 warm pool。不能把已失去父进程或 ownership 不匹配的
+进程默认为 running。
 
 ### SVC-02 服务池
 

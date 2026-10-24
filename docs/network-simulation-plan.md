@@ -68,6 +68,10 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - HMAC-authenticated IPv4 multicast control-plane discovery；worker 验证
   active-token 签名后自动注册，错误/旧 token reject，token rotation 后
   新 worker 可重新发现；beacon 不含 token；
+- job claim 后，worker 对 transient control-plane network/429/5xx 做有界
+  heartbeat/result retry；central service 以同一 state dir 重启后，worker
+  自动重注册、继续 heartbeat 并提交原 lease 的 evidence，runtime QEMU
+  session 不被重启。claim 本身没有稳定 dedup token 前不自动盲重试；
 - 两个 veth 连接 network namespace 中的 Bearer+HMAC worker control plane，
   以及 worker namespace 内独立 Device Service 执行真实 StickS3 QEMU、
   artifact/firmware、evidence、terminal result 和 cleanup；
@@ -140,6 +144,7 @@ executor、companion/evidence continuity、NAT/跨子网发现和 CIDR/domain-se
 - [Worker TLS/mTLS and rotation](../tests/network/worker_tls/README.md)
 - [Worker durable queue](../tests/network/worker_queue/README.md)
 - [Authenticated worker discovery](../tests/network/worker_discovery/README.md)
+- [Worker control-plane restart continuity](../tests/network/worker_control_restart/README.md)
 - [Worker cross-network-namespace control and QEMU execution](../tests/network/worker_cross_netns/README.md)
 - [Worker QEMU/QMP reattach](../tests/network/worker_reattach/README.md)
 - [Core2 native-HCI backend](core2-native-hci-backend.md)

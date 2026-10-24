@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-control-plane-restart-continuity",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "virtual-device-control-plane-restart-not-hardware",
+  "control_plane": {
+    "initial_url": "<runtime-host>:<ephemeral-port>",
+    "restart_downtime_seconds": 2.2,
+    "restart_reused_state": true
+  },
+  "job": {
+    "job_id": "<job-id>",
+    "lease_id": "<lease-id>",
+    "worker_identity": {
+      "worker_id": "restart-survivor",
+      "instance_id": "<worker-instance>",
+      "generation": 1
+    },
+    "status": "completed",
+    "result_state": "PASS"
+  },
+  "worker": {
+    "worker_id": "restart-survivor",
+    "returncode": 0,
+    "state_after_result": "stopped",
+    "control_retry_observed": true,
+    "control_reconnected_observed": true
+  },
+  "evidence": {
+    "zip_present": true,
+    "bytes": 6696,
+    "sha256": "12713499ab0ce03087426d5adfedf3902658b799fed35f214d9d8c2c51385235"
+  },
+  "checks": {
+    "job_claimed_before_restart": true,
+    "lease_id_present": true,
+    "worker_reconnected": true,
+    "worker_exit_zero": true,
+    "terminal_completed": true,
+    "terminal_pass": true,
+    "same_lease": true,
+    "same_worker_generation": true,
+    "worker_stopped_after_result": true,
+    "evidence_zip_present": true,
+    "runtime_session_stopped": true,
+    "qemu_process_absent_after_cleanup": true,
+    "token_absent_from_worker_log": true
+  },
+  "not_claimed": [
+    "cross-host QEMU process migration",
+    "runtime service restart",
+    "companion HTTP/BLE helper continuity",
+    "production multi-host scheduler",
+    "physical hardware validation"
+  ]
+}

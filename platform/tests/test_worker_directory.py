@@ -86,6 +86,21 @@ class WorkerDirectoryTests(unittest.TestCase):
         self.assertEqual(retried["state"], "draining")
         self.assertEqual(retried["active_lease_ids"], ["lease-1", "lease-2"])
 
+    def test_same_instance_registration_refreshes_stale_heartbeat(self):
+        self.directory.register(self.payload())
+        self.now += 11
+        stale = self.directory.list_workers()["workers"][0]
+        self.assertTrue(stale["stale"])
+
+        retried = self.directory.register(self.payload())
+
+        self.assertFalse(retried["stale"])
+        self.assertTrue(retried["accepting_leases"])
+        self.assertEqual(
+            retried["active_lease_ids"],
+            ["lease-1", "lease-2"],
+        )
+
     def test_live_instance_conflict_requires_identity_or_generation(self):
         self.directory.register(self.payload())
         with self.assertRaises(WorkerDirectoryError) as caught:

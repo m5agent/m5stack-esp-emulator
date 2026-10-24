@@ -159,6 +159,10 @@ class WorkerJobQueueTests(unittest.TestCase):
         )
         self.assertEqual(completed["status"], "completed")
         self.assertEqual(completed["result"]["state"], "PASS")
+        self.assertEqual(
+            completed["result"]["lease_id"],
+            claimed["lease"]["lease_id"],
+        )
         with self.assertRaises(WorkerQueueError) as caught:
             self.queue.heartbeat(
                 completed_job["job_id"],

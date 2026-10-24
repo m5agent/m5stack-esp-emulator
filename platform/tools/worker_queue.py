@@ -609,8 +609,10 @@ class WorkerJobQueue:
         )
         with self._lock:
             job, identity, now = self._owned_lease(job_id, payload)
+            lease_id = str(job["lease"]["lease_id"])
             job["result"] = {
                 "state": state,
+                "lease_id": lease_id,
                 "evidence_sha256": evidence_sha256,
                 "summary": summary,
                 "worker": identity,

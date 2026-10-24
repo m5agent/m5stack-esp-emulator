@@ -288,6 +288,9 @@ class WorkerDirectory:
                             "a stopped worker requires a higher generation",
                             409,
                         )
+                    previous["heartbeat_at"] = _iso_now(now)
+                    previous["stale_after_seconds"] = float(stale_after)
+                    self._write_locked()
                     return self._snapshot_worker(previous, now)
                 if (
                     not previous_snapshot["stale"]
