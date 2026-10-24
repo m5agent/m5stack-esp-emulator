@@ -69,6 +69,10 @@ removed sample results without changing the stored hot-firmware selection.
 - `runtime_model_gap`: boot/application reached a stable runtime signature
   explained by an unmodeled device capability. This remains `PARTIAL`, keeps
   the original serial/error evidence and is not reported as firmware `FAIL`.
+- `runtime_fixture_gap`: the firmware reached an application/error page that
+  depends on a device fixture the generic Device Service session did not
+  attach, such as initialized SD media. This remains `PARTIAL` and is not
+  firmware `FAIL`.
 
 The tool records the selected firmware ID, download count, SHA-256, static
 partition/image analysis, Device Service session ID, frame metrics, input
@@ -91,22 +95,37 @@ response, serial-only device, fatal runtime evidence or an explicit model gap.
 
 On `2026-10-25`, a fresh selection resolved four changed public artifacts:
 two AtomS3R voice-assistant builds and two PaperMono reader builds. Their
-download and static-image analyses are available in the local refresh plan,
-but Device Service boot/frame/input validation is `NOT RUN`. The committed
-21-sample matrix is therefore a historical hash-bound baseline, not a claim
-that the currently served CDN bytes still produce the same result.
+download, static-image analysis, FirmwareManifest import and Device Service
+functional execution are now bound to the same SHA-256 values. The committed
+21-sample matrix remains a historical hash-bound baseline; it is not used to
+inherit results for these refreshed bytes.
 
 The exact refreshed SHA-256 values and static checks are committed separately:
 [`refreshed-public-artifacts-static.json`](../tests/firmware/evidence-2026-10-25-refreshed-public-artifacts-static.json).
-That record is `STATIC_PASS / FUNCTIONAL_NOT_RUN`; a later Device Service run
-must append its own session, frame, input and serial evidence.
+That record remains the historical `STATIC_PASS / FUNCTIONAL_NOT_RUN`
+checkpoint. The later functional run is tracked independently in
+[`evidence-2026-10-25-refreshed-four-functional/evidence.json`](../tests/firmware/evidence-2026-10-25-refreshed-four-functional/evidence.json).
 
 Full FirmwareManifest imports are also retained in
 [`refreshed-public-artifacts-manifest.json`](../tests/firmware/evidence-2026-10-25-refreshed-public-artifacts-manifest.json):
 all four manifest validations are `PASS`, all four static reviews remain
-`REVIEW_REQUIRED`, and no sample has a functional execution result. Sparse
-inputs can produce a normalized full-flash SHA different from the downloaded
-source SHA; both hashes are recorded.
+`REVIEW_REQUIRED`. Sparse inputs can produce a normalized full-flash SHA
+different from the downloaded source SHA; both hashes are recorded.
+
+Device Service execution of the refreshed bytes completed with
+`2 PASS / 2 PARTIAL / 0 FAIL`:
+
+| Firmware | SHA-256 | Result | Observed boundary |
+| --- | --- | --- | --- |
+| `XiaoZhi Voice Assistant For AtomS3R` | `74e714fcef825025c5df61cffeaefed3d5c01b97da4298b42be098740127dae4` | `PASS` | 128x128 Wi-Fi provisioning UI, frame and input response. Six nonfatal ES8311 audio writes failed; voice, audio, provisioning completion and cloud connectivity are `NOT RUN` |
+| `OpenAI Voice Assistant For AtomS3R` | `b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3` | `PARTIAL` | Stable black frame; NVS user data was absent and `app_main()` returned without provisioning/error UI. Trusted user-data fixture versus firmware precondition defect remains unresolved |
+| `阅读卡片 \| EDC Book` | `06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986` | `PASS` | 480x800 EDC Book launch/continue-reading screen with observable input change. External book-file ingestion and longer reader navigation remain `NOT RUN` |
+| `CrossPoint-PaperMono-CJK` | `e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935` | `PARTIAL` | Repeated SDMMC OCR failure (`0x107`) produced an SD card error page. Classified as `runtime_fixture_gap`, not firmware `FAIL`, because generic sessions attach no initialized SD image |
+
+The run retains four Device Service sessions, final screenshots, serial
+digests, normalized artifact hashes and exact input/frame observations. The
+matrix now detects this SD fixture gap before its generic frame/input PASS
+rules can promote an error page.
 
 Two samples are classified as `runtime_model_gap`:
 

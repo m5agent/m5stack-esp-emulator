@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-public-firmware-refresh-functional",
+  "date": "2026-10-25",
+  "status": "PARTIAL",
+  "scope": "current-public-cdn-bytes-device-service-runtime-without-physical-hardware",
+  "summary": {
+    "samples": 4,
+    "pass": 2,
+    "partial": 2,
+    "fail": 0
+  },
+  "selection": {
+    "retrieved_at": "2026-10-24T19:36:11.065604+00:00",
+    "policy": "MOST_DOWNLOADED; force refresh current BIN; retain firmware/version selection on resume",
+    "plan_sha256": "3cebda8d0f5b14a9763b6df50dad9be93951f9b427081807e90580296b00d518",
+    "results_sha256": "d4a4f241274ca56fc2a5300bd48081f90cbe1929079bbd8b5922b8db9b3675bf"
+  },
+  "runtime": {
+    "service": "/api/v1",
+    "runtime": "qemu",
+    "observe_seconds": 60,
+    "settle_seconds": 2,
+    "jobs": 2,
+    "sessions_retained": true,
+    "physical_hardware": "NOT RUN"
+  },
+  "checks": {
+    "force_refreshed_public_bytes": true,
+    "source_sha_bound": true,
+    "service_static_analysis": "PASS",
+    "device_service_boot": "4/4",
+    "non_blank_frame": "3/4",
+    "input_or_serial_change_after_probe": "3/4",
+    "matrix_functional_pass": "2/4",
+    "structured_runtime_fixture_gap": "1/4",
+    "fatal_serial_signature": "0/4",
+    "qemu_cleanup": "4/4"
+  },
+  "samples": [
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000002559",
+      "name": "XiaoZhi Voice Assistant For AtomS3R",
+      "version": "v2.2.6-AtomS3",
+      "source_sha256": "74e714fcef825025c5df61cffeaefed3d5c01b97da4298b42be098740127dae4",
+      "service_artifact_sha256": "17ddf5d01c06be4b59606b3030329a1cf78d2e268bac7da16279f2981f4788e7",
+      "session_id": "23ef8e030be34c728e3fc8b7f04a2a53",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 9050,
+      "serial_sha256": "d8c55a40301169e76f502112668bfaf86805a029ba5f13d199e71a342b97e5fd",
+      "frame": {
+        "path": "atoms3r-1897200000000002559-final.png",
+        "sha256": "4291f8bd83cd64c0ce5daaf3f85554e48297c136fa974d055fa15231f8bb591f",
+        "width": 128,
+        "height": 128,
+        "nonblack_pixels": 15696,
+        "unique_colors": 15,
+        "visual": "XiaoZhi Wi-Fi provisioning screen"
+      },
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "nonfatal_serial_observations": {
+        "es8311_audio_write_failures": 6,
+        "wifi_nvs_namespace_missing": true
+      },
+      "not_claimed": [
+        "voice interaction",
+        "audio output",
+        "Wi-Fi provisioning completion",
+        "cloud service connectivity"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000000358",
+      "name": "OpenAI Voice Assistant For AtomS3R",
+      "version": "v1.0",
+      "source_sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+      "service_artifact_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d",
+      "session_id": "3447ce7c65ab4d1bb5e6895cb7a6f179",
+      "status": "PARTIAL",
+      "status_reason": "application_frame_not_ready",
+      "unmet_requirements": [
+        "application_frame: no non-blank frame"
+      ],
+      "application_ready": false,
+      "serial_bytes": 8269,
+      "serial_sha256": "ae5f185f2c699bc754877510a0253bafc42d4072cbf51aae5728468fb4eebebd",
+      "frame": {
+        "path": "atoms3r-1897200000000000358-final.png",
+        "sha256": "7659100791b0b0d9d5707576f6d04cdae4e769ae4ba3034169540fe3990efae5",
+        "width": 128,
+        "height": 128,
+        "nonblack_pixels": 0,
+        "unique_colors": 0,
+        "visual": "black framebuffer"
+      },
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": false,
+        "observed": false
+      },
+      "serial_observations": [
+        "NVS: Error opening NVS handle: ESP_ERR_NVS_NOT_FOUND",
+        "main: Failed to load user data",
+        "main_task: Returned from app_main()"
+      ],
+      "boundary": "The application returned without presenting a provisioning or error UI. The evidence does not distinguish a firmware precondition defect from a missing trusted user-data fixture."
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "1897200000000000015",
+      "name": "阅读卡片 | EDC Book",
+      "version": "3.1.2",
+      "source_sha256": "06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986",
+      "service_artifact_sha256": "06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986",
+      "session_id": "dbe28466bd714feebc59bc943db9aa09",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 2051,
+      "serial_sha256": "99fef1ff9dd1ec84be763847d6e806be904471d9ac91597cbdb41fc645ecc5f4",
+      "frame": {
+        "path": "papermono-1897200000000000015-final.png",
+        "sha256": "0454566feec8f0c6c6f241ea83fbafa467a05ffcc4c6c369312461a052d180cc",
+        "width": 480,
+        "height": 800,
+        "nonblack_pixels": 15623,
+        "unique_colors": 2,
+        "visual": "EDC Book launch and continue-reading screen"
+      },
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": false,
+        "observed": true
+      },
+      "not_claimed": [
+        "opening external book files from an SD card",
+        "reader navigation after content is loaded",
+        "full input and persistence workflow"
+      ]
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "2091144466157694978",
+      "name": "CrossPoint-PaperMono-CJK",
+      "version": "1.5.0-RC",
+      "source_sha256": "e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935",
+      "service_artifact_sha256": "0fc4c988b49895bc7978438a49a97d3a078b5b648218b124120a16c0c9b49118",
+      "session_id": "ba4cb914d4a54f46a4e6626357bfe3a2",
+      "status": "PARTIAL",
+      "status_reason": "runtime_fixture_gap",
+      "unmet_requirements": [
+        "device_fixture: papermono_sd_fixture_unavailable"
+      ],
+      "application_ready": true,
+      "serial_bytes": 510,
+      "serial_sha256": "14df43ed1192026164643c45769c89288ce547b415dbf49bc6608f947f9a1718",
+      "frame": {
+        "path": "papermono-2091144466157694978-final.png",
+        "sha256": "2804b6a216382e2c6c8aac00c7657ca72d8a97817ff3f03cbe304e80f43d7b0a",
+        "width": 480,
+        "height": 800,
+        "nonblack_pixels": 384000,
+        "unique_colors": 2,
+        "visual": "SD card error page"
+      },
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "runtime_model_gaps": [
+        {
+          "code": "papermono_sd_fixture_unavailable",
+          "category": "fixture",
+          "detail": "generic Device Service sessions do not attach an initialized SD-card fixture; repeated SDMMC OCR initialization failed with 0x107"
+        }
+      ],
+      "boundary": "This is not classified as a firmware FAIL. It requires a Device Service storage-image fixture before the reader workflow can be evaluated."
+    }
+  ],
+  "code_changes": {
+    "runtime_fixture_gap_detection": "platform/tools/user_firmware_matrix.py",
+    "regression_tests": "platform/tests/test_user_firmware_matrix.py",
+    "reason": "prevent an SD-card error page from being counted as application PASS"
+  },
+  "not_claimed": [
+    "clean firmware review",
+    "full voice assistant, audio or cloud behavior",
+    "book file ingestion or cross-reboot reader workflow",
+    "firmware FAIL for the SD fixture gap",
+    "physical hardware validation"
+  ]
+}

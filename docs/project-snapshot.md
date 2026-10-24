@@ -50,7 +50,7 @@
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
-| `FW-03` | 进行中 | API/WebBurner 已能声明 required/optional capability；required/optional 重叠会拒绝，optional 不匹配只 warning；sdkconfig WiFi/BT/PSRAM 作为 detected warning 进入 manifest。矩阵（含 resume）每轮强制刷新公开 BIN，结果键包含 SHA。已有 7 台设备、21 个历史哈希绑定样本；下一步先跑当前 AtomS3R/PaperMono 四样本，再扩更多设备与 firmware family |
+| `FW-03` | 进行中 | API/WebBurner capability、Manifest 和矩阵 SHA 绑定已完成；当前 AtomS3R/PaperMono 四样本绑定实际 SHA 后为 `2 PASS / 2 PARTIAL / 0 FAIL`。下一步为 PaperMono 提供 initialized SD media fixture，区分 OpenAI Voice Assistant 的 NVS 前置条件与固件缺陷，再扩更多设备与 firmware family |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture |
@@ -64,7 +64,7 @@
 
 ## 文档与测试
 
-- 平台测试：`355` 项。
+- 平台测试：`357` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

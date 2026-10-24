@@ -19,7 +19,7 @@
 | 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；设备覆盖与 Tab5 边界见当前状态和自动快照 | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
 | 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离 | `NET-04` 真实跨主机 QEMU executor、主机发现、companion/evidence continuity；CIDR/domain-set | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
 | Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；同 guest 多轮重连、active-BLE 和 bounded-TCG 门禁已闭合 | 长时并发/吞吐和 teardown；bit-exact controller/baseband 与物理 cache/PSRAM 边界 | controller/物理边界和同固件路径真机验证 |
-| 通用固件审查 | manifest、API/WebBurner required/optional capability、sdkconfig detected capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传；公开 BIN 每轮强制刷新 | 当前刷新后的 AtomS3R/PaperMono 四样本功能重跑；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN SHA、运行态权限/许可闭环、更多固件族、模型缺口关闭和同 SHA 真机安全流程 |
+| 通用固件审查 | manifest、API/WebBurner required/optional capability、sdkconfig detected capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传；公开 BIN 每轮强制刷新；当前四样本已完成 Device Service 执行 | 通用 SD media fixture、OpenAI first-boot NVS 前置条件；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN SHA、分层区分 firmware/model/fixture 结果、更多固件族、运行态权限/许可闭环和同 SHA 真机安全流程 |
 | Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/companion 接管、warm pool、容量和大型编排模块拆分 |
 
 “当前在途”只表示工作已经启动，不是 PASS。具体轮数、PASS 计数、资源采样
@@ -28,8 +28,8 @@
 
 ## 未完成项执行顺序
 
-1. `FW-03`：重跑公开 CDN 当前 BIN；先覆盖已刷新的 AtomS3R 与 PaperMono
-   四样本，并把实际 SHA 写入 evidence。
+1. `FW-03`：当前 AtomS3R 与 PaperMono 四样本已完成 Device Service 执行；
+   下一步补 SD media fixture 和 OpenAI first-boot NVS 前置条件，再扩固件族。
 2. `NET-04` / `SVC-01`：用已实现的 control/runtime 双端点启动真实跨
    network namespace QEMU executor，再补跨主机 reattach、
    companion/evidence continuity 和不可信固件隔离。

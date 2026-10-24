@@ -527,6 +527,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "同 guest controlled AAAA/拒绝路径",
             "the 121-cycle gate or hardware equivalence",
             "121 轮运行、bit-exact",
+            "Device Service boot/frame/input validation is `NOT RUN`",
+            "no functional execution has been performed",
             "RSS 有界",
             "3 个独立 lease、每个 30 轮的下一门禁",
             "Automated discovery and migration of a client fleet is still",
@@ -575,10 +577,8 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn("historical artifacts", matrix)
         self.assertIn("Current public-artifact refresh checkpoint", matrix)
-        self.assertIn(
-            "Device Service boot/frame/input validation is `NOT RUN`",
-            matrix,
-        )
+        self.assertIn("2 PASS / 2 PARTIAL / 0 FAIL", matrix)
+        self.assertIn("runtime_fixture_gap", matrix)
         self.assertIn(
             "公开 CDN 的 URL 和版本元数据不构成不可变内容承诺",
             manifest,
@@ -619,6 +619,38 @@ class DocsConsistencyTests(unittest.TestCase):
                 for sample in refreshed_manifests["samples"]
             )
         )
+        refreshed_functional = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-refreshed-four-functional/evidence.json"
+            ).read_text()
+        )
+        self.assertEqual(refreshed_functional["status"], "PARTIAL")
+        self.assertEqual(
+            refreshed_functional["summary"],
+            {"samples": 4, "pass": 2, "partial": 2, "fail": 0},
+        )
+        by_firmware = {
+            sample["firmware_id"]: sample
+            for sample in refreshed_functional["samples"]
+        }
+        self.assertEqual(
+            by_firmware["2091144466157694978"]["status_reason"],
+            "runtime_fixture_gap",
+        )
+        self.assertEqual(
+            by_firmware["1897200000000000358"]["status_reason"],
+            "application_frame_not_ready",
+        )
+        for sample in refreshed_functional["samples"]:
+            screenshot = (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-refreshed-four-functional"
+                / sample["frame"]["path"]
+            )
+            self.assertTrue(screenshot.is_file(), str(screenshot))
         resume_live = json.loads(
             (
                 ROOT

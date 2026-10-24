@@ -87,7 +87,7 @@
 | [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-24` | catalog、runtime coverage、后端数据面和设备本地验收 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-24` | Tab5 缺失的 P4 控制器、DMA 和端点 |
 | [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-25` | 单机模块化单体、control/runtime 执行面分离与后续 worker/warm-pool 路线 |
-| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-25` | 历史哈希绑定结果、公开 CDN 可变制品刷新规则、模型缺口和重跑边界 |
+| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-25` | 历史哈希绑定结果、公开 CDN 强制刷新、四个当前样本的 Device Service 结果、模型/fixture 缺口和重跑边界 |
 | [CoreS3 图像边界](cores3-image-rendering-boundary.md) | 已知差异 | `2026-10-22` | 固定在当轮透明度/调色板图像分析 |
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |

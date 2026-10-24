@@ -51,13 +51,22 @@ purposes without claiming that a package-supplied eFuse summary is authentic.
 
 The four current public CDN artifacts refreshed on `2026-10-25` are bound in
 [`evidence-2026-10-25-refreshed-public-artifacts-static.json`](evidence-2026-10-25-refreshed-public-artifacts-static.json).
-They are `STATIC_PASS` and their Device Service/input validation is
-`FUNCTIONAL_NOT_RUN`.
+That checkpoint is `STATIC_PASS / FUNCTIONAL_NOT_RUN`; its functional axis is
+superseded by the later Device Service run below.
 
 The same four artifacts passed the full manifest importer in
 [`evidence-2026-10-25-refreshed-public-artifacts-manifest.json`](evidence-2026-10-25-refreshed-public-artifacts-manifest.json).
 Manifest PASS does not mean a clean review: all four require human review and
-no functional execution has been performed.
+the record itself does not assert functional behavior.
+
+The refreshed bytes were then executed through Device Service in
+[`evidence-2026-10-25-refreshed-four-functional`](evidence-2026-10-25-refreshed-four-functional/).
+Results are `2 PASS / 2 PARTIAL / 0 FAIL`: XiaoZhi reaches its Wi-Fi
+provisioning UI, EDC Book reaches its launch screen, OpenAI Voice Assistant
+remains black after returning from `app_main()`, and CrossPoint renders an SD
+card error because generic sessions have no initialized SD fixture. The latter
+is `runtime_fixture_gap`, not firmware FAIL. Final screenshots and full
+frame/serial digests are retained in the evidence JSON.
 
 The live resume/force-refresh path is retained in
 [`evidence-2026-10-25-public-resume-refresh-live.json`](evidence-2026-10-25-public-resume-refresh-live.json).
