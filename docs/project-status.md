@@ -177,8 +177,10 @@
   中央服务负责 claim/heartbeat/result，可选的 worker-local runtime service
   负责创建、等待、采集 evidence 和停止 QEMU session。单元契约验证所有
   session 请求只发往 runtime plane，控制面不创建 session，并且 runtime 未
-  通过 `/api/health` 时 worker 在注册/claim 前 fail-closed。Linux fixture
-  也已加入真实 worker-local QEMU 模式，但尚未执行。真实跨 network
+  通过 `/api/health` 时 worker 在注册/claim 前 fail-closed。worker 还可通过
+  `--advertise-endpoint` 把无凭据的 HTTP(S) 可达端点登记到中央目录；
+  自动主机发现仍未实现。Linux fixture 也已加入真实 worker-local QEMU
+  模式，但尚未执行。真实跨 network
   namespace QEMU 启动和应用级 evidence 仍未验证，因此不能据此宣称跨主机
   executor 已闭环。
 

@@ -78,7 +78,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/worker_directory.py` | 远程 worker 持久目录、identity/generation 冲突、heartbeat/drain/stop、capability 和有界结果元数据 | Device Service、worker directory 测试 |
 | `platform/tools/worker_queue.py` | 持久 job queue、idempotency、capability matching、claim/lease/heartbeat、超时重试、terminal result 和 worker 失联回收 | Device Service、worker queue 测试 |
 | `platform/tools/worker_auth.py` | 严格 token-file 读取、master token 派生 worker key、时间戳/nonce HMAC、body/path identity binding 和 replay cache | Device Service、worker agent、auth 测试 |
-| `platform/tools/worker_agent.py` | HTTP-only worker executor：持久 generation、注册/heartbeat、中央 claim/result，可选独立 runtime API 负责 session、evidence 和 stop | worker CLI、executor 测试 |
+| `platform/tools/worker_agent.py` | HTTP-only worker executor：持久 generation、可达 endpoint 注册、heartbeat、中央 claim/result，可选独立 runtime API 负责 session、evidence 和 stop | worker CLI、executor 测试 |
 | `platform/tools/transport_security.py` | TLS 1.2+ server/client context、服务端证书校验、可选 client CA 和 mTLS 客户端证书 | `serve.py`、`worker_agent.py`、TLS tests |
 | `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
 | `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表严格解析 Core2 native-VHCI 调用地址和 native-HCI hook/HLI 地址 | Device Service、Core2 runners |

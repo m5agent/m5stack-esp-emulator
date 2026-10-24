@@ -147,13 +147,21 @@ class WorkerAgentTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.tmp.cleanup()
 
-    def agent(self, api, *, runtime_api=None, heartbeat_interval=15):
+    def agent(
+        self,
+        api,
+        *,
+        runtime_api=None,
+        endpoint=None,
+        heartbeat_interval=15,
+    ):
         identity = initialize_identity(self.work_dir, "worker-test")
         return WorkerAgent(
             api,
             runtime_api=runtime_api,
             work_dir=self.work_dir,
             identity=identity,
+            endpoint=endpoint,
             capabilities={"qemu": True},
             heartbeat_interval=heartbeat_interval,
         )
@@ -205,13 +213,24 @@ class WorkerAgentTests(unittest.TestCase):
     def test_worker_local_runtime_plane_runs_and_cleans_the_session(self):
         control_api = FakeApi()
         runtime_api = FakeRuntimeApi()
-        agent = self.agent(control_api, runtime_api=runtime_api)
+        agent = self.agent(
+            control_api,
+            runtime_api=runtime_api,
+            endpoint="https://worker.example:8788",
+        )
 
         self.assertTrue(agent.work_once())
 
         control_paths = [call[1] for call in control_api.calls]
         runtime_paths = [call[1] for call in runtime_api.calls]
         self.assertEqual(runtime_paths[0], "/api/health")
+        registration_call = next(
+            call for call in control_api.calls if call[1] == "/api/v1/workers"
+        )
+        self.assertEqual(
+            registration_call[2]["endpoint"],
+            "https://worker.example:8788",
+        )
         self.assertIn("/api/v1/jobs/claim", control_paths)
         self.assertIn("/api/v1/jobs/job-test/result", control_paths)
         self.assertFalse(
@@ -245,6 +264,8 @@ class WorkerAgentTests(unittest.TestCase):
                 "http://control.example:8787",
                 "--runtime-service-url",
                 "http://runtime.example:8788",
+                "--advertise-endpoint",
+                "https://worker.example:8788",
             ],
         ):
             args = parse_arguments()
@@ -252,6 +273,10 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertEqual(
             args.runtime_service_url,
             "http://runtime.example:8788",
+        )
+        self.assertEqual(
+            args.advertise_endpoint,
+            "https://worker.example:8788",
         )
 
         unhealthy_runtime = FakeRuntimeApi()

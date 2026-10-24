@@ -281,6 +281,11 @@ terminal result, token-log redaction and namespace cleanup without starting
 QEMU. Cross-host QEMU jobs, automatic worker-host discovery and companion
 continuity remain open.
 
+`worker_agent.py --advertise-endpoint` stores an externally reachable HTTP(S)
+worker endpoint in the registration record. The worker directory rejects
+credential-bearing, query-bearing or fragment-bearing URLs. Advertising an
+endpoint is static registration, not automatic discovery or connectivity proof.
+
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)
 also require an HMAC signature derived from:

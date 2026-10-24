@@ -358,6 +358,7 @@ class WorkerAgent:
         runtime_api: Api | None = None,
         work_dir: Path,
         identity: dict[str, Any],
+        endpoint: str | None = None,
         capabilities: dict[str, Any] | None = None,
         poll_seconds: float = 1.0,
         session_timeout: float = 120.0,
@@ -369,6 +370,7 @@ class WorkerAgent:
         self.worker_id = str(identity["worker_id"])
         self.instance_id = str(identity["instance_id"])
         self.generation = int(identity["generation"])
+        self.endpoint = endpoint
         self.capabilities = dict(capabilities or {})
         self.poll_seconds = max(0.1, float(poll_seconds))
         self.session_timeout = max(5.0, float(session_timeout))
@@ -406,7 +408,7 @@ class WorkerAgent:
                     10,
                     int(self.heartbeat_interval * 3),
                 ),
-                "endpoint": None,
+                "endpoint": self.endpoint,
                 "capabilities": self.capabilities,
                 "active_lease_ids": [],
             },
@@ -712,6 +714,13 @@ def parse_arguments() -> argparse.Namespace:
             "to --service-url for same-host compatibility"
         ),
     )
+    parser.add_argument(
+        "--advertise-endpoint",
+        help=(
+            "externally reachable worker HTTP(S) endpoint stored in the "
+            "central worker directory"
+        ),
+    )
     auth_group = parser.add_mutually_exclusive_group()
     auth_group.add_argument(
         "--token",
@@ -802,6 +811,11 @@ def main() -> int:
         raise SystemExit(
             "control and runtime service URLs must use the same scheme"
         )
+    if args.advertise_endpoint is not None and not (
+        args.advertise_endpoint.startswith("https://")
+        or args.advertise_endpoint.startswith("http://")
+    ):
+        raise SystemExit("--advertise-endpoint must use http:// or https://")
     if args.max_jobs is not None and args.max_jobs < 1:
         raise SystemExit("--max-jobs must be positive")
     if args.token and args.token_file:
@@ -991,6 +1005,7 @@ def main() -> int:
         runtime_api=runtime_api,
         work_dir=args.work_dir,
         identity=identity,
+        endpoint=args.advertise_endpoint,
         capabilities=capabilities,
         poll_seconds=args.poll_seconds,
         session_timeout=args.session_timeout,

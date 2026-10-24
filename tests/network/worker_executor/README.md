@@ -23,6 +23,9 @@ collects evidence from and stops the session through
 `--runtime-service-url`. When the runtime URL is omitted, both planes use the
 same service for same-host compatibility. A distinct runtime endpoint must
 return `/api/health` with `ok=true` before the worker registers or claims work.
+Use `--advertise-endpoint` when the central directory should store an
+externally reachable worker HTTP(S) endpoint; credentials, query strings and
+fragments are rejected by the directory contract.
 
 When `--token` or `M5_SERVICE_API_TOKEN` is configured, worker-specific
 claim/heartbeat/result requests also carry an HMAC signature derived from the
@@ -42,6 +45,7 @@ One job:
 python3 platform/tools/worker_agent.py \
   --service-url http://127.0.0.1:8787 \
   --runtime-service-url http://127.0.0.1:8788 \
+  --advertise-endpoint https://worker.example:8788 \
   --token "$M5_SERVICE_API_TOKEN" \
   --worker-id local-executor \
   --work-dir /tmp/m5-worker-agent \

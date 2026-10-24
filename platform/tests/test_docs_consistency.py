@@ -1213,6 +1213,7 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn("runtime_api", worker_code)
         self.assertIn("--runtime-service-url", worker_code)
+        self.assertIn("--advertise-endpoint", worker_code)
         self.assertIn("--runtime-service-url", api)
         self.assertIn("control/execution URL split", executor_readme)
         self.assertIn("worker-local", status)
