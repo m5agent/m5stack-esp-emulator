@@ -1801,7 +1801,9 @@ restart.
   artifact-bound active-BLE hold passes the functional gate with frozen
   firmware/ELF/QEMU hashes, frame/QOM/WiFi/public DNS/HTTP/GATT/pcap and
   cleanup; QEMU host RSS grows from 744160 to 1202176 KiB, so memory growth
-  remains `REVIEW`.
+  remains `REVIEW`. The later `tb-size=128` artifact-bound `7200s` rerun
+  also passes with 240 resource samples, RSS `323536→252992 KiB` and phys
+  footprint `250880→188416 KiB`.
   `network.ble_reconnect_cycles` (1-121) asks one external peer process to run
   multiple complete scan/connect/GATT/disconnect cycles without restarting the
   guest; `network.ble_reconnect_delay_seconds` controls the pause before the
@@ -1816,9 +1818,16 @@ restart.
   `evidence-2026-10-24-hci4-reconnect30-3x.json`,
   `evidence-2026-10-24-hci4-reconnect60-3x.json` and
   `evidence-2026-10-24-hci4-reconnect120-3x.json`. Three independent leases
-  pass 120 cycles each; 121 is accepted by contract but still needs a runtime
-  gate. The remaining validation gates are 121-cycle execution, bounded-TCG
-  two-hour confirmation and long-run throughput/teardown;
+  pass 120 cycles each. The first 121-cycle run completed 29 cycles and
+  started cycle 30 before a fixed 180-second readiness budget terminated a
+  healthy session with no guest panic. Device Service and the runner now use
+  the same workload-aware budget
+  `min(7200, 60 + cycles * (6 + reconnect_delay_seconds))`; 121 cycles with
+  a two-second delay therefore receive 1028 seconds. The failed run remains
+  in
+  `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`, and a
+  replacement three-lease gate is still required. The remaining validation
+  gates are 121-cycle execution and long-run throughput/teardown;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

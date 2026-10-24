@@ -51,6 +51,9 @@ Every `runtime=qemu-unified` profile must satisfy all of the following:
 8. A failed data path returns `PARTIAL`, `FAIL`, `REVIEW` or
    `runtime_model_gap`; it must not be hidden by retry or by copying a PASS from
    another device.
+9. A declared BLE reconnect workload receives a readiness budget derived from
+   its cycle count and delay. A fixed application-start timeout must not be
+   reported as a controller failure when the peer workload is still advancing.
 
 ## Evidence layers
 

@@ -27,6 +27,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` 30-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 30 --attempts 3`、`evidence-2026-10-24-hci4-reconnect30-3x.json` | 3 个独立 lease 各 30 轮；每 lease HLI `857/857`、events 587、ACLs 270、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
 | `CORE2-02` 60-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 60 --attempts 3`、`evidence-2026-10-24-hci4-reconnect60-3x.json` | 3 个独立 lease 各 60 轮；每 lease HLI `1697/1697`、events `1157`、ACLs `540`、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
 | `CORE2-02` 120-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 120 --attempts 3`、`evidence-2026-10-24-hci4-reconnect120-3x.json` | 3 个独立 lease 各 120 轮；每 lease HLI `3377/3377`、events `2297`、ACLs `1080`、HLI errors/queue/dropped/panic 为 0，连接池回到 `3/9/3` |
+| `CORE2-02` 121-cycle readiness budget | `FIXED / RERUN PENDING` | `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`、`ble_runtime_limits.py` | 首次运行完成 29 轮并开始第 30 轮后，被固定 `180s` readiness 预算误杀；guest 无 panic。runner 和 Device Service 改为共享 workload-aware 预算，`121` 轮/`2s` 延迟为 `1028s`；3 lease 复跑仍待执行 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -523,8 +524,11 @@ hash-freeze runner 的重跑已完成 `7200s` 功能门禁：
 证据：
 `tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json`。
 当前 reconnect 参数范围扩到 `121`，`122` 会被拒绝；`120` 已有三个独立
-lease PASS，`121` 运行仍待执行。hold 上限为 `7200s`；600 秒 active-BLE
-gate 已通过。
+lease PASS。首次 `121` 轮运行在应用、WiFi、公网和 29 个完整 cycle 后，
+于第 30 轮开始时被固定 `180s` readiness 预算误杀；guest 没有 panic，
+peer 也没有 GATT timeout。runner 与 Device Service 现共享 workload-aware
+预算，修复后的 `3 × 121` 门禁仍待执行。hold 上限为 `7200s`；600 秒
+active-BLE gate 已通过。
 
 ## 剩余工作量
 
@@ -534,12 +538,12 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
 60、120 轮 reconnect 门禁已 PASS：
 
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
-- 物理 cache/PSRAM 等价性、121 轮连接和真机
+- 物理 cache/PSRAM 等价性、修复后 121 轮连接和真机
   路径需要独立
   计划，不能由当前 `5×10s` / `3×60s` / `2×120s` 重复门禁推导；当前
   PASS 覆盖 halt-gated guest 注入、artifact-bound 两小时 active-BLE
   WiFi/公网/GATT 功能保持、限容 host-memory 和 20、30、60、120 轮
-  reconnect；121 轮连接和物理 cache/PSRAM 等价性仍需独立验证。
+  reconnect；修复后的 121 轮连接和物理 cache/PSRAM 等价性仍需独立验证。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

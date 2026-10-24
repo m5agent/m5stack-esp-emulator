@@ -1,6 +1,6 @@
 # 虚拟主机适配矩阵
 
-日期：`2026-10-24`
+日期：`2026-10-25`
 
 本页只维护稳定的设备、SoC、后端和板级入口映射。动态 PASS 计数、最新验证
 日期、运行边界和剩余缺口分别由
@@ -53,6 +53,9 @@
 
 `qemu-ble` 仍作为兼容别名接受，新调用使用 `qemu-unified`。Core2 新调用使用
 `profile=core2-native-hci`；`core2-native-vhci` 只用于显式诊断。
+Core2 的长 BLE reconnect workload 使用按 cycles/delay 计算的 readiness
+预算；首次 `121` 轮运行曾被固定 `180s` 预算误杀，失败保留为等待预算证据，
+修复后的 `3 × 121` 运行仍待执行。
 
 ## 板级接入步骤
 

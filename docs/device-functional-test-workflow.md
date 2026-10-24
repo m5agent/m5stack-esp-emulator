@@ -1,8 +1,8 @@
 # Virtual-device functional-test workflow
 
-Status: implemented routing rule, reviewed `2026-10-24`.
+Status: implemented routing rule, reviewed `2026-10-25`.
 
-Last reviewed: `2026-10-24`. Current capability and open tasks live in the
+Last reviewed: `2026-10-25`. Current capability and open tasks live in the
 [project status](project-status.md) and [project backlog](project-backlog.md).
 
 This document separates two workflows that previously shared the same Agent
@@ -50,10 +50,13 @@ limits. A background janitor uses `GET /api/v1/storage` for observability and
 prunes unreferenced artifact/firmware/prepared-flash caches after the configured
 grace period.
 
-On startup, a stopped/failed record is restored as history. A record that was
-still active when the service stopped is restored as `failed` with
-`interrupted=true` and an explicit error; it is never presented as running and
-does not consume active-session capacity.
+On startup, a stopped/failed record is restored as history. For an active
+QEMU/QMP record, the service may re-attach only when the original PID,
+process start token, QMP socket ownership and `query-status=running` all match.
+It then reports `reattached_process=true` and does not invent companion,
+BLE-helper or evidence-stream continuity. If ownership cannot be proven, the
+record becomes `failed`, `interrupted=true`, with an explicit error; it is
+never presented as running.
 
 ## Boundaries
 

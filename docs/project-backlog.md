@@ -26,16 +26,18 @@
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 执行 3 个独立 lease × 121 轮 reconnect，再验证吞吐/teardown 与 bit-exact controller/cache/PSRAM | 最终 `tb-size=128` artifact-bound `7200s` 已 PASS，输入/工具无漂移，host RSS/phys footprint 未增长；121 轮运行待验 |
+| P1 | Core2 长稳与物理/controller 等价性 | 执行 3 个独立 lease × 121 轮 reconnect，再验证吞吐/teardown 与 bit-exact controller/cache/PSRAM | 最终 `tb-size=128` artifact-bound `7200s` 已 PASS，输入/工具无漂移，host RSS/phys footprint 未增长；首次 121 轮暴露固定 180 秒等待预算，workload-aware 修复已落地，复跑待验 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
 
 ## 当前执行顺序
 
-1. `CORE2-02`：在隔离的新 service 上执行 3 个独立 lease × 121 轮
-   reconnect，随后补长时吞吐/teardown、controller/baseband 和物理边界。
-   最终 artifact-bound `7200s` extended-run host-memory 门禁已 PASS。
+1. `CORE2-02`：用 workload-aware readiness 预算在隔离的新 service 上执行
+   3 个独立 lease × 121 轮 reconnect，随后补长时吞吐/teardown、
+   controller/baseband 和物理边界。首次 121 轮运行完成 29 轮后被旧固定
+   预算终止，失败 evidence 保留；最终 artifact-bound `7200s`
+   extended-run host-memory 门禁已 PASS。
 2. `NET-06`：在 privileged Linux namespace 中用同一 UIFlow2 测试 guest
    完成 controlled AAAA、允许 IPv6 HTTP、denied-port、pcap、namespace/NAT
    cleanup 和 QEMU reap。原厂 UIFlow2 未启用 IPv6，不能升级为默认能力。
@@ -57,7 +59,7 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；`WorkerAgent` 已把中央 control API 与本地 runtime API 拆开并有单元契约，下一步启动真实 worker-local QEMU 与 evidence 路径，再补自动主机发现/跨主机迁移、reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-06` | 进行中 | controlled resolver A/AAAA、IPv6 forwarding 预检和专用 UIFlow2 测试构建的 guest IPv6 TCP/HTTP 已实现；下一步在同一 Linux guest 完成 controlled AAAA、denied-port 与 namespace cleanup | 同一 lease/guest 内 AAAA 允许/拒绝、IPv6 egress、pcap 和 cleanup 成立；不能用 host probe 或另一 session 拼接固件结论；原厂 UIFlow2 未启用 link-local |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；资产/工具无漂移，240 个资源采样的 host RSS/phys footprint 未增长；参数范围 1–121 | 3 个独立 lease 各 121 轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
+| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；首次 121 轮在 29 轮后被固定 180 秒等待预算误杀，runner/Device Service 已改用共享 workload-aware 预算，`121` 轮参数对应 `1028s` | 3 个独立 lease 各 121 轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | API/WebBurner 已能声明 required/optional capability；required/optional 重叠会拒绝，optional 不匹配只 warning；sdkconfig WiFi/BT/PSRAM 作为 detected warning 进入 manifest。矩阵（含 resume）每轮强制刷新公开 BIN，结果键包含 SHA。已有 7 台设备、21 个历史哈希绑定样本；下一步先跑当前 AtomS3R/PaperMono 四样本，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA 变化的旧结果不得复用；模型缺口不得混作固件 FAIL |
@@ -196,7 +198,14 @@ guest-call 上下文问题并修复：
   `bounded_tcg_cache`、全部功能/HLI/pcap/evidence/cleanup gate 成立；
   240 个资源采样 RSS `323536→252992 KiB`、phys footprint
   `250880→188416 KiB`，无持续增长；
-- 仍未完成：121 轮连接、长时吞吐/并发和 process-stop/teardown 竞态；
+- 第一次 `121` 轮运行在应用 READY、WiFi、公网和 29 个完整 GATT
+  cycle 后，被固定 `180s` readiness 预算终止；第 30 轮已经开始，guest
+  无 panic，peer 无 GATT timeout。该失败不是 controller FAIL。runner
+  和 Device Service 现共享
+  `min(7200, 60 + cycles × (6 + delay))s` 预算，`121` 轮、`2s` 延迟为
+  `1028s`；旧的失败 evidence 保留，修复后的 3 lease 结果尚未产生；
+- 仍未完成：修复后 3 个 lease 的 121 轮连接、长时吞吐/并发和
+  process-stop/teardown 竞态；
 - 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
 - bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；

@@ -127,6 +127,9 @@ HLI `3377/3377`、events `2297`、ACLs `1080`，连接池回到 `3/9/3`。历史
 PASS。Device Service/Bumble/runner 共享 `1–121` 范围，并有 `122` 轮拒绝测试。
 较早的十轮运行曾被 Device Service 的旧 30 秒等待硬上限误杀，失败证据保留在
 `evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`。
+首次 121 轮运行又在 29 轮后暴露固定 180 秒预算不足；guest 无 panic，
+runner/Device Service 已改用同一 workload-aware 预算，失败证据保留在
+`evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`。
 
 ```bash
 python3 tests/uiflow2/core2_native_hci/test_transport.py

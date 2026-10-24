@@ -24,6 +24,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` 30-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect30-3x.json`; three independent stock-firmware leases complete thirty full NUS GATT cycles each. Every lease balances HLI 857/857, delivers 587 events and 270 ACLs, with zero errors, empty queues and connection/L2CAP/GATT pools back at 3/9/3 |
 | `CORE2-02` 60-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect60-3x.json`; three independent leases complete sixty cycles each with HLI 1697/1697, 1157 events, 540 ACLs, zero errors and pools back at 3/9/3 |
 | `CORE2-02` 120-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect120-3x.json`; three independent leases complete 120 cycles each with HLI 3377/3377, 2297 events, 1080 ACLs, zero errors/dropped packets and pools back at 3/9/3 |
+| `CORE2-02` 121-cycle readiness budget | `FIXED / RERUN PENDING` | `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`; the first run completed 29 cycles and started cycle 30 before a fixed 180-second budget stopped a healthy session. The runner and Device Service now share `reconnect_workload_timeout_seconds()`; a replacement three-lease gate is pending |
 
 Build the patched QEMU, then run:
 
@@ -285,7 +286,10 @@ thirty-cycle evidence is
 `evidence-2026-10-24-hci4-reconnect60-3x.json`; the 120-cycle evidence is
 `evidence-2026-10-24-hci4-reconnect120-3x.json`. The contract range is now
 1-121 cycles and 122 is rejected; three independent leases at 120 cycles each
-pass, while 121-cycle runtime evidence is still pending.
+pass. The first 121-cycle attempt stopped after 29 completed cycles because
+the runner and service still shared a fixed 180-second readiness budget; the
+guest had no panic and cycle 30 had started. They now use the same
+workload-aware timeout, but a replacement 121-cycle gate is still pending.
 The replacement artifact-bound two-hour hold passes the functional gate with
 HLI `45/45`, zero errors/queues/dropped packets and unchanged launch assets.
 The final `tb-size=128` rerun binds launch assets and tools, then passes
@@ -300,6 +304,11 @@ peer workload after cycle 6 started. That failure is retained in
 `evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`; the wait now uses
 the session ready timeout and has a regression test in
 `platform/tests/test_device_service.py`.
+The first 121-cycle attempt exposed that a fixed session timeout is still not
+enough for the maximum reconnect workload. Its failure remains in
+`evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`; both
+layers now use `reconnect_workload_timeout_seconds()` and the failure was
+classified as a readiness-budget mismatch, not a controller failure.
 
 After the external Bumble peer closes, the stock firmware can continue issuing
 HCI commands until a native-HCI queue fills. The runner therefore also accepts

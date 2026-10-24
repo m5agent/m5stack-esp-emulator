@@ -72,6 +72,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-tb128-hold120-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
@@ -118,6 +119,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/tools/worker_auth.py",
             "platform/tools/worker_agent.py",
             "platform/tools/qemu_accel.py",
+            "platform/tools/ble_runtime_limits.py",
+            "platform/tests/test_ble_runtime_limits.py",
             "platform/tests/test_network_fabric.py",
             "platform/tests/test_transport_security.py",
             "platform/tests/test_worker_registry.py",
@@ -502,6 +505,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "| `CORE2-02` 120-cycle extension | `NOT RUN` |",
             "| `CORE2-02` artifact-bound 7200s | `RUNNING / NOT RUN as PASS` |",
             "artifact-bound run 当前在途",
+            "最终两小时复测尚未完成",
+            "bounded-TCG two-hour confirmation",
+            "121 is accepted by contract but still needs a runtime gate",
+            "121-cycle runtime evidence is still pending",
             "RSS 有界",
             "3 个独立 lease、每个 30 轮的下一门禁",
             "Automated discovery and migration of a client fleet is still",
@@ -852,6 +859,14 @@ class DocsConsistencyTests(unittest.TestCase):
                 "tb128-artifact-bound-1x.json"
             ).read_text()
         )
+        readiness_failure = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-hci4-reconnect121-"
+                "readiness-timeout-1x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("20/30/60/120", project_snapshot)
@@ -886,6 +901,9 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", service)
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", peer)
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", runner)
+        self.assertIn("reconnect_workload_timeout_seconds", limits)
+        self.assertIn("reconnect_workload_timeout_seconds", service)
+        self.assertIn("reconnect_workload_timeout_seconds", runner)
         self.assertIn("core2_accel_args", service)
         self.assertIn('"bounded_tcg_cache"', runner)
         self.assertIn('"tool_hashes"', runner)
@@ -916,6 +934,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("上限为 121 并拒绝 122", device_readme)
         self.assertIn("323536", device_readme)
         self.assertIn("250880", device_readme)
+        self.assertIn("29 轮", device_readme)
+        self.assertIn("workload-aware", device_readme)
         self.assertNotIn("最终两小时限容复测尚未完成", device_readme)
         for stale in (
             "当前参数上限为 120 并拒绝 121",
@@ -932,6 +952,26 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "not physical PSRAM or cache timing validation",
             resolved_psram["scope"],
+        )
+        self.assertEqual(readiness_failure["status"], "FAIL")
+        self.assertEqual(readiness_failure["ble_reconnect_cycles"], 121)
+        self.assertEqual(
+            readiness_failure["observed"]["ble_cycles_passed"],
+            29,
+        )
+        self.assertTrue(
+            readiness_failure["observed"]["ble_cycle_30_started"]
+        )
+        self.assertFalse(readiness_failure["observed"]["guest_panic"])
+        self.assertEqual(
+            readiness_failure["root_cause"]["classification"],
+            "readiness_budget_mismatch_not_controller_failure",
+        )
+        self.assertEqual(
+            readiness_failure["resolution"][
+                "effective_timeout_seconds_for_121_cycle_2_second_delay"
+            ],
+            1028,
         )
 
         self.assertEqual(evidence["status"], "PASS")
@@ -1247,7 +1287,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
         self.assertTrue(
             any(
-                "121-cycle reconnect run" in blocker
+                "121-cycle reconnect gate" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )

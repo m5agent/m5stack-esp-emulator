@@ -94,7 +94,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/network_sandbox.py` | Linux private net/mount namespace 与 controlled DNS | 隔离 runner、worker |
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
-| `platform/tools/ble_runtime_limits.py` | BLE reconnect、reconnect delay 和 hold 的服务/peer/runner 共享上限 | Device Service、BLE probe、Core2 runner |
+| `platform/tools/ble_runtime_limits.py` | BLE reconnect、reconnect delay 和 hold 的服务/peer/runner 共享上限，以及按 cycle/delay 计算的 readiness workload 预算 | Device Service、BLE probe、Core2 runner |
 | `platform/tools/ble_probe.py` | 外部 BLE peer、scan/connect/GATT 验证，以及同一 peer process 内的多轮 disconnect/reconnect | unified/BLE runners |
 | `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
 | `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
@@ -115,6 +115,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tests/` | Python API/契约与 Node SHA256/upload client 测试 | 每次代码改动 |
 | `platform/tools/project_snapshot.py --check` | 校验自动项目快照是否与 catalog/profile/evidence/Backlog 同步 | 状态、设备或 Task 变化后 |
 | `platform/tests/test_ble_probe.py` | Bumble no-response HCI compatibility 回归 | `ble_probe.py` controller compatibility 改动 |
+| `platform/tests/test_ble_runtime_limits.py` | reconnect cycle/delay 上限与 workload-aware readiness 预算 | BLE 长任务预算或参数范围改动 |
 | `tests/uiflow2/run_device_matrix.py` | 设备首帧、输入、烧录和板型 smoke | 设备/固件 profile 改动 |
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
@@ -303,7 +304,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 bounded TCG memory | `platform/tools/qemu_accel.py`；`run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-tb128-hold120-1x.json` | `tb-size=128` 后 120 秒 WiFi/公网/GATT/frame/pcap/HLI 全 PASS；RSS `323600→323584 KiB`、phys footprint `214016→196608 KiB`；最终 7200 秒限容门禁独立保留 |
 | Core2 final bounded 7200-second hold | `run_service_5x.py --hold-seconds 7200 --attempts 1`；`evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json` | 1/1 artifact-bound lease；`bounded_tcg_cache`、frame/QOM、WiFi/公网、active NUS GATT、pcap、HLI `45/45`、active peer、evidence 和 cleanup 全 PASS；240 个资源采样 RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB`，输入与工具哈希无漂移 |
 | Core2 resolved PSRAM/QOM | `evidence-2026-10-24-core2-native-hci-resolved-psram.json`；`device_service.qemu_runtime_memory()` | CLI `-m 0` 与 QOM-effective 4 MiB 分开记录；manifest runtime PSRAM preflight 使用有效值，物理 cache/PSRAM 仍为 `NOT RUN` |
-| Core2 same-guest reconnect | `ble_runtime_limits.py`；`run_service_5x.py --ble-reconnect-cycles 20/30/60/120`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；20/30/60/120 轮 evidence | 3 个独立 stock-firmware lease 各完成 20、30、60、120 轮；120 轮每 lease HLI `3377/3377`、events 2297、ACLs 1080；共享参数范围扩到 `1–121` 并有 `122` 拒绝测试；121 轮运行仍待执行，hold 上限 `7200s` |
+| Core2 same-guest reconnect | `ble_runtime_limits.py:reconnect_workload_timeout_seconds`；`run_service_5x.py --ble-reconnect-cycles 20/30/60/120/121`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_ble_runtime_limits.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；20/30/60/120 轮与 121 预算失败 evidence | 3 个独立 stock-firmware lease 各完成 20、30、60、120 轮；120 轮每 lease HLI `3377/3377`、events 2297、ACLs 1080；参数范围 `1–121`，`122` 拒绝。首次 121 轮完成 29 轮后被固定 180 秒预算误杀；runner/Device Service 已共享 workload-aware 预算，修复后 3 lease 门禁仍待执行 |
 | Core2 evidence binding | `run_service_5x.py:tool_hashes`；`qemu_accel.py`；`ble_runtime_limits.py`；`platform/tests/test_docs_consistency.py` | runner 在首 lease 前记录工具哈希，运行期对 firmware/ELF/QEMU 做漂移检查；每轮检查 accelerator 为 bounded `tb-size=128`。该机制只绑定本轮实现，不替代设备功能或物理等价证据 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |

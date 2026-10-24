@@ -1809,6 +1809,12 @@ components:
         ready_timeout_seconds:
           type: number
           default: 30
+          description: >
+            Requested application and peer-workload readiness budget. BLE
+            unified and HCI profiles enforce a workload-aware minimum of
+            min(7200, 60 + ble_reconnect_cycles *
+            (6 + ble_reconnect_delay_seconds)) seconds, even when a smaller
+            value is requested.
         ready:
           $ref: "#/components/schemas/ReadyConditions"
         runtime_env:
@@ -1976,7 +1982,9 @@ components:
           default: 1
           description: >
             Number of complete scan/connect/GATT/disconnect cycles performed by
-            the external BLE peer without restarting the guest.
+            the external BLE peer without restarting the guest. This workload
+            raises the effective ready_timeout_seconds so long reconnect runs
+            are not terminated by a fixed startup timeout.
         ble_reconnect_delay_seconds:
           type: number
           minimum: 0

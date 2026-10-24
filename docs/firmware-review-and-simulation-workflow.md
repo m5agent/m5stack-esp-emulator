@@ -1,7 +1,7 @@
 # 固件审查与仿真测试工作流
 
 - 状态：工作流基线，持续更新
-- 日期：2026-10-24
+- 日期：2026-10-25
 - 适用对象：UIFlow/UIFlow2、ESP-IDF、Arduino、MicroPython 和自研 ESP32 固件
 - 相关文档：
   - [项目当前状态](project-status.md)
@@ -429,6 +429,11 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 6. 错误密码负向用例与 StickS3 radio/AP 丢失/reconnect；
 7. Device Service session 的统一 evidence ZIP。
 
+公开 CDN 的 URL 和版本号不是不可变内容承诺。热门固件矩阵在首次运行和
+`--resume` 时都会重新下载并绑定实际 BIN SHA；同一 ID/version 的旧结果不能
+继承到变化后的字节。当前 AtomS3R/PaperMono 四个刷新样本已完成结构、完整
+Manifest 和脱敏静态审查，Device Service 功能执行仍是 `NOT RUN`。
+
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
 1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
@@ -454,6 +459,11 @@ job、evidence ZIP/SHA256 回报和 worker HMAC；仍未完成的是跨主机
 executor/reattach、companion/evidence continuity、生产多机调度、CIDR/
 domain-set policy 和同 guest controlled AAAA/denied-port IPv6 policy。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
+
+Core2 的长 BLE reconnect 也是同一原则：`121` 轮首次运行在 29 轮后暴露固定
+`180s` readiness 预算缺陷，runner 与 Device Service 已改为按 cycles/delay
+计算共享预算。该失败保留为基础设施/等待预算证据，不能记成 guest 或
+controller 的固件 FAIL；修复后的 `3 × 121` 仍是运行门禁。
 
 ## 11. 结论
 
