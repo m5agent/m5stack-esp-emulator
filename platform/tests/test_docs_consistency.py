@@ -168,6 +168,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-public-manifest-web-conformance.json",
             "tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json",
             "tests/firmware/evidence-2026-10-24-c6-soft-reset-flash-addressing.json",
+            "tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json",
+            "tests/firmware/c6_zigbee_thread_sim/README.md",
+            "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",
             "platform/web/firmware.html",
             "platform/web/firmware.css",
@@ -387,6 +390,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-c6-soft-reset-flash-addressing.json"
             ).read_text()
         )
+        zigbee = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json"
+            ).read_text()
+        )
         reset_evidence = reset_fix["device_service_revalidation"]
 
         gap_codes = {
@@ -427,6 +437,11 @@ class DocsConsistencyTests(unittest.TestCase):
             "c6-soft-reset-flash-addressing.json",
             register,
         )
+        self.assertIn(
+            "c6-zigbee-thread-sim-feasibility.json",
+            register,
+        )
+        self.assertIn("run_feasibility.py", register)
         self.assertEqual(reset_fix["status"], "PASS")
         self.assertEqual(reset_evidence["status"], "PARTIAL")
         self.assertEqual(
@@ -435,6 +450,16 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertEqual(reset_evidence["runtime_model_gaps"], [])
         self.assertFalse(reset_evidence["invalid_chip_id_observed"])
+        self.assertEqual(zigbee["status"], "PARTIAL")
+        self.assertEqual(
+            zigbee["classification"],
+            "zigbee_commissioning_or_mac_ack_not_completed",
+        )
+        self.assertTrue(zigbee["radio"]["bidirectional"])
+        self.assertTrue(zigbee["markers"]["switch_formed_network"])
+        self.assertTrue(zigbee["markers"]["light_started_steering"])
+        self.assertFalse(zigbee["markers"]["light_joined_network"])
+        self.assertFalse(zigbee["markers"]["light_received_on_off"])
         self.assertEqual(
             reset_fix["official_matrix_regression"]["pass"],
             5,

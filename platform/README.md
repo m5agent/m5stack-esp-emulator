@@ -114,7 +114,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   不是本次 QEMU PASS 的数据路径，也不是生产 worker。
 - C6 `LP_SW_HPSYS` 后的 chip-id 错误已定位为 16 MiB Flash legacy 写擦
   地址宽度和 reset PMP 状态问题并修复；Zigbee/802.15.4 controller 仍未
-  建模。相关固件只能按新 evidence 分层记录，不能通过宿主假值或重试改成 PASS。
+  建模。`esp-emu --thread-sim` 已观察到源码构建 switch/light 的双向
+  802.15.4 帧，但 commissioning/join 未完成；相关固件只能按新 evidence
+  分层记录，不能通过宿主假值或重试改成 PASS。
 
 完整契约见
 [`docs/device-service-api.md`](../docs/device-service-api.md) 和

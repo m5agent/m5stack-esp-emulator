@@ -74,8 +74,10 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
 | --- | --- |
 | 状态 | `OPEN` |
 | 影响 | NanoC6 及后续依赖 ESP32-C6 IEEE 802.15.4/Zigbee 控制器的固件 |
-| 现象 | `Zigbee_main` 阻塞并触发 task watchdog；当前 C6 profile 没有对应 radio/controller 数据面 |
-| 证据 | [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json) |
+| QEMU 现象 | `Zigbee_main` 阻塞并触发 task watchdog；当前 QEMU C6 profile 没有对应 radio/controller 数据面 |
+| esp-emu 可行性 | 0.50.0 的 `--thread-sim` 能转发双向 802.15.4 帧；源码构建的 C6 switch/light 对已完成组网与 steering 启动，但未完成 commissioning/join 或 On/Off 命令 |
+| 当前阻断 | 缺少可验证的 MAC ACK/commissioning 语义；公开 M5Burner Zigbee bin 的 ELF SHA 没有匹配文件，因此不能用 `--thread-sim` 直接验证该公开样本 |
+| 证据 | [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json)、[`c6-zigbee-thread-sim-feasibility.json`](../tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json) |
 
 关闭条件：
 
@@ -86,8 +88,10 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
    `runtime_model_gap`；
 4. 与 WiFi/BLE 共存的结论单独记录，不能由单次 Zigbee 启动推断。
 
-如果无法取得可执行的控制器权威语义，该项目保持显式不支持，而不是承诺
-“所有 C6 固件均可运行”。
+下一项最小交付是取得可重建的 802.15.4 MAC ACK/commissioning 路径，或提供与
+公开固件匹配的 ELF 并让 `run_feasibility.py` 从 `PARTIAL` 进入 join +
+On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不是承诺“所有 C6
+固件均可运行”。
 
 ## 与固件矩阵的关系
 

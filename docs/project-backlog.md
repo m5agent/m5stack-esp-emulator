@@ -61,7 +61,7 @@
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | 已有 6 台 S3/C6、18 个公开官方/社区样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
-| `RUNTIME-02` | 决策 | 评估 C6 Zigbee/802.15.4 MAC、DMA、IRQ 和驱动路径能否进入可维护模型 | 完成至少一个真实 guest 生命周期并保留证据，或继续显式返回 `runtime_model_gap` 且给出阻断原因 |
+| `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
 | `SVC-01` | 进行中 | companion/evidence continuity、worker 主机自动发现与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
@@ -221,13 +221,18 @@ boot 和功能层；结构 PASS、UI PASS、功能 PASS、安全 PASS 不混算�
 
 ### RUNTIME-02 C6 Zigbee/802.15.4
 
-当前缺口：官方 NanoC6 Zigbee HA light 能启动到 `Zigbee_main`，但 C6 profile
-没有 IEEE 802.15.4/Zigbee controller，最终触发 task watchdog。继续把它标成
-固件 `FAIL` 会污染审查结论。
+当前缺口：QEMU C6 profile 没有 IEEE 802.15.4/Zigbee controller，官方
+NanoC6 Zigbee HA light 最终触发 task watchdog。另用 `esp-emu 0.50.0` 的
+`--thread-sim` 运行源码构建的 C6 switch/light 对后，已观察到双向
+802.15.4 帧、协调器组网和 light steering 启动，但没有完成 commissioning、
+join 或 On/Off 命令。公开 M5Burner Zigbee bin 的 ELF SHA 没有匹配文件，
+因此该公开样本不能直接用当前 bridge 验证。继续把 QEMU watchdog 标成固件
+`FAIL` 会污染审查结论。
 
-下一项最小交付：确认 Espressif C6 802.15.4 MAC/基带、DMA、interrupt、
-coexistence 和固件调用路径是否存在可实现的 QEMU 接口；给出工作量、依赖和
-数据面方案。
+下一项最小交付：补可验证的 802.15.4 MAC ACK/commissioning 语义，或取得
+公开固件的签名匹配 ELF；用
+`tests/firmware/c6_zigbee_thread_sim/run_feasibility.py` 复查 join、
+On/Off 和离网生命周期。当前 backend 下不得用 host 伪造 Zigbee 状态。
 
 验收：至少通过真实 guest 驱动的加入、收发和离网生命周期后才能改为支持；
 如果无法取得权威控制器语义，则保留结构化 `runtime_model_gap`，明确不支持，

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-24",
+  "kind": "c6-zigbee-thread-sim-feasibility",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "classification": "zigbee_commissioning_or_mac_ack_not_completed",
+  "emulator": {
+    "sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771",
+    "version": "esp-emu 0.50.0"
+  },
+  "artifacts": {
+    "switch_image_sha256": "9d09ad38e19985c387957caab32111fef7568e387d13e7836b0614e72be8dfcd",
+    "switch_elf_sha256": "9fc1000e80f8d482e42942db96fa0da4a0eeb1aa2fec8bc115e0f30428347f24",
+    "light_image_sha256": "de70918cdf45a4457ef6dc60e46c8903c44ccc1c0379ffb7aca29d9f9a5a1eef",
+    "light_elf_sha256": "6e54da13f1aaeb018b81491579a2c499efac4ca31e4a0951c0fdadc1cf4319ca"
+  },
+  "radio": {
+    "transport": "esp-emu --thread-sim local UDP relay",
+    "frames": {
+      "switch": {
+        "frames": 21,
+        "bytes": 685,
+        "payload_sha256": "308a401670feb44b7fd82624d5570d51787aedcd9ca531b0e6593926a8be5dc4"
+      },
+      "light": {
+        "frames": 17,
+        "bytes": 198,
+        "payload_sha256": "b5566c24a9206dc756f554b1cfec18418d42c38ba47bdc9e6fad7dcc332f9f92"
+      }
+    },
+    "bidirectional": true
+  },
+  "markers": {
+    "switch_formed_network": true,
+    "light_started_steering": true,
+    "light_joined_network": false,
+    "light_received_on_off": false
+  },
+  "logs": {
+    "switch": "switch.log",
+    "light": "light.log"
+  },
+  "boundary": {
+    "source_built_examples": [
+      "ESP-IDF HA_on_off_switch",
+      "ESP-IDF HA_on_off_light"
+    ],
+    "not_claimed": [
+      "public M5Burner Zigbee binary compatibility without a matching ELF",
+      "QEMU C6 Zigbee controller support",
+      "physical RF or hardware validation"
+    ]
+  }
+}

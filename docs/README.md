@@ -64,7 +64,7 @@
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 14 个 unified profile；Core2 主路径为 `core2-native-hci`，`HCI-1` 至 `HCI-4` PASS；旧的 native-VHCI GDB 路径仅保留为诊断/兼容 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；`60s`、`120s`、active-BLE `120s` 和 active-BLE `600s` 门禁通过；同 guest 20、30、60、120 轮 GATT 分别在 3 个独立 lease 中 PASS。120 轮运行每 lease HLI 3377/3377、events 2297、ACLs 1080。首次 10 轮运行的 Device Service 30 秒等待误杀已修复；共享参数范围 `1–120`，下一门禁是超过一百二十轮和两小时 soak；物理等价性与真机仍开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | C6 软件复位 chip-id 的 `RUNTIME-01` 已由 Flash 三字节写擦/PMP 复位修复关闭；C6 Zigbee/802.15.4 的 `RUNTIME-02` 仍 `OPEN`；Meshtastic 修复后仍有独立应用异常，未写成完整功能 PASS |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | C6 软件复位 chip-id 的 `RUNTIME-01` 已关闭；`RUNTIME-02` 仍有 esp-emu `thread-sim` 双向帧、无 commissioning/join；Meshtastic 修复后仍有独立应用异常 |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复、双 guest lab fabric、worker SIGHUP rotation、active-request drain、bounded credential overlap、final cutover 和双 worker generation-pointer 自动迁移已通；worker 主机自动发现、跨主机与 QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |

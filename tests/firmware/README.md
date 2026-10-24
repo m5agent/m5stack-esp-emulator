@@ -27,7 +27,10 @@ six S3/C6 devices. Its `PARTIAL` results are not all simulator defects:
 serial-only devices and fatal post-frame evidence retain separate reasons.
 The original C6 software-reset chip-id gap has a separate fix evidence snapshot;
 that firmware now reaches the ordinary `fatal_after_application_frame` path
-without a `runtime_model_gap`. The C6 Zigbee gap remains open.
+without a `runtime_model_gap`. The C6 Zigbee gap remains open:
+`c6_zigbee_thread_sim/run_feasibility.py` observed bidirectional 802.15.4
+frames from source-built switch/light examples, but commissioning/join did not
+complete.
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).
