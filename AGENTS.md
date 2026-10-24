@@ -249,13 +249,13 @@ diagnostics in `internal/records/`.
   Historical
   `semphr_give_wrapper`, `PC=0` and Cache-error evidence remains tracked.
   This closes the repeated-start/two-minute virtual gate, not multi-hour soak,
-  physical cache/PSRAM equivalence, more than sixty reconnect cycles or
+  physical cache/PSRAM equivalence, more than one hundred twenty reconnect cycles or
   bit-exact controller behavior. Same-guest reconnect passes in three
-  independent stock-firmware leases at 20, 30 and 60 cycles per lease.
-  The sixty-cycle run balances 1697/1697 HLI posts/consumption, delivers 1157
-  events and 540 ACLs, and returns all connection/L2CAP/GATT pools to their
-  free baseline. The Device Service, Bumble peer and runner share a 1-60
-  range and reject 61. The next gate is more than sixty cycles and a multi-hour
+  independent stock-firmware leases at 20, 30, 60 and 120 cycles per lease.
+  The 120-cycle run balances 3377/3377 HLI posts/consumption, delivers 2297
+  events and 1080 ACLs, and returns all connection/L2CAP/GATT pools to their
+  free baseline. The Device Service, Bumble peer and runner share a 1-120
+  range and reject 121. The next gate is more than 120 cycles and a multi-hour
   coexistence soak. The earlier ten-cycle milestone remains in the ledger. A
   historical 30-second wait cap in Device Service terminated a valid
   ten-cycle peer after cycle 6 started; the wait now uses the session ready
@@ -329,8 +329,8 @@ The main open streams are:
 - automatic worker-host discovery, cross-host credential and QEMU job
   execution, companion/evidence continuity, cross-host QEMU re-attach,
   multi-host scheduling and external IPv6 endpoint enforcement;
-- Core2 more-than-60-cycle and multi-hour coexistence runs after the passing
-  three-independent-lease 60-cycle gate, bit-exact BT controller/baseband,
+- Core2 more-than-120-cycle and multi-hour coexistence runs after the passing
+  three-independent-lease 120-cycle gate, bit-exact BT controller/baseband,
   physical cache/PSRAM equivalence and hardware validation;
 - runtime permissions/license policy, production security-key flows and
   broader cross-firmware compatibility; the current public matrix covers 18

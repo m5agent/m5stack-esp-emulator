@@ -45,27 +45,30 @@ complete simulated device or as a unified-device PASS.
   restoration. `0005` fixes both; two independent `5×10s` batches pass
   `10/10`, three independent `60s` holds pass `3/3`, and two independent
   `120s` holds pass `2/2`, with zero HLI errors and empty queues. This is not
-  a multi-hour soak, more than sixty reconnect cycles or physical cache/PSRAM
+  a multi-hour soak, more than 120 reconnect cycles or physical cache/PSRAM
   proof.
   A further two `120s` holds keep the BLE peer connected for the full hold,
   with `peer-closed=0`, zero TX queue depth and no last error.
-- Same-guest reconnect is **PASS** for twenty cycles. The historical failure was
+- Same-guest reconnect is **PASS** through 120 cycles. The historical failure was
   caused by the Bumble compatibility layer returning a forbidden Command
   Status for `HCI_Host_Number_of_Completed_Packets (0x0c35)`; the next
   `LE Set Advertising Data (0x2008)` consumed the stale ACK and received
-  `BLE_HS_ECONTROLLER (12)`. Three independent stock-firmware leases now
-  complete twenty NUS GATT cycles each, with guest RX and notification in every
-  cycle, zero reset traces, 577/577 HLI posts/consumption and
-  connection/L2CAP/GATT pools back at `3/9/3`. Active-link hold and reconnect
+  `BLE_HS_ECONTROLLER (12)`. Three independent stock-firmware leases complete
+  20, 30, 60 and 120 NUS GATT cycles in separate gates, with guest RX and
+  notification in every cycle, zero reset traces and connection/L2CAP/GATT
+  pools back at `3/9/3`. The 120-cycle run balances 3377/3377 HLI
+  posts/consumption, 2297 events and 1080 ACLs. Active-link hold and reconnect
   remain separate gates, but both now pass. The first ten-cycle attempt exposed
   a Device Service 30-second completion-wait cap; the wait now uses the
   session ready timeout and has a regression test.
-- The accepted reconnect range is 1-60 cycles, with a contract test that
-  rejects 61. Three independent leases at 30 cycles each pass with
+- The accepted reconnect range is 1-120 cycles, with a contract test that
+  rejects 121. Three independent leases at 30 cycles each pass with
   857/857 HLI posts/consumption, 587 events and 270 ACLs per lease. Three
   independent leases at 60 cycles each pass with 1697/1697 HLI
-  posts/consumption, 1157 events and 540 ACLs per lease. The next required
-  extension is more than sixty cycles and a multi-hour coexistence soak.
+  posts/consumption, 1157 events and 540 ACLs per lease.
+  Three independent leases at 120 cycles each pass with 3377/3377 HLI
+  posts/consumption, 2297 events and 1080 ACLs per lease. The next required extension is more than
+  120 cycles and a multi-hour coexistence soak.
 - Current blockers, not historical explanations, are owned by
   [project status](project-status.md) and [Backlog](project-backlog.md). The
   device bullets below preserve implementation evidence and must not be read
@@ -159,7 +162,7 @@ complete simulated device or as a unified-device PASS.
   A separate HCI-offload build also routes NimBLE's H4 traffic through QEMU
   UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
   The remaining boundary is a bit-exact classic ESP32 controller/baseband,
-  physical cache/PSRAM equivalence, more than sixty reconnect cycles, multi-hour
+  physical cache/PSRAM equivalence, more than 120 reconnect cycles, multi-hour
   coexistence/soak and hardware, not UIFlow2 API or Device Service integration.
 - The replacement QEMU native-HCI path has passed the staged gates:
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
@@ -235,9 +238,9 @@ HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
   independent leases. The legacy `core2-native-vhci` profile uses a GDB bridge
   and is diagnostic only. Two independent `5×10s` batches, three `60s` holds,
   two `120s` holds, plus two active-BLE `120s` holds pass with
-  `hli-errors=0` and empty queues. Three independent leases also complete twenty
-  reconnect cycles each. Core2 still misses bit-exact controller/baseband,
-  physical cache/PSRAM equivalence, more than sixty connection cycles,
+  `hli-errors=0` and empty queues. Three independent leases complete 20, 30,
+  60 and 120 reconnect cycles in separate gates. Core2 still misses bit-exact
+  controller/baseband, physical cache/PSRAM equivalence, more than 120 connection cycles,
   multi-hour coexistence and hardware validation.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or

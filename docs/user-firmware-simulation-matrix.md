@@ -124,8 +124,7 @@ functional PASS.
   Two independent `5×10s` batches pass `10/10`, three `60s` holds pass
   `3/3`, two `120s` holds pass `2/2`, and two active-BLE `120s` holds pass
   `2/2`, with zero HLI errors and empty HLI/meta queues. Three independent
-  stock-firmware leases also complete twenty same-guest reconnect cycles.
-  Three independent 30-cycle reconnect leases now pass. Bit-exact Espressif BT
-  controller behavior, physical cache/PSRAM equivalence, more than sixty
-  reconnect cycles, multi-hour coexistence/soak and hardware validation remain
+  stock-firmware leases complete 20, 30, 60 and 120 same-guest reconnect gates.
+  Bit-exact Espressif BT controller behavior, physical cache/PSRAM equivalence,
+  more than 120 reconnect cycles, multi-hour coexistence/soak and hardware validation remain
   `NOT RUN`.

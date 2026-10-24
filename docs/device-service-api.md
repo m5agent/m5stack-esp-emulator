@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.22.0` and bounded
+Status: local MVP with unified-device runtime contract `1.23.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -991,7 +991,7 @@ GATT lifecycle:
   "network": {
     "profile": "core2-native-hci",
     "elf_artifact_id": "<matching-xtensa-elf-sha256>",
-    "ble_reconnect_cycles": 60,
+    "ble_reconnect_cycles": 120,
     "ble_reconnect_delay_seconds": 2
   }
 }
@@ -1741,7 +1741,7 @@ restart.
   `network.ble_linger_seconds` can keep the external GATT peer connected
   beyond its initial exchange; two active-link `120s` holds pass `2/2` with
   `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`.
-  `network.ble_reconnect_cycles` (1-60) asks one external peer process to run
+  `network.ble_reconnect_cycles` (1-120) asks one external peer process to run
   multiple complete scan/connect/GATT/disconnect cycles without restarting the
   guest; `network.ble_reconnect_delay_seconds` controls the pause before the
   next scan. Stock Core2 passes twenty complete cycles in each of three leases
@@ -1754,8 +1754,9 @@ restart.
   evidence is `evidence-2026-10-24-hci4-reconnect20-3x.json`, and the
   thirty-cycle evidence is
   `evidence-2026-10-24-hci4-reconnect30-3x.json`; the sixty-cycle evidence is
-  `evidence-2026-10-24-hci4-reconnect60-3x.json`. Three independent leases
-  pass sixty cycles each; the next validation gate is more than sixty cycles
+  `evidence-2026-10-24-hci4-reconnect60-3x.json`; the 120-cycle evidence is
+  `evidence-2026-10-24-hci4-reconnect120-3x.json`. Three independent leases
+  pass 120 cycles each; the next validation gate is more than 120 cycles
   and a multi-hour coexistence soak;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT

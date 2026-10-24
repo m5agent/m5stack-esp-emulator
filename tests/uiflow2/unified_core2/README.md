@@ -99,13 +99,12 @@ The UIFlow2 test source uses a `BLEUARTServer` subclass that schedules one
 test-only re-advertisement 500 ms after disconnect. This behavior exists only
 to exercise the second-connect lifecycle; it is not a proposed product fix.
 
-The stock/native-HCI Core2 guest now passes twenty complete cycles in each of
-three independent leases. It also passes thirty complete cycles in each of
-three independent leases, with HLI 857/857, 587 events, 270 ACLs and pools back
-at 3/9/3. Device Service, Bumble and the service runner accept 1-60 cycles;
-three independent leases at 60 cycles each also pass with HLI 1697/1697,
-1157 events and 540 ACLs. The next required gate is more than sixty cycles and
-a multi-hour coexistence soak. The former
+The stock/native-HCI Core2 guest passes 20, 30, 60 and 120 complete cycles in
+separate three-lease gates. The 120-cycle gate has HLI 3377/3377, 2297 events,
+1080 ACLs and pools back at 3/9/3. Device Service, Bumble and the service
+runner accept 1-120 cycles; three independent leases at 120 cycles each pass.
+The next required gate is more than 120 cycles and a multi-hour coexistence
+soak. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Removing that reply

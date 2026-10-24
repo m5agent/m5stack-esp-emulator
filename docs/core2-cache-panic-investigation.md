@@ -159,9 +159,9 @@ finding:
   the peer-close TX queue-full tail with zero HLI errors and empty
   HLI/meta queues.
 
-These are virtual-device context fixes. Later same-guest runs cover 20, 30 and
-60 reconnect cycles, but they do not establish physical cache/PSRAM timing,
-more than sixty reconnect cycles, multi-hour coexistence or hardware
+These are virtual-device context fixes. Later same-guest runs cover 20, 30,
+60 and 120 reconnect cycles, but they do not establish physical cache/PSRAM
+timing, more than 120 reconnect cycles, multi-hour coexistence or hardware
 equivalence.
 
 ## Next investigation

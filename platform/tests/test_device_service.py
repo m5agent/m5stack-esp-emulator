@@ -908,21 +908,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
             runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
         )
         self.assertEqual(twenty_cycles["ble_reconnect_cycles"], 20)
-        sixty_cycles = device_service_module.parse_qemu_ble_execution(
-            self.service.specs["sticks3"],
-            {
-                "profile": "uiflow2-sticks3-unified",
-                "ble_reconnect_cycles": 60,
-            },
-            runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+        one_hundred_twenty_cycles = (
+            device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "uiflow2-sticks3-unified",
+                    "ble_reconnect_cycles": 120,
+                },
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
         )
-        self.assertEqual(sixty_cycles["ble_reconnect_cycles"], 60)
+        self.assertEqual(
+            one_hundred_twenty_cycles["ble_reconnect_cycles"],
+            120,
+        )
         with self.assertRaises(ServiceError) as invalid_cycles:
             device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
                 {
                     "profile": "uiflow2-sticks3-unified",
-                    "ble_reconnect_cycles": 61,
+                    "ble_reconnect_cycles": 121,
                 },
                 runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
             )
