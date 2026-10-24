@@ -1,5 +1,5 @@
 diff --git a/hw/block/m25p80.c b/hw/block/m25p80.c
-index 46dbe7c..e3666fe 100644
+index 46dbe7c..686f19f 100644
 --- a/hw/block/m25p80.c
 +++ b/hw/block/m25p80.c
 @@ -512,6 +512,7 @@ struct Flash {
@@ -10,7 +10,27 @@ index 46dbe7c..e3666fe 100644
      bool reset_enable;
      bool quad_enable;
      bool aai_enable;
-@@ -959,6 +960,9 @@ static void reset_memory(Flash *s)
+@@ -734,6 +735,19 @@ static inline int get_addr_length(Flash *s)
+    case QOR4:
+    case DIOR4:
+        return 4;
++   /*
++    * The legacy program/erase opcodes always carry a three-byte address,
++    * even while the device is in four-byte read mode.  Four-byte program
++    * and erase operations use their own opcodes below.
++    */
++   case PP:
++   case DPP:
++   case QPP:
++   case AAI_WP:
++   case ERASE_4K:
++   case ERASE_32K:
++   case ERASE_SECTOR:
++       return 3;
+    default:
+        return s->four_bytes_address_mode ? 4 : 3;
+    }
+@@ -959,6 +973,9 @@ static void reset_memory(Flash *s)
          break;
      }
  
@@ -20,7 +40,7 @@ index 46dbe7c..e3666fe 100644
      trace_m25p80_reset_done(s);
  }
  
-@@ -1732,6 +1736,7 @@ static int m25p80_pre_save(void *opaque)
+@@ -1732,6 +1749,7 @@ static int m25p80_pre_save(void *opaque)
  static Property m25p80_properties[] = {
      /* This is default value for Micron flash */
      DEFINE_PROP_BOOL("write-enable", Flash, write_enable, false),

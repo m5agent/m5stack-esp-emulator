@@ -25,6 +25,9 @@ The public cross-vendor snapshot currently records 18 non-baseline samples on
 six S3/C6 devices. Its `PARTIAL` results are not all simulator defects:
 `runtime_model_gap`, missing application frame, absent input response,
 serial-only devices and fatal post-frame evidence retain separate reasons.
+The original C6 software-reset chip-id gap has a separate fix evidence snapshot;
+that firmware now reaches the ordinary `fatal_after_application_frame` path
+without a `runtime_model_gap`. The C6 Zigbee gap remains open.
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).

@@ -2,8 +2,8 @@
 
 日期：`2026-10-24`
 
-本文是“固件行为与模拟器模型不一致”时的统一登记页。它只记录已经复现、
-仍未关闭的运行时能力缺口、证据、责任边界和验收条件；当前总体能力见
+本文是“固件行为与模拟器模型不一致”时的统一登记页。它记录已经复现的
+运行时能力缺口、关闭证据、责任边界和剩余验收条件；当前总体能力见
 [项目当前状态](project-status.md)，修复排期见
 [项目 Backlog](project-backlog.md)，证据历史见
 [验证证据台账](validation-ledger.md)。
@@ -26,36 +26,47 @@
 `PASS`。板级装配、Flash/PSRAM、eFuse、复位生命周期、分区和实际外设数据面
 都必须与样本匹配。
 
-## 当前缺口
+## 已关闭缺口
 
 ### RUNTIME-01：C6 软件复位后 chip-id 错误
 
 | 字段 | 当前值 |
 | --- | --- |
-| 状态 | `OPEN` |
-| 影响 | ESP32-C6 QEMU 软件复位生命周期；目前已由一个 Nesso N1 社区固件稳定触发 |
+| 状态 | `FIXED`（virtual-device validation） |
+| 影响 | ESP32-C6 QEMU 16 MiB Flash 的读地址模式、legacy program/erase 地址宽度和复位后 PMP 状态 |
 | 首次路径 | 固件进入 C6 ROM/application，随后执行 `LP_SW_HPSYS` 软件复位 |
 | 复位后现象 | ROM 报 `Invalid chip id. Expected 13 read 12. Bootloader for wrong chip?` |
 | 样本 | M5Burner `1897200000000001757`，`Meshtastic unofficial` |
 | 固件 SHA-256 | `ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744` |
-| 证据 | [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json) |
+| 根因证据 | [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json) |
+| 修复证据 | [`c6-soft-reset-flash-addressing.json`](../tests/firmware/evidence-2026-10-24-c6-soft-reset-flash-addressing.json) |
 
-已知边界：
+根因：
 
-- 首次启动已经进入 C6 ROM/application，不是镜像格式或 Flash 地址错误；
-- `read 12` 的具体 ROM/eFuse/寄存器来源尚未定位，不能仅凭数字猜测 efuse 位；
-- 还没有证明所有 C6 软件复位都受影响，因此当前证据只绑定该 firmware SHA、
-  Nesso N1 profile 和对应 QEMU build；
-- 不允许通过 Python/QOM 在每次 ROM 读取时返回假 chip id 来“修复”。
+- C6 16 MiB 配置把 m25p80 全局强制为 4 字节地址；
+- `0x20` Sector Erase 和 `0x02` Page Program 等 legacy 命令实际仍发送
+  3 字节地址，模型误把首字节数据当成第 4 个地址字节；
+- core dump 目标 `0x300000/0x900000...` 被写到 offset `0`，覆盖 C6
+  secondary bootloader 头，使下一次 ROM 读到 chip id `0x0c`；
+- QEMU 的通用 RISC-V reset 只 unlock PMP entry，没有清除旧地址/权限，
+  第二次 ROM boot 还会在 `0x50002000` 触发 PMP Store access fault。
 
-关闭条件：
+修复：
 
-1. 从 ESP-IDF/ROM 路径确认 `expected 13/read 12` 的实际读取来源；
-2. 修正 C6 reset domain、eFuse backing、strap 或寄存器保留语义中的真实缺陷；
-3. 同一 firmware SHA 重跑后不再出现 `Invalid chip id`，并保留 serial、frame、
-   input、runtime/profile 和 QEMU build 证据；
-4. NanoC6/Nesso N1 的其他 C6 unified 用例不回归；
-5. 结果标记为 `virtual-device validation`，不扩展为 RF 或真机结论。
+1. 16 MiB 读路径保留 4-byte address 配置；
+2. legacy program/erase opcode 固定使用 3-byte address，显式 4-byte
+   program/erase opcode 继续使用 4-byte address；
+3. ESP RISC-V CPU 在 C6 复位时清空 PMP table、`mseccfg` 和 TLB；
+4. 同一固件重新通过 Device Service 执行后不再出现 `Invalid chip id`，
+   `runtime_model_gaps=[]`；
+5. Nesso N1 官方外设组 `5/5`、NanoC6 板级探针不回归。
+
+剩余边界：该 Meshtastic 样本仍会在应用启动后触发独立的 Instruction access
+fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，不能写成
+完整功能 PASS。这个问题不再属于 RUNTIME-01，需要单独确认是固件缺陷还是新的
+运行时模型偏差。
+
+## 当前缺口
 
 ### RUNTIME-02：C6 Zigbee/802.15.4 运行时未建模
 
@@ -82,7 +93,8 @@
 
 跨厂商矩阵的状态语义由
 [热门用户固件矩阵](user-firmware-simulation-matrix.md)定义。当前 18 个公开
-样本中有两个缺口进入本页；其余 `PARTIAL` 仍按首帧、输入、串口生命周期或
+样本的历史快照中有两个缺口进入本页，其中一个现已关闭；其余 `PARTIAL`
+仍按首帧、输入、串口生命周期或
 仅串口设备等独立原因记录，不能因为页面放在同一个矩阵中就合并为模型缺陷。
 
 新增 `runtime_model_gap` 时必须同时：

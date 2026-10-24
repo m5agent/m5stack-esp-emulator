@@ -133,7 +133,7 @@
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
 | S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold 和 3 个各 20 轮的 same-guest GATT lease 均 PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、持续 active BLE 和同 guest 二十轮重连数据面；仍不是完整 RF/PHY、bit-exact BT controller、多小时 soak 或超过二十轮连接 |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain 和 previous token/CA 有界重叠后 final cutover PASS；自动化客户端批量迁移、跨主机 QEMU job、companion continuity 和 IPv6 未完成 | `NOT RUN` | 传输、认证和同主机 QEMU/unified job 基础已具备，尚不是多租户恶意固件 VM |
-| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS；6 台设备 18 个公开非基线样本为 10 PASS / 8 PARTIAL，2 个 runtime model gap 已结构化分类 | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环；C6 软件复位与 Zigbee 两个模型缺口仍 `OPEN`；FW-03 仍需更多设备/firmware family，生产安全未完成 |
+| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS；6 台设备 18 个公开非基线样本为 10 PASS / 8 PARTIAL，2 个 runtime model gap 已结构化分类；C6 软件复位 chip-id 缺口已修复 | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环；C6 Zigbee 仍 `OPEN`，软件复位修复后的样本仍有独立应用异常；FW-03 仍需更多设备/firmware family，生产安全未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、active-request drain、previous token/CA 有界重叠与 final cutover、worker lease 与失联回收 | 无跨主机 QEMU executor、自动化客户端批量迁移、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、drained overlap rotation、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
 
 ## 验证证据
@@ -149,7 +149,7 @@
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover；GitHub Actions Linux policy CI PASS | 自动化客户端批量迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产多机调度、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；另 2 个 `120s` active-BLE hold `2/2`；3 个独立 lease 各 20 轮的 same-guest GATT `3/3` | `HCI-4`、two-minute virtual extended-run、十轮与二十轮 reconnect 已通过。reconnect 根因是 Bumble 为 HCI Host Completed Packets 返回非法 Command Status；Bumble compatibility 层已修正。Device Service/Bumble peer/runner 的统一 API 上限已扩到 `30`。旧 GDB 路径 `1/2` 只作诊断。剩余是超过二十轮、多小时 soak、bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist；6 台设备 18 个公开非基线样本 10 PASS / 8 PARTIAL，模型缺口与固件故障分开 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、更多设备/firmware family 回归；`RUNTIME-01` C6 软件复位和 `RUNTIME-02` Zigbee/802.15.4 仍 `OPEN` |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist；6 台设备 18 个公开非基线样本 10 PASS / 8 PARTIAL；`RUNTIME-01` Flash/PMP 修复已通过 Device Service 和 C6 回归 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、更多设备/firmware family 回归；`RUNTIME-02` Zigbee/802.15.4 仍 `OPEN` |
 
 ## 工作流入口
 
@@ -303,9 +303,14 @@
   C6 `LP_SW_HPSYS` 软件复位后 chip id 错误）现归为
   `runtime_model_gap`，保留原始 serial/error 证据，不再误报固件 FAIL：
   [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json)。
-- 上述两个 `runtime_model_gap` 仍为 `OPEN`，“分类正确”不等于“模型已修”。
-  `RUNTIME-01` 需要从 C6 ROM/eFuse/复位域语义定位 chip-id 来源；
-  `RUNTIME-02` 需要决定 802.15.4/Zigbee controller 是否可维护地建模。缺口、
+- `RUNTIME-01` 已关闭：16 MiB C6 的全局 4-byte 地址模式误解析了 legacy
+  `0x02/0x20` 三字节写擦地址，core dump 写入覆盖 offset 0 的 bootloader；
+  同时修复 C6 复位后遗留 PMP range 的问题。该固件经 Device Service 重跑后
+  不再出现 `Invalid chip id`，`runtime_model_gaps=[]`，Nesso 官方外设组
+  `5/5`、NanoC6 板级探针均通过：
+  [`c6-soft-reset-flash-addressing.json`](../tests/firmware/evidence-2026-10-24-c6-soft-reset-flash-addressing.json)。
+  该样本随后仍有独立的 Instruction access fault，因此完整功能仍是
+  `PARTIAL`。`RUNTIME-02` Zigbee/802.15.4 仍为 `OPEN`。缺口、
   已知边界和关闭条件统一维护在
   [运行时模型缺口登记](runtime-model-gap-register.md)。
 - 任意固件仍受板型、PSRAM、eFuse/安全启动、Flash 加密、分区和控制器覆盖
@@ -325,7 +330,7 @@
 | StackChan | ESP32-S3 / QEMU | 显示、触摸、摄像头、环境/运动传感器、音频、NFC、IR、双舵机通过 | `qemu-unified` PASS | 机械运动、声学和相机光学 |
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS | 原生 BT controller、C6 WiFi PHY；Zigbee/802.15.4 `RUNTIME-02` 未建模 |
-| Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller；`LP_SW_HPSYS` 后 chip-id `RUNTIME-01` |
+| Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller；`RUNTIME-01` Flash/PMP 修复后 Meshtastic 仍有独立应用异常 |
 | Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT 和同 guest 多轮重连 | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `120s` `2/2` 与 3 个各 20 轮的 GATT lease 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | 超过二十轮、多小时 soak、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence、真机同路径 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
@@ -374,9 +379,10 @@
   companion/evidence continuity、生产 secret manager/多机调度、VM 隔离和
   外部 IPv6 仍待实现。
 5. **通用固件兼容性**：SoC 相同不代表板级、分区、安全配置和控制器全部
-   兼容。当前 C6 已有两个真实缺口：软件复位后 ROM 读到错误 chip id，以及
-   Zigbee/802.15.4 未建模。两者保持 `PARTIAL/runtime_model_gap`，直到有
-   真实 QEMU controller/reset 证据关闭；不能通过宿主假值或重试伪装 PASS。
+   兼容。当前 C6 的软件复位 chip-id 错误已定位为 Flash 地址宽度与 PMP
+   复位模型缺陷并修复；Zigbee/802.15.4 仍未建模。修复后的 Meshtastic
+   样本仍有独立 Instruction access fault，必须继续区分固件缺陷和新的
+   模型偏差，不能用重试伪装 PASS。
 6. **视觉保真**：除 StopWatch 外，设备外壳仍主要是近似模型。
 
 ## 文档职责

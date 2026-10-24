@@ -1093,7 +1093,7 @@
         "validation": {
           "date": "2026-10-24",
           "status": "display-touch-peripherals-wifi-ble-pass",
-          "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 135x240 显示、触摸/按键、PI4IOE、BQ27220/AW32001、BMI270、SX1262 LoRa、RMT 红外、I2S 蜂鸣器、QEMU ESP32-C6 WiFi DHCP/HTTP、example.com IPv4 DNS/HTTP 和 UART1 HCI BLE NUS；独立 runner 与 Device Service 单个 qemu-unified lease 均通过，stock hardware.RGB() 仍为 NOT RUN。跨厂商公开固件审查另记录 LP_SW_HPSYS 软件复位后 ROM chip-id 为 12/预期 13（RUNTIME-01）；问题尚未关闭，也不影响上述基线路径的既有证据。"
+          "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 135x240 显示、触摸/按键、PI4IOE、BQ27220/AW32001、BMI270、SX1262 LoRa、RMT 红外、I2S 蜂鸣器、QEMU ESP32-C6 WiFi DHCP/HTTP、example.com IPv4 DNS/HTTP 和 UART1 HCI BLE NUS；独立 runner 与 Device Service 单个 qemu-unified lease 均通过，stock hardware.RGB() 仍为 NOT RUN。RUNTIME-01 已定位为 16 MiB Flash legacy 写擦地址宽度和复位 PMP 状态问题并修复：Meshtastic 经 Device Service 重跑不再报 Invalid chip id，但仍存在独立的 Instruction access fault，因此完整功能仍为 PARTIAL。"
         }
       },
       "uiflow2": {

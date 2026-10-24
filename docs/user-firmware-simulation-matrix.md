@@ -79,11 +79,16 @@ Two samples are classified as `runtime_model_gap`:
   `LP_SW_HPSYS` reset reports chip id 12 instead of 13, exposing a QEMU C6
   software-reset model defect.
 
-Both gaps are still `OPEN`; this classification only prevents a false firmware
-`FAIL`. Their exact affected reset/controller scope and closure conditions are
-maintained in the
-[runtime model-gap register](runtime-model-gap-register.md), with tasks
-`RUNTIME-01` and `RUNTIME-02` in the project backlog.
+The historical snapshot classified both samples as `runtime_model_gap`.
+`RUNTIME-01` is now fixed: the C6 flash model distinguishes legacy three-byte
+program/erase commands from four-byte reads, and reset clears stale PMP state.
+The same Meshtastic SHA was rerun through Device Service with
+`runtime_model_gaps=[]`; its state is now
+`PARTIAL/fatal_after_application_frame`, not `Invalid chip id`.
+
+`RUNTIME-02` Zigbee/802.15.4 remains `OPEN`. Exact scope and closure evidence
+are maintained in the
+[runtime model-gap register](runtime-model-gap-register.md).
 
 The evidence retains serial hashes and bounded error lines while keeping the
 model-vs-firmware boundary explicit. PARTIAL samples are not promoted to

@@ -78,6 +78,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch",
             "patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-call-sregs.patch",
             "patches/qemu-core2-native-hci/0006-esp32-native-hci-observability.patch",
+            "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
@@ -160,6 +161,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
             "tests/firmware/evidence-2026-10-24-public-manifest-web-conformance.json",
             "tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json",
+            "tests/firmware/evidence-2026-10-24-c6-soft-reset-flash-addressing.json",
             "tests/firmware/README.md",
             "platform/web/firmware.html",
             "platform/web/firmware.css",
@@ -343,6 +345,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "keeps the Core2 WiFi path `PARTIAL`",
             "accelerometer/gyroscope values: PARTIAL",
             "暂用 `-m 0` 规避 PSRAM/cache 稳定性问题",
+            "Both gaps are still `OPEN`",
+            "两个 `runtime_model_gap` 仍为 `OPEN`",
+            "C6 LP_SW_HPSYS software reset can lose the expected chip id (RUNTIME-01)",
+            "`RUNTIME-01` 复位/eFuse/寄存器语义",
         ):
             self.assertNotIn(stale, active)
 
@@ -361,6 +367,14 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-cross-vendor-runtime-model-gaps.json"
             ).read_text()
         )
+        reset_fix = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-c6-soft-reset-flash-addressing.json"
+            ).read_text()
+        )
+        reset_evidence = reset_fix["device_service_revalidation"]
 
         gap_codes = {
             gap["code"]
@@ -374,7 +388,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "c6_chip_id_lost_after_software_reset",
             },
         )
-        self.assertEqual(register.count("| 状态 | `OPEN` |"), 2)
+        self.assertEqual(register.count("| 状态 | `OPEN` |"), 1)
+        self.assertEqual(
+            register.count(
+                "| 状态 | `FIXED`（virtual-device validation） |"
+            ),
+            1,
+        )
         self.assertIn("RUNTIME-01", register)
         self.assertIn("RUNTIME-02", register)
         self.assertIn("`LP_SW_HPSYS`", register)
@@ -390,6 +410,38 @@ class DocsConsistencyTests(unittest.TestCase):
             "cross-vendor-runtime-model-gaps.json",
             register,
         )
+        self.assertIn(
+            "c6-soft-reset-flash-addressing.json",
+            register,
+        )
+        self.assertEqual(reset_fix["status"], "PASS")
+        self.assertEqual(reset_evidence["status"], "PARTIAL")
+        self.assertEqual(
+            reset_evidence["status_reason"],
+            "fatal_after_application_frame",
+        )
+        self.assertEqual(reset_evidence["runtime_model_gaps"], [])
+        self.assertFalse(reset_evidence["invalid_chip_id_observed"])
+        self.assertEqual(
+            reset_fix["official_matrix_regression"]["pass"],
+            5,
+        )
+        self.assertIn(
+            "case ERASE_4K:",
+            (
+                ROOT
+                / "patches/qemu-esp32c6-uiflow2-adapters/"
+                "0001-qemu-c6-m5stack-uiflow2-adapters.patch"
+            ).read_text(),
+        )
+        self.assertIn(
+            "memset(&env->pmp_state",
+            (
+                ROOT
+                / "patches/qemu-esp32c6-uiflow2-adapters/"
+                "0006-espressif-riscv-reset-pmp.patch"
+            ).read_text(),
+        )
         for text in (status, backlog, workstreams, firmware_matrix):
             self.assertIn("RUNTIME-01", text)
             self.assertIn("RUNTIME-02", text)
@@ -398,7 +450,7 @@ class DocsConsistencyTests(unittest.TestCase):
             status,
         )
         self.assertIn(
-            "classification only prevents a false firmware",
+            "historical snapshot classified both samples",
             firmware_matrix,
         )
         self.assertIn(

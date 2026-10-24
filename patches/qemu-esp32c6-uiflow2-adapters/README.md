@@ -5,7 +5,10 @@ Last reviewed: `2026-10-24`
 该补丁应用在 Espressif QEMU 的 ESP32-C6 后端 `febae18` 上，新增：
 
 - C6 启动所需的 SARADC 一次性采样完成握手；
-- C6 SPI flash 的 4-byte address、DIOR/QIOR mode byte 和 SPI2 register window；
+- C6 SPI flash 的 command-aware address width：16 MiB 读路径使用 4-byte
+  address，legacy `0x02` Page Program/`0x20` Sector Erase 固定使用
+  3-byte address，显式 4-byte opcode 保持不变；同时支持 DIOR/QIOR mode
+  byte 和 SPI2 register window；
 - C6 功能 GPIO、软件 I2C 探针桥、HP I2C0，以及 PI4IOE/FT5x06/BMI270、
   BQ27220 电量计和 AW32001 充电器模型；
 - ESP32-C6 RMT TX/RX 控制器、APB FIFO、硬件符号 RAM、TX_END/RX_END
@@ -30,9 +33,11 @@ Last reviewed: `2026-10-24`
 ## 当前开放边界
 
 该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。
-当前已知并有证据的缺口是 Zigbee/802.15.4 控制器未建模，以及某些固件执行
-`LP_SW_HPSYS` 软件复位后 ROM 将 chip id 读成 `12`（预期 `13`）。两项在修复
-前都记录为 `runtime_model_gap`，不得改写成固件 `FAIL` 或靠宿主假值绕过：
+当前仍开放的模型缺口是 Zigbee/802.15.4 控制器未建模。C6
+`LP_SW_HPSYS` 后 chip id `13/12` 已定位为 16 MiB Flash legacy 写擦命令被
+全局 4-byte 模式误解析，以及 C6 reset 后旧 PMP range 未清除；对应修复已由
+Device Service 重跑关闭 `RUNTIME-01`。该 Meshtastic 样本修复后仍有独立的
+Instruction access fault，必须继续区分固件缺陷和新的模型偏差：
 [运行时模型缺口登记](../../docs/runtime-model-gap-register.md)。
 
 ## 应用
@@ -46,6 +51,7 @@ git apply /path/to/0017-issi-status2-qio.patch
 git apply /path/to/0003-modem-syscon-clock-bits.patch
 git apply /path/to/0004-user-firmware-hot-samples.patch
 git apply /path/to/0005-c6-uart-timeout-registers.patch
+git apply /path/to/0006-espressif-riscv-reset-pmp.patch
 ```
 
 补丁不包含 C6 根目录 `meson.build` 的本地构建绕过。
@@ -67,4 +73,9 @@ git apply /path/to/0005-c6-uart-timeout-registers.patch
 - Nesso N1 GPIO11 蜂鸣器：官方 `Speaker.tone()` 经 C6 I2S TX、AHB GDMA
   循环描述符和 `OUT_EOF` 中断输出；宿主抓到 48128 字节 PCM，非零样本
   12866，峰峰值 65535。
+- C6 16 MiB Flash：Meshtastic 的 core dump Page Program 保持在
+  `0x300000/0x900000...`，offset 0 的 C6 secondary bootloader 头不再被
+  覆盖；`LP_SW_HPSYS` 后重复 boot 不再报 `Invalid chip id`。
+- C6 reset/PMP：第二次 ROM boot 可将 LP-RAM trampoline 写入
+  `0x50002000`，不再命中上一轮遗留的 read-only PMP range。
 - Core2 与 S3 设备的补丁分别位于 `qemu-multi-board-uiflow2/`；本补丁不改变它们的验收边界。

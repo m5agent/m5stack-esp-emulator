@@ -158,7 +158,8 @@ class QemuProfileTest(unittest.TestCase):
         )
         blockers = " ".join(row["blockers"])
         self.assertIn("RUNTIME-01", blockers)
-        self.assertIn("LP_SW_HPSYS", blockers)
+        self.assertIn("fixed", blockers)
+        self.assertIn("instruction access fault", blockers)
 
     def test_tab5_visual_validation_is_complete(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "tab5")

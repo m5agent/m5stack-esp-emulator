@@ -440,7 +440,8 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
    executor、GitHub-hosted Linux
    policy/egress CI 和双设备 lab fabric 已具备，外部 IPv6 egress 仍开放；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
-4. 关闭 C6 软件复位 chip-id 与 Zigbee/802.15.4 两个运行时模型缺口；
+4. 关闭 C6 Zigbee/802.15.4 运行时模型缺口；软件复位 chip-id 已修复，
+   修复后的独立应用异常继续单独分类；
 5. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 6. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
 

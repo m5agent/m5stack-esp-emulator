@@ -64,7 +64,7 @@
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 14 个 unified profile；Core2 主路径为 `core2-native-hci`，`HCI-1` 至 `HCI-4` PASS；旧的 native-VHCI GDB 路径仅保留为诊断/兼容 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；`60s`、`120s` 和 active-BLE `120s` 门禁通过；同 guest 二十轮 GATT 在 3 个独立 lease 中 PASS，HLI 577/577、events 397、ACLs 180 且连接池回到空闲基线。根因是 Bumble 对 `HCI_Host_Number_of_Completed_Packets (0x0c35)` 返回了不该存在的 Command Status；首次 10 轮运行的 Device Service 30 秒等待误杀已修复；超过二十轮、物理等价性、多小时 soak 和真机仍开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 当前缺口 | `2026-10-24` | 18 个公开样本中的 2 个 `runtime_model_gap` 仍为 `OPEN`：C6 Zigbee/802.15.4 未建模、C6 软件复位后 chip-id 错误；登记分类规则、证据和关闭条件，不把缺口写成固件 FAIL |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | C6 软件复位 chip-id 的 `RUNTIME-01` 已由 Flash 三字节写擦/PMP 复位修复关闭；C6 Zigbee/802.15.4 的 `RUNTIME-02` 仍 `OPEN`；Meshtastic 修复后仍有独立应用异常，未写成完整功能 PASS |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复、双 guest lab fabric、worker SIGHUP rotation、active-request drain、bounded credential overlap 和 final cutover 已通；自动化客户端迁移、跨主机与 QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
@@ -81,7 +81,7 @@
 | [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-24` | catalog、runtime coverage、后端数据面和设备本地验收 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-24` | Tab5 缺失的 P4 控制器、DMA 和端点 |
 | [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-24` | 当前单机模块化单体与后续 worker/warm-pool 路线 |
-| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-24` | 6 台 S3/C6、18 个公开样本的 runtime 矩阵；10 PASS / 8 PARTIAL，含 2 个结构化 `runtime_model_gap` |
+| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-24` | 6 台 S3/C6、18 个公开样本的历史矩阵；10 PASS / 8 PARTIAL；`RUNTIME-01` 已重跑关闭，样本转为独立应用异常；Zigbee `RUNTIME-02` 仍开放 |
 | [CoreS3 图像边界](cores3-image-rendering-boundary.md) | 已知差异 | `2026-10-22` | 固定在当轮透明度/调色板图像分析 |
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |

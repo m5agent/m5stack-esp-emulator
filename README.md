@@ -27,8 +27,9 @@ MicroPython 和其他完整 Flash 固件。
   QOM、网络和 evidence API。
 - 热门公开固件矩阵已覆盖 6 台 S3/C6 设备的 18 个非基线样本：全部完成
   静态分析和服务执行，10 PASS / 8 PARTIAL；C6 Zigbee 与软件复位 chip-id
-  两类模型缺口已独立标记，不再混作固件 FAIL，但两者仍是 `OPEN`，分类
-  不代表模拟器已经支持。边界与关闭条件见
+  两类模型缺口已独立标记。`RUNTIME-01` 已定位并修复为 16 MiB Flash
+  legacy 写擦地址宽度与复位 PMP 状态问题；`RUNTIME-02` Zigbee 仍未建模。
+  边界与证据见
   [运行时模型缺口登记](docs/runtime-model-gap-register.md)。
 - worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS、真实 QEMU
   和 unified StickS3 job over mTLS，以及本地 QEMU restart reattach 已形成
@@ -62,8 +63,8 @@ MicroPython 和其他完整 Flash 固件。
 未完成项和 Task ID 只在[项目 Backlog](docs/project-backlog.md)维护；当前顺序是：
 
 1. `NET-04` / `SVC-01`：自动化客户端批量迁移、跨主机 QEMU job/reattach、continuity 和多机调度。
-2. `FW-01` → `RUNTIME-01`/`RUNTIME-02` → `FW-03` → `FW-02`：权限/许可、
-   C6 软件复位与 Zigbee 模型缺口、跨厂商样本、真机 key/eFuse。
+2. `FW-01` → `RUNTIME-02` → `FW-03` → `FW-02`：权限/许可、C6 Zigbee
+  模型缺口、跨厂商样本、真机 key/eFuse。
 3. `CORE2-02`：超过二十轮连接、多小时 soak、WiFi/BLE coexistence 与物理等价性。
 4. `TAB5-01`、`CZ-01`、`UI-01` 和 `HW-01` 按专项依赖推进。
 
@@ -277,8 +278,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - 仿真 PASS 不等于真机 PASS。
 - S3/C6/Core2 的 QEMU 网络是 MAC/DMA 与 user-net 数据面，不是完整
   PHY/RF/天线模型。
-- C6 软件复位后的 chip-id 读取和 Zigbee/802.15.4 仍是 `OPEN` 运行时模型
-  缺口；在对应 evidence 关闭前，相关固件只能标 `PARTIAL/runtime_model_gap`。
+- C6 软件复位后的 chip-id 错误已作为 Flash 地址宽度/PMP 模型缺陷修复；
+  Zigbee/802.15.4 仍是 `OPEN` 运行时模型缺口。
 - `egress=allowlist` 的精确网络策略当前覆盖 IPv4；外部 IPv6、CIDR 和域名
   不会被当成隐式放行。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock

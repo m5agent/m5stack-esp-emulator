@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "kind": "c6-soft-reset-flash-addressing-closure",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "source_commit": "d6694295e1ebee48f1056c2894171c48da6cac99",
+  "code_state": "working-tree-including-c6-flash-and-pmp-reset-fixes",
+  "runtime": {
+    "machine": "esp32c6",
+    "board": "nesso-n1",
+    "qemu_sha256": "25497c521ebd5838a56b066551dd5c33d6dd00df853ed4a256fcca79944de7db",
+    "runtime_profile": "qemu-unified"
+  },
+  "firmware": {
+    "burner_id": "1897200000000001757",
+    "name": "Meshtastic unofficial",
+    "version": "2.7.20.79f469c landscape",
+    "sha256": "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+    "size": 16777216,
+    "bootloader_chip_id": 13
+  },
+  "root_cause": {
+    "classification": "runtime model defect",
+    "initial_symptom": "LP_SW_HPSYS reset followed by Invalid chip id. Expected 13 read 12.",
+    "flash_address_mode": {
+      "problem": "A global forced-four-byte mode was applied to legacy 0x02 Page Program and 0x20 Sector Erase commands that carry three address bytes.",
+      "observed_effect": "A core-dump program intended for flash offset 0x300000 consumed the first data byte as address byte four and wrote an image header at offset 0.",
+      "bootloader_header_before": "e903024010c48640ee0000000d000000",
+      "bootloader_header_after_broken_model": "e9010200100486406c0000000c000000"
+    },
+    "pmp_reset": {
+      "problem": "The generic RISC-V reset unlocked PMP entries but left old ranges and permissions visible to the next ROM boot.",
+      "observed_effect": "The second boot attempted to copy the LP-RAM trampoline to 0x50002000 and hit a read-only stale PMP range.",
+      "trace": "pmp violation, Store/AMO access fault, MEPC=40030ce6, MTVAL=50002000"
+    }
+  },
+  "fix": {
+    "flash_model": "Keep four-byte read mode for the C6 16 MiB path, but force legacy program/erase opcodes to three-byte addresses; explicit four-byte opcodes remain four-byte.",
+    "cpu_reset": "Clear the PMP table, mseccfg and TLB after C6 CPU reset.",
+    "patches": [
+      "patches/qemu-esp32c6-uiflow2-adapters/0001-qemu-c6-m5stack-uiflow2-adapters.patch",
+      "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch"
+    ],
+    "patch_reverse_or_apply_checks": {
+      "0001": "PASS",
+      "0006": "PASS"
+    }
+  },
+  "checks": {
+    "invalid_chip_id_absent_after_lp_sw_hpsys": "PASS",
+    "c6_bootloader_header_preserved": "PASS",
+    "legacy_3byte_page_program_and_sector_erase": "PASS",
+    "c6_pmp_state_cleared_on_reset": "PASS",
+    "device_service_revalidation": "PASS",
+    "runtime_model_gap_removed_for_sample": "PASS",
+    "official_nesso_peripheral_group": "PASS",
+    "official_nanoc6_peripheral_probe": "PASS",
+    "firmware_full_functional_pass": "NOT ACHIEVED",
+    "physical_hardware": "NOT RUN"
+  },
+  "device_service_revalidation": {
+    "session_id": "b405105224694aa68dc51159ffb085d8",
+    "result_sha256": "a0160c9d5fa037a401e9ce45decbde07643f2a1a4b43a062c908764acd45c27b",
+    "serial_sha256": "f08a47b81806ebdf0eb9746ce0dfa00231afa1190b230b40e243540da9db2736",
+    "status": "PARTIAL",
+    "status_reason": "fatal_after_application_frame",
+    "runtime_model_gaps": [],
+    "boot_count_observed": 8,
+    "invalid_chip_id_observed": false,
+    "remaining_observation": "The sample still panics with an independent Instruction access fault after application startup and reboots; this evidence closes the chip-id flash corruption, not the sample's full functional readiness."
+  },
+  "direct_retained_flash": {
+    "flash_sha256_after_run": "aaee5cb605ae491deacab72b2f56a19f22dabf1ebf466a63891c16697c2811c8",
+    "offset_zero": "e903024010c48640ee0000000d000000",
+    "first_program_addresses": [
+      "0x300000",
+      "0x300040",
+      "0x9000",
+      "0x9040",
+      "0x9020",
+      "0x9060"
+    ]
+  },
+  "official_matrix_regression": {
+    "device": "nesso-n1",
+    "cases": 5,
+    "pass": 5,
+    "fail": 0,
+    "attempts": 5,
+    "retry_used": false,
+    "summary_sha256": "c979c23de8d6f90c01b40ef3b10622e8f707ff827bfa6f2fcd41aa2e02e98a27"
+  },
+  "nanoc6_regression": {
+    "status": "PASS",
+    "output": "NANOC6_PERIPHERALS PASS rgb_grb=00ff00 button=True"
+  },
+  "not_claimed": [
+    "physical hardware or electrical behavior",
+    "RF or radio behavior",
+    "that the Meshtastic sample is fully functional after application startup",
+    "that every possible C6 flash command or reset cause is covered"
+  ]
+}
