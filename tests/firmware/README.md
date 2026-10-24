@@ -44,6 +44,13 @@ Source path hashes and declarations are eligible for license policy, while
 generated code, absent third-party sources and legal review remain out of
 scope.
 
+The API and WebBurner accept explicit required/optional hardware capabilities.
+The same normalization and mismatch contract applies to CLI and HTTP imports:
+aliases are canonicalized, declarations are bounded and a target without a
+required capability returns a structured manifest rejection. Declarations are
+operator-provided; they do not prove that every firmware code path uses the
+declared peripheral.
+
 For the Core2 public-firmware runtime gap, focused I2C tracing distinguishes a
 successful AXP2101 chip-id read from the later legacy controller/board-bus
 routing failure. The next controller transaction targets address `0x51` and

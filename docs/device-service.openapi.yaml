@@ -1696,6 +1696,7 @@ components:
           format: date-time
     FirmwareImportRequest:
       type: object
+      additionalProperties: false
       required: [device_id, artifact_id]
       properties:
         device_id:
@@ -1703,6 +1704,22 @@ components:
         artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
+        required_capabilities:
+          type: array
+          maxItems: 64
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
+        optional_capabilities:
+          type: array
+          maxItems: 64
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
     MergedFirmwareRequest:
       type: object
       required: [device_id, kind, artifact_id]

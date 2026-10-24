@@ -42,7 +42,18 @@ function setBusy(busy) {
   $('startBtn').disabled = busy;
   $('cancelBtn').hidden = !busy;
   $('deviceSelect').disabled = busy;
+  $('requiredCapabilitiesInput').disabled = busy;
+  $('optionalCapabilitiesInput').disabled = busy;
   $('firmwareFile').disabled = busy;
+}
+
+function parseCapabilityList(value) {
+  return [...new Set(
+    String(value || '')
+      .split(/[\s,]+/)
+      .map(item => item.trim().toLowerCase())
+      .filter(Boolean),
+  )].sort();
 }
 
 function updateProgress(event) {
@@ -104,13 +115,22 @@ function renderFirmware(firmware) {
   const target = manifest.target || {};
   const validation = manifest.validation || {};
   const provenance = manifest.provenance || {};
+  const capabilities = manifest.capabilities || {};
   const warnings = validation.warnings || [];
   const errors = validation.errors || [];
+  $('requiredCapabilitiesInput').value = (
+    capabilities.required || []
+  ).join(', ');
+  $('optionalCapabilitiesInput').value = (
+    capabilities.optional || []
+  ).join(', ');
   const rows = [
     ['Firmware ID', firmware.firmware_id || firmware.sha256, true],
     ['Source format', provenance.source_format || firmware.kind || 'unknown'],
     ['Target', `${firmware.device_id} · ${target.soc || 'unknown SoC'}`],
     ['Normalized', `${formatBytes(firmware.size)} · ${artifact.normalized_from || artifact.kind || 'merged-flash'}`],
+    ['Required capabilities', (capabilities.required || []).join(', ') || 'none'],
+    ['Optional capabilities', (capabilities.optional || []).join(', ') || 'none'],
     ['Validation', validation.status || 'unknown'],
     ['Security', `secure boot ${manifest.security?.secure_boot || 'unknown'} · encryption ${manifest.security?.flash_encryption || 'unknown'}`],
   ];
@@ -245,6 +265,12 @@ function resetUploadUi() {
 async function startImport() {
   if (state.busy) return;
   const deviceId = $('deviceSelect').value;
+  const requiredCapabilities = parseCapabilityList(
+    $('requiredCapabilitiesInput').value,
+  );
+  const optionalCapabilities = parseCapabilityList(
+    $('optionalCapabilitiesInput').value,
+  );
   if (!deviceId) return;
   let checkpoint = state.checkpoint;
   state.controller = new AbortController();
@@ -285,6 +311,8 @@ async function startImport() {
     const firmware = await client.importPackage({
       deviceId,
       artifactId,
+      requiredCapabilities,
+      optionalCapabilities,
       signal: state.controller.signal,
     });
     setCheckpoint({
@@ -292,6 +320,8 @@ async function startImport() {
       device_id: deviceId,
       artifact_id: artifactId,
       firmware_id: firmware.firmware_id,
+      required_capabilities: requiredCapabilities,
+      optional_capabilities: optionalCapabilities,
       status: 'imported',
       updated_at: new Date().toISOString(),
     });
@@ -398,6 +428,12 @@ window.m5Firmware = {
   getState: () => ({
     deviceId: $('deviceSelect').value,
     file: state.file?.name || null,
+    requiredCapabilities: parseCapabilityList(
+      $('requiredCapabilitiesInput').value,
+    ),
+    optionalCapabilities: parseCapabilityList(
+      $('optionalCapabilitiesInput').value,
+    ),
     checkpoint: state.checkpoint,
     firmwareId: state.firmware?.firmware_id || null,
     sessionId: state.session?.session_id || null,

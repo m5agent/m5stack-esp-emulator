@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-capability-declaration-contract",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "manifest-api-browser-contract-not-firmware-execution-or-hardware",
+  "checks": {
+    "web_client_sends_required_capabilities": true,
+    "web_client_sends_optional_capabilities": true,
+    "api_canonicalizes_aliases": true,
+    "api_deduplicates_capabilities": true,
+    "api_rejects_non_array_declaration": true,
+    "api_rejects_empty_or_overlong_entries": true,
+    "api_rejects_more_than_64_entries": true,
+    "camera_requirement_on_sticks3_returns_409": true,
+    "unsupported_requirement_is_structured": true,
+    "wifi_and_display_requirement_on_sticks3_passes_manifest": true
+  },
+  "examples": {
+    "canonicalized": {
+      "request": ["WIFI", "screen", "wifi"],
+      "manifest": ["display", "wifi"]
+    },
+    "unsupported": {
+      "device_id": "sticks3",
+      "requirement": "camera",
+      "http_status": 409,
+      "issue_code": "unsupported_capability"
+    },
+    "invalid": {
+      "request_type": "string-instead-of-array",
+      "http_status": 400,
+      "error_code": "invalid_capability_requirements"
+    }
+  },
+  "test_entries": [
+    "platform/tests/test_firmware_manifest.py",
+    "platform/tests/test_device_service.py",
+    "platform/tests/test_firmware_upload.mjs",
+    "platform/tests/test_docs_consistency.py"
+  ],
+  "not_claimed": [
+    "that a declared capability exactly matches all firmware code paths",
+    "firmware runtime behavior",
+    "physical hardware capability detection",
+    "legal or security approval"
+  ]
+}

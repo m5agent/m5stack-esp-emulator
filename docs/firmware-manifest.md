@@ -349,6 +349,15 @@ metadata 提交失败都会把 part 截断回最后一个已确认 offset，客�
 
 这类错误表示 **设备 profile 覆盖不足**，不是固件崩溃。
 
+CLI、`POST /api/v1/firmware/import` 和 WebBurner 都接受独立于镜像的
+required/optional capability 声明。服务端会去除首尾空白、转小写、展开
+`screen`/`framebuffer`→`display` 等别名并去重；最多 64 项、每项 64
+字符。未知 capability 保留在 manifest 中并产生
+`unknown_required_capability` warning，不会被静默删除。WebBurner 的两个
+输入框分别在导入前发送 `required_capabilities` 和
+`optional_capabilities`；例如在 StickS3 上声明 `camera` 会得到结构化
+`unsupported_firmware_capability`，不会创建空 capability manifest。
+
 如果 manifest 声明了 `target.psram_size`，创建 session 时还会按所选
 runtime/profile 的实际 QEMU memory policy 重新检查。Core2
 `core2-native-hci` 的命令行请求为 `-m 0`，但当前 `m5core2` QOM 实际解析为

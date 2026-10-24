@@ -4680,6 +4680,8 @@ class DeviceServiceHttpTests(unittest.TestCase):
                 {
                     "device_id": "sticks3",
                     "artifact_id": artifact["artifact_id"],
+                    "required_capabilities": ["wifi", "screen"],
+                    "optional_capabilities": ["IR"],
                 }
             ).encode(),
             headers={"Content-Type": "application/json"},
@@ -4691,6 +4693,59 @@ class DeviceServiceHttpTests(unittest.TestCase):
             "web-manifest",
         )
         self.assertEqual(firmware["manifest"]["artifact"]["kind"], "merged-flash")
+        self.assertEqual(
+            firmware["manifest"]["capabilities"],
+            {
+                "required": ["display", "wifi"],
+                "optional": ["ir"],
+            },
+        )
+        mismatch_request = Request(
+            self.base + "/api/v1/firmware/import",
+            method="POST",
+            data=json.dumps(
+                {
+                    "device_id": "sticks3",
+                    "artifact_id": artifact["artifact_id"],
+                    "required_capabilities": ["camera"],
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with self.assertRaises(HTTPError) as mismatch_error:
+            urlopen(mismatch_request, timeout=5)
+        self.assertEqual(mismatch_error.exception.code, 409)
+        mismatch = json.loads(mismatch_error.exception.read())
+        self.assertEqual(
+            mismatch["error"]["code"],
+            "unsupported_firmware_capability",
+        )
+        self.assertTrue(
+            any(
+                issue.get("requirement") == "camera"
+                for issue in mismatch["error"]["issues"]
+            )
+        )
+        invalid_request = Request(
+            self.base + "/api/v1/firmware/import",
+            method="POST",
+            data=json.dumps(
+                {
+                    "device_id": "sticks3",
+                    "artifact_id": artifact["artifact_id"],
+                    "required_capabilities": "wifi",
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with self.assertRaises(HTTPError) as invalid_error:
+            urlopen(invalid_request, timeout=5)
+        self.assertEqual(invalid_error.exception.code, 400)
+        invalid = json.loads(invalid_error.exception.read())
+        self.assertEqual(
+            invalid["error"]["code"],
+            "invalid_capability_requirements",
+        )
 
     def test_device_state_endpoint(self):
         spec = self.service.specs["sticks3"]

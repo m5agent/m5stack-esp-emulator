@@ -668,6 +668,14 @@ known, required capabilities, chip, flash and PSRAM are checked. The service
 returns HTTP `409 unsupported_firmware_capability` with `issues[]`; a model gap
 must not be reported as a firmware crash.
 
+`POST /api/v1/firmware/import` accepts up to 64 canonicalized
+`required_capabilities` and 64 `optional_capabilities`. Aliases such as
+`screen` become `display`; malformed, non-string, empty or overlong entries
+return HTTP `400 invalid_capability_requirements`. WebBurner exposes the same
+two comma/space-separated fields before upload, so a package declaring
+`camera` for a device without a camera is rejected before session creation
+instead of producing an empty capabilities object.
+
 QEMU memory is rechecked at session creation against the selected profile.
 For example, a manifest requiring more PSRAM than the effective runtime memory
 receives `issues[].code=runtime_psram_mismatch`, even if the physical board

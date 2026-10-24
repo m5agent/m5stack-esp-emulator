@@ -63,7 +63,7 @@
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 和一次未绑定资产的 `7200s` 行为诊断已通过；新的 artifact-bound `7200s` soak 正在运行，reconnect 上限为 `1–120`，hold 上限为 `7200s`。完成后再做超过一百二十轮、coexistence 和 teardown | 当前 soak 的启动资产哈希无漂移、RSS/HLI/网络/GATT/frame/pcap 和清理全部 PASS；超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 进行中 | 已有 7 台设备、21 个公开非基线样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
+| `FW-03` | 进行中 | API/WebBurner 已能声明并规范化 required/optional capability；已有 7 台设备、21 个公开非基线样本。下一步扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |
@@ -239,6 +239,11 @@ C6 软件复位 chip-id 缺口已经由 `RUNTIME-01` 修复并在 Device Service
 `runtime_model_gap`，但该样本仍有独立应用异常。仍未覆盖全部设备、
 ESP32 LX6/P4、更多 MicroPython/vendor framework 和失败根因闭环。
 Zigbee 缺口继续由 `RUNTIME-02` 管理，不把“已分类”算成该任务完成。
+
+CLI、WebBurner 和 `/api/v1/firmware/import` 已统一接受 required/optional
+capability。网页上传不再只能生成空声明；`screen` 等别名会规范化，
+`camera`-on-StickS3 等不匹配在 manifest 阶段返回结构化 409。该声明仍由
+操作者提供，不能由二进制自动证明“代码确实调用了该外设”。
 
 验收：每个样本记录 importer、chip/board/profile、partition、capability、
 boot 和功能层；结构 PASS、UI PASS、功能 PASS、安全 PASS 不混算。

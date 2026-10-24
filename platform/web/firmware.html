@@ -34,6 +34,19 @@
       </div>
       <div class="firmware-grid">
         <div class="firmware-field">
+          <label for="requiredCapabilitiesInput">必需 capability</label>
+          <input class="field" id="requiredCapabilitiesInput" type="text" placeholder="wifi, display, camera">
+        </div>
+        <div class="firmware-field">
+          <label for="optionalCapabilitiesInput">可选 capability</label>
+          <input class="field" id="optionalCapabilitiesInput" type="text" placeholder="ir, sd">
+        </div>
+      </div>
+      <div class="firmware-helper">
+        逗号或空格分隔。必需的硬件能力不匹配时会在创建 session 前拒绝。
+      </div>
+      <div class="firmware-grid">
+        <div class="firmware-field">
           <label for="ttlInput">Session TTL</label>
           <input class="field" id="ttlInput" type="number" min="30" value="600">
         </div>

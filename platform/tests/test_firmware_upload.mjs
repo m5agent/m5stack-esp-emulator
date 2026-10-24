@@ -67,6 +67,9 @@ const fetchImpl = async (path, options = {}) => {
     }, 201);
   }
   if (path === '/api/v1/firmware/import') {
+    const body = JSON.parse(options.body);
+    assert.deepEqual(body.required_capabilities, ['display', 'wifi']);
+    assert.deepEqual(body.optional_capabilities, ['ir']);
     return jsonResponse({
       firmware_id: 'b'.repeat(64),
       sha256: 'b'.repeat(64),
@@ -103,6 +106,8 @@ assert.deepEqual(progress, [
 const firmware = await client.importPackage({
   deviceId: 'sticks3',
   artifactId: payloadSha,
+  requiredCapabilities: ['display', 'wifi'],
+  optionalCapabilities: ['ir'],
 });
 assert.equal(firmware.kind, 'manifest');
 

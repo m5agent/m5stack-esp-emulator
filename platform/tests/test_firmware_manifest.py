@@ -17,6 +17,7 @@ from firmware_manifest import (  # noqa: E402
     evaluate_license_policy,
     import_package,
     load_device_profile,
+    normalize_capability_declarations,
     validate_capabilities,
     validate_manifest_structure,
 )
@@ -464,6 +465,27 @@ class FirmwareManifestTests(unittest.TestCase):
                 for issue in errors
             )
         )
+
+    def test_capability_declarations_are_bounded_and_canonical(self):
+        self.assertEqual(
+            normalize_capability_declarations(
+                ["WIFI", "screen", "wifi"],
+                field="required_capabilities",
+            ),
+            ["display", "wifi"],
+        )
+        for value in (
+            "wifi",
+            [""],
+            [1],
+            ["x" * 65],
+            ["wifi"] * 65,
+        ):
+            with self.subTest(value=value), self.assertRaises(ManifestError):
+                normalize_capability_declarations(
+                    value,
+                    field="required_capabilities",
+                )
 
     def test_manifest_includes_redacted_review_and_sbom(self):
         with tempfile.TemporaryDirectory() as tmp:

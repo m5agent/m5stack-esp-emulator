@@ -225,10 +225,21 @@ export class FirmwareUploadClient {
     return { upload: { ...upload, status: 'completed' }, artifact };
   }
 
-  importPackage({ deviceId, artifactId, signal }) {
+  importPackage({
+    deviceId,
+    artifactId,
+    requiredCapabilities = [],
+    optionalCapabilities = [],
+    signal,
+  }) {
     return this.json(
       '/api/v1/firmware/import',
-      { device_id: deviceId, artifact_id: artifactId },
+      {
+        device_id: deviceId,
+        artifact_id: artifactId,
+        required_capabilities: requiredCapabilities,
+        optional_capabilities: optionalCapabilities,
+      },
       { signal },
     );
   }

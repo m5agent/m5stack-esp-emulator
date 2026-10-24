@@ -66,6 +66,7 @@ from firmware_manifest import (  # noqa: E402
     canonical_json_sha256,
     import_package,
     load_device_profile,
+    normalize_capability_declarations,
     validate_capabilities,
     validate_manifest_structure,
 )
@@ -6819,6 +6820,21 @@ class DeviceService:
             )
         artifact_id = payload.get("artifact_id")
         artifact = self.artifacts.get(artifact_id)
+        try:
+            required_capabilities = normalize_capability_declarations(
+                payload.get("required_capabilities"),
+                field="required_capabilities",
+            )
+            optional_capabilities = normalize_capability_declarations(
+                payload.get("optional_capabilities"),
+                field="optional_capabilities",
+            )
+        except ManifestError as error:
+            raise ServiceError(
+                "invalid_capability_requirements",
+                str(error),
+                400,
+            ) from error
         original_name = str(artifact.get("name") or f"{artifact_id}.bin")
         suffix = Path(original_name).suffix.lower()
         if suffix not in {".bin", ".zip", ".m5burner", ".webburner"}:
@@ -6844,6 +6860,8 @@ class DeviceService:
                 normalized_dir,
                 device_id=device_id,
                 flash_size=spec.flash_size,
+                required_capabilities=required_capabilities,
+                optional_capabilities=optional_capabilities,
             )
             manifest = result["manifest"]
             validation = manifest.get("validation", {})

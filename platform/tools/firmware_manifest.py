@@ -116,6 +116,28 @@ class ManifestError(ValueError):
     """Raised when a firmware package or manifest is invalid."""
 
 
+def normalize_capability_declarations(
+    values: object,
+    *,
+    field: str,
+) -> list[str]:
+    if values is None:
+        return []
+    if not isinstance(values, list):
+        raise ManifestError(f"{field} must be an array")
+    if len(values) > 64:
+        raise ManifestError(f"{field} exceeds 64 entries")
+    normalized = []
+    for value in values:
+        if not isinstance(value, str) or not value.strip():
+            raise ManifestError(f"{field} must contain non-empty strings")
+        token = value.strip().lower()
+        if len(token) > 64:
+            raise ManifestError(f"{field} contains an entry over 64 characters")
+        normalized.append(CAPABILITY_ALIASES.get(token, token))
+    return sorted(set(normalized))
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -1248,6 +1270,14 @@ def import_package(
     denied_licenses: list[str] | None = None,
 ) -> dict:
     input_path = input_path.resolve()
+    required_capabilities = normalize_capability_declarations(
+        required_capabilities,
+        field="required_capabilities",
+    )
+    optional_capabilities = normalize_capability_declarations(
+        optional_capabilities,
+        field="optional_capabilities",
+    )
     if not input_path.exists():
         raise ManifestError(f"input does not exist: {input_path}")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1478,8 +1508,8 @@ def import_package(
                 if value is not None
             },
             "capabilities": {
-                "required": sorted(set(required_capabilities or [])),
-                "optional": sorted(set(optional_capabilities or [])),
+                "required": required_capabilities,
+                "optional": optional_capabilities,
             },
             "review": review,
             "source_license_scan": source_license_scan,
