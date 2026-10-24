@@ -51,6 +51,12 @@ required capability returns a structured manifest rejection. Declarations are
 operator-provided; they do not prove that every firmware code path uses the
 declared peripheral.
 
+High-confidence WiFi, Bluetooth and PSRAM build flags from package
+`sdkconfig` are recorded separately as `capabilities.detected`. A target
+profile missing a detected capability receives a warning rather than an
+automatic rejection; strict rejection remains tied to explicit required
+capabilities.
+
 For the Core2 public-firmware runtime gap, focused I2C tracing distinguishes a
 successful AXP2101 chip-id read from the later legacy controller/board-bus
 routing failure. The next controller transaction targets address `0x51` and

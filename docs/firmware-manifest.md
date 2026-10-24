@@ -358,6 +358,18 @@ required/optional capability 声明。服务端会去除首尾空白、转小写
 `optional_capabilities`；例如在 StickS3 上声明 `camera` 会得到结构化
 `unsupported_firmware_capability`，不会创建空 capability manifest。
 
+包内提供 `sdkconfig` 时，manifest 还会在 `capabilities.detected` 中记录
+高置信构建开关：
+
+- `CONFIG_ESP_WIFI_ENABLED` / `CONFIG_WIFI_ENABLED` → `wifi`；
+- `CONFIG_BT_ENABLED` / Bluedroid / NimBLE 开关 → `ble`；
+- `CONFIG_SPIRAM` / `CONFIG_SPIRAM_BOOT_INIT` → `psram`。
+
+detected entry 带 source 和 flag；若目标 profile 没有该能力，只产生
+`detected_capability_unavailable` warning，不拒绝 manifest。原因是一个编译
+开关不能证明应用代码实际使用了该外设；严格门禁仍由 required capability
+表达。
+
 如果 manifest 声明了 `target.psram_size`，创建 session 时还会按所选
 runtime/profile 的实际 QEMU memory policy 重新检查。Core2
 `core2-native-hci` 的命令行请求为 `-m 0`，但当前 `m5core2` QOM 实际解析为

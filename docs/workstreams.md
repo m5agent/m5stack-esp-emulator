@@ -19,7 +19,7 @@
 | 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；13 台可创建、Tab5 `partial` | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
 | 网络与取证 | namespace、pcap、双 guest fabric、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、worker queue/auth/TLS/reauth | `NET-04` 跨主机 executor、主机发现、companion/evidence continuity；`NET-06` 同 guest IPv6 DNS/HTTP | 跨主机 job 可迁移、可重放、可清理；同一 firmware guest 完成 AAAA+IPv6 HTTP；不可信固件进入 disposable VM |
 | Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；120 轮 reconnect 和 600 秒 active-BLE 已通过 | artifact-bound `7200s` active-BLE soak；超过 120 轮、coexistence、teardown | 本轮启动资产哈希无漂移，运行期 WiFi/公网/GATT/pcap/HLI health 与清理全部成立；随后补 controller/物理边界 |
-| 通用固件审查 | manifest、API/WebBurner required/optional capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传 | `FW-01/02/03`；`RUNTIME-02/03/04` | 运行态权限/许可闭环、更多固件族、模型缺口关闭和同 SHA 真机安全流程 |
+| 通用固件审查 | manifest、API/WebBurner required/optional capability、sdkconfig detected capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传 | `FW-01/02/03`；`RUNTIME-02/03/04` | 运行态权限/许可闭环、更多固件族、模型缺口关闭和同 SHA 真机安全流程 |
 | Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/companion 接管、warm pool、容量和大型编排模块拆分 |
 
 “当前在途”只表示工作已经启动，不是 PASS。尤其 Core2 的 `7200s` run

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sdkconfig-capability-detection",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "static-manifest-inspection-not-code-path-proof-or-hardware",
+  "device_id": "cardputer-adv",
+  "checks": {
+    "wifi_build_flag_detected": true,
+    "bluetooth_build_flag_detected": true,
+    "psram_build_flag_detected": true,
+    "missing_profile_capability_is_structured_warning": true,
+    "manifest_validation_remains_pass_for_warning_only": true,
+    "detected_capability_is_not_promoted_to_required": true,
+    "schema_validation_passes": true
+  },
+  "detected": [
+    {
+      "capability": "wifi",
+      "source": "sdkconfig",
+      "flag": "CONFIG_ESP_WIFI_ENABLED"
+    },
+    {
+      "capability": "ble",
+      "source": "sdkconfig",
+      "flag": "CONFIG_BT_ENABLED"
+    },
+    {
+      "capability": "psram",
+      "source": "sdkconfig",
+      "flag": "CONFIG_SPIRAM"
+    }
+  ],
+  "warning": {
+    "code": "detected_capability_unavailable",
+    "meaning": "build configuration mentions a capability absent from the target profile"
+  },
+  "not_claimed": [
+    "that enabling a build flag proves an application code path uses the peripheral",
+    "runtime capability detection",
+    "physical hardware inspection",
+    "firmware security or legal approval"
+  ]
+}

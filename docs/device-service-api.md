@@ -676,6 +676,12 @@ two comma/space-separated fields before upload, so a package declaring
 `camera` for a device without a camera is rejected before session creation
 instead of producing an empty capabilities object.
 
+When the package includes `sdkconfig`, the manifest also reports
+`capabilities.detected` for high-confidence WiFi/Bluetooth/PSRAM build flags.
+Detected values are review warnings when the target profile lacks a capability;
+only `required_capabilities` rejects the import. This avoids treating a build
+flag as proof that an application code path actually uses the peripheral.
+
 QEMU memory is rechecked at session creation against the selected profile.
 For example, a manifest requiring more PSRAM than the effective runtime memory
 receives `issues[].code=runtime_psram_mismatch`, even if the physical board

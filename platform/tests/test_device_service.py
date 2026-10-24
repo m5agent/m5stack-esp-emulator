@@ -4698,6 +4698,7 @@ class DeviceServiceHttpTests(unittest.TestCase):
             {
                 "required": ["display", "wifi"],
                 "optional": ["ir"],
+                "detected": [],
             },
         )
         mismatch_request = Request(

@@ -487,6 +487,54 @@ class FirmwareManifestTests(unittest.TestCase):
                     field="required_capabilities",
                 )
 
+    def test_sdkconfig_capabilities_are_detected_without_hard_rejection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            firmware = root / "probe.bin"
+            firmware.write_bytes(build_flash())
+            (root / "sdkconfig").write_text(
+                "CONFIG_ESP_WIFI_ENABLED=y\n"
+                "CONFIG_BT_ENABLED=y\n"
+                "CONFIG_SPIRAM=y\n"
+            )
+            result = import_package(
+                firmware,
+                root / "out",
+                device_id="cardputer-adv",
+                flash_size=8 << 20,
+            )
+        manifest = result["manifest"]
+        self.assertEqual(manifest["validation"]["status"], "PASS")
+        self.assertEqual(
+            manifest["capabilities"]["detected"],
+            [
+                {
+                    "capability": "wifi",
+                    "source": "sdkconfig",
+                    "flag": "CONFIG_ESP_WIFI_ENABLED",
+                },
+                {
+                    "capability": "ble",
+                    "source": "sdkconfig",
+                    "flag": "CONFIG_BT_ENABLED",
+                },
+                {
+                    "capability": "psram",
+                    "source": "sdkconfig",
+                    "flag": "CONFIG_SPIRAM",
+                },
+            ],
+        )
+        self.assertIn(
+            "detected_capability_unavailable",
+            {
+                warning["code"]
+                for warning in manifest["validation"]["warnings"]
+            },
+        )
+        self.assertFalse(manifest["validation"]["errors"])
+        self.assertEqual(validate_manifest_structure(manifest), [])
+
     def test_manifest_includes_redacted_review_and_sbom(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

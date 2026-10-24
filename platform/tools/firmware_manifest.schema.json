@@ -343,6 +343,30 @@
             "type": "string"
           },
           "uniqueItems": true
+        },
+        "detected": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "capability",
+              "source",
+              "flag"
+            ],
+            "properties": {
+              "capability": {
+                "type": "string"
+              },
+              "source": {
+                "const": "sdkconfig"
+              },
+              "flag": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },

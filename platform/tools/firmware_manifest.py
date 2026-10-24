@@ -105,6 +105,18 @@ CAPABILITY_ALIASES = {
     "screen": "display",
     "storage": "sd",
 }
+SDKCONFIG_CAPABILITY_FLAGS = (
+    ("wifi", ("CONFIG_ESP_WIFI_ENABLED", "CONFIG_WIFI_ENABLED")),
+    (
+        "ble",
+        (
+            "CONFIG_BT_ENABLED",
+            "CONFIG_BT_BLUEDROID_ENABLED",
+            "CONFIG_BT_NIMBLE_ENABLED",
+        ),
+    ),
+    ("psram", ("CONFIG_SPIRAM", "CONFIG_SPIRAM_BOOT_INIT")),
+)
 EFUSE_SUMMARY_NAMES = (
     "efuse-summary.json",
     "espefuse-summary.json",
@@ -136,6 +148,28 @@ def normalize_capability_declarations(
             raise ManifestError(f"{field} contains an entry over 64 characters")
         normalized.append(CAPABILITY_ALIASES.get(token, token))
     return sorted(set(normalized))
+
+
+def detect_sdkconfig_capabilities(flags: dict[str, str]) -> list[dict[str, str]]:
+    detected = []
+    for capability, candidate_flags in SDKCONFIG_CAPABILITY_FLAGS:
+        enabled_flag = next(
+            (
+                flag
+                for flag in candidate_flags
+                if flags.get(flag, "").strip().lower() == "y"
+            ),
+            None,
+        )
+        if enabled_flag is not None:
+            detected.append(
+                {
+                    "capability": capability,
+                    "source": "sdkconfig",
+                    "flag": enabled_flag,
+                }
+            )
+    return detected
 
 
 def utc_now() -> str:
@@ -791,6 +825,28 @@ def validate_capabilities(
                     path="capabilities.required",
                 )
             )
+    for detection in manifest.get("capabilities", {}).get("detected", []):
+        if not isinstance(detection, dict):
+            continue
+        requirement = str(detection.get("capability") or "").strip().lower()
+        normalized = CAPABILITY_ALIASES.get(requirement, requirement)
+        if (
+            normalized in KNOWN_CAPABILITIES
+            and normalized not in device_capabilities
+        ):
+            warnings.append(
+                _code_issues(
+                    "detected_capability_unavailable",
+                    (
+                        f"sdkconfig enables {normalized}, but device "
+                        f"{device.get('id')} profile does not expose it; "
+                        "this is a review warning, not a code-path proof"
+                    ),
+                    requirement=normalized,
+                    available=sorted(device_capabilities),
+                    path="capabilities.detected",
+                )
+            )
     return {
         "status": "REJECTED" if errors else "PASS",
         "device_id": device.get("id"),
@@ -1399,6 +1455,12 @@ def import_package(
             if efuse_summary_path is not None
             else None
         )
+        sdkconfig_flags = (
+            _sdkconfig_flags(sdkconfig_path.read_text(errors="replace"))
+            if sdkconfig_path is not None and sdkconfig_path.is_file()
+            else {}
+        )
+        detected_capabilities = detect_sdkconfig_capabilities(sdkconfig_flags)
         copied_resources = {
             key: _copy_resource(
                 row,
@@ -1510,6 +1572,7 @@ def import_package(
             "capabilities": {
                 "required": required_capabilities,
                 "optional": optional_capabilities,
+                "detected": detected_capabilities,
             },
             "review": review,
             "source_license_scan": source_license_scan,
@@ -1781,6 +1844,42 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
     security = manifest.get("security")
     if not isinstance(security, dict):
         errors.append("manifest.security must be an object")
+    capabilities = manifest.get("capabilities")
+    if capabilities is not None:
+        if not isinstance(capabilities, dict):
+            errors.append("manifest.capabilities must be an object")
+        else:
+            unknown = set(capabilities) - {"required", "optional", "detected"}
+            if unknown:
+                errors.append("manifest.capabilities contains unknown fields")
+            for key in ("required", "optional", "detected"):
+                if key in capabilities and not isinstance(
+                    capabilities[key],
+                    list,
+                ):
+                    errors.append(
+                        f"manifest.capabilities.{key} must be an array"
+                    )
+            for key in ("required", "optional"):
+                values = capabilities.get(key, [])
+                if isinstance(values, list) and any(
+                    not isinstance(value, str) or not value
+                    for value in values
+                ):
+                    errors.append(
+                        f"manifest.capabilities.{key} must contain strings"
+                    )
+            detections = capabilities.get("detected", [])
+            if isinstance(detections, list) and any(
+                not isinstance(item, dict)
+                or not isinstance(item.get("capability"), str)
+                or item.get("source") != "sdkconfig"
+                or not isinstance(item.get("flag"), str)
+                for item in detections
+            ):
+                errors.append(
+                    "manifest.capabilities.detected entries are invalid"
+                )
     provenance = manifest.get("provenance")
     if not isinstance(provenance, dict):
         errors.append("manifest.provenance must be an object")
