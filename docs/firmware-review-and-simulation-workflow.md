@@ -433,7 +433,7 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 
 1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
    LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
-2. 自动化客户端批量迁移、跨主机 QEMU job
+2. worker 主机自动发现/跨主机迁移、跨主机 QEMU job
    executor/reattach 和生产调度；本地 worker heartbeat/drain、远程目录、
    durable queue/lease supervisor、HTTPS/mTLS、SIGHUP TLS/token
    rotation + activity drain + bounded overlap、同主机 authenticated

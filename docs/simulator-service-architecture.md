@@ -73,8 +73,8 @@ Not implemented yet:
 
 - prestarted warm QEMU instances;
 - companion HTTP/BLE helper and evidence-stream continuity across restart;
-- automated client-fleet migration, cross-host QEMU execution/re-attach, and
-  production multi-host capacity scheduling;
+- automatic worker-host discovery, cross-host credential migration, cross-host
+  QEMU execution/re-attach, and production multi-host capacity scheduling;
 - external IPv6/CIDR/domain-set allowlisting;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
@@ -295,8 +295,9 @@ Status: local worker lifecycle, a persistent remote-worker registration
 directory, a durable pull-based job queue, a same-host HTTP executor and
 verified local QEMU/QMP restart re-attach, HTTPS/mTLS and same-host `SIGHUP`
 TLS/token rotation with active-request draining exist; bounded old/new
-credentials and manual staged migration are implemented; automated client
-fleet migration, cross-host QEMU execution,
+credentials, manual staged migration and a two-worker atomic-generation
+pointer migration with secret-free receipts are implemented; automatic worker
+host discovery, cross-host QEMU execution,
 companion/evidence continuity, cross-host re-attach and multi-host scheduling
 remain open.
 
@@ -318,7 +319,8 @@ remain open.
   path/body identity binding;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- automated client-fleet migration, cross-host QEMU execution, companion
+- automatic worker-host discovery, cross-host credential migration, cross-host
+  QEMU execution, companion
   HTTP/BLE/evidence continuity, cross-host re-attach and production capacity
   scheduling remain open.
 

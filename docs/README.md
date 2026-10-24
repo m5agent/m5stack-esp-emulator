@@ -65,7 +65,7 @@
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；`60s`、`120s` 和 active-BLE `120s` 门禁通过；同 guest 二十轮和三十轮 GATT 分别在 3 个独立 lease 中 PASS。三十轮运行每 lease HLI 857/857、events 587、ACLs 270，连接池回到空闲基线。根因是 Bumble 对 `HCI_Host_Number_of_Completed_Packets (0x0c35)` 返回了不该存在的 Command Status；首次 10 轮运行的 Device Service 30 秒等待误杀已修复；参数范围 `1–30`，下一门禁是超过三十轮和多小时 soak；物理等价性与真机仍开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |
 | [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | C6 软件复位 chip-id 的 `RUNTIME-01` 已由 Flash 三字节写擦/PMP 复位修复关闭；C6 Zigbee/802.15.4 的 `RUNTIME-02` 仍 `OPEN`；Meshtastic 修复后仍有独立应用异常，未写成完整功能 PASS |
-| [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复、双 guest lab fabric、worker SIGHUP rotation、active-request drain、bounded credential overlap 和 final cutover 已通；自动化客户端迁移、跨主机与 QEMU worker 边界单列 |
+| [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复、双 guest lab fabric、worker SIGHUP rotation、active-request drain、bounded credential overlap、final cutover 和双 worker generation-pointer 自动迁移已通；worker 主机自动发现、跨主机与 QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 外设数据面覆盖；最新计数和边界见项目当前状态 |

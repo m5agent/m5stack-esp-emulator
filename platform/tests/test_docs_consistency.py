@@ -135,6 +135,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_tls/evidence-2026-10-24-security-rotation-job-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-security-rotation-drain-job-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-security-rotation-overlap-job-pass.json",
+            "tests/network/worker_tls/evidence-2026-10-24-fleet-credential-migration-pass.json",
+            "tests/network/worker_tls/run_fleet_migration_test.py",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -352,6 +354,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "`RUNTIME-01` 复位/eFuse/寄存器语义",
             "| `CORE2-02` 30-cycle extension | `NOT RUN` |",
             "3 个独立 lease、每个 30 轮的下一门禁",
+            "Automated discovery and migration of a client fleet is still",
+            "Automated client-fleet migration, production",
+            "自动化客户端批量迁移、跨主机 QEMU executor",
         ):
             self.assertNotIn(stale, active)
 
@@ -531,6 +536,50 @@ class DocsConsistencyTests(unittest.TestCase):
                  health["gatts-pool-free"]),
                 (3, 9, 3),
             )
+
+    def test_worker_generation_pointer_migration_is_reconciled(self):
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        api = (DOCS / "device-service-api.md").read_text()
+        tls_readme = (
+            ROOT / "tests/network/worker_tls/README.md"
+        ).read_text()
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_tls/"
+                "evidence-2026-10-24-fleet-credential-migration-pass.json"
+            ).read_text()
+        )
+
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(len(evidence["fleet"]["workers"]), 2)
+        self.assertEqual(
+            set(evidence["fleet"]["receipts"]),
+            set(evidence["fleet"]["workers"]),
+        )
+        self.assertIsNone(evidence["rotation"]["worker_reload_signal"])
+        self.assertEqual(
+            evidence["rotation"]["worker_credential_commit"],
+            "atomic-generation-pointer-replacement",
+        )
+        self.assertTrue(
+            all(value == "PASS" for value in evidence["checks"].values())
+        )
+
+        for text in (status, backlog, workstreams, api, tls_readme):
+            self.assertIn("generation", text.lower())
+        self.assertIn("secret-free receipt", status)
+        self.assertIn("worker 主机自动发现", backlog)
+        self.assertIn(
+            "--credential-generation-file",
+            api,
+        )
+        self.assertIn(
+            "run_fleet_migration_test.py",
+            tls_readme,
+        )
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

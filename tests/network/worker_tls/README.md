@@ -27,6 +27,11 @@ server certificate and client CA, then verifies:
   before reload, verifies a bounded old/new CA/token overlap, removes the
   previous files, sends a final `SIGHUP`, verifies the old TLS identity and
   token are then rejected, and runs a real QEMU job with the new credentials.
+- `run_fleet_migration_test.py` starts two workers from immutable credential
+  generations, moves them to an A+B server-trust bridge, switches the service
+  to B with A as previous, publishes one atomic B generation pointer, verifies
+  both workers reload without `SIGHUP` and write secret-free receipts, then
+  finalizes the service and rejects the old identity.
 
 Run:
 
@@ -63,6 +68,15 @@ python3 tests/network/worker_tls/run_rotation_test.py
 
 Retained evidence:
 `evidence-2026-10-24-security-rotation-overlap-job-pass.json`.
+
+Automated two-worker credential migration:
+
+```bash
+python3 tests/network/worker_tls/run_fleet_migration_test.py
+```
+
+Retained evidence:
+`evidence-2026-10-24-fleet-credential-migration-pass.json`.
 
 ## Service configuration
 
@@ -107,11 +121,37 @@ Equivalent environment variables:
 
 `--token` and `--token-file` are mutually exclusive.
 
+For automatic fleet migration, immutable generation directories are referenced
+by one JSON pointer:
+
+```json
+{
+  "schema_version": 1,
+  "generation": "B",
+  "token_file": "generations/b/token",
+  "ca_file": "generations/b/ca.crt",
+  "client_cert": "generations/b/client.crt",
+  "client_key": "generations/b/client.key"
+}
+```
+
+```bash
+python3 platform/tools/worker_agent.py \
+  --service-url https://device-service.example \
+  --credential-generation-file /secure/worker-generation.json \
+  --credential-receipt-dir /secure/worker-receipts
+```
+
+The worker checks the pointer before every request and reloads after an atomic
+rename. A failed load keeps the old credentials active. A successful reload
+writes one `0600` receipt with worker identity, generation, timestamp and a
+secret-free file fingerprint.
+
 ## Credential rotation
 
-Replace files by atomic rename, then send `SIGHUP` to the service and worker.
-The service validates the new token and TLS files before committing either
-credential to live use. The worker makes the same all-or-nothing update.
+For direct file options, replace files by atomic rename and send `SIGHUP` to
+the service and worker. For the generation-pointer path, only the service
+needs `SIGHUP`; workers reload automatically from the new immutable generation.
 
 - A new TLS context applies to subsequent TLS handshakes; sockets that have
   already completed a handshake retain their TLS session.
@@ -120,13 +160,17 @@ credential to live use. The worker makes the same all-or-nothing update.
   seconds; a timeout keeps the old configuration and resumes admission.
 - During the bounded overlap, both the active and previous token are accepted
   for Bearer/HMAC checks, and both client CAs are trusted.
+- Workers first move to an `A+B` server-trust generation. After the service
+  switches to B with A retained as previous, publish the B worker generation.
+  This avoids a race where a worker still trusts only the old server CA.
 - Remove the previous token/CA files and send another `SIGHUP` to finalize.
   A missing previous file disables that side of the overlap.
 - The new master token applies to subsequent protected requests, including
   requests on an existing keep-alive connection.
-- The fixture stages client trust manually. Automated client discovery,
-  migration, and fleet-wide cutover are not claimed. Production
-  secret-manager integration and cross-host continuity are also not claimed.
+- The two-worker fixture proves automatic file-generation migration and
+  auditable receipts without worker `SIGHUP`. Automatic worker-host discovery,
+  cross-host migration, production secret-manager distribution and final
+  cutover orchestration are not claimed.
 
 ## Boundaries
 
@@ -134,7 +178,9 @@ The retained run is loopback on one host, not cross-host network validation.
 Certificate/token `SIGHUP` rotation, rejection of the retired credentials and
 a post-rotation real QEMU job are `PASS`. An active old-token artifact upload
 also completes before reload, and a bounded old/new CA/token overlap is
-followed by a final cutover. Automated client-fleet migration, production
+followed by a final cutover. A separate two-worker run passes A, A+B and B
+generation migration with secret-free receipts and no worker `SIGHUP`.
+Automatic worker-host discovery, cross-host migration, production
 CA/secret-manager lifecycle, multi-host scheduling, companion continuity and
 hardware remain `NOT RUN`.
 The real QEMU job proves process/session execution and evidence transfer, not

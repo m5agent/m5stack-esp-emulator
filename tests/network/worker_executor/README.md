@@ -49,7 +49,8 @@ Retained result:
 The retained QEMU job runs use the same host and service process. HTTPS/mTLS,
 real QEMU and unified StickS3 jobs over mTLS are verified separately by
 `tests/network/worker_tls/`; the historical evidence in this directory
-predates that transport. Certificate and worker credential hot rotation,
-cross-host QEMU execution, companion continuity after service restart,
-untrusted-firmware isolation, production scheduling and physical hardware
-remain `NOT RUN`.
+predates that transport. Certificate rotation and two-worker
+generation-pointer migration are verified in `tests/network/worker_tls/`;
+cross-host QEMU execution, automatic worker-host discovery, companion
+continuity after service restart, untrusted-firmware isolation, production
+scheduling and physical hardware remain `NOT RUN`.

@@ -98,9 +98,11 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   失联回收；本地 QEMU/QMP 控制面已完成 ownership 校验后的 reattach。
   同主机 HTTP executor、worker HMAC、可验证 HTTPS/mTLS、真实 QEMU 和
   unified StickS3 job over mTLS、SIGHUP rotation + activity drain +
-  bounded credential overlap 和 evidence ZIP/SHA256 回报已实现；自动化客户端批量迁移、
-  跨主机 QEMU executor/reattach、companion/BLE/evidence continuity、生产
-  secret manager/多机调度和 VM 隔离仍未完成。
+  bounded credential overlap、evidence ZIP/SHA256 回报，以及
+  generation-pointer 同主机双 worker 自动迁移和 secret-free receipts 已实现；
+  自动发现 worker 主机、跨主机 QEMU executor/reattach、
+  companion/BLE/evidence continuity、生产 secret manager/多机调度和 VM
+  隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
   已在同一隔离路径验证 exact IPv4 IP/协议/端口和 veth/NAT，上述内容也不
@@ -128,7 +130,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/worker_directory.py` | 远程 worker identity/generation 注册、stale/drain/stop、capability 与有界结果目录 |
 | `tools/worker_queue.py` | 持久 job queue、idempotency、capability 匹配、lease/heartbeat、超时重试和 supervisor 回收 |
 | `tools/worker_auth.py` | 严格 token-file、worker key 派生、HMAC 请求签名、时间戳、nonce replay cache 和 identity binding |
-| `tools/worker_agent.py` | HTTP-only worker executor、token/TLS hot reload、generation、claim、heartbeat、session 执行、evidence 和 result |
+| `tools/worker_agent.py` | HTTP-only worker executor、token/TLS `SIGHUP` reload、atomic generation-pointer auto reload/receipts、generation、claim、heartbeat、session 执行、evidence 和 result |
 | `tools/transport_security.py` | TLS 1.2+ server/client context、服务端证书校验、可选 client CA、mTLS 客户端证书 |
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入与脱敏 eFuse 安全摘要 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |

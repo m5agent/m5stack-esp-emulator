@@ -36,9 +36,10 @@ MicroPython 和其他完整 Flash 固件。
   可用主线；服务端证书/client CA、worker 客户证书和 token 已通过
   `SIGHUP` 轮换，活动请求会先完成再提交新配置；旧凭据拒绝且新凭据完成
   真实 QEMU job。previous token/CA 文件还提供有界旧/新重叠窗口，最终移除
-  previous 文件后旧身份和旧 token 均失效；自动化客户端批量迁移、跨主机
-  QEMU job/接管、companion / evidence continuity、secret-manager 和生产
-  调度仍是开放项。
+  previous 文件后旧身份和旧 token 均失效。同主机双 worker 已通过
+  generation-pointer 自动迁移和 secret-free receipt 验证，无需逐个向
+  worker 发送 `SIGHUP`；自动发现 worker 主机、跨主机 QEMU job/接管、
+  companion / evidence continuity、secret-manager 和生产调度仍是开放项。
 - Core2 规范路径是
   `runtime=qemu-unified/profile=core2-native-hci`；GDB native-VHCI 只用于
   诊断/兼容。功能、active-BLE 120 秒 hold、同 guest 二十轮和
@@ -63,7 +64,7 @@ MicroPython 和其他完整 Flash 固件。
 
 未完成项和 Task ID 只在[项目 Backlog](docs/project-backlog.md)维护；当前顺序是：
 
-1. `NET-04` / `SVC-01`：自动化客户端批量迁移、跨主机 QEMU job/reattach、continuity 和多机调度。
+1. `NET-04` / `SVC-01`：自动发现/跨主机 worker 迁移、跨主机 QEMU job/reattach、continuity 和多机调度。
 2. `FW-01` → `RUNTIME-02` → `FW-03` → `FW-02`：权限/许可、C6 Zigbee
   模型缺口、跨厂商样本、真机 key/eFuse。
 3. `CORE2-02`：`3` 个独立 lease、每个 `30` 轮的重连门禁已通过；继续推进

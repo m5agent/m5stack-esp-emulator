@@ -14,6 +14,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -43,6 +44,10 @@ class WorkerAgentError(RuntimeError):
     """Raised when the worker cannot register, claim or report a job."""
 
 
+def log_worker_event(message: str) -> None:
+    print(message, flush=True)
+
+
 def iso_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -56,6 +61,128 @@ def atomic_write(path: Path, data: bytes) -> None:
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def credential_file_fingerprint(paths: list[Path]) -> str:
+    """Return a secret-free fingerprint of atomic credential file generations."""
+
+    digest = hashlib.sha256()
+    for index, path in enumerate(paths):
+        digest.update(f"{index}:{path.name}\0".encode())
+        try:
+            stat = path.stat()
+        except FileNotFoundError:
+            digest.update(b"missing\0")
+            continue
+        digest.update(
+            (
+                f"{stat.st_dev}:{stat.st_ino}:{stat.st_size}:"
+                f"{stat.st_mtime_ns}\0"
+            ).encode()
+        )
+    return digest.hexdigest()
+
+
+def load_credential_generation(path: Path) -> dict[str, Any]:
+    """Load an immutable credential generation through one atomic pointer."""
+
+    pointer = Path(path)
+    try:
+        payload = json.loads(pointer.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"invalid credential generation file: {error}") from error
+    if not isinstance(payload, dict):
+        raise ValueError("credential generation file must contain an object")
+    if payload.get("schema_version") != 1:
+        raise ValueError("credential generation schema_version must be 1")
+    generation = payload.get("generation")
+    if not isinstance(generation, str) or not generation.strip():
+        raise ValueError("credential generation must be a non-empty string")
+    resolved: dict[str, Any] = {"generation": generation}
+    for key in ("token_file", "ca_file", "client_cert", "client_key"):
+        raw = payload.get(key)
+        if not isinstance(raw, str) or not raw.strip():
+            raise ValueError(f"credential generation {key} must be a path")
+        candidate = Path(raw)
+        if not candidate.is_absolute():
+            candidate = pointer.parent / candidate
+        resolved[key] = candidate
+    return resolved
+
+
+class CredentialReloader:
+    """All-or-nothing file-generation reload used by worker requests."""
+
+    def __init__(
+        self,
+        watched_paths: list[Path],
+        *,
+        load_token: Callable[[], str | None],
+        load_ssl_context: Callable[[], ssl.SSLContext | None],
+        receipt_dir: Path | None = None,
+        logger: Callable[[str], None] = log_worker_event,
+    ):
+        if not watched_paths:
+            raise ValueError("credential reloader requires watched files")
+        self.watched_paths = [Path(path) for path in watched_paths]
+        self._load_token = load_token
+        self._load_ssl_context = load_ssl_context
+        self.receipt_dir = Path(receipt_dir) if receipt_dir else None
+        self._logger = logger
+        self._lock = threading.Lock()
+        self._fingerprint: str | None = None
+
+    def mark_current(self) -> str:
+        fingerprint = credential_file_fingerprint(self.watched_paths)
+        with self._lock:
+            self._fingerprint = fingerprint
+        return fingerprint
+
+    def _write_receipt(self, api: Api, fingerprint: str) -> None:
+        if self.receipt_dir is None:
+            return
+        identity = api.worker_identity or {}
+        worker_id = str(identity.get("worker_id") or "unknown")
+        generation = int(identity.get("generation") or 0)
+        worker_key = hashlib.sha256(worker_id.encode()).hexdigest()[:16]
+        receipt = {
+            "schema_version": 1,
+            "worker_id": worker_id,
+            "generation": generation,
+            "reloaded_at": iso_now(),
+            "credential_fingerprint": fingerprint,
+        }
+        atomic_write(
+            self.receipt_dir
+            / f"worker-{worker_key}-g{generation}.json",
+            (json.dumps(receipt, indent=2) + "\n").encode(),
+        )
+
+    def apply(self, api: Api, *, force: bool = False) -> bool:
+        candidate = credential_file_fingerprint(self.watched_paths)
+        if not force and candidate == self._fingerprint:
+            return False
+        with self._lock:
+            candidate = credential_file_fingerprint(self.watched_paths)
+            if not force and candidate == self._fingerprint:
+                return False
+            try:
+                token = self._load_token()
+                ssl_context = self._load_ssl_context()
+                api.configure_credentials(
+                    token=token,
+                    ssl_context=ssl_context,
+                )
+            except (Exception, SystemExit) as error:  # noqa: BLE001
+                self._logger(f"worker credential reload failed: {error}")
+                return False
+            self._fingerprint = candidate
+            try:
+                self._write_receipt(api, candidate)
+            except OSError as error:
+                self._logger(f"worker credential receipt failed: {error}")
+            self._logger(f"worker credentials reloaded fingerprint={candidate}")
+            return True
 
 
 def initialize_identity(work_dir: Path, worker_id: str) -> dict[str, Any]:
@@ -95,10 +222,12 @@ class Api:
         token: str | None = None,
         *,
         ssl_context: ssl.SSLContext | None = None,
+        credential_reloader: Callable[[], Any] | None = None,
     ):
         self.base_url = base_url.rstrip("/")
         self._lock = threading.RLock()
         self._token = token
+        self._credential_reloader = credential_reloader
         self.worker_identity: dict[str, Any] | None = None
         if not self.base_url.startswith(("http://", "https://")):
             raise WorkerAgentError("service URL must use http:// or https://")
@@ -132,6 +261,13 @@ class Api:
             self._token = token
             self._ssl_context = ssl_context
 
+    def set_credential_reloader(
+        self,
+        reloader: Callable[[], Any] | None,
+    ) -> None:
+        with self._lock:
+            self._credential_reloader = reloader
+
     def request(
         self,
         path: str,
@@ -142,6 +278,10 @@ class Api:
     ) -> tuple[int, bytes, str]:
         headers: dict[str, str] = {}
         data = None
+        with self._lock:
+            credential_reloader = self._credential_reloader
+        if credential_reloader is not None:
+            credential_reloader()
         with self._lock:
             token = self._token
             ssl_context = self._ssl_context
@@ -572,6 +712,22 @@ def parse_arguments() -> argparse.Namespace:
             else None
         ),
     )
+    parser.add_argument(
+        "--credential-receipt-dir",
+        type=Path,
+        help=(
+            "write a secret-free receipt after atomically reloading "
+            "file-based credentials"
+        ),
+    )
+    parser.add_argument(
+        "--credential-generation-file",
+        type=Path,
+        help=(
+            "JSON pointer to an immutable credential generation; the worker "
+            "automatically reloads after an atomic pointer replacement"
+        ),
+    )
     parser.add_argument("--worker-id", default="local-executor")
     parser.add_argument(
         "--work-dir",
@@ -593,6 +749,19 @@ def main() -> int:
         raise SystemExit("--max-jobs must be positive")
     if args.token and args.token_file:
         raise SystemExit("--token and --token-file are mutually exclusive")
+    direct_credential_paths = (
+        args.token_file,
+        args.ca_file,
+        args.client_cert,
+        args.client_key,
+    )
+    if args.credential_generation_file is not None and any(
+        value is not None for value in direct_credential_paths
+    ):
+        raise SystemExit(
+            "--credential-generation-file cannot be combined with direct "
+            "token/TLS file options"
+        )
     capabilities = {
         "qemu": True,
         "pcap": True,
@@ -602,16 +771,56 @@ def main() -> int:
         if not isinstance(loaded, dict):
             raise SystemExit("--capabilities-json must be an object")
         capabilities = loaded
+    if args.credential_generation_file is not None and (
+        args.credential_receipt_dir is None
+    ):
+        raise SystemExit(
+            "--credential-generation-file requires --credential-receipt-dir "
+            "for auditable fleet migration"
+        )
+
+    def current_generation() -> dict[str, Any] | None:
+        if args.credential_generation_file is None:
+            return None
+        try:
+            return load_credential_generation(
+                args.credential_generation_file
+            )
+        except ValueError as error:
+            raise SystemExit(str(error)) from error
+
     def load_token() -> str | None:
-        if args.token_file is None:
+        generation = current_generation()
+        token_file = (
+            generation["token_file"]
+            if generation is not None
+            else args.token_file
+        )
+        if token_file is None:
             return args.token
         try:
-            return read_master_token_file(args.token_file)
+            return read_master_token_file(token_file)
         except WorkerAuthError as error:
             raise SystemExit(str(error)) from error
 
     def load_ssl_context() -> ssl.SSLContext | None:
-        tls_options = (args.ca_file, args.client_cert, args.client_key)
+        generation = current_generation()
+        ca_file = (
+            generation["ca_file"]
+            if generation is not None
+            else args.ca_file
+        )
+        client_cert = (
+            generation["client_cert"]
+            if generation is not None
+            else args.client_cert
+        )
+        client_key = (
+            generation["client_key"]
+            if generation is not None
+            else args.client_key
+        )
+        tls_options = (ca_file, client_cert, client_key)
         if not (
             args.service_url.startswith("https://")
             or any(value is not None for value in tls_options)
@@ -619,23 +828,54 @@ def main() -> int:
             return None
         if not args.service_url.startswith("https://"):
             raise SystemExit("TLS options require an https:// service URL")
-        if (args.client_cert is None) != (args.client_key is None):
+        if (client_cert is None) != (client_key is None):
             raise SystemExit(
                 "--client-cert and --client-key must be provided together"
             )
         try:
             return build_client_tls_context(
-                args.ca_file,
-                args.client_cert,
-                args.client_key,
+                ca_file,
+                client_cert,
+                client_key,
             )
         except ValueError as error:
             raise SystemExit(str(error)) from error
 
+    watched_paths = (
+        [args.credential_generation_file]
+        if args.credential_generation_file is not None
+        else [
+            path
+            for path in direct_credential_paths
+            if path is not None
+        ]
+    )
+    if args.credential_receipt_dir is not None and (
+        args.credential_generation_file is None
+    ):
+        raise SystemExit(
+            "--credential-receipt-dir requires --credential-generation-file"
+        )
     token = load_token()
     ssl_context = load_ssl_context()
     identity = initialize_identity(args.work_dir, args.worker_id)
     api = Api(args.service_url, token, ssl_context=ssl_context)
+    credential_reloader = (
+        CredentialReloader(
+            watched_paths,
+            load_token=load_token,
+            load_ssl_context=load_ssl_context,
+            receipt_dir=args.credential_receipt_dir,
+        )
+        if watched_paths
+        else None
+    )
+    if credential_reloader is not None:
+        credential_reloader.mark_current()
+        if args.credential_generation_file is not None:
+            api.set_credential_reloader(
+                lambda: credential_reloader.apply(api)
+            )
     agent = WorkerAgent(
         api,
         work_dir=args.work_dir,
@@ -651,24 +891,9 @@ def main() -> int:
 
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
-    if args.token_file is not None or any(
-        value is not None
-        for value in (args.ca_file, args.client_cert, args.client_key)
-    ):
+    if credential_reloader is not None:
         def reload_credentials(_signum: int, _frame: Any) -> None:
-            try:
-                new_token = load_token()
-                new_context = load_ssl_context()
-                api.configure_credentials(
-                    token=new_token,
-                    ssl_context=new_context,
-                )
-                print("worker credentials reloaded", flush=True)
-            except (WorkerAgentError, SystemExit) as error:
-                print(
-                    f"worker credential reload failed: {error}",
-                    flush=True,
-                )
+            credential_reloader.apply(api, force=True)
 
         if hasattr(signal, "SIGHUP"):
             signal.signal(signal.SIGHUP, reload_credentials)

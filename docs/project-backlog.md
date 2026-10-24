@@ -21,7 +21,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络产品化 | 跨主机 QEMU executor、自动化客户端批量迁移、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 authenticated executor；本地 QEMU/QMP reattach |
+| P0 | 网络产品化 | 自动发现/跨主机 worker 迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 运行时模型缺口 | 决定并验证或明确拒绝 C6 Zigbee/802.15.4 路径 | Zigbee 控制器和无线数据面 |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
@@ -35,9 +35,10 @@
 ## 当前执行顺序
 
 1. `NET-04` / `SVC-01`：在 durable queue、同主机 HTTP executor、远程注册
-   目录、lease supervisor、worker HMAC、SIGHUP TLS/token rotation 和本地
-   QEMU/QMP reattach 基础上补自动化客户端批量迁移、跨主机
-   QEMU executor/reattach、companion/evidence continuity 和多机调度；
+   目录、lease supervisor、worker HMAC、SIGHUP TLS/token rotation、
+   同主机 generation-pointer 批量迁移和本地 QEMU/QMP reattach 基础上补
+   自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、
+   companion/evidence continuity 和多机调度；
    `NET-05` 独立推进 IPv6。
 2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后推进
    `RUNTIME-02` C6 Zigbee 决策，再扩 `FW-03` 跨厂商样本；
@@ -54,14 +55,14 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 跨主机 QEMU executor/reattach、自动化客户端批量迁移、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与手工迁移已完成；自动化迁移可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 自动主机发现/跨主机 worker 迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
 | `CORE2-02` | 进行中 | 3 个 lease 各 20 轮、3 个独立 lease 各 30 轮、`5×10s`、`3×60s`、`2×120s`、active hold 均已通过；下一项先提高 runner/API 的 `30` 轮和 `120s` hold 上限，再做超过三十轮、多小时 hold、WiFi/BLE coexistence 和 process-stop/teardown | 超过三十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM、长时间 coexist 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | 已有 6 台 S3/C6、18 个公开官方/社区样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
 | `RUNTIME-02` | 决策 | 评估 C6 Zigbee/802.15.4 MAC、DMA、IRQ 和驱动路径能否进入可维护模型 | 完成至少一个真实 guest 生命周期并保留证据，或继续显式返回 `runtime_model_gap` 且给出阻断原因 |
-| `SVC-01` | 进行中 | 自动化客户端批量迁移、companion/evidence continuity 与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
+| `SVC-01` | 进行中 | companion/evidence continuity、worker 主机自动发现与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation |
@@ -88,8 +89,10 @@
   进程、证书拒绝/通过、签名请求和 `SIGHUP` A/B TLS/token rotation 证据。
   rotation 会先完成活动请求，并以 previous token/CA 提供有界旧/新重叠，
   最终移除 previous 文件后拒绝旧身份与旧 token，再由新凭据完成真实
-  QEMU job；仍没有自动化客户端批量迁移、跨主机 QEMU job、跨 worker
-  容量调度和多机状态收敛；
+  QEMU job。同主机双 worker 已通过不可变 generation 目录、单个原子
+  pointer 和 secret-free receipt 自动迁移，无需逐个发送 worker `SIGHUP`；
+  仍没有 worker 主机自动发现、跨主机 QEMU job、跨 worker 容量调度和多机
+  状态收敛；
 - 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
   `query-status=running` 验证后 re-attach；Tab5/network lane、paused QEMU、
   companion HTTP/BLE helper、evidence 流和跨主机进程仍不能接管；
@@ -98,9 +101,10 @@
 
 下一项最小交付：
 
-1. 在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain
-   和 bounded credential overlap 上补自动化客户端批量迁移、跨主机 QEMU
-   job 和外部 side-effect fencing，禁止旧 agent 覆盖新 generation。
+1. 在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain、
+   bounded credential overlap 和同主机 generation-pointer migration 上补
+   worker 主机自动发现、跨主机 QEMU job 和外部 side-effect fencing，禁止
+   旧 agent 覆盖新 generation。
 2. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。
 3. 在本地 QEMU/QMP reattach 之上补 companion 状态重建、evidence 流连续性和
    跨主机接管；无法证明 ownership 时明确 `interrupted_failed`。

@@ -266,8 +266,12 @@ A fourth run stages `--api-token-previous-file` and
 `--tls-client-ca-previous`: both old/new client CAs and tokens are accepted
 during the overlap window. The worker moves to the new identity, the previous
 files are removed, and a final `SIGHUP` rejects the retired CA/token before
-the real QEMU job. Cross-host QEMU jobs, automated client-fleet migration and
-companion continuity remain open.
+the real QEMU job. A fifth run starts two workers from immutable credential
+generations. They first load an `A+B` server-trust bridge, continue through
+the service A-to-B overlap, then atomically replace one generation pointer;
+each worker reloads on its next request and writes a secret-free receipt
+without receiving `SIGHUP`. Cross-host QEMU jobs, automatic worker-host
+discovery and companion continuity remain open.
 
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)
@@ -366,27 +370,53 @@ python3 platform/tools/serve.py 8787 \
 
 The bearer/API check accepts either token and worker HMAC verification tries
 both tokens. The TLS listener trusts both client CAs. A missing previous file
-disables that side of the overlap. To finalize, update workers to trust the
-new server CA and use the new client identity/token, remove both previous
-files, then send another `SIGHUP`. The final service state trusts only the
-active CA/token. Automated discovery and migration of a client fleet is still
-`NOT RUN`.
+disables that side of the overlap. To finalize, remove both previous files,
+then send another `SIGHUP`. The final service state trusts only the active
+CA/token.
+
+For automated worker migration, keep complete credential sets in immutable
+generation directories and publish one pointer by atomic rename:
+
+```json
+{
+  "schema_version": 1,
+  "generation": "B",
+  "token_file": "generations/b/token",
+  "ca_file": "generations/b/ca.crt",
+  "client_cert": "generations/b/client.crt",
+  "client_key": "generations/b/client.key"
+}
+```
+
+Relative paths resolve from the pointer file. Workers using
+`--credential-generation-file` compare the pointer before every API request;
+an atomic pointer replacement commits the complete credential set, while a
+failed load keeps the previous set active. Workers should first move to an
+`A+B` server-trust generation, then the service can switch its active server
+certificate and client CA with A retained as previous. After service overlap
+is active, publish the B worker generation. `--credential-receipt-dir` writes
+one `0600` secret-free receipt per worker containing identity, generation,
+timestamp and a file-generation fingerprint.
+
+The retained same-host fixture moves two workers through A, A+B and B, verifies
+both receipts and new-identity heartbeats, then removes the server previous
+files and verifies old credentials fail. Worker `SIGHUP` is not required in
+this path. Automatic discovery of worker hosts, cross-host migration,
+secret-manager distribution and final cutover orchestration remain `NOT RUN`.
 
 The worker uses verified TLS by default for `https://` URLs. `--ca-file`
 selects a private CA bundle, while `--client-cert` + `--client-key` enable an
 mTLS client identity. The worker can load the token from `--token-file` or
 `M5_SERVICE_API_TOKEN_FILE`; `--token` and `--token-file` are mutually
-exclusive. Send `SIGHUP` to the worker after files are replaced to refresh the
-token and TLS context without restarting its polling loop.
+exclusive. Direct file options still use `SIGHUP` for reload. For automatic
+fleet migration, use `--credential-generation-file` and
+`--credential-receipt-dir`:
 
 ```bash
 python3 platform/tools/worker_agent.py \
   --service-url https://device-service.example \
-  --ca-file /secure/service-ca.crt \
-  --client-cert /secure/worker.crt \
-  --client-key /secure/worker.key \
-  --token-file /secure/service.token \
-  --once
+  --credential-generation-file /secure/worker-generation.json \
+  --credential-receipt-dir /secure/worker-receipts
 ```
 
 There is no hostname-verification bypass. TLS options are rejected for

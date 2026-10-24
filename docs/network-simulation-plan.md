@@ -66,6 +66,7 @@ Device Service lease
 - [Worker TLS/token rotation and post-rotation QEMU job](../tests/network/worker_tls/evidence-2026-10-24-security-rotation-job-pass.json)
 - [Worker rotation with active-request drain](../tests/network/worker_tls/evidence-2026-10-24-security-rotation-drain-job-pass.json)
 - [Worker rotation with bounded overlap and final cutover](../tests/network/worker_tls/evidence-2026-10-24-security-rotation-overlap-job-pass.json)
+- [Two-worker generation-pointer credential migration](../tests/network/worker_tls/evidence-2026-10-24-fleet-credential-migration-pass.json)
 - [Core2 WiFi-only deterministic repeat](../tests/network/core2_openmac_wifi/evidence-2026-10-24-deterministic-5x.json)
 - [Core2 legacy native-VHCI diagnostic lease](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
 - [精确 IPv4 IP/端口和 NAT 证据](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json)
@@ -83,10 +84,10 @@ Device Service lease
 - 物理 RF 消失/恢复、信道/速率变化或重新分配不同 lease；
 - WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
 - namespace、pcap retention 和 evidence upload 的跨主机 executor、
-  跨主机 QEMU job、自动化客户端批量迁移、
+  跨主机 QEMU job、worker 主机自动发现/跨主机迁移、
   companion/evidence continuity、跨主机 reattach 和生产调度；本地
   heartbeat/drain、HTTPS/mTLS、`SIGHUP` A/B rotation + activity drain +
-  bounded credential overlap、authenticated
+  bounded credential overlap、generation-pointer 双 worker 自动迁移、authenticated
   同主机 HTTP executor、QEMU/QMP restart reattach、远程注册目录和 durable
   queue/lease supervisor 已具备，GitHub-hosted policy/egress CI 已单独
   通过；
@@ -184,7 +185,7 @@ primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP re
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
 | N4a Linux policy CI | DONE | GitHub-hosted namespace/nft/egress fixture 保持 fail-closed 并可重复 |
 | N4b 双设备 fabric | DONE (virtual) | 两台 StickS3 的 DHCP、guest TCP、双侧 pcap、宿主隔离与清理已通过；下一步接入 worker |
-| N4c durable queue/lease supervisor | DONE (contract/API) | 幂等 submit、capability claim、lease、expiry retry、cancel/result、worker stale/stop/generation 回收；authenticated 同主机 HTTP executor 已运行真实 QEMU job；真实 loopback HTTPS/mTLS、signed worker 生命周期、真实 QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、activity drain、bounded credential overlap 和 final cutover 后 QEMU job PASS；跨主机 QEMU job、自动化客户端迁移、companion/evidence continuity 仍开放 |
+| N4c durable queue/lease supervisor | DONE (contract/API) | 幂等 submit、capability claim、lease、expiry retry、cancel/result、worker stale/stop/generation 回收；authenticated 同主机 HTTP executor 已运行真实 QEMU job；真实 loopback HTTPS/mTLS、signed worker 生命周期、真实 QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、activity drain、bounded credential overlap 和 final cutover 后 QEMU job PASS；双 worker 再通过 generation pointer 自动迁移并写出 receipt，无需 worker SIGHUP；跨主机 QEMU job、worker 主机自动发现、companion/evidence continuity 仍开放 |
 | N5 Core2 production BLE/PHY | PARTIAL | `HCI-4`、active hold、二十轮和 3 个独立 lease × 30 轮 reconnect 已通过；继续补超过三十轮与多小时 soak，之后处理 bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
@@ -192,7 +193,8 @@ primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP re
 注册目录、durable job queue、authenticated 同主机 HTTP executor 和本地
 QEMU/QMP restart reattach 也已具备，SIGHUP TLS/token rotation 已在同主机
 loopback 验证，活动请求会在 reload 前完成，previous token/CA 也提供有界
-重叠与 final cutover；下一步是 `NET-04` 的自动化客户端批量迁移、跨主机
+重叠与 final cutover。双 worker generation-pointer 迁移和 secret-free
+receipts 也已通过；下一步是 `NET-04` 的 worker 主机自动发现、跨主机
 executor、跨主机 QEMU job、
 companion/evidence continuity、跨主机 reattach 与生产多机调度，再单列
 `NET-05` 外部 IPv6。精确 IPv4

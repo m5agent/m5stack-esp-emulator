@@ -305,8 +305,12 @@ diagnostics in `internal/records/`.
   drains an active request before committing the new configuration, then
   completes a signed real QEMU job with the new credentials. A bounded overlap
   run also accepts old/new client CAs and tokens until the previous files are
-  removed and a final `SIGHUP` retires them. Automated client-fleet migration,
-  cross-host QEMU jobs and cross-host reattach remain open.
+  removed and a final `SIGHUP` retires them. A two-worker run also moves
+  through an A+B server-trust bridge and an atomic credential-generation
+  pointer, reloads each worker on its next request, writes secret-free
+  receipts and requires no worker `SIGHUP`. Automatic worker-host discovery,
+  cross-host credential migration, cross-host QEMU jobs and cross-host
+  reattach remain open.
 
 ## Remaining work
 
@@ -323,9 +327,9 @@ snapshots must agree and CI enforces that cross-check.
 
 The main open streams are:
 
-- cross-host QEMU job execution, automated client-fleet migration,
-  companion/evidence continuity, cross-host QEMU re-attach, multi-host
-  scheduling and external IPv6 endpoint enforcement;
+- automatic worker-host discovery, cross-host credential and QEMU job
+  execution, companion/evidence continuity, cross-host QEMU re-attach,
+  multi-host scheduling and external IPv6 endpoint enforcement;
 - Core2 more-than-30-cycle and multi-hour coexistence runs after the passing
   three-independent-lease, 30-cycle gate, bit-exact BT controller/baseband,
   physical cache/PSRAM equivalence and hardware validation;

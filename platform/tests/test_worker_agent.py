@@ -14,8 +14,12 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
 from worker_agent import (  # noqa: E402
+    CredentialReloader,
     WorkerAgent,
+    atomic_write,
+    credential_file_fingerprint,
     initialize_identity,
+    load_credential_generation,
 )
 
 
@@ -86,6 +90,20 @@ class FakeApi:
         if "/evidence?" in path:
             return 200, self.evidence, "application/zip"
         raise AssertionError((method, path, payload))
+
+
+class FakeCredentialApi:
+    def __init__(self):
+        self.worker_identity = {
+            "worker_id": "fleet-worker",
+            "generation": 1,
+        }
+        self.token = None
+        self.ssl_context = None
+
+    def configure_credentials(self, *, token, ssl_context):
+        self.token = token
+        self.ssl_context = ssl_context
 
 
 class WorkerAgentTests(unittest.TestCase):
@@ -169,6 +187,106 @@ class WorkerAgentTests(unittest.TestCase):
             f"/api/v1/sessions/{'a' * 32}?purge=0",
             [call[1] for call in api.calls],
         )
+
+    def test_credential_files_reload_atomically_with_secret_free_receipt(self):
+        token_path = Path(self.tmp.name) / "active.token"
+        receipt_dir = Path(self.tmp.name) / "receipts"
+        token_path.write_text("token-a\n")
+        api = FakeCredentialApi()
+        load_failure = False
+
+        def load_token():
+            if load_failure:
+                raise RuntimeError("invalid staged token")
+            return token_path.read_text().strip()
+
+        reloader = CredentialReloader(
+            [token_path],
+            load_token=load_token,
+            load_ssl_context=lambda: None,
+            receipt_dir=receipt_dir,
+        )
+        reloader.mark_current()
+        self.assertFalse(reloader.apply(api))
+
+        atomic_write(token_path, b"token-b\n")
+        expected_fingerprint = credential_file_fingerprint([token_path])
+        self.assertTrue(reloader.apply(api))
+        self.assertEqual(api.token, "token-b")
+        receipt_path = next(receipt_dir.glob("worker-*.json"))
+        receipt = json.loads(receipt_path.read_text())
+        self.assertEqual(
+            receipt["credential_fingerprint"],
+            expected_fingerprint,
+        )
+        self.assertNotIn("token-b", receipt_path.read_text())
+        self.assertEqual(receipt_path.stat().st_mode & 0o777, 0o600)
+
+        load_failure = True
+        atomic_write(token_path, b"token-c\n")
+        self.assertFalse(reloader.apply(api))
+        self.assertEqual(api.token, "token-b")
+        self.assertEqual(
+            json.loads(receipt_path.read_text())["credential_fingerprint"],
+            expected_fingerprint,
+        )
+
+    def test_credential_generation_pointer_reloads_one_atomic_snapshot(self):
+        pointer = Path(self.tmp.name) / "worker-generation.json"
+        generation_a = Path(self.tmp.name) / "a"
+        generation_b = Path(self.tmp.name) / "b"
+        generation_a.mkdir()
+        generation_b.mkdir()
+        for directory, label in ((generation_a, "A"), (generation_b, "B")):
+            for name in ("ca.crt", "client.crt", "client.key"):
+                (directory / name).write_text(f"{label}\n")
+        (generation_a / "token").write_text("token-a\n")
+        (generation_b / "token").write_text("token-b\n")
+
+        def publish(directory: Path, generation: str) -> None:
+            atomic_write(
+                pointer,
+                (
+                    json.dumps(
+                        {
+                            "schema_version": 1,
+                            "generation": generation,
+                            "token_file": f"{directory.name}/token",
+                            "ca_file": f"{directory.name}/ca.crt",
+                            "client_cert": f"{directory.name}/client.crt",
+                            "client_key": f"{directory.name}/client.key",
+                        }
+                    )
+                    + "\n"
+                ).encode(),
+            )
+
+        publish(generation_a, "A")
+        loaded = load_credential_generation(pointer)
+        self.assertEqual(loaded["generation"], "A")
+        self.assertEqual(loaded["token_file"], generation_a / "token")
+        api = FakeCredentialApi()
+
+        def load_token():
+            current = load_credential_generation(pointer)
+            return current["token_file"].read_text().strip()
+
+        reloader = CredentialReloader(
+            [pointer],
+            load_token=load_token,
+            load_ssl_context=lambda: None,
+        )
+        reloader.mark_current()
+        publish(generation_b, "B")
+        self.assertTrue(reloader.apply(api))
+        self.assertEqual(api.token, "token-b")
+
+        atomic_write(
+            pointer,
+            (json.dumps({"schema_version": 2}) + "\n").encode(),
+        )
+        with self.assertRaisesRegex(ValueError, "schema_version"):
+            load_credential_generation(pointer)
 
 
 if __name__ == "__main__":

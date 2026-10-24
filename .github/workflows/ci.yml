@@ -35,6 +35,10 @@ jobs:
         run: |
           node platform/tests/test_sha256.mjs
           node platform/tests/test_firmware_upload.mjs
+      - name: Test worker credential generation migration
+        run: |
+          python3 tests/network/worker_tls/run_fleet_migration_test.py \
+            --out /tmp/m5-fleet-credential-migration.json
 
   network-namespace-policy:
     runs-on: ubuntu-latest
