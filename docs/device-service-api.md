@@ -250,9 +250,10 @@ required, unsigned claim returned `401`, and `worker_agent.py` completed
 signed registration/heartbeat/claim/stop over mTLS. The same fixture also
 uploads and composes a complete StickS3 flash over mTLS, runs a durable job
 through a real QEMU session, downloads evidence, verifies SHA256 and reports
-terminal `completed/PASS`. This is not a unified board/network/UI PASS.
-Certificate and worker credential hot rotation, cross-host QEMU jobs and
-companion continuity remain open.
+terminal `completed/PASS`. A second job uses the unified StickS3 image and
+requires its board/WiFi/BLE markers, network evidence, pcap and PNG frame in
+the same evidence ZIP. Certificate and worker credential hot rotation,
+cross-host QEMU jobs and companion continuity remain open.
 
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)

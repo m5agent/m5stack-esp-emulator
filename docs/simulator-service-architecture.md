@@ -37,8 +37,8 @@ Implemented:
   timestamp/nonce replay protection and path/body identity binding;
 - HTTPS with TLS 1.2+ server/client contexts, optional required client
   certificates, and a real loopback process test covering TLS 1.3,
-  certificate rejection/acceptance, signed worker requests and a real
-  StickS3 QEMU job with evidence transfer;
+  certificate rejection/acceptance, signed worker requests, a real StickS3
+  QEMU job and a unified board/WiFi/BLE job with evidence transfer;
 - verified local QEMU/QMP restart re-attach after PID start-time, QMP socket
   ownership and `query-status=running` all match;
 - bounded stopped/failed history with age, count and byte limits;

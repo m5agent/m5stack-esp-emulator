@@ -210,10 +210,16 @@ def main() -> int:
             / "evidence-2026-10-24-tls-mtls-pass.json"
         ),
     )
-    parser.add_argument(
+    job_group = parser.add_mutually_exclusive_group()
+    job_group.add_argument(
         "--real-qemu-job",
         action="store_true",
         help="submit and execute a real StickS3 QEMU job over mTLS",
+    )
+    job_group.add_argument(
+        "--real-unified-job",
+        action="store_true",
+        help="execute a unified StickS3 board/WiFi/BLE job over mTLS",
     )
     args = parser.parse_args()
     if shutil.which("openssl") is None:
@@ -322,7 +328,8 @@ def main() -> int:
 
             job_id: str | None = None
             firmware_sha256 = ""
-            if args.real_qemu_job:
+            real_job = args.real_qemu_job or args.real_unified_job
+            if real_job:
                 source_image = (
                     ROOT
                     / "platform/.cache/firmware/sticks3/uiflow2.bin"
@@ -335,10 +342,49 @@ def main() -> int:
                 source = source_image.read_bytes()
                 if len(source) > flash_size:
                     raise RuntimeError("StickS3 reference exceeds flash size")
-                full_image = temp_dir / "sticks3-reference-full.bin"
-                full_image.write_bytes(
-                    source + b"\xff" * (flash_size - len(source))
-                )
+                if args.real_unified_job:
+                    build_dir = (
+                        ROOT
+                        / ".work/uiflow-core2-2.5.3/m5stack/"
+                        "build-M5STACK_StickS3-unified"
+                    )
+                    if not build_dir.is_dir():
+                        raise RuntimeError(
+                            "StickS3 unified build is not available"
+                        )
+                    full_image = temp_dir / "sticks3-unified-full.bin"
+                    compose_env = os.environ.copy()
+                    compose_env["PYTHONPATH"] = str(ROOT / ".work/py")
+                    composed = subprocess.run(
+                        [
+                            sys.executable,
+                            str(
+                                ROOT
+                                / "tests/uiflow2/unified_sticks3/"
+                                "make_image.py"
+                            ),
+                            "--base",
+                            str(source_image),
+                            "--build-dir",
+                            str(build_dir),
+                            "--out",
+                            str(full_image),
+                        ],
+                        cwd=ROOT,
+                        env=compose_env,
+                        capture_output=True,
+                        timeout=120,
+                    )
+                    if composed.returncode != 0:
+                        raise RuntimeError(
+                            "unified image compose failed: "
+                            + composed.stderr.decode(errors="replace")[-1000:]
+                        )
+                else:
+                    full_image = temp_dir / "sticks3-reference-full.bin"
+                    full_image.write_bytes(
+                        source + b"\xff" * (flash_size - len(source))
+                    )
                 artifact = upload_artifact(
                     base_url,
                     token,
@@ -355,30 +401,65 @@ def main() -> int:
                     },
                 )
                 firmware_sha256 = str(firmware["sha256"])
+                job_label = (
+                    "worker-mtls-sticks3-unified"
+                    if args.real_unified_job
+                    else "worker-mtls-sticks3-qemu"
+                )
+                network = (
+                    {
+                        "profile": "uiflow2-sticks3-unified",
+                        "attempts": 1,
+                        "capture_pcap": True,
+                    }
+                    if args.real_unified_job
+                    else None
+                )
                 submitted = with_mtls.json(
                     "/api/v1/jobs",
                     method="POST",
                     payload={
-                        "label": "worker-mtls-sticks3-qemu",
+                        "label": job_label,
                         "request": {
                             "session": {
                                 "device_id": "sticks3",
-                                "runtime": "qemu",
+                                "runtime": (
+                                    "qemu-unified"
+                                    if args.real_unified_job
+                                    else "qemu"
+                                ),
                                 "firmware_id": firmware["firmware_id"],
                                 "ready_timeout_seconds": 180,
+                                **(
+                                    {"network": network}
+                                    if network is not None
+                                    else {}
+                                ),
                             },
                             "evidence_include": [
                                 "manifest",
                                 "serial",
                                 "frames",
                                 "logs",
+                                *(
+                                    ["network"]
+                                    if args.real_unified_job
+                                    else []
+                                ),
                                 "qom",
                             ],
                         },
-                        "required_capabilities": {"qemu": True},
+                        "required_capabilities": {
+                            "qemu": True,
+                            **(
+                                {"pcap": True}
+                                if args.real_unified_job
+                                else {}
+                            ),
+                        },
                         "max_attempts": 1,
                         "idempotency_key": (
-                            "worker-mtls-qemu-" + secrets.token_hex(8)
+                            job_label + "-" + secrets.token_hex(8)
                         ),
                     },
                 )
@@ -405,7 +486,11 @@ def main() -> int:
                     "--work-dir",
                     str(worker_dir),
                     "--capabilities-json",
-                    '{"qemu": true}',
+                    (
+                        '{"qemu": true, "pcap": true}'
+                        if args.real_unified_job
+                        else '{"qemu": true}'
+                    ),
                     "--session-timeout",
                     "240",
                     "--once",
@@ -413,7 +498,7 @@ def main() -> int:
                 cwd=ROOT,
                 env=worker_env,
                 capture_output=True,
-                timeout=300 if args.real_qemu_job else 30,
+                timeout=300 if real_job else 30,
             )
             if worker.returncode != 0:
                 raise RuntimeError(
@@ -455,6 +540,68 @@ def main() -> int:
                 checks["real_sticks3_qemu_job_over_mtls"] = "PASS"
                 checks["terminal_job_pass"] = "PASS"
                 checks["job_evidence_sha256"] = "PASS"
+                unified_job: dict[str, object] = {}
+                if args.real_unified_job:
+                    with zipfile.ZipFile(evidence_path) as archive:
+                        serial = archive.read("serial.log").decode(
+                            errors="replace"
+                        )
+                        network_evidence = json.loads(
+                            archive.read("network/evidence.json")
+                        )
+                        pcap_bytes = len(
+                            archive.read("network/capture.pcap")
+                        )
+                        frames = [
+                            name
+                            for name in archive.namelist()
+                            if name.startswith("frames/")
+                            and name.endswith(".png")
+                        ]
+                        frame_bytes = (
+                            len(archive.read(frames[0])) if frames else 0
+                        )
+                    required_markers = (
+                        "UNIFIED_STICKS3_BOOT",
+                        "UNIFIED_STICKS3_MAIN",
+                        "UNIFIED_STICKS3_WIFI_CONNECTED",
+                        "UNIFIED_STICKS3_HTTP_PASS",
+                        "UNIFIED_STICKS3_BLE_READY",
+                        "UNIFIED_STICKS3_BLE_RX",
+                        "UNIFIED_STICKS3_BLE_ACK_SENT",
+                        "UNIFIED_STICKS3_READY",
+                    )
+                    missing = [
+                        marker
+                        for marker in required_markers
+                        if marker not in serial
+                    ]
+                    if missing:
+                        raise RuntimeError(
+                            f"unified evidence lacks markers: {missing}"
+                        )
+                    if (
+                        network_evidence.get("status") != "PASS"
+                        or not network_evidence.get("checks")
+                        or not all(network_evidence["checks"].values())
+                    ):
+                        raise RuntimeError(
+                            "unified network evidence is not PASS"
+                        )
+                    if pcap_bytes <= 0 or frame_bytes <= 0:
+                        raise RuntimeError(
+                            "unified evidence lacks non-empty pcap or frame"
+                        )
+                    checks["unified_sticks3_markers_over_mtls"] = "PASS"
+                    checks["unified_network_evidence_over_mtls"] = "PASS"
+                    checks["unified_pcap_over_mtls"] = "PASS"
+                    checks["unified_frame_over_mtls"] = "PASS"
+                    unified_job = {
+                        "serial_markers": "PASS",
+                        "network_evidence": "PASS",
+                        "pcap_bytes": pcap_bytes,
+                        "frame_bytes": frame_bytes,
+                    }
                 live_job = {
                     "status": job["status"],
                     "result_state": result["state"],
@@ -463,6 +610,7 @@ def main() -> int:
                     "evidence_sha256": evidence_sha256,
                     "firmware_sha256": firmware_sha256,
                     "evidence_contains_manifest_and_serial": "PASS",
+                    **unified_job,
                 }
 
             try:
@@ -482,9 +630,13 @@ def main() -> int:
                 "status": "PASS",
                 "validation": "transport-security validation",
                 "scope": (
-                    "same-host-loopback-real-tls-qemu-job"
-                    if args.real_qemu_job
-                    else "same-host-loopback-real-tls-process"
+                    "same-host-loopback-real-tls-unified-job"
+                    if args.real_unified_job
+                    else (
+                        "same-host-loopback-real-tls-qemu-job"
+                        if args.real_qemu_job
+                        else "same-host-loopback-real-tls-process"
+                    )
                 ),
                 "tls": {
                     "minimum_version": "TLSv1.2",
@@ -509,12 +661,12 @@ def main() -> int:
                     "hardware validation",
                 ],
             }
-            if not args.real_qemu_job:
+            if not real_job:
                 payload["not_claimed"].insert(
                     3,
                     "real QEMU job execution over mTLS",
                 )
-            else:
+            elif args.real_qemu_job:
                 payload["not_claimed"].insert(
                     3,
                     "unified board/network application PASS for the QEMU job",

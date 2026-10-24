@@ -46,8 +46,8 @@ Retained result:
 
 ## Boundaries
 
-The retained QEMU job runs use the same host and service process. HTTPS/mTLS
-and a real QEMU job over mTLS are verified separately by
+The retained QEMU job runs use the same host and service process. HTTPS/mTLS,
+real QEMU and unified StickS3 jobs over mTLS are verified separately by
 `tests/network/worker_tls/`; the historical evidence in this directory
 predates that transport. Certificate and worker credential hot rotation,
 cross-host QEMU execution, companion continuity after service restart,

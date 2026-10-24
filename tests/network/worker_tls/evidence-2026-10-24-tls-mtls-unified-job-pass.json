@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-tls-mtls-transport",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "validation": "transport-security validation",
+  "scope": "same-host-loopback-real-tls-unified-job",
+  "tls": {
+    "minimum_version": "TLSv1.2",
+    "observed_version": "TLSv1.3",
+    "server_certificate_verification": "PASS",
+    "client_certificate_required": "PASS",
+    "ephemeral_test_pki": true
+  },
+  "worker_transport": {
+    "base_url_scheme": "https",
+    "bearer_and_worker_hmac_preserved": "PASS",
+    "unsigned_claim_http": 401,
+    "worker_agent_exit_code": 0
+  },
+  "checks": {
+    "https_server_ready": "PASS",
+    "server_certificate_verified": "PASS",
+    "client_certificate_required": "PASS",
+    "mtls_client_certificate_accepted": "PASS",
+    "unsigned_worker_claim_rejected": "PASS",
+    "worker_agent_signed_requests_over_mtls": "PASS",
+    "no_plaintext_http_fallback": "PASS",
+    "real_sticks3_qemu_job_over_mtls": "PASS",
+    "terminal_job_pass": "PASS",
+    "job_evidence_sha256": "PASS",
+    "unified_sticks3_markers_over_mtls": "PASS",
+    "unified_network_evidence_over_mtls": "PASS",
+    "unified_pcap_over_mtls": "PASS",
+    "unified_frame_over_mtls": "PASS"
+  },
+  "live_job": {
+    "status": "completed",
+    "result_state": "PASS",
+    "attempts": 1,
+    "evidence_bytes": 42949,
+    "evidence_sha256": "87fb8d04f630833cbebcc2d0842a8dabe94b02a4f20c6c60a106341496a4f423",
+    "firmware_sha256": "43429d475fea7ce8dfd24fe34c373e8cd0cb9196b1f64a1f60f42957547580c9",
+    "evidence_contains_manifest_and_serial": "PASS",
+    "serial_markers": "PASS",
+    "network_evidence": "PASS",
+    "pcap_bytes": 9570,
+    "frame_bytes": 2885
+  },
+  "not_claimed": [
+    "cross-host network topology or latency",
+    "certificate or worker credential rotation",
+    "production CA and certificate lifecycle",
+    "multi-host scheduling or worker continuity",
+    "hardware validation"
+  ]
+}
