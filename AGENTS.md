@@ -209,8 +209,10 @@ remain in their authority documents:
 Stable boundaries that must survive count changes:
 
 - Virtual-device PASS is not hardware PASS. QEMU/esp-emu functional networking
-  does not establish RF, antenna, WPA2/WPA3 security, power, acoustic, optical,
-  mechanical or electrical behavior.
+  does not establish RF, antenna, channel/rate/roaming, power, acoustic, optical,
+  mechanical or electrical behavior. The S3 WPA2-PSK path proves RSN, EAPOL,
+  pairwise CCMP and guest DHCP/DNS/TCP delivery only; WPA3-SAE, group-key
+  multicast and physical-link security remain separate validation questions.
 - A full-flash image is supported only when chip, board profile, flash/PSRAM,
   eFuse/security mode, partition layout, controller coverage and merged or
   segmented image metadata are explicit and compatible.
@@ -230,9 +232,11 @@ Stable boundaries that must survive count changes:
   current namespace runner are not an untrusted-firmware sandbox. Production
   review still requires disposable isolation, resource limits, auditable
   evidence and fail-closed policy creation.
-- Linux exact endpoint policy currently covers IPv4. Unsupported IPv6, CIDR
-  and domain-to-multiple-IP grants must fail closed rather than become implicit
-  allow rules.
+- Linux exact endpoint policy covers IPv4 and IPv6 `protocol + address + port`
+  endpoints. CIDR and domain-to-multiple-IP grants remain unsupported and must
+  fail closed rather than become implicit allow rules; guest IPv6 availability
+  must still be proven per firmware configuration and is not inherited from the
+  host policy test.
 - Closing one firmware family, sample or model gap never grants the same
   result to another firmware SHA, board profile or controller path.
 
