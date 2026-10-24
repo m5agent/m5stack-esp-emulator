@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.19.0` and bounded
+Status: local MVP with unified-device runtime contract `1.20.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -1576,6 +1576,9 @@ restart.
   `10/10`; three `60s` holds pass `3/3`, and two `120s` holds pass `2/2`,
   with zero HLI errors and empty HLI/meta queues. This is still a two-minute
   independent-lease gate rather than same-guest reconnect or multi-hour soak.
+  `network.ble_linger_seconds` can keep the external GATT peer connected
+  beyond its initial exchange; two active-link `120s` holds pass `2/2` with
+  `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`.
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

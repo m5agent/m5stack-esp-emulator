@@ -13,7 +13,7 @@
 - **9 台 ESP32-S3** 共用一套 QEMU/S3 后端和 GPIO/SPI/I2C 框架，只补板级 profile、显示模型、输入和外设。
 - **2 台 ESP32-C6** 需要 C6 后端/板级模型。
 - **Tab5（ESP32-P4）** 使用 `esp-emu 0.50.0`、P4 rev0 ROM 和配套 eFuse，接入 C6 ESP-Hosted 协处理器，并以仿真 M5GFX DSI framebuffer 输出真实 UI。
-- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 QEMU 补丁让 stock UIFlow2 完成 WiFi、受控 HTTP、公网 DNS/HTTP 和 controller advertising-enable。统一测试使用 `tcg,thread=single` + deterministic icount，10/10 次无重试首轮 PASS。BLE 有三层路径：可重建的 HCI-UART 固件经 UART1 连接 Bumble；legacy native-VHCI 通过 GDB 做边界诊断；规范的 `core2-native-hci` 使用 QEMU `esp32-native-hci`、`0003` API-boundary H2C、`0004` CCOUNT TB-yield、`0005` halt-gated guest call 和固件 HLI event/ACL 交付。`HCI-4` 五 lease、两批 `5×10s` `10/10`、3 个 `60s` `3/3` 和 2 个 `120s` `2/2` 均通过，前几组同包验证 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence，后几组每轮 HLI health 为零错误，且全程 `gdb_bridge=false`。旧 notification timeout 已定位为 21-byte probe 超过默认 ATT MTU，不是 controller 缺陷。之后才是多小时 soak、同 guest 重连、bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机同路径。
+- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 QEMU 补丁让 stock UIFlow2 完成 WiFi、受控 HTTP、公网 DNS/HTTP 和 controller advertising-enable。统一测试使用 `tcg,thread=single` + deterministic icount，10/10 次无重试首轮 PASS。BLE 有三层路径：可重建的 HCI-UART 固件经 UART1 连接 Bumble；legacy native-VHCI 通过 GDB 做边界诊断；规范的 `core2-native-hci` 使用 QEMU `esp32-native-hci`、`0003` API-boundary H2C、`0004` CCOUNT TB-yield、`0005` halt-gated guest call 和固件 HLI event/ACL 交付。`HCI-4` 五 lease、两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2` 和 2 个 active-BLE `120s` `2/2` 均通过；active hold 完成时 `peer-closed=0`、TX queue 和 last error 均为 0。全程 `gdb_bridge=false`。旧 notification timeout 已定位为 21-byte probe 超过默认 ATT MTU，不是 controller 缺陷。之后才是多小时 soak、同 guest 重连、bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机同路径。
 - **CardputerZero** 是 Linux ARM64（BCM2837），不是 ESP32 固件目标；独立
   QEMU Linux 后端已可启动官方镜像、输出 320x170 帧、注入键盘事件和
   I2S 双向 PCM，注入 IP2315 充放电状态，并以 MTT 兼容路径枚举 GL852G Hub
@@ -76,7 +76,7 @@
 > 或物理属性完成。Core2 的 `HCI-3a` 是诊断性单包 C2H 证据；`HCI-3b` 已用
 > `0003`/`0004` 和合法 17-byte ATT PDU 完成外部 NUS GATT `5/5`。
 > `HCI-4` Device Service repeated lease、两批 `5×10s`、`3×60s` 和
-> `2×120s` hold 均已
+> `2×120s`、active-BLE `2×120s` hold 均已
 > 通过 `core2-native-hci`；多小时 soak 和物理等价性仍未证明。Tab5 的
 > profile 可启动，但外设总体仍是 `partial`。
 
@@ -105,7 +105,7 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG、RGB、按键、蓝灯、IR、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与同一 Device Service lease 内通过 |
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 显示/触摸、电源/扩展 IO、IMU、LoRa、IR、蜂鸣器、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与同一 Device Service lease 内通过 |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | linux-arm64 | `separate-backend` | ST7789v3 SPI LCD 320x170 | Linux/非黑 LVGL 首帧/输入/I2C/IR/双向 PCM/充电状态/寄存器驱动 IMX219/GL852G MTT FS+LS/SR9900A 帧回环已通 |
-| Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸、WiFi、DNS/公网 HTTP、HCI-offload、stock VHCI 和 native-HCI 均已有证据；`core2-native-hci` 五 lease、两批 `5×10s`、`3×60s` 与 `2×120s` hold 均通过；旧 `core2-native-vhci` 仅诊断/兼容；剩余多小时 soak、同 guest 重连、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence 和真机同路径 |
+| Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸、WiFi、DNS/公网 HTTP、HCI-offload、stock VHCI 和 native-HCI 均已有证据；`core2-native-hci` 五 lease、两批 `5×10s`、`3×60s`、`2×120s` 与 active-BLE `2×120s` hold 均通过；旧 `core2-native-vhci` 仅诊断/兼容；剩余多小时 soak、同 guest 重连、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence 和真机同路径 |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | esp-emulator-native | `ready` | ST7121 / ST7123 物理横向 1280x720 | 显示/触摸、C6 Hosted、I2C 寄存器探测和 SIT3088 RS-485 已通；CSI/I2S/USB/SDIO 等仍 partial |
 
 外设 API 的当前结果：

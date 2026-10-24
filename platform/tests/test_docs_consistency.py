@@ -62,6 +62,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-confirm-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold60-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
@@ -1270,6 +1271,29 @@ class DocsConsistencyTests(unittest.TestCase):
                 for run in hold120["runs"]
             )
         )
+        active_hold = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-active-ble-hold120-2x.json"
+            ).read_text()
+        )
+        self.assertEqual(active_hold["status"], "PASS")
+        self.assertEqual(active_hold["hold_seconds_per_attempt"], 120)
+        self.assertEqual(active_hold["ble_linger_seconds"], 180)
+        self.assertEqual(active_hold["attempts_passed"], 2)
+        self.assertTrue(
+            all(active_hold["checks_per_attempt"].values())
+        )
+        self.assertTrue(
+            all(
+                run["native_hci_health"]["peer-closed"] == 0
+                and run["native_hci_health"]["tx-queue-depth"] == 0
+                and run["native_hci_health"]["last-error"] == 0
+                and run["native_hci_health"]["hli-errors"] == 0
+                for run in active_hold["runs"]
+            )
+        )
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1505,6 +1529,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("allowed_hosts", openapi)
         self.assertIn("allowed_endpoints", openapi)
         self.assertIn("controlled", openapi)
+        self.assertIn("ble_linger_seconds", openapi)
         self.assertIn("artifact-uploads", openapi)
         self.assertIn("/firmware/import", openapi)
         self.assertIn("/worker/drain", openapi)

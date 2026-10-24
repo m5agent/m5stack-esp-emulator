@@ -104,6 +104,10 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
 `core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json`。GATT peer
 关闭后固件继续发 HCI command 会填满 32-packet TX queue；只有同时满足
 `peer-closed>0`、`tx-queue-depth>0` 时才允许 `last-error=2` 尾态。
+active-BLE 模式再把 `network.ble_linger_seconds` 设为 hold+60 秒，2 个
+独立 120 秒运行同样 `2/2`；hold 完成时 peer 未断开，
+`tx-queue-depth=0`、`last-error=0`。证据：
+`core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json`。
 这关闭了本轮 two-minute extended-run 失败门禁，但仍不是物理 cache/PSRAM、
 RF、同 guest 重复重连、多小时 soak 或 bit-exact controller PASS。
 

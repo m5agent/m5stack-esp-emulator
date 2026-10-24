@@ -874,6 +874,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
             runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
         )
         self.assertEqual(unified["profile"], "uiflow2-sticks3-unified")
+        self.assertEqual(unified["ble_linger_seconds"], 20)
+        long_link = device_service_module.parse_qemu_ble_execution(
+            self.service.specs["sticks3"],
+            {
+                "profile": "uiflow2-sticks3-unified",
+                "ble_linger_seconds": 180,
+            },
+            runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+        )
+        self.assertEqual(long_link["ble_linger_seconds"], 180)
+        with self.assertRaises(ServiceError) as invalid_linger:
+            device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "uiflow2-sticks3-unified",
+                    "ble_linger_seconds": 601,
+                },
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(invalid_linger.exception.code, "invalid_network")
         legacy = device_service_module.parse_qemu_ble_execution(
             self.service.specs["sticks3"],
             {"profile": "uiflow2-sticks3-unified"},

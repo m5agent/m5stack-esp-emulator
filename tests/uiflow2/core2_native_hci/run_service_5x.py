@@ -282,6 +282,10 @@ def run_attempt(
                     "elf_artifact_id": elf_artifact_id,
                     "attempts": 1,
                     "capture_pcap": True,
+                    "ble_linger_seconds": max(
+                        20,
+                        hold_seconds + 60,
+                    ),
                 },
             },
         )
@@ -479,6 +483,10 @@ def run_attempt(
         "native_hci_transport": transport == expected_transport,
         "native_hci_health": native_hci_health_ok(hci_health),
         "hold_stable": hold_stable,
+        "active_ble_link_during_hold": (
+            hold_seconds <= 0
+            or hci_health.get("peer-closed") == 0
+        ),
         "evidence_zip": evidence_names.issubset(names),
         "pcap_file_in_evidence_zip": len(pcap) > 0,
         "manifest_session_binding": (
@@ -699,6 +707,7 @@ def main() -> int:
         "attempts_passed": attempts_passed,
         "attempts_failed": len(failed_runs),
         "hold_seconds_per_attempt": args.hold_seconds,
+        "ble_linger_seconds": max(20, args.hold_seconds + 60),
         "first_failure": (
             {
                 key: failed_runs[0].get(key)

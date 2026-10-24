@@ -1198,6 +1198,20 @@ def parse_qemu_ble_execution(
         value.get("capture_pcap"),
         default=policy.capture_pcap,
     )
+    ble_linger_seconds = value.get(
+        "ble_linger_seconds",
+        20 if profile in UNIFIED_PROFILES else 15,
+    )
+    if (
+        isinstance(ble_linger_seconds, bool)
+        or not isinstance(ble_linger_seconds, (int, float))
+        or not 0 <= ble_linger_seconds <= 600
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.ble_linger_seconds must be from 0 to 600",
+            400,
+        )
     if spec.id == "core2":
         core2_radio_qemu_path()
     if (
@@ -1217,6 +1231,7 @@ def parse_qemu_ble_execution(
         "expected_markers": expected_markers,
         "attempts": attempts,
         "capture_pcap": capture_pcap,
+        "ble_linger_seconds": float(ble_linger_seconds),
         "policy": policy.evidence(),
         "elf_artifact_id": elf_artifact_id,
         "nic": (
@@ -3686,7 +3701,12 @@ class DeviceSession:
             "--write-delay",
             "2" if extended_exchange else "1",
             "--linger",
-            "20" if unified else "15",
+            str(
+                self.network_config.get(
+                    "ble_linger_seconds",
+                    20 if unified else 15,
+                )
+            ),
         ]
         return command, env
 

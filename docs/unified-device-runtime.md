@@ -46,6 +46,8 @@ complete simulated device or as a unified-device PASS.
   `10/10`, three independent `60s` holds pass `3/3`, and two independent
   `120s` holds pass `2/2`, with zero HLI errors and empty queues. This is not
   a multi-hour soak, repeated in-guest reconnect or physical cache/PSRAM proof.
+  A further two `120s` holds keep the BLE peer connected for the full hold,
+  with `peer-closed=0`, zero TX queue depth and no last error.
 - Current blockers, not historical explanations, are owned by
   [project status](project-status.md) and [Backlog](project-backlog.md). The
   device bullets below preserve implementation evidence and must not be read
@@ -213,8 +215,9 @@ path reaches external GATT without that firmware rebuild. Its canonical
 `core2-native-hci` service profile uses an in-process QEMU device, firmware
 HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
   independent leases. The legacy `core2-native-vhci` profile uses a GDB bridge
-  and is diagnostic only. Two independent `5×10s` batches, three `60s` holds
-  and two `120s` holds pass with `hli-errors=0` and empty queues. Core2 still
+  and is diagnostic only. Two independent `5×10s` batches, three `60s` holds,
+  two `120s` holds, plus two active-BLE `120s` holds pass with
+  `hli-errors=0` and empty queues. Core2 still
   misses bit-exact controller/baseband, physical cache/PSRAM equivalence,
   repeated in-guest reconnect, multi-hour coexistence and hardware validation.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
