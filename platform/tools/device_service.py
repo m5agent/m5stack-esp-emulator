@@ -3641,7 +3641,9 @@ class DeviceSession:
             raise last_error
 
     def _wait_hci_probe_result(self, timeout: float) -> None:
-        deadline = time.time() + max(1.0, min(timeout, 30.0))
+        # Reconnect workloads can legitimately exceed the legacy 30-second
+        # single-cycle budget. The session's ready timeout bounds the wait.
+        deadline = time.time() + max(1.0, timeout)
         while time.time() < deadline:
             text = (
                 self.hci_probe_log.read_text(errors="replace")

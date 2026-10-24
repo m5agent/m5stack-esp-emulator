@@ -67,6 +67,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-3x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-timeout-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
@@ -1400,6 +1402,63 @@ class DocsConsistencyTests(unittest.TestCase):
                 for run in reconnect5_pass["runs"]
             )
         )
+        reconnect10_fail = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-reconnect10-timeout-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(reconnect10_fail["status"], "FAIL")
+        self.assertEqual(reconnect10_fail["ble_reconnect_cycles"], 10)
+        self.assertEqual(reconnect10_fail["observed"]["ble_cycles_passed"], 5)
+        self.assertTrue(reconnect10_fail["observed"]["ble_cycle_6_started"])
+        self.assertFalse(reconnect10_fail["observed"]["guest_panic"])
+        self.assertIn(
+            "timed out waiting for external BLE peer completion",
+            reconnect10_fail["observed"]["session_error"],
+        )
+        self.assertEqual(
+            reconnect10_fail["superseded_by"],
+            "evidence-2026-10-24-hci4-reconnect10-3x.json",
+        )
+        reconnect10_pass = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-reconnect10-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(reconnect10_pass["status"], "PASS")
+        self.assertEqual(reconnect10_pass["ble_reconnect_cycles"], 10)
+        self.assertEqual(reconnect10_pass["attempts_requested"], 3)
+        self.assertEqual(reconnect10_pass["attempts_passed"], 3)
+        self.assertEqual(
+            reconnect10_pass["firmware"]["sha256"],
+            reconnect5_pass["firmware"]["sha256"],
+        )
+        self.assertEqual(
+            reconnect10_pass["qemu_sha256"],
+            reconnect5_pass["qemu_sha256"],
+        )
+        self.assertTrue(
+            all(
+                run["status"] == "PASS"
+                and run["native_hci_health"]["trace-hs-sched-reset"] == 0
+                and run["native_hci_health"]["trace-gap-adv-start"] == 10
+                and run["native_hci_health"]["hli-posts"] == 297
+                and run["native_hci_health"]["hli-consumed"] == 297
+                and run["native_hci_health"]["hli-c2h-events"] == 207
+                and run["native_hci_health"]["hli-c2h-acls"] == 90
+                and run["native_hci_health"]["hli-errors"] == 0
+                and run["native_hci_health"]["hli-queue-depth"] == 0
+                and run["native_hci_health"]["meta-queue-depth"] == 0
+                and run["native_hci_health"]["conn-pool-free"] == 3
+                and run["native_hci_health"]["l2cap-pool-free"] == 9
+                and run["native_hci_health"]["gatts-pool-free"] == 3
+                for run in reconnect10_pass["runs"]
+            )
+        )
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1439,6 +1498,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("reconnect2-fail.json", ledger)
         self.assertIn("hci4-reconnect2-3x.json", ledger)
         self.assertIn("hci4-reconnect5-3x.json", ledger)
+        self.assertIn("hci4-reconnect10-3x.json", ledger)
+        self.assertIn("hci4-reconnect10-timeout-fail.json", ledger)
         self.assertIn(
             "ble_reconnect_cycles",
             (DOCS / "device-service-api.md").read_text(),

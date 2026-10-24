@@ -16,7 +16,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `HCI-3b` complete HCI/GATT | `PASS` | `evidence-2026-10-24-hli-api-gatt-5x.json`; 15-byte probe / 17-byte ATT PDU completes discovery, subscription, write, Python handler, notification and Bumble ACK in 5/5 runs |
 | `HCI-4` repeated lease | `PASS` | `evidence-2026-10-24-hci4-service-5x.json`; five independent `/api/v1` leases pass frame, 27-node QOM, WiFi/public network, NUS GATT, pcap and evidence with `gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | `evidence-2026-10-24-hci4-halted-gate-5x.json`, `evidence-2026-10-24-hci4-hold60-3x.json`, `evidence-2026-10-24-hci4-hold120-2x.json` and `evidence-2026-10-24-hci4-active-ble-hold120-2x.json`; two 5-attempt batches with 10-second holds passed `10/10`, three 60-second holds passed `3/3`, two 120-second holds passed `2/2`, and two active-BLE 120-second holds passed `2/2`. Every attempt has `hli-errors=0` and zero HLI/meta queue depth |
-| `CORE2-02` same-guest reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect5-3x.json`; three independent stock-firmware leases complete five full NUS GATT cycles each. Every lease balances HLI 157/157, delivers 112 events and 45 ACLs, leaves HLI/meta queues empty and returns the connection/L2CAP/GATT pools to their 3/9/3 free baseline. A forbidden Bumble Command Status for no-response opcode `0x0c35` was the historical stale-ACK root cause |
+| `CORE2-02` same-guest reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect10-3x.json`; three independent stock-firmware leases complete ten full NUS GATT cycles each. Every lease balances HLI 297/297, delivers 207 events and 90 ACLs, leaves HLI/meta queues empty and returns the connection/L2CAP/GATT pools to their 3/9/3 free baseline. A forbidden Bumble Command Status for no-response opcode `0x0c35` was the historical stale-ACK root cause |
 
 Build the patched QEMU, then run:
 
@@ -248,7 +248,7 @@ tracked as history. A further `3×60s` run passed `3/3`, and `2×120s` passed
 `2/2`, including the normal BLE peer-close tail; `last-error=3` is accepted
 only when `peer-closed>0`, while every HLI error must remain zero. This closes
 the current short/two-minute virtual extended-run gate, not physical
-cache/PSRAM equivalence, more than five reconnect cycles, multi-hour coexistence
+cache/PSRAM equivalence, more than ten reconnect cycles, multi-hour coexistence
 or hardware.
 
 The runner now also sets `network.ble_linger_seconds` to
@@ -259,17 +259,24 @@ public DNS/HTTP, external NUS GATT, pcap and evidence.
 
 `--ble-reconnect-cycles N` asks the same external BLE peer process to perform
 `N` complete scan/connect/NUS/write/notify/disconnect cycles in one guest.
-For `N=5`, three independent stock-firmware leases now pass; the earlier
-`N=2` baseline remains in
+For `N=10`, three independent stock-firmware leases now pass; the earlier
+`N=5` baseline remains in
+`evidence-2026-10-24-hci4-reconnect5-3x.json`, and the original `N=2`
+baseline remains in
 `evidence-2026-10-24-hci4-reconnect2-3x.json`. The historical
 failure was not in QEMU HLI, NimBLE connection state or QEMU packet ordering:
 the Bumble compatibility layer incorrectly returned Command Status for the
 no-response `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Its stale
 ACK was consumed by the next `LE Set Advertising Data` command and produced
-`BLE_HS_ECONTROLLER (12)`. Five-cycle evidence is
-`evidence-2026-10-24-hci4-reconnect5-3x.json`; the fix is covered by
+`BLE_HS_ECONTROLLER (12)`. Ten-cycle evidence is
+`evidence-2026-10-24-hci4-reconnect10-3x.json`; the fix is covered by
 `platform/tests/test_ble_probe.py`; failure history remains in
-`evidence-2026-10-24-reconnect2-fail.json`.
+`evidence-2026-10-24-reconnect2-fail.json`. The first ten-cycle attempt
+exposed a separate service wait bug: a 30-second cap terminated the valid
+peer workload after cycle 6 started. That failure is retained in
+`evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`; the wait now uses
+the session ready timeout and has a regression test in
+`platform/tests/test_device_service.py`.
 
 After the external Bumble peer closes, the stock firmware can continue issuing
 HCI commands until a native-HCI queue fills. The runner therefore also accepts

@@ -87,11 +87,14 @@ The full HLI/API-boundary GATT evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json`.
 The Device Service repeated-lease evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`.
-The five-cycle reconnect evidence is
-`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json`;
-it records three independent leases with 157/157 balanced HLI posts and
-consumption, 112 events, 45 ACLs, empty HLI/meta queues and connection,
-L2CAP and GATT pools back at their `3/9/3` free baseline.
+The ten-cycle reconnect evidence is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-3x.json`;
+it records three independent leases with 297/297 balanced HLI posts and
+consumption, 207 events, 90 ACLs, empty HLI/meta queues and connection,
+L2CAP and GATT pools back at their `3/9/3` free baseline. The first
+ten-cycle attempt is retained in
+`evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`; it exposed a
+Device Service 30-second peer-completion wait cap, not a controller failure.
 The extended-run pass evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json`;
 the preceding identical-build confirmation batch is

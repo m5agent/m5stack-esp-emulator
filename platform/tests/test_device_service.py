@@ -2351,6 +2351,65 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session._proc = None
         session._qmp = None
 
+    def test_hci_probe_wait_allows_multi_cycle_completion_after_30_seconds(
+        self,
+    ):
+        spec = self.service.specs["core2"]
+        firmware_path = Path(self.tmp.name) / "core2-reconnect-timeout.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="9" * 32,
+            spec=spec,
+            firmware_id="8" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="8" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_CORE2_READY",
+            ready_timeout=120,
+            ready_conditions=None,
+            runtime="qemu-unified",
+            network_config={
+                "profile": "core2-native-hci",
+                "expected_markers": [],
+                "attempts": 1,
+                "ble_reconnect_cycles": 10,
+            },
+        )
+        session.hci_probe_log.write_text("BLE_PROBE_READY\n")
+        session._hci_probe = mock.Mock()
+        session._hci_probe.poll.return_value = None
+        clock = {"now": 0.0}
+
+        def sleep_and_complete(_: float) -> None:
+            clock["now"] += 5.0
+            if clock["now"] >= 45.0:
+                session.hci_probe_log.write_text(
+                    "BLE_PROBE_READY\n"
+                    "BLE_BUMBLE_CYCLE_PASS 10\n"
+                    "BLE_BUMBLE_PASS cycles=10\n"
+                )
+
+        with (
+            mock.patch.object(
+                device_service_module.time,
+                "time",
+                side_effect=lambda: clock["now"],
+            ),
+            mock.patch.object(
+                device_service_module.time,
+                "sleep",
+                side_effect=sleep_and_complete,
+            ),
+        ):
+            session._wait_hci_probe_result(120)
+
+        self.assertGreaterEqual(clock["now"], 45.0)
+        session._hci_probe = None
+        session.state = "stopped"
+
     def test_sticks3_unified_qemu_evidence_and_bundle(self):
         spec = self.service.specs["sticks3"]
         firmware_path = Path(self.tmp.name) / "sticks3-unified.bin"

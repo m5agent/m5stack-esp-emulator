@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-reconnect-timeout-failure",
+  "date": "2026-10-24",
+  "stage": "CORE2-02",
+  "gate_result": "FAIL",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "firmware": {
+    "sha256": "b9c91c40e60867186717938e075da8b19271cc8e7a22323524be213beff81982",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "e65c6f5cad2ee2c11efb1cf13ce81639c53666ac22c708fb81501cfb689614c1",
+  "attempts_requested": 3,
+  "attempts_completed": 1,
+  "attempts_passed": 0,
+  "attempts_failed": 1,
+  "ble_reconnect_cycles": 10,
+  "raw_aggregate_sha256": "7100baf93ac68aeecdb2371ef271fe8a98758c2b388bd126b61a022a0378c4b7",
+  "observed": {
+    "guest_boot_and_ready": "PASS",
+    "wifi_public_network": "PASS",
+    "ble_cycles_passed": 5,
+    "ble_cycle_6_started": true,
+    "guest_panic": false,
+    "peer_gatt_timeout": false,
+    "session_error": "timed out waiting for external BLE peer completion",
+    "qemu_termination": "SIGTERM by Device Service cleanup"
+  },
+  "root_cause": {
+    "component": "platform/tools/device_service.py",
+    "function": "DeviceSession._wait_hci_probe_result",
+    "condition": "The wait deadline was hard-capped at 30 seconds even when ready_timeout_seconds was larger.",
+    "impact": "A valid ten-cycle peer workload was terminated after cycle 6 started."
+  },
+  "resolution": {
+    "change": "Use the session ready timeout as the wait budget instead of the hard-coded 30-second cap.",
+    "regression_test": "platform/tests/test_device_service.py::DeviceServiceUnitTests.test_hci_probe_wait_allows_multi_cycle_completion_after_30_seconds"
+  },
+  "superseded_by": "evidence-2026-10-24-hci4-reconnect10-3x.json",
+  "not_claimed": [
+    "bit-exact Espressif BT controller/baseband",
+    "physical hardware or RF validation",
+    "malware sandboxing"
+  ]
+}
