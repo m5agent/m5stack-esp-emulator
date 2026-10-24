@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.14.0` and bounded
+Status: local MVP with unified-device runtime contract `1.15.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -124,8 +124,48 @@ printable characters. The label is stored with the worker lease and does not
 grant access or identity.
 
 This is local worker lifecycle control, not a remote scheduler. Running QEMU
-process re-attach, remote registration, queueing, warm pools and multi-host
-placement remain `NOT RUN`.
+process re-attach, persistent task queueing, worker supervision, warm pools
+and multi-host placement remain `NOT RUN`.
+
+### Remote worker directory MVP
+
+The service persists remote-worker enrollment under
+`<state-dir>/workers.json`. This directory records stable worker identity,
+instance/generation, heartbeat, drain/stop state, endpoint, bounded
+capabilities, active lease IDs and up to 32 recent result records. It does not
+launch a worker, assign a session, transfer evidence files or recover a live
+QEMU process.
+
+```bash
+curl -sS -X POST http://127.0.0.1:8787/api/v1/workers \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "worker_id": "linux-east-1",
+    "instance_id": "boot-20261024-a",
+    "generation": 1,
+    "stale_after_seconds": 30,
+    "endpoint": "https://worker.example:8787",
+    "capabilities": {"qemu": true, "network_namespace": true},
+    "active_lease_ids": []
+  }'
+
+curl -sS http://127.0.0.1:8787/api/v1/workers
+```
+
+Registration is idempotent only for the same `worker_id`, `instance_id` and
+`generation` while that instance is live. A live worker cannot be replaced by
+another instance. A stale or stopped worker must be replaced with a strictly
+higher `generation`; a stopped identity cannot heartbeat back into service.
+Endpoint URLs must use HTTP(S), contain no credentials, query or fragment, and
+the serialized capability object is limited to 16 KiB. The directory is
+bounded to 128 workers, 128 active lease IDs per worker and 32 recent results
+per worker.
+
+Heartbeats update `ready`, `draining` or `drained`, active lease IDs and
+capabilities. `drain` becomes `drained` only when the reported active lease
+list is empty. `stop` is terminal for the current generation. A result record
+contains only `lease_id`, result `state`, optional `evidence_sha256` and
+`completed_at`; it is an index to external evidence, not the evidence bundle.
 
 ### Capacity sizing
 
@@ -1082,6 +1122,12 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 | GET | `/api/v1/worker` | Local worker identity, heartbeat, state, leases and restart classification |
 | POST | `/api/v1/worker/drain` | Stop new lease admission; active sessions continue |
 | POST | `/api/v1/worker/resume` | Resume admission after a drain |
+| GET | `/api/v1/workers` | List remote worker registrations, freshness and aggregate capacity |
+| POST | `/api/v1/workers` | Register or idempotently retry a remote worker identity |
+| POST | `/api/v1/workers/{worker_id}/heartbeat` | Update identity-bound heartbeat, state, capabilities and active leases |
+| POST | `/api/v1/workers/{worker_id}/drain` | Stop accepting new remote leases and report draining/drained |
+| POST | `/api/v1/workers/{worker_id}/stop` | Mark the current remote generation stopped |
+| POST | `/api/v1/workers/{worker_id}/results` | Append bounded result metadata and optional evidence SHA256 |
 | GET | `/api/v1/storage` | Session/cache/disk usage and retention limits |
 | POST | `/api/v1/storage/prune` | Apply retention; `include_cache=0` skips cache GC |
 | POST | `/api/v1/artifacts` | Upload a binary artifact |

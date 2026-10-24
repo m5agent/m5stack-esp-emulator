@@ -267,8 +267,9 @@ and retained evidence.
 
 ### Phase S1: remote worker API
 
-Status: local worker lifecycle API exists; remote worker supervision, active
-emulator re-attach and multi-host scheduling remain open.
+Status: local worker lifecycle and a persistent remote-worker registration
+directory exist; remote worker supervision, active emulator re-attach and
+multi-host scheduling remain open.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
@@ -276,7 +277,10 @@ emulator re-attach and multi-host scheduling remain open.
 - per-model and global concurrency limits.
 - persistent worker heartbeat, drain/resume and restart lease classification
   are implemented for the local process;
-- remote registration and running QEMU re-attach remain open.
+- identity/generation registration, heartbeat, drain/stop and bounded result
+  metadata are implemented in `workers.json`;
+- supervisor ownership, task admission/queueing and running QEMU re-attach
+  remain open.
 
 ### Phase S2: warm/cold pool
 

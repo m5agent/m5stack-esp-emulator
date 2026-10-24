@@ -12,6 +12,7 @@ import tempfile
 import threading
 import time
 import unittest
+import uuid
 import zipfile
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -3893,6 +3894,106 @@ class DeviceServiceHttpTests(unittest.TestCase):
             self.assertIn(b"ManifestFirmwareRequest", document)
             self.assertIn(b"network-fault", document)
 
+    def test_remote_worker_directory_http_contract(self):
+        worker_id = f"remote-{uuid.uuid4().hex[:12]}"
+        identity = {
+            "worker_id": worker_id,
+            "instance_id": "instance-a",
+            "generation": 1,
+            "stale_after_seconds": 30,
+            "endpoint": "http://worker.example:8787",
+            "capabilities": {"qemu": True, "network_namespace": True},
+            "active_lease_ids": ["lease-1"],
+        }
+        status, registered = self.request(
+            "/api/v1/workers",
+            method="POST",
+            data=json.dumps(identity).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(registered["worker"]["state"], "ready")
+        self.assertEqual(
+            registered["worker"]["active_lease_ids"],
+            ["lease-1"],
+        )
+
+        status, listing = self.request("/api/v1/workers")
+        self.assertEqual(status, 200)
+        self.assertGreaterEqual(listing["worker_count"], 1)
+        self.assertIn(
+            worker_id,
+            {worker["worker_id"] for worker in listing["workers"]},
+        )
+
+        heartbeat_payload = {
+            "instance_id": "instance-a",
+            "generation": 1,
+            "active_lease_ids": [],
+            "capabilities": {"qemu": True},
+        }
+        status, heartbeat = self.request(
+            f"/api/v1/workers/{worker_id}/heartbeat",
+            method="POST",
+            data=json.dumps(heartbeat_payload).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(heartbeat["worker"]["active_lease_count"], 0)
+        status, result = self.request(
+            f"/api/v1/workers/{worker_id}/results",
+            method="POST",
+            data=json.dumps(
+                {
+                    "instance_id": "instance-a",
+                    "generation": 1,
+                    "lease_id": "lease-1",
+                    "state": "PASS",
+                    "evidence_sha256": "a" * 64,
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(result["result"]["lease_id"], "lease-1")
+        status, drained = self.request(
+            f"/api/v1/workers/{worker_id}/drain",
+            method="POST",
+            data=json.dumps(
+                {"instance_id": "instance-a", "generation": 1}
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(drained["worker"]["state"], "drained")
+        status, stopped = self.request(
+            f"/api/v1/workers/{worker_id}/stop",
+            method="POST",
+            data=json.dumps(
+                {"instance_id": "instance-a", "generation": 1}
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(stopped["worker"]["state"], "stopped")
+
+        request = Request(
+            self.base + f"/api/v1/workers/{worker_id}/heartbeat",
+            method="POST",
+            data=json.dumps(
+                {"instance_id": "instance-b", "generation": 1}
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(request, timeout=5)
+        self.assertEqual(caught.exception.code, 409)
+        error = json.loads(caught.exception.read())
+        self.assertEqual(
+            error["error"]["code"],
+            "worker_identity_mismatch",
+        )
+
     def test_storage_stats_and_manual_prune(self):
         status, storage = self.request("/api/v1/storage")
         self.assertEqual(status, 200)
@@ -4132,6 +4233,32 @@ class LegacyApiAuthTests(unittest.TestCase):
         )
         with urlopen(request, timeout=5) as response:
             self.assertEqual(response.status, 200)
+
+    def test_remote_worker_api_requires_token(self):
+        with self.assertRaises(HTTPError) as context:
+            urlopen(self.base + "/api/v1/workers", timeout=5)
+        self.assertEqual(context.exception.code, 401)
+
+        request = Request(
+            self.base + "/api/v1/workers",
+            method="POST",
+            data=json.dumps(
+                {
+                    "worker_id": "auth-worker",
+                    "instance_id": "auth-instance",
+                    "generation": 1,
+                    "capabilities": {"qemu": True},
+                }
+            ).encode(),
+            headers={
+                "Authorization": "Bearer test-auth-value",
+                "Content-Type": "application/json",
+            },
+        )
+        with urlopen(request, timeout=5) as response:
+            self.assertEqual(response.status, 201)
+            payload = json.load(response)
+        self.assertEqual(payload["worker"]["worker_id"], "auth-worker")
 
 
 if __name__ == "__main__":

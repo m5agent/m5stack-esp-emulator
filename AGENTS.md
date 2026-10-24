@@ -268,8 +268,8 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- remote worker registration/scheduling, active QEMU re-attach and external
-  IPv6 endpoint enforcement;
+- remote worker supervision/scheduling, persistent queues, active QEMU
+  re-attach and external IPv6 endpoint enforcement;
 - production Core2 VHCI backend, bit-exact BT controller and physical
   cache/PSRAM equivalence, coexistence and soak;
 - runtime permissions/license policy, production security-key flows and

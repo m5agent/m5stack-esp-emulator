@@ -1,13 +1,16 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.14.0
+  version: 1.15.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
     sessions remain available for diagnostics. Every session uses an isolated
     firmware copy. The local worker persists heartbeat, lease, drain and
-    restart-classification state under an exclusive state-directory lock.
+    restart-classification state under an exclusive state-directory lock. A
+    persistent directory records remote-worker identity, generation,
+    heartbeat, capabilities and bounded result metadata; it is not a task
+    queue or scheduler.
     CardputerZero is outside this API version. Tab5 is available through
     esp-emu with partial peripheral status.
 servers:
@@ -115,6 +118,147 @@ paths:
                 properties:
                   worker:
                     $ref: "#/components/schemas/Worker"
+        "409":
+          $ref: "#/components/responses/Error"
+  /workers:
+    get:
+      summary: List registered remote simulator workers
+      responses:
+        "200":
+          description: Persistent remote-worker directory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoteWorkerList"
+    post:
+      summary: Register a remote simulator worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerRegistration"
+      responses:
+        "201":
+          description: Worker registered or an idempotent retry was accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/RemoteWorker"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /workers/{worker_id}/heartbeat:
+    post:
+      summary: Refresh a remote worker heartbeat
+      parameters:
+        - $ref: "#/components/parameters/WorkerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerHeartbeat"
+      responses:
+        "200":
+          description: Updated remote-worker state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/RemoteWorker"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /workers/{worker_id}/drain:
+    post:
+      summary: Stop assigning new leases to a remote worker
+      parameters:
+        - $ref: "#/components/parameters/WorkerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerIdentity"
+      responses:
+        "200":
+          description: Worker draining or drained
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/RemoteWorker"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /workers/{worker_id}/stop:
+    post:
+      summary: Mark a remote worker stopped
+      parameters:
+        - $ref: "#/components/parameters/WorkerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerIdentity"
+      responses:
+        "200":
+          description: Worker stopped
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/RemoteWorker"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /workers/{worker_id}/results:
+    post:
+      summary: Append bounded result metadata for a remote worker
+      parameters:
+        - $ref: "#/components/parameters/WorkerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerResultRequest"
+      responses:
+        "201":
+          description: Recorded result metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [result]
+                properties:
+                  result:
+                    $ref: "#/components/schemas/RemoteWorkerResult"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
         "409":
           $ref: "#/components/responses/Error"
   /storage:
@@ -1023,6 +1167,14 @@ components:
       required: true
       schema:
         type: string
+    WorkerId:
+      name: worker_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
     SessionId:
       name: session_id
       in: path
@@ -1889,3 +2041,158 @@ components:
           items:
             type: object
             additionalProperties: true
+    RemoteWorkerIdentity:
+      type: object
+      required: [instance_id, generation]
+      properties:
+        instance_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        generation:
+          type: integer
+          minimum: 1
+    RemoteWorkerRegistration:
+      allOf:
+        - $ref: "#/components/schemas/RemoteWorkerIdentity"
+        - type: object
+          required: [worker_id]
+          properties:
+            worker_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+            stale_after_seconds:
+              type: number
+              minimum: 2
+              maximum: 300
+              default: 15
+            endpoint:
+              type: [string, "null"]
+              maxLength: 512
+              description: HTTP(S) endpoint without credentials, query or fragment.
+            capabilities:
+              type: object
+              additionalProperties: true
+              description: JSON capability metadata, limited to 16 KiB.
+            active_lease_ids:
+              type: array
+              maxItems: 128
+              uniqueItems: true
+              items:
+                type: string
+    RemoteWorkerHeartbeat:
+      allOf:
+        - $ref: "#/components/schemas/RemoteWorkerIdentity"
+        - type: object
+          properties:
+            state:
+              type: string
+              enum: [ready, draining, drained]
+            capabilities:
+              type: object
+              additionalProperties: true
+            active_lease_ids:
+              type: array
+              maxItems: 128
+              uniqueItems: true
+              items:
+                type: string
+    RemoteWorkerResultRequest:
+      allOf:
+        - $ref: "#/components/schemas/RemoteWorkerIdentity"
+        - type: object
+          required: [lease_id, state]
+          properties:
+            lease_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+            state:
+              type: string
+              minLength: 1
+              maxLength: 64
+            evidence_sha256:
+              type: [string, "null"]
+              pattern: "^[0-9a-f]{64}$"
+    RemoteWorkerResult:
+      type: object
+      required: [lease_id, state, completed_at]
+      properties:
+        lease_id:
+          type: string
+        state:
+          type: string
+        evidence_sha256:
+          type: [string, "null"]
+        completed_at:
+          type: string
+          format: date-time
+    RemoteWorker:
+      allOf:
+        - $ref: "#/components/schemas/RemoteWorkerRegistration"
+        - type: object
+          required:
+            - state
+            - stale
+            - accepting_leases
+            - active_lease_count
+            - recent_results
+            - registered_at
+            - heartbeat_at
+          properties:
+            state:
+              type: string
+              enum: [ready, draining, drained, stopped]
+            stale:
+              type: boolean
+            accepting_leases:
+              type: boolean
+            active_lease_count:
+              type: integer
+            heartbeat_age_seconds:
+              type: [number, "null"]
+            registered_at:
+              type: string
+              format: date-time
+            heartbeat_at:
+              type: string
+              format: date-time
+            drained_at:
+              type: [string, "null"]
+              format: date-time
+            stopped_at:
+              type: [string, "null"]
+              format: date-time
+            recent_results:
+              type: array
+              maxItems: 32
+              items:
+                $ref: "#/components/schemas/RemoteWorkerResult"
+    RemoteWorkerList:
+      type: object
+      required:
+        - schema_version
+        - worker_count
+        - accepting_count
+        - stale_count
+        - active_lease_count
+        - workers
+      properties:
+        schema_version:
+          type: integer
+        updated_at:
+          type: [string, "null"]
+          format: date-time
+        worker_count:
+          type: integer
+        accepting_count:
+          type: integer
+        stale_count:
+          type: integer
+        active_lease_count:
+          type: integer
+        workers:
+          type: array
+          items:
+            $ref: "#/components/schemas/RemoteWorker"

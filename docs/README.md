@@ -3,7 +3,7 @@
 日期：`2026-10-24`
 
 本页对账到当前工作树、生成物和最近一次本地全量验证快照。平台套件共
-`272` 项，`272` 项通过、`0` 项跳过；
+`283` 项，`283` 项通过、`0` 项跳过；
 `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验均为
 `PASS`；浏览器 SHA256/upload client Node 测试 `2/2 PASS`。这里记录的是
 证据快照，不把“测试总数”写成“全部功能或真机通过”。
@@ -57,7 +57,7 @@
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期记录当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.14.0`；Worker heartbeat/drain/resume、WebBurner browser intake、resumable chunk upload、atomic append rollback、staging GC、nftables exact egress + DHCP lifecycle |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.15.0`；本地 worker heartbeat/drain/resume、远程 worker 注册目录、WebBurner browser intake、resumable chunk upload、atomic append rollback、staging GC、nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 12 个 unified profile；Core2 native-VHCI 地址已固定，GDB 控制面仍开放 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / Backlog | `2026-10-24` | `HCI-1` PASS；`HCI-2` 首包 PARTIAL；`HCI-3a` 诊断性单包 PASS；HLI Reset Complete `5/5`；`HCI-3b` 完整 sequence 仍开放，API-boundary 到 NUS discovery/subscription，ACL 与 final transaction 未闭环；`HCI-4` 开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |

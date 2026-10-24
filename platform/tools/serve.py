@@ -222,6 +222,8 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.storage_stats()
             elif method == "GET" and parts == ["worker"]:
                 response = service.worker_status()
+            elif method == "GET" and parts == ["workers"]:
+                response = service.list_remote_workers()
             elif method == "GET" and parts == ["openapi.yaml"]:
                 spec = ROOT / "docs/device-service.openapi.yaml"
                 if not spec.is_file():
@@ -519,6 +521,41 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.drain_worker()
             elif method == "POST" and parts == ["worker", "resume"]:
                 response = service.resume_worker()
+            elif method == "POST" and parts == ["workers"]:
+                response = service.register_remote_worker(
+                    self._read_json()
+                )
+                status = 201
+            elif (
+                method == "POST"
+                and len(parts) == 3
+                and parts[0] == "workers"
+            ):
+                payload = self._read_json()
+                action = parts[2]
+                if action == "heartbeat":
+                    response = service.heartbeat_remote_worker(
+                        parts[1], payload
+                    )
+                elif action == "drain":
+                    response = service.drain_remote_worker(
+                        parts[1], payload
+                    )
+                elif action == "stop":
+                    response = service.stop_remote_worker(
+                        parts[1], payload
+                    )
+                elif action == "results":
+                    response = service.record_remote_worker_result(
+                        parts[1], payload
+                    )
+                    status = 201
+                else:
+                    raise ServiceError(
+                        "not_found",
+                        "unknown remote worker action",
+                        404,
+                    )
             elif method == "POST" and parts == ["sessions"]:
                 response = service.create_session(self._read_json())
                 status = 202

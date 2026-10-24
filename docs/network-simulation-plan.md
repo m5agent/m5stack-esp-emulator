@@ -66,8 +66,8 @@ Device Service lease
 - 物理 RF 消失/恢复、信道/速率变化或重新分配不同 lease；
 - WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
 - namespace、pcap retention 和 evidence upload 的远程 QEMU worker
-  注册/调度及活动进程 re-attach；本地 heartbeat/drain 已通过，
-  GitHub-hosted policy/egress CI 已单独通过；
+  supervisor、持久队列/调度及活动进程 re-attach；本地 heartbeat/drain 和
+  远程注册目录已具备，GitHub-hosted policy/egress CI 已单独通过；
 - 任意 S3/C6 固件或任意公网服务的稳定联网；
 - 外部 IPv6、CIDR 或域名到多个 IP 的 egress policy；
 - Tab5 P4↔C6 ESP-Hosted 端到端网络；
@@ -163,8 +163,8 @@ primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP re
 | N5 Core2 production BLE/PHY | PARTIAL | ELF 固定符号已完成；`HCI-3b` 已排除 safe-point callback/nested `r_eif_send`，HLI 真实 Reset Complete `5/5`；下一步 ACL + controller ACK/flow control + API-boundary transaction，剩余 GDB 控制面、重复 lease、coexistence soak |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
-虚拟 radio/AP 丢失恢复和双设备 private lab fabric 已完成，下一步是
-`NET-04` 远程 QEMU worker 生命周期与活动进程 re-attach，再单列
-`NET-05` 外部 IPv6。精确 IPv4
+虚拟 radio/AP 丢失恢复和双设备 private lab fabric 已完成，远程 worker
+注册目录也已具备；下一步是 `NET-04` 的 worker supervisor、持久任务队列与
+活动进程 re-attach，再单列 `NET-05` 外部 IPv6。精确 IPv4
 endpoint policy 已由 nftables 在隔离 namespace 内执行，外部 IPv4 通过
 per-session veth/NAT；策略或依赖不可用时 fail-closed。

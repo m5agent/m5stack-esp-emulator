@@ -12,7 +12,7 @@ DOCS = ROOT / "docs"
 
 class DocsConsistencyTests(unittest.TestCase):
     def _platform_test_count(self) -> int:
-        suite = unittest.defaultTestLoader.discover(
+        suite = unittest.TestLoader().discover(
             str(ROOT / "platform" / "tests"),
             pattern="test_*.py",
         )
@@ -66,8 +66,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/idf_dhcp_renewal/run_test.py",
             "platform/tools/network_fabric.py",
             "platform/tools/worker_registry.py",
+            "platform/tools/worker_directory.py",
             "platform/tests/test_network_fabric.py",
             "platform/tests/test_worker_registry.py",
+            "platform/tests/test_worker_directory.py",
             "tests/network/lab_fabric/README.md",
             "tests/network/lab_fabric/run_test.py",
             "tests/network/lab_fabric/check_fabric.py",
@@ -865,6 +867,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "`HCI-3a` C2H callback | `DIAGNOSTIC PASS`",
             (DOCS / "core2-native-hci-backend.md").read_text(),
         )
+        self.assertIn("platform/tools/worker_directory.py", code_map)
+        self.assertIn("platform/tests/test_worker_directory.py", code_map)
 
         task_ids = sorted(
             set(re.findall(r"^\| `([A-Z][A-Z0-9-]+)` \|", backlog, re.M))
@@ -918,7 +922,11 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("artifact-uploads", openapi)
         self.assertIn("/firmware/import", openapi)
         self.assertIn("/worker/drain", openapi)
+        self.assertIn("/workers", openapi)
+        self.assertIn("/workers/{worker_id}/heartbeat", openapi)
+        self.assertIn("RemoteWorkerRegistration", openapi)
         self.assertIn("accepting_leases", openapi)
+        self.assertIn("Remote worker directory MVP", markdown)
 
     def test_webburner_browser_surface_is_wired(self) -> None:
         html = (ROOT / "platform/web/firmware.html").read_text()

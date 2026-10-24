@@ -84,6 +84,10 @@ from network_policy import (  # noqa: E402
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
+from worker_directory import (  # noqa: E402
+    WorkerDirectory,
+    WorkerDirectoryError,
+)
 from worker_registry import WorkerRegistry, WorkerRegistryError  # noqa: E402
 from xtensa_elf_symbols import (  # noqa: E402
     ElfSymbolError,
@@ -5960,6 +5964,9 @@ class DeviceService:
             stale_after=stale_after,
             capabilities=capabilities,
         )
+        self.worker_directory = WorkerDirectory(
+            self.state_dir / "workers.json"
+        )
         try:
             self.worker.start()
         except WorkerRegistryError as error:
@@ -7401,6 +7408,93 @@ class DeviceService:
         try:
             return {"worker": self.worker.resume()}
         except WorkerRegistryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def list_remote_workers(self) -> dict:
+        return self.worker_directory.list_workers()
+
+    def register_remote_worker(self, payload: dict) -> dict:
+        try:
+            return {
+                "worker": self.worker_directory.register(payload)
+            }
+        except WorkerDirectoryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def heartbeat_remote_worker(
+        self,
+        worker_id: str,
+        payload: dict,
+    ) -> dict:
+        try:
+            return {
+                "worker": self.worker_directory.heartbeat(
+                    worker_id, payload
+                )
+            }
+        except WorkerDirectoryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def drain_remote_worker(
+        self,
+        worker_id: str,
+        payload: dict,
+    ) -> dict:
+        try:
+            return {
+                "worker": self.worker_directory.drain(
+                    worker_id, payload
+                )
+            }
+        except WorkerDirectoryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def stop_remote_worker(
+        self,
+        worker_id: str,
+        payload: dict,
+    ) -> dict:
+        try:
+            return {
+                "worker": self.worker_directory.stop(
+                    worker_id, payload
+                )
+            }
+        except WorkerDirectoryError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
+
+    def record_remote_worker_result(
+        self,
+        worker_id: str,
+        payload: dict,
+    ) -> dict:
+        try:
+            return {
+                "result": self.worker_directory.record_result(
+                    worker_id, payload
+                )
+            }
+        except WorkerDirectoryError as error:
             raise ServiceError(
                 error.code,
                 error.message,

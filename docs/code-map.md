@@ -52,7 +52,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 | 代码域 | 模块 | 入口 / 输出 |
 | --- | --- | --- |
-| 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`storage_policy.py` | `/api/v1`、session/evidence、worker heartbeat/drain、GC |
+| 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`storage_policy.py` | `/api/v1`、session/evidence、本地 worker lifecycle、远程 worker 注册目录、GC |
 | 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py` | 公开固件下载、manifest、静态/SBOM/文件系统证据和批量运行 |
 | 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/TLS、pcap 摘要 |
 | 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
@@ -73,6 +73,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
 | `platform/tools/worker_registry.py` | 本地 worker identity、独占锁、generation、heartbeat、lease、drain/resume 和重启分类 | Device Service、worker 测试 |
+| `platform/tools/worker_directory.py` | 远程 worker 持久目录、identity/generation 冲突、heartbeat/drain/stop、capability 和有界结果元数据 | Device Service、worker directory 测试 |
 | `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
 | `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表严格解析 Core2 native-VHCI 固定地址 | Device Service、Core2 runners |
 | `platform/tools/fetch_firmware.py` | 查询、校验、下载和缓存公开 M5Burner 固件 | 本地准备、固件矩阵 |
@@ -111,6 +112,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 | `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
+| `platform/tests/test_worker_directory.py` | 远程 worker 注册、持久化、generation、stale/drain/stop、容量和结果元数据契约 | `/api/v1/workers` 或 `worker_directory.py` 改动 |
 
 `run_profile_ui_test.py`、`run_peripheral_matrix.py` 和直接 QEMU 启动是仓库
 回归开发入口；Agent 触发的普通固件功能测试必须走 Device Service，避免产生
@@ -149,6 +151,8 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 HTTP / browser
   -> platform/tools/serve.py
   -> platform/tools/device_service.py
+       -> worker_registry.py (local process)
+       -> worker_directory.py (remote registrations)
        -> device/session catalog
        -> FirmwareStore
        -> DeviceSession / NetworkDeviceSession / Tab5DeviceSession
@@ -164,6 +168,7 @@ HTTP / browser
 | `platform/tools/serve.py` | HTTP 服务、静态页面和 `/api/v1` 路由入口 |
 | `platform/tools/device_service.py` | lease、artifact/firmware 存储、可恢复 chunk upload、会话生命周期、QEMU/esp-emu 编排、证据包 |
 | `platform/tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、租约和 drain 状态机 |
+| `platform/tools/worker_directory.py` | 远程 worker 持久注册表、identity/generation 校验、stale/drain/stop 和有界结果索引 |
 | `platform/tools/storage_policy.py` | 会话历史、Flash 保留与缓存 GC |
 | `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查 |
 | `platform/web/` | 设备目录、会话观察和浏览器设备外壳 |
@@ -279,6 +284,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |
 | 公共 API | `/api/v1` Device Service | 可观察、可保留的 session/evidence |
 | Worker lifecycle | `/api/v1/worker`、`/worker/drain`、`/worker/resume`；`platform/tests/test_worker_registry.py` | stable ID、独占状态目录、heartbeat、generation、drain/resume、active/abandoned lease 和 bounded results；不含远程调度或活动 QEMU re-attach |
+| Remote worker directory | `/api/v1/workers`、`/workers/{id}/heartbeat`、`drain`、`stop`、`results`；`platform/tests/test_worker_directory.py` | 持久 identity/generation、stale 判定、live-instance 冲突、capability/结果上限和原子 `0600` 状态文件；不启动、调度或接管 worker |
 | Worker restart integration | `tests/network/worker_lifecycle/evidence-2026-10-24-pass.json` | 真实 QEMU session 跨 drain 保持；停止后 drained；SIGKILL 后 generation 2 记录 abandoned lease 并将会话恢复为 interrupted failed；进程组清理 PASS |
 
 设备级 PASS 至少要有固件 hash、runtime/profile、输入、串口、frame 和对应
