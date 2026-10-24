@@ -246,6 +246,7 @@ diagnostics in `internal/records/`.
   Two independent `5×10s` hold batches pass `10/10`, and three `60s` holds
   pass `3/3`. Two independent `120s` holds also pass `2/2`, with
   `hli-errors=0` and empty HLI/meta queues in every attempt.
+  Two active-BLE `600s` holds pass `2/2` with the peer connected at the end.
   Historical
   `semphr_give_wrapper`, `PC=0` and Cache-error evidence remains tracked.
   This closes the repeated-start/two-minute virtual gate, not multi-hour soak,
@@ -329,7 +330,7 @@ The main open streams are:
 - automatic worker-host discovery, cross-host credential and QEMU job
   execution, companion/evidence continuity, cross-host QEMU re-attach,
   multi-host scheduling and external IPv6 endpoint enforcement;
-- Core2 more-than-120-cycle and multi-hour coexistence runs after the passing
+- Core2 more-than-120-cycle and two-hour coexistence runs after the passing
   three-independent-lease 120-cycle gate, bit-exact BT controller/baseband,
   physical cache/PSRAM equivalence and hardware validation;
 - runtime permissions/license policy, production security-key flows and

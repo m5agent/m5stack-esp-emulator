@@ -42,7 +42,7 @@ MicroPython 和其他完整 Flash 固件。
   companion / evidence continuity、secret-manager 和生产调度仍是开放项。
 - Core2 规范路径是
   `runtime=qemu-unified/profile=core2-native-hci`；GDB native-VHCI 只用于
-  诊断/兼容。功能、active-BLE 120 秒 hold，以及 `3` 个独立 lease
+  诊断/兼容。功能、active-BLE 600 秒 hold，以及 `3` 个独立 lease
   **各自 20、30、60、120 轮** same-guest reconnect 已通过；一百二十轮每
   lease HLI `3377/3377`、events `2297`、ACLs `1080`，无 HLI/TX queue
   错误或 panic。下一次长稳门禁是超过一百二十轮和多小时 soak，物理边界见
@@ -168,7 +168,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold，以及 3 个独立 lease 各自 20、30、60、120 轮的 same-guest GATT。全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；120 轮运行每 lease 为 HLI `3377/3377`、events `2297`、ACLs `1080`，连接池回到 `3/9/3`。后续仍是超过一百二十轮、多小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold，以及 3 个独立 lease 各自 20、30、60、120 轮的 same-guest GATT。全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；120 轮运行每 lease 为 HLI `3377/3377`、events `2297`、ACLs `1080`，连接池回到 `3/9/3`。后续仍是超过一百二十轮、两小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -291,7 +291,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   evidence ZIP，且 `gdb_bridge=false`。`0005` 将 guest-call 注入限制在
   halted/idle vCPU，并恢复 caller-saved sregs；两批 `5×10s` 运行合计
   `10/10`，3 个 `60s` hold 为 `3/3`，2 个 `120s` hold 为 `2/2`；
-  active-BLE `120s` hold 也 `2/2`，peer 在 hold 完成时仍保持连接。
+  active-BLE `600s` hold 也 `2/2`，peer 在 hold 完成时仍保持连接。
   同一 guest 的断开后重连已在 3 个独立 lease 中分别完成 20、30、60、120 轮
   scan/connect/NUS GATT/disconnect；一百二十轮每 lease 的 HLI posts/consumed
   为 `3377/3377`、events `2297`、ACLs `1080`，HLI errors、

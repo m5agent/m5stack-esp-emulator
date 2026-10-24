@@ -32,7 +32,7 @@ Device Service lease
 | S3/C6 unified | 11 个设备 profile 在单 guest 中完成板级、WiFi scan/association/DHCP/HTTP 和外部 HCI-UART BLE GATT | 固定开放 AP；不是完整 PHY/RF，也不覆盖 WPA2/WPA3 |
 | Core2 unified | OpenMAC WiFi、DHCP、受控 HTTP、公网 DNS/HTTP、UART1 HCI-offload BLE 和板级外设同一 guest；确定性 TCG/icount 10/10 首轮 | 环境门控；物理 cache/PSRAM 和 RF 未验；native-HCI 短时 extended-run 已 PASS |
 | Core2 stock BLE（legacy） | 不重建 HCI-UART，在 GDB 中介的 `esp_vhci_host_*` 边界接 Bumble；外部 NUS GATT 5/5，同 guest board+WiFi+公网+GATT 3/3 | 仅用于诊断/兼容；repeated lease `1/2`，不是 bit-exact BT baseband/controller |
-| Core2 QEMU native-HCI | `HCI-1` 至 `HCI-4` PASS；`0005` halt-gated guest call 后两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；active-BLE 120 秒 hold，以及 3 个各 20、30、60、120 轮的 GATT lease 均 PASS | `core2-native-hci` 无 GDB bridge，同包验证 frame/QOM/WiFi/公网/GATT/pcap 与 HLI health；reconnect blocker 已定位到 Bumble 对无响应 `0x0c35` 的非法 Command Status 并修正；120 轮每 lease HLI `3377/3377`；bit-exact controller、超过一百二十轮、多小时 soak 和物理 cache/PSRAM 仍开放 |
+| Core2 QEMU native-HCI | `HCI-1` 至 `HCI-4` PASS；`0005` halt-gated guest call 后两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；active-BLE 600 秒 hold，以及 3 个各 20、30、60、120 轮的 GATT lease 均 PASS | `core2-native-hci` 无 GDB bridge，同包验证 frame/QOM/WiFi/公网/GATT/pcap 与 HLI health；reconnect blocker 已定位到 Bumble 对无响应 `0x0c35` 的非法 Command Status 并修正；120 轮每 lease HLI `3377/3377`；bit-exact controller、超过一百二十轮、两小时 soak 和物理 cache/PSRAM 仍开放 |
 | Device Service | `qemu-unified/profile=core2-native-hci` 五 lease PASS | 每轮均绑定同一固件/ELF/QEMU SHA 和完整 evidence ZIP |
 | 公网 | StickS3、Nesso N1 和 Core2 在对应同 guest 路径完成 IPv4 DNS/HTTP | 只证明一次可达的 IPv4 HTTP；不证明任意云服务、TLS 固定或长期稳定 |
 | 负向认证 | 错误密码要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker 同时成立 | 当前实际 AP 类型有限 |
@@ -57,6 +57,7 @@ Device Service lease
 - [Core2 halt-gated extended-run evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json)
 - [Core2 60-second hold evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold60-3x.json)
 - [Core2 120-second hold evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json)
+- [Core2 600-second active-BLE hold evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold600-2x.json)
 - [Core2 ten-cycle reconnect evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-3x.json)
 - [Core2 twenty-cycle reconnect evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect20-3x.json)
 - [Core2 thirty-cycle reconnect evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect30-3x.json)
@@ -98,7 +99,7 @@ Device Service lease
 - 外部 IPv6、CIDR 或域名到多个 IP 的 egress policy；
 - Tab5 P4↔C6 ESP-Hosted 端到端网络；
 - Core2 bit-exact BT controller/baseband、物理 cache/PSRAM、
-  RF/coexistence/throughput、超过一百二十轮和多小时 soak；two-minute
+  RF/coexistence/throughput、超过一百二十轮和两小时 soak；two-minute
   halt-gated extended-run 与 20、30、60、120 轮 reconnect 已通过，但参数上限
   `120` 不能推导超过一百二十轮的证据；
 - 基于一次网络观测判定固件安全。

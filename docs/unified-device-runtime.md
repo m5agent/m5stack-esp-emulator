@@ -47,8 +47,9 @@ complete simulated device or as a unified-device PASS.
   `120s` holds pass `2/2`, with zero HLI errors and empty queues. This is not
   a multi-hour soak, more than 120 reconnect cycles or physical cache/PSRAM
   proof.
-  A further two `120s` holds keep the BLE peer connected for the full hold,
-  with `peer-closed=0`, zero TX queue depth and no last error.
+  Two `600s` active-BLE holds also keep the peer connected for the full hold,
+  with `peer-closed=0`, zero TX queue depth and no last error. This remains
+  virtual-device evidence, not physical cache/PSRAM or RF validation.
 - Same-guest reconnect is **PASS** through 120 cycles. The historical failure was
   caused by the Bumble compatibility layer returning a forbidden Command
   Status for `HCI_Host_Number_of_Completed_Packets (0x0c35)`; the next
@@ -237,7 +238,7 @@ path reaches external GATT without that firmware rebuild. Its canonical
 HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
   independent leases. The legacy `core2-native-vhci` profile uses a GDB bridge
   and is diagnostic only. Two independent `5×10s` batches, three `60s` holds,
-  two `120s` holds, plus two active-BLE `120s` holds pass with
+  two `120s` holds and two active-BLE `600s` holds pass with
   `hli-errors=0` and empty queues. Three independent leases complete 20, 30,
   60 and 120 reconnect cycles in separate gates. Core2 still misses bit-exact
   controller/baseband, physical cache/PSRAM equivalence, more than 120 connection cycles,

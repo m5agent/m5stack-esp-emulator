@@ -16,6 +16,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `HCI-3b` complete HCI/GATT | `PASS` | `evidence-2026-10-24-hli-api-gatt-5x.json`; 15-byte probe / 17-byte ATT PDU completes discovery, subscription, write, Python handler, notification and Bumble ACK in 5/5 runs |
 | `HCI-4` repeated lease | `PASS` | `evidence-2026-10-24-hci4-service-5x.json`; five independent `/api/v1` leases pass frame, 27-node QOM, WiFi/public network, NUS GATT, pcap and evidence with `gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | `evidence-2026-10-24-hci4-halted-gate-5x.json`, `evidence-2026-10-24-hci4-hold60-3x.json`, `evidence-2026-10-24-hci4-hold120-2x.json` and `evidence-2026-10-24-hci4-active-ble-hold120-2x.json`; two 5-attempt batches with 10-second holds passed `10/10`, three 60-second holds passed `3/3`, two 120-second holds passed `2/2`, and two active-BLE 120-second holds passed `2/2`. Every attempt has `hli-errors=0` and zero HLI/meta queue depth |
+| `CORE2-02` active-BLE 600s hold | `PASS` | `evidence-2026-10-24-hci4-active-ble-hold600-2x.json`; two independent leases pass with `ble_linger_seconds=660`; the peer stays connected for 600 seconds, HLI is 45/45 and all queue/error counters are zero |
 | `CORE2-02` same-guest reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect20-3x.json`; three independent stock-firmware leases complete twenty full NUS GATT cycles each. Every lease balances HLI 577/577, delivers 397 events and 180 ACLs, leaves HLI/meta queues empty and returns the connection/L2CAP/GATT pools to their 3/9/3 free baseline. The earlier ten-cycle evidence remains as `evidence-2026-10-24-hci4-reconnect10-3x.json`; the forbidden Bumble Command Status for no-response opcode `0x0c35` was the historical stale-ACK root cause |
 | `CORE2-02` 30-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect30-3x.json`; three independent stock-firmware leases complete thirty full NUS GATT cycles each. Every lease balances HLI 857/857, delivers 587 events and 270 ACLs, with zero errors, empty queues and connection/L2CAP/GATT pools back at 3/9/3 |
 | `CORE2-02` 60-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect60-3x.json`; three independent leases complete sixty cycles each with HLI 1697/1697, 1157 events, 540 ACLs, zero errors and pools back at 3/9/3 |
@@ -256,7 +257,7 @@ or hardware.
 
 The runner now also sets `network.ble_linger_seconds` to
 `max(20, hold_seconds + 60)`. Keeping the peer connected through the full
-hold produced two active-BLE `120s` PASS runs with `peer-closed=0`,
+hold produced two active-BLE `600s` PASS runs with `peer-closed=0`,
 `tx-queue-depth=0` and `last-error=0`; both still passed frame/QOM, WiFi,
 public DNS/HTTP, external NUS GATT, pcap and evidence.
 

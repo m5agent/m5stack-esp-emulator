@@ -71,6 +71,7 @@ from firmware_manifest import (  # noqa: E402
 )
 from network_lane import normalize_hostfwd, normalize_i2c_device  # noqa: E402
 from ble_runtime_limits import (  # noqa: E402
+    MAX_BLE_LINGER_SECONDS,
     MAX_BLE_RECONNECT_CYCLES,
     MAX_BLE_RECONNECT_DELAY_SECONDS,
 )
@@ -1209,11 +1210,12 @@ def parse_qemu_ble_execution(
     if (
         isinstance(ble_linger_seconds, bool)
         or not isinstance(ble_linger_seconds, (int, float))
-        or not 0 <= ble_linger_seconds <= 600
+        or not 0 <= ble_linger_seconds <= MAX_BLE_LINGER_SECONDS
     ):
         raise ServiceError(
             "invalid_network",
-            "network.ble_linger_seconds must be from 0 to 600",
+            "network.ble_linger_seconds must be from 0 to "
+            f"{MAX_BLE_LINGER_SECONDS}",
             400,
         )
     reconnect_cycles = value.get("ble_reconnect_cycles", 1)

@@ -80,7 +80,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   evidence ZIP，且 `gdb_bridge=false`。`0005` 恢复 guest-call sregs 并把
   HLI 注入限制在 halted/idle vCPU 后，两批 `5×10s` hold 运行 `10/10`
   PASS，3 个 `60s` hold `3/3`，2 个 `120s` hold `2/2`，每轮 HLI
-  health 为零错误。同一 guest reconnect 已在 3 个独立 lease 中分别完成
+  health 为零错误；另有 2 个 active-BLE `600s` hold `2/2`。同一 guest
+  reconnect 已在 3 个独立 lease 中分别完成
   20、30、60、120 轮，每轮均有 guest RX/notification；一百二十轮每 lease HLI
   `3377/3377`、events `2297`、ACLs `1080`。根因是 Bumble 为无响应
   `0x0c35` 错误返回 Command Status，留下 stale ACK。旧
@@ -88,7 +89,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   服务托管的 GDB bridge，且 repeated lease 只有 `1/2`，因此只保留为
   显式诊断/兼容路径。Device Service/Bumble/runner 已接受 `1–120` 轮并有
   `121` 轮拒绝测试；一百二十轮门禁全部 `3/3 PASS`，无错误或 panic。bit-exact
-  Espressif BT baseband/controller、物理 cache/PSRAM、超过一百二十轮以及多小时
+  Espressif BT baseband/controller、物理 cache/PSRAM、超过一百二十轮以及两小时
   coexistence/soak 和真机仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。

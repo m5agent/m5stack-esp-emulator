@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.23.0
+  version: 1.24.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1910,7 +1910,7 @@ components:
         ble_linger_seconds:
           type: number
           minimum: 0
-          maximum: 600
+          maximum: 7260
           default: 20
           description: >
             Keep an external BLE GATT peer connected after its first passing

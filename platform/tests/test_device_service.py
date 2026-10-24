@@ -880,13 +880,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
             self.service.specs["sticks3"],
             {
                 "profile": "uiflow2-sticks3-unified",
-                "ble_linger_seconds": 180,
+                "ble_linger_seconds": 7260,
                 "ble_reconnect_cycles": 3,
                 "ble_reconnect_delay_seconds": 1.5,
             },
             runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
         )
-        self.assertEqual(long_link["ble_linger_seconds"], 180)
+        self.assertEqual(long_link["ble_linger_seconds"], 7260)
         self.assertEqual(long_link["ble_reconnect_cycles"], 3)
         self.assertEqual(long_link["ble_reconnect_delay_seconds"], 1.5)
         with self.assertRaises(ServiceError) as invalid_linger:
@@ -894,7 +894,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.service.specs["sticks3"],
                 {
                     "profile": "uiflow2-sticks3-unified",
-                    "ble_linger_seconds": 601,
+                    "ble_linger_seconds": 7261,
                 },
                 runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
             )

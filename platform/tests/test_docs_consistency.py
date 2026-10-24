@@ -65,6 +65,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold60-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold600-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
@@ -524,6 +525,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-hci4-reconnect120-3x.json"
             ).read_text()
         )
+        hold600_evidence = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-active-ble-hold600-2x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("各自 20、30、60、120 轮", readme)
@@ -549,7 +557,11 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("扩大 API 轮次上限", workstreams)
 
         self.assertIn("MAX_BLE_RECONNECT_CYCLES = 120", limits)
-        self.assertIn("MAX_BLE_HOLD_SECONDS = 120", limits)
+        self.assertIn("MAX_BLE_HOLD_SECONDS = 7200", limits)
+        self.assertIn(
+            "MAX_BLE_LINGER_SECONDS = MAX_BLE_HOLD_SECONDS + 60",
+            limits,
+        )
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", service)
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", peer)
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", runner)
@@ -559,6 +571,11 @@ class DocsConsistencyTests(unittest.TestCase):
             1,
         )[1].split("ble_reconnect_delay_seconds:", 1)[0]
         self.assertIn("maximum: 120", reconnect_schema)
+        linger_schema = openapi.split(
+            "ble_linger_seconds:",
+            1,
+        )[1].split("ble_reconnect_cycles:", 1)[0]
+        self.assertIn("maximum: 7260", linger_schema)
 
         self.assertEqual(evidence["status"], "PASS")
         self.assertEqual(evidence["attempts_requested"], 3)
@@ -635,6 +652,25 @@ class DocsConsistencyTests(unittest.TestCase):
                  health["gatts-pool-free"]),
                 (3, 9, 3),
             )
+
+        self.assertEqual(hold600_evidence["status"], "PASS")
+        self.assertEqual(hold600_evidence["attempts_requested"], 2)
+        self.assertEqual(hold600_evidence["attempts_passed"], 2)
+        self.assertEqual(hold600_evidence["attempts_failed"], 0)
+        self.assertEqual(hold600_evidence["hold_seconds_per_attempt"], 600)
+        self.assertEqual(hold600_evidence["ble_linger_seconds"], 660)
+        self.assertFalse(hold600_evidence["boundary"]["gdb_bridge"])
+        for run in hold600_evidence["runs"]:
+            health = run["native_hci_health"]
+            self.assertEqual(health["hli-posts"], 45)
+            self.assertEqual(health["hli-consumed"], 45)
+            self.assertEqual(health["hli-errors"], 0)
+            self.assertEqual(health["hli-c2h-events"], 36)
+            self.assertEqual(health["hli-c2h-acls"], 9)
+            self.assertEqual(health["tx-queue-depth"], 0)
+            self.assertEqual(health["last-error"], 0)
+            self.assertEqual(health["peer-closed"], 0)
+            self.assertEqual(health["dropped-packets"], 0)
 
         core2_source = next(
             device for device in catalog_source["devices"]
