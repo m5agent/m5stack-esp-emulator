@@ -35,6 +35,9 @@ used a 21-byte probe whose ATT PDU is 24 bytes, exceeding the default 23-byte
 MTU. The default 15-byte probe produces a 17-byte PDU and reaches ATT, the
 Python write/notify path and the Bumble ACK. See
 [the native HCI design](../../docs/core2-native-hci-backend.md).
+`HCI-4` runs the same path through five independent Device Service
+`core2-native-hci` leases, with frame/QOM/WiFi/public-network/NUS-GATT/pcap
+evidence and no GDB bridge.
 
 Apply after `patches/qemu-core2-ble-controller/`:
 
@@ -53,6 +56,12 @@ PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_hci/run_full.py \
   --image /path/to/stock/core2-uiflow2.bin \
   --elf /path/to/matching/micropython.elf \
   --hli-c2h
+python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
+  --image /path/to/unified/core2-uiflow2.bin \
+  --elf /path/to/matching/micropython.elf \
+  --qemu build/qemu-system-xtensa \
+  --attempts 5 \
+  --out-dir /tmp/m5-core2-native-hci-service-5x
 ```
 
 The evidence for the transport-only slice is
@@ -63,6 +72,8 @@ The HLI real-event evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json`.
 The full HLI/API-boundary GATT evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json`.
+The Device Service repeated-lease evidence is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`.
 The earlier notification-fail evidence is retained as the negative case that
 identified the default-MTU probe-size error. These are virtual-device results,
 not bit-exact controller or physical hardware validation.

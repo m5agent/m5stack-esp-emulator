@@ -130,7 +130,7 @@
         "validation": {
           "date": "2026-10-23",
           "status": "display-input-peripherals-wifi-ble-pass",
-          "detail": "官方 UIFlow2 v2.5.3 在同一 m5core2 guest 内通过 320x240 显示/触摸、AXP2101、INA3221、MPU6886、PCF8563、NS4168 扬声器、SPM1423 麦克风、OpenMAC WiFi DHCP/HTTP、example.com IPv4 DNS/HTTP 和 UART1 HCI BLE；确定性 TCG/icount 调度下 10/10 次无重试首轮启动通过，QOM 注入不暂停 guest，QEMU 仍使用 -m 0。stock internal-controller VHCI 路径独立完成外部 NUS GATT 5/5；Device Service `qemu-unified/profile=core2-native-vhci` 和独立 unified runner 均在同一个 guest 合并 board、WiFi、公网、frame/QOM 和外部 NUS GATT，但该服务 profile 仍依赖 GDB bridge。QEMU native-HCI `HCI-3b` 已由 0003/0004 patch、HLI event/ACL 和合法 17-byte ATT PDU 完成无 GDB 外部 NUS GATT 5/5；HCI-4 Device Service repeated lease 与 Espressif BT baseband/controller bit-exact 执行仍为 NOT RUN。"
+          "detail": "官方 UIFlow2 v2.5.3 在同一 m5core2 guest 内通过 320x240 显示/触摸、AXP2101、INA3221、MPU6886、PCF8563、NS4168 扬声器、SPM1423 麦克风、OpenMAC WiFi DHCP/HTTP、example.com IPv4 DNS/HTTP 和 stock firmware 外部 BLE GATT；确定性 TCG/icount 调度下 10/10 次无重试首轮启动通过，QOM 注入不暂停 guest，QEMU 仍使用 -m 0。规范 Device Service profile `core2-native-hci` 在五个独立 lease 中通过 HCI-4：frame、27 节点 QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence 同包，且 gdb_bridge=false。旧 `core2-native-vhci` 的 repeated lease 为 1/2，仅保留为 GDB 诊断/兼容路径。物理 cache/PSRAM、coexistence/soak 与 Espressif BT baseband/controller bit-exact 执行仍为 NOT RUN。"
         }
       },
       "uiflow2": {

@@ -561,6 +561,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_ble_profiles_use_longer_default_ready_timeout(self):
         for profile in (
             "core2-native-vhci",
+            "core2-native-hci",
             "core2-hci-gatt",
             "nanoc6-hci-ble",
             "nesso-unified",
@@ -1500,6 +1501,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(
                     row["network_profiles"],
                     [
+                        "core2-native-hci",
                         "core2-native-vhci",
                         "core2-unified",
                         "core2-openmac",
@@ -1605,6 +1607,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
             self.assertEqual(
                 native_vhci["elf_artifact_id"],
+                elf_artifact_id,
+            )
+            native_hci = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["core2"],
+                {
+                    "profile": "core2-native-hci",
+                    "elf_artifact_id": elf_artifact_id,
+                },
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+            self.assertEqual(
+                native_hci["profile"],
+                "core2-native-hci",
+            )
+            self.assertEqual(
+                native_hci["expected_markers"],
+                list(device_service_module.CORE2_UNIFIED_MARKERS),
+            )
+            self.assertEqual(
+                native_hci["elf_artifact_id"],
                 elf_artifact_id,
             )
             self.assertEqual(
@@ -1831,6 +1853,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
                     runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
                 )
             self.assertEqual(missing_elf.exception.code, "elf_required")
+            with self.assertRaises(ServiceError) as native_hci_missing_elf:
+                device_service_module.parse_qemu_ble_execution(
+                    self.service.specs["core2"],
+                    {"profile": "core2-native-hci"},
+                    runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+                )
+            self.assertEqual(
+                native_hci_missing_elf.exception.code,
+                "elf_required",
+            )
         finally:
             if old_radio is None:
                 os.environ.pop("M5_CORE2_RADIO_QEMU", None)

@@ -70,11 +70,13 @@ response, serial digest and a bounded set of fatal error lines.
   not a proven cache fault. This does not prove physical cache/PSRAM timing.
   Stock VHCI paths pass external
   NUS GATT 5/5 standalone and board+WiFi+public+BLE 3/3 in one guest, but
-  the QEMU native-HCI path now passes the same external NUS GATT exchange
-  5/5 without GDB. The prior timeout was caused by a 21-byte probe producing
-  a 24-byte ATT PDU over the default 23-byte MTU. A 15-byte probe produces a
-  17-byte ATT PDU and reaches the ATT write handler, Python notification and
-  Bumble ACK. HLI event/ACL delivery, API-boundary H2C and CCOUNT TB-yield are
-  retained in the `0003` and `0004` QEMU patches. Bit-exact Espressif BT
-  controller behavior and Device Service `HCI-4` repeated leases remain
+  the QEMU native-HCI path is now canonical. `HCI-4` passed five independent
+  Device Service leases with frame/QOM, WiFi/public network, external NUS
+  GATT, pcap and evidence, without a GDB bridge. The prior timeout was caused
+  by a 21-byte probe producing a 24-byte ATT PDU over the default 23-byte MTU.
+  A 15-byte probe produces a 17-byte ATT PDU and reaches the ATT write
+  handler, Python notification and Bumble ACK. HLI event/ACL delivery,
+  API-boundary H2C and CCOUNT TB-yield are retained in the `0003` and `0004`
+  QEMU patches. Bit-exact Espressif BT controller behavior, physical
+  cache/PSRAM equivalence, coexistence/soak and hardware validation remain
   `NOT RUN`.

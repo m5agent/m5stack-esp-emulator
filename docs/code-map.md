@@ -75,7 +75,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/worker_registry.py` | 本地 worker identity、独占锁、generation、heartbeat、lease、drain/resume 和重启分类 | Device Service、worker 测试 |
 | `platform/tools/worker_directory.py` | 远程 worker 持久目录、identity/generation 冲突、heartbeat/drain/stop、capability 和有界结果元数据 | Device Service、worker directory 测试 |
 | `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
-| `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表严格解析 Core2 native-VHCI 固定地址 | Device Service、Core2 runners |
+| `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表严格解析 Core2 native-VHCI 调用地址和 native-HCI hook/HLI 地址 | Device Service、Core2 runners |
 | `platform/tools/fetch_firmware.py` | 查询、校验、下载和缓存公开 M5Burner 固件 | 本地准备、固件矩阵 |
 | `platform/tools/firmware_manifest.py` | merged/segmented/ZIP/WebBurner 导入和 manifest | CLI、Device Service |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 | manifest、矩阵 |
@@ -108,6 +108,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
+| `tests/uiflow2/core2_native_hci/run_service_5x.py` | 通过真实 Device Service API 连续租用 `core2-native-hci`，汇总脱敏的 repeated-lease evidence | Core2 native-HCI、Device Service profile 或 ELF hook 改动 |
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连和双 guest lab fabric | 网络策略/运行时改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
@@ -216,8 +217,8 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/hci_stream.py` | H4 command/event/ACL 分包 |
 | `platform/tools/runtime_interfaces.py` | 对外汇总设备、外设和运行时可注入接口 |
 | `tests/uiflow2/core2_native_vhci/` | stock Core2 VHCI→Bumble GATT runner |
-| `tests/uiflow2/core2_native_hci/` | QEMU native-HCI transport、无 GDB H2C capture、单包 C2H callback 和完整 sequence 门禁 |
-| `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | QEMU GDB H2C/C2H bridge；符号地址来自固定环境变量，GDB 仍负责暂停、callback 注入和 synthetic return |
+| `tests/uiflow2/core2_native_hci/` | QEMU native-HCI transport、无 GDB H2C/C2H、完整 GATT、Device Service repeated lease 和 evidence 生成 |
+| `tests/uiflow2/core2_radio_probe/native_vhci_bridge.py` | legacy/diagnostic GDB H2C/C2H bridge；不是新调用首选，更不能作为稳定生产证明 |
 | `tests/network/tls_allowlist/` | 测试 CA、namespace-local HTTPS gateway、Host 允许/拒绝和 pcap 断言 |
 | `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
 | `tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 TAP/bridge primitive |
@@ -231,7 +232,7 @@ QEMU 主路径必须在同一个 guest 内同时具备板级外设、网络和 H
 
 | 层级 | 入口 | 用途 | 结论边界 |
 | --- | --- | --- | --- |
-| 产品验收 | `runtime=qemu-unified` + `*-unified` profile | 单 lease、单 guest 的 board/WiFi/BLE/evidence | 当前 S3/C6/Core2 的主路径 |
+| 产品验收 | `runtime=qemu-unified` + `*-unified` profile | 单 lease、单 guest 的 board/WiFi/BLE/evidence | 当前 S3/C6 和 Core2 `core2-native-hci` 的主路径 |
 | 兼容无线 | `qemu-wifi`、`qemu-ble` | 旧 profile 和单选无线诊断 | `qemu-ble` 不应作为新调用默认值 |
 | 网络诊断 | `runtime=network` / `network_lane.py` | WiFi/BLE blocker、SoftAP、DNS/TCP/UDP/HCI | 没有同 guest 板级结论 |
 | Tab5 例外 | `esp-emulator-native` | P4 rom/ELF、显示、触摸和 ESP-Hosted | `partial`，不是完整 P4 外设模型 |
@@ -259,13 +260,14 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | 平台单元/契约 | `platform/tests/` | 解析、目录一致性、API、manifest、网络策略和文档契约 |
 | 外设矩阵 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 的数据面 |
 | 单设备统一运行时 | `tests/uiflow2/unified_*` | 单 QEMU guest 的板级、WiFi 和 HCI BLE |
-| Core2 stock VHCI BLE | `tests/uiflow2/core2_native_vhci/run_test.py --symbol-source pinned` | ELF 固定符号下，内置-controller 固件边界的外部 NUS GATT 5/5；`gdb` 仅保留作符号查询对照 |
-| Core2 unified native VHCI | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | Device Service/独立 runner 的同 guest board+WiFi+公网+native-VHCI BLE，符号来自匹配 ELF |
+| Core2 stock VHCI BLE（legacy diagnostic） | `tests/uiflow2/core2_native_vhci/run_test.py --symbol-source pinned` | ELF 固定地址下验证 GDB/API boundary 交互；单次通过和 `1/2` repeated lease 只用于诊断，不是稳定主路径 |
+| Core2 unified native-VHCI（legacy diagnostic） | `qemu-unified/profile=core2-native-vhci`；`tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci` | 保留兼容和根因对照；GDB 仍控制暂停/注入/return |
 | Core2 native HCI `HCI-1` | `patches/qemu-core2-native-hci/`；`tests/uiflow2/core2_native_hci/test_transport.py` | QEMU H4 chardev framing、bounded queue、overflow、peer lifecycle、counters 和 clean shutdown PASS |
 | Core2 guest H2C `HCI-2` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py` | 不启动 GDB，从真实 VHCI shared memory 捕获 stock HCI Reset `01030c00` 并转发 peer |
 | Core2 C2H callback `HCI-3a` | `tests/uiflow2/core2_native_hci/test_guest_h2c.py --enable-c2h` | 诊断性单包路径：从 ELF 分配 guest buffer，调用注册的 `notify_host_recv` 和 send-available；Reset Complete 后 guest 发出下一条 H2C，targeted `5/5`；不能扩展为产品 C2H 后端 |
 | Core2 HLI event `HCI-3b` | `patches/qemu-core2-native-hci/0002-esp32-native-hci-hli-event.patch`；`tests/uiflow2/core2_native_hci/test_hli_event.py`；`evidence-2026-10-24-hli-event-5x.json` | 池分配真实 Reset Complete 经 event 13 和 `ble_transport_to_hs_evt_impl` 交付；guest 从 `01030c00` 前进到 `01011000`，连续 `5/5` |
 | Core2 full HCI/GATT `HCI-3b` | `patches/qemu-core2-native-hci/0003-*.patch`、`0004-*.patch`；`tests/uiflow2/core2_native_hci/run_full.py`；`evidence-2026-10-24-hli-api-gatt-5x.json` | 无 GDB HLI/API-boundary H2C 完成外部 NUS GATT `5/5`；trace 证明旧 24-byte ATT PDU 在默认 MTU 23 被 L2CAP 拒绝，合法 17-byte PDU 命中 ATT/Python/notify/Bumble ACK。post-pass teardown `EIO` 单独记录 |
+| Core2 native HCI `HCI-4` | `qemu-unified/profile=core2-native-hci`；`tests/uiflow2/core2_native_hci/run_service_5x.py`；`evidence-2026-10-24-hci4-service-5x.json` | 五个独立 `/api/v1` lease 均通过 frame、27 节点 QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP；`gdb_bridge=false` |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |

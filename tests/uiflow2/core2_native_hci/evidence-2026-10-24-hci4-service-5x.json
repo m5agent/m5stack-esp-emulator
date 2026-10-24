@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-service-attempts",
+  "stage": "HCI-4",
+  "gate_result": "PASS",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "service_api": "/api/v1",
+  "firmware": {
+    "sha256": "65c27baf132db1e8d97207d812dd945c782adcfb5ffc1ec67a4eee5656782e5d",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "29b30d78d8634aad22877f3f893d8f35a8b10870c8b4870e26c7eaf3cfc4ccdf",
+  "attempts_requested": 5,
+  "attempts_passed": 5,
+  "checks_per_attempt": {
+    "api_evidence": "PASS",
+    "frame_png": "PASS",
+    "frame_sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b",
+    "qom_nodes": 27,
+    "wifi_dhcp_http": "PASS",
+    "public_dns_http": "PASS",
+    "external_nus_gatt": "PASS",
+    "hci_transport": "ESP32 native HCI device + HLI to Bumble",
+    "evidence_zip": "PASS",
+    "pcap_file_in_evidence_zip": "PASS",
+    "manifest_session_binding": "PASS"
+  },
+  "runs": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "serial_sha256": "9c68e3fa118f73b073d9221e4256d9e249b80c20fd58d8fab61413743482afa7",
+      "peer_log_sha256": "ae2d2a8ab213998493172f656f5c8346b8694e169f9042373b4f88390f9d61f6",
+      "frame_bytes": 3710,
+      "frame_sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b",
+      "qom_nodes": 27,
+      "evidence_bytes": 27525,
+      "pcap_bytes": 6486
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "serial_sha256": "ed8bf3978fe6c983db3a41723321e0b9e8399ec00396930dd31e283037bdb400",
+      "peer_log_sha256": "64fc0c72b8c79ba17eadd4758d29190984687d72793b804d50ad8a29814d4049",
+      "frame_bytes": 3710,
+      "frame_sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b",
+      "qom_nodes": 27,
+      "evidence_bytes": 27666,
+      "pcap_bytes": 6322
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "serial_sha256": "9011209dd6eab82fa56bba5b95384087302966a48585f1c98bda5908a71dea37",
+      "peer_log_sha256": "f9886273e5d487a99305babde5689c220dec89be7c643208b9c3d970859ec6db",
+      "frame_bytes": 3710,
+      "frame_sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b",
+      "qom_nodes": 27,
+      "evidence_bytes": 27386,
+      "pcap_bytes": 6184
+    },
+    {
+      "attempt": 4,
+      "status": "PASS",
+      "serial_sha256": "e934350d930a0d3e37c5f425d995769722dcd2d75ab17ac4215419c64e24e132",
+      "peer_log_sha256": "0035223048c5b9953d87ae758a273b1fa9adf12574dc01615340865113dd7f21",
+      "frame_bytes": 3710,
+      "frame_sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b",
+      "qom_nodes": 27,
+      "evidence_bytes": 27524,
+      "pcap_bytes": 6486
+    },
+    {
+      "attempt": 5,
+      "status": "PASS",
+      "serial_sha256": "49d15206ec20b6bf424fd7fcd44aea3bc928308771a571da12d15d51bfc30860",
+      "peer_log_sha256": "b4606a946200fdec74671c4e0e05cc1323fad62ba1ee5b5555c49eee74ec8cca",
+      "frame_bytes": 3710,
+      "frame_sha256": "5bfcdf8fc518a36385783a9b5bf09b3fbce9d8c07406326955569f6c7db8408b",
+      "qom_nodes": 27,
+      "evidence_bytes": 27699,
+      "pcap_bytes": 6624
+    }
+  ],
+  "boundary": {
+    "isolation": "trusted-host",
+    "gdb_bridge": false,
+    "session_reuse": "five independent sequential leases and QEMU processes",
+    "pcap": "captured in each evidence ZIP; packet summaries are finalized during stop/retention handling",
+    "not_claimed": [
+      "bit-exact Espressif BT controller/baseband",
+      "physical hardware or RF validation",
+      "malware sandboxing"
+    ]
+  }
+}

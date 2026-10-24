@@ -284,38 +284,15 @@ def main() -> int:
             parser.error(f"{label} does not exist: {path}")
 
     sys.path.insert(0, str(ROOT / "platform/tools"))
-    from xtensa_elf_symbols import resolve_symbols
+    from xtensa_elf_symbols import (
+        core2_native_hci_device_args,
+        resolve_symbols,
+    )
 
-    symbol_names = ["vhci_env_p", "malloc", "esp_cpu_wait_for_intr"]
-    if args.hli_c2h:
-        symbol_names.extend(
-            [
-                "g_rw_schd_queue",
-                "s_meta_queue_ptr",
-                "ble_transport_alloc_evt",
-                "ble_transport_to_hs_evt_impl",
-                "ble_transport_alloc_acl_from_ll",
-                "os_mbuf_append",
-                "ble_transport_to_hs_acl_impl",
-                "esp_vhci_host_send_packet",
-                "ble_hci_trans_hs_cmd_tx",
-                "btdm_task_recycle",
-                "r_rw_schedule",
-                "ble_hs_hci_evt_acl_process",
-                "ble_hs_conns",
-                "ble_l2cap_rx",
-                "ble_att_rx",
-                "ble_att_svr_rx_write",
-                "ble_att_svr_rx_write_no_rsp",
-                "ble_att_svr_find_by_handle",
-                "ble_att_svr_write_handle$constprop$0",
-                "mp_bluetooth_gatts_on_write",
-                "bluetooth_ble_irq",
-                "mp_bluetooth_gatts_notify_indicate",
-                "ble_gatts_notify",
-            ]
-        )
-    symbols = resolve_symbols(args.elf, symbol_names)
+    symbols = resolve_symbols(
+        args.elf,
+        ["vhci_env_p", "malloc", "esp_cpu_wait_for_intr"],
+    )
     out_dir = args.out_dir or Path(
         tempfile.mkdtemp(prefix="m5-core2-native-hci-full-")
     )
@@ -368,83 +345,14 @@ def main() -> int:
         if not ble_ready.wait(timeout=10):
             raise RuntimeError("Bumble controller did not become ready")
 
-        hci_device = (
-            "esp32-native-hci,chardev=hci,"
-            f"env-pointer-address=0x{symbols['vhci_env_p'].value:08x},"
-            f"c2h-allocator-address=0x{symbols['malloc'].value:08x},"
-            "c2h-scratch-size=2048"
-        )
         if args.hli_c2h:
-            hci_device += (
-                ",hli-c2h=on,"
-                "api-vhci-send-hook-pc="
-                f"0x{symbols['esp_vhci_host_send_packet'].value + 0x35:08x},"
-                "api-vhci-send-return-pc="
-                f"0x{symbols['esp_vhci_host_send_packet'].value + 0x38:08x},"
-                "scheduler-queue-address="
-                f"0x{symbols['g_rw_schd_queue'].value:08x},"
-                "meta-queue-pointer-address="
-                f"0x{symbols['s_meta_queue_ptr'].value:08x},"
-                "trace-hs-conns-address="
-                f"0x{symbols['ble_hs_conns'].value:08x},"
-                "hli-event-allocator-address="
-                f"0x{symbols['ble_transport_alloc_evt'].value:08x},"
-                "hli-test-callback="
-                f"0x{symbols['ble_transport_to_hs_evt_impl'].value:08x},"
-                "hli-event-buffer-size=256,"
-                "hli-acl-allocator-address="
-                f"0x{symbols['ble_transport_alloc_acl_from_ll'].value:08x},"
-                "hli-os-mbuf-append-address="
-                f"0x{symbols['os_mbuf_append'].value:08x},"
-                "hli-acl-callback="
-                f"0x{symbols['ble_transport_to_hs_acl_impl'].value:08x}"
-                ",recycle-hook-pc="
-                f"0x{symbols['btdm_task_recycle'].value + 0x11:08x}"
-                ",recycle-return-pc="
-                f"0x{symbols['btdm_task_recycle'].value + 0x14:08x}"
-                ",hli-descriptor-pool-size=4096"
-                ",sleep-post-hook-pc="
-                f"0x{symbols['r_rw_schedule'].value + 0xb1:08x}"
-                ",sleep-post-return-pc="
-                f"0x{symbols['r_rw_schedule'].value + 0xb4:08x}"
-                ",cmd-semaphore-hook-pc="
-                f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x20:08x}"
-                ",cmd-semaphore-return-pc="
-                f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x23:08x}"
-                ",acl-semaphore-hook-pc="
-                f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x79:08x}"
-                ",acl-semaphore-return-pc="
-                f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x7c:08x}"
-                ",trace-acl-process-pc="
-                f"0x{symbols['ble_hs_hci_evt_acl_process'].value:08x}"
-                ",trace-l2cap-rx-pc="
-                f"0x{symbols['ble_l2cap_rx'].value:08x}"
-                ",trace-l2cap-incomplete-pc="
-                f"0x{symbols['ble_l2cap_rx'].value + 0xfc:08x}"
-                ",trace-l2cap-chan-found-pc="
-                f"0x{symbols['ble_l2cap_rx'].value + 0x101:08x}"
-                ",trace-l2cap-mtu-reject-pc="
-                f"0x{symbols['ble_l2cap_rx'].value + 0x116:08x}"
-                ",trace-l2cap-rxfn-pc="
-                f"0x{symbols['ble_l2cap_rx'].value + 0x12f:08x}"
-                ",trace-att-rx-pc="
-                f"0x{symbols['ble_att_rx'].value:08x}"
-                ",trace-att-write-pc="
-                f"0x{symbols['ble_att_svr_rx_write'].value:08x}"
-                ",trace-att-write-no-rsp-pc="
-                f"0x{symbols['ble_att_svr_rx_write_no_rsp'].value:08x}"
-                ",trace-att-find-handle-pc="
-                f"0x{symbols['ble_att_svr_find_by_handle'].value:08x}"
-                ",trace-att-write-handle-pc="
-                f"0x{symbols['ble_att_svr_write_handle$constprop$0'].value:08x}"
-                ",trace-python-gatts-on-write-pc="
-                f"0x{symbols['mp_bluetooth_gatts_on_write'].value:08x}"
-                ",trace-python-irq-pc="
-                f"0x{symbols['bluetooth_ble_irq'].value:08x}"
-                ",trace-python-notify-pc="
-                f"0x{symbols['mp_bluetooth_gatts_notify_indicate'].value:08x}"
-                ",trace-nimble-gatts-notify-pc="
-                f"0x{symbols['ble_gatts_notify'].value:08x}"
+            hci_device = core2_native_hci_device_args(args.elf)
+        else:
+            hci_device = (
+                "esp32-native-hci,chardev=hci,"
+                f"env-pointer-address=0x{symbols['vhci_env_p'].value:08x},"
+                f"c2h-allocator-address=0x{symbols['malloc'].value:08x},"
+                "c2h-scratch-size=2048"
             )
         command = [
             str(args.qemu),

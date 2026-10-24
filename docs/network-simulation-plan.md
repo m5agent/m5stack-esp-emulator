@@ -31,9 +31,9 @@ Device Service lease
 | --- | --- | --- |
 | S3/C6 unified | 11 个设备 profile 在单 guest 中完成板级、WiFi scan/association/DHCP/HTTP 和外部 HCI-UART BLE GATT | 固定开放 AP；不是完整 PHY/RF，也不覆盖 WPA2/WPA3 |
 | Core2 unified | OpenMAC WiFi、DHCP、受控 HTTP、公网 DNS/HTTP、UART1 HCI-offload BLE 和板级外设同一 guest；确定性 TCG/icount 10/10 首轮 | 环境门控；物理 cache/PSRAM、RF 和 long soak 未验 |
-| Core2 stock BLE | 不重建 HCI-UART，在 stock 固件的 `esp_vhci_host_*` 边界接 Bumble；VHCI 地址由 ELF 固定；外部 NUS GATT 5/5，同 guest board+WiFi+公网+BLE GATT 3/3 | GDB 仍控制暂停/注入/return；不是 bit-exact BT baseband/controller |
-| Core2 QEMU native-HCI | `HCI-1` transport PASS；`HCI-2` 完整 H2C PASS；`HCI-3a` 诊断性 callback `5/5`；`HCI-3b` 通过 `0003`/`0004`、HLI event/ACL 和 API-boundary H2C 完成外部 NUS GATT `5/5` | 旧 24-byte ATT PDU 超过默认 MTU 的误判已排除；合法 17-byte PDU 命中 ATT/Python/notify/Bumble ACK。`HCI-4` Device Service repeated lease、GDB 控制面移除、bit-exact controller 与物理 cache/PSRAM 仍开放 |
-| Device Service | `qemu-unified/profile=core2-native-vhci` 单 lease 返回 frame、QOM、pcap、bridge 和 peer evidence | 仅证明该 runtime/profile 和对应固件 SHA |
+| Core2 stock BLE（legacy） | 不重建 HCI-UART，在 GDB 中介的 `esp_vhci_host_*` 边界接 Bumble；外部 NUS GATT 5/5，同 guest board+WiFi+公网+GATT 3/3 | 仅用于诊断/兼容；repeated lease `1/2`，不是 bit-exact BT baseband/controller |
+| Core2 QEMU native-HCI | `HCI-1` 至 `HCI-4` PASS；`0003`/`0004`、HLI event/ACL 和 API-boundary H2C 在五个独立 Device Service lease 中完成外部 NUS GATT | `core2-native-hci` 无 GDB bridge，同包验证 frame/QOM/WiFi/公网/GATT/pcap；bit-exact controller、物理 cache/PSRAM 和 soak 仍开放 |
+| Device Service | `qemu-unified/profile=core2-native-hci` 五 lease PASS | 每轮均绑定同一固件/ELF/QEMU SHA 和完整 evidence ZIP |
 | 公网 | StickS3、Nesso N1 和 Core2 在对应同 guest 路径完成 IPv4 DNS/HTTP | 只证明一次可达的 IPv4 HTTP；不证明任意云服务、TLS 固定或长期稳定 |
 | 负向认证 | 错误密码要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker 同时成立 | 当前实际 AP 类型有限 |
 | AP/radio 丢失与恢复 | `radio-enabled=false` 后 scan `1→0`、恢复后 `0→1`；同一 guest 重新 DHCP 并通过 `/after` HTTP，pcap 含两次 DORA | 虚拟 WiFi 模型状态，不是物理 RF；不是 DHCP renewal |
@@ -53,7 +53,8 @@ Device Service lease
 - [controlled DNS + TLS Host allowlist](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json)
 - [Linux private namespace guest](../tests/network/linux_isolation/evidence-2026-10-23-linux.json)
 - [GitHub Actions namespace/egress PASS](../tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json)
-- [Core2 native-VHCI Device Service lease](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
+- [Core2 native-HCI Device Service five-lease evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json)
+- [Core2 legacy native-VHCI diagnostic lease](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
 - [精确 IPv4 IP/端口和 NAT 证据](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json)
 - [TLS guest under nftables policy](../tests/network/tls_allowlist/evidence-2026-10-24-ip-port-nftables-pass.json)
 - [GDMA 外部内存修复和全矩阵](../tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json)
@@ -71,9 +72,8 @@ Device Service lease
 - 任意 S3/C6 固件或任意公网服务的稳定联网；
 - 外部 IPv6、CIDR 或域名到多个 IP 的 egress policy；
 - Tab5 P4↔C6 ESP-Hosted 端到端网络；
-- Core2 重复 Device Service lease 稳定性、无 GDB 暂停/注入/return 的 VHCI
-  后端、guest NUS write/notification、bit-exact BT
-  controller/baseband、RF/coexistence/throughput/soak；
+- Core2 bit-exact BT controller/baseband、物理 cache/PSRAM、
+  RF/coexistence/throughput/long soak；
 - 基于一次网络观测判定固件安全。
 
 QEMU S3/C6 模型覆盖 guest 可见的 MAC、DMA descriptor、interrupt 和
@@ -86,7 +86,7 @@ OpenMAC 和 BT boundary 同样是功能级模型；PHY-ready 日志不等于应�
 | --- | --- | --- |
 | 9 台 ESP32-S3 | QEMU S3 WiFi MAC/DMA + board model + UART1/2 H4 BLE | Unified Device Service lease PASS |
 | NanoC6、Nesso N1 | QEMU C6 WiFi MAC/DMA + board model + UART1 H4 BLE | Unified Device Service lease PASS |
-| Core2 | OpenMAC WiFi；HCI-offload 或 stock native-VHCI BLE | `core2-unified` 和 `core2-native-vhci` PASS；VHCI 符号已固定；GDB 控制面与重复 lease 门禁开放 |
+| Core2 | OpenMAC WiFi；HCI-offload、legacy VHCI 或 canonical native-HCI | `core2-native-hci` 五 lease PASS 且无 GDB；`core2-native-vhci` 仅诊断 |
 | Tab5 | C6 ESP-Hosted transport | Transport starts; end-to-end network `NOT RUN` |
 | CardputerZero | Linux SR9900A Ethernet | Separate backend; not WiFi |
 
@@ -161,7 +161,7 @@ primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP re
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
 | N4a Linux policy CI | DONE | GitHub-hosted namespace/nft/egress fixture 保持 fail-closed 并可重复 |
 | N4b 双设备 fabric | DONE (virtual) | 两台 StickS3 的 DHCP、guest TCP、双侧 pcap、宿主隔离与清理已通过；下一步接入 worker |
-| N5 Core2 production BLE/PHY | PARTIAL | ELF 固定符号和 QEMU native-HCI `HCI-3b` 外部 NUS GATT `5/5` 已完成；下一步 `HCI-4` Device Service repeated lease 与生产 GDB 控制面移除，剩余 bit-exact controller、物理 cache/PSRAM、coexistence soak |
+| N5 Core2 production BLE/PHY | PARTIAL | `HCI-4` 五个独立 Device Service lease 已通过，且无 GDB；剩余 bit-exact controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机 |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
 虚拟 radio/AP 丢失恢复和双设备 private lab fabric 已完成，远程 worker

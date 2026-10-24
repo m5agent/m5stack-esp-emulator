@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.15.0
+  version: 1.16.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1265,7 +1265,7 @@ components:
           type: array
           items:
             type: string
-            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-unified, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
         network_console:
           type: string
           enum: [auto, uart0, usb-jtag]
@@ -1573,7 +1573,7 @@ components:
       properties:
         profile:
           type: string
-          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe]
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe]
         wifi:
           type: boolean
         ble:
@@ -1668,12 +1668,18 @@ components:
             core2-unified runs display/touch, AXP2101/INA3221, IMU/RTC,
             speaker/microphone, OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE
             in one m5core2 guest when M5_CORE2_RADIO_QEMU is configured.
+            core2-native-hci is the canonical stock-firmware path. It requires
+            network.elf_artifact_id, resolves API/HLI hook addresses from that
+            ELF, runs the QEMU esp32-native-hci device and keeps frame/QOM,
+            OpenMAC WiFi, public network, pcap and external NUS GATT in one
+            lease without a GDB bridge.
             core2-native-vhci runs the stock internal-controller build,
             requires network.elf_artifact_id, pins the ESP32 VHCI symbol
             addresses from that ELF, bridges the real VHCI boundary to
             Bumble, and keeps board/frame/QOM, OpenMAC WiFi, public network
-            and external NUS GATT in one lease. GDB still controls pause,
-            callback injection and synthetic return.
+            and external NUS GATT in one diagnostic lease. GDB controls pause,
+            callback injection and synthetic return; repeated-lease stability
+            was 1/2, so it is a compatibility/diagnostic profile only.
             nanoc6-hci-ble runs NanoC6 RGB/button/IR, QEMU ESP32-C6 WiFi
             DHCP/HTTP and UART1 HCI BLE in one ESP32-C6 guest.
             nesso-unified runs Nesso N1 display/touch, PI4IOE, power telemetry,
@@ -1768,6 +1774,11 @@ components:
         elf_artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
+          description: >
+            Matching Xtensa ELF artifact. Required by Core2
+            core2-native-hci and legacy core2-native-vhci. The ELF must come
+            from the exact firmware build; symbol names alone do not make a
+            different build compatible with the pinned hook offsets.
         expected_markers:
           type: array
           maxItems: 16

@@ -80,12 +80,15 @@ the matching Xtensa ELF with `xtensa_elf_symbols.py` and passes the three VHCI
 addresses as fixed environment values, so GDB no longer performs symbol
 lookup. It requires the classic ESP32 BB idle-readback patch.
 
-The same path is exposed through Device Service as
-`qemu-unified/profile=core2-native-vhci`; the service-side run is recorded in
+The GDB path remains available through Device Service as legacy
+`qemu-unified/profile=core2-native-vhci`; its service-side run is recorded in
 `evidence-2026-10-23-native-vhci-service.json`. GDB still pauses the guest,
 invokes firmware callbacks and supplies the synthetic send-frame return.
 Repeated-lease stability is currently `1/2`, recorded in
 `evidence-2026-10-24-native-vhci-service-stability.json`. The failed lease was
 rejected while injecting the C2H Command Complete for `LE Set Event Mask`,
 then the guest raised a debug exception and rebooted. Removal of that GDB
-control plane and a stable repeated-lease gate remain open in `CORE2-01`.
+control plane is complete in the canonical `core2-native-hci` profile, whose
+`HCI-4` evidence is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`.
+Use native-HCI for new validation; keep this lane for diagnosis only.

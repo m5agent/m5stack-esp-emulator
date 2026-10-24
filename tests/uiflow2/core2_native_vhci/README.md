@@ -6,6 +6,11 @@ This lane runs the stock Core2 UIFlow2 application image with its built-in
 controller build and intercepts the firmware's real `esp_vhci_host_*` boundary.
 It does not use the HCI-UART test build.
 
+> Status: **legacy/diagnostic**. The canonical no-GDB path is
+> `tests/uiflow2/core2_native_hci/` with Device Service profile
+> `core2-native-hci`; `HCI-4` passed five independent leases. This GDB lane
+> remains useful for root-cause comparison only.
+
 The QEMU GDB bridge:
 
 1. resolves the three bridge addresses from the matching ELF symbol table;
@@ -26,7 +31,8 @@ expression lookup is used.
 `--symbol-source gdb` remains a comparison path. It does not remove GDB from
 guest control: breakpoints, callback invocation and the synthetic
 `API_vhci_host_send_packet` return still run in the debugger. Removing that
-control plane is `CORE2-01`; the current result is debugger-mediated.
+control plane is why `core2-native-hci` is the new canonical path; this result
+remains debugger-mediated.
 
 Run:
 

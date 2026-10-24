@@ -16,22 +16,23 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | `c2h-allocator-address`、注册 callback 调用、send-available 和 QOM counters | Reset Complete 已交付 guest 的 `notify_host_recv`，callback status 为 0，guest 随后发出 Read Local Version；连续 `5/5`。这只证明窄路径 ABI，不是可扩展产品后端 |
 | `HCI-3b` HLI event | `PASS` | `0002-esp32-native-hci-hli-event.patch`、`test_hli_event.py` | guest 池分配真实 Reset Complete，经 HLI event 13 和 `ble_transport_to_hs_evt_impl` 交付；`01030c00 → 01011000` 连续 `5/5` |
 | `HCI-3b` full transaction | `PASS` | `0003-esp32-native-hci-api-transaction.patch`、`0004-xtensa-ccount-tb-yield.patch`、`run_full.py --hli-c2h` | 无 GDB 完成 scan/connect/NUS discovery/subscribe/write/notify 和 Bumble ACK；合法 loader 为 15-byte probe / 17-byte ATT PDU，连续 `5/5` |
-| `HCI-4` stability | `OPEN` | Device Service wiring | 尚无通过 `/api/v1` repeated lease 的无 GDB 完整 GATT 证据 |
+| `HCI-4` stability | `PASS` | `run_service_5x.py`、`evidence-2026-10-24-hci4-service-5x.json` | 规范 profile `core2-native-hci` 通过五个独立 `/api/v1` lease；每轮同时验证 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP，且 `gdb_bridge=false` |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
 并以 API-boundary H2C 隔离 firmware internal controller。旧 21-byte probe
 生成 24-byte ATT PDU，超过默认 MTU 23，导致 L2CAP 拒绝；改用 15-byte
-probe 后完整外部 NUS GATT 连续 `5/5`。现阶段应进入 `HCI-4`，让
-Device Service 使用同一路径并通过 repeated lease；bit-exact controller 与
-物理 cache/PSRAM 仍是独立边界。
+probe 后完整外部 NUS GATT 连续 `5/5`。`HCI-4` 随后让 Device Service
+使用同一路径并通过五轮 independent lease；bit-exact controller 与物理
+cache/PSRAM 仍是独立边界。
 
 ## 结论先行
 
-现有 `API_vhci_host_send_packet → GDB Python → Bumble` 路径可以作为调试夹具，
-但不能作为稳定产品后端。同 commit 的 Device Service repeated lease 目前
-`1/2`：失败时 C2H callback 在 H2C sender context 返回 `2559356`，随后 GDB
-进入 target-running，guest `InstrFetchProhibited` 并重启。
+现有 `API_vhci_host_send_packet → GDB Python → Bumble` 路径只保留为
+legacy/diagnostic profile，不作为稳定产品后端。同 commit 的 Device Service
+repeated lease 为 `1/2`：失败时 C2H callback 在 H2C sender context 返回
+`2559356`，随后 GDB 进入 target-running，guest
+`InstrFetchProhibited` 并重启。新调用使用 `core2-native-hci`。
 
 `CORE2-01` 应采用 QEMU 进程内的 HCI relay，并满足：
 
@@ -145,7 +146,7 @@ Bumble。Reset、完整 init 和 NUS GATT 均已在 `HCI-3b` 中通过。
 
 ### HCI-3：C2H QEMU→guest
 
-状态：`HCI-3a DIAGNOSTIC PASS / HCI-3b PASS / HCI-4 OPEN`。
+状态：`HCI-3a DIAGNOSTIC PASS / HCI-3b PASS / HCI-4 PASS`。
 
 - Bumble event/ACL 由 QEMU 主循环接收；
 - 用 `async_run_on_cpu` 或设备 IRQ 在安全点提交；
@@ -175,7 +176,7 @@ Bumble。Reset、完整 init 和 NUS GATT 均已在 `HCI-3b` 中通过。
 这仍不等于完整 BLE：探索性 Bumble 运行出现过完整初始化、广播和连接，
 但后续 ATT 请求不能稳定完成，因此不把 scan/connect/GATT 作为门禁结果。
 后续审计也证明该 callback 注入方式不适合作为正式 controller-to-host
-交付机制，不能据此进入 `HCI-4`。
+交付机制；后续门禁改用 HLI queue/IRQ，而不是扩展该回调注入路径。
 
 #### 已排除的假设
 
@@ -321,26 +322,51 @@ seam。
 - post-pass peer teardown 的 `EIO` 单独分类，不参与 transaction 门禁；
 - 连续 `5/5`。
 
-下一门禁是 `HCI-4` Device Service repeated lease，不再继续调固定 sleep、
-CPU pinning、寄存器补丁或 nested guest RPC。
+后续 `HCI-4` 已按这里的 no-GDB、HLI/API-boundary 路径通过；不再继续调
+固定 sleep、CPU pinning、寄存器补丁或 nested guest RPC。
 
 ### HCI-4：稳定性门禁
 
+状态：`PASS`。证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`。
+
 - 同一固件 SHA、ELF SHA、QEMU build 和 profile 连续至少 `5/5`；
 - 每个 lease 都通过 Device Service `/api/v1`；
-- 同时检查 board/frame/QOM/audio/WiFi/DNS/public HTTP/BLE；
-- 失败必须分类为 queue、transport、vCPU commit、guest reset 或 peer；
-- 再做长稳、coexistence 和真机同路径。
+- 每轮同时检查 320×240 frame、27 节点 QOM、WiFi DHCP/HTTP、公网
+  DNS/HTTP、外部 NUS GATT、pcap 和 evidence ZIP；
+- `gdb_bridge=false`，五个独立 lease/QEMU 进程，不使用自动 retry 掩盖失败；
+- frame SHA256 五轮一致：`5bfcdf8f...db8408b`；
+- 局限：仅 trusted-host，不是恶意固件沙箱；pcap 在 evidence ZIP 中保留，
+  live `/network` 在停止前可显示 `CAPTURING`；
+- 当前 H2C/HLI/trace hook 的指令偏移按已验证的 UIFlow2 v2.5.3 build
+  固定；`elf_artifact_id` 必须是同一固件构建产出的匹配 ELF。其他 Core2
+  build 仍为 `NOT RUN`，不能只凭“SoC 相同”复用该 profile；
+- 仍需长稳、coexistence、物理 cache/PSRAM 和真机同路径。
+
+重跑命令：
+
+```bash
+python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
+  --base-url http://127.0.0.1:8787 \
+  --image /path/to/unified-core2.bin \
+  --elf /path/to/matching/micropython.elf \
+  --qemu .work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa \
+  --attempts 5 \
+  --out-dir /tmp/m5-core2-native-hci-service-5x
+```
+
+`core2-native-vhci` 仍可显式用于历史对照，但文档和自动化不得把它描述为
+稳定生产路径。
 
 ## 剩余工作量
 
 下面是当前阶段之后的重新估算，不包含已经完成的 HCI-1、HCI-2、
-HCI-3a、HLI event/ACL 和 `HCI-3b` 完整外部 NUS GATT：
+HCI-3a、HLI event/ACL、`HCI-3b` 完整外部 NUS GATT 和 `HCI-4`
+Device Service repeated lease：
 
-- `HCI-4` Device Service repeated lease、证据接线、故障注入和短稳：
-  约 `2–4` 天；
-- 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周，
-  不能包含在 HCI-4 的估算内。
+- 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
+- 物理 cache/PSRAM 等价性、长期 coexistence/soak 和真机路径需要独立
+  计划，不能由当前五轮虚拟设备 PASS 推导。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

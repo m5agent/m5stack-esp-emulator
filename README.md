@@ -16,8 +16,9 @@ MicroPython 和其他完整 Flash 固件。
 - 12 台 QEMU-backed ESP32 + Tab5 可通过设备服务创建和烧录。
 - 13 台设备已完成登记外设的模拟数据面；Tab5 外设状态仍为 `partial`。
 - CardputerZero 使用独立 ARM64 Linux 后端，不属于 ESP32/UIFlow2 路径。
-- S3/C6 已有 11 条设备级 QEMU WiFi/BLE 验证路径；Core2 在环境门控下提供
-  第 12 条 `core2-unified` 路径；共 12 个 unified profile，规范 runtime 为
+- S3/C6 已有 11 条设备级 QEMU WiFi/BLE 验证路径；Core2 在环境门控下增加
+  第 12 条设备级路径，并细分为 `core2-unified`、`core2-native-hci` 和
+  legacy `core2-native-vhci`。当前共 14 个 unified profile，规范 runtime 为
   `qemu-unified`，`qemu-ble` 仅保留兼容。
 - 最新 UIFlow2 外设全矩阵在 `2026-10-24 06:47 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
@@ -38,6 +39,11 @@ MicroPython 和其他完整 Flash 固件。
   远程 worker 已有持久化注册目录、identity/generation 冲突检查、
   heartbeat/drain/stop 和 bounded result metadata；任务队列、worker
   supervisor、活动 QEMU 进程 re-attach 和多机调度仍未完成。
+- Core2 的 QEMU 内部 native-HCI 路径已通过 `HCI-4`：规范的
+  `runtime=qemu-unified/profile=core2-native-hci` 在五个独立
+  `/api/v1` lease 中同时通过 frame、QOM、WiFi DHCP/HTTP、公网
+  DNS/HTTP、外部 NUS GATT、pcap 和 evidence ZIP 检查，不启动 GDB bridge。
+  旧的 `core2-native-vhci` 只保留为显式诊断/兼容 profile。
 - GitHub Actions 已运行完整平台测试，并在 Ubuntu runner 上执行 fail-closed
   namespace + nftables exact IPv4 egress、拒绝端口/IP、veth/NAT、清理和
   private bridge/TAP primitive 回归。
@@ -58,7 +64,7 @@ MicroPython 和其他完整 Flash 固件。
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap、双 guest DHCP/TCP/双侧 pcap 隔离、远程 worker 注册目录 | [`two-guest-pass.json`](tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json) | 持久任务队列、worker supervisor、活动 QEMU re-attach、外部 IPv6 |
-| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、ELF 固定符号、native-HCI `HCI-1` transport PASS、`HCI-2` 无 GDB 捕获首个 `01030c00`、`HCI-3a` 诊断性单包 C2H callback `5/5`、`HCI-3b` 无 GDB HLI/API-boundary H2C 和外部 NUS GATT `5/5` | [`hli-api-gatt-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json)、[`0003-esp32-native-hci-api-transaction.patch`](patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch)、[`0004-xtensa-ccount-tb-yield.patch`](patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch) | `HCI-3b` 已闭环。旧失败来自 21-byte probe 形成 24-byte ATT PDU、超过默认 MTU 23，在 `ble_l2cap_rx` 被拒绝；改为 15-byte probe 后 ATT/GATT/notify 全链路 `5/5`。下一步是 `HCI-4` Device Service `/api/v1` 连续 `5/5`、删除 GDB 诊断桥，再做 bit-exact BT controller、物理 cache/PSRAM、coexistence/soak 和真机同路径 |
+| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、native-HCI `HCI-1` 至 `HCI-4` PASS；规范 profile `core2-native-hci` 在五个独立 Device Service lease 中完成 frame/QOM/WiFi/公网/NUS GATT/pcap | [`hci4-service-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json)、[`hli-api-gatt-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json)、[`0003-esp32-native-hci-api-transaction.patch`](patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch) | HCI/GATT 服务化门禁已闭环，且 `gdb_bridge=false`。旧失败是 21-byte probe 形成 24-byte ATT PDU、超过默认 MTU 23；15-byte probe 的 17-byte PDU 全链路 `5/5`。旧 `core2-native-vhci` 降为 GDB 诊断/兼容 profile；剩余是 bit-exact controller/baseband、物理 cache/PSRAM、coexistence/soak、真机同路径 |
 | 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、写入回滚和 staging GC、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单与 SPDX、声明级许可 allowlist/denylist | [`spiffs-inventory.json`](tests/firmware/evidence-2026-10-24-spiffs-inventory.json)、[`webburner-ui.json`](tests/firmware/evidence-2026-10-24-webburner-ui.json) | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse、跨厂商回归 |
 | 共享 QEMU 回归 | 双 guest WiFi patch `0028` 合入后，S3/C6/Core2 全矩阵 `67/67` 首轮通过；键盘测试补齐 10 秒启动 settle | [`dual-guest-fabric-matrix.json`](tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) | 后续共享控制器改动重跑受影响矩阵；真机同路径证据 |
 
@@ -71,7 +77,7 @@ MicroPython 和其他完整 Flash 固件。
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT、DHCP renewal、两台 QEMU guest 的私有 lab fabric、本地 worker lifecycle 和远程 worker 注册目录已通；持久任务队列、worker supervisor、活动 QEMU re-attach 和外部 IPv6 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、浏览器 chunk 上传与刷新恢复、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单和声明级许可 allowlist/denylist 已通；运行时权限、完整源码级许可审批与真机 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持本地 worker heartbeat/drain/resume、租约状态、重启后 abandoned-lease 分类、远程 worker 注册目录，以及停止/失败会话、事件、末帧和设备态恢复；尚无持久任务队列、worker supervisor、活动 QEMU 进程 re-attach、warm pool 和多机调度 |
-| Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload GATT、stock VHCI BLE 5/5、同 guest unified 3/3、ELF 固定地址和 Device Service 单 lease 已通；native-HCI `HCI-3a` 完成诊断性 callback，HLI/API-boundary 路径用合法 17-byte ATT PDU 完成外部 NUS GATT，连续 `5/5`。QEMU 实现已整理为 `0003`/`0004` patch。下一步是 `HCI-4` Device Service repeated lease、删除 GDB 诊断桥、bit-exact controller 与物理等价性 |
+| Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload、stock VHCI、QEMU native-HCI 均已有通过证据；`core2-native-hci` 在五个独立 Device Service lease 中合并 frame/QOM/WiFi/公网/NUS GATT/pcap，且不使用 GDB bridge | bit-exact Espressif BT controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机同路径 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 关键索引：
@@ -171,7 +177,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；stock UIFlow2 native-VHCI BLE 独立 5/5、同 guest unified 3/3，VHCI 地址已从 ELF 固定，并已通过 Device Service `qemu-unified/profile=core2-native-vhci` 单 lease。GDB 仍负责 guest 暂停、callback 注入和 synthetic return；重复 lease 稳定生产实现、bit-exact controller 和物理 cache/PSRAM 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 在五个独立 lease 中通过 frame/QOM/WiFi/公网/NUS GATT/pcap，且不使用 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；bit-exact controller、coexistence/soak 和物理 cache/PSRAM 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -284,21 +290,14 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `egress=allowlist` 的精确网络策略当前覆盖 IPv4；外部 IPv6、CIDR 和域名
   不会被当成隐式放行。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
-  internal-controller VHCI→Bumble 路径，独立 BLE 外部 NUS GATT 5/5，
-  同一 guest 的 board+WiFi+公网+native-VHCI BLE 3/3，并已进入 Device Service
-  单 lease。VHCI 符号地址已由匹配 ELF 固定，不再由 GDB 查询；GDB 仍用于
-  guest 暂停、callback 注入和 synthetic return，因此它仍是诊断桥，不是
-  bit-exact ESP32 BT baseband/controller 模型。QEMU 内部替代路径已完成
-  `HCI-1` transport、`HCI-2` 首个 H2C Reset 捕获和 `HCI-3a` 诊断性单包
-  C2H callback；`HCI-3b` 的 HLI event 路径已使用 guest 池化 buffer 投递
-  真实 Reset Complete，经 event 13 和 `ble_transport_to_hs_evt_impl`
-  连续 5/5 推进到 Read Local Version。API-boundary 诊断又通过 HLI 投递
-  event 和 ACL，完成 NUS discovery/subscription、外部 NUS write、Python
-  GATT write handler 和 notification ACK，连续 `5/5` PASS。旧失败已确认是
-  21-byte probe 加 3-byte ATT header 后超过默认 MTU 23；改为 15-byte probe
-  后 ATT PDU 为 17 bytes，`ble_l2cap_rx` 不再拒绝。该路径已固化为
-  `0003` native-HCI transaction patch 和 `0004` Xtensa CCOUNT TB-yield
-  patch；Device Service `HCI-4` repeated lease 仍未完成。
+  internal-controller 路径。规范主路径是 QEMU
+  `runtime=qemu-unified/profile=core2-native-hci`：`HCI-4` 使用五个独立
+  `/api/v1` lease 通过 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和
+  evidence ZIP，且 `gdb_bridge=false`。旧的 `core2-native-vhci` 仍依赖
+  GDB 暂停、callback 注入和 synthetic return，只保留为显式诊断/兼容路径，
+  不再作为新调用首选。该结果仍不是 bit-exact ESP32 BT
+  baseband/controller、RF 或真机验证。当前 hook 偏移绑定已验证的
+  UIFlow2 v2.5.3 build；换 Core2 固件必须重新验证同一路径。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

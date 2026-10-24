@@ -213,24 +213,31 @@ diagnostics in `internal/records/`.
   hand HCI to Bumble and passed external NUS GATT 5/5 without rebuilding for
   UART HCI. The extended `unified_core2` runner also combines board, frame,
   touch, audio, QOM, WiFi/public network and native-VHCI BLE in one guest,
-  3/3. Device Service `core2-native-vhci` now exposes the same path in one
-  `/api/v1` lease with frame/QOM/pcap/peer/bridge evidence. This is
-  stock-firmware controller-boundary evidence, not a bit-exact Espressif BT
-  baseband/controller model. The GDB backend and physical cache/PSRAM
-  equivalence remain open.
-- The QEMU native-HCI replacement is staged: `HCI-1` host transport,
+  3/3. The canonical `core2-native-hci` profile now combines
+  frame/QOM/WiFi/public-network/GATT/pcap/evidence in five independent
+  `/api/v1` leases with no GDB bridge. Legacy `core2-native-vhci` remains as
+  a diagnostic/compatibility path because its repeated-lease result was
+  `1/2`. This is stock-firmware controller-boundary evidence, not a bit-exact
+  Espressif BT baseband/controller model. Physical cache/PSRAM equivalence
+  remains open.
+- The QEMU native-HCI replacement has passed its staged gates: `HCI-1` host transport,
   `HCI-2` H2C, `HCI-3a` diagnostic callback and `HCI-3b` full external NUS
-  GATT pass. `0003-esp32-native-hci-api-transaction.patch` owns H2C at the
-  firmware API boundary, delivers event/ACL data through the real HLI
-  `g_rw_schd_queue`/meta queue and interrupts the guest controller task.
+  GATT pass. `HCI-4` also passes five independent Device Service `/api/v1`
+  leases with the canonical `core2-native-hci` profile: frame, QOM, WiFi
+  DHCP/HTTP, public DNS/HTTP, external NUS GATT, pcap and evidence bundle all
+  pass without a GDB bridge. `0003-esp32-native-hci-api-transaction.patch`
+  owns H2C at the firmware API boundary, delivers event/ACL data through the
+  real HLI `g_rw_schd_queue`/meta queue and interrupts the guest controller
+  task.
   `0004-xtensa-ccount-tb-yield.patch` preserves deterministic CCOUNT polling.
   With a 15-byte probe (17-byte ATT PDU), discovery, subscription, write,
   Python GATT handler, notification and Bumble ACK pass in 5/5 independent
   runs. The earlier 21-byte probe failed because its 24-byte ATT PDU exceeded
-  the guest default MTU of 23; it was not a controller ACK defect. No-GDB
-  repeated Device Service leases (`HCI-4`), production GDB-control removal,
-  bit-exact controller/baseband and physical cache/PSRAM equivalence remain
-  open. Do not describe this virtual HCI boundary as RF or a finished
+  the guest default MTU of 23; it was not a controller ACK defect.
+  `core2-native-vhci` remains a compatibility/diagnostic profile because its
+  GDB bridge is not a stable production backend. Bit-exact
+  controller/baseband, coexistence/soak and physical cache/PSRAM equivalence
+  remain open. Do not describe this virtual HCI boundary as RF or a finished
   bit-exact controller.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
@@ -263,8 +270,8 @@ The main open streams are:
 
 - remote worker supervision/scheduling, persistent queues, active QEMU
   re-attach and external IPv6 endpoint enforcement;
-- production Core2 VHCI backend, bit-exact BT controller and physical
-  cache/PSRAM equivalence, coexistence and soak;
+- Core2 bit-exact BT controller/baseband and physical cache/PSRAM
+  equivalence, coexistence and soak;
 - runtime permissions/license policy, production security-key flows and
   broader cross-firmware compatibility;
 - warm pools, multi-host scheduling and hardened untrusted-firmware isolation;

@@ -71,14 +71,14 @@ complete simulated device or as a unified-device PASS.
 - A separate stock UIFlow2 Core2 runner leaves the built-in controller build
   unchanged and intercepts the firmware's real `esp_vhci_host_*` boundary.
   H2C/C2H are bridged to Bumble, and an external peer completes NUS discovery,
-  subscription, write, guest receive and notify ACK 5/5. This is validated
-  controller-boundary behavior, not a bit-exact Espressif BT baseband model.
+  subscription, write, guest receive and notify ACK 5/5. The GDB-mediated
+  path is retained only as a diagnostic/compatibility profile.
 - The same stock VHCI transport is now selectable in
   `tests/uiflow2/unified_core2/run_test.py --ble-transport native-vhci`.
   Display/touch, audio, QOM, WiFi/DHCP, public DNS/HTTP and the external NUS
   GATT exchange share one QEMU guest and passed 3/3. Device Service exposes
-  the same path as `qemu-unified/profile=core2-native-vhci` with a matching
-  `elf_artifact_id`.
+  the same path as legacy `qemu-unified/profile=core2-native-vhci` with a
+  matching `elf_artifact_id`.
 - NanoC6 combines real UIFlow2 RGB/button/IR paths, QEMU ESP32-C6 WiFi
   scan/association/DHCP/HTTP and UART1 HCI BLE in one C6 guest.
 - Nesso N1 combines its display/touch and peripheral set with QEMU ESP32-C6
@@ -102,20 +102,22 @@ complete simulated device or as a unified-device PASS.
   completes scan, association, DHCP and controlled HTTP in the same guest.
   A following BT bootstrap exposes the 64 KiB BT RAM/control page and lets
   stock UIFlow2 activate NimBLE and enable advertising.
-- Device Service `profile=core2-native-vhci` now exposes the stock
-  internal-controller path through one `/api/v1` lease. A real lease passed
-  board/display/touch, QOM, audio, WiFi/DHCP, controlled HTTP, public DNS/HTTP
-  and external NUS GATT, and retained frame, pcap, bridge and peer evidence.
-  The service resolves fixed VHCI call addresses from the matching ELF and
-  records them in a session event.
+- Device Service `profile=core2-native-hci` is now the canonical stock
+  internal-controller path. `HCI-4` passed five independent `/api/v1`
+  leases, each combining a 320x240 frame, 27-node QOM snapshot, WiFi
+  DHCP/HTTP, public DNS/HTTP, external NUS GATT, pcap and a session-bound
+  evidence ZIP. The profile resolves QEMU hook and HLI addresses from the
+  matching ELF and does not start a GDB bridge.
+  Legacy `profile=core2-native-vhci` still resolves fixed VHCI call addresses
+  from the ELF, but GDB pauses the guest, injects callbacks and supplies the
+  synthetic return. Its repeated-lease result was `1/2`, so it remains an
+  explicit diagnostic/compatibility path only.
   A separate HCI-offload build also routes NimBLE's H4 traffic through QEMU
   UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
-  GDB no longer resolves symbols, but still pauses the guest, invokes firmware
-  callbacks and supplies the synthetic send-frame return. The remaining native
-  boundary is removing that GDB control plane, proving repeated-lease
-  stability, and executing a bit-exact classic ESP32 controller/baseband, not
-  UIFlow2's Python BLE API or Device Service integration.
-- The replacement QEMU native-HCI path is staged independently:
+  The remaining boundary is a bit-exact classic ESP32 controller/baseband,
+  physical cache/PSRAM equivalence, coexistence/soak and physical hardware,
+  not UIFlow2 API or Device Service integration.
+- The replacement QEMU native-HCI path has passed the staged gates:
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
   `01030c00` without GDB, and `HCI-3a` is a diagnostic single-packet check
   that invokes the registered receive callback with status 0, emits
@@ -127,9 +129,9 @@ complete simulated device or as a unified-device PASS.
   timeout was a probe-size error: 21 payload bytes produced a 24-byte ATT PDU
   over the default 23-byte MTU. A 15-byte probe yields a 17-byte ATT PDU and
   reaches L2CAP, ATT, the Python GATT write handler, notify and the Bumble ACK.
-  `HCI-3b` is closed in the standalone runner. `HCI-4` repeated Device Service
-  leases and removal of the production GDB control plane remain open, so the
-  unified acceptance status above is unchanged.
+  `HCI-3b` is closed in the standalone runner. `HCI-4` repeated Device
+  Service leases now pass on `core2-native-hci` with `gdb_bridge=false`.
+  The legacy GDB profile remains available for diagnosis only.
 
 ## Integration rule
 
@@ -157,9 +159,10 @@ finished chip model.
   Current optional patches cover WiFi user-net and BLE advertising control.
   The stock VHCI bridge now closes external advertising/connection/GATT at the
   controller API boundary in both BLE-only and same-guest unified runners,
-  while HCI-UART offload remains a separate test build. VHCI symbols come from
-  the matching ELF, but debugger-mediated pause/injection/return remains;
-  neither path executes the bit-exact Espressif BT baseband/controller.
+  while HCI-UART offload remains a separate test build. The canonical
+  `core2-native-hci` profile uses ELF-derived API/HLI hooks without a
+  debugger. None of these paths executes the bit-exact Espressif BT
+  baseband/controller.
 
 ## Acceptance milestone
 
@@ -171,8 +174,8 @@ WiFi SSID, obtains DHCP, completes a controlled HTTP request, and completes
 BLE GATT discovery/write. Each session exposes all checks through one
 `/api/v1` lease and retains a combined evidence bundle.
 
-Status: **PASS for the eleven S3/C6 slices; PARTIAL for Core2** through
-`runtime=qemu-unified` (legacy `qemu-ble` remains accepted). The eleven
+Status: **PASS for the eleven S3/C6 slices and Core2 `core2-native-hci`**
+through `runtime=qemu-unified` (legacy `qemu-ble` remains accepted). The eleven
 S3/C6 unified profiles retain Device Service evidence ZIPs containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
 manifest hashes. QEMU radio leases also retain a pcap and a payload-hash-only
@@ -180,15 +183,12 @@ summary. S3/C6 probes use one open fixed-channel virtual AP; Core2
 OpenMAC advertises its open test-AP set and associates with `myssid`.
 WPA2/WPA3 security behavior is not modelled. Device Service BLE remains
 host-controller HCI data over an HCI-UART test build. The separate stock Core2
-VHCI runners reach external GATT without that firmware rebuild, including a
-same-guest board+WiFi+public-network variant, but use a GDB-to-Bumble
-controller bridge rather than a bit-exact ESP32 controller. Their VHCI
-addresses are pinned from ELF; debugger-mediated pause, callback injection and
-synthetic return remain. That bridge is available as
-`qemu-unified/profile=core2-native-vhci`, but repeated-lease stability is only
-`1/2` at the latest check. Core2 therefore does not meet the stable
-unified-device acceptance gate until replacing the debug control backend and
-passing repeated leases.
+path reaches external GATT without that firmware rebuild. Its canonical
+`core2-native-hci` service profile uses an in-process QEMU device, firmware
+HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
+independent leases. The legacy `core2-native-vhci` profile uses a GDB bridge
+and is diagnostic only. Core2 still misses bit-exact controller/baseband,
+physical cache/PSRAM equivalence, coexistence/soak and hardware validation.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
 stable access to arbitrary internet services. Core2 now includes public DNS

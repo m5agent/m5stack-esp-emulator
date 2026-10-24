@@ -11,10 +11,12 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
 from xtensa_elf_symbols import (  # noqa: E402
+    CORE2_NATIVE_HCI_SYMBOLS,
     ELF_HEADER,
     SECTION_HEADER,
     SYMBOL_ENTRY,
     ElfSymbolError,
+    core2_native_hci_device_args,
     parse_elf32_symbols,
     resolve_symbols,
 )
@@ -136,12 +138,22 @@ def corrupt_section_field(
 
 class XtensaElfSymbolTests(unittest.TestCase):
     def test_resolves_global_function_and_object_addresses(self):
-        image = build_elf(
-            [
-                ("API_vhci_host_send_packet", 0x403064D8, 0x40, 0x12, 1),
-                ("vhci_env_p", 0x3FFCC0A4, 4, 0x11, 1),
-            ]
+        symbol_rows = [
+            ("API_vhci_host_send_packet", 0x403064D8, 0x40, 0x12, 1),
+            ("vhci_env_p", 0x3FFCC0A4, 4, 0x11, 1),
+        ]
+        symbol_rows.extend(
+            (
+                name,
+                0x40010000 + index * 0x20,
+                0x100,
+                0x12,
+                1,
+            )
+            for index, name in enumerate(CORE2_NATIVE_HCI_SYMBOLS)
+            if name not in {"vhci_env_p"}
         )
+        image = build_elf(symbol_rows)
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "firmware.elf"
             path.write_bytes(image)
@@ -149,10 +161,14 @@ class XtensaElfSymbolTests(unittest.TestCase):
                 path,
                 ["API_vhci_host_send_packet", "vhci_env_p"],
             )
+            device_args = core2_native_hci_device_args(path)
         self.assertEqual(symbols["API_vhci_host_send_packet"].value, 0x403064D8)
         self.assertEqual(symbols["API_vhci_host_send_packet"].type, "function")
         self.assertEqual(symbols["vhci_env_p"].value, 0x3FFCC0A4)
         self.assertEqual(symbols["vhci_env_p"].type, "object")
+        self.assertTrue(device_args.startswith("esp32-native-hci,"))
+        self.assertIn("hli-c2h=on", device_args)
+        self.assertIn("trace-l2cap-rx-pc=", device_args)
 
     def test_rejects_missing_and_ambiguous_symbols(self):
         with tempfile.TemporaryDirectory() as tmp:

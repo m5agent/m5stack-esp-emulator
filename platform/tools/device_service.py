@@ -91,6 +91,7 @@ from worker_directory import (  # noqa: E402
 from worker_registry import WorkerRegistry, WorkerRegistryError  # noqa: E402
 from xtensa_elf_symbols import (  # noqa: E402
     ElfSymbolError,
+    core2_native_hci_device_args,
     core2_native_vhci_addresses,
 )
 
@@ -151,6 +152,7 @@ CORE2_BLE_PROFILE = "core2-ble-advertise"
 CORE2_HCI_GATT_PROFILE = "core2-hci-gatt"
 CORE2_UNIFIED_PROFILE = "core2-unified"
 CORE2_NATIVE_VHCI_PROFILE = "core2-native-vhci"
+CORE2_NATIVE_HCI_PROFILE = "core2-native-hci"
 NANOC6_HCI_BLE_PROFILE = "nanoc6-hci-ble"
 NESSO_UNIFIED_PROFILE = "nesso-unified"
 STICKS3_WIFI_PROFILE = "uiflow2-sticks3-wifi"
@@ -177,6 +179,7 @@ UNIFIED_PROFILES = {
     STAMPLC_UNIFIED_PROFILE,
     CORE2_UNIFIED_PROFILE,
     CORE2_NATIVE_VHCI_PROFILE,
+    CORE2_NATIVE_HCI_PROFILE,
 }
 UNIFIED_HTTP_PORTS = {
     STICKS3_WIFI_PROFILE: 18080,
@@ -193,6 +196,7 @@ UNIFIED_HTTP_PORTS = {
     STAMPLC_UNIFIED_PROFILE: 18088,
     CORE2_UNIFIED_PROFILE: 18089,
     CORE2_NATIVE_VHCI_PROFILE: 18089,
+    CORE2_NATIVE_HCI_PROFILE: 18089,
 }
 QEMU_WIFI_RUNTIME = "qemu-wifi"
 QEMU_BLE_RUNTIME = "qemu-ble"
@@ -326,6 +330,7 @@ UNIFIED_MARKERS = {
     STAMPLC_UNIFIED_PROFILE: STAMPLC_UNIFIED_MARKERS,
     CORE2_UNIFIED_PROFILE: CORE2_UNIFIED_MARKERS,
     CORE2_NATIVE_VHCI_PROFILE: CORE2_UNIFIED_MARKERS,
+    CORE2_NATIVE_HCI_PROFILE: CORE2_UNIFIED_MARKERS,
 }
 UNIFIED_READY_MARKERS = {
     NANOC6_HCI_BLE_PROFILE: "NANOC6_HCI_READY",
@@ -341,6 +346,7 @@ UNIFIED_READY_MARKERS = {
     STAMPLC_UNIFIED_PROFILE: "UNIFIED_STAMPLC_READY",
     CORE2_UNIFIED_PROFILE: "UNIFIED_CORE2_READY",
     CORE2_NATIVE_VHCI_PROFILE: "UNIFIED_CORE2_READY",
+    CORE2_NATIVE_HCI_PROFILE: "UNIFIED_CORE2_READY",
 }
 UNIFIED_HTTP_BODIES = {
     STICKS3_WIFI_PROFILE: b"STICKS3_WIFI_OK\n",
@@ -357,6 +363,7 @@ UNIFIED_HTTP_BODIES = {
     STAMPLC_UNIFIED_PROFILE: b"UNIFIED_STAMPLC_OK\n",
     CORE2_UNIFIED_PROFILE: b"UNIFIED_CORE2_OK\n",
     CORE2_NATIVE_VHCI_PROFILE: b"UNIFIED_CORE2_OK\n",
+    CORE2_NATIVE_HCI_PROFILE: b"UNIFIED_CORE2_OK\n",
 }
 UNIFIED_BLE_IDENTITIES = {
     "nanoc6": NANOC6_BLE_IDENTITY,
@@ -1027,6 +1034,7 @@ def parse_qemu_ble_execution(
             CORE2_HCI_GATT_PROFILE,
             CORE2_UNIFIED_PROFILE,
             CORE2_NATIVE_VHCI_PROFILE,
+            CORE2_NATIVE_HCI_PROFILE,
         }
         default_profile = CORE2_BLE_PROFILE
     elif spec.id == "sticks3":
@@ -1118,13 +1126,17 @@ def parse_qemu_ble_execution(
             "network.elf_artifact_id is invalid",
             400,
         )
-    if profile == CORE2_NATIVE_VHCI_PROFILE:
+    if profile in {
+        CORE2_NATIVE_VHCI_PROFILE,
+        CORE2_NATIVE_HCI_PROFILE,
+    }:
         if not elf_artifact_id:
             raise ServiceError(
                 "elf_required",
                 f"{profile} requires network.elf_artifact_id",
                 400,
             )
+    if profile == CORE2_NATIVE_VHCI_PROFILE:
         native_vhci_gdb_path()
     attempts = value.get("attempts", 5)
     if not isinstance(attempts, int) or not 1 <= attempts <= 10:
@@ -1146,12 +1158,15 @@ def parse_qemu_ble_execution(
     if spec.id == "core2":
         core2_radio_qemu_path()
     if (
-        profile == CORE2_NATIVE_VHCI_PROFILE
+        profile in {
+            CORE2_NATIVE_VHCI_PROFILE,
+            CORE2_NATIVE_HCI_PROFILE,
+        }
         and policy.isolation == "namespace"
     ):
         raise ServiceError(
             "native_bt_isolation_unavailable",
-            "native Core2 VHCI currently requires trusted-host isolation",
+            "native Core2 BLE currently requires trusted-host isolation",
             409,
         )
     return {
@@ -1173,6 +1188,7 @@ def parse_qemu_ble_execution(
             if profile in {
                 CORE2_UNIFIED_PROFILE,
                 CORE2_NATIVE_VHCI_PROFILE,
+                CORE2_NATIVE_HCI_PROFILE,
             }
             else "M5-CORE2-HCI"
             if spec.id == "core2"
@@ -1396,6 +1412,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             ):
                 core2_radio_qemu_path()
                 network_profiles = [
+                    CORE2_NATIVE_HCI_PROFILE,
                     CORE2_NATIVE_VHCI_PROFILE,
                     CORE2_UNIFIED_PROFILE,
                     CORE2_WIFI_PROFILE,
@@ -3056,7 +3073,9 @@ class DeviceSession:
                     "guest_process_count": 1,
                     "wifi_nic": self.network_config.get("nic"),
                     "hci_transport": (
-                        "ESP32 VHCI via GDB bridge to Bumble"
+                        "ESP32 native HCI device + HLI to Bumble"
+                        if profile == CORE2_NATIVE_HCI_PROFILE
+                        else "ESP32 VHCI via GDB bridge to Bumble"
                         if profile == CORE2_NATIVE_VHCI_PROFILE
                         else "UART2 H4"
                         if profile == STACKCHAN_UNIFIED_PROFILE
@@ -3093,7 +3112,10 @@ class DeviceSession:
                     "real-hardware behavior",
                     (
                         "bit-exact Espressif BT baseband/controller"
-                        if profile == CORE2_NATIVE_VHCI_PROFILE
+                        if profile in {
+                            CORE2_NATIVE_VHCI_PROFILE,
+                            CORE2_NATIVE_HCI_PROFILE,
+                        }
                         else "native ESP32 WiFi PHY or Bluetooth controller model"
                         if self.spec.id == "core2"
                         else "native ESP32-S3 WiFi PHY or Bluetooth controller model"
@@ -3465,7 +3487,10 @@ class DeviceSession:
                 ],
             )
         )
-        if c6_hci or profile == CORE2_NATIVE_VHCI_PROFILE:
+        if c6_hci or profile in {
+            CORE2_NATIVE_VHCI_PROFILE,
+            CORE2_NATIVE_HCI_PROFILE,
+        }:
             env["BLE_HCI_TRACE"] = "1"
         command = [
             sys.executable,
@@ -3876,6 +3901,8 @@ class DeviceSession:
         )
         profile = self.network_config.get("profile")
         native_vhci = profile == CORE2_NATIVE_VHCI_PROFILE
+        native_hci = profile == CORE2_NATIVE_HCI_PROFILE
+        native_bt = native_vhci or native_hci
         policy = NetworkPolicy.from_mapping(
             self.network_config.get("policy")
         )
@@ -3904,6 +3931,7 @@ class DeviceSession:
         elif profile in {
             CORE2_UNIFIED_PROFILE,
             CORE2_NATIVE_VHCI_PROFILE,
+            CORE2_NATIVE_HCI_PROFILE,
         }:
             self._prepare_core2_peripheral_inputs()
         if native_vhci:
@@ -3947,9 +3975,39 @@ class DeviceSession:
                     f"file:{self.serial0}",
                 ]
             )
+        elif native_hci:
+            assert self.hci_port is not None
+            elf_artifact_id = self.network_config.get("elf_artifact_id")
+            if not elf_artifact_id:
+                raise RuntimeError("native HCI ELF artifact is missing")
+            try:
+                native_hci_device = core2_native_hci_device_args(
+                    self.service.artifacts.path(str(elf_artifact_id))
+                )
+            except ElfSymbolError as error:
+                raise ServiceError(
+                    "native_bt_elf_invalid",
+                    f"native HCI ELF symbols are unavailable: {error}",
+                    409,
+                ) from error
+            command.extend(
+                [
+                    "-serial",
+                    f"file:{self.serial0}",
+                    "-serial",
+                    f"file:{self.serial1}",
+                    "-chardev",
+                    (
+                        "socket,id=hci,host=127.0.0.1,"
+                        f"port={self.hci_port},server=off,nodelay=on"
+                    ),
+                    "-device",
+                    native_hci_device,
+                ]
+            )
         else:
             command.extend(["-serial", f"file:{self.serial0}"])
-            if hci_gatt and not native_vhci:
+            if hci_gatt and not native_bt:
                 assert self.hci_port is not None
                 if profile == STACKCHAN_UNIFIED_PROFILE:
                     command.extend(["-serial", f"file:{self.serial1}"])
@@ -4002,11 +4060,11 @@ class DeviceSession:
                     f"driver={self.spec.efuse_driver},property=drive,value=efuse",
                 ]
             )
-        if self.spec.memory is not None or native_vhci:
+        if self.spec.memory is not None or native_bt:
             command.extend(
                 [
                     "-m",
-                    "0" if native_vhci else str(self.spec.memory),
+                    "0" if native_bt else str(self.spec.memory),
                 ]
             )
         env = os.environ.copy()
@@ -4015,6 +4073,8 @@ class DeviceSession:
         if unified:
             env["M5SW_I2S_DMA_IRQ"] = "1"
             env["M5SW_I2S_PCM_FILE"] = str(self.speaker_pcm)
+        if native_hci:
+            env["M5_NATIVE_HCI_TRACE"] = "1"
         if profile == STACKCHAN_UNIFIED_PROFILE:
             env["M5SW_I2S_RX_PCM_FILE"] = str(self.microphone_source_pcm)
             env["M5SW_RMT_RX_FILE"] = str(self.rmt_source)
@@ -4026,6 +4086,7 @@ class DeviceSession:
         if profile in {
             CORE2_UNIFIED_PROFILE,
             CORE2_NATIVE_VHCI_PROFILE,
+            CORE2_NATIVE_HCI_PROFILE,
         }:
             env["M5SW_I2S_RX_PCM_FILE"] = str(self.microphone_source_pcm)
         if profile == NANOC6_HCI_BLE_PROFILE:
@@ -4159,6 +4220,7 @@ class DeviceSession:
         elif profile in {
             CORE2_UNIFIED_PROFILE,
             CORE2_NATIVE_VHCI_PROFILE,
+            CORE2_NATIVE_HCI_PROFILE,
         }:
             self._apply_profile_qom(
                 "UNIFIED_CORE2_IO_CONFIG_READY",
@@ -5036,7 +5098,12 @@ class DeviceSession:
                 "sha256": hashlib.sha256(pcm).hexdigest(),
             }
         profile = self.network_config.get("profile")
-        if profile in {STACKCHAN_UNIFIED_PROFILE, CORE2_UNIFIED_PROFILE}:
+        if profile in {
+            STACKCHAN_UNIFIED_PROFILE,
+            CORE2_UNIFIED_PROFILE,
+            CORE2_NATIVE_VHCI_PROFILE,
+            CORE2_NATIVE_HCI_PROFILE,
+        }:
             data_entries = [
                 ("audio/microphone-source.pcm", self.microphone_source_pcm),
             ]

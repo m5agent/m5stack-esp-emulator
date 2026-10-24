@@ -22,28 +22,25 @@
 | 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
 | P0 | 网络产品化 | 持久任务队列、worker supervisor、调度和活动 QEMU re-attach | Linux worker；远程注册目录；证据回传 |
-| P0 | Core2 native HCI | 无 GDB 完成完整 HCI/GATT，并连续 `5/5` | classic ESP32 VHCI queue/IRQ 语义或 in-process controller |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
+| P1 | Core2 物理/controller 等价性 | bit-exact BT controller、cache/PSRAM、coexistence/soak | 公开 controller 语义；物理或权威模型证据 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
 
 ## 当前执行顺序
 
-1. `CORE2-01`：`HCI-3b` 已用 `0003`/`0004` patch 和合法 17-byte ATT PDU
-   连续 `5/5` 完成外部 NUS GATT；下一项只做 `HCI-4`，把同一路径接入
-   Device Service 并从生产调用中移除 GDB 诊断桥。
-2. `NET-04` / `SVC-01`：在本地 worker lifecycle 和远程注册目录基础上完成
+1. `NET-04` / `SVC-01`：在本地 worker lifecycle 和远程注册目录基础上完成
    持久队列、worker supervisor、调度和活动实例 re-attach；`NET-05` 独立
    推进 IPv6。
-3. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后 `FW-03`
+2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后 `FW-03`
    扩跨厂商样本，
    `FW-02` 做生产 key/eFuse 与真机安全配置。
-4. `CORE2-02`、`HW-01`：controller/baseband 物理边界和同路径真机证据。
-5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
+3. `CORE2-02`、`HW-01`：controller/baseband 物理边界和同路径真机证据。
+4. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
    视觉工作，不与当前 P0 混算完成。
 
 ## 可执行任务板
@@ -52,7 +49,6 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 持久任务队列、worker supervisor、调度和活动 QEMU re-attach | worker 失联/重启可收敛；namespace 失败 fail-closed；evidence 可回传 |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
-| `CORE2-01` | 进行中 | `HCI-4` Device Service repeated lease 与 GDB 控制面移除 | 同一 stock 固件无 GDB 完成 NUS GATT，Device Service `5/5` |
 | `CORE2-02` | 待做 | bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和 soak | 物理边界可证；真机/RF 结论不冒充 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -104,51 +100,23 @@ veth/route、NAT 和清理尚未实现；IPv6 请求必须继续拒绝，不能�
 验收：允许与拒绝端点可重复；policy、guest 访问、pcap 和 cleanup 在同一次
 evidence 中成立。
 
-## P0：Core2 native HCI
+## P1：Core2 物理与 controller 边界
 
 设计见 [Core2 native HCI backend](core2-native-hci-backend.md)。
-
-### CORE2-01 `HCI-4`
-
-当前缺口：
-
-- `HCI-3b` 独立 runner 已使用 `0003` API-boundary H2C 和 `0004`
-  CCOUNT TB-yield patch，经 HLI event/ACL 完成外部 NUS GATT `5/5`。
-  旧失败已确认来自 21-byte probe 形成 24-byte ATT PDU、超过默认 MTU 23；
-  这不是 controller 或 guest handler 缺陷。
-- Device Service 的生产 `core2-native-vhci` profile 仍使用 GDB 暂停、
-  callback 注入和 synthetic return；同 commit repeated lease 只有 `1/2`。
-- QEMU native-HCI 路径尚未进入 `/api/v1` 的完整 lease 生命周期、证据包、
-  停止/失败分类和 repeated 门禁。
-- 单次 runner 中的 peer teardown 会产生 post-pass H2C `EIO`；它不影响已
-  完成的事务，但 Device Service 必须区分事务内错误与 session 关闭噪声。
-
-下一项最小交付：
-
-1. 将 `0003`/`0004` 和对应 QEMU build fingerprint 纳入 Device Service
-   native-HCI profile，不再调用 GDB bridge。
-2. 用同一个 `/api/v1` lease 同时采集 frame、QOM、WiFi/DNS/HTTP、HLI、
-   Bumble peer、pcap 和 final evidence。
-3. 连续 `5/5`；失败必须区分 transaction error 与 BLE peer 断开后的
-   teardown error，禁止 retry 后只保留成功次数。
-4. 通过门禁后删除 `HCI-4` 的生产 GDB callback injection/synthetic return，
-   保留显式诊断模式。
-
-验收：
-
-- 同一 stock 固件 SHA、ELF SHA、QEMU build 和 profile；
-- 无 GDB callback injection 或 synthetic return；
-- Device Service `/api/v1` 连续 `5/5` 完成外部 NUS GATT；
-- frame、QOM、WiFi/公网、pcap 和 peer evidence 不回退。
 
 ### CORE2-02 物理与 controller 边界
 
 仍未完成：
 
+- 5 次服务 lease 之外的长稳、吞吐、重连和 coexistence；
+- 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
+  其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
 - bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；
 - 物理 cache/PSRAM 时序对比；
-- coexistence、throughput 和 long soak；
 - 同固件路径真机验证。
+
+新调用必须使用 `core2-native-hci`。`core2-native-vhci` 依赖 GDB，只允许
+作为显式诊断/兼容路径，不能用来证明稳定生产能力。
 
 ## P0：通用固件审查
 

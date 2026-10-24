@@ -42,8 +42,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_vhci/run_test.py \
 
 该 runner 不重建 HCI-UART 固件，而是在 QEMU GDB 中拦截固件自己的
 `esp_vhci_host_*` H2C/C2H，接 Bumble controller/peer。当前 milestone 为
-外部 NUS GATT 5/5 PASS；bit-exact Espressif BT baseband/controller 仍
-`NOT RUN`。
+外部 NUS GATT 5/5 PASS；该 GDB 路线只用于 legacy/diagnostic 对照。
+bit-exact Espressif BT baseband/controller 仍 `NOT RUN`。
 
 同一 guest 的 board/WiFi/公网与 native-VHCI BLE：
 
@@ -59,20 +59,35 @@ PYTHONPATH=.work/py python3 tests/uiflow2/unified_core2/run_test.py \
 同一路径已进入 Device Service：
 `runtime=qemu-unified`、`profile=core2-native-vhci`，真实 `/api/v1` lease
 同时返回 board/frame/QOM/audio/WiFi/公网/BLE，并保留 pcap、bridge 和 peer
-evidence；当前仍依赖服务托管的 GDB bridge。
+evidence；该 profile 仍依赖服务托管的 GDB bridge，只用于诊断/兼容。
 
 Device Service 的 GDB 诊断桥 repeated lease 目前为 `1/2`，失败在 C2H
-callback 注入，因此单 lease PASS 不等于稳定后端。QEMU 内部替代路线当前
-的边界是：
+callback 注入，因此单 lease PASS 不等于稳定后端。规范主路径改为
+`core2-native-hci`：
 
 | 阶段 | 状态 | 验证入口 |
 | --- | --- | --- |
 | `HCI-1` host transport | `PASS` | `core2_native_hci/test_transport.py` |
 | `HCI-2` guest H2C | `PASS` | `core2_native_hci/test_guest_h2c.py` 捕获首个 Reset；完整命令流由 `HCI-3b` 验证 |
-| `HCI-3a` guest C2H callback | `PASS` | `core2_native_hci/test_guest_h2c.py --enable-c2h`，targeted `5/5` |
+| `HCI-3a` guest C2H callback | `DIAGNOSTIC PASS` | `core2_native_hci/test_guest_h2c.py --enable-c2h`，targeted `5/5`；不是产品 C2H 后端 |
 | `HCI-3b` HLI event | `PASS` | `core2_native_hci/test_hli_event.py`；池化 Reset Complete 经 event 13 交付，`01030c00 → 01011000` 连续 `5/5` |
 | `HCI-3b` complete HCI/GATT | `PASS` | `core2_native_hci/run_full.py --hli-c2h` 使用 15-byte probe / 17-byte ATT PDU，完成 NUS discovery/subscription/write/notify 和 Bumble ACK，连续 `5/5` |
-| `HCI-4` repeated lease | `OPEN` | 仍需无 GDB 的 Device Service `5/5` |
+| `HCI-4` repeated lease | `PASS` | `core2_native_hci/run_service_5x.py`；五个独立 Device Service lease 同时通过 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence，`gdb_bridge=false` |
+
+`HCI-4` 重跑需要已准备 unified Core2 镜像、匹配 ELF 和相同 QEMU build：
+
+```bash
+python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
+  --image /tmp/core2-native-hci-unified/uiflow2-ui-test.bin \
+  --elf .work/uiflow2-core2-symbols/micropython.elf \
+  --qemu .work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa \
+  --attempts 5 \
+  --out-dir /tmp/m5-core2-native-hci-service-5x
+```
+
+当前证据为
+`core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`。它是
+`virtual-device validation`，不是 RF、bit-exact controller 或真机结果。
 
 ```bash
 python3 tests/uiflow2/core2_native_hci/test_transport.py

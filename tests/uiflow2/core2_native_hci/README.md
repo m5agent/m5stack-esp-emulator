@@ -2,14 +2,10 @@
 
 Last reviewed: `2026-10-24`
 
-This targeted test validates the first QEMU-side slice of `CORE2-01`: the
-`esp32-native-hci` chardev frontend frames controller-to-host H4 packets,
-keeps a bounded receive queue, and exposes observable QOM counters.
-
-The first test is transport-only. The second targeted test captures real guest
-H2C and, with `--enable-c2h`, delivers one controller event through the
-firmware's registered VHCI receive callback. It does not execute a Bluetooth
-controller/baseband or prove a complete GATT sequence.
+This directory validates the QEMU-side `CORE2-01` data plane from the
+`esp32-native-hci` H4 chardev through the stock firmware HLI/API boundary to
+Bumble and the Device Service evidence bundle. It does not execute a
+bit-exact Bluetooth controller/baseband or physical RF model.
 
 | Stage | Status | Evidence |
 | --- | --- | --- |
@@ -18,7 +14,7 @@ controller/baseband or prove a complete GATT sequence.
 | `HCI-3a` guest C2H callback | `DIAGNOSTIC PASS` | `evidence-2026-10-24-c2h-delivery.json` and `evidence-2026-10-24-c2h-delivery-5x.json`; Reset Complete then next H2C. This narrow callback route is not the production C2H backend |
 | `HCI-3b` HLI event | `PASS` | `evidence-2026-10-24-hli-event-5x.json`; pool-allocated Reset Complete through event 13 advances `01030c00` to `01011000` in 5/5 runs |
 | `HCI-3b` complete HCI/GATT | `PASS` | `evidence-2026-10-24-hli-api-gatt-5x.json`; 15-byte probe / 17-byte ATT PDU completes discovery, subscription, write, Python handler, notification and Bumble ACK in 5/5 runs |
-| `HCI-4` repeated lease | `OPEN` | Still provided by the GDB diagnostic bridge at `1/2` |
+| `HCI-4` repeated lease | `PASS` | `evidence-2026-10-24-hci4-service-5x.json`; five independent `/api/v1` leases pass frame, 27-node QOM, WiFi/public network, NUS GATT, pcap and evidence with `gdb_bridge=false` |
 
 Build the patched QEMU, then run:
 
@@ -76,9 +72,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_hci/run_full.py \
   --out-dir /tmp/core2-native-hci-hli
 ```
 
-This flag requires the local experimental QEMU HLI/API-boundary hooks. They
-are not part of the committed `0001`/`0002` patch series, so the command is a
-diagnostic overlay rather than a reproducible current backend.
+This flag requires a QEMU build with the committed `0002`-`0004`
+HLI/API-boundary patches. The runner and the Device Service share the same
+`core2_native_hci_device_args()` ELF resolver, so the arguments are not
+duplicated between test and service.
 
 The final `HCI-3b` diagnostic passes. The earlier timeout was caused by the
 21-byte `M5_CORE2_NATIVE_PROBE` payload: its ATT PDU is 24 bytes, which
@@ -86,8 +83,9 @@ exceeds the guest's default 23-byte ATT MTU, so `ble_l2cap_rx` drops it before
 ATT dispatch. The default 15-byte `M5_CORE2_PROBE` produces a 17-byte ATT PDU
 and completes the full NUS GATT exchange.
 
-Evidence:
-`evidence-2026-10-24-hci3b-diagnostic.json`.
+The final full GATT evidence is
+`evidence-2026-10-24-hli-api-gatt-5x.json`; the older
+`evidence-2026-10-24-hci3b-diagnostic.json` is retained as a failure record.
 
 Temporary instrumentation showed that `malformed-packets` in this run were
 non-final writes to the VHCI H2C length field, not corrupted H4 receive data.
@@ -138,10 +136,10 @@ The original marker evidence remains at
 `evidence-2026-10-24-hli-event-5x.json`, reproduced by
 `test_hli_event.py`.
 
-This is not complete HCI/GATT. The next step is ACL ownership through
-`ble_transport_alloc_acl_from_ll` and `ble_transport_to_hs_acl_impl`, then an
-explicit API-boundary H2C transaction with matching controller ACK and flow
-control.
+The retained `0003` patch extends this seam to ACL ownership through
+`ble_transport_alloc_acl_from_ll` and `ble_transport_to_hs_acl_impl`, with an
+explicit API-boundary H2C transaction and flow control. That is what closes
+the complete external GATT sequence in `HCI-3b`.
 
 A local C2H experiment invoked the guest `vhci_send` address and made the
 function return, but the firmware still timed out waiting for the controller
@@ -187,8 +185,29 @@ The HCI peer may be closed immediately after `BLE_BUMBLE_PASS`; any later
 `EIO` is recorded under `post_sequence_teardown` and is not part of the GATT
 transaction result.
 
-The next implementation must make H2C send, matching C2H delivery,
-`notify_host_recv`, and `notify_host_send_available` one explicit transaction.
-It must also explain why the received ATT write does not reach the expected
-guest handler or schedule a notification. It cannot depend on nested guest
-`cpu_exec()` timing or an idle safe point.
+## Device Service repeated lease
+
+`run_service_5x.py` drives the real `/api/v1` control plane. It uploads one
+firmware and matching ELF, creates five independent `qemu-unified` sessions
+with `profile=core2-native-hci`, and checks each session for:
+
+- a 320x240 PNG frame and a non-empty QOM snapshot;
+- WiFi DHCP/controlled HTTP and public IPv4 DNS/HTTP;
+- external Bumble NUS discovery/subscription/write/notify;
+- QEMU pcap and the complete, session-bound evidence ZIP;
+- transport string `ESP32 native HCI device + HLI to Bumble`.
+
+```bash
+python3 run_service_5x.py \
+  --image /path/to/unified-core2.bin \
+  --elf /path/to/matching/micropython.elf \
+  --qemu /path/to/qemu-system-xtensa \
+  --attempts 5 \
+  --out-dir /tmp/m5-core2-native-hci-service-5x
+```
+
+The committed evidence is
+`evidence-2026-10-24-hci4-service-5x.json`. The profile is supported only
+under trusted-host isolation. It is not bit-exact controller, RF, malware
+sandbox or physical-hardware validation. The legacy `core2-native-vhci`
+profile remains available for diagnosis but is not the canonical path.

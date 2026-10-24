@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.15.0` and bounded
+Status: local MVP with unified-device runtime contract `1.16.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -26,7 +26,9 @@ Current scope:
   AtomS3R, PaperColor, PaperMono, StackChan and StamPLC use one combined
   WiFi+BLE+board QEMU lease through their unified profiles; environment-gated
   Core2 adds `core2-unified` through the classic ESP32 OpenMAC/HCI QEMU path
-  and `core2-native-vhci` through the stock VHCI bridge;
+  and `core2-native-hci` as the canonical no-GDB stock-firmware native-HCI
+  path. `core2-native-vhci` remains an explicit GDB diagnostic/compatibility
+  profile;
 - NanoC6 adds `nanoc6-hci-ble`: board peripherals, RMT WS2812/IR, QEMU C6
   WiFi DHCP/HTTP and UART1 HCI BLE run in one C6 guest;
 - Nesso N1 adds `nesso-unified`: display/touch, PI4IOE, power telemetry,
@@ -572,7 +574,8 @@ Core2 retains `qemu-wifi` and `qemu-ble` as compatibility runtimes when the
 service starts with `M5_CORE2_RADIO_QEMU` pointing at a QEMU build containing
 the classic ESP32 WiFi and Bluetooth models. The canonical combined paths are
 `runtime=qemu-unified` with `profile=core2-unified` or
-`profile=core2-native-vhci`.
+`profile=core2-native-hci`. The latter is the preferred stock-firmware path.
+`profile=core2-native-vhci` is retained for GDB diagnosis and compatibility.
 `M5_CORE2_WIFI_QEMU` remains a compatibility alias for existing deployments.
 
 ```json
@@ -622,11 +625,11 @@ This service profile proves stock UIFlow2 NimBLE activation, GAP configuration,
 controller reset and advertising enable. Separate standalone runners now
 bridge the same stock firmware's VHCI boundary to Bumble; the BLE-only runner
 passes external NUS GATT 5/5 and the same-guest board+WiFi+public-network
-variant passes 3/3. The same GDB-based path is exposed as
-`qemu-unified/profile=core2-native-vhci` with a mandatory matching ELF. The
-service resolves fixed VHCI symbol addresses from that ELF before launching
-the guest; GDB still controls breakpoints, callback injection and the synthetic
-send-frame return.
+variant passes 3/3. The canonical stock-firmware service path is
+`qemu-unified/profile=core2-native-hci`; it requires a matching ELF, resolves
+API/HLI hook addresses, and does not launch GDB. The legacy GDB-based path is
+still available as `qemu-unified/profile=core2-native-vhci` for diagnosis and
+compatibility.
 
 The `core2-hci-gatt` profile exercises the separate HCI-offload lane:
 
@@ -728,7 +731,7 @@ also pass external NUS GATT 5/5 and same-guest unified 3/3 without rebuilding
 for UART HCI; they execute Bumble in place of the bit-exact Espressif BT
 baseband/controller.
 
-The stock-firmware path is exposed as a separate unified profile:
+The preferred stock-firmware path is `core2-native-hci`:
 
 ```json
 {
@@ -736,7 +739,7 @@ The stock-firmware path is exposed as a separate unified profile:
   "runtime": "qemu-unified",
   "ready_timeout_seconds": 120,
   "network": {
-    "profile": "core2-native-vhci",
+    "profile": "core2-native-hci",
     "elf_artifact_id": "<matching-xtensa-elf-sha256>",
     "attempts": 1,
     "capture_pcap": true
@@ -746,23 +749,46 @@ The stock-firmware path is exposed as a separate unified profile:
 
 `elf_artifact_id` is mandatory and must point to the matching symbol ELF.
 The service starts one `m5core2` guest with `-m 0`, the OpenMAC WiFi NIC and
-a QEMU GDB endpoint. Before launch, the service strictly resolves
-`API_vhci_host_send_packet`, `vhci_env_p` and `esp_cpu_wait_for_intr` from the
-ELF and records the addresses as a `native_vhci_symbols` event. The supervised
-GDB bridge consumes those fixed addresses, intercepts the firmware's own
-`esp_vhci_host_*` H2C/C2H, suppresses the incomplete in-guest controller call,
-and forwards HCI to Bumble. A second Bumble peer performs NUS discovery,
+the QEMU `esp32-native-hci` device. Before launch it strictly resolves every
+API-boundary, HLI queue, ATT trace and task-recycle address required by the
+device arguments. No QEMU GDB endpoint is created. Event and ACL delivery use
+the firmware HLI queue/IRQ; H2C ownership is isolated at
+`API_vhci_host_send_packet`. A second Bumble peer performs NUS discovery,
 subscription, write and notification readback.
 
-`/network` returns `kind=m5stack-core2-unified-qemu-proof` with
-`profile=core2-native-vhci`, bridge H2C/C2H/ACL checks, peer checks and the
-packet-capture summary. The evidence ZIP includes the serial log,
-`native-vhci-gdb.log`, peer log, frame, audio PCM, QOM snapshot, pcap and
-manifest. The bridge remains a trusted-host diagnostic implementation and is
-not a bit-exact Espressif BT baseband/controller. GDB remains in the guest
-control path even though symbol lookup is no longer debugger-mediated.
-`ready_timeout_seconds` defaults to `90` for this profile; an explicit value
-overrides it.
+`/network` returns `kind=m5stack-core2-unified-qemu-proof`,
+`profile=core2-native-hci`, and
+`hci_transport=ESP32 native HCI device + HLI to Bumble`. The evidence ZIP
+contains serial, peer log, frame, audio source PCM, QOM snapshot, pcap and
+manifest. `HCI-4` passed five independent leases with
+`gdb_bridge=false`; each lease also passed frame, QOM, WiFi DHCP/HTTP,
+public DNS/HTTP and external NUS GATT:
+[`hci4-service-5x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json).
+This remains functional virtual-device evidence, not a bit-exact Espressif BT
+controller/baseband or hardware/RF result. The API/HLI/trace hook offsets are
+pinned to the validated UIFlow2 v2.5.3 build; `elf_artifact_id` must come from
+that exact firmware build. Another Core2 firmware build is `NOT RUN` even when
+the ELF exposes the same symbol names.
+
+The legacy `core2-native-vhci` profile remains available for diagnosis:
+
+```json
+{
+  "device_id": "core2",
+  "runtime": "qemu-unified",
+  "network": {
+    "profile": "core2-native-vhci",
+    "elf_artifact_id": "<matching-xtensa-elf-sha256>",
+    "attempts": 1,
+    "capture_pcap": true
+  }
+}
+```
+
+It starts a QEMU GDB endpoint and uses the supervised bridge for pause,
+callback injection and synthetic return. That path passed one service lease
+but only `1/2` repeated leases, so it must be labeled diagnostic/compatibility
+and is not the preferred production profile.
 
 The StickS3 unified profile closes WiFi and BLE in that same instance:
 
@@ -1462,11 +1488,12 @@ restart.
   peripherals in one `m5core2` guest;
   `core2-ble-advertise` stops at native controller/advertising control;
   `core2-hci-gatt` closes external Bumble GATT without WiFi.
-  `core2-native-vhci` closes stock VHCI external NUS GATT together with
-  board/WiFi/public network in one service lease. VHCI symbol addresses come
-  from the matching ELF; GDB still controls pause, callback injection and the
-  synthetic return, so it is not yet a no-debugger or bit-exact controller
-  model;
+  `core2-native-hci` closes stock-firmware external NUS GATT together with
+  board/frame/QOM, WiFi/public network, pcap and evidence in five independent
+  service leases without GDB. It is the canonical path.
+  `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
+  repeated-lease result was `1/2`; neither profile is a bit-exact BT
+  controller model;
 - NanoC6 `nanoc6-hci-ble` closes board peripherals, QEMU C6 WiFi DHCP/HTTP
   and UART1 HCI BLE in one C6 guest;
 - Nesso N1 `nesso-unified` adds display/touch, PI4IOE, BQ27220/AW32001,
@@ -1487,11 +1514,9 @@ restart.
   layout and modeled controllers;
 - Core2 startup starvation is mitigated by deterministic TCG/icount scheduling
   (10/10 first attempts), but physical cache/PSRAM equivalence remains
-  unverified. Stock native-VHCI external GATT is PASS 5/5 and
-  `core2-native-vhci` has passed through Device Service. Symbol lookup is
-  pinned from ELF, while pause/callback injection/synthetic return still use
-  GDB; repeated-lease stability and a bit-exact controller implementation
-  remain open;
+  unverified. `core2-native-hci` passed `HCI-4` in five independent Device
+  Service leases with no GDB bridge. Bit-exact controller/baseband,
+  coexistence/soak and same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See
   [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);

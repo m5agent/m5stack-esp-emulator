@@ -25,7 +25,7 @@ platform/
 | --- | --- | --- |
 | `qemu-esp32s3` | 9 台 ESP32-S3 设备 | 产品主路径：板级外设、WiFi MAC/DMA、UART HCI BLE |
 | `qemu-esp32c6` | NanoC6、Nesso N1 | 产品主路径：C6 板级模型、WiFi MAC/DMA、UART HCI BLE |
-| `qemu-esp32lx6` | Core2 | 产品主路径：LX6 板级、OpenMAC WiFi、HCI-offload 与 stock native-VHCI BLE |
+| `qemu-esp32lx6` | Core2 | 产品主路径：LX6 板级、OpenMAC WiFi、HCI-offload 与 no-GDB `core2-native-hci` |
 | `esp-emu 0.50.0` | Tab5 | P4 专用例外：烧录、启动、framebuffer、touch mailbox、RS-485、静态 I2C |
 | Linux ARM64 QEMU | CardputerZero | 独立 Linux 后端，不是 ESP32/UIFlow2 路径 |
 | `esp-emu runtime=network` | 诊断/Provisioning | 网络和 SoftAP 排障 lane，不提供整机板级 PASS |
@@ -50,23 +50,21 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
   evidence ZIP；
 - `runtime=qemu-unified` 的 S3/C6/Core2 单 guest 板级 + 网络 + BLE；
-- Core2 `profile=core2-native-vhci` 的 stock firmware VHCI → Bumble 路径；
+- Core2 `profile=core2-native-hci` 的 stock firmware QEMU native-HCI →
+  HLI → Bumble 路径；
+- legacy `profile=core2-native-vhci` 的 GDB 诊断/兼容路径；
 - QEMU pcap、flow/DNS/DHCP/ARP 和 payload-hash 摘要；
 - Linux private net/mount namespace、controlled DNS、fail-closed isolation、
   TLS/Host allowlist fixture 和 SoftAP `hostfwd` 诊断。
 
 当前边界：
 
-- `core2-native-vhci` 已进入 `/api/v1`，但内部仍使用服务托管的 GDB bridge；
-  QEMU native-HCI 替代路径已完成 `HCI-1` transport、`HCI-2` 首个 H2C
-  Reset 捕获和 `HCI-3a` 诊断性单包 C2H `5/5`；该 callback 路线不是产品
-  后端；`HCI-3b` 已用 `0003` API-boundary H2C、HLI event/ACL 和 `0004`
-  CCOUNT TB-yield 完成完整外部 NUS GATT `5/5`。旧 notification timeout
-  已确认是 21-byte probe 形成 24-byte ATT PDU、超过默认 MTU 23；合法
-  15-byte probe / 17-byte ATT PDU 命中 ATT、Python handler、notify 和
-  Bumble ACK。下一步是 `HCI-4` Device Service repeated lease 和生产 GDB
-  控制面移除；bit-exact Espressif BT baseband/controller 和物理 cache/PSRAM
-  等价性仍未完成。
+- `core2-native-hci` 已完成 `HCI-1` 至 `HCI-4`。五个独立
+  `/api/v1` lease 同时通过 frame/QOM、WiFi/公网、外部 NUS GATT、pcap 和
+  evidence ZIP，且 `gdb_bridge=false`。旧 `core2-native-vhci` 仍使用
+  服务托管的 GDB bridge，且 repeated lease 只有 `1/2`，因此只保留为
+  显式诊断/兼容路径。bit-exact Espressif BT baseband/controller、
+  物理 cache/PSRAM、coexistence/soak 和真机仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

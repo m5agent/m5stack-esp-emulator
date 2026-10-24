@@ -26,6 +26,33 @@ CORE2_NATIVE_VHCI_SYMBOLS = {
     "M5_NATIVE_VHCI_ENV_PTR": "vhci_env_p",
     "M5_NATIVE_VHCI_IDLE_PC": "esp_cpu_wait_for_intr",
 }
+CORE2_NATIVE_HCI_SYMBOLS = (
+    "vhci_env_p",
+    "malloc",
+    "g_rw_schd_queue",
+    "s_meta_queue_ptr",
+    "ble_hs_conns",
+    "ble_transport_alloc_evt",
+    "ble_transport_to_hs_evt_impl",
+    "ble_transport_alloc_acl_from_ll",
+    "os_mbuf_append",
+    "ble_transport_to_hs_acl_impl",
+    "esp_vhci_host_send_packet",
+    "ble_hci_trans_hs_cmd_tx",
+    "btdm_task_recycle",
+    "r_rw_schedule",
+    "ble_hs_hci_evt_acl_process",
+    "ble_l2cap_rx",
+    "ble_att_rx",
+    "ble_att_svr_rx_write",
+    "ble_att_svr_rx_write_no_rsp",
+    "ble_att_svr_find_by_handle",
+    "ble_att_svr_write_handle$constprop$0",
+    "mp_bluetooth_gatts_on_write",
+    "bluetooth_ble_irq",
+    "mp_bluetooth_gatts_notify_indicate",
+    "ble_gatts_notify",
+)
 
 
 class ElfSymbolError(ValueError):
@@ -253,6 +280,58 @@ def core2_native_vhci_addresses(path: Path) -> dict[str, int]:
         for environment, name in CORE2_NATIVE_VHCI_SYMBOLS.items()
     }
     return addresses
+
+
+def core2_native_hci_device_args(path: Path) -> str:
+    """Build device arguments for the validated UIFlow2 v2.5.3 ELF layout."""
+    symbols = resolve_symbols(path, list(CORE2_NATIVE_HCI_SYMBOLS))
+
+    def address(name: str, offset: int = 0) -> str:
+        return f"0x{symbols[name].value + offset:08x}"
+
+    return (
+        "esp32-native-hci,chardev=hci,"
+        f"env-pointer-address={address('vhci_env_p')},"
+        f"c2h-allocator-address={address('malloc')},"
+        "c2h-scratch-size=2048,"
+        "hli-c2h=on,"
+        f"api-vhci-send-hook-pc={address('esp_vhci_host_send_packet', 0x35)},"
+        f"api-vhci-send-return-pc={address('esp_vhci_host_send_packet', 0x38)},"
+        f"scheduler-queue-address={address('g_rw_schd_queue')},"
+        f"meta-queue-pointer-address={address('s_meta_queue_ptr')},"
+        f"trace-hs-conns-address={address('ble_hs_conns')},"
+        f"hli-event-allocator-address={address('ble_transport_alloc_evt')},"
+        f"hli-test-callback={address('ble_transport_to_hs_evt_impl')},"
+        "hli-event-buffer-size=256,"
+        f"hli-acl-allocator-address={address('ble_transport_alloc_acl_from_ll')},"
+        f"hli-os-mbuf-append-address={address('os_mbuf_append')},"
+        f"hli-acl-callback={address('ble_transport_to_hs_acl_impl')},"
+        f"recycle-hook-pc={address('btdm_task_recycle', 0x11)},"
+        f"recycle-return-pc={address('btdm_task_recycle', 0x14)},"
+        "hli-descriptor-pool-size=4096,"
+        f"sleep-post-hook-pc={address('r_rw_schedule', 0xb1)},"
+        f"sleep-post-return-pc={address('r_rw_schedule', 0xb4)},"
+        f"cmd-semaphore-hook-pc={address('ble_hci_trans_hs_cmd_tx', 0x20)},"
+        f"cmd-semaphore-return-pc={address('ble_hci_trans_hs_cmd_tx', 0x23)},"
+        f"acl-semaphore-hook-pc={address('ble_hci_trans_hs_cmd_tx', 0x79)},"
+        f"acl-semaphore-return-pc={address('ble_hci_trans_hs_cmd_tx', 0x7c)},"
+        f"trace-acl-process-pc={address('ble_hs_hci_evt_acl_process')},"
+        f"trace-l2cap-rx-pc={address('ble_l2cap_rx')},"
+        f"trace-l2cap-incomplete-pc={address('ble_l2cap_rx', 0xfc)},"
+        f"trace-l2cap-chan-found-pc={address('ble_l2cap_rx', 0x101)},"
+        f"trace-l2cap-mtu-reject-pc={address('ble_l2cap_rx', 0x116)},"
+        f"trace-l2cap-rxfn-pc={address('ble_l2cap_rx', 0x12f)},"
+        f"trace-att-rx-pc={address('ble_att_rx')},"
+        f"trace-att-write-pc={address('ble_att_svr_rx_write')},"
+        f"trace-att-write-no-rsp-pc={address('ble_att_svr_rx_write_no_rsp')},"
+        f"trace-att-find-handle-pc={address('ble_att_svr_find_by_handle')},"
+        "trace-att-write-handle-pc="
+        f"{address('ble_att_svr_write_handle$constprop$0')},"
+        f"trace-python-gatts-on-write-pc={address('mp_bluetooth_gatts_on_write')},"
+        f"trace-python-irq-pc={address('bluetooth_ble_irq')},"
+        f"trace-python-notify-pc={address('mp_bluetooth_gatts_notify_indicate')},"
+        f"trace-nimble-gatts-notify-pc={address('ble_gatts_notify')}"
+    )
 
 
 def main() -> int:

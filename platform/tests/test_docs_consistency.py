@@ -56,8 +56,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-api-notification-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
+            "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch",
             "patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
@@ -320,15 +322,14 @@ class DocsConsistencyTests(unittest.TestCase):
             "## P0 收口",
             status,
         )
-        self.assertIn("native-VHCI BLE 5/5", status)
-        self.assertIn("同 guest native-VHCI 3/3", status)
+        self.assertIn("native-HCI `HCI-1` 至 `HCI-4` PASS", status)
         self.assertIn("core2-native-vhci", status)
         self.assertIn("HCI-1", status)
         self.assertIn("HCI-2", status)
         self.assertIn("HCI-3", status)
         self.assertIn("HCI-4", status)
         self.assertIn("HCI-3a", status)
-        self.assertIn("诊断性单包 C2H", status)
+        self.assertIn("C2H callback | `DIAGNOSTIC PASS`", status)
         self.assertIn("HCI-3b", status)
         self.assertIn("`01030c00`", status)
         self.assertIn("worker heartbeat", status)
@@ -903,6 +904,63 @@ class DocsConsistencyTests(unittest.TestCase):
             gatt_pass["patch_validation"]["git_apply_check"],
             "PASS",
         )
+        hci4 = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-service-5x.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            hci4["kind"],
+            "m5stack-core2-native-hci-service-attempts",
+        )
+        self.assertEqual(hci4["stage"], "HCI-4")
+        self.assertEqual(hci4["gate_result"], "PASS")
+        self.assertEqual(hci4["status"], "PASS")
+        self.assertEqual(hci4["validation"], "virtual-device validation")
+        self.assertEqual(hci4["profile"], "core2-native-hci")
+        self.assertEqual(hci4["runtime"], "qemu-unified")
+        self.assertEqual(hci4["service_api"], "/api/v1")
+        self.assertEqual(hci4["attempts_requested"], 5)
+        self.assertEqual(hci4["attempts_passed"], 5)
+        self.assertEqual(len(hci4["runs"]), 5)
+        self.assertTrue(all(run["status"] == "PASS" for run in hci4["runs"]))
+        self.assertTrue(
+            all(run["frame_bytes"] > 1000 for run in hci4["runs"])
+        )
+        self.assertEqual(
+            {run["frame_sha256"] for run in hci4["runs"]},
+            {
+                "5bfcdf8fc518a36385783a9b5bf09b3fbce9"
+                "d8c07406326955569f6c7db8408b"
+            },
+        )
+        self.assertTrue(all(run["qom_nodes"] == 27 for run in hci4["runs"]))
+        self.assertTrue(all(run["pcap_bytes"] > 0 for run in hci4["runs"]))
+        checks = hci4["checks_per_attempt"]
+        for check in (
+            "api_evidence",
+            "frame_png",
+            "wifi_dhcp_http",
+            "public_dns_http",
+            "external_nus_gatt",
+            "evidence_zip",
+            "pcap_file_in_evidence_zip",
+            "manifest_session_binding",
+        ):
+            self.assertEqual(checks[check], "PASS")
+        self.assertEqual(checks["qom_nodes"], 27)
+        self.assertEqual(
+            checks["hci_transport"],
+            "ESP32 native HCI device + HLI to Bumble",
+        )
+        self.assertFalse(hci4["boundary"]["gdb_bridge"])
+        self.assertEqual(hci4["boundary"]["isolation"], "trusted-host")
+        self.assertIn(
+            "bit-exact Espressif BT controller/baseband",
+            hci4["boundary"]["not_claimed"],
+        )
         oversize = json.loads(
             (
                 ROOT
@@ -940,10 +998,18 @@ class DocsConsistencyTests(unittest.TestCase):
             "API boundary",
             (DOCS / "core2-native-hci-backend.md").read_text(),
         )
-        for document in (status, workstreams, backlog, code_map):
+        for document in (status, workstreams, code_map):
             self.assertIn("HLI", document)
             self.assertIn("HCI-3b", document)
             self.assertIn("5/5", document)
+        self.assertIn("HCI-4", status)
+        self.assertIn("core2-native-hci", status)
+        self.assertIn("HCI-4", workstreams)
+        self.assertIn("core2-native-hci", workstreams)
+        self.assertIn("core2-native-hci", backlog)
+        self.assertIn("HCI-4", code_map)
+        self.assertIn("core2-native-hci", code_map)
+        self.assertNotIn("CORE2-01", backlog)
         dns_probe = (
             ROOT / "tests/network/idf_dns_udp/README.md"
         ).read_text()
@@ -983,10 +1049,12 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("固件输入与审查", code_map)
         self.assertIn("网络策略与取证", code_map)
         self.assertIn("运行时与设备登记", code_map)
-        self.assertIn(
-            "`HCI-3a` C2H callback | `DIAGNOSTIC PASS`",
-            (DOCS / "core2-native-hci-backend.md").read_text(),
-        )
+        core2_hci = (DOCS / "core2-native-hci-backend.md").read_text()
+        self.assertIn("`HCI-3a` C2H callback | `DIAGNOSTIC PASS`", core2_hci)
+        self.assertIn("`HCI-4` stability | `PASS`", core2_hci)
+        self.assertIn("core2-native-hci", core2_hci)
+        self.assertIn("core2-native-vhci", core2_hci)
+        self.assertIn("legacy", core2_hci.lower())
         self.assertIn("platform/tools/worker_directory.py", code_map)
         self.assertIn("platform/tests/test_worker_directory.py", code_map)
 
@@ -1035,6 +1103,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIsNotNone(markdown_version)
         self.assertIsNotNone(openapi_version)
         self.assertEqual(markdown_version.group(1), openapi_version.group(1))
+        self.assertIn("core2-native-hci", openapi)
+        self.assertGreaterEqual(openapi.count("core2-native-hci"), 3)
+        self.assertIn("core2-native-vhci", openapi)
+        self.assertIn("without a GDB bridge", openapi)
         self.assertIn("allowlist", openapi)
         self.assertIn("allowed_hosts", openapi)
         self.assertIn("allowed_endpoints", openapi)
