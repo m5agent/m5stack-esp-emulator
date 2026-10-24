@@ -40,6 +40,33 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         self.assertIsNone(runner.parse_ps_rss_kib(""))
         self.assertIsNone(runner.parse_ps_rss_kib("unavailable"))
 
+    def test_parses_phys_footprint_samples(self) -> None:
+        output = "\n".join(
+            (
+                "python3 [123]: 64-bit    Footprint: 8656 KB",
+                "Auxiliary data:",
+                "    phys_footprint: 8.5 MB",
+                "    phys_footprint_peak: 9 MB",
+            )
+        )
+        self.assertEqual(
+            runner.parse_footprint_kib(output),
+            8704,
+        )
+        self.assertIsNone(runner.parse_footprint_kib("phys_footprint: unavailable"))
+
+    def test_parses_bounded_qemu_accelerator(self) -> None:
+        command = (
+            "qemu-system-xtensa -M m5core2 -display none "
+            "-accel tcg,thread=single,tb-size=128 "
+            "-icount shift=auto,align=off,sleep=off -m 0"
+        )
+        self.assertEqual(
+            runner.parse_qemu_accelerator(command),
+            "tcg,thread=single,tb-size=128",
+        )
+        self.assertIsNone(runner.parse_qemu_accelerator("qemu -M m5core2"))
+
     def test_input_hashes_are_frozen_before_execution(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

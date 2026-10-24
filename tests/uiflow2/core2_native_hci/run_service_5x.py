@@ -55,6 +55,24 @@ def parse_ps_rss_kib(output: str) -> int | None:
     return int(value) if value.isdigit() else None
 
 
+def parse_footprint_kib(output: str) -> int | None:
+    match = re.search(
+        r"^\s*phys_footprint:\s*([0-9]+(?:\.[0-9]+)?)\s*(B|KB|MB|GB)\s*$",
+        output,
+        re.MULTILINE,
+    )
+    if match is None:
+        return None
+    value = float(match.group(1))
+    multiplier = {
+        "B": 1 / 1024,
+        "KB": 1,
+        "MB": 1024,
+        "GB": 1024 * 1024,
+    }[match.group(2)]
+    return round(value * multiplier)
+
+
 def process_rss_kib(pid: int | None) -> int | None:
     if not pid:
         return None
@@ -69,6 +87,50 @@ def process_rss_kib(pid: int | None) -> int | None:
     except (OSError, subprocess.SubprocessError):
         return None
     return parse_ps_rss_kib(result.stdout)
+
+
+def process_phys_footprint_kib(pid: int | None) -> int | None:
+    if not pid or sys.platform != "darwin":
+        return None
+    try:
+        result = subprocess.run(
+            ["/usr/bin/footprint", "-p", str(pid)],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return parse_footprint_kib(result.stdout)
+
+
+def process_memory_sample(pid: int | None) -> dict[str, int | None]:
+    return {
+        "rss_kib": process_rss_kib(pid),
+        "phys_footprint_kib": process_phys_footprint_kib(pid),
+    }
+
+
+def parse_qemu_accelerator(command: str) -> str | None:
+    match = re.search(r"(?:^|\s)-accel\s+(\S+)", command)
+    return match.group(1) if match else None
+
+
+def process_qemu_accelerator(pid: int | None) -> str | None:
+    if not pid:
+        return None
+    try:
+        result = subprocess.run(
+            ["ps", "-o", "command=", "-p", str(pid)],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return parse_qemu_accelerator(result.stdout)
 
 
 class Api:
@@ -329,6 +391,8 @@ def run_attempt(
     hold_state = "not_running"
     hold_error: str | None = None
     rss_samples: list[int] = []
+    phys_footprint_samples: list[int] = []
+    qemu_accelerator: str | None = None
     state_samples = 0
 
     try:
@@ -383,9 +447,17 @@ def run_attempt(
                 last_resource_sample is None
                 or elapsed - last_resource_sample >= 30
             ):
-                rss = process_rss_kib(current.get("pid"))
-                if rss is not None:
+                memory = process_memory_sample(current.get("pid"))
+                rss = memory["rss_kib"]
+                phys_footprint = memory["phys_footprint_kib"]
+                if qemu_accelerator is None:
+                    qemu_accelerator = process_qemu_accelerator(
+                        current.get("pid")
+                    )
+                if isinstance(rss, int):
                     rss_samples.append(rss)
+                if isinstance(phys_footprint, int):
+                    phys_footprint_samples.append(phys_footprint)
                 last_resource_sample = elapsed
             if current.get("state") != "running":
                 hold_stable = False
@@ -670,12 +742,47 @@ def run_attempt(
         "network_status": str(network.get("status") or "UNAVAILABLE"),
         "hold_state": hold_state,
         "hold_error": hold_error,
+        "qemu_accelerator": qemu_accelerator,
         "hold_resource_samples": {
             "state_polls": state_samples,
+            "sample_interval_seconds": 30,
+            "rss_kib_start": rss_samples[0] if rss_samples else None,
             "rss_kib_min": min(rss_samples) if rss_samples else None,
             "rss_kib_max": max(rss_samples) if rss_samples else None,
             "rss_kib_end": rss_samples[-1] if rss_samples else None,
+            "rss_kib_delta": (
+                rss_samples[-1] - rss_samples[0]
+                if rss_samples
+                else None
+            ),
             "rss_kib_samples": rss_samples,
+            "phys_footprint_kib_start": (
+                phys_footprint_samples[0]
+                if phys_footprint_samples
+                else None
+            ),
+            "phys_footprint_kib_min": (
+                min(phys_footprint_samples)
+                if phys_footprint_samples
+                else None
+            ),
+            "phys_footprint_kib_max": (
+                max(phys_footprint_samples)
+                if phys_footprint_samples
+                else None
+            ),
+            "phys_footprint_kib_end": (
+                phys_footprint_samples[-1]
+                if phys_footprint_samples
+                else None
+            ),
+            "phys_footprint_kib_delta": (
+                phys_footprint_samples[-1]
+                - phys_footprint_samples[0]
+                if phys_footprint_samples
+                else None
+            ),
+            "phys_footprint_kib_samples": phys_footprint_samples,
         },
         "failure_diagnostics": {
             "panic_count": len(panic_events),

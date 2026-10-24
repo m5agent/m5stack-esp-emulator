@@ -69,6 +69,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold600-2x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-tb128-hold120-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
@@ -115,6 +116,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/tools/worker_queue.py",
             "platform/tools/worker_auth.py",
             "platform/tools/worker_agent.py",
+            "platform/tools/qemu_accel.py",
             "platform/tests/test_network_fabric.py",
             "platform/tests/test_transport_security.py",
             "platform/tests/test_worker_registry.py",
@@ -754,6 +756,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json"
             ).read_text()
         )
+        tb128_hold120 = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-tb128-hold120-1x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("20/30/60/120", project_snapshot)
@@ -779,7 +788,7 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertNotIn("扩大 API 轮次上限", workstreams)
 
-        self.assertIn("MAX_BLE_RECONNECT_CYCLES = 120", limits)
+        self.assertIn("MAX_BLE_RECONNECT_CYCLES = 121", limits)
         self.assertIn("MAX_BLE_HOLD_SECONDS = 7200", limits)
         self.assertIn(
             "MAX_BLE_LINGER_SECONDS = MAX_BLE_HOLD_SECONDS + 60",
@@ -788,12 +797,19 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", service)
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", peer)
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", runner)
-        self.assertIn('"ble_reconnect_cycles": 120', service_tests)
+        self.assertIn("core2_accel_args", service)
+        self.assertIn("tb-size={CORE2_TCG_TB_SIZE_MIB}", qemu_accel := (
+            ROOT / "platform/tools/qemu_accel.py"
+        ).read_text())
+        self.assertIn("CORE2_TCG_TB_SIZE_MIB = 128", qemu_accel)
+        self.assertIn("tcg,thread=single,tb-size=128", status)
+        self.assertIn("tb-size=128", workstreams)
+        self.assertIn('"ble_reconnect_cycles": 121', service_tests)
         reconnect_schema = openapi.split(
             "ble_reconnect_cycles:",
             1,
         )[1].split("ble_reconnect_delay_seconds:", 1)[0]
-        self.assertIn("maximum: 120", reconnect_schema)
+        self.assertIn("maximum: 121", reconnect_schema)
         linger_schema = openapi.split(
             "ble_linger_seconds:",
             1,
@@ -973,10 +989,30 @@ class DocsConsistencyTests(unittest.TestCase):
             resource_samples["rss_kib_end"],
             resource_samples["rss_kib_min"],
         )
+        self.assertEqual(tb128_hold120["status"], "PASS")
+        tb128_run = tb128_hold120["runs"][0]
+        self.assertEqual(
+            tb128_run["qemu_accelerator"],
+            "tcg,thread=single,tb-size=128",
+        )
+        tb128_resources = tb128_run["hold_resource_samples"]
+        self.assertLessEqual(tb128_resources["rss_kib_delta"], 0)
+        self.assertLessEqual(
+            tb128_resources["phys_footprint_kib_delta"],
+            0,
+        )
+        self.assertLessEqual(
+            tb128_resources["phys_footprint_kib_max"],
+            220 * 1024,
+        )
+        self.assertEqual(
+            tb128_run["native_hci_health"]["hli-errors"],
+            0,
+        )
         self.assertIn("FUNCTIONAL PASS / RSS REVIEW", core2_backend)
         self.assertIn("744160", status)
         self.assertIn("1202176", status)
-        self.assertIn("RSS 增长归因", workstreams)
+        self.assertIn("tb-size=128", workstreams)
 
         core2_source = next(
             device for device in catalog_source["devices"]

@@ -835,7 +835,7 @@ the classic ESP32 WiFi and Bluetooth models. The canonical combined paths are
 This is the same QEMU instance as the Core2 board lane, so framebuffer, serial,
 QMP and QOM remain available while the stock WiFi driver runs. The model uses
 the fixed test AP `myssid` and QEMU user networking. Core2 radio QEMU uses
-deterministic `tcg,thread=single` plus `icount` scheduling; `attempts` remains
+deterministic `tcg,thread=single,tb-size=128` plus `icount` scheduling; `attempts` remains
 a diagnostic retry setting, but retries are not used as evidence that a failed
 first attempt was repaired.
 The input must already be a complete, flash-sized merged image. The service
@@ -1793,7 +1793,7 @@ restart.
   firmware/ELF/QEMU hashes, frame/QOM/WiFi/public DNS/HTTP/GATT/pcap and
   cleanup; QEMU host RSS grows from 744160 to 1202176 KiB, so memory growth
   remains `REVIEW`.
-  `network.ble_reconnect_cycles` (1-120) asks one external peer process to run
+  `network.ble_reconnect_cycles` (1-121) asks one external peer process to run
   multiple complete scan/connect/GATT/disconnect cycles without restarting the
   guest; `network.ble_reconnect_delay_seconds` controls the pause before the
   next scan. Stock Core2 passes 20, 30, 60 and 120 complete cycles in each of
@@ -1807,8 +1807,9 @@ restart.
   `evidence-2026-10-24-hci4-reconnect30-3x.json`,
   `evidence-2026-10-24-hci4-reconnect60-3x.json` and
   `evidence-2026-10-24-hci4-reconnect120-3x.json`. Three independent leases
-  pass 120 cycles each; the next validation gates are more than 120 cycles,
-  RSS-growth attribution and long-run throughput/teardown;
+  pass 120 cycles each; 121 is accepted by contract but still needs a runtime
+  gate. The remaining validation gates are 121-cycle execution, bounded-TCG
+  two-hour confirmation and long-run throughput/teardown;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

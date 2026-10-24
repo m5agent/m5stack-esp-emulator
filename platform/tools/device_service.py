@@ -90,6 +90,7 @@ from network_policy import (  # noqa: E402
     qemu_user_netdev,
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
+from qemu_accel import core2_accel_args  # noqa: E402
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
 from worker_directory import (  # noqa: E402
     WorkerDirectory,
@@ -4285,14 +4286,7 @@ class DeviceSession:
                 f"tcp::{self.gdb_port}",
             ]
         if core2_radio:
-            command.extend(
-                [
-                    "-accel",
-                    "tcg,thread=single",
-                    "-icount",
-                    "shift=auto,align=off,sleep=off",
-                ]
-            )
+            command.extend(core2_accel_args())
         if profile in {NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE}:
             assert self.hci_port is not None
             command.extend(

@@ -34,6 +34,7 @@ DEFAULT_QEMU = (
 DEFAULT_ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
 
 from xtensa_elf_symbols import core2_native_vhci_addresses  # noqa: E402
+from qemu_accel import core2_accel_args  # noqa: E402
 
 SERIAL_MARKERS = (
     "CORE2_HCI_BOOT",
@@ -247,10 +248,7 @@ def run_attempt(
                     "-gdb",
                     f"tcp::{gdb_port}",
                     "-snapshot",
-                    "-accel",
-                    "tcg,thread=single",
-                    "-icount",
-                    "shift=auto,align=off,sleep=off",
+                    *core2_accel_args(),
                     "-m",
                     "0",
                     "-M",

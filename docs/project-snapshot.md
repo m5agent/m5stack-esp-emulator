@@ -48,7 +48,7 @@
 | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；下一步仍是自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 |
 | `NET-06` | 进行中 | controlled resolver A/AAAA、IPv6 forwarding 预检和专用 UIFlow2 测试构建的 guest IPv6 TCP/HTTP 已实现；下一步在同一 Linux guest 完成 controlled AAAA、denied-port 与 namespace cleanup |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与 artifact-bound `7200s` 功能保持已通过；先归因 QEMU host RSS `744160→1202176 KiB`，再扩超过一百二十轮和长时并发/吞吐 |
+| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与 artifact-bound `7200s` 功能保持已通过；RSS 增长定位到默认 1 GiB TCG buffer，`tb-size=128` 120 秒验证 PASS；限容两小时复测运行中；参数范围扩到 1–121 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
 | `FW-03` | 进行中 | API/WebBurner 已能声明 required/optional capability，sdkconfig WiFi/BT/PSRAM 能作为 detected warning 进入 manifest；已有 7 台设备、21 个公开非基线样本。下一步扩到更多设备与 firmware family |
@@ -65,7 +65,7 @@
 
 ## 文档与测试
 
-- 平台测试：`343` 项。
+- 平台测试：`346` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

@@ -26,7 +26,7 @@
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 解释 artifact-bound `7200s` soak 的 QEMU host RSS 增长；继续验证超过一百二十轮、吞吐/teardown 与 bit-exact controller/cache/PSRAM | 功能长稳和资产绑定已 PASS，RSS 仍 `REVIEW`；reconnect 参数上限为 120 |
+| P1 | Core2 长稳与物理/controller 等价性 | 完成 `tb-size=128` 的 artifact-bound `7200s` 复测；执行 3 个独立 lease × 121 轮 reconnect，再验证吞吐/teardown 与 bit-exact controller/cache/PSRAM | 未限容 RSS 已定位到 TCG translation buffer，120 秒限容验证 PASS；两小时限容 evidence 完成前仍为 `REVIEW`；reconnect 参数范围已扩到 1–121，运行待验 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -45,9 +45,10 @@
    `FW-02` 做生产 key/eFuse 与真机安全配置。
 3. `CORE2-02`：`5×10s`、`3×60s`、`2×120s` extended-run、同 guest
    20、30、60、3 个独立 lease × 120 轮 reconnect、active-BLE `600s` 和
-   artifact-bound `7200s` 功能保持均已通过。两小时 soak 的 host RSS 增长
-   `458016 KiB`，下一步先解释采样对象和增长原因，再验证超过一百二十轮、
-   吞吐/teardown、controller/baseband 和物理边界。
+   artifact-bound `7200s` 功能保持均已通过。未限容两小时 soak 的 host RSS
+   增长已定位到 QEMU TCG translation buffer；`tb-size=128` 的 120 秒复测
+   功能 PASS 且 RSS/phys footprint 无增长。当前运行限容 `7200s` 最终复测，
+   完成后再验证超过一百二十轮、吞吐/teardown、controller/baseband 和物理边界。
    `HW-01` 独立推进同路径真机证据。
 4. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
    视觉工作，不与当前 P0 混算完成。
@@ -58,7 +59,7 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；下一步仍是自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-06` | 进行中 | controlled resolver A/AAAA、IPv6 forwarding 预检和专用 UIFlow2 测试构建的 guest IPv6 TCP/HTTP 已实现；下一步在同一 Linux guest 完成 controlled AAAA、denied-port 与 namespace cleanup | 同一 lease/guest 内 AAAA 允许/拒绝、IPv6 egress、pcap 和 cleanup 成立；不能用 host probe 或另一 session 拼接固件结论；原厂 UIFlow2 未启用 link-local |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与 artifact-bound `7200s` 功能保持已通过；先归因 QEMU host RSS `744160→1202176 KiB`，再扩超过一百二十轮和长时并发/吞吐 | 功能、输入哈希、HLI/网络/GATT/frame/pcap 和清理 PASS；RSS 增长有解释或受控；超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
+| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与 artifact-bound `7200s` 功能保持已通过；RSS 增长定位到默认 1 GiB TCG buffer，`tb-size=128` 120 秒验证 PASS；限容两小时复测运行中；参数范围扩到 1–121 | 限容两小时功能与 RSS/phys footprint 稳定、资产无漂移；3 个独立 lease 各 121 轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | API/WebBurner 已能声明 required/optional capability，sdkconfig WiFi/BT/PSRAM 能作为 detected warning 进入 manifest；已有 7 台设备、21 个公开非基线样本。下一步扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |

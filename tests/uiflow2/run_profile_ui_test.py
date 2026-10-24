@@ -18,12 +18,16 @@ import shutil
 import socket
 import struct
 import subprocess
+import sys
 import tempfile
 import time
 import zlib
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT / "platform/tools"))
+
+from qemu_accel import core2_accel_args  # noqa: E402
 
 
 def runtime_files(files_dir: Path) -> dict[Path, Path]:
@@ -563,10 +567,16 @@ def main():
     if args.memory:
         command[1:1] = ["-m", args.memory]
     if args.deterministic:
-        command[1:1] = [
-            "-accel", "tcg,thread=single",
-            "-icount", "shift=auto,align=off,sleep=off",
-        ]
+        command[1:1] = (
+            core2_accel_args()
+            if args.machine == "m5core2"
+            else [
+                "-accel",
+                "tcg,thread=single",
+                "-icount",
+                "shift=auto,align=off,sleep=off",
+            ]
+        )
     if args.qemu_log:
         command.extend(["-d", args.qemu_log])
     efuse_driver = args.efuse_driver

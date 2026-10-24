@@ -183,6 +183,11 @@ def main() -> int:
             "enable IPv6 SLAAC; pass a same-board test build when needed."
         ),
     )
+    parser.add_argument(
+        "--prebuilt-image",
+        type=Path,
+        help="use an already generated IPv6 probe image",
+    )
     parser.add_argument("--timeout", type=float, default=90)
     parser.add_argument(
         "--isolation",
@@ -196,17 +201,22 @@ def main() -> int:
         or not args.base_image.is_file()
     ):
         parser.error("--qemu, --rom-dir and --base-image must exist")
+    if args.prebuilt_image is not None and not args.prebuilt_image.is_file():
+        parser.error("--prebuilt-image must exist")
     if args.isolation == "namespace" and sys.platform != "linux":
         parser.error("namespace isolation requires Linux")
     out = args.out_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
     isolated = args.isolation == "namespace"
-    image = build_probe(
-        out,
-        base_image=args.base_image,
-        check_dns=isolated,
-        check_denied=isolated,
-    )
+    if args.prebuilt_image is None:
+        image = build_probe(
+            out,
+            base_image=args.base_image,
+            check_dns=isolated,
+            check_denied=isolated,
+        )
+    else:
+        image = args.prebuilt_image.resolve()
     command = qemu_command(args.qemu, args.rom_dir, image, out)
     fixture: ControlledHttp | None = None
     process: subprocess.Popen | None = None
@@ -366,6 +376,9 @@ def main() -> int:
             "probe_image": sha256(image),
             "qemu": sha256(args.qemu),
         },
+        "probe_image_source": (
+            "prebuilt" if args.prebuilt_image is not None else "generated"
+        ),
         "checks": checks,
         "serial_tail": evidence_serial(serial),
         "http_requests": http_log,

@@ -9,10 +9,15 @@ import os
 import signal
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "platform/tools"))
+
+from qemu_accel import core2_accel_args  # noqa: E402
+
 PROBE_ROOT = Path(__file__).resolve().parent
 BASE = ROOT / "platform/.cache/firmware/core2/uiflow2.bin"
 PROFILE_RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
@@ -85,10 +90,7 @@ def run_qemu(
     command = [
         str(qemu),
         "-snapshot",
-        "-accel",
-        "tcg,thread=single",
-        "-icount",
-        "shift=auto,align=off,sleep=off",
+        *core2_accel_args(),
         "-m",
         "0",
         "-M",

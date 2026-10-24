@@ -46,7 +46,7 @@ PYTHONPATH=.work/py python3 \
 
 The controlled HTTP fixture listens on host port `18089`. The runner records
 every attempt, but the current evidence uses first attempts with no retries.
-The scheduling fix is `tcg,thread=single` plus
+The scheduling fix is `tcg,thread=single,tb-size=128` plus
 `icount shift=auto,align=off,sleep=off`. QOM values are written while the guest
 runs because QMP stop/continue during early board setup reproducibly triggered
 an interrupt-watchdog failure.
@@ -102,10 +102,11 @@ to exercise the second-connect lifecycle; it is not a proposed product fix.
 The stock/native-HCI Core2 guest passes 20, 30, 60 and 120 complete cycles in
 separate three-lease gates. The 120-cycle gate has HLI 3377/3377, 2297 events,
 1080 ACLs and pools back at 3/9/3. Device Service, Bumble and the service
-runner accept 1-120 cycles; three independent leases at 120 cycles each pass.
+runner accept 1-121 cycles; three independent leases at 120 cycles each pass,
+while a 121-cycle runtime gate remains pending.
 The two-hour artifact-bound active-BLE functional hold now passes. The next
-required gates are RSS-growth attribution, more than 120 cycles and long-run
-throughput/teardown. The former
+required gates are two-hour bounded-TCG confirmation, 121-cycle execution and
+long-run throughput/teardown. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Removing that reply

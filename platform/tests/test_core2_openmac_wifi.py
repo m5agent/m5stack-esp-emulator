@@ -41,7 +41,7 @@ class Core2OpenMacWifiTests(unittest.TestCase):
             DETERMINISTIC_QEMU_ARGS,
             (
                 "-accel",
-                "tcg,thread=single",
+                "tcg,thread=single,tb-size=128",
                 "-icount",
                 "shift=auto,align=off,sleep=off",
             ),

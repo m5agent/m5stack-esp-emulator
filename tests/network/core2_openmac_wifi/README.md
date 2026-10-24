@@ -59,7 +59,8 @@ The runner writes an isolated flash copy, serial/stdout/stderr logs, and
 explicitly for a diagnostic repeat run; a later attempt is not allowed to
 replace a failed first-attempt result in evidence.
 
-Core2 radio launches use `tcg,thread=single` plus deterministic `icount`.
+Core2 radio launches use `tcg,thread=single,tb-size=128` plus deterministic
+`icount`.
 That scheduling change removed the previously observed first-attempt
 interrupt-WDT reproduction and passed 10/10 independent runs. It does not prove
 physical cache/PSRAM timing.

@@ -132,8 +132,8 @@ one six-run focused reproduction hit it once.
 ## Current mitigation
 
 - Raw Core2 peripheral/UI cases use `-m 0`.
-- Peripheral, UI, radio and unified Core2 runs use `tcg,thread=single` plus
-  deterministic icount.
+- Peripheral, UI, radio and unified Core2 runs use
+  `tcg,thread=single,tb-size=128` plus deterministic icount.
 - Matrix retries are rejected by default and only available through the
   explicit `--allow-retries` diagnostic switch.
 - Device Service Core2 radio launches use the same deterministic options.

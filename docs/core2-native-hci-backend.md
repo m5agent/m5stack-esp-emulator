@@ -20,6 +20,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` extended run | `PASS` | `0005-esp32-native-hci-guest-call-sregs.patch`、hold 60/120s evidence、`evidence-2026-10-24-hci4-active-ble-hold600-2x.json` | caller-saved sregs 与 halted/idle gate 后，两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `600s` hold 已通过；600s hold 的 peer 全程连接，HLI `45/45` 且队列/错误为 0 |
 | `CORE2-02` 7200s diagnostic | `DIAGNOSTIC PASS` | `evidence-2026-10-24-hci4-active-ble-hold7200-diagnostic.json` | WiFi/公网/active BLE GATT/frame/pcap 保持 7200 秒，HLI `45/45` 且错误/队列/peer-close 为 0；QEMU 在 run 中被临时重编，旧 runner 未冻结启动哈希，因此不关闭 artifact-bound 门禁 |
 | `CORE2-02` artifact-bound 7200s | `FUNCTIONAL PASS / RSS REVIEW` | `evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json` | 首 lease 前绑定 firmware/ELF/QEMU 哈希，运行期无资产漂移；WiFi/公网/GATT/frame/pcap/HLI health 和 session 清理 PASS。QEMU host RSS 从 `744160 KiB` 增至 `1202176 KiB`，增长 `458016 KiB`，归因未完成，不写“RSS bounded” |
+| Core2 host TCG memory bound | `VALIDATED / 120s` | `evidence-2026-10-24-hci4-tb128-hold120-1x.json`；`qemu_accel.py` | 原先未限定 TCG translation buffer，默认最多保留 `1 GiB`；`vmmap` 显示增长落在 `VM_ALLOCATE`。改为 `tb-size=128` 后 120 秒功能全 PASS，RSS delta `-16 KiB`、phys-footprint delta `-17408 KiB` |
 | Core2 runtime memory | `PASS` | `evidence-2026-10-24-core2-native-hci-resolved-psram.json`；`qemu_runtime_memory()` | 区分 CLI `-m 0` 与 QOM-effective `4 MiB` / `has_psram=true`；manifest preflight 使用有效值，物理 8 MiB cache/PSRAM timing 仍为 `NOT RUN` |
 | `CORE2-02` same-guest reconnect | `PASS` | `run_service_5x.py --ble-reconnect-cycles 20`、`0006-esp32-native-hci-observability.patch`、`evidence-2026-10-24-hci4-reconnect10-3x.json`、`evidence-2026-10-24-hci4-reconnect20-3x.json` | 修正 Bumble 对无响应 `0x0c35` 的非法 Command Status 后，先完成 3 个 lease 各 10 轮，再扩到各 20 轮；二十轮结果每 lease HLI 577/577、events 397、ACLs 180 清空，连接/L2CAP/GATT 池回到 `3/9/3` |
 | `CORE2-02` 30-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 30 --attempts 3`、`evidence-2026-10-24-hci4-reconnect30-3x.json` | 3 个独立 lease 各 30 轮；每 lease HLI `857/857`、events 587、ACLs 270、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
@@ -245,6 +246,14 @@ firmware、ELF 和 QEMU 哈希，运行期资产无漂移；frame/pcap、WiFi/�
 GATT、HLI health 和停止后清理均通过。QEMU host RSS 从 `744160 KiB` 上升到
 `1202176 KiB`，因此本轮只关闭功能长稳门禁，内存增长趋势仍为 `REVIEW`。
 禁止把功能 PASS 写成内存占用受限或物理内存等价。
+
+进一步复核把 RSS 增长定位到 QEMU TCG translation buffer，而不是 guest
+PSRAM：默认 `tb-size` 最多预留 `1 GiB`，macOS `vmmap` 的增长主要落在
+`VM_ALLOCATE`。统一 Core2 accelerator helper 现使用
+`tcg,thread=single,tb-size=128`；120 秒 active-BLE 功能复测为 `PASS`，
+RSS `323600→323584 KiB`、phys footprint `214016→196608 KiB`，同时
+HLI `45/45` 且错误和队列为 0。最终 artifact-bound 两小时复测仍须完成，
+在此之前保留先前未限容运行的内存 `REVIEW` 历史。
 
 已证伪并回退的路线：
 
@@ -507,8 +516,9 @@ hash-freeze runner 的重跑已完成 `7200s` 功能门禁：
 
 证据：
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json`。
-当前 reconnect 上限为 `120`，hold 上限为 `7200s`；600 秒 active-BLE gate
-已通过。
+当前 reconnect 参数范围扩到 `121`，`122` 会被拒绝；`120` 已有三个独立
+lease PASS，`121` 运行仍待执行。hold 上限为 `7200s`；600 秒 active-BLE
+gate 已通过。
 
 ## 剩余工作量
 

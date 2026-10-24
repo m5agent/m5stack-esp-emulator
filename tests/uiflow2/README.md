@@ -148,7 +148,8 @@ python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
 这证明单包 C2H 路径，不证明完整 BLE 初始化或 GATT。
 
 Core2 peripheral 和 device matrix 现在都显式使用
-`tcg,thread=single` + `icount shift=auto,align=off,sleep=off`。matrices
+`tcg,thread=single,tb-size=128` +
+`icount shift=auto,align=off,sleep=off`。matrices
 不再配置自动重试；若 case 声明 `retries`，runner 默认拒绝运行，只有显式
 `--allow-retries` 才执行诊断重试。2026-10-24 06:47 的完整矩阵为
 `67/67`、`274/274`，全部 `attempts=1`；该轮包含双 guest WiFi patch

@@ -25,6 +25,7 @@ from run_profile_ui_test import (  # noqa: E402
     wait_qmp,
     write_rgb_png,
 )
+from qemu_accel import core2_accel_args  # noqa: E402
 from xtensa_elf_symbols import core2_native_vhci_addresses  # noqa: E402
 
 DEFAULT_QEMU = (
@@ -278,10 +279,7 @@ def run_attempt(
         command = [
             str(args.qemu),
             "-snapshot",
-            "-accel",
-            "tcg,thread=single",
-            "-icount",
-            "shift=auto,align=off,sleep=off",
+            *core2_accel_args(),
             "-m",
             "0",
             "-M",

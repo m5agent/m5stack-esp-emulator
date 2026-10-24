@@ -16,6 +16,10 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "platform/tools"))
+
+from qemu_accel import core2_accel_args  # noqa: E402
+
 DEFAULT_QEMU = (
     ROOT
     / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
@@ -357,10 +361,7 @@ def main() -> int:
         command = [
             str(args.qemu),
             "-snapshot",
-            "-accel",
-            "tcg,thread=single",
-            "-icount",
-            "shift=auto,align=off,sleep=off",
+            *core2_accel_args(),
             "-m",
             "0",
             "-M",

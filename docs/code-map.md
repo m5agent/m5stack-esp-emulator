@@ -98,6 +98,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/ble_probe.py` | 外部 BLE peer、scan/connect/GATT 验证，以及同一 peer process 内的多轮 disconnect/reconnect | unified/BLE runners |
 | `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
 | `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
+| `platform/tools/qemu_accel.py` | Core2 deterministic TCG + bounded 128 MiB translation buffer | Device Service、Core2 runners、回归测试 |
 | `platform/tools/qemu_profiles.py` | 检查/查询 machine、profile、runtime 和资产 | CI、设备中心 |
 | `platform/tools/peripheral_catalog.py` | 检查设备硬件需求、模型、blocker 和覆盖 | CI |
 | `platform/tools/peripheral_inventory.py` | 生成设备中心可消费的外设/控制清单 | `serve.py`、设备页 |
@@ -299,8 +300,9 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 active-BLE 600-second hold | `run_service_5x.py --hold-seconds 600` + `ble_runtime_limits.py`；`evidence-2026-10-24-hci4-active-ble-hold600-2x.json` | 2 个独立 lease `2/2`；peer 在 600 秒结束时仍连接，HLI `45/45`、`peer-closed=0`、TX queue 和 last error 均为 0 |
 | Core2 active-BLE 7200-second diagnostic hold | `run_service_5x.py --hold-seconds 7200`；`evidence-2026-10-24-hci4-active-ble-hold7200-diagnostic.json` | WiFi/公网/GATT/frame/pcap 保持两小时且 HLI health 正常；QEMU 在 run 中被重编，旧 runner 未冻结启动哈希，因此仅 `DIAGNOSTIC_PASS`；新 runner 已加入输入哈希绑定与 RSS 采样 |
 | Core2 artifact-bound 7200-second hold | `run_service_5x.py --hold-seconds 7200`；`evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json` | firmware/ELF/QEMU 在首 lease 前冻结且无运行期漂移；frame/QOM、WiFi、公网、GATT、pcap、HLI `45/45` 与清理 PASS。QEMU host RSS `744160→1202176 KiB`，增长归因仍 `REVIEW` |
+| Core2 bounded TCG memory | `platform/tools/qemu_accel.py`；`run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-tb128-hold120-1x.json` | `tb-size=128` 后 120 秒 WiFi/公网/GATT/frame/pcap/HLI 全 PASS；RSS `323600→323584 KiB`、phys footprint `214016→196608 KiB` |
 | Core2 resolved PSRAM/QOM | `evidence-2026-10-24-core2-native-hci-resolved-psram.json`；`device_service.qemu_runtime_memory()` | CLI `-m 0` 与 QOM-effective 4 MiB 分开记录；manifest runtime PSRAM preflight 使用有效值，物理 cache/PSRAM 仍为 `NOT RUN` |
-| Core2 same-guest reconnect | `ble_runtime_limits.py`；`run_service_5x.py --ble-reconnect-cycles 20/30/60/120`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；20/30/60/120 轮 evidence | 3 个独立 stock-firmware lease 各完成 20、30、60、120 轮；120 轮每 lease HLI `3377/3377`、events 2297、ACLs 1080；共享参数范围 `1–120` 并有 `121` 拒绝测试；下一门禁超过一百二十轮，hold 上限 `7200s` |
+| Core2 same-guest reconnect | `ble_runtime_limits.py`；`run_service_5x.py --ble-reconnect-cycles 20/30/60/120`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；20/30/60/120 轮 evidence | 3 个独立 stock-firmware lease 各完成 20、30、60、120 轮；120 轮每 lease HLI `3377/3377`、events 2297、ACLs 1080；共享参数范围扩到 `1–121` 并有 `122` 拒绝测试；121 轮运行仍待执行，hold 上限 `7200s` |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
@@ -318,7 +320,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | 错误密码 P0 | `tests/network/wrong_password/run_test.py`；`evidence-2026-10-24-wrong-password-pass.json` | 6 次 auth/reject、无 DHCP、无 HTTP、固件失败 marker 和 SoftAP wrong-password warning 同次 `7/7 PASS` |
 | 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/run_test.py`；`evidence-2026-10-24-radio-loss-recovery-pass.json` | radio QOM `false→true`、scan `1→0→1`、双 DHCP、前后 HTTP 200、双侧流 pcap 和同 session 证据 |
 | DNS/UDP 数据面 | `network_lane.py`、`tests/network/idf_dns_udp/`；`evidence-2026-10-24-dns-udp-pass.json` | host-forwarder DNS、host 收到固定 UDP 载荷、guest 收到同载荷回包；不冒充 controlled DNS policy |
-| Core2 WiFi-only deterministic repeat | `tests/network/core2_openmac_wifi/run_test.py`；`evidence-2026-10-24-deterministic-5x.json` | runner 显式传入 `tcg,thread=single` + `icount`；scan/association/DHCP/HTTP 独立 `5/5`，不含 BLE/DNS/公网 |
+| Core2 WiFi-only deterministic repeat | `tests/network/core2_openmac_wifi/run_test.py`；`evidence-2026-10-24-deterministic-5x.json` | runner 显式传入 `tcg,thread=single,tb-size=128` + `icount`；scan/association/DHCP/HTTP 独立 `5/5`，不含 BLE/DNS/公网 |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
 | UIFlow2 guest IPv6 TCP/HTTP | `tests/network/ipv6_end_to_end/`；test-only patch；`evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json` | 测试构建在同一 StickS3 guest 创建 link-local、完成 `fec0::2:18095` HTTP；pcap/串口/资产哈希同 evidence。原厂固件未启用 IPv6，controlled AAAA/denied-port 仍 `NOT RUN` |
 | Exact dual-stack egress | `tests/network/egress_allowlist/` | nftables 默认 drop、IPv4/IPv6 允许/拒绝端口与地址、worker→upstream 双栈 veth/NAT、源地址转换、IPv6 neighbor control、namespace/NAT 清理 |

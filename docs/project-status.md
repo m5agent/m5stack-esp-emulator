@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `343` 项，`343` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `346` 项，`346` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - 设备、Backlog Task 和固件样本的动态计数已改由
   [`project_snapshot.py`](../platform/tools/project_snapshot.py)从 catalog、
@@ -42,7 +42,7 @@
 - 最新完整 UIFlow2 外设矩阵在 `2026-10-24 06:47 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS，包含全部 6 个 Core2 case；每个
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
-  `tcg,thread=single` + deterministic `icount`，RTC 从 boot epoch 起按
+  `tcg,thread=single,tb-size=128` + deterministic `icount`，RTC 从 boot epoch 起按
   QEMU 虚拟时钟推进。该轮包含 QEMU patch `0028` 的双 guest WiFi
   生命周期；第一轮暴露
   Cardputer-ADV 键盘 6 秒启动窗口竞争，补齐 10 秒等待和 2 秒输入后等待
@@ -133,6 +133,13 @@
   结果为 `PASS`。同一次运行采样 QEMU host RSS 从 `744160 KiB` 增至
   `1202176 KiB`（`+458016 KiB`），增长对象和原因尚未归因，因此内存趋势
   保持 `REVIEW`；不能仅凭功能 PASS 声称内存占用受限。
+- 后续用 macOS `vmmap` 把该增长定位到 QEMU TCG translation buffer
+  `VM_ALLOCATE`，而不是 guest PSRAM；默认 `tb-size` 最多可预留 `1 GiB`。
+  统一 Core2 accelerator 已改为
+  `tcg,thread=single,tb-size=128`。同一固件的 120 秒 active-BLE 功能复测
+  全 PASS，RSS `323600→323584 KiB`、phys footprint
+  `214016→196608 KiB`，HLI `45/45`。带限容的 artifact-bound `7200s`
+  最终复测正在运行，完成前不关闭 RSS 风险。
 - 对同一次运行做 QOM 复核后发现，Core2 native-controller 虽然传入 CLI
   `-m 0`，`m5core2` machine 仍解析为 `4 MiB` memory 和
   `has_psram=true`。当前文档和 evidence 已分别记录 CLI request 与
@@ -143,8 +150,9 @@
   `ready_timeout_seconds` 硬截断为 30 秒，导致 session 被误判失败并终止
   QEMU。修复后等待使用 session ready timeout，并增加超过 30 秒仍可完成的
   回归测试；失败证据和修复后 PASS 证据分别保留。
-- Device Service、Bumble peer 和 runner 当前共享 `1–120` 参数范围，`121`
-  会被契约测试拒绝。`120` 是已验证边界，不是“超过一百二十轮”的证据。
+- Device Service、Bumble peer 和 runner 当前共享 `1–121` 参数范围，`122`
+  会被契约测试拒绝。`120` 已完成 `3/3 PASS`，`121` 是本轮新增待执行门禁；
+  不能把契约参数上限当成运行通过证据。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 - Worker transport 安全证据单独归类为 `transport-security validation`，
   不是跨主机网络拓扑验证。当前 HTTPS/mTLS 运行覆盖同主机 loopback 上的
@@ -175,7 +183,7 @@
 | 能力面 | 虚拟设备验证 | 本地服务化 | 真机 | 当前结论 |
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
-| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 和 artifact-bound `7200s` 功能保持均 PASS；RSS 增长 `REVIEW` | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、同 guest 120 轮重连和两小时 active-BLE 功能保持；仍需解释 RSS 增长、超过一百二十轮、RF/PHY 和 bit-exact BT controller |
+| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 和 artifact-bound `7200s` 功能保持均 PASS；未限容 RSS 增长 `REVIEW`，`tb-size=128` 的 120 秒内存验证 PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、同 guest 120 轮重连和两小时 active-BLE 功能保持；限容两小时确认中，之后补超过一百二十轮、RF/PHY 和 bit-exact BT controller |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact A/AAAA resolver、exact IPv4/IPv6 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP PASS；真实 server/worker namespace 的 Bearer+HMAC control plane PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain、previous token/CA 有界重叠和无 worker-SIGHUP 的双 worker generation-pointer 自动迁移 PASS；跨主机 QEMU job、自动主机发现、companion continuity、CIDR/domain-set 和同 guest AAAA/denied-port/namespace cleanup 未完成 | `NOT RUN` | 传输、认证、同主机 QEMU/unified job 和可审计批量迁移基础已具备，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、文件级 `permission_policy`、包内源码 SPDX header、WebBurner 浏览器流式上传/刷新恢复 PASS；7 台设备 21 个公开非基线样本为 10 PASS / 11 PARTIAL；C6 Zigbee、Core2 legacy I2C controller/board-bus routing、Core2 for AWS ATECC608 以结构化 `runtime_model_gap` 保留 | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环；运行态 ACL/权限强制、生成/vendor 源码完整许可、`RUNTIME-02/03/04`、FW-03 更多设备和生产安全仍未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、active-request drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、worker lease 与失联回收 | 无跨主机 QEMU executor、worker 主机自动发现、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、drained overlap rotation、可审计批量迁移、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
@@ -192,7 +200,7 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS A/AAAA、TLS/Host allowlist；nftables exact IPv4/IPv6 egress、双栈 veth/NAT、IPv6 neighbor control 和清理；专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；跨 server/worker namespace 的 Bearer+HMAC worker control plane；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执；GitHub Actions Linux policy CI PASS | 自动发现 worker 主机、跨主机 QEMU executor/reattach、companion/evidence continuity、生产多机调度、CIDR/domain-set、同 guest AAAA/denied-port/namespace cleanup |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 和 artifact-bound `7200s` 功能保持均 PASS | QEMU host RSS 两小时增长 `458016 KiB` 待归因、超过一百二十轮 reconnect、bit-exact controller/baseband、物理 cache/PSRAM 和真机 |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 和 artifact-bound `7200s` 功能保持均 PASS；`tb-size=128` 120 秒内存验证 PASS | 限容两小时复测进行中、超过一百二十轮 reconnect、bit-exact controller/baseband、物理 cache/PSRAM 和真机 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、WebBurner/API required/optional capability 声明、sdkconfig WiFi/BT/PSRAM detected capability、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、文件级权限来源、包内源码 SPDX header 和声明级许可 allowlist/denylist；7 台设备 21 个公开非基线样本 10 PASS / 11 PARTIAL；`RUNTIME-01` Flash/PMP 修复已通过 Device Service 和 C6 回归 | 运行态 ACL/权限强制、生成代码/包外 vendor 依赖的完整许可覆盖、法律审批、真机 key/eFuse 流程、更多设备/firmware family 回归；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 legacy I2C routing 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
 
 ## 工作流入口
@@ -440,8 +448,8 @@
    extended-run 故障；artifact-bound 两小时 active-BLE 功能保持也已 PASS，
    但仍不覆盖 bit-exact controller/baseband、物理 cache/PSRAM、RSS 增长和
    真机同路径；同 guest 20、30、60、120 轮 GATT 均已有 3 个独立 lease 的
-   PASS evidence。参数范围已扩到
-   `1–120`，但 `121` 轮会被拒绝，不能把参数上限当成“超过一百二十轮已通过”。
+   PASS evidence。参数范围扩到 `1–121`，但 `121` 轮运行仍待执行，不能把
+   参数上限当成“超过一百二十轮已通过”。
    第一个 10 轮
    attempt 的失败已确认是 service 30 秒硬上限，不是 guest/controller；
    修复后的失败和 PASS evidence 均保留。旧
@@ -451,7 +459,9 @@
    旧 `7200s` 行为保持保留为 `DIAGNOSTIC_PASS`。新 runner 已完成
    artifact-bound 两小时功能门禁：启动资产无漂移，frame/QOM、WiFi、公网、
    GATT、pcap、HLI health 和清理全部 PASS。QEMU host RSS 在该轮增长
-   `458016 KiB`，所以功能长稳 PASS 不等于内存有界，RSS 归因仍为 `REVIEW`。
+   `458016 KiB`，所以该功能长稳 PASS 不等于内存有界。后续定位到未限容的
+   TCG translation buffer；`tb-size=128` 的 120 秒复测 RSS 和 phys
+   footprint 均无增长，最终两小时限容复测完成前仍保持 `REVIEW`。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径

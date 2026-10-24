@@ -684,6 +684,17 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(MAX_ARTIFACT_BYTES, 96 * 1024 * 1024)
         self.assertEqual(MAX_ARTIFACT_CHUNK_BYTES, 8 * 1024 * 1024)
 
+    def test_core2_tcg_cache_is_bounded(self):
+        self.assertEqual(
+            device_service_module.core2_accel_args(),
+            [
+                "-accel",
+                "tcg,thread=single,tb-size=128",
+                "-icount",
+                "shift=auto,align=off,sleep=off",
+            ],
+        )
+
     def test_ble_profiles_use_longer_default_ready_timeout(self):
         for profile in (
             "core2-native-vhci",
@@ -1054,26 +1065,26 @@ class DeviceServiceUnitTests(unittest.TestCase):
             runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
         )
         self.assertEqual(twenty_cycles["ble_reconnect_cycles"], 20)
-        one_hundred_twenty_cycles = (
+        one_hundred_twenty_one_cycles = (
             device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
                 {
                     "profile": "uiflow2-sticks3-unified",
-                    "ble_reconnect_cycles": 120,
+                    "ble_reconnect_cycles": 121,
                 },
                 runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
             )
         )
         self.assertEqual(
-            one_hundred_twenty_cycles["ble_reconnect_cycles"],
-            120,
+            one_hundred_twenty_one_cycles["ble_reconnect_cycles"],
+            121,
         )
         with self.assertRaises(ServiceError) as invalid_cycles:
             device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
                 {
                     "profile": "uiflow2-sticks3-unified",
-                    "ble_reconnect_cycles": 121,
+                    "ble_reconnect_cycles": 122,
                 },
                 runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
             )

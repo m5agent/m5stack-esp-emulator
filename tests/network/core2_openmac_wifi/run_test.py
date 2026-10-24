@@ -10,12 +10,17 @@ import re
 import shutil
 import signal
 import subprocess
+import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "platform/tools"))
+
+from qemu_accel import core2_accel_args  # noqa: E402
+
 FILES = Path(__file__).resolve().parent / "files"
 PROFILE_RUNNER = ROOT / "tests/uiflow2/run_profile_ui_test.py"
 BASE = ROOT / "platform/.cache/firmware/core2/uiflow2.bin"
@@ -24,12 +29,7 @@ DEFAULT_QEMU = (
     ROOT
     / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
 )
-DETERMINISTIC_QEMU_ARGS = (
-    "-accel",
-    "tcg,thread=single",
-    "-icount",
-    "shift=auto,align=off,sleep=off",
-)
+DETERMINISTIC_QEMU_ARGS = tuple(core2_accel_args())
 
 
 def sha256(path: Path) -> str:
