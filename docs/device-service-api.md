@@ -668,6 +668,13 @@ known, required capabilities, chip, flash and PSRAM are checked. The service
 returns HTTP `409 unsupported_firmware_capability` with `issues[]`; a model gap
 must not be reported as a firmware crash.
 
+QEMU memory is rechecked at session creation against the selected profile.
+For example, a manifest requiring PSRAM receives
+`issues[].code=runtime_psram_mismatch` when the native-controller lane uses
+`effective_psram_mib=0`, even if the physical board inventory declares more
+PSRAM. This preflight prevents a known memory-model mismatch from being
+misreported later as a firmware crash.
+
 ```http
 POST /api/v1/firmware
 Content-Type: application/json
@@ -966,6 +973,13 @@ device arguments. No QEMU GDB endpoint is created. Event and ACL delivery use
 the firmware HLI queue/IRQ; H2C ownership is isolated at
 `API_vhci_host_send_packet`. A second Bumble peer performs NUS discovery,
 subscription, write and notification readback.
+
+The network evidence `runtime.memory` object records the requested and
+effective QEMU PSRAM size, the selected policy, and
+`physical_cache_psram_timing=NOT RUN`. Native-controller profiles report
+`effective_psram_mib=0`; non-native profiles can report the configured QEMU
+model. This makes memory policy auditable without claiming physical PSRAM or
+cache timing.
 
 `/network` returns `kind=m5stack-core2-unified-qemu-proof`,
 `profile=core2-native-hci`, and

@@ -218,6 +218,69 @@ QEMU_SESSION_RUNTIMES = frozenset({"qemu", "network", *QEMU_RADIO_RUNTIMES})
 SINGLE_GUEST_PROFILES = frozenset(
     {*UNIFIED_PROFILES, NESSO_UNIFIED_PROFILE}
 )
+
+
+def qemu_runtime_memory(
+    memory: str | None,
+    profile: str | None,
+) -> dict[str, Any]:
+    """Describe the QEMU PSRAM selection without claiming physical timing."""
+    requested: int | None
+    try:
+        requested = int(memory) if memory is not None else None
+    except (TypeError, ValueError):
+        requested = None
+    native_controller = profile in {
+        CORE2_NATIVE_VHCI_PROFILE,
+        CORE2_NATIVE_HCI_PROFILE,
+    }
+    effective = 0 if native_controller else requested
+    if native_controller:
+        policy = "native-controller-no-psram"
+    elif effective == 0:
+        policy = "qemu-no-psram"
+    elif effective is not None:
+        policy = "qemu-emulated-psram"
+    else:
+        policy = "not-configured"
+    return {
+        "requested_psram_mib": requested,
+        "effective_psram_mib": effective,
+        "policy": policy,
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN",
+    }
+
+
+def runtime_psram_mismatch(
+    memory: str | None,
+    profile: str | None,
+    required_bytes: object,
+) -> dict[str, Any] | None:
+    """Return a structured preflight issue for an undersized QEMU PSRAM lane."""
+    if not isinstance(required_bytes, int) or required_bytes <= 0:
+        return None
+    runtime_memory = qemu_runtime_memory(memory, profile)
+    effective_mib = runtime_memory["effective_psram_mib"]
+    if not isinstance(effective_mib, int):
+        return None
+    available_bytes = effective_mib << 20
+    if required_bytes <= available_bytes:
+        return None
+    return {
+        "code": "runtime_psram_mismatch",
+        "message": (
+            f"firmware declares {required_bytes} bytes of PSRAM; "
+            f"runtime profile provides {available_bytes}"
+        ),
+        "requirement": required_bytes,
+        "available": available_bytes,
+        "path": "target.psram_size",
+        "runtime_profile": profile,
+        "memory_policy": runtime_memory["policy"],
+    }
+
+
 CORE2_HCI_GATT_MARKERS = (
     "CORE2_HCI_BLE_READY",
     "CORE2_HCI_BLE_RX",
@@ -3295,6 +3358,10 @@ class DeviceSession:
                 "runtime": {
                     "name": "qemu",
                     "guest_process_count": 1,
+                    "memory": qemu_runtime_memory(
+                        self.spec.memory,
+                        profile,
+                    ),
                     "wifi_nic": self.network_config.get("nic"),
                     "hci_transport": (
                         "ESP32 native HCI device + HLI to Bumble"
@@ -6986,6 +7053,7 @@ class DeviceService:
                 worker=worker_snapshot,
             )
         firmware_id = payload.get("firmware_id")
+        manifest_psram = None
         if firmware_id:
             firmware = self.firmware.get(str(firmware_id))
             if firmware["device_id"] != device_id:
@@ -6998,6 +7066,12 @@ class DeviceService:
             firmware_sha = firmware["sha256"]
             source = "uploaded"
             firmware_source = firmware.get("source", {})
+            if firmware.get("kind") == "manifest":
+                manifest_psram = (
+                    (firmware.get("manifest") or {})
+                    .get("target", {})
+                    .get("psram_size")
+                )
             source_artifacts = (
                 [firmware_source["artifact_id"]]
                 if firmware_source.get("kind") in {"merged", "manifest"}
@@ -7076,6 +7150,27 @@ class DeviceService:
                 self.artifacts.get(str(elf_artifact_id))
                 if elf_artifact_id not in source_artifacts:
                     source_artifacts.append(str(elf_artifact_id))
+        if runtime != "network":
+            profile = (
+                network_config.get("profile")
+                if isinstance(network_config, dict)
+                else None
+            )
+            memory_issue = runtime_psram_mismatch(
+                spec.memory,
+                profile,
+                manifest_psram,
+            )
+            if memory_issue is not None:
+                raise ServiceError(
+                    "unsupported_firmware_capability",
+                    (
+                        "firmware PSRAM requirement exceeds the selected "
+                        "QEMU runtime memory policy"
+                    ),
+                    409,
+                    issues=[memory_issue],
+                )
 
         self._ensure_storage_capacity(spec.flash_size)
         with self._lock:

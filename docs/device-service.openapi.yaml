@@ -1536,6 +1536,29 @@ components:
             guest_process_count:
               type: integer
               minimum: 1
+            memory:
+              type: object
+              additionalProperties: false
+              required:
+                - requested_psram_mib
+                - effective_psram_mib
+                - policy
+                - claim
+                - physical_cache_psram_timing
+              properties:
+                requested_psram_mib:
+                  type: [integer, "null"]
+                effective_psram_mib:
+                  type: [integer, "null"]
+                policy:
+                  type: string
+                  example: native-controller-no-psram
+                claim:
+                  type: string
+                  const: qemu-memory-configuration-only
+                physical_cache_psram_timing:
+                  type: string
+                  const: NOT RUN
             wifi_nic:
               type: string
             hci_transport:

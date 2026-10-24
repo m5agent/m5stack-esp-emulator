@@ -408,6 +408,84 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "unsupported_capability",
         )
 
+    def test_qemu_runtime_rejects_psram_capability_mismatch(self):
+        data = b"\xe9" + b"C" * 1023
+        artifact = self.service.upload_artifact(data)
+        manifest = {
+            "schema_version": 1,
+            "kind": "m5stack-firmware-manifest",
+            "device_id": "core2",
+            "artifact": {
+                "kind": "merged-flash",
+                "file": "firmware.bin",
+                "artifact_id": artifact["artifact_id"],
+                "size": len(data),
+                "sha256": artifact["sha256"],
+            },
+            "target": {
+                "soc": "esp32",
+                "chip_id": 0,
+                "flash_size": 16 << 20,
+                "psram_size": 8 << 20,
+                "partition_table": {},
+                "application": None,
+            },
+            "security": {
+                "secure_boot": "unknown",
+                "flash_encryption": "unknown",
+                "efuse": "not-included",
+                "secure_version": 0,
+            },
+            "provenance": {
+                "importer": "test",
+                "source_format": "merged-bin",
+            },
+            "resources": {},
+            "capabilities": {
+                "required": ["wifi"],
+                "optional": [],
+            },
+            "validation": {
+                "status": "PASS",
+                "errors": [],
+                "warnings": [],
+            },
+        }
+        manifest["manifest_id"] = device_service_module.canonical_json_sha256(
+            manifest
+        )
+        firmware = self.service.create_firmware(
+            {
+                "device_id": "core2",
+                "kind": "manifest",
+                "manifest": manifest,
+            }
+        )
+        elf = self.service.upload_artifact(b"\x7fELF-test")
+        with mock.patch.dict(
+            os.environ,
+            {"M5_CORE2_RADIO_QEMU": str(self.service.specs["core2"].qemu)},
+        ):
+            with self.assertRaises(ServiceError) as caught:
+                self.service.create_session(
+                    {
+                        "device_id": "core2",
+                        "firmware_id": firmware["firmware_id"],
+                        "runtime": "qemu-unified",
+                        "network": {
+                            "profile": "core2-native-hci",
+                            "elf_artifact_id": elf["artifact_id"],
+                        },
+                    }
+                )
+        self.assertEqual(
+            caught.exception.code,
+            "unsupported_firmware_capability",
+        )
+        issue = caught.exception.extra["issues"][0]
+        self.assertEqual(issue["code"], "runtime_psram_mismatch")
+        self.assertEqual(issue["available"], 0)
+
     def test_qemu_wifi_network_result_refreshes_before_stop(self):
         spec = self.service.specs["sticks3"]
         firmware = Path(self.tmp.name) / "sticks3-wifi.bin"
@@ -475,6 +553,43 @@ class DeviceServiceUnitTests(unittest.TestCase):
 
     def test_core2_service_exposes_board_psram(self):
         self.assertEqual(self.service.specs["core2"].memory, "4")
+        regular = device_service_module.qemu_runtime_memory(
+            "4",
+            "core2-unified",
+        )
+        native = device_service_module.qemu_runtime_memory(
+            "4",
+            "core2-native-hci",
+        )
+        self.assertEqual(regular["effective_psram_mib"], 4)
+        self.assertEqual(regular["policy"], "qemu-emulated-psram")
+        self.assertEqual(native["effective_psram_mib"], 0)
+        self.assertEqual(
+            native["policy"],
+            "native-controller-no-psram",
+        )
+        self.assertEqual(
+            native["physical_cache_psram_timing"],
+            "NOT RUN",
+        )
+        issue = device_service_module.runtime_psram_mismatch(
+            "4",
+            "core2-native-hci",
+            8 << 20,
+        )
+        self.assertEqual(issue["code"], "runtime_psram_mismatch")
+        self.assertEqual(issue["available"], 0)
+        self.assertEqual(
+            issue["memory_policy"],
+            "native-controller-no-psram",
+        )
+        self.assertIsNone(
+            device_service_module.runtime_psram_mismatch(
+                "4",
+                "core2-unified",
+                4 << 20,
+            )
+        )
 
     def test_tab5_service_models_board_i2c_devices(self):
         devices = device_service_module.TAB5_I2C_DEVICES

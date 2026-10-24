@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `332` 项，`332` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `333` 项，`333` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - 设备、Backlog Task 和固件样本的动态计数已改由
   [`project_snapshot.py`](../platform/tools/project_snapshot.py)从 catalog、
