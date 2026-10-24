@@ -556,6 +556,21 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertEqual(filesystem["fat_type"], "fat16")
         self.assertEqual(filesystem["status"], "PASS")
         self.assertEqual(filesystem["declared_licenses"], ["Apache-2.0"])
+        self.assertEqual(
+            filesystem["permission_model"]["kind"],
+            "fat-attributes",
+        )
+        self.assertEqual(
+            filesystem["permission_summary"]["files_with_policy"],
+            filesystem["file_count"],
+        )
+        self.assertTrue(filesystem["directory_permissions"])
+        self.assertTrue(
+            all(
+                row["permission_policy"]["source"] == "fat-directory-entry"
+                for row in filesystem["files"]
+            )
+        )
         self.assertTrue(filesystem["sensitive_files"])
         self.assertEqual(
             filesystem["sensitive_files"][0]["path"],
@@ -601,6 +616,55 @@ class FirmwareManifestTests(unittest.TestCase):
                 "unsupported_capability",
             }
             <= codes
+        )
+
+    def test_source_spdx_scan_feeds_license_policy_and_redacts_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "package"
+            source = root / "src"
+            source.mkdir(parents=True)
+            (root / "firmware.bin").write_bytes(build_flash())
+            (source / "main.c").write_text(
+                "// SPDX-License-Identifier: MIT\nint main(void) { return 0; }\n"
+            )
+            (source / "secret.config.py").write_text(
+                "# SPDX-License-Identifier: Apache-2.0\nVALUE = 1\n"
+            )
+            manifest = import_package(
+                root,
+                Path(tmp) / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )["manifest"]
+
+        scan = manifest["source_license_scan"]
+        self.assertEqual(scan["status"], "PASS")
+        self.assertEqual(scan["coverage"]["files_scanned"], 2)
+        self.assertEqual(
+            scan["coverage"]["declared_licenses"],
+            ["Apache-2.0", "MIT"],
+        )
+        self.assertEqual(
+            {row["path"] for row in scan["files"]},
+            {"src/main.c", "<redacted-sensitive-path>"},
+        )
+        redacted = next(
+            row for row in scan["files"] if row.get("redacted")
+        )
+        self.assertIn("path_sha256", redacted)
+        self.assertEqual(
+            manifest["license_policy"]["coverage"][
+                "source_code_declarations"
+            ],
+            2,
+        )
+        self.assertEqual(
+            manifest["license_policy"]["discovered_licenses"],
+            ["Apache-2.0", "MIT"],
+        )
+        self.assertNotIn(
+            "secret.config.py",
+            json.dumps(manifest, sort_keys=True),
         )
 
     def test_zip_slip_is_rejected(self):

@@ -770,6 +770,28 @@ class FirmwareAnalysisTests(unittest.TestCase):
         self.assertIn("/main.py", file_paths)
         self.assertIn("/res/LICENSE", file_paths)
         self.assertIn("<redacted-sensitive-path>", file_paths)
+        self.assertEqual(filesystem["permission_model"]["kind"], "none")
+        self.assertEqual(
+            filesystem["permission_summary"]["files_with_policy"],
+            filesystem["file_count"],
+        )
+        self.assertEqual(
+            filesystem["permission_summary"]["unix_mode_recorded"],
+            0,
+        )
+        self.assertEqual(
+            filesystem["permission_summary"]["runtime_enforcement"],
+            "NOT RUN",
+        )
+        for row in filesystem["files"]:
+            self.assertEqual(
+                row["permission_policy"]["source"],
+                "filesystem-metadata",
+            )
+            self.assertEqual(
+                row["permission_policy"]["unix_mode"],
+                "not-recorded",
+            )
 
     def test_fat_inventory_supports_fat12_fat16_and_fat32(self):
         for fat_type in ("fat12", "fat16", "fat32"):
@@ -817,7 +839,65 @@ class FirmwareAnalysisTests(unittest.TestCase):
                     main["sha256"],
                     hashlib.sha256(expected).hexdigest(),
                 )
+                self.assertEqual(
+                    filesystem["permission_model"]["kind"],
+                    "fat-attributes",
+                )
+                self.assertEqual(
+                    filesystem["permission_summary"]["files_with_policy"],
+                    filesystem["file_count"],
+                )
+                self.assertEqual(
+                    main["permission_policy"],
+                    {
+                        "source": "fat-directory-entry",
+                        "model": "fat-attributes",
+                        "unix_mode": "not-applicable",
+                        "read_only_attribute": False,
+                        "hidden": False,
+                        "system": False,
+                        "archive": True,
+                        "runtime_enforcement": "not-proven",
+                    },
+                )
+                self.assertTrue(filesystem["directory_permissions"])
                 self.assertEqual(len(filesystem["sensitive_files"]), 1)
+
+    def test_fat_read_only_attribute_is_recorded_without_overclaiming(self):
+        volume = bytearray(build_fat_volume("fat12"))
+        short_name = b"MAIN    PY"
+        entry_offset = volume.find(short_name)
+        self.assertGreaterEqual(entry_offset, 0)
+        volume[entry_offset + 11] |= 0x01
+        result = inventory_data_partition(
+            bytes(volume),
+            {
+                "label": "storage",
+                "subtype": 0x81,
+                "offset": 0,
+                "size": len(volume),
+            },
+        )
+
+        self.assertIsNotNone(result)
+        main = next(
+            row for row in result["files"] if row["path"] == "/main.py"
+        )
+        self.assertTrue(
+            main["permission_policy"]["read_only_attribute"]
+        )
+        self.assertEqual(
+            main["permission_policy"]["runtime_enforcement"],
+            "not-proven",
+        )
+        self.assertEqual(
+            result["permission_summary"]["fat_read_only_attribute_count"],
+            1,
+        )
+        self.assertEqual(
+            result["permission_summary"]["runtime_enforcement"],
+            "NOT RUN",
+        )
 
     def test_fat_cycle_is_partial_not_a_pass(self):
         volume = bytearray(build_fat_volume("fat12"))
@@ -915,6 +995,24 @@ class FirmwareAnalysisTests(unittest.TestCase):
         )
         self.assertEqual(len(filesystem["sensitive_files"]), 1)
         self.assertTrue(filesystem["lut_validated"])
+        self.assertEqual(filesystem["permission_model"]["kind"], "none")
+        self.assertEqual(
+            filesystem["permission_summary"]["files_with_policy"],
+            filesystem["file_count"],
+        )
+        self.assertEqual(
+            filesystem["permission_summary"]["runtime_enforcement"],
+            "NOT RUN",
+        )
+        for row in filesystem["files"]:
+            self.assertEqual(
+                row["permission_policy"]["unix_mode"],
+                "not-recorded",
+            )
+            self.assertEqual(
+                row["permission_policy"]["runtime_enforcement"],
+                "not-proven",
+            )
 
         for config in SPIFFS_CONFIGS:
             page_size, block_size, obj_name_len, metadata_len = config

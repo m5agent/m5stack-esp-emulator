@@ -39,7 +39,7 @@
 | --- | --- | --- |
 | `RUNTIME-01` | `FIXED` | C6 软件复位后 chip-id 错误 |
 | `RUNTIME-02` | `OPEN` | C6 Zigbee/802.15.4 运行时未建模 |
-| `RUNTIME-03` | `OPEN` | Core2 AXP PMIC I2C 事务未闭环 |
+| `RUNTIME-03` | `OPEN` | Core2 AXP I2C driver/bus handoff 未闭环 |
 | `RUNTIME-04` | `OPEN` | Core2 for AWS ATECC608 未建模 |
 
 ## Backlog Task 板
@@ -65,7 +65,7 @@
 
 ## 文档与测试
 
-- 平台测试：`324` 项。
+- 平台测试：`329` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

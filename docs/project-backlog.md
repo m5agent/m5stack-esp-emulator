@@ -23,7 +23,7 @@
 | --- | --- | --- | --- |
 | P0 | 网络产品化 | 自动发现/跨主机 worker 迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
-| P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 AXP PMIC I2C；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；PMIC 寄存器语义；安全元件 fixture |
+| P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 AXP I2C driver/bus handoff；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；legacy I2C ownership/controller state；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
@@ -188,14 +188,18 @@ guest-call 上下文问题并修复：
 ### FW-01 文件系统、权限与许可
 
 当前缺口：LittleFS、FAT12/16/32 和常见 ESP-IDF SPIFFS 配置已有只读清单；
-provenance/文件系统/SBOM 声明已可汇总为显式 allowlist/denylist 决策，且
-未配置 allowlist、无声明和未知表达式会保持 `REVIEW_REQUIRED`。运行时文件
-权限、完整源码级许可扫描和真实法律审批仍开放。
+每个文件都有结构化 `permission_policy`，FAT 原生属性已记录，LittleFS/SPIFFS
+明确标记无 Unix mode。provenance/文件系统/SBOM 声明已可汇总为显式
+allowlist/denylist 决策，且未配置 allowlist、无声明和未知表达式会保持
+`REVIEW_REQUIRED`。包内源文件已有有界 SPDX header 扫描；固件运行时的实际
+权限/ACL 强制、生成代码/包外 vendor 依赖的完整许可覆盖和真实法律审批仍开放。
 
 验收：
 
 - 不支持的 SPIFFS 配置明确返回 `INVALID`，不能猜测文件名；
-- 每个资源项记录来源、哈希、权限策略和在适用时的许可结论；
+- 每个资源项记录来源、哈希、镜像可见的权限策略和在适用时的许可结论；
+- 运行态权限必须由真实 guest/系统路径验证，不能把 FAT read-only attribute
+  或“无 Unix mode”写成 ACL/执行权限 PASS；
 - listing 有资源上限和截断标记；
 - 许可策略区分声明、未知、允许、拒绝和法律结论；
 - `unknown` 安全状态不能被写成 PASS。
@@ -241,17 +245,19 @@ On/Off 和离网生命周期。当前 backend 下不得用 host 伪造 Zigbee �
 不承诺全 C6 固件兼容。详情见
 [运行时模型缺口登记](runtime-model-gap-register.md)。
 
-### RUNTIME-03 Core2 AXP PMIC I2C
+### RUNTIME-03 Core2 AXP I2C driver/bus handoff
 
-当前缺口：`UIFlow_Core2` 与 `Core2FactoryTest` 都发现 AXP I2C 地址，但在
-`disable_timer_interrupt()` 路径读取寄存器时得到
+当前缺口：`UIFlow_Core2` 与 `Core2FactoryTest` 都发现 AXP I2C 地址；
+Controller/device trace 已确认 AXP2101 chip id `0x4a` 可以读出。随后
+`disable_timer_interrupt()` 的下一读取在生成新的 address `0x34` 事务前返回
 `OSError: I2C bus error (19)`。默认 AXP2101 和
-`M5SW_CORE2_PMIC=axp192` 都失败，AXP192 的 QOM 节点存在，说明不是简单
-“设备地址没挂上”。
+`M5SW_CORE2_PMIC=axp192` 都失败，因此当前首要边界是 M5GFX 到
+`machine.I2C` 的 driver/bus handoff，而不是已证实的寄存器响应错误。
 
-下一项最小交付：从公开固件资源确认寄存器序列和 I2C 事务类型，修 QEMU
-AXP192/AXP2101 数据面；`M5SW_CORE2_PMIC` 仍只允许通过受限 `runtime_env`
-选择，不得用 host 假值伪造启动结果。
+下一项最小交付：跟踪 bus ownership、driver install 和 controller state；
+取得匹配源码/frozen bytecode 后确认实际 API。若后续事务到达 AXP 设备，再修
+对应数据面；`M5SW_CORE2_PMIC` 仍只允许通过受限 `runtime_env` 选择，不得用
+host 假值伪造启动结果。
 
 验收：同一 `UIFlow_Core2` SHA 在指定 PMIC 变体下进入应用帧并保持运行。
 

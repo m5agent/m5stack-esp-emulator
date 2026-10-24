@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "kind": "firmware-filesystem-permission-policy",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "static filesystem metadata only",
+  "filesystems": {
+    "fat12": {
+      "status": "PASS",
+      "file_count": 4,
+      "permission_model": {
+        "kind": "fat-attributes",
+        "source": "fat-directory-entry",
+        "unix_mode": "not-applicable",
+        "runtime_enforcement": "not-proven",
+        "claim": "FAT attributes are recorded; they do not prove POSIX access control or runtime immutability"
+      },
+      "permission_summary": {
+        "files": 4,
+        "files_with_policy": 4,
+        "unix_mode_recorded": 0,
+        "fat_read_only_attribute_count": 1,
+        "fat_hidden_count": 0,
+        "fat_system_count": 0,
+        "model": "fat-attributes",
+        "runtime_enforcement": "NOT RUN"
+      },
+      "sample_file_policy": {
+        "source": "fat-directory-entry",
+        "model": "fat-attributes",
+        "unix_mode": "not-applicable",
+        "read_only_attribute": true,
+        "hidden": false,
+        "system": false,
+        "archive": true,
+        "runtime_enforcement": "not-proven"
+      },
+      "directory_policy_count": 3
+    },
+    "littlefs": {
+      "status": "PASS",
+      "file_count": 3,
+      "permission_model": {
+        "kind": "none",
+        "source": "filesystem-metadata",
+        "unix_mode": "not-recorded",
+        "runtime_enforcement": "not-proven",
+        "claim": "the image does not carry Unix mode bits; runtime permission enforcement is not proven"
+      },
+      "permission_summary": {
+        "files": 3,
+        "files_with_policy": 3,
+        "unix_mode_recorded": 0,
+        "fat_read_only_attribute_count": 0,
+        "fat_hidden_count": 0,
+        "fat_system_count": 0,
+        "model": "none",
+        "runtime_enforcement": "NOT RUN"
+      },
+      "sample_file_policy": {
+        "source": "filesystem-metadata",
+        "model": "none",
+        "unix_mode": "not-recorded",
+        "read_only_attribute": "unknown",
+        "hidden": "unknown",
+        "system": "unknown",
+        "archive": "unknown",
+        "runtime_enforcement": "not-proven"
+      },
+      "directory_policy_count": 0
+    },
+    "spiffs": {
+      "status": "PASS",
+      "file_count": 4,
+      "permission_model": {
+        "kind": "none",
+        "source": "filesystem-metadata",
+        "unix_mode": "not-recorded",
+        "runtime_enforcement": "not-proven",
+        "claim": "the image does not carry Unix mode bits; runtime permission enforcement is not proven"
+      },
+      "permission_summary": {
+        "files": 4,
+        "files_with_policy": 4,
+        "unix_mode_recorded": 0,
+        "fat_read_only_attribute_count": 0,
+        "fat_hidden_count": 0,
+        "fat_system_count": 0,
+        "model": "none",
+        "runtime_enforcement": "NOT RUN"
+      },
+      "sample_file_policy": {
+        "source": "filesystem-metadata",
+        "model": "none",
+        "unix_mode": "not-recorded",
+        "read_only_attribute": "unknown",
+        "hidden": "unknown",
+        "system": "unknown",
+        "archive": "unknown",
+        "runtime_enforcement": "not-proven"
+      },
+      "directory_policy_count": 0
+    }
+  },
+  "not_claimed": [
+    "Unix mode bits for LittleFS or SPIFFS",
+    "runtime permission enforcement",
+    "filesystem mount policy in the firmware",
+    "physical-device authorization behavior"
+  ]
+}

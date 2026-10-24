@@ -99,16 +99,18 @@ zero `FAIL`.
 
 | Firmware | SHA-256 | Current result | Runtime model gap |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | AXP PMIC register transaction returns I2C error; no frame |
-| `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | AXP PMIC read error; touch/PMIC discovery only, no frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | AXP address/chip-id probe passes; legacy M5GFX-to-`machine.I2C` handoff fails before the next AXP bus transaction |
+| `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | AXP discovery succeeds; legacy I2C driver/bus handoff error leaves no frame |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
 The `UIFlow_Core2` sample was rerun with both default AXP2101 and the narrow
 `M5SW_CORE2_PMIC=axp192` runtime override. Both variants produce the same
-`OSError: I2C bus error (19)` and black frame, so this is not represented as a
-firmware-only failure.
+`OSError: I2C bus error (19)` and black frame. Focused I2C tracing later
+confirmed that the AXP2101 chip id `0x4a` is readable; the failing next read
+does not produce a new address-`0x34` transaction, so the first confirmed gap
+is the legacy driver/bus handoff rather than a PMIC register value.
 
-These are tracked as `RUNTIME-03` for the Core2 AXP PMIC I2C transaction and
+These are tracked as `RUNTIME-03` for the Core2 AXP I2C driver/bus handoff and
 `RUNTIME-04` for the Core2 for AWS ATECC608 secure element. They remain
 `OPEN` until the relevant guest data paths complete.
 

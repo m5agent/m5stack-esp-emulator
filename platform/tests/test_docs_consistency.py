@@ -164,6 +164,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-filesystem-inventory.json",
             "tests/firmware/evidence-2026-10-24-fat-inventory.json",
             "tests/firmware/evidence-2026-10-24-spiffs-inventory.json",
+            "tests/firmware/evidence-2026-10-24-filesystem-permission-policy.json",
+            "tests/firmware/evidence-2026-10-24-source-license-scan.json",
+            "tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json",
             "tests/firmware/evidence-2026-10-24-efuse-security.json",
             "tests/firmware/evidence-2026-10-24-license-policy.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
@@ -237,6 +240,91 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn("## Backlog Task 板", checked_in)
         self.assertIn("`CORE2-02`", checked_in)
+
+    def test_filesystem_permission_policy_does_not_overclaim(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-filesystem-permission-policy.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(evidence["scope"], "static filesystem metadata only")
+        fat = evidence["filesystems"]["fat12"]
+        self.assertEqual(fat["permission_model"]["kind"], "fat-attributes")
+        self.assertTrue(fat["sample_file_policy"]["read_only_attribute"])
+        self.assertEqual(
+            fat["sample_file_policy"]["runtime_enforcement"],
+            "not-proven",
+        )
+        for kind in ("littlefs", "spiffs"):
+            filesystem = evidence["filesystems"][kind]
+            self.assertEqual(filesystem["permission_model"]["kind"], "none")
+            self.assertEqual(
+                filesystem["sample_file_policy"]["unix_mode"],
+                "not-recorded",
+            )
+            self.assertEqual(
+                filesystem["permission_summary"]["runtime_enforcement"],
+                "NOT RUN",
+            )
+
+    def test_source_license_scan_is_bounded_and_feeds_policy(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-source-license-scan.json"
+            ).read_text()
+        )
+        scan = evidence["source_license_scan"]
+        self.assertEqual(scan["status"], "PASS")
+        self.assertEqual(scan["method"], "bounded-source-spdx-header-scan")
+        self.assertEqual(scan["coverage"]["files_scanned"], 2)
+        self.assertFalse(scan["limits"]["files_truncated"])
+        self.assertEqual(
+            scan["coverage"]["declared_licenses"],
+            ["Apache-2.0", "MIT"],
+        )
+        self.assertTrue(
+            any(row.get("redacted") for row in scan["files"])
+        )
+        self.assertEqual(
+            evidence["license_policy"]["coverage"][
+                "source_code_declarations"
+            ],
+            2,
+        )
+        self.assertEqual(
+            evidence["license_policy"]["status"],
+            "REVIEW_REQUIRED",
+        )
+
+    def test_core2_axp_i2c_trace_classifies_the_first_failure(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-core2-axp-i2c-trace.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(evidence["runtime"]["pmic"], "axp2101")
+        self.assertEqual(evidence["observations"]["chip_id_value"], "0x4a")
+        self.assertTrue(evidence["observations"]["successful_axp_start"])
+        self.assertFalse(
+            evidence["observations"][
+                "subsequent_axp_bus_transaction_observed"
+            ]
+        )
+        self.assertEqual(
+            evidence["classification"]["code"],
+            "i2c_driver_or_bus_handoff_gap",
+        )
+        register = (DOCS / "runtime-model-gap-register.md").read_text()
+        self.assertIn("chip id `0x4a`", register)
+        self.assertIn("bus ownership", register)
 
     def test_relative_markdown_links_exist(self) -> None:
         paths = [

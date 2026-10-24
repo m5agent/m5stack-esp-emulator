@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "kind": "core2-axp-i2c-transaction-trace",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "runtime_model_gap_diagnosis",
+  "device_id": "core2",
+  "firmware": {
+    "name": "UIFlow_Core2",
+    "version": "v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "743c4ea49e8031ca1e293e9160c4b2af65035bfdbe1d93675779241858007ec4"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "pmic": "axp2101",
+    "qemu_sha256": "fe74ac6fceb145d0abcf1bef574d1edd99c153395e9693c73eb82555244d597f",
+    "trace_build_note": "temporary local address-filter instrumentation; the product QEMU build was restored after collecting the trace",
+    "trace_env": {
+      "M5SW_I2C_TRACE": "1",
+      "M5SW_I2C_ADDR_TRACE": "34"
+    }
+  },
+  "observations": {
+    "chip_id_read": "PASS",
+    "chip_id_value": "0x4a",
+    "successful_axp_start": true,
+    "subsequent_axp_bus_transaction_observed": false,
+    "serial_error": "OSError: I2C bus error (19)",
+    "failing_path": [
+      "hardware/__init__.py:167 pmic_axp",
+      "hardware/__init__.py:165",
+      "hardware/__init__.py:135 __init__",
+      "hardware/__init__.py:36 disable_timer_interrupt",
+      "hardware/__init__.py:125 __read_byte"
+    ],
+    "trace_excerpt": [
+      "[esp32-i2c-addr] address=34 read=0 start_rc=0 byte_num=1",
+      "[esp32-i2c-addr] cmd[0]=80000000",
+      "[esp32-i2c-addr] cmd[1]=00000901",
+      "[esp32-i2c-addr] cmd[2]=00002000",
+      "[esp32-i2c-addr] address=34 read=1 start_rc=0 byte_num=1",
+      "[axp2101] rd 03 -> 4a",
+      "[esp32-i2c-addr] rx=4a cmd=0",
+      "OSError: I2C bus error (19)"
+    ]
+  },
+  "classification": {
+    "code": "i2c_driver_or_bus_handoff_gap",
+    "status": "OPEN",
+    "explanation": "The AXP2101 address probe and chip-id read succeed. The next failing Python read does not produce another address-0x34 controller transaction, so the current evidence does not support an AXP register-response mismatch as the first failure.",
+    "next_evidence": [
+      "trace machine.I2C driver state and bus ownership across M5GFX handoff",
+      "compare the public firmware with the matching UIFlow source revision or extracted frozen bytecode",
+      "retain A/B results for AXP2101 and AXP192"
+    ]
+  },
+  "not_claimed": [
+    "physical Core2 hardware behavior",
+    "physical PMIC/I2C timing",
+    "a firmware defect",
+    "a complete runtime fix"
+  ]
+}

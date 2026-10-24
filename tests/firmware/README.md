@@ -34,6 +34,22 @@ without a `runtime_model_gap`. The C6 Zigbee gap remains open:
 frames from source-built switch/light examples, but commissioning/join did not
 complete.
 
+Filesystem inventories include a per-file `permission_policy`. FAT directory
+attributes are recorded without treating them as POSIX access control;
+LittleFS and SPIFFS explicitly report that Unix mode bits are absent. Runtime
+permission/ACL enforcement remains `NOT RUN`.
+
+Packages that include source files also receive a bounded SPDX header scan.
+Source path hashes and declarations are eligible for license policy, while
+generated code, absent third-party sources and legal review remain out of
+scope.
+
+For the Core2 public-firmware PMIC gap, focused I2C tracing distinguishes a
+successful AXP2101 chip-id read from the later legacy `machine.I2C`
+driver/bus-handoff failure. The next failing read does not produce a new
+address-0x34 transaction, so PMIC register semantics are not yet the proven
+first cause.
+
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).
 Current overall status and unfinished work must be read from

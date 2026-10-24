@@ -43,9 +43,11 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 6. 静态扫描 URL、凭据特征、私钥标记和高熵编码块，并汇总 SBOM；
 7. 生成完整镜像、资源副本和 `*.manifest.json`；
 8. 分层记录镜像、sdkconfig、分区 flag 和可选 eFuse summary 的安全证据；
-9. 汇总 provenance、文件系统 SPDX 和 SBOM 的许可声明，执行显式
+9. 对包内 `.c/.h/.cpp/.py/.js/.ts` 等源文件执行有界 SPDX header 扫描，
+   记录文件哈希、脱敏路径和声明；
+10. 汇总 provenance、文件系统 SPDX、源码 header 和 SBOM 的许可声明，执行显式
    allowlist/denylist 决策；
-10. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需
+11. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需
     capabilities。
 
 ## Manifest 结构
@@ -62,6 +64,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | `resources` | ELF、MAP、sdkconfig、flasher args、SBOM |
 | `capabilities.required` | 目标设备必须提供的能力 |
 | `review` | 脱敏 URL、凭据/私钥特征、高熵编码块、SBOM 摘要 |
+| `source_license_scan` | 包内源码数量、哈希、脱敏路径、SPDX 声明、扫描上限 |
 | `license_policy` | 声明来源、allowlist/denylist、发现值、决策、findings、覆盖边界 |
 | `validation` | 结构化 `errors[]` / `warnings[]` |
 
@@ -158,13 +161,14 @@ QEMU profile 没有建模对应的密钥和启动链。
 `REVIEW_REQUIRED` 表示有人需要查看脱敏 finding；它不自动等于恶意固件，也不会
 绕过 SoC/capability 的兼容性检查。
 
-## 许可声明策略
+## 许可声明策略（声明级许可 allowlist/denylist）
 
 Manifest 不把“看到 MIT 字符串”写成法律合规结论。`license_policy` 只评估包内
 可审计的声明来源：
 
 - provenance sidecar 的 `license`；
 - LittleFS/FAT/SPIFFS 清单中的 SPDX `declared_licenses`；
+- 包内源文件 header 中的 `SPDX-License-Identifier`；
 - SPDX/CycloneDX SBOM 中的 license 字段。
 
 CLI 可建立显式策略：
@@ -185,9 +189,15 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | `REVIEW_REQUIRED` | 未配置 allowlist、没有声明或存在 `NONE`/`NOASSERTION`/`unknown` |
 | `REJECTED` | 命中 denylist，或发现值不在 allowlist 内；Manifest validation 同步为 `REJECTED` |
 
-`license_policy.limits` 固定声明该结果不是法律意见，也不是完整源码级许可证
-扫描。文件系统记录 `permissions=not-recorded`，因此“运行时文件权限”仍是
-`NOT RUN`，不能由许可策略结果推断。
+`source_license_scan` 采用 `bounded-source-spdx-header-scan`：
+最多 `2048` 个文件、总计 `64 MiB`，每个源文件只检查前 `64 KiB` header，
+并用真实文件 SHA256 绑定证据。超过上限时状态为 `PARTIAL`；包内没有受支持源码
+时为 `NOT_PROVIDED`。
+
+`license_policy.limits` 固定声明该结果不是法律意见，也不是对生成代码、包外
+vendor 依赖或未提供源码的完整扫描。文件系统资源现在记录结构化
+`permission_policy`；FAT 的原生属性可以读取，LittleFS/SPIFFS 不携带 Unix
+mode。所有运行态权限强制仍为 `NOT RUN`，不能由许可策略或只读解析结果推断。
 
 ## 文件系统清单
 
@@ -204,7 +214,8 @@ LittleFS 数据分区的具体行为：
 - 从 merged/segmented flash 的 data partition 直接挂载；
 - 自动尝试常见 block size，并记录实际 block size/count；
 - 为每个常规文件记录路径、大小、SHA256、类型和
-  `permissions=not-recorded`；
+  `permission_policy`；该文件系统不携带 Unix mode，因此策略为
+  `model=none`、`unix_mode=not-recorded`、`runtime_enforcement=not-proven`；
 - 对 `.key`、`.env`、credential/secret 等敏感路径只保留脱敏标记、
   路径哈希和内容哈希；
 - 从 LICENSE/NOTICE/COPYING 文件提取 `SPDX-License-Identifier`；
@@ -215,6 +226,8 @@ FAT 解析器：
 - 校验 bytes/sector、sectors/cluster、reserved/FAT/root/data 几何和 FAT 表容量；
 - 支持 FAT12、FAT16、FAT32 cluster chain 与 FAT32 root cluster；
 - 校验 LFN sequence/checksum，异常时回退 8.3 名称；
+- 为每个文件和目录记录 FAT 原生 `read-only`、`hidden`、`system` 和
+  `archive` 属性；这些属性不证明 POSIX 权限、ACL 或运行态不可变；
 - 拒绝循环链、越界 cluster、bad/free cluster、无效子目录和超限目录项；
 - 对 0x00/0xFF 全填充的 FAT 分区返回 `UNFORMATTED`，不伪造空文件清单；
 - 对截断、表不一致或无效 boot sector 返回 `INVALID/PARTIAL`；
@@ -232,6 +245,8 @@ SPIFFS 解析器：
   flags、data page 顺序和页号范围；LUT 与 page header 不一致的页不会被
   当成文件；
 - 按 object index 顺序拼接 data page，记录文件大小、SHA256 和类型；
+- 为每个文件记录 `permission_policy`；SPIFFS 不携带 Unix mode，运行态权限
+  强制保持 `NOT RUN`；
 - 支持跨多个 object-index page 的文件，并记录 index/data page 数量；
 - 对 `.key`、`.env`、credential/secret 路径只保留脱敏标记和路径哈希；
 - 对 erased 分区返回 `UNFORMATTED`，无法识别时返回 `INVALID`，不猜测文件名；
@@ -239,7 +254,8 @@ SPIFFS 解析器：
   `SPIFFS_ALIGNED_OBJECT_INDEX_TABLES=1` 的镜像；
 - 不恢复已删除对象，也不执行镜像中的代码。
 
-LittleFS/FAT/SPIFFS 都不记录 Unix mode，因此运行时文件权限仍为 `NOT RUN`。
+LittleFS/SPIFFS 都不携带 Unix mode；FAT 只有文件属性，没有 POSIX ACL。
+因此三者都记录“镜像可见的权限来源”，但运行时权限强制仍为 `NOT RUN`。
 LittleFS 清单依赖 `littlefs-python`；依赖缺失时返回 `UNAVAILABLE`，不会
 自动格式化或改写输入镜像。
 
@@ -395,6 +411,20 @@ SPIFFS 证据：
   伪造文件；
 - FirmwareManifest integration 不序列化敏感文件原始路径。
 
+文件系统权限策略证据：
+[`tests/firmware/evidence-2026-10-24-filesystem-permission-policy.json`](../tests/firmware/evidence-2026-10-24-filesystem-permission-policy.json)
+记录：
+
+- FAT12/16/32 文件均带 `fat-directory-entry` 权限策略，目录属性单独记录；
+- 构造的 read-only FAT 文件只标记 `read_only_attribute=true`，不升级为
+  POSIX read-only 或运行态不可变；
+- LittleFS 与 SPIFFS 文件明确标记 `unix_mode=not-recorded`；
+- `permission_summary.runtime_enforcement` 固定为 `NOT RUN`。
+
+源码许可声明扫描将在包提供源码时把 SPDX header 写入
+`source_license_scan` 并纳入 `license_policy.sources`。它不会把源码路径中的
+敏感段明文写入 manifest。
+
 ## 边界
 
 - 镜像文件本身不能证明 eFuse/OEM key 状态；
@@ -412,5 +442,7 @@ SPIFFS 证据：
 - 真机安全启动、Flash Encryption 和生产 key 流程仍须真机验证。
 
 文件系统内容清单已经覆盖 LittleFS、FAT12/16/32 和常见 ESP-IDF SPIFFS
-配置；声明级许可 allowlist/denylist 已实现。仍未完成的是运行时文件权限、
-完整源码级许可扫描、证书审批和具有法律效力的产品级许可结论。
+配置；镜像可见的权限来源、包内源码 SPDX header 和声明级许可
+allowlist/denylist 已实现。仍未完成的是固件运行时的实际权限/ACL 强制、
+生成代码/包外 vendor 依赖的完整许可覆盖、证书审批和具有法律效力的产品级
+许可结论。

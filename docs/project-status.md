@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `324` 项，`324` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `329` 项，`329` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - 设备、Backlog Task 和固件样本的动态计数已改由
   [`project_snapshot.py`](../platform/tools/project_snapshot.py)从 catalog、
@@ -138,7 +138,7 @@
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
 | S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold，以及 3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 均 PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、持续 active BLE 和同 guest 120 轮重连数据面；之后仍需完整 RF/PHY、bit-exact BT controller、两小时 soak 与超过一百二十轮 |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain、previous token/CA 有界重叠和无 worker-SIGHUP 的双 worker generation-pointer 自动迁移 PASS；跨主机 QEMU job、自动主机发现、companion continuity 和 IPv6 未完成 | `NOT RUN` | 传输、认证、同主机 QEMU/unified job 和可审计批量迁移基础已具备，尚不是多租户恶意固件 VM |
-| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS；7 台设备 21 个公开非基线样本为 10 PASS / 11 PARTIAL；C6 Zigbee、Core2 AXP PMIC I2C、Core2 for AWS ATECC608 以结构化 `runtime_model_gap` 保留 | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环；`RUNTIME-02/03/04` 仍 `OPEN`；FW-03 仍需更多设备/firmware family，生产安全未完成 |
+| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、文件级 `permission_policy`、包内源码 SPDX header、WebBurner 浏览器流式上传/刷新恢复 PASS；7 台设备 21 个公开非基线样本为 10 PASS / 11 PARTIAL；C6 Zigbee、Core2 legacy AXP I2C handoff、Core2 for AWS ATECC608 以结构化 `runtime_model_gap` 保留 | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环；运行态 ACL/权限强制、生成/vendor 源码完整许可、`RUNTIME-02/03/04`、FW-03 更多设备和生产安全仍未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、active-request drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、worker lease 与失联回收 | 无跨主机 QEMU executor、worker 主机自动发现、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、drained overlap rotation、可审计批量迁移、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
 
 ## 验证证据
@@ -154,7 +154,7 @@
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执；GitHub Actions Linux policy CI PASS | 自动发现 worker 主机、跨主机 QEMU executor/reattach、companion/evidence continuity、生产多机调度、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；另 2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 均 PASS | 超过一百二十轮 reconnect、两小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机 |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist；7 台设备 21 个公开非基线样本 10 PASS / 11 PARTIAL；`RUNTIME-01` Flash/PMP 修复已通过 Device Service 和 C6 回归 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、更多设备/firmware family 回归；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 PMIC 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、文件级权限来源、包内源码 SPDX header 和声明级许可 allowlist/denylist；7 台设备 21 个公开非基线样本 10 PASS / 11 PARTIAL；`RUNTIME-01` Flash/PMP 修复已通过 Device Service 和 C6 回归 | 运行态 ACL/权限强制、生成代码/包外 vendor 依赖的完整许可覆盖、法律审批、真机 key/eFuse 流程、更多设备/firmware family 回归；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 PMIC 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
 
 ## 工作流入口
 
@@ -316,6 +316,13 @@
   进度、瞬态重试、取消和刷新恢复，完成后调用同一 Manifest importer。
 - 已提供公开社区固件抓取、热门固件批量仿真、结构分析、脱敏静态审查和
   SPDX/CycloneDX SBOM 摘要。manifest 不保存 URL query、凭据或编码载荷明文。
+- 包内源码支持有界 `SPDX-License-Identifier` header 扫描。源文件 SHA256、
+  脱敏路径和声明进入 `source_license_scan`，并参与许可 allowlist/denylist；
+  该扫描不覆盖生成代码、包外 vendor 依赖或法律意见。
+- LittleFS/FAT/SPIFFS 的每个文件现在都有 `permission_policy`。FAT 原生
+  read-only/hidden/system/archive 属性会单独记录；LittleFS/SPIFFS 明确标记
+  没有 Unix mode。三者都没有把镜像属性升级为运行态 ACL 或权限强制 PASS：
+  [`filesystem-permission-policy.json`](../tests/firmware/evidence-2026-10-24-filesystem-permission-policy.json)。
 - 跨厂商运行时样本已形成 `6` 台 S3/C6 设备、`18` 个热门公开固件快照
   （`8` 个官方、`10` 个社区）：全部完成静态镜像/分区分析和 Device Service
   执行，`10 PASS`、`8 PARTIAL`。该历史快照最初把 C6 Zigbee radio 未建模和
@@ -323,7 +330,8 @@
   `runtime_model_gap`，保留原始 serial/error 证据而不误报固件 FAIL：
   [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json)。
 - Core2 新增 `3` 个 MOST_DOWNLOADED 官方固件，运行窗口为 `90s`。
-  `UIFlow_Core2` 与 `Core2FactoryTest` 在 AXP PMIC 寄存器读取时出现 I2C
+  `UIFlow_Core2` 与 `Core2FactoryTest` 可以完成 AXP 地址/chip-id 探测，但
+  M5GFX 到 `machine.I2C` handoff 后的下一读取在产生新 AXP 事务前返回 I2C
   错误；`Core2_For_AWS` 因 ATECC608 安全元件未建模而 abort。三者均
   无应用帧，归类为 `PARTIAL/runtime_model_gap`，不是固件 FAIL：
   [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json)。

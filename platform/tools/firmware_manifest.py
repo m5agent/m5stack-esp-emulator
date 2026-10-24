@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import tempfile
 import zipfile
@@ -23,6 +24,32 @@ DEVICE_MATRIX_PATH = ROOT / "tests/uiflow2/device_matrix.json"
 SCHEMA_VERSION = 1
 MAX_PACKAGE_FILES = 4096
 MAX_PACKAGE_BYTES = 512 * 1024 * 1024
+MAX_SOURCE_FILES = 2048
+MAX_SOURCE_SCAN_BYTES = 64 * 1024 * 1024
+MAX_SOURCE_FILE_BYTES = 2 * 1024 * 1024
+MAX_SOURCE_HEADER_BYTES = 64 * 1024
+SOURCE_SUFFIXES = {
+    ".c",
+    ".cc",
+    ".cpp",
+    ".h",
+    ".hh",
+    ".hpp",
+    ".py",
+    ".js",
+    ".mjs",
+    ".ts",
+    ".tsx",
+}
+SOURCE_SPDX_RE = re.compile(
+    r"SPDX-License-Identifier:\s*([A-Za-z0-9.+\-() ]+)"
+)
+SENSITIVE_SOURCE_PATH_RE = re.compile(
+    r"(?:\.env(?:\..*)?|credentials?(?:\..*)?|"
+    r"secrets?(?:\..*)?|private[^/]*|passwd|shadow|"
+    r"[^/]+\.(?:key|p12|pfx))",
+    re.IGNORECASE,
+)
 CHIP_FAMILIES = {
     "ESP32": "esp32",
     "ESP32-S2": "esp32s2",
@@ -200,6 +227,98 @@ def resource(path: Path, *, root: Path) -> dict:
         "file": relative,
         "size": resolved.stat().st_size,
         "sha256": sha256_file(resolved),
+    }
+
+
+def _source_path(path: Path, root: Path) -> tuple[str, str | None]:
+    relative = path.relative_to(root).as_posix()
+    sensitive = any(
+        part and SENSITIVE_SOURCE_PATH_RE.fullmatch(part)
+        for part in relative.split("/")
+    )
+    if sensitive:
+        return "<redacted-sensitive-path>", hashlib.sha256(
+            relative.encode()
+        ).hexdigest()
+    return relative, None
+
+
+def scan_source_licenses(root: Path) -> dict:
+    candidates = []
+    skipped_symlinks = 0
+    for path in sorted(root.rglob("*"), key=lambda item: item.as_posix()):
+        if path.is_symlink():
+            skipped_symlinks += 1
+            continue
+        if not path.is_file() or path.suffix.lower() not in SOURCE_SUFFIXES:
+            continue
+        candidates.append(path)
+    files = []
+    total_bytes = 0
+    truncated = False
+    declared: set[str] = set()
+    for path in candidates:
+        if len(files) >= MAX_SOURCE_FILES:
+            truncated = True
+            break
+        size = path.stat().st_size
+        if size > MAX_SOURCE_FILE_BYTES:
+            truncated = True
+            continue
+        if total_bytes + size > MAX_SOURCE_SCAN_BYTES:
+            truncated = True
+            break
+        with path.open("rb") as handle:
+            header = handle.read(MAX_SOURCE_HEADER_BYTES)
+        text = header.decode("utf-8", errors="ignore")
+        licenses = sorted(
+            {value.strip() for value in SOURCE_SPDX_RE.findall(text)}
+        )
+        declared.update(licenses)
+        display_path, path_hash = _source_path(path, root)
+        row = {
+            "path": display_path,
+            "size": size,
+            "sha256": sha256_file(path),
+            "declared_licenses": licenses,
+        }
+        if path_hash is not None:
+            row["path_sha256"] = path_hash
+            row["redacted"] = True
+        files.append(row)
+        total_bytes += size
+    return {
+        "schema_version": 1,
+        "status": (
+            "PARTIAL"
+            if truncated
+            else "PASS"
+            if files
+            else "NOT_PROVIDED"
+        ),
+        "method": "bounded-source-spdx-header-scan",
+        "files": files,
+        "limits": {
+            "max_files": MAX_SOURCE_FILES,
+            "max_total_bytes": MAX_SOURCE_SCAN_BYTES,
+            "max_file_bytes": MAX_SOURCE_FILE_BYTES,
+            "max_header_bytes": MAX_SOURCE_HEADER_BYTES,
+            "files_truncated": truncated,
+            "skipped_symlinks": skipped_symlinks,
+        },
+        "coverage": {
+            "files_scanned": len(files),
+            "bytes_scanned": total_bytes,
+            "files_with_declaration": sum(
+                bool(row["declared_licenses"]) for row in files
+            ),
+            "declared_licenses": sorted(declared),
+        },
+        "not_claimed": [
+            "source contents beyond the SPDX header window",
+            "generated or vendored source not present in the package",
+            "legal review",
+        ],
     }
 
 
@@ -754,6 +873,18 @@ def evaluate_license_policy(
                     "license": " ".join(license_value.split()),
                 }
             )
+    source_scan = manifest.get("source_license_scan", {})
+    for source_file in source_scan.get("files", []):
+        if not isinstance(source_file, dict):
+            continue
+        for license_value in source_file.get("declared_licenses", []):
+            if isinstance(license_value, str) and license_value.strip():
+                sources.append(
+                    {
+                        "source": "source-code",
+                        "license": " ".join(license_value.split()),
+                    }
+                )
 
     unique_sources = []
     seen_sources: set[tuple[str, str]] = set()
@@ -868,11 +999,15 @@ def evaluate_license_policy(
             "sbom_declarations": sum(
                 1 for row in unique_sources if row["source"] == "sbom"
             ),
+            "source_code_declarations": sum(
+                1 for row in unique_sources if row["source"] == "source-code"
+            ),
         },
         "limits": [
             (
-                "Policy evaluates declared identifiers only; it is not a "
-                "legal opinion or a complete source-code license scan"
+                "Policy evaluates declarations and a bounded SPDX source-"
+                "header scan; it is not a legal opinion and does not inspect "
+                "generated or absent source"
             )
         ],
     }
@@ -1248,6 +1383,7 @@ def import_package(
             else None
         )
         review = review_firmware(destination, sbom_path=sbom_path)
+        source_license_scan = scan_source_licenses(root)
         source_digest = sha256_file(destination)
         artifact = {
             "kind": (
@@ -1346,6 +1482,7 @@ def import_package(
                 "optional": sorted(set(optional_capabilities or [])),
             },
             "review": review,
+            "source_license_scan": source_license_scan,
             "license_policy": evaluate_license_policy(
                 {
                     "target": {
@@ -1355,6 +1492,7 @@ def import_package(
                         "license": sidecar.get("license"),
                     },
                     "review": review,
+                    "source_license_scan": source_license_scan,
                 },
                 allowed_licenses=allowed_licenses,
                 denied_licenses=denied_licenses,
@@ -1636,6 +1774,33 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
             if not isinstance(review.get(key), expected):
                 errors.append(f"manifest.review.{key} has invalid type")
     license_policy = manifest.get("license_policy")
+    source_license_scan = manifest.get("source_license_scan")
+    if source_license_scan is not None:
+        if not isinstance(source_license_scan, dict):
+            errors.append("manifest.source_license_scan must be an object")
+        else:
+            if source_license_scan.get("schema_version") != 1:
+                errors.append(
+                    "manifest.source_license_scan.schema_version must be 1"
+                )
+            if source_license_scan.get("status") not in {
+                "PASS",
+                "PARTIAL",
+                "NOT_PROVIDED",
+            }:
+                errors.append(
+                    "manifest.source_license_scan.status is invalid"
+                )
+            for key in ("files", "not_claimed"):
+                if not isinstance(source_license_scan.get(key), list):
+                    errors.append(
+                        f"manifest.source_license_scan.{key} has invalid type"
+                    )
+            for key in ("limits", "coverage"):
+                if not isinstance(source_license_scan.get(key), dict):
+                    errors.append(
+                        f"manifest.source_license_scan.{key} has invalid type"
+                    )
     if license_policy is not None:
         if not isinstance(license_policy, dict):
             errors.append("manifest.license_policy must be an object")

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "firmware-source-license-scan",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "bounded package source SPDX header scan",
+  "source_license_scan": {
+    "schema_version": 1,
+    "status": "PASS",
+    "method": "bounded-source-spdx-header-scan",
+    "files": [
+      {
+        "path": "src/main.c",
+        "size": 61,
+        "sha256": "fda5047abc93d110fe989e791fd9adab04fc516666fe1a43b1aa5c3e7d4b3ca6",
+        "declared_licenses": [
+          "MIT"
+        ]
+      },
+      {
+        "path": "<redacted-sensitive-path>",
+        "size": 48,
+        "sha256": "8439170a47c43a14ddab366443d8751a27b89fb33b210866a1fb3bf3f2210972",
+        "declared_licenses": [
+          "Apache-2.0"
+        ],
+        "path_sha256": "65848dd1bcce14a16c1148b7ac847a5079fca8a9b8260d811652631261328c73",
+        "redacted": true
+      }
+    ],
+    "limits": {
+      "max_files": 2048,
+      "max_total_bytes": 67108864,
+      "max_file_bytes": 2097152,
+      "max_header_bytes": 65536,
+      "files_truncated": false,
+      "skipped_symlinks": 0
+    },
+    "coverage": {
+      "files_scanned": 2,
+      "bytes_scanned": 109,
+      "files_with_declaration": 2,
+      "declared_licenses": [
+        "Apache-2.0",
+        "MIT"
+      ]
+    },
+    "not_claimed": [
+      "source contents beyond the SPDX header window",
+      "generated or vendored source not present in the package",
+      "legal review"
+    ]
+  },
+  "license_policy": {
+    "status": "REVIEW_REQUIRED",
+    "decision": "review",
+    "discovered_licenses": [
+      "Apache-2.0",
+      "MIT"
+    ],
+    "sources": [
+      {
+        "source": "source-code",
+        "license": "Apache-2.0"
+      },
+      {
+        "source": "source-code",
+        "license": "MIT"
+      }
+    ],
+    "coverage": {
+      "provenance_declared": false,
+      "filesystem_declarations": 0,
+      "sbom_declarations": 0,
+      "source_code_declarations": 2
+    },
+    "limits": [
+      "Policy evaluates declarations and a bounded SPDX source-header scan; it is not a legal opinion and does not inspect generated or absent source"
+    ]
+  },
+  "not_claimed": [
+    "generated source not present in the package",
+    "source files outside the package",
+    "legal review or license compatibility conclusion",
+    "physical-device behavior"
+  ]
+}

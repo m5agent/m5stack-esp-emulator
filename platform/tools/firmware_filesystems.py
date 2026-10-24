@@ -53,6 +53,76 @@ CERTIFICATE_SUFFIXES = {
 }
 
 
+def _permission_policy(attributes: int | None = None) -> dict:
+    if attributes is None:
+        return {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven",
+        }
+    return {
+        "source": "fat-directory-entry",
+        "model": "fat-attributes",
+        "unix_mode": "not-applicable",
+        "read_only_attribute": bool(attributes & 0x01),
+        "hidden": bool(attributes & 0x02),
+        "system": bool(attributes & 0x04),
+        "archive": bool(attributes & 0x20),
+        "runtime_enforcement": "not-proven",
+    }
+
+
+def _permission_model(kind: str) -> dict:
+    if kind == "fat-attributes":
+        return {
+            "kind": "fat-attributes",
+            "source": "fat-directory-entry",
+            "unix_mode": "not-applicable",
+            "runtime_enforcement": "not-proven",
+            "claim": (
+                "FAT attributes are recorded; they do not prove POSIX access "
+                "control or runtime immutability"
+            ),
+        }
+    return {
+        "kind": "none",
+        "source": "filesystem-metadata",
+        "unix_mode": "not-recorded",
+        "runtime_enforcement": "not-proven",
+        "claim": (
+            "the image does not carry Unix mode bits; runtime permission "
+            "enforcement is not proven"
+        ),
+    }
+
+
+def _permission_summary(files: list[dict], model: str) -> dict:
+    policies = [row.get("permission_policy", {}) for row in files]
+    return {
+        "files": len(files),
+        "files_with_policy": sum(
+            row.get("source") in {"fat-directory-entry", "filesystem-metadata"}
+            for row in policies
+        ),
+        "unix_mode_recorded": sum(
+            row.get("unix_mode") not in {"not-recorded", "not-applicable"}
+            for row in policies
+        ),
+        "fat_read_only_attribute_count": sum(
+            row.get("read_only_attribute") is True for row in policies
+        ),
+        "fat_hidden_count": sum(row.get("hidden") is True for row in policies),
+        "fat_system_count": sum(row.get("system") is True for row in policies),
+        "model": model,
+        "runtime_enforcement": "NOT RUN",
+    }
+
+
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -491,6 +561,7 @@ def _list_fat(data: bytes, partition: dict) -> dict:
 
     files: list[dict] = []
     directories: list[str] = []
+    directory_permissions: list[dict] = []
     redacted_directories: list[dict] = []
     sensitive_files: list[dict] = []
     license_files: list[dict] = []
@@ -531,6 +602,14 @@ def _list_fat(data: bytes, partition: dict) -> dict:
                     directories_truncated = True
                     break
                 directories.append(display_path)
+                directory_permissions.append(
+                    {
+                        "path": display_path,
+                        "permission_policy": _permission_policy(
+                            entry["attributes"]
+                        ),
+                    }
+                )
                 if path_hash is not None:
                     redacted_directories.append(
                         {
@@ -572,6 +651,9 @@ def _list_fat(data: bytes, partition: dict) -> dict:
                 "sha256": file_hash,
                 "kind": kind,
                 "permissions": "not-recorded",
+                "permission_policy": _permission_policy(
+                    entry["attributes"]
+                ),
                 "attributes": f"0x{entry['attributes']:02x}",
             }
             if path_hash is not None:
@@ -627,6 +709,9 @@ def _list_fat(data: bytes, partition: dict) -> dict:
         "total_file_bytes": total_file_bytes,
         "files": files,
         "directories": directories,
+        "permission_model": _permission_model("fat-attributes"),
+        "permission_summary": _permission_summary(files, "fat-attributes"),
+        "directory_permissions": directory_permissions,
         "redacted_directories": redacted_directories,
         "sensitive_files": sensitive_files,
         "license_files": license_files,
@@ -1073,6 +1158,7 @@ def _list_spiffs(data: bytes, partition: dict) -> dict:
             "sha256": digest.hexdigest(),
             "kind": kind,
             "permissions": "not-recorded",
+            "permission_policy": _permission_policy(),
             "object_id": obj_id,
             "index_page_count": expected_index_pages,
             "data_page_count": read_bytes // data_content_len
@@ -1151,6 +1237,8 @@ def _list_spiffs(data: bytes, partition: dict) -> dict:
         "total_file_bytes": total_file_bytes,
         "files": files,
         "directories": sorted(directories - {"/"}),
+        "permission_model": _permission_model("none"),
+        "permission_summary": _permission_summary(files, "none"),
         "redacted_directories": redacted_directories,
         "sensitive_files": sensitive_files,
         "license_files": license_files,
@@ -1244,6 +1332,7 @@ def _list_littlefs(data: bytes, partition: dict) -> dict:
                         "sha256": file_hash,
                         "kind": kind,
                         "permissions": "not-recorded",
+                        "permission_policy": _permission_policy(),
                     }
                     if path_hash is not None:
                         row["path_sha256"] = path_hash
@@ -1298,6 +1387,8 @@ def _list_littlefs(data: bytes, partition: dict) -> dict:
             "total_file_bytes": total_file_bytes,
             "files": files,
             "directories": directories,
+            "permission_model": _permission_model("none"),
+            "permission_summary": _permission_summary(files, "none"),
             "redacted_directories": redacted_directories,
             "sensitive_files": sensitive_files,
             "license_files": license_files,

@@ -154,7 +154,40 @@
         "filesystems": {
           "type": "array",
           "items": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "permission_policy": {
+                      "$ref": "#/$defs/filesystem_permission_policy"
+                    }
+                  }
+                }
+              },
+              "permission_model": {
+                "$ref": "#/$defs/filesystem_permission_model"
+              },
+              "permission_summary": {
+                "$ref": "#/$defs/filesystem_permission_summary"
+              },
+              "directory_permissions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "permission_policy": {
+                      "$ref": "#/$defs/filesystem_permission_policy"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -315,6 +348,9 @@
     },
     "review": {
       "$ref": "#/$defs/review"
+    },
+    "source_license_scan": {
+      "$ref": "#/$defs/source_license_scan"
     },
     "license_policy": {
       "$ref": "#/$defs/license_policy"
@@ -552,6 +588,234 @@
         "sha256": {
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "filesystem_permission_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "model",
+        "unix_mode",
+        "runtime_enforcement"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "fat-directory-entry",
+            "filesystem-metadata"
+          ]
+        },
+        "model": {
+          "enum": [
+            "fat-attributes",
+            "none"
+          ]
+        },
+        "unix_mode": {
+          "enum": [
+            "not-applicable",
+            "not-recorded"
+          ]
+        },
+        "read_only_attribute": {
+          "type": [
+            "boolean",
+            "string"
+          ]
+        },
+        "hidden": {
+          "type": [
+            "boolean",
+            "string"
+          ]
+        },
+        "system": {
+          "type": [
+            "boolean",
+            "string"
+          ]
+        },
+        "archive": {
+          "type": [
+            "boolean",
+            "string"
+          ]
+        },
+        "runtime_enforcement": {
+          "enum": [
+            "not-proven"
+          ]
+        }
+      }
+    },
+    "filesystem_permission_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "source",
+        "unix_mode",
+        "runtime_enforcement",
+        "claim"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "fat-attributes",
+            "none"
+          ]
+        },
+        "source": {
+          "enum": [
+            "fat-directory-entry",
+            "filesystem-metadata"
+          ]
+        },
+        "unix_mode": {
+          "enum": [
+            "not-applicable",
+            "not-recorded"
+          ]
+        },
+        "runtime_enforcement": {
+          "enum": [
+            "not-proven"
+          ]
+        },
+        "claim": {
+          "type": "string"
+        }
+      }
+    },
+    "filesystem_permission_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "files",
+        "files_with_policy",
+        "unix_mode_recorded",
+        "fat_read_only_attribute_count",
+        "fat_hidden_count",
+        "fat_system_count",
+        "model",
+        "runtime_enforcement"
+      ],
+      "properties": {
+        "files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "files_with_policy": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unix_mode_recorded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fat_read_only_attribute_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fat_hidden_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fat_system_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "model": {
+          "enum": [
+            "fat-attributes",
+            "none"
+          ]
+        },
+        "runtime_enforcement": {
+          "enum": [
+            "NOT RUN"
+          ]
+        }
+      }
+    },
+    "source_license_scan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "status",
+        "method",
+        "files",
+        "limits",
+        "coverage",
+        "not_claimed"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "PARTIAL",
+            "NOT_PROVIDED"
+          ]
+        },
+        "method": {
+          "const": "bounded-source-spdx-header-scan"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "size",
+              "sha256",
+              "declared_licenses"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "path_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "redacted": {
+                "type": "boolean"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "declared_licenses": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              }
+            }
+          }
+        },
+        "limits": {
+          "type": "object"
+        },
+        "coverage": {
+          "type": "object"
+        },
+        "not_claimed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
