@@ -268,9 +268,10 @@ and retained evidence.
 ### Phase S1: remote worker API
 
 Status: local worker lifecycle, a persistent remote-worker registration
-directory, a durable pull-based job queue and verified local QEMU/QMP restart
-re-attach exist; an independent remote executor, companion/evidence
-continuity, cross-host re-attach and multi-host scheduling remain open.
+directory, a durable pull-based job queue, a same-host HTTP executor and
+verified local QEMU/QMP restart re-attach exist; cross-host execution and
+authorization hardening, companion/evidence continuity, cross-host re-attach
+and multi-host scheduling remain open.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
@@ -283,9 +284,11 @@ continuity, cross-host re-attach and multi-host scheduling remain open.
 - `jobs.json` implements idempotent enqueue, capability-matched claim,
   lease heartbeat, expiry retry, terminal result, cancel and stale/stopped
   worker reconciliation;
+- `worker_agent.py` runs a claimed job through `/api/v1`, waits for a real
+  session, downloads/hashes evidence, stops the session and reports the result;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- independent executor ownership, companion HTTP/BLE/evidence continuity,
+- cross-host execution/auth hardening, companion HTTP/BLE/evidence continuity,
   cross-host re-attach and production capacity scheduling remain open.
 
 ### Phase S2: warm/cold pool

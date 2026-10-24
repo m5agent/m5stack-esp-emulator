@@ -76,10 +76,12 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/tools/worker_registry.py",
             "platform/tools/worker_directory.py",
             "platform/tools/worker_queue.py",
+            "platform/tools/worker_agent.py",
             "platform/tests/test_network_fabric.py",
             "platform/tests/test_worker_registry.py",
             "platform/tests/test_worker_directory.py",
             "platform/tests/test_worker_queue.py",
+            "platform/tests/test_worker_agent.py",
             "tests/network/lab_fabric/README.md",
             "tests/network/lab_fabric/run_test.py",
             "tests/network/lab_fabric/check_fabric.py",
@@ -94,6 +96,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_lifecycle/evidence-2026-10-24-pass.json",
             "tests/network/worker_queue/README.md",
             "tests/network/worker_queue/evidence-2026-10-24-queue-pass.json",
+            "tests/network/worker_executor/README.md",
+            "tests/network/worker_executor/evidence-2026-10-24-executor-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -722,6 +726,28 @@ class DocsConsistencyTests(unittest.TestCase):
             "companion HTTP/BLE helper continuity",
             reattach["not_claimed"],
         )
+        executor = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_executor/"
+                "evidence-2026-10-24-executor-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(executor["status"], "PASS")
+        self.assertEqual(executor["scope"], "same-host-real-qemu-job")
+        self.assertTrue(all(executor["checks"].values()))
+        self.assertEqual(
+            executor["live_execution"]["job_status"],
+            "completed",
+        )
+        self.assertEqual(
+            executor["live_execution"]["result_state"],
+            "PASS",
+        )
+        self.assertIn(
+            "cross-host execution",
+            executor["not_claimed"],
+        )
         efuse_security = json.loads(
             (
                 ROOT
@@ -1115,8 +1141,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("legacy", core2_hci.lower())
         self.assertIn("platform/tools/worker_directory.py", code_map)
         self.assertIn("platform/tools/worker_queue.py", code_map)
+        self.assertIn("platform/tools/worker_agent.py", code_map)
         self.assertIn("platform/tests/test_worker_directory.py", code_map)
         self.assertIn("platform/tests/test_worker_queue.py", code_map)
+        self.assertIn("platform/tests/test_worker_agent.py", code_map)
 
         task_ids = sorted(
             set(re.findall(r"^\| `([A-Z][A-Z0-9-]+)` \|", backlog, re.M))

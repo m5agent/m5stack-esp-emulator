@@ -66,11 +66,11 @@ Device Service lease
 
 - 物理 RF 消失/恢复、信道/速率变化或重新分配不同 lease；
 - WPA2/WPA3、hidden SSID、roaming、channel/rate/security 行为；
-- namespace、pcap retention 和 evidence upload 的独立远程 executor、
-  companion/evidence continuity、跨主机 reattach 和生产调度；本地
-  heartbeat/drain、QEMU/QMP restart reattach、远程注册目录和 durable
-  queue/lease supervisor 已具备，GitHub-hosted policy/egress CI 已单独
-  通过；
+- namespace、pcap retention 和 evidence upload 的跨主机 executor、
+  worker auth 强化、companion/evidence continuity、跨主机 reattach 和生产
+  调度；本地 heartbeat/drain、同主机 HTTP executor、QEMU/QMP restart
+  reattach、远程注册目录和 durable queue/lease supervisor 已具备，
+  GitHub-hosted policy/egress CI 已单独通过；
 - 任意 S3/C6 固件或任意公网服务的稳定联网；
 - 外部 IPv6、CIDR 或域名到多个 IP 的 egress policy；
 - Tab5 P4↔C6 ESP-Hosted 端到端网络；
@@ -163,13 +163,14 @@ primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP re
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
 | N4a Linux policy CI | DONE | GitHub-hosted namespace/nft/egress fixture 保持 fail-closed 并可重复 |
 | N4b 双设备 fabric | DONE (virtual) | 两台 StickS3 的 DHCP、guest TCP、双侧 pcap、宿主隔离与清理已通过；下一步接入 worker |
-| N4c durable queue/lease supervisor | DONE (contract/API) | 幂等 submit、capability claim、lease、expiry retry、cancel/result 与 worker stale/stop/generation 回收；本地 QEMU/QMP reattach 已另测，独立 executor 与 companion/evidence continuity 仍开放 |
+| N4c durable queue/lease supervisor | DONE (contract/API) | 幂等 submit、capability claim、lease、expiry retry、cancel/result、worker stale/stop/generation 回收；同主机 HTTP executor 已运行真实 QEMU job；跨主机 auth、companion/evidence continuity 仍开放 |
 | N5 Core2 production BLE/PHY | PARTIAL | `HCI-4` 五个独立 Device Service lease 已通过，且无 GDB；剩余 bit-exact controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机 |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
 虚拟 radio/AP 丢失恢复和双设备 private lab fabric 已完成，远程 worker
-注册目录、durable job queue 和本地 QEMU/QMP restart reattach 也已具备；
-下一步是 `NET-04` 的独立 executor、companion/evidence continuity、跨主机
-reattach 与生产多机调度，再单列 `NET-05` 外部 IPv6。精确 IPv4
+注册目录、durable job queue、同主机 HTTP executor 和本地 QEMU/QMP
+restart reattach 也已具备；下一步是 `NET-04` 的跨主机 executor/auth、
+companion/evidence continuity、跨主机 reattach 与生产多机调度，再单列
+`NET-05` 外部 IPv6。精确 IPv4
 endpoint policy 已由 nftables 在隔离 namespace 内执行，外部 IPv4 通过
 per-session veth/NAT；策略或依赖不可用时 fail-closed。

@@ -3,7 +3,7 @@
 日期：`2026-10-24`
 
 本页对账到当前工作树、生成物和最近一次本地全量验证快照。平台套件共
-`289` 项，`289` 项通过、`0` 项跳过；
+`292` 项，`292` 项通过、`0` 项跳过；
 `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验均为
 `PASS`；浏览器 SHA256/upload client Node 测试 `2/2 PASS`。这里记录的是
 证据快照，不把“测试总数”写成“全部功能或真机通过”。
@@ -130,6 +130,7 @@
 - [双设备私有 lab fabric](../tests/network/lab_fabric/README.md)
 - [本地 worker drain/restart lifecycle](../tests/network/worker_lifecycle/README.md)
 - [远程 durable job queue 与 lease supervisor](../tests/network/worker_queue/README.md)
+- [HTTP-only worker executor](../tests/network/worker_executor/README.md)
 - [本地 QEMU PID/QMP restart re-attach](../tests/network/worker_reattach/README.md)
 - [Core2 stock VHCI BLE](../tests/uiflow2/core2_native_vhci/README.md)
 - [Core2 native HCI backend](core2-native-hci-backend.md)

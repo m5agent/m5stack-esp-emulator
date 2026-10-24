@@ -49,6 +49,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   active/abandoned lease、drain/resume 和 recent-result 记录；
 - 远程 worker 的持久 job queue、幂等提交、capability 匹配、claim、lease
   heartbeat、worker 失联回收、超时重试和 terminal result；
+- 独立 HTTP worker executor：持久 generation、claim、真实 session 执行、
+  worker/job heartbeat、evidence ZIP/SHA256 下载、stop 和 result 回报；
 - 本地 QEMU 的 PID start-time、QMP socket ownership 和
   `query-status=running` 三重校验后 re-attach；仅恢复 QEMU/QMP 控制面；
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
@@ -100,6 +102,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、lease、drain/resume 和重启失败分类 |
 | `tools/worker_directory.py` | 远程 worker identity/generation 注册、stale/drain/stop、capability 与有界结果目录 |
 | `tools/worker_queue.py` | 持久 job queue、idempotency、capability 匹配、lease/heartbeat、超时重试和 supervisor 回收 |
+| `tools/worker_agent.py` | HTTP-only worker executor、generation、claim、heartbeat、session 执行、evidence 和 result |
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入与脱敏 eFuse 安全摘要 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |
 | `tools/firmware_analysis.py` | ESP image、分区、应用描述和静态分析 |

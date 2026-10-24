@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `289` 项，`289` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `292` 项，`292` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - WebBurner 浏览器 SHA256/upload client Node 测试 `2/2 PASS`；真实页面对
   `9.44 MiB`、`3` chunk 的 WebBurner ZIP 完成上传、manifest 导入和刷新恢复。
@@ -41,10 +41,12 @@
   活实例冲突，记录 heartbeat/drain/stop、capability 和有界结果元数据。
   持久 job queue 已支持幂等提交、capability matching、claim/lease、
   heartbeat、超时重试、worker 失联回收和 terminal result；队列不执行
-  job。正在运行的本地 QEMU 可在 PID start-time、QMP socket ownership 和
+  自身 job。独立 `worker_agent.py` 已能通过公开 API claim job、创建真实
+  QEMU session、下载 evidence ZIP/SHA256、停止 session 并提交结果。正在
+  运行的本地 QEMU 可在 PID start-time、QMP socket ownership 和
   `query-status=running` 全部匹配后 re-attach；仅恢复 QEMU/QMP 控制面，
-  不恢复 companion HTTP/BLE helper 或 evidence 流。生产多机 scheduler 仍
-  未实现。
+  不恢复 companion HTTP/BLE helper 或 evidence 流。跨主机执行、worker
+  auth 强化和生产多机 scheduler 仍未实现。
 - restart reattach 已用真实 StickS3 QEMU 做 live `1/1`：只 SIGKILL 服务
   进程时 QEMU 保持运行，第二代服务在同状态目录中接管同一 PID、重建
   worker lease，并通过 stop 清理 QEMU 进程。
@@ -69,9 +71,9 @@
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
 | S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 HCI-4 五 lease PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证应用网络与 BLE 数据面，不是完整 RF/PHY 或 bit-exact BT controller |
-| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录和 durable lease supervisor 已通过契约/运行测试；独立 executor、跨主机/companion continuity 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
+| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor 和同主机 HTTP executor 已通过契约/真实 job 测试；跨主机/auth hardening/companion continuity 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
-| 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；远程目录、持久 job queue、worker lease 与失联回收 | 无独立 executor、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
+| 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HTTP executor、worker lease 与失联回收 | 无跨主机 executor、worker auth 强化、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 executor、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
 
 ## 验证证据
 
@@ -84,7 +86,7 @@
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程注册目录、durable job queue/lease supervisor；GitHub Actions Linux policy CI PASS | 独立 job executor、companion/evidence continuity、跨主机 reattach、生产多机调度、外部 IPv6 |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程注册目录、durable queue/lease supervisor 和同主机 HTTP executor；GitHub Actions Linux policy CI PASS | 跨主机 executor、worker auth 强化、companion/evidence continuity、跨主机 reattach、生产多机调度、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；规范 profile `core2-native-hci` 连续五个独立服务 lease 通过 | GDB 旧路径 repeated lease 仅 `1/2`，不再作为生产后端。新路径不使用 GDB，同时返回 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence。旧 MTU 失败已定位为 24-byte PDU 超过默认 MTU 23；合法 17-byte PDU 闭环。剩余是 bit-exact controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机同路径 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist 策略 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、跨厂商回归 |
 

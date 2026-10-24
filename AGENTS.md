@@ -262,8 +262,11 @@ diagnostics in `internal/records/`.
   running local QEMU is re-attached only after PID start-time, session QMP
   socket ownership and `query-status=running` checks. The remote directory and
   durable job queue add idempotent enqueue, capability-matched claim, lease
-  heartbeat, expiry retry and stale/stopped worker reconciliation, but they do
-  not execute jobs.
+  heartbeat, expiry retry and stale/stopped worker reconciliation. The
+  separate `worker_agent.py` executes a claimed job through the public HTTP
+  API, downloads and hashes an evidence ZIP, stops the session and reports the
+  terminal result on the same host. Cross-host transport and worker
+  authorization hardening remain open.
 
 ## Remaining work
 
@@ -273,8 +276,9 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- remote job execution, companion/evidence continuity, cross-host QEMU
-  re-attach, multi-host scheduling and external IPv6 endpoint enforcement;
+- cross-host job execution and authorization hardening, companion/evidence
+  continuity, cross-host QEMU re-attach, multi-host scheduling and external
+  IPv6 endpoint enforcement;
 - Core2 bit-exact BT controller/baseband and physical cache/PSRAM
   equivalence, coexistence and soak;
 - runtime permissions/license policy, production security-key flows and

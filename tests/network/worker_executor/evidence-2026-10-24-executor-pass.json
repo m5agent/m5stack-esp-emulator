@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-http-worker-executor",
+  "scope": "same-host-real-qemu-job",
+  "validation": "virtual-device",
+  "status": "PASS",
+  "checks": {
+    "persistent_worker_generation": "PASS",
+    "worker_registration": "PASS",
+    "durable_job_claim": "PASS",
+    "worker_and_job_heartbeat": "PASS",
+    "real_sticks3_qemu_session": "PASS",
+    "session_running_wait": "PASS",
+    "evidence_zip_download": "PASS",
+    "evidence_sha256": "PASS",
+    "session_stop_purge_zero": "PASS",
+    "terminal_job_result": "PASS",
+    "clean_worker_stop": "PASS"
+  },
+  "live_execution": {
+    "job_status": "completed",
+    "result_state": "PASS",
+    "attempts": 1,
+    "evidence_bytes": 6891,
+    "evidence_sha256": "fda2344faabda7e1b8c4335a22dc51e4eedb448274ddc2bb8e307e599c62ca26",
+    "agent_exit": 0
+  },
+  "tests": {
+    "worker_agent": "3/3 PASS",
+    "live_executor": "1/1 PASS",
+    "platform_suite": "292/292 PASS"
+  },
+  "not_claimed": [
+    "cross-host execution",
+    "worker authentication hardening",
+    "companion continuity after service restart",
+    "untrusted-firmware sandbox",
+    "production capacity scheduling",
+    "hardware validation"
+  ]
+}

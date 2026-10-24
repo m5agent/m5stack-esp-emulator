@@ -221,8 +221,12 @@ The request is intended for non-secret job parameters; credentials, tokens
 and firmware payloads must remain in their dedicated stores.
 
 This queue is not a worker executor and does not make a lost QEMU process
-truthful. The worker still has to execute the claimed request and upload or
-index durable evidence.
+truthful. The separate `platform/tools/worker_agent.py` executor registers a
+persistent generation, claims one or more jobs, creates the requested session,
+waits for `running` while heartbeating both worker and job, downloads the
+evidence ZIP, stops with `purge=0`, and reports SHA256 plus terminal state.
+The retained live run used the same host; cross-host transport, worker
+authorization hardening and companion continuity remain open.
 
 ### Capacity sizing
 
