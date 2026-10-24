@@ -57,8 +57,9 @@ PYTHONPATH=platform/tools python3 \
 The runtime must be a Linux QEMU build with the M5Stack StickS3 machine at the
 repository's registered runtime path. The fixture checks that the central
 service does not receive session calls, the worker-local service starts QEMU,
-evidence includes manifest/serial data, token redaction holds, QEMU is reaped
-and both namespaces are removed. This mode has not yet been executed after the
-API split. It validates separate network namespaces on one host, not physically
+evidence binds the source firmware, normalized artifact and QEMU SHA256,
+manifest/serial data is present, token redaction holds, QEMU is reaped and both
+namespaces are removed. This mode has not yet been executed after the API
+split. It validates separate network namespaces on one host, not physically
 separate hosts, companion/evidence-stream continuity, cross-host process
 re-attach or production multi-host scheduling.
