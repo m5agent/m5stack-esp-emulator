@@ -264,6 +264,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
+| Firmware license policy | `tests/firmware/evidence-2026-10-24-license-policy.json` | 声明来源汇总、allowlist/denylist、REVIEW/REJECTED 边界；不是完整源码扫描或法律意见 |
 | Filesystem inventory | `tests/firmware/evidence-2026-10-24-filesystem-inventory.json` | StickS3 `sys`/`vfs` LittleFS 文件、大小、哈希和分区摘要 |
 | FAT inventory | `tests/firmware/evidence-2026-10-24-fat-inventory.json` | 合成 FAT12/16/32、LFN、循环链、多簇哈希、敏感路径、erased partition 与真实 PaperColor FAT12 样本 |
 | SPIFFS inventory | `tests/firmware/evidence-2026-10-24-spiffs-inventory.json` | 8 个声明配置的自包含多索引样本、LUT mismatch/随机损坏负例、ESP-IDF canonical `spiffsgen.py` 镜像和 manifest 脱敏 |

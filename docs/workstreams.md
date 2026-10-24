@@ -13,13 +13,13 @@
 [验证证据台账](validation-ledger.md)。
 
 本轮台账对账到 `2026-10-24` 当前工作树、生成物和已提交 evidence。平台套件
-共 `267` 项，其中 `267` 项通过、`0` 项环境相关测试跳过。文档整理本身不
+共 `272` 项，其中 `272` 项通过、`0` 项环境相关测试跳过。文档整理本身不
 产生新的设备能力；浏览器 SHA256/upload client Node 测试另为 `2/2 PASS`。
 运行时结论仍以对应固件 SHA、profile 和 evidence 为准。
 
 ## 交接摘要
 
-- **当前基线**：`main` 工作树通过平台 `267/267`、catalog/profile 校验，
+- **当前基线**：`main` 工作树通过平台 `272/272`、catalog/profile 校验，
   最新共享 QEMU 全矩阵仍是 `67/67` case、`274/274` check；这些数字不覆盖
   真机、RF 或未执行的新控制器路径。
 - **网络 P0**：单机 namespace、DNS/TLS、exact IPv4 egress、pcap、错误密码、
@@ -32,11 +32,12 @@
   guest 从 `01030c00` 前进到 `01011000`；剩 ACL ownership、controller ACK
   和 API-boundary transaction。
 - **固件审查 P0**：Manifest、WebBurner、静态审查、安全配置分层和
-  LittleFS/FAT/SPIFFS inventory 已实现；运行时权限/许可策略、真机
-  key/eFuse 闭环和跨厂商样本仍开放。
+  LittleFS/FAT/SPIFFS inventory、声明级许可 allowlist/denylist 已实现；
+  运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 闭环和跨厂商
+  样本仍开放。
 - **下一手顺序**：先做 ACL mbuf 生命周期和 API-boundary H2C transaction；
   并行推进
-  `NET-04` 远程 worker；固件侧继续 `FW-01` 权限/许可。
+  `NET-04` 远程 worker；固件侧继续 `FW-01` 运行时权限和更完整许可审批。
 
 ## 状态语义
 
@@ -60,7 +61,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
 | Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5`、HLI 真实 Reset Complete `5/5`；`HCI-3b` 完整 sequence 仍开放，API-boundary 到 NUS subscription；safe-point/nested-entry 审计均 FAIL 且未保留 | `CORE2-01` 下一实现是 ACL mbuf 生命周期 + API-boundary H2C/C2H transaction，再接完整 controller ACK/flow control；sequence 稳定后用 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面。`CORE2-02` 继续 controller、物理 cache/PSRAM、coexistence/soak |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle 与 Linux policy CI） | `worker_registry.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；两台 QEMU guest 的 DHCP/双向 TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 远程 worker/活动 QEMU re-attach、`NET-05` IPv6 |
-| 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、失败回滚与 staging GC | `FW-01` 权限/许可策略、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
+| 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist、失败回滚与 staging GC | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`storage_policy.py`、`docs/device-service-api.md` | lease、worker ID/generation/heartbeat、独占状态锁、drain/resume、abandoned lease、pcap result、烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` 远程注册和活动 QEMU re-attach、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
 | 热门公开固件仿真 | `PILOT` | `fetch_firmware.py`、`user_firmware_matrix.py` | 按 M5Burner 热度选样并通过 `/api/v1` 留下 session/evidence | 更大样本面、跨厂商统计、长时间稳定性 |
 | 浏览器目录与设备页 | `DELIVERED`（本地） | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、Live sessions、输入和证据浏览 | `UI-01` 逐设备高保真外壳与视觉回归 |

@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "platform/tests"))
 
 from firmware_manifest import (  # noqa: E402
     ManifestError,
+    evaluate_license_policy,
     import_package,
     load_device_profile,
     validate_capabilities,
@@ -28,12 +29,74 @@ from test_firmware_analysis import (  # noqa: E402
 
 
 class FirmwareManifestTests(unittest.TestCase):
+    @staticmethod
+    def license_manifest(*licenses: str) -> dict:
+        return {
+            "target": {
+                "filesystems": [
+                    {
+                        "partition": "storage",
+                        "declared_licenses": list(licenses),
+                    }
+                ]
+            },
+            "provenance": {"license": None},
+            "review": {"sbom": {"licenses": []}},
+        }
+
     def test_schema_file_is_valid_json(self):
         schema = json.loads(
             (ROOT / "platform/tools/firmware_manifest.schema.json").read_text()
         )
         self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
         self.assertEqual(schema["properties"]["schema_version"]["const"], 1)
+        self.assertIn("license_policy", schema["properties"])
+
+    def test_license_policy_accepts_allowlisted_declarations(self):
+        policy = evaluate_license_policy(
+            self.license_manifest("MIT", "Apache-2.0"),
+            allowed_licenses=["MIT", "Apache-2.0"],
+        )
+        self.assertEqual(policy["status"], "PASS")
+        self.assertEqual(policy["decision"], "allowlisted")
+        self.assertEqual(
+            policy["discovered_licenses"],
+            ["Apache-2.0", "MIT"],
+        )
+        self.assertFalse(policy["findings"])
+
+    def test_license_policy_rejects_denied_license(self):
+        policy = evaluate_license_policy(
+            self.license_manifest("GPL-3.0-only"),
+            allowed_licenses=["MIT", "GPL-3.0-only"],
+            denied_licenses=["GPL-3.0-only"],
+        )
+        self.assertEqual(policy["status"], "REJECTED")
+        self.assertEqual(
+            [finding["code"] for finding in policy["findings"]],
+            ["license_denied"],
+        )
+
+    def test_license_policy_requires_review_without_allowlist(self):
+        policy = evaluate_license_policy(
+            self.license_manifest("MIT"),
+        )
+        self.assertEqual(policy["status"], "REVIEW_REQUIRED")
+        self.assertIn(
+            "license_allowlist_not_configured",
+            {finding["code"] for finding in policy["findings"]},
+        )
+
+    def test_license_policy_requires_declarations(self):
+        policy = evaluate_license_policy(
+            self.license_manifest(),
+            allowed_licenses=["MIT"],
+        )
+        self.assertEqual(policy["status"], "REVIEW_REQUIRED")
+        self.assertIn(
+            "license_not_declared",
+            {finding["code"] for finding in policy["findings"]},
+        )
 
     def test_imports_spiffs_inventory_without_sensitive_paths(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -54,6 +117,40 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertEqual(filesystem["file_count"], 4)
         self.assertNotIn("device.key", json.dumps(manifest))
         self.assertEqual(validate_manifest_structure(manifest), [])
+
+    def test_import_persists_allowlisted_license_policy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "spiffs.bin"
+            image.write_bytes(build_flash_with_spiffs())
+            manifest = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+                allowed_licenses=["BSD-3-Clause"],
+            )["manifest"]
+
+        self.assertEqual(manifest["license_policy"]["status"], "PASS")
+        self.assertEqual(
+            manifest["license_policy"]["discovered_licenses"],
+            ["BSD-3-Clause"],
+        )
+        self.assertEqual(manifest["validation"]["status"], "PASS")
+        self.assertNotIn(
+            "license_policy_review_required",
+            {
+                issue["code"]
+                for issue in manifest["validation"]["warnings"]
+            },
+        )
+        self.assertEqual(validate_manifest_structure(manifest), [])
+        inconsistent = json.loads(json.dumps(manifest))
+        inconsistent["license_policy"]["status"] = "REJECTED"
+        self.assertIn(
+            "license_policy.status is REJECTED",
+            "\n".join(validate_manifest_structure(inconsistent)),
+        )
 
     def test_imports_sparse_merged_image_and_preserves_provenance(self):
         with tempfile.TemporaryDirectory() as tmp:

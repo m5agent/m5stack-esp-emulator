@@ -29,6 +29,7 @@
 | 固件上传 | 可恢复 chunk artifact upload 的连续 offset、per-chunk/final SHA256、失败回滚、原子 metadata、abort 和 staging GC | [`streaming-artifact-upload.json`](../tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json) |
 | WebBurner | 浏览器流式 SHA256、4 MiB 多 chunk、进度/重试/取消、刷新恢复和 package → FirmwareManifest import；9.44 MiB 三 chunk 探针 PASS | [`webburner-ui.json`](../tests/firmware/evidence-2026-10-24-webburner-ui.json) |
 | 固件安全配置 | 解析脱敏 `espefuse summary --format json`，区分镜像、sdkconfig、分区 flag 与 eFuse 证据；安全启动/Flash Encryption preflight 按预期拒绝 | [`efuse-security.json`](../tests/firmware/evidence-2026-10-24-efuse-security.json) |
+| 固件许可策略 | provenance、文件系统 SPDX、SBOM 声明汇总；allowlist PASS、denylist REJECTED、无 allowlist/无声明/unknown 保持 REVIEW_REQUIRED；策略不是完整源码扫描或法律意见 | [`license-policy.json`](../tests/firmware/evidence-2026-10-24-license-policy.json) |
 | Core2 稳定性 | 确定性 TCG/icount 下独立启动 `10/10` 首轮 PASS；同 guest board+WiFi+公网+native-VHCI BLE `3/3` | [`native-vhci-pinned.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-pinned.json) |
 | Core2 Device Service | `qemu-unified/profile=core2-native-vhci` 单 lease 返回 frame、QOM、pcap、bridge 和 peer evidence | [`native-vhci-service.json`](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json) |
 | Core2 repeated lease | 同一 GDB 诊断桥 repeated lease 仅 `1/2`，证明该路径不能作为稳定后端 | [`native-vhci-service-stability.json`](../tests/uiflow2/unified_core2/evidence-2026-10-24-native-vhci-service-stability.json) |

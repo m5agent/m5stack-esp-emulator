@@ -97,6 +97,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-fat-inventory.json",
             "tests/firmware/evidence-2026-10-24-spiffs-inventory.json",
             "tests/firmware/evidence-2026-10-24-efuse-security.json",
+            "tests/firmware/evidence-2026-10-24-license-policy.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
             "platform/web/firmware.html",
@@ -391,6 +392,33 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "spiffs-inventory.json",
             code_map,
+        )
+        license_policy = json.loads(
+            (
+                ROOT
+                / "tests/firmware/evidence-2026-10-24-license-policy.json"
+            ).read_text()
+        )
+        self.assertEqual(license_policy["status"], "PASS")
+        self.assertEqual(
+            license_policy["cases"]["denied_gpl_3_0_only"],
+            "REJECTED",
+        )
+        self.assertEqual(
+            license_policy["cases"]["no_allowlist"],
+            "REVIEW_REQUIRED",
+        )
+        self.assertIn(
+            "Not a legal opinion",
+            license_policy["limits"],
+        )
+        self.assertIn(
+            "license-policy.json",
+            code_map,
+        )
+        self.assertIn(
+            "声明级许可 allowlist/denylist",
+            firmware_manifest,
         )
         self.assertIn("## 新鲜度台账", (DOCS / "README.md").read_text())
         self.assertIn("## 可执行任务板", backlog)

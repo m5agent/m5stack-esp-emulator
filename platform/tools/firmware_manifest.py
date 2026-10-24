@@ -692,6 +692,192 @@ def _device_capability_set(device: dict) -> set[str]:
     return capabilities
 
 
+def _license_key(value: str) -> str:
+    return " ".join(value.strip().split()).casefold()
+
+
+def _normalize_license_list(values: Iterable[str] | None) -> list[str]:
+    normalized: dict[str, str] = {}
+    for value in values or []:
+        if not isinstance(value, str) or not value.strip():
+            continue
+        rendered = " ".join(value.strip().split())
+        normalized.setdefault(_license_key(rendered), rendered)
+    return sorted(normalized.values(), key=_license_key)
+
+
+def evaluate_license_policy(
+    manifest: dict,
+    *,
+    allowed_licenses: Iterable[str] | None = None,
+    denied_licenses: Iterable[str] | None = None,
+) -> dict:
+    allowed = _normalize_license_list(allowed_licenses)
+    denied = _normalize_license_list(denied_licenses)
+    allowed_keys = {_license_key(value) for value in allowed}
+    denied_keys = {_license_key(value) for value in denied}
+    sources: list[dict] = []
+
+    provenance_license = manifest.get("provenance", {}).get("license")
+    if isinstance(provenance_license, str) and provenance_license.strip():
+        sources.append(
+            {
+                "source": "provenance",
+                "license": " ".join(provenance_license.split()),
+            }
+        )
+    for index, filesystem in enumerate(
+        manifest.get("target", {}).get("filesystems", [])
+    ):
+        if not isinstance(filesystem, dict):
+            continue
+        partition = filesystem.get("partition")
+        source = (
+            f"filesystem:{partition}"
+            if isinstance(partition, str) and partition
+            else f"filesystem[{index}]"
+        )
+        for license_value in filesystem.get("declared_licenses", []):
+            if isinstance(license_value, str) and license_value.strip():
+                sources.append(
+                    {
+                        "source": source,
+                        "license": " ".join(license_value.split()),
+                    }
+                )
+    sbom = manifest.get("review", {}).get("sbom", {})
+    for license_value in sbom.get("licenses", []):
+        if isinstance(license_value, str) and license_value.strip():
+            sources.append(
+                {
+                    "source": "sbom",
+                    "license": " ".join(license_value.split()),
+                }
+            )
+
+    unique_sources = []
+    seen_sources: set[tuple[str, str]] = set()
+    for row in sources:
+        key = (row["source"], _license_key(row["license"]))
+        if key in seen_sources:
+            continue
+        seen_sources.add(key)
+        unique_sources.append(row)
+    unique_sources.sort(
+        key=lambda row: (row["source"], _license_key(row["license"]))
+    )
+    discovered = sorted(
+        {row["license"] for row in unique_sources},
+        key=_license_key,
+    )
+    unknown = sorted(
+        {
+            value
+            for value in discovered
+            if _license_key(value) in {"none", "noassertion", "unknown"}
+        },
+        key=_license_key,
+    )
+    findings: list[dict] = []
+    rejected = False
+    for value in discovered:
+        key = _license_key(value)
+        if key in denied_keys:
+            rejected = True
+            findings.append(
+                {
+                    "code": "license_denied",
+                    "severity": "error",
+                    "license": value,
+                    "message": "declared license is denied by policy",
+                }
+            )
+        elif allowed_keys and key not in allowed_keys:
+            rejected = True
+            findings.append(
+                {
+                    "code": "license_not_allowed",
+                    "severity": "error",
+                    "license": value,
+                    "message": (
+                        "declared license is not present in the allowlist"
+                    ),
+                }
+            )
+    if not discovered:
+        findings.append(
+            {
+                "code": "license_not_declared",
+                "severity": "warning",
+                "message": (
+                    "no SPDX license declaration was found in provenance, "
+                    "filesystem metadata or SBOM"
+                ),
+            }
+        )
+    if not allowed_keys:
+        findings.append(
+            {
+                "code": "license_allowlist_not_configured",
+                "severity": "warning",
+                "message": (
+                    "no allowlist was supplied; declarations require review"
+                ),
+            }
+        )
+    if unknown:
+        findings.append(
+            {
+                "code": "license_unknown_expression",
+                "severity": "warning",
+                "message": (
+                    "one or more declarations are not concrete license IDs"
+                ),
+                "licenses": unknown,
+            }
+        )
+    if rejected:
+        status = "REJECTED"
+        decision = "rejected"
+    elif not discovered or not allowed_keys or unknown:
+        status = "REVIEW_REQUIRED"
+        decision = "review"
+    else:
+        status = "PASS"
+        decision = "allowlisted"
+    return {
+        "schema_version": 1,
+        "status": status,
+        "decision": decision,
+        "allowed_licenses": allowed,
+        "denied_licenses": denied,
+        "discovered_licenses": discovered,
+        "sources": unique_sources,
+        "findings": findings,
+        "coverage": {
+            "provenance_declared": bool(
+                provenance_license
+                and isinstance(provenance_license, str)
+                and provenance_license.strip()
+            ),
+            "filesystem_declarations": sum(
+                1
+                for row in unique_sources
+                if row["source"].startswith("filesystem")
+            ),
+            "sbom_declarations": sum(
+                1 for row in unique_sources if row["source"] == "sbom"
+            ),
+        },
+        "limits": [
+            (
+                "Policy evaluates declared identifiers only; it is not a "
+                "legal opinion or a complete source-code license scan"
+            )
+        ],
+    }
+
+
 def _security_metadata(
     analysis: dict,
     sdkconfig: Path | None,
@@ -923,6 +1109,8 @@ def import_package(
     flash_size: int | None = None,
     required_capabilities: list[str] | None = None,
     optional_capabilities: list[str] | None = None,
+    allowed_licenses: list[str] | None = None,
+    denied_licenses: list[str] | None = None,
 ) -> dict:
     input_path = input_path.resolve()
     if not input_path.exists():
@@ -1158,12 +1346,46 @@ def import_package(
                 "optional": sorted(set(optional_capabilities or [])),
             },
             "review": review,
+            "license_policy": evaluate_license_policy(
+                {
+                    "target": {
+                        "filesystems": analysis.get("filesystems", []),
+                    },
+                    "provenance": {
+                        "license": sidecar.get("license"),
+                    },
+                    "review": review,
+                },
+                allowed_licenses=allowed_licenses,
+                denied_licenses=denied_licenses,
+            ),
             "validation": {
                 "status": "PASS",
                 "errors": [],
                 "warnings": [],
             },
         }
+        license_policy = manifest["license_policy"]
+        if license_policy["status"] == "REJECTED":
+            manifest["validation"]["status"] = "REJECTED"
+            manifest["validation"]["errors"].append(
+                _code_issues(
+                    "license_policy_rejected",
+                    "one or more declared licenses violate the policy",
+                    path="license_policy",
+                )
+            )
+        elif license_policy["status"] == "REVIEW_REQUIRED":
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "license_policy_review_required",
+                    (
+                        "license declarations require policy review; "
+                        "no legal conclusion was inferred"
+                    ),
+                    path="license_policy",
+                )
+            )
         if manifest["security"]["efuse"] == "summary-included":
             manifest["validation"]["warnings"].append(
                 _code_issues(
@@ -1413,12 +1635,54 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
             expected = list if key in {"findings", "urls", "encoded_blobs"} else dict
             if not isinstance(review.get(key), expected):
                 errors.append(f"manifest.review.{key} has invalid type")
+    license_policy = manifest.get("license_policy")
+    if license_policy is not None:
+        if not isinstance(license_policy, dict):
+            errors.append("manifest.license_policy must be an object")
+        else:
+            if license_policy.get("schema_version") != 1:
+                errors.append(
+                    "manifest.license_policy.schema_version must be 1"
+                )
+            if license_policy.get("status") not in {
+                "PASS",
+                "REVIEW_REQUIRED",
+                "REJECTED",
+            }:
+                errors.append(
+                    "manifest.license_policy.status is invalid"
+                )
+            for key in (
+                "allowed_licenses",
+                "denied_licenses",
+                "discovered_licenses",
+                "sources",
+                "findings",
+                "limits",
+            ):
+                if not isinstance(license_policy.get(key), list):
+                    errors.append(
+                        f"manifest.license_policy.{key} has invalid type"
+                    )
+            if not isinstance(license_policy.get("coverage"), dict):
+                errors.append(
+                    "manifest.license_policy.coverage has invalid type"
+                )
     validation = manifest.get("validation")
     if not isinstance(validation, dict) or validation.get("status") not in {
         "PASS",
         "REJECTED",
     }:
         errors.append("manifest.validation.status is invalid")
+    elif (
+        isinstance(license_policy, dict)
+        and license_policy.get("status") == "REJECTED"
+        and validation.get("status") != "REJECTED"
+    ):
+        errors.append(
+            "manifest.validation.status must be REJECTED when "
+            "license_policy.status is REJECTED"
+        )
     return errors
 
 
@@ -1435,6 +1699,8 @@ def main() -> int:
     parser.add_argument("--flash-size")
     parser.add_argument("--require-capability", action="append", default=[])
     parser.add_argument("--optional-capability", action="append", default=[])
+    parser.add_argument("--allow-license", action="append", default=[])
+    parser.add_argument("--deny-license", action="append", default=[])
     parser.add_argument(
         "--print",
         choices=("summary", "manifest"),
@@ -1450,6 +1716,8 @@ def main() -> int:
             flash_size=flash_size,
             required_capabilities=args.require_capability,
             optional_capabilities=args.optional_capability,
+            allowed_licenses=args.allow_license,
+            denied_licenses=args.deny_license,
         )
     except ManifestError as error:
         parser.error(str(error))

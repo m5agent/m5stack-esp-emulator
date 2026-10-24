@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `267` 项，`267` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `272` 项，`272` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - WebBurner 浏览器 SHA256/upload client Node 测试 `2/2 PASS`；真实页面对
   `9.44 MiB`、`3` chunk 的 WebBurner ZIP 完成上传、manifest 导入和刷新恢复。
@@ -68,7 +68,7 @@
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions Linux policy CI PASS | 远程 QEMU worker、活动进程 re-attach、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5`、HLI 真实 Reset Complete `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB internal-controller relay 在第二个 ATT request 后 `ack returned 12` 并 Reset。API-boundary 审计已完成广播、连接、NUS discovery 和订阅，但最终 write/notify 事务仍失败；safe-point callback 与 nested `r_eif_send` 均已证伪并回退。HLI 已用池化 event buffer 交付真实 Reset Complete，ACL mbuf、controller ACK/flow control 和组合 transaction 尚未闭环。下一步先完成 ACL 与显式 API transaction，再做 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取 | 运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist 策略 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、跨厂商回归 |
 
 ## 工作流入口
 

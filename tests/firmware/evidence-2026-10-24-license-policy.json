@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "firmware-license-policy",
+  "status": "PASS",
+  "scope": "declared-identifier policy evaluation and FirmwareManifest integration",
+  "implementation": {
+    "manifest_section": "license_policy",
+    "sources": [
+      "provenance",
+      "filesystem SPDX",
+      "SPDX/CycloneDX SBOM"
+    ],
+    "allowlist": true,
+    "denylist": true,
+    "statuses": [
+      "PASS",
+      "REVIEW_REQUIRED",
+      "REJECTED"
+    ]
+  },
+  "cases": {
+    "allowlisted_mit_apache": "PASS",
+    "denied_gpl_3_0_only": "REJECTED",
+    "no_allowlist": "REVIEW_REQUIRED",
+    "no_declaration": "REVIEW_REQUIRED",
+    "unknown_expression": "REVIEW_REQUIRED",
+    "spiffs_bsd_3_clause_allowlist_import": "PASS"
+  },
+  "validation": {
+    "manifest_structure": "PASS",
+    "schema_json": "PASS",
+    "platform_tests": {
+      "passed": 272,
+      "total": 272,
+      "status": "PASS"
+    }
+  },
+  "limits": [
+    "Policy evaluates declared identifiers only",
+    "Not a complete source-code license scan",
+    "Not a legal opinion",
+    "Runtime filesystem permissions remain NOT RUN"
+  ],
+  "not_claimed": [
+    "license compliance",
+    "copyright ownership",
+    "source-level dependency completeness",
+    "runtime file permissions",
+    "physical hardware"
+  ]
+}

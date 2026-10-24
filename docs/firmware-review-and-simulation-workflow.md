@@ -240,7 +240,8 @@
 - 文件系统内容；
 - 配置漂移和未声明能力；
 - 凭据/私钥特征和高熵编码载荷；
-- 文件系统异常资产、权限和许可策略仍待补齐。
+- 文件系统异常资产和运行时权限仍待补齐；许可声明可执行
+  allowlist/denylist，但完整源码扫描和法律审批仍开放。
 
 ### 5.3 动态行为
 
@@ -426,7 +427,7 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
-1. 运行时权限/许可审批、证书链校验和许可证策略；
+1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
    LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
 2. 远程 QEMU worker 注册/调度和活动进程 re-attach；本地 worker
    heartbeat/drain、GitHub-hosted Linux policy/egress CI 和双设备 lab fabric

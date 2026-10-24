@@ -43,7 +43,10 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 6. 静态扫描 URL、凭据特征、私钥标记和高熵编码块，并汇总 SBOM；
 7. 生成完整镜像、资源副本和 `*.manifest.json`；
 8. 分层记录镜像、sdkconfig、分区 flag 和可选 eFuse summary 的安全证据；
-9. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需 capabilities。
+9. 汇总 provenance、文件系统 SPDX 和 SBOM 的许可声明，执行显式
+   allowlist/denylist 决策；
+10. 在已知 `device_id` 时检查 SoC、Flash、PSRAM、安全配置和所需
+    capabilities。
 
 ## Manifest 结构
 
@@ -59,6 +62,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | `resources` | ELF、MAP、sdkconfig、flasher args、SBOM |
 | `capabilities.required` | 目标设备必须提供的能力 |
 | `review` | 脱敏 URL、凭据/私钥特征、高熵编码块、SBOM 摘要 |
+| `license_policy` | 声明来源、allowlist/denylist、发现值、决策、findings、覆盖边界 |
 | `validation` | 结构化 `errors[]` / `warnings[]` |
 
 JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名。
@@ -153,6 +157,37 @@ QEMU profile 没有建模对应的密钥和启动链。
 
 `REVIEW_REQUIRED` 表示有人需要查看脱敏 finding；它不自动等于恶意固件，也不会
 绕过 SoC/capability 的兼容性检查。
+
+## 许可声明策略
+
+Manifest 不把“看到 MIT 字符串”写成法律合规结论。`license_policy` 只评估包内
+可审计的声明来源：
+
+- provenance sidecar 的 `license`；
+- LittleFS/FAT/SPIFFS 清单中的 SPDX `declared_licenses`；
+- SPDX/CycloneDX SBOM 中的 license 字段。
+
+CLI 可建立显式策略：
+
+```bash
+python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
+  --out-dir /tmp/m5-firmware \
+  --allow-license MIT \
+  --allow-license Apache-2.0 \
+  --deny-license GPL-3.0-only
+```
+
+状态语义：
+
+| 状态 | 含义 |
+| --- | --- |
+| `PASS` | 至少发现一个具体声明，且所有发现值都在显式 allowlist 内、未被 denylist 命中 |
+| `REVIEW_REQUIRED` | 未配置 allowlist、没有声明或存在 `NONE`/`NOASSERTION`/`unknown` |
+| `REJECTED` | 命中 denylist，或发现值不在 allowlist 内；Manifest validation 同步为 `REJECTED` |
+
+`license_policy.limits` 固定声明该结果不是法律意见，也不是完整源码级许可证
+扫描。文件系统记录 `permissions=not-recorded`，因此“运行时文件权限”仍是
+`NOT RUN`，不能由许可策略结果推断。
 
 ## 文件系统清单
 
@@ -363,4 +398,5 @@ SPIFFS 证据：
 - 真机安全启动、Flash Encryption 和生产 key 流程仍须真机验证。
 
 文件系统内容清单已经覆盖 LittleFS、FAT12/16/32 和常见 ESP-IDF SPIFFS
-配置；仍未完成的是运行时权限、证书/许可审批和更完整的产品级许可策略。
+配置；声明级许可 allowlist/denylist 已实现。仍未完成的是运行时文件权限、
+完整源码级许可扫描、证书审批和具有法律效力的产品级许可结论。

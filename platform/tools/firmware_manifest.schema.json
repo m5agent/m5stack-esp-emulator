@@ -316,6 +316,9 @@
     "review": {
       "$ref": "#/$defs/review"
     },
+    "license_policy": {
+      "$ref": "#/$defs/license_policy"
+    },
     "validation": {
       "type": "object",
       "additionalProperties": false,
@@ -430,6 +433,103 @@
         "limits": {
           "type": "object",
           "additionalProperties": true
+        }
+      }
+    },
+    "license_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "status",
+        "decision",
+        "allowed_licenses",
+        "denied_licenses",
+        "discovered_licenses",
+        "sources",
+        "findings",
+        "coverage",
+        "limits"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "status": {
+          "enum": [
+            "PASS",
+            "REVIEW_REQUIRED",
+            "REJECTED"
+          ]
+        },
+        "decision": {
+          "enum": [
+            "allowlisted",
+            "review",
+            "rejected"
+          ]
+        },
+        "allowed_licenses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "denied_licenses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "discovered_licenses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "license"
+            ],
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "code",
+              "severity",
+              "message"
+            ]
+          }
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
