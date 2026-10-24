@@ -74,6 +74,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
@@ -510,6 +511,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "bounded-TCG two-hour confirmation",
             "121 is accepted by contract but still needs a runtime gate",
             "121-cycle runtime evidence is still pending",
+            "`FIXED / RERUN PENDING`",
+            "replacement three-lease 121-cycle gate remains pending",
             "RSS 有界",
             "3 个独立 lease、每个 30 轮的下一门禁",
             "Automated discovery and migration of a client fleet is still",
@@ -868,6 +871,21 @@ class DocsConsistencyTests(unittest.TestCase):
                 "readiness-timeout-1x.json"
             ).read_text()
         )
+        reconnect_pass = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-hci4-reconnect121-1x.json"
+            ).read_text()
+        )
+        accelerator_failure = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-hci4-reconnect121-"
+                "accelerator-sampling-fail-1x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("20/30/60/120", project_snapshot)
@@ -940,7 +958,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("323536", device_readme)
         self.assertIn("250880", device_readme)
         self.assertIn("29 轮", device_readme)
-        self.assertIn("workload-aware", device_readme)
+        self.assertIn("121/121", device_readme)
         self.assertNotIn("最终两小时限容复测尚未完成", device_readme)
         for stale in (
             "当前参数上限为 120 并拒绝 121",
@@ -977,6 +995,29 @@ class DocsConsistencyTests(unittest.TestCase):
                 "effective_timeout_seconds_for_121_cycle_2_second_delay"
             ],
             1028,
+        )
+        self.assertEqual(reconnect_pass["status"], "PASS")
+        self.assertEqual(reconnect_pass["attempts_passed"], 1)
+        self.assertEqual(reconnect_pass["ble_reconnect_cycles"], 121)
+        self.assertEqual(
+            reconnect_pass["observed"]["qemu_accelerator"],
+            "tcg,thread=single,tb-size=128",
+        )
+        self.assertEqual(reconnect_pass["observed"]["hli_posts"], 3405)
+        self.assertEqual(reconnect_pass["observed"]["hli_consumed"], 3405)
+        self.assertEqual(reconnect_pass["observed"]["trace_gap_adv_start"], 121)
+        self.assertFalse(reconnect_pass["observed"]["guest_panic"])
+        self.assertEqual(accelerator_failure["functional_status"], "PASS")
+        self.assertEqual(
+            accelerator_failure["observed"]["ble_cycles_passed"],
+            121,
+        )
+        self.assertIsNone(
+            accelerator_failure["observed"]["qemu_accelerator"]
+        )
+        self.assertEqual(
+            accelerator_failure["root_cause"]["classification"],
+            "evidence_sampling_bug_not_guest_controller_failure",
         )
 
         self.assertEqual(evidence["status"], "PASS")
@@ -1292,7 +1333,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
         self.assertTrue(
             any(
-                "121-cycle reconnect gate" in blocker
+                "121-cycle reconnect lease passes" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )

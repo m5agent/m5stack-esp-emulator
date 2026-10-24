@@ -24,7 +24,9 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` 30-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect30-3x.json`; three independent stock-firmware leases complete thirty full NUS GATT cycles each. Every lease balances HLI 857/857, delivers 587 events and 270 ACLs, with zero errors, empty queues and connection/L2CAP/GATT pools back at 3/9/3 |
 | `CORE2-02` 60-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect60-3x.json`; three independent leases complete sixty cycles each with HLI 1697/1697, 1157 events, 540 ACLs, zero errors and pools back at 3/9/3 |
 | `CORE2-02` 120-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect120-3x.json`; three independent leases complete 120 cycles each with HLI 3377/3377, 2297 events, 1080 ACLs, zero errors/dropped packets and pools back at 3/9/3 |
-| `CORE2-02` 121-cycle readiness budget | `FIXED / RERUN PENDING` | `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`; the first run completed 29 cycles and started cycle 30 before a fixed 180-second budget stopped a healthy session. The runner and Device Service now share `reconnect_workload_timeout_seconds()`; a replacement three-lease gate is pending |
+| `CORE2-02` 121-cycle readiness budget | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`; the first run completed 29 cycles and started cycle 30 before a fixed 180-second budget stopped a healthy session. The runner and Device Service now share `reconnect_workload_timeout_seconds()` |
+| `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`; a reconnect-only run completed all functional checks but did not sample the QEMU accelerator because that sampling lived only in the hold loop |
+| `CORE2-02` 121-cycle lease | `1/1 PASS` | `evidence-2026-10-25-hci4-reconnect121-1x.json`; artifact-bound `1/1` lease with `tb-size=128`, WiFi/public network, NUS GATT, frame/QOM, pcap, evidence and cleanup. HLI is 3405/3405, events 2316, ACLs 1089, with zero queue/error/drop/peer-close/panic. Two additional leases remain for the `3/3` gate |
 
 Build the patched QEMU, then run:
 
@@ -289,7 +291,10 @@ thirty-cycle evidence is
 pass. The first 121-cycle attempt stopped after 29 completed cycles because
 the runner and service still shared a fixed 180-second readiness budget; the
 guest had no panic and cycle 30 had started. They now use the same
-workload-aware timeout, but a replacement 121-cycle gate is still pending.
+workload-aware timeout. A later reconnect-only run exposed accelerator sampling
+only inside the hold loop; after moving that sample to first-running state,
+one artifact-bound 121-cycle lease passes. Two additional leases remain for
+the `3/3` gate.
 The replacement artifact-bound two-hour hold passes the functional gate with
 HLI `45/45`, zero errors/queues/dropped packets and unchanged launch assets.
 The final `tb-size=128` rerun binds launch assets and tools, then passes
@@ -309,6 +314,11 @@ enough for the maximum reconnect workload. Its failure remains in
 `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`; both
 layers now use `reconnect_workload_timeout_seconds()` and the failure was
 classified as a readiness-budget mismatch, not a controller failure.
+The next reconnect-only run passed `121/121` functional checks but showed
+`qemu_accelerator=null` because the old sampler was reachable only inside the
+hold loop. The runner now samples after first `running`; the final single
+lease passes `bounded_tcg_cache` and every other required check:
+`evidence-2026-10-25-hci4-reconnect121-1x.json`.
 
 After the external Bumble peer closes, the stock firmware can continue issuing
 HCI commands until a native-HCI queue fills. The runner therefore also accepts

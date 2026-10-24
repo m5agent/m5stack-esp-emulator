@@ -274,7 +274,7 @@
       "blockers": [
         "physical cache/PSRAM timing equivalence remains NOT RUN",
         "bit-exact ESP32 BT baseband/controller remains NOT RUN",
-        "the three-lease 121-cycle reconnect gate remains NOT RUN; the first attempt stopped after 29 cycles on a fixed readiness-budget bug",
+        "one artifact-bound 121-cycle reconnect lease passes; two additional independent leases remain for the 3/3 gate",
         "the bounded-TCG host-memory result is validated only for the tested 7200s workload"
       ],
       "validation": {

@@ -130,6 +130,10 @@ PASS。Device Service/Bumble/runner 共享 `1–121` 范围，并有 `122` 轮�
 首次 121 轮运行又在 29 轮后暴露固定 180 秒预算不足；guest 无 panic，
 runner/Device Service 已改用同一 workload-aware 预算，失败证据保留在
 `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`。
+随后 reconnect-only 路径又暴露 accelerator 只在 hold loop 内采样的假失败；
+修复后单个 artifact-bound lease 完成 `121/121`，证据为
+`evidence-2026-10-25-hci4-reconnect121-1x.json`。另外两个独立 lease 的
+`3/3` 复现仍未执行。
 
 ```bash
 python3 tests/uiflow2/core2_native_hci/test_transport.py

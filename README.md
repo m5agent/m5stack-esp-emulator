@@ -272,8 +272,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   启动 firmware/ELF/QEMU 与工具哈希无漂移。旧的 `458016 KiB` host RSS
   增长已归因到未限容 TCG translation buffer；统一改用 `tb-size=128` 后的
   最终两小时复测也 PASS，RSS `323536→252992 KiB`、phys footprint
-  `250880→188416 KiB`。bit-exact ESP32 BT baseband/controller、物理
-  cache/PSRAM、121 轮 reconnect 和真机同路径仍未完成。
+  `250880→188416 KiB`。单个 lease 的 121 轮 reconnect 也已 PASS；3 个
+  独立 lease 复现、bit-exact ESP32 BT baseband/controller、物理
+  cache/PSRAM 和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

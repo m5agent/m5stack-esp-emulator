@@ -464,6 +464,7 @@ Core2 的长 BLE reconnect 也是同一原则：`121` 轮首次运行在 29 轮�
 `180s` readiness 预算缺陷，runner 与 Device Service 已改为按 cycles/delay
 计算共享预算。该失败保留为基础设施/等待预算证据，不能记成 guest 或
 controller 的固件 FAIL；修复后的 `3 × 121` 仍是运行门禁。
+当前单 lease `121/121` 已 PASS，另外两个独立 lease 尚未复现。
 
 ## 11. 结论
 

@@ -1825,9 +1825,13 @@ restart.
   `min(7200, 60 + cycles * (6 + reconnect_delay_seconds))`; 121 cycles with
   a two-second delay therefore receive 1028 seconds. The failed run remains
   in
-  `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`, and a
-  replacement three-lease gate is still required. The remaining validation
-  gates are 121-cycle execution and long-run throughput/teardown;
+  `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`. A later
+  reconnect-only run completed `121/121` but exposed accelerator sampling
+  only inside the hold path; after moving that sample to first-running state,
+  one artifact-bound 121-cycle lease passes all required checks in
+  `evidence-2026-10-25-hci4-reconnect121-1x.json`. Two additional independent
+  leases are still required for the `3/3` gate. The remaining validation
+  gates are the other two 121-cycle leases and long-run throughput/teardown;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

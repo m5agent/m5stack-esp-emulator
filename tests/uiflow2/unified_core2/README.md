@@ -105,10 +105,11 @@ separate three-lease gates. The 120-cycle gate has HLI 3377/3377, 2297 events,
 runner accept 1-121 cycles; three independent leases at 120 cycles each pass.
 The first 121-cycle run completed 29 cycles and started cycle 30 before a
 fixed 180-second readiness budget terminated a healthy session with no panic.
-Runner and Device Service now share a workload-aware budget; a replacement
-three-lease 121-cycle gate remains pending. Both the functional and
-bounded-TCG two-hour holds pass. The next required gates are 121-cycle
-execution and long-run throughput/teardown. The former
+Runner and Device Service now share a workload-aware budget. A replacement
+single-lease run passes `121/121` after the runner also moved QEMU accelerator
+sampling out of the hold-only path. Both the functional and bounded-TCG
+two-hour holds pass. The next required gates are two more independent
+121-cycle leases and long-run throughput/teardown. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Removing that reply

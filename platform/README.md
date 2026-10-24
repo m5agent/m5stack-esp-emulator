@@ -91,8 +91,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   显式诊断/兼容路径。Device Service/Bumble/runner 已接受 `1–121` 轮并有
   `122` 轮拒绝测试；一百二十轮门禁全部 `3/3 PASS`，无错误或 panic。首次
   `121` 轮在 29 轮后被固定 `180s` readiness 预算误杀，guest 无 panic；
-  runner/Device Service 已改为共享 workload-aware 预算，修复后的 3 lease
-  复跑仍未完成。bit-exact Espressif BT baseband/controller、物理
+  第二次又暴露 reconnect-only accelerator 采样缺失；两处 harness 问题
+  修复后单 lease `121/121 PASS`，尚缺另外两个 lease 复现。bit-exact
+  Espressif BT baseband/controller、物理
   cache/PSRAM 和真机仍未完成；`tb-size=128` 的 artifact-bound 两小时 soak
   已 PASS，host RSS 和 phys footprint 在 240 个采样中均未增长。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
