@@ -123,6 +123,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json",
             "tests/network/idf_dhcp_renewal/evidence-2026-10-24-renewal-pass.json",
             "tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json",
+            "tests/network/reconnect_probe/README.md",
+            "tests/network/reconnect_probe/run_test.py",
+            "tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-recovery-pass.json",
             "tests/uiflow2/evidence-2026-10-23-zero-retry-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json",
             "tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json",
@@ -623,6 +626,33 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(radio_loss["status"], "PASS")
         self.assertTrue(all(radio_loss["checks"].values()))
         self.assertEqual(radio_loss["fault"]["target"], "radio")
+        reconnect = json.loads(
+            (
+                ROOT
+                / "tests/network/reconnect_probe/"
+                "evidence-2026-10-24-radio-loss-recovery-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(reconnect["status"], "PASS")
+        self.assertEqual(len(reconnect["checks"]), 16)
+        self.assertTrue(all(reconnect["checks"].values()))
+        self.assertFalse(reconnect["fault"]["down_value"])
+        self.assertTrue(reconnect["fault"]["up_value"])
+        self.assertEqual(
+            reconnect["packet_capture"]["dhcp"]["transactions"][0][
+                "message_sequence"
+            ],
+            [
+                "DISCOVER",
+                "OFFER",
+                "REQUEST",
+                "ACK",
+                "DISCOVER",
+                "OFFER",
+                "REQUEST",
+                "ACK",
+            ],
+        )
         lab_fabric = json.loads(
             (
                 ROOT

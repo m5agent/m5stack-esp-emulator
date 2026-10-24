@@ -298,7 +298,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Manifest 公共样本/WebBurner | `firmware_manifest.py`；`test_firmware_manifest.py`；`evidence-2026-10-24-public-manifest-web-conformance.json` | 同一公开固件的 merged 与 WebBurner 输入规范化到同一 artifact hash；`camera`-on-StickS3 结构化拒绝；安全证据分层和 HTTP import PASS |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码 P0 | `tests/network/wrong_password/run_test.py`；`evidence-2026-10-24-wrong-password-pass.json` | 6 次 auth/reject、无 DHCP、无 HTTP、固件失败 marker 和 SoftAP wrong-password warning 同次 `7/7 PASS` |
-| 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证、radio/AP 移除、scan `1→0→1`、重新 DHCP 和前后 HTTP |
+| 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/run_test.py`；`evidence-2026-10-24-radio-loss-recovery-pass.json` | radio QOM `false→true`、scan `1→0→1`、双 DHCP、前后 HTTP 200、双侧流 pcap 和同 session 证据 |
 | DNS/UDP 数据面 | `network_lane.py`、`tests/network/idf_dns_udp/`；`evidence-2026-10-24-dns-udp-pass.json` | host-forwarder DNS、host 收到固定 UDP 载荷、guest 收到同载荷回包；不冒充 controlled DNS policy |
 | Core2 WiFi-only deterministic repeat | `tests/network/core2_openmac_wifi/run_test.py`；`evidence-2026-10-24-deterministic-5x.json` | runner 显式传入 `tcg,thread=single` + `icount`；scan/association/DHCP/HTTP 独立 `5/5`，不含 BLE/DNS/公网 |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |

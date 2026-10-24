@@ -66,6 +66,7 @@ Device Service lease
 - [ESP-IDF 错误密码拒绝、重试和 no-DHCP/no-HTTP 证据](../tests/network/wrong_password/evidence-2026-10-24-wrong-password-pass.json)
 - [ESP-IDF DNS/UDP 双向载荷证据](../tests/network/idf_dns_udp/evidence-2026-10-24-dns-udp-pass.json)
 - [StickS3 radio/AP 丢失与同 guest 恢复](../tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-pass.json)
+- [StickS3 自动化 radio down/up、双 DHCP、前后 HTTP 与 pcap](../tests/network/reconnect_probe/evidence-2026-10-24-radio-loss-recovery-pass.json)
 - [双设备 private QEMU lab fabric](../tests/network/lab_fabric/evidence-2026-10-24-two-guest-pass.json)
 
 ## 尚未证明

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-radio-loss-recovery",
+  "generated_at": "2026-10-24T04:55:49.165800+00:00",
+  "scope": "virtual-device-network-radio-not-hardware-rf",
+  "status": "PASS",
+  "source": {
+    "repository": "https://github.com/m5agent/m5stack-esp-emulator",
+    "base_commit": "e27a7c95ea2838fd2790ed10f0b95035025bf06a",
+    "working_tree_dirty": true
+  },
+  "validation": {
+    "device_id": "sticks3",
+    "runtime": "qemu-wifi",
+    "profile": "uiflow2-sticks3-wifi",
+    "qemu_sha256": "667ec84c9e53ce73b0e63c7be69284837ff00b77a9194577ef757c164e8e31a1",
+    "firmware_sha256": "3acf13906c1909e564639b7883583a3dba791905326eef71b7c28d7d066a1c8f",
+    "firmware_bytes": 8388608,
+    "serial_sha256": "24f4ea66b165322d81db7cc6a72bfc0860ce30febca535b50ef82c4abaf4c660",
+    "final_state": "stopped"
+  },
+  "fault": {
+    "target": "radio",
+    "qom_path": "/machine/unattached/device[0]",
+    "property": "radio-enabled",
+    "down_value": false,
+    "up_value": true
+  },
+  "checks": {
+    "initial_scan_nonempty": true,
+    "first_dhcp_lease": true,
+    "before_http_status_200": true,
+    "radio_down_signal": true,
+    "radio_down_state_false": true,
+    "radio_down_scan_empty": true,
+    "radio_up_signal": true,
+    "radio_up_state_true": true,
+    "radio_restored_scan_nonempty": true,
+    "second_dhcp_lease": true,
+    "after_http_status_200": true,
+    "network_marker_pass": true,
+    "pcap_pass": true,
+    "pcap_two_dhcp_exchanges": true,
+    "pcap_two_http_requests": true,
+    "lease_address_stable": true
+  },
+  "packet_capture": {
+    "status": "PASS",
+    "bytes": 9586,
+    "sha256": "5b57d36ccf55dc6ef840f7fe28e41d56e7c9ece5f7bb2235e063f39eef979b9e",
+    "dhcp": {
+      "packets": 8,
+      "requests": 4,
+      "replies": 4,
+      "guest_addresses": [
+        "10.0.2.15"
+      ],
+      "message_types": {
+        "ack": 2,
+        "discover": 2,
+        "offer": 2,
+        "request": 2
+      },
+      "selecting_requests": 2,
+      "renewal_requests": 0,
+      "renewal_acks": 0,
+      "transactions": [
+        {
+          "xid": "00000001",
+          "message_sequence": [
+            "DISCOVER",
+            "OFFER",
+            "REQUEST",
+            "ACK",
+            "DISCOVER",
+            "OFFER",
+            "REQUEST",
+            "ACK"
+          ],
+          "renewal": false,
+          "client_address": "10.0.2.15",
+          "requested_ip": "10.0.2.15",
+          "server_id": "10.0.2.2",
+          "lease_seconds": 86400,
+          "t1_seconds": null,
+          "t2_seconds": null
+        }
+      ],
+      "transactions_truncated": false
+    },
+    "controlled_http_before_after": 2
+  },
+  "serial_markers": [
+    "RECONNECT SCAN 1",
+    "RECONNECT DHCP 1 <guest-address>",
+    "RECONNECT HTTP /before HTTP/1.0 200 OK",
+    "RECONNECT DISCONNECTED",
+    "RECONNECT RADIO_DOWN_SCAN 0",
+    "RECONNECT RADIO_RESTORED_SCAN 1",
+    "RECONNECT DHCP 2 <guest-address>",
+    "RECONNECT HTTP /after HTTP/1.0 200 OK",
+    "RECONNECT RESULT: PASSED"
+  ],
+  "not_claimed": [
+    "physical RF or antenna behavior",
+    "WPA2 or WPA3 security",
+    "a different DHCP server or lease address",
+    "hardware timing or power",
+    "malware safety"
+  ]
+}
