@@ -26,6 +26,12 @@ from ble_runtime_limits import (  # noqa: E402
 
 PROFILE = "core2-native-hci"
 READY_MARKER = "UNIFIED_CORE2_READY"
+TOOL_PATHS = {
+    "runner": Path(__file__).resolve(),
+    "device_service": ROOT / "platform/tools/device_service.py",
+    "qemu_accel": ROOT / "platform/tools/qemu_accel.py",
+    "ble_runtime_limits": ROOT / "platform/tools/ble_runtime_limits.py",
+}
 
 
 def sha256(path: Path) -> str:
@@ -40,14 +46,18 @@ def freeze_input_hashes(
     image: Path,
     elf: Path,
     qemu: Path,
+    tool_paths: dict[str, Path] | None = None,
 ) -> dict[str, str | int]:
     """Bind evidence to the exact inputs observed before the first lease."""
-    return {
+    result: dict[str, str | int] = {
         "firmware_bytes": image.stat().st_size,
         "firmware_sha256": sha256(image),
         "elf_sha256": sha256(elf),
         "qemu_sha256": sha256(qemu),
     }
+    for name, path in (tool_paths or {}).items():
+        result[f"{name}_sha256"] = sha256(path)
+    return result
 
 
 def parse_ps_rss_kib(output: str) -> int | None:
@@ -837,7 +847,12 @@ def main() -> int:
         if not path.is_file():
             parser.error(f"{label} does not exist: {path}")
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    input_hashes = freeze_input_hashes(args.image, args.elf, args.qemu)
+    input_hashes = freeze_input_hashes(
+        args.image,
+        args.elf,
+        args.qemu,
+        TOOL_PATHS,
+    )
 
     api = Api(args.base_url, args.token)
     firmware_artifact = api.upload(args.image)
@@ -873,7 +888,12 @@ def main() -> int:
     attempts_passed = sum(run["status"] == "PASS" for run in runs)
     failed_runs = [run for run in runs if run["status"] != "PASS"]
     all_checks_passed = all(all(run["checks"].values()) for run in runs)
-    post_run_hashes = freeze_input_hashes(args.image, args.elf, args.qemu)
+    post_run_hashes = freeze_input_hashes(
+        args.image,
+        args.elf,
+        args.qemu,
+        TOOL_PATHS,
+    )
     input_assets_unchanged = post_run_hashes == input_hashes
     input_asset_drift = {
         key: {
@@ -936,6 +956,10 @@ def main() -> int:
         },
         "elf_sha256": input_hashes["elf_sha256"],
         "qemu_sha256": input_hashes["qemu_sha256"],
+        "tool_hashes": {
+            name: input_hashes[f"{name}_sha256"]
+            for name in TOOL_PATHS
+        },
         "input_hash_bound_at": "before_first_lease",
         "input_assets_unchanged_during_run": input_assets_unchanged,
         "input_asset_drift": input_asset_drift,

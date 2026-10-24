@@ -798,6 +798,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", peer)
         self.assertIn("MAX_BLE_RECONNECT_CYCLES", runner)
         self.assertIn("core2_accel_args", service)
+        self.assertIn('"tool_hashes"', runner)
         self.assertIn("tb-size={CORE2_TCG_TB_SIZE_MIB}", qemu_accel := (
             ROOT / "platform/tools/qemu_accel.py"
         ).read_text())
