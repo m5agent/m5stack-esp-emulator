@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-security-rotation-overlap-qemu-job",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "validation": "transport-security validation",
+  "scope": "same-host-loopback-bounded-overlap-final-cutover-with-drain",
+  "rotation": {
+    "server_certificate": "A-to-B",
+    "client_ca_overlap": "A-and-B",
+    "client_ca_final": "B",
+    "worker_client_certificate": "A-to-B",
+    "master_token_overlap": "A-and-B",
+    "master_token_final": "B",
+    "reload_signal": "SIGHUP",
+    "active_request_drain": "PASS",
+    "client_fleet_migration": "manual-staged"
+  },
+  "live_job": {
+    "status": "completed",
+    "result_state": "PASS",
+    "attempts": 1,
+    "firmware_sha256": "a5d027f6d2953edb9ece45cddea1490112d8e421ba563edc6e7c71cf7ac4f6ec",
+    "evidence_bytes": 6847,
+    "evidence_sha256": "dc061cb2a848fb7971de7cac712cdf74681c6367ab7d7f436d8ceaed7c9c5e21"
+  },
+  "checks": {
+    "initial_https_credentials": "PASS",
+    "worker_registered_before_rotation": "PASS",
+    "server_security_reload": "PASS",
+    "overlap_old_client_certificate_accepted": "PASS",
+    "overlap_old_master_token_accepted": "PASS",
+    "final_security_reload": "PASS",
+    "final_old_tls_identity_rejected": "PASS",
+    "final_old_master_token_rejected": "PASS",
+    "new_tls_identity_accepted": "PASS",
+    "worker_credentials_reload": "PASS",
+    "active_request_drained_across_rotation": "PASS",
+    "signed_job_after_rotation": "PASS",
+    "job_evidence_sha256": "PASS"
+  },
+  "not_claimed": [
+    "cross-host network topology",
+    "automated client fleet migration",
+    "production CA or secret manager integration",
+    "multi-host scheduling or worker continuity",
+    "hardware validation"
+  ]
+}

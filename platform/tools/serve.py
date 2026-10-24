@@ -188,6 +188,7 @@ class ServiceHTTPServer(ThreadingHTTPServer):
 class Handler(SimpleHTTPRequestHandler):
     service: DeviceService | None = None
     api_token: str | None = None
+    previous_api_token: str | None = None
 
     extensions_map = {
         **SimpleHTTPRequestHandler.extensions_map,
@@ -317,12 +318,25 @@ class Handler(SimpleHTTPRequestHandler):
         return type(self).service
 
     def _authorized(self, path: str) -> bool:
-        token = type(self).api_token
-        if not token or path in {"/api/v1/health", "/api/v1", "/api/v1/openapi.yaml"}:
+        tokens = tuple(
+            token
+            for token in (
+                type(self).api_token,
+                type(self).previous_api_token,
+            )
+            if token
+        )
+        if not tokens or path in {
+            "/api/v1/health",
+            "/api/v1",
+            "/api/v1/openapi.yaml",
+        }:
             return True
         provided = self.headers.get("Authorization", "")
-        expected = f"Bearer {token}"
-        return hmac.compare_digest(provided, expected)
+        return any(
+            hmac.compare_digest(provided, f"Bearer {token}")
+            for token in tokens
+        )
 
     def _handle_v1(self, method: str, path: str, query: dict[str, list[str]]) -> None:
         request_id = uuid.uuid4().hex
@@ -350,7 +364,9 @@ class Handler(SimpleHTTPRequestHandler):
             status = 200
             headers = {"X-Request-ID": request_id}
             verified_worker: dict[str, Any] | None = None
-            if self.api_token and is_worker_auth_path(method, path):
+            if (
+                self.api_token or self.previous_api_token
+            ) and is_worker_auth_path(method, path):
                 verified_worker = service.verify_worker_request(
                     self.headers,
                     method,
@@ -1058,6 +1074,15 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--api-token-previous-file",
+        type=Path,
+        default=(
+            Path(os.environ["M5_SERVICE_API_TOKEN_PREVIOUS_FILE"])
+            if os.environ.get("M5_SERVICE_API_TOKEN_PREVIOUS_FILE")
+            else None
+        ),
+    )
+    parser.add_argument(
         "--tls-cert",
         type=Path,
         default=(
@@ -1081,6 +1106,15 @@ def main() -> None:
         default=(
             Path(os.environ["M5_SERVICE_TLS_CLIENT_CA"])
             if os.environ.get("M5_SERVICE_TLS_CLIENT_CA")
+            else None
+        ),
+    )
+    parser.add_argument(
+        "--tls-client-ca-previous",
+        type=Path,
+        default=(
+            Path(os.environ["M5_SERVICE_TLS_CLIENT_CA_PREVIOUS"])
+            if os.environ.get("M5_SERVICE_TLS_CLIENT_CA_PREVIOUS")
             else None
         ),
     )
@@ -1117,10 +1151,23 @@ def main() -> None:
     args = parser.parse_args()
     if args.api_token and args.api_token_file:
         parser.error("--api-token and --api-token-file are mutually exclusive")
+    if args.api_token_previous_file and not (
+        args.api_token or args.api_token_file
+    ):
+        parser.error(
+            "--api-token-previous-file requires an active API token"
+        )
     if (args.tls_cert is None) != (args.tls_key is None):
         parser.error("--tls-cert and --tls-key must be provided together")
     if args.tls_client_ca is not None and args.tls_cert is None:
         parser.error("--tls-client-ca requires --tls-cert and --tls-key")
+    if (
+        args.tls_client_ca_previous is not None
+        and args.tls_client_ca is None
+    ):
+        parser.error(
+            "--tls-client-ca-previous requires --tls-client-ca"
+        )
     if args.security_reload_drain_timeout <= 0:
         parser.error("--security-reload-drain-timeout must be positive")
 
@@ -1132,17 +1179,39 @@ def main() -> None:
         except WorkerAuthError as error:
             raise TransportSecurityError(error.message) from error
 
+    def load_previous_api_token(active_token: str | None) -> str | None:
+        path = args.api_token_previous_file
+        if path is None or not path.exists():
+            return None
+        try:
+            token = read_master_token_file(path)
+        except WorkerAuthError as error:
+            raise TransportSecurityError(error.message) from error
+        return token if token != active_token else None
+
     def load_tls_context() -> ssl.SSLContext | None:
         if args.tls_cert is None or args.tls_key is None:
             return None
+        previous_ca = (
+            args.tls_client_ca_previous
+            if (
+                args.tls_client_ca_previous is not None
+                and args.tls_client_ca_previous.exists()
+            )
+            else None
+        )
         return build_server_tls_context(
             args.tls_cert,
             args.tls_key,
             args.tls_client_ca,
+            previous_ca,
         )
 
     try:
         initial_api_token = load_api_token()
+        initial_previous_api_token = load_previous_api_token(
+            initial_api_token
+        )
         tls_context = load_tls_context()
     except (TransportSecurityError, WorkerAuthError) as error:
         parser.error(str(error))
@@ -1154,6 +1223,7 @@ def main() -> None:
         max_per_device=args.max_per_device,
         default_ttl=args.session_ttl,
         api_token=initial_api_token,
+        previous_api_token=initial_previous_api_token,
         worker_id=args.worker_id,
         worker_state_path=args.worker_state,
         worker_heartbeat_interval=args.worker_heartbeat_interval,
@@ -1161,15 +1231,23 @@ def main() -> None:
     )
     Handler.service = service
     Handler.api_token = initial_api_token
+    Handler.previous_api_token = initial_previous_api_token
 
     def reload_security():
         new_token = load_api_token()
+        new_previous_token = load_previous_api_token(new_token)
         new_context = load_tls_context()
-        service.set_api_token(new_token)
+        service.set_api_tokens(new_token, new_previous_token)
         Handler.api_token = new_token
+        Handler.previous_api_token = new_previous_token
         return new_context
 
-    needs_reload = args.api_token_file is not None or args.tls_cert is not None
+    needs_reload = (
+        args.api_token_file is not None
+        or args.api_token_previous_file is not None
+        or args.tls_cert is not None
+        or args.tls_client_ca_previous is not None
+    )
     server = ServiceHTTPServer(
         (args.bind, args.port),
         Handler,

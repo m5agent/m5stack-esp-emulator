@@ -56,8 +56,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - HTTPS TLS 1.2+、服务端证书校验、可选 client CA 强制 mTLS，以及
   `worker_agent.py` 的自定义 CA/客户端证书；
 - token-file 与 `SIGHUP` A/B rotation：先 drain 活动请求，再更新服务端
-  证书、client CA、worker 客户证书/key 和 master token；旧凭据拒绝且新
-  凭据完成真实 QEMU job；drain 超时保留旧配置；
+  证书、client CA、worker 客户证书/key 和 master token；previous
+  token/client-CA 提供有界重叠，移除 previous 并再次 `SIGHUP` 后旧凭据
+  失效；drain 超时保留旧配置；
 - 本地 QEMU 的 PID start-time、QMP socket ownership 和
   `query-status=running` 三重校验后 re-attach；仅恢复 QEMU/QMP 控制面；
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
@@ -91,8 +92,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   durable job queue 已支持幂等提交、claim/lease、expiry retry 和 worker
   失联回收；本地 QEMU/QMP 控制面已完成 ownership 校验后的 reattach。
   同主机 HTTP executor、worker HMAC、可验证 HTTPS/mTLS、真实 QEMU 和
-  unified StickS3 job over mTLS、SIGHUP TLS/token rotation + activity
-  drain 和 evidence ZIP/SHA256 回报已实现；凭据重叠/客户端批量迁移、
+  unified StickS3 job over mTLS、SIGHUP rotation + activity drain +
+  bounded credential overlap 和 evidence ZIP/SHA256 回报已实现；自动化客户端批量迁移、
   跨主机 QEMU executor/reattach、companion/BLE/evidence continuity、生产
   secret manager/多机调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
@@ -140,7 +141,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
 | `../tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain/resume、进程组清理和下一代 abandoned lease 分类 |
-| `../tests/network/worker_tls/` | 真实 HTTPS/mTLS 进程、证书/客户端证书拒绝/通过、Bearer + worker HMAC、SIGHUP A/B rotation + active-request drain、真实 QEMU job 和 unified StickS3 job over mTLS |
+| `../tests/network/worker_tls/` | 真实 HTTPS/mTLS 进程、证书/客户端证书拒绝/通过、Bearer + worker HMAC、SIGHUP rotation + active-request drain + bounded overlap/final cutover、真实 QEMU job 和 unified StickS3 job over mTLS |
 
 ## 目录服务 API
 

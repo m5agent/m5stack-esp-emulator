@@ -173,9 +173,18 @@ class WorkerAuthVerifier:
         self,
         master_token: str | None,
         *,
+        previous_master_token: str | None = None,
         clock: Callable[[], float] = time.time,
     ):
         self.master_token = master_token or ""
+        self.previous_master_token = previous_master_token or ""
+        self.master_tokens = tuple(
+            dict.fromkeys(
+                token
+                for token in (self.master_token, self.previous_master_token)
+                if token
+            )
+        )
         self.clock = clock
         self._lock = threading.RLock()
         self._nonces: dict[tuple[str, str, str], float] = {}
@@ -200,7 +209,7 @@ class WorkerAuthVerifier:
         path: str,
         body: bytes,
     ) -> dict[str, Any]:
-        if not self.master_token:
+        if not self.master_tokens:
             raise WorkerAuthError(
                 "worker_auth_not_configured",
                 "worker authentication requires an API token",
@@ -256,12 +265,18 @@ class WorkerAuthVerifier:
             timestamp_raw,
             nonce,
         )
-        expected = hmac.new(
-            _worker_key(self.master_token, identity),
-            canonical,
-            hashlib.sha256,
-        ).hexdigest()
-        if not hmac.compare_digest(expected, signature):
+        expected_signatures = [
+            hmac.new(
+                _worker_key(token, identity),
+                canonical,
+                hashlib.sha256,
+            ).hexdigest()
+            for token in self.master_tokens
+        ]
+        if not any(
+            hmac.compare_digest(expected, signature)
+            for expected in expected_signatures
+        ):
             raise WorkerAuthError(
                 "worker_auth_invalid",
                 "worker request signature is invalid",

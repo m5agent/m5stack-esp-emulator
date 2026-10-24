@@ -6232,6 +6232,7 @@ class DeviceService:
         max_per_device: int = DEFAULT_MAX_PER_DEVICE,
         default_ttl: int = 1800,
         api_token: str | None = None,
+        previous_api_token: str | None = None,
         flash_preparer=None,
         storage_policy: StoragePolicy | None = None,
         worker_id: str | None = None,
@@ -6252,7 +6253,18 @@ class DeviceService:
         self.max_per_device = max(1, int(max_per_device))
         self.default_ttl = max(30, int(default_ttl))
         self.api_token = api_token
-        self.worker_auth = WorkerAuthVerifier(api_token)
+        self.previous_api_token = previous_api_token
+        self.api_tokens = tuple(
+            dict.fromkeys(
+                token
+                for token in (api_token, previous_api_token)
+                if token
+            )
+        )
+        self.worker_auth = WorkerAuthVerifier(
+            api_token,
+            previous_master_token=previous_api_token,
+        )
         self.flash_preparer = flash_preparer or default_flash_preparer
         self._sessions: dict[str, DeviceSession] = {}
         self._lock = threading.RLock()
@@ -7817,9 +7829,27 @@ class DeviceService:
             ) from error
 
     def set_api_token(self, token: str | None) -> None:
+        self.set_api_tokens(token)
+
+    def set_api_tokens(
+        self,
+        token: str | None,
+        previous_token: str | None = None,
+    ) -> None:
         with self._lock:
             self.api_token = token or None
-            self.worker_auth = WorkerAuthVerifier(self.api_token)
+            self.previous_api_token = previous_token or None
+            self.api_tokens = tuple(
+                dict.fromkeys(
+                    value
+                    for value in (self.api_token, self.previous_api_token)
+                    if value
+                )
+            )
+            self.worker_auth = WorkerAuthVerifier(
+                self.api_token,
+                previous_master_token=self.previous_api_token,
+            )
 
     def register_remote_worker(self, payload: dict) -> dict:
         try:

@@ -130,6 +130,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-unified-job-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-security-rotation-job-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-security-rotation-drain-job-pass.json",
+            "tests/network/worker_tls/evidence-2026-10-24-security-rotation-overlap-job-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -327,6 +328,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "零中断 request draining",
             "Existing requests are not drained",
             "request draining remain open",
+            "凭据重叠/客户端批量迁移",
+            "credential overlap/client-fleet migration",
         ):
             self.assertNotIn(stale, active)
 
@@ -1635,10 +1638,86 @@ class DocsConsistencyTests(unittest.TestCase):
             "credential overlap or zero-downtime client fleet migration",
             worker_tls_rotation_drain["not_claimed"],
         )
+        worker_tls_rotation_overlap = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_tls/"
+                "evidence-2026-10-24-security-rotation-overlap-job-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(worker_tls_rotation_overlap["status"], "PASS")
+        self.assertEqual(
+            worker_tls_rotation_overlap["scope"],
+            "same-host-loopback-bounded-overlap-final-cutover-with-drain",
+        )
+        self.assertEqual(
+            worker_tls_rotation_overlap["rotation"][
+                "client_ca_overlap"
+            ],
+            "A-and-B",
+        )
+        self.assertEqual(
+            worker_tls_rotation_overlap["rotation"][
+                "client_ca_final"
+            ],
+            "B",
+        )
+        self.assertEqual(
+            worker_tls_rotation_overlap["rotation"][
+                "master_token_overlap"
+            ],
+            "A-and-B",
+        )
+        self.assertEqual(
+            worker_tls_rotation_overlap["rotation"][
+                "master_token_final"
+            ],
+            "B",
+        )
+        self.assertEqual(
+            worker_tls_rotation_overlap["rotation"][
+                "client_fleet_migration"
+            ],
+            "manual-staged",
+        )
+        self.assertTrue(
+            all(
+                value == "PASS"
+                for value in worker_tls_rotation_overlap["checks"].values()
+            )
+        )
+        for check in (
+            "overlap_old_client_certificate_accepted",
+            "overlap_old_master_token_accepted",
+            "final_old_tls_identity_rejected",
+            "final_old_master_token_rejected",
+            "active_request_drained_across_rotation",
+        ):
+            self.assertEqual(
+                worker_tls_rotation_overlap["checks"][check],
+                "PASS",
+            )
+        self.assertEqual(
+            worker_tls_rotation_overlap["live_job"]["status"],
+            "completed",
+        )
+        self.assertEqual(
+            worker_tls_rotation_overlap["live_job"]["result_state"],
+            "PASS",
+        )
+        self.assertEqual(
+            worker_tls_rotation_overlap["live_job"]["attempts"],
+            1,
+        )
+        self.assertIn(
+            "automated client fleet migration",
+            worker_tls_rotation_overlap["not_claimed"],
+        )
         self.assertIn("HTTPS/mTLS", status)
         self.assertIn("SIGHUP", status)
         self.assertIn("security-rotation-job-pass.json", status)
         self.assertIn("security-rotation-drain-job-pass.json", status)
+        self.assertIn("security-rotation-overlap-job-pass.json", status)
         self.assertIn("真实 QEMU job over mTLS", status)
         self.assertIn("unified StickS3 job over mTLS", status)
         wifi_repeat = json.loads(
@@ -1700,6 +1779,10 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn(
             "worker_tls/evidence-2026-10-24-security-rotation-drain-job-pass.json",
+            ledger,
+        )
+        self.assertIn(
+            "worker_tls/evidence-2026-10-24-security-rotation-overlap-job-pass.json",
             ledger,
         )
         self.assertIn(

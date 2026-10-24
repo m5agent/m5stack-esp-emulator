@@ -56,11 +56,11 @@
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期记录当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.21.0`；同 peer-process 多轮 BLE scan/connect/GATT/disconnect 参数和 active BLE peer linger；HTTPS/mTLS server/client 配置、真实 QEMU 与 unified StickS3 job over mTLS、token-file、SIGHUP TLS/token rotation 和 active-request drain；保留 worker HMAC、QEMU restart re-attach、durable queue、WebBurner、resumable upload、staging GC 和 nftables egress |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.21.0`；同 peer-process 多轮 BLE scan/connect/GATT/disconnect 参数和 active BLE peer linger；HTTPS/mTLS server/client 配置、真实 QEMU 与 unified StickS3 job over mTLS、token-file、SIGHUP rotation、active-request drain、previous token/client-CA bounded overlap 和 final cutover；保留 worker HMAC、QEMU restart re-attach、durable queue、WebBurner、resumable upload、staging GC 和 nftables egress |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 14 个 unified profile；Core2 主路径为 `core2-native-hci`，`HCI-1` 至 `HCI-4` PASS；旧的 native-VHCI GDB 路径仅保留为诊断/兼容 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；`60s`、`120s` 和 active-BLE `120s` 门禁通过；同 guest 十轮 GATT 在 3 个独立 lease 中 PASS，HLI 297/297 且连接池回到空闲基线。根因是 Bumble 对 `HCI_Host_Number_of_Completed_Packets (0x0c35)` 返回了不该存在的 Command Status；首次 10 轮运行的 Device Service 30 秒等待误杀已修复；超过十轮、物理等价性、多小时 soak 和真机仍开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |
-| [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复、双 guest lab fabric、worker SIGHUP rotation 和 active-request drain 已通；凭据重叠/客户端迁移、跨主机与 QEMU worker 边界单列 |
+| [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复、双 guest lab fabric、worker SIGHUP rotation、active-request drain、bounded credential overlap 和 final cutover 已通；自动化客户端迁移、跨主机与 QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 外设数据面覆盖；最新计数和边界见项目当前状态 |

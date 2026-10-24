@@ -45,6 +45,8 @@ Implemented:
 - a request-drain gate around `SIGHUP`: active requests finish before token/TLS
   commit, new handlers wait, and a bounded timeout keeps the old configuration
   active instead of blocking indefinitely;
+- bounded old/new overlap through previous token/client-CA files; a final
+  `SIGHUP` after removing those files retires the old credentials;
 - verified local QEMU/QMP restart re-attach after PID start-time, QMP socket
   ownership and `query-status=running` all match;
 - bounded stopped/failed history with age, count and byte limits;
@@ -71,8 +73,8 @@ Not implemented yet:
 
 - prestarted warm QEMU instances;
 - companion HTTP/BLE helper and evidence-stream continuity across restart;
-- overlapping old/new credentials and client-fleet migration, cross-host QEMU
-  execution/re-attach, and production multi-host capacity scheduling;
+- automated client-fleet migration, cross-host QEMU execution/re-attach, and
+  production multi-host capacity scheduling;
 - external IPv6/CIDR/domain-set allowlisting;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
@@ -292,8 +294,9 @@ and retained evidence.
 Status: local worker lifecycle, a persistent remote-worker registration
 directory, a durable pull-based job queue, a same-host HTTP executor and
 verified local QEMU/QMP restart re-attach, HTTPS/mTLS and same-host `SIGHUP`
-TLS/token rotation with active-request draining exist; overlapping
-old/new credentials, client-fleet migration, cross-host QEMU execution,
+TLS/token rotation with active-request draining exist; bounded old/new
+credentials and manual staged migration are implemented; automated client
+fleet migration, cross-host QEMU execution,
 companion/evidence continuity, cross-host re-attach and multi-host scheduling
 remain open.
 
@@ -315,9 +318,9 @@ remain open.
   path/body identity binding;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- overlapping old/new credentials/client-fleet migration, cross-host QEMU
-  execution, companion HTTP/BLE/evidence continuity, cross-host re-attach and
-  production capacity scheduling remain open.
+- automated client-fleet migration, cross-host QEMU execution, companion
+  HTTP/BLE/evidence continuity, cross-host re-attach and production capacity
+  scheduling remain open.
 
 ### Phase S2: warm/cold pool
 

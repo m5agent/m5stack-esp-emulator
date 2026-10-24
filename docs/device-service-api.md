@@ -106,10 +106,12 @@ Local worker identity and heartbeat can be controlled with:
 | `M5_WORKER_HEARTBEAT_INTERVAL` | 5 | heartbeat write interval in seconds |
 | `M5_WORKER_STALE_AFTER` | 15 | age at which a heartbeat is marked stale |
 | `M5_SERVICE_API_TOKEN_FILE` | unset | file-backed service/worker token; mutually exclusive with the in-memory token option |
+| `M5_SERVICE_API_TOKEN_PREVIOUS_FILE` | unset | optional token accepted only during a bounded overlap; remove it and send `SIGHUP` to finalize |
 | `M5_SECURITY_RELOAD_DRAIN_TIMEOUT` | 30 | seconds to wait for active requests before a `SIGHUP` reload is canceled |
 | `M5_SERVICE_TLS_CERT` | unset | server certificate chain; requires `M5_SERVICE_TLS_KEY` |
 | `M5_SERVICE_TLS_KEY` | unset | server private key; requires `M5_SERVICE_TLS_CERT` |
 | `M5_SERVICE_TLS_CLIENT_CA` | unset | client CA; when set, HTTPS requires a trusted client certificate |
+| `M5_SERVICE_TLS_CLIENT_CA_PREVIOUS` | unset | optional previous client CA trusted only during overlap; remove it and send `SIGHUP` to finalize |
 | `M5_WORKER_TLS_CA` | system trust | custom CA bundle used by `worker_agent.py` |
 | `M5_WORKER_TLS_CLIENT_CERT` | unset | worker client certificate; requires `M5_WORKER_TLS_CLIENT_KEY` |
 | `M5_WORKER_TLS_CLIENT_KEY` | unset | worker client private key; requires `M5_WORKER_TLS_CLIENT_CERT` |
@@ -260,8 +262,12 @@ certificate, client CA, worker client identity and master token through
 `SIGHUP`; the service drains an active old-token request before committing
 the new configuration, the retired TLS identity and token then return `401`,
 the new credentials complete a signed QEMU job, and evidence SHA256 matches.
-Cross-host QEMU jobs, overlapping old/new credentials and companion
-continuity remain open.
+A fourth run stages `--api-token-previous-file` and
+`--tls-client-ca-previous`: both old/new client CAs and tokens are accepted
+during the overlap window. The worker moves to the new identity, the previous
+files are removed, and a final `SIGHUP` rejects the retired CA/token before
+the real QEMU job. Cross-host QEMU jobs, automated client-fleet migration and
+companion continuity remain open.
 
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)
@@ -345,9 +351,26 @@ default timeout is 30 seconds and can be changed with
 old configuration stays active. Invalid reload input also leaves the previous
 configuration active.
 
-This closes active-request draining. It does not provide an overlapping
-old/new credential window or migrate a client fleet that still trusts only the
-retired CA/token.
+This closes active-request draining. For a bounded overlap, add
+`--api-token-previous-file` and/or `--tls-client-ca-previous`:
+
+```bash
+python3 platform/tools/serve.py 8787 \
+  --api-token-file /secure/service.token \
+  --api-token-previous-file /secure/previous-token \
+  --tls-cert /secure/server.crt \
+  --tls-key /secure/server.key \
+  --tls-client-ca /secure/worker-ca.crt \
+  --tls-client-ca-previous /secure/previous-worker-ca.crt
+```
+
+The bearer/API check accepts either token and worker HMAC verification tries
+both tokens. The TLS listener trusts both client CAs. A missing previous file
+disables that side of the overlap. To finalize, update workers to trust the
+new server CA and use the new client identity/token, remove both previous
+files, then send another `SIGHUP`. The final service state trusts only the
+active CA/token. Automated discovery and migration of a client fleet is still
+`NOT RUN`.
 
 The worker uses verified TLS by default for `https://` URLs. `--ca-file`
 selects a private CA bundle, while `--client-cert` + `--client-key` enable an

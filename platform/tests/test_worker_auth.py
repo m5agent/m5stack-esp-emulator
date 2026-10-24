@@ -139,6 +139,47 @@ class WorkerAuthTests(unittest.TestCase):
             other,
         )
 
+    def test_previous_master_token_is_accepted_only_during_overlap(self):
+        overlap = WorkerAuthVerifier(
+            "new-master-secret",
+            previous_master_token="old-master-secret",
+            clock=lambda: self.now,
+        )
+        old_headers = sign_worker_request(
+            "old-master-secret",
+            self.identity,
+            "POST",
+            self.path,
+            self.body,
+            timestamp=self.now,
+            nonce="c" * 32,
+        )
+        new_headers = sign_worker_request(
+            "new-master-secret",
+            self.identity,
+            "POST",
+            self.path,
+            self.body,
+            timestamp=self.now,
+            nonce="d" * 32,
+        )
+        self.assertEqual(
+            overlap.verify(old_headers, "POST", self.path, self.body),
+            self.identity,
+        )
+        self.assertEqual(
+            overlap.verify(new_headers, "POST", self.path, self.body),
+            self.identity,
+        )
+
+        final = WorkerAuthVerifier(
+            "new-master-secret",
+            clock=lambda: self.now,
+        )
+        with self.assertRaises(WorkerAuthError) as rejected:
+            final.verify(old_headers, "POST", self.path, self.body)
+        self.assertEqual(rejected.exception.code, "worker_auth_invalid")
+
     def test_master_token_file_is_strict_and_does_not_trim_token_body(self):
         with tempfile.TemporaryDirectory() as temp:
             token_path = Path(temp) / "token"

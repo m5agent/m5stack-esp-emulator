@@ -22,6 +22,7 @@ def build_server_tls_context(
     cert_file: str | Path,
     key_file: str | Path,
     client_ca_file: str | Path | None = None,
+    previous_client_ca_file: str | Path | None = None,
 ) -> ssl.SSLContext:
     """Build a TLS 1.2+ server context, optionally requiring client certs."""
 
@@ -36,17 +37,23 @@ def build_server_tls_context(
         raise TransportSecurityError(
             f"unable to load TLS certificate/key: {error}"
         ) from error
-    if client_ca_file is not None:
-        client_ca_path = _existing_file(
-            client_ca_file,
-            "TLS client CA certificate",
-        )
-        try:
-            context.load_verify_locations(cafile=str(client_ca_path))
-        except (OSError, ssl.SSLError) as error:
-            raise TransportSecurityError(
-                f"unable to load TLS client CA: {error}"
-            ) from error
+    client_ca_files = [
+        path
+        for path in (client_ca_file, previous_client_ca_file)
+        if path is not None
+    ]
+    if client_ca_files:
+        for value in client_ca_files:
+            client_ca_path = _existing_file(
+                value,
+                "TLS client CA certificate",
+            )
+            try:
+                context.load_verify_locations(cafile=str(client_ca_path))
+            except (OSError, ssl.SSLError) as error:
+                raise TransportSecurityError(
+                    f"unable to load TLS client CA: {error}"
+                ) from error
         context.verify_mode = ssl.CERT_REQUIRED
     else:
         context.verify_mode = ssl.CERT_NONE

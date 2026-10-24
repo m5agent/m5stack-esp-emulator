@@ -30,9 +30,10 @@ profile 和 evidence 为准。
   mutation 已使用 HMAC、时间戳和 nonce replay 防护。服务端/worker client
   已有 TLS 1.2+ 与可选 mTLS；`SIGHUP` A/B rotation 已验证服务端证书、
   client CA、worker 客户证书/key 和 token 原子切换、旧凭据拒绝及新凭据
-  完成真实 QEMU job；活动请求会先 drain 再提交新配置。未完成的是旧/新
-  凭据重叠与客户端批量迁移、跨主机 QEMU job、companion/evidence
-  continuity、跨主机 reattach、生产多机调度和外部 IPv6。
+  完成真实 QEMU job；活动请求会先 drain 再提交新配置；previous token/CA
+  可提供有界旧/新重叠，最终移除后旧凭据失效。未完成的是自动化客户端
+  批量迁移、跨主机 QEMU job、companion/evidence continuity、跨主机
+  reattach、生产多机调度和外部 IPv6。
 - **Core2 milestone**：stock native-VHCI 已进入 Device Service，但仍是 GDB 诊断桥；
   QEMU native-HCI 的 `HCI-1` 至 `HCI-4` 已闭环。规范 profile
   `core2-native-hci` 在五个独立 Device Service lease 中同时通过
@@ -85,9 +86,9 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新全矩阵首轮无重试；计数和 evidence 见项目当前状态 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
 | Core2 稳定性与无线 | `PARTIAL`（首轮功能、10s/60s/120s、active-BLE hold 与十轮 reconnect PASS） | `platform/tools/ble_probe.py`、`platform/tools/device_service.py`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT 与 `HCI-4` 均 `5/5`；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`、2 个 active-BLE `120s` `2/2`；3 个独立 lease 各 10 轮的 GATT `3/3`，每轮 HLI health 零错误；超 30 秒等待回归已修复 | `CORE2-02` 超过十轮、多小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
-| 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、HTTPS/mTLS、SIGHUP TLS/token rotation + activity drain、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；真实 loopback TLS 1.3/mTLS、客户端证书拒绝/通过、signed worker 生命周期、真实 StickS3 QEMU job、unified board/WiFi/BLE job over mTLS、SIGHUP A/B rotation 和 activity drain 后 QEMU job；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 凭据重叠/客户端批量迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |
+| 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、HTTPS/mTLS、SIGHUP rotation + activity drain + bounded credential overlap、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；真实 loopback TLS 1.3/mTLS、客户端证书拒绝/通过、signed worker 生命周期、真实 StickS3 QEMU job、unified board/WiFi/BLE job over mTLS、SIGHUP A/B + overlap rotation、activity drain 和 final cutover 后 QEMU job；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 自动化客户端批量迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist、失败回滚与 staging GC | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
-| Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py`、`docs/device-service-api.md` | 本地 lease/worker lifecycle；PID/start-time/QMP 验证后的 restart reattach；远程注册；durable queue、claim/lease/expiry/cancel/result；HTTPS/mTLS、SIGHUP TLS/token rotation + activity drain、HTTP executor、evidence ZIP/SHA256、worker HMAC 和失联回收；烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` 凭据重叠/客户端迁移、cross-host QEMU job 与 companion/evidence continuity、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
+| Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py`、`docs/device-service-api.md` | 本地 lease/worker lifecycle；PID/start-time/QMP 验证后的 restart reattach；远程注册；durable queue、claim/lease/expiry/cancel/result；HTTPS/mTLS、SIGHUP rotation + activity drain + bounded overlap、HTTP executor、evidence ZIP/SHA256、worker HMAC 和失联回收；烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` 自动化客户端迁移、cross-host QEMU job 与 companion/evidence continuity、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
 | 热门公开固件仿真 | `PILOT` | `fetch_firmware.py`、`user_firmware_matrix.py` | 按 M5Burner 热度选样并通过 `/api/v1` 留下 session/evidence | 更大样本面、跨厂商统计、长时间稳定性 |
 | 浏览器目录与设备页 | `DELIVERED`（本地） | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、Live sessions、输入和证据浏览 | `UI-01` 逐设备高保真外壳与视觉回归 |
 | Tab5 P4/C6 | `PARTIAL` | `esp-emu 0.50.0`、Tab5 patches、`tests/uiflow2/tab5_*` | 烧录、启动、1280×720、触摸、RS-485、静态 I2C | `TAB5-01` I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123、P4↔C6 端到端网络 |
@@ -98,10 +99,10 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 
 1. 推进网络产品化：双设备真实 QEMU lab fabric、本地 worker
    heartbeat/drain、远程目录、durable queue、authenticated 同主机 HTTP
-   executor、`SIGHUP` TLS/token rotation + activity drain 和本地 QEMU/QMP
-   reattach 已具备，下一步 `NET-04` / `SVC-01` 凭据重叠/客户端批量迁移、跨主机
-   QEMU executor/reattach、companion/evidence continuity 与多机调度；
-   `NET-05` 外部 IPv6 单列。
+   executor、`SIGHUP` TLS/token rotation + activity drain + bounded
+   credential overlap 和本地 QEMU/QMP reattach 已具备，下一步 `NET-04` /
+   `SVC-01` 自动化客户端批量迁移、跨主机 QEMU executor/reattach、
+   companion/evidence continuity 与多机调度；`NET-05` 外部 IPv6 单列。
 2. 固件审查继续 `FW-01` 权限/许可，再处理 `FW-03` 跨厂商样本和
    `FW-02` 真机 key/eFuse。
 3. `CORE2-02` 在已通过的十轮 GATT 和

@@ -43,11 +43,14 @@ def atomic_copy(source: Path, destination: Path) -> None:
 def install_active_security(pki: Path, active: Path, token: str) -> None:
     for name in ("ca.crt", "server.crt", "server.key", "client.crt", "client.key"):
         atomic_copy(pki / name, active / name)
-    token_file = active / "token"
-    temporary = token_file.with_name(f".token.{secrets.token_hex(4)}")
+    write_token_file(active / "token", token)
+
+
+def write_token_file(path: Path, token: str) -> None:
+    temporary = path.with_name(f".{path.name}.{secrets.token_hex(4)}")
     temporary.write_text(token + "\n")
     temporary.chmod(0o600)
-    os.replace(temporary, token_file)
+    os.replace(temporary, path)
 
 
 def wait_for_worker(
@@ -72,14 +75,15 @@ def wait_for_log_marker(
     path: Path,
     marker: str,
     timeout: float = 15,
+    count: int = 1,
 ) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         text = path.read_text(errors="replace") if path.is_file() else ""
-        if marker in text:
+        if text.count(marker) >= count:
             return
         time.sleep(0.1)
-    raise TimeoutError(f"log marker not observed: {marker}")
+    raise TimeoutError(f"log marker not observed {count} times: {marker}")
 
 
 def start_inflight_request(
@@ -110,7 +114,7 @@ def main() -> int:
         type=Path,
         default=(
             Path(__file__).parent
-            / "evidence-2026-10-24-security-rotation-drain-job-pass.json"
+            / "evidence-2026-10-24-security-rotation-overlap-job-pass.json"
         ),
     )
     args = parser.parse_args()
@@ -137,6 +141,17 @@ def main() -> int:
             ca_file=pki_b / "ca.crt",
             client_cert_file=pki_b / "client.crt",
             client_key_file=pki_b / "client.key",
+        )
+        combined_ca = temp_dir / "combined-ca.crt"
+        combined_ca.write_bytes(
+            (pki_a / "ca.crt").read_bytes()
+            + b"\n"
+            + (pki_b / "ca.crt").read_bytes()
+        )
+        client_a_overlap_context = build_client_tls_context(
+            ca_file=combined_ca,
+            client_cert_file=pki_a / "client.crt",
+            client_key_file=pki_a / "client.key",
         )
         port = free_tcp_port()
         base_url = f"https://127.0.0.1:{port}"
@@ -169,6 +184,10 @@ def main() -> int:
                     str(active / "server.key"),
                     "--tls-client-ca",
                     str(active / "ca.crt"),
+                    "--api-token-previous-file",
+                    str(active / "previous-token"),
+                    "--tls-client-ca-previous",
+                    str(active / "previous-ca.crt"),
                 ],
                 cwd=ROOT,
                 stdout=output,
@@ -180,9 +199,12 @@ def main() -> int:
             "initial_https_credentials": "FAIL",
             "worker_registered_before_rotation": "FAIL",
             "server_security_reload": "FAIL",
-            "old_tls_identity_rejected": "FAIL",
+            "overlap_old_client_certificate_accepted": "FAIL",
+            "overlap_old_master_token_accepted": "FAIL",
+            "final_security_reload": "FAIL",
+            "final_old_tls_identity_rejected": "FAIL",
+            "final_old_master_token_rejected": "FAIL",
             "new_tls_identity_accepted": "FAIL",
-            "old_master_token_rejected": "FAIL",
             "worker_credentials_reload": "FAIL",
             "active_request_drained_across_rotation": "FAIL",
             "signed_job_after_rotation": "FAIL",
@@ -240,6 +262,8 @@ def main() -> int:
             )
             time.sleep(0.2)
             os.kill(worker.pid, signal.SIGSTOP)
+            atomic_copy(pki_a / "ca.crt", active / "previous-ca.crt")
+            write_token_file(active / "previous-token", token_a)
             install_active_security(pki_b, active, token_b)
             os.kill(service.pid, signal.SIGHUP)
             os.kill(worker.pid, signal.SIGHUP)
@@ -275,23 +299,62 @@ def main() -> int:
             wait_for_https(api_b, service, 15)
             checks["server_security_reload"] = "PASS"
             checks["new_tls_identity_accepted"] = "PASS"
+
+            overlap_old_api = Api(
+                base_url,
+                token_a,
+                ssl_context=client_a_overlap_context,
+            )
+            overlap_old_api.json("/api/v1/health")
+            overlap_old_api.json("/api/v1/workers")
+            checks["overlap_old_client_certificate_accepted"] = "PASS"
+            checks["overlap_old_master_token_accepted"] = "PASS"
+
+            os.kill(worker.pid, signal.SIGCONT)
+            wait_for_log_marker(
+                worker_log,
+                "worker credentials reloaded",
+                15,
+            )
+            checks["worker_credentials_reload"] = "PASS"
+
+            (active / "previous-token").unlink()
+            (active / "previous-ca.crt").unlink()
+            os.kill(service.pid, signal.SIGHUP)
+            wait_for_log_marker(
+                server_log,
+                "security configuration reloaded",
+                15,
+                count=2,
+            )
+            checks["final_security_reload"] = "PASS"
+            wait_for_https(api_b, service, 15)
+
             try:
-                api_a.json("/api/health")
+                Api(
+                    base_url,
+                    token_b,
+                    ssl_context=client_a_overlap_context,
+                ).json("/api/health")
             except WorkerAgentError:
-                checks["old_tls_identity_rejected"] = "PASS"
+                checks["final_old_tls_identity_rejected"] = "PASS"
             else:
                 raise RuntimeError(
-                    "old TLS identity remained accepted after rotation"
+                    "old TLS identity remained accepted after final cutover"
                 )
 
-            old_api = Api(base_url, token_a, ssl_context=client_b_context)
-            old_api.worker_identity = {
+            retired_api = Api(
+                base_url,
+                token_a,
+                ssl_context=client_b_context,
+            )
+            retired_api.worker_identity = {
                 "worker_id": worker_record["worker_id"],
                 "instance_id": worker_record["instance_id"],
                 "generation": worker_record["generation"],
             }
             try:
-                old_api.request(
+                retired_api.request(
                     "/api/v1/jobs/claim",
                     method="POST",
                     payload={},
@@ -301,19 +364,11 @@ def main() -> int:
                     raise RuntimeError(
                         f"old master token failed unexpectedly: {error}"
                     ) from error
-                checks["old_master_token_rejected"] = "PASS"
+                checks["final_old_master_token_rejected"] = "PASS"
             else:
                 raise RuntimeError(
-                    "old master token remained accepted after rotation"
+                    "old master token remained accepted after final cutover"
                 )
-
-            os.kill(worker.pid, signal.SIGCONT)
-            wait_for_log_marker(
-                worker_log,
-                "worker credentials reloaded",
-                15,
-            )
-            checks["worker_credentials_reload"] = "PASS"
 
             source_image = (
                 ROOT / "platform/.cache/firmware/sticks3/uiflow2.bin"
@@ -392,21 +447,24 @@ def main() -> int:
 
             payload = {
                 "schema_version": 1,
-                "kind": "m5stack-worker-security-rotation-drain-qemu-job",
+                "kind": "m5stack-worker-security-rotation-overlap-qemu-job",
                 "date": "2026-10-24",
                 "status": "PASS",
                 "validation": "transport-security validation",
                 "scope": (
-                    "same-host-loopback-sighup-drained-"
-                    "tls-token-rotation"
+                    "same-host-loopback-bounded-overlap-"
+                    "final-cutover-with-drain"
                 ),
                 "rotation": {
                     "server_certificate": "A-to-B",
-                    "client_ca": "A-to-B",
+                    "client_ca_overlap": "A-and-B",
+                    "client_ca_final": "B",
                     "worker_client_certificate": "A-to-B",
-                    "master_token": "A-to-B",
+                    "master_token_overlap": "A-and-B",
+                    "master_token_final": "B",
                     "reload_signal": "SIGHUP",
                     "active_request_drain": "PASS",
+                    "client_fleet_migration": "manual-staged",
                 },
                 "live_job": {
                     "status": job["status"],
@@ -419,7 +477,7 @@ def main() -> int:
                 "checks": checks,
                 "not_claimed": [
                     "cross-host network topology",
-                    "credential overlap or zero-downtime client fleet migration",
+                    "automated client fleet migration",
                     "production CA or secret manager integration",
                     "multi-host scheduling or worker continuity",
                     "hardware validation",

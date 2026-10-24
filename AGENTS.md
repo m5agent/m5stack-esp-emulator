@@ -298,9 +298,10 @@ diagnostics in `internal/records/`.
   replaces the server certificate, client CA, worker client identity and
   master token, sends `SIGHUP`, verifies the retired credentials are rejected,
   drains an active request before committing the new configuration, then
-  completes a signed real QEMU job with the new credentials. Credential
-  overlap/client-fleet migration, cross-host QEMU jobs and cross-host reattach
-  remain open.
+  completes a signed real QEMU job with the new credentials. A bounded overlap
+  run also accepts old/new client CAs and tokens until the previous files are
+  removed and a final `SIGHUP` retires them. Automated client-fleet migration,
+  cross-host QEMU jobs and cross-host reattach remain open.
 
 ## Remaining work
 
@@ -317,7 +318,7 @@ snapshots must agree and CI enforces that cross-check.
 
 The main open streams are:
 
-- cross-host QEMU job execution, credential overlap/client-fleet migration,
+- cross-host QEMU job execution, automated client-fleet migration,
   companion/evidence continuity, cross-host QEMU re-attach, multi-host
   scheduling and external IPv6 endpoint enforcement;
 - Core2 more than ten reconnect cycles, multi-hour coexistence, bit-exact BT
