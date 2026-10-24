@@ -447,7 +447,8 @@ class FirmwareManifestTests(unittest.TestCase):
                 root / "out",
                 device_id="sticks3",
                 flash_size=8 << 20,
-                required_capabilities=["wifi", "camera"],
+                required_capabilities=["wifi", "camera", "custom-input"],
+                optional_capabilities=["lora", "custom-sensor"],
             )
         manifest = result["manifest"]
         self.assertEqual(manifest["validation"]["status"], "REJECTED")
@@ -465,6 +466,73 @@ class FirmwareManifestTests(unittest.TestCase):
                 for issue in errors
             )
         )
+        self.assertIn(
+            "unsupported_optional_capability",
+            {
+                warning["code"]
+                for warning in manifest["validation"]["warnings"]
+            },
+        )
+        self.assertIn(
+            "unknown_optional_capability",
+            {
+                warning["code"]
+                for warning in manifest["validation"]["warnings"]
+            },
+        )
+        self.assertIn(
+            "unknown_required_capability",
+            {
+                warning["code"]
+                for warning in manifest["validation"]["warnings"]
+            },
+        )
+        self.assertEqual(manifest["validation"]["status"], "REJECTED")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "probe.bin"
+            image.write_bytes(build_flash())
+            optional_result = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+                required_capabilities=["wifi"],
+                optional_capabilities=["camera"],
+            )
+        optional_manifest = optional_result["manifest"]
+        self.assertEqual(optional_manifest["validation"]["status"], "PASS")
+        self.assertIn(
+            "unsupported_optional_capability",
+            {
+                warning["code"]
+                for warning in optional_manifest["validation"]["warnings"]
+            },
+        )
+
+        manifest["capabilities"]["optional"] = ["WIFI"]
+        self.assertIn(
+            "manifest.capabilities.required and optional overlap",
+            validate_manifest_structure(manifest),
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "probe.bin"
+            image.write_bytes(build_flash())
+            with self.assertRaisesRegex(
+                ManifestError,
+                "both required and optional",
+            ):
+                import_package(
+                    image,
+                    root / "out",
+                    device_id="sticks3",
+                    flash_size=8 << 20,
+                    required_capabilities=["wifi"],
+                    optional_capabilities=["WIFI"],
+                )
 
     def test_capability_declarations_are_bounded_and_canonical(self):
         self.assertEqual(

@@ -353,7 +353,11 @@ CLI、`POST /api/v1/firmware/import` 和 WebBurner 都接受独立于镜像的
 required/optional capability 声明。服务端会去除首尾空白、转小写、展开
 `screen`/`framebuffer`→`display` 等别名并去重；最多 64 项、每项 64
 字符。未知 capability 保留在 manifest 中并产生
-`unknown_required_capability` warning，不会被静默删除。WebBurner 的两个
+`unknown_required_capability` / `unknown_optional_capability` warning，
+不会被静默删除。同一 capability 不能同时出现在 required 和 optional，
+否则 importer 与 manifest structure 校验都会拒绝。目标设备缺少 optional
+能力时只产生 `unsupported_optional_capability` warning，固件仍是候选；
+required 不匹配才升级为结构化错误。WebBurner 的两个
 输入框分别在导入前发送 `required_capabilities` 和
 `optional_capabilities`；例如在 StickS3 上声明 `camera` 会得到结构化
 `unsupported_firmware_capability`，不会创建空 capability manifest。

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-capability-consistency",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "static-manifest-contract-not-code-path-proof-or-runtime",
+  "checks": {
+    "required_and_optional_are_disjoint_on_import": true,
+    "required_and_optional_overlap_rejected_by_structure_validation": true,
+    "required_unsupported_capability_rejects": true,
+    "optional_unsupported_capability_is_warning": true,
+    "unknown_required_capability_is_warning": true,
+    "unknown_optional_capability_is_warning": true,
+    "optional_mismatch_keeps_firmware_candidate": true
+  },
+  "examples": {
+    "required_camera_on_sticks3": {
+      "manifest_validation": "REJECTED",
+      "issue_code": "unsupported_capability"
+    },
+    "optional_camera_on_sticks3": {
+      "manifest_validation": "PASS",
+      "warning_code": "unsupported_optional_capability"
+    },
+    "required_wifi_optional_wifi": {
+      "result": "ManifestError",
+      "reason": "required and optional capabilities overlap"
+    }
+  },
+  "test_entries": [
+    "platform/tests/test_firmware_manifest.py",
+    "platform/tests/test_docs_consistency.py"
+  ],
+  "not_claimed": [
+    "that declared capabilities prove all firmware code paths",
+    "that optional capability branches execute successfully at runtime",
+    "runtime peripheral behavior",
+    "physical hardware capability detection"
+  ]
+}

@@ -63,7 +63,7 @@
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与 artifact-bound `7200s` 功能保持已通过；RSS 增长定位到默认 1 GiB TCG buffer，`tb-size=128` 120 秒验证 PASS；限容两小时复测运行中；参数范围扩到 1–121 | 限容两小时功能与 RSS/phys footprint 稳定、资产无漂移；3 个独立 lease 各 121 轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 进行中 | API/WebBurner 已能声明 required/optional capability，sdkconfig WiFi/BT/PSRAM 能作为 detected warning 进入 manifest；矩阵已改为每轮强制刷新公开 BIN。已有 7 台设备、21 个历史哈希绑定样本；下一步先跑当前 AtomS3R/PaperMono 四样本，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 旧缓存不得复用；模型缺口不得混作固件 FAIL |
+| `FW-03` | 进行中 | API/WebBurner 已能声明 required/optional capability；required/optional 重叠会拒绝，optional 不匹配只 warning；sdkconfig WiFi/BT/PSRAM 作为 detected warning 进入 manifest。矩阵已改为每轮强制刷新公开 BIN。已有 7 台设备、21 个历史哈希绑定样本；下一步先跑当前 AtomS3R/PaperMono 四样本，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 旧缓存不得复用；模型缺口不得混作固件 FAIL |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |

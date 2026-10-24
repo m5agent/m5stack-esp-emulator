@@ -3013,6 +3013,10 @@ class DocsConsistencyTests(unittest.TestCase):
         html = (ROOT / "platform/web/firmware.html").read_text()
         script = (ROOT / "platform/web/firmware.js").read_text()
         uploader = (ROOT / "platform/web/firmware-upload.js").read_text()
+        manifest_doc = (DOCS / "firmware-manifest.md").read_text()
+        manifest_code = (
+            ROOT / "platform/tools/firmware_manifest.py"
+        ).read_text()
         index = (ROOT / "platform/web/index.html").read_text()
         sessions = (ROOT / "platform/web/sessions.html").read_text()
 
@@ -3029,6 +3033,12 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("/api/v1/artifact-uploads", uploader)
         self.assertIn("/platform/web/firmware.html", index)
         self.assertIn("/platform/web/firmware.html", sessions)
+        self.assertIn("both required and optional", manifest_code)
+        self.assertIn("unsupported_optional_capability", manifest_code)
+        self.assertIn(
+            "目标设备缺少 optional",
+            manifest_doc,
+        )
 
 
 if __name__ == "__main__":

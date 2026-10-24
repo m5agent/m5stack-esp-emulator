@@ -794,6 +794,7 @@ def validate_capabilities(
             )
         )
     required = manifest.get("capabilities", {}).get("required", [])
+    optional = manifest.get("capabilities", {}).get("optional", [])
     device_capabilities = _device_capability_set(device)
     for requirement in required:
         normalized = CAPABILITY_ALIASES.get(
@@ -823,6 +824,37 @@ def validate_capabilities(
                     requirement=normalized,
                     available=sorted(device_capabilities),
                     path="capabilities.required",
+                )
+            )
+    for requirement in optional:
+        normalized = CAPABILITY_ALIASES.get(
+            str(requirement).strip().lower(),
+            str(requirement).strip().lower(),
+        )
+        if normalized not in KNOWN_CAPABILITIES:
+            warnings.append(
+                _code_issues(
+                    "unknown_optional_capability",
+                    (
+                        f"optional capability {requirement!r} is not "
+                        "recognized by the compatibility checker"
+                    ),
+                    requirement=requirement,
+                    path="capabilities.optional",
+                )
+            )
+        elif normalized not in device_capabilities:
+            warnings.append(
+                _code_issues(
+                    "unsupported_optional_capability",
+                    (
+                        f"firmware optionally supports {normalized}, but "
+                        f"device {device.get('id')} does not expose it; "
+                        "the firmware remains a candidate"
+                    ),
+                    requirement=normalized,
+                    available=sorted(device_capabilities),
+                    path="capabilities.optional",
                 )
             )
     for detection in manifest.get("capabilities", {}).get("detected", []):
@@ -1334,6 +1366,14 @@ def import_package(
         optional_capabilities,
         field="optional_capabilities",
     )
+    capability_overlap = sorted(
+        set(required_capabilities) & set(optional_capabilities)
+    )
+    if capability_overlap:
+        raise ManifestError(
+            "capabilities cannot be both required and optional: "
+            + ", ".join(capability_overlap)
+        )
     if not input_path.exists():
         raise ManifestError(f"input does not exist: {input_path}")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1868,6 +1908,26 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
                 ):
                     errors.append(
                         f"manifest.capabilities.{key} must contain strings"
+                    )
+            required_values = capabilities.get("required", [])
+            optional_values = capabilities.get("optional", [])
+            if isinstance(required_values, list) and isinstance(
+                optional_values,
+                list,
+            ):
+                required_set = {
+                    CAPABILITY_ALIASES.get(value.strip().lower(), value.strip().lower())
+                    for value in required_values
+                    if isinstance(value, str) and value.strip()
+                }
+                optional_set = {
+                    CAPABILITY_ALIASES.get(value.strip().lower(), value.strip().lower())
+                    for value in optional_values
+                    if isinstance(value, str) and value.strip()
+                }
+                if required_set & optional_set:
+                    errors.append(
+                        "manifest.capabilities.required and optional overlap"
                     )
             detections = capabilities.get("detected", [])
             if isinstance(detections, list) and any(

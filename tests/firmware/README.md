@@ -1,6 +1,6 @@
 # Firmware review and runtime evidence
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This directory stores committed evidence for firmware normalization, static
 review and public-firmware runtime tests. The evidence files are snapshots, not
@@ -38,6 +38,11 @@ Filesystem inventories include a per-file `permission_policy`. FAT directory
 attributes are recorded without treating them as POSIX access control;
 LittleFS and SPIFFS explicitly report that Unix mode bits are absent. Runtime
 permission/ACL enforcement remains `NOT RUN`.
+
+Required/optional capability consistency is covered by
+[`evidence-2026-10-25-capability-required-optional-consistency.json`](evidence-2026-10-25-capability-required-optional-consistency.json):
+overlap is rejected, unsupported required capability rejects the manifest, and
+unsupported or unknown optional capabilities remain structured warnings.
 
 Packages that include source files also receive a bounded SPDX header scan.
 Source path hashes and declarations are eligible for license policy, while
