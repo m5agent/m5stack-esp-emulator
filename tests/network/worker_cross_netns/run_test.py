@@ -194,6 +194,28 @@ def upload_artifact(
         return json.loads(response.read())
 
 
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        while chunk := source.read(1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def registered_qemu_path(device_id: str = "sticks3") -> Path:
+    profiles = json.loads((ROOT / "platform/qemu/profiles.json").read_text())
+    profile = next(
+        device
+        for device in profiles["devices"]
+        if device.get("id") == device_id
+    )
+    backend = profiles["backends"][profile["backend"]]
+    qemu = backend.get("qemu")
+    if not isinstance(qemu, str):
+        raise RuntimeError(f"{device_id} backend has no registered QEMU path")
+    return ROOT / qemu
+
+
 def worker_qemu_probe(
     work_dir: Path,
     result_path: Path,
@@ -214,6 +236,7 @@ def worker_qemu_probe(
 
     flash_size = 8 << 20
     source = firmware.read_bytes()
+    source_sha256 = hashlib.sha256(source).hexdigest()
     if len(source) > flash_size:
         raise RuntimeError("StickS3 firmware exceeds 8 MiB flash")
     full_image = work_dir / "sticks3-full.bin"
@@ -228,6 +251,8 @@ def worker_qemu_probe(
             "artifact_id": artifact["artifact_id"],
         },
     )
+    qemu_path = registered_qemu_path()
+    qemu_sha256 = file_sha256(qemu_path)
 
     identity = initialize_identity(work_dir, "cross-netns-qemu-worker")
     agent = WorkerAgent(
@@ -279,6 +304,8 @@ def worker_qemu_probe(
         "execution_plane": result.get("summary", {}).get("execution_plane"),
         "evidence_names": evidence_names,
         "firmware_sha256": imported["sha256"],
+        "firmware_source_sha256": source_sha256,
+        "qemu_sha256": qemu_sha256,
         "runtime": runtime,
         "qemu_started": bool(result.get("summary", {}).get("device_id")),
         "device_session_created": bool(
@@ -685,6 +712,14 @@ def main() -> int:
                 isinstance(worker_result.get("firmware_sha256"), str)
                 and len(worker_result["firmware_sha256"]) == 64
             ),
+            "firmware_source_sha256_present": (
+                isinstance(worker_result.get("firmware_source_sha256"), str)
+                and len(worker_result["firmware_source_sha256"]) == 64
+            ),
+            "qemu_sha256_present": (
+                isinstance(worker_result.get("qemu_sha256"), str)
+                and len(worker_result["qemu_sha256"]) == 64
+            ),
             "qemu_reaped": "qemu-system-xtensa" not in qemu_processes,
         }
     else:
@@ -759,6 +794,10 @@ def main() -> int:
             "terminal": worker_result.get("terminal"),
             "execution_plane": worker_result.get("execution_plane"),
             "firmware_sha256": worker_result.get("firmware_sha256"),
+            "firmware_source_sha256": worker_result.get(
+                "firmware_source_sha256"
+            ),
+            "qemu_sha256": worker_result.get("qemu_sha256"),
             "runtime": worker_result.get("runtime"),
             "advertised_endpoint_present": worker_result.get(
                 "advertised_endpoint_present"
