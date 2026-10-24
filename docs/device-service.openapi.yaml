@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.21.0
+  version: 1.22.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1919,7 +1919,7 @@ components:
         ble_reconnect_cycles:
           type: integer
           minimum: 1
-          maximum: 10
+          maximum: 60
           default: 1
           description: >
             Number of complete scan/connect/GATT/disconnect cycles performed by

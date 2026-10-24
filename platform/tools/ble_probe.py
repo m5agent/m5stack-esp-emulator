@@ -10,6 +10,11 @@ import time
 import traceback
 from typing import Any
 
+from ble_runtime_limits import (
+    MAX_BLE_RECONNECT_CYCLES,
+    MAX_BLE_RECONNECT_DELAY_SECONDS,
+)
+
 NUS_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
 NUS_RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 NUS_TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
@@ -386,10 +391,19 @@ def main() -> int:
         help="seconds between peer disconnect and the next scan",
     )
     args = parser.parse_args()
-    if args.reconnect_cycles < 1 or args.reconnect_cycles > 30:
-        parser.error("--reconnect-cycles must be from 1 to 30")
-    if not 0 <= args.reconnect_delay <= 30:
-        parser.error("--reconnect-delay must be from 0 to 30")
+    if (
+        args.reconnect_cycles < 1
+        or args.reconnect_cycles > MAX_BLE_RECONNECT_CYCLES
+    ):
+        parser.error(
+            "--reconnect-cycles must be from 1 to "
+            f"{MAX_BLE_RECONNECT_CYCLES}"
+        )
+    if not 0 <= args.reconnect_delay <= MAX_BLE_RECONNECT_DELAY_SECONDS:
+        parser.error(
+            "--reconnect-delay must be from 0 to "
+            f"{MAX_BLE_RECONNECT_DELAY_SECONDS}"
+        )
     try:
         return asyncio.run(observe(args))
     except Exception as error:  # noqa: BLE001 - emit actionable peer failure.

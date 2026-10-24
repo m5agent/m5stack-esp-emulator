@@ -71,6 +71,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect20-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect30-3x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect60-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-timeout-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
@@ -353,6 +354,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "C6 LP_SW_HPSYS software reset can lose the expected chip id (RUNTIME-01)",
             "`RUNTIME-01` 复位/eFuse/寄存器语义",
             "| `CORE2-02` 30-cycle extension | `NOT RUN` |",
+            "| `CORE2-02` 60-cycle extension | `NOT RUN` |",
             "3 个独立 lease、每个 30 轮的下一门禁",
             "Automated discovery and migration of a client fleet is still",
             "Automated client-fleet migration, production",
@@ -466,15 +468,33 @@ class DocsConsistencyTests(unittest.TestCase):
             backlog,
         )
 
-    def test_core2_30_cycle_evidence_is_reconciled(self):
+    def test_core2_reconnect_evidence_is_reconciled(self):
         status = (DOCS / "project-status.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()
         readme = (ROOT / "README.md").read_text()
+        adaptation_matrix = (
+            DOCS / "qemu-device-adaptation-matrix.md"
+        ).read_text()
         core2_backend = (DOCS / "core2-native-hci-backend.md").read_text()
         runtime_contract = (DOCS / "unified-device-runtime.md").read_text()
+        catalog_source = json.loads(
+            (ROOT / "devices/catalog.source.json").read_text()
+        )
+        generated_catalog = json.loads(
+            (ROOT / "devices/catalog.json").read_text()
+        )
+        qemu_profiles = json.loads(
+            (ROOT / "platform/qemu/profiles.json").read_text()
+        )
         service = (ROOT / "platform/tools/device_service.py").read_text()
         peer = (ROOT / "platform/tools/ble_probe.py").read_text()
+        limits = (
+            ROOT / "platform/tools/ble_runtime_limits.py"
+        ).read_text()
+        openapi = (
+            DOCS / "device-service.openapi.yaml"
+        ).read_text()
         runner = (
             ROOT / "tests/uiflow2/core2_native_hci/run_service_5x.py"
         ).read_text()
@@ -488,17 +508,25 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-hci4-reconnect30-3x.json"
             ).read_text()
         )
+        sixty_evidence = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-reconnect60-3x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
-        self.assertIn("各自 20 轮和 30 轮", readme)
+        self.assertIn("各自 20、30、60 轮", readme)
         self.assertIn("3 个独立 lease 各 30 轮", backlog)
-        self.assertIn("3 个独立 lease 各 30 轮全部 PASS", workstreams)
+        self.assertIn("分别完成 20、30、60 轮", workstreams)
+        self.assertIn("20、30、60 轮 reconnect", adaptation_matrix)
         self.assertIn(
             "| `CORE2-02` 30-cycle extension | `PASS` |",
             core2_backend,
         )
         self.assertIn(
-            "Three independent leases at 30 cycles each now pass",
+            "Three independent leases at 30 cycles each pass",
             runtime_contract,
         )
         self.assertNotIn(
@@ -507,10 +535,17 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertNotIn("扩大 API 轮次上限", workstreams)
 
-        self.assertIn("not 1 <= reconnect_cycles <= 30", service)
-        self.assertIn("from 1 to 30", peer)
-        self.assertIn("args.ble_reconnect_cycles > 30", runner)
-        self.assertIn('"ble_reconnect_cycles": 30', service_tests)
+        self.assertIn("MAX_BLE_RECONNECT_CYCLES = 60", limits)
+        self.assertIn("MAX_BLE_HOLD_SECONDS = 120", limits)
+        self.assertIn("MAX_BLE_RECONNECT_CYCLES", service)
+        self.assertIn("MAX_BLE_RECONNECT_CYCLES", peer)
+        self.assertIn("MAX_BLE_RECONNECT_CYCLES", runner)
+        self.assertIn('"ble_reconnect_cycles": 60', service_tests)
+        reconnect_schema = openapi.split(
+            "ble_reconnect_cycles:",
+            1,
+        )[1].split("ble_reconnect_delay_seconds:", 1)[0]
+        self.assertIn("maximum: 60", reconnect_schema)
 
         self.assertEqual(evidence["status"], "PASS")
         self.assertEqual(evidence["attempts_requested"], 3)
@@ -536,6 +571,64 @@ class DocsConsistencyTests(unittest.TestCase):
                  health["gatts-pool-free"]),
                 (3, 9, 3),
             )
+
+        self.assertEqual(sixty_evidence["status"], "PASS")
+        self.assertEqual(sixty_evidence["attempts_requested"], 3)
+        self.assertEqual(sixty_evidence["attempts_passed"], 3)
+        self.assertEqual(sixty_evidence["attempts_failed"], 0)
+        self.assertEqual(sixty_evidence["ble_reconnect_cycles"], 60)
+        self.assertFalse(sixty_evidence["boundary"]["gdb_bridge"])
+        for run in sixty_evidence["runs"]:
+            health = run["native_hci_health"]
+            self.assertEqual(health["hli-posts"], 1697)
+            self.assertEqual(health["hli-consumed"], 1697)
+            self.assertEqual(health["hli-errors"], 0)
+            self.assertEqual(health["hli-c2h-events"], 1157)
+            self.assertEqual(health["hli-c2h-acls"], 540)
+            self.assertEqual(health["hli-queue-depth"], 0)
+            self.assertEqual(health["meta-queue-depth"], 0)
+            self.assertEqual(health["tx-queue-depth"], 0)
+            self.assertEqual(health["peer-closed"], 0)
+            self.assertEqual(health["trace-gap-adv-start"], 60)
+            self.assertEqual(health["trace-hs-sched-reset"], 0)
+            self.assertEqual(
+                (health["conn-pool-free"], health["l2cap-pool-free"],
+                 health["gatts-pool-free"]),
+                (3, 9, 3),
+            )
+
+        core2_source = next(
+            device for device in catalog_source["devices"]
+            if device["id"] == "core2"
+        )
+        source_detail = core2_source["runtime"]["validation"]["detail"]
+        self.assertIn("分别完成 20、30、60 轮", source_detail)
+        self.assertIn("1697/1697", source_detail)
+        self.assertNotIn("更多轮次", source_detail)
+
+        core2_profile = next(
+            device for device in qemu_profiles["devices"]
+            if device["id"] == "core2"
+        )
+        profile_detail = core2_profile["validation"]["detail"]
+        self.assertIn("at 20, 30 and 60 cycles", profile_detail)
+        self.assertIn("1697/1697", profile_detail)
+        self.assertNotIn("More than twenty", profile_detail)
+        self.assertTrue(
+            any(
+                "more than sixty reconnect cycles" in blocker
+                for blocker in core2_profile["blockers"]
+            )
+        )
+
+        core2_generated = next(
+            device for device in generated_catalog["devices"]
+            if device["id"] == "core2"
+        )
+        self.assertEqual(
+            core2_generated["runtime"]["validation"]["detail"],
+            source_detail,
+        )
 
     def test_worker_generation_pointer_migration_is_reconciled(self):
         status = (DOCS / "project-status.md").read_text()

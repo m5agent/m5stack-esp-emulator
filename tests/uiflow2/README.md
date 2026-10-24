@@ -74,7 +74,7 @@ callback 注入，因此单 lease PASS 不等于稳定后端。规范主路径�
 | `HCI-3b` complete HCI/GATT | `PASS` | `core2_native_hci/run_full.py --hli-c2h` 使用 15-byte probe / 17-byte ATT PDU，完成 NUS discovery/subscription/write/notify 和 Bumble ACK，连续 `5/5` |
 | `HCI-4` repeated lease | `PASS` | `core2_native_hci/run_service_5x.py`；五个独立 Device Service lease 同时通过 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence，`gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | caller-saved Xtensa sregs 恢复 + halted/idle-only HLI 注入后，两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；每轮 `hli-errors=0` |
-| `CORE2-02` same-guest reconnect | `PASS` | stock 固件在 3 个独立 lease 中各自完成 20 轮 scan/connect/NUS GATT/disconnect；每轮 guest RX、notification、pcap 和 evidence PASS。HLI `577/577`、events 397、ACLs 180，连接池回到 `3/9/3`。根因是 Bumble 对无响应 `0x0c35` 返回非法 Command Status |
+| `CORE2-02` same-guest reconnect | `PASS` | stock 固件在 3 个独立 lease 中分别完成 20、30、60 轮 scan/connect/NUS GATT/disconnect；六十轮每 lease HLI `1697/1697`、events `1157`、ACLs `540`，HLI/TX queue 和 panic 为 0，连接池回到 `3/9/3`。根因是 Bumble 对无响应 `0x0c35` 返回非法 Command Status |
 
 `HCI-4` 重跑需要已准备 unified Core2 镜像、匹配 ELF 和相同 QEMU build：
 
@@ -109,22 +109,18 @@ active-BLE 模式再把 `network.ble_linger_seconds` 设为 hold+60 秒，2 个
 独立 120 秒运行同样 `2/2`；hold 完成时 peer 未断开，
 `tx-queue-depth=0`、`last-error=0`。证据：
 `core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json`。
-同一 guest 的 disconnect/reconnect 已从失败修正为 PASS，并扩大到
-3 个独立 lease 各自的 20 轮连接生命周期。历史
+同一 guest 的 disconnect/reconnect 已从失败修正为 PASS。当前矩阵是
+3 个独立 lease 分别完成 20、30、60 轮连接生命周期；六十轮证据为
+`core2_native_hci/evidence-2026-10-24-hci4-reconnect60-3x.json`，每 lease
+HLI `1697/1697`、events `1157`、ACLs `540`，连接池回到 `3/9/3`。历史
 `NimBLE: HCI process ack returned 12` 由 Bumble 对无响应
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` 非法返回 Command Status
-引起；下一命令消费 stale ACK 后触发 reset。修复证据：
-`core2_native_hci/evidence-2026-10-24-hci4-reconnect20-3x.json`，每个
-lease 均为 HLI `577/577`、events `397`、ACLs `180`，连接池回到
-`3/9/3` 的空闲基线。较早的五轮证据：
-`core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json`；双轮证据：
-`core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json`；历史失败：
-`core2_native_hci/evidence-2026-10-24-reconnect2-fail.json`。
+引起；下一命令消费 stale ACK 后触发 reset。20/30 轮和更早的 2/5/10 轮
+证据保留在 `core2_native_hci/`，失败证据不会被后续 PASS 覆盖。
 这关闭了本轮 two-minute extended-run 失败门禁，但仍不是物理 cache/PSRAM、
-RF、超过三十轮连接、多小时 soak 或 bit-exact controller PASS。
-Device Service/Bumble/runner 接受 `1–30` 轮，并有 `31` 轮拒绝测试；
-3 个独立 lease、每个 30 轮已经全部 PASS。较早的十轮运行曾被 Device
-Service 的旧 30 秒等待硬上限误杀，失败证据保留在
+RF、超过六十轮连接、多小时 soak 或 bit-exact controller
+PASS。Device Service/Bumble/runner 共享 `1–60` 范围，并有 `61` 轮拒绝测试。
+较早的十轮运行曾被 Device Service 的旧 30 秒等待硬上限误杀，失败证据保留在
 `evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`。
 
 ```bash

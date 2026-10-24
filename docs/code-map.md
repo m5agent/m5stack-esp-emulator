@@ -93,6 +93,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/network_sandbox.py` | Linux private net/mount namespace 与 controlled DNS | 隔离 runner、worker |
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
+| `platform/tools/ble_runtime_limits.py` | BLE reconnect、reconnect delay 和 hold 的服务/peer/runner 共享上限 | Device Service、BLE probe、Core2 runner |
 | `platform/tools/ble_probe.py` | 外部 BLE peer、scan/connect/GATT 验证，以及同一 peer process 内的多轮 disconnect/reconnect | unified/BLE runners |
 | `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
 | `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
@@ -292,7 +293,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 60-second hold | `run_service_5x.py --hold-seconds 60`；`evidence-2026-10-24-hci4-hold60-3x.json` | 3 个独立 lease `3/3`；BLE peer 正常关闭后设备保持 running，HLI errors 与队列深度为零 |
 | Core2 120-second hold | `run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-hold120-2x.json` | 2 个独立 lease `2/2`；每轮 frame/QOM、WiFi、公网、NUS GATT、pcap、evidence 和 HLI health 均 PASS，peer-close queue-full 尾态单独分类 |
 | Core2 active-BLE 120-second hold | `run_service_5x.py --hold-seconds 120` + `network.ble_linger_seconds=180`；`evidence-2026-10-24-hci4-active-ble-hold120-2x.json` | 2 个独立 lease `2/2`；peer 在 hold 完成时仍连接，`peer-closed=0`、TX queue 和 last error 均为 0 |
-| Core2 same-guest reconnect | `run_service_5x.py --ble-reconnect-cycles 20`；`run_service_5x.py --ble-reconnect-cycles 30`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；`evidence-2026-10-24-hci4-reconnect20-3x.json`；`evidence-2026-10-24-hci4-reconnect30-3x.json` | 3 个独立 stock-firmware lease 各完成 20 轮和 30 轮 scan/connect/NUS GATT/disconnect；三十轮每 lease HLI `857/857`、events 587、ACLs 270，连接/L2CAP/GATT 池回到 `3/9/3`；参数范围 `1–30`，service runner hold 上限 `120s`；下一门禁超过三十轮和多小时 soak 前必须先提高这两个上限 |
+| Core2 same-guest reconnect | `ble_runtime_limits.py`；`run_service_5x.py --ble-reconnect-cycles 20/30/60`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；20/30/60 轮 evidence | 3 个独立 stock-firmware lease 各完成 20、30、60 轮；六十轮每 lease HLI `1697/1697`、events 1157、ACLs 540；共享参数范围 `1–60` 并有 `61` 拒绝测试；下一门禁超过六十轮，hold 上限仍为 `120s` |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |

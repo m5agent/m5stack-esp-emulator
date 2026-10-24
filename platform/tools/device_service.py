@@ -70,6 +70,10 @@ from firmware_manifest import (  # noqa: E402
     validate_manifest_structure,
 )
 from network_lane import normalize_hostfwd, normalize_i2c_device  # noqa: E402
+from ble_runtime_limits import (  # noqa: E402
+    MAX_BLE_RECONNECT_CYCLES,
+    MAX_BLE_RECONNECT_DELAY_SECONDS,
+)
 from network_egress import (  # noqa: E402
     EgressEndpoint,
     capability as egress_capability,
@@ -1216,22 +1220,24 @@ def parse_qemu_ble_execution(
     if (
         isinstance(reconnect_cycles, bool)
         or not isinstance(reconnect_cycles, int)
-        or not 1 <= reconnect_cycles <= 30
+        or not 1 <= reconnect_cycles <= MAX_BLE_RECONNECT_CYCLES
     ):
         raise ServiceError(
             "invalid_network",
-            "network.ble_reconnect_cycles must be an integer from 1 to 30",
+            "network.ble_reconnect_cycles must be an integer from 1 to "
+            f"{MAX_BLE_RECONNECT_CYCLES}",
             400,
         )
     reconnect_delay = value.get("ble_reconnect_delay_seconds", 2)
     if (
         isinstance(reconnect_delay, bool)
         or not isinstance(reconnect_delay, (int, float))
-        or not 0 <= reconnect_delay <= 30
+        or not 0 <= reconnect_delay <= MAX_BLE_RECONNECT_DELAY_SECONDS
     ):
         raise ServiceError(
             "invalid_network",
-            "network.ble_reconnect_delay_seconds must be from 0 to 30",
+            "network.ble_reconnect_delay_seconds must be from 0 to "
+            f"{MAX_BLE_RECONNECT_DELAY_SECONDS}",
             400,
         )
     if spec.id == "core2":

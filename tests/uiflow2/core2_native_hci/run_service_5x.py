@@ -7,12 +7,21 @@ import hashlib
 import io
 import json
 import re
+import sys
 import time
 import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "platform/tools"))
+
+from ble_runtime_limits import (  # noqa: E402
+    MAX_BLE_HOLD_SECONDS,
+    MAX_BLE_RECONNECT_CYCLES,
+)
 
 PROFILE = "core2-native-hci"
 READY_MARKER = "UNIFIED_CORE2_READY"
@@ -641,10 +650,19 @@ def main() -> int:
     args = parser.parse_args()
     if args.attempts < 1 or args.attempts > 30:
         parser.error("--attempts must be from 1 to 30")
-    if args.hold_seconds < 0 or args.hold_seconds > 120:
-        parser.error("--hold-seconds must be from 0 to 120")
-    if args.ble_reconnect_cycles < 1 or args.ble_reconnect_cycles > 30:
-        parser.error("--ble-reconnect-cycles must be from 1 to 30")
+    if args.hold_seconds < 0 or args.hold_seconds > MAX_BLE_HOLD_SECONDS:
+        parser.error(
+            "--hold-seconds must be from 0 to "
+            f"{MAX_BLE_HOLD_SECONDS}"
+        )
+    if (
+        args.ble_reconnect_cycles < 1
+        or args.ble_reconnect_cycles > MAX_BLE_RECONNECT_CYCLES
+    ):
+        parser.error(
+            "--ble-reconnect-cycles must be from 1 to "
+            f"{MAX_BLE_RECONNECT_CYCLES}"
+        )
     for label, path in (
         ("image", args.image),
         ("ELF", args.elf),

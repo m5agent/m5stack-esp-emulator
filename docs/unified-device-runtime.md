@@ -45,7 +45,8 @@ complete simulated device or as a unified-device PASS.
   restoration. `0005` fixes both; two independent `5×10s` batches pass
   `10/10`, three independent `60s` holds pass `3/3`, and two independent
   `120s` holds pass `2/2`, with zero HLI errors and empty queues. This is not
-  a multi-hour soak, more than thirty reconnect cycles or physical cache/PSRAM proof.
+  a multi-hour soak, more than sixty reconnect cycles or physical cache/PSRAM
+  proof.
   A further two `120s` holds keep the BLE peer connected for the full hold,
   with `peer-closed=0`, zero TX queue depth and no last error.
 - Same-guest reconnect is **PASS** for twenty cycles. The historical failure was
@@ -59,11 +60,12 @@ complete simulated device or as a unified-device PASS.
   remain separate gates, but both now pass. The first ten-cycle attempt exposed
   a Device Service 30-second completion-wait cap; the wait now uses the
   session ready timeout and has a regression test.
-- The accepted reconnect range is 1-30 cycles, with a contract test that
-  rejects 31. Three independent leases at 30 cycles each now pass with
-  857/857 HLI posts/consumption, 587 events and 270 ACLs per lease. The next
-  required extension is more than thirty cycles and a multi-hour coexistence
-  soak.
+- The accepted reconnect range is 1-60 cycles, with a contract test that
+  rejects 61. Three independent leases at 30 cycles each pass with
+  857/857 HLI posts/consumption, 587 events and 270 ACLs per lease. Three
+  independent leases at 60 cycles each pass with 1697/1697 HLI
+  posts/consumption, 1157 events and 540 ACLs per lease. The next required
+  extension is more than sixty cycles and a multi-hour coexistence soak.
 - Current blockers, not historical explanations, are owned by
   [project status](project-status.md) and [Backlog](project-backlog.md). The
   device bullets below preserve implementation evidence and must not be read
@@ -157,7 +159,7 @@ complete simulated device or as a unified-device PASS.
   A separate HCI-offload build also routes NimBLE's H4 traffic through QEMU
   UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
   The remaining boundary is a bit-exact classic ESP32 controller/baseband,
-  physical cache/PSRAM equivalence, more than thirty reconnect cycles, multi-hour
+  physical cache/PSRAM equivalence, more than sixty reconnect cycles, multi-hour
   coexistence/soak and hardware, not UIFlow2 API or Device Service integration.
 - The replacement QEMU native-HCI path has passed the staged gates:
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
@@ -235,7 +237,7 @@ HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
   two `120s` holds, plus two active-BLE `120s` holds pass with
   `hli-errors=0` and empty queues. Three independent leases also complete twenty
   reconnect cycles each. Core2 still misses bit-exact controller/baseband,
-  physical cache/PSRAM equivalence, more than thirty connection cycles,
+  physical cache/PSRAM equivalence, more than sixty connection cycles,
   multi-hour coexistence and hardware validation.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
