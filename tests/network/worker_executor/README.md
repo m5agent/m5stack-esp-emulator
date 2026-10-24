@@ -46,7 +46,9 @@ Retained result:
 
 ## Boundaries
 
-The retained live runs use the same host and service process. Cross-host
-TLS/mTLS, credential rotation, companion continuity after service restart,
+The retained QEMU job runs use the same host and service process. HTTPS/mTLS
+is verified separately by `tests/network/worker_tls/`; this retained QEMU job
+did not itself run over mTLS. Certificate and worker credential hot rotation,
+cross-host QEMU execution, companion continuity after service restart,
 untrusted-firmware isolation, production scheduling and physical hardware
 remain `NOT RUN`.

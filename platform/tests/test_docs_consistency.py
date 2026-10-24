@@ -92,12 +92,14 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/idf_dhcp_renewal/README.md",
             "tests/network/idf_dhcp_renewal/run_test.py",
             "platform/tools/network_fabric.py",
+            "platform/tools/transport_security.py",
             "platform/tools/worker_registry.py",
             "platform/tools/worker_directory.py",
             "platform/tools/worker_queue.py",
             "platform/tools/worker_auth.py",
             "platform/tools/worker_agent.py",
             "platform/tests/test_network_fabric.py",
+            "platform/tests/test_transport_security.py",
             "platform/tests/test_worker_registry.py",
             "platform/tests/test_worker_directory.py",
             "platform/tests/test_worker_queue.py",
@@ -120,6 +122,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_executor/README.md",
             "tests/network/worker_executor/evidence-2026-10-24-executor-pass.json",
             "tests/network/worker_executor/evidence-2026-10-24-executor-auth-pass.json",
+            "tests/network/worker_tls/README.md",
+            "tests/network/worker_tls/run_test.py",
+            "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -1459,6 +1464,32 @@ class DocsConsistencyTests(unittest.TestCase):
                 for run in reconnect10_pass["runs"]
             )
         )
+        worker_tls = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_tls/"
+                "evidence-2026-10-24-tls-mtls-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(worker_tls["status"], "PASS")
+        self.assertEqual(worker_tls["tls"]["observed_version"], "TLSv1.3")
+        self.assertTrue(
+            all(value == "PASS" for value in worker_tls["checks"].values())
+        )
+        self.assertEqual(
+            worker_tls["worker_transport"]["unsigned_claim_http"],
+            401,
+        )
+        self.assertEqual(
+            worker_tls["worker_transport"]["worker_agent_exit_code"],
+            0,
+        )
+        self.assertIn(
+            "cross-host network topology or latency",
+            worker_tls["not_claimed"],
+        )
+        self.assertIn("HTTPS/mTLS", status)
+        self.assertIn("证书/worker 凭据热轮换", status)
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1500,6 +1531,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("hci4-reconnect5-3x.json", ledger)
         self.assertIn("hci4-reconnect10-3x.json", ledger)
         self.assertIn("hci4-reconnect10-timeout-fail.json", ledger)
+        self.assertIn(
+            "worker_tls/evidence-2026-10-24-tls-mtls-pass.json",
+            ledger,
+        )
         self.assertIn(
             "ble_reconnect_cycles",
             (DOCS / "device-service-api.md").read_text(),

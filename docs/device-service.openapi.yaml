@@ -16,10 +16,18 @@ info:
     A local running QEMU process can be re-attached after PID start-time,
     session QMP ownership and query-status checks; this restores QEMU/QMP
     control only, not companion helper or evidence-stream continuity.
+    The service can be exposed over HTTPS with verified server certificates
+    and optional required client certificates (mTLS); worker HMAC remains a
+    separate application authentication layer.
     CardputerZero is outside this API version. Tab5 is available through
     esp-emu with partial peripheral status.
 servers:
   - url: http://127.0.0.1:8787/api/v1
+  - url: https://{host}/api/v1
+    variables:
+      host:
+        default: device-service.example
+        description: TLS-enabled Device Service host.
 security:
   - bearerAuth: []
 paths:

@@ -25,9 +25,10 @@ MicroPython 和其他完整 Flash 固件。
   不再复制会随提交变化的数字。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
-- worker、durable queue、同主机 executor、HMAC 和本地 QEMU restart
-  reattach 已形成可用主线；跨主机接管、TLS/mTLS、rotation、companion /
-  evidence continuity 和生产调度仍是开放项。
+- worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS 和本地 QEMU
+  restart reattach 已形成可用主线；跨主机 QEMU job/接管、
+  证书/worker 凭据热轮换、companion / evidence continuity 和生产调度仍是
+  开放项。
 - Core2 规范路径是
   `runtime=qemu-unified/profile=core2-native-hci`；GDB native-VHCI 只用于
   诊断/兼容。功能、active-BLE 120 秒 hold 和同 guest 十轮重连已通过；
@@ -51,7 +52,7 @@ MicroPython 和其他完整 Flash 固件。
 
 未完成项和 Task ID 只在[项目 Backlog](docs/project-backlog.md)维护；当前顺序是：
 
-1. `NET-04` / `SVC-01`：跨主机 worker、TLS/mTLS、rotation、continuity 和多机调度。
+1. `NET-04` / `SVC-01`：跨主机 QEMU job/reattach、证书/worker 凭据热轮换、continuity 和多机调度。
 2. `FW-01` → `FW-03` → `FW-02`：权限/许可、跨厂商样本、真机 key/eFuse。
 3. `CORE2-02`：超过十轮连接（需扩大当前 1–10 API 上限）、多小时 soak、WiFi/BLE coexistence 与物理等价性。
 4. `TAB5-01`、`CZ-01`、`UI-01` 和 `HW-01` 按专项依赖推进。
@@ -253,6 +254,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - [网络诊断 lane](docs/network-lane.md)
 - [双设备 private lab fabric](tests/network/lab_fabric/README.md)
 - [TLS Host allowlist fixture](tests/network/tls_allowlist/README.md)
+- [Worker HTTPS/mTLS transport](tests/network/worker_tls/README.md)
 - [固件清单与 WebBurner 导入](docs/firmware-manifest.md)
 - [统一设备运行时契约](docs/unified-device-runtime.md)
 - [Tab5 暂缓项](docs/tab5-deferred-backlog.md)

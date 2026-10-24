@@ -35,6 +35,9 @@ Implemented:
   the terminal result;
 - worker-only mutation authentication using a generation-derived HMAC,
   timestamp/nonce replay protection and path/body identity binding;
+- HTTPS with TLS 1.2+ server/client contexts, optional required client
+  certificates, and a real loopback process test covering TLS 1.3,
+  certificate rejection/acceptance and signed worker requests;
 - verified local QEMU/QMP restart re-attach after PID start-time, QMP socket
   ownership and `query-status=running` all match;
 - bounded stopped/failed history with age, count and byte limits;
@@ -61,8 +64,8 @@ Not implemented yet:
 
 - prestarted warm QEMU instances;
 - companion HTTP/BLE helper and evidence-stream continuity across restart;
-- cross-host execution and QEMU re-attach, TLS/mTLS, credential rotation and
-  production multi-host capacity scheduling;
+- cross-host QEMU execution/re-attach, certificate and worker credential hot
+  rotation, and production multi-host capacity scheduling;
 - external IPv6/CIDR/domain-set allowlisting;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
@@ -281,8 +284,9 @@ and retained evidence.
 
 Status: local worker lifecycle, a persistent remote-worker registration
 directory, a durable pull-based job queue, a same-host HTTP executor and
-verified local QEMU/QMP restart re-attach exist; cross-host execution and
-TLS/mTLS/credential rotation, companion/evidence continuity, cross-host
+verified local QEMU/QMP restart re-attach and HTTPS/mTLS exist; cross-host
+QEMU execution and certificate/worker credential hot rotation,
+companion/evidence continuity, cross-host
 re-attach and multi-host scheduling remain open.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
@@ -303,7 +307,7 @@ re-attach and multi-host scheduling remain open.
   path/body identity binding;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- cross-host execution, TLS/mTLS and credential rotation, companion
+- cross-host QEMU execution, certificate/worker credential hot rotation, companion
   HTTP/BLE/evidence continuity, cross-host re-attach and production capacity
   scheduling remain open.
 

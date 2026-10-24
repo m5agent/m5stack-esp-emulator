@@ -12,6 +12,7 @@ import hmac
 import json
 import mimetypes
 import os
+import ssl
 import time
 import uuid
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -30,6 +31,10 @@ from device_service import (
 )
 from peripheral_inventory import build_inventory
 from runtime_interfaces import build_interfaces
+from transport_security import (
+    TransportSecurityError,
+    build_server_tls_context,
+)
 from worker_auth import is_worker_auth_path, worker_identity_matches
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -901,6 +906,33 @@ def main() -> None:
     parser.add_argument("--session-ttl", type=int, default=1800)
     parser.add_argument("--api-token", default=os.environ.get("M5_SERVICE_API_TOKEN"))
     parser.add_argument(
+        "--tls-cert",
+        type=Path,
+        default=(
+            Path(os.environ["M5_SERVICE_TLS_CERT"])
+            if os.environ.get("M5_SERVICE_TLS_CERT")
+            else None
+        ),
+    )
+    parser.add_argument(
+        "--tls-key",
+        type=Path,
+        default=(
+            Path(os.environ["M5_SERVICE_TLS_KEY"])
+            if os.environ.get("M5_SERVICE_TLS_KEY")
+            else None
+        ),
+    )
+    parser.add_argument(
+        "--tls-client-ca",
+        type=Path,
+        default=(
+            Path(os.environ["M5_SERVICE_TLS_CLIENT_CA"])
+            if os.environ.get("M5_SERVICE_TLS_CLIENT_CA")
+            else None
+        ),
+    )
+    parser.add_argument(
         "--worker-id",
         default=os.environ.get("M5_WORKER_ID"),
     )
@@ -924,6 +956,20 @@ def main() -> None:
         default=float(os.environ.get("M5_WORKER_STALE_AFTER", "15")),
     )
     args = parser.parse_args()
+    if (args.tls_cert is None) != (args.tls_key is None):
+        parser.error("--tls-cert and --tls-key must be provided together")
+    if args.tls_client_ca is not None and args.tls_cert is None:
+        parser.error("--tls-client-ca requires --tls-cert and --tls-key")
+    tls_context: ssl.SSLContext | None = None
+    if args.tls_cert is not None and args.tls_key is not None:
+        try:
+            tls_context = build_server_tls_context(
+                args.tls_cert,
+                args.tls_key,
+                args.tls_client_ca,
+            )
+        except TransportSecurityError as error:
+            parser.error(str(error))
     os.chdir(ROOT)
     mimetypes.add_type("application/wasm", ".wasm")
     service = DeviceService(
@@ -940,16 +986,34 @@ def main() -> None:
     Handler.service = service
     Handler.api_token = args.api_token
     server = ServiceHTTPServer((args.bind, args.port), Handler)
-    print(f"M5Stack simulated devices: http://{args.bind}:{args.port}/platform/web/")
-    print(f"Device API: http://{args.bind}:{args.port}/api/devices")
-    print(f"Peripheral API: http://{args.bind}:{args.port}/api/peripherals")
-    print(f"Leased service API: http://{args.bind}:{args.port}/api/v1")
-    print(f"Storage usage: http://{args.bind}:{args.port}/api/v1/storage")
-    print(f"Worker lifecycle: http://{args.bind}:{args.port}/api/v1/worker")
+    if tls_context is not None:
+        server.socket = tls_context.wrap_socket(
+            server.socket,
+            server_side=True,
+        )
+    scheme = "https" if tls_context is not None else "http"
+    print(
+        "M5Stack simulated devices: "
+        f"{scheme}://{args.bind}:{args.port}/platform/web/"
+    )
+    print(f"Device API: {scheme}://{args.bind}:{args.port}/api/devices")
+    print(
+        f"Peripheral API: {scheme}://{args.bind}:{args.port}/api/peripherals"
+    )
+    print(f"Leased service API: {scheme}://{args.bind}:{args.port}/api/v1")
+    print(
+        f"Storage usage: {scheme}://{args.bind}:{args.port}/api/v1/storage"
+    )
+    print(
+        "Worker lifecycle: "
+        f"{scheme}://{args.bind}:{args.port}/api/v1/worker"
+    )
     print(
         "Peripheral interfaces: "
-        f"http://{args.bind}:{args.port}/api/peripheral-interfaces"
+        f"{scheme}://{args.bind}:{args.port}/api/peripheral-interfaces"
     )
+    if args.tls_client_ca is not None:
+        print("TLS client certificate authentication: required")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

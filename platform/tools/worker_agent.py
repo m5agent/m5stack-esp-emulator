@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import signal
+import ssl
 import threading
 import time
 import urllib.error
@@ -18,6 +19,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 
+from transport_security import build_client_tls_context
 from worker_auth import is_worker_auth_path, sign_worker_request
 
 WORKER_AGENT_STATE_VERSION = 1
@@ -82,10 +84,23 @@ def initialize_identity(work_dir: Path, worker_id: str) -> dict[str, Any]:
 
 
 class Api:
-    def __init__(self, base_url: str, token: str | None = None):
+    def __init__(
+        self,
+        base_url: str,
+        token: str | None = None,
+        *,
+        ssl_context: ssl.SSLContext | None = None,
+    ):
         self.base_url = base_url.rstrip("/")
         self.token = token
         self.worker_identity: dict[str, Any] | None = None
+        if not self.base_url.startswith(("http://", "https://")):
+            raise WorkerAgentError("service URL must use http:// or https://")
+        if self.base_url.startswith("http://") and ssl_context is not None:
+            raise WorkerAgentError(
+                "TLS client context requires an https:// service URL"
+            )
+        self.ssl_context = ssl_context
 
     def request(
         self,
@@ -118,8 +133,17 @@ class Api:
             headers=headers,
             method=method,
         )
+        request_options = (
+            {"context": self.ssl_context}
+            if self.ssl_context is not None
+            else {}
+        )
         try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
+            with urllib.request.urlopen(
+                request,
+                timeout=timeout,
+                **request_options,
+            ) as response:
                 return (
                     response.status,
                     response.read(),
@@ -130,6 +154,8 @@ class Api:
             raise WorkerAgentError(
                 f"{path} returned HTTP {error.code}: {body[:1000]!r}"
             ) from error
+        except (urllib.error.URLError, OSError) as error:
+            raise WorkerAgentError(f"{path} request failed: {error}") from error
 
     def json(
         self,
@@ -468,6 +494,33 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--service-url", default="http://127.0.0.1:8787")
     parser.add_argument("--token", default=os.environ.get("M5_SERVICE_API_TOKEN"))
+    parser.add_argument(
+        "--ca-file",
+        type=Path,
+        default=(
+            Path(os.environ["M5_WORKER_TLS_CA"])
+            if os.environ.get("M5_WORKER_TLS_CA")
+            else None
+        ),
+    )
+    parser.add_argument(
+        "--client-cert",
+        type=Path,
+        default=(
+            Path(os.environ["M5_WORKER_TLS_CLIENT_CERT"])
+            if os.environ.get("M5_WORKER_TLS_CLIENT_CERT")
+            else None
+        ),
+    )
+    parser.add_argument(
+        "--client-key",
+        type=Path,
+        default=(
+            Path(os.environ["M5_WORKER_TLS_CLIENT_KEY"])
+            if os.environ.get("M5_WORKER_TLS_CLIENT_KEY")
+            else None
+        ),
+    )
     parser.add_argument("--worker-id", default="local-executor")
     parser.add_argument(
         "--work-dir",
@@ -496,9 +549,30 @@ def main() -> int:
         if not isinstance(loaded, dict):
             raise SystemExit("--capabilities-json must be an object")
         capabilities = loaded
+    tls_options = (args.ca_file, args.client_cert, args.client_key)
+    if (
+        args.service_url.startswith("https://")
+        or any(value is not None for value in tls_options)
+    ):
+        if not args.service_url.startswith("https://"):
+            raise SystemExit("TLS options require an https:// service URL")
+        if (args.client_cert is None) != (args.client_key is None):
+            raise SystemExit(
+                "--client-cert and --client-key must be provided together"
+            )
+        try:
+            ssl_context = build_client_tls_context(
+                args.ca_file,
+                args.client_cert,
+                args.client_key,
+            )
+        except ValueError as error:
+            raise SystemExit(str(error)) from error
+    else:
+        ssl_context = None
     identity = initialize_identity(args.work_dir, args.worker_id)
     agent = WorkerAgent(
-        Api(args.service_url, args.token),
+        Api(args.service_url, args.token, ssl_context=ssl_context),
         work_dir=args.work_dir,
         identity=identity,
         capabilities=capabilities,

@@ -64,6 +64,17 @@ python3 platform/tools/serve.py 8787 \
   --session-ttl 1800
 ```
 
+For HTTPS or mTLS:
+
+```bash
+python3 platform/tools/serve.py 8787 \
+  --bind 0.0.0.0 \
+  --api-token "$M5_SERVICE_API_TOKEN" \
+  --tls-cert /secure/server.crt \
+  --tls-key /secure/server.key \
+  --tls-client-ca /secure/worker-ca.crt
+```
+
 The defaults can also be overridden without changing the command line:
 
 ```bash
@@ -93,6 +104,12 @@ Local worker identity and heartbeat can be controlled with:
 | `M5_WORKER_STATE_PATH` | `<state-dir>/worker.json` | worker lifecycle and lease record |
 | `M5_WORKER_HEARTBEAT_INTERVAL` | 5 | heartbeat write interval in seconds |
 | `M5_WORKER_STALE_AFTER` | 15 | age at which a heartbeat is marked stale |
+| `M5_SERVICE_TLS_CERT` | unset | server certificate chain; requires `M5_SERVICE_TLS_KEY` |
+| `M5_SERVICE_TLS_KEY` | unset | server private key; requires `M5_SERVICE_TLS_CERT` |
+| `M5_SERVICE_TLS_CLIENT_CA` | unset | client CA; when set, HTTPS requires a trusted client certificate |
+| `M5_WORKER_TLS_CA` | system trust | custom CA bundle used by `worker_agent.py` |
+| `M5_WORKER_TLS_CLIENT_CERT` | unset | worker client certificate; requires `M5_WORKER_TLS_CLIENT_KEY` |
+| `M5_WORKER_TLS_CLIENT_KEY` | unset | worker client private key; requires `M5_WORKER_TLS_CLIENT_CERT` |
 
 Only one live service process may own a worker state directory. A second
 process fails closed with `409 worker_state_locked`.
@@ -225,8 +242,14 @@ truthful. The separate `platform/tools/worker_agent.py` executor registers a
 persistent generation, claims one or more jobs, creates the requested session,
 waits for `running` while heartbeating both worker and job, downloads the
 evidence ZIP, stops with `purge=0`, and reports SHA256 plus terminal state.
-The retained live run used the same host; cross-host TLS/mTLS, credential
-rotation and companion continuity remain open.
+The retained authenticated QEMU run used the same host. A separate real-process
+loopback run verifies HTTPS/mTLS: TLS 1.2 is the configured minimum, TLS 1.3
+was negotiated, the server certificate was verified, clients without a
+certificate were rejected, trusted clients passed, Bearer/HMAC remained
+required, unsigned claim returned `401`, and `worker_agent.py` completed
+signed registration/heartbeat/claim/stop over mTLS. Certificate and worker
+credential hot rotation, cross-host QEMU jobs and companion continuity remain
+open.
 
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)
@@ -286,10 +309,36 @@ The legacy catalog endpoints `/api/devices`, `/api/peripherals` and
 The service is intended for a trusted workstation or an isolated worker. Do not
 expose it directly to the public internet.
 
+### HTTPS and mTLS
+
+`--tls-cert` and `--tls-key` enable a TLS 1.2+ HTTPS listener. When
+`--tls-client-ca` is provided, every new connection must present a client
+certificate signed by that CA. Certificates and keys are loaded at process
+start; hot rotation is not implemented.
+
+The worker uses verified TLS by default for `https://` URLs. `--ca-file`
+selects a private CA bundle, while `--client-cert` + `--client-key` enable an
+mTLS client identity:
+
+```bash
+python3 platform/tools/worker_agent.py \
+  --service-url https://device-service.example \
+  --ca-file /secure/service-ca.crt \
+  --client-cert /secure/worker.crt \
+  --client-key /secure/worker.key \
+  --token "$M5_SERVICE_API_TOKEN" \
+  --once
+```
+
+There is no hostname-verification bypass. TLS options are rejected for
+plaintext `http://` URLs. The transport is defense in depth, not a replacement
+for worker HMAC.
+
 ## Base URL
 
 ```text
-http://127.0.0.1:8787/api/v1
+http://127.0.0.1:8787/api/v1       # local default
+https://device-service.example/api/v1  # TLS/mTLS deployment
 ```
 
 Every JSON response includes `X-Request-ID`. Errors use:

@@ -289,8 +289,11 @@ diagnostics in `internal/records/`.
   API, downloads and hashes an evidence ZIP, stops the session and reports the
   terminal result on the same host. When an API token is configured,
   worker-only mutations require a worker/generation-derived HMAC over method,
-  path, timestamp, nonce and body. Cross-host TLS/mTLS and credential rotation
-  remain open.
+  path, timestamp, nonce and body. A real loopback HTTPS/mTLS process test
+  verifies server-certificate validation, required client certificates and
+  signed worker requests without weakening HMAC. Certificate/worker
+  credential hot rotation, cross-host QEMU jobs and cross-host reattach remain
+  open.
 
 ## Remaining work
 
@@ -307,7 +310,7 @@ snapshots must agree and CI enforces that cross-check.
 
 The main open streams are:
 
-- cross-host job execution, TLS/mTLS and credential rotation,
+- cross-host QEMU job execution, certificate and worker credential rotation,
   companion/evidence continuity, cross-host QEMU re-attach, multi-host
   scheduling and external IPv6 endpoint enforcement;
 - Core2 more than ten reconnect cycles, multi-hour coexistence, bit-exact BT
