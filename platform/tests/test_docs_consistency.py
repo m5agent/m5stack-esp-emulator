@@ -71,6 +71,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold600-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-tb128-hold120-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
@@ -843,6 +844,14 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-hci4-tb128-hold120-1x.json"
             ).read_text()
         )
+        tb128_hold7200 = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-hci4-active-ble-hold7200-"
+                "tb128-artifact-bound-1x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("20/30/60/120", project_snapshot)
@@ -905,6 +914,9 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("The accepted reconnect range is 1-121", qemu_profiles_text)
         self.assertIn("接受 `1–121` 轮", platform_readme)
         self.assertIn("上限为 121 并拒绝 122", device_readme)
+        self.assertIn("323536", device_readme)
+        self.assertIn("250880", device_readme)
+        self.assertNotIn("最终两小时限容复测尚未完成", device_readme)
         for stale in (
             "当前参数上限为 120 并拒绝 121",
             "The accepted reconnect range is 1-120",
@@ -1108,7 +1120,103 @@ class DocsConsistencyTests(unittest.TestCase):
             tb128_run["native_hci_health"]["hli-errors"],
             0,
         )
+        self.assertEqual(tb128_hold7200["status"], "PASS")
+        self.assertEqual(tb128_hold7200["gate_result"], "PASS")
+        self.assertEqual(tb128_hold7200["attempts_requested"], 1)
+        self.assertEqual(tb128_hold7200["attempts_passed"], 1)
+        self.assertEqual(tb128_hold7200["attempts_failed"], 0)
+        self.assertEqual(
+            tb128_hold7200["hold_seconds_per_attempt"],
+            7200,
+        )
+        self.assertEqual(
+            tb128_hold7200["input_hash_bound_at"],
+            "before_first_lease",
+        )
+        self.assertTrue(
+            tb128_hold7200["input_assets_unchanged_during_run"]
+        )
+        self.assertEqual(tb128_hold7200["input_asset_drift"], {})
+        self.assertEqual(
+            set(tb128_hold7200["tool_hashes"]),
+            {
+                "runner",
+                "device_service",
+                "qemu_accel",
+                "ble_runtime_limits",
+            },
+        )
+        self.assertTrue(
+            all(
+                value == "PASS"
+                for key, value in tb128_hold7200[
+                    "checks_per_attempt"
+                ].items()
+                if key
+                not in {
+                    "hci_transport",
+                    "frame_sha256",
+                    "qom_nodes",
+                }
+            )
+        )
+        tb128_hold7200_run = tb128_hold7200["runs"][0]
+        self.assertEqual(
+            tb128_hold7200_run["qemu_accelerator"],
+            "tcg,thread=single,tb-size=128",
+        )
+        self.assertEqual(tb128_hold7200_run["frame_bytes"], 3710)
+        self.assertEqual(tb128_hold7200_run["qom_nodes"], 34)
+        self.assertEqual(tb128_hold7200_run["network_status"], "PASS")
+        self.assertEqual(tb128_hold7200_run["hold_state"], "running")
+        self.assertEqual(tb128_hold7200_run["pcap_bytes"], 71967)
+        self.assertEqual(tb128_hold7200_run["evidence_bytes"], 56203)
+        hold7200_health = tb128_hold7200_run["native_hci_health"]
+        self.assertEqual(hold7200_health["hli-posts"], 45)
+        self.assertEqual(hold7200_health["hli-consumed"], 45)
+        self.assertEqual(hold7200_health["hli-errors"], 0)
+        self.assertEqual(hold7200_health["hli-c2h-events"], 36)
+        self.assertEqual(hold7200_health["hli-c2h-acls"], 9)
+        self.assertEqual(hold7200_health["hli-queue-depth"], 0)
+        self.assertEqual(hold7200_health["meta-queue-depth"], 0)
+        self.assertEqual(hold7200_health["tx-queue-depth"], 0)
+        self.assertEqual(hold7200_health["dropped-packets"], 0)
+        self.assertEqual(hold7200_health["last-error"], 0)
+        self.assertEqual(hold7200_health["peer-closed"], 0)
+        self.assertEqual(
+            tb128_hold7200_run["failure_diagnostics"]["panic_count"],
+            0,
+        )
+        hold7200_resources = tb128_hold7200_run[
+            "hold_resource_samples"
+        ]
+        self.assertEqual(hold7200_resources["state_polls"], 1436)
+        self.assertEqual(hold7200_resources["rss_kib_start"], 323536)
+        self.assertEqual(hold7200_resources["rss_kib_end"], 252992)
+        self.assertEqual(hold7200_resources["rss_kib_max"], 323808)
+        self.assertLessEqual(hold7200_resources["rss_kib_delta"], 0)
+        self.assertEqual(
+            hold7200_resources["phys_footprint_kib_start"],
+            250880,
+        )
+        self.assertEqual(
+            hold7200_resources["phys_footprint_kib_end"],
+            188416,
+        )
+        self.assertEqual(
+            hold7200_resources["phys_footprint_kib_max"],
+            256000,
+        )
+        self.assertLessEqual(
+            hold7200_resources["phys_footprint_kib_delta"],
+            0,
+        )
         self.assertIn("FUNCTIONAL PASS / RSS REVIEW", core2_backend)
+        self.assertIn("final bounded 7200s", core2_backend)
+        self.assertIn("323536", status)
+        self.assertIn("252992", status)
+        self.assertIn("250880", status)
+        self.assertIn("188416", status)
         self.assertIn("744160", status)
         self.assertIn("1202176", status)
         self.assertIn("tb-size=128", workstreams)
@@ -1120,7 +1228,11 @@ class DocsConsistencyTests(unittest.TestCase):
         source_detail = core2_source["runtime"]["validation"]["detail"]
         self.assertIn("分别完成 20、30、60、120 轮", source_detail)
         self.assertIn("3377/3377", source_detail)
+        self.assertIn("最终两小时限容复测 PASS", source_detail)
+        self.assertIn("323536", source_detail)
+        self.assertIn("250880", source_detail)
         self.assertNotIn("更多轮次", source_detail)
+        self.assertNotIn("最终两小时限容复测尚未完成", source_detail)
 
         core2_profile = next(
             device for device in qemu_profiles["devices"]
@@ -1129,7 +1241,10 @@ class DocsConsistencyTests(unittest.TestCase):
         profile_detail = core2_profile["validation"]["detail"]
         self.assertIn("at 20, 30, 60 and 120 cycles", profile_detail)
         self.assertIn("3377/3377", profile_detail)
+        self.assertIn("tb-size=128 7200s rerun passes", profile_detail)
+        self.assertIn("323536->252992", profile_detail)
         self.assertNotIn("More than sixty", profile_detail)
+        self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
         self.assertTrue(
             any(
                 "121-cycle reconnect run" in blocker

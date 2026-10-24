@@ -162,9 +162,11 @@ finding:
 These are virtual-device context fixes. Later same-guest runs cover 20, 30,
 60 and 120 reconnect cycles. A later artifact-bound 7200-second active-BLE
 hold establishes the functional two-hour gate. Its host RSS growth was later
-attributed to the unbounded TCG translation buffer, not guest PSRAM; a bounded
-`tb-size=128` final two-hour run remains pending. This does not establish
-physical cache/PSRAM timing, the 121-cycle gate or hardware equivalence.
+attributed to the unbounded TCG translation buffer, not guest PSRAM. The final
+bounded `tb-size=128` two-hour rerun then passed all functional, asset/tool
+hash, HLI and cleanup gates; 240 resource samples ended below their starting
+RSS and physical footprint. This does not establish physical cache/PSRAM
+timing, the 121-cycle gate or hardware equivalence.
 
 ## Next investigation
 

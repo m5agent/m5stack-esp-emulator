@@ -18,20 +18,20 @@
 | --- | --- | --- | --- |
 | 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；13 台可创建、Tab5 `partial` | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
 | 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离 | `NET-04` 真实跨主机 QEMU executor、主机发现、companion/evidence continuity；`NET-06` 同 guest controlled AAAA、denied-port 和 cleanup | 跨主机 job 可迁移、可重放、可清理；同一 Linux guest 完成 AAAA+IPv6 HTTP 与拒绝路径；不可信固件进入 disposable VM |
-| Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；120 轮 reconnect、600 秒 active-BLE 和 artifact-bound `7200s` 功能保持已通过；RSS 增长定位到 TCG buffer，`tb-size=128` 120 秒验证 PASS | `tb-size=128` 最终两小时复测；随后 3 个 lease × 121 轮、长时并发/吞吐和 teardown | RSS/phys footprint、资产/工具哈希和功能检查在两小时限容运行中稳定；121 轮可复现；随后补 controller/物理边界 |
+| Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；120 轮 reconnect、600 秒 active-BLE 和最终 `tb-size=128` artifact-bound `7200s` 均 PASS；240 个资源采样 host RSS/phys footprint 未增长 | 3 个 lease × 121 轮、长时并发/吞吐和 teardown | 121 轮可复现；随后补 controller/物理边界和真机 |
 | 通用固件审查 | manifest、API/WebBurner required/optional capability、sdkconfig detected capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传；公开 BIN 每轮强制刷新 | 当前刷新后的 AtomS3R/PaperMono 四样本功能重跑；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN SHA、运行态权限/许可闭环、更多固件族、模型缺口关闭和同 SHA 真机安全流程 |
 | Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/companion 接管、warm pool、容量和大型编排模块拆分 |
 
-“当前在途”只表示工作已经启动，不是 PASS。Core2 的 artifact-bound
-`7200s` run 已证明启动 firmware/ELF/QEMU 哈希未漂移，WiFi/公网/GATT、
-frame/pcap、HLI health 和 session 结束均正常；但 QEMU host RSS 增长
-`458016 KiB`，只能把功能门禁记为 PASS，内存增长仍为 `REVIEW`。
+“当前在途”只表示工作已经启动，不是 PASS。Core2 的最终 artifact-bound
+`7200s` run 已证明启动 firmware/ELF/QEMU 和 runner/service/accelerator/
+limits 工具哈希未漂移；WiFi/公网/GATT、frame/pcap、HLI health、active peer
+和 session 结束均正常。240 个资源采样中 RSS `323536→252992 KiB`、phys
+footprint `250880→188416 KiB`，旧未限容增长已归因并关闭。
 
 ## 未完成项执行顺序
 
-1. 收集 Core2 `tb-size=128` 的 artifact-bound 两小时复测；120 秒已证明
-   功能保持且 RSS/phys footprint 无增长。关闭内存门禁后再跑
-   3 个独立 lease × 121 轮 reconnect。
+1. 在隔离的新 service 上跑 3 个独立 lease × 121 轮 reconnect；最终
+   `tb-size=128` artifact-bound 两小时复测已 PASS。
 2. `NET-06`：在 privileged Linux namespace 中完成 controlled AAAA、
    allowed IPv6 HTTP、denied-port、pcap、namespace/NAT cleanup 和 QEMU reap。
 3. `FW-03`：重跑公开 CDN 当前 BIN；先覆盖已刷新的 AtomS3R 与 PaperMono

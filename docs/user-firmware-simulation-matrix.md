@@ -207,8 +207,9 @@ functional PASS.
   frame/QOM, WiFi, public DNS/HTTP, external GATT, pcap, HLI health and cleanup.
   Its QEMU host RSS rises from `744160` to `1202176 KiB`; `vmmap` later
   attributed the growth to the unbounded TCG translation buffer. A
-  `tb-size=128` 120-second run is stable, while the final bounded two-hour
-  result is still pending. Three independent
+  `tb-size=128` 120-second run is stable; the final artifact-bound two-hour
+  rerun also passes with RSS `323536→252992 KiB` and phys footprint
+  `250880→188416 KiB`. Three independent
   stock-firmware leases complete 20, 30, 60 and 120 same-guest reconnect gates.
   Bit-exact Espressif BT controller behavior, 121-cycle runtime evidence,
   physical cache/PSRAM equivalence and hardware validation remain `NOT RUN`.

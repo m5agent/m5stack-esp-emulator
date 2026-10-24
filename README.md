@@ -269,11 +269,11 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   为显式诊断/兼容路径。具体 hold、reconnect 和 HLI health 证据见
   [Core2 native HCI backend](docs/core2-native-hci-backend.md)和验证台账。
 - Core2 已通过 artifact-bound 两小时 active-BLE WiFi/公网/GATT 功能保持，
-  启动 firmware/ELF/QEMU 哈希无漂移。该轮 host RSS 增长 `458016 KiB`；
-  后续用 `vmmap` 定位到未限容的 TCG translation buffer，统一改用
-  `tb-size=128` 后 120 秒复测稳定，最终两小时限容 evidence 仍在执行。
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、待执行的 121 轮
-  reconnect 和真机同路径仍未完成。
+  启动 firmware/ELF/QEMU 与工具哈希无漂移。旧的 `458016 KiB` host RSS
+  增长已归因到未限容 TCG translation buffer；统一改用 `tb-size=128` 后的
+  最终两小时复测也 PASS，RSS `323536→252992 KiB`、phys footprint
+  `250880→188416 KiB`。bit-exact ESP32 BT baseband/controller、物理
+  cache/PSRAM、121 轮 reconnect 和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。
