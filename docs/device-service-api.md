@@ -1,6 +1,6 @@
 # Device Service API v1
 
-Last reviewed: `2026-10-24`.
+Last reviewed: `2026-10-25`.
 
 Status: local MVP with unified-device runtime contract `1.24.0` and bounded
 storage retention implemented on `2026-10-24`.
@@ -247,7 +247,11 @@ truthful. The separate `platform/tools/worker_agent.py` executor registers a
 persistent generation, claims one or more jobs, creates the requested session,
 waits for `running` while heartbeating both worker and job, downloads the
 evidence ZIP, stops with `purge=0`, and reports SHA256 plus terminal state.
-The retained authenticated QEMU run used the same host. A separate real-process
+`--runtime-service-url` now separates the central claim/heartbeat/result API
+from the Device Service that creates and owns the QEMU session. If omitted,
+both planes use one URL for compatibility. The control/runtime split currently
+has unit coverage; the retained authenticated QEMU run still used the same
+host and the real cross-host QEMU executor remains `NOT RUN`. A separate real-process
 loopback run verifies HTTPS/mTLS: TLS 1.2 is the configured minimum, TLS 1.3
 was negotiated, the server certificate was verified, clients without a
 certificate were rejected, trusted clients passed, Bearer/HMAC remained

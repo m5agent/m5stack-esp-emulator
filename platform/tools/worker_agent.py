@@ -355,6 +355,7 @@ class WorkerAgent:
         self,
         api: Api,
         *,
+        runtime_api: Api | None = None,
         work_dir: Path,
         identity: dict[str, Any],
         capabilities: dict[str, Any] | None = None,
@@ -363,6 +364,7 @@ class WorkerAgent:
         heartbeat_interval: float = 15.0,
     ):
         self.api = api
+        self.runtime_api = runtime_api or api
         self.work_dir = Path(work_dir)
         self.worker_id = str(identity["worker_id"])
         self.instance_id = str(identity["instance_id"])
@@ -475,11 +477,17 @@ class WorkerAgent:
         )
         return response["job"]
 
-    def _wait_session(self, session_id: str) -> dict[str, Any]:
+    def _wait_session(
+        self,
+        session_id: str,
+        *,
+        api: Api | None = None,
+    ) -> dict[str, Any]:
+        runtime_api = api or self.api
         deadline = time.time() + self.session_timeout
         latest: dict[str, Any] = {}
         while time.time() < deadline:
-            latest = self.api.json(
+            latest = runtime_api.json(
                 f"/api/v1/sessions/{session_id}",
             )
             state = latest.get("state")
@@ -499,9 +507,12 @@ class WorkerAgent:
         job_id: str,
         session_id: str,
         include: list[str],
+        *,
+        api: Api | None = None,
     ) -> tuple[bytes, str, Path]:
+        runtime_api = api or self.api
         query = urlencode({"include": ",".join(include)})
-        status, evidence, _content_type = self.api.request(
+        status, evidence, _content_type = runtime_api.request(
             f"/api/v1/sessions/{session_id}/evidence?{query}",
             timeout=self.session_timeout,
         )
@@ -542,31 +553,42 @@ class WorkerAgent:
         evidence: bytes | None = None
         evidence_sha256: str | None = None
         evidence_path: Path | None = None
-        summary: dict[str, Any] = {}
+        execution_plane = (
+            "worker-local"
+            if self.runtime_api is not self.api
+            else "control-service"
+        )
+        summary: dict[str, Any] = {
+            "execution_plane": execution_plane,
+        }
         state = "FAIL"
+        runtime_api = self.runtime_api
         try:
-            created = self.api.json(
+            created = runtime_api.json(
                 "/api/v1/sessions",
                 method="POST",
                 payload=session_payload,
                 timeout=60,
             )
             session_id = str(created["session_id"])
-            running = self._wait_session(session_id)
+            running = self._wait_session(session_id, api=runtime_api)
             evidence, evidence_sha256, evidence_path = self._collect_evidence(
                 job_id,
                 session_id,
                 include,
+                api=runtime_api,
             )
             summary = {
                 "device_id": running.get("device_id"),
                 "runtime": running.get("runtime"),
                 "state": running.get("state"),
                 "evidence_bytes": len(evidence),
+                "execution_plane": execution_plane,
             }
             state = "PASS"
         except Exception as error:
             summary = {
+                "execution_plane": execution_plane,
                 "error_type": type(error).__name__,
                 "error": str(error)[:1000],
             }
@@ -574,7 +596,7 @@ class WorkerAgent:
         finally:
             if session_id is not None:
                 try:
-                    self.api.json(
+                    runtime_api.json(
                         f"/api/v1/sessions/{session_id}?purge=0",
                         method="DELETE",
                         payload={},
@@ -671,6 +693,14 @@ class WorkerAgent:
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--service-url", default="http://127.0.0.1:8787")
+    parser.add_argument(
+        "--runtime-service-url",
+        default=os.environ.get("M5_RUNTIME_SERVICE_URL"),
+        help=(
+            "worker-local Device Service used for QEMU execution; defaults "
+            "to --service-url for same-host compatibility"
+        ),
+    )
     auth_group = parser.add_mutually_exclusive_group()
     auth_group.add_argument(
         "--token",
@@ -684,6 +714,11 @@ def parse_arguments() -> argparse.Namespace:
             if os.environ.get("M5_SERVICE_API_TOKEN_FILE")
             else None
         ),
+    )
+    parser.add_argument(
+        "--runtime-token",
+        default=os.environ.get("M5_RUNTIME_SERVICE_API_TOKEN"),
+        help="token for --runtime-service-url; defaults to the control token",
     )
     parser.add_argument(
         "--ca-file",
@@ -745,6 +780,17 @@ def parse_arguments() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_arguments()
+    requested_runtime_url = (
+        args.runtime_service_url.rstrip("/")
+        if args.runtime_service_url
+        else args.service_url.rstrip("/")
+    )
+    control_scheme = args.service_url.split("://", 1)[0]
+    runtime_scheme = requested_runtime_url.split("://", 1)[0]
+    if control_scheme != runtime_scheme:
+        raise SystemExit(
+            "control and runtime service URLs must use the same scheme"
+        )
     if args.max_jobs is not None and args.max_jobs < 1:
         raise SystemExit("--max-jobs must be positive")
     if args.token and args.token_file:
@@ -821,12 +867,22 @@ def main() -> int:
             else args.client_key
         )
         tls_options = (ca_file, client_cert, client_key)
+        runtime_service_url = (
+            args.runtime_service_url.rstrip("/")
+            if args.runtime_service_url
+            else args.service_url.rstrip("/")
+        )
+        tls_required = (
+            args.service_url.startswith("https://")
+            or runtime_service_url.startswith("https://")
+            or any(value is not None for value in tls_options)
+        )
+        if not tls_required:
+            return None
         if not (
             args.service_url.startswith("https://")
-            or any(value is not None for value in tls_options)
+            or runtime_service_url.startswith("https://")
         ):
-            return None
-        if not args.service_url.startswith("https://"):
             raise SystemExit("TLS options require an https:// service URL")
         if (client_cert is None) != (client_key is None):
             raise SystemExit(
@@ -859,7 +915,33 @@ def main() -> int:
     token = load_token()
     ssl_context = load_ssl_context()
     identity = initialize_identity(args.work_dir, args.worker_id)
-    api = Api(args.service_url, token, ssl_context=ssl_context)
+    api = Api(
+        args.service_url,
+        token,
+        ssl_context=(
+            ssl_context
+            if args.service_url.startswith("https://")
+            else None
+        ),
+    )
+    runtime_service_url = (
+        args.runtime_service_url.rstrip("/")
+        if args.runtime_service_url
+        else api.base_url
+    )
+    runtime_api = (
+        api
+        if runtime_service_url == api.base_url
+        else Api(
+            runtime_service_url,
+            args.runtime_token or token,
+            ssl_context=(
+                ssl_context
+                if runtime_service_url.startswith("https://")
+                else None
+            ),
+        )
+    )
     credential_reloader = (
         CredentialReloader(
             watched_paths,
@@ -873,11 +955,29 @@ def main() -> int:
     if credential_reloader is not None:
         credential_reloader.mark_current()
         if args.credential_generation_file is not None:
-            api.set_credential_reloader(
-                lambda: credential_reloader.apply(api)
-            )
+            def apply_credentials(*, force: bool = False) -> bool:
+                changed = credential_reloader.apply(api, force=force)
+                if runtime_api is not api and args.runtime_token is None:
+                    runtime_api.configure_credentials(
+                        token=api.token,
+                        ssl_context=(
+                            api.ssl_context
+                            if runtime_service_url.startswith("https://")
+                            else None
+                        ),
+                    )
+                return changed
+
+            api.set_credential_reloader(apply_credentials)
+            if runtime_api is not api and args.runtime_token is None:
+                runtime_api.set_credential_reloader(apply_credentials)
+    else:
+        def apply_credentials(*, force: bool = False) -> bool:
+            del force
+            return False
     agent = WorkerAgent(
         api,
+        runtime_api=runtime_api,
         work_dir=args.work_dir,
         identity=identity,
         capabilities=capabilities,
@@ -893,7 +993,7 @@ def main() -> int:
     signal.signal(signal.SIGINT, stop)
     if credential_reloader is not None:
         def reload_credentials(_signum: int, _frame: Any) -> None:
-            credential_reloader.apply(api, force=True)
+            apply_credentials(force=True)
 
         if hasattr(signal, "SIGHUP"):
             signal.signal(signal.SIGHUP, reload_credentials)

@@ -51,8 +51,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   active/abandoned lease、drain/resume 和 recent-result 记录；
 - 远程 worker 的持久 job queue、幂等提交、capability 匹配、claim、lease
   heartbeat、worker 失联回收、超时重试和 terminal result；
-- 独立 HTTP worker executor：持久 generation、claim、真实 session 执行、
-  worker/job heartbeat、evidence ZIP/SHA256 下载、stop 和 result 回报；
+- 独立 HTTP worker executor：持久 generation、中央 claim/result、
+  worker/job heartbeat，并可用独立 runtime API 执行真实 session、
+  evidence ZIP/SHA256 下载和 stop；
 - worker-only mutation 的 HMAC 请求签名、时间戳、nonce replay cache 和
   path/body identity binding；
 - HTTPS TLS 1.2+、服务端证书校验、可选 client CA 强制 mTLS，以及
@@ -134,7 +135,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/worker_directory.py` | 远程 worker identity/generation 注册、stale/drain/stop、capability 与有界结果目录 |
 | `tools/worker_queue.py` | 持久 job queue、idempotency、capability 匹配、lease/heartbeat、超时重试和 supervisor 回收 |
 | `tools/worker_auth.py` | 严格 token-file、worker key 派生、HMAC 请求签名、时间戳、nonce replay cache 和 identity binding |
-| `tools/worker_agent.py` | HTTP-only worker executor、token/TLS `SIGHUP` reload、atomic generation-pointer auto reload/receipts、generation、claim、heartbeat、session 执行、evidence 和 result |
+| `tools/worker_agent.py` | HTTP-only worker executor、control/runtime API 双端点、token/TLS `SIGHUP` reload、atomic generation-pointer auto reload/receipts、generation、claim、heartbeat、session 执行、evidence 和 result |
 | `tools/transport_security.py` | TLS 1.2+ server/client context、服务端证书校验、可选 client CA、mTLS 客户端证书 |
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入与脱敏 eFuse 安全摘要 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |

@@ -1,6 +1,6 @@
 # Simulator host service architecture
 
-Date: `2026-10-24`
+Date: `2026-10-25`
 
 ## Implementation status
 
@@ -313,15 +313,17 @@ remain open.
 - `jobs.json` implements idempotent enqueue, capability-matched claim,
   lease heartbeat, expiry retry, terminal result, cancel and stale/stopped
   worker reconciliation;
-- `worker_agent.py` runs a claimed job through `/api/v1`, waits for a real
-  session, downloads/hashes evidence, stops the session and reports the result;
+- `worker_agent.py` can use separate control and runtime `/api/v1` endpoints:
+  it claims/heartbeats on the central service, while the optional runtime
+  service creates and owns the QEMU session, provides evidence and performs
+  cleanup;
 - when an API token is configured, worker-only mutations use a
   worker/generation-derived HMAC with timestamp, nonce replay protection and
   path/body identity binding;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- automatic worker-host discovery, cross-host credential migration, cross-host
-  QEMU execution, companion
+- automatic worker-host discovery, cross-host credential migration, a real
+  cross-host QEMU execution fixture, companion
   HTTP/BLE/evidence continuity, cross-host re-attach and production capacity
   scheduling remain open.
 

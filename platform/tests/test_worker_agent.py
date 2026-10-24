@@ -106,6 +106,33 @@ class FakeCredentialApi:
         self.ssl_context = ssl_context
 
 
+class FakeRuntimeApi:
+    def __init__(self):
+        self.calls = []
+        self.evidence = evidence_zip()
+
+    def json(self, path, *, method="GET", payload=None, timeout=60):
+        self.calls.append((method, path, payload))
+        if path == "/api/v1/sessions":
+            return {"session_id": "b" * 32}
+        if path == f"/api/v1/sessions/{'b' * 32}":
+            return {
+                "session_id": "b" * 32,
+                "device_id": "sticks3",
+                "runtime": "qemu-unified",
+                "state": "running",
+            }
+        if path == f"/api/v1/sessions/{'b' * 32}?purge=0":
+            return {"session_id": "b" * 32, "state": "stopped"}
+        raise AssertionError((method, path, payload))
+
+    def request(self, path, *, method="GET", payload=None, timeout=60):
+        self.calls.append((method, path, payload))
+        if "/evidence?" in path:
+            return 200, self.evidence, "application/zip"
+        raise AssertionError((method, path, payload))
+
+
 class WorkerAgentTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
@@ -114,10 +141,11 @@ class WorkerAgentTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.tmp.cleanup()
 
-    def agent(self, api, *, heartbeat_interval=15):
+    def agent(self, api, *, runtime_api=None, heartbeat_interval=15):
         identity = initialize_identity(self.work_dir, "worker-test")
         return WorkerAgent(
             api,
+            runtime_api=runtime_api,
             work_dir=self.work_dir,
             identity=identity,
             capabilities={"qemu": True},
@@ -166,6 +194,39 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertIn(
             f"/api/v1/sessions/{'a' * 32}?purge=0",
             paths,
+        )
+
+    def test_worker_local_runtime_plane_runs_and_cleans_the_session(self):
+        control_api = FakeApi()
+        runtime_api = FakeRuntimeApi()
+        agent = self.agent(control_api, runtime_api=runtime_api)
+
+        self.assertTrue(agent.work_once())
+
+        control_paths = [call[1] for call in control_api.calls]
+        runtime_paths = [call[1] for call in runtime_api.calls]
+        self.assertIn("/api/v1/jobs/claim", control_paths)
+        self.assertIn("/api/v1/jobs/job-test/result", control_paths)
+        self.assertFalse(
+            any(path.startswith("/api/v1/sessions") for path in control_paths)
+        )
+        self.assertIn("/api/v1/sessions", runtime_paths)
+        self.assertIn(f"/api/v1/sessions/{'b' * 32}?purge=0", runtime_paths)
+        self.assertTrue(
+            any("/evidence?" in path for path in runtime_paths)
+        )
+
+        result = json.loads(
+            (self.work_dir / "job-test" / "result.json").read_text()
+        )
+        self.assertEqual(result["state"], "PASS")
+        self.assertEqual(
+            result["summary"]["execution_plane"],
+            "worker-local",
+        )
+        self.assertEqual(
+            result["evidence_sha256"],
+            hashlib.sha256(runtime_api.evidence).hexdigest(),
         )
 
     def test_session_failure_is_reported_and_cleaned_up(self):

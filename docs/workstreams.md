@@ -17,7 +17,7 @@
 | 工作流 | 已交付的可执行面 | 当前在途 | 下一验收门禁 |
 | --- | --- | --- | --- |
 | 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；13 台可创建、Tab5 `partial` | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
-| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP、worker queue/auth/TLS/reauth | `NET-04` 跨主机 QEMU executor、主机发现、companion/evidence continuity；`NET-06` 同 guest controlled AAAA、denied-port 和 cleanup | 跨主机 job 可迁移、可重放、可清理；同一 Linux guest 完成 AAAA+IPv6 HTTP 与拒绝路径；不可信固件进入 disposable VM |
+| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离 | `NET-04` 真实跨主机 QEMU executor、主机发现、companion/evidence continuity；`NET-06` 同 guest controlled AAAA、denied-port 和 cleanup | 跨主机 job 可迁移、可重放、可清理；同一 Linux guest 完成 AAAA+IPv6 HTTP 与拒绝路径；不可信固件进入 disposable VM |
 | Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；120 轮 reconnect、600 秒 active-BLE 和 artifact-bound `7200s` 功能保持已通过；RSS 增长定位到 TCG buffer，`tb-size=128` 120 秒验证 PASS | `tb-size=128` 最终两小时复测；随后 3 个 lease × 121 轮、长时并发/吞吐和 teardown | RSS/phys footprint、资产/工具哈希和功能检查在两小时限容运行中稳定；121 轮可复现；随后补 controller/物理边界 |
 | 通用固件审查 | manifest、API/WebBurner required/optional capability、sdkconfig detected capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传；公开 BIN 每轮强制刷新 | 当前刷新后的 AtomS3R/PaperMono 四样本功能重跑；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN SHA、运行态权限/许可闭环、更多固件族、模型缺口关闭和同 SHA 真机安全流程 |
 | Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/companion 接管、warm pool、容量和大型编排模块拆分 |
@@ -36,7 +36,8 @@ frame/pcap、HLI health 和 session 结束均正常；但 QEMU host RSS 增长
    allowed IPv6 HTTP、denied-port、pcap、namespace/NAT cleanup 和 QEMU reap。
 3. `FW-03`：重跑公开 CDN 当前 BIN；先覆盖已刷新的 AtomS3R 与 PaperMono
    四样本，并把实际 SHA 写入 evidence。
-4. `NET-04` / `SVC-01`：补跨主机 worker、跨主机 QEMU executor/reattach、
+4. `NET-04` / `SVC-01`：用已实现的 control/runtime 双端点启动真实跨
+   network namespace QEMU executor，再补跨主机 reattach、
    companion/evidence continuity 和不可信固件隔离。
 5. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
    BM8563 RTC 路径；`RUNTIME-04` 独立补 ATECC608 fixture；

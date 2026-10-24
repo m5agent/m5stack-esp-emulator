@@ -46,7 +46,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；下一步仍是自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；`WorkerAgent` 已把中央 control API 与本地 runtime API 拆开并有单元契约，下一步启动真实 worker-local QEMU 与 evidence 路径，再补自动主机发现/跨主机迁移、reattach、companion/evidence continuity、生产调度 |
 | `NET-06` | 进行中 | controlled resolver A/AAAA、IPv6 forwarding 预检和专用 UIFlow2 测试构建的 guest IPv6 TCP/HTTP 已实现；下一步在同一 Linux guest 完成 controlled AAAA、denied-port 与 namespace cleanup |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与 artifact-bound `7200s` 功能保持已通过；RSS 增长定位到默认 1 GiB TCG buffer，`tb-size=128` 120 秒验证 PASS；限容两小时复测运行中；参数范围扩到 1–121 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
@@ -65,7 +65,7 @@
 
 ## 文档与测试
 
-- 平台测试：`349` 项。
+- 平台测试：`350` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

@@ -1,6 +1,6 @@
 # HTTP-only worker executor
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 `platform/tools/worker_agent.py` is an independent process that uses only the
 public Device Service API:
@@ -9,7 +9,7 @@ public Device Service API:
 2. registers in the remote worker directory;
 3. heartbeats the worker directory;
 4. claims the oldest capable durable job;
-5. creates the requested Device Service session;
+5. creates the requested Device Service session on the execution API;
 6. waits for `running`, heartbeating both worker and job lease;
 7. downloads and hashes the evidence ZIP;
 8. stops the session with `purge=0`;
@@ -17,6 +17,12 @@ public Device Service API:
 10. marks the worker generation stopped on clean exit.
 
 The executor stores evidence and result metadata under its own work directory.
+The control API and execution API can be different services. The worker claims
+and heartbeats centrally through `--service-url`, then creates, waits for,
+collects evidence from and stops the session through
+`--runtime-service-url`. When the runtime URL is omitted, both planes use the
+same service for same-host compatibility.
+
 When `--token` or `M5_SERVICE_API_TOKEN` is configured, worker-specific
 claim/heartbeat/result requests also carry an HMAC signature derived from the
 worker ID, instance ID and generation. Timestamp and nonce prevent replay, and
@@ -34,6 +40,7 @@ One job:
 ```bash
 python3 platform/tools/worker_agent.py \
   --service-url http://127.0.0.1:8787 \
+  --runtime-service-url http://127.0.0.1:8788 \
   --token "$M5_SERVICE_API_TOKEN" \
   --worker-id local-executor \
   --work-dir /tmp/m5-worker-agent \
@@ -46,11 +53,16 @@ Retained result:
 
 ## Boundaries
 
+The control/execution URL split and local-session cleanup are covered by unit
+contracts. A real QEMU process launched from a different host or Linux network
+namespace is still `NOT RUN`; the runtime service also needs a matching QEMU
+binary and local artifact/firmware store.
+
 The retained QEMU job runs use the same host and service process. HTTPS/mTLS,
 real QEMU and unified StickS3 jobs over mTLS are verified separately by
 `tests/network/worker_tls/`; the historical evidence in this directory
 predates that transport. Certificate rotation and two-worker
 generation-pointer migration are verified in `tests/network/worker_tls/`;
-cross-host QEMU execution, automatic worker-host discovery, companion
+real cross-host QEMU execution, automatic worker-host discovery, companion
 continuity after service restart, untrusted-firmware isolation, production
 scheduling and physical hardware remain `NOT RUN`.

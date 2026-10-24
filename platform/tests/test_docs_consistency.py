@@ -1172,6 +1172,10 @@ class DocsConsistencyTests(unittest.TestCase):
         tls_readme = (
             ROOT / "tests/network/worker_tls/README.md"
         ).read_text()
+        worker_code = (ROOT / "platform/tools/worker_agent.py").read_text()
+        executor_readme = (
+            ROOT / "tests/network/worker_executor/README.md"
+        ).read_text()
         evidence = json.loads(
             (
                 ROOT
@@ -1207,6 +1211,13 @@ class DocsConsistencyTests(unittest.TestCase):
             "run_fleet_migration_test.py",
             tls_readme,
         )
+        self.assertIn("runtime_api", worker_code)
+        self.assertIn("--runtime-service-url", worker_code)
+        self.assertIn("--runtime-service-url", api)
+        self.assertIn("control/execution URL split", executor_readme)
+        self.assertIn("worker-local", status)
+        self.assertIn("真实 worker-local QEMU", backlog)
+        self.assertIn("本地 runtime API", workstreams)
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

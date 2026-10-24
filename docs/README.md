@@ -66,7 +66,7 @@
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-25` | 只保留尚未达到验收条件的任务、依赖和验收 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、runtime priority、测试和 evidence 入口 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-25` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | API、对象、状态机、错误码和 transport 契约；动态证据不在契约页维护 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-25` | API、对象、状态机、错误码和 transport 契约；worker control/runtime plane 边界已登记 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、legacy GDB 对照、artifact-bound 两小时功能门禁、TCG 内存归因和物理边界 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、安全检查、文件系统、许可策略和 evidence 分层 |
@@ -86,7 +86,7 @@
 | [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-24` | 审查证据分层、运行路径和发布门禁 |
 | [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-24` | catalog、runtime coverage、后端数据面和设备本地验收 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-24` | Tab5 缺失的 P4 控制器、DMA 和端点 |
-| [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-24` | 当前单机模块化单体与后续 worker/warm-pool 路线 |
+| [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-25` | 单机模块化单体、control/runtime 执行面分离与后续 worker/warm-pool 路线 |
 | [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-25` | 历史哈希绑定结果、公开 CDN 可变制品刷新规则、模型缺口和重跑边界 |
 | [CoreS3 图像边界](cores3-image-rendering-boundary.md) | 已知差异 | `2026-10-22` | 固定在当轮透明度/调色板图像分析 |
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |

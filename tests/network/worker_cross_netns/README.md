@@ -1,6 +1,6 @@
 # Cross-network-namespace worker control plane
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This Linux-only fixture creates two private network namespaces connected by a
 veth pair:
@@ -31,5 +31,10 @@ PYTHONPATH=platform/tools python3 \
 ```
 
 This is worker control-plane validation, not cross-host QEMU execution.
-Cross-host QEMU executor, companion/evidence-stream continuity, process
-re-attach and production multi-host scheduling remain `NOT RUN`.
+`worker_agent.py` now has a separately configurable runtime service API, but
+this fixture still submits a no-QEMU job. The next integration must launch the
+real Device Service/QEMU runtime in the worker namespace, keep artifact uploads
+and evidence on that execution plane, then verify process cleanup through the
+central job result. Cross-host QEMU executor, companion/evidence-stream
+continuity, process re-attach and production multi-host scheduling remain
+`NOT RUN`.

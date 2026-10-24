@@ -47,8 +47,8 @@
    再扩到更多设备与 firmware family。
 5. `NET-04` / `SVC-01`：在现有 durable queue、HTTPS/mTLS、rotation/drain、
    同主机 generation-pointer migration 和本地 QEMU/QMP reattach 上补自动
-   主机发现/跨主机迁移、跨主机 QEMU executor/reattach、companion/evidence
-   continuity 和多机调度。
+   主机发现/跨主机迁移；先用 control/runtime 双端点跑真实 worker-local
+   QEMU，再补跨主机 reattach、companion/evidence continuity 和多机调度。
 6. `FW-01/02`、`RUNTIME-02`、`HW-01`：补运行态权限/许可、生产 key/eFuse、
    C6 Zigbee 决策和代表设备同固件 SHA 的真机验证。
 7. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
@@ -58,7 +58,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；下一步仍是自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；`WorkerAgent` 已把中央 control API 与本地 runtime API 拆开并有单元契约，下一步启动真实 worker-local QEMU 与 evidence 路径，再补自动主机发现/跨主机迁移、reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-06` | 进行中 | controlled resolver A/AAAA、IPv6 forwarding 预检和专用 UIFlow2 测试构建的 guest IPv6 TCP/HTTP 已实现；下一步在同一 Linux guest 完成 controlled AAAA、denied-port 与 namespace cleanup | 同一 lease/guest 内 AAAA 允许/拒绝、IPv6 egress、pcap 和 cleanup 成立；不能用 host probe 或另一 session 拼接固件结论；原厂 UIFlow2 未启用 link-local |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与 artifact-bound `7200s` 功能保持已通过；RSS 增长定位到默认 1 GiB TCG buffer，`tb-size=128` 120 秒验证 PASS；限容两小时复测运行中；参数范围扩到 1–121 | 限容两小时功能与 RSS/phys footprint 稳定、资产无漂移；3 个独立 lease 各 121 轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
@@ -100,6 +100,10 @@
   已跨 veth 完成认证注册、job submit/claim、worker/job heartbeat、terminal
   result、token 不落日志和 namespace 清理；仍没有 worker 主机自动发现、
   跨主机 QEMU job、跨 worker 容量调度和多机状态收敛；
+- `worker_agent.py` 现支持 `--runtime-service-url`：中央服务只负责
+  claim/heartbeat/result，独立 runtime service 负责 session、evidence 和
+  stop。单元契约已验证请求平面分离；真实 worker namespace 内 QEMU 启动、
+  固件/artifact 存储和端到端 evidence 仍是下一门禁；
 - 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
   `query-status=running` 验证后 re-attach；Tab5/network lane、paused QEMU、
   companion HTTP/BLE helper、evidence 流和跨主机进程仍不能接管；
@@ -108,7 +112,9 @@
 
 下一项最小交付：
 
-1. 在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain、
+1. 用 control/runtime 双端点启动真实 worker-local Device Service + QEMU，
+   验证 artifact/firmware 上传、首帧/串口、evidence SHA、stop 和 namespace
+   cleanup；随后在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain、
    bounded credential overlap 和同主机 generation-pointer migration 上补
    worker 主机自动发现、跨主机 QEMU job 和外部 side-effect fencing，禁止
    旧 agent 覆盖新 generation。
