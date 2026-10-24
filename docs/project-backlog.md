@@ -27,7 +27,7 @@
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 保持 3 个独立 lease、每个 30 轮的 PASS；下一步验证超过三十轮，并把 `5×10s` / `3×60s` / `2×120s` 扩到多小时 soak/coexistence，再评估 bit-exact controller、cache/PSRAM | 三十轮 GATT 与 active hold 已通过；`1–30` 参数范围已实现；物理或权威模型证据 |
+| P1 | Core2 长稳与物理/controller 等价性 | 保持 3 个独立 lease、每个 30 轮的 PASS；先提高当前 reconnect `30` 轮和 hold `120s` 的执行上限，再验证超过三十轮与多小时 soak/coexistence，最后评估 bit-exact controller、cache/PSRAM | 三十轮 GATT 与 active hold 已通过；新一轮需要扩大 runner/API 上限与超时；物理或权威模型证据 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -43,9 +43,10 @@
    `RUNTIME-02` C6 Zigbee 决策，再扩 `FW-03` 跨厂商样本；
    `FW-02` 做生产 key/eFuse 与真机安全配置。
 3. `CORE2-02`：`5×10s`、`3×60s`、`2×120s` extended-run 和同 guest
-   二十轮、三十轮 reconnect 已通过；下一项补超过三十轮、多小时 soak 和
-   WiFi/BLE coexistence。之后处理 controller/baseband 物理边界。`HW-01`
-   独立推进同路径真机证据。
+   二十轮、三十轮 reconnect 已通过；下一项先解除 reconnect `30` 轮、
+   hold `120s` 的执行上限，再补超过三十轮、多小时 soak 和 WiFi/BLE
+   coexistence。之后处理 controller/baseband 物理边界。`HW-01` 独立推进
+   同路径真机证据。
 4. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
    视觉工作，不与当前 P0 混算完成。
 
@@ -55,7 +56,7 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 跨主机 QEMU executor/reattach、自动化客户端批量迁移、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与手工迁移已完成；自动化迁移可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
-| `CORE2-02` | 进行中 | 3 个 lease 各 20 轮、3 个独立 lease 各 30 轮、`5×10s`、`3×60s`、`2×120s`、active hold 均已通过；下一项做超过三十轮、多小时 hold、WiFi/BLE coexistence 和 process-stop/teardown | 超过三十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM、长时间 coexist 和真机 |
+| `CORE2-02` | 进行中 | 3 个 lease 各 20 轮、3 个独立 lease 各 30 轮、`5×10s`、`3×60s`、`2×120s`、active hold 均已通过；下一项先提高 runner/API 的 `30` 轮和 `120s` hold 上限，再做超过三十轮、多小时 hold、WiFi/BLE coexistence 和 process-stop/teardown | 超过三十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM、长时间 coexist 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | 已有 6 台 S3/C6、18 个公开官方/社区样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
@@ -150,7 +151,10 @@ guest-call 上下文问题并修复：
 - 三十轮门禁已完成：3 个独立 lease 各 30 轮，每 lease HLI `857/857`、
   events `587`、ACLs `270`，无错误、无 panic、连接池回到 `3/9/3`；
 - 仍未完成：超过三十轮连接、多小时 soak、吞吐、coexistence 和
-  process-stop/teardown 竞态；
+  process-stop/teardown 竞态；当前 Device Service/Bumble/runner 的
+  reconnect 上限是 `30`，service runner 的 hold 上限是 `120s`，因此下一轮
+  长稳必须先扩大这些执行上限和等待预算，不能把“参数上限 30”当作 30 以上
+  的测试；
 - 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
 - bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；
@@ -165,7 +169,7 @@ guest-call 上下文问题并修复：
 - 同一 guest 超过 30 轮完成 scan/connect/NUS GATT/disconnect 且无 retry，
   每轮都有 guest RX、notification、peer/pcap/evidence 和 HLI health；
 - 从已经通过的三十轮 reconnect 与 `5×10s` / `3×60s` / `2×120s` 基础上
-  继续多小时 soak 和 WiFi/BLE coexistence；
+  扩大 reconnect/hold 执行上限，再继续多小时 soak 和 WiFi/BLE coexistence；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
   次数；
 - 首轮 panic 必须先于 reboot 次生故障被分类和符号化；

@@ -70,8 +70,9 @@ profile 和 evidence 为准。
   `code-map.md`。
 - **下一手顺序**：推进 `NET-04` 远程 worker 和 `NET-05` IPv6；固件侧
   继续 `FW-01`，随后 `RUNTIME-02`、`FW-03`、`FW-02`；
-  Core2 已通过 3 个独立 lease、每个 30 轮的 reconnect；继续做更长
-  soak/coexistence，之后推进物理与 controller 等价性。`HCI-4`、短时
+  Core2 已通过 3 个独立 lease、每个 30 轮的 reconnect；下一项先提高
+  reconnect `30` 轮与 hold `120s` 的执行上限，再做更长 soak/coexistence，
+  之后推进物理与 controller 等价性。`HCI-4`、短时
   extended-run、十轮、二十轮和三十轮 reconnect 均不再作为待办。
 
 ## 状态语义

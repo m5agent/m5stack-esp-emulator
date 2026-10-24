@@ -471,7 +471,9 @@ ACLs 180；三个 lease
 
 二十轮和三十轮 reconnect 关闭的是同 guest 连接生命周期门禁，不表示物理
 cache/PSRAM、bit-exact controller、多小时 coexistence 或真机已经等价。
-后续长稳仍需验证超过三十轮的连接与更长 hold。
+后续长稳仍需验证超过三十轮的连接与更长 hold。当前 reconnect 上限为
+`30`，service runner 的 hold 上限为 `120s`；下一轮必须先扩大这两个执行
+上限和等待预算。
 
 ## 剩余工作量
 
