@@ -151,6 +151,7 @@
 - [Authenticated worker discovery](../tests/network/worker_discovery/README.md)
 - [Worker control-plane restart continuity](../tests/network/worker_control_restart/README.md)
 - [Worker runtime-service restart continuity](../tests/network/worker_runtime_restart/README.md)
+- [Idempotent session creation](../tests/network/session_idempotency/README.md)
 - [本地 QEMU PID/QMP restart re-attach](../tests/network/worker_reattach/README.md)
 - [Cross-network-namespace worker control plane](../tests/network/worker_cross_netns/README.md)
 - [Core2 stock VHCI BLE](../tests/uiflow2/core2_native_vhci/README.md)

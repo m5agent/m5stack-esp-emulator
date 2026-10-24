@@ -31,6 +31,9 @@ MicroPython 和其他完整 Flash 固件。
 - Runtime Device Service 使用同一 state dir 重启时，worker 对已知 session
   retry status/evidence/stop；新服务按 PID start-time、QMP ownership 和
   running 状态重新接管同一 QEMU，再由原 job 提交 evidence。
+- Session create 使用持久化 `idempotency_key`；同一 key/请求重试返回原
+  session，不同请求返回 409，worker 以 job+lease 派生稳定 key，避免响应
+  丢失后创建第二个 QEMU/session。
 - 固件输入覆盖 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented
   flash、WebBurner/M5Burner 包、文件系统清单、静态审查和 capability
   mismatch。

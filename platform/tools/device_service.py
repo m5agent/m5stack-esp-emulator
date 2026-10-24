@@ -134,6 +134,8 @@ EXCLUDED_DEVICES = {
 MAX_ARTIFACT_BYTES = 96 * 1024 * 1024
 MAX_ARTIFACT_CHUNK_BYTES = 8 * 1024 * 1024
 MAX_SERIAL_READ = 256 * 1024
+SESSION_IDEMPOTENCY_SCHEMA_VERSION = 1
+MAX_SESSION_IDEMPOTENCY_ENTRIES = 4096
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
 ALLOWED_RUNTIME_ENV = {
     "M5SW_CORE2_PMIC",
@@ -6754,6 +6756,10 @@ class DeviceService:
         self.flash_preparer = flash_preparer or default_flash_preparer
         self._sessions: dict[str, DeviceSession] = {}
         self._lock = threading.RLock()
+        self._session_idempotency_path = (
+            self.state_dir / "session-idempotency.json"
+        )
+        self._session_idempotency = self._load_session_idempotency()
         self._flash_lock = threading.Lock()
         self._reference_cache: dict[str, dict] = {}
         self._last_storage_prune_at: float | None = None
@@ -6824,6 +6830,152 @@ class DeviceService:
             daemon=True,
         )
         self._janitor.start()
+
+    def _load_session_idempotency(self) -> dict[str, dict[str, Any]]:
+        path = self._session_idempotency_path
+        if not path.is_file():
+            return {}
+        try:
+            payload = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            return {}
+        if (
+            not isinstance(payload, dict)
+            or payload.get("schema_version")
+            != SESSION_IDEMPOTENCY_SCHEMA_VERSION
+            or not isinstance(payload.get("entries"), dict)
+        ):
+            return {}
+        entries: dict[str, dict[str, Any]] = {}
+        for key_hash, raw in payload["entries"].items():
+            if (
+                not isinstance(key_hash, str)
+                or len(key_hash) != 64
+                or not isinstance(raw, dict)
+                or not isinstance(raw.get("request_sha256"), str)
+                or len(raw["request_sha256"]) != 64
+                or not isinstance(raw.get("session_id"), str)
+                or not raw["session_id"]
+            ):
+                continue
+            entries[key_hash] = {
+                "request_sha256": raw["request_sha256"],
+                "session_id": raw["session_id"],
+                "created_at": (
+                    raw.get("created_at")
+                    if isinstance(raw.get("created_at"), str)
+                    else iso_now()
+                ),
+            }
+        if len(entries) > MAX_SESSION_IDEMPOTENCY_ENTRIES:
+            retained = sorted(
+                entries.items(),
+                key=lambda item: item[1]["created_at"],
+                reverse=True,
+            )[:MAX_SESSION_IDEMPOTENCY_ENTRIES]
+            entries = dict(retained)
+        return entries
+
+    def _write_session_idempotency_locked(self) -> None:
+        path = self._session_idempotency_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_name(
+            f".{path.name}.{uuid.uuid4().hex}.tmp"
+        )
+        payload = {
+            "schema_version": SESSION_IDEMPOTENCY_SCHEMA_VERSION,
+            "entries": self._session_idempotency,
+        }
+        try:
+            temporary.write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+            )
+            temporary.chmod(0o600)
+            os.replace(temporary, path)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    @staticmethod
+    def _session_idempotency_fields(
+        payload: dict[str, Any],
+    ) -> tuple[str | None, str | None]:
+        value = payload.get("idempotency_key")
+        if value is None:
+            return None, None
+        if (
+            not isinstance(value, str)
+            or not 1 <= len(value) <= 128
+            or any(ord(char) < 32 for char in value)
+        ):
+            raise ServiceError(
+                "invalid_idempotency_key",
+                "idempotency_key must be 1-128 printable characters",
+                400,
+            )
+        key_hash = hashlib.sha256(value.encode()).hexdigest()
+        canonical = {
+            key: item
+            for key, item in payload.items()
+            if key != "idempotency_key"
+        }
+        request_hash = hashlib.sha256(
+            json.dumps(
+                canonical,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode()
+        ).hexdigest()
+        return key_hash, request_hash
+
+    def _session_idempotency_replay_locked(
+        self,
+        key_hash: str | None,
+        request_hash: str | None,
+    ) -> DeviceSession | None:
+        if key_hash is None or request_hash is None:
+            return None
+        entry = self._session_idempotency.get(key_hash)
+        if entry is None:
+            return None
+        if entry["request_sha256"] != request_hash:
+            raise ServiceError(
+                "session_idempotency_conflict",
+                "idempotency_key was already used with a different request",
+                409,
+            )
+        session = self._sessions.get(str(entry["session_id"]))
+        if session is not None:
+            return session
+        self._session_idempotency.pop(key_hash, None)
+        self._write_session_idempotency_locked()
+        return None
+
+    def _remember_session_idempotency_locked(
+        self,
+        key_hash: str | None,
+        request_hash: str | None,
+        session_id: str,
+    ) -> None:
+        if key_hash is None or request_hash is None:
+            return
+        self._session_idempotency[key_hash] = {
+            "request_sha256": request_hash,
+            "session_id": session_id,
+            "created_at": iso_now(),
+        }
+        if len(self._session_idempotency) > MAX_SESSION_IDEMPOTENCY_ENTRIES:
+            retained = sorted(
+                self._session_idempotency.items(),
+                key=lambda item: item[1]["created_at"],
+                reverse=True,
+            )[:MAX_SESSION_IDEMPOTENCY_ENTRIES]
+            self._session_idempotency = dict(retained)
+        try:
+            self._write_session_idempotency_locked()
+        except Exception:
+            self._session_idempotency.pop(key_hash, None)
+            raise
 
     def _restore_history(self) -> None:
         """Restore history and safely re-attach only verified live QEMU PIDs."""
@@ -7487,6 +7639,18 @@ class DeviceService:
                 missing=missing,
                 documentation="docs/deployment.md",
             )
+        idempotency_key_hash, idempotency_request_hash = (
+            self._session_idempotency_fields(payload)
+        )
+        with self._lock:
+            replayed = self._session_idempotency_replay_locked(
+                idempotency_key_hash,
+                idempotency_request_hash,
+            )
+            if replayed is not None:
+                snapshot = replayed.snapshot()
+                snapshot["idempotent_replay"] = True
+                return snapshot
         worker_snapshot = self.worker_status()
         if not worker_snapshot["accepting_leases"]:
             raise ServiceError(
@@ -7680,6 +7844,14 @@ class DeviceService:
 
         self._ensure_storage_capacity(spec.flash_size)
         with self._lock:
+            replayed = self._session_idempotency_replay_locked(
+                idempotency_key_hash,
+                idempotency_request_hash,
+            )
+            if replayed is not None:
+                snapshot = replayed.snapshot()
+                snapshot["idempotent_replay"] = True
+                return snapshot
             active = [
                 session
                 for session in self._sessions.values()
@@ -7818,8 +7990,29 @@ class DeviceService:
                 generation=self.worker.generation,
             )
             self._sessions[session.id] = session
+            try:
+                self._remember_session_idempotency_locked(
+                    idempotency_key_hash,
+                    idempotency_request_hash,
+                    session.id,
+                )
+            except Exception:
+                self._sessions.pop(session.id, None)
+                self.worker.release_lease(
+                    session.id,
+                    result={
+                        "device_id": device_id,
+                        "state": "failed",
+                        "runtime": runtime,
+                        "firmware_sha256": firmware_sha,
+                        "error": "session idempotency persistence failed",
+                    },
+                )
+                raise
         session.start()
-        return session.snapshot()
+        snapshot = session.snapshot()
+        snapshot["idempotent_replay"] = False
+        return snapshot
 
     def get_session(self, session_id: str) -> DeviceSession:
         with self._lock:

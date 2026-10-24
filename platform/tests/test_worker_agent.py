@@ -217,13 +217,30 @@ class TransientRuntimeApi(FakeRuntimeApi):
 
 
 class TransientRuntimeCreateApi(FakeRuntimeApi):
+    def __init__(self):
+        super().__init__()
+        self.create_failures = 1
+        self.idempotency_key = None
+
     def json(self, path, *, method="GET", payload=None, timeout=60):
-        if path == "/api/v1/sessions" and method == "POST":
+        if (
+            path == "/api/v1/sessions"
+            and method == "POST"
+            and self.create_failures
+        ):
+            self.create_failures -= 1
+            self.idempotency_key = payload.get("idempotency_key")
             self.calls.append((method, path, payload))
             raise WorkerAgentError(
                 "stub create response lost",
                 transient=True,
             )
+        if path == "/api/v1/sessions" and method == "POST":
+            self.calls.append((method, path, payload))
+            self.assert_same_key = (
+                payload.get("idempotency_key") == self.idempotency_key
+            )
+            return {"session_id": "b" * 32}
         return super().json(
             path,
             method=method,
@@ -487,15 +504,16 @@ class WorkerAgentTests(unittest.TestCase):
                 and call[0] == "POST"
                 for call in create_api.calls
             ),
-            1,
+            2,
         )
         create_result = json.loads(
             (self.work_dir / "job-test" / "result.json").read_text()
         )
-        self.assertEqual(create_result["state"], "FAIL")
-        self.assertIn(
-            "create response lost",
-            create_result["summary"]["error"],
+        self.assertEqual(create_result["state"], "PASS")
+        self.assertTrue(create_api.assert_same_key)
+        self.assertEqual(
+            create_api.idempotency_key,
+            "job-job-test:lease-test",
         )
 
     def test_session_failure_is_reported_and_cleaned_up(self):

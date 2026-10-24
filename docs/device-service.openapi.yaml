@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.26.0
+  version: 1.27.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1796,6 +1796,14 @@ components:
       properties:
         device_id:
           type: string
+        idempotency_key:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: >
+            Optional caller-stable key for safe create retries. The service
+            persists only SHA256(key) and the canonical request hash. Reusing
+            the key with different request content returns 409.
         firmware_id:
           type: string
           description: Omit to use the cached reference UIFlow2 image.
@@ -2191,6 +2199,11 @@ components:
         pid:
           type: integer
           nullable: true
+        idempotent_replay:
+          type: boolean
+          description: >
+            Present on POST /sessions responses. True means an identical
+            idempotency key/request returned the existing session.
         firmware_id:
           type: string
         firmware_sha256:

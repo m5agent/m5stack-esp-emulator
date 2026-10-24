@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.26.0` and bounded
+Status: local MVP with unified-device runtime contract `1.27.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -153,6 +153,14 @@ history. Stopped/failed sessions and their last-known evidence remain readable.
 printable characters. The label is stored with the worker lease and does not
 grant access or identity.
 
+It also accepts a caller-stable `idempotency_key` of 1–128 printable
+characters. The service persists only SHA256(key), the canonical request hash
+and the resulting session ID under `session-idempotency.json`. An identical
+retry returns the original session with `idempotent_replay=true`; reusing the
+key for different request content returns HTTP `409`
+`session_idempotency_conflict`. The mapping survives service restart. Raw keys
+and request bodies are not written to the mapping file.
+
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
 not execute jobs, transfer an evidence bundle or place work across a production
@@ -249,16 +257,17 @@ seconds). If the central service restarts, the agent idempotently re-registers
 its unchanged identity/generation, retries heartbeat/result and keeps the
 worker-local runtime session/evidence path unchanged. Claim itself is not
 blindly retried because the job queue has no stable claim-request dedup token;
-a future claim-recovery protocol must add one. This does not restart or
-restart the worker-local runtime.
+a future claim-recovery protocol must add one. This does not restart the
+worker-local runtime.
 
 After a concrete runtime `session_id` exists, `WorkerAgent` also retries
 transient runtime status/evidence/stop requests for
 `--runtime-reconnect-timeout`. A runtime Device Service can restart on the same
 port/state directory and re-attach the surviving QEMU only after PID
 start-time, session QMP ownership and `query-status=running` all agree.
-Session creation itself is not blindly retried because it also lacks a stable
-create-request dedup token.
+WorkerAgent derives a stable session-create `idempotency_key` from job and
+lease. Session creation can therefore be retried safely; identical retries
+return the same session and different request content returns 409.
 The request is intended for non-secret job parameters; credentials, tokens
 and firmware payloads must remain in their dedicated stores.
 

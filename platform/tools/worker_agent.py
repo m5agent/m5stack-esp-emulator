@@ -724,6 +724,11 @@ class WorkerAgent:
         session_payload = request.get("session")
         if not isinstance(session_payload, dict):
             raise WorkerAgentError("job request.session must be an object")
+        session_payload = dict(session_payload)
+        session_payload.setdefault(
+            "idempotency_key",
+            f"job-{job_id}:{lease['lease_id']}",
+        )
         include = request.get(
             "evidence_include",
             list(DEFAULT_EVIDENCE_INCLUDE),
@@ -752,11 +757,12 @@ class WorkerAgent:
         state = "FAIL"
         runtime_api = self.runtime_api
         try:
-            created = runtime_api.json(
+            created = self._runtime_json(
                 "/api/v1/sessions",
                 method="POST",
                 payload=session_payload,
                 timeout=60,
+                api=runtime_api,
             )
             session_id = str(created["session_id"])
             running = self._wait_session(session_id, api=runtime_api)

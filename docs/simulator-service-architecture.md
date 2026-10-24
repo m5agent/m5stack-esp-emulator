@@ -313,7 +313,9 @@ same-lease heartbeat and terminal evidence reporting while its runtime QEMU
 session remains untouched. A worker-local runtime Device Service can also
 restart on the same state directory and re-attach that QEMU through PID/QMP
 ownership checks; worker status/evidence/stop requests retry against the
-known session ID. Cross-subnet/NAT discovery, cross-host QEMU execution,
+known session ID. Session creation uses a persisted idempotency key; WorkerAgent
+derives it from job and lease so response-loss retries return the original
+session. Cross-subnet/NAT discovery, cross-host QEMU execution,
 companion HTTP/BLE continuity,
 cross-host re-attach and multi-host scheduling remain open.
 
@@ -358,6 +360,8 @@ limited to one discovery domain and does not traverse arbitrary NAT/subnets.
 - after a runtime session ID exists, transient runtime service failures retry
   status/evidence/stop; runtime restart re-attaches the same QEMU PID and
   process-start token before evidence collection;
+- session creation persists only key/request hashes; identical retries return
+  the original session and different request content returns 409;
 - the two-namespace Linux fixture proves that separation with a real
   worker-local StickS3 QEMU session and central claim/heartbeat/result; it is
   not a physically cross-host run;
@@ -368,7 +372,7 @@ limited to one discovery domain and does not traverse arbitrary NAT/subnets.
   socket ownership and `query-status=running` agree;
 - NAT/cross-subnet worker discovery, cross-host credential migration, a real
   cross-host QEMU execution fixture, companion HTTP/BLE continuity,
-  cross-host re-attach, session-create response-loss recovery and production
+  cross-host re-attach, cross-host idempotency storage and production
   capacity scheduling remain open.
 
 ### Phase S2: warm/cold pool

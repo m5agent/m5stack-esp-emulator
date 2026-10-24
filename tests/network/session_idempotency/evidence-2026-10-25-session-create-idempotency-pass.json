@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-session-create-idempotency",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "virtual-device-session-create-idempotency",
+  "idempotency": {
+    "key_sha256": "9891fa8f0cf3bb8fcb91f8e0a4e4ce40281e43c6325e7a00228ddd516f5e0ca6",
+    "concurrent_requests": 2,
+    "session_count": 1,
+    "running_session_with_pid": true,
+    "conflict_status": 409,
+    "mapping_persisted": true,
+    "mapping_mode": "0o600"
+  },
+  "responses": [
+    {
+      "session_id": "<session-id>",
+      "idempotent_replay": false,
+      "state": "flashing"
+    },
+    {
+      "session_id": "<session-id>",
+      "idempotent_replay": true,
+      "state": "provisioning"
+    }
+  ],
+  "service_restart": {
+    "same_state_dir": true,
+    "persisted_replay_same_session": true,
+    "session_count": 1
+  },
+  "checks": {
+    "concurrent_same_key_returns_one_session": true,
+    "concurrent_responses_use_idempotent_flag": true,
+    "one_running_session_with_pid": true,
+    "one_session_recorded": true,
+    "different_request_conflicts_409": true,
+    "mapping_persisted": true,
+    "mapping_mode_0600": true,
+    "raw_key_not_persisted": true,
+    "raw_device_not_persisted": true,
+    "persisted_replay_same_session": true,
+    "one_session_after_restart": true,
+    "token_absent_from_service_log": true
+  },
+  "not_claimed": [
+    "cross-host idempotency storage",
+    "idempotency across different API tokens or tenants",
+    "firmware execution semantics beyond session creation",
+    "physical hardware validation"
+  ]
+}

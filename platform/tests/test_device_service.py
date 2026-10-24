@@ -299,6 +299,74 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertFalse(rows["tab5"]["features"]["network"])
         self.assertTrue(payload["network_enabled"])
 
+    def test_session_create_idempotency_replays_and_persists(self):
+        request = {
+            "device_id": "sticks3",
+            "ttl_seconds": 60,
+            "idempotency_key": "review-session-create-001",
+        }
+        with mock.patch.object(
+            device_service_module.DeviceSession,
+            "start",
+            autospec=True,
+        ):
+            first = self.service.create_session(request)
+            replay = self.service.create_session(request)
+            with self.assertRaises(ServiceError) as conflict:
+                self.service.create_session(
+                    {**request, "ttl_seconds": 61}
+                )
+
+        self.assertEqual(first["session_id"], replay["session_id"])
+        self.assertFalse(first["idempotent_replay"])
+        self.assertTrue(replay["idempotent_replay"])
+        self.assertEqual(conflict.exception.code, "session_idempotency_conflict")
+        self.assertEqual(conflict.exception.status, 409)
+        self.assertEqual(
+            len(self.service.list_sessions(include_stopped=False)["sessions"]),
+            1,
+        )
+        with self.assertRaises(ServiceError) as invalid_key:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "idempotency_key": "bad\x00key",
+                }
+            )
+        self.assertEqual(
+            invalid_key.exception.code,
+            "invalid_idempotency_key",
+        )
+        mapping_path = self.service.state_dir / "session-idempotency.json"
+        mapping_text = mapping_path.read_text()
+        self.assertNotIn(request["idempotency_key"], mapping_text)
+        self.assertNotIn(request["idempotency_key"], mapping_path.name)
+        self.assertEqual(mapping_path.stat().st_mode & 0o777, 0o600)
+
+        session_id = first["session_id"]
+        self.service.close_all()
+        reopened = DeviceService(
+            state_dir=self.service.state_dir,
+            max_sessions=2,
+            max_per_device=1,
+            flash_preparer=hermetic_flash_preparer,
+        )
+        reopened.specs = self.service.specs
+        try:
+            with mock.patch.object(
+                device_service_module.DeviceSession,
+                "start",
+                autospec=True,
+            ):
+                restored_replay = reopened.create_session(request)
+            self.assertEqual(
+                restored_replay["session_id"],
+                session_id,
+            )
+            self.assertTrue(restored_replay["idempotent_replay"])
+        finally:
+            reopened.close_all()
+
     def test_missing_runtime_files_are_reported(self):
         spec = self.service.specs["sticks3"]
         self.service.specs["sticks3"] = replace(

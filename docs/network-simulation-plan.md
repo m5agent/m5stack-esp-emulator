@@ -75,7 +75,8 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - 已获得具体 runtime session ID 后，worker 对 runtime status/evidence/stop
   做有界 transient retry；runtime Device Service 同 state 重启后按
   PID start-time、QMP ownership 和 running 状态重新接管同一 QEMU；
-  session create 本身没有稳定 dedup token 前不自动盲重试；
+  session create 使用持久化 idempotency key；worker 以 job+lease 派生稳定
+  key，响应丢失后重试仍返回同一 session，不同请求返回 409；
 - 两个 veth 连接 network namespace 中的 Bearer+HMAC worker control plane，
   以及 worker namespace 内独立 Device Service 执行真实 StickS3 QEMU、
   artifact/firmware、evidence、terminal result 和 cleanup；
@@ -150,6 +151,7 @@ executor、companion/evidence continuity、NAT/跨子网发现和 CIDR/domain-se
 - [Authenticated worker discovery](../tests/network/worker_discovery/README.md)
 - [Worker control-plane restart continuity](../tests/network/worker_control_restart/README.md)
 - [Worker runtime-service restart continuity](../tests/network/worker_runtime_restart/README.md)
+- [Idempotent session creation](../tests/network/session_idempotency/README.md)
 - [Worker cross-network-namespace control and QEMU execution](../tests/network/worker_cross_netns/README.md)
 - [Worker QEMU/QMP reattach](../tests/network/worker_reattach/README.md)
 - [Core2 native-HCI backend](core2-native-hci-backend.md)

@@ -1873,6 +1873,29 @@ class DocsConsistencyTests(unittest.TestCase):
                 "reattached_process"
             ]
         )
+        create_idempotency_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/session_idempotency/"
+                "evidence-2026-10-25-session-create-idempotency-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(create_idempotency_evidence["status"], "PASS")
+        self.assertEqual(
+            len(create_idempotency_evidence["checks"]),
+            12,
+        )
+        self.assertTrue(
+            all(create_idempotency_evidence["checks"].values())
+        )
+        self.assertEqual(
+            create_idempotency_evidence["idempotency"]["session_count"],
+            1,
+        )
+        self.assertEqual(
+            create_idempotency_evidence["idempotency"]["conflict_status"],
+            409,
+        )
         self.assertIn("--control-reconnect-timeout", worker_code)
         self.assertIn("--runtime-reconnect-timeout", worker_code)
         self.assertIn("--control-reconnect-timeout", api)
@@ -1880,6 +1903,9 @@ class DocsConsistencyTests(unittest.TestCase):
         openapi = (DOCS / "device-service.openapi.yaml").read_text()
         self.assertIn("WorkerJobStoredResult:", openapi)
         self.assertIn("lease_id:", openapi)
+        self.assertIn("idempotency_key:", openapi)
+        self.assertIn("idempotent_replay:", openapi)
+        self.assertIn("session_idempotency_conflict", api)
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()
