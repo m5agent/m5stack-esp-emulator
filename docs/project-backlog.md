@@ -26,7 +26,7 @@
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 物理/controller 等价性 | bit-exact BT controller、cache/PSRAM、coexistence/soak | 公开 controller 语义；物理或权威模型证据 |
+| P1 | Core2 长稳与物理/controller 等价性 | 先闭合 extended-run panic/reboot loop，再评估 bit-exact controller、cache/PSRAM 和 coexistence | 失败证据、符号化、固定次数重跑；物理或权威模型证据 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -40,7 +40,9 @@
 2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后 `FW-03`
    扩跨厂商样本，
    `FW-02` 做生产 key/eFuse 与真机安全配置。
-3. `CORE2-02`、`HW-01`：controller/baseband 物理边界和同路径真机证据。
+3. `CORE2-02`：先收敛 READY/联网/BLE 连接后的 extended-run panic 和
+   reboot loop，再用新的 5 次独立 lease 证明长稳；之后才处理
+   controller/baseband 物理边界。`HW-01` 独立推进同路径真机证据。
 4. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
    视觉工作，不与当前 P0 混算完成。
 
@@ -50,7 +52,7 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 跨主机 executor/reattach、TLS/mTLS、credential rotation、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
-| `CORE2-02` | 待做 | bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和 soak | 物理边界可证；真机/RF 结论不冒充 |
+| `CORE2-02` | 进行中 | 定位 extended-run 首轮 panic；固定 5 次、无 retry 的 10 秒 hold 运行通过 | 每轮保留 serial/peer/pcap/evidence；失败首因可解释；随后补 controller/baseband、物理 cache/PSRAM 和 coexistence |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 跨厂商回归集 | 每样本分层记录导入、capability、boot 和功能 |
@@ -118,7 +120,13 @@ evidence 中成立。
 
 仍未完成：
 
-- 5 次服务 lease 之外的长稳、吞吐、重连和 coexistence；
+- 当前长稳已观察到真实失败：`HCI-4 5/5` 之后，带 hold 的独立运行可在
+  READY、WiFi/公网和 BLE 连接之后 panic。一次首轮
+  `IllegalInstruction` 落在 `semphr_give_wrapper`
+  (`components/bt/controller/esp32/bt.c:677`)，后续
+  `InstrFetchProhibited` 形成 reboot loop；另一轮在 attempt 4 直接出现
+  `PC=0` panic。失败发生在 hold 检查前，不能归因于“hold 太长”；
+- 固定次数、吞吐、重连、coexistence 和 process-stop/teardown 竞态；
 - 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
 - bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；
@@ -127,6 +135,15 @@ evidence 中成立。
 
 新调用必须使用 `core2-native-hci`。`core2-native-vhci` 依赖 GDB，只允许
 作为显式诊断/兼容路径，不能用来证明稳定生产能力。
+
+验收追加条件：
+
+- `run_service_5x.py --hold-seconds 10` 在干净服务状态下连续 5 次无 retry
+  PASS，且每一轮都保留 frame/QOM/network/evidence；
+- runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
+  次数；
+- 首轮 panic 必须先于 reboot 次生故障被分类和符号化；
+- `HCI-4` 历史 `5/5` 可以继续引用，但不得替代新的长稳结果。
 
 ## P0：通用固件审查
 

@@ -25,9 +25,21 @@ Implemented:
 - a persistent local worker record with stable identity, exclusive state-dir
   lock, process generation, heartbeat, lease admission, drain/resume and
   abandoned-lease classification after restart;
+- a persistent remote-worker directory with identity/generation conflict
+  checks, heartbeat, drain/stop, capabilities and bounded result metadata;
+- a durable pull-based job queue with idempotency, capability matching,
+  claim/lease heartbeat, expiry retry, cancellation, terminal result and
+  stale/stopped/generation reconciliation;
+- a same-host HTTP-only executor that claims a job, runs a real StickS3 QEMU
+  session, downloads an evidence ZIP/SHA256, stops with `purge=0` and reports
+  the terminal result;
+- worker-only mutation authentication using a generation-derived HMAC,
+  timestamp/nonce replay protection and path/body identity binding;
+- verified local QEMU/QMP restart re-attach after PID start-time, QMP socket
+  ownership and `query-status=running` all match;
 - bounded stopped/failed history with age, count and byte limits;
 - stopped-session Flash release by default and reference-aware cache GC;
-- optional Bearer token.
+- optional Bearer token;
 - Linux fail-closed network namespaces for QEMU radio sessions;
 - QEMU `filter-dump` pcap plus flow/DNS/DHCP/ARP/payload-hash summaries;
 - `POST /sessions/{id}/network-fault` for `wifi0` link control or
@@ -48,9 +60,9 @@ Implemented:
 Not implemented yet:
 
 - prestarted warm QEMU instances;
-- resumable active emulator processes across service restart;
-- remote worker pool and multi-host scheduling;
-- remote worker registration, queueing, heartbeat ingestion and scheduling;
+- companion HTTP/BLE helper and evidence-stream continuity across restart;
+- cross-host execution and QEMU re-attach, TLS/mTLS, credential rotation and
+  production multi-host capacity scheduling;
 - external IPv6/CIDR/domain-set allowlisting;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;

@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-extended-run-failure",
+  "stage": "CORE2-02",
+  "gate_result": "FAIL",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "recorded_at": "2026-10-24",
+  "baseline": {
+    "gate": "HCI-4",
+    "status": "PASS",
+    "attempts_passed": 5,
+    "evidence": "evidence-2026-10-24-hci4-service-5x.json",
+    "interpretation": "The five-lease functional baseline remains valid, but it does not close the extended-run or soak requirement."
+  },
+  "build": {
+    "firmware_sha256": "65c27baf132db1e8d97207d812dd945c782adcfb5ffc1ec67a4eee5656782e5d",
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "qemu_sha256": "29b30d78d8634aad22877f3f893d8f35a8b10870c8b4870e26c7eaf3cfc4ccdf"
+  },
+  "observations": [
+    {
+      "configuration": {
+        "attempts_requested": 10,
+        "attempts_completed": 4,
+        "attempts_passed": 3,
+        "hold_seconds_per_attempt": 10,
+        "timeout_seconds": 180
+      },
+      "failure": {
+        "attempt": 4,
+        "phase": "wait_ready",
+        "session_state": "failed",
+        "error": "device exited before marker 'UNIFIED_CORE2_READY'",
+        "first_panic": {
+          "kind": "InstrFetchProhibited",
+          "pc": "0x00000000",
+          "exccaue": "0x00000014"
+        }
+      },
+      "last_observed_serial_markers": [
+        "UNIFIED_CORE2_BOOT",
+        "UNIFIED_CORE2_MAIN",
+        "UNIFIED_CORE2_DISPLAY",
+        "UNIFIED_CORE2_WIFI_CONNECTED",
+        "UNIFIED_CORE2_HTTP_PASS",
+        "UNIFIED_CORE2_PUBLIC_DNS",
+        "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+        "UNIFIED_CORE2_BLE_READY"
+      ],
+      "peer_terminal": "GATT timeout for ATT_READ_BY_GROUP_TYPE_REQUEST after connect",
+      "hashes": {
+        "serial_sha256": "788dd3e9070e1e65af61b68726e5b9f6c01d4570d64922f235ff3bb8d8b19c02",
+        "peer_log_sha256": "f8e1ce2b87c6bc72441946cab32f84f1db087253f8987216262472a544750c92",
+        "pcap_bytes": 6007
+      }
+    },
+    {
+      "configuration": {
+        "attempts_requested": 1,
+        "attempts_completed": 1,
+        "attempts_passed": 0,
+        "hold_seconds_per_attempt": 1,
+        "timeout_seconds": 60
+      },
+      "failure": {
+        "attempt": 1,
+        "phase": "wait_running",
+        "session_state": "failed",
+        "error": "process exited with code 0",
+        "first_panic": {
+          "kind": "IllegalInstruction",
+          "pc": "0x40266960",
+          "exccaue": "0x00000000",
+          "symbol": "semphr_give_wrapper",
+          "source": "components/bt/controller/esp32/bt.c:677"
+        },
+        "reboot_panic": {
+          "kind": "InstrFetchProhibited",
+          "pc": "0x00000000",
+          "exccaue": "0x00000014"
+        }
+      },
+      "last_observed_serial_markers": [
+        "UNIFIED_CORE2_BOOT",
+        "UNIFIED_CORE2_MAIN",
+        "UNIFIED_CORE2_DISPLAY",
+        "UNIFIED_CORE2_READY",
+        "UNIFIED_CORE2_WIFI_CONNECTED",
+        "UNIFIED_CORE2_HTTP_PASS",
+        "UNIFIED_CORE2_PUBLIC_DNS",
+        "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+        "UNIFIED_CORE2_BLE_READY"
+      ],
+      "network": {
+        "status": "PARTIAL",
+        "wifi_dhcp_http": "PASS",
+        "public_dns_http": "PASS",
+        "external_nus_gatt": "FAIL"
+      },
+      "peer_terminal": "BLE_BUMBLE_WRITE reached, then notification timeout",
+      "hashes": {
+        "serial_sha256": "2ef6b7a7bd32baad8ce68b55f0ea47857d026688792df374fe9f59dbd2995cb6",
+        "peer_log_sha256": "db17bd141606164cc79e3ba030f52fd5121aafd5f252bdf73a40ae2dcd2a2230",
+        "evidence_zip_bytes": 26304,
+        "pcap_bytes": 5865
+      }
+    },
+    {
+      "configuration": {
+        "attempts_requested": 1,
+        "attempts_completed": 1,
+        "attempts_passed": 0,
+        "hold_seconds_per_attempt": 1,
+        "timeout_seconds": 60
+      },
+      "failure": {
+        "attempt": 1,
+        "phase": "wait_ready",
+        "session_state": "booting",
+        "error": "timed out waiting for serial marker UNIFIED_CORE2_READY",
+        "first_panic": {
+          "kind": "InstrFetchProhibited",
+          "pc": "0x00000000",
+          "exccaue": "0x00000014"
+        }
+      },
+      "last_observed_serial_markers": [
+        "UNIFIED_CORE2_BOOT",
+        "UNIFIED_CORE2_MAIN",
+        "UNIFIED_CORE2_DISPLAY",
+        "UNIFIED_CORE2_WIFI_CONNECTED",
+        "UNIFIED_CORE2_HTTP_PASS",
+        "UNIFIED_CORE2_PUBLIC_DNS",
+        "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+        "UNIFIED_CORE2_BLE_READY"
+      ],
+      "network": {
+        "status": "PARTIAL",
+        "wifi_dhcp_http": "PASS",
+        "public_dns_http": "PASS",
+        "external_nus_gatt": "FAIL"
+      },
+      "peer_terminal": "GATT timeout after connect",
+      "hashes": {
+        "serial_sha256": "95c65746c0cbc30828a80e312d46622321808f3f30adeb3ad515e9bb52836935",
+        "peer_log_sha256": "62e13e4a97ee75541a311bc7984583182150fd207e1ada43ed7e3ea951863a86",
+        "evidence_zip_bytes": 20391,
+        "pcap_bytes": 5807
+      }
+    }
+  ],
+  "classification": {
+    "result": "not_root_caused",
+    "confirmed": [
+      "Extended/repeated runs can fail after READY and after WiFi/public-network success.",
+      "BLE reaches controller initialization, advertising and connection, then the guest panics before the NUS GATT transaction completes.",
+      "A later run first panicked with IllegalInstruction in semphr_give_wrapper and then entered an InstrFetchProhibited reboot loop.",
+      "Three independent executions have now failed after READY/network progress.",
+      "The runner now preserves partial serial, peer, pcap and evidence data instead of losing the failed attempt."
+    ],
+    "not_claimed": [
+      "physical cache or PSRAM equivalence",
+      "bit-exact Espressif BT controller/baseband behavior",
+      "RF, coexistence or hardware validation",
+      "a root cause in firmware, QEMU HLI delivery or Bumble from these two observations alone"
+    ],
+    "next_checks": [
+      "Repeat fixed 3-attempt and 5-attempt runs with a clean service state and no retry masking.",
+      "Symbolize the first panic in every failure and compare controller-task, HLI queue and teardown state.",
+      "Separate BLE transaction teardown from process-stop timing to test for a post-sequence ownership race.",
+      "Only promote soak to PASS after a new tracked run meets the requested repeat count."
+    ]
+  }
+}

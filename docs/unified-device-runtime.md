@@ -29,6 +29,28 @@ complete simulated device or as a unified-device PASS.
 
 ## Current evidence
 
+### Current conclusion
+
+- The product contract is still one lease, one guest, one firmware and one
+  evidence bundle. It is not satisfied by joining separate emulator lanes.
+- Eleven S3/C6 profiles satisfy the current board + WiFi + HCI-UART BLE slice;
+  StickS3 and Nesso N1 also have opt-in public DNS/HTTP evidence.
+- Core2 `core2-native-hci` satisfies the five-lease functional baseline:
+  frame, QOM, WiFi/public network, external NUS GATT, pcap and evidence, with
+  no GDB bridge.
+- Core2 extended-run/soak is currently **FAIL**. Later hold-enabled sessions
+  have panicked after READY, WiFi/public-network success and BLE connection.
+  One first panic was `IllegalInstruction` in `semphr_give_wrapper`
+  (`components/bt/controller/esp32/bt.c:677`), followed by an
+  `InstrFetchProhibited` reboot loop; another run failed on attempt 4 with
+  `PC=0`. This does not retract `HCI-4 5/5`, but it blocks any soak claim.
+- Current blockers, not historical explanations, are owned by
+  [project status](project-status.md) and [Backlog](project-backlog.md). The
+  device bullets below preserve implementation evidence and must not be read
+  as a second current-status page.
+
+### Per-device evidence detail
+
 - QEMU already owns the modeled M5Stack board peripherals and the common
   display/input/framebuffer path.
 - QEMU now owns a functional ESP32-S3 WiFi MAC/DMA model at `0x60033000`.
@@ -174,8 +196,10 @@ WiFi SSID, obtains DHCP, completes a controlled HTTP request, and completes
 BLE GATT discovery/write. Each session exposes all checks through one
 `/api/v1` lease and retains a combined evidence bundle.
 
-Status: **PASS for the eleven S3/C6 slices and Core2 `core2-native-hci`**
-through `runtime=qemu-unified` (legacy `qemu-ble` remains accepted). The eleven
+Status: **PASS for the eleven S3/C6 slices and the five-lease Core2
+`core2-native-hci` functional baseline** through `runtime=qemu-unified`
+(legacy `qemu-ble` remains accepted). Core2 extended-run/soak is **FAIL** and
+is tracked separately. The eleven
 S3/C6 unified profiles retain Device Service evidence ZIPs containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
 manifest hashes. QEMU radio leases also retain a pcap and a payload-hash-only
@@ -186,9 +210,11 @@ host-controller HCI data over an HCI-UART test build. The separate stock Core2
 path reaches external GATT without that firmware rebuild. Its canonical
 `core2-native-hci` service profile uses an in-process QEMU device, firmware
 HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
-independent leases. The legacy `core2-native-vhci` profile uses a GDB bridge
-and is diagnostic only. Core2 still misses bit-exact controller/baseband,
-physical cache/PSRAM equivalence, coexistence/soak and hardware validation.
+  independent leases. The legacy `core2-native-vhci` profile uses a GDB bridge
+  and is diagnostic only. The later extended-run panic/reboot loop means a
+  soak PASS is not available. Core2 still misses bit-exact
+  controller/baseband, physical cache/PSRAM equivalence, coexistence and
+  hardware validation.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
 stable access to arbitrary internet services. Core2 now includes public DNS

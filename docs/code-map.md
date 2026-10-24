@@ -111,7 +111,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
-| `tests/uiflow2/core2_native_hci/run_service_5x.py` | 通过真实 Device Service API 连续租用 `core2-native-hci`，汇总脱敏的 repeated-lease evidence | Core2 native-HCI、Device Service profile 或 ELF hook 改动 |
+| `tests/uiflow2/core2_native_hci/run_service_5x.py` | 通过真实 Device Service API 连续租用 `core2-native-hci`，支持 `--hold-seconds`，失败时保留 partial evidence 并汇总 aggregate FAIL | Core2 native-HCI、extended-run/soak、Device Service profile 或 ELF hook 改动 |
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连和双 guest lab fabric | 网络策略/运行时改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
@@ -127,14 +127,15 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 ## 当前代码组织债务
 
-2026-10-24 的静态盘点显示：
+2026-10-24 的静态盘点显示（生产代码中除第三方 vendor 外没有未处理
+`TODO/FIXME/HACK`，主要债务是文件边界和测试体积）：
 
 | 位置 | 规模/现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | 大型单文件编排热区，覆盖会话、存储、runtime、证据和生命周期 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
-| `platform/tests/test_device_service.py` | 大型 service 契约测试文件 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
+| `platform/tools/device_service.py` | `8,165` 行；session、存储、runtime、证据和生命周期仍在同一编排热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
+| `platform/tests/test_device_service.py` | `4,539` 行 service 契约测试 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
-| `tests/uiflow2/unified_*/` | 12 个 profile 有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
+| `tests/uiflow2/unified_*/` | 11 个 S3/C6 profile 加 Core2 radio profiles，有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 
 这些是维护成本，不是当前功能失败。没有 API 契约测试和同路径 evidence
 保护时，不做跨文件大重构。
@@ -279,6 +280,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 HLI event `HCI-3b` | `patches/qemu-core2-native-hci/0002-esp32-native-hci-hli-event.patch`；`tests/uiflow2/core2_native_hci/test_hli_event.py`；`evidence-2026-10-24-hli-event-5x.json` | 池分配真实 Reset Complete 经 event 13 和 `ble_transport_to_hs_evt_impl` 交付；guest 从 `01030c00` 前进到 `01011000`，连续 `5/5` |
 | Core2 full HCI/GATT `HCI-3b` | `patches/qemu-core2-native-hci/0003-*.patch`、`0004-*.patch`；`tests/uiflow2/core2_native_hci/run_full.py`；`evidence-2026-10-24-hli-api-gatt-5x.json` | 无 GDB HLI/API-boundary H2C 完成外部 NUS GATT `5/5`；trace 证明旧 24-byte ATT PDU 在默认 MTU 23 被 L2CAP 拒绝，合法 17-byte PDU 命中 ATT/Python/notify/Bumble ACK。post-pass teardown `EIO` 单独记录 |
 | Core2 native HCI `HCI-4` | `qemu-unified/profile=core2-native-hci`；`tests/uiflow2/core2_native_hci/run_service_5x.py`；`evidence-2026-10-24-hci4-service-5x.json` | 五个独立 `/api/v1` lease 均通过 frame、27 节点 QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP；`gdb_bridge=false` |
+| Core2 extended-run `CORE2-02` | `run_service_5x.py --hold-seconds`；`evidence-2026-10-24-extended-run-fail.json` | 后续 hold 运行在 READY/联网/BLE 连接后 panic，`PC=0` 或 `semphr_give_wrapper` 首轮异常后 reboot；当前 aggregate FAIL，根因未定 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |

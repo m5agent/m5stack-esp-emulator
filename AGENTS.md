@@ -236,9 +236,18 @@ diagnostics in `internal/records/`.
   the guest default MTU of 23; it was not a controller ACK defect.
   `core2-native-vhci` remains a compatibility/diagnostic profile because its
   GDB bridge is not a stable production backend. Bit-exact
-  controller/baseband, coexistence/soak and physical cache/PSRAM equivalence
+  controller/baseband, coexistence and physical cache/PSRAM equivalence
   remain open. Do not describe this virtual HCI boundary as RF or a finished
   bit-exact controller.
+- `HCI-4` is a five-lease functional baseline, not a soak PASS. Later
+  hold-enabled runs have failed after READY, WiFi/public-network success and
+  BLE connection. One first panic was `IllegalInstruction` at
+  `semphr_give_wrapper` (`components/bt/controller/esp32/bt.c:677`) followed
+  by an `InstrFetchProhibited` reboot loop; another extended run failed on
+  attempt 4 with `PC=0`. `CORE2-02` must retain aggregate failure evidence and
+  pass a new fixed-count, no-retry hold run before the instability can be
+  considered closed. Do not attribute the current failure to physical
+  cache/PSRAM without matching evidence.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.
@@ -282,7 +291,7 @@ The main open streams are:
   companion/evidence continuity, cross-host QEMU re-attach, multi-host
   scheduling and external IPv6 endpoint enforcement;
 - Core2 bit-exact BT controller/baseband and physical cache/PSRAM
-  equivalence, coexistence and soak;
+  equivalence, coexistence and the currently failing extended-run/soak gate;
 - runtime permissions/license policy, production security-key flows and
   broader cross-firmware compatibility;
 - warm pools, multi-host scheduling and hardened untrusted-firmware isolation;

@@ -34,15 +34,18 @@
   QEMU native-HCI 的 `HCI-1` 至 `HCI-4` 已闭环。规范 profile
   `core2-native-hci` 在五个独立 Device Service lease 中同时通过
   frame/QOM/WiFi/公网/NUS GATT/pcap，且不启动 GDB。旧
-  `core2-native-vhci` 仅保留为显式诊断/兼容路径。剩余是 bit-exact
-  controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机。
+  `core2-native-vhci` 仅保留为显式诊断/兼容路径。后续带 hold 的运行已经
+  复现 READY/联网/BLE 连接后的 panic/reboot loop，因此 `CORE2-02` 当前是
+  进行中的真实失败项，不能把 `HCI-4 5/5` 当成 soak PASS。之后才是
+  bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机。
 - **固件审查 P0**：Manifest、WebBurner、静态审查、安全配置分层和
   LittleFS/FAT/SPIFFS inventory、声明级许可 allowlist/denylist 已实现；
   运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 闭环和跨厂商
   样本仍开放。
 - **下一手顺序**：推进 `NET-04` 远程 worker 和 `NET-05` IPv6；固件侧
   继续 `FW-01`/`FW-03`/`FW-02`；Core2 转入 `CORE2-02` 的物理与
-  controller 等价性，`HCI-4` 不再作为待办。
+  controller 等价性，但先收敛 extended-run panic；`HCI-4` 本身不再作为
+  待办。
 
 ## 状态语义
 
@@ -64,7 +67,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新 `67/67` case、`274/274` check，全部首轮无重试 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` 的 HLI/API-boundary GATT 与 `HCI-4` 均 `5/5`；`core2-native-hci` 五个独立 Device Service lease 同时通过 frame/QOM/WiFi/公网/NUS GATT/pcap，且无 GDB bridge；旧 `core2-native-vhci` 的 `1/2` 只作为诊断反例保留 | `CORE2-02` bit-exact controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机同路径 |
+| Core2 稳定性与无线 | `PILOT`（`HCI-4` 功能基线 PASS；extended-run FAIL） | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT 与 `HCI-4` 均 `5/5`；五个独立 lease 同包通过 frame/QOM/WiFi/公网/NUS GATT/pcap；后续 hold 运行在 READY/联网/BLE 连接后 panic，首轮可落在 controller task `semphr_give_wrapper` | `CORE2-02` 先解释并修复 extended-run panic；之后才是 bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机同路径 |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 跨主机 executor/TLS/mTLS、credential rotation、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist、失败回滚与 staging GC | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_agent.py`、`storage_policy.py`、`docs/device-service-api.md` | 本地 lease/worker lifecycle；PID/start-time/QMP 验证后的 restart reattach；远程注册；durable queue、claim/lease/expiry/cancel/result；HTTP executor、evidence ZIP/SHA256、worker HMAC 和失联回收；烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` 跨主机 TLS/mTLS/rotation 与 companion/evidence continuity、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
@@ -83,8 +86,9 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
    companion/evidence continuity 与多机调度；`NET-05` 外部 IPv6 单列。
 2. 固件审查继续 `FW-01` 权限/许可，再处理 `FW-03` 跨厂商样本和
    `FW-02` 真机 key/eFuse。
-3. `CORE2-02` 与 `HW-01` 推进 controller/baseband、物理
-   cache/PSRAM、coexistence/soak 和同固件真机路径。
+3. `CORE2-02` 先处理当前 extended-run panic/reboot loop 和固定次数 hold
+   门禁；再推进 controller/baseband、物理 cache/PSRAM 与 coexistence。
+   `HW-01` 独立推进同固件真机路径。
 4. Tab5、视觉保真与 CardputerZero 是专项工作；没有后端、素材和真机证据时
    不把它们写成统一运行时完成。
 

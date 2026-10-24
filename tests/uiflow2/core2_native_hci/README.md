@@ -15,6 +15,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `HCI-3b` HLI event | `PASS` | `evidence-2026-10-24-hli-event-5x.json`; pool-allocated Reset Complete through event 13 advances `01030c00` to `01011000` in 5/5 runs |
 | `HCI-3b` complete HCI/GATT | `PASS` | `evidence-2026-10-24-hli-api-gatt-5x.json`; 15-byte probe / 17-byte ATT PDU completes discovery, subscription, write, Python handler, notification and Bumble ACK in 5/5 runs |
 | `HCI-4` repeated lease | `PASS` | `evidence-2026-10-24-hci4-service-5x.json`; five independent `/api/v1` leases pass frame, 27-node QOM, WiFi/public network, NUS GATT, pcap and evidence with `gdb_bridge=false` |
+| `CORE2-02` extended run | `FAIL` | `evidence-2026-10-24-extended-run-fail.json`; later hold-enabled runs panic after READY/network/BLE connection. This does not invalidate the `HCI-4` baseline, but it blocks a soak claim |
 
 Build the patched QEMU, then run:
 
@@ -203,6 +204,7 @@ python3 run_service_5x.py \
   --elf /path/to/matching/micropython.elf \
   --qemu /path/to/qemu-system-xtensa \
   --attempts 5 \
+  --hold-seconds 10 \
   --out-dir /tmp/m5-core2-native-hci-service-5x
 ```
 
@@ -211,3 +213,22 @@ The committed evidence is
 under trusted-host isolation. It is not bit-exact controller, RF, malware
 sandbox or physical-hardware validation. The legacy `core2-native-vhci`
 profile remains available for diagnosis but is not the canonical path.
+
+`--hold-seconds` keeps each lease running after network evidence and checks
+session stability during the hold. The failed attempt is retained even when
+READY, network collection or evidence retrieval raises an error; the aggregate
+JSON must be `FAIL`, not a traceback-only partial run. Current extended-run
+evidence is `evidence-2026-10-24-extended-run-fail.json`:
+
+- one request for 10 attempts with 10-second holds passed attempts 1-3, then
+  attempt 4 failed before READY with `InstrFetchProhibited` and `PC=0`;
+- a separate one-attempt hold run passed READY, WiFi/public network and BLE
+  connection, then panicked first with `IllegalInstruction` at
+  `semphr_give_wrapper` (`components/bt/controller/esp32/bt.c:677`) and
+  rebooted into `InstrFetchProhibited` at `PC=0`;
+- the peer reached connect and later timed out in GATT discovery or
+  notification. The failure is therefore after the network layer and around
+  controller-task/BLE lifecycle or teardown, not a WiFi/DNS result.
+
+The root cause is not established. A new fixed five-attempt, no-retry,
+10-second-hold run is required before `CORE2-02` can move to PASS.

@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import io
 import json
+import re
 import time
 import urllib.error
 import urllib.request
@@ -117,65 +118,53 @@ def wait_for_network(
     )
 
 
-def run_attempt(
+def wait_for_running(
     api: Api,
-    firmware_id: str,
-    elf_artifact_id: str,
-    attempt_dir: Path,
+    session_id: str,
     timeout: float,
 ) -> dict[str, Any]:
-    attempt_dir.mkdir(parents=True, exist_ok=True)
-    session = api.json(
-        "/api/v1/sessions",
-        payload={
-            "device_id": "core2",
-            "runtime": "qemu-unified",
-            "firmware_id": firmware_id,
-            "ready_timeout_seconds": timeout,
-            "network": {
-                "profile": PROFILE,
-                "elf_artifact_id": elf_artifact_id,
-                "attempts": 1,
-                "capture_pcap": True,
-            },
-        },
-    )
-    session_id = str(session["session_id"])
-    try:
-        api.json(
-            f"/api/v1/sessions/{session_id}/wait",
-            payload={
-                "ready_marker": READY_MARKER,
-                "timeout_seconds": timeout,
-            },
-            timeout=timeout + 15,
-        )
-        network = wait_for_network(api, session_id, timeout)
-        frame_status, frame, _ = api.request(
-            f"/api/v1/sessions/{session_id}/frame.png"
-        )
-        qom = api.json(
-            f"/api/v1/sessions/{session_id}/qom-snapshot",
-            payload={
-                "path": "/machine",
-                "depth": 2,
-                "max_nodes": 250,
-            },
-        )
-        evidence_status, evidence, _ = api.request(
-            (
-                f"/api/v1/sessions/{session_id}/evidence"
-                "?include=manifest,serial,frames,logs,network,qom"
+    deadline = time.monotonic() + timeout
+    latest: dict[str, Any] = {}
+    while time.monotonic() < deadline:
+        latest = api.json(f"/api/v1/sessions/{session_id}")
+        state = latest.get("state")
+        if state == "running":
+            return latest
+        if state in {"stopped", "failed"}:
+            raise RuntimeError(
+                f"session reached {state}: {latest.get('error')}"
             )
-        )
-        (attempt_dir / "frame.png").write_bytes(frame)
-        (attempt_dir / "qom.json").write_text(
-            json.dumps(qom, indent=2) + "\n"
-        )
-        (attempt_dir / "evidence.zip").write_bytes(evidence)
-        with zipfile.ZipFile(io.BytesIO(evidence)) as archive:
+        time.sleep(0.1)
+    raise RuntimeError(
+        "session did not reach running: "
+        + json.dumps(latest, sort_keys=True)
+    )
+
+
+def unpack_evidence(
+    payload: bytes,
+) -> tuple[
+    set[str],
+    dict[str, Any],
+    bytes,
+    bytes,
+    bytes,
+]:
+    names: set[str] = set()
+    manifest: dict[str, Any] = {}
+    serial = b""
+    peer_log = b""
+    pcap = b""
+    if not payload:
+        return names, manifest, serial, peer_log, pcap
+    try:
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
             names = set(archive.namelist())
-            manifest = json.loads(archive.read("manifest.json"))
+            manifest = (
+                json.loads(archive.read("manifest.json"))
+                if "manifest.json" in names
+                else {}
+            )
             serial = (
                 archive.read("serial.log")
                 if "serial.log" in names
@@ -191,92 +180,354 @@ def run_attempt(
                 if "network/capture.pcap" in names
                 else b""
             )
-        network_checks = network.get("checks")
-        network_checks = (
-            network_checks if isinstance(network_checks, dict) else {}
+    except (OSError, ValueError, KeyError, zipfile.BadZipFile):
+        return set(), {}, b"", b"", b""
+    return names, manifest, serial, peer_log, pcap
+
+
+def run_attempt(
+    api: Api,
+    firmware_id: str,
+    elf_artifact_id: str,
+    attempt_dir: Path,
+    timeout: float,
+    hold_seconds: float,
+) -> dict[str, Any]:
+    attempt_dir.mkdir(parents=True, exist_ok=True)
+    session_id: str | None = None
+    phase = "create_session"
+    failure: Exception | None = None
+    network: dict[str, Any] = {}
+    frame = b""
+    qom: dict[str, Any] = {}
+    evidence = b""
+    names: set[str] = set()
+    manifest: dict[str, Any] = {}
+    serial = b""
+    peer_log = b""
+    pcap = b""
+    frame_status = 0
+    evidence_status = 0
+    hold_stable = False
+    hold_state = "not_running"
+    hold_error: str | None = None
+
+    try:
+        session = api.json(
+            "/api/v1/sessions",
+            payload={
+                "device_id": "core2",
+                "runtime": "qemu-unified",
+                "firmware_id": firmware_id,
+                "ready_timeout_seconds": timeout,
+                "network": {
+                    "profile": PROFILE,
+                    "elf_artifact_id": elf_artifact_id,
+                    "attempts": 1,
+                    "capture_pcap": True,
+                },
+            },
         )
-        transport = network.get("runtime", {}).get("hci_transport")
-        expected_transport = "ESP32 native HCI device + HLI to Bumble"
-        evidence_names = {
-            "serial.log",
-            "frames/current.png",
-            "qom/snapshot.json",
-            "network/evidence.json",
-            "network/capture.pcap",
-            "ble-probe.log",
-            "manifest.json",
-        }
-        checks = {
-            "api_evidence": evidence_status == 200,
-            "frame_png": (
-                frame_status == 200
-                and frame.startswith(b"\x89PNG\r\n\x1a\n")
-                and len(frame) > 1000
-            ),
-            "wifi_dhcp_http": all(
-                network_checks.get(f"serial:{marker}", False)
-                for marker in (
-                    "UNIFIED_CORE2_WIFI_CONNECTED",
-                    "UNIFIED_CORE2_HTTP_PASS",
+        session_id = str(session["session_id"])
+        phase = "wait_ready"
+        api.json(
+            f"/api/v1/sessions/{session_id}/wait",
+            payload={
+                "ready_marker": READY_MARKER,
+                "timeout_seconds": timeout,
+            },
+            timeout=timeout + 15,
+        )
+        phase = "wait_running"
+        wait_for_running(api, session_id, timeout)
+        phase = "wait_network"
+        network = wait_for_network(api, session_id, timeout)
+        phase = "hold"
+        hold_deadline = time.monotonic() + hold_seconds
+        hold_stable = True
+        hold_state = "running"
+        while time.monotonic() < hold_deadline:
+            current = api.json(f"/api/v1/sessions/{session_id}")
+            if current.get("state") != "running":
+                hold_stable = False
+                hold_state = str(current.get("state") or "unknown")
+                raw_error = current.get("error")
+                hold_error = (
+                    str(raw_error) if raw_error is not None else None
                 )
-            ),
-            "public_dns_http": all(
-                network_checks.get(f"serial:{marker}", False)
-                for marker in (
-                    "UNIFIED_CORE2_PUBLIC_DNS",
-                    "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+                break
+            time.sleep(
+                min(
+                    0.5,
+                    max(0.0, hold_deadline - time.monotonic()),
                 )
-            ),
-            "external_nus_gatt": (
-                network.get("status") == "PASS"
-                and bool(network_checks)
-                and all(network_checks.values())
-                and all(
-                    network_checks.get(f"serial:{marker}", False)
-                    for marker in (
-                        "UNIFIED_CORE2_BLE_RX",
-                        "UNIFIED_CORE2_BLE_ACK_SENT",
-                    )
+            )
+        phase = "capture_evidence"
+        frame_status, frame, _ = api.request(
+            f"/api/v1/sessions/{session_id}/frame.png"
+        )
+        qom = api.json(
+            f"/api/v1/sessions/{session_id}/qom-snapshot",
+            payload={
+                "path": "/machine",
+                "depth": 2,
+                "max_nodes": 250,
+            },
+        )
+        evidence_status, evidence, _ = api.request(
+            f"/api/v1/sessions/{session_id}/evidence"
+            "?include=manifest,serial,frames,logs,network,qom"
+        )
+    except Exception as error:  # noqa: BLE001 - persist every attempt failure.
+        failure = error
+
+    final_session: dict[str, Any] = {}
+    session_read_error: str | None = None
+    cleanup_error: str | None = None
+    if session_id:
+        try:
+            final_session = api.json(f"/api/v1/sessions/{session_id}")
+        except (RuntimeError, OSError, ValueError) as error:
+            session_read_error = str(error).replace(session_id, "<session>")
+        hold_state = str(final_session.get("state") or hold_state)
+        raw_error = final_session.get("error")
+        if raw_error is not None:
+            hold_error = str(raw_error)
+
+        if not network:
+            try:
+                network = api.json(f"/api/v1/sessions/{session_id}/network")
+            except (RuntimeError, OSError, ValueError):
+                network = {}
+        if not frame:
+            try:
+                frame_status, frame, _ = api.request(
+                    f"/api/v1/sessions/{session_id}/frame.png"
                 )
-                and any(key.startswith("peer:") for key in network_checks)
-                and all(
-                    value
-                    for key, value in network_checks.items()
-                    if key.startswith("peer:")
+            except (RuntimeError, OSError, ValueError):
+                frame_status = 0
+                frame = b""
+        if not qom:
+            try:
+                qom = api.json(
+                    f"/api/v1/sessions/{session_id}/qom-snapshot",
+                    payload={
+                        "path": "/machine",
+                        "depth": 2,
+                        "max_nodes": 250,
+                    },
                 )
-            ),
-            "native_hci_transport": transport == expected_transport,
-            "evidence_zip": evidence_names.issubset(names),
-            "pcap_file_in_evidence_zip": len(pcap) > 0,
-            "manifest_session_binding": (
-                manifest.get("session", {}).get("session_id")
-                == session_id
-            ),
-        }
-        if not qom.get("nodes"):
-            checks["api_evidence"] = False
-        return {
-            "attempt": attempt_dir.name,
-            "status": "PASS" if all(checks.values()) else "FAIL",
-            "checks": checks,
-            "frame_bytes": len(frame),
-            "frame_sha256": hashlib.sha256(frame).hexdigest(),
-            "qom_nodes": len(qom.get("nodes", [])),
-            "evidence_bytes": len(evidence),
-            "serial_sha256": hashlib.sha256(serial).hexdigest(),
-            "peer_log_sha256": hashlib.sha256(peer_log).hexdigest(),
-            "pcap_bytes": len(pcap),
-            "hci_transport": str(transport or ""),
-        }
-    finally:
+            except (RuntimeError, OSError, ValueError):
+                qom = {}
+        if not evidence:
+            try:
+                evidence_status, evidence, _ = api.request(
+                    f"/api/v1/sessions/{session_id}/evidence"
+                    "?include=manifest,serial,frames,logs,network,qom"
+                )
+            except (RuntimeError, OSError, ValueError):
+                evidence_status = 0
+                evidence = b""
+
+    if frame:
+        (attempt_dir / "frame.png").write_bytes(frame)
+    if qom:
+        (attempt_dir / "qom.json").write_text(
+            json.dumps(qom, indent=2) + "\n"
+        )
+    if evidence:
+        (attempt_dir / "evidence.zip").write_bytes(evidence)
+        names, manifest, serial, peer_log, pcap = unpack_evidence(evidence)
+
+    if session_id:
         try:
             api.json(
                 f"/api/v1/sessions/{session_id}?purge=0",
                 payload={},
                 method="DELETE",
             )
-        except Exception:
-            pass
+        except (RuntimeError, OSError, ValueError) as error:
+            cleanup_error = str(error).replace(session_id, "<session>")
+
+    if session_id and not evidence:
+        try:
+            evidence_status, evidence, _ = api.request(
+                f"/api/v1/sessions/{session_id}/evidence"
+                "?include=manifest,serial,frames,logs,network,qom"
+            )
+            if evidence:
+                (attempt_dir / "evidence.zip").write_bytes(evidence)
+                names, manifest, serial, peer_log, pcap = unpack_evidence(
+                    evidence
+                )
+        except (RuntimeError, OSError, ValueError):
+            evidence_status = 0
+            evidence = b""
+
+    network_checks = network.get("checks")
+    network_checks = (
+        network_checks if isinstance(network_checks, dict) else {}
+    )
+    transport = network.get("runtime", {}).get("hci_transport")
+    expected_transport = "ESP32 native HCI device + HLI to Bumble"
+    evidence_names = {
+        "serial.log",
+        "frames/current.png",
+        "qom/snapshot.json",
+        "network/evidence.json",
+        "network/capture.pcap",
+        "ble-probe.log",
+        "manifest.json",
+    }
+    checks = {
+        "api_evidence": evidence_status == 200,
+        "frame_png": (
+            frame_status == 200
+            and frame.startswith(b"\x89PNG\r\n\x1a\n")
+            and len(frame) > 1000
+        ),
+        "wifi_dhcp_http": all(
+            network_checks.get(f"serial:{marker}", False)
+            for marker in (
+                "UNIFIED_CORE2_WIFI_CONNECTED",
+                "UNIFIED_CORE2_HTTP_PASS",
+            )
+        ),
+        "public_dns_http": all(
+            network_checks.get(f"serial:{marker}", False)
+            for marker in (
+                "UNIFIED_CORE2_PUBLIC_DNS",
+                "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+            )
+        ),
+        "external_nus_gatt": (
+            network.get("status") == "PASS"
+            and bool(network_checks)
+            and all(network_checks.values())
+            and all(
+                network_checks.get(f"serial:{marker}", False)
+                for marker in (
+                    "UNIFIED_CORE2_BLE_RX",
+                    "UNIFIED_CORE2_BLE_ACK_SENT",
+                )
+            )
+            and any(key.startswith("peer:") for key in network_checks)
+            and all(
+                value
+                for key, value in network_checks.items()
+                if key.startswith("peer:")
+            )
+        ),
+        "native_hci_transport": transport == expected_transport,
+        "hold_stable": hold_stable,
+        "evidence_zip": evidence_names.issubset(names),
+        "pcap_file_in_evidence_zip": len(pcap) > 0,
+        "manifest_session_binding": (
+            manifest.get("session", {}).get("session_id")
+            == session_id
+        ),
+    }
+    if not qom.get("nodes"):
+        checks["api_evidence"] = False
+
+    serial_text = serial.decode("utf-8", errors="replace")
+    peer_text = peer_log.decode("utf-8", errors="replace")
+    observed_markers = [
+        marker
+        for marker in (
+            "UNIFIED_CORE2_BOOT",
+            "UNIFIED_CORE2_MAIN",
+            "UNIFIED_CORE2_DISPLAY",
+            READY_MARKER,
+            "UNIFIED_CORE2_WIFI_CONNECTED",
+            "UNIFIED_CORE2_HTTP_PASS",
+            "UNIFIED_CORE2_PUBLIC_DNS",
+            "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+            "UNIFIED_CORE2_BLE_READY",
+            "UNIFIED_CORE2_BLE_RX",
+            "UNIFIED_CORE2_BLE_ACK_SENT",
+        )
+        if marker in serial_text
+    ]
+    panic_events: list[dict[str, str | None]] = []
+    panic_blocks = serial_text.split("Guru Meditation Error:")
+    for raw_block in panic_blocks[1:]:
+        kind_match = re.search(r"panic'ed \(([^)]+)\)", raw_block)
+        pc_match = re.search(r"\bPC\s*:\s*(0x[0-9a-fA-F]+)", raw_block)
+        exccaue_match = re.search(
+            r"\bEXCCAUSE:\s*(0x[0-9a-fA-F]+)",
+            raw_block,
+        )
+        panic_events.append(
+            {
+                "kind": kind_match.group(1) if kind_match else None,
+                "pc": pc_match.group(1).lower() if pc_match else None,
+                "exccaue": (
+                    exccaue_match.group(1).lower()
+                    if exccaue_match
+                    else None
+                ),
+            }
+        )
+    if panic_events:
+        panic_kind = str(panic_events[0].get("kind") or "unknown")
+        normalized_kind = re.sub(
+            r"(?<!^)(?=[A-Z])",
+            "_",
+            panic_kind,
+        ).lower()
+        failure_class = f"panic_{normalized_kind}"
+    elif "GATT timeout" in peer_text:
+        failure_class = "gatt_timeout"
+    elif failure is not None:
+        failure_class = "attempt_error"
+    elif not all(checks.values()):
+        failure_class = "check_failed"
+    else:
+        failure_class = None
+
+    error_message = (
+        f"{type(failure).__name__}: {failure}"
+        if failure is not None
+        else None
+    )
+    if session_id and error_message is not None:
+        error_message = error_message.replace(session_id, "<session>")
+
+    return {
+        "attempt": attempt_dir.name,
+        "status": "PASS" if all(checks.values()) else "FAIL",
+        "checks": checks,
+        "failure_phase": phase if failure is not None else None,
+        "failure_class": failure_class,
+        "failure_error": error_message,
+        "frame_bytes": len(frame),
+        "frame_sha256": (
+            hashlib.sha256(frame).hexdigest() if frame else None
+        ),
+        "qom_nodes": len(qom.get("nodes", [])),
+        "evidence_bytes": len(evidence),
+        "serial_sha256": (
+            hashlib.sha256(serial).hexdigest() if serial else None
+        ),
+        "peer_log_sha256": (
+            hashlib.sha256(peer_log).hexdigest() if peer_log else None
+        ),
+        "pcap_bytes": len(pcap),
+        "hci_transport": str(transport or ""),
+        "network_status": str(network.get("status") or "UNAVAILABLE"),
+        "hold_state": hold_state,
+        "hold_error": hold_error,
+        "failure_diagnostics": {
+            "panic_count": len(panic_events),
+            "first_panic": panic_events[0] if panic_events else None,
+            "last_panic": panic_events[-1] if panic_events else None,
+            "observed_serial_markers": observed_markers,
+            "peer_gatt_timeout": "GATT timeout" in peer_text,
+            "session_read_error": session_read_error,
+            "cleanup_error": cleanup_error,
+        },
+    }
 
 
 def main() -> int:
@@ -287,11 +538,14 @@ def main() -> int:
     parser.add_argument("--elf", type=Path, required=True)
     parser.add_argument("--qemu", type=Path, required=True)
     parser.add_argument("--attempts", type=int, default=5)
+    parser.add_argument("--hold-seconds", type=float, default=0)
     parser.add_argument("--timeout", type=float, default=180)
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
-    if args.attempts < 1 or args.attempts > 10:
-        parser.error("--attempts must be from 1 to 10")
+    if args.attempts < 1 or args.attempts > 30:
+        parser.error("--attempts must be from 1 to 30")
+    if args.hold_seconds < 0 or args.hold_seconds > 120:
+        parser.error("--hold-seconds must be from 0 to 120")
     for label, path in (
         ("image", args.image),
         ("ELF", args.elf),
@@ -320,11 +574,13 @@ def main() -> int:
             elf_artifact,
             args.out_dir / f"attempt-{attempt}",
             args.timeout,
+            args.hold_seconds,
         )
         runs.append(result)
         if result["status"] != "PASS":
             break
     attempts_passed = sum(run["status"] == "PASS" for run in runs)
+    failed_runs = [run for run in runs if run["status"] != "PASS"]
     all_checks_passed = all(all(run["checks"].values()) for run in runs)
     frame_hashes = {run["frame_sha256"] for run in runs}
     qom_node_counts = {run["qom_nodes"] for run in runs}
@@ -379,7 +635,26 @@ def main() -> int:
         "elf_sha256": sha256(args.elf),
         "qemu_sha256": sha256(args.qemu),
         "attempts_requested": args.attempts,
+        "attempts_completed": len(runs),
         "attempts_passed": attempts_passed,
+        "attempts_failed": len(failed_runs),
+        "hold_seconds_per_attempt": args.hold_seconds,
+        "first_failure": (
+            {
+                key: failed_runs[0].get(key)
+                for key in (
+                    "attempt",
+                    "failure_phase",
+                    "failure_class",
+                    "failure_error",
+                    "network_status",
+                    "hold_state",
+                    "failure_diagnostics",
+                )
+            }
+            if failed_runs
+            else None
+        ),
         "checks_per_attempt": checks_per_attempt,
         "runs": [
             {
@@ -393,7 +668,7 @@ def main() -> int:
             "isolation": "trusted-host",
             "gdb_bridge": False,
             "session_reuse": (
-                f"{args.attempts} independent sequential leases "
+                f"up to {args.attempts} independent sequential leases "
                 "and QEMU processes"
             ),
             "pcap": (

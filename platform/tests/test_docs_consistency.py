@@ -57,6 +57,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-api-notification-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-extended-run-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
@@ -1036,8 +1037,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(
             {run["frame_sha256"] for run in hci4["runs"]},
             {
-                "5bfcdf8fc518a36385783a9b5bf09b3fbce9"
-                "d8c07406326955569f6c7db8408b"
+                (
+                    "5bfcdf8fc518a36385783a9b5bf09b3fbce9"
+                    "d8c07406326955569f6c7db8408b"
+                )
             },
         )
         self.assertTrue(all(run["qom_nodes"] == 27 for run in hci4["runs"]))
@@ -1065,6 +1068,50 @@ class DocsConsistencyTests(unittest.TestCase):
             "bit-exact Espressif BT controller/baseband",
             hci4["boundary"]["not_claimed"],
         )
+        extended_fail = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-extended-run-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            extended_fail["kind"],
+            "m5stack-core2-native-hci-extended-run-failure",
+        )
+        self.assertEqual(extended_fail["stage"], "CORE2-02")
+        self.assertEqual(extended_fail["gate_result"], "FAIL")
+        self.assertEqual(extended_fail["status"], "FAIL")
+        self.assertEqual(len(extended_fail["observations"]), 3)
+        self.assertEqual(
+            extended_fail["observations"][0]["configuration"][
+                "attempts_completed"
+            ],
+            4,
+        )
+        self.assertEqual(
+            extended_fail["observations"][1]["failure"]["first_panic"][
+                "kind"
+            ],
+            "IllegalInstruction",
+        )
+        self.assertEqual(
+            extended_fail["observations"][1]["failure"]["first_panic"][
+                "symbol"
+            ],
+            "semphr_give_wrapper",
+        )
+        self.assertEqual(
+            extended_fail["classification"]["result"],
+            "not_root_caused",
+        )
+        self.assertIn("CORE2-02", status)
+        self.assertIn("extended-run", status)
+        self.assertIn("semphr_give_wrapper", status)
+        self.assertIn("CORE2-02", backlog)
+        self.assertIn("extended-run", backlog)
+        self.assertIn("CORE2-02", workstreams)
+        self.assertIn("extended-run", workstreams)
         oversize = json.loads(
             (
                 ROOT
@@ -1169,7 +1216,13 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("platform/tests/test_worker_agent.py", code_map)
 
         task_ids = sorted(
-            set(re.findall(r"^\| `([A-Z][A-Z0-9-]+)` \|", backlog, re.M))
+            set(
+                re.findall(
+                    r"^\| `([A-Z][A-Z0-9-]+)` \|",
+                    backlog,
+                    re.MULTILINE,
+                )
+            )
         )
         self.assertTrue(task_ids)
         for task_id in task_ids:
@@ -1208,7 +1261,7 @@ class DocsConsistencyTests(unittest.TestCase):
         openapi_version = re.search(
             r"^  version: ([0-9]+\.[0-9]+\.[0-9]+)$",
             openapi,
-            re.M,
+            re.MULTILINE,
         )
         self.assertIsNotNone(markdown_version)
         self.assertIsNotNone(openapi_version)

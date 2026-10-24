@@ -54,6 +54,12 @@ MicroPython 和其他完整 Flash 固件。
   `/api/v1` lease 中同时通过 frame、QOM、WiFi DHCP/HTTP、公网
   DNS/HTTP、外部 NUS GATT、pcap 和 evidence ZIP 检查，不启动 GDB bridge。
   旧的 `core2-native-vhci` 只保留为显式诊断/兼容 profile。
+- Core2 的延长运行还没有闭环：后续带 hold 的独立运行在达到
+  `UNIFIED_CORE2_READY`、WiFi/公网 PASS 之后仍出现过 guest panic 和
+  reboot loop。一次首轮 panic 位于 `semphr_give_wrapper`
+  (`components/bt/controller/esp32/bt.c:677`)，随后变成
+  `InstrFetchProhibited`。这不推翻 `HCI-4 5/5` 功能基线，但
+  `CORE2-02` 的长稳/soak 当前必须记为 `FAIL`，根因尚未确定。
 - GitHub Actions 已运行完整平台测试，并在 Ubuntu runner 上执行 fail-closed
   namespace + nftables exact IPv4 egress、拒绝端口/IP、veth/NAT、清理和
   private bridge/TAP primitive 回归。
@@ -74,7 +80,7 @@ MicroPython 和其他完整 Flash 固件。
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
 | 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap、双 guest DHCP/TCP/双侧 pcap 隔离、远程目录、durable job queue、authenticated HTTP executor 和本地 QEMU/QMP restart reattach | [`executor-auth-pass.json`](tests/network/worker_executor/evidence-2026-10-24-executor-auth-pass.json) | 跨主机 executor/TLS/mTLS、credential rotation、companion/evidence continuity、跨主机 reattach、生产多机调度、外部 IPv6 |
-| Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、native-HCI `HCI-1` 至 `HCI-4` PASS；规范 profile `core2-native-hci` 在五个独立 Device Service lease 中完成 frame/QOM/WiFi/公网/NUS GATT/pcap | [`hci4-service-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json)、[`hli-api-gatt-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json)、[`0003-esp32-native-hci-api-transaction.patch`](patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch) | HCI/GATT 服务化门禁已闭环，且 `gdb_bridge=false`。旧失败是 21-byte probe 形成 24-byte ATT PDU、超过默认 MTU 23；15-byte probe 的 17-byte PDU 全链路 `5/5`。旧 `core2-native-vhci` 降为 GDB 诊断/兼容 profile；剩余是 bit-exact controller/baseband、物理 cache/PSRAM、coexistence/soak、真机同路径 |
+| Core2 稳定性与无线 | `HCI-4` 功能基线 PASS；规范 profile `core2-native-hci` 在五个独立 Device Service lease 中完成 frame/QOM/WiFi/公网/NUS GATT/pcap；延长运行当前 FAIL | [`hci4-service-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json)、[`extended-run-fail.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-extended-run-fail.json) | `HCI-4 5/5` 与 extended-run 分开记录。失败发生在 READY/联网/BLE 连接之后，首轮 panic 可落在 controller task 的 `semphr_give_wrapper`，随后 reboot loop；尚不能归因于物理 cache/PSRAM。旧 `core2-native-vhci` 仍是 GDB 诊断/兼容 profile |
 | 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、写入回滚和 staging GC、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单与 SPDX、声明级许可 allowlist/denylist | [`spiffs-inventory.json`](tests/firmware/evidence-2026-10-24-spiffs-inventory.json)、[`webburner-ui.json`](tests/firmware/evidence-2026-10-24-webburner-ui.json) | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse、跨厂商回归 |
 | 共享 QEMU 回归 | 双 guest WiFi patch `0028` 合入后，S3/C6/Core2 全矩阵 `67/67` 首轮通过；键盘测试补齐 10 秒启动 settle | [`dual-guest-fabric-matrix.json`](tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) | 后续共享控制器改动重跑受影响矩阵；真机同路径证据 |
 
@@ -87,7 +93,7 @@ MicroPython 和其他完整 Flash 固件。
 | 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT、DHCP renewal、双 guest lab fabric、本地 worker lifecycle、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor 和 HMAC worker auth 已通；跨主机 executor/TLS/mTLS、rotation、companion/evidence continuity、跨主机 reattach、生产多机调度和外部 IPv6 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、浏览器 chunk 上传与刷新恢复、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单和声明级许可 allowlist/denylist 已通；运行时权限、完整源码级许可审批与真机 key 流程仍待补 |
 | 服务池与持久化 | `partial` | 已支持本地 worker heartbeat/drain/resume、PID/start-time/QMP 校验后的 restart reattach、远程目录、durable queue、HMAC-authenticated HTTP executor、claim/lease/expiry retry、worker 失联回收和 evidence ZIP/SHA256 回传；尚无跨主机 executor、TLS/mTLS、rotation、companion/BLE/evidence 连续接管、warm pool 和生产多机调度 |
-| Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload、stock VHCI、QEMU native-HCI 均已有通过证据；`core2-native-hci` 在五个独立 Device Service lease 中合并 frame/QOM/WiFi/公网/NUS GATT/pcap，且不使用 GDB bridge | bit-exact Espressif BT controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机同路径 |
+| Core2 稳定性与原生无线 | `partial` | `HCI-4` 五个独立 lease 的 frame/QOM/WiFi/公网/NUS GATT/pcap 已通过；带 hold 的后续运行出现 panic/reboot loop，当前优先定位 controller task、HLI/teardown 生命周期。bit-exact Espressif BT controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机同路径仍开放 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 
 关键索引：
@@ -187,7 +193,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 在五个独立 lease 中通过 frame/QOM/WiFi/公网/NUS GATT/pcap，且不使用 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；bit-exact controller、coexistence/soak 和物理 cache/PSRAM 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 在五个独立 lease 中通过 frame/QOM/WiFi/公网/NUS GATT/pcap，且不使用 GDB bridge。后续 extended-run/soak 当前 FAIL，见 `CORE2-02`。旧的 `core2-native-vhci` 保留为诊断/兼容路径；bit-exact controller、coexistence 和物理 cache/PSRAM 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
