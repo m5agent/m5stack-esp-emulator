@@ -14,6 +14,9 @@ cached file is never treated as the current artifact merely because its
 firmware ID and version ID are unchanged; public CDN objects have been observed
 to change behind those identifiers. Result keys include
 `device:firmware:sha256`, so changed bytes cannot reuse a completed result.
+The real metadata/download path was exercised with `--resume --plan-only`:
+four cached samples were force-refreshed and the temporary plan was rewritten
+without creating a Device Service session.
 
 All PASS/PARTIAL counts below are bound to the SHA-256 values stored in the
 committed evidence. They describe those historical artifacts, not whatever the

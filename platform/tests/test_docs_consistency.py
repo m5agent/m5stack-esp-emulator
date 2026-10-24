@@ -593,6 +593,19 @@ class DocsConsistencyTests(unittest.TestCase):
                 for sample in refreshed_manifests["samples"]
             )
         )
+        resume_live = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-public-resume-refresh-live.json"
+            ).read_text()
+        )
+        self.assertEqual(resume_live["status"], "PASS")
+        self.assertEqual(resume_live["mode"], "resume-plan-only")
+        self.assertFalse(
+            resume_live["checks"]["device_session_created"]
+        )
+        self.assertFalse(resume_live["checks"]["qemu_started"])
 
     def test_runtime_model_gap_register_matches_evidence_and_backlog(self):
         register = (DOCS / "runtime-model-gap-register.md").read_text()

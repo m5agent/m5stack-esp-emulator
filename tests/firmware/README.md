@@ -59,6 +59,11 @@ The same four artifacts passed the full manifest importer in
 Manifest PASS does not mean a clean review: all four require human review and
 no functional execution has been performed.
 
+The live resume/force-refresh path is retained in
+[`evidence-2026-10-25-public-resume-refresh-live.json`](evidence-2026-10-25-public-resume-refresh-live.json).
+It uses public metadata and downloads only; no Device Service session was
+created.
+
 Packages that include source files also receive a bounded SPDX header scan.
 Source path hashes and declarations are eligible for license policy, while
 generated code, absent third-party sources and legal review remain out of

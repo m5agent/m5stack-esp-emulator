@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-public-firmware-resume-refresh",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "real-public-metadata-and-download-resume-plan-only-not-device-execution",
+  "mode": "resume-plan-only",
+  "refreshed_at": "2026-10-24T16:57:54.757014+00:00",
+  "samples": [
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000002559",
+      "sha256": "74e714fcef825025c5df61cffeaefed3d5c01b97da4298b42be098740127dae4",
+      "static_analysis": "PASS"
+    },
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000000358",
+      "sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+      "static_analysis": "PASS"
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "1897200000000000015",
+      "sha256": "06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986",
+      "static_analysis": "PASS"
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "2091144466157694978",
+      "sha256": "e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935",
+      "static_analysis": "PASS"
+    }
+  ],
+  "checks": {
+    "resume_used_existing_plan": true,
+    "all_four_force_refreshed": true,
+    "plan_rewritten_with_refreshed_at": true,
+    "static_analysis_pass": "4/4",
+    "device_session_created": false,
+    "qemu_started": false
+  },
+  "not_claimed": [
+    "Device Service boot/frame/input",
+    "application functional PASS",
+    "physical hardware validation"
+  ]
+}
