@@ -616,6 +616,13 @@ class FirmwareManifestTests(unittest.TestCase):
             ),
             ["display", "wifi"],
         )
+        self.assertEqual(
+            normalize_capability_declarations(
+                ["zigbee", "thread", "Classic Bluetooth"],
+                field="required_capabilities",
+            ),
+            ["classic-bluetooth", "ieee802154"],
+        )
         for value in (
             "wifi",
             [""],
