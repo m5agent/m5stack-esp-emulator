@@ -386,6 +386,17 @@ class WorkerAgent:
         }
 
     def register(self) -> dict[str, Any]:
+        if self.runtime_api is not self.api:
+            try:
+                health = self.runtime_api.json("/api/health", timeout=10)
+            except Exception as error:
+                raise WorkerAgentError(
+                    f"worker runtime health failed: {error}"
+                ) from error
+            if not isinstance(health, dict) or health.get("ok") is not True:
+                raise WorkerAgentError(
+                    "worker runtime health did not return ok=true"
+                )
         response = self.api.json(
             "/api/v1/workers",
             method="POST",

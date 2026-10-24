@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 from worker_agent import (  # noqa: E402
     CredentialReloader,
     WorkerAgent,
+    WorkerAgentError,
     atomic_write,
     credential_file_fingerprint,
     initialize_identity,
@@ -112,9 +113,12 @@ class FakeRuntimeApi:
     def __init__(self):
         self.calls = []
         self.evidence = evidence_zip()
+        self.health_ok = True
 
     def json(self, path, *, method="GET", payload=None, timeout=60):
         self.calls.append((method, path, payload))
+        if path == "/api/health":
+            return {"ok": self.health_ok}
         if path == "/api/v1/sessions":
             return {"session_id": "b" * 32}
         if path == f"/api/v1/sessions/{'b' * 32}":
@@ -207,6 +211,7 @@ class WorkerAgentTests(unittest.TestCase):
 
         control_paths = [call[1] for call in control_api.calls]
         runtime_paths = [call[1] for call in runtime_api.calls]
+        self.assertEqual(runtime_paths[0], "/api/health")
         self.assertIn("/api/v1/jobs/claim", control_paths)
         self.assertIn("/api/v1/jobs/job-test/result", control_paths)
         self.assertFalse(
@@ -248,6 +253,20 @@ class WorkerAgentTests(unittest.TestCase):
             args.runtime_service_url,
             "http://runtime.example:8788",
         )
+
+        unhealthy_runtime = FakeRuntimeApi()
+        unhealthy_runtime.health_ok = False
+        control_without_capacity = FakeApi()
+        unhealthy_agent = self.agent(
+            control_without_capacity,
+            runtime_api=unhealthy_runtime,
+        )
+        with self.assertRaisesRegex(
+            WorkerAgentError,
+            "runtime health did not return ok=true",
+        ):
+            unhealthy_agent.register()
+        self.assertEqual(control_without_capacity.calls, [])
 
     def test_session_failure_is_reported_and_cleaned_up(self):
         api = FakeApi(session_states=["failed"])

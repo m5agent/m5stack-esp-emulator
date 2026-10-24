@@ -21,7 +21,8 @@ The control API and execution API can be different services. The worker claims
 and heartbeats centrally through `--service-url`, then creates, waits for,
 collects evidence from and stops the session through
 `--runtime-service-url`. When the runtime URL is omitted, both planes use the
-same service for same-host compatibility.
+same service for same-host compatibility. A distinct runtime endpoint must
+return `/api/health` with `ok=true` before the worker registers or claims work.
 
 When `--token` or `M5_SERVICE_API_TOKEN` is configured, worker-specific
 claim/heartbeat/result requests also carry an HMAC signature derived from the
