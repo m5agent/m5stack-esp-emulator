@@ -632,9 +632,10 @@ class WorkerAgent:
         }
 
     def work_once(self) -> bool:
-        self._check_runtime_health()
         if not self.registered:
             self.register()
+        else:
+            self._check_runtime_health()
         self.heartbeat_worker()
         job = self.claim()
         if job is None:
