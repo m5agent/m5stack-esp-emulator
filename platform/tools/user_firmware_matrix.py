@@ -489,13 +489,15 @@ def refresh_selected_sample(
 
 
 def sample_result_key(sample: Mapping[str, Any]) -> str:
-    return ":".join(
-        (
-            str(sample.get("device_id") or ""),
-            str(sample.get("firmware_id") or ""),
-            str(sample.get("sha256") or ""),
-        )
-    )
+    parts = [
+        str(sample.get("device_id") or ""),
+        str(sample.get("firmware_id") or ""),
+        str(sample.get("sha256") or ""),
+    ]
+    storage = sample.get("storage_fixture")
+    if isinstance(storage, Mapping) and storage.get("sha256"):
+        parts.append(f"sd={storage['sha256']}")
+    return ":".join(parts)
 
 
 class ServiceClient:
@@ -803,6 +805,7 @@ def execute_sample(
     out_dir: Path,
     observe_seconds: float,
     settle_seconds: float,
+    storage_fixture: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     firmware_path = Path(str(sample["path"]))
     has_screenshot = bool(device.get("features", {}).get("screenshot"))
@@ -837,15 +840,17 @@ def execute_sample(
             {"firmware_id": firmware["firmware_id"]},
         )
         result["service_static_analysis"] = analysis
-        session = client.post(
-            "sessions",
-            {
-                "device_id": sample["device_id"],
-                "firmware_id": firmware["firmware_id"],
-                "ttl_seconds": max(600, int(observe_seconds) + 300),
-                "ready_timeout_seconds": observe_seconds,
-            },
-        )
+        session_payload = {
+            "device_id": sample["device_id"],
+            "firmware_id": firmware["firmware_id"],
+            "ttl_seconds": max(600, int(observe_seconds) + 300),
+            "ready_timeout_seconds": observe_seconds,
+        }
+        if storage_fixture:
+            session_payload["storage"] = {
+                "sd_image_artifact_id": storage_fixture["artifact_id"],
+            }
+        session = client.post("sessions", session_payload)
         session_id = str(session["session_id"])
         result["session_id"] = session_id
         snapshot = wait_until_running(
@@ -1063,6 +1068,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--jobs", type=int, default=3)
     parser.add_argument("--observe-seconds", type=float, default=35)
     parser.add_argument("--settle-seconds", type=float, default=1.2)
+    parser.add_argument("--sd-image", type=Path)
     parser.add_argument("--plan-only", action="store_true")
     parser.add_argument("--resume", action="store_true")
     return parser
@@ -1207,12 +1213,39 @@ def main() -> None:
     if args.plan_only:
         return
 
+    sd_fixture: dict[str, Any] | None = None
+    if args.sd_image is not None:
+        if not args.sd_image.is_file():
+            raise SystemExit(f"SD image does not exist: {args.sd_image}")
+        sd_bytes = args.sd_image.stat().st_size
+        if sd_bytes <= 0 or sd_bytes % 512:
+            raise SystemExit(
+                "SD image must be non-empty and a multiple of 512 bytes"
+            )
+        sd_sha = hashlib.sha256(args.sd_image.read_bytes()).hexdigest()
+        artifact = client.upload(args.sd_image, args.sd_image.name)
+        if artifact["sha256"] != sd_sha:
+            raise SystemExit("uploaded SD image SHA-256 changed")
+        sd_fixture = {
+            "kind": "raw-sd",
+            "artifact_id": artifact["artifact_id"],
+            "sha256": sd_sha,
+            "bytes": sd_bytes,
+        }
+        print(
+            f"SD fixture sha256={sd_sha} bytes={sd_bytes}",
+            file=sys.stderr,
+            flush=True,
+        )
+
     samples_by_rank: list[list[dict[str, Any]]] = []
     for selection in selections:
         for index, sample in enumerate(selection["selected"]):
             while len(samples_by_rank) <= index:
                 samples_by_rank.append([])
             sample = dict(sample)
+            if sample["device_id"] == "papermono" and sd_fixture:
+                sample["storage_fixture"] = dict(sd_fixture)
             sample["sample_key"] = sample_result_key(sample)
             samples_by_rank[index].append(sample)
 
@@ -1240,6 +1273,11 @@ def main() -> None:
                     out_dir=args.out_dir,
                     observe_seconds=args.observe_seconds,
                     settle_seconds=args.settle_seconds,
+                    storage_fixture=(
+                        sample.get("storage_fixture")
+                        if isinstance(sample.get("storage_fixture"), dict)
+                        else None
+                    ),
                 ): sample
                 for sample in pending
             }

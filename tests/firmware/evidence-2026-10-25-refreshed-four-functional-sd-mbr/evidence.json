@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-public-firmware-refresh-functional-sd-mbr",
+  "date": "2026-10-25",
+  "status": "PARTIAL",
+  "scope": "current-public-cdn-bytes-device-service-runtime-with-session-sd-fixture",
+  "summary": {
+    "samples": 4,
+    "pass": 3,
+    "partial": 1,
+    "fail": 0
+  },
+  "selection": {
+    "retrieved_at": "2026-10-24T19:52:31.579139+00:00",
+    "policy": "MOST_DOWNLOADED; force refresh current BIN; result key includes SD fixture SHA",
+    "plan_sha256": "15a1cab070eb6964ad696ba745f99e43bc77b28e35c160b4d5d991591de5c9e2",
+    "results_sha256": "05794e06de6fab0f945e22f1e2f4fd67b2329418a092321a4a5969577b8bbd3e"
+  },
+  "runtime": {
+    "service": "/api/v1",
+    "runtime": "qemu",
+    "observe_seconds": 60,
+    "settle_seconds": 2,
+    "sessions_retained": true,
+    "session_storage_copy": true
+  },
+  "storage_fixture": {
+    "generator": "platform/tools/sd_image.py",
+    "filesystem": "FAT32",
+    "partition_layout": "MBR",
+    "partition_start_sector": 2048,
+    "bytes": 67108864,
+    "sha256": "b720d6f7f932bb22accc8b9133f3016e5c060f5d292523f78b3c636c036a5139",
+    "label": "CROSSPOINT",
+    "runtime_copy": "session-isolated writable raw image",
+    "source_artifact_mounted_directly": false
+  },
+  "checks": {
+    "force_refreshed_public_bytes": true,
+    "source_sha_bound": true,
+    "service_static_analysis": "PASS",
+    "device_service_boot": "4/4",
+    "sd_fixture_isolated_copy": "PASS",
+    "restored_session_storage": "PASS",
+    "evidence_bundle_storage_summary": "PASS",
+    "matrix_functional_pass": "3/4",
+    "fatal_serial_signature": "0/4",
+    "qemu_cleanup": "4/4"
+  },
+  "samples": [
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000002559",
+      "name": "XiaoZhi Voice Assistant For AtomS3R",
+      "version": "v2.2.6-AtomS3",
+      "source_sha256": "74e714fcef825025c5df61cffeaefed3d5c01b97da4298b42be098740127dae4",
+      "service_artifact_sha256": "17ddf5d01c06be4b59606b3030329a1cf78d2e268bac7da16279f2981f4788e7",
+      "session_id": "1b6bb1a23bb94dd2bcfc0ec70cd1920b",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 9050,
+      "serial_sha256": "698a3785c731b44025dc523f00d2c27b9d28395dbbbe8cd1891886be9020691a",
+      "frame": {
+        "path": "atoms3r-1897200000000002559-final.png",
+        "sha256": "7a882ce49724009d891bdb82a6d2b5801aa1f69e20939cd0d3ee1c45e57fced9",
+        "width": 128,
+        "height": 128,
+        "nonblack_pixels": 15693,
+        "unique_colors": 15,
+        "visual": "XiaoZhi Wi-Fi provisioning screen"
+      },
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "not_claimed": [
+        "voice interaction",
+        "audio output",
+        "Wi-Fi provisioning completion",
+        "cloud service connectivity"
+      ]
+    },
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000000358",
+      "name": "OpenAI Voice Assistant For AtomS3R",
+      "version": "v1.0",
+      "source_sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+      "service_artifact_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d",
+      "session_id": "4fa78bdc6411455699f314ad8ed38ef2",
+      "status": "PARTIAL",
+      "status_reason": "application_frame_not_ready",
+      "unmet_requirements": [
+        "application_frame: no non-blank frame"
+      ],
+      "application_ready": false,
+      "serial_bytes": 8267,
+      "serial_sha256": "c0abefe47c85b5fd0d37014f0af9a905bbf0219468275c8c033b4cbd7948604a",
+      "frame": {
+        "path": "atoms3r-1897200000000000358-final.png",
+        "sha256": "7659100791b0b0d9d5707576f6d04cdae4e769ae4ba3034169540fe3990efae5",
+        "width": 128,
+        "height": 128,
+        "nonblack_pixels": 0,
+        "unique_colors": 0,
+        "visual": "black framebuffer"
+      },
+      "observable_input_response": {
+        "frame_changed": false,
+        "serial_changed": false,
+        "observed": false
+      },
+      "serial_observations": [
+        "NVS: Error opening NVS handle: ESP_ERR_NVS_NOT_FOUND",
+        "main: Failed to load user data",
+        "main_task: Returned from app_main()"
+      ],
+      "boundary": "The application returned without presenting a provisioning or error UI. Trusted user-data fixture versus firmware precondition defect remains unresolved."
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "1897200000000000015",
+      "name": "阅读卡片 | EDC Book",
+      "version": "3.1.2",
+      "source_sha256": "06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986",
+      "service_artifact_sha256": "06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986",
+      "session_id": "c754d1de1e8941d2a84a32eb9769ced0",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 2051,
+      "serial_sha256": "4558aac105129807657bc522fc186539176b0f8a1ae532676404bef15585800c",
+      "frame": {
+        "path": "papermono-1897200000000000015-final.png",
+        "sha256": "0454566feec8f0c6c6f241ea83fbafa467a05ffcc4c6c369312461a052d180cc",
+        "width": 480,
+        "height": 800,
+        "nonblack_pixels": 15623,
+        "unique_colors": 2,
+        "visual": "EDC Book launch and continue-reading screen"
+      },
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": false,
+        "observed": true
+      },
+      "storage": {
+        "fixture_sha256": "b720d6f7f932bb22accc8b9133f3016e5c060f5d292523f78b3c636c036a5139",
+        "session_isolated_copy": true
+      },
+      "not_claimed": [
+        "opening external book files from SD",
+        "reader navigation after content is loaded",
+        "full input and persistence workflow"
+      ]
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "2091144466157694978",
+      "name": "CrossPoint-PaperMono-CJK",
+      "version": "1.5.0-RC",
+      "source_sha256": "e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935",
+      "service_artifact_sha256": "0fc4c988b49895bc7978438a49a97d3a078b5b648218b124120a16c0c9b49118",
+      "session_id": "f08a7db48d8c46b6a08787ca67fae2f4",
+      "status": "PASS",
+      "status_reason": "application_frame_and_runtime_ok",
+      "application_ready": true,
+      "serial_bytes": 226,
+      "serial_sha256": "7465f6e37342fa8f97de5da7b65f2b026737ed2211a75474fdba4bebbdf8b525",
+      "frame": {
+        "path": "papermono-2091144466157694978-final.png",
+        "sha256": "076f70454f693443987c5153480fac825939b5cdcb6fa9be604c65fc75943d1e",
+        "width": 480,
+        "height": 800,
+        "nonblack_pixels": 17907,
+        "unique_colors": 3,
+        "visual": "CrossPoint recent-books main menu"
+      },
+      "before_frame": {
+        "path": "papermono-2091144466157694978-before.png",
+        "sha256": "070e8d34628c3bca55bee71fd4db052a7e6535c2525d8a36c30bcfc19436835f",
+        "width": 480,
+        "height": 800,
+        "nonblack_pixels": 384000,
+        "unique_colors": 1,
+        "visual": "initial white panel"
+      },
+      "observable_input_response": {
+        "frame_changed": true,
+        "serial_changed": true,
+        "observed": true
+      },
+      "storage": {
+        "fixture_sha256": "b720d6f7f932bb22accc8b9133f3016e5c060f5d292523f78b3c636c036a5139",
+        "session_isolated_copy": true
+      },
+      "supersedes": {
+        "runtime_fixture_gap": "no initialized FAT32 MBR SD fixture",
+        "prior_visual": "SD card error page",
+        "new_visual": "CrossPoint recent-books main menu"
+      },
+      "not_claimed": [
+        "book file ingestion",
+        "EPUB rendering",
+        "Wi-Fi/OPDS workflow",
+        "long-run reader state persistence"
+      ],
+      "evidence_bundle": {
+        "sha256": "883834b6ac1a30c4ba535000b4a9a78bee07d906f400897540df803a3d279bce",
+        "files": [
+          "frames/current.png",
+          "storage/summary.json",
+          "manifest.json"
+        ],
+        "restored_after_service_restart": true,
+        "storage_summary_sha256": "495555bf0a8ad8c652ae2ba4f4052402fc355af0cec495c64aa0de2f8ec5db4c"
+      }
+    }
+  ],
+  "code_changes": {
+    "sd_image_generator": "platform/tools/sd_image.py",
+    "device_service_storage": "platform/tools/device_service.py",
+    "matrix_storage_fixture": "platform/tools/user_firmware_matrix.py",
+    "regression_tests": [
+      "platform/tests/test_sd_image.py",
+      "platform/tests/test_device_service.py",
+      "platform/tests/test_user_firmware_matrix.py"
+    ]
+  },
+  "not_claimed": [
+    "clean firmware review",
+    "full voice assistant, audio or cloud behavior",
+    "book ingestion or cross-reboot reader workflow",
+    "physical hardware validation"
+  ]
+}

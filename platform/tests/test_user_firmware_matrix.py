@@ -118,6 +118,29 @@ class UserFirmwareMatrixTests(unittest.TestCase):
             sample_result_key(refreshed),
         )
 
+    def test_storage_fixture_participates_in_result_key(self):
+        sample = {
+            "device_id": "papermono",
+            "firmware_id": "firmware-1",
+            "sha256": "1" * 64,
+        }
+        with_storage = {
+            **sample,
+            "storage_fixture": {
+                "artifact_id": "2" * 64,
+                "sha256": "2" * 64,
+                "bytes": 32 << 20,
+            },
+        }
+
+        self.assertNotEqual(
+            sample_result_key(sample),
+            sample_result_key(with_storage),
+        )
+        self.assertTrue(
+            sample_result_key(with_storage).endswith(f":sd={'2' * 64}")
+        )
+
     @mock.patch("user_firmware_matrix.request_json")
     def test_service_client_wait_timeout_tracks_observation_window(
         self,
