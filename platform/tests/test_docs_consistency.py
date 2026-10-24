@@ -58,17 +58,21 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-extended-run-fail.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-confirm-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch",
             "patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch",
+            "patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-call-sregs.patch",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
             "tests/network/tls_allowlist/README.md",
             "tests/network/tls_allowlist/run_test.py",
             "tests/network/core2_openmac_wifi/README.md",
+            "tests/network/core2_openmac_wifi/evidence-2026-10-24-deterministic-5x.json",
             "tests/network/egress_allowlist/README.md",
             "tests/network/egress_allowlist/run_test.py",
             "tests/network/idf_dhcp_renewal/README.md",
@@ -1105,9 +1109,86 @@ class DocsConsistencyTests(unittest.TestCase):
             extended_fail["classification"]["result"],
             "not_root_caused",
         )
+        self.assertEqual(
+            extended_fail["superseded_by"],
+            "evidence-2026-10-24-hci4-halted-gate-5x.json",
+        )
+        halted_gate = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-halted-gate-5x.json"
+            ).read_text()
+        )
+        self.assertEqual(halted_gate["gate_result"], "PASS")
+        self.assertEqual(halted_gate["attempts_requested"], 5)
+        self.assertEqual(halted_gate["attempts_passed"], 5)
+        self.assertEqual(halted_gate["hold_seconds_per_attempt"], 10)
+        self.assertTrue(
+            all(run["status"] == "PASS" for run in halted_gate["runs"])
+        )
+        self.assertTrue(
+            all(
+                run["native_hci_health"]["hli-errors"] == 0
+                and run["native_hci_health"]["hli-posts"]
+                == run["native_hci_health"]["hli-consumed"]
+                and run["native_hci_health"]["hli-queue-depth"] == 0
+                and run["native_hci_health"]["meta-queue-depth"] == 0
+                for run in halted_gate["runs"]
+            )
+        )
+        halted_confirm = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-halted-gate-confirm-5x.json"
+            ).read_text()
+        )
+        self.assertEqual(halted_confirm["status"], "PASS")
+        self.assertEqual(halted_confirm["attempts_passed"], 5)
+        self.assertEqual(
+            halted_confirm["qemu_sha256"],
+            halted_gate["qemu_sha256"],
+        )
+        patch_0005 = (
+            ROOT
+            / "patches/qemu-core2-native-hci/"
+            "0005-esp32-native-hci-guest-call-sregs.patch"
+        ).read_bytes()
+        self.assertEqual(
+            halted_gate["patch_validation"]["sha256"],
+            hashlib.sha256(patch_0005).hexdigest(),
+        )
+        self.assertEqual(
+            halted_gate["patch_validation"]["reverse_apply_check"],
+            "PASS",
+        )
+        wifi_repeat = json.loads(
+            (
+                ROOT
+                / "tests/network/core2_openmac_wifi/"
+                "evidence-2026-10-24-deterministic-5x.json"
+            ).read_text()
+        )
+        self.assertEqual(wifi_repeat["status"], "PASS")
+        self.assertEqual(wifi_repeat["attempts_passed"], 5)
+        self.assertEqual(len(wifi_repeat["attempts"]), 5)
+        self.assertTrue(
+            all(
+                attempt["status"] == "PASS"
+                for attempt in wifi_repeat["attempts"]
+            )
+        )
+        self.assertIn("tcg,thread=single", wifi_repeat["runtime_flags"])
+        self.assertIn(
+            "shift=auto,align=off,sleep=off",
+            wifi_repeat["runtime_flags"],
+        )
         self.assertIn("CORE2-02", status)
         self.assertIn("extended-run", status)
         self.assertIn("semphr_give_wrapper", status)
+        self.assertIn("5×10s", status)
+        self.assertIn("hci4-halted-gate-5x.json", status)
         self.assertIn("CORE2-02", backlog)
         self.assertIn("extended-run", backlog)
         self.assertIn("CORE2-02", workstreams)

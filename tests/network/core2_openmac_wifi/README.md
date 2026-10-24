@@ -64,6 +64,12 @@ That scheduling change removed the previously observed first-attempt
 interrupt-WDT reproduction and passed 10/10 independent runs. It does not prove
 physical cache/PSRAM timing.
 
+The runner now passes those flags explicitly to the QEMU process. A direct
+run without them reproduced a cache error at `WAITI` in both idle tasks even
+though this README described deterministic scheduling. With the flags present,
+five independent WiFi-only runs passed scan/association/DHCP/HTTP:
+[`evidence-2026-10-24-deterministic-5x.json`](evidence-2026-10-24-deterministic-5x.json).
+
 ## Known boundary
 
 This probe itself covers scan, association, DHCP and controlled IPv4 HTTP. The

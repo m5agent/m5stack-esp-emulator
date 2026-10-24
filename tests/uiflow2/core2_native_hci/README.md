@@ -15,7 +15,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `HCI-3b` HLI event | `PASS` | `evidence-2026-10-24-hli-event-5x.json`; pool-allocated Reset Complete through event 13 advances `01030c00` to `01011000` in 5/5 runs |
 | `HCI-3b` complete HCI/GATT | `PASS` | `evidence-2026-10-24-hli-api-gatt-5x.json`; 15-byte probe / 17-byte ATT PDU completes discovery, subscription, write, Python handler, notification and Bumble ACK in 5/5 runs |
 | `HCI-4` repeated lease | `PASS` | `evidence-2026-10-24-hci4-service-5x.json`; five independent `/api/v1` leases pass frame, 27-node QOM, WiFi/public network, NUS GATT, pcap and evidence with `gdb_bridge=false` |
-| `CORE2-02` extended run | `FAIL` | `evidence-2026-10-24-extended-run-fail.json`; later hold-enabled runs panic after READY/network/BLE connection. This does not invalidate the `HCI-4` baseline, but it blocks a soak claim |
+| `CORE2-02` extended run | `PASS` | `evidence-2026-10-24-hci4-halted-gate-5x.json`; two independent 5-attempt batches with 10-second holds passed 10/10 after restoring caller-saved sregs and restricting HLI guest injection to halted/idle vCPU state. Every attempt has `hli-errors=0` and zero remaining queue depth |
 
 Build the patched QEMU, then run:
 
@@ -197,6 +197,8 @@ with `profile=core2-native-hci`, and checks each session for:
 - external Bumble NUS discovery/subscription/write/notify;
 - QEMU pcap and the complete, session-bound evidence ZIP;
 - transport string `ESP32 native HCI device + HLI to Bumble`.
+- native HLI health from QOM: valid path, balanced posts/consumption,
+  `hli-errors=0`, empty HLI/meta queues, and nonzero event/ACL delivery.
 
 ```bash
 python3 run_service_5x.py \
@@ -217,8 +219,8 @@ profile remains available for diagnosis but is not the canonical path.
 `--hold-seconds` keeps each lease running after network evidence and checks
 session stability during the hold. The failed attempt is retained even when
 READY, network collection or evidence retrieval raises an error; the aggregate
-JSON must be `FAIL`, not a traceback-only partial run. Current extended-run
-evidence is `evidence-2026-10-24-extended-run-fail.json`:
+JSON must be `FAIL`, not a traceback-only partial run. The historical failure
+record is `evidence-2026-10-24-extended-run-fail.json`:
 
 - one request for 10 attempts with 10-second holds passed attempts 1-3, then
   attempt 4 failed before READY with `InstrFetchProhibited` and `PC=0`;
@@ -230,5 +232,16 @@ evidence is `evidence-2026-10-24-extended-run-fail.json`:
   notification. The failure is therefore after the network layer and around
   controller-task/BLE lifecycle or teardown, not a WiFi/DNS result.
 
-The root cause is not established. A new fixed five-attempt, no-retry,
-10-second-hold run is required before `CORE2-02` can move to PASS.
+The follow-up fix has two parts:
+
+- restore `LBEG/LEND/LCOUNT/SAR/BR/LITBASE/SCOMPARE1/ACCLO/ACCHI/M0-M3/
+  THREADPTR/ATOMCTL/CPENABLE` around nested guest calls;
+- defer HLI allocator/callback injection until the target vCPU is
+  halted/idle, so guest code is not re-entered from a cache-disabled WiFi or
+  controller execution context.
+
+The intermediate special-register-only build passed 4/5 and still hit a
+WiFi `Cache error`; the halted-gate build then passed two independent
+5-attempt, 10-second-hold batches, `10/10` total. The earlier failure remains
+tracked as history. This closes the current extended-run failure gate, not
+physical cache/PSRAM equivalence, long-duration coexistence or hardware.

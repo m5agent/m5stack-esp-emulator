@@ -1572,9 +1572,9 @@ restart.
   `core2-hci-gatt` closes external Bumble GATT without WiFi.
   `core2-native-hci` closes stock-firmware external NUS GATT together with
   board/frame/QOM, WiFi/public network, pcap and evidence in five independent
-  service leases without GDB. It is the canonical functional baseline, not a
-  soak pass: later hold-enabled runs have panicked after READY, network
-  success and BLE connection, so `CORE2-02` remains open.
+  service leases without GDB. Two independent `5×10s` hold batches also pass
+  `10/10`, with zero HLI errors and empty HLI/meta queues; this is still a
+  short extended-run gate rather than minute/hour soak.
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -1600,10 +1600,10 @@ restart.
 - Core2 startup starvation is mitigated by deterministic TCG/icount scheduling
   (10/10 first attempts), but physical cache/PSRAM equivalence remains
   unverified. `core2-native-hci` passed `HCI-4` in five independent Device
-  Service leases with no GDB bridge. Later hold-enabled runs have panicked, so
-  the extended-run/soak gate is currently failing. Bit-exact
-  controller/baseband, coexistence and same-firmware hardware validation
-  remain open;
+  Service leases with no GDB bridge, and the halt-gated `5×10s`
+  extended-run gate passes two independent batches. Minute/hour soak,
+  bit-exact controller/baseband, coexistence and same-firmware hardware
+  validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See
   [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);

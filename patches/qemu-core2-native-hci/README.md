@@ -23,6 +23,10 @@ This patch adds the first QEMU-side slice of `CORE2-01`:
   work-item wake semantics and optional protocol-stack tracing.
 - `0004` ends a translated block after `rsr.ccount` so tightly polling Core2
   guests observe the virtual clock advancing.
+- `0005` restores caller-saved Xtensa special registers around QEMU guest
+  calls and defers HLI allocator/callback injection until the target vCPU is
+  halted/idle, preventing nested guest execution from a cache-disabled WiFi
+  or controller context.
 
 The optional poller captures guest H2C packets from real VHCI shared memory
 without GDB. `HCI-3a` now delivers a controller event through the firmware's
@@ -37,7 +41,9 @@ Python write/notify path and the Bumble ACK. See
 [the native HCI design](../../docs/core2-native-hci-backend.md).
 `HCI-4` runs the same path through five independent Device Service
 `core2-native-hci` leases, with frame/QOM/WiFi/public-network/NUS-GATT/pcap
-evidence and no GDB bridge.
+evidence and no GDB bridge. The extended-run gate adds a 10-second stable hold
+and requires `hli-errors=0`, balanced posts/consumption, zero queue depth and
+nonzero event/ACL delivery in every lease.
 
 Apply after `patches/qemu-core2-ble-controller/`:
 
@@ -46,6 +52,7 @@ git apply /path/to/patches/qemu-core2-native-hci/0001-esp32-native-hci-transport
 git apply /path/to/patches/qemu-core2-native-hci/0002-esp32-native-hci-hli-event.patch
 git apply /path/to/patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch
 git apply /path/to/patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch
+git apply /path/to/patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-call-sregs.patch
 ninja -C build qemu-system-xtensa
 python3 tests/uiflow2/core2_native_hci/test_transport.py
 python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
@@ -61,6 +68,7 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
   --elf /path/to/matching/micropython.elf \
   --qemu build/qemu-system-xtensa \
   --attempts 5 \
+  --hold-seconds 10 \
   --out-dir /tmp/m5-core2-native-hci-service-5x
 ```
 
@@ -74,6 +82,12 @@ The full HLI/API-boundary GATT evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json`.
 The Device Service repeated-lease evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`.
+The extended-run pass evidence is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json`;
+the preceding identical-build confirmation batch is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-confirm-5x.json`;
+the earlier failure is retained as
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-extended-run-fail.json`.
 The earlier notification-fail evidence is retained as the negative case that
 identified the default-MTU probe-size error. These are virtual-device results,
 not bit-exact controller or physical hardware validation.

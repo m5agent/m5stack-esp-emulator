@@ -139,6 +139,25 @@ one six-run focused reproduction hit it once.
 - Device Service Core2 radio launches use the same deterministic options.
 - RX8130/PCF8563 advance on QEMU virtual time from a boot epoch.
 
+## 2026-10-24 follow-up
+
+Two additional failure contexts were separated from the earlier idle-WDT
+finding:
+
+- The WiFi-only runner documented deterministic TCG/icount but did not pass
+  those QEMU flags. A direct run then hit a Cache error at `WAITI` in both
+  idle tasks. Adding `-accel tcg,thread=single` and
+  `-icount shift=auto,align=off,sleep=off` produced five consecutive
+  scan/association/DHCP/HTTP PASS runs.
+- Core2 native-HCI extended runs could panic after nested guest allocator
+  calls. Patch `0005` restores caller-saved Xtensa sregs and defers HLI
+  allocator/callback injection until the vCPU is halted/idle. Two independent
+  `5×10s` hold batches then passed `10/10`, with zero HLI errors and empty
+  HLI/meta queues.
+
+These are virtual-device context fixes. They do not establish physical
+cache/PSRAM timing, minute/hour coexistence or hardware equivalence.
+
 ## Next investigation
 
 1. Instrument vCPU idle, `CCOMPARE`, `INTSET`, `INTENABLE`, timer expiry and

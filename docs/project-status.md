@@ -62,13 +62,12 @@
   DHCP/HTTP、公网 DNS/HTTP、外部 NUS GATT、pcap 和 evidence ZIP；
   `gdb_bridge=false`，五次 frame SHA256 一致。旧 `core2-native-vhci`
   保留为显式 GDB 诊断/兼容 profile。
-- Core2 延长运行当前为 `FAIL`，与上述 `HCI-4 5/5` 功能基线分开记录。
-  后续带 hold 的独立运行可在 READY、WiFi 和公网检查通过后进入 guest
-  panic/reboot loop；其中一次首轮 panic 为 `IllegalInstruction`，
-  PC 落在 `semphr_give_wrapper`
-  (`components/bt/controller/esp32/bt.c:677`)，随后为
-  `InstrFetchProhibited`。现有证据只能确认不稳定边界，尚不能归因于
-  物理 cache/PSRAM、QEMU HLI 或固件中的单一组件。
+- Core2 短时 extended-run 已从 `FAIL` 修到 `PASS`：先恢复 nested guest
+  call 前后的 caller-saved Xtensa 特殊寄存器，再把 HLI
+  allocator/callback 注入限制在 halted/idle vCPU。中间 sregs-only 构建
+  仍为 `4/5`，加入 halt gate 后两批独立 `5×10s` hold 运行合计
+  `10/10`；每轮 `hli-errors=0`、HLI/meta queue 深度为 0。此前
+  `semphr_give_wrapper`、`PC=0` 和 `Cache error` 失败证据继续保留。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 
 ## 能力成熟度
@@ -79,7 +78,7 @@
 | 能力面 | 虚拟设备验证 | 本地服务化 | 真机 | 当前结论 |
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
-| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4` 五 lease PASS，延长运行 FAIL | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证应用网络与 BLE 数据面；Core2 长稳边界仍开放，不是完整 RF/PHY 或 bit-exact BT controller |
+| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4` 五 lease 与两批 `5×10s` extended-run 均 PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证应用网络与 BLE 数据面；仍不是完整 RF/PHY、bit-exact BT controller 或分钟级/小时级 soak |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；跨主机 TLS/mTLS、rotation、companion continuity 和 IPv6 未完成 | `NOT RUN` | 适合受控审查和回归，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、worker lease 与失联回收 | 无跨主机 executor、TLS/mTLS、credential rotation、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
@@ -96,7 +95,7 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor 和 HMAC worker auth；GitHub Actions Linux policy CI PASS | 跨主机 executor/TLS/mTLS、credential rotation、companion/evidence continuity、跨主机 reattach、生产多机调度、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；规范 profile 的五个独立 lease 通过 | `HCI-4` 功能基线仍是 PASS，但带 hold 的后续运行出现 panic/reboot loop，`CORE2-02` soak 当前 FAIL。旧 GDB 路径 `1/2` 只作诊断。剩余是定位 controller-task/HLI/teardown 边界，以及 bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机同路径 |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；`CORE2-02` 两批 `5×10s` hold `10/10` PASS | `HCI-4` 与 extended-run 均已通过；halt-gated HLI 注入消除了此前的 panic/reboot 路径。旧 GDB 路径 `1/2` 只作诊断。剩余是更长 soak、bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist 策略 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、跨厂商回归 |
 
 ## 工作流入口
@@ -174,11 +173,14 @@
   | `HCI-3b` HLI event | `PASS` | guest `ble_transport_alloc_evt(0)` + event 13 + `ble_transport_to_hs_evt_impl`；真实 Reset Complete 后 `01030c00 → 01011000`，连续 `5/5`，队列清空且无 malformed/dropped |
   | `HCI-3b` complete sequence | `PASS` | `0003` API-boundary H2C + HLI event/ACL，`0004` CCOUNT TB-yield；15-byte probe / 17-byte ATT PDU 完成外部 NUS GATT、Python write/notify 和 Bumble ACK，连续 `5/5` |
   | `HCI-4` stability | `PASS` | `core2-native-hci` 通过五个独立 `/api/v1` lease；每轮同时验证 frame、27 节点 QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP，`gdb_bridge=false` |
+  | `CORE2-02` extended run | `PASS` | `0005` halt-gated guest call；两批独立 `5×10s` hold 合计 `10/10`，每轮 HLI errors/queue depth 为零 |
 
   `HCI-4` 证据：
   [`hci4-service-5x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json)。
   延长运行失败证据：
   [`extended-run-fail.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-extended-run-fail.json)。
+  修复后门禁证据：
+  [`hci4-halted-gate-5x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json)。
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
   `/after` HTTP。
@@ -221,7 +223,7 @@
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS | 原生 BT controller 与 C6 WiFi PHY |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI 和 QEMU native-HCI 外部 GATT | `HCI-4` 五个独立 lease PASS；带 hold 的延长运行当前 FAIL；旧 `core2-native-vhci` 仅诊断/兼容 | controller-task/HLI/teardown 稳定性、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence/soak、真机同路径 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI 和 QEMU native-HCI 外部 GATT | `HCI-4` 五 lease 和 `5×10s` extended-run `10/10` 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | 更长 soak、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence、真机同路径 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
@@ -241,15 +243,15 @@
 1. **仿真边界**：QEMU/esp-emu PASS 不等于 RF、功耗、声学、光学或机械真机
    PASS。
 2. **Core2 调度、BT 等价性与长稳**：确定性 TCG/icount 已消除当前虚拟启动
-   WDT 复现，`HCI-4` 的五个独立 lease 也证明单轮功能路径可运行；但带
-   hold 的后续运行已经出现 READY/联网/BLE 连接后的 guest panic 和 reboot
-   loop。因此当前只能承认 `HCI-4` 功能基线，不能承认 soak。首轮 panic
-   可落在 controller task 的 `semphr_give_wrapper`，后续
-   `InstrFetchProhibited` 可能只是重启后的次生故障；根因仍需固定次数重跑、
-   符号化和队列/teardown 对照。bit-exact controller/baseband、物理
-   cache/PSRAM、coexistence 和真机同路径仍未完成。旧
-   `core2-native-vhci` 的 `1/2` 只说明 GDB 诊断桥不稳定；
-   `core2-native-hci` 的 hook 偏移仍绑定已验证 UIFlow2 v2.5.3 build。
+   WDT 复现，`HCI-4` 的五个独立 lease 证明功能路径可运行。随后出现的
+   READY/联网/BLE 后 panic 已定位到两个 QEMU 注入边界：nested guest call
+   未完整恢复 caller-saved sregs，以及在非 halted/cache-safe 上下文执行
+   HLI allocator/callback。修复后两批独立 `5×10s` hold 运行 `10/10`，
+   且 HLI health 为零错误。该结果关闭当前短时 extended-run 故障，但
+   bit-exact controller/baseband、物理 cache/PSRAM、分钟级/小时级
+   coexistence/soak 和真机同路径仍未完成。旧 `core2-native-vhci` 的
+   `1/2` 只说明 GDB 诊断桥不稳定；`core2-native-hci` 的 hook 偏移仍绑定
+   已验证 UIFlow2 v2.5.3 build。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径

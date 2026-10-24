@@ -8,12 +8,18 @@
   "profile": "core2-native-hci",
   "runtime": "qemu-unified",
   "recorded_at": "2026-10-24",
+  "superseded_by": "evidence-2026-10-24-hci4-halted-gate-5x.json",
+  "follow_up": {
+    "status": "PASS",
+    "result": "Complete caller-saved special-register restoration plus halted/idle-only HLI injection passed two independent 5-attempt, 10-second-hold batches (10/10 total).",
+    "root_cause_boundary": "The failure was tied to nested guest execution at unsafe non-halted cache contexts; physical cache/PSRAM equivalence is still not claimed."
+  },
   "baseline": {
     "gate": "HCI-4",
     "status": "PASS",
     "attempts_passed": 5,
     "evidence": "evidence-2026-10-24-hci4-service-5x.json",
-    "interpretation": "The five-lease functional baseline remains valid, but it does not close the extended-run or soak requirement."
+    "interpretation": "The five-lease functional baseline remained valid. The subsequent halt-gated fix closes this short extended-run failure; minute/hour soak and physical equivalence remain separate."
   },
   "build": {
     "firmware_sha256": "65c27baf132db1e8d97207d812dd945c782adcfb5ffc1ec67a4eee5656782e5d",

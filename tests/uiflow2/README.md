@@ -73,7 +73,7 @@ callback 注入，因此单 lease PASS 不等于稳定后端。规范主路径�
 | `HCI-3b` HLI event | `PASS` | `core2_native_hci/test_hli_event.py`；池化 Reset Complete 经 event 13 交付，`01030c00 → 01011000` 连续 `5/5` |
 | `HCI-3b` complete HCI/GATT | `PASS` | `core2_native_hci/run_full.py --hli-c2h` 使用 15-byte probe / 17-byte ATT PDU，完成 NUS discovery/subscription/write/notify 和 Bumble ACK，连续 `5/5` |
 | `HCI-4` repeated lease | `PASS` | `core2_native_hci/run_service_5x.py`；五个独立 Device Service lease 同时通过 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence，`gdb_bridge=false` |
-| `CORE2-02` extended run | `FAIL` | 后续带 `--hold-seconds` 的运行在 READY/联网/BLE 连接后 panic；`HCI-4 5/5` 只能作为功能基线，见 `evidence-2026-10-24-extended-run-fail.json` |
+| `CORE2-02` extended run | `PASS` | caller-saved Xtensa sregs 恢复 + halted/idle-only HLI 注入后，两批独立 5×10 秒 hold 运行合计 `10/10`；每轮 `hli-errors=0`，见 `evidence-2026-10-24-hci4-halted-gate-5x.json` |
 
 `HCI-4` 重跑需要已准备 unified Core2 镜像、匹配 ELF 和相同 QEMU build：
 
@@ -90,10 +90,14 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
 当前证据为
 `core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`。它是
 `virtual-device validation`，不是 RF、bit-exact controller 或真机结果。
-当前 extended-run 证据为
-`core2_native_hci/evidence-2026-10-24-extended-run-fail.json`，状态
-`FAIL`；在固定 5 次、无 retry 的新长稳运行通过前，不能把 `HCI-4 5/5`
-描述为 soak PASS。
+历史 extended-run 失败证据仍保留在
+`core2_native_hci/evidence-2026-10-24-extended-run-fail.json`。当前修复后
+证据为
+`core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json`：两批
+独立 5 次、每轮 hold 10 秒，合计 `10/10`，并且每轮
+`hli-posts=hli-consumed=47`、`hli-errors=0`、HLI/meta queue 深度为 0。
+这关闭了本轮 extended-run 失败门禁，但仍不是物理 cache/PSRAM、RF 或
+bit-exact controller PASS。
 
 ```bash
 python3 tests/uiflow2/core2_native_hci/test_transport.py

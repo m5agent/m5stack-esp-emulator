@@ -77,6 +77,9 @@ response, serial digest and a bounded set of fatal error lines.
   A 15-byte probe produces a 17-byte ATT PDU and reaches the ATT write
   handler, Python notification and Bumble ACK. HLI event/ACL delivery,
   API-boundary H2C and CCOUNT TB-yield are retained in the `0003` and `0004`
-  QEMU patches. Bit-exact Espressif BT controller behavior, physical
-  cache/PSRAM equivalence, coexistence/soak and hardware validation remain
-  `NOT RUN`.
+  QEMU patches. `0005` restores caller-saved sregs around nested guest calls
+  and gates HLI allocation/callback injection to halted/idle vCPU state.
+  Two independent `5×10s` hold batches pass `10/10`, with zero HLI errors and
+  empty HLI/meta queues. Bit-exact Espressif BT controller behavior, physical
+  cache/PSRAM equivalence, minute/hour coexistence/soak and hardware
+  validation remain `NOT RUN`.

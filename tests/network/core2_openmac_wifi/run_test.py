@@ -24,6 +24,12 @@ DEFAULT_QEMU = (
     ROOT
     / ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa"
 )
+DETERMINISTIC_QEMU_ARGS = (
+    "-accel",
+    "tcg,thread=single",
+    "-icount",
+    "shift=auto,align=off,sleep=off",
+)
 
 
 def sha256(path: Path) -> str:
@@ -35,7 +41,7 @@ def sha256(path: Path) -> str:
 
 
 class ProbeHandler(BaseHTTPRequestHandler):
-    def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler contract
+    def do_GET(self) -> None:
         self.server.requests.append(self.path)  # type: ignore[attr-defined]
         body = b"CORE2_HOST_HTTP_OK\n"
         self.send_response(200)
@@ -147,6 +153,7 @@ def run_qemu(
         str(rom_dir),
         "-display",
         "none",
+        *DETERMINISTIC_QEMU_ARGS,
         "-serial",
         f"file:{serial_path}",
         "-no-reboot",
@@ -266,15 +273,22 @@ def main() -> int:
                 "serial_sha256": sha256(attempt_dir / "serial.log"),
             }
             attempts.append(attempt)
-            if passed:
+            if passed and passed_attempt is None:
                 passed_attempt = attempt_index
-                break
     finally:
         http_server.shutdown()
         http_server.server_close()
         http_server_thread.join(timeout=3)
 
-    status = "PASS" if passed_attempt is not None else "FAIL"
+    attempts_passed = sum(
+        attempt["status"] == "PASS" for attempt in attempts
+    )
+    status = (
+        "PASS"
+        if len(attempts) == args.attempts
+        and attempts_passed == args.attempts
+        else "FAIL"
+    )
     evidence = {
         "schema_version": 1,
         "kind": "m5stack-core2-openmac-wifi-http",
@@ -295,7 +309,10 @@ def main() -> int:
             "nic": "user,model=misc.esp32_wifi",
             "http_probe_port": http_port,
         },
+        "runtime_flags": list(DETERMINISTIC_QEMU_ARGS),
         "attempts": attempts,
+        "attempts_requested": args.attempts,
+        "attempts_passed": attempts_passed,
         "passed_attempt": passed_attempt,
         "not_claimed": [
             "DNS behavior",

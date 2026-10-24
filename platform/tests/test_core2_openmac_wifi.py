@@ -5,11 +5,10 @@ import sys
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests/network/core2_openmac_wifi"))
 
-from run_test import parse_probe  # noqa: E402
+from run_test import DETERMINISTIC_QEMU_ARGS, parse_probe
 
 
 class Core2OpenMacWifiTests(unittest.TestCase):
@@ -38,6 +37,15 @@ class Core2OpenMacWifiTests(unittest.TestCase):
         self.assertTrue(parsed["http_200"])
         self.assertIn("200 OK", parsed["http_response"])
         self.assertEqual(parsed["terminal_result"], "PASSED")
+        self.assertEqual(
+            DETERMINISTIC_QEMU_ARGS,
+            (
+                "-accel",
+                "tcg,thread=single",
+                "-icount",
+                "shift=auto,align=off,sleep=off",
+            ),
+        )
 
     def test_missing_scan_does_not_pass(self):
         parsed = parse_probe("CORE2_WIFI_RESULT: FAILED\n")

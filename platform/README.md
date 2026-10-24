@@ -69,13 +69,12 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 
 - `core2-native-hci` 已完成 `HCI-1` 至 `HCI-4`。五个独立
   `/api/v1` lease 同时通过 frame/QOM、WiFi/公网、外部 NUS GATT、pcap 和
-  evidence ZIP，且 `gdb_bridge=false`。这是功能基线，不是 soak PASS；
-  后续带 hold 的运行已在 READY/联网/BLE 连接后出现 panic/reboot loop，
-  `CORE2-02` 当前 FAIL。旧 `core2-native-vhci` 仍使用
+  evidence ZIP，且 `gdb_bridge=false`。`0005` 恢复 guest-call sregs 并把
+  HLI 注入限制在 halted/idle vCPU 后，两批 `5×10s` hold 运行 `10/10`
+  PASS，每轮 HLI health 为零错误。旧 `core2-native-vhci` 仍使用
   服务托管的 GDB bridge，且 repeated lease 只有 `1/2`，因此只保留为
   显式诊断/兼容路径。bit-exact Espressif BT baseband/controller、
-  物理 cache/PSRAM、coexistence、当前失败的 extended-run/soak 和真机仍未
-  完成。
+  物理 cache/PSRAM、分钟级/小时级 coexistence/soak 和真机仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

@@ -185,6 +185,50 @@ def unpack_evidence(
     return names, manifest, serial, peer_log, pcap
 
 
+def native_hci_health(qom: dict[str, Any]) -> dict[str, int]:
+    node = (
+        qom.get("nodes", {})
+        .get("peripheral-anon", {})
+        .get("children", {})
+        .get("device[0]", {})
+        .get("children", {})
+    )
+    keys = (
+        "hli-valid",
+        "hli-posts",
+        "hli-consumed",
+        "hli-errors",
+        "hli-c2h-events",
+        "hli-c2h-acls",
+        "hli-queue-depth",
+        "meta-queue-depth",
+        "last-error",
+    )
+    return {
+        key: int(node.get(key, {}).get("value", 0))
+        for key in keys
+        if isinstance(node.get(key), dict)
+    }
+
+
+def native_hci_health_ok(hci_health: dict[str, int]) -> bool:
+    return bool(
+        hci_health.get("hli-valid") == 1
+        and hci_health.get("hli-posts", 0) > 0
+        and hci_health.get("hli-consumed")
+        == hci_health.get("hli-posts")
+        and hci_health.get("hli-errors") == 0
+        and hci_health.get("hli-queue-depth") == 0
+        and hci_health.get("meta-queue-depth") == 0
+        and hci_health.get("last-error") == 0
+        and (
+            hci_health.get("hli-c2h-events", 0)
+            + hci_health.get("hli-c2h-acls", 0)
+            > 0
+        )
+    )
+
+
 def run_attempt(
     api: Api,
     firmware_id: str,
@@ -370,6 +414,7 @@ def run_attempt(
     )
     transport = network.get("runtime", {}).get("hci_transport")
     expected_transport = "ESP32 native HCI device + HLI to Bumble"
+    hci_health = native_hci_health(qom)
     evidence_names = {
         "serial.log",
         "frames/current.png",
@@ -419,6 +464,7 @@ def run_attempt(
             )
         ),
         "native_hci_transport": transport == expected_transport,
+        "native_hci_health": native_hci_health_ok(hci_health),
         "hold_stable": hold_stable,
         "evidence_zip": evidence_names.issubset(names),
         "pcap_file_in_evidence_zip": len(pcap) > 0,
@@ -515,6 +561,7 @@ def run_attempt(
         ),
         "pcap_bytes": len(pcap),
         "hci_transport": str(transport or ""),
+        "native_hci_health": hci_health,
         "network_status": str(network.get("status") or "UNAVAILABLE"),
         "hold_state": hold_state,
         "hold_error": hold_error,

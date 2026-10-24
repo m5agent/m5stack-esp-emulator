@@ -1,0 +1,50 @@
+--- a/hw/xtensa/esp32_native_hci.c
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -581,7 +581,13 @@ static void esp32_native_hci_post_hli(CPUState *cs,
+ 
+     s->hli_scheduled = false;
++    if (!cs->halted) {
++        timer_mod(s->hli_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                  ESP32_NATIVE_HCI_HLI_POLL_NS);
++        return;
++    }
+     if (!esp32_native_hci_read_u32(
+             cs, s->scheduler_queue_address, &queue_item) ||
+         !queue_item ||
+         !esp32_native_hci_read_u32(cs, queue_item, &queue) ||
+         !queue ||
+@@ -900,7 +906,13 @@ static bool esp32_native_hci_guest_call(CPUState *cs, uint32_t function,
+ {
+     CPUXtensaState *env = cpu_env(cs);
++    static const uint32_t caller_saved_sregs[] = {
++        LBEG, LEND, LCOUNT, SAR, BR, LITBASE, SCOMPARE1,
++        ACCLO, ACCHI, MR, MR + 1, MR + 2, MR + 3,
++        THREADPTR, ATOMCTL, CPENABLE,
++    };
+     uint32_t return_pc = env->pc;
+     uint32_t saved_phys_regs[MAX_NAREG];
++    uint32_t saved_sregs[ARRAY_SIZE(caller_saved_sregs)];
+     uint32_t saved_windowbase_next = env->windowbase_next;
+     uint32_t saved_windowbase = env->sregs[WINDOW_BASE];
+     uint32_t saved_windowstart = env->sregs[WINDOW_START];
+@@ -929,6 +941,9 @@ static bool esp32_native_hci_guest_call(CPUState *cs, uint32_t function,
+     xtensa_sync_phys_from_window(env);
+     memcpy(saved_phys_regs, env->phys_regs,
+            env->config->nareg * sizeof(uint32_t));
++    for (size_t i = 0; i < ARRAY_SIZE(caller_saved_sregs); i++) {
++        saved_sregs[i] = env->sregs[caller_saved_sregs[i]];
++    }
+ 
+     env->sregs[PS] =
+         (env->sregs[PS] & ~PS_CALLINC) |
+@@ -999,6 +1014,9 @@ static bool esp32_native_hci_guest_call(CPUState *cs, uint32_t function,
+     xtensa_sync_window_from_phys(env);
+     env->windowbase_next = saved_windowbase_next;
+     env->sregs[WINDOW_START] = saved_windowstart;
++    for (size_t i = 0; i < ARRAY_SIZE(caller_saved_sregs); i++) {
++        env->sregs[caller_saved_sregs[i]] = saved_sregs[i];
++    }
+     env->sregs[PS] = saved_ps;
+     env->sregs[ICOUNT] = saved_icount;
+     env->pc = return_pc;

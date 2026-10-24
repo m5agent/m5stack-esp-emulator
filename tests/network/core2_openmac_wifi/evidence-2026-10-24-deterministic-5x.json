@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-openmac-wifi-http",
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "profile": "core2-stock-uiflow2-openmac-http",
+  "firmware": {
+    "path": "/tmp/m5-core2-wifi-runner-5x-v2/uiflow2-ui-test.bin",
+    "bytes": 16777216,
+    "sha256": "dbd6ea875bafe81112c9ceb8c0174722c59b0d64c2c8917c2704d1804423ef2e",
+    "base_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4"
+  },
+  "qemu": {
+    "path": ".work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa",
+    "sha256": "667ec84c9e53ce73b0e63c7be69284837ff00b77a9194577ef757c164e8e31a1",
+    "machine": "m5core2",
+    "psram_mib": 0,
+    "nic": "user,model=misc.esp32_wifi",
+    "http_probe_port": 55176
+  },
+  "runtime_flags": [
+    "-accel",
+    "tcg,thread=single",
+    "-icount",
+    "shift=auto,align=off,sleep=off"
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "PASS",
+      "qemu_exit_code": 0,
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 9852 (<unknown process>)\n",
+      "serial": {
+        "boot": true,
+        "main": true,
+        "active": true,
+        "scan_count": 2,
+        "known_ssid": true,
+        "connect_returned": true,
+        "connected": true,
+        "ip": "10.0.2.15",
+        "http_200": true,
+        "http_response": "b'HTTP/1.0 200 OK\\r\\nServer: BaseHTT'",
+        "terminal_result": "PASSED"
+      },
+      "http_requests": [
+        "/"
+      ],
+      "serial_path": "/tmp/m5-core2-wifi-runner-5x-v2/attempt-1/serial.log",
+      "serial_sha256": "ab7298d8a3ef716b6fe23d207c77880dc00bfb41ed95a6252925a6fa02b6fc49"
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "qemu_exit_code": 0,
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 9852 (<unknown process>)\n",
+      "serial": {
+        "boot": true,
+        "main": true,
+        "active": true,
+        "scan_count": 2,
+        "known_ssid": true,
+        "connect_returned": true,
+        "connected": true,
+        "ip": "10.0.2.15",
+        "http_200": true,
+        "http_response": "b'HTTP/1.0 200 OK\\r\\nServer: BaseHTT'",
+        "terminal_result": "PASSED"
+      },
+      "http_requests": [
+        "/"
+      ],
+      "serial_path": "/tmp/m5-core2-wifi-runner-5x-v2/attempt-2/serial.log",
+      "serial_sha256": "69ee813c58345973ebdfa8bbca92f115c8f8b5025cd9b9bf282a26db0029406b"
+    },
+    {
+      "attempt": 3,
+      "status": "PASS",
+      "qemu_exit_code": 0,
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 9852 (<unknown process>)\n",
+      "serial": {
+        "boot": true,
+        "main": true,
+        "active": true,
+        "scan_count": 2,
+        "known_ssid": true,
+        "connect_returned": true,
+        "connected": true,
+        "ip": "10.0.2.15",
+        "http_200": true,
+        "http_response": "b'HTTP/1.0 200 OK\\r\\nServer: BaseHTT'",
+        "terminal_result": "PASSED"
+      },
+      "http_requests": [
+        "/"
+      ],
+      "serial_path": "/tmp/m5-core2-wifi-runner-5x-v2/attempt-3/serial.log",
+      "serial_sha256": "19e4311c4ad6a4d355a6b076b3622bac983e22d6135407148a925bf184f220ad"
+    },
+    {
+      "attempt": 4,
+      "status": "PASS",
+      "qemu_exit_code": 0,
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 9852 (<unknown process>)\n",
+      "serial": {
+        "boot": true,
+        "main": true,
+        "active": true,
+        "scan_count": 2,
+        "known_ssid": true,
+        "connect_returned": true,
+        "connected": true,
+        "ip": "10.0.2.15",
+        "http_200": true,
+        "http_response": "b'HTTP/1.0 200 OK\\r\\nServer: BaseHTT'",
+        "terminal_result": "PASSED"
+      },
+      "http_requests": [
+        "/"
+      ],
+      "serial_path": "/tmp/m5-core2-wifi-runner-5x-v2/attempt-4/serial.log",
+      "serial_sha256": "dafbbe4fd89bb50f7a1a8cc7bcd5e0f9b070054a82c9f46b0159f7e31178c203"
+    },
+    {
+      "attempt": 5,
+      "status": "PASS",
+      "qemu_exit_code": 0,
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: terminating on signal 15 from pid 9852 (<unknown process>)\n",
+      "serial": {
+        "boot": true,
+        "main": true,
+        "active": true,
+        "scan_count": 2,
+        "known_ssid": true,
+        "connect_returned": true,
+        "connected": true,
+        "ip": "10.0.2.15",
+        "http_200": true,
+        "http_response": "b'HTTP/1.0 200 OK\\r\\nServer: BaseHTT'",
+        "terminal_result": "PASSED"
+      },
+      "http_requests": [
+        "/"
+      ],
+      "serial_path": "/tmp/m5-core2-wifi-runner-5x-v2/attempt-5/serial.log",
+      "serial_sha256": "8d5d31e223bfe8f108da2bf178283257a777ab570cfd8197c773a587af9551c2"
+    }
+  ],
+  "attempts_requested": 5,
+  "attempts_passed": 5,
+  "passed_attempt": 1,
+  "not_claimed": [
+    "DNS behavior",
+    "remote internet access",
+    "BLE",
+    "real radio behavior",
+    "real-hardware validation"
+  ]
+}

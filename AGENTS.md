@@ -239,15 +239,15 @@ diagnostics in `internal/records/`.
   controller/baseband, coexistence and physical cache/PSRAM equivalence
   remain open. Do not describe this virtual HCI boundary as RF or a finished
   bit-exact controller.
-- `HCI-4` is a five-lease functional baseline, not a soak PASS. Later
-  hold-enabled runs have failed after READY, WiFi/public-network success and
-  BLE connection. One first panic was `IllegalInstruction` at
-  `semphr_give_wrapper` (`components/bt/controller/esp32/bt.c:677`) followed
-  by an `InstrFetchProhibited` reboot loop; another extended run failed on
-  attempt 4 with `PC=0`. `CORE2-02` must retain aggregate failure evidence and
-  pass a new fixed-count, no-retry hold run before the instability can be
-  considered closed. Do not attribute the current failure to physical
-  cache/PSRAM without matching evidence.
+- `HCI-4` is a five-lease functional baseline. The later hold-enabled crash
+  was traced to QEMU guest-call context: nested calls did not restore all
+  caller-saved Xtensa sregs, and HLI allocation/callback injection could run
+  from a non-halted cache-disabled WiFi/controller context. `0005` fixes both.
+  Two independent `5×10s` hold batches now pass `10/10`, with
+  `hli-errors=0` and empty HLI/meta queues in every attempt. Historical
+  `semphr_give_wrapper`, `PC=0` and Cache-error evidence remains tracked.
+  This closes the short repeated-start gate, not minute/hour soak, physical
+  cache/PSRAM equivalence or bit-exact controller behavior.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.
@@ -291,7 +291,7 @@ The main open streams are:
   companion/evidence continuity, cross-host QEMU re-attach, multi-host
   scheduling and external IPv6 endpoint enforcement;
 - Core2 bit-exact BT controller/baseband and physical cache/PSRAM
-  equivalence, coexistence and the currently failing extended-run/soak gate;
+  equivalence, minute/hour coexistence/soak and hardware validation;
 - runtime permissions/license policy, production security-key flows and
   broader cross-firmware compatibility;
 - warm pools, multi-host scheduling and hardened untrusted-firmware isolation;

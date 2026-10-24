@@ -17,7 +17,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-3b` HLI event | `PASS` | `0002-esp32-native-hci-hli-event.patch`、`test_hli_event.py` | guest 池分配真实 Reset Complete，经 HLI event 13 和 `ble_transport_to_hs_evt_impl` 交付；`01030c00 → 01011000` 连续 `5/5` |
 | `HCI-3b` full transaction | `PASS` | `0003-esp32-native-hci-api-transaction.patch`、`0004-xtensa-ccount-tb-yield.patch`、`run_full.py --hli-c2h` | 无 GDB 完成 scan/connect/NUS discovery/subscribe/write/notify 和 Bumble ACK；合法 loader 为 15-byte probe / 17-byte ATT PDU，连续 `5/5` |
 | `HCI-4` stability | `PASS` | `run_service_5x.py`、`evidence-2026-10-24-hci4-service-5x.json` | 规范 profile `core2-native-hci` 通过五个独立 `/api/v1` lease；每轮同时验证 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP，且 `gdb_bridge=false` |
-| `CORE2-02` extended run | `FAIL` | `run_service_5x.py --hold-seconds`、`evidence-2026-10-24-extended-run-fail.json` | 后续延长运行在 READY/联网/BLE 连接后 panic；另一轮在 attempt 4 出现 `PC=0`。首轮 panic 可落在 controller task，之后进入 reboot loop。当前不是 soak PASS |
+| `CORE2-02` extended run | `PASS` | `0005-esp32-native-hci-guest-call-sregs.patch`、`run_service_5x.py --hold-seconds`、`evidence-2026-10-24-hci4-halted-gate-5x.json` | caller-saved sregs 恢复并把 HLI guest 注入限制在 halted/idle vCPU 后，两批独立 5×10 秒 hold 运行合计 `10/10`；每轮 `hli-errors=0`、队列清空。历史失败记录保留 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -25,7 +25,9 @@ send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
 生成 24-byte ATT PDU，超过默认 MTU 23，导致 L2CAP 拒绝；改用 15-byte
 probe 后完整外部 NUS GATT 连续 `5/5`。`HCI-4` 随后让 Device Service
 使用同一路径并通过五轮 independent lease；bit-exact controller 与物理
-cache/PSRAM 仍是独立边界。
+cache/PSRAM 仍是独立边界。`CORE2-02` 随后修复 nested guest-call 上下文：
+恢复 caller-saved Xtensa 特殊寄存器，并只在 halted/idle vCPU 注入 HLI
+allocator/callback；两次独立 5×10 秒 hold 运行合计 `10/10`。
 
 ## 结论先行
 
@@ -361,10 +363,10 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
 `core2-native-vhci` 仍可显式用于历史对照，但文档和自动化不得把它描述为
 稳定生产路径。
 
-### CORE2-02：extended-run 当前失败
+### CORE2-02：extended-run 修复与门禁
 
 新增的 `--hold-seconds` 会让每个 lease 保留运行态并持续轮询 session，
-用于把“启动后立刻截图”与“持续运行”区分开。当前结果不是 PASS：
+用于把“启动后立刻截图”与“持续运行”区分开。历史失败记录包括：
 
 - 一次 10 次请求、每轮 hold 10 秒的运行在 attempt 4 前 3 次 PASS，第 4 次
   在 READY 前出现 `InstrFetchProhibited`、`PC=0`；
@@ -384,21 +386,38 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
 
 证据：
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-extended-run-fail.json`。
-下一步必须固定 5 次、无 retry、每轮 10 秒 hold 的重跑；首轮 panic 需要先于
-reboot 次生故障分类。当前不把 `semphr_give_wrapper` 直接归因于固件 bug，
-也不把它归因于物理 cache/PSRAM；QEMU HLI/controller task、Bumble
-teardown 和 process-stop 顺序都需要对照。
+
+修复分两步：
+
+1. `0005` 在每次 nested guest call 前后恢复
+   `LBEG/LEND/LCOUNT/SAR/BR/LITBASE/SCOMPARE1/ACCLO/ACCHI/M0-M3/
+   THREADPTR/ATOMCTL/CPENABLE`；
+2. HLI 的 allocator/callback guest-call 只在目标 vCPU 已进入
+   halted/idle 时执行；非 halted 状态由虚拟 timer 延后，避免从
+   cache-disabled 的 WiFi/controller 中间上下文进入 guest 代码。
+
+仅恢复 sregs 的中间构建通过 `4/5`，第 5 轮仍在 WiFi `vListInsert`
+出现 Cache error。加入 halted/idle gate 后，同一固件/ELF/QEMU build
+连续两批独立 `5×10s` hold 运行均通过，合计 `10/10`；每轮
+`hli-posts=hli-consumed=47`、`hli-c2h-events=38`、
+`hli-c2h-acls=9`、`hli-errors=0`、HLI/meta queue 深度为 0，frame
+SHA256 一致。证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json`。
+
+这关闭的是当前“非 halted 上下文注入导致 extended-run 崩溃”门禁，不表示
+物理 cache/PSRAM 时序、长时间 coexistence、bit-exact controller 或真机
+已经等价。后续长稳应继续扩大 hold 时长和连接/Socket 生命周期覆盖。
 
 ## 剩余工作量
 
 下面是当前阶段之后的重新估算，不包含已经完成的 HCI-1、HCI-2、
 HCI-3a、HLI event/ACL、`HCI-3b` 完整外部 NUS GATT 和 `HCI-4`
-Device Service repeated lease；长稳门禁另列为 `CORE2-02`，当前 FAIL：
+Device Service repeated lease；`CORE2-02` 的短时 extended-run 门禁已 PASS：
 
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
 - 物理 cache/PSRAM 等价性、长期 coexistence/soak 和真机路径需要独立
-  计划，不能由当前五轮虚拟设备 PASS 推导；长稳当前已有失败证据，不能
-  写成“待开始”或“已通过”。
+  计划，不能由当前 `5×10s` 重复门禁推导；当前 PASS 只覆盖 halt-gated
+  guest 注入和短时生命周期，不覆盖分钟级/小时级 soak。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

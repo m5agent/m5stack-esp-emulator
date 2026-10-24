@@ -39,6 +39,8 @@ diagnostic option; PASS evidence uses first attempts.
 For the current stock-firmware path, use QEMU native-HCI through Device
 Service profile `core2-native-hci`; its `HCI-4` evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`.
+The halt-gated `5×10s` extended-run evidence is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json`.
 No GDB bridge is involved.
 
 For historical external-GATT comparison through the GDB-mediated stock
