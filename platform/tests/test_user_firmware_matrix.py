@@ -334,6 +334,44 @@ class UserFirmwareMatrixTests(unittest.TestCase):
             [],
         )
 
+    def test_detect_papermono_missing_sd_fixture_as_runtime_gap(self):
+        serial = "\n".join(
+            "E (388) sdmmc_common: sdmmc_init_ocr: "
+            "send_op_cond (1) returned 0x107"
+            for _ in range(4)
+        )
+        gaps = detect_runtime_model_gaps(serial, device_id="papermono")
+
+        self.assertEqual(
+            [gap["code"] for gap in gaps],
+            ["papermono_sd_fixture_unavailable"],
+        )
+        self.assertEqual(gaps[0]["category"], "fixture")
+
+        status, reason, unmet = classify_result(
+            has_screenshot=True,
+            nonblack=384000,
+            running=True,
+            crash=False,
+            serial_bytes=len(serial),
+            boot_error=None,
+            input_observed=True,
+            runtime_model_gaps=gaps,
+        )
+        self.assertEqual(status, "PARTIAL")
+        self.assertEqual(reason, "runtime_fixture_gap")
+        self.assertIn("papermono_sd_fixture_unavailable", unmet[0])
+
+    def test_detect_papermono_sd_gap_requires_repeated_failures(self):
+        serial = (
+            "E (388) sdmmc_common: sdmmc_init_ocr: "
+            "send_op_cond (1) returned 0x107"
+        )
+        self.assertEqual(
+            detect_runtime_model_gaps(serial, device_id="papermono"),
+            [],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

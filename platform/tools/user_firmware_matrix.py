@@ -666,6 +666,25 @@ def detect_runtime_model_gaps(
                     ),
                 }
             )
+    if device_id == "papermono":
+        sd_init_failures = re.findall(
+            r"sdmmc_init_ocr: send_op_cond \(1\) returned 0x107",
+            serial,
+            re.IGNORECASE,
+        )
+        if len(sd_init_failures) >= 3:
+            gaps.append(
+                {
+                    "code": "papermono_sd_fixture_unavailable",
+                    "category": "fixture",
+                    "detail": (
+                        "the generic Device Service session has no attached "
+                        "initialized SD-card fixture; repeated SDMMC OCR "
+                        "initialization failed and the firmware rendered an "
+                        "SD card error page"
+                    ),
+                }
+            )
     return gaps
 
 
@@ -689,11 +708,20 @@ def classify_result(
             [f"runtime_startup: {boot_error}"],
         )
     if runtime_model_gaps:
+        fixture_gap = any(
+            gap.get("category") == "fixture"
+            for gap in runtime_model_gaps
+        )
         return (
             "PARTIAL",
-            "runtime_model_gap",
+            "runtime_fixture_gap" if fixture_gap else "runtime_model_gap",
             [
-                f"device_model: {gap['code']}: {gap['detail']}"
+                (
+                    "device_fixture: "
+                    if gap.get("category") == "fixture"
+                    else "device_model: "
+                )
+                + f"{gap['code']}: {gap['detail']}"
                 for gap in runtime_model_gaps
             ],
         )
