@@ -30,11 +30,26 @@ def cmd_list(registry, group=None):
 def cmd_check(registry):
     errors = []
     ids = [row["id"] for row in registry["devices"]]
+    qemu_count = sum(
+        row["backend"].startswith("qemu-esp32")
+        for row in registry["devices"]
+    )
+    native_count = sum(
+        row["backend"] == "esp-emulator-native"
+        for row in registry["devices"]
+    )
     if len(ids) != len(set(ids)):
         errors.append("duplicate device ids")
     for row in registry["devices"]:
         if row["qemu_status"] not in STATUSES:
             errors.append(f"{row['id']}: bad status {row['qemu_status']}")
+    summary = registry.get("validation_matrix", {}).get("result", "")
+    qemu_summary = f"{qemu_count} QEMU-backed ESP32"
+    native_summary = f"Tab5 through esp-emu"
+    if qemu_summary not in summary:
+        errors.append(f"validation summary must contain {qemu_summary!r}")
+    if native_count and native_summary not in summary:
+        errors.append(f"validation summary must contain {native_summary!r}")
     print("QEMU_PROFILES_OK" if not errors else "\n".join(errors))
     return 1 if errors else 0
 

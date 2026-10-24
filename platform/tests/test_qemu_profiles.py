@@ -224,6 +224,15 @@ class QemuProfileTest(unittest.TestCase):
         self.assertEqual(groups["esp32-p4"], 1)
         self.assertEqual(groups["esp32-lx6"], 1)
         self.assertEqual(groups["linux-arm64"], 1)
+        qemu_count = sum(
+            row["backend"].startswith("qemu-esp32")
+            for row in self.registry["devices"]
+        )
+        summary = self.registry["validation_matrix"]["result"]
+        self.assertEqual(qemu_count, 12)
+        self.assertIn("12 QEMU-backed ESP32", summary)
+        self.assertIn("Tab5 through esp-emu", summary)
+        self.assertNotIn("13 QEMU ESP32", summary)
 
 
 if __name__ == "__main__":

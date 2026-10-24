@@ -17,7 +17,8 @@ controller/baseband or prove a complete GATT sequence.
 | `HCI-2` guest H2C | `PARTIAL` | `evidence-2026-10-24-guest-h2c.json`; first Reset only |
 | `HCI-3a` guest C2H callback | `DIAGNOSTIC PASS` | `evidence-2026-10-24-c2h-delivery.json` and `evidence-2026-10-24-c2h-delivery-5x.json`; Reset Complete then next H2C. This narrow callback route is not the production C2H backend |
 | `HCI-3b` HLI event | `PASS` | `evidence-2026-10-24-hli-event-5x.json`; pool-allocated Reset Complete through event 13 advances `01030c00` to `01011000` in 5/5 runs |
-| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | Internal-controller relay resets after the second ATT request. The API-boundary audit reaches GATT discovery and subscription but stalls in the final write/notify transaction. Controller ACL ownership and the combined H2C/C2H transaction remain open |
+| `HCI-3b` HLI event/ACL diagnostic | `PARTIAL` | `evidence-2026-10-24-hci3b-hli-api-notification-fail.json`; HLI delivers event and ACL traffic through NUS discovery/subscription and an external NUS write, but no guest write/ACK marker or notification follows in two matched runs |
+| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | Internal-controller relay resets after the second ATT request. The API-boundary path reaches subscription and NUS write, then Bumble times out waiting for notification. H2C `EIO` overlaps the failure/teardown window; packet-level ordering remains open |
 | `HCI-4` repeated lease | `OPEN` | Still provided by the GDB diagnostic bridge at `1/2` |
 
 Build the patched QEMU, then run:
@@ -65,6 +66,20 @@ PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_hci/run_full.py \
   --image /path/to/stock/core2-uiflow2.bin \
   --out-dir /tmp/core2-native-hci-full
 ```
+
+The HLI event/ACL diagnostic uses the matching ELF and adds `--hli-c2h`:
+
+```bash
+PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_hci/run_full.py \
+  --image /path/to/stock/core2-uiflow2.bin \
+  --elf /path/to/matching/micropython.elf \
+  --hli-c2h \
+  --out-dir /tmp/core2-native-hci-hli
+```
+
+This flag requires the local experimental QEMU HLI/API-boundary hooks. They
+are not part of the committed `0001`/`0002` patch series, so the command is a
+diagnostic overlay rather than a reproducible current backend.
 
 The current diagnostic fails at `HCI-3b`. The peer finds and connects to the
 advertiser, the first ATT request/response exchange crosses both directions,
@@ -161,6 +176,16 @@ advance, not an `HCI-3b` PASS.
 Evidence:
 `evidence-2026-10-24-hci3b-api-boundary-audit.json`.
 
+The HLI follow-up delivered event and ACL packets with empty HLI/meta queues.
+Two matched runs completed discovery, connection, NUS discovery and CCCD
+subscription, then sent the NUS write. The guest emitted neither the write/ACK
+markers nor a notification. Both runs timed out waiting for notification; each
+failure snapshot already contained one HLI error and one H2C write error with
+`errno=5`, with more writes failing during peer teardown. Packet-level timing
+is required before assigning the first `EIO` as a cause.
+
 The next implementation must make H2C send, matching C2H delivery,
 `notify_host_recv`, and `notify_host_send_available` one explicit transaction.
-It cannot depend on nested guest `cpu_exec()` timing or an idle safe point.
+It must also explain why the received ATT write does not reach the expected
+guest handler or schedule a notification. It cannot depend on nested guest
+`cpu_exec()` timing or an idle safe point.

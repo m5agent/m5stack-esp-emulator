@@ -24,6 +24,50 @@ DEFAULT_ELF = ROOT / ".work/uiflow2-core2-symbols/micropython.elf"
 DEFAULT_ROM_DIR = ROOT / ".work/M5StopWatch-QEMU/build/qemu/pc-bios"
 DEVICE_PATH = "/machine/peripheral-anon/device[0]"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
+LIVE_COUNTER_NAMES = (
+    "h2c-packets",
+    "hli-posts",
+    "hli-consumed",
+    "hli-event-buffers",
+    "hli-acl-buffers",
+    "hli-c2h-events",
+    "hli-c2h-acls",
+    "api-h2c-packets",
+    "api-h2c-errors",
+    "hli-errors",
+    "hli-queue-depth",
+    "tx-queue-depth",
+    "tx-queue-offset",
+    "last-tx-errno",
+    "tx-retry-count",
+    "tx-zero-writes",
+    "hli-last-descriptor-address",
+    "hli-last-descriptor-argument",
+    "hli-last-descriptor-callback",
+    "meta-queue-depth",
+)
+FINAL_COUNTER_NAMES = (
+    "h2c-packets",
+    "h2c-bytes",
+    "h2c-duplicates",
+    "c2h-delivered",
+    "c2h-errors",
+    "c2h-send-available",
+    "c2h-last-status",
+    "c2h-last-pc",
+    "c2h-observed-pc",
+    "c2h-observed-halted",
+    "c2h-return-pc",
+    "c2h-exit-pc",
+    "c2h-steps",
+    "c2h-exception-index",
+    "rx-queue-depth",
+    *LIVE_COUNTER_NAMES[7:],
+    "hli-descriptor-pool-address",
+    "malformed-packets",
+    "dropped-packets",
+    "last-error",
+)
 
 
 def sha256(path: Path) -> str:
@@ -78,7 +122,15 @@ class QMP:
             payload["arguments"] = arguments
         self.stream.write(json.dumps(payload).encode() + b"\n")
         while True:
-            response = json.loads(self.stream.readline())
+            line = self.stream.readline()
+            if not line:
+                raise RuntimeError("QMP connection closed")
+            try:
+                response = json.loads(line)
+            except json.JSONDecodeError as error:
+                raise RuntimeError(
+                    f"QMP returned invalid JSON: {line[:200]!r}"
+                ) from error
             if "event" in response:
                 continue
             if "error" in response:
@@ -174,6 +226,19 @@ def stop_process(process: subprocess.Popen | None) -> None:
         process.wait(timeout=5)
 
 
+def read_qom_counters(
+    qmp: QMP,
+    names: tuple[str, ...],
+) -> dict[str, Any]:
+    counters: dict[str, Any] = {}
+    for name in names:
+        try:
+            counters[name] = qmp.get(name)
+        except (OSError, RuntimeError) as error:
+            counters[name] = f"unavailable: {error}"
+    return counters
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--image", type=Path, required=True)
@@ -184,6 +249,14 @@ def main() -> int:
     parser.add_argument("--out-dir", type=Path)
     parser.add_argument("--name-prefix", default="M5-CORE2-HCI")
     parser.add_argument("--payload", default="M5_CORE2_NATIVE_PROBE")
+    parser.add_argument(
+        "--hli-c2h",
+        action="store_true",
+        help=(
+            "experimental: deliver events/ACL through firmware HLI using "
+            "QEMU properties not present in the committed patch series"
+        ),
+    )
     args = parser.parse_args()
 
     for label, path in (
@@ -197,10 +270,24 @@ def main() -> int:
     sys.path.insert(0, str(ROOT / "platform/tools"))
     from xtensa_elf_symbols import resolve_symbols
 
-    symbols = resolve_symbols(
-        args.elf,
-        ["vhci_env_p", "malloc", "esp_cpu_wait_for_intr"],
-    )
+    symbol_names = ["vhci_env_p", "malloc", "esp_cpu_wait_for_intr"]
+    if args.hli_c2h:
+        symbol_names.extend(
+            [
+                "g_rw_schd_queue",
+                "s_meta_queue_ptr",
+                "ble_transport_alloc_evt",
+                "ble_transport_to_hs_evt_impl",
+                "ble_transport_alloc_acl_from_ll",
+                "os_mbuf_append",
+                "ble_transport_to_hs_acl_impl",
+                "esp_vhci_host_send_packet",
+                "ble_hci_trans_hs_cmd_tx",
+                "btdm_task_recycle",
+                "r_rw_schedule",
+            ]
+        )
+    symbols = resolve_symbols(args.elf, symbol_names)
     out_dir = args.out_dir or Path(
         tempfile.mkdtemp(prefix="m5-core2-native-hci-full-")
     )
@@ -232,7 +319,14 @@ def main() -> int:
             ),
         },
         "checks": {},
+        "hli_c2h": args.hli_c2h,
     }
+    if args.hli_c2h:
+        result["experimental_runtime_requirements"] = [
+            "local QEMU HLI/API-boundary hooks",
+            "matching stock firmware and ELF",
+            "external Bumble controller/peer",
+        ]
     try:
         ble_process, ble_ready = start_ble_probe(
             port=ble_port,
@@ -244,6 +338,52 @@ def main() -> int:
         if not ble_ready.wait(timeout=10):
             raise RuntimeError("Bumble controller did not become ready")
 
+        hci_device = (
+            "esp32-native-hci,chardev=hci,"
+            f"env-pointer-address=0x{symbols['vhci_env_p'].value:08x},"
+            f"c2h-allocator-address=0x{symbols['malloc'].value:08x},"
+            "c2h-scratch-size=2048"
+        )
+        if args.hli_c2h:
+            hci_device += (
+                ",hli-c2h=on,"
+                "api-vhci-send-hook-pc="
+                f"0x{symbols['esp_vhci_host_send_packet'].value + 0x35:08x},"
+                "api-vhci-send-return-pc="
+                f"0x{symbols['esp_vhci_host_send_packet'].value + 0x38:08x},"
+                "scheduler-queue-address="
+                f"0x{symbols['g_rw_schd_queue'].value:08x},"
+                "meta-queue-pointer-address="
+                f"0x{symbols['s_meta_queue_ptr'].value:08x},"
+                "hli-event-allocator-address="
+                f"0x{symbols['ble_transport_alloc_evt'].value:08x},"
+                "hli-test-callback="
+                f"0x{symbols['ble_transport_to_hs_evt_impl'].value:08x},"
+                "hli-event-buffer-size=256,"
+                "hli-acl-allocator-address="
+                f"0x{symbols['ble_transport_alloc_acl_from_ll'].value:08x},"
+                "hli-os-mbuf-append-address="
+                f"0x{symbols['os_mbuf_append'].value:08x},"
+                "hli-acl-callback="
+                f"0x{symbols['ble_transport_to_hs_acl_impl'].value:08x}"
+                ",recycle-hook-pc="
+                f"0x{symbols['btdm_task_recycle'].value + 0x11:08x}"
+                ",recycle-return-pc="
+                f"0x{symbols['btdm_task_recycle'].value + 0x14:08x}"
+                ",hli-descriptor-pool-size=4096"
+                ",sleep-post-hook-pc="
+                f"0x{symbols['r_rw_schedule'].value + 0xb1:08x}"
+                ",sleep-post-return-pc="
+                f"0x{symbols['r_rw_schedule'].value + 0xb4:08x}"
+                ",cmd-semaphore-hook-pc="
+                f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x20:08x}"
+                ",cmd-semaphore-return-pc="
+                f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x23:08x}"
+                ",acl-semaphore-hook-pc="
+                f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x79:08x}"
+                ",acl-semaphore-return-pc="
+                f"0x{symbols['ble_hci_trans_hs_cmd_tx'].value + 0x7c:08x}"
+            )
         command = [
             str(args.qemu),
             "-snapshot",
@@ -272,12 +412,7 @@ def main() -> int:
                 f"port={ble_port},server=off,nodelay=on"
             ),
             "-device",
-            (
-                "esp32-native-hci,chardev=hci,"
-                f"env-pointer-address=0x{symbols['vhci_env_p'].value:08x},"
-                f"c2h-allocator-address=0x{symbols['malloc'].value:08x},"
-                "c2h-scratch-size=2048"
-            ),
+            hci_device,
             "-qmp",
             f"unix:{qmp_path},server=on,wait=off",
         ]
@@ -286,12 +421,31 @@ def main() -> int:
             stdout=(out_dir / "qemu.stdout").open("wb"),
             stderr=(out_dir / "qemu.stderr").open("wb"),
         )
+        result["hci_device"] = hci_device
         qmp = QMP(qmp_path, min(args.timeout, 30))
         deadline = time.monotonic() + args.timeout
         ble_exited_at: float | None = None
+        last_counter_poll = 0.0
+        live_counters: dict[str, Any] = {}
+        ble_failure_counters: dict[str, Any] = {}
+        ble_failure_recorded = False
         while time.monotonic() < deadline:
             serial_text = read_text(serial)
             ble_text = read_text(ble_log)
+            if "BLE_BUMBLE_FAIL" in ble_text and not ble_failure_recorded:
+                ble_failure_recorded = True
+                ble_failure_counters = read_qom_counters(
+                    qmp,
+                    LIVE_COUNTER_NAMES,
+                )
+            if (
+                qmp is not None
+                and time.monotonic() - last_counter_poll >= 0.2
+            ):
+                last_counter_poll = time.monotonic()
+                live_counters.update(
+                    read_qom_counters(qmp, LIVE_COUNTER_NAMES)
+                )
             if (
                 "BLE_BUMBLE_PASS" in ble_text
                 and "CORE2_HCI_BLE_ACK_SENT" in serial_text
@@ -309,34 +463,13 @@ def main() -> int:
 
         serial_text = read_text(serial)
         ble_text = read_text(ble_log)
-        counters = {}
+        counters: dict[str, Any] = {}
         if qmp is not None:
-            for name in (
-                "h2c-packets",
-                "h2c-bytes",
-                "h2c-duplicates",
-                "c2h-delivered",
-                "c2h-errors",
-                "c2h-send-available",
-                "c2h-last-status",
-                "c2h-last-pc",
-                "c2h-observed-pc",
-                "c2h-observed-halted",
-                "c2h-return-pc",
-                "c2h-exit-pc",
-                "c2h-steps",
-                "c2h-exception-index",
-                "rx-queue-depth",
-                "tx-queue-depth",
-                "malformed-packets",
-                "dropped-packets",
-                "last-error",
-            ):
-                try:
-                    counters[name] = qmp.get(name)
-                except (OSError, RuntimeError) as error:
-                    counters[name] = f"unavailable: {error}"
+            counters = read_qom_counters(qmp, FINAL_COUNTER_NAMES)
         result["counters"] = counters
+        result["live_counters"] = live_counters
+        if ble_failure_counters:
+            result["ble_failure_counters"] = ble_failure_counters
         result["checks"] = {
             "ble_controller_ready": "BLE_PROBE_READY" in ble_text,
             "advertisement_found": "BLE_BUMBLE_FOUND" in ble_text,
@@ -353,6 +486,28 @@ def main() -> int:
             "no_malformed_packets": counters.get("malformed-packets") == 0,
             "no_dropped_packets": counters.get("dropped-packets") == 0,
         }
+        if args.hli_c2h:
+            def positive(name: str) -> bool:
+                value = counters.get(name)
+                return isinstance(value, (int, float)) and value > 0
+
+            def zero(name: str) -> bool:
+                return counters.get(name) == 0
+
+            result["checks"].update(
+                {
+                    "hli_event_delivered": positive("hli-c2h-events"),
+                    "hli_acl_delivered": positive("hli-c2h-acls"),
+                    "hli_no_errors": zero("hli-errors"),
+                    "hli_queue_empty": zero("hli-queue-depth"),
+                    "hli_meta_queue_empty": zero("meta-queue-depth"),
+                    "api_h2c_bypass_used": positive("api-h2c-packets"),
+                    "api_h2c_no_errors_before_peer_failure": (
+                        ble_failure_counters.get("api-h2c-errors") == 0
+                    ),
+                    "api_h2c_no_errors_final": zero("api-h2c-errors"),
+                }
+            )
         if all(result["checks"].values()):
             result["status"] = "PASS"
             result.pop("error", None)
@@ -363,7 +518,14 @@ def main() -> int:
             "physical hardware",
         ]
     except Exception as error:
-        result["error"] = str(error)
+        detail = str(error)
+        qemu_stderr = read_text(out_dir / "qemu.stderr").strip()
+        if qemu_process is not None and qemu_process.poll() is not None:
+            if qemu_stderr:
+                detail += (
+                    f"; QEMU stderr: {qemu_stderr.splitlines()[-1][-400:]}"
+                )
+        result["error"] = detail
     finally:
         if qmp is not None:
             try:

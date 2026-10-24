@@ -13,7 +13,7 @@
 - **9 台 ESP32-S3** 共用一套 QEMU/S3 后端和 GPIO/SPI/I2C 框架，只补板级 profile、显示模型、输入和外设。
 - **2 台 ESP32-C6** 需要 C6 后端/板级模型。
 - **Tab5（ESP32-P4）** 使用 `esp-emu 0.50.0`、P4 rev0 ROM 和配套 eFuse，接入 C6 ESP-Hosted 协处理器，并以仿真 M5GFX DSI framebuffer 输出真实 UI。
-- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 QEMU 补丁让 stock UIFlow2 完成 WiFi、受控 HTTP、公网 DNS/HTTP 和 controller advertising-enable。统一测试使用 `tcg,thread=single` + deterministic icount，10/10 次无重试首轮 PASS。BLE 有两条外部 GATT 路径：可重建的 HCI-UART 固件经 UART1 连接 Bumble；以及 stock internal-controller 固件在真实 `esp_vhci_host_*` 边界交给 Bumble，后者独立完成 scan/connect/NUS subscribe/write/notify 5/5。native-VHCI 路径从匹配 ELF 固定发送、环境指针和 idle 地址，GDB 只保留暂停、callback 注入和 synthetic return 控制。`unified_core2 --ble-transport native-vhci` 进一步在同一 guest 合并 board、WiFi、公网、frame/QOM 和外部 GATT，3/3 PASS；同一路径已作为 `qemu-unified/profile=core2-native-vhci` 进入 Device Service，并通过真实 `/api/v1` 单 lease。QEMU 内部替代后端已完成 `HCI-1` transport、`HCI-2` 首包捕获和单包 `HCI-3a` callback：Reset Complete 交付后 guest 继续发出下一条 H2C，targeted `5/5`。`HCI-3b` 的 API-boundary 审计已完成广播、连接、NUS discovery 和 subscription；保留的 HLI patch 又用池化 event buffer 连续 5/5 交付真实 Reset Complete，guest 从 `01030c00` 推进到 `01011000`。最终 write/notify transaction 仍超时，ACL、controller ACK/flow control 和组合 transaction 仍未闭环。当前缺口仍是完整 `HCI-3b`、`HCI-4` 无 GDB Device Service `5/5`、去掉 GDB 控制面、bit-exact controller 和物理 cache/PSRAM 等价性。
+- **Core2（ESP32 LX6）** 使用 QEMU `esp32`/`m5core2` machine，并通过 ROM UART 下载模式完成 `esptool` 虚拟烧录。可选 QEMU 补丁让 stock UIFlow2 完成 WiFi、受控 HTTP、公网 DNS/HTTP 和 controller advertising-enable。统一测试使用 `tcg,thread=single` + deterministic icount，10/10 次无重试首轮 PASS。BLE 有两条外部 GATT 路径：可重建的 HCI-UART 固件经 UART1 连接 Bumble；以及 stock internal-controller 固件在真实 `esp_vhci_host_*` 边界交给 Bumble，后者独立完成 scan/connect/NUS subscribe/write/notify 5/5。native-VHCI 路径从匹配 ELF 固定发送、环境指针和 idle 地址，GDB 只保留暂停、callback 注入和 synthetic return 控制。`unified_core2 --ble-transport native-vhci` 进一步在同一 guest 合并 board、WiFi、公网、frame/QOM 和外部 GATT，3/3 PASS；同一路径已作为 `qemu-unified/profile=core2-native-vhci` 进入 Device Service，并通过真实 `/api/v1` 单 lease。QEMU 内部替代后端已完成 `HCI-1` transport、`HCI-2` 首包捕获和单包 `HCI-3a` callback：Reset Complete 交付后 guest 继续发出下一条 H2C，targeted `5/5`。`HCI-3b` 的 HLI patch 用池化 event buffer 连续 5/5 交付真实 Reset Complete；API-boundary 诊断又通过 HLI 投递 event/ACL，到广播、连接、NUS discovery/subscription 和外部 NUS write。同 build `2/2` 都在 guest write/ACK/notification 前超时，失败快照已有 H2C `EIO`，断链后累计更多写失败。当前缺口是 guest ATT dispatch/notify、ACL/ACK/flow-control、完整 `HCI-3b`、`HCI-4` 无 GDB Device Service `5/5`、去掉 GDB 控制面、bit-exact controller 和物理 cache/PSRAM 等价性。
 - **CardputerZero** 是 Linux ARM64（BCM2837），不是 ESP32 固件目标；独立
   QEMU Linux 后端已可启动官方镜像、输出 320x170 帧、注入键盘事件和
   I2S 双向 PCM，注入 IP2315 充放电状态，并以 MTT 兼容路径枚举 GL852G Hub
@@ -73,7 +73,8 @@
 
 > 状态列表示当前文件里的“板级/显示/输入 profile 可用性”，不等于所有控制器
 > 或物理属性完成。Core2 的 `HCI-3a` 只是诊断性单包 C2H 证据；`HCI-3b`
-> API-boundary 审计虽推进到 NUS subscription，但 final write/notify 和
+> API-boundary 审计虽推进到 NUS subscription 和外部 NUS write，但 guest
+> write/notify 未闭环；失败快照已有 H2C `EIO`，时间与 packet 级归因仍开放。
 > `HCI-4` repeated lease 仍未通过。Tab5 的 profile 可启动，
 > 但外设总体仍是 `partial`。
 
@@ -102,7 +103,7 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG、RGB、按键、蓝灯、IR、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与同一 Device Service lease 内通过 |
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 显示/触摸、电源/扩展 IO、IMU、LoRa、IR、蜂鸣器、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与同一 Device Service lease 内通过 |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | linux-arm64 | `separate-backend` | ST7789v3 SPI LCD 320x170 | Linux/非黑 LVGL 首帧/输入/I2C/IR/双向 PCM/充电状态/寄存器驱动 IMX219/GL852G MTT FS+LS/SR9900A 帧回环已通 |
-| Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸、WiFi、DNS/公网 HTTP、HCI-offload、ELF 固定 native-VHCI 符号、独立 5/5、同 guest 3/3、10/10 启动和 Device Service `core2-native-vhci` 单 lease 已通过；native-HCI API-boundary 到 NUS subscription，final write/notify 失败；重复 lease 门禁、GDB 控制面移除、bit-exact BT controller 与物理 cache/PSRAM 等价性待补 |
+| Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸、WiFi、DNS/公网 HTTP、HCI-offload、ELF 固定 native-VHCI 符号、独立 5/5、同 guest 3/3、10/10 启动和 Device Service `core2-native-vhci` 单 lease 已通过；native-HCI API-boundary 通过 HLI event/ACL 到 NUS subscription/NUS write，但 guest write/notify 未完成，同 build `2/2` 为 notification timeout，失败快照已有 H2C `EIO`；重复 lease 门禁、GDB 控制面移除、bit-exact BT controller 与物理 cache/PSRAM 等价性待补 |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | esp-emulator-native | `ready` | ST7121 / ST7123 物理横向 1280x720 | 显示/触摸、C6 Hosted、I2C 寄存器探测和 SIT3088 RS-485 已通；CSI/I2S/USB/SDIO 等仍 partial |
 
 外设 API 的当前结果：

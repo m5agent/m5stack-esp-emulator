@@ -6,7 +6,7 @@
     "runner": "tests/uiflow2/run_device_matrix.py",
     "flash_runner": "tests/uiflow2/flash_device.py",
     "date": "2026-10-24",
-    "result": "13 QEMU ESP32 device paths are registered; the latest peripheral matrix is 67/67 cases and 274/274 checks with no retry; Tab5 remains partial and CardputerZero uses a separate ARM64 Linux backend"
+    "result": "12 QEMU-backed ESP32 device paths plus Tab5 through esp-emu are registered; the latest peripheral matrix is 67/67 cases and 274/274 checks with no retry; CardputerZero uses a separate ARM64 Linux backend"
   },
   "backends": {
     "qemu-esp32s3": {

@@ -70,8 +70,12 @@ response, serial digest and a bounded set of fatal error lines.
   not a proven cache fault. This does not prove physical cache/PSRAM timing.
   Stock VHCI paths pass external
   NUS GATT 5/5 standalone and board+WiFi+public+BLE 3/3 in one guest, but
-  the native-HCI API-boundary audit stops after NUS subscription when the
-  final write/notify transaction times out. A retained HLI path delivers a
-  real Reset Complete through a pool-allocated event buffer and advances the
-  guest from `01030c00` to `01011000` in 5/5 runs; ACL delivery remains
-  `NOT RUN`. Bit-exact Espressif BT controller behavior is still `NOT RUN`.
+  the native-HCI API-boundary diagnostic reaches NUS subscription and an
+  external NUS write. HLI delivers event and ACL traffic, but the guest does
+  not produce the write/ACK markers or notification. Two matched runs report
+  notification timeout with one H2C write error already visible in the failure
+  snapshot; more `EIO` writes follow during teardown.
+  A retained HLI path delivers a real Reset Complete through a
+  pool-allocated event buffer and advances the guest from `01030c00` to
+  `01011000` in 5/5 runs. Bit-exact Espressif BT controller behavior is still
+  `NOT RUN`.

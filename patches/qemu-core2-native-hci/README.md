@@ -48,4 +48,8 @@ The C2H callback evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json`.
 The HLI real-event evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json`.
-Neither is a complete guest BLE or bit-exact controller PASS.
+The experimental HLI/API-boundary diagnostic delivered events and ACLs through
+the subscription and external NUS write, but the guest produced no
+write/notification acknowledgement; its evidence is
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-api-notification-fail.json`.
+None of these is a complete guest BLE or bit-exact controller PASS.

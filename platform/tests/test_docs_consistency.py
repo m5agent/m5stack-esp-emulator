@@ -53,6 +53,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-queue-diagnostic.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-api-notification-fail.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
@@ -813,6 +814,59 @@ class DocsConsistencyTests(unittest.TestCase):
             "complete HCI command sequence",
             hli_event["not_claimed"],
         )
+        notification_fail = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci3b-hli-api-notification-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(notification_fail["stage"], "HCI-3b")
+        self.assertEqual(notification_fail["gate_result"], "OPEN")
+        self.assertEqual(notification_fail["status"], "FAIL")
+        self.assertTrue(
+            notification_fail["progression"]["notification_subscribed"]
+        )
+        self.assertTrue(
+            notification_fail["progression"]["nus_write_sent_by_peer"]
+        )
+        self.assertFalse(
+            notification_fail["progression"]["guest_received_write_marker"]
+        )
+        self.assertFalse(
+            notification_fail["progression"]["notification_observed"]
+        )
+        self.assertEqual(
+            notification_fail["counters"]["hli_errors"],
+            1,
+        )
+        self.assertEqual(
+            notification_fail["counters"]["hli_c2h_acls"],
+            9,
+        )
+        self.assertIn(
+            "BLE_BUMBLE_FAIL notification timeout",
+            notification_fail["observed_order"][3],
+        )
+        self.assertIn(
+            "errno=5",
+            notification_fail["observed_order"][5],
+        )
+        self.assertEqual(
+            notification_fail["repeat_observations"]["same_build_runs"],
+            2,
+        )
+        self.assertEqual(
+            notification_fail["repeat_observations"][
+                "notification_timeout"
+            ],
+            2,
+        )
+        self.assertFalse(
+            notification_fail["experiment"][
+                "reproducible_from_committed_worktree"
+            ]
+        )
         self.assertIn(
             "API boundary",
             (DOCS / "core2-native-hci-backend.md").read_text(),
@@ -821,6 +875,8 @@ class DocsConsistencyTests(unittest.TestCase):
             self.assertIn("safe-point", document)
             self.assertIn("r_eif_send", document)
             self.assertIn("HLI", document)
+            self.assertIn("notification timeout", document)
+            self.assertIn("EIO", document)
         for document in (status, workstreams, backlog):
             self.assertIn("HLI", document)
             self.assertIn("in-process controller", document)

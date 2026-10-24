@@ -61,12 +61,15 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   QEMU native-HCI 替代路径已完成 `HCI-1` transport、`HCI-2` 首个 H2C
   Reset 捕获和 `HCI-3a` 诊断性单包 C2H `5/5`；该 callback 路线不是产品
   后端；`HCI-3b` 已到连接和首个
-  ATT 交互，API-boundary 审计进一步到 NUS subscription，但 final
-  write/notify transaction 超时；任意 safe-point callback 与 nested
-  `r_eif_send` 已证伪并回退。HLI 真实 event 路径又连续 5/5 把池化 Reset
-  Complete 交付给 guest，并从 `01030c00` 推进到 `01011000`。下一步是
-  ACL mbuf + controller ACK/flow control + API-boundary transaction；
-  `HCI-4` repeated lease、bit-exact Espressif BT baseband/controller 和物理
+  ATT 交互；API-boundary 的 HLI event/ACL 路径进一步到 NUS
+  discovery/subscription 和外部 NUS write，但 guest 没有 write/ACK marker
+  或 notification；同 build `2/2` 为 notification timeout，失败快照已有
+  H2C `EIO`，断链后累计更多写失败。HLI 真实 event 路径连续 5/5 把池化
+  Reset Complete 交付给 guest，并从 `01030c00` 推进到 `01011000`。任意
+  safe-point callback 与
+  nested `r_eif_send` 已证伪并回退。下一步是 guest ATT
+  dispatch/notify、ACL mbuf 和 controller ACK/flow control；`HCI-4`
+  repeated lease、bit-exact Espressif BT baseband/controller 和物理
   cache/PSRAM 等价性仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。

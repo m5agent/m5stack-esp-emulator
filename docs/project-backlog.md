@@ -33,8 +33,10 @@
 
 ## 当前执行顺序
 
-1. `CORE2-01`：HLI 真实 event 已连续 `5/5`；先验证 ACL buffer 生命周期，
-   再结合 API-boundary H2C transaction 完成 `HCI-3b`，随后做 `HCI-4`。
+1. `CORE2-01`：HLI 真实 event 已连续 `5/5`，API-boundary 已完成
+   event/ACL、NUS discovery/subscription 和外部 NUS write；先定位 guest
+   write dispatch/notify 与 ACL buffer/ACK 语义，完成 `HCI-3b` 后再做
+   `HCI-4`。
 2. `NET-04` / `SVC-01`：在本地 worker lifecycle 和远程注册目录基础上完成
    持久队列、worker supervisor、调度和活动实例 re-attach；`NET-05` 独立
    推进 IPv6。
@@ -51,7 +53,7 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 持久任务队列、worker supervisor、调度和活动 QEMU re-attach | worker 失联/重启可收敛；namespace 失败 fail-closed；evidence 可回传 |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
-| `CORE2-01` | 进行中 | ACL delivery + API-boundary H2C transaction，随后 `HCI-4` repeated lease | 同一 stock 固件无 GDB 完成 NUS GATT，Device Service `5/5` |
+| `CORE2-01` | 进行中 | guest NUS write dispatch/notify + ACL/ACK 语义，随后 `HCI-4` repeated lease | 同一 stock 固件无 GDB 完成 NUS GATT，Device Service `5/5` |
 | `CORE2-02` | 待做 | bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和 soak | 物理边界可证；真机/RF 结论不冒充 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -118,26 +120,35 @@ evidence 中成立。
   request 后 guest 报 `HCI process ack returned 12` 并 Reset，完整
   HCI/GATT sequence 失败。
 - API-boundary 审计证明 GDB 路径是在 `API_vhci_host_send_packet` 入口
-  bypass 内部 controller。实验中的 QEMU API hook 已完成广播、连接、NUS
-  discovery 和订阅，但最终 write/notify transaction 仍超时；实验代码未保留。
+  bypass 内部 controller。实验中的 QEMU API hook 已通过 HLI 投递 event
+  和 ACL，完成广播、连接、NUS discovery、订阅和外部 NUS write；guest 未
+  产生 write/ACK marker 或 notification，同 build 两次均报 notification
+  timeout。失败快照已有一次 H2C `EIO`，peer 断开后累计到 `15` 次；当前
+  不能确定首个 `EIO` 与 timeout 的先后。该实验代码未保留。
 - 现有 GDB VHCI bridge 的 repeated Device Service lease 为 `1/2`，不能作为
   生产门禁。
 - 尚无 guest-visible controller-to-host queue/IRQ 的完整 packet order、
   flow-control、ACK 和事务语义。
 - 最新 HLI event 路径已用 guest `ble_transport_alloc_evt(0)` 分配真实
   Reset Complete，经 event 13 和 `ble_transport_to_hs_evt_impl` 交付；
-  `01030c00 → 01011000` 连续 `5/5`，`hli-consumed`、队列 depth、
-  malformed/dropped 计数一致。该路径不是 ACL 或完整 GATT 证据。
+  `01030c00 → 01011000` 连续 `5/5`。扩展诊断还使用
+  `ble_transport_alloc_acl_from_ll` / `os_mbuf_append` /
+  `ble_transport_to_hs_acl_impl` 投递 ACL。该组合仍不是完整 GATT 证据。
 
 下一项最小交付：
 
-1. 调查 `ble_transport_alloc_acl_from_ll` / `ble_transport_to_hs_acl_impl`
-   的 mbuf append/free 生命周期，投递真实 ACL packet 并验证 packet order。
-2. 在 `API_vhci_host_send_packet` 入口建立显式 H2C→C2H transaction，避免
-   固件内部 controller 与 Bumble 同时消费同一请求。
-3. 先让 scan/connect/service discovery/subscribe/write/notify 不靠 retry
-   稳定通过，再用 Device Service 连续 `5/5`；失败分类必须区分 queue、
-   transport、buffer ownership、vCPU commit、guest reset 和 peer。
+1. 定位外部 NUS write 到达 guest 后为何没有产生 expected write callback
+   marker、ACK 和 notification；先区分 ATT handle/权限、ACL mbuf 所有权、
+   guest task wake/IRQ 与 controller flow-control。
+2. 保持 `ble_transport_alloc_acl_from_ll` / `os_mbuf_append` /
+   `ble_transport_to_hs_acl_impl` 的 packet order 和 mbuf free 生命周期可观测。
+3. 在 `API_vhci_host_send_packet` 入口维持显式 H2C→C2H transaction，避免
+   固件内部 controller 与 Bumble 同时拥有同一请求。
+4. 给 `EIO` 记录 packet ID 和单调时间戳，判定它与 notification timeout
+   的真实先后；先让 scan/connect/discovery/subscribe/write/notify 不靠
+   retry 稳定通过，再用 Device Service 连续 `5/5`。失败分类必须区分 queue、
+   transport、buffer ownership、guest ATT dispatch、vCPU commit、
+   guest reset 和 peer。
 
 验收：
 

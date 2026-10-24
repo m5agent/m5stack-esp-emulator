@@ -124,14 +124,18 @@ complete simulated device or as a unified-device PASS.
   The `HCI-3b` diagnostic reaches connect and the first ATT
   exchange, then resets after the second ATT request. Safe-point callback
   injection and a nested call into `r_eif_send -> vhci_send` both failed and
-  were reverted. A separate API-boundary hook reached advertising,
-  connection, NUS discovery and subscription, but the final write/notify
-  transaction timed out and the experiment was not retained. A retained HLI
-  patch then used a pool-allocated event buffer and event 13 to deliver a real
-  Reset Complete through `ble_transport_to_hs_evt_impl`; the guest advanced
-  from `01030c00` to `01011000` in 5/5 runs. The replacement must still use
-  this guest-visible controller-to-host IRQ/queue for ACL delivery and close
-  ACK/flow control, or use an in-process controller transaction.
+  were reverted. A retained HLI patch used a pool-allocated event buffer and
+  event 13 to deliver a real Reset Complete through
+  `ble_transport_to_hs_evt_impl`; the guest advanced from `01030c00` to
+  `01011000` in 5/5 runs. A later API-boundary diagnostic delivered HLI events
+  and ACL buffers, reached advertising, connection, NUS discovery,
+  subscription and an external NUS write, but the guest produced no write/ACK
+  marker or notification. Two matched runs reported notification timeout; one
+  H2C write error was already visible in each failure snapshot and more `EIO`
+  writes accumulated during teardown. The current trace cannot order the first
+  `EIO` against the timeout. The replacement must still explain the guest ATT
+  write/notify path and close ACL ownership plus controller ACK/flow control,
+  or use an in-process controller transaction.
   Complete Bumble HCI/GATT sequence (`HCI-3b`) and repeated Device Service
   leases remain open, so the unified acceptance status above is unchanged.
 

@@ -15,7 +15,8 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-2` H2C | `PARTIAL` | 同一补丁的 `env-pointer-address` poller；`test_guest_h2c.py` | 不启动 GDB 已捕获真实 stock HCI Reset `01030c00`；完整命令序列需要 C2H 才能继续 |
 | `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | `c2h-allocator-address`、注册 callback 调用、send-available 和 QOM counters | Reset Complete 已交付 guest 的 `notify_host_recv`，callback status 为 0，guest 随后发出 Read Local Version；连续 `5/5`。这只证明窄路径 ABI，不是可扩展产品后端 |
 | `HCI-3b` HLI event | `PASS` | `0002-esp32-native-hci-hli-event.patch`、`test_hli_event.py` | guest 池分配真实 Reset Complete，经 HLI event 13 和 `ble_transport_to_hs_evt_impl` 交付；`01030c00 → 01011000` 连续 `5/5` |
-| `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | `run_full.py`、`evidence-2026-10-24-hci3b-diagnostic.json`；API-boundary 与 HLI evidence | 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset。API-boundary hook 推进到 NUS subscription；HLI event 已闭环，但 ACL、ACK 和完整 transaction 仍缺 |
+| `HCI-3b` HLI event/ACL diagnostic | `PARTIAL` | `run_full.py --hli-c2h`、`evidence-2026-10-24-hci3b-hli-api-notification-fail.json` | API-boundary hook 通过 HLI 投递 event/ACL，完成 discovery、连接、NUS discovery/subscription 和外部 NUS write；guest 没有 write/ACK marker 或 notification，同 build 两次均为 notification timeout，失败快照已有一次 H2C `EIO` |
+| `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | `run_full.py`、`evidence-2026-10-24-hci3b-diagnostic.json`；API-boundary 与 HLI evidence | 无 GDB 路径还不能完成 NUS write → guest callback/ACK → notification。`EIO` 与 failure/teardown 重叠，但尚不能证明为唯一根因；ATT dispatch、ACL mbuf 和 controller ACK/flow control 仍缺 |
 | `HCI-4` stability | `OPEN` | 无门禁 | 还没有无 GDB 的 Device Service 连续 `5/5` 完整 GATT 证据 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
@@ -243,6 +244,22 @@ NUS service discovery 和 CCCD subscription，H2C parser error/drop 均为 0，
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json`。
 实验代码未保留，`HCI-3b` 仍为 `FAIL`，不能把这次 partial 结果写成蓝牙后端完成。
 
+后续 HLI/API-boundary 诊断投递了 `38` 个 event 和 `9` 个 ACL buffer，
+HLI/meta queue 清空。同一 build 两次都完成 NUS discovery 和 CCCD
+subscription，并发送 `M5_CORE2_NATIVE_PROBE`；guest 串口都没有出现
+`CORE2_HCI_BLE_RX` 或 `CORE2_HCI_BLE_ACK_SENT`，Bumble 都报
+`notification timeout`。两次运行在失败快照时已各记录 `hli-errors=1`、
+`api-h2c-errors=1`，peer 断开后写失败累计到 `15`。当前没有 packet ID 和
+单调时间戳，无法证明首个 `EIO` 早于 notification timeout，因此只能确认
+它发生在 failure/teardown 窗口，不能把它当成唯一根因。证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-api-notification-fail.json`。
+该诊断依赖 ignored QEMU worktree 中的 HLI/API hook，不能只应用已提交的
+`0001`/`0002` patch 重放；它不构成本阶段可发布后端。
+
+下一实验应先确认 ATT write 是否到达预期 NUS RX handler、ACL mbuf
+ownership/lifetime 是否正确，以及 guest 为什么没有调度 notification；
+controller ACK 与 flow-control 仍是同一 transaction 门禁的一部分。
+
 #### HLI queue delivery spike
 
 最新诊断没有直接在任意 safe point 调用 host callback，而是写入固件自己的
@@ -293,24 +310,31 @@ seam。
 
 证据：
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json`。
-这关闭了“真实 controller event 能否从 HLI 安全进入 host”的阻塞，但仍不是
-完整 `HCI-3b`：ACL mbuf、controller ACK、H2C 所有权和 GATT transaction
-仍未闭环。
+这关闭了“真实 controller event 能否从 HLI 安全进入 host”的阻塞。扩展
+`run_full.py --hli-c2h` 还通过 `ble_transport_alloc_acl_from_ll`、
+`os_mbuf_append` 和 `ble_transport_to_hs_acl_impl` 投递 ACL；同一 build
+两次都观察 `hli-c2h-events=38`、`hli-c2h-acls=9`，并完成 NUS
+subscription 和外部 NUS write；失败快照另有 `hli-errors=1`，归因仍开放。
+它仍不是完整 `HCI-3b`：guest write dispatch/notify、controller ACK、
+flow control 和完整 GATT transaction 未闭环。
 
 下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
 调整固定 sleep、CPU pinning、寄存器补丁或 nested guest RPC：
 
-- 在 `API_vhci_host_send_packet` 边界建立显式 transaction，避免内部 controller
+- 在 `API_vhci_host_send_packet` 边界维持显式 transaction，避免内部 controller
   和外部 controller 同时拥有同一 packet；
-- 再调查 `ble_transport_alloc_acl_from_ll` /
-  `ble_transport_to_hs_acl_impl` 的 mbuf append/free 生命周期；
+- 给 H2C write 失败记录 packet ID、队列位置和单调时间戳，区分早发失败与
+  peer 断开后的收尾失败；
+- 定位 ATT write 是否进入预期 NUS RX handler，并调查
+  `ble_transport_alloc_acl_from_ll` / `ble_transport_to_hs_acl_impl` 的
+  mbuf append/free 生命周期；
 - 在 H2C send 与对应 C2H response 之间保持可验证的 transaction；
 - 让 guest firmware 自己的 ISR/worker 在有效 cache 和 task 上下文中消费；
 - 明确 FreeRTOS task wake/ACK 与 vCPU resume 的关系；
 - 每一步都要求 Bumble ATT/GATT 前进，失败不 retry。
 
-完整 sequence 通过后再接 NUS subscribe/write/notify，并进入 `HCI-4`
-repeated lease。
+下一门禁是让已经到达的 NUS write 进入预期 guest handler，完成 ACK 与
+notification 回读；完整 sequence 通过后再进入 `HCI-4` repeated lease。
 
 ### HCI-4：稳定性门禁
 
@@ -323,9 +347,11 @@ repeated lease。
 ## 剩余工作量
 
 下面是当前阶段之后的重新估算，不包含已经完成的 HCI-1、HCI-2、
-HCI-3a 窄路径和 HLI 真实 event 交付：
+HCI-3a 窄路径、HLI 真实 event 和 HLI event/ACL 到 subscription/write
+的诊断：
 
-- ACL mbuf 生命周期与 API-boundary H2C/C2H transaction：约 `3–6` 天；
+- guest NUS write dispatch/notify、ACL mbuf 生命周期和
+  controller ACK/flow-control：约 `3–6` 天；
 - `HCI-4` repeated lease、故障注入和长稳：约 `2–4` 天；
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周，
   不能包含在 HCI-3b/HCI-4 的估算内。
