@@ -14,8 +14,8 @@ import hmac
 import io
 import json
 import os
-import signal
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -36,25 +36,13 @@ TEST_TOOLS = ROOT / "tests/uiflow2"
 if str(TEST_TOOLS) not in sys.path:
     sys.path.insert(0, str(TEST_TOOLS))
 
+from ble_runtime_limits import (  # noqa: E402
+    MAX_BLE_LINGER_SECONDS,
+    MAX_BLE_RECONNECT_CYCLES,
+    MAX_BLE_RECONNECT_DELAY_SECONDS,
+    reconnect_workload_timeout_seconds,
+)
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
-from run_profile_ui_test import (  # noqa: E402
-    QMP,
-    read_ppm,
-    send_input,
-    wait_qmp,
-    write_rgb_png,
-)
-from run_tab5_ui_test import (  # noqa: E402
-    capture_framebuffer,
-    free_tcp_port,
-    inject_touch,
-    logical_to_raw_touch,
-    orient_rgb565,
-    rgb565_to_rgb,
-    wait_for_path as wait_for_fs_path,
-    wait_for_port as wait_for_tcp_port,
-    write_png as write_tab5_png,
-)
 from firmware_analysis import (  # noqa: E402
     analyze_esp_image,
     analyze_firmware,
@@ -70,19 +58,15 @@ from firmware_manifest import (  # noqa: E402
     validate_capabilities,
     validate_manifest_structure,
 )
-from network_lane import normalize_hostfwd, normalize_i2c_device  # noqa: E402
-from ble_runtime_limits import (  # noqa: E402
-    MAX_BLE_LINGER_SECONDS,
-    MAX_BLE_RECONNECT_CYCLES,
-    MAX_BLE_RECONNECT_DELAY_SECONDS,
-    reconnect_workload_timeout_seconds,
-)
 from network_egress import (  # noqa: E402
     EgressEndpoint,
-    capability as egress_capability,
     requires_external_gateway,
     requires_external_ipv6,
 )
+from network_egress import (
+    capability as egress_capability,
+)
+from network_lane import normalize_hostfwd, normalize_i2c_device  # noqa: E402
 from network_policy import (  # noqa: E402
     NetworkPolicy,
     NetworkPolicyError,
@@ -92,12 +76,36 @@ from network_policy import (  # noqa: E402
 )
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
+from run_profile_ui_test import (  # noqa: E402
+    QMP,
+    read_ppm,
+    send_input,
+    wait_qmp,
+    write_rgb_png,
+)
+from run_tab5_ui_test import (  # noqa: E402
+    capture_framebuffer,
+    free_tcp_port,
+    inject_touch,
+    logical_to_raw_touch,
+    orient_rgb565,
+    rgb565_to_rgb,
+)
+from run_tab5_ui_test import (
+    wait_for_path as wait_for_fs_path,
+)
+from run_tab5_ui_test import (
+    wait_for_port as wait_for_tcp_port,
+)
+from run_tab5_ui_test import (
+    write_png as write_tab5_png,
+)
 from storage_policy import StoragePolicy, directory_size_bytes  # noqa: E402
+from worker_auth import WorkerAuthError, WorkerAuthVerifier  # noqa: E402
 from worker_directory import (  # noqa: E402
     WorkerDirectory,
     WorkerDirectoryError,
 )
-from worker_auth import WorkerAuthError, WorkerAuthVerifier  # noqa: E402
 from worker_queue import WorkerJobQueue, WorkerQueueError  # noqa: E402
 from worker_registry import WorkerRegistry, WorkerRegistryError  # noqa: E402
 from xtensa_elf_symbols import (  # noqa: E402
@@ -770,6 +778,73 @@ def parse_storage_execution(
     }
 
 
+def parse_nvs_execution(value: Any) -> dict:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ServiceError("invalid_nvs", "nvs must be an object", 400)
+    unknown = sorted(set(value) - {"image_artifact_id", "partition_label"})
+    if unknown:
+        raise ServiceError(
+            "invalid_nvs",
+            "unsupported nvs fields: " + ", ".join(unknown),
+            400,
+        )
+    artifact_id = value.get("image_artifact_id")
+    if not isinstance(artifact_id, str) or not _is_sha256(artifact_id):
+        raise ServiceError(
+            "invalid_nvs",
+            "nvs.image_artifact_id must be a SHA-256 artifact id",
+            400,
+        )
+    partition_label = value.get("partition_label", "nvs")
+    if (
+        not isinstance(partition_label, str)
+        or not partition_label
+        or len(partition_label) > 16
+    ):
+        raise ServiceError(
+            "invalid_nvs",
+            "nvs.partition_label must be a non-empty partition label",
+            400,
+        )
+    return {
+        "partition_label": partition_label,
+        "image_artifact_id": artifact_id,
+    }
+
+
+def resolve_nvs_partition(
+    firmware_path: Path,
+    *,
+    flash_size: int,
+    partition_label: str,
+) -> dict:
+    data = firmware_path.read_bytes()
+    table = parse_partition_table(data, image_size=flash_size)
+    if not table["valid"]:
+        raise ServiceError(
+            "invalid_firmware_partition_table",
+            "cannot apply NVS fixture: "
+            + "; ".join(table.get("errors", ["invalid partition table"])),
+            409,
+        )
+    matches = [
+        partition
+        for partition in table["partitions"]
+        if partition["type"] == 1
+        and partition["subtype"] == 2
+        and partition["label"] == partition_label
+    ]
+    if not matches:
+        raise ServiceError(
+            "nvs_partition_not_found",
+            f"firmware has no NVS partition labelled {partition_label!r}",
+            409,
+        )
+    return dict(matches[0])
+
+
 def parse_network_execution(
     spec: DeviceSpec,
     value: Any,
@@ -1114,10 +1189,17 @@ def parse_qemu_wifi_execution(
         default_profile = STICKS3_WIFI_PROFILE
         supported_profile = STICKS3_WIFI_PROFILE
         nic = "misc.esp32s3.wifi"
+    elif spec.backend == "qemu-esp32s3":
+        default_profile = "generic-observe"
+        supported_profile = "generic-observe"
+        nic = "misc.esp32s3.wifi"
     else:
         raise ServiceError(
             "qemu_wifi_not_supported",
-            "qemu-wifi is supported only for Core2 and StickS3",
+            (
+                "qemu-wifi is supported for Core2, StickS3 and generic "
+                "ESP32-S3 observe profiles"
+            ),
             409,
         )
     if value is None:
@@ -2589,6 +2671,8 @@ class DeviceSession:
         network_config: dict | None = None,
         storage_config: dict | None = None,
         storage_info: dict | None = None,
+        nvs_config: dict | None = None,
+        nvs_info: dict | None = None,
         network_result: dict | None = None,
         events: list[dict] | None = None,
         created_at: str | None = None,
@@ -2620,6 +2704,10 @@ class DeviceSession:
         self.storage_config = dict(storage_config or {})
         self.storage_info = (
             dict(storage_info) if isinstance(storage_info, dict) else None
+        )
+        self.nvs_config = dict(nvs_config or {})
+        self.nvs_info = (
+            dict(nvs_info) if isinstance(nvs_info, dict) else None
         )
         self.network_result = (
             dict(network_result) if isinstance(network_result, dict) else None
@@ -2660,6 +2748,7 @@ class DeviceSession:
         self.network_pcap_summary = self.dir / "network.pcap.json"
         self.sd_card_image = self.dir / "sd-card.img"
         self.storage_summary_path = self.dir / "storage.json"
+        self.nvs_summary_path = self.dir / "nvs.json"
         self.speaker_pcm = self.dir / "speaker.pcm"
         self.microphone_source_pcm = self.dir / "microphone-source.pcm"
         self.rmt_source = self.dir / "nec-source.rmt"
@@ -2762,6 +2851,8 @@ class DeviceSession:
             "network_result": self.network_result,
             "storage_config": dict(self.storage_config),
             "storage": self.storage_info,
+            "nvs_config": dict(self.nvs_config),
+            "nvs": self.nvs_info,
             "flash": self.flash_info,
             "ttl_seconds": self.ttl_seconds,
             "ready_marker": self.ready_marker,
@@ -2962,6 +3053,7 @@ class DeviceSession:
                     else None
                 ),
                 "storage": self.storage_info,
+                "nvs": self.nvs_info,
                 "flash": self.flash_info,
                 "flash_retained": bool(
                     self.virtual_flash is not None
@@ -3717,6 +3809,53 @@ class DeviceSession:
             self._persist_session()
         return evidence
 
+    def _apply_nvs_fixture(self) -> None:
+        if not self.nvs_config:
+            return
+        if self.virtual_flash is None or not self.virtual_flash.is_file():
+            raise RuntimeError("session flash is unavailable for NVS fixture")
+        artifact_id = str(self.nvs_config["image_artifact_id"])
+        source = self.service.artifacts.path(artifact_id)
+        source_data = source.read_bytes()
+        source_sha256 = hashlib.sha256(source_data).hexdigest()
+        if source_sha256 != artifact_id:
+            raise RuntimeError("NVS fixture checksum changed before session apply")
+        offset = int(self.nvs_config["offset"])
+        size = int(self.nvs_config["size"])
+        if len(source_data) != size:
+            raise RuntimeError("NVS fixture size does not match partition")
+        with self.virtual_flash.open("r+b") as flash:
+            flash.seek(offset)
+            flash.write(source_data)
+        effective_sha256 = hashlib.sha256(
+            self.virtual_flash.read_bytes()
+        ).hexdigest()
+        self.nvs_info = {
+            "partition_label": self.nvs_config["partition_label"],
+            "offset": offset,
+            "size": size,
+            "artifact_id": artifact_id,
+            "sha256": source_sha256,
+            "bytes": len(source_data),
+            "session_isolated_overlay": True,
+            "source_artifact_modified": False,
+            "base_flash_sha256": self.firmware_sha,
+            "effective_flash_sha256": effective_sha256,
+        }
+        self.flash_info = {
+            **(self.flash_info or {}),
+            "base_flash_sha256": self.firmware_sha,
+            "effective_flash_sha256": effective_sha256,
+            "nvs_partition": {
+                "label": self.nvs_config["partition_label"],
+                "offset": offset,
+                "size": size,
+                "fixture_sha256": source_sha256,
+            },
+        }
+        atomic_write_json(self.nvs_summary_path, self.nvs_info)
+        self._record_event("nvs_fixture_applied", **self.nvs_info)
+
     def _provision(self) -> None:
         try:
             self._set_state("flashing")
@@ -3758,6 +3897,11 @@ class DeviceSession:
                     self.storage_info,
                 )
                 self._record_event("storage_prepared", **self.storage_info)
+            if (
+                self.nvs_config
+                and self.runtime not in QEMU_RADIO_RUNTIMES
+            ):
+                self._apply_nvs_fixture()
             self._persist_session()
             self._set_state("booting")
             if self.runtime in QEMU_RADIO_RUNTIMES:
@@ -3794,7 +3938,10 @@ class DeviceSession:
         last_error: ServiceError | None = None
         for attempt in range(1, attempts + 1):
             if attempt > 1:
+                if self.virtual_flash is None:
+                    self.virtual_flash = self.dir / "virtual-flash.bin"
                 shutil.copyfile(clean_flash, self.virtual_flash)
+            self._apply_nvs_fixture()
             try:
                 self._launch()
                 if self.ready_conditions:
@@ -5633,6 +5780,17 @@ class DeviceSession:
             ).encode()
             files["storage/summary.json"] = storage_bytes
             manifest["storage"] = self.storage_info
+        if self.nvs_info:
+            nvs_bytes = (
+                json.dumps(
+                    self.nvs_info,
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n"
+            ).encode()
+            files["nvs/summary.json"] = nvs_bytes
+            manifest["nvs"] = self.nvs_info
         network_dir = getattr(self, "network_dir", None)
         if isinstance(network_dir, Path) and network_dir.is_dir():
             for name, path in (
@@ -6704,6 +6862,16 @@ class DeviceService:
                 if isinstance(record.get("storage"), dict)
                 else None
             )
+            nvs_config = (
+                record.get("nvs_config")
+                if isinstance(record.get("nvs_config"), dict)
+                else None
+            )
+            nvs_info = (
+                record.get("nvs")
+                if isinstance(record.get("nvs"), dict)
+                else None
+            )
             if runtime == "network":
                 session_class = NetworkDeviceSession
             elif spec.service_kind == "tab5":
@@ -6749,6 +6917,8 @@ class DeviceService:
                 network_result=network_result,
                 storage_config=storage_config,
                 storage_info=storage_info,
+                nvs_config=nvs_config,
+                nvs_info=nvs_info,
                 events=events,
                 created_at=(
                     record.get("created_at")
@@ -7358,6 +7528,46 @@ class DeviceService:
             artifact_id = storage_config["sd_image_artifact_id"]
             if artifact_id not in source_artifacts:
                 source_artifacts.append(artifact_id)
+        nvs_config = parse_nvs_execution(payload.get("nvs"))
+        if nvs_config:
+            if (
+                spec.service_kind != "qemu"
+                or runtime not in QEMU_QMP_RUNTIMES
+            ):
+                raise ServiceError(
+                    "nvs_not_supported",
+                    (
+                        "NVS session fixtures require a QEMU guest runtime; "
+                        f"{spec.id}/{runtime} does not apply guest flash"
+                    ),
+                    409,
+                )
+            artifact_id = nvs_config["image_artifact_id"]
+            artifact = self.artifacts.get(artifact_id)
+            partition = resolve_nvs_partition(
+                firmware_path,
+                flash_size=spec.flash_size,
+                partition_label=nvs_config["partition_label"],
+            )
+            expected_size = int(partition["size"])
+            actual_size = int(artifact.get("size") or 0)
+            if actual_size != expected_size:
+                raise ServiceError(
+                    "invalid_nvs_image",
+                    (
+                        f"NVS fixture has {actual_size} bytes; partition "
+                        f"{partition['label']!r} requires {expected_size}"
+                    ),
+                    400,
+                )
+            nvs_config.update(
+                {
+                    "offset": int(partition["offset"]),
+                    "size": expected_size,
+                }
+            )
+            if artifact_id not in source_artifacts:
+                source_artifacts.append(artifact_id)
         if runtime != "network":
             profile = (
                 network_config.get("profile")
@@ -7498,6 +7708,7 @@ class DeviceService:
                     runtime=runtime,
                     network_config=network_config,
                     storage_config=storage_config,
+                    nvs_config=nvs_config,
                     worker_id=self.worker.worker_id,
                     worker_generation=self.worker.generation,
                     worker_lease_active=True,
@@ -8052,16 +8263,22 @@ class DeviceService:
                     else "disabled"
                 ),
                 "qemu-wifi": (
-                    "enabled-sticks3-and-core2"
+                    "enabled-s3-and-core2"
                     if (
-                        STICKS3_WIFI_PROFILE
-                        in self.specs["sticks3"].network_profiles
+                        any(
+                            spec.supported
+                            and spec.backend == "qemu-esp32s3"
+                            for spec in self.specs.values()
+                        )
                         and CORE2_WIFI_PROFILE
                         in self.specs["core2"].network_profiles
                     )
-                    else "enabled-sticks3"
-                    if STICKS3_WIFI_PROFILE
-                    in self.specs["sticks3"].network_profiles
+                    else "enabled-s3"
+                    if any(
+                        spec.supported
+                        and spec.backend == "qemu-esp32s3"
+                        for spec in self.specs.values()
+                    )
                     else "enabled-core2-experimental"
                     if CORE2_WIFI_PROFILE
                     in self.specs["core2"].network_profiles

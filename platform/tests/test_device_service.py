@@ -31,16 +31,17 @@ import device_service as device_service_module
 from device_service import (
     DEFAULT_MAX_PER_DEVICE,
     DEFAULT_MAX_SESSIONS,
-    DeviceService,
-    DeviceSession,
     MAX_ARTIFACT_BYTES,
     MAX_ARTIFACT_CHUNK_BYTES,
     QMP,
+    DeviceService,
+    DeviceSession,
     ServiceError,
     StoragePolicy,
     default_session_ready_timeout,
     effective_session_ready_timeout,
 )
+from nvs_image import PAGE_SIZE, build_string_nvs_image
 from serve import Handler, _wait_for_session
 from test_firmware_analysis import build_flash
 from worker_auth import sign_worker_request
@@ -64,6 +65,34 @@ def hermetic_flash_preparer(
         "firmware_sha256": firmware_sha,
         "virtual_flash": str(target),
     }
+
+
+def build_flash_with_nvs_partition(*, nvs_size: int = 0x6000) -> bytes:
+    base = build_flash()
+    image = bytearray(b"\xff" * len(base))
+    image[:0x8000] = base[:0x8000]
+    image[0x10000:] = base[0x10000:]
+    if nvs_size > 0x6000:
+        raise ValueError("test NVS partition exceeds space before app")
+    entries = []
+    for subtype, offset, size, label in (
+        (2, 0x9000, nvs_size, b"nvs"),
+        (0, 0x10000, 0x2000, b"factory"),
+    ):
+        entry = bytearray(32)
+        struct.pack_into("<H", entry, 0, 0x50AA)
+        entry[2] = 1 if subtype == 2 else 0
+        entry[3] = subtype
+        struct.pack_into("<II", entry, 4, offset, size)
+        entry[12 : 12 + len(label)] = label
+        entries.append(entry)
+    table = b"".join(entries)
+    md5_entry = bytearray(32)
+    struct.pack_into("<H", md5_entry, 0, 0xEBEB)
+    md5_entry[16:32] = hashlib.md5(table).digest()
+    image[0x8000 : 0x8000 + len(table)] = table
+    image[0x8000 + len(table) : 0x8000 + len(table) + 32] = md5_entry
+    return bytes(image)
 
 
 def webburner_package(image: bytes) -> bytes:
@@ -658,7 +687,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             capacity["modes"]["network"],
             "enabled-separate-lane",
         )
-        self.assertEqual(capacity["modes"]["qemu-wifi"], "enabled-sticks3")
+        self.assertEqual(capacity["modes"]["qemu-wifi"], "enabled-s3")
         self.assertEqual(
             capacity["modes"]["qemu-ble"],
             "enabled-nanoc6-hci-nesso-hci",
@@ -1104,6 +1133,164 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
         self.assertEqual(unknown_field.exception.code, "invalid_storage")
 
+    def test_nvs_fixture_is_partition_bound_and_session_isolated(self):
+        image = build_flash_with_nvs_partition()
+        firmware_artifact = self.service.upload_artifact(image)
+        firmware = self.service.create_firmware(
+            {
+                "device_id": "sticks3",
+                "kind": "merged",
+                "artifact_id": firmware_artifact["artifact_id"],
+            }
+        )
+        nvs_data = build_string_nvs_image(
+            0x6000,
+            {
+                "config": {
+                    "wifi_ssid": "myssid",
+                    "wifi_password": "",
+                    "openaikey": "test-openai-key-not-secret",
+                }
+            },
+        )
+        nvs_artifact = self.service.upload_artifact(nvs_data)
+
+        with mock.patch.object(
+            device_service_module.DeviceSession,
+            "start",
+            autospec=True,
+        ):
+            created = self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "firmware_id": firmware["firmware_id"],
+                    "nvs": {
+                        "partition_label": "nvs",
+                        "image_artifact_id": nvs_artifact["artifact_id"],
+                    },
+                }
+            )
+        session = self.service.get_session(created["session_id"])
+        self.assertEqual(session.nvs_config["offset"], 0x9000)
+        self.assertEqual(session.nvs_config["size"], 0x6000)
+        self.assertIn(
+            nvs_artifact["artifact_id"],
+            session.source_artifacts,
+        )
+
+        session.virtual_flash = session.dir / "virtual-flash.bin"
+        session.virtual_flash.write_bytes(
+            image.ljust(session.spec.flash_size, b"\xff")
+        )
+        session.flash_info = {"transport": "test-host-image"}
+        session._apply_nvs_fixture()
+
+        effective = session.virtual_flash.read_bytes()
+        self.assertEqual(effective[0x9000:0xF000], nvs_data)
+        self.assertEqual(
+            self.service.firmware.path(firmware["firmware_id"]).read_bytes()[
+                0x9000:0xF000
+            ],
+            b"\xff" * 0x6000,
+        )
+        self.assertEqual(
+            self.service.artifacts.path(
+                nvs_artifact["artifact_id"]
+            ).read_bytes(),
+            nvs_data,
+        )
+        self.assertTrue(session.nvs_summary_path.is_file())
+        self.assertEqual(
+            session.nvs_info["source_artifact_modified"],
+            False,
+        )
+        self.assertEqual(
+            session.nvs_info["effective_flash_sha256"],
+            hashlib.sha256(effective).hexdigest(),
+        )
+        with zipfile.ZipFile(io.BytesIO(session.evidence_bundle(
+            include={"manifest", "serial"}
+        ))) as archive:
+            self.assertIn("nvs/summary.json", archive.namelist())
+            manifest = json.loads(archive.read("manifest.json"))
+            self.assertEqual(
+                manifest["nvs"]["partition_label"],
+                "nvs",
+            )
+
+    def test_nvs_fixture_rejects_wrong_size_and_partition(self):
+        image = build_flash_with_nvs_partition()
+        firmware_artifact = self.service.upload_artifact(image)
+        firmware = self.service.create_firmware(
+            {
+                "device_id": "sticks3",
+                "kind": "merged",
+                "artifact_id": firmware_artifact["artifact_id"],
+            }
+        )
+        small = self.service.upload_artifact(b"\xff" * PAGE_SIZE)
+        with self.assertRaises(ServiceError) as wrong_size:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "firmware_id": firmware["firmware_id"],
+                    "nvs": {
+                        "image_artifact_id": small["artifact_id"],
+                    },
+                }
+            )
+        self.assertEqual(wrong_size.exception.code, "invalid_nvs_image")
+
+        exact = self.service.upload_artifact(b"\xff" * 0x6000)
+        with self.assertRaises(ServiceError) as missing_partition:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "firmware_id": firmware["firmware_id"],
+                    "nvs": {
+                        "partition_label": "settings",
+                        "image_artifact_id": exact["artifact_id"],
+                    },
+                }
+            )
+        self.assertEqual(
+            missing_partition.exception.code,
+            "nvs_partition_not_found",
+        )
+        with self.assertRaises(ServiceError) as unknown_field:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "firmware_id": firmware["firmware_id"],
+                    "nvs": {
+                        "image_artifact_id": exact["artifact_id"],
+                        "path": "/tmp/untrusted",
+                    },
+                }
+            )
+        self.assertEqual(unknown_field.exception.code, "invalid_nvs")
+
+        with self.assertRaises(ServiceError) as network_runtime:
+            self.service.create_session(
+                {
+                    "device_id": "sticks3",
+                    "firmware_id": firmware["firmware_id"],
+                    "runtime": "network",
+                    "network": {"profile": "esp-idf-http"},
+                    "nvs": {
+                        "image_artifact_id": exact["artifact_id"],
+                    },
+                }
+            )
+        self.assertEqual(
+            network_runtime.exception.code,
+            "nvs_not_supported",
+        )
+        self.assertIn(
+            "sticks3/network",
+            network_runtime.exception.message,
+        )
+
     def test_qemu_unified_runtime_selects_single_guest_profiles(self):
         unified = device_service_module.parse_qemu_ble_execution(
             self.service.specs["sticks3"],
@@ -1200,6 +1387,30 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(
             unsupported_device.exception.code,
             "qemu_unified_not_supported",
+        )
+
+    def test_qemu_wifi_supports_generic_s3_observe_profile(self):
+        parsed = device_service_module.parse_qemu_wifi_execution(
+            self.service.specs["atoms3r"],
+            {
+                "profile": "generic-observe",
+                "expected_markers": ["got ip:"],
+                "capture_pcap": True,
+            },
+        )
+        self.assertEqual(parsed["profile"], "generic-observe")
+        self.assertEqual(parsed["nic"], "misc.esp32s3.wifi")
+        self.assertTrue(parsed["capture_pcap"])
+        self.assertEqual(parsed["expected_markers"], ["got ip:"])
+
+        with self.assertRaises(ServiceError) as unsupported:
+            device_service_module.parse_qemu_wifi_execution(
+                self.service.specs["atoms3r"],
+                {"profile": "uiflow2-sticks3-wifi"},
+            )
+        self.assertEqual(
+            unsupported.exception.code,
+            "unsupported_network_profile",
         )
 
     def test_qemu_radio_capture_defaults_on_and_can_be_disabled(self):
@@ -1806,9 +2017,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
             )
             self.assertEqual(sticks3["nic"], "misc.esp32s3.wifi")
             self.assertEqual(sticks3["expected_markers"], ["WEATHER_READY"])
+            atoms3r = device_service_module.parse_qemu_wifi_execution(
+                self.service.specs["atoms3r"],
+                {"expected_markers": ["got ip:"]},
+            )
+            self.assertEqual(atoms3r["profile"], "generic-observe")
+            self.assertEqual(atoms3r["nic"], "misc.esp32s3.wifi")
             with self.assertRaises(ServiceError) as wrong_device:
                 device_service_module.parse_qemu_wifi_execution(
-                    self.service.specs["atoms3r"],
+                    self.service.specs["nanoc6"],
                     {},
                 )
             self.assertEqual(
@@ -1863,7 +2080,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-wifi"],
-                    "enabled-sticks3-and-core2",
+                    "enabled-s3-and-core2",
                 )
                 self.assertEqual(
                     gated.capacity()["modes"]["qemu-ble"],

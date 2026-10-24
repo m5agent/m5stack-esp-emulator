@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.24.0` and bounded
+Status: local MVP with unified-device runtime contract `1.25.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -1330,6 +1330,44 @@ mounted writable. Session snapshots, persisted records and evidence bundles
 expose the artifact SHA, size, interface and session-isolated copy boundary.
 `platform/tools/sd_image.py` creates deterministic FAT32+MBR or FAT16
 superfloppy fixtures for reproducible storage-dependent firmware tests.
+
+Firmware that expects first-boot or provisioned NVS data can attach a complete
+NVS partition without changing the firmware artifact:
+
+```json
+{
+  "device_id": "atoms3r",
+  "firmware_id": "<firmware-id>",
+  "nvs": {
+    "partition_label": "nvs",
+    "image_artifact_id": "<sha256-artifact-id>"
+  }
+}
+```
+
+The service parses the firmware partition table, requires an NVS partition
+(type `data`, subtype `nvs`) with the requested label, and requires the
+artifact size to equal the partition size. It then copies the source firmware
+to the session, writes the NVS bytes only into that isolated copy, and records
+both the base firmware SHA and effective Flash SHA. The source firmware and
+NVS artifacts are never modified. Session snapshots and evidence include the
+partition label/offset/size, NVS fixture SHA and overlay boundary. A QEMU
+retry restores the clean firmware copy and reapplies the same NVS fixture.
+The request field is `nvs.image_artifact_id`; `partition_label` defaults to
+`nvs`. NVS fixtures are accepted only by QEMU guest runtimes: `qemu`,
+`qemu-wifi`, `qemu-ble` and `qemu-unified`. The separate `runtime=network`
+diagnostic lane and the Tab5 backend reject `nvs` with `409
+nvs_not_supported`, because neither executes the requested session-isolated
+guest Flash path.
+
+`platform/tools/nvs_image.py` creates deterministic NVSv2 fixtures containing
+namespace and string values. Its encoder is checked byte-for-byte against
+`esp-idf-nvs-partition-gen 0.3.0`. NVS provisioning data is a runtime fixture,
+not a firmware-quality PASS; tests must still distinguish missing user data,
+WiFi security behavior, cloud credentials and headless/application behavior.
+The current OpenAI comparison reaches DNS/TCP after an Open-auth fixture but
+cannot associate with a non-empty password because the virtual AP does not
+advertise WPA2/RSN; that runtime limitation is tracked as `RUNTIME-05`.
 
 Network sessions use a validated scenario:
 

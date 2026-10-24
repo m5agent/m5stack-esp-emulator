@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.24.0
+  version: 1.25.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1837,6 +1837,8 @@ components:
           $ref: "#/components/schemas/NetworkExecution"
         storage:
           $ref: "#/components/schemas/StorageExecution"
+        nvs:
+          $ref: "#/components/schemas/NvsExecution"
     StorageExecution:
       type: object
       additionalProperties: false
@@ -1848,6 +1850,28 @@ components:
         starts. The source artifact is never mounted directly.
       properties:
         sd_image_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+    NvsExecution:
+      type: object
+      additionalProperties: false
+      required: [image_artifact_id]
+      description: >
+        Overlay a complete content-addressed NVS partition into the
+        session-isolated virtual flash after validating the firmware partition
+        table. The source firmware and NVS artifacts are never modified. The
+        fixture size must exactly match the selected NVS partition. Accepted
+        only by QEMU guest runtimes: qemu, qemu-wifi, qemu-ble and
+        qemu-unified. The network diagnostic lane and Tab5 backend reject this
+        field because they do not execute the same session-isolated guest
+        flash path.
+      properties:
+        partition_label:
+          type: string
+          minLength: 1
+          maxLength: 16
+          default: nvs
+        image_artifact_id:
           type: string
           pattern: "^[0-9a-f]{64}$"
     NetworkExecution:
@@ -2168,6 +2192,10 @@ components:
             - $ref: "#/components/schemas/RuntimeMemory"
           nullable: true
         network:
+          type: object
+          nullable: true
+          additionalProperties: true
+        nvs:
           type: object
           nullable: true
           additionalProperties: true

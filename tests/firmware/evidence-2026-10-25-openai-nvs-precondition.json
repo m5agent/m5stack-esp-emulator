@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-openai-first-boot-nvs-precondition",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "functional_status": "PARTIAL",
+  "scope": "virtual-device-validation-not-hardware",
+  "source": {
+    "firmware_id": "1897200000000000358",
+    "name": "OpenAI Voice Assistant For AtomS3R",
+    "version": "v1.0",
+    "sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+    "bytes": 1382624,
+    "download": null
+  },
+  "nvs_partition": {
+    "label": "nvs",
+    "offset": 36864,
+    "size": 24576,
+    "public_binary_sha256": "1df8949b2e345ab8c00cb81fb6b83686e20a4080f969e5cd8b8d520a07cdaba2",
+    "public_binary_erased": true
+  },
+  "fixtures": {
+    "open_qemu_ap": {
+      "sha256": "14f0acc47e1e1bef7e19d29c90febd0fe3707599fd8fc42eeb14dd27cfc26e5d",
+      "wifi_auth": "open"
+    },
+    "wpa2_qemu_ap": {
+      "sha256": "ab16f2a1842e40addce0ba26209595fef98d1b3f31113512375d5cfad70fe2bd",
+      "wifi_auth": "wpa2-requested-by-guest"
+    },
+    "values_are_synthetic": true
+  },
+  "checks": {
+    "source_sha_binding": true,
+    "nvs_partition_is_blank_in_public_binary": true,
+    "fixture_encoder_matches_esp_idf_generator": true,
+    "secure_fixture_loads_nvs_config": true,
+    "secure_fixture_exposes_wpa2_threshold": true,
+    "secure_fixture_does_not_associate_with_open_qemu_ap": true,
+    "open_fixture_loads_nvs_config": true,
+    "open_fixture_associates": true,
+    "open_fixture_reaches_dhcp": true,
+    "open_fixture_resolves_api_openai_com": true,
+    "open_fixture_makes_tcp_443_attempt": true,
+    "open_fixture_attempts_https": true,
+    "session_isolated_nvs_overlay": true
+  },
+  "secure_run": {
+    "name": "wpa2-fixture-against-open-qemu-ap",
+    "fixture_sha256": "ab16f2a1842e40addce0ba26209595fef98d1b3f31113512375d5cfad70fe2bd",
+    "states": [
+      "flashing",
+      "booting",
+      "failed"
+    ],
+    "reached_running": false,
+    "final_state": "failed",
+    "final_error": "timed out waiting for serial marker 'wifi:connected with myssid'",
+    "nvs": {
+      "partition_label": "nvs",
+      "offset": 36864,
+      "size": 24576,
+      "artifact_id": "ab16f2a1842e40addce0ba26209595fef98d1b3f31113512375d5cfad70fe2bd",
+      "sha256": "ab16f2a1842e40addce0ba26209595fef98d1b3f31113512375d5cfad70fe2bd",
+      "bytes": 24576,
+      "session_isolated_overlay": true,
+      "source_artifact_modified": false,
+      "base_flash_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d",
+      "effective_flash_sha256": "6daeec798bb0ff5b5951c529aa39ea0f3ffc0fd271f7199a38b2c3a217fe16f8"
+    },
+    "flash": {
+      "transport": "direct-complete-flash-image",
+      "verified": true,
+      "flash_size": 8388608,
+      "firmware_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d",
+      "bootloader_offset": 0,
+      "bootloader_chip": "esp32s3",
+      "app_partitions": [
+        {
+          "label": "factory",
+          "offset": 65536,
+          "size": 1572864,
+          "chip": "esp32s3"
+        }
+      ],
+      "erased_app_partitions": [],
+      "session_isolated_copy": true,
+      "base_flash_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d",
+      "effective_flash_sha256": "6daeec798bb0ff5b5951c529aa39ea0f3ffc0fd271f7199a38b2c3a217fe16f8",
+      "nvs_partition": {
+        "label": "nvs",
+        "offset": 36864,
+        "size": 24576,
+        "fixture_sha256": "ab16f2a1842e40addce0ba26209595fef98d1b3f31113512375d5cfad70fe2bd"
+      }
+    },
+    "serial_bytes": 11027,
+    "serial_sha256": "fac9e45c269a5ae27aecdbcf1e52a2a7ec5a78b8987d3e1e5c124865ae9bf46f",
+    "markers": {
+      "NVS: WiFi SSID: myssid": true,
+      "NVS: OpenAI Key: test-openai-key-not-secret": true,
+      "authmode threshold changes from OPEN to WPA2": true,
+      "retry to connect to the AP": true,
+      "wifi:connected with myssid": false,
+      "got ip:": false,
+      "Error perform http request": false
+    },
+    "network_status": "PARTIAL",
+    "network_checks": {
+      "marker:1": false
+    },
+    "pcap": {
+      "packets": null,
+      "dns_queries": [],
+      "tcp_443_flows": 0,
+      "capture_sha256": null
+    },
+    "stop_state": "failed"
+  },
+  "open_run": {
+    "name": "open-fixture-against-open-qemu-ap",
+    "fixture_sha256": "14f0acc47e1e1bef7e19d29c90febd0fe3707599fd8fc42eeb14dd27cfc26e5d",
+    "states": [
+      "flashing",
+      "booting",
+      "running"
+    ],
+    "reached_running": true,
+    "final_state": "stopped",
+    "final_error": null,
+    "nvs": {
+      "partition_label": "nvs",
+      "offset": 36864,
+      "size": 24576,
+      "artifact_id": "14f0acc47e1e1bef7e19d29c90febd0fe3707599fd8fc42eeb14dd27cfc26e5d",
+      "sha256": "14f0acc47e1e1bef7e19d29c90febd0fe3707599fd8fc42eeb14dd27cfc26e5d",
+      "bytes": 24576,
+      "session_isolated_overlay": true,
+      "source_artifact_modified": false,
+      "base_flash_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d",
+      "effective_flash_sha256": "5ca4fb6dc20543a7e2484975cf0a4be9c51c810aa63d8c9105a37347d7220100"
+    },
+    "flash": {
+      "transport": "direct-complete-flash-image",
+      "verified": true,
+      "flash_size": 8388608,
+      "firmware_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d",
+      "bootloader_offset": 0,
+      "bootloader_chip": "esp32s3",
+      "app_partitions": [
+        {
+          "label": "factory",
+          "offset": 65536,
+          "size": 1572864,
+          "chip": "esp32s3"
+        }
+      ],
+      "erased_app_partitions": [],
+      "session_isolated_copy": true,
+      "base_flash_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d",
+      "effective_flash_sha256": "5ca4fb6dc20543a7e2484975cf0a4be9c51c810aa63d8c9105a37347d7220100",
+      "nvs_partition": {
+        "label": "nvs",
+        "offset": 36864,
+        "size": 24576,
+        "fixture_sha256": "14f0acc47e1e1bef7e19d29c90febd0fe3707599fd8fc42eeb14dd27cfc26e5d"
+      }
+    },
+    "serial_bytes": 14254,
+    "serial_sha256": "ad315c1701e6ba05ace3a5b6d4e76228cec776abc5e9c170ff68e74b271bca88",
+    "markers": {
+      "NVS: WiFi SSID: myssid": true,
+      "NVS: OpenAI Key: test-openai-key-not-secret": true,
+      "authmode threshold changes from OPEN to WPA2": false,
+      "retry to connect to the AP": true,
+      "wifi:connected with myssid": true,
+      "got ip:": true,
+      "Error perform http request": true
+    },
+    "network_status": "PASS",
+    "network_checks": {
+      "marker:1": true
+    },
+    "pcap": {
+      "packets": 37,
+      "dns_queries": [
+        "api.openai.com."
+      ],
+      "tcp_443_flows": 1,
+      "capture_sha256": "ab8c5f61077634b7de136e91ea96539c9fb4503ee90a33821058af823edd4295"
+    },
+    "stop_state": "stopped"
+  },
+  "classification": {
+    "nvs_precondition": "CONFIRMED_EXTERNAL_CONFIGURATION_REQUIRED",
+    "frame_result": "NOT_APPLICABLE_TO_NVS_ROOT_CAUSE; the firmware does not provide a provisioning or error UI before network success",
+    "qemu_wifi_security": "MODEL_GAP: the current QEMU AP advertises Open auth while the guest raises a non-empty password to a WPA2 threshold",
+    "cloud_function": "NOT RUN: no real OpenAI credential is used"
+  },
+  "not_claimed": [
+    "real OpenAI account or Realtime API session",
+    "voice audio input/output or WebRTC media behavior",
+    "WPA2/WPA3 association on physical hardware",
+    "an on-device UI requirement",
+    "physical hardware or RF validation"
+  ]
+}

@@ -292,6 +292,16 @@ TLS 正文通常不可见。若固件没有证书固定，可使用专用测试 
 - 异常写入频率；
 - 未声明的 OTA 或恢复逻辑。
 
+如果样本依赖首次启动配置，必须显式绑定外部 fixture，不能把空 NVS 直接归为
+通用模型故障。Device Service 接受完整 NVS 分区镜像，按固件的 `data/nvs`
+分区 label/offset/size 校验，并且只覆盖 session Flash 副本；evidence 同时
+记录 base firmware、effective Flash 和 fixture SHA。
+`platform/tools/nvs_image.py` 可生成确定性的 NVSv2 namespace/string
+fixture。该字段只适用于 `qemu`、`qemu-wifi`、`qemu-ble` 和
+`qemu-unified` guest runtime；`runtime=network` 与 Tab5 不会执行同一条完整
+session Flash 路径，因此必须拒绝而不是静默忽略。真实 WiFi 或云凭据不得
+进入公开 job request、evidence ZIP 或源码 fixture。
+
 ## 6. 隔离和安全要求
 
 待审固件必须视为不可信输入，QEMU 也必须视为攻击面。
