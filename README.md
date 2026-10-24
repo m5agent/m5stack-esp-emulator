@@ -35,7 +35,7 @@ MicroPython 和其他完整 Flash 固件。
   调度仍是开放项。
 - Core2 规范路径是
   `runtime=qemu-unified/profile=core2-native-hci`；GDB native-VHCI 只用于
-  诊断/兼容。功能、active-BLE 120 秒 hold 和同 guest 十轮重连已通过；
+  诊断/兼容。功能、active-BLE 120 秒 hold 和同 guest 二十轮重连已通过；
   重连 blocker 已定位并修正为 Bumble 对
   `HCI_Host_Number_of_Completed_Packets (0x0c35)` 的错误响应。剩余长稳、
   物理边界见
@@ -58,7 +58,7 @@ MicroPython 和其他完整 Flash 固件。
 
 1. `NET-04` / `SVC-01`：自动化客户端批量迁移、跨主机 QEMU job/reattach、continuity 和多机调度。
 2. `FW-01` → `FW-03` → `FW-02`：权限/许可、跨厂商样本、真机 key/eFuse。
-3. `CORE2-02`：超过十轮连接（需扩大当前 1–10 API 上限）、多小时 soak、WiFi/BLE coexistence 与物理等价性。
+3. `CORE2-02`：超过二十轮连接、多小时 soak、WiFi/BLE coexistence 与物理等价性。
 4. `TAB5-01`、`CZ-01`、`UI-01` 和 `HW-01` 按专项依赖推进。
 
 关键索引：
@@ -158,7 +158,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold，以及 3 个独立 lease 各自 10 轮的 same-guest GATT。全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；超过十轮、多小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold，以及 3 个独立 lease 各自 20 轮的 same-guest GATT。全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；超过二十轮、多小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -279,19 +279,19 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   halted/idle vCPU，并恢复 caller-saved sregs；两批 `5×10s` 运行合计
   `10/10`，3 个 `60s` hold 为 `3/3`，2 个 `120s` hold 为 `2/2`；
   active-BLE `120s` hold 也 `2/2`，peer 在 hold 完成时仍保持连接。
-  同一 guest 的断开后重连已通过十轮门禁：3 个独立 lease 各完成 10 个
+  同一 guest 的断开后重连已通过二十轮门禁：3 个独立 lease 各完成 20 个
   scan/connect/NUS GATT/disconnect 循环，每轮 HLI posts/consumed 为
-  `297/297`、events `207`、ACLs `90`、HLI errors 和队列深度为 0，
+  `577/577`、events `397`、ACLs `180`、HLI errors 和队列深度为 0，
   连接/L2CAP/GATT 池均回到空闲基线。修复前 Bumble compatibility 层错误地为
   `HCI_Host_Number_of_Completed_Packets` 返回 Command Status，留下 stale ACK；
   下一轮 `LE Set Advertising Data` 消费该 ACK，导致 NimBLE
   `BLE_HS_ECONTROLLER (12)` 和 reset。移除该非法响应后，stock 固件在
-  3 个独立 lease 中均完成 10 轮，所有循环的 guest RX、notification、pcap
+  3 个独立 lease 中均完成 20 轮，所有循环的 guest RX、notification、pcap
   和 evidence 全部 PASS。
   旧的 `core2-native-vhci` 仍依赖
   GDB 暂停、callback 注入和 synthetic return，只保留为显式诊断/兼容路径，
   不再作为新调用首选。该结果仍不是 bit-exact ESP32 BT
-  baseband/controller、超过十轮、多小时 soak、RF 或真机验证。当前 hook
+  baseband/controller、超过二十轮、多小时 soak、RF 或真机验证。当前 hook
   偏移绑定已验证的
   UIFlow2 v2.5.3 build；换 Core2 固件必须重新验证同一路径。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意

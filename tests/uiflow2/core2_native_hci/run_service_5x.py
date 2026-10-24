@@ -643,8 +643,8 @@ def main() -> int:
         parser.error("--attempts must be from 1 to 30")
     if args.hold_seconds < 0 or args.hold_seconds > 120:
         parser.error("--hold-seconds must be from 0 to 120")
-    if args.ble_reconnect_cycles < 1 or args.ble_reconnect_cycles > 10:
-        parser.error("--ble-reconnect-cycles must be from 1 to 10")
+    if args.ble_reconnect_cycles < 1 or args.ble_reconnect_cycles > 30:
+        parser.error("--ble-reconnect-cycles must be from 1 to 30")
     for label, path in (
         ("image", args.image),
         ("ELF", args.elf),

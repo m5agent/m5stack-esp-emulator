@@ -386,8 +386,8 @@ def main() -> int:
         help="seconds between peer disconnect and the next scan",
     )
     args = parser.parse_args()
-    if args.reconnect_cycles < 1 or args.reconnect_cycles > 10:
-        parser.error("--reconnect-cycles must be from 1 to 10")
+    if args.reconnect_cycles < 1 or args.reconnect_cycles > 30:
+        parser.error("--reconnect-cycles must be from 1 to 30")
     if not 0 <= args.reconnect_delay <= 30:
         parser.error("--reconnect-delay must be from 0 to 30")
     try:

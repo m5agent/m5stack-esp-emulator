@@ -1216,11 +1216,11 @@ def parse_qemu_ble_execution(
     if (
         isinstance(reconnect_cycles, bool)
         or not isinstance(reconnect_cycles, int)
-        or not 1 <= reconnect_cycles <= 10
+        or not 1 <= reconnect_cycles <= 30
     ):
         raise ServiceError(
             "invalid_network",
-            "network.ble_reconnect_cycles must be an integer from 1 to 10",
+            "network.ble_reconnect_cycles must be an integer from 1 to 30",
             400,
         )
     reconnect_delay = value.get("ble_reconnect_delay_seconds", 2)

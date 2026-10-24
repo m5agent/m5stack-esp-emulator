@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `309` 项，`309` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `314` 项，`314` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - 本轮文档对账把会随提交变化的测试与矩阵计数集中到本页；README、文档
   导航和工作流台账改为链接。设备 catalog 与 QEMU profile 的验证日期/状态
@@ -97,6 +97,12 @@
   和 evidence 全部 PASS。每个 lease 的 HLI 为 `297/297`、events `207`、
   ACLs `90`，HLI errors 和队列深度为 0，connection/L2CAP/GATT 池均回到
   `3/9/3` 空闲基线，`trace-hs-sched-reset=0`。
+- 随后将 Device Service、Bumble peer 和 runner 的 `1–10` 硬上限统一扩展到
+  `1–30`，并用同一 ELF/QEMU SHA 与重新构建的 unified Core2 镜像运行
+  `3` 个独立 lease、每个 `20` 轮 same-guest reconnect。全部 `3/3` PASS；
+  每个 lease 的 HLI 为 `577/577`、events `397`、ACLs `180`、HLI errors 和
+  队列深度为 0，连接/L2CAP/GATT 池均回到 `3/9/3`，无 panic。该结果关闭
+  “超过十轮”缺口，但仍只是 virtual-device 20 轮，不等于多小时 soak。
 - 首次 10 轮运行暴露了 Device Service 的独立等待缺陷：peer 已完成 5 轮并
   开始第 6 轮且 guest 未 panic，但 `_wait_hci_probe_result()` 把
   `ready_timeout_seconds` 硬截断为 30 秒，导致 session 被误判失败并终止
@@ -125,7 +131,7 @@
 | 能力面 | 虚拟设备验证 | 本地服务化 | 真机 | 当前结论 |
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
-| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold 和 3 个各 10 轮的 same-guest GATT lease 均 PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、持续 active BLE 和同 guest 多轮重连数据面；仍不是完整 RF/PHY、bit-exact BT controller、多小时 soak 或超过十轮连接 |
+| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold 和 3 个各 20 轮的 same-guest GATT lease 均 PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、持续 active BLE 和同 guest 二十轮重连数据面；仍不是完整 RF/PHY、bit-exact BT controller、多小时 soak 或超过二十轮连接 |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain 和 previous token/CA 有界重叠后 final cutover PASS；自动化客户端批量迁移、跨主机 QEMU job、companion continuity 和 IPv6 未完成 | `NOT RUN` | 传输、认证和同主机 QEMU/unified job 基础已具备，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、active-request drain、previous token/CA 有界重叠与 final cutover、worker lease 与失联回收 | 无跨主机 QEMU executor、自动化客户端批量迁移、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、drained overlap rotation、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
@@ -142,7 +148,7 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover；GitHub Actions Linux policy CI PASS | 自动化客户端批量迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产多机调度、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；另 2 个 `120s` active-BLE hold `2/2`；3 个独立 lease 各 10 轮的 same-guest GATT `3/3` | `HCI-4`、two-minute virtual extended-run 和十轮 reconnect 已通过。reconnect 根因是 Bumble 为 HCI Host Completed Packets 返回非法 Command Status；Bumble compatibility 层已修正。首次 10 轮运行的服务硬上限误杀也已修复。旧 GDB 路径 `1/2` 只作诊断。剩余是超过十轮、多小时 soak、bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；另 2 个 `120s` active-BLE hold `2/2`；3 个独立 lease 各 20 轮的 same-guest GATT `3/3` | `HCI-4`、two-minute virtual extended-run、十轮与二十轮 reconnect 已通过。reconnect 根因是 Bumble 为 HCI Host Completed Packets 返回非法 Command Status；Bumble compatibility 层已修正。Device Service/Bumble peer/runner 的统一 API 上限已扩到 `30`。旧 GDB 路径 `1/2` 只作诊断。剩余是超过二十轮、多小时 soak、bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist 策略 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、跨厂商回归 |
 
 ## 工作流入口
@@ -236,6 +242,8 @@
   [`hci4-active-ble-hold120-2x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json)。
   十轮重连证据：
   [`hci4-reconnect10-3x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-3x.json)。
+  二十轮重连证据：
+  [`hci4-reconnect20-3x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect20-3x.json)。
   十轮首次运行的 service timeout 失败证据：
   [`hci4-reconnect10-timeout-fail.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-timeout-fail.json)。
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
@@ -307,7 +315,7 @@
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS | 原生 BT controller 与 C6 WiFi PHY |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT 和同 guest 多轮重连 | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `120s` `2/2` 与 3 个各 10 轮的 GATT lease 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | 超过十轮、多小时 soak、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence、真机同路径 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT 和同 guest 多轮重连 | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `120s` `2/2` 与 3 个各 20 轮的 GATT lease 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | 超过二十轮、多小时 soak、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence、真机同路径 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
@@ -334,8 +342,8 @@
    3 个 `60s` hold 也 `3/3`，2 个 `120s` hold 为 `2/2`，且 HLI
    health 为零错误。该结果关闭当前 repeated-start/two-minute virtual
    extended-run 故障，但不覆盖 bit-exact controller/baseband、物理
-   cache/PSRAM、多小时 coexistence/soak、超过十轮连接和真机同路径；
-   同 guest 十轮 GATT 已有 3 个独立 lease 的 PASS evidence。第一个 10 轮
+   cache/PSRAM、多小时 coexistence/soak、超过二十轮连接和真机同路径；
+   同 guest 二十轮 GATT 已有 3 个独立 lease 的 PASS evidence。第一个 10 轮
    attempt 的失败已确认是 service 30 秒硬上限，不是 guest/controller；
    修复后的失败和 PASS evidence 均保留。旧
    `core2-native-vhci` 的

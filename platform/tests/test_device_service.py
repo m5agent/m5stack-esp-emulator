@@ -899,12 +899,21 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
             )
         self.assertEqual(invalid_linger.exception.code, "invalid_network")
+        twenty_cycles = device_service_module.parse_qemu_ble_execution(
+            self.service.specs["sticks3"],
+            {
+                "profile": "uiflow2-sticks3-unified",
+                "ble_reconnect_cycles": 20,
+            },
+            runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+        )
+        self.assertEqual(twenty_cycles["ble_reconnect_cycles"], 20)
         with self.assertRaises(ServiceError) as invalid_cycles:
             device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
                 {
                     "profile": "uiflow2-sticks3-unified",
-                    "ble_reconnect_cycles": 11,
+                    "ble_reconnect_cycles": 31,
                 },
                 runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
             )
