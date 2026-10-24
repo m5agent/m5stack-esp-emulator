@@ -67,7 +67,7 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions Linux policy CI PASS | 远程 QEMU worker、活动进程 re-attach、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5`、HLI IRQ/queue 与 guest ISR 消费 spike | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB internal-controller relay 在第二个 ATT request 后 `ack returned 12` 并 Reset。API-boundary 审计已完成广播、连接、NUS discovery 和订阅，但最终 write/notify 事务仍失败；safe-point callback 与 nested `r_eif_send` 均已证伪并回退。HLI spike 证明 guest ISR/controller task 能消费 QOM 投递的 event-13 work item，但尚未投递真实 controller event/ACL。下一步先完成 HLI event 与 ACL 生命周期，再接显式 API transaction、`HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload GATT、stock VHCI BLE 5/5、同 guest native-VHCI 3/3、ELF 固定 VHCI 符号；`HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5`、HLI 真实 Reset Complete `5/5` | 同 commit GDB 诊断桥 repeated lease 仅 `1/2`；无 GDB internal-controller relay 在第二个 ATT request 后 `ack returned 12` 并 Reset。API-boundary 审计已完成广播、连接、NUS discovery 和订阅，但最终 write/notify 事务仍失败；safe-point callback 与 nested `r_eif_send` 均已证伪并回退。HLI 已用池化 event buffer 交付真实 Reset Complete，ACL mbuf、controller ACK/flow control 和组合 transaction 尚未闭环。下一步先完成 ACL 与显式 API transaction，再做 `HCI-4` Device Service `5/5`、bit-exact controller、物理 cache/PSRAM、RF/coexistence/soak |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取 | 运行时权限、许可策略、真机 key/eFuse 流程、跨厂商回归 |
 
 ## 工作流入口
@@ -135,7 +135,8 @@
   | `HCI-1` transport | `PASS` | 分片 ACL、32 packet bounded queue、overflow、peer close、counters 和 clean shutdown |
   | `HCI-2` H2C | `PARTIAL` | 不启动 GDB，已捕获真实 stock HCI Reset `01030c00`；后续 H2C 依赖 controller response |
   | `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | 真实 Bumble Reset Complete 经 firmware `notify_host_recv` 交付，callback status 0；send-available 后 guest 从 HCI Reset 推进到 Read Local Version，targeted `5/5`。后续审计不支持把它当作产品后端 |
-  | `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | internal-controller relay 在第二个 ATT request 后 ack 12 并 Reset；API-boundary hook 已完成广播、连接、NUS discovery 和订阅，但 final write/notify transaction 超时。HLI queue spike 进一步证明 firmware ISR/controller task 会消费 QOM 投递的 event-13 marker；下一步投递真实 event/ACL，并保持显式 API transaction |
+  | `HCI-3b` HLI event | `PASS` | guest `ble_transport_alloc_evt(0)` + event 13 + `ble_transport_to_hs_evt_impl`；真实 Reset Complete 后 `01030c00 → 01011000`，连续 `5/5`，队列清空且无 malformed/dropped |
+  | `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | internal-controller relay 在第二个 ATT request 后 ack 12 并 Reset；API-boundary hook 已完成广播、连接、NUS discovery 和订阅，但 final write/notify transaction 超时。真实 HLI event 已闭环；下一步 ACL mbuf、controller ACK/flow control 与显式 API transaction |
   | `HCI-4` stability | `OPEN` | 尚无以 Device Service `/api/v1` 连续 `5/5`、无 GDB callback/synthetic return 的完整 GATT 门禁 |
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
@@ -202,13 +203,14 @@
    复现；native-VHCI 已在同一 guest 与 WiFi/公网/board 合并 3/3，并进入
    Device Service。VHCI 符号已经固定，但 GDB 仍控制暂停、callback 注入
    和 synthetic return。QEMU 内部 relay 已完成 transport、首个 H2C、
-   诊断性单包 C2H callback 和 HLI queue/ISR 消费 spike；HLI spike 只运行
-   了 event-13 marker，不是 HCI packet。完整 sequence 的失败证据也排除了
-   任意 safe-point 回调与 nested guest RPC。下一步必须用真实 controller
-   event/ACL buffer 验证 HLI 生命周期，再结合显式 API transaction；若
-   buffer/ACK 语义仍无法闭合，则退回 in-process controller transaction。
-   该路径不是无调试器的生产模型，也不等于 bit-exact Espressif BT
-   controller 或物理 cache/PSRAM 时序。
+   诊断性单包 C2H callback 和 HLI 真实 Reset Complete `5/5`。HLI 已证明
+   池化 event buffer 能经固件 ISR/controller task 安全进入 NimBLE，并从
+   Reset 推进到 Read Local Version。完整 sequence 的失败证据也排除了任意
+   safe-point 回调与 nested guest RPC。下一步必须验证 ACL mbuf 生命周期和
+   controller ACK/flow control，再结合显式 API transaction；若语义仍无法
+   闭合，则退回 in-process controller transaction。该路径不是无调试器的
+   生产模型，也不等于 bit-exact Espressif BT controller 或物理 cache/PSRAM
+   时序。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径

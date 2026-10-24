@@ -16,7 +16,8 @@ controller/baseband or prove a complete GATT sequence.
 | `HCI-1` host transport | `PASS` | `evidence-2026-10-24-transport-pass.json` |
 | `HCI-2` guest H2C | `PARTIAL` | `evidence-2026-10-24-guest-h2c.json`; first Reset only |
 | `HCI-3a` guest C2H callback | `DIAGNOSTIC PASS` | `evidence-2026-10-24-c2h-delivery.json` and `evidence-2026-10-24-c2h-delivery-5x.json`; Reset Complete then next H2C. This narrow callback route is not the production C2H backend |
-| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | Internal-controller relay resets after the second ATT request. The API-boundary audit reaches GATT discovery and subscription but stalls in the final write/notify transaction. A separate HLI queue spike proves the guest ISR consumes an event-13 marker, but not a real HCI packet |
+| `HCI-3b` HLI event | `PASS` | `evidence-2026-10-24-hli-event-5x.json`; pool-allocated Reset Complete through event 13 advances `01030c00` to `01011000` in 5/5 runs |
+| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | Internal-controller relay resets after the second ATT request. The API-boundary audit reaches GATT discovery and subscription but stalls in the final write/notify transaction. Controller ACL ownership and the combined H2C/C2H transaction remain open |
 | `HCI-4` repeated lease | `OPEN` | Still provided by the GDB diagnostic bridge at `1/2` |
 
 Build the patched QEMU, then run:
@@ -100,31 +101,33 @@ Controller delivery must therefore be a device/IRQ event with valid cache and
 flow-control context, or an in-process controller model. It cannot be a
 synchronous QEMU-to-guest internal-function call.
 
-## HLI queue delivery spike
+## HLI event delivery
 
 The firmware build has `CONFIG_BTDM_CTRL_HLI=1`. NimBLE runs on core 1 and the
 BT controller on core 0. QEMU can follow `g_rw_schd_queue` into the dynamic
 `hli_queue_t`, write an 8-byte controller work item, append the queue handle
 to the 4-byte meta queue, and raise HLI software interrupt 29.
 
-An experimental event-13 callback to `ets_printf` made the guest print
+An initial event-13 callback to `ets_printf` made the guest print
 `Fatal error in queue_signal: s_meta_queue full`. QOM reported no HLI error,
 and both HLI/meta queue depths returned to zero. This proves the guest HLI ISR
 and controller task consume a QEMU-posted work item through a valid task/IRQ
-context.
+context. The retained follow-up test now allocates an event through
+`ble_transport_alloc_evt(0)`, writes HCI bytes without the H4 type byte and
+delivers it through `ble_transport_to_hs_evt_impl`. Five consecutive runs
+advance the stock guest from `01030c00` to `01011000`, with
+`hli-posts=1`, `hli-consumed=1`, `hli-event-buffers=1`, `hli-errors=0` and
+empty HLI/meta queues.
 
-It does not prove HCI delivery: the callback was a marker, not a controller
-event, and no ACL/ACK/GATT transaction ran. The `hli-consumed` observer is not
-currently reliable; use queue-depth and serial evidence. The experiment was
-not retained. Evidence:
-`evidence-2026-10-24-hci3b-hli-queue-diagnostic.json`.
+The original marker evidence remains at
+`evidence-2026-10-24-hci3b-hli-queue-diagnostic.json`. The real-event result is
+`evidence-2026-10-24-hli-event-5x.json`, reproduced by
+`test_hli_event.py`.
 
-The next functional step is to allocate an event buffer through the guest
-`ble_transport_alloc_evt(0)`, pass event bytes without the H4 type byte to
-`ble_transport_to_hs_evt_impl`, and require a real Reset Complete to advance
-the guest. ACL ownership must then be investigated separately through
-`ble_transport_alloc_acl_from_ll` and `ble_transport_to_hs_acl_impl` before
-combining delivery with the API-boundary H2C transaction.
+This is not complete HCI/GATT. The next step is ACL ownership through
+`ble_transport_alloc_acl_from_ll` and `ble_transport_to_hs_acl_impl`, then an
+explicit API-boundary H2C transaction with matching controller ACK and flow
+control.
 
 A local C2H experiment invoked the guest `vhci_send` address and made the
 function return, but the firmware still timed out waiting for the controller

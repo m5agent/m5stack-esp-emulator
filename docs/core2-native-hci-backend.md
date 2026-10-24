@@ -14,7 +14,8 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-1` host transport | `PASS` | `patches/qemu-core2-native-hci/0001-esp32-native-hci-transport.patch` | H4 framing、bounded queue、overflow、peer lifecycle、QOM counters 和 clean shutdown 已通过 targeted test |
 | `HCI-2` H2C | `PARTIAL` | 同一补丁的 `env-pointer-address` poller；`test_guest_h2c.py` | 不启动 GDB 已捕获真实 stock HCI Reset `01030c00`；完整命令序列需要 C2H 才能继续 |
 | `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | `c2h-allocator-address`、注册 callback 调用、send-available 和 QOM counters | Reset Complete 已交付 guest 的 `notify_host_recv`，callback status 为 0，guest 随后发出 Read Local Version；连续 `5/5`。这只证明窄路径 ABI，不是可扩展产品后端 |
-| `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | `run_full.py`、`evidence-2026-10-24-hci3b-diagnostic.json`；API-boundary 与 HLI spike evidence | 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset。API-boundary hook 推进到 NUS subscription；HLI queue spike 证明 guest ISR 消费 event-13 marker，但尚未投递真实 HCI packet |
+| `HCI-3b` HLI event | `PASS` | `0002-esp32-native-hci-hli-event.patch`、`test_hli_event.py` | guest 池分配真实 Reset Complete，经 HLI event 13 和 `ble_transport_to_hs_evt_impl` 交付；`01030c00 → 01011000` 连续 `5/5` |
+| `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | `run_full.py`、`evidence-2026-10-24-hci3b-diagnostic.json`；API-boundary 与 HLI evidence | 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset。API-boundary hook 推进到 NUS subscription；HLI event 已闭环，但 ACL、ACK 和完整 transaction 仍缺 |
 | `HCI-4` stability | `OPEN` | 无门禁 | 还没有无 GDB 的 Device Service 连续 `5/5` 完整 GATT 证据 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
@@ -273,20 +274,34 @@ queue handle，再置 `INTSET[29]`。以 event 13 和 `ets_printf` 为 callback
 controller task 确实消费了 QEMU 投递项，验证了后续 C2H 的设备/IRQ 交付
 seam。
 
-这不是 `HCI-3b` PASS：callback 只是诊断 marker，没有发送 HCI event，也
-没有 ACL、ACK、flow-control 或 GATT transaction。`hli-consumed` 观察计数
-因比较逻辑 bug 仍为 0，不能引用；消费证据是 queue depth 归零与 guest
-serial marker。实验代码未保留：
-`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-queue-diagnostic.json`。
+最初的 event-13 marker 只证明 queue/IRQ seam，不能作为 HCI PASS。随后保留
+的 `0002` patch 增加了真实 event buffer 路径：
+
+- allocation 使用 guest `ble_transport_alloc_evt(0)`，buffer 最终由 NimBLE
+  池归还；
+- event bytes 写入时不包含 H4 type byte；
+- event 13 的 controller work item 调用
+  `ble_transport_to_hs_evt_impl`，不是打印 callback；
+- HLI queue 使用真实 `hli_queue_t` 状态，修复了 `hli-consumed` 比较错误；
+- VHCI length 的非最终写入单独计为 `h2c-incomplete-writes`，不再误报
+  malformed packet。
+
+`test_hli_event.py` 用真实 Bumble Reset Complete 驱动 stock guest。
+`5/5` 次均观察到 `01030c00` 后 guest 发出 `01011000`，同时
+`hli-posts=1`、`hli-consumed=1`、`hli-event-buffers=1`、
+`hli-errors=0`、HLI/meta queue depth 归零。
+
+证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json`。
+这关闭了“真实 controller event 能否从 HLI 安全进入 host”的阻塞，但仍不是
+完整 `HCI-3b`：ACL mbuf、controller ACK、H2C 所有权和 GATT transaction
+仍未闭环。
 
 下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
 调整固定 sleep、CPU pinning、寄存器补丁或 nested guest RPC：
 
 - 在 `API_vhci_host_send_packet` 边界建立显式 transaction，避免内部 controller
   和外部 controller 同时拥有同一 packet；
-- 先使用 guest `ble_transport_alloc_evt` 分配的 buffer 和
-  `ble_transport_to_hs_evt_impl` callback，通过 HLI event 13 交付真实
-  Reset Complete；
 - 再调查 `ble_transport_alloc_acl_from_ll` /
   `ble_transport_to_hs_acl_impl` 的 mbuf append/free 生命周期；
 - 在 H2C send 与对应 C2H response 之间保持可验证的 transaction；
@@ -308,10 +323,8 @@ repeated lease。
 ## 剩余工作量
 
 下面是当前阶段之后的重新估算，不包含已经完成的 HCI-1、HCI-2、
-HCI-3a 窄路径和 HLI queue/IRQ 消费 spike：
+HCI-3a 窄路径和 HLI 真实 event 交付：
 
-- event 13 真实 controller event、buffer ownership 和 Reset Complete：
-  约 `1–2` 天；
 - ACL mbuf 生命周期与 API-boundary H2C/C2H transaction：约 `3–6` 天；
 - `HCI-4` repeated lease、故障注入和长稳：约 `2–4` 天；
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周，

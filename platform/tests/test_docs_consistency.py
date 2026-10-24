@@ -41,6 +41,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/README.md",
             "tests/uiflow2/core2_native_hci/test_transport.py",
             "tests/uiflow2/core2_native_hci/test_guest_h2c.py",
+            "tests/uiflow2/core2_native_hci/test_hli_event.py",
+            "patches/qemu-core2-native-hci/0002-esp32-native-hci-hli-event.patch",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-transport-pass.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-guest-h2c.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json",
@@ -50,6 +52,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-controller-entry-audit.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-queue-diagnostic.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-event-5x.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
@@ -250,6 +253,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "SPIFFS 目前只做分区识别",
             "SPIFFS inventory is not implemented",
             "SPIFFS 解包",
+            "HLI 尚未投递真实 controller event",
+            "but no real HCI event or ACL packet was delivered",
         ):
             self.assertNotIn(stale, active)
 
@@ -743,6 +748,41 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertFalse(hli_queue["observations"]["hli_consumed_counter_usable"])
         self.assertFalse(hli_queue["experiment_retained"])
         self.assertFalse(hli_queue["reproducible_from_committed_worktree"])
+        hli_event = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hli-event-5x.json"
+            ).read_text()
+        )
+        self.assertEqual(hli_event["stage"], "HCI-3b")
+        self.assertEqual(hli_event["status"], "PASS")
+        self.assertEqual(len(hli_event["runs"]), 5)
+        self.assertTrue(
+            all(run["status"] == "PASS" for run in hli_event["runs"])
+        )
+        self.assertTrue(
+            all(
+                run["reset_command"] == "01030c00"
+                and run["next_command"] == "01011000"
+                for run in hli_event["runs"]
+            )
+        )
+        self.assertTrue(
+            all(
+                run["hli_posts"] == 1
+                and run["hli_consumed"] == 1
+                and run["hli_event_buffers"] == 1
+                and run["hli_errors"] == 0
+                and run["malformed_packets"] == 0
+                and run["dropped_packets"] == 0
+                for run in hli_event["runs"]
+            )
+        )
+        self.assertIn(
+            "complete HCI command sequence",
+            hli_event["not_claimed"],
+        )
         self.assertIn(
             "API boundary",
             (DOCS / "core2-native-hci-backend.md").read_text(),
@@ -752,7 +792,7 @@ class DocsConsistencyTests(unittest.TestCase):
             self.assertIn("r_eif_send", document)
             self.assertIn("HLI", document)
         for document in (status, workstreams, backlog):
-            self.assertIn("IRQ/queue", document)
+            self.assertIn("HLI", document)
             self.assertIn("in-process controller", document)
         dns_probe = (
             ROOT / "tests/network/idf_dns_udp/README.md"

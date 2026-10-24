@@ -28,13 +28,14 @@
   IPv6。
 - **Core2 P0**：stock native-VHCI 已进入 Device Service，但仍是 GDB 诊断桥；
   QEMU native-HCI 的 transport、首包 H2C 和诊断性 C2H 已过，完整 HCI/GATT
-  仍卡在 `HCI-3b`。最新 HLI queue spike 已证明 guest ISR/controller task
-  能消费 QOM 投递项，但投递内容是 event-13 marker，不是 HCI packet。
+  仍卡在 `HCI-3b`。最新 HLI event 路径已连续 5/5 交付真实 Reset Complete，
+  guest 从 `01030c00` 前进到 `01011000`；剩 ACL ownership、controller ACK
+  和 API-boundary transaction。
 - **固件审查 P0**：Manifest、WebBurner、静态审查、安全配置分层和
   LittleFS/FAT/SPIFFS inventory 已实现；运行时权限/许可策略、真机
   key/eFuse 闭环和跨厂商样本仍开放。
-- **下一手顺序**：先做真实 controller event 的 HLI 交付并验证 Reset
-  Complete，再接 ACL 生命周期和 API-boundary H2C transaction；并行推进
+- **下一手顺序**：先做 ACL mbuf 生命周期和 API-boundary H2C transaction；
+  并行推进
   `NET-04` 远程 worker；固件侧继续 `FW-01` 权限/许可。
 
 ## 状态语义
@@ -57,7 +58,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新 `67/67` case、`274/274` check，全部首轮无重试 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5`；`HCI-3b` 到首个 ATT 后 Reset，API-boundary hook 后续到 NUS subscription 但 final write/notify 超时；HLI queue spike 证明 guest ISR 消费 event-13 marker；safe-point/nested-entry 审计均 FAIL 且未保留 | `CORE2-01` 下一实现是把真实 controller event 通过 guest HLI queue/IRQ 交付，再验证 ACL buffer 生命周期和 API-boundary H2C transaction；sequence 稳定后用 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面。`CORE2-02` 继续 controller、物理 cache/PSRAM、coexistence/soak |
+| Core2 稳定性与无线 | `PILOT` | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI 与 stock native-VHCI GATT、ELF 固定 VHCI 符号、standalone 5/5、unified 3/3；Device Service GDB bridge repeated lease 当前 `1/2`；native-HCI `HCI-1` PASS、`HCI-2` 首包 PARTIAL、`HCI-3a` 诊断性单包 C2H `5/5`、HLI 真实 Reset Complete `5/5`；`HCI-3b` 完整 sequence 仍开放，API-boundary 到 NUS subscription；safe-point/nested-entry 审计均 FAIL 且未保留 | `CORE2-01` 下一实现是 ACL mbuf 生命周期 + API-boundary H2C/C2H transaction，再接完整 controller ACK/flow control；sequence 稳定后用 `HCI-4` 的 Device Service `5/5` 替换 GDB 控制面。`CORE2-02` 继续 controller、物理 cache/PSRAM、coexistence/soak |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle 与 Linux policy CI） | `worker_registry.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；两台 QEMU guest 的 DHCP/双向 TCP/双侧 pcap/宿主隔离；本地 worker heartbeat/drain/restart classification；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 远程 worker/活动 QEMU re-attach、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、失败回滚与 staging GC | `FW-01` 权限/许可策略、`FW-02` 真机 key/eFuse、`FW-03` 跨厂商回归 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`storage_policy.py`、`docs/device-service-api.md` | lease、worker ID/generation/heartbeat、独占状态锁、drain/resume、abandoned lease、pcap result、烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` 远程注册和活动 QEMU re-attach、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
@@ -69,12 +70,11 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 
 ## 当前执行顺序
 
-1. `CORE2-01` 的代码入口是 `HCI-3b`：复用已验证的 firmware HLI IRQ/queue 和
-   `INTSET[29]` 路径，先投递真实 Reset Complete，再处理 ACL buffer 生命
-   周期和 API-boundary H2C transaction；如果 HLI buffer/ACK 语义仍无法
-   闭合，再退回 in-process controller transaction。保留 packet order/QOM
-   计数，不要走任意 safe-point callback、nested `r_eif_send` guest RPC 或
-   仅打印 marker 的假 HCI event。
+1. `CORE2-01` 的代码入口是 `HCI-3b`：HLI IRQ/queue 已用真实 Reset Complete
+   连续 5/5 验证；下一实现处理 ACL buffer 生命周期和 API-boundary H2C
+   transaction；如果 buffer/ACK 语义仍无法闭合，再退回 in-process controller
+   transaction。保留 packet order/QOM 计数，不要走任意 safe-point callback、
+   nested `r_eif_send` guest RPC 或仅打印 marker 的假 HCI event。
 2. `HCI-3b` 闭环后立即做 `HCI-4`：同一 stock 固件、同一 ELF 和同一 QEMU
    build 通过 Device Service `/api/v1` 连续 `5/5`，再删除 GDB callback
    injection/synthetic return 诊断桥。

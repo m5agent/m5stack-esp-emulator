@@ -71,6 +71,7 @@ response, serial digest and a bounded set of fatal error lines.
   Stock VHCI paths pass external
   NUS GATT 5/5 standalone and board+WiFi+public+BLE 3/3 in one guest, but
   the native-HCI API-boundary audit stops after NUS subscription when the
-  final write/notify transaction times out. An HLI queue spike also proved
-  guest ISR consumption of an event-13 marker, but not real event or ACL
-  delivery. Bit-exact Espressif BT controller behavior is still `NOT RUN`.
+  final write/notify transaction times out. A retained HLI path delivers a
+  real Reset Complete through a pool-allocated event buffer and advances the
+  guest from `01030c00` to `01011000` in 5/5 runs; ACL delivery remains
+  `NOT RUN`. Bit-exact Espressif BT controller behavior is still `NOT RUN`.

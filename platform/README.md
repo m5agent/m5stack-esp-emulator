@@ -63,9 +63,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   后端；`HCI-3b` 已到连接和首个
   ATT 交互，API-boundary 审计进一步到 NUS subscription，但 final
   write/notify transaction 超时；任意 safe-point callback 与 nested
-  `r_eif_send` 已证伪并回退。HLI queue spike 又证明 guest ISR/controller
-  task 能消费 QOM 投递的 event-13 marker，但还没有投递真实 HCI event/ACL。
-  下一步必须是真实 event/ACL 的 HLI 生命周期 + API-boundary transaction；
+  `r_eif_send` 已证伪并回退。HLI 真实 event 路径又连续 5/5 把池化 Reset
+  Complete 交付给 guest，并从 `01030c00` 推进到 `01011000`。下一步是
+  ACL mbuf + controller ACK/flow control + API-boundary transaction；
   `HCI-4` repeated lease、bit-exact Espressif BT baseband/controller 和物理
   cache/PSRAM 等价性仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。

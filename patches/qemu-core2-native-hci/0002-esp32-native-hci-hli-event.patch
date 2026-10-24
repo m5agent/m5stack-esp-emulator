@@ -1,0 +1,678 @@
+diff --git a/hw/xtensa/esp32_native_hci.c b/hw/xtensa/esp32_native_hci.c
+index 75b9d1142f50843638a0d889a2580aa7634d9228..ba46dc0fd2098dbd8367494e0fd382381efbda8e 100644
+--- a/hw/xtensa/esp32_native_hci.c
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -37,9 +37,37 @@ enum {
+ #define ESP32_VHCI_POLL_INTERVAL_NS 100000
+ #define ESP32_NATIVE_HCI_C2H_SETTLE_NS 20000000
+ #define ESP32_NATIVE_HCI_CALLBACK_STEPS 100000
++#define ESP32_NATIVE_HCI_HLI_POLL_NS 1000000
++#define ESP32_NATIVE_HCI_EVENT_MAX 256
++
++#define ESP32_HLI_ELEMENT_SIZE_OFFSET 0
++#define ESP32_HLI_BEGIN_OFFSET 4
++#define ESP32_HLI_END_OFFSET 8
++#define ESP32_HLI_BUFEND_OFFSET 12
++#define ESP32_HLI_BUFFER_OFFSET 24
+ 
+ static void esp32_native_hci_schedule_c2h(Esp32NativeHciState *s);
+ static void esp32_native_hci_c2h_retry(void *opaque);
++static void esp32_native_hci_post_hli(CPUState *cs,
++                                      run_on_cpu_data data);
++static bool esp32_native_hci_guest_call(CPUState *cs, uint32_t function,
++                                        uint32_t arg0, uint32_t arg1,
++                                        uint32_t *status, uint32_t *steps);
++
++static void esp32_native_hci_schedule_hli(Esp32NativeHciState *s)
++{
++    if (!s->scheduler_queue_address ||
++        !s->meta_queue_pointer_address ||
++        !s->vhci_env_address ||
++        !s->h2c_packets ||
++        s->hli_test_event == UINT32_MAX ||
++        s->hli_scheduled) {
++        return;
++    }
++    s->hli_scheduled = true;
++    async_run_on_cpu(first_cpu, esp32_native_hci_post_hli,
++                     RUN_ON_CPU_HOST_PTR(s));
++}
+ 
+ static size_t h4_packet_length(const uint8_t *data, size_t available)
+ {
+@@ -175,6 +203,377 @@ static bool esp32_native_hci_read_u32(CPUState *cs, uint32_t address,
+                                sizeof(*value), false) == 0;
+ }
+ 
++static bool esp32_native_hci_write_u32(CPUState *cs, uint32_t address,
++                                       uint32_t value)
++{
++    return cpu_memory_rw_debug(cs, address, (uint8_t *)&value,
++                               sizeof(value), true) == 0;
++}
++
++static bool esp32_native_hci_parse_hex_bytes(
++    const char *text,
++    uint8_t *output,
++    size_t capacity,
++    size_t *length)
++{
++    size_t count = 0;
++
++    if (!text) {
++        *length = 0;
++        return true;
++    }
++    while (*text) {
++        int high;
++        int low;
++
++        while (*text && (g_ascii_isspace(*text) ||
++                         *text == ':' || *text == '-')) {
++            text++;
++        }
++        if (!*text) {
++            break;
++        }
++        if (!g_ascii_isxdigit(text[0]) ||
++            !g_ascii_isxdigit(text[1]) ||
++            count == capacity) {
++            return false;
++        }
++        high = g_ascii_xdigit_value(text[0]);
++        low = g_ascii_xdigit_value(text[1]);
++        if (high < 0 || low < 0) {
++            return false;
++        }
++        output[count++] = (uint8_t)((high << 4) | low);
++        text += 2;
++    }
++    *length = count;
++    return true;
++}
++
++static bool esp32_native_hci_hli_queue_put(
++    CPUState *cs,
++    uint32_t queue_address,
++    const uint8_t *payload,
++    size_t payload_size,
++    uint32_t *new_end,
++    bool *was_empty)
++{
++    uint32_t element_size;
++    uint32_t begin;
++    uint32_t end;
++    uint32_t bufend;
++    uint32_t next;
++
++    if (!queue_address ||
++        !esp32_native_hci_read_u32(
++            cs, queue_address + ESP32_HLI_ELEMENT_SIZE_OFFSET,
++            &element_size) ||
++        !esp32_native_hci_read_u32(
++            cs, queue_address + ESP32_HLI_BEGIN_OFFSET, &begin) ||
++        !esp32_native_hci_read_u32(
++            cs, queue_address + ESP32_HLI_END_OFFSET, &end) ||
++        !esp32_native_hci_read_u32(
++            cs, queue_address + ESP32_HLI_BUFEND_OFFSET, &bufend) ||
++        element_size < payload_size ||
++        end < queue_address + ESP32_HLI_BUFFER_OFFSET ||
++        end > bufend ||
++        begin < queue_address + ESP32_HLI_BUFFER_OFFSET ||
++        begin > bufend) {
++        return false;
++    }
++
++    next = end + element_size;
++    if (next == bufend) {
++        next = queue_address + ESP32_HLI_BUFFER_OFFSET;
++    }
++    if (next == begin) {
++        return false;
++    }
++    *was_empty = begin == end;
++    if (cpu_memory_rw_debug(cs, end, (uint8_t *)payload,
++                            payload_size, true) != 0 ||
++        !esp32_native_hci_write_u32(
++            cs, queue_address + ESP32_HLI_END_OFFSET, next)) {
++        return false;
++    }
++    *new_end = next;
++    return true;
++}
++
++static bool esp32_native_hci_hli_meta_contains(
++    CPUState *cs,
++    uint32_t meta_queue,
++    uint32_t queue)
++{
++    uint32_t element_size;
++    uint32_t begin;
++    uint32_t end;
++    uint32_t bufend;
++
++    if (!esp32_native_hci_read_u32(
++            cs, meta_queue + ESP32_HLI_ELEMENT_SIZE_OFFSET,
++            &element_size) ||
++        !esp32_native_hci_read_u32(
++            cs, meta_queue + ESP32_HLI_BEGIN_OFFSET, &begin) ||
++        !esp32_native_hci_read_u32(
++            cs, meta_queue + ESP32_HLI_END_OFFSET, &end) ||
++        !esp32_native_hci_read_u32(
++            cs, meta_queue + ESP32_HLI_BUFEND_OFFSET, &bufend) ||
++        element_size != sizeof(queue)) {
++        return false;
++    }
++    while (begin != end) {
++        uint32_t item;
++
++        if (!esp32_native_hci_read_u32(cs, begin, &item)) {
++            return false;
++        }
++        if (item == queue) {
++            return true;
++        }
++        begin += element_size;
++        if (begin == bufend) {
++            begin = meta_queue + ESP32_HLI_BUFFER_OFFSET;
++        }
++    }
++    return false;
++}
++
++static void esp32_native_hci_post_hli(CPUState *cs,
++                                      run_on_cpu_data data)
++{
++    Esp32NativeHciState *s = data.host_ptr;
++    CPUXtensaState *env = cpu_env(cs);
++    uint8_t event[8] = {0};
++    uint32_t queue_item;
++    uint32_t queue;
++    uint32_t meta_queue;
++    uint32_t new_end = 0;
++    uint32_t status = 0;
++    uint32_t steps = 0;
++    uint32_t callback_argument;
++    uint8_t event_data[ESP32_NATIVE_HCI_EVENT_MAX] = {0};
++    size_t event_length = 0;
++    bool was_empty = false;
++
++    s->hli_scheduled = false;
++    if (!esp32_native_hci_read_u32(
++            cs, s->scheduler_queue_address, &queue_item) ||
++        !queue_item ||
++        !esp32_native_hci_read_u32(cs, queue_item, &queue) ||
++        !queue ||
++        !esp32_native_hci_read_u32(
++            cs, s->meta_queue_pointer_address, &meta_queue) ||
++        !meta_queue) {
++        s->hli_errors++;
++        return;
++    }
++    if (s->hli_test_event == 13) {
++        if (!esp32_native_hci_parse_hex_bytes(
++                s->hli_event_data, event_data, sizeof(event_data),
++                &event_length) ||
++            event_length < 2 ||
++            event_length != 2 + event_data[1] ||
++            !s->hli_event_buffer_size ||
++            s->hli_event_buffer_size > sizeof(event_data) ||
++            s->hli_event_buffer_size < event_length) {
++            s->hli_errors++;
++            return;
++        }
++        s->hli_event_length = event_length;
++        if (!s->hli_test_callback ||
++            (!s->hli_test_argument &&
++             !s->hli_event_allocator_address) ||
++            (!s->c2h_scratch_address &&
++             !s->c2h_allocator_address)) {
++            s->hli_errors++;
++            return;
++        }
++        if (!s->c2h_scratch_address) {
++            if (!esp32_native_hci_guest_call(
++                    cs, s->c2h_allocator_address,
++                    s->c2h_scratch_size, 0, &status, &steps) ||
++                !status) {
++                s->hli_errors++;
++                return;
++            }
++            s->c2h_scratch_address = status;
++        }
++        if (s->hli_event_allocator_address) {
++            if (!esp32_native_hci_guest_call(
++                    cs, s->hli_event_allocator_address, 0, 0,
++                    &status, &steps) ||
++                !status) {
++                s->hli_errors++;
++                return;
++            }
++            s->hli_event_buffer_address = status;
++            if (s->hli_event_buffer_size < s->hli_event_length ||
++                cpu_memory_rw_debug(
++                    cs, s->hli_event_buffer_address, event_data,
++                    s->hli_event_buffer_size, true) != 0) {
++                s->hli_errors++;
++                return;
++            }
++            s->hli_event_buffers++;
++            callback_argument = (uint32_t)s->hli_event_buffer_address;
++        } else {
++            callback_argument = (uint32_t)s->hli_test_argument;
++        }
++        if (!esp32_native_hci_write_u32(
++                cs, s->c2h_scratch_address,
++                callback_argument) ||
++            !esp32_native_hci_write_u32(
++                cs, s->c2h_scratch_address + 4,
++                (uint32_t)s->hli_test_callback)) {
++            s->hli_errors++;
++            return;
++        }
++        event[0] = 13;
++        memcpy(event + 4, &s->c2h_scratch_address, sizeof(uint32_t));
++    } else {
++        event[0] = s->hli_test_event;
++    }
++    if (!esp32_native_hci_hli_queue_put(
++            cs, queue, event, sizeof(event),
++            &new_end, &was_empty)) {
++        s->hli_errors++;
++        return;
++    }
++    if (was_empty &&
++        !esp32_native_hci_hli_meta_contains(
++            cs, meta_queue, queue)) {
++        uint32_t ignored_end;
++        bool ignored_empty;
++
++        if (!esp32_native_hci_hli_queue_put(
++                cs, meta_queue, (const uint8_t *)&queue,
++                sizeof(queue), &ignored_end, &ignored_empty)) {
++            s->hli_errors++;
++            return;
++        }
++        qatomic_or(&env->sregs[INTSET], BIT(29));
++        check_interrupts(env);
++    }
++    s->hli_last_event = s->hli_test_event;
++    s->hli_test_event = UINT32_MAX;
++    s->hli_post_end = new_end;
++    s->hli_posted = true;
++    s->hli_post_pending = true;
++    s->hli_posts++;
++}
++
++static void esp32_native_hci_observe_hli(Esp32NativeHciState *s)
++{
++    uint32_t queue_item;
++    uint32_t queue;
++    uint32_t meta_queue;
++    uint32_t begin;
++    uint32_t end;
++    uint32_t bufend;
++    uint32_t element_size;
++    uint32_t queue_begin;
++
++    s->hli_valid = false;
++    if (!s->scheduler_queue_address ||
++        !s->meta_queue_pointer_address ||
++        address_space_read(
++            &address_space_memory, s->scheduler_queue_address,
++            MEMTXATTRS_UNSPECIFIED, &queue_item,
++            sizeof(queue_item)) != MEMTX_OK ||
++        !queue_item ||
++        address_space_read(
++            &address_space_memory, queue_item,
++            MEMTXATTRS_UNSPECIFIED, &queue,
++            sizeof(queue)) != MEMTX_OK ||
++        !queue ||
++        address_space_read(
++            &address_space_memory, s->meta_queue_pointer_address,
++            MEMTXATTRS_UNSPECIFIED, &meta_queue,
++            sizeof(meta_queue)) != MEMTX_OK ||
++        !meta_queue ||
++        address_space_read(
++            &address_space_memory,
++            queue + ESP32_HLI_ELEMENT_SIZE_OFFSET,
++            MEMTXATTRS_UNSPECIFIED, &element_size,
++            sizeof(element_size)) != MEMTX_OK ||
++        address_space_read(
++            &address_space_memory, queue + ESP32_HLI_BEGIN_OFFSET,
++            MEMTXATTRS_UNSPECIFIED, &begin,
++            sizeof(begin)) != MEMTX_OK ||
++        address_space_read(
++            &address_space_memory, queue + ESP32_HLI_END_OFFSET,
++            MEMTXATTRS_UNSPECIFIED, &end,
++            sizeof(end)) != MEMTX_OK ||
++        address_space_read(
++            &address_space_memory, queue + ESP32_HLI_BUFEND_OFFSET,
++            MEMTXATTRS_UNSPECIFIED, &bufend,
++            sizeof(bufend)) != MEMTX_OK ||
++        !element_size || begin > bufend || end > bufend) {
++        return;
++    }
++
++    s->hli_queue_address = queue;
++    s->hli_queue_element_size = element_size;
++    s->hli_queue_begin = begin;
++    s->hli_queue_end = end;
++    queue_begin = begin;
++    s->hli_queue_depth = end >= begin
++        ? (end - begin) / element_size
++        : ((bufend - begin) + (end - queue - ESP32_HLI_BUFFER_OFFSET))
++          / element_size;
++    s->meta_queue_address = meta_queue;
++    if (address_space_read(
++            &address_space_memory,
++            meta_queue + ESP32_HLI_ELEMENT_SIZE_OFFSET,
++            MEMTXATTRS_UNSPECIFIED, &element_size,
++            sizeof(element_size)) == MEMTX_OK) {
++        s->meta_queue_element_size = element_size;
++    }
++    if (address_space_read(
++            &address_space_memory,
++            meta_queue + ESP32_HLI_BEGIN_OFFSET,
++            MEMTXATTRS_UNSPECIFIED, &begin,
++            sizeof(begin)) == MEMTX_OK) {
++        s->meta_queue_begin = begin;
++    }
++    if (address_space_read(
++            &address_space_memory,
++            meta_queue + ESP32_HLI_END_OFFSET,
++            MEMTXATTRS_UNSPECIFIED, &end,
++            sizeof(end)) == MEMTX_OK) {
++        s->meta_queue_end = end;
++    }
++    if (address_space_read(
++            &address_space_memory,
++            meta_queue + ESP32_HLI_BUFEND_OFFSET,
++            MEMTXATTRS_UNSPECIFIED, &bufend,
++            sizeof(bufend)) == MEMTX_OK &&
++        s->meta_queue_element_size) {
++        s->meta_queue_depth = end >= begin
++            ? (end - begin) / s->meta_queue_element_size
++            : ((bufend - begin)
++               + (end - meta_queue - ESP32_HLI_BUFFER_OFFSET))
++              / s->meta_queue_element_size;
++    }
++    s->hli_valid = true;
++    if (s->hli_post_pending && queue_begin == s->hli_post_end) {
++        s->hli_post_pending = false;
++        s->hli_consumed++;
++    }
++}
++
++static void esp32_native_hci_hli_poll(void *opaque)
++{
++    Esp32NativeHciState *s = opaque;
++
++    esp32_native_hci_observe_hli(s);
++    esp32_native_hci_schedule_hli(s);
++    timer_mod(s->hli_timer,
++              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++              ESP32_NATIVE_HCI_HLI_POLL_NS);
++}
++
+ static bool esp32_native_hci_guest_call(CPUState *cs, uint32_t function,
+                                         uint32_t arg0, uint32_t arg1,
+                                         uint32_t *status, uint32_t *steps)
+@@ -461,6 +860,7 @@ static void esp32_native_hci_h2c_length_write(void *opaque,
+     Esp32NativeHciState *s = opaque;
+     uint8_t packet[ESP32_NATIVE_HCI_PACKET_MAX];
+     uint32_t length = value;
++    size_t packet_length;
+     Error *error = NULL;
+ 
+     s->h2c_length_value = length;
+@@ -480,7 +880,12 @@ static void esp32_native_hci_h2c_length_write(void *opaque,
+         s->last_error = ESP32_NATIVE_HCI_ERROR_WRITE;
+         return;
+     }
+-    if (h4_packet_length(packet, length) != length) {
++    packet_length = h4_packet_length(packet, length);
++    if (packet_length == 0) {
++        s->h2c_incomplete_writes++;
++        return;
++    }
++    if (packet_length != length) {
+         s->malformed_packets++;
+         s->last_error = ESP32_NATIVE_HCI_ERROR_MALFORMED;
+         return;
+@@ -642,6 +1047,9 @@ static void esp32_native_hci_realize(DeviceState *dev, Error **errp)
+     object_property_add_uint64_ptr(
+         OBJECT(dev), "h2c-duplicates", &s->h2c_duplicates,
+         OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "h2c-incomplete-writes",
++        &s->h2c_incomplete_writes, OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
+         OBJECT(dev), "c2h-delivered", &s->c2h_delivered,
+         OBJ_PROP_FLAG_READ);
+@@ -684,11 +1092,80 @@ static void esp32_native_hci_realize(DeviceState *dev, Error **errp)
+     object_property_add_uint32_ptr(
+         OBJECT(dev), "last-error", &s->last_error,
+         OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "vhci-env-address", &s->vhci_env_address,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "vhci-callback-address",
++        &s->vhci_callback_address, OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "vhci-receive-address",
++        &s->vhci_receive_address, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-posts", &s->hli_posts,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-consumed", &s->hli_consumed,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-event-buffers", &s->hli_event_buffers,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-errors", &s->hli_errors,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-valid", &s->hli_valid,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-last-event", &s->hli_last_event,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-queue-address", &s->hli_queue_address,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-queue-element-size",
++        &s->hli_queue_element_size, OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-queue-begin", &s->hli_queue_begin,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-queue-end", &s->hli_queue_end,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-queue-depth", &s->hli_queue_depth,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "meta-queue-address", &s->meta_queue_address,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "meta-queue-element-size",
++        &s->meta_queue_element_size, OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "meta-queue-begin", &s->meta_queue_begin,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "meta-queue-end", &s->meta_queue_end,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "meta-queue-depth", &s->meta_queue_depth,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-event-buffer-address",
++        &s->hli_event_buffer_address, OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-event-length", &s->hli_event_length,
++        OBJ_PROP_FLAG_READ);
+     if (s->env_pointer_address) {
+         timer_mod(s->poll_timer,
+                   qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+                   ESP32_VHCI_POLL_INTERVAL_NS);
+     }
++    if (s->scheduler_queue_address &&
++        s->meta_queue_pointer_address) {
++        timer_mod(s->hli_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                  ESP32_NATIVE_HCI_HLI_POLL_NS);
++    }
+ }
+ 
+ static void esp32_native_hci_unrealize(DeviceState *dev)
+@@ -699,6 +1176,7 @@ static void esp32_native_hci_unrealize(DeviceState *dev)
+                              NULL, NULL, false);
+     timer_del(s->poll_timer);
+     timer_del(s->c2h_timer);
++    timer_del(s->hli_timer);
+     esp32_native_hci_unmap_h2c_length(s);
+ }
+ 
+@@ -729,6 +1207,19 @@ static void esp32_native_hci_reset(DeviceState *dev)
+     s->c2h_exit_pc = 0;
+     s->c2h_steps = 0;
+     s->c2h_exception_index = 0;
++    s->hli_scheduled = false;
++    s->hli_posted = false;
++    s->hli_post_pending = false;
++    s->hli_valid = false;
++    s->hli_queue_depth = 0;
++    s->meta_queue_depth = 0;
++    s->hli_event_buffer_address = 0;
++    if (s->scheduler_queue_address &&
++        s->meta_queue_pointer_address) {
++        timer_mod(s->hli_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                  ESP32_NATIVE_HCI_HLI_POLL_NS);
++    }
+ }
+ 
+ static Property esp32_native_hci_properties[] = {
+@@ -739,6 +1230,23 @@ static Property esp32_native_hci_properties[] = {
+                        Esp32NativeHciState, c2h_scratch_address, 0),
+     DEFINE_PROP_UINT64("c2h-allocator-address",
+                        Esp32NativeHciState, c2h_allocator_address, 0),
++    DEFINE_PROP_UINT64("scheduler-queue-address",
++                       Esp32NativeHciState, scheduler_queue_address, 0),
++    DEFINE_PROP_UINT64("meta-queue-pointer-address",
++                       Esp32NativeHciState, meta_queue_pointer_address, 0),
++    DEFINE_PROP_UINT64("hli-event-allocator-address",
++                       Esp32NativeHciState, hli_event_allocator_address, 0),
++    DEFINE_PROP_UINT32("hli-test-event",
++                       Esp32NativeHciState, hli_test_event,
++                       UINT32_MAX),
++    DEFINE_PROP_UINT64("hli-test-callback",
++                       Esp32NativeHciState, hli_test_callback, 0),
++    DEFINE_PROP_UINT64("hli-test-argument",
++                       Esp32NativeHciState, hli_test_argument, 0),
++    DEFINE_PROP_STRING("hli-event-data",
++                       Esp32NativeHciState, hli_event_data),
++    DEFINE_PROP_UINT32("hli-event-buffer-size",
++                       Esp32NativeHciState, hli_event_buffer_size, 70),
+     DEFINE_PROP_UINT32("c2h-scratch-size",
+                        Esp32NativeHciState, c2h_scratch_size,
+                        ESP32_NATIVE_HCI_PACKET_MAX),
+@@ -753,6 +1261,8 @@ static void esp32_native_hci_init(Object *obj)
+                                  esp32_native_hci_poll, s);
+     s->c2h_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
+                                 esp32_native_hci_c2h_retry, s);
++    s->hli_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                esp32_native_hci_hli_poll, s);
+ }
+ 
+ static void esp32_native_hci_finalize(Object *obj)
+@@ -761,8 +1271,10 @@ static void esp32_native_hci_finalize(Object *obj)
+ 
+     timer_free(s->poll_timer);
+     timer_free(s->c2h_timer);
++    timer_free(s->hli_timer);
+     s->poll_timer = NULL;
+     s->c2h_timer = NULL;
++    s->hli_timer = NULL;
+ }
+ 
+ static void esp32_native_hci_class_init(ObjectClass *klass, void *data)
+diff --git a/include/hw/xtensa/esp32_native_hci.h b/include/hw/xtensa/esp32_native_hci.h
+index 12bd753db7265e38e29be3d686dba97d9fee5513..130c6933674cb700170411f6ee5a07dfb7fd4576 100644
+--- a/include/hw/xtensa/esp32_native_hci.h
++++ b/include/hw/xtensa/esp32_native_hci.h
+@@ -33,6 +33,7 @@ struct Esp32NativeHciState {
+     CharBackend chr;
+     QEMUTimer *poll_timer;
+     QEMUTimer *c2h_timer;
++    QEMUTimer *hli_timer;
+     MemoryRegion h2c_length_mmio;
+     Esp32NativeHciPacket tx_queue[ESP32_NATIVE_HCI_QUEUE_DEPTH];
+     Esp32NativeHciPacket rx_queue[ESP32_NATIVE_HCI_QUEUE_DEPTH];
+@@ -49,7 +50,18 @@ struct Esp32NativeHciState {
+     uint32_t h2c_length_value;
+     uint64_t c2h_scratch_address;
+     uint64_t c2h_allocator_address;
++    uint64_t scheduler_queue_address;
++    uint64_t meta_queue_pointer_address;
++    uint64_t hli_event_allocator_address;
++    uint64_t hli_test_callback;
++    uint64_t hli_test_argument;
++    uint64_t hli_event_buffer_address;
++    char *hli_event_data;
++    uint32_t vhci_callback_address;
++    uint32_t vhci_receive_address;
+     uint32_t c2h_scratch_size;
++    uint32_t hli_event_buffer_size;
++    uint32_t hli_event_length;
+     uint32_t c2h_last_status;
+     uint32_t c2h_last_pc;
+     uint32_t c2h_observed_pc;
+@@ -58,9 +70,26 @@ struct Esp32NativeHciState {
+     uint32_t c2h_exit_pc;
+     uint32_t c2h_steps;
+     uint32_t c2h_exception_index;
++    uint32_t hli_test_event;
++    uint32_t hli_last_event;
++    uint32_t hli_queue_address;
++    uint32_t hli_queue_element_size;
++    uint32_t hli_queue_begin;
++    uint32_t hli_queue_end;
++    uint32_t hli_queue_depth;
++    uint32_t meta_queue_address;
++    uint32_t meta_queue_element_size;
++    uint32_t meta_queue_begin;
++    uint32_t meta_queue_end;
++    uint32_t meta_queue_depth;
++    uint32_t hli_post_end;
++    uint32_t hli_valid;
+     bool h2c_length_mapped;
+     bool c2h_scheduled;
+     bool c2h_inflight;
++    bool hli_scheduled;
++    bool hli_posted;
++    bool hli_post_pending;
+ 
+     uint64_t rx_bytes;
+     uint64_t rx_packets;
+@@ -73,9 +102,14 @@ struct Esp32NativeHciState {
+     uint64_t h2c_packets;
+     uint64_t h2c_bytes;
+     uint64_t h2c_duplicates;
++    uint64_t h2c_incomplete_writes;
+     uint64_t c2h_delivered;
+     uint64_t c2h_errors;
+     uint64_t c2h_send_available;
++    uint64_t hli_posts;
++    uint64_t hli_consumed;
++    uint64_t hli_event_buffers;
++    uint64_t hli_errors;
+ };
+ 
+ bool esp32_native_hci_send_h2c(Esp32NativeHciState *s,
