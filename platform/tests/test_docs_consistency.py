@@ -132,6 +132,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/tests/test_worker_queue.py",
             "platform/tests/test_worker_auth.py",
             "platform/tests/test_worker_agent.py",
+            "platform/tests/test_worker_cross_netns_paths.py",
             "tests/network/lab_fabric/README.md",
             "tests/network/lab_fabric/run_test.py",
             "tests/network/lab_fabric/check_fabric.py",
@@ -160,6 +161,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_tls/evidence-2026-10-24-security-rotation-overlap-job-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-fleet-credential-migration-pass.json",
             "tests/network/worker_tls/run_fleet_migration_test.py",
+            "tests/network/worker_cross_netns/README.md",
+            "tests/network/worker_cross_netns/run_test.py",
+            "tests/network/worker_cross_netns/evidence-2026-10-25-worker-local-qemu-cross-netns-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -400,6 +404,7 @@ class DocsConsistencyTests(unittest.TestCase):
                 ROOT / "tests" / "network" / "egress_allowlist" / "README.md",
                 ROOT / "tests" / "network" / "idf_dhcp_renewal" / "README.md",
                 ROOT / "tests" / "network" / "core2_openeth" / "README.md",
+                ROOT / "tests" / "network" / "worker_cross_netns" / "README.md",
                 ROOT / "tests" / "uiflow2" / "sticks3_peripherals" / "README.md",
                 ROOT / "patches" / "qemu-core2-openmac-wifi" / "README.md",
                 ROOT / "patches" / "qemu-core2-ble-controller" / "README.md",
@@ -534,6 +539,13 @@ class DocsConsistencyTests(unittest.TestCase):
             "Automated discovery and migration of a client fleet is still",
             "Automated client-fleet migration, production",
             "自动化客户端批量迁移、跨主机 QEMU executor",
+            "worker namespace 内真实 QEMU、本地 artifact/firmware 和端到端 evidence 仍为 `NOT RUN`",
+            "Linux fixture 已加入 worker namespace",
+            "内真实 QEMU/artifact/evidence 模式但尚未执行",
+            "This mode has not yet been executed after the API split",
+            "已准备真实 worker namespace Device Service/QEMU 模式",
+            "control/runtime split currently has unit coverage",
+            "尚缺另外两个 lease 复现",
         ):
             self.assertNotIn(stale, active)
 
@@ -1624,7 +1636,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("--runtime-service-url", api)
         self.assertIn("control/execution URL split", executor_readme)
         self.assertIn("worker-local", status)
-        self.assertIn("真实 worker-local QEMU", backlog)
+        self.assertIn("worker-local StickS3 QEMU", backlog)
         self.assertIn("本地 runtime API", workstreams)
         endpoint_evidence = json.loads(
             (
@@ -1638,6 +1650,29 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertTrue(
             endpoint_evidence["result"]["advertised_endpoint_present"]
         )
+        worker_local_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_cross_netns/"
+                "evidence-2026-10-25-worker-local-qemu-cross-netns-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(worker_local_evidence["status"], "PASS")
+        self.assertEqual(len(worker_local_evidence["checks"]), 18)
+        self.assertTrue(
+            all(worker_local_evidence["checks"].values())
+        )
+        self.assertEqual(
+            worker_local_evidence["result"]["execution_plane"],
+            "worker-local",
+        )
+        self.assertIn(
+            "cross-host QEMU execution",
+            worker_local_evidence["not_claimed"],
+        )
+        self.assertIn("worker-local StickS3 QEMU", status)
+        self.assertIn("worker-local QEMU", workstreams)
+        self.assertIn("worker-local StickS3 QEMU", api)
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

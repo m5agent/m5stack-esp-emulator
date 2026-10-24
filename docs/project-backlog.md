@@ -41,10 +41,11 @@
    Device Service 执行；加入 session-isolated FAT32+MBR SD fixture 后为
    `3 PASS / 1 PARTIAL`。下一步厘清 OpenAI 首次启动所需 NVS 数据，再扩
    更多设备与 firmware family。
-3. `NET-04` / `SVC-01`：在现有 durable queue、HTTPS/mTLS、rotation/drain、
-   同主机 generation-pointer migration 和本地 QEMU/QMP reattach 上补自动
-   主机发现/跨主机迁移；先用 control/runtime 双端点跑真实 worker-local
-   QEMU，再补跨主机 reattach、companion/evidence continuity 和多机调度。
+3. `NET-04` / `SVC-01`：真实 control/runtime 双端点和 worker-local QEMU
+   已在两个 network namespace 中 PASS；下一步在 durable queue、
+   HTTPS/mTLS、rotation/drain、同主机 generation-pointer migration 和本地
+   QEMU/QMP reattach 上补自动主机发现/跨主机迁移、跨主机 reattach、
+   companion/evidence continuity 和多机调度。
 4. `FW-01/02`、`RUNTIME-02`、`HW-01`：补运行态权限/许可、生产 key/eFuse、
    C6 Zigbee 决策和代表设备同固件 SHA 的真机验证。
 5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
@@ -54,7 +55,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；`WorkerAgent` 已把中央 control API 与本地 runtime API 拆开并有单元契约，下一步启动真实 worker-local QEMU 与 evidence 路径，再补自动主机发现/跨主机迁移、reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。下一步补自动主机发现/跨主机迁移、跨主机 reattach、companion/evidence continuity、生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -93,14 +94,18 @@
   pointer 和 secret-free receipt 自动迁移，无需逐个发送 worker `SIGHUP`；
   两个独立 network namespace 中的真实 Device Service 和 `WorkerAgent`
   已跨 veth 完成认证注册、job submit/claim、worker/job heartbeat、terminal
-  result、token 不落日志和 namespace 清理；仍没有 worker 主机自动发现、
-  跨主机 QEMU job、跨 worker 容量调度和多机状态收敛；
+  result、token 不落日志和 namespace 清理；`--qemu` 路径还让 worker
+  namespace 内独立 Device Service 创建真实 StickS3 QEMU session，绑定
+  source/normalized firmware 与 QEMU SHA，取得 serial/frame/QOM evidence
+  并完成 central job result；QEMU 和 namespace 均回收。这仍是一台主机上的
+  两个 namespace，不代表物理跨主机。目前仍没有 worker 主机自动发现、跨主机
+  QEMU job、跨 worker 容量调度和多机状态收敛；
 - `worker_agent.py` 现支持 `--runtime-service-url`：中央服务只负责
   claim/heartbeat/result，独立 runtime service 负责 session、evidence 和
-  stop。单元契约已验证请求平面分离；Linux fixture 已加入 worker namespace
-  内真实 QEMU/artifact/evidence 模式但尚未执行；runtime health 未通过时
-  worker 会在每次 register/claim 前失败，并可通过 `--advertise-endpoint` 登记
-  外部可达执行端点；自动发现和端到端门禁仍是下一步；
+  stop。单元契约和 Linux worker-local QEMU 路径都已验证请求平面分离；
+  runtime health 未通过时 worker 会在每次 register/claim 前失败，并可通过
+  `--advertise-endpoint` 登记外部可达执行端点；自动发现、跨主机执行和
+  companion continuity 仍是下一步；
 - 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
   `query-status=running` 验证后 re-attach；Tab5/network lane、paused QEMU、
   companion HTTP/BLE helper、evidence 流和跨主机进程仍不能接管；
@@ -109,12 +114,10 @@
 
 下一项最小交付：
 
-1. 用 control/runtime 双端点启动真实 worker-local Device Service + QEMU，
-   验证 artifact/firmware 上传、首帧/串口、evidence SHA、stop 和 namespace
-   cleanup；随后在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain、
-   bounded credential overlap 和同主机 generation-pointer migration 上补
-   worker 主机自动发现、跨主机 QEMU job 和外部 side-effect fencing，禁止
-   旧 agent 覆盖新 generation。
+1. 在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain、
+   bounded credential overlap、同主机 generation-pointer migration 和
+   worker-local QEMU 基础上补 worker 主机自动发现、跨主机 QEMU job 和外部
+   side-effect fencing，禁止旧 agent 覆盖新 generation。
 2. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。
 3. 在本地 QEMU/QMP reattach 之上补 companion 状态重建、evidence 流连续性和
    跨主机接管；无法证明 ownership 时明确 `interrupted_failed`。

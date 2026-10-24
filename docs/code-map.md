@@ -121,7 +121,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
 | `tests/uiflow2/core2_native_hci/run_service_5x.py` | 在首个 lease 前冻结 firmware/ELF/QEMU 哈希，通过真实 Device Service API 连续租用 `core2-native-hci`，支持 `--hold-seconds` 与 `--ble-reconnect-cycles`，低频采样 host RSS，校验 HLI health 和运行期间资产未变化，失败时保留 partial evidence 并汇总 aggregate FAIL | Core2 native-HCI、extended-run/soak/reconnect、Device Service profile 或 ELF hook 改动 |
-| `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连和双 guest lab fabric | 网络策略/运行时改动 |
+| `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连、双 guest lab fabric 和 worker-local QEMU | 网络策略/运行时改动 |
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
@@ -130,6 +130,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tests/test_worker_queue.py` | job submit/replay、capability、lease、expiry、retry、result/cancel、worker supervisor 和 schema 校验 | `/api/v1/jobs` 或 `worker_queue.py` 改动 |
 | `platform/tests/test_worker_auth.py` | path 分类、签名、body tamper、时间窗、generation key 和 nonce replay | `worker_auth.py` 或 handler auth 改动 |
 | `platform/tests/test_worker_agent.py` | generation 持久化、job 执行、evidence 保存、失败清理、terminal result，以及 control/runtime API 请求平面分离 | `worker_agent.py` 或 executor 协议改动 |
+| `tests/network/worker_cross_netns/` | 两个 veth 连接 namespace 中的 Bearer+HMAC control plane，以及 worker-local Device Service、StickS3 QEMU、artifact/firmware、evidence、QEMU reap 和 cleanup | worker control/runtime plane、本地 QEMU executor 或 cleanup 改动 |
 | `platform/tests/test_transport_security.py` | 真实 HTTPS、mTLS 客户端证书、未知服务端证书拒绝和 TLS 参数校验 | `transport_security.py`、`serve.py` 或 `worker_agent.py` TLS 改动 |
 
 `run_profile_ui_test.py`、`run_peripheral_matrix.py` 和直接 QEMU 启动是仓库
@@ -138,7 +139,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 ## 当前代码组织债务
 
-2026-10-24 的静态盘点显示（生产代码中除第三方 vendor 外没有未处理
+2026-10-25 的静态盘点显示（生产代码中除第三方 vendor 外没有未处理
 `TODO/FIXME/HACK`，主要债务是文件边界和测试体积）：
 
 | 位置 | 规模/现象 | 处理原则 |
@@ -337,7 +338,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Worker lifecycle | `/api/v1/worker`、`/worker/drain`、`/worker/resume`；`platform/tests/test_worker_registry.py` | stable ID、独占状态目录、heartbeat、generation、drain/resume、active/abandoned lease 和 bounded results；不含远程调度或活动 QEMU re-attach |
 | Remote worker directory | `/api/v1/workers`、`/workers/{id}/heartbeat`、`drain`、`stop`、`results`；`platform/tests/test_worker_directory.py` | 持久 identity/generation、stale 判定、live-instance 冲突、capability/结果上限和原子 `0600` 状态文件；不启动、调度或接管 worker |
 | Remote job queue | `/api/v1/jobs`、`/jobs/claim`、`heartbeat`、`result`、`cancel`；`platform/tests/test_worker_queue.py` | 持久幂等任务、capability match、worker lease、expiry/retry、stale/stop/generation 回收和原子 `0600` 状态文件；不执行任务、不接管活动 QEMU |
-| Worker executor and rotation | `platform/tools/worker_agent.py`、`worker_auth.py`、`transport_security.py`、auth/executor/TLS tests、`tests/network/worker_executor/`、`tests/network/worker_tls/`、`tests/network/worker_cross_netns/` | 同主机真实 QEMU job、worker HMAC、evidence ZIP/SHA256 和 terminal result；control/runtime 双 URL 已由单测证明 session/evidence 不发往控制面；`worker_cross_netns --qemu` 已准备真实 worker namespace Device Service/QEMU 模式，并绑定 source firmware、normalized artifact 和 QEMU SHA，但尚未执行；loopback 真实 HTTPS/mTLS、服务端校验、客户端证书、签名请求、真实 StickS3 QEMU job 和 unified board/WiFi/BLE job over mTLS PASS；server/worker 两 namespace 的 authenticated control-plane fixture PASS；SIGHUP rotation、overlap 和自动 migration PASS；worker 主机自动发现、跨主机 reattach 和 companion continuity 仍开放 |
+| Worker executor and rotation | `platform/tools/worker_agent.py`、`worker_auth.py`、`transport_security.py`、auth/executor/TLS tests、`tests/network/worker_executor/`、`tests/network/worker_tls/`、`tests/network/worker_cross_netns/` | 同主机真实 QEMU job、worker HMAC、evidence ZIP/SHA256 和 terminal result；control/runtime 双 URL 由单测和两个 veth 连接 namespace 的真实 worker-local StickS3 QEMU job 验证，central control plane 不接收 session API；QEMU 前绑定 source firmware、normalized artifact 和 QEMU SHA，serial/frame/QOM、terminal result、QEMU reap 和 namespace cleanup 均 PASS。loopback 真实 HTTPS/mTLS、服务端校验、客户端证书、签名请求、真实 StickS3 QEMU job 和 unified board/WiFi/BLE job over mTLS PASS；SIGHUP rotation、overlap 和自动 migration PASS；物理跨主机 executor、worker 主机自动发现、跨主机 reattach 和 companion continuity 仍开放 |
 | Worker restart integration | `tests/network/worker_lifecycle/evidence-2026-10-24-pass.json` | 真实 QEMU session 跨 drain 保持；停止后 drained；SIGKILL 后 generation 2 记录 abandoned lease 并将会话恢复为 interrupted failed；进程组清理 PASS |
 
 设备级 PASS 至少要有固件 hash、runtime/profile、输入、串口、frame 和对应

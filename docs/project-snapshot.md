@@ -46,7 +46,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；`WorkerAgent` 已把中央 control API 与本地 runtime API 拆开并有单元契约，下一步启动真实 worker-local QEMU 与 evidence 路径，再补自动主机发现/跨主机迁移、reattach、companion/evidence continuity、生产调度 |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。下一步补自动主机发现/跨主机迁移、跨主机 reattach、companion/evidence continuity、生产调度 |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
@@ -64,7 +64,7 @@
 
 ## 文档与测试
 
-- 平台测试：`363` 项。
+- 平台测试：`367` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

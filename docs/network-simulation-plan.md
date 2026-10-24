@@ -60,6 +60,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - durable worker queue、HTTPS/mTLS、TLS/token `SIGHUP` rotation、
   active-request drain、bounded credential overlap 和 generation-pointer
   credential migration；
+- 两个 veth 连接 network namespace 中的 Bearer+HMAC worker control plane，
+  以及 worker namespace 内独立 Device Service 执行真实 StickS3 QEMU、
+  artifact/firmware、evidence、terminal result 和 cleanup；
 - 本地 QEMU/QMP control-plane restart re-attach。
 
 cleanup probe 会读取 sandbox 实际生成的 `isolation.json`，只有
@@ -127,6 +130,7 @@ executor、companion/evidence continuity 和 CIDR/domain-set。
 - [Two-guest lab fabric](../tests/network/lab_fabric/README.md)
 - [Worker TLS/mTLS and rotation](../tests/network/worker_tls/README.md)
 - [Worker durable queue](../tests/network/worker_queue/README.md)
+- [Worker cross-network-namespace control and QEMU execution](../tests/network/worker_cross_netns/README.md)
 - [Worker QEMU/QMP reattach](../tests/network/worker_reattach/README.md)
 - [Core2 native-HCI backend](core2-native-hci-backend.md)
 - [Unified runtime contract](unified-device-runtime.md)

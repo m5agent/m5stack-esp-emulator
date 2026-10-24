@@ -33,6 +33,12 @@ Implemented:
 - a same-host HTTP-only executor that claims a job, runs a real StickS3 QEMU
   session, downloads an evidence ZIP/SHA256, stops with `purge=0` and reports
   the terminal result;
+- a worker-local execution fixture with a central control service and an
+  independent worker-runtime Device Service in two veth-connected Linux
+  network namespaces; the worker runtime prepares artifact/firmware, starts a
+  real StickS3 QEMU session, returns serial/frame/QOM evidence, and cleans up
+  QEMU and both namespaces while the central service owns claim, heartbeat and
+  terminal result;
 - worker-only mutation authentication using a generation-derived HMAC,
   timestamp/nonce replay protection and path/body identity binding;
 - HTTPS with TLS 1.2+ server/client contexts, optional required client
@@ -293,14 +299,14 @@ and retained evidence.
 ### Phase S1: remote worker API
 
 Status: local worker lifecycle, a persistent remote-worker registration
-directory, a durable pull-based job queue, a same-host HTTP executor and
+directory, a durable pull-based job queue, a same-host HTTP executor,
+worker-local QEMU execution across server/worker network namespaces, and
 verified local QEMU/QMP restart re-attach, HTTPS/mTLS and same-host `SIGHUP`
 TLS/token rotation with active-request draining exist; bounded old/new
 credentials, manual staged migration and a two-worker atomic-generation
 pointer migration with secret-free receipts are implemented; automatic worker
-host discovery, cross-host QEMU execution,
-companion/evidence continuity, cross-host re-attach and multi-host scheduling
-remain open.
+host discovery, cross-host QEMU execution, companion/evidence continuity,
+cross-host re-attach and multi-host scheduling remain open.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
@@ -317,6 +323,9 @@ remain open.
   it claims/heartbeats on the central service, while the optional runtime
   service creates and owns the QEMU session, provides evidence and performs
   cleanup;
+- the two-namespace Linux fixture proves that separation with a real
+  worker-local StickS3 QEMU session and central claim/heartbeat/result; it is
+  not a physically cross-host run;
 - when an API token is configured, worker-only mutations use a
   worker/generation-derived HMAC with timestamp, nonce replay protection and
   path/body identity binding;

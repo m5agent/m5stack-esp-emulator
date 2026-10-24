@@ -90,6 +90,19 @@ Tab5、网络和扩展测试还需要设备矩阵声明的 `esp-emu`、P4 ROM/eF
 仓库 commit、主机架构、补丁清单、校验和及测试结果。不要直接把某台开发机
 的 macOS arm64 目录复制到 Linux x86_64 主机。
 
+Device Service 默认使用设备矩阵登记的 QEMU 可执行路径。Linux worker 或
+容器中需要替换同一 commit 重新构建的二进制时，可设置：
+
+| 环境变量 | 后端 |
+| --- | --- |
+| `M5_QEMU_XTENSA` | `qemu-esp32s3` 与 `qemu-esp32lx6` |
+| `M5_QEMU_RISCV32` | `qemu-esp32c6` |
+
+值可以是绝对路径，也可以是相对仓库根目录的路径。该覆盖只替换 QEMU
+可执行文件，不替代匹配的 `pc-bios`、ROM/eFuse、参考固件或 target smoke
+test；主机架构不匹配时仍必须拒绝启动。worker-local namespace fixture 会在
+`--qemu-path` 时自动设置 `M5_QEMU_XTENSA`。
+
 ### 方案 B：从固定源码和补丁重建
 
 重建需要：

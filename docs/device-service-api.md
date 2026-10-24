@@ -249,9 +249,16 @@ waits for `running` while heartbeating both worker and job, downloads the
 evidence ZIP, stops with `purge=0`, and reports SHA256 plus terminal state.
 `--runtime-service-url` now separates the central claim/heartbeat/result API
 from the Device Service that creates and owns the QEMU session. If omitted,
-both planes use one URL for compatibility. The control/runtime split currently
-has unit coverage; the retained authenticated QEMU run still used the same
-host and the real cross-host QEMU executor remains `NOT RUN`. A separate real-process
+both planes use one URL for compatibility. The split has unit coverage and a
+real Linux worker-local StickS3 QEMU fixture with the peer services in two
+veth-connected network namespaces: the worker namespace owns the runtime
+Device Service, real QEMU session, artifact/firmware preparation,
+serial/frame/QOM evidence and cleanup, while the central service handles
+registration, claim, heartbeat and terminal result. Source/normalized firmware
+and QEMU SHA256 are bound, the token is absent from retained logs, and QEMU
+plus both namespaces are reaped. This is still one host with separate network
+namespaces; the real cross-host QEMU executor, automatic discovery and
+cross-host re-attach remain `NOT RUN`. A separate real-process
 loopback run verifies HTTPS/mTLS: TLS 1.2 is the configured minimum, TLS 1.3
 was negotiated, the server certificate was verified, clients without a
 certificate were rejected, trusted clients passed, Bearer/HMAC remained
@@ -274,12 +281,10 @@ the real QEMU job. A fifth run starts two workers from immutable credential
 generations. They first load an `A+B` server-trust bridge, continue through
 the service A-to-B overlap, then atomically replace one generation pointer;
 each worker reloads on its next request and writes a secret-free receipt
-without receiving `SIGHUP`. A separate Linux fixture places the real service
-and `worker_agent.py` client in two veth-connected network namespaces and
-passes authenticated registration, job submit/claim, worker/job heartbeat,
-terminal result, token-log redaction and namespace cleanup without starting
-QEMU. Cross-host QEMU jobs, automatic worker-host discovery and companion
-continuity remain open.
+without receiving `SIGHUP`. A separate Linux fixture covers both the no-QEMU
+control-plane compatibility path and a worker-local real StickS3 QEMU
+execution path. Cross-host QEMU jobs, automatic worker-host discovery,
+cross-host re-attach and companion continuity remain open.
 
 `worker_agent.py --advertise-endpoint` stores an externally reachable HTTP(S)
 worker endpoint in the registration record. The worker directory rejects

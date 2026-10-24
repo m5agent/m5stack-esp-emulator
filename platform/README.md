@@ -54,6 +54,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 - 独立 HTTP worker executor：持久 generation、中央 claim/result、
   worker/job heartbeat，并可用独立 runtime API 执行真实 session、
   evidence ZIP/SHA256 下载和 stop；
+- 两个 veth 连接 network namespace 的 worker-local StickS3 QEMU 执行：
+  central control service 负责 claim/heartbeat/result，worker namespace 内
+  独立 Device Service 负责 artifact/firmware、QEMU、serial/frame/QOM
+  evidence 和 cleanup；
 - worker-only mutation 的 HMAC 请求签名、时间戳、nonce replay cache 和
   path/body identity binding；
 - HTTPS TLS 1.2+、服务端证书校验、可选 client CA 强制 mTLS，以及
@@ -92,8 +96,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   `122` 轮拒绝测试；一百二十轮门禁全部 `3/3 PASS`，无错误或 panic。首次
   `121` 轮在 29 轮后被固定 `180s` readiness 预算误杀，guest 无 panic；
   第二次又暴露 reconnect-only accelerator 采样缺失；两处 harness 问题
-  修复后单 lease `121/121 PASS`，尚缺另外两个 lease 复现。bit-exact
-  Espressif BT baseband/controller、物理
+  修复后先取得单 lease `121/121 PASS`，随后另外两个独立 lease 也完成
+  `121/121`，三 lease 门禁已关闭。bit-exact Espressif BT
+  baseband/controller、物理
   cache/PSRAM 和真机仍未完成；`tb-size=128` 的 artifact-bound 两小时 soak
   已 PASS，host RSS 和 phys footprint 在 240 个采样中均未增长。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
@@ -102,11 +107,11 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   heartbeat、drain/resume 和重启租约分类，以及远程 worker 注册目录已实现；
   durable job queue 已支持幂等提交、claim/lease、expiry retry 和 worker
   失联回收；本地 QEMU/QMP 控制面已完成 ownership 校验后的 reattach。
-  同主机 HTTP executor、worker HMAC、可验证 HTTPS/mTLS、真实 QEMU 和
-  unified StickS3 job over mTLS、SIGHUP rotation + activity drain +
-  bounded credential overlap、evidence ZIP/SHA256 回报，以及
-  generation-pointer 同主机双 worker 自动迁移和 secret-free receipts 已实现；
-  自动发现 worker 主机、跨主机 QEMU executor/reattach、
+  同主机 HTTP executor、worker-local QEMU、worker HMAC、可验证
+  HTTPS/mTLS、真实 QEMU 和 unified StickS3 job over mTLS、SIGHUP rotation
+  + activity drain + bounded credential overlap、evidence ZIP/SHA256 回报，
+  以及 generation-pointer 同主机双 worker 自动迁移和 secret-free receipts
+  已实现；自动发现 worker 主机、跨主机 QEMU executor/reattach、
   companion/BLE/evidence continuity、生产 secret manager/多机调度和 VM
   隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
