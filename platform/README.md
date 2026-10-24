@@ -147,6 +147,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/firmware_filesystems.py` | LittleFS、只读 FAT12/16/32 和 ESP-IDF SPIFFS 文件清单、LUT/对象页校验、哈希、敏感路径脱敏和 SPDX 提取 |
 | `tools/fetch_firmware.py` | 公开 M5Burner 固件查询、下载和缓存 |
 | `tools/user_firmware_matrix.py` | 热门用户固件仿真矩阵 |
+| `tools/sd_image.py` | 确定性 FAT32+MBR / FAT16 superfloppy SD fixture 生成器 |
 | `tools/network_policy.py` | isolation、egress、controlled DNS、Host allowlist 和 pcap 策略 |
 | `tools/network_egress.py` | nftables 精确 IP/端口规则、veth/NAT gateway、能力检查和清理 |
 | `tools/network_fabric.py` | private namespace、双 guest QEMU socket L2 switch、DHCP reservation 和 TAP/bridge primitive |

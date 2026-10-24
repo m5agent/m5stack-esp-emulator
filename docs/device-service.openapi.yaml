@@ -1835,6 +1835,21 @@ components:
           default: qemu
         network:
           $ref: "#/components/schemas/NetworkExecution"
+        storage:
+          $ref: "#/components/schemas/StorageExecution"
+    StorageExecution:
+      type: object
+      additionalProperties: false
+      required: [sd_image_artifact_id]
+      description: >
+        Attach a content-addressed raw SD-card image to a device profile with
+        a modeled SDMMC interface. The artifact is copied into the session
+        directory, mounted as writable `if=sd`, and hashed again before QEMU
+        starts. The source artifact is never mounted directly.
+      properties:
+        sd_image_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
     NetworkExecution:
       type: object
       required: [profile]

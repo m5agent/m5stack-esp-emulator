@@ -735,6 +735,41 @@ class UnifiedHttpFixture:
         self.thread.join(timeout=5)
 
 
+def parse_storage_execution(
+    spec: DeviceSpec,
+    value: Any,
+) -> dict:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ServiceError("invalid_storage", "storage must be an object", 400)
+    unknown = sorted(set(value) - {"sd_image_artifact_id"})
+    if unknown:
+        raise ServiceError(
+            "invalid_storage",
+            "unsupported storage fields: " + ", ".join(unknown),
+            400,
+        )
+    artifact_id = value.get("sd_image_artifact_id")
+    if not isinstance(artifact_id, str) or not _is_sha256(artifact_id):
+        raise ServiceError(
+            "invalid_storage",
+            "storage.sd_image_artifact_id must be a SHA-256 artifact id",
+            400,
+        )
+    if not spec.has_sd_card:
+        raise ServiceError(
+            "storage_not_supported",
+            f"{spec.id} has no modeled SD-card interface",
+            409,
+        )
+    return {
+        "interface": "sdmmc",
+        "format": "raw",
+        "sd_image_artifact_id": artifact_id,
+    }
+
+
 def parse_network_execution(
     spec: DeviceSpec,
     value: Any,
@@ -1396,6 +1431,7 @@ class DeviceSpec:
     machine: str
     flash_size: int
     display: dict | None
+    peripherals: list[str]
     reference_path: Path | None
     qemu: Path
     rom_dir: Path
@@ -1425,6 +1461,10 @@ class DeviceSpec:
     def has_display(self) -> bool:
         display = self.display or {}
         return bool(display.get("width") and display.get("height"))
+
+    @property
+    def has_sd_card(self) -> bool:
+        return "sd" in self.peripherals
 
     @property
     def reference_available(self) -> bool:
@@ -1617,6 +1657,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 else int(row.get("flash_size", "0"), 0)
             ),
             display=profile.get("display"),
+            peripherals=list(profile.get("peripherals", [])),
             reference_path=reference,
             qemu=qemu,
             rom_dir=rom_dir,
@@ -2535,6 +2576,8 @@ class DeviceSession:
         runtime_env: dict[str, str] | None = None,
         runtime: str = "qemu",
         network_config: dict | None = None,
+        storage_config: dict | None = None,
+        storage_info: dict | None = None,
         network_result: dict | None = None,
         events: list[dict] | None = None,
         created_at: str | None = None,
@@ -2563,6 +2606,10 @@ class DeviceSession:
         self.runtime_env = dict(runtime_env or {})
         self.runtime = runtime
         self.network_config = dict(network_config or {})
+        self.storage_config = dict(storage_config or {})
+        self.storage_info = (
+            dict(storage_info) if isinstance(storage_info, dict) else None
+        )
         self.network_result = (
             dict(network_result) if isinstance(network_result, dict) else None
         )
@@ -2600,6 +2647,8 @@ class DeviceSession:
         self.dns_fixture_log = self.dir / "dns-fixture.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
+        self.sd_card_image = self.dir / "sd-card.img"
+        self.storage_summary_path = self.dir / "storage.json"
         self.speaker_pcm = self.dir / "speaker.pcm"
         self.microphone_source_pcm = self.dir / "microphone-source.pcm"
         self.rmt_source = self.dir / "nec-source.rmt"
@@ -2700,6 +2749,8 @@ class DeviceSession:
             "runtime": self.runtime,
             "network": redacted_network_config(self.network_config),
             "network_result": self.network_result,
+            "storage_config": dict(self.storage_config),
+            "storage": self.storage_info,
             "flash": self.flash_info,
             "ttl_seconds": self.ttl_seconds,
             "ready_marker": self.ready_marker,
@@ -2899,6 +2950,7 @@ class DeviceSession:
                     if self.network_config
                     else None
                 ),
+                "storage": self.storage_info,
                 "flash": self.flash_info,
                 "flash_retained": bool(
                     self.virtual_flash is not None
@@ -3670,6 +3722,31 @@ class DeviceSession:
                 "session_isolated_copy": True,
             }
             self._record_event("flash_prepared", **self.flash_info)
+            if self.storage_config:
+                artifact_id = self.storage_config["sd_image_artifact_id"]
+                source = self.service.artifacts.path(artifact_id)
+                shutil.copyfile(source, self.sd_card_image)
+                storage_sha = hashlib.sha256(
+                    self.sd_card_image.read_bytes()
+                ).hexdigest()
+                if storage_sha != artifact_id:
+                    raise RuntimeError(
+                        "session-isolated SD image checksum changed"
+                    )
+                self.storage_info = {
+                    "interface": "sdmmc",
+                    "format": "raw",
+                    "artifact_id": artifact_id,
+                    "sha256": storage_sha,
+                    "bytes": self.sd_card_image.stat().st_size,
+                    "session_isolated_copy": True,
+                    "writable": True,
+                }
+                atomic_write_json(
+                    self.storage_summary_path,
+                    self.storage_info,
+                )
+                self._record_event("storage_prepared", **self.storage_info)
             self._persist_session()
             self._set_state("booting")
             if self.runtime in QEMU_RADIO_RUNTIMES:
@@ -4315,6 +4392,15 @@ class DeviceSession:
             ]
         if core2_radio:
             command.extend(core2_accel_args())
+        if self.storage_config:
+            if not self.sd_card_image.is_file():
+                raise RuntimeError("session SD image is unavailable")
+            command.extend(
+                [
+                    "-drive",
+                    f"file={self.sd_card_image},if=sd,format=raw",
+                ]
+            )
         if profile in {NANOC6_HCI_BLE_PROFILE, NESSO_UNIFIED_PROFILE}:
             assert self.hci_port is not None
             command.extend(
@@ -5525,6 +5611,17 @@ class DeviceSession:
                 }
             except ServiceError as error:
                 manifest["qom"] = {"status": "NOT_AVAILABLE", "reason": error.message}
+        if self.storage_info:
+            storage_bytes = (
+                json.dumps(
+                    self.storage_info,
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n"
+            ).encode()
+            files["storage/summary.json"] = storage_bytes
+            manifest["storage"] = self.storage_info
         network_dir = getattr(self, "network_dir", None)
         if isinstance(network_dir, Path) and network_dir.is_dir():
             for name, path in (
@@ -6586,6 +6683,16 @@ class DeviceService:
                 if isinstance(record.get("network_result"), dict)
                 else None
             )
+            storage_config = (
+                record.get("storage_config")
+                if isinstance(record.get("storage_config"), dict)
+                else None
+            )
+            storage_info = (
+                record.get("storage")
+                if isinstance(record.get("storage"), dict)
+                else None
+            )
             if runtime == "network":
                 session_class = NetworkDeviceSession
             elif spec.service_kind == "tab5":
@@ -6629,6 +6736,8 @@ class DeviceService:
                 runtime=runtime,
                 network_config=network_config,
                 network_result=network_result,
+                storage_config=storage_config,
+                storage_info=storage_info,
                 events=events,
                 created_at=(
                     record.get("created_at")
@@ -6726,6 +6835,7 @@ class DeviceService:
                 "input": spec.supported,
                 "qom": spec.supported and spec.service_kind == "qemu",
                 "device_state": bool(spec.state_probes),
+                "storage": spec.supported and spec.has_sd_card,
                 "network": (
                     spec.network_status == "validated"
                     and bool(spec.network_profiles)
@@ -7219,6 +7329,24 @@ class DeviceService:
                 self.artifacts.get(str(elf_artifact_id))
                 if elf_artifact_id not in source_artifacts:
                     source_artifacts.append(str(elf_artifact_id))
+        storage_config = parse_storage_execution(
+            spec,
+            payload.get("storage"),
+        )
+        if storage_config:
+            storage_artifact = self.artifacts.get(
+                storage_config["sd_image_artifact_id"]
+            )
+            size = int(storage_artifact.get("size") or 0)
+            if size <= 0 or size % 512:
+                raise ServiceError(
+                    "invalid_storage_image",
+                    "SD image must be non-empty and a multiple of 512 bytes",
+                    400,
+                )
+            artifact_id = storage_config["sd_image_artifact_id"]
+            if artifact_id not in source_artifacts:
+                source_artifacts.append(artifact_id)
         if runtime != "network":
             profile = (
                 network_config.get("profile")
@@ -7358,6 +7486,7 @@ class DeviceService:
                     runtime_env=runtime_env,
                     runtime=runtime,
                     network_config=network_config,
+                    storage_config=storage_config,
                     worker_id=self.worker.worker_id,
                     worker_generation=self.worker.generation,
                     worker_lease_active=True,

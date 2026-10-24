@@ -1305,6 +1305,27 @@ Core2 board-revision probes may additionally set
 `M5SW_I2S_RX_PCM_FILE`, and `M5SW_I2S_TRACE` are accepted. This is a
 trusted-workstation control surface; do not expose it to untrusted tenants.
 
+Devices whose `features.storage` is true accept a content-addressed raw SD
+image through `storage.sd_image_artifact_id` in the session request:
+
+```json
+{
+  "device_id": "papermono",
+  "firmware_id": "<firmware-id>",
+  "storage": {
+    "sd_image_artifact_id": "<sha256-artifact-id>"
+  }
+}
+```
+
+The service validates that the target device has a modeled SDMMC card, copies
+the artifact into the session directory, re-hashes the isolated copy, and
+attaches it with `-drive if=sd,format=raw`. The source artifact is never
+mounted writable. Session snapshots, persisted records and evidence bundles
+expose the artifact SHA, size, interface and session-isolated copy boundary.
+`platform/tools/sd_image.py` creates deterministic FAT32+MBR or FAT16
+superfloppy fixtures for reproducible storage-dependent firmware tests.
+
 Network sessions use a validated scenario:
 
 ```json

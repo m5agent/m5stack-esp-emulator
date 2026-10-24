@@ -235,6 +235,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(rows["papermono"]["network_status"], "validated")
         self.assertTrue(rows["papermono"]["features"]["network"])
         self.assertTrue(rows["papermono"]["features"]["device_state"])
+        self.assertTrue(rows["papermono"]["features"]["storage"])
+        self.assertFalse(rows["atoms3r"]["features"]["storage"])
         self.assertIn(
             "uiflow2-papermono-unified",
             rows["papermono"]["network_profiles"],
@@ -1048,6 +1050,43 @@ class DeviceServiceUnitTests(unittest.TestCase):
             bad_variant.exception.code,
             "invalid_runtime_env",
         )
+
+    def test_storage_fixture_is_bound_to_a_modeled_sd_card(self):
+        artifact = self.service.upload_artifact(b"\x00" * 512)
+        with self.assertRaises(ServiceError) as wrong_device:
+            self.service.create_session(
+                {
+                    "device_id": "atoms3r",
+                    "storage": {
+                        "sd_image_artifact_id": artifact["artifact_id"],
+                    },
+                }
+            )
+        self.assertEqual(wrong_device.exception.code, "storage_not_supported")
+
+        invalid_size = self.service.upload_artifact(b"\x00" * 513)
+        with self.assertRaises(ServiceError) as bad_image:
+            self.service.create_session(
+                {
+                    "device_id": "papermono",
+                    "storage": {
+                        "sd_image_artifact_id": invalid_size["artifact_id"],
+                    },
+                }
+            )
+        self.assertEqual(bad_image.exception.code, "invalid_storage_image")
+
+        with self.assertRaises(ServiceError) as unknown_field:
+            self.service.create_session(
+                {
+                    "device_id": "papermono",
+                    "storage": {
+                        "sd_image_artifact_id": artifact["artifact_id"],
+                        "path": "/tmp/untrusted",
+                    },
+                }
+            )
+        self.assertEqual(unknown_field.exception.code, "invalid_storage")
 
     def test_qemu_unified_runtime_selects_single_guest_profiles(self):
         unified = device_service_module.parse_qemu_ble_execution(
