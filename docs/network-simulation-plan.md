@@ -32,7 +32,7 @@ Device Service lease
 | S3/C6 unified | 11 个设备 profile 在单 guest 中完成板级、WiFi scan/association/DHCP/HTTP 和外部 HCI-UART BLE GATT | 固定开放 AP；不是完整 PHY/RF，也不覆盖 WPA2/WPA3 |
 | Core2 unified | OpenMAC WiFi、DHCP、受控 HTTP、公网 DNS/HTTP、UART1 HCI-offload BLE 和板级外设同一 guest；确定性 TCG/icount 10/10 首轮 | 环境门控；物理 cache/PSRAM、RF 和 long soak 未验 |
 | Core2 stock BLE | 不重建 HCI-UART，在 stock 固件的 `esp_vhci_host_*` 边界接 Bumble；VHCI 地址由 ELF 固定；外部 NUS GATT 5/5，同 guest board+WiFi+公网+BLE GATT 3/3 | GDB 仍控制暂停/注入/return；不是 bit-exact BT baseband/controller |
-| Core2 QEMU native-HCI | `HCI-1` transport PASS；无 GDB 捕获首个 H2C `01030c00`；`HCI-3a` 诊断性交付 Reset Complete 后 guest 发出下一条命令，targeted `5/5`；API-boundary 审计到广播、连接、NUS discovery 和 subscription | callback 路线不能扩展为产品后端；最终 write/notify transaction、完整 `HCI-3b` 与 `HCI-4` repeated lease 仍开放，不能作为整机 BLE PASS |
+| Core2 QEMU native-HCI | `HCI-1` transport PASS；无 GDB 捕获首个 H2C `01030c00`；`HCI-3a` 诊断性交付 Reset Complete 后 guest 发出下一条命令，targeted `5/5`；API-boundary 审计到广播、连接、NUS discovery 和 subscription；HLI queue spike 证明 guest ISR 消费 event-13 marker | callback 路线不能扩展为产品后端；HLI 尚未投递真实 controller event/ACL；最终 write/notify transaction、完整 `HCI-3b` 与 `HCI-4` repeated lease 仍开放，不能作为整机 BLE PASS |
 | Device Service | `qemu-unified/profile=core2-native-vhci` 单 lease 返回 frame、QOM、pcap、bridge 和 peer evidence | 仅证明该 runtime/profile 和对应固件 SHA |
 | 公网 | StickS3、Nesso N1 和 Core2 在对应同 guest 路径完成 IPv4 DNS/HTTP | 只证明一次可达的 IPv4 HTTP；不证明任意云服务、TLS 固定或长期稳定 |
 | 负向认证 | 错误密码要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker 同时成立 | 当前实际 AP 类型有限 |
@@ -160,7 +160,7 @@ primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP re
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
 | N4a Linux policy CI | DONE | GitHub-hosted namespace/nft/egress fixture 保持 fail-closed 并可重复 |
 | N4b 双设备 fabric | DONE (virtual) | 两台 StickS3 的 DHCP、guest TCP、双侧 pcap、宿主隔离与清理已通过；下一步接入 worker |
-| N5 Core2 production BLE/PHY | PARTIAL | ELF 固定符号已完成；`HCI-3b` 已排除 safe-point callback/nested `r_eif_send`；下一步 C2H device/IRQ queue 或 in-process controller，剩余 GDB 控制面、重复 lease、coexistence soak |
+| N5 Core2 production BLE/PHY | PARTIAL | ELF 固定符号已完成；`HCI-3b` 已排除 safe-point callback/nested `r_eif_send`，HLI queue/IRQ 消费 spike 已过；下一步真实 event/ACL delivery + API-boundary transaction，剩余 GDB 控制面、重复 lease、coexistence soak |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
 虚拟 radio/AP 丢失恢复和双设备 private lab fabric 已完成，下一步是

@@ -142,7 +142,7 @@ def parse_elf32_symbols(path: Path) -> dict[str, list[ElfSymbol]]:
         if section_names_index >= len(sections):
             raise ElfSymbolError("section-name table index is out of range")
         names_section = sections[section_names_index]
-        section_names = _read_at(
+        _read_at(
             source,
             names_section[4],
             names_section[5],

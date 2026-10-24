@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import socket
-import struct
 import sys
 import tempfile
 import unittest

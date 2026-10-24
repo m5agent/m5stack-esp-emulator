@@ -33,8 +33,9 @@
 
 ## 当前执行顺序
 
-1. `CORE2-01`：先完成 `HCI-3b` 的 guest-visible C2H IRQ/queue 或
-   in-process controller transaction，再做 `HCI-4`。
+1. `CORE2-01`：先复用已验证的 firmware HLI IRQ/queue，投递真实 controller
+   event 并验证 ACL buffer 生命周期，再结合 API-boundary H2C transaction
+   完成 `HCI-3b`，随后做 `HCI-4`。
 2. `NET-04` / `SVC-01`：在本地 worker lifecycle 基础上完成远程注册、
    持久队列、调度和活动实例 re-attach；`NET-05` 独立推进 IPv6。
 3. `FW-01`：补运行时权限和许可策略；随后 `FW-03` 扩跨厂商样本，
@@ -49,7 +50,7 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 远程 worker 注册、持久任务队列、调度和活动 QEMU re-attach | worker 失联/重启可收敛；namespace 失败 fail-closed；evidence 可回传 |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
-| `CORE2-01` | 进行中 | `HCI-3b` device/IRQ queue 或 in-process controller，随后 `HCI-4` repeated lease | 同一 stock 固件无 GDB 完成 NUS GATT，Device Service `5/5` |
+| `CORE2-01` | 进行中 | 真实 HLI event/ACL delivery + API-boundary H2C transaction，随后 `HCI-4` repeated lease | 同一 stock 固件无 GDB 完成 NUS GATT，Device Service `5/5` |
 | `CORE2-02` | 待做 | bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和 soak | 物理边界可证；真机/RF 结论不冒充 |
 | `FW-01` | 进行中 | 运行时权限/许可策略与资源审批 | 文件清单可追踪；资源权限和许可结论可审计 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -119,16 +120,23 @@ evidence 中成立。
   生产门禁。
 - 尚无 guest-visible controller-to-host queue/IRQ 的完整 packet order、
   flow-control、ACK 和事务语义。
+- 最新 HLI queue spike 已证明 firmware `INTSET[29]`/HLI ISR/controller task
+  能消费 QEMU 写入的 event-13 work item，QOM depth 归零且 guest 打出预期
+  marker；`hli-consumed` 观察计数本身有 bug，不能作为证据。该实验注入的是
+  打印 callback，不是 HCI Reset Complete 或 ACL 数据。
 
 下一项最小交付：
 
-1. 从 firmware/ELF/QEMU 状态建立 VHCI C2H queue、status 和 IRQ 的真实语义。
-2. 在 `API_vhci_host_send_packet` 入口建立显式 H2C→C2H transaction，由
-   QEMU device 入队并 raise IRQ，让 guest 自己的 ISR/task 消费；或实现
-   明确事务化的 in-process controller。
-3. 先让 scan/connect/service discovery/subscribe/write/notify 不靠 retry
-   稳定通过，再用 Device Service 连续 `5/5`。
-4. 失败分类必须区分 queue、transport、vCPU commit、guest reset 和 peer。
+1. 用真实 guest `ble_transport_alloc_evt` 获取 event buffer，去掉 H4 type
+   byte 后交给 `ble_transport_to_hs_evt_impl`，经 HLI event 13 投递 HCI
+   Reset Complete；要求 guest 前进且任务不崩溃。
+2. 调查 `ble_transport_alloc_acl_from_ll` / `ble_transport_to_hs_acl_impl`
+   的 mbuf append/free 生命周期，投递真实 ACL packet 并验证 packet order。
+3. 在 `API_vhci_host_send_packet` 入口建立显式 H2C→C2H transaction，避免
+   固件内部 controller 与 Bumble 同时消费同一请求。
+4. 先让 scan/connect/service discovery/subscribe/write/notify 不靠 retry
+   稳定通过，再用 Device Service 连续 `5/5`；失败分类必须区分 queue、
+   transport、buffer ownership、vCPU commit、guest reset 和 peer。
 
 验收：
 

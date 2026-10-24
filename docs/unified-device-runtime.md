@@ -126,9 +126,12 @@ complete simulated device or as a unified-device PASS.
   injection and a nested call into `r_eif_send -> vhci_send` both failed and
   were reverted. A separate API-boundary hook reached advertising,
   connection, NUS discovery and subscription, but the final write/notify
-  transaction timed out and the experiment was not retained. The replacement
-  must use a guest-visible
-  controller-to-host IRQ/queue or an in-process controller transaction.
+  transaction timed out and the experiment was not retained. An HLI queue
+  spike then proved that the firmware ISR/controller task consumes a
+  QEMU-posted event-13 marker with HLI software interrupt 29, but no real HCI
+  event or ACL packet was delivered. The replacement must use this
+  guest-visible controller-to-host IRQ/queue for real event/ACL delivery, or
+  an in-process controller transaction.
   Complete Bumble HCI/GATT sequence (`HCI-3b`) and repeated Device Service
   leases remain open, so the unified acceptance status above is unchanged.
 

@@ -49,6 +49,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-safe-point-audit.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-controller-entry-audit.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-queue-diagnostic.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
@@ -715,6 +716,33 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertTrue(partial["notification_subscribed"])
         self.assertFalse(partial["guest_received_write"])
         self.assertFalse(api_boundary["findings"]["retained"])
+        hli_queue = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci3b-hli-queue-diagnostic.json"
+            ).read_text()
+        )
+        self.assertEqual(hli_queue["stage"], "HCI-3b")
+        self.assertEqual(hli_queue["gate_result"], "OPEN")
+        self.assertEqual(hli_queue["status"], "DIAGNOSTIC_PASS")
+        self.assertFalse(hli_queue["runtime"]["gdb_bridge"])
+        self.assertEqual(hli_queue["guest_configuration"]["CONFIG_BTDM_CTRL_HLI"], 1)
+        self.assertEqual(
+            hli_queue["guest_configuration"]["hli_software_interrupt"],
+            29,
+        )
+        self.assertEqual(hli_queue["injected_work"]["event"], 13)
+        self.assertEqual(hli_queue["qom"]["hli_posts"], 1)
+        self.assertEqual(hli_queue["qom"]["hli_errors"], 0)
+        self.assertEqual(hli_queue["qom"]["hli_queue_depth"], 0)
+        self.assertEqual(hli_queue["qom"]["meta_queue_depth"], 0)
+        self.assertTrue(hli_queue["observations"]["guest_hli_isr_consumed_work"])
+        self.assertFalse(hli_queue["observations"]["real_hci_event_delivered"])
+        self.assertFalse(hli_queue["observations"]["complete_hci_gatt_sequence"])
+        self.assertFalse(hli_queue["observations"]["hli_consumed_counter_usable"])
+        self.assertFalse(hli_queue["experiment_retained"])
+        self.assertFalse(hli_queue["reproducible_from_committed_worktree"])
         self.assertIn(
             "API boundary",
             (DOCS / "core2-native-hci-backend.md").read_text(),
@@ -722,6 +750,7 @@ class DocsConsistencyTests(unittest.TestCase):
         for document in (status, workstreams, backlog, code_map):
             self.assertIn("safe-point", document)
             self.assertIn("r_eif_send", document)
+            self.assertIn("HLI", document)
         for document in (status, workstreams, backlog):
             self.assertIn("IRQ/queue", document)
             self.assertIn("in-process controller", document)

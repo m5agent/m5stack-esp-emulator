@@ -70,7 +70,7 @@ callback 注入，因此单 lease PASS 不等于稳定后端。QEMU 内部替代
 | `HCI-1` host transport | `PASS` | `core2_native_hci/test_transport.py` |
 | `HCI-2` guest H2C | `PARTIAL` | `core2_native_hci/test_guest_h2c.py`，只到首个 Reset |
 | `HCI-3a` guest C2H callback | `PASS` | `core2_native_hci/test_guest_h2c.py --enable-c2h`，targeted `5/5` |
-| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | Bumble 可发现并连接；第二个 ATT request 后 guest `HCI process ack returned 12` 并 Reset，见 `core2_native_hci/run_full.py` |
+| `HCI-3b` complete HCI/GATT | `OPEN` / diagnostic `FAIL` | Bumble 可发现并连接；第二个 ATT request 后 guest `HCI process ack returned 12` 并 Reset，见 `core2_native_hci/run_full.py`。API-boundary 到 NUS subscription；HLI queue spike 证明 guest ISR 消费 event-13 marker，但尚未投递真实 event/ACL |
 | `HCI-4` repeated lease | `OPEN` | 仍需无 GDB 的 Device Service `5/5` |
 
 ```bash

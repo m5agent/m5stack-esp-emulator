@@ -228,11 +228,16 @@ diagnostics in `internal/records/`.
   additional Xtensa special registers and invoking callbacks at arbitrary CPU0
   safe points did not fix it, and nesting the firmware's real
   `r_eif_send -> vhci_send` path as a guest RPC failed with a cache-disabled
-  memory access. Those experiments were reverted. The next implementation
-  must enqueue C2H and raise the guest-visible controller IRQ, or use an
-  in-process controller model. No-GDB repeated Device Service leases
-  (`HCI-4`) and a bit-exact controller remain open; do not call single-packet
-  C2H or direct callback injection a finished native Bluetooth backend.
+  memory access. Those experiments were reverted. An HLI queue spike then
+  proved that QEMU can post an event-13 work item into the firmware's real
+  `g_rw_schd_queue`/meta queue and that the guest ISR/controller task consumes
+  it after `INTSET[29]`. That marker did not carry an HCI event or ACL packet.
+  The next implementation must deliver a real controller event and ACL buffer
+  through this path while establishing an explicit API-boundary H2C
+  transaction, or use an in-process controller model. No-GDB repeated Device
+  Service leases (`HCI-4`) and a bit-exact controller remain open; do not call
+  single-packet C2H, a marker-only HLI item or direct callback injection a
+  finished native Bluetooth backend.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.

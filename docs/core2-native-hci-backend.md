@@ -14,7 +14,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-1` host transport | `PASS` | `patches/qemu-core2-native-hci/0001-esp32-native-hci-transport.patch` | H4 framing、bounded queue、overflow、peer lifecycle、QOM counters 和 clean shutdown 已通过 targeted test |
 | `HCI-2` H2C | `PARTIAL` | 同一补丁的 `env-pointer-address` poller；`test_guest_h2c.py` | 不启动 GDB 已捕获真实 stock HCI Reset `01030c00`；完整命令序列需要 C2H 才能继续 |
 | `HCI-3a` C2H callback | `DIAGNOSTIC PASS` | `c2h-allocator-address`、注册 callback 调用、send-available 和 QOM counters | Reset Complete 已交付 guest 的 `notify_host_recv`，callback status 为 0，guest 随后发出 Read Local Version；连续 `5/5`。这只证明窄路径 ABI，不是可扩展产品后端 |
-| `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | `run_full.py`、`evidence-2026-10-24-hci3b-diagnostic.json` | 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset，不能作为 PASS |
+| `HCI-3b` complete sequence | `OPEN` / diagnostic `FAIL` | `run_full.py`、`evidence-2026-10-24-hci3b-diagnostic.json`；API-boundary 与 HLI spike evidence | 可发现、连接并完成首个 ATT request/response；第二个 ATT request 后 guest 报 `HCI process ack returned 12` 并 Reset。API-boundary hook 推进到 NUS subscription；HLI queue spike 证明 guest ISR 消费 event-13 marker，但尚未投递真实 HCI packet |
 | `HCI-4` stability | `OPEN` | 无门禁 | 还没有无 GDB 的 Device Service 连续 `5/5` 完整 GATT 证据 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
@@ -242,12 +242,53 @@ NUS service discovery 和 CCCD subscription，H2C parser error/drop 均为 0，
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json`。
 实验代码未保留，`HCI-3b` 仍为 `FAIL`，不能把这次 partial 结果写成蓝牙后端完成。
 
+#### HLI queue delivery spike
+
+最新诊断没有直接在任意 safe point 调用 host callback，而是写入固件自己的
+`BTDM_CTRL_HLI` 队列路径：
+
+```text
+QEMU H4 C2H callback
+  -> g_rw_schd_queue item
+  -> guest btdm_queue_item_t -> hli_queue_t
+  -> meta queue
+  -> INTSET bit 29 / level-3 software IRQ
+  -> hli_c_handler -> queue_isr_handler
+  -> btdm_controller_task callback
+```
+
+对匹配的 stock UIFlow2 v2.5.3 镜像已确认：
+
+- `CONFIG_BTDM_CTRL_HLI=1`；
+- NimBLE 固定在 core 1，BT controller 固定在 core 0；
+- `g_rw_schd_queue=0x3ffcb890`，`s_meta_queue_ptr=0x3ffc1158`；
+- HLI software interrupt 为 29；
+- `hli_queue_t` 的 element size、begin/end/bufend、downstream、flags 和
+  inline buffer 偏移与 QEMU 写入布局一致。
+
+实验向队列写入一个 8-byte controller work item，向 4-byte meta queue 写入
+queue handle，再置 `INTSET[29]`。以 event 13 和 `ets_printf` 为 callback
+时，guest 串口出现 `Fatal error in queue_signal: s_meta_queue full`，QOM
+`hli-errors=0`，HLI/meta queue depth 都回到 0。这说明 guest HLI ISR 和
+controller task 确实消费了 QEMU 投递项，验证了后续 C2H 的设备/IRQ 交付
+seam。
+
+这不是 `HCI-3b` PASS：callback 只是诊断 marker，没有发送 HCI event，也
+没有 ACL、ACK、flow-control 或 GATT transaction。`hli-consumed` 观察计数
+因比较逻辑 bug 仍为 0，不能引用；消费证据是 queue depth 归零与 guest
+serial marker。实验代码未保留：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-queue-diagnostic.json`。
+
 下一步应实现与真实 controller-to-host 通知/事务等价的生命周期，而不是继续
 调整固定 sleep、CPU pinning、寄存器补丁或 nested guest RPC：
 
 - 在 `API_vhci_host_send_packet` 边界建立显式 transaction，避免内部 controller
   和外部 controller 同时拥有同一 packet；
-- 增加 guest 可见的 controller-to-host queue/status 寄存器并 raise IRQ；
+- 先使用 guest `ble_transport_alloc_evt` 分配的 buffer 和
+  `ble_transport_to_hs_evt_impl` callback，通过 HLI event 13 交付真实
+  Reset Complete；
+- 再调查 `ble_transport_alloc_acl_from_ll` /
+  `ble_transport_to_hs_acl_impl` 的 mbuf append/free 生命周期；
 - 在 H2C send 与对应 C2H response 之间保持可验证的 transaction；
 - 让 guest firmware 自己的 ISR/worker 在有效 cache 和 task 上下文中消费；
 - 明确 FreeRTOS task wake/ACK 与 vCPU resume 的关系；
@@ -266,13 +307,12 @@ repeated lease。
 
 ## 剩余工作量
 
-下面是当前阶段之后的重新估算，不包含已经完成的 HCI-1、HCI-2 和
-HCI-3a 窄路径：
+下面是当前阶段之后的重新估算，不包含已经完成的 HCI-1、HCI-2、
+HCI-3a 窄路径和 HLI queue/IRQ 消费 spike：
 
-- `HCI-3b` C2H queue/status/IRQ 语义审计和 spike：约 `1–2` 天；如果固件
-  和 ELF 能给出可验证字段，再进入实现；
-- `HCI-3b` guest-visible queue/IRQ 或 in-process controller transaction：
-  约 `3–6` 天；
+- event 13 真实 controller event、buffer ownership 和 Reset Complete：
+  约 `1–2` 天；
+- ACL mbuf 生命周期与 API-boundary H2C/C2H transaction：约 `3–6` 天；
 - `HCI-4` repeated lease、故障注入和长稳：约 `2–4` 天；
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周，
   不能包含在 HCI-3b/HCI-4 的估算内。

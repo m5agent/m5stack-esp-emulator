@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "stage": "HCI-3b",
+  "gate_result": "OPEN",
+  "status": "DIAGNOSTIC_PASS",
+  "validation_level": "virtual-device validation",
+  "firmware": {
+    "family": "stock UIFlow2 v2.5.3",
+    "sha256": "906ba16439f8f8b421adb9ba3817ebf91d677498b0096c38e851a63570a8b680"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "accel": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off",
+    "gdb_bridge": false
+  },
+  "guest_configuration": {
+    "CONFIG_BTDM_CTRL_HLI": 1,
+    "nimble_cpu": 1,
+    "controller_cpu": 0,
+    "hli_software_interrupt": 29
+  },
+  "symbols": {
+    "g_rw_schd_queue": "0x3ffcb890",
+    "s_meta_queue_ptr": "0x3ffc1158"
+  },
+  "injected_work": {
+    "event": 13,
+    "callback": "ets_printf",
+    "argument": "guest queue-full marker buffer",
+    "purpose": "prove the firmware HLI ISR and controller task consume a QEMU-posted work item"
+  },
+  "qom": {
+    "hli_valid": 1,
+    "hli_posts": 1,
+    "hli_errors": 0,
+    "hli_last_event": 13,
+    "hli_queue_element_size": 8,
+    "hli_queue_depth": 0,
+    "meta_queue_element_size": 4,
+    "meta_queue_depth": 0
+  },
+  "serial_marker": "Fatal error in queue_signal: s_meta_queue full",
+  "observations": {
+    "guest_hli_isr_consumed_work": true,
+    "guest_controller_task_ran_callback": true,
+    "real_hci_event_delivered": false,
+    "complete_hci_gatt_sequence": false,
+    "hli_consumed_counter_usable": false
+  },
+  "counter_note": "The hli-consumed observer remained zero because of an instrumentation comparison bug; queue depths returning to zero plus the guest serial marker are the consumption evidence.",
+  "conclusion": "The firmware HLI queue and INTSET bit 29 provide a valid guest task/IRQ delivery seam. This spike injected an event-13 marker, not a controller packet, so it does not close HCI-3b or replace the VHCI backend.",
+  "next_step": "Post a functional event-13 work item using a guest-allocated controller event buffer and the real ble_transport_to_hs_evt_impl callback, require Reset Complete to advance the guest, then investigate ACL buffer ownership before combining the API-boundary H2C transaction.",
+  "experiment_retained": false,
+  "reproducible_from_committed_worktree": false
+}

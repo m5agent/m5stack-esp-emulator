@@ -38,7 +38,6 @@ def inspect_qemu_network(
     build_dir: Path = DEFAULT_BUILD_DIR,
 ) -> dict:
     checks: dict[str, bool] = {}
-    details: dict[str, str] = {}
     errors: list[str] = []
 
     checks["qemu_exists"] = qemu.is_file()

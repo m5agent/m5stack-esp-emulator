@@ -37,6 +37,7 @@
 | Core2 native-HCI `HCI-3a` | 诊断性单包 C2H：callback status 0，Reset Complete 后 guest 发出下一条 H2C，targeted `5/5`。后续审计不支持把它扩展成产品后端 | [`c2h-delivery.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-c2h-delivery.json) |
 | Core2 native-HCI `HCI-3b` | Bumble peer 已发现/连接并完成首个 ATT request/response；第二个 ATT request 后 guest `ack returned 12` 并 Reset，完整 sequence FAIL | [`hci3b-diagnostic.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-diagnostic.json) |
 | Core2 native-HCI API boundary | GDB return 语义审计确认 pre-entry API hook 不旋转 Xtensa window；实验性 QEMU API hook 完成广播、连接、NUS discovery 和订阅，但 final write/notify transaction 仍超时，实验未保留 | [`hci3b-api-boundary-audit.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-api-boundary-audit.json) |
+| Core2 HLI queue | 实验写入 firmware `g_rw_schd_queue`/meta queue 并置 `INTSET[29]`；guest ISR/controller task 消费 event-13 marker，QOM 无错误、队列清空。该结果只证明交付 seam，不是 HCI/GATT PASS，实验未保留 | [`hci3b-hli-queue-diagnostic.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-hli-queue-diagnostic.json) |
 | Core2 callback 路线审计 | safe-point callback 仍崩溃；nested `r_eif_send → vhci_send` 触发 cache-disabled 异常。两个实验均回退，patch reverse-check PASS | [`safe-point-audit.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-safe-point-audit.json)、[`controller-entry-audit.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci3b-controller-entry-audit.json) |
 
 ## 2026-10-23

@@ -930,7 +930,6 @@ class LabDhcp:
                 except InterruptedError:
                     continue
                 for ready_socket in ready:
-                    tap = self.interface
                     frame, _peer = ready_socket.recvfrom(4096)
                     if len(frame) < 42:
                         continue
