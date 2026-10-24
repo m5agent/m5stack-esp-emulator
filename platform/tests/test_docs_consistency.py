@@ -566,6 +566,26 @@ class DocsConsistencyTests(unittest.TestCase):
                 for sample in refreshed["samples"]
             )
         )
+        refreshed_manifests = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-refreshed-public-artifacts-manifest.json"
+            ).read_text()
+        )
+        self.assertEqual(refreshed_manifests["status"], "PASS")
+        self.assertEqual(
+            refreshed_manifests["functional_status"],
+            "NOT RUN",
+        )
+        self.assertEqual(len(refreshed_manifests["samples"]), 4)
+        self.assertTrue(
+            all(
+                sample["validation"] == "PASS"
+                and sample["review_status"] == "REVIEW_REQUIRED"
+                for sample in refreshed_manifests["samples"]
+            )
+        )
 
     def test_runtime_model_gap_register_matches_evidence_and_backlog(self):
         register = (DOCS / "runtime-model-gap-register.md").read_text()

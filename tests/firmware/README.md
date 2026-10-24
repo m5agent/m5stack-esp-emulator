@@ -54,6 +54,11 @@ The four current public CDN artifacts refreshed on `2026-10-25` are bound in
 They are `STATIC_PASS` and their Device Service/input validation is
 `FUNCTIONAL_NOT_RUN`.
 
+The same four artifacts passed the full manifest importer in
+[`evidence-2026-10-25-refreshed-public-artifacts-manifest.json`](evidence-2026-10-25-refreshed-public-artifacts-manifest.json).
+Manifest PASS does not mean a clean review: all four require human review and
+no functional execution has been performed.
+
 Packages that include source files also receive a bounded SPDX header scan.
 Source path hashes and declarations are eligible for license policy, while
 generated code, absent third-party sources and legal review remain out of

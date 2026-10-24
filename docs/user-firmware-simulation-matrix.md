@@ -95,6 +95,13 @@ The exact refreshed SHA-256 values and static checks are committed separately:
 That record is `STATIC_PASS / FUNCTIONAL_NOT_RUN`; a later Device Service run
 must append its own session, frame, input and serial evidence.
 
+Full FirmwareManifest imports are also retained in
+[`refreshed-public-artifacts-manifest.json`](../tests/firmware/evidence-2026-10-25-refreshed-public-artifacts-manifest.json):
+all four manifest validations are `PASS`, all four static reviews remain
+`REVIEW_REQUIRED`, and no sample has a functional execution result. Sparse
+inputs can produce a normalized full-flash SHA different from the downloaded
+source SHA; both hashes are recorded.
+
 Two samples are classified as `runtime_model_gap`:
 
 - NanoC6 Zigbee HA light blocks `Zigbee_main` and triggers the task watchdog;

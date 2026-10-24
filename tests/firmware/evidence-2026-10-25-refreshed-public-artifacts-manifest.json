@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-public-firmware-refresh-manifest",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "functional_status": "NOT RUN",
+  "scope": "current-public-cdn-bytes-firmware-manifest-import-not-device-execution",
+  "samples": [
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000002559",
+      "source_sha256": "74e714fcef825025c5df61cffeaefed3d5c01b97da4298b42be098740127dae4",
+      "artifact_sha256": "17ddf5d01c06be4b59606b3030329a1cf78d2e268bac7da16279f2981f4788e7",
+      "manifest_id": "1ea3a32380d8aecb88838586467c122eaf87c0a0e6d4b7d10248eb4a242ca809",
+      "flash_size": 8388608,
+      "validation": "PASS",
+      "review_status": "REVIEW_REQUIRED",
+      "finding_count": 21,
+      "url_count": 3,
+      "credential_finding_count": 5,
+      "encoded_blob_count": 57,
+      "sbom": "NOT_PROVIDED",
+      "filesystem_status": "INVALID"
+    },
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000000358",
+      "source_sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+      "artifact_sha256": "9b2d73b401e890bb5844fb45e802e275ac670268e46bbb606292f77a00dee286",
+      "manifest_id": "c56c111324a9365cd3578e65d868c5e77c71b126544ea4d1ab5af027c2dec28c",
+      "flash_size": 2097152,
+      "validation": "PASS",
+      "review_status": "REVIEW_REQUIRED",
+      "finding_count": 4,
+      "url_count": 1,
+      "credential_finding_count": 3,
+      "encoded_blob_count": 1,
+      "sbom": "NOT_PROVIDED",
+      "filesystem_status": "NOT_PRESENT"
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "1897200000000000015",
+      "source_sha256": "06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986",
+      "artifact_sha256": "06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986",
+      "manifest_id": "1e7cad041d9cff61ecee9d160e83f507671da84cf08aa27afff82de1223f952b",
+      "flash_size": 16777216,
+      "validation": "PASS",
+      "review_status": "REVIEW_REQUIRED",
+      "finding_count": 5,
+      "url_count": 6,
+      "credential_finding_count": 3,
+      "encoded_blob_count": 2,
+      "sbom": "NOT_PROVIDED",
+      "filesystem_status": "PASS",
+      "filesystem_file_count": 16
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "2091144466157694978",
+      "source_sha256": "e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935",
+      "artifact_sha256": "0fc4c988b49895bc7978438a49a97d3a078b5b648218b124120a16c0c9b49118",
+      "manifest_id": "f3997c43c12eced099d24fcbdc44f104e9b040a58c02e86b0498b9e594db3367",
+      "flash_size": 16777216,
+      "validation": "PASS",
+      "review_status": "REVIEW_REQUIRED",
+      "finding_count": 15,
+      "url_count": 6,
+      "credential_finding_count": 3,
+      "encoded_blob_count": 12,
+      "sbom": "NOT_PROVIDED",
+      "filesystem_status": "UNFORMATTED"
+    }
+  ],
+  "checks": {
+    "all_four_imported": true,
+    "manifest_validation_pass": true,
+    "source_sha_bound": true,
+    "normalized_artifact_sha_bound": true,
+    "secret_values_redacted": true,
+    "functional_execution": "NOT RUN"
+  },
+  "not_claimed": [
+    "clean static review; all four manifests require human review",
+    "valid filesystem inventory for sparse/invalid samples",
+    "Device Service boot, frame or input response",
+    "physical hardware validation"
+  ]
+}
