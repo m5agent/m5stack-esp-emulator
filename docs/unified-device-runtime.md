@@ -43,9 +43,9 @@ complete simulated device or as a unified-device PASS.
   at `PC=0`. They were tied to nested guest execution from non-halted
   cache-disabled WiFi/controller contexts and incomplete caller-saved sreg
   restoration. `0005` fixes both; two independent `5×10s` batches pass
-  `10/10`, and three independent `60s` holds pass `3/3`, with zero HLI errors
-  and empty queues. This is not a multi-hour soak or physical cache/PSRAM
-  proof.
+  `10/10`, three independent `60s` holds pass `3/3`, and two independent
+  `120s` holds pass `2/2`, with zero HLI errors and empty queues. This is not
+  a multi-hour soak, repeated in-guest reconnect or physical cache/PSRAM proof.
 - Current blockers, not historical explanations, are owned by
   [project status](project-status.md) and [Backlog](project-backlog.md). The
   device bullets below preserve implementation evidence and must not be read
@@ -139,8 +139,8 @@ complete simulated device or as a unified-device PASS.
   A separate HCI-offload build also routes NimBLE's H4 traffic through QEMU
   UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
   The remaining boundary is a bit-exact classic ESP32 controller/baseband,
-  physical cache/PSRAM equivalence, minute/hour coexistence/soak and hardware,
-  not UIFlow2 API or Device Service integration.
+  physical cache/PSRAM equivalence, repeated in-guest reconnect, multi-hour
+  coexistence/soak and hardware, not UIFlow2 API or Device Service integration.
 - The replacement QEMU native-HCI path has passed the staged gates:
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
   `01030c00` without GDB, and `HCI-3a` is a diagnostic single-packet check
@@ -200,7 +200,7 @@ BLE GATT discovery/write. Each session exposes all checks through one
 
 Status: **PASS for the eleven S3/C6 slices and the five-lease Core2
 `core2-native-hci` functional baseline** through `runtime=qemu-unified`
-(legacy `qemu-ble` remains accepted). Core2 `5×10s` / `3×60s`
+(legacy `qemu-ble` remains accepted). Core2 `5×10s` / `3×60s` / `2×120s`
 extended-run is also **PASS**; multi-hour soak remains open. The eleven
 S3/C6 unified profiles retain Device Service evidence ZIPs containing
 serial, frame, audio PCM where present, QOM, network, BLE peer log and
@@ -213,10 +213,10 @@ path reaches external GATT without that firmware rebuild. Its canonical
 `core2-native-hci` service profile uses an in-process QEMU device, firmware
 HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
   independent leases. The legacy `core2-native-vhci` profile uses a GDB bridge
-  and is diagnostic only. Two independent `5×10s` batches and three `60s`
-  hold runs pass with `hli-errors=0` and empty queues. Core2 still misses
-  bit-exact controller/baseband, physical cache/PSRAM equivalence,
-  multi-hour coexistence and hardware validation.
+  and is diagnostic only. Two independent `5×10s` batches, three `60s` holds
+  and two `120s` holds pass with `hli-errors=0` and empty queues. Core2 still
+  misses bit-exact controller/baseband, physical cache/PSRAM equivalence,
+  repeated in-guest reconnect, multi-hour coexistence and hardware validation.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
 stable access to arbitrary internet services. Core2 now includes public DNS

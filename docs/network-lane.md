@@ -34,17 +34,16 @@ PYTHONPATH=.work/py python3 platform/tools/network_lane.py \
 错误密码负向用例：
 
 ```bash
-PYTHONPATH=.work/py python3 platform/tools/network_lane.py \
-  --profile esp-idf-wrong-password \
-  --chip esp32s3 \
-  --firmware /path/to/http_throughput.bin \
-  --password '<wrong-password>' \
-  --timeout 35 \
+python3 tests/network/wrong_password/run_test.py \
   --out-dir /tmp/m5-network-wrong-password
 ```
 
 该 profile 只有在认证尝试、错误密码拒绝、至少一次重试、无 DHCP、无 HTTP
 进度和最终失败标记全部成立时才 PASS；“连不上”单独不算通过。
+当前提交的脱敏证据见
+[`wrong-password-pass.json`](../tests/network/wrong_password/evidence-2026-10-24-wrong-password-pass.json)：
+`7/7` 负向检查成立，失败的 ESP-IDF guest 在 20.6 秒内完成 6 次认证尝试，
+始终没有 DHCP 租约或 HTTP 进度。
 
 固件自建 SoftAP 和 provisioning portal：
 

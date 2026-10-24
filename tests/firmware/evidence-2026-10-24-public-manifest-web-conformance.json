@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-manifest-public-web-conformance",
+  "generated_at": "2026-10-24T04:31:35Z",
+  "scope": "static-and-manifest-validation-not-boot-or-hardware",
+  "status": "PASS",
+  "source": {
+    "repository": "https://github.com/m5agent/m5stack-esp-emulator",
+    "base_commit": "730123da116ece1acbd97744de419e97596f0232",
+    "working_tree_dirty": true
+  },
+  "sample": {
+    "firmware_id": "2108939572843147265",
+    "device_slug": "sticks3",
+    "source_bytes": 8323072,
+    "source_sha256": "8b7b47c8d601e1821817f8d0e6b55568829913e50333dbcc15de6ffdbad1997c"
+  },
+  "runs": {
+    "merged_import": {
+      "status": "PASS",
+      "source_format": "merged-bin",
+      "normalized_bytes": 8388608,
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "manifest_id": "152451cbb9fedac361e0fe6341c56a4a945c1bac2bb7581d94dbaa437380e244",
+      "warnings": [
+        "license_policy_review_required",
+        "security_metadata_incomplete",
+        "static_review_required",
+        "filesystem_inventory_incomplete",
+        "sbom_not_provided"
+      ]
+    },
+    "webburner_import": {
+      "status": "PASS",
+      "source_format": "web-manifest",
+      "artifact_kind": "segmented-flash",
+      "segment_count": 3,
+      "padded": true,
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "manifest_id": "af00ca3431431b30608198562aa36c156e83619f9a4caa06d179c229a4559b03"
+    },
+    "capability_mismatch": {
+      "status": "REJECTED",
+      "exit_code": 1,
+      "issue_code": "unsupported_capability",
+      "requirement": "camera",
+      "device_id": "sticks3"
+    }
+  },
+  "checks": {
+    "public_firmware_hash_recorded": true,
+    "merged_manifest_validation": true,
+    "sparse_image_normalized_to_full_flash": true,
+    "webburner_source_format_selected": true,
+    "webburner_segments_non_overlapping": true,
+    "webburner_and_merged_artifact_hash_match": true,
+    "capability_mismatch_structured": true,
+    "manifest_hash_recomputed": true,
+    "webburner_http_import": true,
+    "efuse_summary_redacted": true,
+    "efuse_config_runtime_layers_distinct": true,
+    "unmodeled_security_rejection": true
+  },
+  "tests": {
+    "firmware_manifest_suite": {
+      "total": 19,
+      "status": "PASS"
+    },
+    "targeted_manifest_service_contracts": {
+      "total": 6,
+      "status": "PASS"
+    }
+  },
+  "boundary": {
+    "boot": "NOT RUN",
+    "network": "NOT RUN",
+    "physical_hardware": "NOT RUN",
+    "secure_boot_runtime": "NOT RUN",
+    "note": "Manifest and static-package validation do not prove boot, network, secure-boot execution or hardware state."
+  }
+}

@@ -19,3 +19,9 @@ Expected terminal marker:
 ```text
 DNS_UDP_RESULT: PASSED
 ```
+
+Validated evidence:
+[`evidence-2026-10-24-dns-udp-pass.json`](evidence-2026-10-24-dns-udp-pass.json).
+The guest resolved the DNS name through the host-forwarder path, sent the exact
+UDP payload, and received the exact `UDP_REPLY:` payload. This is data-plane
+evidence, not controlled A/NXDOMAIN policy.

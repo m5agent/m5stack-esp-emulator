@@ -1573,8 +1573,9 @@ restart.
   `core2-native-hci` closes stock-firmware external NUS GATT together with
   board/frame/QOM, WiFi/public network, pcap and evidence in five independent
   service leases without GDB. Two independent `5×10s` hold batches also pass
-  `10/10`, with zero HLI errors and empty HLI/meta queues; this is still a
-  short extended-run gate rather than minute/hour soak.
+  `10/10`; three `60s` holds pass `3/3`, and two `120s` holds pass `2/2`,
+  with zero HLI errors and empty HLI/meta queues. This is still a two-minute
+  independent-lease gate rather than same-guest reconnect or multi-hour soak.
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

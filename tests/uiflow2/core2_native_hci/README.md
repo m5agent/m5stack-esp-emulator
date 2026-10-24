@@ -15,7 +15,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `HCI-3b` HLI event | `PASS` | `evidence-2026-10-24-hli-event-5x.json`; pool-allocated Reset Complete through event 13 advances `01030c00` to `01011000` in 5/5 runs |
 | `HCI-3b` complete HCI/GATT | `PASS` | `evidence-2026-10-24-hli-api-gatt-5x.json`; 15-byte probe / 17-byte ATT PDU completes discovery, subscription, write, Python handler, notification and Bumble ACK in 5/5 runs |
 | `HCI-4` repeated lease | `PASS` | `evidence-2026-10-24-hci4-service-5x.json`; five independent `/api/v1` leases pass frame, 27-node QOM, WiFi/public network, NUS GATT, pcap and evidence with `gdb_bridge=false` |
-| `CORE2-02` extended run | `PASS` | `evidence-2026-10-24-hci4-halted-gate-5x.json`; two independent 5-attempt batches with 10-second holds passed 10/10 after restoring caller-saved sregs and restricting HLI guest injection to halted/idle vCPU state. Every attempt has `hli-errors=0` and zero remaining queue depth |
+| `CORE2-02` extended run | `PASS` | `evidence-2026-10-24-hci4-halted-gate-5x.json`, `evidence-2026-10-24-hci4-hold60-3x.json` and `evidence-2026-10-24-hci4-hold120-2x.json`; two 5-attempt batches with 10-second holds passed `10/10`, three 60-second holds passed `3/3`, and two 120-second holds passed `2/2` after restoring caller-saved sregs and restricting HLI guest injection to halted/idle vCPU state. Every attempt has `hli-errors=0` and zero HLI/meta queue depth |
 
 Build the patched QEMU, then run:
 
@@ -243,8 +243,28 @@ The follow-up fix has two parts:
 The intermediate special-register-only build passed 4/5 and still hit a
 WiFi `Cache error`; the halted-gate build then passed two independent
 5-attempt, 10-second-hold batches, `10/10` total. The earlier failure remains
-tracked as history. A further `3×60s` run passed `3/3`, including the normal
-BLE peer-close tail; `last-error=3` is accepted only when `peer-closed>0`,
-while every HLI error must remain zero. This closes the current short/minute
-extended-run failure gate, not physical cache/PSRAM equivalence, multi-hour
-coexistence or hardware.
+tracked as history. A further `3×60s` run passed `3/3`, and `2×120s` passed
+`2/2`, including the normal BLE peer-close tail; `last-error=3` is accepted
+only when `peer-closed>0`, while every HLI error must remain zero. This closes
+the current short/two-minute virtual extended-run gate, not physical
+cache/PSRAM equivalence, repeated in-guest reconnect, multi-hour coexistence
+or hardware.
+
+After the external Bumble peer closes, the stock firmware can continue issuing
+HCI commands until a native-HCI queue fills. The runner therefore also accepts
+`last-error=2` (`QUEUE_FULL`) only when `peer-closed>0` and either
+`dropped-packets>0` (RX) or `tx-queue-depth>0` (TX); HLI errors, HLI/meta
+queue depth and queue-full without peer teardown remain failures.
+
+`core2-native-hci` requires the stock internal-controller app built from
+`build-M5STACK_Core2`. Do not compose this profile from
+`build-M5STACK_Core2-hciuart3`; that image expects UART HCI-offload and fails
+with NimBLE `HCI wait for ack returned 19`. Build the stock unified image with:
+
+```bash
+python3 tests/uiflow2/unified_core2/make_image.py \
+  --base platform/.cache/firmware/core2/uiflow2.bin \
+  --build-dir .work/uiflow-core2-2.5.3/m5stack/build-M5STACK_Core2 \
+  --littlefs .work/uiflow-core2-2.5.3/tools/littlefs/prebuilt/littlefs2 \
+  --out /tmp/core2-native-hci-unified.bin
+```

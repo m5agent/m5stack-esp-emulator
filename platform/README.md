@@ -71,7 +71,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   `/api/v1` lease 同时通过 frame/QOM、WiFi/公网、外部 NUS GATT、pcap 和
   evidence ZIP，且 `gdb_bridge=false`。`0005` 恢复 guest-call sregs 并把
   HLI 注入限制在 halted/idle vCPU 后，两批 `5×10s` hold 运行 `10/10`
-  PASS，3 个 `60s` hold 也 `3/3`，每轮 HLI health 为零错误。旧
+  PASS，3 个 `60s` hold `3/3`，2 个 `120s` hold `2/2`，每轮 HLI
+  health 为零错误。旧
   `core2-native-vhci` 仍使用
   服务托管的 GDB bridge，且 repeated lease 只有 `1/2`，因此只保留为
   显式诊断/兼容路径。bit-exact Espressif BT baseband/controller、

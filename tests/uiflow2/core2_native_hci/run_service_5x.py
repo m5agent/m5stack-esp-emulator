@@ -202,6 +202,8 @@ def native_hci_health(qom: dict[str, Any]) -> dict[str, int]:
         "hli-c2h-acls",
         "hli-queue-depth",
         "meta-queue-depth",
+        "dropped-packets",
+        "tx-queue-depth",
         "last-error",
         "peer-closed",
     )
@@ -215,6 +217,11 @@ def native_hci_health(qom: dict[str, Any]) -> dict[str, int]:
 def native_hci_health_ok(hci_health: dict[str, int]) -> bool:
     last_error = hci_health.get("last-error", -1)
     peer_closed = hci_health.get("peer-closed", 0)
+    dropped_packets = hci_health.get("dropped-packets", 0)
+    tx_queue_depth = hci_health.get("tx-queue-depth", 0)
+    peer_tail_error = last_error in {0, 3} or (
+        last_error == 2 and (dropped_packets > 0 or tx_queue_depth > 0)
+    )
     return bool(
         hci_health.get("hli-valid") == 1
         and hci_health.get("hli-posts", 0) > 0
@@ -225,7 +232,7 @@ def native_hci_health_ok(hci_health: dict[str, int]) -> bool:
         and hci_health.get("meta-queue-depth") == 0
         and (
             last_error == 0
-            or (last_error == 3 and peer_closed > 0)
+            or (peer_tail_error and peer_closed > 0)
         )
         and (
             hci_health.get("hli-c2h-events", 0)
@@ -321,7 +328,7 @@ def run_attempt(
             payload={
                 "path": "/machine",
                 "depth": 2,
-                "max_nodes": 250,
+                "max_nodes": 1000,
             },
         )
         evidence_status, evidence, _ = api.request(
@@ -364,7 +371,7 @@ def run_attempt(
                     payload={
                         "path": "/machine",
                         "depth": 2,
-                        "max_nodes": 250,
+                        "max_nodes": 1000,
                     },
                 )
             except (RuntimeError, OSError, ValueError):

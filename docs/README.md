@@ -58,7 +58,7 @@
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期记录当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.19.0`；worker HMAC、PID/QMP verified QEMU restart re-attach、本地 worker heartbeat/drain/resume、远程目录、durable queue/lease supervisor、WebBurner intake、resumable upload、staging GC、nftables exact egress + DHCP lifecycle |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 14 个 unified profile；Core2 主路径为 `core2-native-hci`，`HCI-1` 至 `HCI-4` PASS；旧的 native-VHCI GDB 路径仅保留为诊断/兼容 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` hold `3/3`，HLI errors/queue depth 为零；历史 panic 已保留，物理等价性、多小时 soak 和真机仍开放 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`，HLI errors/queue depth 为零；物理等价性、多小时 soak、同 guest 重连和真机仍开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复和双 guest lab fabric 已通；QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
@@ -123,8 +123,10 @@
 - [网络诊断 lane](network-lane.md)
 - [Linux 隔离测试](../tests/network/linux_isolation/README.md)
 - [断线重连探针](../tests/network/reconnect_probe/README.md)
+- [错误密码负向回归](../tests/network/wrong_password/README.md)
 - [TLS Host allowlist 探针](../tests/network/tls_allowlist/README.md)
 - [精确 IP/端口 egress allowlist](../tests/network/egress_allowlist/README.md)
+- [DNS/UDP 数据面探针](../tests/network/idf_dns_udp/README.md)
 - [DHCP renewal probe](../tests/network/idf_dhcp_renewal/README.md)
 - [双设备私有 lab fabric](../tests/network/lab_fabric/README.md)
 - [本地 worker drain/restart lifecycle](../tests/network/worker_lifecycle/README.md)

@@ -155,10 +155,13 @@ finding:
   `5×10s` hold batches then passed `10/10`, with zero HLI errors and empty
   HLI/meta queues. Three independent `60s` holds also passed `3/3`; the
   expected BLE peer-close write tail is classified separately from HLI
-  errors.
+  errors. Two independent `120s` holds subsequently passed `2/2`, including
+  the peer-close TX queue-full tail with zero HLI errors and empty
+  HLI/meta queues.
 
 These are virtual-device context fixes. They do not establish physical
-cache/PSRAM timing, minute/hour coexistence or hardware equivalence.
+cache/PSRAM timing, repeated in-guest reconnect, multi-minute/hour coexistence
+or hardware equivalence.
 
 ## Next investigation
 

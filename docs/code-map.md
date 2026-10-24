@@ -113,6 +113,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
 | `tests/uiflow2/core2_native_hci/run_service_5x.py` | 通过真实 Device Service API 连续租用 `core2-native-hci`，支持 `--hold-seconds`，校验 HLI health，失败时保留 partial evidence 并汇总 aggregate FAIL | Core2 native-HCI、extended-run/soak、Device Service profile 或 ELF hook 改动 |
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连和双 guest lab fabric | 网络策略/运行时改动 |
+| `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS 证据 | manifest/filesystem 改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 | `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
@@ -284,6 +285,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 extended-run failure history | `run_service_5x.py --hold-seconds`；`evidence-2026-10-24-extended-run-fail.json` | 历史 `PC=0`、`semphr_give_wrapper` 和 Cache-error 失败保留；被 halt-gated 修复证据取代 |
 | Core2 extended-run `CORE2-02` | `0005-*.patch`；`run_service_5x.py --hold-seconds 10`；`evidence-2026-10-24-hci4-halted-gate-5x.json` | 两批独立 `5×10s` hold 合计 `10/10`；每轮 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence 与 HLI health 全部 PASS |
 | Core2 60-second hold | `run_service_5x.py --hold-seconds 60`；`evidence-2026-10-24-hci4-hold60-3x.json` | 3 个独立 lease `3/3`；BLE peer 正常关闭后设备保持 running，HLI errors 与队列深度为零 |
+| Core2 120-second hold | `run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-hold120-2x.json` | 2 个独立 lease `2/2`；每轮 frame/QOM、WiFi、公网、NUS GATT、pcap、evidence 和 HLI health 均 PASS，peer-close queue-full 尾态单独分类 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
@@ -293,8 +295,11 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | SPIFFS inventory | `tests/firmware/evidence-2026-10-24-spiffs-inventory.json` | 8 个声明配置的自包含多索引样本、LUT mismatch/随机损坏负例、ESP-IDF canonical `spiffsgen.py` 镜像和 manifest 脱敏 |
 | Resumable artifact upload | `tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json`; `DeviceServiceUnitTests.test_streamed_*`; `DeviceServiceHttpTests.test_streamed_artifact_http_upload` | 连续 offset、per-chunk/final hash、失败 append 回滚、resume、abort 和 abandoned staging GC |
 | WebBurner browser intake | `platform/web/firmware.html`; `platform/tests/test_firmware_upload.mjs`; `tests/firmware/evidence-2026-10-24-webburner-ui.json` | 9.44 MiB / 3 chunk、浏览器 SHA256、进度重试、刷新续接、取消清理和 WebBurner ZIP → manifest import |
+| Manifest 公共样本/WebBurner | `firmware_manifest.py`；`test_firmware_manifest.py`；`evidence-2026-10-24-public-manifest-web-conformance.json` | 同一公开固件的 merged 与 WebBurner 输入规范化到同一 artifact hash；`camera`-on-StickS3 结构化拒绝；安全证据分层和 HTTP import PASS |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
+| 错误密码 P0 | `tests/network/wrong_password/run_test.py`；`evidence-2026-10-24-wrong-password-pass.json` | 6 次 auth/reject、无 DHCP、无 HTTP、固件失败 marker 和 SoftAP wrong-password warning 同次 `7/7 PASS` |
 | 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/` | 负向认证、radio/AP 移除、scan `1→0→1`、重新 DHCP 和前后 HTTP |
+| DNS/UDP 数据面 | `network_lane.py`、`tests/network/idf_dns_udp/`；`evidence-2026-10-24-dns-udp-pass.json` | host-forwarder DNS、host 收到固定 UDP 载荷、guest 收到同载荷回包；不冒充 controlled DNS policy |
 | Core2 WiFi-only deterministic repeat | `tests/network/core2_openmac_wifi/run_test.py`；`evidence-2026-10-24-deterministic-5x.json` | runner 显式传入 `tcg,thread=single` + `icount`；scan/association/DHCP/HTTP 独立 `5/5`，不含 BLE/DNS/公网 |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
 | Exact IPv4 egress | `tests/network/egress_allowlist/` | nftables 默认 drop、允许/拒绝端口与 IP、`1.1.1.1:80` veth/NAT、namespace/NAT 清理 |

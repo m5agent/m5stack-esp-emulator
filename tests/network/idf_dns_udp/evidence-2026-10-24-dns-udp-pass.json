@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-idf-dns-udp-regression",
+  "generated_at": "2026-10-24T04:25:26+00:00",
+  "scope": "simulation-only-not-hardware-validation",
+  "status": "PASS",
+  "profile": "idf-dns-udp",
+  "chip": "esp32s3",
+  "source": {
+    "repository": "https://github.com/m5agent/m5stack-esp-emulator",
+    "base_commit": "730123da116ece1acbd97744de419e97596f0232",
+    "working_tree_dirty": true
+  },
+  "runtime": {
+    "name": "esp-emu",
+    "expected_version": "0.50.0",
+    "network_backend": "user",
+    "console": "uart0",
+    "wifi": {
+      "enabled": true,
+      "auth": "wpa2-wpa3",
+      "password": "<redacted>"
+    },
+    "dns": {
+      "mode": "host-forwarder",
+      "controlled_resolver": false
+    },
+    "udp": {
+      "host_port": 19000,
+      "datagrams": [
+        "M5_DNS_UDP_PROBE"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "role": "firmware",
+      "bytes": 823184,
+      "sha256": "ede6c1c99329046f8b482e6e5039fa3b15b390bb95a6d1ab8333525fbc2a5c96"
+    },
+    {
+      "role": "elf",
+      "bytes": 8556520,
+      "sha256": "d04a051660c05753f9e219d977c06839f463c6e86c9823769cb803d96c44e264"
+    },
+    {
+      "role": "emulator",
+      "bytes": 7145456,
+      "sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771"
+    }
+  ],
+  "checks": {
+    "wifi_dhcp": true,
+    "dns_resolved": true,
+    "udp_host_request": true,
+    "udp_reply": true,
+    "dns_udp_result": true
+  },
+  "values": {
+    "dns_address": "198.18.0.86"
+  },
+  "result": {
+    "status": "PASS",
+    "passed": true,
+    "timed_out": false,
+    "duration_seconds": 1.864,
+    "emulator_exit_code": 0,
+    "serial_bytes": 5538,
+    "serial_sha256": "9df876cc72b8438a383101deb37463282ca4475abbe9db1a5e6063bf6666815f"
+  },
+  "boundary": {
+    "dns": "host-forwarder, not an offline controlled resolver",
+    "udp": "gateway port 19000 and exact payload/reply verified on both guest and host",
+    "not_claimed": [
+      "offline DNS policy",
+      "public internet access",
+      "physical RF behavior"
+    ]
+  }
+}

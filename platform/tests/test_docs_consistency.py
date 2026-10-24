@@ -61,6 +61,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-halted-gate-confirm-5x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold60-3x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
@@ -72,6 +73,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
             "tests/network/tls_allowlist/README.md",
             "tests/network/tls_allowlist/run_test.py",
+            "tests/network/wrong_password/README.md",
+            "tests/network/wrong_password/run_test.py",
+            "tests/network/wrong_password/evidence-2026-10-24-wrong-password-pass.json",
+            "tests/network/idf_dns_udp/evidence-2026-10-24-dns-udp-pass.json",
             "tests/network/core2_openmac_wifi/README.md",
             "tests/network/core2_openmac_wifi/evidence-2026-10-24-deterministic-5x.json",
             "tests/network/egress_allowlist/README.md",
@@ -129,6 +134,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-license-policy.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
+            "tests/firmware/evidence-2026-10-24-public-manifest-web-conformance.json",
             "platform/web/firmware.html",
             "platform/web/firmware.css",
             "platform/web/firmware.js",
@@ -447,6 +453,27 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "声明级许可 allowlist/denylist",
             firmware_manifest,
+        )
+        public_manifest = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-public-manifest-web-conformance.json"
+            ).read_text()
+        )
+        self.assertEqual(public_manifest["status"], "PASS")
+        self.assertTrue(all(public_manifest["checks"].values()))
+        self.assertEqual(
+            public_manifest["runs"]["merged_import"]["artifact_sha256"],
+            public_manifest["runs"]["webburner_import"]["artifact_sha256"],
+        )
+        self.assertEqual(
+            public_manifest["runs"]["capability_mismatch"]["status"],
+            "REJECTED",
+        )
+        self.assertEqual(
+            public_manifest["runs"]["capability_mismatch"]["issue_code"],
+            "unsupported_capability",
         )
         self.assertIn("## 新鲜度台账", (DOCS / "README.md").read_text())
         self.assertIn("## 可执行任务板", backlog)
@@ -1187,6 +1214,32 @@ class DocsConsistencyTests(unittest.TestCase):
                 for run in hold60["runs"]
             )
         )
+        hold120 = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-hold120-2x.json"
+            ).read_text()
+        )
+        self.assertEqual(hold120["gate_result"], "PASS")
+        self.assertEqual(hold120["attempts_requested"], 2)
+        self.assertEqual(hold120["attempts_passed"], 2)
+        self.assertEqual(hold120["hold_seconds_per_attempt"], 120)
+        self.assertTrue(all(hold120["checks_per_attempt"].values()))
+        self.assertTrue(all(run["status"] == "PASS" for run in hold120["runs"]))
+        self.assertTrue(
+            all(
+                run["native_hci_health"]["hli-errors"] == 0
+                and run["native_hci_health"]["hli-posts"]
+                == run["native_hci_health"]["hli-consumed"]
+                and run["native_hci_health"]["hli-queue-depth"] == 0
+                and run["native_hci_health"]["meta-queue-depth"] == 0
+                and run["native_hci_health"]["peer-closed"] == 1
+                and run["native_hci_health"]["tx-queue-depth"] == 32
+                and run["native_hci_health"]["last-error"] == 2
+                for run in hold120["runs"]
+            )
+        )
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1213,8 +1266,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("semphr_give_wrapper", status)
         self.assertIn("5×10s", status)
         self.assertIn("60s", status)
+        self.assertIn("120s", status)
         self.assertIn("hci4-halted-gate-5x.json", status)
         self.assertIn("hci4-hold60-3x.json", status)
+        self.assertIn("hci4-hold120-2x.json", status)
         self.assertIn("CORE2-02", backlog)
         self.assertIn("extended-run", backlog)
         self.assertIn("CORE2-02", workstreams)
@@ -1273,6 +1328,44 @@ class DocsConsistencyTests(unittest.TestCase):
         ).read_text()
         self.assertIn("Controlled\nA/NXDOMAIN", dns_probe)
         self.assertNotIn("future dedicated DNS", dns_probe)
+        dns_udp = json.loads(
+            (
+                ROOT
+                / "tests/network/idf_dns_udp/"
+                "evidence-2026-10-24-dns-udp-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(dns_udp["status"], "PASS")
+        self.assertTrue(all(dns_udp["checks"].values()))
+        self.assertFalse(dns_udp["runtime"]["dns"]["controlled_resolver"])
+        self.assertEqual(
+            dns_udp["runtime"]["udp"]["datagrams"],
+            ["M5_DNS_UDP_PROBE"],
+        )
+        wrong_password = json.loads(
+            (
+                ROOT
+                / "tests/network/wrong_password/"
+                "evidence-2026-10-24-wrong-password-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(wrong_password["status"], "PASS")
+        self.assertEqual(
+            wrong_password["scope"],
+            "simulation-only-not-hardware-validation",
+        )
+        self.assertTrue(all(wrong_password["checks"].values()))
+        self.assertEqual(len(wrong_password["checks"]), 7)
+        self.assertRegex(
+            wrong_password["source"]["base_commit"],
+            r"^[0-9a-f]{40}$",
+        )
+        self.assertTrue(
+            all(
+                set(artifact) == {"role", "bytes", "sha256"}
+                for artifact in wrong_password["artifacts"]
+            )
+        )
         agents = (ROOT / "AGENTS.md").read_text()
         self.assertNotIn(
             "streaming upload and broader cross-firmware compatibility",

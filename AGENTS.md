@@ -244,11 +244,13 @@ diagnostics in `internal/records/`.
   caller-saved Xtensa sregs, and HLI allocation/callback injection could run
   from a non-halted cache-disabled WiFi/controller context. `0005` fixes both.
   Two independent `5×10s` hold batches pass `10/10`, and three `60s` holds
-  pass `3/3`, with `hli-errors=0` and empty HLI/meta queues in every attempt.
+  pass `3/3`. Two independent `120s` holds also pass `2/2`, with
+  `hli-errors=0` and empty HLI/meta queues in every attempt.
   Historical
   `semphr_give_wrapper`, `PC=0` and Cache-error evidence remains tracked.
-  This closes the repeated-start/minute-level gate, not multi-hour soak, physical
-  cache/PSRAM equivalence or bit-exact controller behavior.
+  This closes the repeated-start/two-minute virtual gate, not multi-hour soak,
+  physical cache/PSRAM equivalence, repeated in-guest reconnect or bit-exact
+  controller behavior.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.
@@ -298,8 +300,8 @@ The main open streams are:
 - cross-host job execution, TLS/mTLS and credential rotation,
   companion/evidence continuity, cross-host QEMU re-attach, multi-host
   scheduling and external IPv6 endpoint enforcement;
-- Core2 bit-exact BT controller/baseband and physical cache/PSRAM
-  equivalence, multi-hour coexistence/soak and hardware validation;
+- Core2 multi-hour coexistence/reconnect, bit-exact BT controller/baseband,
+  physical cache/PSRAM equivalence and hardware validation;
 - runtime permissions/license policy, production security-key flows and
   broader cross-firmware compatibility;
 - warm pools, multi-host scheduling and hardened untrusted-firmware isolation;

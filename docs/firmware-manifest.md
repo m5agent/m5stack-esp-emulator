@@ -343,6 +343,20 @@ metadata 提交失败都会把 part 截断回最后一个已确认 offset，客�
 | CYBER CLOCK `1897200000000003332` | 1.3 MiB sparse merged | PASS，补齐 8 MiB |
 | StickS3 Weather `2108939572843147265` | 7.9 MiB sparse merged | PASS，补齐 8 MiB |
 
+当前工作树还对同一个公开 StickS3 Weather 样本重新生成了 merged 与
+WebBurner 两种输入：
+
+- 两种输入都规范化为同一个 `8 MiB` artifact SHA256；
+- WebBurner 路径被识别为 `web-manifest` / `segmented-flash` 三 segment，
+  并补齐为完整 Flash；
+- 对 StickS3 声明 `camera` 时返回 `REJECTED` 和结构化
+  `unsupported_capability`，不会进入 session；
+- eFuse、sdkconfig 和镜像声明的安全证据分层，以及未建模安全配置的拒绝路径
+  由定向契约测试再次通过。
+
+证据：
+[`public-manifest-web-conformance.json`](../tests/firmware/evidence-2026-10-24-public-manifest-web-conformance.json)。
+
 对 StickS3 声明 `camera` capability 时，Device Service 返回结构化
 `unsupported_firmware_capability`，未创建 session。
 
