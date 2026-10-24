@@ -63,6 +63,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold60-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
@@ -295,6 +296,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "SPIFFS 解包",
             "HLI 尚未投递真实 controller event",
             "but no real HCI event or ACL packet was delivered",
+            "同 guest 重连已通过",
+            "same-guest reconnect is PASS",
+            "repeated in-guest reconnect PASS",
         ):
             self.assertNotIn(stale, active)
 
@@ -1294,6 +1298,35 @@ class DocsConsistencyTests(unittest.TestCase):
                 for run in active_hold["runs"]
             )
         )
+        reconnect_fail = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-reconnect2-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(reconnect_fail["stage"], "CORE2-02")
+        self.assertEqual(reconnect_fail["gate_result"], "FAIL")
+        self.assertEqual(reconnect_fail["status"], "FAIL")
+        self.assertEqual(
+            reconnect_fail["validation"],
+            "virtual-device validation",
+        )
+        self.assertEqual(len(reconnect_fail["variants"]), 2)
+        self.assertTrue(
+            all(
+                variant["requested_reconnect_cycles"] == 2
+                and variant["observed"]["cycle_1"] == "PASS"
+                and variant["observed"]["cycle_2_advertisement"] == "TIMEOUT"
+                and not variant["observed"]["guest_panic"]
+                and variant["observed"]["serial_error_marker_count"] > 0
+                for variant in reconnect_fail["variants"]
+            )
+        )
+        self.assertEqual(
+            reconnect_fail["classification"]["result"],
+            "same-guest disconnect lifecycle fails before re-advertising",
+        )
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1328,6 +1361,13 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("extended-run", backlog)
         self.assertIn("CORE2-02", workstreams)
         self.assertIn("extended-run", workstreams)
+        self.assertIn("same-guest reconnect", status)
+        self.assertIn("ack 12", backlog)
+        self.assertIn("reconnect2-fail.json", ledger)
+        self.assertIn(
+            "ble_reconnect_cycles",
+            (DOCS / "device-service-api.md").read_text(),
+        )
         oversize = json.loads(
             (
                 ROOT

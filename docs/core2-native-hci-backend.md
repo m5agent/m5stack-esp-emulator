@@ -17,7 +17,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-3b` HLI event | `PASS` | `0002-esp32-native-hci-hli-event.patch`、`test_hli_event.py` | guest 池分配真实 Reset Complete，经 HLI event 13 和 `ble_transport_to_hs_evt_impl` 交付；`01030c00 → 01011000` 连续 `5/5` |
 | `HCI-3b` full transaction | `PASS` | `0003-esp32-native-hci-api-transaction.patch`、`0004-xtensa-ccount-tb-yield.patch`、`run_full.py --hli-c2h` | 无 GDB 完成 scan/connect/NUS discovery/subscribe/write/notify 和 Bumble ACK；合法 loader 为 15-byte probe / 17-byte ATT PDU，连续 `5/5` |
 | `HCI-4` stability | `PASS` | `run_service_5x.py`、`evidence-2026-10-24-hci4-service-5x.json` | 规范 profile `core2-native-hci` 通过五个独立 `/api/v1` lease；每轮同时验证 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP，且 `gdb_bridge=false` |
-| `CORE2-02` extended run | `PASS` | `0005-esp32-native-hci-guest-call-sregs.patch`、`run_service_5x.py --hold-seconds`、`evidence-2026-10-24-hci4-halted-gate-5x.json`、`evidence-2026-10-24-hci4-hold60-3x.json`、`evidence-2026-10-24-hci4-hold120-2x.json`、`evidence-2026-10-24-hci4-active-ble-hold120-2x.json` | caller-saved sregs 恢复并把 HLI guest 注入限制在 halted/idle vCPU 后，两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；另 2 个 active-BLE `120s` hold 为 `2/2`，BLE peer 在 hold 完成时仍连接。每轮 `hli-errors=0`、队列清空。历史失败记录保留 |
+| `CORE2-02` extended run | `PARTIAL` | `0005-esp32-native-hci-guest-call-sregs.patch`、`run_service_5x.py --hold-seconds`、`run_service_5x.py --ble-reconnect-cycles`、`evidence-2026-10-24-hci4-halted-gate-5x.json`、`evidence-2026-10-24-hci4-hold60-3x.json`、`evidence-2026-10-24-hci4-hold120-2x.json`、`evidence-2026-10-24-hci4-active-ble-hold120-2x.json`、`evidence-2026-10-24-reconnect2-fail.json` | caller-saved sregs 与 halted/idle gate 后，两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `120s` hold 已通过，每轮 HLI health 零错误；同一 guest 第一轮 GATT 后 disconnect 会触发 `ack 12`/HCI reset，第二轮连接 `FAIL`，因此 extended-run/lifecycle 整体不能标为完成 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -420,6 +420,32 @@ errors、HLI/meta queue depth 和非 peer-close 的 queue-full 仍然是 FAIL。
 进一步通过 `network.ble_linger_seconds=180` 让 GATT peer 在 hold 期间保持
 连接：两轮 120 秒结束时均为 `peer-closed=0`、`tx-queue-depth=0`、
 `last-error=0`，证明 active WiFi + 公网 + BLE GATT 共存持续两分钟。
+active hold 只覆盖一条连接不断开；它不能证明 disconnect 后还能建立第二条连接。
+
+#### 同一 guest 的 disconnect/reconnect 边界
+
+`run_service_5x.py --ble-reconnect-cycles 2` 会要求同一个外部 peer 完成两轮
+完整的 scan/connect/NUS subscribe/write/notify/disconnect。当前结果是：
+
+- 第一轮完整 PASS；
+- first-cycle disconnect 后，guest 连续输出
+  `NimBLE: HCI process ack returned 12`；
+- 随后进入 HCI reset 循环，第二轮 advertisement timeout；
+- 未出现 guest panic；
+- 测试固件是否在 disconnect 后 500 ms 调用 `gap_advertise()` 不影响结果。
+  stock guest 也出现同样的 `ack 12` reset 循环，因此不能把问题归因于新增的
+  重广告调用本身。
+
+证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json`。
+该 JSON 记录两个固件 SHA、ELF/QEMU SHA、serial/peer log hash、第一轮 GATT
+结果和两轮扫描结论。当前下一检查项是抓取 disconnect 前后的 H2C/C2H
+command/event 配对，确认 `0x0c` Command Disallowed 来自哪条 host command、
+NimBLE 何时 reset，以及 QEMU HLI 是否重复/乱序投递 controller event。
+
+这一失败关闭的核心结论是：**首轮 active BLE、两分钟 hold 和同一 guest
+二次连接是三个不同门禁**，不能用一个 PASS 代替另外两个。
+
 这关闭的是当前“非 halted 上下文注入导致 extended-run 崩溃”门禁，不表示
 物理 cache/PSRAM 时序、同 guest 重复重连、多小时 coexistence、bit-exact
 controller 或真机已经等价。后续长稳应继续扩大 hold 时长和连接/Socket
@@ -432,7 +458,8 @@ HCI-3a、HLI event/ACL、`HCI-3b` 完整外部 NUS GATT 和 `HCI-4`
 Device Service repeated lease；`CORE2-02` 的短时 extended-run 门禁已 PASS：
 
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
-- 物理 cache/PSRAM 等价性、长期 coexistence/soak 和真机路径需要独立
+- disconnect/HCI command lifecycle、物理 cache/PSRAM 等价性、长期
+  coexistence/soak 和真机路径需要独立
   计划，不能由当前 `5×10s` / `3×60s` / `2×120s` 重复门禁推导；当前
   PASS 覆盖 halt-gated guest 注入、最多两分钟的独立 lease 生命周期和
   active BLE 共存；不覆盖同 guest 重复重连或多小时 soak。

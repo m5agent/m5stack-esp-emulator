@@ -92,3 +92,17 @@ control plane is complete in the canonical `core2-native-hci` profile, whose
 `HCI-4` evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`.
 Use native-HCI for new validation; keep this lane for diagnosis only.
+
+## Reconnect probe boundary
+
+The UIFlow2 test source uses a `BLEUARTServer` subclass that schedules one
+test-only re-advertisement 500 ms after disconnect. This behavior exists only
+to exercise the second-connect lifecycle; it is not a proposed product fix.
+
+The stock/native-HCI Core2 guest currently fails on disconnect before the
+second advertisement. For the reconnect run, `run_service_5x.py` selects this
+probe and sets `ble_reconnect_cycles=2`; cycle 1 passes, then the guest emits
+repeated `NimBLE: HCI process ack returned 12` and enters an HCI reset loop.
+The unmodified `BLEUARTServer` image fails in the same place without the
+re-advertise call. See
+`../core2_native_hci/evidence-2026-10-24-reconnect2-fail.json`.

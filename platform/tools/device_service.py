@@ -1212,6 +1212,28 @@ def parse_qemu_ble_execution(
             "network.ble_linger_seconds must be from 0 to 600",
             400,
         )
+    reconnect_cycles = value.get("ble_reconnect_cycles", 1)
+    if (
+        isinstance(reconnect_cycles, bool)
+        or not isinstance(reconnect_cycles, int)
+        or not 1 <= reconnect_cycles <= 10
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.ble_reconnect_cycles must be an integer from 1 to 10",
+            400,
+        )
+    reconnect_delay = value.get("ble_reconnect_delay_seconds", 2)
+    if (
+        isinstance(reconnect_delay, bool)
+        or not isinstance(reconnect_delay, (int, float))
+        or not 0 <= reconnect_delay <= 30
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.ble_reconnect_delay_seconds must be from 0 to 30",
+            400,
+        )
     if spec.id == "core2":
         core2_radio_qemu_path()
     if (
@@ -1232,6 +1254,8 @@ def parse_qemu_ble_execution(
         "attempts": attempts,
         "capture_pcap": capture_pcap,
         "ble_linger_seconds": float(ble_linger_seconds),
+        "ble_reconnect_cycles": reconnect_cycles,
+        "ble_reconnect_delay_seconds": float(reconnect_delay),
         "policy": policy.evidence(),
         "elf_artifact_id": elf_artifact_id,
         "nic": (
@@ -3705,6 +3729,15 @@ class DeviceSession:
                 self.network_config.get(
                     "ble_linger_seconds",
                     20 if unified else 15,
+                )
+            ),
+            "--reconnect-cycles",
+            str(self.network_config.get("ble_reconnect_cycles", 1)),
+            "--reconnect-delay",
+            str(
+                self.network_config.get(
+                    "ble_reconnect_delay_seconds",
+                    2,
                 )
             ),
         ]

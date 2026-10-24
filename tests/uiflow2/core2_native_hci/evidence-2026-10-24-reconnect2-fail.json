@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-reconnect-boundary",
+  "stage": "CORE2-02",
+  "gate_result": "FAIL",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "recorded_at": "2026-10-24",
+  "question": "Can one stock Core2 guest complete a second external NUS GATT transaction after the peer disconnects?",
+  "baseline": {
+    "status": "PASS",
+    "scope": "one scan/connect/NUS subscribe/write/notify/disconnect transaction",
+    "evidence": [
+      "evidence-2026-10-24-hci4-service-5x.json",
+      "evidence-2026-10-24-hci4-active-ble-hold120-2x.json"
+    ],
+    "interpretation": "The first BLE transaction and a two-minute active-link hold pass. They do not prove a second connection in the same guest."
+  },
+  "build": {
+    "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+    "qemu_sha256": "667ec84c9e53ce73b0e63c7be69284837ff00b77a9194577ef757c164e8e31a1"
+  },
+  "variants": [
+    {
+      "name": "stock-advertising-lifecycle",
+      "firmware_sha256": "b9c91c40e60867186717938e075da8b19271cc8e7a22323524be213beff81982",
+      "firmware_bytes": 16777216,
+      "guest_changes": "none; stock BLEUARTServer does not schedule a second advertisement after disconnect",
+      "requested_reconnect_cycles": 2,
+      "observed": {
+        "cycle_1": "PASS",
+        "cycle_1_guest_rx": true,
+        "cycle_1_notification": "ACK:M5_CORE2_UNIFIED",
+        "peer_disconnect": "PASS",
+        "serial_error_marker": "HCI process ack returned 12",
+        "serial_error_marker_count": 14969,
+        "cycle_2_advertisement": "TIMEOUT",
+        "guest_panic": false
+      },
+      "evidence_hashes": {
+        "serial_sha256": "dd61afb4a3dcac17cd5f0a529a967eb0a9864322d808e84b117179493a8053c1",
+        "peer_log_sha256": "98f07c54d96a60465a43870c19b850a6e1fd743eef5bca76473461ce9a20eac1",
+        "pcap_bytes": 6427,
+        "evidence_zip_bytes": 93323,
+        "evidence_zip_sha256": "7531f3ca24426d3d42cf663d7388e2903cc4697d73ec2da444fd13503e0e97a3"
+      }
+    },
+    {
+      "name": "guest-scheduled-readvertise",
+      "firmware_sha256": "62693f5377264da0dda2bd9aaa0dc34aec624b88c51f13e3aa863622e090a198",
+      "firmware_bytes": 16777216,
+      "guest_changes": "test-only ReconnectableBLEUARTServer schedules gap_advertise 500 ms after disconnect",
+      "requested_reconnect_cycles": 2,
+      "observed": {
+        "cycle_1": "PASS",
+        "cycle_1_guest_rx": true,
+        "cycle_1_notification": "ACK:M5_CORE2_UNIFIED",
+        "peer_disconnect": "PASS",
+        "readvertise_result": "OSError(-12,)",
+        "serial_error_marker": "HCI process ack returned 12",
+        "serial_error_marker_count": 17144,
+        "cycle_2_advertisement": "TIMEOUT",
+        "guest_panic": false
+      },
+      "evidence_hashes": {
+        "serial_sha256": "89a3dc7c35bb4db48820b0377160dede5567d2518b2e3cbc9e3f4e6d87844917",
+        "peer_log_sha256": "472877dd9ea8cfe90749004babd567f2e2cf45f2f6871901e6bfb10ce880d28d",
+        "pcap_bytes": 6485,
+        "evidence_zip_bytes": 89426,
+        "evidence_zip_sha256": "d23710c4d9912ade2eeaa39125aa3756e1d43084f23d95a0e97056a6d648424d"
+      }
+    }
+  ],
+  "classification": {
+    "result": "same-guest disconnect lifecycle fails before re-advertising",
+    "confirmed": [
+      "Both stock and test-only readvertising variants complete cycle 1 and disconnect cycle 1.",
+      "Both variants then emit repeated NimBLE 'HCI process ack returned 12' log messages and never expose a second advertisement.",
+      "The stock-advertising variant does not execute the test-only gap_advertise path, so guest readvertising is not the sole trigger.",
+      "No guest panic was observed; the reproduction is a controller/HCI command lifecycle failure, not the earlier cache panic."
+    ],
+    "not_claimed": [
+      "a root cause in QEMU HLI delivery, firmware NimBLE, or Bumble without further HCI transaction tracing",
+      "physical RF, bit-exact ESP32 BT controller/baseband or controller firmware equivalence",
+      "multi-hour coexistence or hardware validation"
+    ],
+    "next_checks": [
+      "Capture H2C/C2H command and event pairs around the disconnect event and the first failing host command.",
+      "Repeat disconnect without any guest re-advertise or reconnect attempt and classify whether NimBLE resets by itself.",
+      "Separate controller event ordering from Bumble Command Disallowed replies before changing guest or controller-hook code."
+    ]
+  },
+  "reproduction": {
+    "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",
+    "network_options": {
+      "ble_reconnect_cycles": 2,
+      "ble_reconnect_delay_seconds": 2
+    },
+    "service": "runtime=qemu-unified, profile=core2-native-hci, trusted-host isolation"
+  }
+}

@@ -72,7 +72,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   evidence ZIP，且 `gdb_bridge=false`。`0005` 恢复 guest-call sregs 并把
   HLI 注入限制在 halted/idle vCPU 后，两批 `5×10s` hold 运行 `10/10`
   PASS，3 个 `60s` hold `3/3`，2 个 `120s` hold `2/2`，每轮 HLI
-  health 为零错误。旧
+  health 为零错误。同一 guest 的第二次连接仍为 `FAIL`：disconnect 后
+  连续出现 `ack 12`/HCI reset，第二轮没有 advertisement；未加测试重广告
+  的 stock guest 也可复现。旧
   `core2-native-vhci` 仍使用
   服务托管的 GDB bridge，且 repeated lease 只有 `1/2`，因此只保留为
   显式诊断/兼容路径。bit-exact Espressif BT baseband/controller、
@@ -123,7 +125,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS 与 fail-closed runner |
 | `tools/network_lane.py` | esp-emu 网络/Provisioning 诊断 lane |
 | `tools/pcap_summary.py` | pcap 元数据和 payload hash 摘要 |
-| `tools/ble_probe.py` | 外部 BLE controller/peer 与 GATT 验证 |
+| `tools/ble_probe.py` | 外部 BLE controller/peer 与 GATT 验证；支持同一 peer process 多轮 disconnect/reconnect |
 | `tools/storage_policy.py` | 历史、Flash 和缓存回收策略 |
 | `../tests/network/tls_allowlist/` | 测试 CA、HTTPS Host allowlist、200/403、pcap 断言和 AES/GDMA 回归证据 |
 | `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |

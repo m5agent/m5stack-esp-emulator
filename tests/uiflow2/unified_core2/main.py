@@ -255,7 +255,44 @@ def main():
     try:
         from bleuart import BLEUARTServer
 
-        server = BLEUARTServer(name=BLE_NAME, verbose=True)
+        # Test-only lifecycle probe; the production BLE server does not
+        # automatically re-advertise after a peer disconnect.
+        class ReconnectProbeBLEUARTServer(BLEUARTServer):
+            def __init__(self, *args, **kwargs):
+                self._readvertise_at = None
+                super().__init__(*args, **kwargs)
+
+            def _irq(self, event, data):
+                if event == 2:
+                    conn_handle = data[0]
+                    self._connections.discard(conn_handle)
+                    self._readvertise_at = time.ticks_add(
+                        time.ticks_ms(),
+                        500,
+                    )
+                    emit("UNIFIED_CORE2_BLE_DISCONNECTED", conn_handle)
+                    return
+                super()._irq(event, data)
+
+            def poll_readvertise(self):
+                if self._readvertise_at is None:
+                    return
+                if (
+                    time.ticks_diff(
+                        self._readvertise_at,
+                        time.ticks_ms(),
+                    )
+                    > 0
+                ):
+                    return
+                self._readvertise_at = None
+                try:
+                    self._advertise()
+                    emit("UNIFIED_CORE2_BLE_READVERTISED")
+                except Exception as error:
+                    emit("UNIFIED_CORE2_BLE_READVERTISE_ERROR", repr(error))
+
+        server = ReconnectProbeBLEUARTServer(name=BLE_NAME, verbose=True)
 
         def on_receive():
             payload = bytes(server.read())
@@ -286,6 +323,8 @@ def main():
     touch_seen = False
     while True:
         M5.update()
+        if state["ble"] == "pass":
+            server.poll_readvertise()
         if M5.Touch.getCount() > 0 and not touch_seen:
             touch_seen = True
             state["touch"] = "pass"

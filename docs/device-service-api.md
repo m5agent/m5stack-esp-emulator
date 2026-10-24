@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.20.0` and bounded
+Status: local MVP with unified-device runtime contract `1.21.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -843,6 +843,26 @@ pinned to the validated UIFlow2 v2.5.3 build; `elf_artifact_id` must come from
 that exact firmware build. Another Core2 firmware build is `NOT RUN` even when
 the ELF exposes the same symbol names.
 
+Use the reconnect fields when the same peer process must prove more than one
+GATT lifecycle:
+
+```json
+{
+  "device_id": "core2",
+  "runtime": "qemu-unified",
+  "network": {
+    "profile": "core2-native-hci",
+    "elf_artifact_id": "<matching-xtensa-elf-sha256>",
+    "ble_reconnect_cycles": 2,
+    "ble_reconnect_delay_seconds": 2
+  }
+}
+```
+
+The stock Core2 guest currently returns aggregate `FAIL` for this request after
+cycle 1 with repeated NimBLE `ack 12`/HCI reset and no second advertisement.
+The fields describe the peer workload; they do not imply guest support.
+
 The legacy `core2-native-vhci` profile remains available for diagnosis:
 
 ```json
@@ -1579,6 +1599,13 @@ restart.
   `network.ble_linger_seconds` can keep the external GATT peer connected
   beyond its initial exchange; two active-link `120s` holds pass `2/2` with
   `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`.
+  `network.ble_reconnect_cycles` (1-10) asks one external peer process to run
+  multiple complete scan/connect/GATT/disconnect cycles without restarting the
+  guest; `network.ble_reconnect_delay_seconds` controls the pause before the
+  next scan. The primitive is available, but the stock Core2 guest currently
+  fails after the first disconnect with repeated NimBLE `ack 12`/HCI reset and
+  no second advertisement. This is tracked as `CORE2-02`, not as a reconnect
+  PASS;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

@@ -30,7 +30,9 @@ MicroPython 和其他完整 Flash 固件。
   evidence continuity 和生产调度仍是开放项。
 - Core2 规范路径是
   `runtime=qemu-unified/profile=core2-native-hci`；GDB native-VHCI 只用于
-  诊断/兼容。功能、60/120 秒 hold、剩余长稳和物理边界见
+  诊断/兼容。功能与 active-BLE 120 秒 hold 已通过；同一 guest 断开后的
+  第二次连接当前为 `FAIL`，停在 NimBLE `ack 12`/HCI reset 循环。剩余长稳、
+  生命周期和物理边界见
   [Core2 native HCI backend](docs/core2-native-hci-backend.md)。
 
 完整设备矩阵、证据日期和风险边界见
@@ -150,7 +152,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `120s` hold，全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；多小时 soak、bit-exact controller、同 guest 重连、coexistence 和物理 cache/PSRAM 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `120s` hold，全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；同 guest 二次连接实测 `FAIL`（disconnect 后 `ack 12` reset 循环），多小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM 未完成 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -270,10 +272,14 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   halted/idle vCPU，并恢复 caller-saved sregs；两批 `5×10s` 运行合计
   `10/10`，3 个 `60s` hold 为 `3/3`，2 个 `120s` hold 为 `2/2`；
   active-BLE `120s` hold 也 `2/2`，peer 在 hold 完成时仍保持连接。
+  同一 guest 的断开后二次连接尚未通过：一个第一轮完整 NUS GATT 后，
+  peer disconnect 会触发 NimBLE `HCI process ack returned 12` 重置循环；
+  即使 guest 不安排重新广告也可复现，因此当前 blocker 是 disconnect/HCI
+  command lifecycle，而不是单一 `gap_advertise` 调用。
   旧的 `core2-native-vhci` 仍依赖
   GDB 暂停、callback 注入和 synthetic return，只保留为显式诊断/兼容路径，
   不再作为新调用首选。该结果仍不是 bit-exact ESP32 BT
-  baseband/controller、多小时 soak、同 guest 重连、RF 或真机验证。当前 hook
+  baseband/controller、同 guest 重连、多小时 soak、RF 或真机验证。当前 hook
   偏移绑定已验证的
   UIFlow2 v2.5.3 build；换 Core2 固件必须重新验证同一路径。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意

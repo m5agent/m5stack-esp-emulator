@@ -16,6 +16,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `HCI-3b` complete HCI/GATT | `PASS` | `evidence-2026-10-24-hli-api-gatt-5x.json`; 15-byte probe / 17-byte ATT PDU completes discovery, subscription, write, Python handler, notification and Bumble ACK in 5/5 runs |
 | `HCI-4` repeated lease | `PASS` | `evidence-2026-10-24-hci4-service-5x.json`; five independent `/api/v1` leases pass frame, 27-node QOM, WiFi/public network, NUS GATT, pcap and evidence with `gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | `evidence-2026-10-24-hci4-halted-gate-5x.json`, `evidence-2026-10-24-hci4-hold60-3x.json`, `evidence-2026-10-24-hci4-hold120-2x.json` and `evidence-2026-10-24-hci4-active-ble-hold120-2x.json`; two 5-attempt batches with 10-second holds passed `10/10`, three 60-second holds passed `3/3`, two 120-second holds passed `2/2`, and two active-BLE 120-second holds passed `2/2`. Every attempt has `hli-errors=0` and zero HLI/meta queue depth |
+| `CORE2-02` same-guest reconnect | `FAIL` | `evidence-2026-10-24-reconnect2-fail.json`; cycle 1 passes, then peer disconnect produces repeated NimBLE `ack 12`/HCI reset and cycle 2 has no advertisement. The stock guest reproduces without the test-only re-advertise call |
 
 Build the patched QEMU, then run:
 
@@ -255,6 +256,16 @@ The runner now also sets `network.ble_linger_seconds` to
 hold produced two active-BLE `120s` PASS runs with `peer-closed=0`,
 `tx-queue-depth=0` and `last-error=0`; both still passed frame/QOM, WiFi,
 public DNS/HTTP, external NUS GATT, pcap and evidence.
+
+`--ble-reconnect-cycles N` asks the same external BLE peer process to perform
+`N` complete scan/connect/NUS/write/notify/disconnect cycles in one guest.
+The stock Core2 result is currently `FAIL` for `N=2`: the first cycle passes,
+then disconnect causes repeated `NimBLE: HCI process ack returned 12` and an HCI
+reset loop. A control run with the unmodified `BLEUARTServer` fails the same
+way, so the failure is not caused solely by the test-only scheduled
+re-advertisement. The failure evidence is
+`evidence-2026-10-24-reconnect2-fail.json`; keep this as a blocker rather than
+describing the two-minute active-link hold as reconnect support.
 
 After the external Bumble peer closes, the stock firmware can continue issuing
 HCI commands until a native-HCI queue fills. The runner therefore also accepts

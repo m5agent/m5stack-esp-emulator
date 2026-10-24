@@ -250,7 +250,12 @@ diagnostics in `internal/records/`.
   `semphr_give_wrapper`, `PC=0` and Cache-error evidence remains tracked.
   This closes the repeated-start/two-minute virtual gate, not multi-hour soak,
   physical cache/PSRAM equivalence, repeated in-guest reconnect or bit-exact
-  controller behavior.
+  controller behavior. A second connection in the same guest is currently
+  `FAIL`: after cycle 1 disconnects, the guest emits repeated
+  `NimBLE: HCI process ack returned 12`, enters an HCI reset loop and never
+  advertises again. The stock guest reproduces without the test-only
+  re-advertise call, so classify the disconnect/HCI command lifecycle before
+  changing guest readvertising or claiming reconnect support.
 - The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
   portals and unreworked firmware. It does not provide same-instance board
   framebuffer/input/QOM evidence.
@@ -300,8 +305,9 @@ The main open streams are:
 - cross-host job execution, TLS/mTLS and credential rotation,
   companion/evidence continuity, cross-host QEMU re-attach, multi-host
   scheduling and external IPv6 endpoint enforcement;
-- Core2 multi-hour coexistence/reconnect, bit-exact BT controller/baseband,
-  physical cache/PSRAM equivalence and hardware validation;
+- Core2 disconnect/HCI lifecycle and same-guest reconnect, multi-hour
+  coexistence, bit-exact BT controller/baseband, physical cache/PSRAM
+  equivalence and hardware validation;
 - runtime permissions/license policy, production security-key flows and
   broader cross-firmware compatibility;
 - warm pools, multi-host scheduling and hardened untrusted-firmware isolation;

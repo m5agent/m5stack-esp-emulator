@@ -74,6 +74,7 @@ callback 注入，因此单 lease PASS 不等于稳定后端。规范主路径�
 | `HCI-3b` complete HCI/GATT | `PASS` | `core2_native_hci/run_full.py --hli-c2h` 使用 15-byte probe / 17-byte ATT PDU，完成 NUS discovery/subscription/write/notify 和 Bumble ACK，连续 `5/5` |
 | `HCI-4` repeated lease | `PASS` | `core2_native_hci/run_service_5x.py`；五个独立 Device Service lease 同时通过 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence，`gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | caller-saved Xtensa sregs 恢复 + halted/idle-only HLI 注入后，两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；每轮 `hli-errors=0` |
+| `CORE2-02` same-guest reconnect | `FAIL` | `--ble-reconnect-cycles 2` 的第一轮完整 GATT PASS；disconnect 后连续 `ack 12`/HCI reset，第二轮 advertisement timeout。未加测试重广告的 stock guest 同样失败 |
 
 `HCI-4` 重跑需要已准备 unified Core2 镜像、匹配 ELF 和相同 QEMU build：
 
@@ -108,6 +109,9 @@ active-BLE 模式再把 `network.ble_linger_seconds` 设为 hold+60 秒，2 个
 独立 120 秒运行同样 `2/2`；hold 完成时 peer 未断开，
 `tx-queue-depth=0`、`last-error=0`。证据：
 `core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json`。
+同一 guest 的 disconnect/reconnect 是另一个失败门禁：第一轮 peer teardown
+后固件连续输出 `NimBLE: HCI process ack returned 12`，第二轮扫描超时。证据：
+`core2_native_hci/evidence-2026-10-24-reconnect2-fail.json`。
 这关闭了本轮 two-minute extended-run 失败门禁，但仍不是物理 cache/PSRAM、
 RF、同 guest 重复重连、多小时 soak 或 bit-exact controller PASS。
 

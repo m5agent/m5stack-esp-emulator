@@ -249,6 +249,7 @@ def run_attempt(
     attempt_dir: Path,
     timeout: float,
     hold_seconds: float,
+    ble_reconnect_cycles: int,
 ) -> dict[str, Any]:
     attempt_dir.mkdir(parents=True, exist_ok=True)
     session_id: str | None = None
@@ -286,6 +287,8 @@ def run_attempt(
                         20,
                         hold_seconds + 60,
                     ),
+                    "ble_reconnect_cycles": ble_reconnect_cycles,
+                    "ble_reconnect_delay_seconds": 2,
                 },
             },
         )
@@ -499,6 +502,12 @@ def run_attempt(
 
     serial_text = serial.decode("utf-8", errors="replace")
     peer_text = peer_log.decode("utf-8", errors="replace")
+    checks["ble_cycle_count"] = (
+        peer_text.count("BLE_BUMBLE_CYCLE_PASS")
+        >= ble_reconnect_cycles
+        and serial_text.count("UNIFIED_CORE2_BLE_RX")
+        >= ble_reconnect_cycles
+    )
     observed_markers = [
         marker
         for marker in (
@@ -608,12 +617,20 @@ def main() -> int:
     parser.add_argument("--attempts", type=int, default=5)
     parser.add_argument("--hold-seconds", type=float, default=0)
     parser.add_argument("--timeout", type=float, default=180)
+    parser.add_argument(
+        "--ble-reconnect-cycles",
+        type=int,
+        default=1,
+        help="complete GATT/disconnect cycles required from one BLE peer",
+    )
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     if args.attempts < 1 or args.attempts > 30:
         parser.error("--attempts must be from 1 to 30")
     if args.hold_seconds < 0 or args.hold_seconds > 120:
         parser.error("--hold-seconds must be from 0 to 120")
+    if args.ble_reconnect_cycles < 1 or args.ble_reconnect_cycles > 10:
+        parser.error("--ble-reconnect-cycles must be from 1 to 10")
     for label, path in (
         ("image", args.image),
         ("ELF", args.elf),
@@ -643,6 +660,7 @@ def main() -> int:
             args.out_dir / f"attempt-{attempt}",
             args.timeout,
             args.hold_seconds,
+            args.ble_reconnect_cycles,
         )
         runs.append(result)
         if result["status"] != "PASS":
@@ -708,6 +726,7 @@ def main() -> int:
         "attempts_failed": len(failed_runs),
         "hold_seconds_per_attempt": args.hold_seconds,
         "ble_linger_seconds": max(20, args.hold_seconds + 60),
+        "ble_reconnect_cycles": args.ble_reconnect_cycles,
         "first_failure": (
             {
                 key: failed_runs[0].get(key)

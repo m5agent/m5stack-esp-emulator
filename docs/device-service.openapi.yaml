@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.20.0
+  version: 1.21.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1908,6 +1908,22 @@ components:
             Keep an external BLE GATT peer connected after its first passing
             exchange. Long unified holds can use this to test an active BLE
             link instead of the expected peer-close queue tail.
+        ble_reconnect_cycles:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 1
+          description: >
+            Number of complete scan/connect/GATT/disconnect cycles performed by
+            the external BLE peer without restarting the guest.
+        ble_reconnect_delay_seconds:
+          type: number
+          minimum: 0
+          maximum: 30
+          default: 2
+          description: >
+            Delay between a peer disconnect and the next scan when multiple BLE
+            reconnect cycles are requested.
         policy:
           type: object
           additionalProperties: false

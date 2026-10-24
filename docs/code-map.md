@@ -91,7 +91,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/network_sandbox.py` | Linux private net/mount namespace 与 controlled DNS | 隔离 runner、worker |
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
-| `platform/tools/ble_probe.py` | 外部 BLE peer、scan/connect/GATT 验证 | unified/BLE runners |
+| `platform/tools/ble_probe.py` | 外部 BLE peer、scan/connect/GATT 验证，以及同一 peer process 内的多轮 disconnect/reconnect | unified/BLE runners |
 | `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
 | `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
 | `platform/tools/qemu_profiles.py` | 检查/查询 machine、profile、runtime 和资产 | CI、设备中心 |
@@ -111,7 +111,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
-| `tests/uiflow2/core2_native_hci/run_service_5x.py` | 通过真实 Device Service API 连续租用 `core2-native-hci`，支持 `--hold-seconds`，校验 HLI health，失败时保留 partial evidence 并汇总 aggregate FAIL | Core2 native-HCI、extended-run/soak、Device Service profile 或 ELF hook 改动 |
+| `tests/uiflow2/core2_native_hci/run_service_5x.py` | 通过真实 Device Service API 连续租用 `core2-native-hci`，支持 `--hold-seconds` 与 `--ble-reconnect-cycles`，校验 HLI health，失败时保留 partial evidence 并汇总 aggregate FAIL | Core2 native-HCI、extended-run/soak/reconnect、Device Service profile 或 ELF hook 改动 |
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连和双 guest lab fabric | 网络策略/运行时改动 |
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS 证据 | manifest/filesystem 改动 |
@@ -135,7 +135,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | --- | --- | --- |
 | `platform/tools/device_service.py` | 约 `8.2k` 行；session、存储、runtime、证据和生命周期仍在同一编排热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
 | `platform/tests/test_device_service.py` | 约 `4.5k` 行 service 契约测试 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
-| `platform/tests/test_docs_consistency.py` | 约 `1.4k` 行；导航、链接、API、网络、Core2 和证据快照断言混在一个契约测试类 | 先保持“当前事实只在一处”的约束，再按导航/契约/证据拆成独立测试文件 |
+| `platform/tests/test_docs_consistency.py` | 约 `1.6k` 行；导航、链接、API、网络、Core2 和证据快照断言混在一个契约测试类 | 先保持“当前事实只在一处”的约束，再按导航/契约/证据拆成独立测试文件 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | 11 个 S3/C6 profile 加 Core2 radio profiles，有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 
@@ -227,7 +227,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled DNS、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
 | `platform/tools/network_lane.py` | `esp-emu` 诊断/Provisioning 网络 lane |
 | `platform/tools/pcap_summary.py` | flow、DNS、DHCP message/transaction/renewal、ARP、egress scope 和 payload hash |
-| `platform/tools/ble_probe.py` | 外部 BLE peer / GATT 验证 |
+| `platform/tools/ble_probe.py` | 外部 BLE peer / GATT 验证；默认一轮，可要求同一 peer 进程连续多轮 |
 | `platform/tools/hci_stream.py` | H4 command/event/ACL 分包 |
 | `platform/tools/runtime_interfaces.py` | 对外汇总设备、外设和运行时可注入接口 |
 | `tests/uiflow2/core2_native_vhci/` | stock Core2 VHCI→Bumble GATT runner |
@@ -287,6 +287,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 60-second hold | `run_service_5x.py --hold-seconds 60`；`evidence-2026-10-24-hci4-hold60-3x.json` | 3 个独立 lease `3/3`；BLE peer 正常关闭后设备保持 running，HLI errors 与队列深度为零 |
 | Core2 120-second hold | `run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-hold120-2x.json` | 2 个独立 lease `2/2`；每轮 frame/QOM、WiFi、公网、NUS GATT、pcap、evidence 和 HLI health 均 PASS，peer-close queue-full 尾态单独分类 |
 | Core2 active-BLE 120-second hold | `run_service_5x.py --hold-seconds 120` + `network.ble_linger_seconds=180`；`evidence-2026-10-24-hci4-active-ble-hold120-2x.json` | 2 个独立 lease `2/2`；peer 在 hold 完成时仍连接，`peer-closed=0`、TX queue 和 last error 均为 0 |
+| Core2 same-guest reconnect boundary | `run_service_5x.py --ble-reconnect-cycles 2`；`ble_probe.py --reconnect-cycles`；`evidence-2026-10-24-reconnect2-fail.json` | 第一轮 GATT PASS；disconnect 后无论 guest 是否 schedule re-advertise 都出现 `ack 12`/HCI reset，第二轮 advertisement timeout；当前只作为 FAIL 分类和后续 HCI transaction tracing 入口 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |

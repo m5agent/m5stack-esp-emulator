@@ -26,7 +26,7 @@
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 扩大已通过的 `5×10s` / `3×60s` / `2×120s` 到多小时 soak、同 guest 重连和 coexistence，再评估 bit-exact controller、cache/PSRAM | 已修复 guest-call 崩溃；物理或权威模型证据 |
+| P1 | Core2 长稳与物理/controller 等价性 | 关闭同 guest disconnect/reconnect，扩大已通过的 `5×10s` / `3×60s` / `2×120s` 到多小时 soak/coexistence，再评估 bit-exact controller、cache/PSRAM | 首轮 GATT 和 active hold 已通过；disconnect 后当前出现 `ack 12`/HCI reset；物理或权威模型证据 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -40,9 +40,10 @@
 2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后 `FW-03`
    扩跨厂商样本，
    `FW-02` 做生产 key/eFuse 与真机安全配置。
-3. `CORE2-02`：`5×10s`、`3×60s` 和 `2×120s` extended-run 已通过；继续补多小时
-   soak、重复 GATT reconnect 和 WiFi/BLE coexistence。之后处理
-   controller/baseband 物理边界。`HW-01` 独立推进同路径真机证据。
+3. `CORE2-02`：`5×10s`、`3×60s` 和 `2×120s` extended-run 已通过；下一项先用
+   HCI transaction trace 关闭同 guest disconnect 后的 `ack 12`/reset blocker，
+   再补多小时 soak 和 WiFi/BLE coexistence。之后处理 controller/baseband
+   物理边界。`HW-01` 独立推进同路径真机证据。
 4. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
    视觉工作，不与当前 P0 混算完成。
 
@@ -52,7 +53,7 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 跨主机 executor/reattach、TLS/mTLS、credential rotation、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
-| `CORE2-02` | 进行中 | 已通过 `5×10s`、`3×60s` 和 `2×120s`；下一项是多小时 hold + 同 guest 重复连接/断开和 WiFi/BLE coexistence | 每轮保留 serial/peer/pcap/evidence 与 HLI health；随后补 controller/baseband、物理 cache/PSRAM |
+| `CORE2-02` | 进行中 | 已通过首轮 GATT 与 `5×10s`、`3×60s`、`2×120s` active hold；优先定位 disconnect 后 `ack 12`/HCI reset，再做第二次 GATT、多小时 hold 和 WiFi/BLE coexistence | 同一 guest 至少两轮完整 scan/connect/GATT/disconnect 无 retry PASS；每轮保留 serial/peer/pcap/evidence 与 HLI health；随后补 controller/baseband、物理 cache/PSRAM |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 跨厂商回归集 | 每样本分层记录导入、capability、boot 和功能 |
@@ -132,6 +133,13 @@ guest-call 上下文问题并修复：
   halted/idle vCPU 注入 HLI allocator/callback；
 - 后续 `3×60s` hold 也 `3/3` PASS，2 个 `120s` hold 为 `2/2`，覆盖
   BLE peer 正常关闭后的尾态；
+- 第一轮 GATT 和 active-BLE 120 秒 hold 已通过，但同一 guest 的第二次连接
+  当前 `FAIL`。stock guest 和加入测试用途重广告的 guest 都在 peer 完成第一轮
+  并 disconnect 后输出连续的 `NimBLE: HCI process ack returned 12`，随后
+  HCI reset，第二轮扫描超时。无 guest panic；
+- 因此下一项不是继续延长 hold，而是抓取 disconnect 前后的 H2C/C2H event
+  顺序，区分 Bumble 返回 Command Disallowed、NimBLE host reset、
+  QEMU HLI delivery 和固件 controller-task 清理；
 - 仍未完成：多小时 soak、重复连接/断开、吞吐、coexistence 和
   process-stop/teardown 竞态；
 - 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
@@ -145,8 +153,9 @@ guest-call 上下文问题并修复：
 
 验收追加条件：
 
-- 在已通过的 `5×10s` / `3×60s` / `2×120s` 基础上，多小时 soak 和重复 GATT reconnect 无 retry
-  PASS，每一轮都保留 frame/QOM/network/evidence 与 HLI health；
+- 同一 guest 至少两轮 scan/connect/NUS GATT/disconnect 无 retry PASS，
+  每轮都有 guest RX、notification、peer/pcap/evidence 和 HLI health；
+- 在已通过的 `5×10s` / `3×60s` / `2×120s` 基础上继续多小时 soak；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
   次数；
 - 首轮 panic 必须先于 reboot 次生故障被分类和符号化；

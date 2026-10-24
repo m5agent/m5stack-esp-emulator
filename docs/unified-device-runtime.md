@@ -48,6 +48,12 @@ complete simulated device or as a unified-device PASS.
   a multi-hour soak, repeated in-guest reconnect or physical cache/PSRAM proof.
   A further two `120s` holds keep the BLE peer connected for the full hold,
   with `peer-closed=0`, zero TX queue depth and no last error.
+- Same-guest reconnect remains `FAIL`. A two-cycle peer workload completes
+  cycle 1 and disconnects, after which the guest repeatedly logs
+  `NimBLE: HCI process ack returned 12`, resets HCI and never advertises for
+  cycle 2. The stock unmodified guest reproduces without the test-only
+  re-advertise call. Active-link hold and reconnect are separate acceptance
+  gates.
 - Current blockers, not historical explanations, are owned by
   [project status](project-status.md) and [Backlog](project-backlog.md). The
   device bullets below preserve implementation evidence and must not be read
@@ -141,7 +147,7 @@ complete simulated device or as a unified-device PASS.
   A separate HCI-offload build also routes NimBLE's H4 traffic through QEMU
   UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
   The remaining boundary is a bit-exact classic ESP32 controller/baseband,
-  physical cache/PSRAM equivalence, repeated in-guest reconnect, multi-hour
+  physical cache/PSRAM equivalence, disconnect/HCI lifecycle, repeated in-guest reconnect, multi-hour
   coexistence/soak and hardware, not UIFlow2 API or Device Service integration.
 - The replacement QEMU native-HCI path has passed the staged gates:
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
@@ -219,7 +225,8 @@ HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
   two `120s` holds, plus two active-BLE `120s` holds pass with
   `hli-errors=0` and empty queues. Core2 still
   misses bit-exact controller/baseband, physical cache/PSRAM equivalence,
-  repeated in-guest reconnect, multi-hour coexistence and hardware validation.
+  disconnect/HCI lifecycle, repeated in-guest reconnect, multi-hour
+  coexistence and hardware validation.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
 stable access to arbitrary internet services. Core2 now includes public DNS

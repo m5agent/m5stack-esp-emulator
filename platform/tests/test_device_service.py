@@ -875,15 +875,20 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(unified["profile"], "uiflow2-sticks3-unified")
         self.assertEqual(unified["ble_linger_seconds"], 20)
+        self.assertEqual(unified["ble_reconnect_cycles"], 1)
         long_link = device_service_module.parse_qemu_ble_execution(
             self.service.specs["sticks3"],
             {
                 "profile": "uiflow2-sticks3-unified",
                 "ble_linger_seconds": 180,
+                "ble_reconnect_cycles": 3,
+                "ble_reconnect_delay_seconds": 1.5,
             },
             runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
         )
         self.assertEqual(long_link["ble_linger_seconds"], 180)
+        self.assertEqual(long_link["ble_reconnect_cycles"], 3)
+        self.assertEqual(long_link["ble_reconnect_delay_seconds"], 1.5)
         with self.assertRaises(ServiceError) as invalid_linger:
             device_service_module.parse_qemu_ble_execution(
                 self.service.specs["sticks3"],
@@ -894,6 +899,16 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
             )
         self.assertEqual(invalid_linger.exception.code, "invalid_network")
+        with self.assertRaises(ServiceError) as invalid_cycles:
+            device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                {
+                    "profile": "uiflow2-sticks3-unified",
+                    "ble_reconnect_cycles": 11,
+                },
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(invalid_cycles.exception.code, "invalid_network")
         legacy = device_service_module.parse_qemu_ble_execution(
             self.service.specs["sticks3"],
             {"profile": "uiflow2-sticks3-unified"},
