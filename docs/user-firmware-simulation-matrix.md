@@ -4,9 +4,13 @@ Last reviewed: `2026-10-25`
 
 `platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
 M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
-possible, uploads each merged image through the Device Service `/api/v1`, boots
-it, injects a small board-appropriate input probe set, captures serial and
-frame evidence after every probe, and stops the session with `purge=0`.
+possible, uploads each merged image through the Device Service `/api/v1`, and
+executes the SHA-bound review expectation for that sample. The default
+`ui-interactive` mode injects a small board-appropriate input probe set and
+captures serial/frame evidence after every probe. Explicit `headless-serial`
+and `network-first` modes validate their declared guest markers and network
+evidence without requiring a UI frame. Every path stops the session with
+`purge=0`.
 Each run resolves the current public version and force-refreshes the selected
 BIN. `--resume` keeps the selected samples and completed-result history, but
 still re-downloads every selected BIN and rebinds its SHA before execution. A
@@ -67,17 +71,99 @@ python3 platform/tools/user_firmware_matrix.py \
 The fixture SHA becomes part of the result key, so a firmware cannot reuse a
 PASS obtained without the required SD media.
 
+## SHA-bound review expectations
+
+FirmwareManifest describes artifact facts; it does not guess whether an
+application should expose a UI. Operator review intent therefore stays in a
+separate JSON file validated by
+[`user_firmware_expectations.schema.json`](../platform/tools/user_firmware_expectations.schema.json):
+
+```bash
+python3 platform/tools/user_firmware_matrix.py \
+  --devices atoms3r \
+  --expectation-file /tmp/m5-review-expectations.json \
+  --out-dir /tmp/m5-user-firmware-review
+```
+
+Example:
+
+```json
+{
+  "schema_version": 1,
+  "expectations": [
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000000358",
+      "sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+      "mode": "network-first",
+      "runtime": "qemu-wifi",
+      "ready_marker": "got ip:",
+      "required_markers": [
+        "wifi:connected with myssid",
+        "got ip:"
+      ],
+      "network": {
+        "profile": "generic-observe",
+        "wifi_ssid": "myssid",
+        "wifi_auth": "open",
+        "attempts": 1,
+        "capture_pcap": true,
+        "expected_markers": ["got ip:"]
+      },
+      "network_observe_seconds": 8,
+      "nvs": {
+        "partition_label": "nvs",
+        "image_path": "review-config.nvs"
+      }
+    }
+  ]
+}
+```
+
+Supported modes:
+
+| Mode | Required evidence |
+| --- | --- |
+| `ui-interactive` | Non-blank frame plus observable input response; default behavior |
+| `headless-serial` | Declared serial markers, running session and no fatal signature |
+| `network-first` | Declared serial markers plus Device Service network status `PASS`; when `capture_pcap=true`, a finalized pcap summary and SHA are also required |
+
+The expectation is matched by `device_id + firmware_id + sha256`. If the public
+BIN changes behind an unchanged ID, execution fails closed with an expectation
+SHA mismatch instead of reusing the old intent. The expectation digest, NVS
+fixture SHA and optional SD fixture SHA are part of the result key.
+
+`wifi_password` literals are rejected. Use `wifi_password_env` and provide the
+value through the worker environment; the password is sent to the requested
+session but omitted from the result's public expectation echo. Network-first
+runs fetch the finalized `/sessions/{id}/network` evidence after session stop,
+so DHCP, DNS, TCP and pcap digests stay with the same result.
+
+These modes do not weaken the standard matrix. A missing required marker
+remains `PARTIAL`; a forbidden marker is `FAIL`; a running session alone is
+never enough for `PASS`.
+
+The first same-session integration run is committed in
+[`network-first-review-expectation.json`](../tests/firmware/evidence-2026-10-25-network-first-review-expectation.json):
+the public OpenAI BIN with an isolated synthetic NVS fixture reached
+`wifi:connected` and DHCP, returned network status `PASS`, resolved
+`api.openai.com`, opened a TCP/443 flow and produced a 37-packet pcap while
+correctly avoiding a UI-frame requirement. Voice, real OpenAI credentials,
+Realtime/WebRTC, WPA2 physical security and hardware remain `NOT RUN`.
+
 ## Status
 
-- `PASS`: the board rendered a non-blank application frame, the session stayed
-  running, no configured fatal serial signature was observed, and at least one
-  probe changed the frame or the serial transcript.
+- `PASS`: the selected expectation was fully met. The default UI path requires
+  a non-blank application frame, a running session, no fatal serial signature
+  and an observable input response. Headless/network modes require their
+  declared markers and, for network-first, network status `PASS`.
 - `PARTIAL`: boot or application output exists, but frame, input, device
   lifecycle or full application readiness is incomplete.
 - `FAIL`: boot did not reach the application, the session failed, or a fatal
   panic/watchdog/assert was observed.
-- Devices without a display can only reach `PARTIAL`; serial boot alone is not
-  application success.
+- Devices without a display still require an explicit `headless-serial`
+  expectation with application markers; serial boot alone is not application
+  success.
 - `runtime_model_gap`: boot/application reached a stable runtime signature
   explained by an unmodeled device capability. This remains `PARTIAL`, keeps
   the original serial/error evidence and is not reported as firmware `FAIL`.

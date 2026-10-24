@@ -41,8 +41,10 @@
    Device Service 执行；加入 session-isolated FAT32+MBR SD fixture 后为
    `3 PASS / 1 PARTIAL`。OpenAI 首次启动所需 NVS 数据已确认，并已用
    session-isolated NVS fixture 走到 DHCP、DNS 和 TCP/443；Open/WPA2 正确
-   密码与错误密码三组也已完成。下一步仍是 headless/cloud 执行预期、真实
-   key/服务结果，并扩更多设备与 firmware family。
+   密码与错误密码三组也已完成。下一步是真实 key/cloud 服务结果，并扩更多
+   设备与 firmware family。SHA-bound headless 与
+   network-first expectation 已接入 matrix，并在同一 OpenAI BIN + NVS
+   fixture 上取得 DHCP、DNS、TCP/443、pcap 和 stop cleanup PASS。
 3. `NET-04` / `SVC-01`：真实 control/runtime 双端点和 worker-local QEMU
    已在两个 network namespace 中 PASS；下一步在 durable queue、
    HTTPS/mTLS、rotation/drain、同主机 generation-pointer migration 和本地
@@ -62,7 +64,7 @@
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 进行中 | API/WebBurner capability、Manifest、矩阵 SHA、SD fixture SHA 和 session-isolated NVS fixture 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 首次启动 NVS 前置条件与 WPA2 正确/错误密码已确认；下一步补 headless/cloud/真实 key 执行预期，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储/NVS 前置条件可重复注入 |
+| `FW-03` | 进行中 | API/WebBurner capability、Manifest、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA、expectation 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储/NVS 与网络 expectation 可重复注入 |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |
@@ -270,8 +272,13 @@ Device Service 还接受完整 NVS partition fixture。服务验证固件
 `data/nvs` 分区的 label/offset/size，只覆盖 session Flash 副本，并在
 snapshot/evidence 中记录 base/effective Flash SHA 和 fixture SHA。
 `nvs_image.py` 生成确定性 namespace/string 数据；当前 encoder 已与
-ESP-IDF NVS generator 做字节级对照。下一步需要把“headless/network-first”
-作为显式执行预期接入矩阵，避免继续用首帧作为唯一的应用启动标准。
+ESP-IDF NVS generator 做字节级对照。Matrix 的 v1 review expectation 已把
+`ui-interactive`、`headless-serial` 和 `network-first` 做成按
+`device_id + firmware_id + sha256` 绑定的显式模式；required marker、
+forbidden marker、network status、expectation digest 与 fixture SHA 进入
+结果键。OpenAI network-first 集成证据已证明无需 UI frame 也能依据 guest
+marker、DHCP/DNS/TCP 和 pcap 给出 PASS。剩余工作是真实 key/云端业务结果，
+而不是再补 headless 判定本身。
 
 验收：每个样本记录 importer、chip/board/profile、partition、capability、
 boot 和功能层；结构 PASS、UI PASS、功能 PASS、安全 PASS 不混算。

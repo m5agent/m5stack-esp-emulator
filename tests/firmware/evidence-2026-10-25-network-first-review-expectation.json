@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-user-firmware-review-expectation-network-first",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "virtual-device-validation-not-hardware",
+  "source": {
+    "firmware_id": "1897200000000000358",
+    "name": "OpenAI Voice Assistant For AtomS3R",
+    "version": "v1.0",
+    "source_sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+    "normalized_flash_sha256": "991b1cf328bec7677ed1335d567bfcb7b6c941c1bd6b658eb991b84940b3ce8d"
+  },
+  "expectation": {
+    "schema_version": 1,
+    "source_sha256": "82569c83aae4995d1dbe34af17686a64400eb738a624f73e0835c697dab32f8b",
+    "expectation_sha256": "25c42d6ade2b946a6e1e597b2604dbcbf5627d20a2b8afa5e4a031519b952096",
+    "mode": "network-first",
+    "runtime": "qemu-wifi",
+    "profile": "generic-observe",
+    "require_frame": false,
+    "require_input_response": false,
+    "require_network": true,
+    "required_markers": [
+      "wifi:connected with myssid",
+      "got ip:"
+    ]
+  },
+  "fixtures": {
+    "nvs_partition": "nvs",
+    "nvs_sha256": "14f0acc47e1e1bef7e19d29c90febd0fe3707599fd8fc42eeb14dd27cfc26e5d",
+    "nvs_bytes": 24576,
+    "nvs_session_isolated": true,
+    "values_are_synthetic": true
+  },
+  "execution": {
+    "session_id": "25d4808c15c14585b0e2fad3adf4ec19",
+    "status": "PASS",
+    "status_reason": "network-first_expectation_ok",
+    "application_ready": true,
+    "pre_stop_state": "running",
+    "stop_state": "stopped",
+    "required_markers_observed": true,
+    "forbidden_markers_observed": false,
+    "network_status": "PASS",
+    "pcap_required": true,
+    "pcap_observed": true,
+    "network_checks": {
+      "marker:1": true
+    },
+    "serial_bytes": 14256,
+    "serial_sha256": "14cffaa49aa83fcf3a38b2de721d55014a4dd3843e79c297675aa87aca607072",
+    "fatal_error_lines": []
+  },
+  "packet_capture": {
+    "status": "PASS",
+    "packets": 37,
+    "sha256": "2eb8c0b314013f1aaf2aaf9cfac4f1064e09d8ed384feb70b97271c0f6d4bf0e",
+    "dns_queries": [
+      "api.openai.com."
+    ],
+    "tcp_443_flows": 1,
+    "dhcp_message_sequence": [
+      "DISCOVER",
+      "OFFER",
+      "REQUEST",
+      "ACK"
+    ]
+  },
+  "result_key": "atoms3r:1897200000000000358:b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3:expectation=25c42d6ade2b946a6e1e597b2604dbcbf5627d20a2b8afa5e4a031519b952096",
+  "checks": {
+    "expectation_matches_firmware_sha": true,
+    "expectation_is_part_of_result_key": true,
+    "nvs_fixture_is_part_of_expectation_digest": true,
+    "plaintext_wifi_password_absent_from_expectation": true,
+    "frame_is_not_required_for_network_first": true,
+    "required_guest_markers_observed": true,
+    "network_status_pass": true,
+    "dhcp_dns_tcp443_and_pcap_observed": true,
+    "same_session_result": true,
+    "session_stopped_with_history": true
+  },
+  "not_claimed": [
+    "voice input, audio, Realtime API or a real OpenAI account",
+    "a UI or provisioning frame",
+    "WPA2/WPA3 security on physical hardware",
+    "physical RF or electrical behavior",
+    "malware isolation"
+  ]
+}

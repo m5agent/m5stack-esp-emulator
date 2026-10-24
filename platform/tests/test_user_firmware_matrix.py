@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -12,12 +13,17 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
 from user_firmware_matrix import (  # noqa: E402
+    MatrixError,
+    apply_execution_expectations,
     baseline_name,
     classify_result,
     detect_runtime_model_gaps,
     download_candidates,
     error_lines,
+    evaluate_network_expectation,
     inputs_for_device,
+    load_execution_expectations,
+    prepare_review_runtime,
     refresh_selected_sample,
     sample_result_key,
     ServiceClient,
@@ -25,6 +31,46 @@ from user_firmware_matrix import (  # noqa: E402
 
 
 class UserFirmwareMatrixTests(unittest.TestCase):
+    @staticmethod
+    def write_expectations(
+        root: Path,
+        expectations: list[dict],
+    ) -> Path:
+        path = root / "expectations.json"
+        path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "expectations": expectations,
+                }
+            ),
+            encoding="utf-8",
+        )
+        return path
+
+    def test_expectation_schema_matches_v1_contract(self):
+        schema = json.loads(
+            (
+                ROOT
+                / "platform/tools/user_firmware_expectations.schema.json"
+            ).read_text(encoding="utf-8")
+        )
+
+        self.assertEqual(
+            schema["$schema"],
+            "https://json-schema.org/draft/2020-12/schema",
+        )
+        self.assertEqual(schema["properties"]["schema_version"]["const"], 1)
+        self.assertEqual(
+            set(
+                schema["$defs"]["expectation"]["properties"]["mode"]["enum"]
+            ),
+            {"ui-interactive", "headless-serial", "network-first"},
+        )
+        network_properties = schema["$defs"]["network"]["properties"]
+        self.assertIn("wifi_password_env", network_properties)
+        self.assertNotIn("wifi_password", network_properties)
+
     def test_public_matrix_refreshes_cached_firmware(self):
         row = {
             "firmwareId": "firmware-1",
@@ -139,6 +185,220 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         )
         self.assertTrue(
             sample_result_key(with_storage).endswith(f":sd={'2' * 64}")
+        )
+
+    def test_network_first_expectation_binds_firmware_and_nvs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            nvs = root / "network.nvs"
+            nvs.write_bytes(b"\xff" * 4096)
+            expectations_path = self.write_expectations(
+                root,
+                [
+                    {
+                        "device_id": "atoms3r",
+                        "firmware_id": "firmware-1",
+                        "sha256": "1" * 64,
+                        "mode": "network-first",
+                        "runtime": "qemu-wifi",
+                        "ready_marker": "got ip:",
+                        "required_markers": ["wifi:connected", "got ip:"],
+                        "network": {
+                            "profile": "generic-observe",
+                            "wifi_auth": "open",
+                            "expected_markers": ["got ip:"],
+                        },
+                        "nvs": {
+                            "partition_label": "nvs",
+                            "image_path": nvs.name,
+                        },
+                    }
+                ],
+            )
+            expectations = load_execution_expectations(expectations_path)
+            sample = {
+                "device_id": "atoms3r",
+                "firmware_id": "firmware-1",
+                "sha256": "1" * 64,
+            }
+            apply_execution_expectations([sample], expectations)
+
+        self.assertEqual(
+            sample["review_expectation"]["mode"],
+            "network-first",
+        )
+        self.assertEqual(
+            sample["review_expectation"]["nvs"]["partition_label"],
+            "nvs",
+        )
+        self.assertIn(
+            "expectation=",
+            sample_result_key(sample),
+        )
+        self.assertNotIn(
+            "wifi_password",
+            json.dumps(sample["review_expectation"]),
+        )
+
+    def test_stale_expectation_sha_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            expectations_path = self.write_expectations(
+                root,
+                [
+                    {
+                        "device_id": "atoms3r",
+                        "firmware_id": "firmware-1",
+                        "sha256": "1" * 64,
+                        "mode": "headless-serial",
+                        "required_markers": ["application ready"],
+                    }
+                ],
+            )
+            expectations = load_execution_expectations(expectations_path)
+            sample = {
+                "device_id": "atoms3r",
+                "firmware_id": "firmware-1",
+                "sha256": "2" * 64,
+            }
+
+            with self.assertRaisesRegex(MatrixError, "SHA mismatch"):
+                apply_execution_expectations([sample], expectations)
+
+    def test_expectation_rejects_plaintext_password_and_relaxed_ui(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            password_path = self.write_expectations(
+                root,
+                [
+                    {
+                        "device_id": "atoms3r",
+                        "firmware_id": "firmware-1",
+                        "sha256": "1" * 64,
+                        "mode": "network-first",
+                        "runtime": "qemu-wifi",
+                        "required_markers": ["got ip:"],
+                        "network": {
+                            "wifi_password": "do-not-store-this",
+                        },
+                    }
+                ],
+            )
+            with self.assertRaisesRegex(MatrixError, "wifi_password_env"):
+                load_execution_expectations(password_path)
+
+            relaxed_ui_path = self.write_expectations(
+                root,
+                [
+                    {
+                        "device_id": "atoms3r",
+                        "firmware_id": "firmware-1",
+                        "sha256": "1" * 64,
+                        "mode": "ui-interactive",
+                        "require_frame": False,
+                    }
+                ],
+            )
+            with self.assertRaisesRegex(MatrixError, "requires frame"):
+                load_execution_expectations(relaxed_ui_path)
+
+            disabled_network_path = self.write_expectations(
+                root,
+                [
+                    {
+                        "device_id": "atoms3r",
+                        "firmware_id": "firmware-1",
+                        "sha256": "1" * 64,
+                        "mode": "network-first",
+                        "runtime": "qemu-wifi",
+                        "required_markers": ["got ip:"],
+                        "require_network": False,
+                        "network": {},
+                    }
+                ],
+            )
+            with self.assertRaisesRegex(MatrixError, "requires network"):
+                load_execution_expectations(disabled_network_path)
+
+    def test_expectation_rejects_unknown_network_field(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.write_expectations(
+                Path(directory),
+                [
+                    {
+                        "device_id": "atoms3r",
+                        "firmware_id": "firmware-1",
+                        "sha256": "1" * 64,
+                        "mode": "network-first",
+                        "runtime": "qemu-wifi",
+                        "required_markers": ["got ip:"],
+                        "network": {
+                            "proflie": "generic-observe",
+                        },
+                    }
+                ],
+            )
+
+            with self.assertRaisesRegex(MatrixError, "proflie"):
+                load_execution_expectations(path)
+
+    def test_prepare_runtime_loads_password_environment_and_nvs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            nvs = root / "network.nvs"
+            nvs.write_bytes(b"\xaa" * 1024)
+            expectations_path = self.write_expectations(
+                root,
+                [
+                    {
+                        "device_id": "atoms3r",
+                        "firmware_id": "firmware-1",
+                        "sha256": "1" * 64,
+                        "mode": "network-first",
+                        "runtime": "qemu-wifi",
+                        "required_markers": ["got ip:"],
+                        "network": {
+                            "wifi_auth": "wpa2-psk",
+                            "wifi_password_env": "M5_TEST_REVIEW_PASSWORD",
+                        },
+                        "nvs": {
+                            "partition_label": "nvs",
+                            "image_path": nvs.name,
+                        },
+                    }
+                ],
+            )
+            expectations = load_execution_expectations(expectations_path)
+            sample = {
+                "device_id": "atoms3r",
+                "firmware_id": "firmware-1",
+                "sha256": "1" * 64,
+            }
+            apply_execution_expectations([sample], expectations)
+            client = mock.Mock()
+            client.upload.return_value = {
+                "artifact_id": "3" * 64,
+                "sha256": sample["_review_expectation_private"]["_nvs"][
+                    "sha256"
+                ],
+                "size": 1024,
+            }
+            with mock.patch.dict(
+                "os.environ",
+                {"M5_TEST_REVIEW_PASSWORD": "synthetic-pass"},
+            ):
+                prepared = prepare_review_runtime(client, sample)
+
+        self.assertEqual(prepared["runtime"], "qemu-wifi")
+        self.assertEqual(prepared["ready_marker"], "got ip:")
+        self.assertEqual(
+            prepared["network"]["wifi_password"],
+            "synthetic-pass",
+        )
+        self.assertEqual(prepared["nvs"]["partition_label"], "nvs")
+        self.assertNotIn(
+            "synthetic-pass",
+            json.dumps(sample["review_expectation"]),
         )
 
     @mock.patch("user_firmware_matrix.request_json")
@@ -287,6 +547,115 @@ class UserFirmwareMatrixTests(unittest.TestCase):
         self.assertEqual(status, "PASS")
         self.assertEqual(reason, "application_frame_and_runtime_ok")
         self.assertEqual(gaps, [])
+
+    def test_network_first_expectation_can_pass_without_frame(self):
+        status, reason, gaps = classify_result(
+            has_screenshot=True,
+            nonblack=0,
+            running=True,
+            crash=False,
+            serial_bytes=1024,
+            boot_error=None,
+            input_observed=False,
+            review_expectation={
+                "mode": "network-first",
+                "require_network": True,
+            },
+            required_markers_observed=True,
+            network_observed=True,
+        )
+
+        self.assertEqual(status, "PASS")
+        self.assertEqual(reason, "network-first_expectation_ok")
+        self.assertEqual(gaps, [])
+
+    def test_network_first_requires_finalized_pcap_when_enabled(self):
+        complete = evaluate_network_expectation(
+            {
+                "status": "PASS",
+                "packet_capture": {
+                    "status": "PASS",
+                    "input": {"sha256": "1" * 64},
+                },
+            },
+            require_capture=True,
+        )
+        missing = evaluate_network_expectation(
+            {
+                "status": "PASS",
+                "packet_capture": {"status": "CAPTURING"},
+            },
+            require_capture=True,
+        )
+        disabled = evaluate_network_expectation(
+            {"status": "PASS", "packet_capture": {"status": "NOT_RUN"}},
+            require_capture=False,
+        )
+
+        self.assertTrue(complete["observed"])
+        self.assertTrue(complete["pcap_observed"])
+        self.assertFalse(missing["observed"])
+        self.assertFalse(missing["pcap_observed"])
+        self.assertTrue(disabled["observed"])
+
+    def test_network_first_missing_marker_or_network_does_not_pass(self):
+        marker_status, marker_reason, _ = classify_result(
+            has_screenshot=True,
+            nonblack=0,
+            running=True,
+            crash=False,
+            serial_bytes=1024,
+            boot_error=None,
+            input_observed=False,
+            review_expectation={
+                "mode": "network-first",
+                "require_network": True,
+            },
+            required_markers_observed=False,
+            network_observed=True,
+        )
+        network_status, network_reason, _ = classify_result(
+            has_screenshot=True,
+            nonblack=0,
+            running=True,
+            crash=False,
+            serial_bytes=1024,
+            boot_error=None,
+            input_observed=False,
+            review_expectation={
+                "mode": "network-first",
+                "require_network": True,
+            },
+            required_markers_observed=True,
+            network_observed=False,
+        )
+
+        self.assertEqual((marker_status, marker_reason), (
+            "PARTIAL",
+            "expected_runtime_marker_missing",
+        ))
+        self.assertEqual((network_status, network_reason), (
+            "PARTIAL",
+            "network_expectation_not_met",
+        ))
+
+    def test_forbidden_expectation_marker_fails(self):
+        status, reason, gaps = classify_result(
+            has_screenshot=False,
+            nonblack=0,
+            running=True,
+            crash=False,
+            serial_bytes=1024,
+            boot_error=None,
+            input_observed=False,
+            review_expectation={"mode": "headless-serial"},
+            required_markers_observed=True,
+            forbidden_markers_observed=True,
+        )
+
+        self.assertEqual(status, "FAIL")
+        self.assertEqual(reason, "forbidden_runtime_marker_observed")
+        self.assertIn("forbidden", gaps[0])
 
     def test_detect_runtime_model_gaps_keeps_zigbee_watchdog_out_of_firmware_fail(self):
         gaps = detect_runtime_model_gaps(

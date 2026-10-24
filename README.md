@@ -27,7 +27,9 @@ MicroPython 和其他完整 Flash 固件。
   mismatch。
 - Device Service 支持 session-isolated SD 和完整 NVS 分区 fixture；
   `qemu-wifi/profile=generic-observe` 可为非 UIFlow、headless 或
-  network-first 的 ESP32-S3 固件提供板级加 WiFi 的最小执行路径。
+  network-first 的 ESP32-S3 固件提供板级加 WiFi 的最小执行路径；用户固件
+  matrix 可用 SHA-bound UI/headless/network-first expectation 决定应用验收
+  标准，而不是把所有有屏固件都强制成首帧输入测试。
 - 物理硬件验证仍是独立门禁；仓库中的 QEMU 和 `esp-emu` 结果只标记为
   `virtual-device validation`。
 

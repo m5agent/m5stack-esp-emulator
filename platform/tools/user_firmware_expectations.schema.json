@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://m5stack.local/schemas/user-firmware-expectations-v1.json",
+  "title": "M5Stack SHA-bound user firmware review expectations",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "expectations"],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "expectations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "items": {
+        "$ref": "#/$defs/expectation"
+      }
+    }
+  },
+  "$defs": {
+    "markers": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "net_mode": {
+          "enum": ["user", "user,restrict=yes"]
+        },
+        "wifi_ssid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "wifi_auth": {
+          "enum": ["open", "wpa2-psk", "wpa2-wpa3", "wpa3-sae"]
+        },
+        "wifi_password_env": {
+          "type": "string",
+          "pattern": "^[A-Z_][A-Z0-9_]{0,63}$"
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "capture_pcap": {
+          "type": "boolean"
+        },
+        "expected_markers": {
+          "$ref": "#/$defs/markers"
+        },
+        "policy": {
+          "type": "object"
+        }
+      }
+    },
+    "nvs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["image_path"],
+      "properties": {
+        "partition_label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "image_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "expectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["device_id", "firmware_id", "sha256", "mode"],
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "firmware_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mode": {
+          "enum": ["ui-interactive", "headless-serial", "network-first"]
+        },
+        "runtime": {
+          "enum": ["qemu", "qemu-wifi", "qemu-unified"]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "ready_marker": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "required_markers": {
+          "$ref": "#/$defs/markers"
+        },
+        "forbidden_markers": {
+          "$ref": "#/$defs/markers"
+        },
+        "require_frame": {
+          "type": "boolean"
+        },
+        "require_input_response": {
+          "type": "boolean"
+        },
+        "require_network": {
+          "type": "boolean"
+        },
+        "network": {
+          "$ref": "#/$defs/network"
+        },
+        "network_observe_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        },
+        "nvs": {
+          "$ref": "#/$defs/nvs"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "enum": ["headless-serial", "network-first"]
+              }
+            },
+            "required": ["mode"]
+          },
+          "then": {
+            "required": ["required_markers"],
+            "properties": {
+              "required_markers": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "network-first"
+              }
+            },
+            "required": ["mode"]
+          },
+          "then": {
+            "required": ["network", "runtime"],
+            "properties": {
+              "runtime": {
+                "enum": ["qemu-wifi", "qemu-unified"]
+              },
+              "require_network": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "ui-interactive"
+              }
+            },
+            "required": ["mode"]
+          },
+          "then": {
+            "properties": {
+              "require_frame": {
+                "const": true
+              },
+              "require_input_response": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

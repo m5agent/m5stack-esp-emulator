@@ -83,6 +83,14 @@ TCP/443; a wrong-password control is rejected at M2 MIC and retries without
 DHCP. Real credentials, Realtime/audio, cloud success, WPA3, group-key
 multicast, physical WPA2 and hardware remain `NOT RUN`.
 
+The matrix can now apply the same evidence to a SHA-bound `network-first`
+expectation instead of treating the absence of a UI frame as the primary
+application verdict.
+[`evidence-2026-10-25-network-first-review-expectation.json`](evidence-2026-10-25-network-first-review-expectation.json)
+binds the public BIN, expectation digest, isolated NVS fixture and finalized
+network evidence in one result key. Plaintext WiFi passwords are rejected in
+the expectation file; only a password environment-variable name is allowed.
+
 The earlier
 [`refreshed-four-functional`](evidence-2026-10-25-refreshed-four-functional/)
 checkpoint is retained as the `2 PASS / 2 PARTIAL` no-storage control. Its
