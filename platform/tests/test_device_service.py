@@ -191,6 +191,58 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.service.close_all()
         self.tmp.cleanup()
 
+    def test_http_companion_persists_requests_and_recovers_by_generation(
+        self,
+    ):
+        log_path = Path(self.tmp.name) / "http-fixture.json"
+        port = device_service_module.free_tcp_port()
+        first = device_service_module.UnifiedHttpFixture(
+            log_path,
+            body=b"FIRST\n",
+            port=port,
+            generation=1,
+        )
+        try:
+            request = Request(
+                f"http://127.0.0.1:{port}/unified",
+                headers={"Host": "qemu.test"},
+            )
+            with urlopen(request, timeout=5) as response:
+                self.assertEqual(response.read(), b"FIRST\n")
+            persisted = json.loads(log_path.read_text())
+            self.assertEqual(len(persisted), 1)
+            self.assertEqual(persisted[0]["fixture_generation"], 1)
+        finally:
+            first.close()
+
+        seed = json.loads(log_path.read_text())
+        second = device_service_module.UnifiedHttpFixture(
+            log_path,
+            body=b"SECOND\n",
+            port=port,
+            seed_requests=seed,
+            generation=2,
+        )
+        try:
+            request = Request(
+                f"http://127.0.0.1:{port}/unified",
+                headers={"Host": "qemu.test"},
+            )
+            with urlopen(request, timeout=5) as response:
+                self.assertEqual(response.read(), b"SECOND\n")
+        finally:
+            second.close()
+
+        recovered = json.loads(log_path.read_text())
+        self.assertEqual(
+            [item["fixture_generation"] for item in recovered],
+            [1, 2],
+        )
+        self.assertEqual(
+            [(item["path"], item["host"]) for item in recovered],
+            [("/unified", "qemu.test"), ("/unified", "qemu.test")],
+        )
+
     def test_catalog_enables_tab5_and_excludes_cardputer_zero(self):
         payload = self.service.list_devices()
         rows = {row["device_id"]: row for row in payload["devices"]}
@@ -3046,6 +3098,41 @@ class DeviceServiceUnitTests(unittest.TestCase):
         session._hci_probe = None
         session.state = "stopped"
 
+    def test_hci_probe_post_pass_continuity_trigger_is_explicit(self):
+        spec = self.service.specs["sticks3"]
+        firmware_path = Path(self.tmp.name) / "sticks3-continuity.bin"
+        firmware_path.write_bytes(b"\xff" * spec.flash_size)
+        session = DeviceSession(
+            self.service,
+            session_id="c" * 32,
+            spec=spec,
+            firmware_id="d" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="d" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_STICKS3_READY",
+            ready_timeout=123,
+            ready_conditions=None,
+            runtime="qemu-unified",
+            network_config={
+                "profile": device_service_module.STICKS3_UNIFIED_PROFILE,
+                "attempts": 1,
+                "ble_post_pass_continuity": True,
+            },
+            persist=False,
+        )
+        command, _ = session._hci_probe_command()
+        self.assertIn("--post-pass-trigger", command)
+        trigger_index = command.index("--post-pass-trigger") + 1
+        self.assertEqual(
+            command[trigger_index],
+            str(session.dir / "ble-continuity.trigger"),
+        )
+        timeout_index = command.index("--post-pass-trigger-timeout") + 1
+        self.assertEqual(command[timeout_index], "123")
+
     def test_sticks3_unified_qemu_evidence_and_bundle(self):
         spec = self.service.specs["sticks3"]
         firmware_path = Path(self.tmp.name) / "sticks3-unified.bin"
@@ -4682,6 +4769,209 @@ class DeviceServiceUnitTests(unittest.TestCase):
             if process.poll() is None:
                 process.terminate()
                 process.wait(timeout=5)
+
+    def test_unified_reattach_recovers_http_and_adopts_live_ble_peer(self):
+        spec = self.service.specs["sticks3"]
+        profile = device_service_module.STICKS3_UNIFIED_PROFILE
+        session_id = "f" * 32
+        firmware_path = Path(self.tmp.name) / "sticks3-unified.bin"
+        firmware_path.write_bytes(b"\xff" * spec.flash_size)
+        qemu = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                "import time; time.sleep(60)",
+                str(Path("/tmp") / f"m5-service-{session_id}.sock"),
+            ]
+        )
+        qemu_identity = device_service_module.inspect_process(qemu.pid)
+        ble_port = device_service_module.free_tcp_port()
+        ble = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                "import time; time.sleep(60)",
+                str(device_service_module.BLE_PROBE),
+                "--port",
+                str(ble_port),
+                "--name-prefix",
+                "M5-STICKS3-UNIFIED",
+            ]
+        )
+        ble_identity = device_service_module.inspect_process(ble.pid)
+        self.assertTrue(qemu_identity["exists"])
+        self.assertTrue(ble_identity["exists"])
+        command_sha256 = hashlib.sha256(
+            str(ble_identity["command"]).encode()
+        ).hexdigest()
+        http_port = device_service_module.free_tcp_port()
+        session = DeviceSession(
+            self.service,
+            session_id=session_id,
+            spec=spec,
+            firmware_id="a" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="a" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=120,
+            ready_marker="UNIFIED_STICKS3_READY",
+            ready_timeout=120,
+            ready_conditions=None,
+            runtime="qemu-unified",
+            network_config={
+                "profile": profile,
+                "nic": "misc.esp32s3.wifi",
+                "attempts": 1,
+                "policy": {
+                    "isolation": "trusted-host",
+                    "egress": "native",
+                    "dns": "slirp",
+                },
+                "ble_reconnect_cycles": 2,
+            },
+            initial_state="running",
+            process_start_token=qemu_identity["start_token"],
+            companions={
+                "ble": {
+                    "state": "running",
+                    "pid": ble.pid,
+                    "start_token": ble_identity["start_token"],
+                    "command_sha256": command_sha256,
+                    "port": ble_port,
+                },
+                "http": {
+                    "state": "running",
+                    "port": http_port,
+                    "generation": 1,
+                },
+            },
+        )
+        session.pid = qemu.pid
+        session.http_fixture_log.write_text(
+            json.dumps(
+                [
+                    {
+                        "path": "/unified",
+                        "host": "qemu.test",
+                        "fixture_generation": 1,
+                    }
+                ]
+            )
+        )
+        fake_qmp = mock.MagicMock()
+        fake_qmp.cmd.return_value = {"return": {"status": "running"}}
+        try:
+            with (
+                mock.patch.object(
+                    device_service_module,
+                    "wait_qmp",
+                    return_value=fake_qmp,
+                ),
+                mock.patch.dict(
+                    device_service_module.UNIFIED_HTTP_PORTS,
+                    {profile: http_port},
+                ),
+            ):
+                recovered = session.reattach()
+                request = Request(
+                    f"http://127.0.0.1:{http_port}/unified",
+                    headers={"Host": "qemu.test"},
+                )
+                with urlopen(request, timeout=5) as response:
+                    self.assertEqual(
+                        response.read(),
+                        device_service_module.UNIFIED_HTTP_BODIES[profile],
+                    )
+            self.assertEqual(
+                recovered["recovery_scope"],
+                "qemu-control-plane+companions",
+            )
+            self.assertEqual(
+                recovered["companion_recovery"]["ble_probe"]["state"],
+                "adopted",
+            )
+            self.assertEqual(
+                recovered["companion_recovery"]["http_fixture"][
+                    "generation"
+                ],
+                2,
+            )
+            requests = json.loads(session.http_fixture_log.read_text())
+            self.assertEqual(
+                [item["fixture_generation"] for item in requests],
+                [1, 2],
+            )
+            snapshot = session.snapshot()
+            self.assertEqual(
+                snapshot["recovery_scope"],
+                "qemu-control-plane+companions",
+            )
+            self.assertTrue(
+                snapshot["companions"]["ble_probe"]["adopted"]
+            )
+            self.assertNotIn("start_token", snapshot["companions"]["ble_probe"])
+        finally:
+            session._terminate_process()
+            for process in (qemu, ble):
+                if process.poll() is None:
+                    process.terminate()
+                    process.wait(timeout=5)
+
+    def test_companion_recovery_fails_closed_without_ownership(self):
+        spec = self.service.specs["sticks3"]
+        firmware_path = Path(self.tmp.name) / "sticks3-unified.bin"
+        firmware_path.write_bytes(b"\xff" * spec.flash_size)
+        for isolation, expected_code in (
+            ("trusted-host", "companion_recovery_failed"),
+            ("namespace", "companion_recovery_unsupported"),
+        ):
+            with self.subTest(isolation=isolation):
+                session = DeviceSession(
+                    self.service,
+                    session_id=uuid.uuid4().hex,
+                    spec=spec,
+                    firmware_id="b" * 64,
+                    firmware_path=firmware_path,
+                    firmware_sha="b" * 64,
+                    firmware_source="uploaded",
+                    source_artifacts=[],
+                    ttl_seconds=120,
+                    ready_marker="UNIFIED_STICKS3_READY",
+                    ready_timeout=120,
+                    ready_conditions=None,
+                    runtime="qemu-unified",
+                    network_config={
+                        "profile": device_service_module.STICKS3_UNIFIED_PROFILE,
+                        "policy": {
+                            "isolation": isolation,
+                            "egress": (
+                                "native"
+                                if isolation == "trusted-host"
+                                else "deny-all"
+                            ),
+                            "dns": (
+                                "slirp"
+                                if isolation == "trusted-host"
+                                else "deny"
+                            ),
+                        },
+                    },
+                    initial_state="running",
+                    companions={
+                        "http": {
+                            "state": "running",
+                            "port": device_service_module.UNIFIED_HTTP_PORTS[
+                                device_service_module.STICKS3_UNIFIED_PROFILE
+                            ],
+                            "generation": 1,
+                        }
+                    },
+                    persist=False,
+                )
+                with self.assertRaises(ServiceError) as error:
+                    session._recover_companions()
+                self.assertEqual(error.exception.code, expected_code)
 
 
 class DeviceServiceHttpTests(unittest.TestCase):

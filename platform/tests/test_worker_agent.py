@@ -419,6 +419,40 @@ class WorkerAgentTests(unittest.TestCase):
             control_calls_before_recheck,
         )
 
+    def test_evidence_delay_is_bounded_and_applied_after_ready(self):
+        api = FakeApi()
+        agent = self.agent(api)
+        job = {
+            "job_id": "job-delay",
+            "lease": {"lease_id": "lease-delay"},
+            "request": {
+                "session": {
+                    "device_id": "sticks3",
+                    "runtime": "qemu-unified",
+                },
+                "evidence_include": ["manifest"],
+                "evidence_delay_seconds": 7,
+            },
+        }
+        with mock.patch("worker_agent.time.sleep") as sleep:
+            result = agent.execute_job(job)
+        self.assertEqual(result["state"], "PASS")
+        sleep.assert_called_with(7.0)
+        self.assertEqual(
+            result["summary"]["evidence_delay_seconds"],
+            7.0,
+        )
+
+        invalid = {
+            **job,
+            "request": {
+                **job["request"],
+                "evidence_delay_seconds": 301,
+            },
+        }
+        with self.assertRaises(WorkerAgentError):
+            agent.execute_job(invalid)
+
     def test_transient_control_restart_reregisters_and_reports_same_lease(self):
         api = TransientResultApi()
         agent = self.agent(

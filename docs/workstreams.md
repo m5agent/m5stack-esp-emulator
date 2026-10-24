@@ -17,10 +17,10 @@
 | 工作流 | 已交付的可执行面 | 当前在途 | 下一验收门禁 |
 | --- | --- | --- | --- |
 | 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；设备覆盖与 Tab5 边界见当前状态和自动快照 | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
-| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、active-token multicast worker discovery、central/runtime restart 后同 lease/session/evidence continuity、session-create idempotency、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离、worker namespace 内真实 StickS3 QEMU/artifact/evidence、generic ESP32-S3 `qemu-wifi` observe、S3 WPA2-PSK 正确/错误密码 | `NET-04` 真实跨主机 QEMU executor、NAT/跨子网 discovery、companion/evidence-stream continuity、跨主机 idempotency；CIDR/domain-set；WPA3/group multicast | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
+| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、active-token multicast worker discovery、central/runtime restart 后同 lease/session/evidence continuity、session-create idempotency、trusted-host unified HTTP/BLE companion continuity、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离、worker-local QEMU 与 worker namespace 内真实 StickS3 QEMU/artifact/evidence、generic ESP32-S3 `qemu-wifi` observe、S3 WPA2-PSK 正确/错误密码 | `NET-04` 真实跨主机 QEMU executor、NAT/跨子网 discovery、namespace-managed/Tab5/cross-host companion、连续 evidence 流、跨主机 idempotency；CIDR/domain-set；WPA3/group multicast | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
 | Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；同 guest 多轮重连、active-BLE 和 bounded-TCG 门禁已闭合 | 长时并发/吞吐和 teardown；bit-exact controller/baseband 与物理 cache/PSRAM 边界 | controller/物理边界和同固件路径真机验证 |
 | 通用固件审查 | manifest、API/WebBurner required/optional capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传、公开 BIN 强制刷新、session-isolated SD/NVS fixture、SHA-bound UI/headless/network-first expectation；OpenAI NVS、Open/WPA2 正确密码与错误密码、network-first DHCP/DNS/TCP/pcap 对照 | 真实 key/cloud 结果；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN/expectation/fixture SHA、分层区分 firmware/model/fixture 结果、更多固件族、运行态权限/许可闭环和同 SHA 真机安全流程 |
-| Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/companion 接管、warm pool、容量和大型编排模块拆分 |
+| Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 QEMU/QMP 与 trusted-host companion reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/namespace-managed/Tab5 companion、warm pool、容量和大型编排模块拆分 |
 
 “当前在途”只表示工作已经启动，不是 PASS。具体轮数、PASS 计数、资源采样
 和固件哈希以 [项目快照](project-snapshot.md) 与
@@ -28,24 +28,20 @@
 
 ## 未完成项执行顺序
 
-1. `SVC-01` / `NET-04` companion continuity：control/runtime 双端点、
-   worker-local QEMU、两个 network namespace、authenticated multicast
-   discovery、central/runtime restart continuity 和 session-create
-   idempotency 已 PASS；当前补 HTTP fixture 与 BLE helper 的持久 ownership、
-   adopt-or-recreate、evidence-stream continuity 和统一 StickS3 restart
-   fixture。
-2. `NET-04` 跨主机阶段：补物理跨主机 executor/reattach、NAT/跨子网
-   discovery、跨主机 idempotency 和不可信固件隔离。
-3. `FW-03`：当前四样本、SD/NVS fixture、SHA-bound expectation 和
+1. `NET-04` 跨主机阶段：trusted-host unified companion continuity 已 PASS；
+   当前补物理跨主机 executor/reattach、NAT/跨子网 discovery、
+   namespace-managed/Tab5/cross-host companion、跨主机 idempotency 和
+   不可信固件隔离。
+2. `FW-03`：当前四样本、SD/NVS fixture、SHA-bound expectation 和
    OpenAI network-first 已通过；下一步补真实 key/cloud 结果，再扩固件族。
-4. `CORE2-02`：补长时吞吐/teardown、bit-exact controller/baseband 和
+3. `CORE2-02`：补长时吞吐/teardown、bit-exact controller/baseband 和
    物理 cache/PSRAM 边界；已完成的重连与 TCG 门禁不重复列为待办。
-5. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
+4. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
    BM8563 RTC 路径；`RUNTIME-04` 独立补 ATECC608 fixture；
    `RUNTIME-02` 补 C6 802.15.4 commissioning 或保持显式不支持。
-6. `FW-01/02`：补运行态 ACL/许可和真实安全配置流程。
-7. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
-8. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
+5. `FW-01/02`：补运行态 ACL/许可和真实安全配置流程。
+6. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
+7. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
 
 ## 工作流
 

@@ -1,5 +1,7 @@
 """One UIFlow2 guest exercising StickS3 board, WiFi and BLE data planes."""
 
+# ruff: noqa: F403, F405
+
 import M5
 import network
 import socket
@@ -17,7 +19,9 @@ BLE_NAME = "M5-STICKS3-UNIFIED"
 state = {
     "a": 0,
     "ble": "init",
+    "ble_rx": 0,
     "http": "not-run",
+    "http_recheck": "not-run",
     "imu": (0.0, 0.0, 0.0),
     "power": (0, 0, 0),
     "speaker": "init",
@@ -211,6 +215,7 @@ def main():
 
         def on_receive():
             payload = bytes(server.read())
+            state["ble_rx"] += 1
             emit("UNIFIED_STICKS3_BLE_RX", payload)
             server.write(b"ACK:" + payload)
             emit("UNIFIED_STICKS3_BLE_ACK_SENT")
@@ -227,6 +232,19 @@ def main():
 
     while True:
         M5.update()
+        if (
+            state["ble_rx"] >= 2
+            and state["http_recheck"] == "not-run"
+        ):
+            state["http_recheck"] = "running"
+            try:
+                probe_http()
+                state["http_recheck"] = "pass"
+                emit("UNIFIED_STICKS3_HTTP_RECHECK_PASS")
+            except Exception as error:
+                state["http_recheck"] = "fail"
+                emit("UNIFIED_STICKS3_HTTP_RECHECK_ERROR", repr(error))
+            draw()
         if BtnA.wasPressed():
             state["a"] += 1
             emit("UNIFIED_STICKS3_BTN_A", state["a"])

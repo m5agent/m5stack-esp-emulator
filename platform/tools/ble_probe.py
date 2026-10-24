@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import traceback
+from pathlib import Path
 from typing import Any
 
 from ble_runtime_limits import (
@@ -343,6 +344,30 @@ async def observe(args: argparse.Namespace) -> int:
                 await asyncio.sleep(args.reconnect_delay)
         emit("BLE_BUMBLE_PASS", f"cycles={args.reconnect_cycles}")
         assert connection is not None
+        if args.post_pass_trigger is not None:
+            trigger = args.post_pass_trigger
+            trigger.unlink(missing_ok=True)
+            emit("BLE_BUMBLE_POST_PASS_WAIT", str(trigger))
+            deadline = time.monotonic() + args.post_pass_trigger_timeout
+            while not trigger.is_file():
+                if time.monotonic() >= deadline:
+                    emit("BLE_BUMBLE_FAIL", "post-pass continuity trigger timeout")
+                    await connection.disconnect()
+                    connection = None
+                    return 1
+                await asyncio.sleep(0.1)
+            trigger.unlink(missing_ok=True)
+            await connection.disconnect()
+            connection = None
+            emit("BLE_BUMBLE_DISCONNECTED", str(args.reconnect_cycles))
+            await asyncio.sleep(args.reconnect_delay)
+            connection = await exchange(args.reconnect_cycles + 1)
+            if connection is None:
+                return 1
+            emit(
+                "BLE_BUMBLE_CONTINUITY_PASS",
+                str(args.reconnect_cycles + 1),
+            )
         if args.linger > 0:
             await asyncio.sleep(args.linger)
         await connection.disconnect()
@@ -390,6 +415,17 @@ def main() -> int:
         default=2,
         help="seconds between peer disconnect and the next scan",
     )
+    parser.add_argument(
+        "--post-pass-trigger",
+        type=Path,
+        help="after emitting PASS, wait for this file then run one continuity cycle",
+    )
+    parser.add_argument(
+        "--post-pass-trigger-timeout",
+        type=float,
+        default=60,
+        help="bounded wait for the post-pass continuity trigger",
+    )
     args = parser.parse_args()
     if (
         args.reconnect_cycles < 1
@@ -404,6 +440,8 @@ def main() -> int:
             "--reconnect-delay must be from 0 to "
             f"{MAX_BLE_RECONNECT_DELAY_SECONDS}"
         )
+    if args.post_pass_trigger_timeout <= 0:
+        parser.error("--post-pass-trigger-timeout must be positive")
     try:
         return asyncio.run(observe(args))
     except Exception as error:  # noqa: BLE001 - emit actionable peer failure.

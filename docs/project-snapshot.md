@@ -47,7 +47,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。active-token multicast discovery、central control-plane restart、runtime Device Service restart 和 session-create idempotency 已 PASS。下一步补 NAT/跨子网发现、跨主机迁移/reattach、companion continuity、生产调度 |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。active-token multicast discovery、central control-plane restart、runtime Device Service restart、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已 PASS。下一步补 NAT/跨子网发现、跨主机迁移/reattach、namespace-managed/Tab5/cross-host companion 和生产调度 |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
@@ -55,7 +55,7 @@
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture |
-| `SVC-01` | 进行中 | central control-plane、runtime-service restart continuity 和 session-create idempotency 已完成；companion/BLE continuity、跨主机 idempotency、NAT/跨子网 discovery 与跨主机 reattach 仍待做 |
+| `SVC-01` | 进行中 | central control-plane、runtime-service restart continuity、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已完成；namespace-managed/Tab5/cross-host companion、跨主机 idempotency、NAT/跨子网 discovery 与跨主机 reattach 仍待做 |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 |
@@ -65,24 +65,24 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`38` 个 Python 模块，`30353` 行；规模最大的模块如下。
+- `platform/tools`：`38` 个 Python 模块，`30893` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 9083 |
+| `device_service.py` | 9572 |
 | `firmware_manifest.py` | 2214 |
 | `user_firmware_matrix.py` | 2069 |
 | `firmware_filesystems.py` | 1469 |
 | `serve.py` | 1385 |
 | `network_fabric.py` | 1375 |
 
-- `tests/`：`56` 个可执行 Python 测试文件，分布在 `39` 个目录；`134` 个 evidence JSON。
+- `tests/`：`56` 个可执行 Python 测试文件，分布在 `39` 个目录；`135` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`54` 个 patch 文件。
-- 文档：`192` 个 Markdown 页面，`16346` 行。
+- 文档：`192` 个 Markdown 页面，`16445` 行。
 
 ## 文档与测试
 
-- 平台测试：`396` 项。
+- 平台测试：`402` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

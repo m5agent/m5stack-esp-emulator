@@ -741,6 +741,15 @@ class WorkerAgent:
             raise WorkerAgentError(
                 "job request.evidence_include must be a non-empty string list"
             )
+        evidence_delay = request.get("evidence_delay_seconds", 0)
+        if (
+            isinstance(evidence_delay, bool)
+            or not isinstance(evidence_delay, (int, float))
+            or not 0 <= evidence_delay <= 300
+        ):
+            raise WorkerAgentError(
+                "job request.evidence_delay_seconds must be from 0 to 300"
+            )
 
         session_id: str | None = None
         evidence: bytes | None = None
@@ -753,6 +762,7 @@ class WorkerAgent:
         )
         summary: dict[str, Any] = {
             "execution_plane": execution_plane,
+            "evidence_delay_seconds": float(evidence_delay),
         }
         state = "FAIL"
         runtime_api = self.runtime_api
@@ -766,6 +776,8 @@ class WorkerAgent:
             )
             session_id = str(created["session_id"])
             running = self._wait_session(session_id, api=runtime_api)
+            if evidence_delay:
+                time.sleep(float(evidence_delay))
             evidence, evidence_sha256, evidence_path = self._collect_evidence(
                 job_id,
                 session_id,
@@ -778,6 +790,7 @@ class WorkerAgent:
                 "state": running.get("state"),
                 "evidence_bytes": len(evidence),
                 "execution_plane": execution_plane,
+                "evidence_delay_seconds": float(evidence_delay),
             }
             state = "PASS"
         except Exception as error:

@@ -75,6 +75,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - 已获得具体 runtime session ID 后，worker 对 runtime status/evidence/stop
   做有界 transient retry；runtime Device Service 同 state 重启后按
   PID start-time、QMP ownership 和 running 状态重新接管同一 QEMU；
+  trusted-host unified session 还会从持久请求重建 HTTP fixture，并在
+  PID/start-time/command SHA256 校验后 adopt 存活 BLE peer，完成重启后的
+  GATT cycle 2 和 guest HTTP recheck；
   session create 使用持久化 idempotency key；worker 以 job+lease 派生稳定
   key，响应丢失后重试仍返回同一 session，不同请求返回 409；
 - 两个 veth 连接 network namespace 中的 Bearer+HMAC worker control plane，
@@ -90,7 +93,8 @@ controlled AAAA、allowed IPv6 HTTP、denied-port、pcap、namespace cleanup
 
 当前仍未完成的网络产品化项只列在
 [项目 Backlog](project-backlog.md)，重点是 `NET-04` 跨主机 worker/QEMU
-executor、companion/evidence continuity、NAT/跨子网发现和 CIDR/domain-set。
+executor、namespace-managed/Tab5/cross-host companion continuity、连续
+external evidence 流、NAT/跨子网发现和 CIDR/domain-set。
 `NET-05` 与 `NET-06` 均已完成当前 accepted virtual-device scope。
 
 ## Required test matrix

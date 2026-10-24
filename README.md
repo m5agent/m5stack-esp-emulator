@@ -30,7 +30,9 @@ MicroPython 和其他完整 Flash 固件。
   lease/evidence，worker-local runtime QEMU session 保持运行。
 - Runtime Device Service 使用同一 state dir 重启时，worker 对已知 session
   retry status/evidence/stop；新服务按 PID start-time、QMP ownership 和
-  running 状态重新接管同一 QEMU，再由原 job 提交 evidence。
+  running 状态重新接管同一 QEMU。Trusted-host unified session 还会按持久
+  generation 重建 HTTP fixture，并在精确 PID/start-time/command-SHA 校验后
+  adopt 存活 BLE peer，再完成重启后的 GATT/HTTP 连续性检查。
 - Session create 使用持久化 `idempotency_key`；同一 key/请求重试返回原
   session，不同请求返回 409，worker 以 job+lease 派生稳定 key，避免响应
   丢失后创建第二个 QEMU/session。

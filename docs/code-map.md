@@ -79,7 +79,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/worker_directory.py` | 远程 worker 持久目录、identity/generation 冲突、heartbeat/drain/stop、capability 和有界结果元数据 | Device Service、worker directory 测试 |
 | `platform/tools/worker_queue.py` | 持久 job queue、idempotency、capability matching、claim/lease/heartbeat、超时重试、terminal result 和 worker 失联回收 | Device Service、worker queue 测试 |
 | `platform/tools/worker_auth.py` | 严格 token-file 读取、master token 派生 worker key、时间戳/nonce HMAC、body/path identity binding 和 replay cache | Device Service、worker agent、auth 测试 |
-| `platform/tools/worker_agent.py` | HTTP-only worker executor：持久 generation、可达 endpoint 注册、transient control reconnect/re-register、heartbeat、中央 claim/result，可选独立 runtime API 负责 session、evidence 和 stop | worker CLI、executor/restart 测试 |
+| `platform/tools/worker_agent.py` | HTTP-only worker executor：持久 generation、可达 endpoint 注册、transient control reconnect/re-register、heartbeat、中央 claim/result、bounded evidence delay，可选独立 runtime API 负责 session、evidence 和 stop | worker CLI、executor/restart 测试 |
 | `platform/tools/worker_discovery.py` | HMAC-authenticated IPv4 multicast beacon、TTL/clock validation、token rotation-aware announcer 和 worker discovery client | `serve.py`、`worker_agent.py`、discovery tests |
 | `platform/tools/transport_security.py` | TLS 1.2+ server/client context、服务端证书校验、可选 client CA 和 mTLS 客户端证书 | `serve.py`、`worker_agent.py`、TLS tests |
 | `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
@@ -355,27 +355,30 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Remote job queue | `/api/v1/jobs`、`/jobs/claim`、`heartbeat`、`result`、`cancel`；`platform/tests/test_worker_queue.py` | 持久幂等任务、capability match、worker lease、expiry/retry、stale/stop/generation 回收和原子 `0600` 状态文件；不执行任务、不接管活动 QEMU |
 | Authenticated worker discovery | `worker_discovery.py`; `serve.py --worker-discovery-*`; `worker_agent.py --discover-control`; `test_worker_discovery.py`; `tests/network/worker_discovery/` | active-token HMAC multicast beacon、TTL/clock/URL/包上限、零硬编码 control URL bootstrap、错误/旧 token reject 和 SIGHUP rotation 后重新发现；scope 限于同一 multicast domain |
 | Worker control-plane restart continuity | `worker_agent.py --control-reconnect-timeout`; `worker_queue.py` result lease binding; `tests/network/worker_control_restart/` | 初始 `runtime=qemu` 非网络 session 暴露 `nic` 未初始化 FAIL 并保留；修复后真实 central/runtime Device Service 分离，central 停止 2.2s 后同 state 重启，worker 重注册、继续 heartbeat、同一 identity/generation/lease 完成 PASS、evidence ZIP、runtime session stop 和 QEMU reap PASS；不覆盖 runtime restart/cross-host migration |
-| Worker runtime-service restart continuity | `worker_agent.py --runtime-reconnect-timeout`; `device_service.py` PID/start-time/QMP reattach; `tests/network/worker_runtime_restart/` | runtime Service SIGKILL 2.2s 后同 state 重启，同一 session/PID 重新接管；worker status/evidence/stop retry，原 job/lease PASS，ZIP 含 manifest/serial，session stop 与 QEMU reap PASS；create response-loss、companion/cross-host migration 不覆盖 |
+| Worker runtime-service restart continuity | `worker_agent.py --runtime-reconnect-timeout` / `evidence_delay_seconds`; `device_service.py` QEMU + companion recovery; `tests/network/worker_runtime_restart/` | runtime Service SIGKILL 2.2s 后同 state 重启，同一 session/PID 重新接管；trusted-host unified fixture 重建 HTTP generation 2、adopt 同 BLE peer、完成 GATT cycle 2 和 guest HTTP recheck；worker status/evidence/stop retry，原 job/lease PASS，ZIP 含两代 HTTP/serial/network/pcap，session 与 QEMU/companion cleanup PASS；cross-host/namespace-managed/Tab5 migration 不覆盖 |
 | Session-create idempotency | `device_service.py` `session-idempotency.json`; `worker_agent.py` job+lease key; `tests/network/session_idempotency/` | 并发同 key 同请求只建一个 session/QEMU lease；key/request 只存 SHA，异请求 409，service restart 后仍返回原 session；跨主机/跨租户存储 NOT RUN |
-| Worker executor, discovery and rotation | `platform/tools/worker_agent.py`、`worker_auth.py`、`worker_discovery.py`、`transport_security.py`、auth/discovery/executor/TLS tests、`tests/network/worker_discovery/`、`tests/network/worker_executor/`、`tests/network/worker_tls/`、`tests/network/worker_cross_netns/` | 同主机真实 QEMU job、worker HMAC、evidence ZIP/SHA256 和 terminal result；control/runtime 双 URL 由单测和两个 veth 连接 namespace 的真实 worker-local StickS3 QEMU job 验证，central control plane 不接收 session API；QEMU 前绑定 source firmware、normalized artifact 和 QEMU SHA，serial/frame/QOM、terminal result、QEMU reap 和 namespace cleanup 均 PASS。loopback 真实 HTTPS/mTLS、服务端校验、客户端证书、签名请求、真实 StickS3 QEMU job 和 unified board/WiFi/BLE job over mTLS PASS；SIGHUP rotation、overlap 和自动 migration PASS；active-token multicast discovery、错误/旧 token reject 和 rotation 后重新发现 PASS。物理跨主机 executor、NAT/跨子网 discovery、跨主机 reattach 和 companion continuity 仍开放 |
+| Worker executor, discovery and rotation | `platform/tools/worker_agent.py`、`worker_auth.py`、`worker_discovery.py`、`transport_security.py`、auth/discovery/executor/TLS tests、`tests/network/worker_discovery/`、`tests/network/worker_executor/`、`tests/network/worker_tls/`、`tests/network/worker_cross_netns/` | 同主机真实 QEMU job、worker HMAC、evidence ZIP/SHA256 和 terminal result；control/runtime 双 URL 由单测和两个 veth 连接 namespace 的真实 worker-local StickS3 QEMU job 验证，central control plane 不接收 session API；QEMU 前绑定 source firmware、normalized artifact 和 QEMU SHA，serial/frame/QOM、terminal result、QEMU reap 和 namespace cleanup 均 PASS。loopback 真实 HTTPS/mTLS、服务端校验、客户端证书、签名请求、真实 StickS3 QEMU job 和 unified board/WiFi/BLE job over mTLS PASS；SIGHUP rotation、overlap 和自动 migration PASS；active-token multicast discovery、错误/旧 token reject 和 rotation 后重新发现 PASS；trusted-host unified companion continuity PASS。物理跨主机 executor、NAT/跨子网 discovery、跨主机 reattach 和 namespace-managed/Tab5/cross-host companion 仍开放 |
 | Worker restart integration | `tests/network/worker_lifecycle/evidence-2026-10-24-pass.json` | 真实 QEMU session 跨 drain 保持；停止后 drained；SIGKILL 后 generation 2 记录 abandoned lease 并将会话恢复为 interrupted failed；进程组清理 PASS |
 
 设备级 PASS 至少要有固件 hash、runtime/profile、输入、串口、frame 和对应
 数据面证据。进程启动、版本匹配或单条日志不能单独作为应用 PASS。
 
-## 当前接续边界：companion helpers
+## Companion recovery boundary
 
-下一项 `SVC-01` / `NET-04` 的实现热区已经明确，但尚未关闭：
+trusted-host unified companion recovery 已闭合：
 
-- `DeviceSession.reattach()` 当前只验证并恢复 QEMU PID/start-time、QMP
-  ownership 和 running 状态；
-- controlled HTTP fixture 是进程内 `UnifiedHttpFixture`，BLE peer 是
-  `_hci_probe` 子进程；两者当前只保存在内存句柄中，服务重启后不会恢复；
-- 现有 runtime-restart fixture 明确记录
-  `companion HTTP/BLE helper continuity: NOT RUN`；
-- 关闭该门禁前必须持久化 companion ownership、端点、日志 offset 和生命周期，
-  在重启后安全 adopt 原 helper 或幂等重建，且不能重复监听端口或伪造 BLE
-  PASS。无法证明 ownership 时必须返回结构化 recovery failure。
+- `DeviceSession.reattach()` 先验证 QEMU PID/start-time、QMP ownership 和
+  running 状态；
+- HTTP fixture 每次请求原子写入 `http-fixture.json`，重启后按 profile port
+  和递增 generation 重建；
+- BLE peer 只在 PID、精确 start-time 和完整 process command SHA256 全部匹配
+  时 adopt；缺少 ownership 或没有完成证据时 fail closed；
+- unified StickS3 live fixture 在重启后完成 BLE GATT cycle 2 和 guest HTTP
+  recheck，并在同一 job/lease evidence ZIP 中保留两代 HTTP、serial、network
+  和 pcap。
+
+namespace-managed、Tab5 和 cross-host companion recovery，以及连续外部
+evidence stream 仍开放；这些场景不能从 trusted-host PASS 继承。
 
 ## 证据优先级
 

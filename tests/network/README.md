@@ -29,7 +29,7 @@ capability and open tasks remain in
 | [`worker_tls`](worker_tls/README.md) | HTTPS/mTLS, worker HMAC, rotation, drain, overlap and real QEMU jobs | production secret manager or physical multi-host PKI |
 | [`worker_discovery`](worker_discovery/README.md) | Authenticated same-domain multicast control discovery and token rotation | NAT or cross-subnet discovery |
 | [`worker_control_restart`](worker_control_restart/README.md) | Central control-plane restart and original job/evidence convergence | runtime-service replacement or process migration |
-| [`worker_runtime_restart`](worker_runtime_restart/README.md) | Runtime Device Service SIGKILL, same-PID/QMP reattach and evidence retry | companion helper continuity or cross-host migration |
+| [`worker_runtime_restart`](worker_runtime_restart/README.md) | Runtime Device Service SIGKILL, same-PID/QMP reattach, evidence retry, trusted-host HTTP recreation and BLE peer adoption | namespace/Tab5 companion recovery, cross-host migration or hardware |
 | [`worker_reattach`](worker_reattach/README.md) | Local QEMU PID/start-time/QMP ownership reattach | companion HTTP/BLE helper reattach |
 | [`worker_cross_netns`](worker_cross_netns/README.md) | Server/worker veth namespaces and optional worker-local StickS3 QEMU | two physical hosts or automatic NAT traversal |
 | [`session_idempotency`](session_idempotency/README.md) | Concurrent and restart-safe `POST /sessions` idempotency | cross-host/tenant idempotency storage |

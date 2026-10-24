@@ -454,8 +454,8 @@ key/Realtime/云业务、WPA3/group multicast、物理 RF 和真机仍为 `NOT R
 1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
    LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
 2. NAT/跨子网 discovery、跨主机迁移、跨主机 QEMU job executor/reattach、
-   companion/evidence continuity 和生产调度；同一 multicast domain 的
-   authenticated discovery、本地
+   namespace-managed/Tab5/cross-host companion、连续 evidence 流和生产调度；
+   同一 multicast domain 的 authenticated discovery、本地
    worker heartbeat/drain、远程目录、
    durable queue/lease supervisor、HTTPS/mTLS、SIGHUP TLS/token
    rotation + activity drain + bounded overlap、同主机 authenticated
@@ -473,8 +473,9 @@ key/Realtime/云业务、WPA3/group multicast、物理 RF 和真机仍为 `NOT R
 heartbeat/drain/restart classification、远程 worker 注册目录和 durable
 job queue/lease supervisor。同主机独立 HTTP executor 已完成真实 QEMU
 job、evidence ZIP/SHA256 回报和 worker HMAC；仍未完成的是跨主机
-executor/reattach、companion/evidence continuity、生产多机调度、CIDR/
-domain-set policy 和不可信固件 disposable VM。同 guest controlled AAAA、
+executor/reattach、namespace-managed/Tab5/cross-host companion、连续
+evidence 流、生产多机调度、CIDR/domain-set policy 和不可信固件
+disposable VM。同 guest controlled AAAA、
 IPv6 HTTP、denied-port、pcap 和 cleanup 已在 Linux namespace PASS。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 

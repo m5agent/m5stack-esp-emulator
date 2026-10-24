@@ -60,6 +60,9 @@ Implemented:
   original job/lease/evidence convergence;
 - verified local QEMU/QMP restart re-attach after PID start-time, QMP socket
   ownership and `query-status=running` all match;
+- trusted-host unified companion recovery: durable HTTP request generations
+  are recreated on the profile port, while a surviving BLE peer is adopted
+  only after exact PID, start-time and full command-SHA256 checks;
 - persistent session-create idempotency keyed by request hash and bound to one
   session, including concurrent retry and service restart replay;
 - bounded stopped/failed history with age, count and byte limits;
@@ -86,7 +89,8 @@ Implemented:
 Not implemented yet:
 
 - prestarted warm QEMU instances;
-- companion HTTP/BLE helper and evidence-stream continuity across restart;
+- namespace-managed, Tab5 and cross-host companion recovery, plus a continuous
+  external evidence stream across restart;
 - NAT/cross-subnet discovery, cross-host credential migration, cross-host
   QEMU execution/re-attach, cross-host idempotency and production multi-host
   capacity scheduling;
@@ -320,11 +324,14 @@ same-lease heartbeat and terminal evidence reporting while its runtime QEMU
 session remains untouched. A worker-local runtime Device Service can also
 restart on the same state directory and re-attach that QEMU through PID/QMP
 ownership checks; worker status/evidence/stop requests retry against the
-known session ID. Session creation uses a persisted idempotency key; WorkerAgent
+known session ID. For trusted-host unified sessions it also recreates the HTTP
+fixture from durable request generations, adopts a surviving BLE peer after
+exact process ownership checks, and completes a post-restart GATT/HTTP cycle.
+Session creation uses a persisted idempotency key; WorkerAgent
 derives it from job and lease so response-loss retries return the original
 session. Cross-subnet/NAT discovery, cross-host QEMU execution,
-companion HTTP/BLE continuity,
-cross-host re-attach and multi-host scheduling remain open.
+namespace-managed/Tab5/cross-host companion recovery, a continuous external
+evidence stream, cross-host re-attach and multi-host scheduling remain open.
 
 Discovery requires an active API token and an explicitly advertised externally
 reachable control-plane URL:
@@ -365,8 +372,9 @@ limited to one discovery domain and does not traverse arbitrary NAT/subnets.
   same identity/generation and reports the original lease/evidence. Claim
   itself needs a future stable dedup token before automatic retry;
 - after a runtime session ID exists, transient runtime service failures retry
-  status/evidence/stop; runtime restart re-attaches the same QEMU PID and
-  process-start token before evidence collection;
+  status/evidence/stop; runtime restart re-attaches the same QEMU PID,
+  process-start token, HTTP generation and safely adopted BLE peer before
+  evidence collection;
 - session creation persists only key/request hashes; identical retries return
   the original session and different request content returns 409;
 - the two-namespace Linux fixture proves that separation with a real
@@ -378,9 +386,10 @@ limited to one discovery domain and does not traverse arbitrary NAT/subnets.
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
 - NAT/cross-subnet worker discovery, cross-host credential migration, a real
-  cross-host QEMU execution fixture, companion HTTP/BLE continuity,
-  cross-host re-attach, cross-host idempotency storage and production
-  capacity scheduling remain open.
+  cross-host QEMU execution fixture, namespace-managed/Tab5/cross-host
+  companion recovery, a continuous external evidence stream, cross-host
+  re-attach, cross-host idempotency storage and production capacity scheduling
+  remain open.
 
 ### Phase S2: warm/cold pool
 

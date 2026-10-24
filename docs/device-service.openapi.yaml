@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.27.0
+  version: 1.28.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -18,7 +18,10 @@ info:
     while the worker-local runtime remains active.
     A local running QEMU process can be re-attached after PID start-time,
     session QMP ownership and query-status checks; this restores QEMU/QMP
-    control only, not companion helper or evidence-stream continuity.
+    control. For trusted-host unified sessions, the service also recreates the
+    in-process HTTP fixture and adopts a surviving BLE peer only after exact
+    PID, start-time and command ownership checks. Namespace-managed, Tab5 and
+    cross-host companions are not implied.
     The service can be exposed over HTTPS with verified server certificates
     and optional required client certificates (mTLS); worker HMAC remains a
     separate application authentication layer.
@@ -2052,6 +2055,14 @@ components:
           description: >
             Delay between a peer disconnect and the next scan when multiple BLE
             reconnect cycles are requested.
+        ble_post_pass_continuity:
+          type: boolean
+          default: false
+          description: >
+            Test orchestration mode for trusted-host restart continuity. After
+            the initial BLE PASS, the peer waits for a session-local trigger
+            and then performs one additional GATT cycle. The trigger is not
+            exposed as a guest or production control-plane operation.
         policy:
           type: object
           additionalProperties: false
@@ -2177,6 +2188,40 @@ components:
           minimum: 5
           maximum: 300
           default: 60
+    CompanionState:
+      type: object
+      additionalProperties: false
+      required: [required]
+      properties:
+        required:
+          type: boolean
+        state:
+          type: string
+          enum:
+            - running
+            - recovered
+            - adopted
+            - completed
+            - recovery-failed
+            - terminated
+        pid:
+          type: integer
+          minimum: 1
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+        generation:
+          type: integer
+          minimum: 1
+        ownership_verified:
+          type: boolean
+        adopted:
+          type: boolean
+        recovery_action:
+          type: string
+        continuity_trigger:
+          type: string
     Session:
       type: object
       additionalProperties: true
@@ -2271,11 +2316,28 @@ components:
             process only after PID start-time and QMP ownership checks.
         recovery_scope:
           type: [string, "null"]
-          enum: [qemu-control-plane, null]
+          enum:
+            - qemu-control-plane
+            - qemu-control-plane+companions
+            - null
           description: >
-            Re-attach currently restores QEMU/QMP control only. Companion
-            HTTP/BLE helper processes and external evidence continuity are not
+            qemu-control-plane means QEMU/QMP only.
+            qemu-control-plane+companions additionally means the trusted-host
+            HTTP fixture was recreated and the surviving BLE peer was safely
+            adopted for that same session. Other runtime classes are not
             implied.
+        companions:
+          type: object
+          additionalProperties: false
+          description: >
+            Safe companion ownership and recovery state. Raw start tokens,
+            command lines and command hashes remain in the private session
+            record rather than this snapshot.
+          properties:
+            http_fixture:
+              $ref: "#/components/schemas/CompanionState"
+            ble_probe:
+              $ref: "#/components/schemas/CompanionState"
         worker:
           type: object
           additionalProperties: false
@@ -2629,6 +2691,9 @@ components:
           description: >
             JSON request payload limited to 64 KiB. It must contain job
             parameters rather than credentials, tokens or firmware bytes.
+            A numeric evidence_delay_seconds from 0 to 300 keeps the worker
+            waiting after session readiness before evidence collection; the
+            heartbeat loop remains active.
         required_capabilities:
           type: object
           additionalProperties: true

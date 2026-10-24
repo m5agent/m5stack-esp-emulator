@@ -128,7 +128,8 @@ window.parent.postMessage({
 - 二进制 WebSocket/WebRTC 图像与串口实时推送；当前 REST/轮询接口已可用，
   但还不是低延迟媒体协议；
 - NAT/跨子网 worker discovery、跨主机 QEMU executor/reattach、远程 worker 的
-  companion/BLE/evidence continuity、warm pool 和多机调度；同主机 QEMU/QMP
+  namespace-managed/Tab5/cross-host companion、连续 evidence 流、warm pool
+  和多机调度；同主机 QEMU/QMP 与 trusted-host unified HTTP/BLE companion
   重启接管已实现；
 - 设备中心正式消费 `runtime.validation` 的门禁字段，避免把公开固件的
   bootloader panic 判为应用通过；

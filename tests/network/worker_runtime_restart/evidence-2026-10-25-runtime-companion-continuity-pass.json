@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-runtime-service-restart-continuity",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "virtual-device-runtime-and-companion-restart-not-hardware",
+  "runtime_restart": {
+    "downtime_seconds": 2.2,
+    "same_state_dir": true,
+    "same_session": true,
+    "same_pid": true,
+    "process_start_token_checked_by_reattach": true,
+    "reattached_process": true,
+    "recovery_scope": "qemu-control-plane+companions"
+  },
+  "companion_continuity": {
+    "before_restart": {
+      "http_fixture": {
+        "required": true,
+        "state": "running",
+        "pid": "<service-pid>",
+        "port": "<fixed-profile-port>",
+        "generation": 1,
+        "ownership_verified": true,
+        "adopted": false,
+        "recovery_action": "keep-running"
+      },
+      "ble_probe": {
+        "required": true,
+        "state": "running",
+        "pid": "<ble-peer-pid>",
+        "port": "<ephemeral-peer-port>",
+        "ownership_verified": true,
+        "adopted": false,
+        "recovery_action": "adopt-on-restart",
+        "continuity_trigger": "ble-continuity.trigger"
+      }
+    },
+    "after_restart": {
+      "http_fixture": {
+        "required": true,
+        "state": "recovered",
+        "pid": "<restarted-service-pid>",
+        "port": "<fixed-profile-port>",
+        "generation": 2,
+        "ownership_verified": true,
+        "adopted": false,
+        "recovery_action": "recreate"
+      },
+      "ble_probe": {
+        "required": true,
+        "state": "adopted",
+        "pid": "<ble-peer-pid>",
+        "port": "<ephemeral-peer-port>",
+        "ownership_verified": true,
+        "adopted": true,
+        "recovery_action": "adopt",
+        "continuity_trigger": "ble-continuity.trigger"
+      }
+    },
+    "http_fixture_requests": [
+      {
+        "path": "/unified",
+        "host": "qemu.test",
+        "fixture_generation": 1
+      },
+      {
+        "path": "/unified",
+        "host": "qemu.test",
+        "fixture_generation": 2
+      }
+    ],
+    "ble_continuity_cycle_observed": true,
+    "guest_http_recheck_observed": true,
+    "network_evidence_status": "PASS"
+  },
+  "firmware": {
+    "artifact_sha256": "04b008c60cf54d1e9fc52b8c9a1c2c4738a7ee046a64000779bebc8de9074c9d",
+    "firmware_id": "04b008c60cf54d1e9fc52b8c9a1c2c4738a7ee046a64000779bebc8de9074c9d",
+    "sha256": "04b008c60cf54d1e9fc52b8c9a1c2c4738a7ee046a64000779bebc8de9074c9d"
+  },
+  "job": {
+    "job_id": "<job-id>",
+    "lease_id": "<lease-id>",
+    "status": "completed",
+    "result_state": "PASS",
+    "worker_identity": {
+      "worker_id": "runtime-restart-survivor",
+      "instance_id": "<worker-instance>",
+      "generation": 1
+    }
+  },
+  "worker": {
+    "worker_id": "runtime-restart-survivor",
+    "returncode": 0,
+    "runtime_retry_observed": true
+  },
+  "evidence": {
+    "zip_present": true,
+    "bytes": 42247,
+    "names": [
+      "audio/speaker.pcm",
+      "ble-probe.log",
+      "http-fixture.json",
+      "manifest.json",
+      "network/capture.pcap",
+      "network/evidence.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "serial.log"
+    ],
+    "sha256": "8fe5e4c687e04db2d59bbdcddd75638dc82d4ff2c46674924945e04f588412ae"
+  },
+  "checks": {
+    "job_claimed_before_restart": true,
+    "runtime_session_running_before_restart": true,
+    "runtime_pid_preserved": true,
+    "runtime_reattached_once": true,
+    "worker_runtime_retry_observed": true,
+    "terminal_completed": true,
+    "terminal_pass": true,
+    "same_lease": true,
+    "same_worker_identity": true,
+    "evidence_zip_present": true,
+    "evidence_contains_manifest_and_serial": true,
+    "runtime_session_stopped": true,
+    "runtime_pid_released": true,
+    "qemu_process_absent_after_cleanup": true,
+    "companion_process_absent_after_cleanup": true,
+    "token_absent_from_worker_log": true,
+    "before_restart_http_generation_1": true,
+    "before_restart_ble_peer_running": true,
+    "post_restart_http_recreated_generation_2": true,
+    "post_restart_ble_peer_adopted": true,
+    "post_restart_http_requests_two_generations": true,
+    "post_restart_ble_continuity_cycle": true,
+    "post_restart_guest_http_recheck": true,
+    "network_evidence_pass": true,
+    "network_evidence_two_http_requests": true,
+    "firmware_sha_matches_input": true
+  },
+  "not_claimed": [
+    "cross-host QEMU process migration",
+    "session create response-loss recovery",
+    "production multi-host scheduler",
+    "physical hardware validation"
+  ]
+}

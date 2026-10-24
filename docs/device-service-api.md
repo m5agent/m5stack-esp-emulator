@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.27.0` and bounded
+Status: local MVP with unified-device runtime contract `1.28.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -145,7 +145,12 @@ leases are recorded under `abandoned_leases`. A QEMU session can be re-adopted
 only when its persisted PID start time still matches, its command line owns the
 session-specific QMP socket, QMP responds, and `query-status` reports
 `running`. The new service generation then reserves a fresh local lease and
-sets `reattached_process=true` / `recovery_scope=qemu-control-plane`.
+sets `reattached_process=true`. `recovery_scope=qemu-control-plane` means only
+QEMU/QMP was restored. For trusted-host unified sessions,
+`recovery_scope=qemu-control-plane+companions` additionally means the HTTP
+fixture was recreated on its profile port with durable request history and a
+surviving BLE peer was adopted only after PID, exact start-time and complete
+command-SHA256 checks. Companion ownership failure rejects the re-attach.
 Unverified, expired or incompatible sessions become interrupted `failed`
 history. Stopped/failed sessions and their last-known evidence remain readable.
 
@@ -164,9 +169,10 @@ and request bodies are not written to the mapping file.
 This section describes local worker lifecycle control. The separate durable
 job queue below provides remote enqueue/claim/lease supervision, but it does
 not execute jobs, transfer an evidence bundle or place work across a production
-multi-host scheduler. Local QEMU/QMP control-plane re-attach is implemented;
-companion HTTP/BLE helper continuity, evidence-stream continuity and production
-multi-host placement remain `NOT RUN`.
+multi-host scheduler. Local QEMU/QMP control-plane re-attach and trusted-host
+unified HTTP/BLE companion continuity are implemented. Namespace-managed,
+Tab5 and cross-host companion recovery plus a continuous external evidence
+stream remain `NOT RUN`.
 
 ### Remote worker directory MVP
 
@@ -314,8 +320,8 @@ without receiving `SIGHUP`. A separate Linux fixture covers both the no-QEMU
 control-plane compatibility path and a worker-local real StickS3 QEMU
 execution path. A worker can discover the control URL from an active-token
 IPv4 multicast beacon within one multicast domain. Cross-subnet/NAT discovery,
-cross-host QEMU jobs, cross-host re-attach and companion continuity remain
-open.
+cross-host QEMU jobs, cross-host re-attach and namespace-managed/Tab5/
+cross-host companion recovery remain open.
 
 `worker_agent.py --advertise-endpoint` stores an externally reachable HTTP(S)
 worker endpoint in the registration record. The worker directory rejects
@@ -1867,8 +1873,10 @@ restart.
 - a session that was still active when the service stopped is re-attached only
   after PID start-time, QMP-socket ownership and `query-status=running` checks;
   unverified sessions become `failed` with `interrupted=true` and an explicit
-  event. Re-attach restores QEMU/QMP control only, not companion helper or
-  evidence-stream continuity;
+  event. Trusted-host unified sessions additionally recreate the HTTP fixture
+  with durable request generations and adopt a surviving BLE peer only after
+  exact process ownership checks. Namespace-managed, Tab5 and cross-host
+  companion recovery remain unsupported and fail closed;
 - `GET /sessions?include_stopped=0` hides stopped/failed history from a UI;
 - the web dashboard shows active leases plus sessions completed in the last
   30 minutes when a last-known frame or serial-only view is available;
@@ -1951,6 +1959,13 @@ restart.
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
+- `network.ble_post_pass_continuity=true` is an explicit trusted-host test
+  mode: the BLE peer emits its initial PASS, waits for the session-local
+  `ble-continuity.trigger`, then performs one extra GATT cycle. Combined with a
+  bounded worker `request.evidence_delay_seconds`, a runtime restart fixture
+  can adopt the peer, recreate the HTTP fixture, trigger the second GATT cycle,
+  observe a second guest HTTP request, and only then collect evidence. The
+  trigger is not a production guest-control API;
 - NanoC6 `nanoc6-hci-ble` closes board peripherals, QEMU C6 WiFi DHCP/HTTP
   and UART1 HCI BLE in one C6 guest;
 - Nesso N1 `nesso-unified` adds display/touch, PI4IOE, BQ27220/AW32001,

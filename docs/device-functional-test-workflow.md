@@ -53,8 +53,11 @@ grace period.
 On startup, a stopped/failed record is restored as history. For an active
 QEMU/QMP record, the service may re-attach only when the original PID,
 process start token, QMP socket ownership and `query-status=running` all match.
-It then reports `reattached_process=true` and does not invent companion,
-BLE-helper or evidence-stream continuity. If ownership cannot be proven, the
+Trusted-host unified sessions additionally recreate the HTTP fixture from
+durable request generations and adopt a BLE peer only after PID, start-time and
+full command-SHA256 checks. They report
+`recovery_scope=qemu-control-plane+companions`; namespace-managed, Tab5 and
+cross-host companions remain unsupported. If ownership cannot be proven, the
 record becomes `failed`, `interrupted=true`, with an explicit error; it is
 never presented as running.
 

@@ -172,6 +172,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_cross_netns/evidence-2026-10-25-worker-local-qemu-cross-netns-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
+            "tests/network/worker_runtime_restart/"
+            "evidence-2026-10-25-runtime-companion-continuity-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
@@ -1941,6 +1943,72 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("idempotency_key:", openapi)
         self.assertIn("idempotent_replay:", openapi)
         self.assertIn("session_idempotency_conflict", api)
+
+    def test_runtime_companion_continuity_is_reconciled(self):
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_runtime_restart/"
+                "evidence-2026-10-25-runtime-companion-continuity-pass.json"
+            ).read_text()
+        )
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        api = (DOCS / "device-service-api.md").read_text()
+        openapi = (DOCS / "device-service.openapi.yaml").read_text()
+        network_plan = (DOCS / "network-simulation-plan.md").read_text()
+
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(len(evidence["checks"]), 26)
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertTrue(evidence["runtime_restart"]["same_pid"])
+        self.assertEqual(
+            evidence["runtime_restart"]["recovery_scope"],
+            "qemu-control-plane+companions",
+        )
+        continuity = evidence["companion_continuity"]
+        self.assertTrue(continuity["before_restart"]["ble_probe"]["required"])
+        self.assertEqual(
+            continuity["after_restart"]["http_fixture"]["generation"],
+            2,
+        )
+        self.assertEqual(
+            continuity["after_restart"]["ble_probe"]["state"],
+            "adopted",
+        )
+        self.assertEqual(
+            [
+                request["fixture_generation"]
+                for request in continuity["http_fixture_requests"]
+            ],
+            [1, 2],
+        )
+        self.assertTrue(continuity["ble_continuity_cycle_observed"])
+        self.assertTrue(continuity["guest_http_recheck_observed"])
+        self.assertEqual(continuity["network_evidence_status"], "PASS")
+        self.assertEqual(
+            evidence["firmware"]["sha256"],
+            "04b008c60cf54d1e9fc52b8c9a1c2c4738a7ee046a64000779bebc8de9074c9d",
+        )
+        for text in (status, backlog, workstreams, code_map, api, network_plan):
+            self.assertIn("companion", text.lower())
+        self.assertIn("trusted-host", status)
+        self.assertIn("generation-1→2", status)
+        self.assertIn("qemu-control-plane+companions", api)
+        self.assertIn("ble_post_pass_continuity", api)
+        self.assertIn("ble_post_pass_continuity:", openapi)
+        self.assertIn("CompanionState:", openapi)
+        self.assertIn("evidence_delay_seconds", openapi)
+        self.assertIn(
+            "namespace-managed/Tab5/cross-host companion",
+            backlog,
+        )
+        self.assertIn(
+            "runtime-companion-continuity-pass.json",
+            (DOCS / "validation-ledger.md").read_text(),
+        )
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

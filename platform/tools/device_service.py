@@ -234,6 +234,14 @@ SINGLE_GUEST_PROFILES = frozenset(
 )
 
 
+def controlled_http_requests_match(requests: list[dict]) -> bool:
+    return bool(requests) and all(
+        item.get("path") == "/unified"
+        and item.get("host") == "qemu.test"
+        for item in requests
+    )
+
+
 def qemu_runtime_memory(
     memory: str | None,
     profile: str | None,
@@ -724,9 +732,16 @@ class UnifiedHttpFixture:
         log_path: Path,
         body: bytes = b"UNIFIED_STICKS3_OK\n",
         port: int = 18080,
+        *,
+        seed_requests: list[dict[str, Any]] | None = None,
+        generation: int = 1,
     ):
-        self.requests: list[dict[str, str]] = []
+        self.requests: list[dict[str, Any]] = [
+            dict(item) for item in (seed_requests or [])
+        ]
         self.log_path = log_path
+        self.generation = max(1, int(generation))
+        self._lock = threading.RLock()
         owner = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -734,8 +749,12 @@ class UnifiedHttpFixture:
                 record = {
                     "path": self.path,
                     "host": self.headers.get("Host", ""),
+                    "received_at": iso_now(),
+                    "fixture_generation": owner.generation,
                 }
-                owner.requests.append(record)
+                with owner._lock:
+                    owner.requests.append(record)
+                    owner._persist_locked()
                 self.send_response(200)
                 self.send_header("Content-Type", "text/plain")
                 self.send_header("Content-Length", str(len(body)))
@@ -753,10 +772,16 @@ class UnifiedHttpFixture:
         )
         self.thread.start()
 
+    def _persist_locked(self) -> None:
+        atomic_write_json(self.log_path, self.requests)
+
+    def request_snapshot(self) -> list[dict[str, Any]]:
+        with self._lock:
+            return [dict(item) for item in self.requests]
+
     def close(self) -> None:
-        self.log_path.write_text(
-            json.dumps(self.requests, ensure_ascii=False, indent=2) + "\n"
-        )
+        with self._lock:
+            self._persist_locked()
         self.server.shutdown()
         self.server.server_close()
         self.thread.join(timeout=5)
@@ -1498,6 +1523,29 @@ def parse_qemu_ble_execution(
             f"{MAX_BLE_RECONNECT_DELAY_SECONDS}",
             400,
         )
+    post_pass_continuity = value.get("ble_post_pass_continuity", False)
+    if not isinstance(post_pass_continuity, bool):
+        raise ServiceError(
+            "invalid_network",
+            "network.ble_post_pass_continuity must be a boolean",
+            400,
+        )
+    if post_pass_continuity and (
+        profile
+        not in {
+            CORE2_HCI_GATT_PROFILE,
+            NANOC6_HCI_BLE_PROFILE,
+            NESSO_UNIFIED_PROFILE,
+            *UNIFIED_PROFILES,
+        }
+        or policy.isolation != "trusted-host"
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.ble_post_pass_continuity requires a BLE profile "
+            "with trusted-host isolation",
+            400,
+        )
     if spec.id == "core2":
         core2_radio_qemu_path()
     security = (
@@ -1526,6 +1574,7 @@ def parse_qemu_ble_execution(
         "ble_linger_seconds": float(ble_linger_seconds),
         "ble_reconnect_cycles": reconnect_cycles,
         "ble_reconnect_delay_seconds": float(reconnect_delay),
+        "ble_post_pass_continuity": post_pass_continuity,
         "policy": policy.evidence(),
         "elf_artifact_id": elf_artifact_id,
         "nic": (
@@ -2752,6 +2801,7 @@ class DeviceSession:
         worker_lease_active: bool = False,
         process_start_token: str | None = None,
         reattached_process: bool = False,
+        companions: dict | None = None,
         persist: bool = True,
     ):
         self.service = service
@@ -2820,8 +2870,16 @@ class DeviceSession:
         self.hci_port: int | None = None
         self.gdb_port: int | None = None
         self._hci_probe: subprocess.Popen | None = None
+        self._external_hci_probe_pid: int | None = None
+        self._external_hci_probe_start_token: str | None = None
+        self._external_hci_probe_command_sha256: str | None = None
         self._native_vhci_gdb: subprocess.Popen | None = None
         self._http_fixture: UnifiedHttpFixture | None = None
+        self._companions: dict[str, dict[str, Any]] = {
+            str(kind): dict(value)
+            for kind, value in (companions or {}).items()
+            if isinstance(kind, str) and isinstance(value, dict)
+        }
         self._proc: subprocess.Popen | None = None
         self._qmp: QMP | None = None
         self._lock = threading.RLock()
@@ -2933,6 +2991,10 @@ class DeviceSession:
             "worker_id": self.worker_id,
             "worker_generation": self.worker_generation,
             "worker_lease_active": self._worker_lease_active,
+            "companions": {
+                kind: dict(value)
+                for kind, value in self._companions.items()
+            },
         }
 
     def _persist_session(self) -> None:
@@ -2947,6 +3009,271 @@ class DeviceSession:
             and identity["start_token"] == self.process_start_token
             and str(self.qmp_path) in str(identity["command"] or "")
         )
+
+    def _requires_http_fixture(self) -> bool:
+        profile = self.network_config.get("profile")
+        return profile in UNIFIED_PROFILES or profile == STICKS3_WIFI_PROFILE
+
+    def _requires_hci_probe(self) -> bool:
+        profile = self.network_config.get("profile")
+        return (
+            self.runtime in {QEMU_BLE_RUNTIME, QEMU_UNIFIED_RUNTIME}
+            and profile
+            in {
+                CORE2_HCI_GATT_PROFILE,
+                NANOC6_HCI_BLE_PROFILE,
+                NESSO_UNIFIED_PROFILE,
+                *UNIFIED_PROFILES,
+            }
+        )
+
+    def _companion_process_matches(
+        self,
+        pid: int,
+        start_token: str,
+        command_sha256: str,
+    ) -> bool:
+        identity = inspect_process(pid)
+        command = identity.get("command")
+        return bool(
+            identity["exists"]
+            and identity["start_token"] == start_token
+            and isinstance(command, str)
+            and hashlib.sha256(command.encode()).hexdigest()
+            == command_sha256
+        )
+
+    def _companion_snapshot(self) -> dict[str, dict[str, Any]]:
+        safe_fields = (
+            "state",
+            "pid",
+            "port",
+            "generation",
+            "ownership_verified",
+            "adopted",
+            "recovery_action",
+            "continuity_trigger",
+        )
+        return {
+            "http_fixture": {
+                "required": self._requires_http_fixture(),
+                **{
+                    key: value
+                    for key, value in self._companions.get(
+                        "http", {}
+                    ).items()
+                    if key in safe_fields
+                },
+            },
+            "ble_probe": {
+                "required": self._requires_hci_probe(),
+                **{
+                    key: value
+                    for key, value in self._companions.get(
+                        "ble", {}
+                    ).items()
+                    if key in safe_fields
+                },
+            },
+        }
+
+    def _recovery_scope(self) -> str | None:
+        if not self._reattached_process:
+            return None
+        if self._requires_http_fixture() or self._requires_hci_probe():
+            return "qemu-control-plane+companions"
+        return "qemu-control-plane"
+
+    def _read_http_fixture_requests(self) -> list[dict[str, Any]]:
+        if not self.http_fixture_log.is_file():
+            return []
+        try:
+            loaded = json.loads(self.http_fixture_log.read_text())
+        except json.JSONDecodeError as error:
+            raise ServiceError(
+                "companion_recovery_failed",
+                f"HTTP fixture evidence is malformed: {error}",
+                409,
+            ) from error
+        if not isinstance(loaded, list) or any(
+            not isinstance(item, dict) for item in loaded
+        ):
+            raise ServiceError(
+                "companion_recovery_failed",
+                "HTTP fixture evidence is not a request object list",
+                409,
+            )
+        return [dict(item) for item in loaded]
+
+    def _update_companion(self, companion_name: str, **fields: Any) -> None:
+        self._companions.setdefault(companion_name, {}).update(fields)
+
+    def _close_http_fixture(self) -> None:
+        fixture = self._http_fixture
+        if fixture is None:
+            return
+        try:
+            fixture.close()
+        except OSError:
+            pass
+        self._http_fixture = None
+        self._update_companion(
+            "http",
+            state="terminated",
+            ownership_verified=False,
+            adopted=False,
+            terminated_at=iso_now(),
+        )
+
+    def _recover_ble_probe(self) -> dict[str, Any]:
+        state = self._companions.get("ble")
+        if not isinstance(state, dict):
+            raise ServiceError(
+                "companion_recovery_failed",
+                "BLE companion ownership metadata is missing",
+                409,
+            )
+        pid = state.get("pid")
+        start_token = state.get("start_token")
+        command_sha256 = state.get("command_sha256")
+        port = state.get("port")
+        if (
+            not isinstance(pid, int)
+            or isinstance(pid, bool)
+            or pid <= 0
+            or not isinstance(start_token, str)
+            or not start_token
+            or not isinstance(command_sha256, str)
+            or not _is_sha256(command_sha256)
+            or not isinstance(port, int)
+            or isinstance(port, bool)
+            or not 1 <= port <= 65535
+        ):
+            raise ServiceError(
+                "companion_recovery_failed",
+                "BLE companion ownership metadata is invalid",
+                409,
+            )
+        if self._companion_process_matches(
+            pid,
+            start_token,
+            command_sha256,
+        ):
+            probe_log = (
+                self.hci_probe_log.read_text(errors="replace")
+                if self.hci_probe_log.is_file()
+                else ""
+            )
+            self.hci_port = port
+            self._external_hci_probe_pid = pid
+            self._external_hci_probe_start_token = start_token
+            self._external_hci_probe_command_sha256 = command_sha256
+            self._update_companion(
+                "ble",
+                state="adopted",
+                ownership_verified=True,
+                adopted=True,
+                recovery_action="adopt",
+                adopted_at=iso_now(),
+                previous_pid=pid,
+                pid=pid,
+                port=port,
+            )
+            self._record_event(
+                "hci_probe_adopted",
+                pid=pid,
+                port=port,
+                prior_peer_pass="BLE_BUMBLE_PASS" in probe_log,
+            )
+            self._persist_session()
+            return dict(self._companions["ble"])
+        probe_log = (
+            self.hci_probe_log.read_text(errors="replace")
+            if self.hci_probe_log.is_file()
+            else ""
+        )
+        if "BLE_BUMBLE_PASS" in probe_log:
+            self._update_companion(
+                "ble",
+                state="completed",
+                ownership_verified=False,
+                adopted=False,
+                recovery_action="retain-completed-evidence",
+                recovered_at=iso_now(),
+            )
+            self._record_event(
+                "hci_probe_completed_before_restart",
+                pid=pid,
+                port=port,
+            )
+            self._persist_session()
+            return dict(self._companions["ble"])
+        raise ServiceError(
+            "companion_recovery_failed",
+            "BLE companion PID/start-time/command ownership "
+            "does not match and no completion evidence exists",
+            409,
+        )
+
+    def _recover_http_fixture(self) -> dict[str, Any]:
+        state = self._companions.get("http")
+        if not isinstance(state, dict):
+            raise ServiceError(
+                "companion_recovery_failed",
+                "HTTP fixture recovery metadata is missing",
+                409,
+            )
+        expected_port = UNIFIED_HTTP_PORTS.get(
+            self.network_config.get("profile")
+        )
+        persisted_port = state.get("port")
+        if (
+            not isinstance(persisted_port, int)
+            or isinstance(persisted_port, bool)
+            or expected_port is None
+            or persisted_port != expected_port
+        ):
+            raise ServiceError(
+                "companion_recovery_failed",
+                "HTTP fixture port metadata does not match the profile",
+                409,
+            )
+        self._launch_http_fixture(recover=True)
+        assert "http" in self._companions
+        return dict(self._companions["http"])
+
+    def _recover_companions(self) -> dict[str, dict[str, Any]]:
+        http_required = self._requires_http_fixture()
+        ble_required = self._requires_hci_probe()
+        if not http_required and not ble_required:
+            return self._companion_snapshot()
+        policy = NetworkPolicy.from_mapping(
+            self.network_config.get("policy")
+        )
+        if policy.isolation != "trusted-host":
+            raise ServiceError(
+                "companion_recovery_unsupported",
+                "namespace-managed companion ownership cannot be "
+                "recovered by the restarted Device Service",
+                409,
+            )
+        if ble_required:
+            self._recover_ble_probe()
+        if http_required:
+            try:
+                self._recover_http_fixture()
+            except ServiceError as error:
+                self._update_companion(
+                    "http",
+                    state="recovery-failed",
+                    ownership_verified=False,
+                    adopted=False,
+                    recovery_action="fail-closed",
+                    error=error.message,
+                )
+                self._persist_session()
+                raise
+        return self._companion_snapshot()
 
     def reattach(self) -> dict:
         if self.runtime not in QEMU_QMP_RUNTIMES:
@@ -2968,6 +3295,7 @@ class DeviceSession:
                 409,
             )
         qmp: QMP | None = None
+        qemu_running = False
         try:
             qmp = wait_qmp(self.qmp_path, timeout=5)
             qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
@@ -2979,6 +3307,8 @@ class DeviceSession:
                     f"QEMU status is {status!r}, not running",
                     409,
                 )
+            qemu_running = True
+            companion_recovery = self._recover_companions()
             if self._worker_lease_active:
                 self.service.worker.reserve_lease(
                     self.id,
@@ -2987,13 +3317,21 @@ class DeviceSession:
         except ServiceError:
             if qmp is not None:
                 qmp.close()
+            self._close_http_fixture()
+            if qemu_running:
+                self._reattached_process = True
+                self._terminate_process()
             raise
         except (OSError, RuntimeError, WorkerRegistryError) as error:
             if qmp is not None:
                 qmp.close()
+            self._close_http_fixture()
+            if qemu_running:
+                self._reattached_process = True
+                self._terminate_process()
             raise ServiceError(
                 "reattach_unavailable",
-                f"QMP/worker lease could not be re-attached: {error}",
+                f"QMP/worker/companion planes could not be re-attached: {error}",
                 409,
             ) from error
         self._qmp = qmp
@@ -3009,14 +3347,16 @@ class DeviceSession:
             pid=self.pid,
             previous_state=self.state,
             qmp_status=status,
-            recovery_scope="qemu-control-plane",
+            recovery_scope=self._recovery_scope(),
+            companions=self._companion_snapshot(),
         )
         self._persist_session()
         return {
             "pid": self.pid,
             "qmp_status": status,
             "worker_generation": self.worker_generation,
-            "recovery_scope": "qemu-control-plane",
+            "recovery_scope": self._recovery_scope(),
+            "companion_recovery": companion_recovery,
         }
 
     def mark_interrupted(self, previous_state: str, reason: str) -> None:
@@ -3029,6 +3369,15 @@ class DeviceSession:
         self.interrupted = True
         self._reattached_process = False
         self._worker_lease_active = False
+        for kind, companion in self._companions.items():
+            if companion.get("state") not in {"completed", "terminated"}:
+                companion.update(
+                    {
+                        "state": "recovery-failed",
+                        "ownership_verified": False,
+                        "adopted": False,
+                    }
+                )
         self._record_event(
             "interrupted",
             previous_state=previous_state,
@@ -3147,11 +3496,8 @@ class DeviceSession:
                 "restored": self.restored,
                 "interrupted": self.interrupted,
                 "reattached_process": self._reattached_process,
-                "recovery_scope": (
-                    "qemu-control-plane"
-                    if self._reattached_process
-                    else None
-                ),
+                "recovery_scope": self._recovery_scope(),
+                "companions": self._companion_snapshot(),
                 "worker": {
                     "worker_id": self.worker_id,
                     "generation": self.worker_generation,
@@ -3174,6 +3520,8 @@ class DeviceSession:
         self.completed_at = self.completed_at or iso_now()
         self._record_event("process_exited", returncode=returncode)
         self._reattached_process = False
+        self._close_http_fixture()
+        self._terminate_hci_probe()
         if self.runtime in QEMU_RADIO_RUNTIMES:
             self._finalize_network_capture()
         if not self.service.storage_policy.retain_session_flash:
@@ -3287,9 +3635,7 @@ class DeviceSession:
             checks["rmt:nec"] = nec["status"] == "PASS"
             http_requests: list[dict] = []
             if self._http_fixture is not None:
-                http_requests = [
-                    dict(item) for item in self._http_fixture.requests
-                ]
+                http_requests = self._http_fixture.request_snapshot()
             elif self.http_fixture_log.is_file():
                 try:
                     loaded = json.loads(self.http_fixture_log.read_text())
@@ -3299,9 +3645,9 @@ class DeviceSession:
                         ]
                 except json.JSONDecodeError:
                     http_requests = []
-            checks["http:controlled_request"] = http_requests == [
-                {"path": "/unified", "host": "qemu.test"}
-            ]
+            checks["http:controlled_request"] = (
+                controlled_http_requests_match(http_requests)
+            )
             if all(checks.values()):
                 status = "PASS"
             elif serial.strip() or probe_log.strip():
@@ -3450,9 +3796,7 @@ class DeviceSession:
             checks["pcm:buzzer"] = pcm["status"] == "PASS"
             http_requests: list[dict] = []
             if self._http_fixture is not None:
-                http_requests = [
-                    dict(item) for item in self._http_fixture.requests
-                ]
+                http_requests = self._http_fixture.request_snapshot()
             elif self.http_fixture_log.is_file():
                 try:
                     loaded = json.loads(self.http_fixture_log.read_text())
@@ -3462,9 +3806,9 @@ class DeviceSession:
                         ]
                 except json.JSONDecodeError:
                     http_requests = []
-            checks["http:controlled_request"] = http_requests == [
-                {"path": "/unified", "host": "qemu.test"}
-            ]
+            checks["http:controlled_request"] = (
+                controlled_http_requests_match(http_requests)
+            )
             try:
                 frame = self.frame_metrics()
                 checks["frame:nonblank"] = frame["nonblack_pixels"] > 100
@@ -3577,7 +3921,7 @@ class DeviceSession:
             ]
             http_requests: list[dict] = []
             if self._http_fixture is not None:
-                http_requests = [dict(item) for item in self._http_fixture.requests]
+                http_requests = self._http_fixture.request_snapshot()
             elif self.http_fixture_log.is_file():
                 try:
                     loaded = json.loads(self.http_fixture_log.read_text())
@@ -3597,9 +3941,9 @@ class DeviceSession:
                     for marker in CORE2_HCI_PROBE_MARKERS
                 }
             )
-            checks["http:controlled_request"] = http_requests == [
-                {"path": "/unified", "host": "qemu.test"}
-            ]
+            checks["http:controlled_request"] = (
+                controlled_http_requests_match(http_requests)
+            )
             if profile == CORE2_NATIVE_VHCI_PROFILE:
                 checks.update(
                     {
@@ -4092,10 +4436,7 @@ class DeviceSession:
                     "external BLE peer did not complete the GATT exchange",
                     409,
                 )
-            if (
-                self._hci_probe is not None
-                and self._hci_probe.poll() is not None
-            ):
+            if not self._hci_probe_running():
                 raise ServiceError(
                     "ble_peer_failed",
                     "external BLE peer exited before GATT completion",
@@ -4106,6 +4447,17 @@ class DeviceSession:
             "ble_peer_failed",
             "timed out waiting for external BLE peer completion",
             408,
+        )
+
+    def _hci_probe_running(self) -> bool:
+        if self._hci_probe is not None:
+            return self._hci_probe.poll() is None
+        if self._external_hci_probe_pid is None:
+            return False
+        return self._companion_process_matches(
+            self._external_hci_probe_pid,
+            str(self._external_hci_probe_start_token or ""),
+            str(self._external_hci_probe_command_sha256 or ""),
         )
 
     def _hci_probe_command(self) -> tuple[list[str], dict[str, str]]:
@@ -4176,6 +4528,15 @@ class DeviceSession:
                 )
             ),
         ]
+        if self.network_config.get("ble_post_pass_continuity"):
+            command.extend(
+                [
+                    "--post-pass-trigger",
+                    str(self.dir / "ble-continuity.trigger"),
+                    "--post-pass-trigger-timeout",
+                    str(self.ready_timeout),
+                ]
+            )
         return command, env
 
     def _launch_hci_probe(self) -> None:
@@ -4199,10 +4560,48 @@ class DeviceSession:
                 and "BLE_PROBE_READY"
                 in self.hci_probe_log.read_text(errors="replace")
             ):
+                assert self._hci_probe is not None
+                identity = inspect_process(self._hci_probe.pid)
+                command = identity.get("command")
+                start_token = identity.get("start_token")
+                if (
+                    not identity["exists"]
+                    or not isinstance(command, str)
+                    or not isinstance(start_token, str)
+                ):
+                    raise ServiceError(
+                        "ble_peer_failed",
+                        "external BLE peer ownership could not be inspected",
+                        503,
+                    )
+                command_sha256 = hashlib.sha256(
+                    command.encode()
+                ).hexdigest()
+                self._update_companion(
+                    "ble",
+                    kind="ble-probe",
+                    state="running",
+                    pid=self._hci_probe.pid,
+                    start_token=start_token,
+                    command_sha256=command_sha256,
+                    port=self.hci_port,
+                    ownership_verified=True,
+                    adopted=False,
+                    recovery_action="adopt-on-restart",
+                    continuity_trigger=(
+                        "ble-continuity.trigger"
+                        if self.network_config.get(
+                            "ble_post_pass_continuity"
+                        )
+                        else None
+                    ),
+                    started_at=iso_now(),
+                )
                 self._record_event(
                     "hci_probe_started",
                     pid=self._hci_probe.pid,
                 )
+                self._persist_session()
                 return
             if self._hci_probe.poll() is not None:
                 raise ServiceError(
@@ -4299,7 +4698,7 @@ class DeviceSession:
             504,
         )
 
-    def _launch_http_fixture(self) -> None:
+    def _launch_http_fixture(self, *, recover: bool = False) -> None:
         profile = self.network_config.get("profile")
         body = UNIFIED_HTTP_BODIES.get(profile)
         port = UNIFIED_HTTP_PORTS.get(profile)
@@ -4309,11 +4708,31 @@ class DeviceSession:
                 f"no controlled HTTP port for profile {profile}",
                 500,
             )
+        previous = self._companions.get("http", {})
+        previous_generation = previous.get("generation", 0)
+        if recover:
+            if (
+                not isinstance(previous_generation, int)
+                or isinstance(previous_generation, bool)
+                or previous_generation < 1
+            ):
+                raise ServiceError(
+                    "companion_recovery_failed",
+                    "HTTP fixture generation metadata is invalid",
+                    409,
+                )
+            seed_requests = self._read_http_fixture_requests()
+            generation = previous_generation + 1
+        else:
+            seed_requests = []
+            generation = 1
         try:
             self._http_fixture = UnifiedHttpFixture(
                 self.http_fixture_log,
                 body=body,
                 port=port,
+                seed_requests=seed_requests,
+                generation=generation,
             )
         except OSError as error:
             raise ServiceError(
@@ -4321,7 +4740,25 @@ class DeviceSession:
                 f"controlled HTTP fixture could not start: {error}",
                 503,
             ) from error
-        self._record_event("http_fixture_started", port=port)
+        self._update_companion(
+            "http",
+            kind="in-process-http-fixture",
+            state="recovered" if recover else "running",
+            pid=os.getpid(),
+            port=port,
+            generation=generation,
+            ownership_verified=True,
+            adopted=False,
+            recovery_action="recreate" if recover else "keep-running",
+            recovered_at=iso_now() if recover else None,
+            started_at=iso_now(),
+        )
+        self._record_event(
+            "http_fixture_recovered" if recover else "http_fixture_started",
+            port=port,
+            generation=generation,
+        )
+        self._persist_session()
 
     def _prepare_stackchan_peripheral_inputs(self) -> None:
         commands = (
@@ -5945,6 +6382,79 @@ class DeviceSession:
         self._persist_session()
         return self.snapshot()
 
+    def _terminate_hci_probe(self) -> None:
+        probe = self._hci_probe
+        if probe is not None and probe.poll() is None:
+            try:
+                os.killpg(probe.pid, signal.SIGTERM)
+            except (ProcessLookupError, PermissionError):
+                try:
+                    probe.terminate()
+                except ProcessLookupError:
+                    pass
+            try:
+                probe.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(probe.pid, signal.SIGKILL)
+                except (ProcessLookupError, PermissionError):
+                    try:
+                        probe.kill()
+                    except ProcessLookupError:
+                        pass
+                probe.wait(timeout=5)
+        self._hci_probe = None
+
+        pid = self._external_hci_probe_pid
+        start_token = self._external_hci_probe_start_token
+        command_sha256 = self._external_hci_probe_command_sha256
+        if (
+            pid is not None
+            and start_token
+            and command_sha256
+            and self._companion_process_matches(
+                pid,
+                start_token,
+                command_sha256,
+            )
+        ):
+            def owned() -> bool:
+                return self._companion_process_matches(
+                    pid,
+                    start_token,
+                    command_sha256,
+                )
+
+            def signal_owned(sig: signal.Signals) -> None:
+                try:
+                    if os.getpgid(pid) == pid:
+                        os.killpg(pid, sig)
+                    else:
+                        os.kill(pid, sig)
+                except (ProcessLookupError, PermissionError):
+                    pass
+
+            signal_owned(signal.SIGTERM)
+            deadline = time.time() + 5
+            while time.time() < deadline and owned():
+                time.sleep(0.05)
+            if owned():
+                signal_owned(signal.SIGKILL)
+                deadline = time.time() + 5
+                while time.time() < deadline and owned():
+                    time.sleep(0.05)
+        self._external_hci_probe_pid = None
+        self._external_hci_probe_start_token = None
+        self._external_hci_probe_command_sha256 = None
+        if "ble" in self._companions:
+            self._update_companion(
+                "ble",
+                state="terminated",
+                ownership_verified=False,
+                adopted=False,
+                terminated_at=iso_now(),
+            )
+
     def _terminate_process(self) -> None:
         external_pid = self.pid if self._reattached_process else None
         external_start = self.process_start_token
@@ -6005,34 +6515,8 @@ class DeviceSession:
                         time.sleep(0.05)
             self._reattached_process = False
             self.pid = None
-        http_fixture = self._http_fixture
-        if http_fixture is not None:
-            try:
-                http_fixture.close()
-            except OSError:
-                pass
-        self._http_fixture = None
-        hci_probe = self._hci_probe
-        if hci_probe is not None and hci_probe.poll() is None:
-            try:
-                os.killpg(hci_probe.pid, signal.SIGTERM)
-            except (ProcessLookupError, PermissionError):
-                try:
-                    hci_probe.terminate()
-                except ProcessLookupError:
-                    pass
-            try:
-                hci_probe.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                try:
-                    os.killpg(hci_probe.pid, signal.SIGKILL)
-                except (ProcessLookupError, PermissionError):
-                    try:
-                        hci_probe.kill()
-                    except ProcessLookupError:
-                        pass
-                hci_probe.wait(timeout=5)
-        self._hci_probe = None
+        self._close_http_fixture()
+        self._terminate_hci_probe()
         if self._qmp is not None:
             try:
                 self._qmp.close()
@@ -7189,6 +7673,11 @@ class DeviceService:
                 ),
                 worker_lease_active=worker_lease_active,
                 process_start_token=process_start_token,
+                companions=(
+                    record.get("companions")
+                    if isinstance(record.get("companions"), dict)
+                    else None
+                ),
                 persist=False,
             )
             virtual_flash = record_path.parent / "virtual-flash.bin"

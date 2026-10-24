@@ -111,9 +111,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   HTTPS/mTLS、真实 QEMU 和 unified StickS3 job over mTLS、SIGHUP rotation
   + activity drain + bounded credential overlap、evidence ZIP/SHA256 回报，
   以及 generation-pointer 同主机双 worker 自动迁移和 secret-free receipts
-  已实现；自动发现 worker 主机、跨主机 QEMU executor/reattach、
-  companion/BLE/evidence continuity、生产 secret manager/多机调度和 VM
-  隔离仍未完成。
+  已实现；trusted-host unified HTTP/BLE companion continuity 也已完成。
+  自动发现 worker 主机、跨主机 QEMU executor/reattach、
+  namespace-managed/Tab5/cross-host companion、连续 evidence 流、生产
+  secret manager/多机调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
   已在同一隔离路径验证 exact IPv4/IPv6 IP/协议/端口、双栈 veth/NAT、

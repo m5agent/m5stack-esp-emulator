@@ -61,6 +61,11 @@ host's outbound DNS and HTTP path; omit `--require-public-network` for a
 fully local CI gate. Public coverage is plain IPv4 HTTP on port 80, not TLS or
 certificate validation.
 
+The guest counts BLE receive events. A second BLE write triggers one additional
+controlled HTTP request and `UNIFIED_STICKS3_HTTP_RECHECK_PASS`. The normal
+single-cycle matrix does not reach that path; the runtime companion-continuity
+fixture uses it to prove HTTP generation 2 after a service restart.
+
 This is simulation-only evidence. The WiFi model is an open AP on one fixed
 virtual channel, and BLE is host-controller HCI over UART1 rather than a
 native ESP32-S3 radio/controller model.
