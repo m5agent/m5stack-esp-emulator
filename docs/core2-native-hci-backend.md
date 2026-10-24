@@ -19,6 +19,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-4` stability | `PASS` | `run_service_5x.py`、`evidence-2026-10-24-hci4-service-5x.json` | 规范 profile `core2-native-hci` 通过五个独立 `/api/v1` lease；每轮同时验证 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP，且 `gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | `0005-esp32-native-hci-guest-call-sregs.patch`、`evidence-2026-10-24-hci4-halted-gate-5x.json`、`evidence-2026-10-24-hci4-hold60-3x.json`、`evidence-2026-10-24-hci4-hold120-2x.json`、`evidence-2026-10-24-hci4-active-ble-hold120-2x.json` | caller-saved sregs 与 halted/idle gate 后，两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `120s` hold 已通过，每轮 HLI health 零错误 |
 | `CORE2-02` same-guest reconnect | `PASS` | `run_service_5x.py --ble-reconnect-cycles 20`、`0006-esp32-native-hci-observability.patch`、`evidence-2026-10-24-hci4-reconnect10-3x.json`、`evidence-2026-10-24-hci4-reconnect20-3x.json` | 修正 Bumble 对无响应 `0x0c35` 的非法 Command Status 后，先完成 3 个 lease 各 10 轮，再扩到各 20 轮；二十轮结果每 lease HLI 577/577、events 397、ACLs 180 清空，连接/L2CAP/GATT 池回到 `3/9/3` |
+| `CORE2-02` 30-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 30 --attempts 3`、`evidence-2026-10-24-hci4-reconnect30-3x.json` | 3 个独立 lease 各 30 轮；每 lease HLI `857/857`、events 587、ACLs 270、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -468,9 +469,9 @@ ACLs 180；三个 lease
 - 历史失败与根因：
   `tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json`
 
-二十轮 reconnect 关闭的是同 guest 连接生命周期门禁，不表示物理 cache/PSRAM、
-bit-exact controller、多小时 coexistence 或真机已经等价。后续长稳仍需验证
-超过当前二十轮的连接与更长 hold。
+二十轮和三十轮 reconnect 关闭的是同 guest 连接生命周期门禁，不表示物理
+cache/PSRAM、bit-exact controller、多小时 coexistence 或真机已经等价。
+后续长稳仍需验证超过三十轮的连接与更长 hold。
 
 ## 剩余工作量
 
@@ -480,11 +481,12 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和二十轮
 reconnect 门禁已 PASS：
 
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
-- 物理 cache/PSRAM 等价性、超过二十轮连接、长期 coexistence/soak 和真机
+- 物理 cache/PSRAM 等价性、超过三十轮连接、长期 coexistence/soak 和真机
   路径需要独立
   计划，不能由当前 `5×10s` / `3×60s` / `2×120s` 重复门禁推导；当前
   PASS 覆盖 halt-gated guest 注入、最多两分钟的独立 lease 生命周期和
-  active BLE 共存和二十轮 reconnect；不覆盖超过二十轮连接或多小时 soak。
+  active BLE 共存、二十轮和三十轮 reconnect；不覆盖超过三十轮连接或多小时
+  soak。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

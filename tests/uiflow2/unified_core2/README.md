@@ -100,7 +100,11 @@ test-only re-advertisement 500 ms after disconnect. This behavior exists only
 to exercise the second-connect lifecycle; it is not a proposed product fix.
 
 The stock/native-HCI Core2 guest now passes twenty complete cycles in each of
-three independent leases. The former
+three independent leases. It also passes thirty complete cycles in each of
+three independent leases, with HLI 857/857, 587 events, 270 ACLs and pools back
+at 3/9/3. Device Service, Bumble and the service runner accept 1-30 cycles;
+the next required gate is more than thirty cycles and a multi-hour coexistence
+soak. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Removing that reply

@@ -125,6 +125,7 @@ functional PASS.
   `3/3`, two `120s` holds pass `2/2`, and two active-BLE `120s` holds pass
   `2/2`, with zero HLI errors and empty HLI/meta queues. Three independent
   stock-firmware leases also complete twenty same-guest reconnect cycles.
-  Bit-exact Espressif BT controller behavior, physical cache/PSRAM equivalence,
-  more than twenty reconnect cycles, multi-hour coexistence/soak and hardware
-  validation remain `NOT RUN`.
+  Three independent 30-cycle reconnect leases now pass. Bit-exact Espressif BT
+  controller behavior, physical cache/PSRAM equivalence, more than thirty
+  reconnect cycles, multi-hour coexistence/soak and hardware validation remain
+  `NOT RUN`.

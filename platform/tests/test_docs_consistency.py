@@ -70,6 +70,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect20-3x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect30-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-timeout-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
@@ -349,6 +350,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "两个 `runtime_model_gap` 仍为 `OPEN`",
             "C6 LP_SW_HPSYS software reset can lose the expected chip id (RUNTIME-01)",
             "`RUNTIME-01` 复位/eFuse/寄存器语义",
+            "| `CORE2-02` 30-cycle extension | `NOT RUN` |",
+            "3 个独立 lease、每个 30 轮的下一门禁",
         ):
             self.assertNotIn(stale, active)
 
@@ -457,6 +460,77 @@ class DocsConsistencyTests(unittest.TestCase):
             "不把“已分类”算成该任务完成",
             backlog,
         )
+
+    def test_core2_30_cycle_evidence_is_reconciled(self):
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        readme = (ROOT / "README.md").read_text()
+        core2_backend = (DOCS / "core2-native-hci-backend.md").read_text()
+        runtime_contract = (DOCS / "unified-device-runtime.md").read_text()
+        service = (ROOT / "platform/tools/device_service.py").read_text()
+        peer = (ROOT / "platform/tools/ble_probe.py").read_text()
+        runner = (
+            ROOT / "tests/uiflow2/core2_native_hci/run_service_5x.py"
+        ).read_text()
+        service_tests = (
+            ROOT / "platform/tests/test_device_service.py"
+        ).read_text()
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-reconnect30-3x.json"
+            ).read_text()
+        )
+
+        self.assertIn("3/3 PASS", status)
+        self.assertIn("各自 20 轮和 30 轮", readme)
+        self.assertIn("3 个独立 lease 各 30 轮", backlog)
+        self.assertIn("3 个独立 lease 各 30 轮全部 PASS", workstreams)
+        self.assertIn(
+            "| `CORE2-02` 30-cycle extension | `PASS` |",
+            core2_backend,
+        )
+        self.assertIn(
+            "Three independent leases at 30 cycles each now pass",
+            runtime_contract,
+        )
+        self.assertNotIn(
+            "| `CORE2-02` 30-cycle extension | `NOT RUN` |",
+            core2_backend,
+        )
+        self.assertNotIn("扩大 API 轮次上限", workstreams)
+
+        self.assertIn("not 1 <= reconnect_cycles <= 30", service)
+        self.assertIn("from 1 to 30", peer)
+        self.assertIn("args.ble_reconnect_cycles > 30", runner)
+        self.assertIn('"ble_reconnect_cycles": 30', service_tests)
+
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(evidence["attempts_requested"], 3)
+        self.assertEqual(evidence["attempts_passed"], 3)
+        self.assertEqual(evidence["attempts_failed"], 0)
+        self.assertEqual(evidence["ble_reconnect_cycles"], 30)
+        self.assertFalse(evidence["boundary"]["gdb_bridge"])
+        for run in evidence["runs"]:
+            health = run["native_hci_health"]
+            self.assertEqual(health["hli-posts"], 857)
+            self.assertEqual(health["hli-consumed"], 857)
+            self.assertEqual(health["hli-errors"], 0)
+            self.assertEqual(health["hli-c2h-events"], 587)
+            self.assertEqual(health["hli-c2h-acls"], 270)
+            self.assertEqual(health["hli-queue-depth"], 0)
+            self.assertEqual(health["meta-queue-depth"], 0)
+            self.assertEqual(health["tx-queue-depth"], 0)
+            self.assertEqual(health["peer-closed"], 0)
+            self.assertEqual(health["trace-gap-adv-start"], 30)
+            self.assertEqual(health["trace-hs-sched-reset"], 0)
+            self.assertEqual(
+                (health["conn-pool-free"], health["l2cap-pool-free"],
+                 health["gatts-pool-free"]),
+                (3, 9, 3),
+            )
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

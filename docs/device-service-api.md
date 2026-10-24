@@ -961,13 +961,13 @@ GATT lifecycle:
   "network": {
     "profile": "core2-native-hci",
     "elf_artifact_id": "<matching-xtensa-elf-sha256>",
-    "ble_reconnect_cycles": 20,
+    "ble_reconnect_cycles": 30,
     "ble_reconnect_delay_seconds": 2
   }
 }
 ```
 
-The stock Core2 guest passes twenty cycles in each of three independent leases.
+The stock Core2 guest passes thirty cycles in each of three independent leases.
 The former failure was a stale ACK caused by the Bumble compatibility layer returning
 Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. The fields still
@@ -1721,7 +1721,11 @@ restart.
   `evidence-2026-10-24-reconnect2-fail.json`;
   the earlier ten-cycle evidence is
   `evidence-2026-10-24-hci4-reconnect10-3x.json`; the current twenty-cycle
-  evidence is `evidence-2026-10-24-hci4-reconnect20-3x.json`;
+  evidence is `evidence-2026-10-24-hci4-reconnect20-3x.json`, and the
+  thirty-cycle evidence is
+  `evidence-2026-10-24-hci4-reconnect30-3x.json`. Three independent leases
+  pass thirty cycles each; the next validation gate is more than thirty cycles
+  and a multi-hour coexistence soak;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

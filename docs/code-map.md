@@ -137,9 +137,9 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 | 位置 | 规模/现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | 约 `8.2k` 行；session、存储、runtime、证据和生命周期仍在同一编排热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
-| `platform/tests/test_device_service.py` | 约 `4.5k` 行 service 契约测试 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
-| `platform/tests/test_docs_consistency.py` | 约 `1.6k` 行；导航、链接、API、网络、Core2 和证据快照断言混在一个契约测试类 | 先保持“当前事实只在一处”的约束，再按导航/契约/证据拆成独立测试文件 |
+| `platform/tools/device_service.py` | 最大服务编排单文件；session、存储、runtime、证据和生命周期仍在同一热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
+| `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
+| `platform/tests/test_docs_consistency.py` | 大型文档契约测试；导航、链接、API、网络、Core2 和证据快照断言混在一个测试类 | 先保持“当前事实只在一处”的约束，再按导航/契约/证据拆成独立测试文件 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | 11 个 S3/C6 profile 加 Core2 radio profiles，有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 
@@ -292,7 +292,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 60-second hold | `run_service_5x.py --hold-seconds 60`；`evidence-2026-10-24-hci4-hold60-3x.json` | 3 个独立 lease `3/3`；BLE peer 正常关闭后设备保持 running，HLI errors 与队列深度为零 |
 | Core2 120-second hold | `run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-hold120-2x.json` | 2 个独立 lease `2/2`；每轮 frame/QOM、WiFi、公网、NUS GATT、pcap、evidence 和 HLI health 均 PASS，peer-close queue-full 尾态单独分类 |
 | Core2 active-BLE 120-second hold | `run_service_5x.py --hold-seconds 120` + `network.ble_linger_seconds=180`；`evidence-2026-10-24-hci4-active-ble-hold120-2x.json` | 2 个独立 lease `2/2`；peer 在 hold 完成时仍连接，`peer-closed=0`、TX queue 和 last error 均为 0 |
-| Core2 same-guest reconnect | `run_service_5x.py --ble-reconnect-cycles 20`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；`evidence-2026-10-24-hci4-reconnect10-3x.json`；`evidence-2026-10-24-hci4-reconnect20-3x.json` | 3 个独立 stock-firmware lease 各完成 20 轮 scan/connect/NUS GATT/disconnect；每轮 HLI `577/577`、events 397、ACLs 180，连接/L2CAP/GATT 池回到 `3/9/3`；十轮为较早门禁；历史 `ack 12` 已定位到 Bumble 对无响应 `0x0c35` 的非法 Command Status；Device Service 旧 30 秒等待上限已修复并有超时回归 |
+| Core2 same-guest reconnect | `run_service_5x.py --ble-reconnect-cycles 20`；`run_service_5x.py --ble-reconnect-cycles 30`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；`evidence-2026-10-24-hci4-reconnect20-3x.json`；`evidence-2026-10-24-hci4-reconnect30-3x.json` | 3 个独立 stock-firmware lease 各完成 20 轮和 30 轮 scan/connect/NUS GATT/disconnect；三十轮每 lease HLI `857/857`、events 587、ACLs 270，连接/L2CAP/GATT 池回到 `3/9/3`；历史 `ack 12` 已定位到 Bumble 对无响应 `0x0c35` 的非法 Command Status；参数范围 `1–30`，下一门禁是超过三十轮和多小时 soak |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |

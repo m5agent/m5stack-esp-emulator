@@ -48,8 +48,10 @@ profile 和 evidence 为准。
   Command Status；修正后每轮 guest RX、notification、pcap 和 HLI
   health 全部通过。首次十轮 attempt 还暴露了 Device Service 的 30 秒
   HCI peer 等待硬上限；有效 workload 已完成 5 轮并开始第 6 轮后被服务
-  误杀。等待改为使用 session ready timeout，并增加了回归测试。之后才是
-  超过二十轮连接、多小时 coexistence、
+  误杀。等待改为使用 session ready timeout，并增加了回归测试。API 与
+  runner 接受 `1–30` 轮；随后 3 个独立 lease 各 30 轮全部 PASS，每 lease
+  HLI `857/857`、events `587`、ACLs `270`，无错误或 panic。下一步是
+  超过三十轮连接、多小时 coexistence、
   bit-exact controller/baseband、物理 cache/PSRAM 和真机。
 - **固件审查 P0**：Manifest、WebBurner、静态审查、安全配置分层和
   LittleFS/FAT/SPIFFS inventory、声明级许可 allowlist/denylist 已实现；
@@ -68,9 +70,9 @@ profile 和 evidence 为准。
   `code-map.md`。
 - **下一手顺序**：推进 `NET-04` 远程 worker 和 `NET-05` IPv6；固件侧
   继续 `FW-01`，随后 `RUNTIME-02`、`FW-03`、`FW-02`；
-  Core2 在二十轮 reconnect 基础上扩大
-  soak/coexistence，再推进物理与 controller 等价性；`HCI-4`、短时
-  extended-run、十轮和二十轮 reconnect 均不再作为待办。
+  Core2 已通过 3 个独立 lease、每个 30 轮的 reconnect；继续做更长
+  soak/coexistence，之后推进物理与 controller 等价性。`HCI-4`、短时
+  extended-run、十轮、二十轮和三十轮 reconnect 均不再作为待办。
 
 ## 状态语义
 
@@ -93,7 +95,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
 | UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新全矩阵首轮无重试；计数和 evidence 见项目当前状态 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PARTIAL`（首轮功能、10s/60s/120s、active-BLE hold 与二十轮 reconnect PASS） | `platform/tools/ble_probe.py`、`platform/tools/device_service.py`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT 与 `HCI-4` 均 `5/5`；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`、2 个 active-BLE `120s` `2/2`；3 个独立 lease 各 20 轮的 GATT `3/3`，每轮 HLI health 零错误；统一 API 上限 `30`；超 30 秒等待回归已修复 | `CORE2-02` 超过二十轮、多小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
+| Core2 稳定性与无线 | `PARTIAL`（首轮功能、10s/60s/120s、active-BLE hold 与二十轮、三十轮 reconnect PASS） | `platform/tools/ble_probe.py`、`platform/tools/device_service.py`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT `5/5`；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`、2 个 active-BLE `120s` `2/2`；3 个独立 lease 各 20 轮和 30 轮的 GATT 均 PASS；三十轮每 lease HLI `857/857`、events `587`、ACLs `270`、无错误或 panic；统一 API 上限 `30` 并有 `31` 轮拒绝测试 | `CORE2-02` 超过三十轮、多小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、HTTPS/mTLS、SIGHUP rotation + activity drain + bounded credential overlap、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；真实 loopback TLS 1.3/mTLS、客户端证书拒绝/通过、signed worker 生命周期、真实 StickS3 QEMU job、unified board/WiFi/BLE job over mTLS、SIGHUP A/B + overlap rotation、activity drain 和 final cutover 后 QEMU job；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 自动化客户端批量迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围；FW-03 runtime matrix `PARTIAL`） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist；6 台设备 18 个公开非基线样本 10 PASS / 8 PARTIAL，runtime model gap 独立分类 | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 更多设备和 firmware family 回归 |
 | 跨厂商运行时模型缺口 | `PARTIAL`（1 个 `OPEN`，1 个已修复） | `user_firmware_matrix.py`、C6 QEMU worktree、`tests/firmware/evidence-2026-10-24-c6-soft-reset-flash-addressing.json` | `RUNTIME-01`：Device Service 重跑不再报 `Invalid chip id`，bootloader offset 0 保持 chip id 13，Nesso 官方外设组 `5/5`；样本仍有独立应用异常；历史诊断 evidence 保留 | `RUNTIME-02` 802.15.4 controller 可行性；继续区分修复后样本的独立应用异常 |
@@ -115,9 +117,9 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 2. 固件审查继续 `FW-01` 权限/许可，随后推进 `RUNTIME-02` Zigbee
   可行性，再处理 `FW-03` 跨厂商样本和
    `FW-02` 真机 key/eFuse。
-3. `CORE2-02` 在已通过的二十轮 GATT 和
-   `5×10s` / `3×60s` / `2×120s` 门禁上扩大 API 轮次上限与 soak 时长，
-   推进 controller/baseband、物理 cache/PSRAM 与 coexistence。
+3. `CORE2-02` 已通过 3 个独立 lease、每个 30 轮的 GATT 门禁；下一步验证
+   超过三十轮、多小时 soak 和 WiFi/BLE coexistence，再推进
+   controller/baseband 与物理 cache/PSRAM。
    `HW-01` 独立推进同固件真机路径。
 4. Tab5、视觉保真与 CardputerZero 是专项工作；没有后端、素材和真机证据时
    不把它们写成统一运行时完成。

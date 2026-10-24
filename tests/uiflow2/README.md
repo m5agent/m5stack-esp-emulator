@@ -121,8 +121,10 @@ lease 均为 HLI `577/577`、events `397`、ACLs `180`，连接池回到
 `core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json`；历史失败：
 `core2_native_hci/evidence-2026-10-24-reconnect2-fail.json`。
 这关闭了本轮 two-minute extended-run 失败门禁，但仍不是物理 cache/PSRAM、
-RF、超过二十轮连接、多小时 soak 或 bit-exact controller PASS。较早的十轮
-运行曾被 Device Service 的旧 30 秒等待硬上限误杀，失败证据保留在
+RF、超过三十轮连接、多小时 soak 或 bit-exact controller PASS。
+Device Service/Bumble/runner 接受 `1–30` 轮，并有 `31` 轮拒绝测试；
+3 个独立 lease、每个 30 轮已经全部 PASS。较早的十轮运行曾被 Device
+Service 的旧 30 秒等待硬上限误杀，失败证据保留在
 `evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`。
 
 ```bash

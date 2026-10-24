@@ -25,11 +25,11 @@ MicroPython 和其他完整 Flash 固件。
   不再复制会随提交变化的数字。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
-- 热门公开固件矩阵已覆盖 6 台 S3/C6 设备的 18 个非基线样本：全部完成
-  静态分析和服务执行，10 PASS / 8 PARTIAL；C6 Zigbee 与软件复位 chip-id
-  两类模型缺口已独立标记。`RUNTIME-01` 已定位并修复为 16 MiB Flash
-  legacy 写擦地址宽度与复位 PMP 状态问题；`RUNTIME-02` Zigbee 仍未建模。
-  边界与证据见
+- 热门公开固件矩阵的历史快照覆盖 6 台 S3/C6 设备的 18 个非基线样本：
+  全部完成静态分析和服务执行，10 PASS / 8 PARTIAL；该快照最初把 C6
+  Zigbee 与软件复位 chip-id 归为两个模型缺口。`RUNTIME-01` 已确认根因是
+  16 MiB Flash legacy 写擦地址宽度与复位 PMP 状态并修复，重跑后该样本仍有
+  独立应用异常；`RUNTIME-02` Zigbee 仍未建模。边界与证据见
   [运行时模型缺口登记](docs/runtime-model-gap-register.md)。
 - worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS、真实 QEMU
   和 unified StickS3 job over mTLS，以及本地 QEMU restart reattach 已形成
@@ -41,10 +41,11 @@ MicroPython 和其他完整 Flash 固件。
   调度仍是开放项。
 - Core2 规范路径是
   `runtime=qemu-unified/profile=core2-native-hci`；GDB native-VHCI 只用于
-  诊断/兼容。功能、active-BLE 120 秒 hold 和同 guest 二十轮重连已通过；
+  诊断/兼容。功能、active-BLE 120 秒 hold、同 guest 二十轮和
+  `3` 个独立 lease 各 `30` 轮重连已通过；
   重连 blocker 已定位并修正为 Bumble 对
-  `HCI_Host_Number_of_Completed_Packets (0x0c35)` 的错误响应。剩余长稳、
-  物理边界见
+  `HCI_Host_Number_of_Completed_Packets (0x0c35)` 的错误响应。下一次长稳
+  门禁是超过三十轮和多小时 soak，物理边界见
   [Core2 native HCI backend](docs/core2-native-hci-backend.md)。
 
 完整设备矩阵、证据日期和风险边界见
@@ -65,7 +66,8 @@ MicroPython 和其他完整 Flash 固件。
 1. `NET-04` / `SVC-01`：自动化客户端批量迁移、跨主机 QEMU job/reattach、continuity 和多机调度。
 2. `FW-01` → `RUNTIME-02` → `FW-03` → `FW-02`：权限/许可、C6 Zigbee
   模型缺口、跨厂商样本、真机 key/eFuse。
-3. `CORE2-02`：超过二十轮连接、多小时 soak、WiFi/BLE coexistence 与物理等价性。
+3. `CORE2-02`：`3` 个独立 lease、每个 `30` 轮的重连门禁已通过；继续推进
+   超过三十轮、多小时 soak、WiFi/BLE coexistence 与物理等价性。
 4. `TAB5-01`、`CZ-01`、`UI-01` 和 `HW-01` 按专项依赖推进。
 
 关键索引：
@@ -166,7 +168,7 @@ curl -sS -H 'Content-Type: application/json' \
 | ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
 | ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
 | ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold，以及 3 个独立 lease 各自 20 轮的 same-guest GATT。全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；超过二十轮、多小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM 未完成 |
+| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold，以及 3 个独立 lease 各自 20 轮和 30 轮的 same-guest GATT。全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；30 轮运行每 lease 为 HLI `857/857`、events `587`、ACLs `270`，连接池回到 `3/9/3`。剩余超过三十轮、多小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -299,10 +301,15 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   `BLE_HS_ECONTROLLER (12)` 和 reset。移除该非法响应后，stock 固件在
   3 个独立 lease 中均完成 20 轮，所有循环的 guest RX、notification、pcap
   和 evidence 全部 PASS。
+  Device Service、Bumble peer 和 runner 的参数范围已统一为 `1–30` 轮，并有
+  超过 30 轮的拒绝测试。随后同一固件/ELF/QEMU build 在 `3` 个独立 lease
+  中各完成 30 轮，全部 `3/3 PASS`；每个 lease 的 HLI 为 `857/857`、
+  events `587`、ACLs `270`，HLI errors、HLI/meta queue、TX queue 和 panic
+  均为 0，连接/L2CAP/GATT 池均回到 `3/9/3`。
   旧的 `core2-native-vhci` 仍依赖
   GDB 暂停、callback 注入和 synthetic return，只保留为显式诊断/兼容路径，
   不再作为新调用首选。该结果仍不是 bit-exact ESP32 BT
-  baseband/controller、超过二十轮、多小时 soak、RF 或真机验证。当前 hook
+  baseband/controller、超过三十轮、多小时 soak、RF 或真机验证。当前 hook
   偏移绑定已验证的
   UIFlow2 v2.5.3 build；换 Core2 固件必须重新验证同一路径。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
