@@ -1,5 +1,12 @@
 # QEMU 多机型 UIFlow2 补丁
 
+Last reviewed: `2026-10-24`
+
+> 历史启动补丁：本文保留 2026-10-20 的板级 bring-up 边界。后续网络、
+> BLE、Core2 长稳和设备服务能力见
+> [项目当前状态](../../docs/project-status.md)与
+> [代码与验证入口地图](../../docs/code-map.md)，不要从本页推断当前完整能力。
+
 该补丁建立在 StopWatch UIFlow2 启动补丁之上，新增：
 
 - `m5sticks3`：ST7789P3 135x240、M5PM1、BMI270、A/B 按键；
@@ -31,7 +38,10 @@ git apply /path/to/qemu-multi-board-uiflow2/0001-qemu-m5stack-multiboard-uiflow2
 - StamPLC：UIFlow2 v2.5.3，240x135 首帧，PI4IOE 前面板 A 键使计数 `0 -> 1`；
 - StackChan：官方 UIFlow2 v2.5.3，320x240 首帧，FT5x06 触摸使计数 `0 -> 1`；
 - PaperColor/PaperMono：官方 UIFlow2 v2.5.3，电子纸首帧和输入重绘通过；
-- Core2：官方 UIFlow2 已进入 `main.py`，完成 320x240 首帧和触摸重绘；QEMU 暂用 `-m 0` 规避 PSRAM/cache 稳定性问题；
+- Core2：官方 UIFlow2 已进入 `main.py`，完成 320x240 首帧和触摸重绘；当时的
+  QEMU `-m 0` 启动边界后续已定位为 interrupt-WDT/timer starvation，并通过
+  deterministic `tcg,thread=single` + `icount` 稳定；物理 PSRAM/cache 等价性
+  仍是独立缺口；
 - StopWatch：原有 466x466 圆屏触摸回归继续通过。
 
 补丁不包含 `build/qemu/meson.build` 的本地 slirp 构建修复。

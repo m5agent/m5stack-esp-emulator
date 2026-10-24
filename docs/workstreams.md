@@ -56,12 +56,18 @@ profile 和 evidence 为准。
   6 台 S3/C6 的 18 个公开样本已形成运行时矩阵并区分两个模型缺口；运行时
   权限、完整源码级许可扫描/法律审批、真机 key/eFuse 闭环、更多设备和
   firmware family 仍开放。
+- **运行时模型缺口**：C6 Zigbee/802.15.4 未建模和 C6 软件复位后 chip-id
+  错误已从固件 FAIL 中正确分离，但两项仍是 `OPEN`。分类不是修复：
+  `RUNTIME-01` 先定位 `LP_SW_HPSYS` 后的真实读取语义，`RUNTIME-02` 再决定
+  802.15.4 controller 是否可维护地建模；统一登记见
+  [运行时模型缺口登记](runtime-model-gap-register.md)。
 - **代码/文档基线**：动态验证计数只在 `project-status.md` 维护；设备
   catalog 与 QEMU profile 已加入日期/状态交叉校验。当前真实代码债务仍是
   `device_service.py` 编排热区、大型契约测试和文档契约测试混载，见
   `code-map.md`。
 - **下一手顺序**：推进 `NET-04` 远程 worker 和 `NET-05` IPv6；固件侧
-  继续 `FW-01`/`FW-03`/`FW-02`；Core2 在二十轮 reconnect 基础上扩大
+  继续 `FW-01`，随后 `RUNTIME-01`/`RUNTIME-02`、`FW-03`、`FW-02`；
+  Core2 在二十轮 reconnect 基础上扩大
   soak/coexistence，再推进物理与 controller 等价性；`HCI-4`、短时
   extended-run、十轮和二十轮 reconnect 均不再作为待办。
 
@@ -89,6 +95,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | Core2 稳定性与无线 | `PARTIAL`（首轮功能、10s/60s/120s、active-BLE hold 与二十轮 reconnect PASS） | `platform/tools/ble_probe.py`、`platform/tools/device_service.py`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT 与 `HCI-4` 均 `5/5`；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`、2 个 active-BLE `120s` `2/2`；3 个独立 lease 各 20 轮的 GATT `3/3`，每轮 HLI health 零错误；统一 API 上限 `30`；超 30 秒等待回归已修复 | `CORE2-02` 超过二十轮、多小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、HTTPS/mTLS、SIGHUP rotation + activity drain + bounded credential overlap、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；真实 loopback TLS 1.3/mTLS、客户端证书拒绝/通过、signed worker 生命周期、真实 StickS3 QEMU job、unified board/WiFi/BLE job over mTLS、SIGHUP A/B + overlap rotation、activity drain 和 final cutover 后 QEMU job；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 自动化客户端批量迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |
 | 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围；FW-03 runtime matrix `PARTIAL`） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist；6 台设备 18 个公开非基线样本 10 PASS / 8 PARTIAL，runtime model gap 独立分类 | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 更多设备和 firmware family 回归 |
+| 跨厂商运行时模型缺口 | `PARTIAL`（2 个 `OPEN`） | `user_firmware_matrix.py`、C6 QEMU worktree、`tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json` | 18 个样本中的 C6 Zigbee watchdog 和 C6 `LP_SW_HPSYS` 后 chip-id `13/12` 不一致均保留 serial/error evidence，并归为 `runtime_model_gap` | `RUNTIME-01` 复位/eFuse/寄存器语义；`RUNTIME-02` 802.15.4 controller 可行性；修复后新增 evidence，不改写旧诊断 |
 | Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py`、`docs/device-service-api.md` | 本地 lease/worker lifecycle；PID/start-time/QMP 验证后的 restart reattach；远程注册；durable queue、claim/lease/expiry/cancel/result；HTTPS/mTLS、SIGHUP rotation + activity drain + bounded overlap、HTTP executor、evidence ZIP/SHA256、worker HMAC 和失联回收；烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` 自动化客户端迁移、cross-host QEMU job 与 companion/evidence continuity、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
 | 热门公开固件仿真 | `PILOT` | `fetch_firmware.py`、`user_firmware_matrix.py` | 按 M5Burner 热度选样并通过 `/api/v1` 留下 session/evidence | 更大样本面、跨厂商统计、长时间稳定性 |
 | 浏览器目录与设备页 | `DELIVERED`（本地） | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、Live sessions、输入和证据浏览 | `UI-01` 逐设备高保真外壳与视觉回归 |
@@ -104,7 +111,8 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
    credential overlap 和本地 QEMU/QMP reattach 已具备，下一步 `NET-04` /
    `SVC-01` 自动化客户端批量迁移、跨主机 QEMU executor/reattach、
    companion/evidence continuity 与多机调度；`NET-05` 外部 IPv6 单列。
-2. 固件审查继续 `FW-01` 权限/许可，再处理 `FW-03` 跨厂商样本和
+2. 固件审查继续 `FW-01` 权限/许可，随后推进 `RUNTIME-01` C6 软件复位、
+   `RUNTIME-02` Zigbee 可行性，再处理 `FW-03` 跨厂商样本和
    `FW-02` 真机 key/eFuse。
 3. `CORE2-02` 在已通过的二十轮 GATT 和
    `5×10s` / `3×60s` / `2×120s` 门禁上扩大 API 轮次上限与 soak 时长，

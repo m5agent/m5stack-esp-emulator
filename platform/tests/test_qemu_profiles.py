@@ -156,7 +156,9 @@ class QemuProfileTest(unittest.TestCase):
             row["validation"]["status"],
             "display-touch-peripherals-wifi-ble-pass",
         )
-        self.assertEqual(row["blockers"], [])
+        blockers = " ".join(row["blockers"])
+        self.assertIn("RUNTIME-01", blockers)
+        self.assertIn("LP_SW_HPSYS", blockers)
 
     def test_tab5_visual_validation_is_complete(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "tab5")
@@ -209,7 +211,9 @@ class QemuProfileTest(unittest.TestCase):
             if row["id"] == "nanoc6"
         )
         self.assertEqual(row["peripheral_status"], "simulated")
-        self.assertEqual(row["blockers"], [])
+        blockers = " ".join(row["blockers"])
+        self.assertIn("RUNTIME-02", blockers)
+        self.assertIn("Zigbee/802.15.4", blockers)
         self.assertIn("rgb-led", row["peripherals"])
         self.assertIn("gpio-led", row["peripherals"])
         self.assertIn("button", row["peripherals"])

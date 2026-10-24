@@ -8,6 +8,7 @@
   - [项目 Backlog](project-backlog.md)
   - [代码与验证入口地图](code-map.md)
   - [外设仿真架构](peripheral-simulation-architecture.md)
+  - [运行时模型缺口登记](runtime-model-gap-register.md)
   - [虚拟主机适配矩阵](qemu-device-adaptation-matrix.md)
   - [UIFlow2 外设 API 测试矩阵](uiflow2-peripheral-test-matrix.md)
   - [跨设备显示、输入与音频回归审计](uiflow2-cross-device-regression-audit.md)
@@ -347,6 +348,9 @@ link down/up，或用 `target=radio` 停止/恢复 WiFi 模型信标和管理帧
 
 - 仿真证据完整；
 - 模型缺口明确；
+- 已知 `runtime_model_gap` 在
+  [运行时模型缺口登记](runtime-model-gap-register.md)中有 Task ID、边界和
+  关闭条件；仅分类不表示模拟器支持该路径；
 - 所有异常已分类为固件问题、模型问题或待确认；
 - 发布所需路径至少完成 validated virtual-device 或真机验证；
 - 涉及物理测量或环境行为的断言单独执行真机验证；
@@ -436,8 +440,9 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
    executor、GitHub-hosted Linux
    policy/egress CI 和双设备 lab fabric 已具备，外部 IPv6 egress 仍开放；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
-4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
-5. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
+4. 关闭 C6 软件复位 chip-id 与 Zigbee/802.15.4 两个运行时模型缺口；
+5. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
+6. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
 
 网络部分已经具备 controlled DNS、TLS/Host allowlist、精确 IPv4
 IP/协议/端口 egress、pcap、DHCP renewal、虚拟 radio/AP 丢失恢复，以及

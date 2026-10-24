@@ -46,8 +46,9 @@ now also pass public IPv4 DNS/HTTP and two BLE GATT paths:
   one Device Service lease.
 
 Those later results do not turn this patch into a complete PHY/rate/security/RF
-model. The native-VHCI bridge still depends on QEMU GDB, and a bit-exact
-Espressif BT baseband/controller remains `NOT RUN`.
+model. The legacy native-VHCI bridge still depends on QEMU GDB; the canonical
+`core2-native-hci` profile does not. A bit-exact Espressif BT
+baseband/controller remains `NOT RUN`.
 
 This is a simulation bring-up patch, not a complete WiFi implementation and not
 real-hardware validation.

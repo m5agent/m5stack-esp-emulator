@@ -29,6 +29,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/project-backlog.md",
             "docs/validation-ledger.md",
             "docs/unified-device-runtime.md",
+            "docs/runtime-model-gap-register.md",
             "docs/device-service-api.md",
             "docs/device-service.openapi.yaml",
             "docs/code-map.md",
@@ -159,6 +160,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
             "tests/firmware/evidence-2026-10-24-public-manifest-web-conformance.json",
             "tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json",
+            "tests/firmware/README.md",
             "platform/web/firmware.html",
             "platform/web/firmware.css",
             "platform/web/firmware.js",
@@ -240,8 +242,12 @@ class DocsConsistencyTests(unittest.TestCase):
                 ROOT / "tests" / "network" / "core2_openmac_wifi" / "README.md",
                 ROOT / "tests" / "network" / "egress_allowlist" / "README.md",
                 ROOT / "tests" / "network" / "idf_dhcp_renewal" / "README.md",
+                ROOT / "tests" / "network" / "core2_openeth" / "README.md",
+                ROOT / "tests" / "uiflow2" / "sticks3_peripherals" / "README.md",
                 ROOT / "patches" / "qemu-core2-openmac-wifi" / "README.md",
                 ROOT / "patches" / "qemu-core2-ble-controller" / "README.md",
+                ROOT / "patches" / "qemu-multi-board-uiflow2" / "README.md",
+                ROOT / "patches" / "qemu-esp32c6-uiflow2-adapters" / "README.md",
                 *sorted(DOCS.glob("*.md")),
             )
         )
@@ -334,8 +340,71 @@ class DocsConsistencyTests(unittest.TestCase):
             "credential overlap/client-fleet migration",
             "超过十轮连接",
             "more than ten reconnect cycles",
+            "keeps the Core2 WiFi path `PARTIAL`",
+            "accelerometer/gyroscope values: PARTIAL",
+            "暂用 `-m 0` 规避 PSRAM/cache 稳定性问题",
         ):
             self.assertNotIn(stale, active)
+
+    def test_runtime_model_gap_register_matches_evidence_and_backlog(self):
+        register = (DOCS / "runtime-model-gap-register.md").read_text()
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        firmware_matrix = (
+            DOCS / "user-firmware-simulation-matrix.md"
+        ).read_text()
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-24-cross-vendor-runtime-model-gaps.json"
+            ).read_text()
+        )
+
+        gap_codes = {
+            gap["code"]
+            for sample in evidence["revalidation"]["runtime_model_gaps"]
+            for gap in sample["runtime_model_gaps"]
+        }
+        self.assertEqual(
+            gap_codes,
+            {
+                "zigbee_runtime_not_modeled",
+                "c6_chip_id_lost_after_software_reset",
+            },
+        )
+        self.assertEqual(register.count("| 状态 | `OPEN` |"), 2)
+        self.assertIn("RUNTIME-01", register)
+        self.assertIn("RUNTIME-02", register)
+        self.assertIn("`LP_SW_HPSYS`", register)
+        self.assertIn(
+            "`Invalid chip id. Expected 13 read 12. Bootloader for wrong chip?`",
+            register,
+        )
+        self.assertIn(
+            "ef8249ac7930fa51ac5bf03cea52d8de9a59dcbaf2130663ca0d5087a8053744",
+            register,
+        )
+        self.assertIn(
+            "cross-vendor-runtime-model-gaps.json",
+            register,
+        )
+        for text in (status, backlog, workstreams, firmware_matrix):
+            self.assertIn("RUNTIME-01", text)
+            self.assertIn("RUNTIME-02", text)
+        self.assertIn(
+            "runtime-model-gap-register.md",
+            status,
+        )
+        self.assertIn(
+            "classification only prevents a false firmware",
+            firmware_matrix,
+        )
+        self.assertIn(
+            "不把“已分类”算成该任务完成",
+            backlog,
+        )
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

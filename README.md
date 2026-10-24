@@ -27,7 +27,9 @@ MicroPython 和其他完整 Flash 固件。
   QOM、网络和 evidence API。
 - 热门公开固件矩阵已覆盖 6 台 S3/C6 设备的 18 个非基线样本：全部完成
   静态分析和服务执行，10 PASS / 8 PARTIAL；C6 Zigbee 与软件复位 chip-id
-  两类模型缺口已独立标记，不再混作固件 FAIL。
+  两类模型缺口已独立标记，不再混作固件 FAIL，但两者仍是 `OPEN`，分类
+  不代表模拟器已经支持。边界与关闭条件见
+  [运行时模型缺口登记](docs/runtime-model-gap-register.md)。
 - worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS、真实 QEMU
   和 unified StickS3 job over mTLS，以及本地 QEMU restart reattach 已形成
   可用主线；服务端证书/client CA、worker 客户证书和 token 已通过
@@ -60,7 +62,8 @@ MicroPython 和其他完整 Flash 固件。
 未完成项和 Task ID 只在[项目 Backlog](docs/project-backlog.md)维护；当前顺序是：
 
 1. `NET-04` / `SVC-01`：自动化客户端批量迁移、跨主机 QEMU job/reattach、continuity 和多机调度。
-2. `FW-01` → `FW-03` → `FW-02`：权限/许可、跨厂商样本、真机 key/eFuse。
+2. `FW-01` → `RUNTIME-01`/`RUNTIME-02` → `FW-03` → `FW-02`：权限/许可、
+   C6 软件复位与 Zigbee 模型缺口、跨厂商样本、真机 key/eFuse。
 3. `CORE2-02`：超过二十轮连接、多小时 soak、WiFi/BLE coexistence 与物理等价性。
 4. `TAB5-01`、`CZ-01`、`UI-01` 和 `HW-01` 按专项依赖推进。
 
@@ -74,6 +77,7 @@ MicroPython 和其他完整 Flash 固件。
 - [验证证据台账](docs/validation-ledger.md)
 - [设备高保真建模 Backlog](docs/device-visual-fidelity-backlog.md)
 - [热门用户固件仿真矩阵](docs/user-firmware-simulation-matrix.md)
+- [运行时模型缺口登记](docs/runtime-model-gap-register.md)
 - [Tab5 暂缓项](docs/tab5-deferred-backlog.md)
 - [网络模拟方案](docs/network-simulation-plan.md)
 - [统一设备运行时契约](docs/unified-device-runtime.md)
@@ -263,6 +267,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - [TLS Host allowlist fixture](tests/network/tls_allowlist/README.md)
 - [Worker HTTPS/mTLS transport](tests/network/worker_tls/README.md)
 - [固件清单与 WebBurner 导入](docs/firmware-manifest.md)
+- [固件验证 evidence 目录](tests/firmware/README.md)
 - [统一设备运行时契约](docs/unified-device-runtime.md)
 - [Tab5 暂缓项](docs/tab5-deferred-backlog.md)
 - [维护与验证规则](AGENTS.md)
@@ -272,6 +277,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - 仿真 PASS 不等于真机 PASS。
 - S3/C6/Core2 的 QEMU 网络是 MAC/DMA 与 user-net 数据面，不是完整
   PHY/RF/天线模型。
+- C6 软件复位后的 chip-id 读取和 Zigbee/802.15.4 仍是 `OPEN` 运行时模型
+  缺口；在对应 evidence 关闭前，相关固件只能标 `PARTIAL/runtime_model_gap`。
 - `egress=allowlist` 的精确网络策略当前覆盖 IPv4；外部 IPv6、CIDR 和域名
   不会被当成隐式放行。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock

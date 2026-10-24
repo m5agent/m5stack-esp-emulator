@@ -6,7 +6,9 @@ Last reviewed: `2026-10-24`
 [`docs/project-status.md`](../docs/project-status.md) 为准，代码和证据入口见
 [`docs/code-map.md`](../docs/code-map.md)，按工作流查看交付和待办见
 [`docs/workstreams.md`](../docs/workstreams.md)，带日期的验证记录见
-[`docs/validation-ledger.md`](../docs/validation-ledger.md)。
+[`docs/validation-ledger.md`](../docs/validation-ledger.md)，已知固件运行时
+模型差异见
+[`docs/runtime-model-gap-register.md`](../docs/runtime-model-gap-register.md)。
 
 ```text
 platform/
@@ -104,6 +106,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   StickS3 通过 QEMU socket L2 switch 完成 DHCP、A→B TCP 和双侧 pcap，宿主
   与公网不可达。TAP/bridge + DHCP helper 是 CI 单独检查的 host primitive，
   不是本次 QEMU PASS 的数据路径，也不是生产 worker。
+- C6 的 Zigbee/802.15.4 controller 和某些 `LP_SW_HPSYS` 软件复位后的
+  ROM chip-id 读取仍未建模完整。相关样本保持
+  `PARTIAL/runtime_model_gap`，不能通过宿主假值或重试改成 PASS。
 
 完整契约见
 [`docs/device-service-api.md`](../docs/device-service-api.md) 和

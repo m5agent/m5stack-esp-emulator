@@ -10,7 +10,7 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
-## 先看这六页
+## 先看这七页
 
 1. [工作流总台账](workstreams.md)：按工作流串起当前状态、代码、证据和下一任务。
 2. [项目当前状态](project-status.md)：现在能做什么、已经验证什么、仍有什么风险。
@@ -19,16 +19,20 @@
 5. [验证证据台账](validation-ledger.md)：按日期保存当时的检查项、结论和 evidence。
 6. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
    board/WiFi/BLE/evidence 的产品验收边界。
+7. [运行时模型缺口登记](runtime-model-gap-register.md)：已知“固件已执行但
+   模拟器能力不足”的缺口、证据、边界和关闭条件。
 
 如果页面之间冲突，以当前代码、生成后的 catalog/coverage、最新测试证据和
 `project-status.md` 为准；`project-backlog.md` 不描述完成状态，日期较早的
 调查页也不自动代表当前结论。
 
-## 三组 P0 的权威入口
+## P0 与模型缺口的权威入口
 
 - 当前能力、已闭合边界和风险只看 [项目当前状态](project-status.md)。
 - 未完成 Task ID、依赖和验收只看 [项目 Backlog](project-backlog.md)。
 - 某项结论何时、用什么证据验证，只看 [验证证据台账](validation-ledger.md)。
+- 固件行为与模拟器差异不能直接归因时，先查
+  [运行时模型缺口登记](runtime-model-gap-register.md)；分类不是修复。
 
 不要在 README、专题页或历史调查中复制第三份 P0 状态表。
 
@@ -60,6 +64,7 @@
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 14 个 unified profile；Core2 主路径为 `core2-native-hci`，`HCI-1` 至 `HCI-4` PASS；旧的 native-VHCI GDB 路径仅保留为诊断/兼容 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；`60s`、`120s` 和 active-BLE `120s` 门禁通过；同 guest 二十轮 GATT 在 3 个独立 lease 中 PASS，HLI 577/577、events 397、ACLs 180 且连接池回到空闲基线。根因是 Bumble 对 `HCI_Host_Number_of_Completed_Packets (0x0c35)` 返回了不该存在的 Command Status；首次 10 轮运行的 Device Service 30 秒等待误杀已修复；超过二十轮、物理等价性、多小时 soak 和真机仍开放 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 当前缺口 | `2026-10-24` | 18 个公开样本中的 2 个 `runtime_model_gap` 仍为 `OPEN`：C6 Zigbee/802.15.4 未建模、C6 软件复位后 chip-id 错误；登记分类规则、证据和关闭条件，不把缺口写成固件 FAIL |
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复、双 guest lab fabric、worker SIGHUP rotation、active-request drain、bounded credential overlap 和 final cutover 已通；自动化客户端迁移、跨主机与 QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
@@ -107,6 +112,8 @@
 - [虚拟设备功能测试工作流](device-functional-test-workflow.md)
 - [固件审查与仿真测试工作流](firmware-review-and-simulation-workflow.md)
 - [FirmwareManifest 与 WebBurner 导入](firmware-manifest.md)
+- [运行时模型缺口登记](runtime-model-gap-register.md)
+- [固件验证 evidence 目录](../tests/firmware/README.md)
 
 ### 设备、外设与运行时
 
@@ -169,6 +176,8 @@
 - 新验证：保存 evidence，必要时写入 `agent-work-logs`；不要把聊天摘要当作证据。
 - 新验证记录：追加到 `validation-ledger.md`，并回查它是否改变
   `project-status.md` 或 `project-backlog.md`。
+- 新增或关闭 `runtime_model_gap`：同步
+  `runtime-model-gap-register.md` 和 Backlog；分类证据与修复证据分开保存。
 - 历史页保留原日期；若结论被推翻，在页首加“已由某页取代”，不要静默改写成
   好像当时就知道后来结果。
 - 同一证据的 SHA、测试数、Task 状态不要复制到历史页或设计页；应链接当前

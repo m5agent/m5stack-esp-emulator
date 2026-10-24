@@ -18,6 +18,7 @@
 | Device Service 如何调用 | [Device Service API](device-service-api.md) 与 [OpenAPI](device-service.openapi.yaml) |
 | 单 lease 设备验收标准 | [统一设备运行时契约](unified-device-runtime.md) |
 | 固件如何规范化和拒绝 | [固件清单与 WebBurner 导入](firmware-manifest.md) |
+| 已知模拟器运行时缺口和关闭条件 | [运行时模型缺口登记](runtime-model-gap-register.md) |
 | 网络如何隔离和取证 | [网络模拟方案](network-simulation-plan.md)、[网络诊断 lane](network-lane.md) |
 | Core2 如何进入 QEMU 内部 HCI relay | [Core2 native HCI backend](core2-native-hci-backend.md) |
 | 代码入口和证据目录 | 本文 |
@@ -217,6 +218,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
+| [`tests/firmware/`](../tests/firmware/README.md) | 已提交的 manifest、静态审查、文件系统和跨厂商运行时 evidence；不是测试实现目录 |
 | `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |
 | `platform/web/firmware.html`、`firmware.js`、`firmware-upload.js`、`sha256.js` | 浏览器 WebBurner 包上传、流式 SHA256、重试/取消/刷新恢复和 manifest 导入 |
 
@@ -302,6 +304,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | WebBurner browser intake | `platform/web/firmware.html`; `platform/tests/test_firmware_upload.mjs`; `tests/firmware/evidence-2026-10-24-webburner-ui.json` | 9.44 MiB / 3 chunk、浏览器 SHA256、进度重试、刷新续接、取消清理和 WebBurner ZIP → manifest import |
 | Manifest 公共样本/WebBurner | `firmware_manifest.py`；`test_firmware_manifest.py`；`evidence-2026-10-24-public-manifest-web-conformance.json` | 同一公开固件的 merged 与 WebBurner 输入规范化到同一 artifact hash；`camera`-on-StickS3 结构化拒绝；安全证据分层和 HTTP import PASS |
 | 跨厂商公开固件 runtime matrix | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；`evidence-2026-10-24-cross-vendor-runtime-model-gaps.json` | 6 台 S3/C6、18 个公开样本，结构分析全通过；10 PASS / 8 PARTIAL；Zigbee 未建模路径与 C6 软件复位 chip-id 缺陷归类为 `runtime_model_gap` |
+| 运行时模型缺口登记 | `runtime-model-gap-register.md`；`project-backlog.md`；跨厂商 evidence | `RUNTIME-01` 和 `RUNTIME-02` 均为 `OPEN`；分类不等于支持，修复必须补 C6 reset/controller 数据面并新增 evidence |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码 P0 | `tests/network/wrong_password/run_test.py`；`evidence-2026-10-24-wrong-password-pass.json` | 6 次 auth/reject、无 DHCP、无 HTTP、固件失败 marker 和 SoftAP wrong-password warning 同次 `7/7 PASS` |
 | 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/run_test.py`；`evidence-2026-10-24-radio-loss-recovery-pass.json` | radio QOM `false→true`、scan `1→0→1`、双 DHCP、前后 HTTP 200、双侧流 pcap 和同 session 证据 |
@@ -338,6 +341,8 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 - API 变更：同步 `docs/device-service-api.md`、OpenAPI 和 tests。
 - 设备/外设变更：同步源清单、生成目录、契约、coverage 和矩阵文档。
 - 验证结果：写回测试 evidence 或 `agent-work-logs`，不要只留在会话里。
+- 新增 `runtime_model_gap`：同步缺口登记和 Backlog，保留原失败 evidence；
+  修复后追加新 evidence，不改写当时诊断。
 - 新文档：先登记到 [文档导航](README.md)，并标明它是当前事实、契约、
   专题说明还是历史证据。
 - 被推翻的当前结论：在所有当前入口删除旧陈述，在历史页保留原日期并写明

@@ -274,12 +274,12 @@
       "blockers": [
         "physical cache/PSRAM timing equivalence remains NOT RUN",
         "bit-exact ESP32 BT baseband/controller remains NOT RUN",
-        "more than ten reconnect cycles and multi-hour coexistence/soak remain NOT RUN"
+        "more than twenty reconnect cycles and multi-hour coexistence/soak remain NOT RUN"
       ],
       "validation": {
         "date": "2026-10-24",
         "status": "display-input-peripherals-wifi-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 runs the 320x240 display/touch, AXP2101, INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, OpenMAC WiFi DHCP/HTTP, public DNS/HTTP and stock-firmware external BLE GATT in one m5core2 guest. Deterministic tcg,thread=single plus icount passed ten independent first attempts without retry. The canonical Device Service profile core2-native-hci passes the HCI-4 functional baseline in five independent leases with gdb_bridge=false. Patch 0005 restores caller-saved Xtensa sregs around nested guest calls and restricts HLI allocator/callback injection to halted/idle vCPU state; two independent 5x10s batches pass 10/10, three 60s holds pass 3/3, two 120s holds pass 2/2 and two active-BLE 120s holds pass 2/2 with hli-errors=0 and empty HLI/meta queues. Three additional leases each pass ten complete same-guest scan/connect/NUS GATT/disconnect cycles with balanced HLI 297/297, 207 events, 90 ACLs and connection/L2CAP/GATT pools back at 3/9/3; the first ten-cycle attempt exposed a Device Service 30-second wait cap, which now uses the session ready timeout and has a regression test. The historical stale-ACK failure was traced to the external Bumble compatibility layer replying to no-response HCI command 0x0c35. The legacy core2-native-vhci profile remains diagnostic because its repeated-lease result is 1/2. More than ten reconnect cycles, multi-hour soak, physical cache/PSRAM equivalence, coexistence and a bit-exact Espressif BT baseband/controller remain open."
+        "detail": "Official UIFlow2 v2.5.3 runs the 320x240 display/touch, AXP2101, INA3221, MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, OpenMAC WiFi DHCP/HTTP, public DNS/HTTP and stock-firmware external BLE GATT in one m5core2 guest. Deterministic tcg,thread=single plus icount passed ten independent first attempts without retry. The canonical Device Service profile core2-native-hci passes the HCI-4 functional baseline in five independent leases with gdb_bridge=false. Patch 0005 restores caller-saved Xtensa sregs around nested guest calls and restricts HLI allocator/callback injection to halted/idle vCPU state; two independent 5x10s batches pass 10/10, three 60s holds pass 3/3, two 120s holds pass 2/2 and two active-BLE 120s holds pass 2/2 with hli-errors=0 and empty HLI/meta queues. Three additional leases each pass twenty complete same-guest scan/connect/NUS GATT/disconnect cycles with balanced HLI 577/577, 397 events, 180 ACLs and connection/L2CAP/GATT pools back at 3/9/3. The earlier ten-cycle attempt exposed a Device Service 30-second wait cap, which now uses the session ready timeout and has a regression test. The historical stale-ACK failure was traced to the external Bumble compatibility layer replying to no-response HCI command 0x0c35. The legacy core2-native-vhci profile remains diagnostic because its repeated-lease result is 1/2. More than twenty reconnect cycles, multi-hour soak, physical cache/PSRAM equivalence, coexistence and a bit-exact Espressif BT baseband/controller remain open."
       }
     },
     {
@@ -385,11 +385,13 @@
         "no display; GPIO7 blue LED, GPIO9 button, GPIO19 RGBPWR and GPIO20 WS2812",
         "ESP32-C6 RMT IR transmitter"
       ],
-      "blockers": [],
+      "blockers": [
+        "Zigbee/802.15.4 controller data plane is not modeled (RUNTIME-02)"
+      ],
       "validation": {
-        "date": "2026-10-23",
+        "date": "2026-10-24",
         "status": "board-peripherals-wifi-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 runs hardware.RGB/WS2812, GPIO9 press/release, GPIO7 blue LED, RMT NEC IR, QEMU ESP32-C6 WiFi scan/association/DHCP/HTTP and UART1 HCI BLE NUS in one C6 guest. The same image passes in the standalone runner, a public-network probe and one Device Service qemu-unified lease."
+        "detail": "Official UIFlow2 v2.5.3 runs hardware.RGB/WS2812, GPIO9 press/release, GPIO7 blue LED, RMT NEC IR, QEMU ESP32-C6 WiFi scan/association/DHCP/HTTP and UART1 HCI BLE NUS in one C6 guest. The same image passes in the standalone runner, a public-network probe and one Device Service qemu-unified lease. Cross-vendor user-firmware review separately records that Zigbee/802.15.4 is not modeled (RUNTIME-02); this remains an explicit capability gap and does not invalidate the baseline board/WiFi/BLE evidence."
       }
     },
     {
@@ -429,11 +431,13 @@
         "FT6336 touch",
         "PI4IOE expanders, power telemetry, BMI270, ESP32-C6 IR/LoRa and GPIO11 I2S buzzer"
       ],
-      "blockers": [],
+      "blockers": [
+        "C6 LP_SW_HPSYS software reset can lose the expected chip id (RUNTIME-01)"
+      ],
       "validation": {
-        "date": "2026-10-23",
+        "date": "2026-10-24",
         "status": "display-touch-peripherals-wifi-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, PI4IOE expanders, BQ27220/AW32001, BMI270, SX1262 LoRa, RMT IR, I2S buzzer, QEMU ESP32-C6 WiFi DHCP/HTTP, example.com IPv4 DNS/HTTP and UART1 HCI BLE NUS pass in one C6 guest. The same image passes in the standalone runner and one Device Service qemu-unified lease; stock hardware.RGB() remains NOT RUN."
+        "detail": "Official UIFlow2 v2.5.3 renders the 135x240 UI; QMP touch/buttons, PI4IOE expanders, BQ27220/AW32001, BMI270, SX1262 LoRa, RMT IR, I2S buzzer, QEMU ESP32-C6 WiFi DHCP/HTTP, example.com IPv4 DNS/HTTP and UART1 HCI BLE NUS pass in one C6 guest. The same image passes in the standalone runner and one Device Service qemu-unified lease; stock hardware.RGB() remains NOT RUN. Cross-vendor user-firmware review separately records a C6 LP_SW_HPSYS software-reset chip-id failure (RUNTIME-01); this is still open and does not invalidate the baseline path."
       }
     },
     {

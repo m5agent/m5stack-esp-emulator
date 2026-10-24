@@ -1,5 +1,7 @@
 # Core2 QEMU OpenETH probe
 
+Last reviewed: `2026-10-24`
+
 This fixture proves the classic ESP32 QEMU path can exchange real Ethernet
 frames through the Espressif `open_eth` device, obtain DHCP through libslirp,
 and download a complete 1 MiB HTTP body.
@@ -7,7 +9,10 @@ and download a complete 1 MiB HTTP body.
 It deliberately does **not** prove ESP32 WiFi. Stock UIFlow and arbitrary WiFi
 firmware select the ESP-IDF WiFi path, while this fixture selects
 `CONFIG_ETH_USE_OPENETH` and `esp_eth_mac_new_openeth()`. A PASS here is an
-Ethernet/IP data-plane milestone and keeps the Core2 WiFi path `PARTIAL`.
+Ethernet/IP data-plane milestone. It neither replaces nor limits the current
+stock OpenMAC WiFi path, which later passed scan/association/DHCP/HTTP and
+public DNS/HTTP in `tests/network/core2_openmac_wifi/` and the unified Core2
+profiles. RF, PHY-rate and security behavior remain unverified.
 
 Build and run:
 

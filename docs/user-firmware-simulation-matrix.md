@@ -79,6 +79,12 @@ Two samples are classified as `runtime_model_gap`:
   `LP_SW_HPSYS` reset reports chip id 12 instead of 13, exposing a QEMU C6
   software-reset model defect.
 
+Both gaps are still `OPEN`; this classification only prevents a false firmware
+`FAIL`. Their exact affected reset/controller scope and closure conditions are
+maintained in the
+[runtime model-gap register](runtime-model-gap-register.md), with tasks
+`RUNTIME-01` and `RUNTIME-02` in the project backlog.
+
 The evidence retains serial hashes and bounded error lines while keeping the
 model-vs-firmware boundary explicit. PARTIAL samples are not promoted to
 functional PASS.

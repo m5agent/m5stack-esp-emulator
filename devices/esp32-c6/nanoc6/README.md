@@ -26,8 +26,8 @@
 
 headless-ready：真实固件、板级外设和串口/数据面已打通（无显示/画面契约）。
 
-- 验证：`board-peripherals-wifi-ble-pass` (2026-10-23)
-- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 hardware.RGB/WS2812、GPIO9 按键、GPIO7 蓝色 LED、RMT NEC 红外、QEMU ESP32-C6 WiFi 扫描/关联/DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner、公网探针和 Device Service 单个 qemu-unified lease 均通过。
+- 验证：`board-peripherals-wifi-ble-pass` (2026-10-24)
+- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU C6 guest 内通过 hardware.RGB/WS2812、GPIO9 按键、GPIO7 蓝色 LED、RMT NEC 红外、QEMU ESP32-C6 WiFi 扫描/关联/DHCP/HTTP 和 UART1 HCI BLE NUS；独立 runner、公网探针和 Device Service 单个 qemu-unified lease 均通过。跨厂商公开固件审查另记录 Zigbee/802.15.4 controller 未建模（RUNTIME-02）；这不否定已通过的基线外设/WiFi/BLE 路径。
 
 
 

@@ -104,8 +104,8 @@ ESP32-S3 的 `PKG_VERSION` 位于 BLOCK1 bit 117，必须匹配设备；StickS3 
 | StamPLC (`stamplc`) | ESP32-S3FN8 | qemu-esp32s3 | `ready` | ST7789V2 240x135 | 显示/IO/CAN/RS485/蜂鸣器已完成 |
 | PaperColor (`papercolor`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | E Ink Spectra 6 400x600 | 已完成 |
 | PaperMono (`papermono`) | ESP32-S3R8 | qemu-esp32s3 | `ready` | SSD1677 480x800 | 已完成，含 IP2315 充电状态 |
-| NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | C6 boot/USB-JTAG、RGB、按键、蓝灯、IR、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与同一 Device Service lease 内通过 |
-| Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 显示/触摸、电源/扩展 IO、IMU、LoRa、IR、蜂鸣器、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与同一 Device Service lease 内通过 |
+| NanoC6 (`nanoc6`) | ESP32-C6FH4 | qemu-esp32c6 | `ready` | none | 基线 boot/USB-JTAG、RGB、按键、蓝灯、IR、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与 lease 内通过；Zigbee/802.15.4 为 `RUNTIME-02` 模型缺口 |
+| Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | qemu-esp32c6 | `ready` | ST7789 135x240 | 基线显示/触摸、电源/扩展 IO、IMU、LoRa、IR、蜂鸣器、WiFi DHCP/HTTP 和 UART1 HCI BLE 在同一 guest 与 lease 内通过；`LP_SW_HPSYS` 后 chip-id 为 `RUNTIME-01` 模型缺口 |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | linux-arm64 | `separate-backend` | ST7789v3 SPI LCD 320x170 | Linux/非黑 LVGL 首帧/输入/I2C/IR/双向 PCM/充电状态/寄存器驱动 IMX219/GL852G MTT FS+LS/SR9900A 帧回环已通 |
 | Core2 (`core2`) | ESP32-D0WDQ6-V3 | qemu-esp32lx6 | `ready` | ILI9342C / ILI9342E 320x240 | 完整帧/触摸、WiFi、DNS/公网 HTTP、HCI-offload、stock VHCI 和 native-HCI 均已有证据；`core2-native-hci` 五 lease、两批 `5×10s`、`3×60s`、`2×120s`、active-BLE `2×120s` hold 与二十轮 reconnect `3/3` 均通过；旧 `core2-native-vhci` 仅诊断/兼容；剩余超过二十轮、多小时 soak、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence 和真机同路径 |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | esp-emulator-native | `ready` | ST7121 / ST7123 物理横向 1280x720 | 显示/触摸、C6 Hosted、I2C 寄存器探测和 SIT3088 RS-485 已通；CSI/I2S/USB/SDIO 等仍 partial |

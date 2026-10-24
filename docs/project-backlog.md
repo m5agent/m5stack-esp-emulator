@@ -23,6 +23,7 @@
 | --- | --- | --- | --- |
 | P0 | 网络产品化 | 跨主机 QEMU executor、自动化客户端批量迁移、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 authenticated executor；本地 QEMU/QMP reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
+| P0 | 运行时模型缺口 | 关闭已复现的 C6 软件复位 chip-id 错误；决定并验证或明确拒绝 C6 Zigbee/802.15.4 路径 | QEMU C6 reset/eFuse 语义；Zigbee 控制器和无线数据面 |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
@@ -38,9 +39,9 @@
    QEMU/QMP reattach 基础上补自动化客户端批量迁移、跨主机
    QEMU executor/reattach、companion/evidence continuity 和多机调度；
    `NET-05` 独立推进 IPv6。
-2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后 `FW-03`
-   扩跨厂商样本，
-   `FW-02` 做生产 key/eFuse 与真机安全配置。
+2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后依次推进
+   `RUNTIME-01` C6 软件复位、`RUNTIME-02` C6 Zigbee 决策，再扩
+   `FW-03` 跨厂商样本；`FW-02` 做生产 key/eFuse 与真机安全配置。
 3. `CORE2-02`：`5×10s`、`3×60s`、`2×120s` extended-run 和同 guest
    二十轮 reconnect 已通过，统一 API 上限为 `30`；下一项补多小时 soak 和
    WiFi/BLE coexistence。之后处理 controller/baseband 物理边界。`HW-01`
@@ -58,6 +59,8 @@
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | 已有 6 台 S3/C6、18 个公开官方/社区样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
+| `RUNTIME-01` | 待做 | 定位并修复 C6 `LP_SW_HPSYS` 复位后的 chip-id 读取语义 | 同一 Meshtastic SHA 不再报 `Invalid chip id`；实际寄存器/复位域证据成立且 C6 unified 不回归 |
+| `RUNTIME-02` | 决策 | 评估 C6 Zigbee/802.15.4 MAC、DMA、IRQ 和驱动路径能否进入可维护模型 | 完成至少一个真实 guest 生命周期并保留证据，或继续显式返回 `runtime_model_gap` 且给出阻断原因 |
 | `SVC-01` | 进行中 | 自动化客户端批量迁移、companion/evidence continuity 与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
@@ -196,10 +199,47 @@ preflight 已有；真机 secure boot、Flash Encryption、eFuse 和生产 key
 
 当前缺口：已有 18 个公开样本覆盖 6 台 S3/C6 设备，并区分 10 PASS、8
 PARTIAL、2 个 runtime model gap；仍未覆盖全部设备、ESP32 LX6/P4、更多
-MicroPython/vendor framework 和失败根因闭环。
+MicroPython/vendor framework 和失败根因闭环。模型缺口本身由
+`RUNTIME-01`/`RUNTIME-02` 管理，不把“已分类”算成该任务完成。
 
 验收：每个样本记录 importer、chip/board/profile、partition、capability、
 boot 和功能层；结构 PASS、UI PASS、功能 PASS、安全 PASS 不混算。
+
+### RUNTIME-01 C6 软件复位 chip-id
+
+当前缺口：一个 Nesso N1 Meshtastic 固件首次进入 C6 application 后执行
+`LP_SW_HPSYS`，下一次 ROM 启动报
+`Invalid chip id. Expected 13 read 12`。当前只知道首次启动和复位后行为不同，
+尚未确认 chip id 的真实读取来自 eFuse、legacy chip-model、strap 还是复位域
+寄存器，禁止按报错数字猜 efuse 或从宿主直接返回假值。
+
+验收：
+
+- 从 ESP-IDF/ROM 路径确定实际读取字段和软件复位前后的状态差异；
+- 修复 C6 QEMU reset/eFuse/寄存器语义，而不是绕过 guest 读取；
+- 同一 firmware SHA、Nesso N1 profile 和 QEMU build 不再出现
+  `Invalid chip id`，并进入下一个可观察应用阶段；
+- 保留 serial/frame/input/runtime evidence，NanoC6/Nesso 的现有 unified case
+  不回归；
+- 旧 `runtime_model_gap` evidence 保留，另加修复 evidence。
+
+详情和证据：
+[运行时模型缺口登记](runtime-model-gap-register.md)。
+
+### RUNTIME-02 C6 Zigbee/802.15.4
+
+当前缺口：官方 NanoC6 Zigbee HA light 能启动到 `Zigbee_main`，但 C6 profile
+没有 IEEE 802.15.4/Zigbee controller，最终触发 task watchdog。继续把它标成
+固件 `FAIL` 会污染审查结论。
+
+下一项最小交付：确认 Espressif C6 802.15.4 MAC/基带、DMA、interrupt、
+coexistence 和固件调用路径是否存在可实现的 QEMU 接口；给出工作量、依赖和
+数据面方案。
+
+验收：至少通过真实 guest 驱动的加入、收发和离网生命周期后才能改为支持；
+如果无法取得权威控制器语义，则保留结构化 `runtime_model_gap`，明确不支持，
+不承诺全 C6 固件兼容。详情见
+[运行时模型缺口登记](runtime-model-gap-register.md)。
 
 ## P0：真机同路径
 

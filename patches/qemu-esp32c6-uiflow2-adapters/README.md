@@ -1,5 +1,7 @@
 # ESP32-C6 UIFlow2 虚拟主机补丁
 
+Last reviewed: `2026-10-24`
+
 该补丁应用在 Espressif QEMU 的 ESP32-C6 后端 `febae18` 上，新增：
 
 - C6 启动所需的 SARADC 一次性采样完成握手；
@@ -24,6 +26,14 @@
 - 热门用户固件回归所需的 C6 修正：8 个命令寄存器、空 RX FIFO `0xff`、
   SCL reset 寄存器布局、PCR LEDC clock、compact LEDC layout、SPI2/GDMA
   TX/RX、`TRANS_DONE` 中断，以及共享 GDMA 的 OUT FIFO 完成握手。
+
+## 当前开放边界
+
+该补丁让基线 UIFlow2 和多个公开固件运行，但没有覆盖全部 C6 运行时语义。
+当前已知并有证据的缺口是 Zigbee/802.15.4 控制器未建模，以及某些固件执行
+`LP_SW_HPSYS` 软件复位后 ROM 将 chip id 读成 `12`（预期 `13`）。两项在修复
+前都记录为 `runtime_model_gap`，不得改写成固件 `FAIL` 或靠宿主假值绕过：
+[运行时模型缺口登记](../../docs/runtime-model-gap-register.md)。
 
 ## 应用
 
