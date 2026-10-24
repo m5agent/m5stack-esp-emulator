@@ -49,6 +49,11 @@ Security-evidence conflicts have a separate static regression:
 It covers config/eFuse disagreement, secure-boot mode mismatch and missing key
 purposes without claiming that a package-supplied eFuse summary is authentic.
 
+The four current public CDN artifacts refreshed on `2026-10-25` are bound in
+[`evidence-2026-10-25-refreshed-public-artifacts-static.json`](evidence-2026-10-25-refreshed-public-artifacts-static.json).
+They are `STATIC_PASS` and their Device Service/input validation is
+`FUNCTIONAL_NOT_RUN`.
+
 Packages that include source files also receive a bounded SPDX header scan.
 Source path hashes and declarations are eligible for license policy, while
 generated code, absent third-party sources and legal review remain out of

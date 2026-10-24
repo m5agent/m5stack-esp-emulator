@@ -90,6 +90,11 @@ but Device Service boot/frame/input validation is `NOT RUN`. The committed
 21-sample matrix is therefore a historical hash-bound baseline, not a claim
 that the currently served CDN bytes still produce the same result.
 
+The exact refreshed SHA-256 values and static checks are committed separately:
+[`refreshed-public-artifacts-static.json`](../tests/firmware/evidence-2026-10-25-refreshed-public-artifacts-static.json).
+That record is `STATIC_PASS / FUNCTIONAL_NOT_RUN`; a later Device Service run
+must append its own session, frame, input and serial evidence.
+
 Two samples are classified as `runtime_model_gap`:
 
 - NanoC6 Zigbee HA light blocks `Zigbee_main` and triggers the task watchdog;

@@ -550,6 +550,22 @@ class DocsConsistencyTests(unittest.TestCase):
             "公开 CDN 的 URL 和版本元数据不构成不可变内容承诺",
             manifest,
         )
+        refreshed = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-refreshed-public-artifacts-static.json"
+            ).read_text()
+        )
+        self.assertEqual(refreshed["status"], "STATIC_PASS")
+        self.assertEqual(refreshed["functional_status"], "NOT RUN")
+        self.assertEqual(len(refreshed["samples"]), 4)
+        self.assertTrue(
+            all(
+                sample["static_analysis"] == "PASS"
+                for sample in refreshed["samples"]
+            )
+        )
 
     def test_runtime_model_gap_register_matches_evidence_and_backlog(self):
         register = (DOCS / "runtime-model-gap-register.md").read_text()

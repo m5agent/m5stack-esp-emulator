@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-public-firmware-refresh-static",
+  "date": "2026-10-25",
+  "status": "STATIC_PASS",
+  "functional_status": "NOT RUN",
+  "scope": "current-public-cdn-bytes-static-image-analysis-not-device-execution",
+  "selection": {
+    "retrieved_at": "2026-10-24T16:13:37.152541+00:00",
+    "policy": "MOST_DOWNLOADED; refresh current BIN even when firmware/version IDs match an old cache",
+    "sample_count": 4
+  },
+  "samples": [
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000002559",
+      "name": "XiaoZhi Voice Assistant For AtomS3R",
+      "version": "v2.2.6-AtomS3",
+      "sha256": "74e714fcef825025c5df61cffeaefed3d5c01b97da4298b42be098740127dae4",
+      "bytes": 7186848,
+      "static_analysis": "PASS",
+      "chip": "esp32s3",
+      "declared_flash_size": 8388608,
+      "project_name": "xiaozhi",
+      "app_version": "2.2.6",
+      "partition_count": 6
+    },
+    {
+      "device_id": "atoms3r",
+      "firmware_id": "1897200000000000358",
+      "name": "OpenAI Voice Assistant For AtomS3R",
+      "version": "v1.0",
+      "sha256": "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+      "bytes": 1382624,
+      "static_analysis": "PASS",
+      "chip": "esp32s3",
+      "declared_flash_size": 2097152,
+      "project_name": "src",
+      "app_version": "ab135ab-dirty",
+      "partition_count": 3
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "1897200000000000015",
+      "name": "阅读卡片 | EDC Book",
+      "version": "3.1.2",
+      "sha256": "06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986",
+      "bytes": 16777216,
+      "static_analysis": "PASS",
+      "chip": "esp32s3",
+      "declared_flash_size": 16777216,
+      "project_name": "EDC_Book_3.x",
+      "app_version": "v3.0.0-34-g0cd03bde-dirty",
+      "partition_count": 7
+    },
+    {
+      "device_id": "papermono",
+      "firmware_id": "2091144466157694978",
+      "name": "CrossPoint-PaperMono-CJK",
+      "version": "1.5.0-RC",
+      "sha256": "e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935",
+      "bytes": 10319500,
+      "static_analysis": "PASS",
+      "chip": "esp32s3",
+      "declared_flash_size": 16777216,
+      "project_name": "crosspoint-reader-mono",
+      "app_version": "paper-mono-v2-15-g87a191f",
+      "partition_count": 5
+    }
+  ],
+  "checks": {
+    "force_refreshed_public_bytes": true,
+    "chip_matches_target_soc": true,
+    "bootloader_valid": true,
+    "partition_table_valid": true,
+    "at_least_one_valid_app_image": true,
+    "device_service_boot": "NOT RUN",
+    "non_blank_frame": "NOT RUN",
+    "input_response": "NOT RUN"
+  },
+  "not_claimed": [
+    "that current CDN bytes inherit any older functional PASS",
+    "firmware boot through Device Service",
+    "non-blank frame or input response",
+    "physical hardware validation"
+  ]
+}
