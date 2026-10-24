@@ -529,6 +529,28 @@ class DocsConsistencyTests(unittest.TestCase):
         ):
             self.assertIn(authority, agents)
 
+    def test_public_firmware_identity_is_bound_to_refreshed_bytes(self) -> None:
+        matrix = (DOCS / "user-firmware-simulation-matrix.md").read_text()
+        manifest = (DOCS / "firmware-manifest.md").read_text()
+        tool = (ROOT / "platform/tools/user_firmware_matrix.py").read_text()
+        tool_tests = (
+            ROOT / "platform/tests/test_user_firmware_matrix.py"
+        ).read_text()
+
+        self.assertIn("# Public CDN objects may change", tool)
+        self.assertIn("force=True", tool)
+        self.assertIn("test_public_matrix_refreshes_cached_firmware", tool_tests)
+        self.assertIn("historical artifacts", matrix)
+        self.assertIn("Current public-artifact refresh checkpoint", matrix)
+        self.assertIn(
+            "Device Service boot/frame/input validation is `NOT RUN`",
+            matrix,
+        )
+        self.assertIn(
+            "公开 CDN 的 URL 和版本元数据不构成不可变内容承诺",
+            manifest,
+        )
+
     def test_runtime_model_gap_register_matches_evidence_and_backlog(self):
         register = (DOCS / "runtime-model-gap-register.md").read_text()
         status = (DOCS / "project-status.md").read_text()
@@ -691,15 +713,17 @@ class DocsConsistencyTests(unittest.TestCase):
         core2_backend = (DOCS / "core2-native-hci-backend.md").read_text()
         runtime_contract = (DOCS / "unified-device-runtime.md").read_text()
         project_snapshot = (DOCS / "project-snapshot.md").read_text()
-        catalog_source = json.loads(
-            (ROOT / "devices/catalog.source.json").read_text()
-        )
+        catalog_source_text = (
+            ROOT / "devices/catalog.source.json"
+        ).read_text()
+        catalog_source = json.loads(catalog_source_text)
         generated_catalog = json.loads(
             (ROOT / "devices/catalog.json").read_text()
         )
-        qemu_profiles = json.loads(
-            (ROOT / "platform/qemu/profiles.json").read_text()
-        )
+        qemu_profiles_text = (
+            ROOT / "platform/qemu/profiles.json"
+        ).read_text()
+        qemu_profiles = json.loads(qemu_profiles_text)
         service = (ROOT / "platform/tools/device_service.py").read_text()
         peer = (ROOT / "platform/tools/ble_probe.py").read_text()
         limits = (
@@ -817,6 +841,23 @@ class DocsConsistencyTests(unittest.TestCase):
             1,
         )[1].split("ble_reconnect_cycles:", 1)[0]
         self.assertIn("maximum: 7260", linger_schema)
+        platform_readme = (ROOT / "platform/README.md").read_text()
+        device_readme = (
+            ROOT / "devices/esp32-lx6/core2/README.md"
+        ).read_text()
+        self.assertIn("上限为 121 并拒绝 122", catalog_source_text)
+        self.assertIn("The accepted reconnect range is 1-121", qemu_profiles_text)
+        self.assertIn("接受 `1–121` 轮", platform_readme)
+        self.assertIn("上限为 121 并拒绝 122", device_readme)
+        for stale in (
+            "当前参数上限为 120 并拒绝 121",
+            "The accepted reconnect range is 1-120",
+            "接受 `1–120` 轮",
+        ):
+            self.assertNotIn(stale, catalog_source_text)
+            self.assertNotIn(stale, qemu_profiles_text)
+            self.assertNotIn(stale, platform_readme)
+            self.assertNotIn(stale, device_readme)
         self.assertEqual(resolved_psram["cli_memory_mib"], 0)
         self.assertEqual(resolved_psram["resolved_memory_mib"], 4)
         self.assertTrue(resolved_psram["has_psram"])
@@ -1035,7 +1076,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("More than sixty", profile_detail)
         self.assertTrue(
             any(
-                "more than one hundred twenty reconnect cycles" in blocker
+                "121-cycle reconnect run" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )

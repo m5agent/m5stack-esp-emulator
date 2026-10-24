@@ -1,6 +1,6 @@
 # Core2 intermittent cache-panic investigation
 
-Last reviewed: `2026-10-24`. Historical root-cause record; current capability
+Last reviewed: `2026-10-25`. Historical root-cause record; current capability
 and open production boundaries are maintained in
 [Project current status](project-status.md) and
 [project backlog](project-backlog.md).
@@ -161,9 +161,10 @@ finding:
 
 These are virtual-device context fixes. Later same-guest runs cover 20, 30,
 60 and 120 reconnect cycles. A later artifact-bound 7200-second active-BLE
-hold establishes the functional two-hour gate, but not physical cache/PSRAM
-timing, RSS-growth attribution, more than 120 reconnect cycles or hardware
-equivalence.
+hold establishes the functional two-hour gate. Its host RSS growth was later
+attributed to the unbounded TCG translation buffer, not guest PSRAM; a bounded
+`tb-size=128` final two-hour run remains pending. This does not establish
+physical cache/PSRAM timing, the 121-cycle gate or hardware equivalence.
 
 ## Next investigation
 

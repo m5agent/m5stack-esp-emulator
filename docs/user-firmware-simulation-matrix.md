@@ -1,6 +1,6 @@
 # User firmware simulation matrix
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 `platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
 M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
@@ -11,6 +11,12 @@ Each run resolves the current public version and force-refreshes the selected
 BIN. A cached file is never treated as the current artifact merely because its
 firmware ID and version ID are unchanged; public CDN objects have been observed
 to change behind those identifiers.
+
+All PASS/PARTIAL counts below are bound to the SHA-256 values stored in the
+committed evidence. They describe those historical artifacts, not whatever the
+same public firmware ID serves today. A refreshed file must go through Device
+Service again before its boot, frame, input or network result can inherit an
+older PASS.
 
 This is virtual-device validation evidence. It may support an external fix,
 issue reply, review or release note when the selected firmware boots, reaches a
@@ -74,6 +80,15 @@ community builds. All 18 pass static image/partition analysis and execute
 through Device Service; 10 reach a non-blank frame, remain running and show an
 observable input response, while 8 remain `PARTIAL` for a missing frame, input
 response, serial-only device, fatal runtime evidence or an explicit model gap.
+
+### Current public-artifact refresh checkpoint
+
+On `2026-10-25`, a fresh selection resolved four changed public artifacts:
+two AtomS3R voice-assistant builds and two PaperMono reader builds. Their
+download and static-image analyses are available in the local refresh plan,
+but Device Service boot/frame/input validation is `NOT RUN`. The committed
+21-sample matrix is therefore a historical hash-bound baseline, not a claim
+that the currently served CDN bytes still produce the same result.
 
 Two samples are classified as `runtime_model_gap`:
 
@@ -172,8 +187,10 @@ functional PASS.
   QEMU path was rebuilt during that run. A replacement run with pre-launch
   firmware/ELF/QEMU hash binding passes the two-hour functional gate, including
   frame/QOM, WiFi, public DNS/HTTP, external GATT, pcap, HLI health and cleanup.
-  Its QEMU host RSS rises from `744160` to `1202176 KiB`, so memory growth is
-  `REVIEW` rather than bounded. Three independent
+  Its QEMU host RSS rises from `744160` to `1202176 KiB`; `vmmap` later
+  attributed the growth to the unbounded TCG translation buffer. A
+  `tb-size=128` 120-second run is stable, while the final bounded two-hour
+  result is still pending. Three independent
   stock-firmware leases complete 20, 30, 60 and 120 same-guest reconnect gates.
-  Bit-exact Espressif BT controller behavior, physical cache/PSRAM equivalence,
-  more than 120 reconnect cycles and hardware validation remain `NOT RUN`.
+  Bit-exact Espressif BT controller behavior, 121-cycle runtime evidence,
+  physical cache/PSRAM equivalence and hardware validation remain `NOT RUN`.

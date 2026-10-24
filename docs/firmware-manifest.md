@@ -1,6 +1,6 @@
 # 固件清单与 WebBurner 导入
 
-日期：`2026-10-24`
+日期：`2026-10-25`
 
 ## 目标
 
@@ -411,6 +411,12 @@ SBOM 缺失；输出 manifest 中未出现原始 query、凭据值或编码载�
 [`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)。
 批量公开固件矩阵会先解析当前公开版本，再强制刷新对应 BIN；缓存中已有同
 firmware ID/version ID 的文件不能单独证明它就是本轮公开制品。
+
+公开 CDN 的 URL 和版本元数据不构成不可变内容承诺。实际可审查对象始终是
+本轮下载后计算出的 artifact SHA256；manifest、session、evidence 和最终
+审核结论必须绑定该 SHA。即使 ID/version 相同，刷新后的字节也不能继承旧
+manifest 的静态分析或虚拟设备 PASS。
+
 StickS3 UIFlow2 `sys`/`vfs` LittleFS 清单与哈希证据：
 [`tests/firmware/evidence-2026-10-24-filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json)。
 其中 `sys` 为 39 个文件、5 个目录、632603 bytes，`vfs` 为 17 个文件、

@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-10-24`
+日期：`2026-10-25`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -299,10 +299,11 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 active-BLE 120-second hold | `run_service_5x.py --hold-seconds 120` + `network.ble_linger_seconds=180`；`evidence-2026-10-24-hci4-active-ble-hold120-2x.json` | 2 个独立 lease `2/2`；peer 在 hold 完成时仍连接，`peer-closed=0`、TX queue 和 last error 均为 0 |
 | Core2 active-BLE 600-second hold | `run_service_5x.py --hold-seconds 600` + `ble_runtime_limits.py`；`evidence-2026-10-24-hci4-active-ble-hold600-2x.json` | 2 个独立 lease `2/2`；peer 在 600 秒结束时仍连接，HLI `45/45`、`peer-closed=0`、TX queue 和 last error 均为 0 |
 | Core2 active-BLE 7200-second diagnostic hold | `run_service_5x.py --hold-seconds 7200`；`evidence-2026-10-24-hci4-active-ble-hold7200-diagnostic.json` | WiFi/公网/GATT/frame/pcap 保持两小时且 HLI health 正常；QEMU 在 run 中被重编，旧 runner 未冻结启动哈希，因此仅 `DIAGNOSTIC_PASS`；新 runner 已加入输入哈希绑定与 RSS 采样 |
-| Core2 artifact-bound 7200-second hold | `run_service_5x.py --hold-seconds 7200`；`evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json` | firmware/ELF/QEMU 在首 lease 前冻结且无运行期漂移；frame/QOM、WiFi、公网、GATT、pcap、HLI `45/45` 与清理 PASS。QEMU host RSS `744160→1202176 KiB`，增长归因仍 `REVIEW` |
-| Core2 bounded TCG memory | `platform/tools/qemu_accel.py`；`run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-tb128-hold120-1x.json` | `tb-size=128` 后 120 秒 WiFi/公网/GATT/frame/pcap/HLI 全 PASS；RSS `323600→323584 KiB`、phys footprint `214016→196608 KiB` |
+| Core2 artifact-bound 7200-second hold | `run_service_5x.py --hold-seconds 7200`；`evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json` | firmware/ELF/QEMU 在首 lease 前冻结且无运行期漂移；frame/QOM、WiFi、公网、GATT、pcap、HLI `45/45` 与清理 PASS。QEMU host RSS `744160→1202176 KiB`，后续归因到未限容 TCG translation buffer；最终两小时限容复测仍待执行 |
+| Core2 bounded TCG memory | `platform/tools/qemu_accel.py`；`run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-tb128-hold120-1x.json` | `tb-size=128` 后 120 秒 WiFi/公网/GATT/frame/pcap/HLI 全 PASS；RSS `323600→323584 KiB`、phys footprint `214016→196608 KiB`；最终 7200 秒限容门禁独立保留 |
 | Core2 resolved PSRAM/QOM | `evidence-2026-10-24-core2-native-hci-resolved-psram.json`；`device_service.qemu_runtime_memory()` | CLI `-m 0` 与 QOM-effective 4 MiB 分开记录；manifest runtime PSRAM preflight 使用有效值，物理 cache/PSRAM 仍为 `NOT RUN` |
 | Core2 same-guest reconnect | `ble_runtime_limits.py`；`run_service_5x.py --ble-reconnect-cycles 20/30/60/120`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；20/30/60/120 轮 evidence | 3 个独立 stock-firmware lease 各完成 20、30、60、120 轮；120 轮每 lease HLI `3377/3377`、events 2297、ACLs 1080；共享参数范围扩到 `1–121` 并有 `122` 拒绝测试；121 轮运行仍待执行，hold 上限 `7200s` |
+| Core2 evidence binding | `run_service_5x.py:tool_hashes`；`qemu_accel.py`；`ble_runtime_limits.py`；`platform/tests/test_docs_consistency.py` | runner 在首 lease 前记录工具哈希，运行期对 firmware/ELF/QEMU 做漂移检查；每轮检查 accelerator 为 bounded `tb-size=128`。该机制只绑定本轮实现，不替代设备功能或物理等价证据 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |
@@ -313,6 +314,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Resumable artifact upload | `tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json`; `DeviceServiceUnitTests.test_streamed_*`; `DeviceServiceHttpTests.test_streamed_artifact_http_upload` | 连续 offset、per-chunk/final hash、失败 append 回滚、resume、abort 和 abandoned staging GC |
 | WebBurner browser intake | `platform/web/firmware.html`; `platform/tests/test_firmware_upload.mjs`; `tests/firmware/evidence-2026-10-24-webburner-ui.json` | 9.44 MiB / 3 chunk、浏览器 SHA256、进度重试、刷新续接、取消清理和 WebBurner ZIP → manifest import |
 | Manifest 公共样本/WebBurner | `firmware_manifest.py`；`test_firmware_manifest.py`；`evidence-2026-10-24-public-manifest-web-conformance.json` | 同一公开固件的 merged 与 WebBurner 输入规范化到同一 artifact hash；`camera`-on-StickS3 结构化拒绝；安全证据分层和 HTTP import PASS |
+| Public artifact refresh invariant | `user_firmware_matrix.py:download_candidates`；`test_user_firmware_matrix.py`；`firmware-manifest.md` | 每个 matrix run 重新解析公开版本并 `force=True` 下载；同 firmware/version ID 的缓存不能证明当前 CDN 内容；新 SHA 必须重新执行 Device Service 才能继承功能结论 |
 | 跨厂商公开固件 runtime matrix | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；S3/C6 与 Core2 evidence | 7 台设备、21 个公开样本；10 PASS / 11 PARTIAL；Core2 PMIC/AWS ATECC 与 C6 Zigbee 归类为 `runtime_model_gap` |
 | C6 Zigbee `thread-sim` 可行性 | `tests/firmware/c6_zigbee_thread_sim/run_feasibility.py`；`evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json` | 双实例 UDP relay 观察到双向 802.15.4 帧，但 commissioning/join 未完成；结果为 `PARTIAL/runtime_model_gap` |
 | 运行时模型缺口登记 | `runtime-model-gap-register.md`；C6 Flash/PMP patches；跨厂商与修复 evidence | `RUNTIME-01` 已关闭；`RUNTIME-02` 为 802.15.4 ACK/commissioning，`RUNTIME-03` 为 Core2 legacy I2C controller/board-bus routing，`RUNTIME-04` 为 ATECC608 |

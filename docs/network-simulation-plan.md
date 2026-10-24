@@ -1,6 +1,6 @@
 # 网络模拟方案
 
-日期：`2026-10-24`
+日期：`2026-10-25`
 
 本文定义网络数据面、隔离模式、测试要求和安全边界。当前 PASS 计数、具体
 固件结果和未完成 Task 分别由
@@ -61,6 +61,11 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   active-request drain、bounded credential overlap 和 generation-pointer
   credential migration；
 - 本地 QEMU/QMP control-plane restart re-attach。
+
+cleanup probe 会读取 sandbox 实际生成的 `isolation.json`，只有
+`cleanup_completed`、QEMU reap、DNS/HTTP close 均成立时才把清理记为 PASS；
+该实现已有契约测试，但同一 Linux namespace guest 的完整 AAAA/HTTP/
+denied-port 生命周期仍为 `NOT RUN`。
 
 当前仍未完成的网络产品化和协议项只列在
 [项目 Backlog](project-backlog.md)，重点包括 `NET-04` 跨主机 worker/

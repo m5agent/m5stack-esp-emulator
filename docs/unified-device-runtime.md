@@ -1,6 +1,6 @@
 # Unified Device Runtime Contract
 
-Date: `2026-10-24`
+Date: `2026-10-25`
 
 This document defines the acceptance contract for a complete virtual device.
 It does not track current counts, per-device PASS results or unfinished work.

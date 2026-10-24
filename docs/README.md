@@ -1,9 +1,10 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-10-24`
+日期：`2026-10-25`
 
-本页只维护阅读顺序、职责和新鲜度。动态测试计数、最新矩阵结果和当前能力
-只在[项目当前状态](project-status.md)维护；带日期的历史快照只在
+本页只维护阅读顺序、职责和新鲜度。动态测试计数与设备/Task 计数由
+[自动项目快照](project-snapshot.md)生成，当前能力结论在
+[项目当前状态](project-status.md)，带日期的历史快照只在
 [验证证据台账](validation-ledger.md)追加。这里不把“测试通过”写成
 “全部功能或真机通过”。
 
@@ -59,24 +60,24 @@
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-24` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
-| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-24` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task 和测试规模 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-24` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务、依赖和验收 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority、测试和 evidence 入口 |
-| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
+| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-25` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
+| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task 和测试规模 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-25` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-25` | 只保留尚未达到验收条件的任务、依赖和验收 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、runtime priority、测试和 evidence 入口 |
+| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-25` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | API、对象、状态机、错误码和 transport 契约；动态证据不在契约页维护 |
-| [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-24` | native-HCI 数据面、legacy GDB 对照、artifact-bound 两小时功能门禁、RSS REVIEW 和物理边界 |
-| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | 导入、规范化、安全检查、文件系统、许可策略和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件 |
-| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-24` | 网络模式、exact dual-stack egress、测试矩阵、安全边界和证据要求；动态结果看状态页 |
-| [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
+| [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、legacy GDB 对照、artifact-bound 两小时功能门禁、TCG 内存归因和物理边界 |
+| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、安全检查、文件系统、许可策略和 evidence 分层 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-25` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；公开样本结论绑定历史 SHA |
+| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-25` | 网络模式、exact dual-stack egress、namespace cleanup evidence、安全边界和证据要求 |
+| [网络诊断 lane](network-lane.md) | 专题 | `2026-10-25` | 只描述诊断/Provisioning，不混同 unified 验收；IPv6 清理仍待同一 Linux guest 联合验证 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
-| [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 外设数据面覆盖；最新计数和边界见项目当前状态 |
+| [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-25` | 外设数据面覆盖；最新计数和边界见项目当前状态 |
 | [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-24` | 能力仍以 2026-10-22 定向证据为基线 |
 | [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-24` | StopWatch 是唯一参考质量外壳 |
-| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-24` | 保留旧命名和复现，不覆盖当前状态 |
+| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-25` | 保留旧命名和复现，补充 TCG translation-buffer 归因与当前门禁 |
 | [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
 | [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
 | [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-24` | `.work/` 不随仓库发布；QEMU/namespace 的资产和权限要求 |
@@ -86,7 +87,7 @@
 | [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-24` | catalog、runtime coverage、后端数据面和设备本地验收 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-24` | Tab5 缺失的 P4 控制器、DMA 和端点 |
 | [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-24` | 当前单机模块化单体与后续 worker/warm-pool 路线 |
-| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-24` | 7 台设备、21 个公开样本；10 PASS / 11 PARTIAL；Core2 3 个新增样本暴露 PMIC I2C 与 AWS ATECC608 模型缺口 |
+| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-25` | 历史哈希绑定结果、公开 CDN 可变制品刷新规则、模型缺口和重跑边界 |
 | [CoreS3 图像边界](cores3-image-rendering-boundary.md) | 已知差异 | `2026-10-22` | 固定在当轮透明度/调色板图像分析 |
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |

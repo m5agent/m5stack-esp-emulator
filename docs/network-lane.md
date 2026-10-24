@@ -1,6 +1,6 @@
 # 网络诊断 lane
 
-日期：`2026-10-24`
+日期：`2026-10-25`
 
 ## 定位
 
@@ -109,8 +109,9 @@ HTTPS gateway、Host 允许 200 / 拒绝 403、请求决策日志和 pcap 断言
 namespace 运行还通过 private mount namespace 安装 controlled DNS，对允许
 域名返回 exact A/AAAA，对拒绝域名和后台 UIFlow/NTP 域名返回 NXDOMAIN。
 当前 AAAA 验证到同一隔离路径的 resolver 数据面；专用 UIFlow2 测试构建已在
-同一 guest 完成 IPv6 TCP/HTTP，但 controlled AAAA、denied-port 和 Linux
-namespace cleanup 仍需同 guest 验证。`0027` QEMU
+同一 guest 完成 IPv6 TCP/HTTP；namespace cleanup 现在读取 sandbox 实际
+evidence，不再硬编码，但 controlled AAAA、denied-port、allowed IPv6 HTTP、
+cleanup 和 QEMU reap 仍需在同一 Linux guest 生命周期内联合验证。`0027` QEMU
 patch 修复了 AES/GDMA 访问外部内存时的读失败。Host allowlist 与网络
 destination policy 分开记录；精确 IPv4/IPv6 地址、协议和端口由
 `tests/network/egress_allowlist/` 的双栈 veth/NAT 与 nftables 路径验证。

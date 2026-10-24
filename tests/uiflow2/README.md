@@ -122,8 +122,8 @@ HLI `3377/3377`、events `2297`、ACLs `1080`，连接池回到 `3/9/3`。历史
 引起；下一命令消费 stale ACK 后触发 reset。20/30 轮和更早的 2/5/10 轮
 证据保留在 `core2_native_hci/`，失败证据不会被后续 PASS 覆盖。
 这关闭了本轮 two-minute extended-run 失败门禁，但仍不是物理 cache/PSRAM、
-RF、超过一百二十轮连接、多小时 soak 或 bit-exact controller
-PASS。Device Service/Bumble/runner 共享 `1–120` 范围，并有 `121` 轮拒绝测试。
+RF、121 轮连接、最终限容两小时 soak 或 bit-exact controller
+PASS。Device Service/Bumble/runner 共享 `1–121` 范围，并有 `122` 轮拒绝测试。
 较早的十轮运行曾被 Device Service 的旧 30 秒等待硬上限误杀，失败证据保留在
 `evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`。
 

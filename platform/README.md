@@ -1,6 +1,6 @@
 # Platform
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 共享基础设施，不含具体产品档案。当前能力以
 [`docs/project-status.md`](../docs/project-status.md) 为准，代码和证据入口见
@@ -87,10 +87,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   `0x0c35` 错误返回 Command Status，留下 stale ACK。旧
   `core2-native-vhci` 仍使用
   服务托管的 GDB bridge，且 repeated lease 只有 `1/2`，因此只保留为
-  显式诊断/兼容路径。Device Service/Bumble/runner 已接受 `1–120` 轮并有
-  `121` 轮拒绝测试；一百二十轮门禁全部 `3/3 PASS`，无错误或 panic。bit-exact
-  Espressif BT baseband/controller、物理 cache/PSRAM、超过一百二十轮以及两小时
-  coexistence/soak 和真机仍未完成。
+  显式诊断/兼容路径。Device Service/Bumble/runner 已接受 `1–121` 轮并有
+  `122` 轮拒绝测试；一百二十轮门禁全部 `3/3 PASS`，无错误或 panic。bit-exact
+  Espressif BT baseband/controller、物理 cache/PSRAM、121 轮运行、最终两小时
+  限容 soak 和真机仍未完成。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、
