@@ -1143,6 +1143,8 @@ def _security_metadata(
     configured_flash_encryption = (
         "enabled"
         if config_flags.get("CONFIG_SECURE_FLASH_ENC_ENABLED") == "y"
+        else "disabled"
+        if config_flags.get("CONFIG_SECURE_FLASH_ENC_ENABLED") == "n"
         else "not-indicated"
         if config_flags
         else "unknown"
@@ -1190,6 +1192,8 @@ def _configured_secure_boot(flags: dict[str, str]) -> str:
         return "v1"
     if flags.get("CONFIG_SECURE_BOOT") == "y":
         return "enabled-unspecified"
+    if flags.get("CONFIG_SECURE_BOOT") == "n":
+        return "disabled"
     return "not-indicated" if flags else "unknown"
 
 
@@ -1697,6 +1701,38 @@ def import_package(
                 )
             )
         if (
+            security["secure_boot_config"] == "disabled"
+            and security["secure_boot"]
+            in {"v1", "v2", "enabled-unspecified"}
+        ):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "secure_boot_config_disabled_but_runtime_enabled",
+                    (
+                        "sdkconfig disables secure boot but the supplied "
+                        "eFuse evidence indicates an enabled boot chain"
+                    ),
+                    path="security.secure_boot",
+                )
+            )
+        if (
+            security["secure_boot_config"] in {"v1", "v2"}
+            and security["secure_boot"] in {"v1", "v2"}
+            and security["secure_boot_config"] != security["secure_boot"]
+        ):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "secure_boot_mode_mismatch",
+                    (
+                        "sdkconfig and the supplied eFuse evidence name "
+                        "different secure-boot modes"
+                    ),
+                    requirement=security["secure_boot_config"],
+                    available=security["secure_boot"],
+                    path="security.secure_boot",
+                )
+            )
+        if (
             security["flash_encryption_config"] == "enabled"
             and security["flash_encryption"] in {"disabled", "not-indicated"}
         ):
@@ -1710,6 +1746,61 @@ def import_package(
                     path="security.flash_encryption",
                 )
             )
+        if (
+            security["flash_encryption_config"] == "disabled"
+            and security["flash_encryption"] == "enabled"
+        ):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "flash_encryption_config_disabled_but_runtime_enabled",
+                    (
+                        "sdkconfig disables Flash Encryption but the supplied "
+                        "eFuse evidence indicates it is active"
+                    ),
+                    path="security.flash_encryption",
+                )
+            )
+        efuse_summary = security.get("efuse_summary")
+        if isinstance(efuse_summary, dict):
+            key_purposes = {
+                str(row.get("purpose") or "").upper()
+                for row in efuse_summary.get("key_purposes", [])
+                if isinstance(row, dict)
+            }
+            if (
+                security["secure_boot"] in {"v1", "v2"}
+                and not any(
+                    purpose.startswith("SECURE_BOOT_DIGEST")
+                    for purpose in key_purposes
+                )
+            ):
+                manifest["validation"]["warnings"].append(
+                    _code_issues(
+                        "secure_boot_key_purpose_not_observed",
+                        (
+                            "secure boot is indicated, but no readable "
+                            "SECURE_BOOT_DIGEST key purpose was recorded"
+                        ),
+                        path="security.efuse_summary.key_purposes",
+                    )
+                )
+            if (
+                security["flash_encryption"] == "enabled"
+                and not any(
+                    "XTS_AES" in purpose or purpose == "XTS_AES"
+                    for purpose in key_purposes
+                )
+            ):
+                manifest["validation"]["warnings"].append(
+                    _code_issues(
+                        "flash_encryption_key_purpose_not_observed",
+                        (
+                            "Flash Encryption is indicated, but no readable "
+                            "XTS AES key purpose was recorded"
+                        ),
+                        path="security.efuse_summary.key_purposes",
+                    )
+                )
         if review["status"] == "REVIEW_REQUIRED":
             manifest["validation"]["warnings"].append(
                 _code_issues(

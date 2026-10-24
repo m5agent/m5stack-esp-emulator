@@ -44,6 +44,11 @@ Required/optional capability consistency is covered by
 overlap is rejected, unsupported required capability rejects the manifest, and
 unsupported or unknown optional capabilities remain structured warnings.
 
+Security-evidence conflicts have a separate static regression:
+[`evidence-2026-10-25-security-evidence-conflicts.json`](evidence-2026-10-25-security-evidence-conflicts.json).
+It covers config/eFuse disagreement, secure-boot mode mismatch and missing key
+purposes without claiming that a package-supplied eFuse summary is authentic.
+
 Packages that include source files also receive a bounded SPDX header scan.
 Source path hashes and declarations are eligible for license policy, while
 generated code, absent third-party sources and legal review remain out of

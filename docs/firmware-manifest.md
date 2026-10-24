@@ -103,6 +103,17 @@ espefuse.py --chip esp32s3 summary --format json > efuse-summary.json
 Device Service 仍拒绝启用 secure boot 或 Flash Encryption 的镜像，因为当前
 QEMU profile 没有建模对应的密钥和启动链。
 
+当 sdkconfig 与 eFuse summary 同时存在时，导入器会保留两套原始状态，并对
+以下冲突产生 warning：
+
+- config 启用但 eFuse 指示 disabled；
+- config 明确 disabled 但 eFuse 指示 enabled；
+- secure boot config 与 eFuse 分别指示 v1 / v2；
+- enabled secure boot 没有可读的 `SECURE_BOOT_DIGEST` key purpose；
+- enabled Flash Encryption 没有可读的 XTS AES key purpose。
+
+warning 不会把自报 eFuse 提升为可信真机状态，也不会推断生产 key 合法。
+
 ## 静态审查
 
 导入器始终写入 `review`。旧版 v1 manifest 可以不带该字段，保持向后兼容。

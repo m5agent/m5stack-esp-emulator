@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-security-evidence-conflicts",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "synthetic-static-security-evidence-not-authentic-efuse-or-hardware",
+  "checks": {
+    "config_enabled_efuse_disabled_warning": true,
+    "config_disabled_efuse_enabled_warning": true,
+    "secure_boot_v1_v2_mode_mismatch_warning": true,
+    "secure_boot_key_purpose_missing_warning": true,
+    "flash_encryption_key_purpose_missing_warning": true,
+    "efuse_summary_remains_unverified": true,
+    "raw_key_material_absent": true
+  },
+  "warning_codes": [
+    "secure_boot_config_not_enabled",
+    "flash_encryption_config_not_enabled",
+    "secure_boot_config_disabled_but_runtime_enabled",
+    "flash_encryption_config_disabled_but_runtime_enabled",
+    "secure_boot_mode_mismatch",
+    "secure_boot_key_purpose_not_observed",
+    "flash_encryption_key_purpose_not_observed",
+    "efuse_summary_unverified"
+  ],
+  "not_claimed": [
+    "that a package-provided eFuse summary is authentic",
+    "an eFuse read from physical hardware",
+    "secure boot or Flash Encryption execution in QEMU",
+    "production key custody or revocation",
+    "physical hardware validation"
+  ]
+}

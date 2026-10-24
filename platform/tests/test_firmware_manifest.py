@@ -325,6 +325,80 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertIn("secure_boot_config_not_enabled", codes)
         self.assertIn("flash_encryption_config_not_enabled", codes)
 
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            firmware = root / "probe.bin"
+            firmware.write_bytes(build_flash())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=n\n"
+                "CONFIG_SECURE_FLASH_ENC_ENABLED=n\n"
+            )
+            (root / "efuse-summary.json").write_text(
+                json.dumps(
+                    {
+                        "ABS_DONE_1": {"value": "True", "readable": True},
+                        "SPI_BOOT_CRYPT_CNT": {
+                            "value": "Enable",
+                            "readable": True,
+                        },
+                    }
+                )
+            )
+            reverse_manifest = import_package(
+                firmware,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+        reverse_codes = {
+            row["code"]
+            for row in reverse_manifest["validation"]["warnings"]
+        }
+        self.assertIn(
+            "secure_boot_config_disabled_but_runtime_enabled",
+            reverse_codes,
+        )
+        self.assertIn(
+            "flash_encryption_config_disabled_but_runtime_enabled",
+            reverse_codes,
+        )
+        self.assertIn("secure_boot_key_purpose_not_observed", reverse_codes)
+        self.assertIn(
+            "flash_encryption_key_purpose_not_observed",
+            reverse_codes,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            firmware = root / "probe.bin"
+            firmware.write_bytes(build_flash())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V1_ENABLED=y\n"
+            )
+            (root / "efuse-summary.json").write_text(
+                json.dumps(
+                    {
+                        "ABS_DONE_1": {"value": "True", "readable": True},
+                        "KEY_PURPOSE_0": {
+                            "value": "SECURE_BOOT_DIGEST0",
+                            "readable": True,
+                        },
+                    }
+                )
+            )
+            mode_manifest = import_package(
+                firmware,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+        self.assertIn(
+            "secure_boot_mode_mismatch",
+            {
+                row["code"]
+                for row in mode_manifest["validation"]["warnings"]
+            },
+        )
+
     def test_manifest_id_is_content_stable(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

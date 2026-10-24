@@ -3039,6 +3039,27 @@ class DocsConsistencyTests(unittest.TestCase):
             "目标设备缺少 optional",
             manifest_doc,
         )
+        self.assertIn(
+            "secure_boot_config_disabled_but_runtime_enabled",
+            manifest_code,
+        )
+        self.assertIn(
+            "flash_encryption_key_purpose_not_observed",
+            manifest_code,
+        )
+        self.assertIn(
+            "config 明确 disabled 但 eFuse 指示 enabled",
+            manifest_doc,
+        )
+        security_conflicts = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-security-evidence-conflicts.json"
+            ).read_text()
+        )
+        self.assertEqual(security_conflicts["status"], "PASS")
+        self.assertTrue(all(security_conflicts["checks"].values()))
 
 
 if __name__ == "__main__":
