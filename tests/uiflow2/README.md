@@ -123,17 +123,18 @@ HLI `3377/3377`、events `2297`、ACLs `1080`，连接池回到 `3/9/3`。历史
 证据保留在 `core2_native_hci/`，失败证据不会被后续 PASS 覆盖。
 这关闭了本轮 two-minute extended-run 失败门禁；单独的单 lease artifact-bound
 `tb-size=128` 两小时运行也已 PASS，RSS 和 phys footprint 未增长。它仍不是
-物理 cache/PSRAM、RF、121 轮连接或 bit-exact controller
-PASS。Device Service/Bumble/runner 共享 `1–121` 范围，并有 `122` 轮拒绝测试。
+物理 cache/PSRAM、RF 或 bit-exact controller PASS。Device
+Service/Bumble/runner 共享 `1–121` 范围，并有 `122` 轮拒绝测试。
 较早的十轮运行曾被 Device Service 的旧 30 秒等待硬上限误杀，失败证据保留在
 `evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`。
 首次 121 轮运行又在 29 轮后暴露固定 180 秒预算不足；guest 无 panic，
 runner/Device Service 已改用同一 workload-aware 预算，失败证据保留在
 `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`。
 随后 reconnect-only 路径又暴露 accelerator 只在 hold loop 内采样的假失败；
-修复后单个 artifact-bound lease 完成 `121/121`，证据为
-`evidence-2026-10-25-hci4-reconnect121-1x.json`。另外两个独立 lease 的
-`3/3` 复现仍未执行。
+修复后 3 个独立 artifact-bound lease 均完成 `121/121`，聚合证据为
+`core2_native_hci/evidence-2026-10-25-hci4-reconnect121-3x.json`，并绑定
+相同 firmware/ELF/QEMU/工具哈希。物理 cache/PSRAM、RF、吞吐/teardown 和
+bit-exact controller 边界仍未关闭。
 
 ```bash
 python3 tests/uiflow2/core2_native_hci/test_transport.py
