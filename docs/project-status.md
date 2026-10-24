@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `305` 项，`305` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `306` 项，`306` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - 本轮文档对账把会随提交变化的测试与矩阵计数集中到本页；README、文档
   导航和工作流台账改为链接。设备 catalog 与 QEMU profile 的验证日期/状态
@@ -53,8 +53,11 @@
   replay cache。服务端可用 PEM 证书/私钥启用 TLS 1.2+，配置 client CA 后
   强制 mTLS；worker client 可加载自定义 CA 与客户端证书。真实 loopback
   进程中已验证 TLS 1.3、服务端证书校验、无客户端证书拒绝、有证书通过、
-  Bearer + worker HMAC 保持和明文回退拒绝。证书/worker 凭据热轮换、
-  跨主机 QEMU job 和生产多机 scheduler 仍未实现。
+  Bearer + worker HMAC 保持和明文回退拒绝。服务端与 worker 还通过
+  `SIGHUP` 原子切换服务端证书、client CA、worker 客户证书/key 和 master
+  token；旧 TLS 身份与旧 token 均被拒绝，新凭据随后完成真实 QEMU job。
+  现有连接 draining、跨主机 QEMU job、跨主机 continuity、生产 secret
+  manager 和多机 scheduler 仍未实现。
 - restart reattach 已用真实 StickS3 QEMU 做 live `1/1`：只 SIGKILL 服务
   进程时 QEMU 保持运行，第二代服务在同状态目录中接管同一 PID、重建
   worker lease，并通过 stop 清理 QEMU 进程。
@@ -100,6 +103,9 @@
   session、evidence SHA256 和 terminal PASS；另一次
   `qemu-unified/profile=uiflow2-sticks3-unified` job 还从同一 evidence ZIP
   验证 board/WiFi/BLE serial markers、network evidence、pcap 和 PNG frame。
+  轮换运行在 A/B 两套临时 PKI 之间原子替换服务端证书、client CA、worker
+  客户证书/key 和 master token，验证旧 CA 身份和旧 token 失败，再由新
+  凭据完成 signed job；该结果不覆盖零中断 draining、跨主机或真机。
 
 ## 能力成熟度
 
@@ -110,9 +116,9 @@
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
 | S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `120s` hold 和 3 个各 10 轮的 same-guest GATT lease 均 PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、持续 active BLE 和同 guest 多轮重连数据面；仍不是完整 RF/PHY、bit-exact BT controller、多小时 soak 或超过十轮连接 |
-| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；真实 HTTPS/mTLS、客户端证书、QEMU job 和 unified StickS3 job over mTLS PASS；证书/worker 凭据热轮换、跨主机 QEMU job、companion continuity 和 IPv6 未完成 | `NOT RUN` | 传输、认证和同主机 QEMU/unified job 基础已具备，尚不是多租户恶意固件 VM |
+| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS 和 SIGHUP TLS/token rotation 后 QEMU job PASS；零中断 request draining、跨主机 QEMU job、companion continuity 和 IPv6 未完成 | `NOT RUN` | 传输、认证和同主机 QEMU/unified job 基础已具备，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、WebBurner 浏览器流式上传/刷新恢复 PASS | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环，生产安全和跨厂商覆盖未完成 |
-| 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、worker lease 与失联回收 | 无跨主机 QEMU executor、证书/worker 凭据热轮换、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
+| 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、worker lease 与失联回收 | 无跨主机 QEMU executor、零中断轮换/request draining、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、SIGHUP 轮换、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
 
 ## 验证证据
 
@@ -125,7 +131,7 @@
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job 和 unified StickS3 job over mTLS；GitHub Actions Linux policy CI PASS | 跨主机 QEMU executor/reattach、证书/worker 凭据热轮换、companion/evidence continuity、生产多机调度、外部 IPv6 |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS 和 `SIGHUP` TLS/token 轮换；GitHub Actions Linux policy CI PASS | 零中断 credential cutover/request draining、跨主机 QEMU executor/reattach、companion/evidence continuity、生产多机调度、外部 IPv6 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；另 2 个 `120s` active-BLE hold `2/2`；3 个独立 lease 各 10 轮的 same-guest GATT `3/3` | `HCI-4`、two-minute virtual extended-run 和十轮 reconnect 已通过。reconnect 根因是 Bumble 为 HCI Host Completed Packets 返回非法 Command Status；Bumble compatibility 层已修正。首次 10 轮运行的服务硬上限误杀也已修复。旧 GDB 路径 `1/2` 只作诊断。剩余是超过十轮、多小时 soak、bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、声明级许可 allowlist/denylist 策略 | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 流程、跨厂商回归 |
 
@@ -237,6 +243,11 @@
   [`tls-mtls-unified-job-pass.json`](../tests/network/worker_tls/evidence-2026-10-24-tls-mtls-unified-job-pass.json)；
   board/WiFi/BLE serial markers、network evidence、pcap 和 PNG frame 均从
   同一次 mTLS worker job 的 evidence ZIP 验证。
+- SIGHUP TLS/token 轮换与轮换后 QEMU job：
+  [`security-rotation-job-pass.json`](../tests/network/worker_tls/evidence-2026-10-24-security-rotation-job-pass.json)；
+  A/B PKI 与 master token 原子替换，旧 TLS 身份和旧 token 被拒绝，
+  `worker credentials reloaded` 后 signed job 为 `completed/PASS`、
+  `attempts=1` 且 evidence SHA256 一致；零中断 draining、跨主机和真机未验。
 - Linux arm64 已用同一 QEMU 源码重建 `qemu-system-xtensa`，在 private
   network namespace 内实跑 StickS3 guest：namespace 内 HTTP PASS、公网
   DNS 查询无响应、pcap 中无 global/slirp-redirect 目标。
@@ -320,9 +331,9 @@
   或 RF；本地 worker lifecycle、QEMU/QMP reattach、远程注册目录、durable
   job queue、同主机独立 HTTP executor、HTTPS/mTLS、真实 QEMU job 和
   unified StickS3 job over mTLS 已实现。跨主机
-  QEMU executor/reattach、证书/worker 凭据热轮换、
-  companion/evidence continuity、生产多机调度、VM 隔离和外部 IPv6 仍待
-  实现。
+  QEMU executor/reattach、零中断 credential cutover/request draining、
+  companion/evidence continuity、生产 secret manager/多机调度、VM 隔离和
+  外部 IPv6 仍待实现。
 5. **通用固件兼容性**：SoC 相同不代表板级、分区、安全配置和控制器全部
    兼容。
 6. **视觉保真**：除 StopWatch 外，设备外壳仍主要是近似模型。

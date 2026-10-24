@@ -429,9 +429,10 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 
 1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
    LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
-2. 跨主机 QEMU job executor/reattach、证书/worker 凭据热轮换和生产调度；
-   本地 worker heartbeat/drain、远程目录、durable queue/lease
-   supervisor、HTTPS/mTLS、同主机 authenticated executor、GitHub-hosted Linux
+2. 零中断 credential cutover/request draining、跨主机 QEMU job
+   executor/reattach 和生产调度；本地 worker heartbeat/drain、远程目录、
+   durable queue/lease supervisor、HTTPS/mTLS、SIGHUP TLS/token
+   rotation、同主机 authenticated executor、GitHub-hosted Linux
    policy/egress CI 和双设备 lab fabric 已具备，外部 IPv6 egress 仍开放；
 3. 生产 eFuse/secure boot/Flash Encryption key 流程的真机验证；
 4. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；

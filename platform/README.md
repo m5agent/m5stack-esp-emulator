@@ -55,6 +55,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   path/body identity binding；
 - HTTPS TLS 1.2+、服务端证书校验、可选 client CA 强制 mTLS，以及
   `worker_agent.py` 的自定义 CA/客户端证书；
+- token-file 与 `SIGHUP` A/B rotation：服务端证书、client CA、worker
+  客户证书/key 和 master token 原子更新，旧凭据拒绝，新凭据完成真实
+  QEMU job；
 - 本地 QEMU 的 PID start-time、QMP socket ownership 和
   `query-status=running` 三重校验后 re-attach；仅恢复 QEMU/QMP 控制面；
 - 串口、framebuffer、输入、QOM、reset、link/radio `network-fault` 和
@@ -88,9 +91,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   durable job queue 已支持幂等提交、claim/lease、expiry retry 和 worker
   失联回收；本地 QEMU/QMP 控制面已完成 ownership 校验后的 reattach。
   同主机 HTTP executor、worker HMAC、可验证 HTTPS/mTLS、真实 QEMU 和
-  unified StickS3 job over mTLS、evidence ZIP/SHA256 回报已实现；跨主机 QEMU
-  executor/reattach、证书/worker 凭据热轮换、companion/BLE/evidence
-  continuity、生产多机调度和 VM 隔离仍未完成。
+  unified StickS3 job over mTLS、SIGHUP TLS/token rotation 和 evidence
+  ZIP/SHA256 回报已实现；零中断 request draining、跨主机 QEMU
+  executor/reattach、companion/BLE/evidence continuity、生产 secret
+  manager/多机调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
   已在同一隔离路径验证 exact IPv4 IP/协议/端口和 veth/NAT，上述内容也不
@@ -114,8 +118,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、lease、drain/resume 和重启失败分类 |
 | `tools/worker_directory.py` | 远程 worker identity/generation 注册、stale/drain/stop、capability 与有界结果目录 |
 | `tools/worker_queue.py` | 持久 job queue、idempotency、capability 匹配、lease/heartbeat、超时重试和 supervisor 回收 |
-| `tools/worker_auth.py` | worker key 派生、HMAC 请求签名、时间戳、nonce replay cache 和 identity binding |
-| `tools/worker_agent.py` | HTTP-only worker executor、generation、claim、heartbeat、session 执行、evidence 和 result |
+| `tools/worker_auth.py` | 严格 token-file、worker key 派生、HMAC 请求签名、时间戳、nonce replay cache 和 identity binding |
+| `tools/worker_agent.py` | HTTP-only worker executor、token/TLS hot reload、generation、claim、heartbeat、session 执行、evidence 和 result |
 | `tools/transport_security.py` | TLS 1.2+ server/client context、服务端证书校验、可选 client CA、mTLS 客户端证书 |
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入与脱敏 eFuse 安全摘要 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |
@@ -136,7 +140,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
 | `../tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain/resume、进程组清理和下一代 abandoned lease 分类 |
-| `../tests/network/worker_tls/` | 真实 HTTPS/mTLS 进程、服务端证书校验、客户端证书拒绝/通过、Bearer + worker HMAC、明文回退拒绝、真实 QEMU job 和 unified StickS3 job over mTLS |
+| `../tests/network/worker_tls/` | 真实 HTTPS/mTLS 进程、证书/客户端证书拒绝/通过、Bearer + worker HMAC、SIGHUP A/B rotation、真实 QEMU job 和 unified StickS3 job over mTLS |
 
 ## 目录服务 API
 

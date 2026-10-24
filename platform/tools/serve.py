@@ -12,7 +12,9 @@ import hmac
 import json
 import mimetypes
 import os
+import signal
 import ssl
+import threading
 import time
 import uuid
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -35,7 +37,12 @@ from transport_security import (
     TransportSecurityError,
     build_server_tls_context,
 )
-from worker_auth import is_worker_auth_path, worker_identity_matches
+from worker_auth import (
+    WorkerAuthError,
+    is_worker_auth_path,
+    read_master_token_file,
+    worker_identity_matches,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DEVICES = ROOT / "devices"
@@ -44,6 +51,54 @@ DEVICES = ROOT / "devices"
 class ServiceHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
+
+    def __init__(
+        self,
+        server_address,
+        handler,
+        *,
+        tls_context: ssl.SSLContext | None = None,
+        reload_callback=None,
+    ):
+        self.tls_context = tls_context
+        self.reload_callback = reload_callback
+        self._reload_security = threading.Event()
+        self._security_lock = threading.RLock()
+        super().__init__(server_address, handler)
+
+    def get_request(self):
+        sock, address = super().get_request()
+        with self._security_lock:
+            context = self.tls_context
+        if context is None:
+            return sock, address
+        try:
+            return context.wrap_socket(sock, server_side=True), address
+        except ssl.SSLError:
+            sock.close()
+            raise
+
+    def request_security_reload(self) -> None:
+        self._reload_security.set()
+
+    def service_actions(self) -> None:
+        super().service_actions()
+        if not self._reload_security.is_set():
+            return
+        self._reload_security.clear()
+        if self.reload_callback is None:
+            return
+        try:
+            context = self.reload_callback()
+        except Exception as error:
+            print(
+                f"security configuration reload failed: {error}",
+                flush=True,
+            )
+            return
+        with self._security_lock:
+            self.tls_context = context
+        print("security configuration reloaded", flush=True)
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -904,7 +959,20 @@ def main() -> None:
         ),
     )
     parser.add_argument("--session-ttl", type=int, default=1800)
-    parser.add_argument("--api-token", default=os.environ.get("M5_SERVICE_API_TOKEN"))
+    auth_group = parser.add_mutually_exclusive_group()
+    auth_group.add_argument(
+        "--api-token",
+        default=os.environ.get("M5_SERVICE_API_TOKEN"),
+    )
+    auth_group.add_argument(
+        "--api-token-file",
+        type=Path,
+        default=(
+            Path(os.environ["M5_SERVICE_API_TOKEN_FILE"])
+            if os.environ.get("M5_SERVICE_API_TOKEN_FILE")
+            else None
+        ),
+    )
     parser.add_argument(
         "--tls-cert",
         type=Path,
@@ -956,20 +1024,35 @@ def main() -> None:
         default=float(os.environ.get("M5_WORKER_STALE_AFTER", "15")),
     )
     args = parser.parse_args()
+    if args.api_token and args.api_token_file:
+        parser.error("--api-token and --api-token-file are mutually exclusive")
     if (args.tls_cert is None) != (args.tls_key is None):
         parser.error("--tls-cert and --tls-key must be provided together")
     if args.tls_client_ca is not None and args.tls_cert is None:
         parser.error("--tls-client-ca requires --tls-cert and --tls-key")
-    tls_context: ssl.SSLContext | None = None
-    if args.tls_cert is not None and args.tls_key is not None:
+
+    def load_api_token() -> str | None:
+        if args.api_token_file is None:
+            return args.api_token
         try:
-            tls_context = build_server_tls_context(
-                args.tls_cert,
-                args.tls_key,
-                args.tls_client_ca,
-            )
-        except TransportSecurityError as error:
-            parser.error(str(error))
+            return read_master_token_file(args.api_token_file)
+        except WorkerAuthError as error:
+            raise TransportSecurityError(error.message) from error
+
+    def load_tls_context() -> ssl.SSLContext | None:
+        if args.tls_cert is None or args.tls_key is None:
+            return None
+        return build_server_tls_context(
+            args.tls_cert,
+            args.tls_key,
+            args.tls_client_ca,
+        )
+
+    try:
+        initial_api_token = load_api_token()
+        tls_context = load_tls_context()
+    except (TransportSecurityError, WorkerAuthError) as error:
+        parser.error(str(error))
     os.chdir(ROOT)
     mimetypes.add_type("application/wasm", ".wasm")
     service = DeviceService(
@@ -977,20 +1060,29 @@ def main() -> None:
         max_sessions=args.max_sessions,
         max_per_device=args.max_per_device,
         default_ttl=args.session_ttl,
-        api_token=args.api_token,
+        api_token=initial_api_token,
         worker_id=args.worker_id,
         worker_state_path=args.worker_state,
         worker_heartbeat_interval=args.worker_heartbeat_interval,
         worker_stale_after=args.worker_stale_after,
     )
     Handler.service = service
-    Handler.api_token = args.api_token
-    server = ServiceHTTPServer((args.bind, args.port), Handler)
-    if tls_context is not None:
-        server.socket = tls_context.wrap_socket(
-            server.socket,
-            server_side=True,
-        )
+    Handler.api_token = initial_api_token
+
+    def reload_security():
+        new_token = load_api_token()
+        new_context = load_tls_context()
+        service.set_api_token(new_token)
+        Handler.api_token = new_token
+        return new_context
+
+    needs_reload = args.api_token_file is not None or args.tls_cert is not None
+    server = ServiceHTTPServer(
+        (args.bind, args.port),
+        Handler,
+        tls_context=tls_context,
+        reload_callback=reload_security if needs_reload else None,
+    )
     scheme = "https" if tls_context is not None else "http"
     print(
         "M5Stack simulated devices: "
@@ -1014,6 +1106,13 @@ def main() -> None:
     )
     if args.tls_client_ca is not None:
         print("TLS client certificate authentication: required")
+    if needs_reload:
+        print("Security configuration reload: SIGHUP")
+    if hasattr(signal, "SIGHUP"):
+        signal.signal(
+            signal.SIGHUP,
+            lambda _signum, _frame: server.request_security_reload(),
+        )
     try:
         server.serve_forever()
     except KeyboardInterrupt:

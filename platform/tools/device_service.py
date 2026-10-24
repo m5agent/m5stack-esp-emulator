@@ -7816,6 +7816,11 @@ class DeviceService:
                 error.status,
             ) from error
 
+    def set_api_token(self, token: str | None) -> None:
+        with self._lock:
+            self.api_token = token or None
+            self.worker_auth = WorkerAuthVerifier(self.api_token)
+
     def register_remote_worker(self, payload: dict) -> dict:
         try:
             return {

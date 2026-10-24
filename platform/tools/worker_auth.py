@@ -10,12 +10,14 @@ import secrets
 import threading
 import time
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 WORKER_AUTH_VERSION = "m5-worker-v1"
 WORKER_TIMESTAMP_TOLERANCE = 90
 WORKER_NONCE_TTL = WORKER_TIMESTAMP_TOLERANCE * 2
 MAX_REPLAY_ENTRIES = 4096
+MAX_MASTER_TOKEN_BYTES = 4096
 WORKER_SIGNATURE_HEADERS = {
     "worker_id": "X-M5-Worker-Id",
     "instance_id": "X-M5-Worker-Instance",
@@ -39,6 +41,36 @@ class WorkerAuthError(RuntimeError):
         self.code = code
         self.message = message
         self.status = status
+
+
+def read_master_token_file(path: str | Path) -> str:
+    """Read a master token without persisting or logging its value."""
+
+    token_path = Path(path)
+    if not token_path.is_file():
+        raise WorkerAuthError(
+            "worker_token_file_missing",
+            f"API token file does not exist: {token_path}",
+        )
+    data = token_path.read_bytes()
+    if not data or len(data) > MAX_MASTER_TOKEN_BYTES:
+        raise WorkerAuthError(
+            "worker_token_file_invalid",
+            f"API token file must contain 1-{MAX_MASTER_TOKEN_BYTES} bytes",
+        )
+    try:
+        token = data.decode("utf-8").rstrip("\r\n")
+    except UnicodeDecodeError as error:
+        raise WorkerAuthError(
+            "worker_token_file_invalid",
+            "API token file must be UTF-8 text",
+        ) from error
+    if not token or "\x00" in token:
+        raise WorkerAuthError(
+            "worker_token_file_invalid",
+            "API token file contains an empty or invalid token",
+        )
+    return token
 
 
 def is_worker_auth_path(method: str, path: str) -> bool:

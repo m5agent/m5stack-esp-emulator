@@ -20,7 +20,12 @@ from typing import Any
 from urllib.parse import urlencode
 
 from transport_security import build_client_tls_context
-from worker_auth import is_worker_auth_path, sign_worker_request
+from worker_auth import (
+    WorkerAuthError,
+    is_worker_auth_path,
+    read_master_token_file,
+    sign_worker_request,
+)
 
 WORKER_AGENT_STATE_VERSION = 1
 DEFAULT_EVIDENCE_INCLUDE = (
@@ -92,7 +97,8 @@ class Api:
         ssl_context: ssl.SSLContext | None = None,
     ):
         self.base_url = base_url.rstrip("/")
-        self.token = token
+        self._lock = threading.RLock()
+        self._token = token
         self.worker_identity: dict[str, Any] | None = None
         if not self.base_url.startswith(("http://", "https://")):
             raise WorkerAgentError("service URL must use http:// or https://")
@@ -100,7 +106,31 @@ class Api:
             raise WorkerAgentError(
                 "TLS client context requires an https:// service URL"
             )
-        self.ssl_context = ssl_context
+        self._ssl_context = ssl_context
+
+    @property
+    def token(self) -> str | None:
+        with self._lock:
+            return self._token
+
+    @property
+    def ssl_context(self) -> ssl.SSLContext | None:
+        with self._lock:
+            return self._ssl_context
+
+    def configure_credentials(
+        self,
+        *,
+        token: str | None,
+        ssl_context: ssl.SSLContext | None,
+    ) -> None:
+        if self.base_url.startswith("http://") and ssl_context is not None:
+            raise WorkerAgentError(
+                "TLS client context requires an https:// service URL"
+            )
+        with self._lock:
+            self._token = token
+            self._ssl_context = ssl_context
 
     def request(
         self,
@@ -112,16 +142,20 @@ class Api:
     ) -> tuple[int, bytes, str]:
         headers: dict[str, str] = {}
         data = None
+        with self._lock:
+            token = self._token
+            ssl_context = self._ssl_context
+            worker_identity = self.worker_identity
         if payload is not None:
             data = json.dumps(payload).encode()
             headers["Content-Type"] = "application/json"
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
-            if self.worker_identity is not None and is_worker_auth_path(method, path):
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+            if worker_identity is not None and is_worker_auth_path(method, path):
                 headers.update(
                     sign_worker_request(
-                        self.token,
-                        self.worker_identity,
+                        token,
+                        worker_identity,
                         method,
                         path,
                         data or b"",
@@ -134,8 +168,8 @@ class Api:
             method=method,
         )
         request_options = (
-            {"context": self.ssl_context}
-            if self.ssl_context is not None
+            {"context": ssl_context}
+            if ssl_context is not None
             else {}
         )
         try:
@@ -497,7 +531,20 @@ class WorkerAgent:
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--service-url", default="http://127.0.0.1:8787")
-    parser.add_argument("--token", default=os.environ.get("M5_SERVICE_API_TOKEN"))
+    auth_group = parser.add_mutually_exclusive_group()
+    auth_group.add_argument(
+        "--token",
+        default=os.environ.get("M5_SERVICE_API_TOKEN"),
+    )
+    auth_group.add_argument(
+        "--token-file",
+        type=Path,
+        default=(
+            Path(os.environ["M5_SERVICE_API_TOKEN_FILE"])
+            if os.environ.get("M5_SERVICE_API_TOKEN_FILE")
+            else None
+        ),
+    )
     parser.add_argument(
         "--ca-file",
         type=Path,
@@ -544,6 +591,8 @@ def main() -> int:
     args = parse_arguments()
     if args.max_jobs is not None and args.max_jobs < 1:
         raise SystemExit("--max-jobs must be positive")
+    if args.token and args.token_file:
+        raise SystemExit("--token and --token-file are mutually exclusive")
     capabilities = {
         "qemu": True,
         "pcap": True,
@@ -553,11 +602,21 @@ def main() -> int:
         if not isinstance(loaded, dict):
             raise SystemExit("--capabilities-json must be an object")
         capabilities = loaded
-    tls_options = (args.ca_file, args.client_cert, args.client_key)
-    if (
-        args.service_url.startswith("https://")
-        or any(value is not None for value in tls_options)
-    ):
+    def load_token() -> str | None:
+        if args.token_file is None:
+            return args.token
+        try:
+            return read_master_token_file(args.token_file)
+        except WorkerAuthError as error:
+            raise SystemExit(str(error)) from error
+
+    def load_ssl_context() -> ssl.SSLContext | None:
+        tls_options = (args.ca_file, args.client_cert, args.client_key)
+        if not (
+            args.service_url.startswith("https://")
+            or any(value is not None for value in tls_options)
+        ):
+            return None
         if not args.service_url.startswith("https://"):
             raise SystemExit("TLS options require an https:// service URL")
         if (args.client_cert is None) != (args.client_key is None):
@@ -565,18 +624,20 @@ def main() -> int:
                 "--client-cert and --client-key must be provided together"
             )
         try:
-            ssl_context = build_client_tls_context(
+            return build_client_tls_context(
                 args.ca_file,
                 args.client_cert,
                 args.client_key,
             )
         except ValueError as error:
             raise SystemExit(str(error)) from error
-    else:
-        ssl_context = None
+
+    token = load_token()
+    ssl_context = load_ssl_context()
     identity = initialize_identity(args.work_dir, args.worker_id)
+    api = Api(args.service_url, token, ssl_context=ssl_context)
     agent = WorkerAgent(
-        Api(args.service_url, args.token, ssl_context=ssl_context),
+        api,
         work_dir=args.work_dir,
         identity=identity,
         capabilities=capabilities,
@@ -590,6 +651,27 @@ def main() -> int:
 
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
+    if args.token_file is not None or any(
+        value is not None
+        for value in (args.ca_file, args.client_cert, args.client_key)
+    ):
+        def reload_credentials(_signum: int, _frame: Any) -> None:
+            try:
+                new_token = load_token()
+                new_context = load_ssl_context()
+                api.configure_credentials(
+                    token=new_token,
+                    ssl_context=new_context,
+                )
+                print("worker credentials reloaded", flush=True)
+            except (WorkerAgentError, SystemExit) as error:
+                print(
+                    f"worker credential reload failed: {error}",
+                    flush=True,
+                )
+
+        if hasattr(signal, "SIGHUP"):
+            signal.signal(signal.SIGHUP, reload_credentials)
     try:
         agent.run(once=args.once, max_jobs=args.max_jobs)
     except KeyboardInterrupt:

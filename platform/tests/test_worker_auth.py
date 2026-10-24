@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from worker_auth import (  # noqa: E402
     WorkerAuthError,
     WorkerAuthVerifier,
     is_worker_auth_path,
+    read_master_token_file,
     sign_worker_request,
 )
 
@@ -135,6 +137,35 @@ class WorkerAuthTests(unittest.TestCase):
         self.assertEqual(
             self.verifier.verify(signed, "POST", self.path, self.body),
             other,
+        )
+
+    def test_master_token_file_is_strict_and_does_not_trim_token_body(self):
+        with tempfile.TemporaryDirectory() as temp:
+            token_path = Path(temp) / "token"
+            token_path.write_text("  token-value  \n")
+            self.assertEqual(
+                read_master_token_file(token_path),
+                "  token-value  ",
+            )
+            token_path.write_text("")
+            with self.assertRaises(WorkerAuthError) as empty:
+                read_master_token_file(token_path)
+            self.assertEqual(
+                empty.exception.code,
+                "worker_token_file_invalid",
+            )
+            token_path.write_bytes(b"\xff")
+            with self.assertRaises(WorkerAuthError) as invalid_utf8:
+                read_master_token_file(token_path)
+            self.assertEqual(
+                invalid_utf8.exception.code,
+                "worker_token_file_invalid",
+            )
+        with self.assertRaises(WorkerAuthError) as missing:
+            read_master_token_file(Path(temp) / "missing")
+        self.assertEqual(
+            missing.exception.code,
+            "worker_token_file_missing",
         )
 
 

@@ -124,9 +124,11 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_executor/evidence-2026-10-24-executor-auth-pass.json",
             "tests/network/worker_tls/README.md",
             "tests/network/worker_tls/run_test.py",
+            "tests/network/worker_tls/run_rotation_test.py",
             "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-qemu-job-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-unified-job-pass.json",
+            "tests/network/worker_tls/evidence-2026-10-24-security-rotation-job-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -316,6 +318,11 @@ class DocsConsistencyTests(unittest.TestCase):
             "stock guest reproduces without the test-only re-advertise call",
             "more than two reconnect cycles",
             "more than two connection cycles",
+            "证书/worker 凭据热轮换",
+            "Certificate and worker credential hot rotation",
+            "certificate and worker credential hot rotation",
+            "Certificates and keys are loaded at process start; hot rotation is not implemented",
+            "hot rotation is not implemented",
         ):
             self.assertNotIn(stale, active)
 
@@ -1535,8 +1542,52 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertGreater(worker_tls_unified["live_job"]["pcap_bytes"], 0)
         self.assertGreater(worker_tls_unified["live_job"]["frame_bytes"], 0)
+        worker_tls_rotation = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_tls/"
+                "evidence-2026-10-24-security-rotation-job-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(worker_tls_rotation["status"], "PASS")
+        self.assertEqual(
+            worker_tls_rotation["scope"],
+            "same-host-loopback-sighup-tls-token-rotation",
+        )
+        self.assertEqual(
+            worker_tls_rotation["rotation"]["reload_signal"],
+            "SIGHUP",
+        )
+        self.assertTrue(
+            all(
+                value == "PASS"
+                for value in worker_tls_rotation["checks"].values()
+            )
+        )
+        self.assertEqual(
+            worker_tls_rotation["checks"]["old_tls_identity_rejected"],
+            "PASS",
+        )
+        self.assertEqual(
+            worker_tls_rotation["checks"]["old_master_token_rejected"],
+            "PASS",
+        )
+        self.assertEqual(
+            worker_tls_rotation["live_job"]["status"],
+            "completed",
+        )
+        self.assertEqual(
+            worker_tls_rotation["live_job"]["result_state"],
+            "PASS",
+        )
+        self.assertEqual(worker_tls_rotation["live_job"]["attempts"], 1)
+        self.assertIn(
+            "zero-downtime request draining during rotation",
+            worker_tls_rotation["not_claimed"],
+        )
         self.assertIn("HTTPS/mTLS", status)
-        self.assertIn("证书/worker 凭据热轮换", status)
+        self.assertIn("SIGHUP", status)
+        self.assertIn("security-rotation-job-pass.json", status)
         self.assertIn("真实 QEMU job over mTLS", status)
         self.assertIn("unified StickS3 job over mTLS", status)
         wifi_repeat = json.loads(
@@ -1590,6 +1641,10 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn(
             "worker_tls/evidence-2026-10-24-tls-mtls-unified-job-pass.json",
+            ledger,
+        )
+        self.assertIn(
+            "worker_tls/evidence-2026-10-24-security-rotation-job-pass.json",
             ledger,
         )
         self.assertIn(

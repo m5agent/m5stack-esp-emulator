@@ -69,7 +69,7 @@ For HTTPS or mTLS:
 ```bash
 python3 platform/tools/serve.py 8787 \
   --bind 0.0.0.0 \
-  --api-token "$M5_SERVICE_API_TOKEN" \
+  --api-token-file /secure/service.token \
   --tls-cert /secure/server.crt \
   --tls-key /secure/server.key \
   --tls-client-ca /secure/worker-ca.crt
@@ -104,6 +104,7 @@ Local worker identity and heartbeat can be controlled with:
 | `M5_WORKER_STATE_PATH` | `<state-dir>/worker.json` | worker lifecycle and lease record |
 | `M5_WORKER_HEARTBEAT_INTERVAL` | 5 | heartbeat write interval in seconds |
 | `M5_WORKER_STALE_AFTER` | 15 | age at which a heartbeat is marked stale |
+| `M5_SERVICE_API_TOKEN_FILE` | unset | file-backed service/worker token; mutually exclusive with the in-memory token option |
 | `M5_SERVICE_TLS_CERT` | unset | server certificate chain; requires `M5_SERVICE_TLS_KEY` |
 | `M5_SERVICE_TLS_KEY` | unset | server private key; requires `M5_SERVICE_TLS_CERT` |
 | `M5_SERVICE_TLS_CLIENT_CA` | unset | client CA; when set, HTTPS requires a trusted client certificate |
@@ -252,8 +253,11 @@ uploads and composes a complete StickS3 flash over mTLS, runs a durable job
 through a real QEMU session, downloads evidence, verifies SHA256 and reports
 terminal `completed/PASS`. A second job uses the unified StickS3 image and
 requires its board/WiFi/BLE markers, network evidence, pcap and PNG frame in
-the same evidence ZIP. Certificate and worker credential hot rotation,
-cross-host QEMU jobs and companion continuity remain open.
+the same evidence ZIP. A third real-process run atomically rotates the server
+certificate, client CA, worker client identity and master token through
+`SIGHUP`; the retired TLS identity and token return `401`, the new credentials
+complete a signed QEMU job, and evidence SHA256 matches. Cross-host QEMU jobs
+and companion continuity remain open.
 
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)
@@ -317,12 +321,27 @@ expose it directly to the public internet.
 
 `--tls-cert` and `--tls-key` enable a TLS 1.2+ HTTPS listener. When
 `--tls-client-ca` is provided, every new connection must present a client
-certificate signed by that CA. Certificates and keys are loaded at process
-start; hot rotation is not implemented.
+certificate signed by that CA.
+
+The service can read its master token from `--api-token-file` or
+`M5_SERVICE_API_TOKEN_FILE`. The token file must be UTF-8, contain 1–4096
+bytes, and have no NUL; trailing CR/LF is ignored. The CLI token and token-file
+options are mutually exclusive.
+
+Send `SIGHUP` after atomically replacing the token and TLS files. The service
+validates all configured files before committing the new token and TLS
+context. The new TLS context applies to subsequent handshakes; an established
+socket retains its negotiated TLS session. The new token applies to subsequent
+protected requests. Invalid reload input leaves the previous configuration
+active. Existing requests are not drained, so this is not a zero-downtime
+rotation guarantee.
 
 The worker uses verified TLS by default for `https://` URLs. `--ca-file`
 selects a private CA bundle, while `--client-cert` + `--client-key` enable an
-mTLS client identity:
+mTLS client identity. The worker can load the token from `--token-file` or
+`M5_SERVICE_API_TOKEN_FILE`; `--token` and `--token-file` are mutually
+exclusive. Send `SIGHUP` to the worker after files are replaced to refresh the
+token and TLS context without restarting its polling loop.
 
 ```bash
 python3 platform/tools/worker_agent.py \
@@ -330,7 +349,7 @@ python3 platform/tools/worker_agent.py \
   --ca-file /secure/service-ca.crt \
   --client-cert /secure/worker.crt \
   --client-key /secure/worker.key \
-  --token "$M5_SERVICE_API_TOKEN" \
+  --token-file /secure/service.token \
   --once
 ```
 
