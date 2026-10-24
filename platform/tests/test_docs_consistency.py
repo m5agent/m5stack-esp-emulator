@@ -75,6 +75,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-1x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
@@ -113,6 +114,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/ipv6_end_to_end/run_test.py",
             "tests/network/ipv6_end_to_end/uiflow2-sticks3-ipv6-test-build.patch",
             "tests/network/ipv6_end_to_end/evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json",
+            "tests/network/ipv6_end_to_end/evidence-2026-10-25-ipv6-namespace-aaaa-http-pass.json",
             "platform/tools/network_fabric.py",
             "platform/tools/transport_security.py",
             "platform/tools/worker_registry.py",
@@ -404,6 +406,7 @@ class DocsConsistencyTests(unittest.TestCase):
                 ROOT / "patches" / "qemu-multi-board-uiflow2" / "README.md",
                 ROOT / "patches" / "qemu-esp32c6-uiflow2-adapters" / "README.md",
                 *sorted(DOCS.glob("*.md")),
+                *sorted(DOCS.glob("*.yaml")),
             )
         )
         for stale in (
@@ -513,6 +516,17 @@ class DocsConsistencyTests(unittest.TestCase):
             "121-cycle runtime evidence is still pending",
             "`FIXED / RERUN PENDING`",
             "replacement three-lease 121-cycle gate remains pending",
+            "另外两个独立 lease 尚未复现",
+            "one artifact-bound 121-cycle lease passes",
+            "Two additional independent leases",
+            "the other two 121-cycle leases",
+            "controlled AAAA/denied-port 仍 `NOT RUN`",
+            "same-guest IPv6 DNS/HTTP remains NET-06",
+            "managed controlled AAAA, denied-port and namespace-cleanup coverage remains",
+            "完整 Linux namespace AAAA/allowed IPv6 HTTP/denied-port/cleanup 尚未",
+            "同 guest controlled AAAA/拒绝路径",
+            "the 121-cycle gate or hardware equivalence",
+            "121 轮运行、bit-exact",
             "RSS 有界",
             "3 个独立 lease、每个 30 轮的下一门禁",
             "Automated discovery and migration of a client fleet is still",
@@ -886,6 +900,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "accelerator-sampling-fail-1x.json"
             ).read_text()
         )
+        reconnect_3x = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-hci4-reconnect121-3x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("20/30/60/120", project_snapshot)
@@ -935,7 +956,7 @@ class DocsConsistencyTests(unittest.TestCase):
         ).read_text())
         self.assertIn("CORE2_TCG_TB_SIZE_MIB = 128", qemu_accel)
         self.assertIn("tcg,thread=single,tb-size=128", status)
-        self.assertIn("tb-size=128", workstreams)
+        self.assertNotIn("323536", workstreams)
         self.assertIn('"ble_reconnect_cycles": 121', service_tests)
         reconnect_schema = openapi.split(
             "ble_reconnect_cycles:",
@@ -1019,6 +1040,26 @@ class DocsConsistencyTests(unittest.TestCase):
             accelerator_failure["root_cause"]["classification"],
             "evidence_sampling_bug_not_guest_controller_failure",
         )
+        self.assertEqual(reconnect_3x["status"], "PASS")
+        self.assertEqual(reconnect_3x["lease_count"], 3)
+        self.assertEqual(reconnect_3x["leases_passed"], 3)
+        self.assertEqual(reconnect_3x["ble_reconnect_cycles_per_lease"], 121)
+        for field in (
+            "firmware_equal_across_runs",
+            "elf_equal_across_runs",
+            "qemu_equal_across_runs",
+            "tool_hashes_equal_across_runs",
+        ):
+            self.assertTrue(reconnect_3x["identity_checks"][field])
+        self.assertEqual(
+            reconnect_3x["identity_checks"]["input_asset_drift"],
+            {},
+        )
+        for lease in reconnect_3x["leases"]:
+            self.assertEqual(lease["hli_posts"], 3405)
+            self.assertEqual(lease["hli_consumed"], 3405)
+            self.assertEqual(lease["hli_errors"], 0)
+            self.assertEqual(lease["panic_count"], 0)
 
         self.assertEqual(evidence["status"], "PASS")
         self.assertEqual(evidence["attempts_requested"], 3)
@@ -1305,7 +1346,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("188416", status)
         self.assertIn("744160", status)
         self.assertIn("1202176", status)
-        self.assertIn("tb-size=128", workstreams)
+        self.assertNotIn("250880", workstreams)
 
         core2_source = next(
             device for device in catalog_source["devices"]
@@ -1325,7 +1366,7 @@ class DocsConsistencyTests(unittest.TestCase):
             if device["id"] == "core2"
         )
         profile_detail = core2_profile["validation"]["detail"]
-        self.assertIn("at 20, 30, 60 and 120 cycles", profile_detail)
+        self.assertIn("at 20, 30, 60, 120 and 121 cycles", profile_detail)
         self.assertIn("3377/3377", profile_detail)
         self.assertIn("tb-size=128 7200s rerun passes", profile_detail)
         self.assertIn("323536->252992", profile_detail)
@@ -1333,7 +1374,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
         self.assertTrue(
             any(
-                "121-cycle reconnect lease passes" in blocker
+                "three independent artifact-bound 121-cycle" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )
@@ -1363,6 +1404,13 @@ class DocsConsistencyTests(unittest.TestCase):
         fixture_readme = (
             ROOT / "tests/network/ipv6_end_to_end/README.md"
         ).read_text()
+        namespace_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/ipv6_end_to_end/"
+                "evidence-2026-10-25-ipv6-namespace-aaaa-http-pass.json"
+            ).read_text()
+        )
         status = (DOCS / "project-status.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()
@@ -1404,6 +1452,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "esp_netif_create_ip6_linklocal",
             patch,
         )
+        self.assertIn("ports/esp32/modsocket.c", patch)
+        self.assertIn("addrinfo_objs[4] = mp_obj_new_tuple(4", patch)
         self.assertIn("network_wlan_ip_event_handler", patch)
         self.assertIn("IPV6_WIFI_SCAN <redacted>", evidence["serial_tail"])
         self.assertNotRegex(
@@ -1412,12 +1462,29 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn("stock StickS3 UIFlow2 image", fixture_readme)
         self.assertIn("controlled AAAA", fixture_readme)
+        self.assertEqual(namespace_evidence["status"], "PASS")
+        self.assertEqual(
+            namespace_evidence["runtime"]["network"]["isolation"],
+            "namespace",
+        )
+        self.assertTrue(
+            all(value == "PASS" for value in namespace_evidence["checks"].values())
+        )
+        self.assertEqual(
+            [item["port"] for item in namespace_evidence["pcap_destinations"]],
+            [18095, 18096],
+        )
         self.assertIn("测试构建", status)
         self.assertIn("原厂 UIFlow2", status)
-        self.assertIn("denied-port", backlog)
+        self.assertNotIn("NET-06", backlog)
         self.assertIn("同 guest IPv6 TCP/HTTP", workstreams)
+        self.assertIn("NET-06", workstreams)
         self.assertIn(
             "evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json",
+            validation_ledger,
+        )
+        self.assertIn(
+            "evidence-2026-10-25-ipv6-namespace-aaaa-http-pass.json",
             validation_ledger,
         )
 

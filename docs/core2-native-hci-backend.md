@@ -29,7 +29,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` 120-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 120 --attempts 3`、`evidence-2026-10-24-hci4-reconnect120-3x.json` | 3 个独立 lease 各 120 轮；每 lease HLI `3377/3377`、events `2297`、ACLs `1080`、HLI errors/queue/dropped/panic 为 0，连接池回到 `3/9/3` |
 | `CORE2-02` 121-cycle readiness budget | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`、`ble_runtime_limits.py` | 首次运行完成 29 轮并开始第 30 轮后，被固定 `180s` readiness 预算误杀；guest 无 panic。runner 和 Device Service 改为共享 workload-aware 预算，`121` 轮/`2s` 延迟为 `1028s` |
 | `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`、`run_service_5x.py` | 功能 `121/121` PASS，但 reconnect-only 路径没有 hold loop，QEMU accelerator 未被采样，形成 `bounded_tcg_cache` 假失败；runner 现于 session first running 时直接采样 |
-| `CORE2-02` 121-cycle lease | `1/1 PASS` | `evidence-2026-10-25-hci4-reconnect121-1x.json` | artifact-bound 单 lease：`tb-size=128`、WiFi/公网、NUS GATT、frame/QOM、pcap、evidence 与 cleanup PASS；HLI `3405/3405`、events 2316、ACLs 1089，队列、错误、dropped、peer-close 和 panic 均为 0；另两个 lease 尚未复现 |
+| `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json` | 3 个独立 artifact-bound lease 均为 `121/121 PASS`，且 firmware/ELF/QEMU/工具哈希一致；每 lease `tb-size=128`、WiFi/公网、NUS GATT、frame/QOM、pcap、evidence 与 cleanup PASS。每 lease HLI `3405/3405`、events 2316、ACLs 1089，队列、错误、dropped、peer-close 和 panic 均为 0 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -530,8 +530,9 @@ lease PASS。`121` 的第一次运行在应用、WiFi、公网和 29 个完整 c
 于第 30 轮开始时被固定 `180s` readiness 预算误杀；第二次运行完成
 `121/121`，却因 reconnect-only 路径未进入 hold loop 而漏采 QEMU
 accelerator，形成 `bounded_tcg_cache` 假失败。两个 harness 问题修复后，
-第三个 artifact-bound lease `1/1 PASS`。另外两个独立 lease 的复现仍是
-`3 × 121` 门禁。hold 上限为 `7200s`；600 秒 active-BLE gate 已通过。
+第三个 artifact-bound lease PASS；随后再补两个独立 lease，`3 × 121`
+最终为 `3/3 PASS`，三轮 firmware/ELF/QEMU/工具哈希一致。hold 上限为
+`7200s`；600 秒 active-BLE gate 已通过。
 
 ## 剩余工作量
 
@@ -541,13 +542,13 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
 60、120 轮 reconnect 门禁已 PASS：
 
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
-- 物理 cache/PSRAM 等价性、121 轮三 lease 复现和真机
+- 物理 cache/PSRAM 等价性和真机
   路径需要独立
   计划，不能由当前 `5×10s` / `3×60s` / `2×120s` 重复门禁推导；当前
   PASS 覆盖 halt-gated guest 注入、artifact-bound 两小时 active-BLE
   WiFi/公网/GATT 功能保持、限容 host-memory 和 20、30、60、120 轮
-  reconnect；单 lease 121 轮已 PASS，三 lease 复现和物理 cache/PSRAM
-  等价性仍需独立验证。
+  reconnect；三 lease 121 轮已完成 `3/3`，物理 cache/PSRAM 等价性仍需
+  独立验证。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

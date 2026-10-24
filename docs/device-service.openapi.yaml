@@ -2029,7 +2029,9 @@ components:
                 dns=controlled. Filters the Host header at the controlled HTTP
                 gateway. The resolver core supports exact A/AAAA records; the
                 current controlled HTTP fixture exposes the existing IPv4
-                path, while same-guest IPv6 DNS/HTTP remains NET-06. Actual
+                path. A standalone UIFlow2 guest run has completed controlled
+                AAAA, allowed IPv6 HTTP, denied-port and cleanup; this does
+                not imply every managed profile defaults to IPv6. Actual
                 network destinations are controlled separately by
                 allowed_endpoints.
               items:

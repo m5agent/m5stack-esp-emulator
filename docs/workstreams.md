@@ -16,38 +16,31 @@
 
 | 工作流 | 已交付的可执行面 | 当前在途 | 下一验收门禁 |
 | --- | --- | --- | --- |
-| 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；13 台可创建、Tab5 `partial` | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
-| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离 | `NET-04` 真实跨主机 QEMU executor、主机发现、companion/evidence continuity；`NET-06` 同 guest controlled AAAA、denied-port 和 cleanup | 跨主机 job 可迁移、可重放、可清理；同一 Linux guest 完成 AAAA+IPv6 HTTP 与拒绝路径；不可信固件进入 disposable VM |
-| Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；120 轮 reconnect、600 秒 active-BLE、最终 `tb-size=128` artifact-bound `7200s` 和 1 个 121 轮 lease 均 PASS；240 个资源采样 host RSS/phys footprint 未增长 | 121 轮 readiness 与 accelerator-sampling 缺陷已修复；3 个 lease 复现、长时并发/吞吐和 teardown 待验 | 3 个独立 lease 各 121 轮可复现；随后补 controller/物理边界和真机 |
+| 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；设备覆盖与 Tab5 边界见当前状态和自动快照 | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
+| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、controlled DNS A/AAAA、TLS、exact IPv4/IPv6 egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离 | `NET-04` 真实跨主机 QEMU executor、主机发现、companion/evidence continuity；CIDR/domain-set | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
+| Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；同 guest 多轮重连、active-BLE 和 bounded-TCG 门禁已闭合 | 长时并发/吞吐和 teardown；bit-exact controller/baseband 与物理 cache/PSRAM 边界 | controller/物理边界和同固件路径真机验证 |
 | 通用固件审查 | manifest、API/WebBurner required/optional capability、sdkconfig detected capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传；公开 BIN 每轮强制刷新 | 当前刷新后的 AtomS3R/PaperMono 四样本功能重跑；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN SHA、运行态权限/许可闭环、更多固件族、模型缺口关闭和同 SHA 真机安全流程 |
 | Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/companion 接管、warm pool、容量和大型编排模块拆分 |
 
-“当前在途”只表示工作已经启动，不是 PASS。Core2 的最终 artifact-bound
-`7200s` run 已证明启动 firmware/ELF/QEMU 和 runner/service/accelerator/
-limits 工具哈希未漂移；WiFi/公网/GATT、frame/pcap、HLI health、active peer
-和 session 结束均正常。240 个资源采样中 RSS `323536→252992 KiB`、phys
-footprint `250880→188416 KiB`，旧未限容增长已归因并关闭。
+“当前在途”只表示工作已经启动，不是 PASS。具体轮数、PASS 计数、资源采样
+和固件哈希以 [项目快照](project-snapshot.md) 与
+[项目当前状态](project-status.md) 为准，本页只维护工作流归属和下一门禁。
 
 ## 未完成项执行顺序
 
-1. 完成 3 个独立 lease × 121 轮 reconnect 复现。单 lease 已在修复
-   workload-aware readiness 和 accelerator-sampling 后 `1/1 PASS`；
-   旧的第 29 轮终止和 accelerator null 都属于 test harness 缺陷，不是
-   guest/controller FAIL。最终 `tb-size=128` artifact-bound 两小时复测
-   也已 PASS。
-2. `NET-06`：在 privileged Linux namespace 中完成 controlled AAAA、
-   allowed IPv6 HTTP、denied-port、pcap、namespace/NAT cleanup 和 QEMU reap。
-3. `FW-03`：重跑公开 CDN 当前 BIN；先覆盖已刷新的 AtomS3R 与 PaperMono
+1. `FW-03`：重跑公开 CDN 当前 BIN；先覆盖已刷新的 AtomS3R 与 PaperMono
    四样本，并把实际 SHA 写入 evidence。
-4. `NET-04` / `SVC-01`：用已实现的 control/runtime 双端点启动真实跨
+2. `NET-04` / `SVC-01`：用已实现的 control/runtime 双端点启动真实跨
    network namespace QEMU executor，再补跨主机 reattach、
    companion/evidence continuity 和不可信固件隔离。
-5. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
+3. `CORE2-02`：补长时吞吐/teardown、bit-exact controller/baseband 和
+   物理 cache/PSRAM 边界；已完成的重连与 TCG 门禁不重复列为待办。
+4. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
    BM8563 RTC 路径；`RUNTIME-04` 独立补 ATECC608 fixture；
    `RUNTIME-02` 补 C6 802.15.4 commissioning 或保持显式不支持。
-6. `FW-01/02`：补运行态 ACL/许可和真实安全配置流程。
-7. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
-8. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
+5. `FW-01/02`：补运行态 ACL/许可和真实安全配置流程。
+6. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
+7. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
 
 ## 工作流
 
@@ -55,7 +48,7 @@ footprint `250880→188416 KiB`，旧未限容增长已归因并关闭。
 | --- | --- | --- | --- |
 | 设备、板级与统一运行时 | `devices/`、`platform/qemu/`、`patches/`、`tests/uiflow2/` | `project-status.md` 的设备矩阵和统一运行时章节 | 无独立 Task；新增设备必须走 onboarding |
 | Device Service 与生命周期 | `serve.py`、`device_service.py`、`storage_policy.py` | `device-service-api.md`、`project-status.md` | `SVC-01`、`SVC-02`、`SVC-03` |
-| 网络隔离、双 guest lab fabric 与 worker | `network_*.py`、`worker_*.py`、`transport_security.py`、`tests/network/` | `network-simulation-plan.md`、`device-service-api.md` | `NET-04`、`NET-06` |
+| 网络隔离、双 guest lab fabric 与 worker | `network_*.py`、`worker_*.py`、`transport_security.py`、`tests/network/` | `network-simulation-plan.md`、`device-service-api.md` | `NET-04` |
 | Core2 无线与长稳 | `core2_native_hci/`、`unified_core2/`、`ble_probe.py`、`ble_runtime_limits.py` | `core2-native-hci-backend.md`、`project-status.md` | `CORE2-02` |
 | 固件导入、静态审查与安全 | `firmware_*.py`、`fetch_firmware.py`、`user_firmware_matrix.py`、`platform/web/firmware.*` | `firmware-manifest.md`、`user-firmware-simulation-matrix.md` | `FW-01`、`FW-02`、`FW-03` |
 | 运行时模型缺口 | runtime coverage、QEMU patches、firmware evidence | `runtime-model-gap-register.md` | `RUNTIME-02`、`RUNTIME-03`、`RUNTIME-04`；`RUNTIME-01` 已关闭 |
@@ -97,8 +90,9 @@ generation 的外部 side effect。
 `NET-05` 已从 Backlog 关闭：exact IPv4/IPv6 endpoint、双栈
 veth/route/NAT、IPv6 neighbor control 和清理已在 Linux virtual-network
 夹具连续通过，并由同一 source commit 的 GitHub Actions policy job 复验。
-CIDR、domain-set、IPv6 DNS/AAAA 和恶意固件沙箱仍是不同能力，不计入
-`NET-05` 的完成声明。
+`NET-06` 也已关闭：同一 Linux namespace UIFlow2 guest 完成 controlled
+AAAA、allowed IPv6 HTTP、denied-port、pcap、cleanup 和 QEMU reap。
+CIDR、domain-set 和恶意固件沙箱仍是不同能力。
 
 ## 代码边界
 

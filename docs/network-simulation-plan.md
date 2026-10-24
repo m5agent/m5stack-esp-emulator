@@ -30,8 +30,8 @@ Device Service lease
 | 模式 | 入口 | 能证明什么 | 不能证明什么 |
 | --- | --- | --- | --- |
 | User-mode lab | QEMU user net + 实例内 HTTP/BLE peer | scan、association、DHCP、DNS、TCP/UDP 和重连逻辑 | 宿主/公网隔离，真实 RF |
-| Controlled DNS/TLS | Linux network + mount namespace、测试 CA、A/AAAA resolver、Host allowlist | 允许/拒绝决策、证书路径和 pcap 一致 | 任意公网服务、原厂固件默认 IPv6 能力或证书固定 |
-| Exact dual-stack egress | nftables + per-session IPv4/IPv6 veth/NAT | 精确 IPv4/IPv6 地址、协议和端口的允许/拒绝及清理 | CIDR、domain-set、同 guest controlled AAAA/拒绝路径或完整恶意固件沙箱 |
+| Controlled DNS/TLS | Linux network + mount namespace、测试 CA、A/AAAA resolver、Host allowlist | 允许/拒绝决策、证书路径、同一 UIFlow2 test-build guest 的 AAAA/HTTP/denied-port 和 pcap 一致 | 任意公网服务、原厂固件默认 IPv6 能力或证书固定 |
+| Exact dual-stack egress | nftables + per-session IPv4/IPv6 veth/NAT | 精确 IPv4/IPv6 地址、协议和端口的允许/拒绝及清理 | CIDR、domain-set 或完整恶意固件沙箱 |
 | Firmware SoftAP | `runtime=network`、AP 密码和 loopback `hostfwd` | 固件自建 provisioning portal | 手机、captive portal OS 或真实 roaming |
 | Multi-device lab fabric | private namespace 内的 QEMU socket L2 switch | 两台 guest 的 DHCP、私有 TCP 和双侧 pcap | TAP primitive、RF、WPA2/WPA3 或生产 worker |
 | CardputerZero Ethernet | 独立 Linux ARM64 后端 | SR9900A/r8152 Ethernet frame 数据面 | WiFi 或 ESP32/UIFlow2 网络 |
@@ -64,14 +64,14 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 
 cleanup probe 会读取 sandbox 实际生成的 `isolation.json`，只有
 `cleanup_completed`、QEMU reap、DNS/HTTP close 均成立时才把清理记为 PASS；
-该实现已有契约测试，但同一 Linux namespace guest 的完整 AAAA/HTTP/
-denied-port 生命周期仍为 `NOT RUN`。
+Linux arm64 private namespace 已用同一 UIFlow2 test-build guest 完成
+controlled AAAA、allowed IPv6 HTTP、denied-port、pcap、namespace cleanup
+和 QEMU reap。
 
-当前仍未完成的网络产品化和协议项只列在
-[项目 Backlog](project-backlog.md)，重点包括 `NET-04` 跨主机 worker/
-QEMU executor、companion/evidence continuity，以及 `NET-06` 的 controlled
-AAAA、denied-port 和 Linux namespace cleanup；`NET-05` 已完成代码与 Linux
-数据面验证，外部发布前仍需核对目标 commit 的 CI evidence。
+当前仍未完成的网络产品化项只列在
+[项目 Backlog](project-backlog.md)，重点是 `NET-04` 跨主机 worker/QEMU
+executor、companion/evidence continuity 和 CIDR/domain-set。
+`NET-05` 与 `NET-06` 均已完成当前 accepted virtual-device scope。
 
 ## Required test matrix
 

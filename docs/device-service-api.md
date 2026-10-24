@@ -804,9 +804,11 @@ HTTP gateway's `Host` decision and the current IPv4 resolver path, while
 `allowed_endpoints` controls the actual network destination. The sandbox core
 accepts exact A/AAAA records and can bind an IPv6 `ControlledHttp`; the Device
 Service's managed controlled HTTP fixture still exposes its existing IPv4 path.
-A standalone UIFlow2 test build has completed same-guest IPv6 TCP/HTTP, while
-managed controlled AAAA, denied-port and namespace-cleanup coverage remains
-`NET-06`.
+A standalone UIFlow2 test build in a Linux private network namespace has
+completed controlled AAAA, allowed IPv6 HTTP, denied-port blocking, pcap,
+namespace cleanup and QEMU reap in one guest lifecycle. That closes `NET-06`
+for the accepted virtual-device scope; it does not claim that every managed
+profile defaults to IPv6 or that stock UIFlow2 enables an IPv6 link-local.
 
 The Linux worker must provide root or equivalent `NET_ADMIN`/`SYS_ADMIN`
 capabilities, `nftables`, and `iproute2`. External IPv4 endpoints require
@@ -1828,10 +1830,12 @@ restart.
   `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`. A later
   reconnect-only run completed `121/121` but exposed accelerator sampling
   only inside the hold path; after moving that sample to first-running state,
-  one artifact-bound 121-cycle lease passes all required checks in
-  `evidence-2026-10-25-hci4-reconnect121-1x.json`. Two additional independent
-  leases are still required for the `3/3` gate. The remaining validation
-  gates are the other two 121-cycle leases and long-run throughput/teardown;
+  all three independent artifact-bound 121-cycle leases pass every required
+  check. The aggregate evidence is
+  `evidence-2026-10-25-hci4-reconnect121-3x.json`; it binds identical
+  firmware/ELF/QEMU/tool hashes across runs and includes the earlier
+  single-lease evidence. The remaining validation gates are long-run
+  throughput/teardown;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -1858,9 +1862,9 @@ restart.
   (10/10 first attempts), but physical cache/PSRAM equivalence remains
   unverified. `core2-native-hci` passed `HCI-4` in five independent Device
   Service leases with no GDB bridge, and the halt-gated `5×10s`
-  extended-run gate passes two independent batches. Minute/hour soak,
-  bit-exact controller/baseband, coexistence and same-firmware hardware
-  validation remain open;
+  extended-run gate passes two independent batches. Long-run
+  concurrency/throughput, teardown, bit-exact controller/baseband,
+  coexistence and same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See
   [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);

@@ -26,31 +26,27 @@
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 执行 3 个独立 lease × 121 轮 reconnect，再验证吞吐/teardown 与 bit-exact controller/cache/PSRAM | 最终 `tb-size=128` artifact-bound `7200s` 已 PASS；1 个 121 轮 lease 在修复 readiness 与 accelerator sampling 后 PASS；尚缺 3 lease 复现 |
+| P1 | Core2 长稳与物理/controller 等价性 | 继续验证吞吐/teardown 与 bit-exact controller/cache/PSRAM | 3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 已 PASS |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
 
 ## 当前执行顺序
 
-1. `CORE2-02`：在隔离的新 service 上执行 3 个独立 lease × 121 轮
-   reconnect，随后补长时吞吐/teardown、controller/baseband 和物理边界。
-   修复 readiness 与 accelerator sampling 后，单 lease `121/121` PASS；
-   两轮 harness 失败 evidence 保留；最终 artifact-bound `7200s`
+1. `CORE2-02`：3 个独立 lease × 121 轮 reconnect 已完成 `3/3 PASS`；
+   随后补长时吞吐/teardown、controller/baseband 和物理边界。两轮
+   harness 失败 evidence 保留，最终 artifact-bound `7200s`
    extended-run host-memory 门禁也已 PASS。
-2. `NET-06`：在 privileged Linux namespace 中用同一 UIFlow2 测试 guest
-   完成 controlled AAAA、允许 IPv6 HTTP、denied-port、pcap、namespace/NAT
-   cleanup 和 QEMU reap。原厂 UIFlow2 未启用 IPv6，不能升级为默认能力。
-3. `FW-03`：重跑公开 CDN 当前 BIN 并记录新 SHA；先覆盖已刷新的 AtomS3R
+2. `FW-03`：重跑公开 CDN 当前 BIN 并记录新 SHA；先覆盖已刷新的 AtomS3R
    XiaoZhi / OpenAI Voice Assistant 和 PaperMono EDC Book / CrossPoint，
    再扩到更多设备与 firmware family。
-4. `NET-04` / `SVC-01`：在现有 durable queue、HTTPS/mTLS、rotation/drain、
+3. `NET-04` / `SVC-01`：在现有 durable queue、HTTPS/mTLS、rotation/drain、
    同主机 generation-pointer migration 和本地 QEMU/QMP reattach 上补自动
    主机发现/跨主机迁移；先用 control/runtime 双端点跑真实 worker-local
    QEMU，再补跨主机 reattach、companion/evidence continuity 和多机调度。
-5. `FW-01/02`、`RUNTIME-02`、`HW-01`：补运行态权限/许可、生产 key/eFuse、
+4. `FW-01/02`、`RUNTIME-02`、`HW-01`：补运行态权限/许可、生产 key/eFuse、
    C6 Zigbee 决策和代表设备同固件 SHA 的真机验证。
-6. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
+5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
    专项后端和视觉工作，不与当前 P0 混算完成。
 
 ## 可执行任务板
@@ -58,8 +54,7 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；`WorkerAgent` 已把中央 control API 与本地 runtime API 拆开并有单元契约，下一步启动真实 worker-local QEMU 与 evidence 路径，再补自动主机发现/跨主机迁移、reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
-| `NET-06` | 进行中 | controlled resolver A/AAAA、IPv6 forwarding 预检和专用 UIFlow2 测试构建的 guest IPv6 TCP/HTTP 已实现；下一步在同一 Linux guest 完成 controlled AAAA、denied-port 与 namespace cleanup | 同一 lease/guest 内 AAAA 允许/拒绝、IPv6 egress、pcap 和 cleanup 成立；不能用 host probe 或另一 session 拼接固件结论；原厂 UIFlow2 未启用 link-local |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、最终 `tb-size=128` artifact-bound `7200s` 和 1 个 121 轮 lease 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 再完成 2 个独立 lease 的 121 轮，形成 `3/3`；随后补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
+| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | API/WebBurner 已能声明 required/optional capability；required/optional 重叠会拒绝，optional 不匹配只 warning；sdkconfig WiFi/BT/PSRAM 作为 detected warning 进入 manifest。矩阵（含 resume）每轮强制刷新公开 BIN，结果键包含 SHA。已有 7 台设备、21 个历史哈希绑定样本；下一步先跑当前 AtomS3R/PaperMono 四样本，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA 变化的旧结果不得复用；模型缺口不得混作固件 FAIL |
@@ -133,28 +128,6 @@
 - 本地 reattach 有 PID reuse、stale start-time、QMP 缺失、正常停止和残留清理
   证据；跨主机/companion reattach 仍待补。
 
-### NET-06 同 guest IPv6 DNS/HTTP
-
-当前已具备：
-
-- exact IPv4/IPv6 endpoint、双栈 veth/default route/NAT 和 cleanup；
-- Device Service 对含外部 IPv6 endpoint 的请求执行 IPv6 forwarding
-  capability 预检；
-- controlled resolver 对同一 allowlisted 名称返回 exact A/AAAA，并拒绝
-  unknown name；
-- resolver-level UDP 查询、response type/address 和 decision log 有契约测试；
-- 专用 UIFlow2 StickS3 测试构建在 `IP_EVENT_STA_GOT_IP` 后创建 IPv6
-  link-local，同一 guest 已完成 `fec0::2:18095` 的 TCP/HTTP；pcap、串口
-  marker 和 firmware/QEMU 哈希在同次 evidence 中。
-
-当前缺口：原厂 UIFlow2 没有创建 IPv6 link-local，因此直接使用原厂镜像会
-`EHOSTUNREACH`；测试构建不能描述成原厂默认能力。尚未在 Linux namespace
-中让同一 guest 完成 controlled AAAA、denied-port 和 cleanup。
-
-验收：同一 lease/guest 中，允许名称解析到 exact AAAA，guest 访问配置的
-IPv6 endpoint 并完成 HTTP；拒绝地址/端口仍被 nftables 阻断；pcap、
-namespace/NAT 清理和串口 marker 属于同一份 evidence。
-
 ## P1：Core2 物理与 controller 边界
 
 设计见 [Core2 native HCI backend](core2-native-hci-backend.md)。
@@ -209,7 +182,8 @@ guest-call 上下文问题并修复：
   在 session first running 时独立采样 QEMU 命令；最终单 lease 复测
   `1/1 PASS`，`tb-size=128`、HLI `3405/3405`、events `2316`、
   ACLs `1089`，队列、错误、dropped、peer-close 和 panic 均为 0；
-- 仍未完成：修复后 3 个 lease 的 121 轮连接、长时吞吐/并发和
+- 随后在同一 firmware/ELF/QEMU/工具哈希下补跑另 2 个独立 lease，
+  三个 lease 均为 `121/121 PASS`；仍未完成的是长时吞吐/并发和
   process-stop/teardown 竞态；
 - 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
@@ -222,8 +196,9 @@ guest-call 上下文问题并修复：
 
 验收追加条件：
 
-- 同一 guest 121 轮完成 scan/connect/NUS GATT/disconnect 且无 retry，
-  每轮都有 guest RX、notification、peer/pcap/evidence 和 HLI health；
+- 3 个独立 lease 各 121 轮完成 scan/connect/NUS GATT/disconnect 且无
+  retry，每轮都有 guest RX、notification、peer/pcap/evidence 和 HLI
+  health；
 - 验证 121 轮、长时吞吐/并发和 teardown；最终 7200 秒 artifact-bound
   限容门禁已经满足；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功

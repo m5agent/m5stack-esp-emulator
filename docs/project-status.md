@@ -96,9 +96,9 @@
   A/AAAA records，且 Device Service 对 IPv6 endpoint 预检
   `require_ipv6`。专用 UIFlow2 StickS3 测试构建已在同一 guest 中完成
   IPv6 TCP 和 HTTP，pcap 记录 `fec0::2:18095` 双向流；原厂 UIFlow2 未启用
-  IPv6 link-local，属于固件配置边界。同 guest 的 controlled AAAA、
-  denied-port 和 Linux namespace cleanup 仍为 `NOT RUN`，CIDR 和
-  domain-set 也未实现。
+  IPv6 link-local，属于固件配置边界。Linux arm64 private namespace 中的
+  同一 guest 现已完成 controlled AAAA、IPv6 HTTP、denied-port、pcap、
+  namespace cleanup 和 QEMU reap；CIDR 和 domain-set 仍未实现。
 - Core2 `HCI-4` 已通过：规范的
   `runtime=qemu-unified/profile=core2-native-hci` 在五个独立
   Device Service lease 中同时验证 320×240 frame、27 节点 QOM、WiFi
@@ -158,9 +158,9 @@
   `180s` readiness 预算误判超时；guest 没有 panic，peer 也没有 GATT
   timeout。runner 与 Device Service 已改为共享按 workload 计算的预算
   `min(7200, 60 + cycles × (6 + delay))s`，`121` 轮、`2s` 间隔对应
-  `1028s`。修复 accelerator 采样后，1 个 artifact-bound lease 完成
+  `1028s`。修复 accelerator 采样后，3 个独立 artifact-bound lease 均完成
   `121/121`，WiFi/公网、NUS GATT、frame/QOM、pcap、evidence 和 bounded
-  TCG 全部 PASS；独立的 `3 × 121` 复现仍是待执行门禁。
+  TCG 全部 PASS；`3/3` 复现门禁已经关闭。
 - 以上全部是虚拟设备证据，物理硬件验证仍为 `NOT RUN`。
 - Worker transport 安全证据单独归类为 `transport-security validation`，
   不是跨主机网络拓扑验证。当前 HTTPS/mTLS 运行覆盖同主机 loopback 上的
@@ -201,8 +201,8 @@
 | 能力面 | 虚拟设备验证 | 本地服务化 | 真机 | 当前结论 |
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
-| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、最终 `tb-size=128` artifact-bound `7200s` 和 1 个 `121` 轮 lease 均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终两小时 host RSS/phys footprint 未增长 | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge；121 轮 readiness 与 accelerator-sampling 缺陷已修复 | `NOT RUN` | 已能验证首轮、同 guest 120 轮重连、单 lease 121 轮和两小时 active-BLE + 限容 host-memory 稳定性；下一步是 `3 × 121`，之后补 RF/PHY 和 bit-exact BT controller |
-| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact A/AAAA resolver、exact IPv4/IPv6 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP PASS；真实 server/worker namespace 的 Bearer+HMAC control plane PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；worker 已支持控制面/本地 runtime 双端点分离，并把 session/evidence 请求绑定到执行面；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain、previous token/CA 有界重叠和无 worker-SIGHUP 的双 worker generation-pointer 自动迁移 PASS；真实跨主机/跨 namespace QEMU job、自动主机发现、companion continuity、CIDR/domain-set 和同 guest AAAA/denied-port/namespace cleanup 未完成 | `NOT RUN` | 传输、认证、同主机 QEMU/unified job、可审计批量迁移和控制/执行面分离基础已具备，尚不是多租户恶意固件 VM |
+| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终两小时 host RSS/phys footprint 未增长 | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge；121 轮 readiness 与 accelerator-sampling 缺陷已修复并完成 `3/3` 复现 | `NOT RUN` | 已能验证首轮、同 guest 120/121 轮重连和两小时 active-BLE + 限容 host-memory 稳定性；后续补 RF/PHY、bit-exact BT controller 和真机 |
+| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact A/AAAA resolver、exact IPv4/IPv6 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP、Linux namespace 内同 guest controlled AAAA + IPv6 HTTP + denied-port + cleanup PASS；真实 server/worker namespace 的 Bearer+HMAC control plane PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；worker 已支持控制面/本地 runtime 双端点分离，并把 session/evidence 请求绑定到执行面；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain、previous token/CA 有界重叠和无 worker-SIGHUP 的双 worker generation-pointer 自动迁移 PASS；真实跨主机/跨 namespace QEMU job、自动主机发现、companion continuity 和 CIDR/domain-set 未完成 | `NOT RUN` | 传输、认证、同主机 QEMU/unified job、可审计批量迁移、控制/执行面分离和同 guest 双栈 guest 数据面已具备，尚不是多租户恶意固件 VM |
 | 通用固件审查 | 导入、capability/security preflight、required/optional 重叠拒绝、unsupported optional warning、security evidence 双向冲突 warning、静态审查、LittleFS/FAT/SPIFFS、文件级 `permission_policy`、包内源码 SPDX header、WebBurner 浏览器流式上传/刷新恢复 PASS；7 台设备 21 个公开非基线样本的历史哈希绑定结果为 10 PASS / 11 PARTIAL；矩阵（含 resume）每轮强制刷新公开 BIN，结果键绑定 device/firmware/SHA，不把同 ID/version 的旧缓存当成当前制品；当前 CDN 的 4 个刷新样本绑定新 SHA 且静态结构 PASS；C6 Zigbee、Core2 legacy I2C controller/board-bus routing、Core2 for AWS ATECC608 以结构化 `runtime_model_gap` 保留 | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环；当前 CDN 四样本的 Device Service 功能重跑仍为 `NOT RUN`；运行态 ACL/权限强制、生成/vendor 源码完整许可、`RUNTIME-02/03/04`、FW-03 更多设备和生产安全仍未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、active-request drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、worker lease 与失联回收；控制面与本地 runtime API 双端点分离 | 无真实跨主机 QEMU executor、worker 主机自动发现、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、drained overlap rotation、可审计批量迁移、local control-plane reattach、远程 lease 和控制/执行面分离基础，不是完整云端服务 |
 
@@ -217,8 +217,8 @@
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS A/AAAA、TLS/Host allowlist；nftables exact IPv4/IPv6 egress、双栈 veth/NAT、IPv6 neighbor control 和清理；专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；跨 server/worker namespace 的 Bearer+HMAC worker control plane；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、控制/本地 runtime API 分离；GitHub Actions Linux policy CI PASS | 真实跨主机/跨 namespace QEMU executor/reattach、自动发现 worker 主机、companion/evidence continuity、生产多机调度、CIDR/domain-set、同 guest AAAA/denied-port/namespace cleanup |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、最终 `tb-size=128` artifact-bound `7200s` 和 1 个 121 轮 lease 均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终 host RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB` | 3 个 lease 的 121 轮 reconnect 复现、bit-exact controller/baseband、物理 cache/PSRAM、长时并发/吞吐和真机 |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS A/AAAA、TLS/Host allowlist；nftables exact IPv4/IPv6 egress、双栈 veth/NAT、IPv6 neighbor control 和清理；专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP 与 Linux namespace 内 controlled AAAA、IPv6 HTTP、denied-port、pcap、cleanup；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；跨 server/worker namespace 的 Bearer+HMAC worker control plane；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、控制/本地 runtime API 分离；GitHub Actions Linux policy CI PASS | 真实跨主机/跨 namespace QEMU executor/reattach、自动发现 worker 主机、companion/evidence continuity、生产多机调度、CIDR/domain-set |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终 host RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB` | bit-exact controller/baseband、物理 cache/PSRAM、长时并发/吞吐和真机 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、WebBurner/API required/optional capability 声明与重叠拒绝、optional mismatch warning、sdkconfig WiFi/BLE/Classic Bluetooth/IEEE 802.15.4/PSRAM detected capability、公开 CDN 每次强制刷新、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层与双向冲突 warning、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、文件级权限来源、包内源码 SPDX header 和声明级许可 allowlist/denylist；7 台设备 21 个公开非基线样本的历史哈希绑定结果为 10 PASS / 11 PARTIAL；`RUNTIME-01` Flash/PMP 修复已通过 Device Service 和 C6 回归 | 当前公开 CDN 内容的刷新样本功能重跑、运行态 ACL/权限强制、生成代码/包外 vendor 依赖的完整许可覆盖、法律审批、真机 key/eFuse 流程、更多设备/firmware family 回归；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 legacy I2C routing 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
 
 ## 工作流入口
@@ -334,6 +334,8 @@
   [`hci4-reconnect121-accelerator-sampling-fail-1x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json)。
   单 lease 121 轮 PASS 证据：
   [`hci4-reconnect121-1x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-1x.json)。
+  三 lease 121 轮 PASS 聚合证据：
+  [`hci4-reconnect121-3x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-3x.json)。
   十轮首次运行的 service timeout 失败证据：
   [`hci4-reconnect10-timeout-fail.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-timeout-fail.json)。
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
@@ -445,7 +447,7 @@
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS；Zigbee `thread-sim` 仅有双向帧，join 未通过 | 原生 BT controller、C6 WiFi PHY；Zigbee/802.15.4 `RUNTIME-02` commissioning 未建模 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller；`RUNTIME-01` Flash/PMP 修复已关闭，Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT 和同 guest 多轮重连 | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `600s` `2/2`、3 个各 20、30、60、120 轮的 GATT lease 和最终 `tb-size=128` `7200s` 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | 121 轮运行、bit-exact BT controller/baseband、物理 cache/PSRAM、长时吞吐/teardown、真机同路径 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT 和同 guest 多轮重连 | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `600s` `2/2`、3 个各 20、30、60、120 轮的 GATT lease、3 个 121 轮 lease 和最终 `tb-size=128` `7200s` 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | bit-exact BT controller/baseband、物理 cache/PSRAM、长时吞吐/teardown、真机同路径 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
@@ -479,8 +481,8 @@
    runner 与 Device Service 使用同一 workload-aware 预算。第二次复跑又
    暴露 accelerator 仅由 hold loop 采样的 evidence bug；修复后单个
    artifact-bound lease 完成 `121/121`，HLI `3405/3405`、events `2316`、
-   ACLs `1089`，队列、错误、dropped 和 panic 均为 0。3 个独立 lease
-   的复现门禁仍未执行。
+   ACLs `1089`，队列、错误、dropped 和 panic 均为 0。随后另 2 个独立
+   lease 以同固件/ELF/QEMU/工具哈希完成 `121/121`，`3/3` 门禁关闭。
    第一个 10 轮
    attempt 的失败已确认是 service 30 秒硬上限，不是 guest/controller；
    修复后的失败和 PASS evidence 均保留。旧
@@ -505,9 +507,9 @@
    executor、HTTPS/mTLS、真实 QEMU job 和 unified StickS3 job over mTLS
    已实现。跨主机 QEMU executor/reattach、worker 主机自动发现与跨主机
    迁移、companion/evidence continuity、生产 secret manager/多机调度、
-   VM 隔离、CIDR/domain-set 和同 guest AAAA/denied-port/namespace cleanup
-   仍待实现；专用 UIFlow2 测试构建的 IPv6 TCP/HTTP 已 PASS，不能写成原厂
-   固件默认启用 IPv6。
+   VM 隔离和 CIDR/domain-set 仍待实现。专用 UIFlow2 测试构建已在同一
+   Linux namespace guest 内完成 controlled AAAA、IPv6 HTTP、denied-port、
+   pcap 和 cleanup；原厂固件仍默认未启用 IPv6 link-local。
 5. **通用固件兼容性**：SoC 相同不代表板级、分区、安全配置和控制器全部
    兼容。当前 C6 的软件复位 chip-id 错误已定位为 Flash 地址宽度与 PMP
    复位模型缺陷并修复；Zigbee/802.15.4 仍未建模。修复后的 Meshtastic

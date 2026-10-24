@@ -260,8 +260,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - `egress=allowlist` 的精确网络策略覆盖 IPv4/IPv6 地址、协议和端口，
   IPv6 路径包含 neighbor discovery、veth 路由与 masquerade；controlled
   resolver 支持 exact A/AAAA records。专用 UIFlow2 测试构建已在同一 guest
-  完成 IPv6 TCP/HTTP；原厂 UIFlow2 没有创建 IPv6 link-local。CIDR、域名
-  扩展和同 guest controlled AAAA/denied-port/cleanup 仍不会被当成已完成。
+  完成 IPv6 TCP/HTTP；原厂 UIFlow2 没有创建 IPv6 link-local。CIDR 和
+  domain-set 仍未完成；Linux namespace 内同一 guest 的 controlled AAAA、
+  allowed IPv6 HTTP、denied-port、pcap、cleanup 和 QEMU reap 已 PASS。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
   internal-controller 路径。规范主路径是 QEMU
   `runtime=qemu-unified/profile=core2-native-hci`。旧的
@@ -272,9 +273,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   启动 firmware/ELF/QEMU 与工具哈希无漂移。旧的 `458016 KiB` host RSS
   增长已归因到未限容 TCG translation buffer；统一改用 `tb-size=128` 后的
   最终两小时复测也 PASS，RSS `323536→252992 KiB`、phys footprint
-  `250880→188416 KiB`。单个 lease 的 121 轮 reconnect 也已 PASS；3 个
-  独立 lease 复现、bit-exact ESP32 BT baseband/controller、物理
-  cache/PSRAM 和真机同路径仍未完成。
+  `250880→188416 KiB`。3 个独立 lease 的 121 轮 reconnect 复现也已 PASS；
+  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 和真机同路径
+  仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

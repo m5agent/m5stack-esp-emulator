@@ -55,7 +55,7 @@
 `profile=core2-native-hci`；`core2-native-vhci` 只用于显式诊断。
 Core2 的长 BLE reconnect workload 使用按 cycles/delay 计算的 readiness
 预算；首次 `121` 轮运行曾被固定 `180s` 预算误杀，失败保留为等待预算证据，
-修复后单 lease `121/121` PASS；`3 × 121` 的另外两个 lease 仍待执行。
+修复后 3 个独立 lease 均为 `121/121 PASS`。
 
 ## 板级接入步骤
 

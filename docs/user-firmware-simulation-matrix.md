@@ -211,5 +211,6 @@ functional PASS.
   rerun also passes with RSS `323536→252992 KiB` and phys footprint
   `250880→188416 KiB`. Three independent
   stock-firmware leases complete 20, 30, 60 and 120 same-guest reconnect gates.
-  Bit-exact Espressif BT controller behavior, 121-cycle runtime evidence,
-  physical cache/PSRAM equivalence and hardware validation remain `NOT RUN`.
+  Bit-exact Espressif BT controller behavior, physical cache/PSRAM
+  equivalence and hardware validation remain `NOT RUN`; three independent
+  artifact-bound 121-cycle reconnect leases pass.

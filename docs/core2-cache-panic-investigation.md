@@ -166,7 +166,9 @@ attributed to the unbounded TCG translation buffer, not guest PSRAM. The final
 bounded `tb-size=128` two-hour rerun then passed all functional, asset/tool
 hash, HLI and cleanup gates; 240 resource samples ended below their starting
 RSS and physical footprint. This does not establish physical cache/PSRAM
-timing, the 121-cycle gate or hardware equivalence.
+timing or hardware equivalence. The later three-lease 121-cycle reconnect gate
+also passed and is recorded in the current status page; this historical
+investigation does not treat that functional result as a physical cache model.
 
 ## Next investigation
 
