@@ -2,7 +2,7 @@
 
 # 项目快照（自动生成）
 
-来源日期：`2026-10-25`；最新 evidence 日期：`2026-10-24`。
+来源日期：`2026-10-25`；最新 evidence 日期：`2026-10-25`。
 
 本页只汇总机器可读源和已提交 evidence，避免在多个文档手写同一组动态事实。实现结论、风险说明和验证层级仍以[项目当前状态](project-status.md)、[验证证据台账](validation-ledger.md)和 [项目 Backlog](project-backlog.md) 为准。
 
