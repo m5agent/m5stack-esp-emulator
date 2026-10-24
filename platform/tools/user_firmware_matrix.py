@@ -500,18 +500,37 @@ def error_lines(text: str) -> list[str]:
     return found
 
 
-def input_for_device(device: Mapping[str, Any]) -> dict[str, Any]:
+def inputs_for_device(device: Mapping[str, Any]) -> list[dict[str, Any]]:
     display = device.get("display")
     if isinstance(display, Mapping) and display.get("touch"):
         width = int(display.get("width") or 320)
         height = int(display.get("height") or 240)
-        return {
-            "kind": "touch",
-            "x": max(1, width // 2),
-            "y": max(1, height // 2),
-            "settle_seconds": 0.8,
-        }
-    return {"kind": "key", "key": "a", "settle_seconds": 0.8}
+        return [
+            {
+                "kind": "touch",
+                "x": max(1, width // 2),
+                "y": max(1, height // 2),
+                "settle_seconds": 0.8,
+            },
+            {
+                "kind": "touch",
+                "x": max(1, width // 4),
+                "y": max(1, height // 2),
+                "settle_seconds": 0.8,
+            },
+            {
+                "kind": "touch",
+                "x": max(1, (width * 3) // 4),
+                "y": max(1, height // 2),
+                "settle_seconds": 0.8,
+            },
+            {"kind": "key", "key": "a", "settle_seconds": 0.8},
+            {"kind": "key", "key": "ret", "settle_seconds": 0.8},
+        ]
+    return [
+        {"kind": "key", "key": "a", "settle_seconds": 0.8},
+        {"kind": "key", "key": "ret", "settle_seconds": 0.8},
+    ]
 
 
 def classify_result(
@@ -522,6 +541,7 @@ def classify_result(
     crash: bool,
     serial_bytes: int,
     boot_error: str | None,
+    input_observed: bool,
 ) -> tuple[str, str, list[str]]:
     """Classify runtime evidence without conflating firmware and model gaps."""
 
@@ -558,6 +578,12 @@ def classify_result(
                 "PARTIAL",
                 "session_not_running_after_frame",
                 ["runtime: session did not remain running"],
+            )
+        if not input_observed:
+            return (
+                "PARTIAL",
+                "no_observable_input_response",
+                ["input: no frame change or serial response after probes"],
             )
         return "PASS", "application_frame_and_runtime_ok", []
     if serial_bytes <= 0:
@@ -702,31 +728,54 @@ def execute_sample(
             except (HttpError, MatrixError) as error:
                 result["before_frame_error"] = str(error)
 
+        pre_input_serial_sha = None
+        try:
+            pre_input_logs = client.get(
+                f"sessions/{session_id}/logs?offset=0&limit=262144"
+            )
+            pre_input_serial = str(pre_input_logs.get("data") or "")
+            pre_input_serial_sha = hashlib.sha256(
+                pre_input_serial.encode("utf-8", errors="replace")
+            ).hexdigest()
+        except HttpError:
+            pre_input_serial = ""
+
         input_attempts: list[dict[str, Any]] = []
         if snapshot.get("state") == "running":
-            attempts = [input_for_device(device)]
-            if not (
-                isinstance(device.get("display"), Mapping)
-                and device["display"].get("touch")
-            ):
-                attempts.append(
-                    {"kind": "key", "key": "ret", "settle_seconds": 0.8}
-                )
-            for payload in attempts:
+            for index, payload in enumerate(inputs_for_device(device)):
+                input_result: dict[str, Any] = {"request": payload}
                 try:
                     response = client.post(
                         f"sessions/{session_id}/input",
                         payload,
                     )
-                    input_attempts.append({"request": payload, "response": response})
-                except HttpError as error:
-                    input_attempts.append(
-                        {
-                            "request": payload,
-                            "error": {"status": error.status, "message": str(error)},
+                    input_result["response"] = response
+                    time.sleep(settle_seconds)
+                    if has_screenshot:
+                        probe_path = out_dir / (
+                            f"{sample['device_id']}-{sample['firmware_id']}"
+                            f"-input-{index}.png"
+                        )
+                        probe, probe_headers = client.frame(
+                            session_id, probe_path
+                        )
+                        probe_sha = hashlib.sha256(probe).hexdigest()
+                        input_result["frame"] = {
+                            "path": str(probe_path),
+                            "sha256": probe_sha,
+                            "width": probe_headers.get("X-Frame-Width"),
+                            "height": probe_headers.get("X-Frame-Height"),
+                            **png_metrics(probe),
                         }
-                    )
-                time.sleep(settle_seconds)
+                        input_result["frame_changed_from_before"] = bool(
+                            before_sha and before_sha != probe_sha
+                        )
+                except HttpError as error:
+                    input_result["error"] = {
+                        "status": error.status,
+                        "message": str(error),
+                    }
+                input_attempts.append(input_result)
         result["inputs"] = input_attempts
 
         after_path = out_dir / f"{sample['device_id']}-{sample['firmware_id']}-after.png"
@@ -764,6 +813,20 @@ def execute_sample(
         nonblack = int((frame_info or {}).get("nonblack_pixels") or 0)
         running = final_snapshot.get("state") == "running"
         crash = bool(result["errors"])
+        frame_changed = any(
+            bool(item.get("frame_changed_from_before"))
+            for item in input_attempts
+        )
+        serial_changed = bool(
+            pre_input_serial_sha
+            and result["serial_sha256"] != pre_input_serial_sha
+        )
+        input_observed = frame_changed or serial_changed
+        result["observable_input_response"] = {
+            "frame_changed": frame_changed,
+            "serial_changed": serial_changed,
+            "observed": input_observed,
+        }
         boot_error = (
             str(snapshot["error"])
             if snapshot.get("state") == "failed" and snapshot.get("error")
@@ -776,6 +839,7 @@ def execute_sample(
             crash=crash,
             serial_bytes=int(result["serial_bytes"]),
             boot_error=boot_error,
+            input_observed=input_observed,
         )
         result["status"] = status
         result["status_reason"] = status_reason

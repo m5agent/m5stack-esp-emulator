@@ -13,7 +13,7 @@ from user_firmware_matrix import (  # noqa: E402
     baseline_name,
     classify_result,
     error_lines,
-    input_for_device,
+    inputs_for_device,
 )
 
 
@@ -57,15 +57,22 @@ class UserFirmwareMatrixTests(unittest.TestCase):
 
         self.assertEqual(len(lines), 3)
 
-    def test_input_routes_touch_and_key_devices(self):
-        touch = input_for_device(
+    def test_inputs_route_touch_and_key_devices(self):
+        touch = inputs_for_device(
             {"display": {"width": 320, "height": 240, "touch": True}}
         )
-        key = input_for_device({"display": {"width": 128, "height": 128}})
+        key = inputs_for_device({"display": {"width": 128, "height": 128}})
 
-        self.assertEqual(touch["kind"], "touch")
-        self.assertEqual((touch["x"], touch["y"]), (160, 120))
-        self.assertEqual(key, {"kind": "key", "key": "a", "settle_seconds": 0.8})
+        self.assertEqual(len(touch), 5)
+        self.assertEqual(touch[0]["kind"], "touch")
+        self.assertEqual((touch[0]["x"], touch[0]["y"]), (160, 120))
+        self.assertEqual(
+            key,
+            [
+                {"kind": "key", "key": "a", "settle_seconds": 0.8},
+                {"kind": "key", "key": "ret", "settle_seconds": 0.8},
+            ],
+        )
 
     def test_classify_result_keeps_device_service_startup_separate(self):
         status, reason, gaps = classify_result(
@@ -75,6 +82,7 @@ class UserFirmwareMatrixTests(unittest.TestCase):
             crash=False,
             serial_bytes=100,
             boot_error="QMP socket did not appear",
+            input_observed=False,
         )
 
         self.assertEqual(status, "PARTIAL")
@@ -89,6 +97,7 @@ class UserFirmwareMatrixTests(unittest.TestCase):
             crash=False,
             serial_bytes=512,
             boot_error=None,
+            input_observed=False,
         )
 
         self.assertEqual(status, "PARTIAL")
@@ -103,11 +112,42 @@ class UserFirmwareMatrixTests(unittest.TestCase):
             crash=True,
             serial_bytes=1024,
             boot_error=None,
+            input_observed=True,
         )
 
         self.assertEqual(status, "PARTIAL")
         self.assertEqual(reason, "fatal_after_application_frame")
         self.assertIn("fatal serial signature", gaps[0])
+
+    def test_classify_result_requires_observable_input_for_pass(self):
+        status, reason, gaps = classify_result(
+            has_screenshot=True,
+            nonblack=1024,
+            running=True,
+            crash=False,
+            serial_bytes=1024,
+            boot_error=None,
+            input_observed=False,
+        )
+
+        self.assertEqual(status, "PARTIAL")
+        self.assertEqual(reason, "no_observable_input_response")
+        self.assertIn("input", gaps[0])
+
+    def test_classify_result_passes_with_frame_and_input_evidence(self):
+        status, reason, gaps = classify_result(
+            has_screenshot=True,
+            nonblack=1024,
+            running=True,
+            crash=False,
+            serial_bytes=1024,
+            boot_error=None,
+            input_observed=True,
+        )
+
+        self.assertEqual(status, "PASS")
+        self.assertEqual(reason, "application_frame_and_runtime_ok")
+        self.assertEqual(gaps, [])
 
 
 if __name__ == "__main__":
