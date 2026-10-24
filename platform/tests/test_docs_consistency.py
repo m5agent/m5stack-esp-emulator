@@ -1752,7 +1752,8 @@ class DocsConsistencyTests(unittest.TestCase):
         for text in (status, backlog, workstreams, api, tls_readme):
             self.assertIn("generation", text.lower())
         self.assertIn("secret-free receipt", status)
-        self.assertIn("worker 主机自动发现", backlog)
+        self.assertIn("NAT/跨子网 discovery", backlog)
+        self.assertIn("active-token multicast discovery", backlog)
         self.assertIn(
             "--credential-generation-file",
             api,
@@ -1804,6 +1805,28 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("worker-local StickS3 QEMU", status)
         self.assertIn("worker-local QEMU", workstreams)
         self.assertIn("worker-local StickS3 QEMU", api)
+        discovery_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_discovery/"
+                "evidence-2026-10-25-discovery-rotation-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(discovery_evidence["status"], "PASS")
+        self.assertEqual(len(discovery_evidence["checks"]), 17)
+        self.assertTrue(all(discovery_evidence["checks"].values()))
+        self.assertTrue(
+            discovery_evidence["authentication"][
+                "wrong_token_worker_registered"
+            ]
+            is False
+        )
+        self.assertTrue(
+            discovery_evidence["authentication"][
+                "old_token_worker_registered"
+            ]
+            is False
+        )
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()

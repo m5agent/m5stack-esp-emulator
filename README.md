@@ -22,6 +22,9 @@ MicroPython 和其他完整 Flash 固件。
   `core2-native-vhci` 保留为诊断/兼容路径。
 - Device Service 在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络、worker job 和 evidence API。
+- Remote worker 可通过 active-token HMAC 签名的 IPv4 multicast beacon 自动
+  发现 control URL；发现只覆盖同一 multicast domain，NAT/跨子网仍需显式
+  端点或后续网络方案。
 - 固件输入覆盖 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented
   flash、WebBurner/M5Burner 包、文件系统清单、静态审查和 capability
   mismatch。

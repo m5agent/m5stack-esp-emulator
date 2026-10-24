@@ -65,6 +65,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - durable worker queue、HTTPS/mTLS、TLS/token `SIGHUP` rotation、
   active-request drain、bounded credential overlap 和 generation-pointer
   credential migration；
+- HMAC-authenticated IPv4 multicast control-plane discovery；worker 验证
+  active-token 签名后自动注册，错误/旧 token reject，token rotation 后
+  新 worker 可重新发现；beacon 不含 token；
 - 两个 veth 连接 network namespace 中的 Bearer+HMAC worker control plane，
   以及 worker namespace 内独立 Device Service 执行真实 StickS3 QEMU、
   artifact/firmware、evidence、terminal result 和 cleanup；
@@ -78,7 +81,7 @@ controlled AAAA、allowed IPv6 HTTP、denied-port、pcap、namespace cleanup
 
 当前仍未完成的网络产品化项只列在
 [项目 Backlog](project-backlog.md)，重点是 `NET-04` 跨主机 worker/QEMU
-executor、companion/evidence continuity 和 CIDR/domain-set。
+executor、companion/evidence continuity、NAT/跨子网发现和 CIDR/domain-set。
 `NET-05` 与 `NET-06` 均已完成当前 accepted virtual-device scope。
 
 ## Required test matrix
@@ -136,6 +139,7 @@ executor、companion/evidence continuity 和 CIDR/domain-set。
 - [Two-guest lab fabric](../tests/network/lab_fabric/README.md)
 - [Worker TLS/mTLS and rotation](../tests/network/worker_tls/README.md)
 - [Worker durable queue](../tests/network/worker_queue/README.md)
+- [Authenticated worker discovery](../tests/network/worker_discovery/README.md)
 - [Worker cross-network-namespace control and QEMU execution](../tests/network/worker_cross_netns/README.md)
 - [Worker QEMU/QMP reattach](../tests/network/worker_reattach/README.md)
 - [Core2 native-HCI backend](core2-native-hci-backend.md)

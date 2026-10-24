@@ -47,7 +47,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。下一步补自动主机发现/跨主机迁移、跨主机 reattach、companion/evidence continuity、生产调度 |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。active-token multicast beacon 已让 worker 无需硬编码 control URL 自动发现并注册，错误/旧 token 被拒绝。下一步补 NAT/跨子网发现、跨主机迁移、跨主机 reattach、companion/evidence continuity、生产调度 |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
@@ -55,7 +55,7 @@
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture |
-| `SVC-01` | 进行中 | companion/evidence continuity、worker 主机自动发现与跨主机 reattach |
+| `SVC-01` | 进行中 | companion/evidence continuity、NAT/跨子网 discovery 与跨主机 reattach；同一 multicast domain 的 authenticated discovery 已完成 |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 |
@@ -65,7 +65,7 @@
 
 ## 文档与测试
 
-- 平台测试：`387` 项。
+- 平台测试：`391` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

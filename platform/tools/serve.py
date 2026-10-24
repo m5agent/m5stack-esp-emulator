@@ -43,6 +43,14 @@ from worker_auth import (
     read_master_token_file,
     worker_identity_matches,
 )
+from worker_discovery import (
+    DEFAULT_DISCOVERY_GROUP,
+    DEFAULT_DISCOVERY_INTERVAL,
+    DEFAULT_DISCOVERY_PORT,
+    DEFAULT_DISCOVERY_TTL,
+    WorkerDiscoveryAnnouncer,
+    WorkerDiscoveryError,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DEVICES = ROOT / "devices"
@@ -1142,6 +1150,48 @@ def main() -> None:
         default=float(os.environ.get("M5_WORKER_STALE_AFTER", "15")),
     )
     parser.add_argument(
+        "--worker-discovery-group",
+        default=os.environ.get(
+            "M5_WORKER_DISCOVERY_GROUP",
+            DEFAULT_DISCOVERY_GROUP,
+        ),
+    )
+    parser.add_argument(
+        "--worker-discovery-port",
+        type=int,
+        default=int(
+            os.environ.get(
+                "M5_WORKER_DISCOVERY_PORT",
+                str(DEFAULT_DISCOVERY_PORT),
+            )
+        ),
+    )
+    parser.add_argument(
+        "--worker-discovery-advertise-url",
+        default=os.environ.get("M5_WORKER_DISCOVERY_ADVERTISE_URL"),
+        help="HTTP(S) control-plane URL advertised to workers",
+    )
+    parser.add_argument(
+        "--worker-discovery-interval",
+        type=float,
+        default=float(
+            os.environ.get(
+                "M5_WORKER_DISCOVERY_INTERVAL",
+                str(DEFAULT_DISCOVERY_INTERVAL),
+            )
+        ),
+    )
+    parser.add_argument(
+        "--worker-discovery-ttl",
+        type=float,
+        default=float(
+            os.environ.get(
+                "M5_WORKER_DISCOVERY_TTL",
+                str(DEFAULT_DISCOVERY_TTL),
+            )
+        ),
+    )
+    parser.add_argument(
         "--security-reload-drain-timeout",
         type=float,
         default=float(
@@ -1170,6 +1220,13 @@ def main() -> None:
         )
     if args.security_reload_drain_timeout <= 0:
         parser.error("--security-reload-drain-timeout must be positive")
+    if args.worker_discovery_interval <= 0:
+        parser.error("--worker-discovery-interval must be positive")
+    if args.worker_discovery_ttl <= args.worker_discovery_interval:
+        parser.error(
+            "--worker-discovery-ttl must be longer than "
+            "--worker-discovery-interval"
+        )
 
     def load_api_token() -> str | None:
         if args.api_token_file is None:
@@ -1255,6 +1312,27 @@ def main() -> None:
         reload_callback=reload_security if needs_reload else None,
         reload_drain_timeout=args.security_reload_drain_timeout,
     )
+    discovery_announcer = None
+    if args.worker_discovery_advertise_url:
+        if not initial_api_token:
+            service.close_all()
+            server.server_close()
+            parser.error(
+                "--worker-discovery-advertise-url requires an active API token"
+            )
+        try:
+            discovery_announcer = WorkerDiscoveryAnnouncer(
+                lambda: Handler.api_token,
+                args.worker_discovery_advertise_url,
+                group=args.worker_discovery_group,
+                port=args.worker_discovery_port,
+                interval=args.worker_discovery_interval,
+                ttl_seconds=args.worker_discovery_ttl,
+            )
+        except WorkerDiscoveryError as error:
+            service.close_all()
+            server.server_close()
+            parser.error(str(error))
     scheme = "https" if tls_context is not None else "http"
     print(
         "M5Stack simulated devices: "
@@ -1278,6 +1356,13 @@ def main() -> None:
     )
     if args.tls_client_ca is not None:
         print("TLS client certificate authentication: required")
+    if discovery_announcer is not None:
+        discovery_announcer.start()
+        print(
+            "Worker discovery: "
+            f"{args.worker_discovery_group}:{args.worker_discovery_port} "
+            f"-> {discovery_announcer.service_url}"
+        )
     if needs_reload:
         print("Security configuration reload: SIGHUP")
     if hasattr(signal, "SIGHUP"):
@@ -1290,6 +1375,8 @@ def main() -> None:
     except KeyboardInterrupt:
         pass
     finally:
+        if discovery_announcer is not None:
+            discovery_announcer.close()
         service.close_all()
         server.server_close()
 

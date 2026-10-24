@@ -148,6 +148,7 @@
 - [远程 durable job queue 与 lease supervisor](../tests/network/worker_queue/README.md)
 - [HTTP-only worker executor](../tests/network/worker_executor/README.md)
 - [Worker HTTPS/mTLS transport](../tests/network/worker_tls/README.md)
+- [Authenticated worker discovery](../tests/network/worker_discovery/README.md)
 - [本地 QEMU PID/QMP restart re-attach](../tests/network/worker_reattach/README.md)
 - [Cross-network-namespace worker control plane](../tests/network/worker_cross_netns/README.md)
 - [Core2 stock VHCI BLE](../tests/uiflow2/core2_native_vhci/README.md)

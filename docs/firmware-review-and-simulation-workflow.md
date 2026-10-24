@@ -448,8 +448,9 @@ Manifest 和脱敏静态审查，Device Service 功能执行仍是 `NOT RUN`。
 
 1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
    LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
-2. worker 主机自动发现/跨主机迁移、跨主机 QEMU job
-   executor/reattach 和生产调度；本地 worker heartbeat/drain、远程目录、
+2. NAT/跨子网 discovery、跨主机迁移、跨主机 QEMU job executor/reattach
+   和生产调度；同一 multicast domain 的 authenticated discovery、本地
+   worker heartbeat/drain、远程目录、
    durable queue/lease supervisor、HTTPS/mTLS、SIGHUP TLS/token
    rotation + activity drain + bounded overlap、同主机 authenticated
    executor、GitHub-hosted Linux

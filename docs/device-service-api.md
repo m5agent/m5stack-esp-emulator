@@ -283,8 +283,10 @@ the service A-to-B overlap, then atomically replace one generation pointer;
 each worker reloads on its next request and writes a secret-free receipt
 without receiving `SIGHUP`. A separate Linux fixture covers both the no-QEMU
 control-plane compatibility path and a worker-local real StickS3 QEMU
-execution path. Cross-host QEMU jobs, automatic worker-host discovery,
-cross-host re-attach and companion continuity remain open.
+execution path. A worker can discover the control URL from an active-token
+IPv4 multicast beacon within one multicast domain. Cross-subnet/NAT discovery,
+cross-host QEMU jobs, cross-host re-attach and companion continuity remain
+open.
 
 `worker_agent.py --advertise-endpoint` stores an externally reachable HTTP(S)
 worker endpoint in the registration record. The worker directory rejects

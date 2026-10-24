@@ -27,6 +27,12 @@ from worker_auth import (
     read_master_token_file,
     sign_worker_request,
 )
+from worker_discovery import (
+    DEFAULT_DISCOVERY_GROUP,
+    DEFAULT_DISCOVERY_PORT,
+    WorkerDiscoveryError,
+    discover_service,
+)
 
 WORKER_AGENT_STATE_VERSION = 1
 DEFAULT_EVIDENCE_INCLUDE = (
@@ -711,7 +717,36 @@ class WorkerAgent:
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--service-url", default="http://127.0.0.1:8787")
+    parser.add_argument("--service-url")
+    parser.add_argument(
+        "--discover-control",
+        action="store_true",
+        help="discover the central control URL from an authenticated multicast beacon",
+    )
+    parser.add_argument(
+        "--discover-control-group",
+        default=os.environ.get(
+            "M5_WORKER_DISCOVERY_GROUP",
+            DEFAULT_DISCOVERY_GROUP,
+        ),
+    )
+    parser.add_argument(
+        "--discover-control-port",
+        type=int,
+        default=int(
+            os.environ.get(
+                "M5_WORKER_DISCOVERY_PORT",
+                str(DEFAULT_DISCOVERY_PORT),
+            )
+        ),
+    )
+    parser.add_argument(
+        "--discover-control-timeout",
+        type=float,
+        default=float(
+            os.environ.get("M5_WORKER_DISCOVERY_TIMEOUT", "15")
+        ),
+    )
     parser.add_argument(
         "--runtime-service-url",
         default=os.environ.get("M5_RUNTIME_SERVICE_URL"),
@@ -806,17 +841,17 @@ def parse_arguments() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_arguments()
-    requested_runtime_url = (
-        args.runtime_service_url.rstrip("/")
-        if args.runtime_service_url
-        else args.service_url.rstrip("/")
-    )
-    control_scheme = args.service_url.split("://", 1)[0]
-    runtime_scheme = requested_runtime_url.split("://", 1)[0]
-    if control_scheme != runtime_scheme:
+    if args.service_url and args.discover_control:
         raise SystemExit(
-            "control and runtime service URLs must use the same scheme"
+            "--service-url and --discover-control are mutually exclusive"
         )
+    if args.discover_control_timeout <= 0:
+        raise SystemExit("--discover-control-timeout must be positive")
+    resolved_service_url = (
+        args.service_url.rstrip("/")
+        if args.service_url
+        else "http://127.0.0.1:8787"
+    )
     if args.advertise_endpoint is not None and not (
         args.advertise_endpoint.startswith("https://")
         or args.advertise_endpoint.startswith("http://")
@@ -901,17 +936,17 @@ def main() -> int:
         runtime_service_url = (
             args.runtime_service_url.rstrip("/")
             if args.runtime_service_url
-            else args.service_url.rstrip("/")
+            else resolved_service_url
         )
         tls_required = (
-            args.service_url.startswith("https://")
+            resolved_service_url.startswith("https://")
             or runtime_service_url.startswith("https://")
             or any(value is not None for value in tls_options)
         )
         if not tls_required:
             return None
         if not (
-            args.service_url.startswith("https://")
+            resolved_service_url.startswith("https://")
             or runtime_service_url.startswith("https://")
         ):
             raise SystemExit("TLS options require an https:// service URL")
@@ -944,14 +979,44 @@ def main() -> int:
             "--credential-receipt-dir requires --credential-generation-file"
         )
     token = load_token()
+    if args.discover_control:
+        if not token:
+            raise SystemExit(
+                "--discover-control requires an API token or token file"
+            )
+        try:
+            beacon = discover_service(
+                token,
+                group=args.discover_control_group,
+                port=args.discover_control_port,
+                timeout=args.discover_control_timeout,
+            )
+        except WorkerDiscoveryError as error:
+            raise SystemExit(str(error)) from error
+        resolved_service_url = str(beacon["service_url"]).rstrip("/")
+        log_worker_event(
+            "worker control service discovered: "
+            f"{resolved_service_url}"
+        )
+    requested_runtime_url = (
+        args.runtime_service_url.rstrip("/")
+        if args.runtime_service_url
+        else resolved_service_url
+    )
+    control_scheme = resolved_service_url.split("://", 1)[0]
+    runtime_scheme = requested_runtime_url.split("://", 1)[0]
+    if control_scheme != runtime_scheme:
+        raise SystemExit(
+            "control and runtime service URLs must use the same scheme"
+        )
     ssl_context = load_ssl_context()
     identity = initialize_identity(args.work_dir, args.worker_id)
     api = Api(
-        args.service_url,
+        resolved_service_url,
         token,
         ssl_context=(
             ssl_context
-            if args.service_url.startswith("https://")
+            if resolved_service_url.startswith("https://")
             else None
         ),
     )

@@ -75,6 +75,12 @@ jobs:
             "PYTHONPATH=$GITHUB_WORKSPACE/platform/tools" \
             python3 tests/network/worker_cross_netns/run_test.py \
             --out-dir /tmp/m5-worker-cross-netns
+      - name: Validate authenticated worker discovery and token rotation
+        env:
+          PYTHONPATH: platform/tools
+        run: |
+          python3 tests/network/worker_discovery/run_test.py \
+            --out-dir /tmp/m5-worker-discovery
       - name: Preserve network evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -84,4 +90,5 @@ jobs:
             /tmp/m5-egress-allowlist
             /tmp/m5-lab-fabric
             /tmp/m5-worker-cross-netns
+            /tmp/m5-worker-discovery
           if-no-files-found: warn

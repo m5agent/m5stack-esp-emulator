@@ -54,6 +54,12 @@ This is worker control-plane validation, not cross-host QEMU execution.
 `worker_agent.py` now has a separately configurable runtime service API, but
 the default invocation still submits a no-QEMU job.
 
+Authenticated automatic control-plane discovery is covered separately by
+[`worker_discovery`](../worker_discovery/README.md): a real worker verifies an
+active-token multicast beacon, registers without a hard-coded service URL, and
+rejects wrong and pre-rotation tokens. That result is scoped to one multicast
+domain and does not prove NAT/cross-subnet forwarding.
+
 The execution-plane mode starts a second Device Service in the worker
 namespace and runs a real StickS3 QEMU session there:
 
@@ -71,5 +77,7 @@ path supplied by `--qemu-path`; when omitted, the executable path is resolved
 from `tests/uiflow2/device_matrix.json`. `--qemu-path` also sets
 `M5_QEMU_XTENSA` for the worker-local service. This mode validates separate
 network namespaces on one host. It does not claim physically separate hosts,
-automatic worker-host discovery, companion/evidence-stream continuity,
-cross-host process re-attach or production multi-host scheduling.
+NAT/cross-subnet discovery, companion/evidence-stream continuity, cross-host
+process re-attach or production multi-host scheduling. Same-domain
+authenticated discovery has separate evidence in
+[`worker_discovery`](../worker_discovery/README.md).

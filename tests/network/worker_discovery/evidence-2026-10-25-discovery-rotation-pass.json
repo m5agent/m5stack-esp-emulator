@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-discovery-live",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "virtual-control-plane-not-hardware",
+  "discovery": {
+    "group": "239.255.77.77",
+    "port": "<ephemeral>",
+    "service_url": "<runtime-host>:<ephemeral-port>",
+    "initial_token_sha256": "640fbdcb3a2f27c69056086cd9fa6a013b1adc8da2ef2fda8457d890fc415a79",
+    "rotated_token_sha256": "e1fc1458614eb94cc7efef4fe6a126250af81a1e58402d123b16cb98a60a4948"
+  },
+  "worker": {
+    "worker_id": "discovered-bootstrap-worker",
+    "returncode": 0,
+    "state": "stopped",
+    "generation": 1
+  },
+  "authentication": {
+    "wrong_token_returncode": 1,
+    "wrong_token_worker_registered": false,
+    "wrong_token_error": "invalid discovery signature",
+    "rotation_sighup": "PASS",
+    "rotated_worker": {
+      "returncode": 0,
+      "state": "stopped",
+      "generation": 1
+    },
+    "old_token_returncode": 1,
+    "old_token_worker_registered": false,
+    "old_token_error": "invalid discovery signature"
+  },
+  "checks": {
+    "service_healthy": true,
+    "worker_discovered_control_url": true,
+    "worker_exit_zero": true,
+    "worker_registered": true,
+    "worker_stopped": true,
+    "worker_generation_positive": true,
+    "wrong_token_worker_rejected": true,
+    "wrong_token_worker_not_registered": true,
+    "rotated_worker_discovered": true,
+    "rotated_worker_registered": true,
+    "old_token_worker_rejected": true,
+    "old_token_worker_not_registered": true,
+    "token_absent_from_service_log": true,
+    "token_absent_from_worker_log": true,
+    "wrong_token_absent": true,
+    "rotated_token_absent": true,
+    "no_device_session_created": true
+  },
+  "not_claimed": [
+    "QEMU execution through the discovered control plane",
+    "NAT or cross-subnet multicast forwarding",
+    "production multi-host scheduling",
+    "physical hardware validation"
+  ]
+}

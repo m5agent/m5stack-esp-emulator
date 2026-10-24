@@ -80,7 +80,8 @@ Not implemented yet:
 
 - prestarted warm QEMU instances;
 - companion HTTP/BLE helper and evidence-stream continuity across restart;
-- automatic worker-host discovery, cross-host credential migration, cross-host
+- worker control-plane discovery within one multicast domain is implemented;
+  NAT/cross-subnet discovery, cross-host credential migration, cross-host
   QEMU execution/re-attach, and production multi-host capacity scheduling;
 - CIDR/domain-set allowlisting;
 - production worker integration and replay storage for the two-guest lab fabric;
@@ -304,9 +305,30 @@ worker-local QEMU execution across server/worker network namespaces, and
 verified local QEMU/QMP restart re-attach, HTTPS/mTLS and same-host `SIGHUP`
 TLS/token rotation with active-request draining exist; bounded old/new
 credentials, manual staged migration and a two-worker atomic-generation
-pointer migration with secret-free receipts are implemented; automatic worker
-host discovery, cross-host QEMU execution, companion/evidence continuity,
+pointer migration with secret-free receipts are implemented; authenticated
+multicast discovery and worker bootstrap without a hard-coded control URL are
+implemented within one multicast domain. Cross-subnet/NAT discovery,
+cross-host QEMU execution, companion/evidence continuity,
 cross-host re-attach and multi-host scheduling remain open.
+
+Discovery requires an active API token and an explicitly advertised externally
+reachable control-plane URL:
+
+```bash
+python3 platform/tools/serve.py 8787 \
+  --api-token-file /secure/service.token \
+  --worker-discovery-advertise-url https://control.example:8787
+
+python3 platform/tools/worker_agent.py \
+  --discover-control \
+  --token-file /secure/service.token \
+  --ca-file /secure/control-ca.pem
+```
+
+The beacon contains no token. Its HMAC authenticates the advertised URL and
+TTL; TLS/mTLS still validates transport identity. The active token is used, so
+beacons follow successful `SIGHUP` rotation. IPv4 multicast is intentionally
+limited to one discovery domain and does not traverse arbitrary NAT/subnets.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
@@ -331,7 +353,7 @@ cross-host re-attach and multi-host scheduling remain open.
   path/body identity binding;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- automatic worker-host discovery, cross-host credential migration, a real
+- NAT/cross-subnet worker discovery, cross-host credential migration, a real
   cross-host QEMU execution fixture, companion
   HTTP/BLE/evidence continuity, cross-host re-attach and production capacity
   scheduling remain open.
