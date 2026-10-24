@@ -1,4 +1,4 @@
-# Cross-network-namespace worker control plane
+# Cross-network-namespace worker control and execution
 
 Last reviewed: `2026-10-25`
 
@@ -31,6 +31,17 @@ Endpoint advertisement is covered separately by
 the central directory returned the registered worker endpoint and all 14
 control-plane checks passed.
 
+The worker-local execution path was then run with a Linux arm64 QEMU build in
+[`evidence-2026-10-25-worker-local-qemu-cross-netns-pass.json`](evidence-2026-10-25-worker-local-qemu-cross-netns-pass.json):
+all 18 checks passed. The worker namespace owned an independent Device
+Service, uploaded and normalized a StickS3 image, created a real QEMU session,
+and returned manifest/serial/QOM evidence to a central durable job. The
+result binds source firmware, normalized artifact and QEMU SHA256, reaches
+terminal `completed/PASS`, keeps the API token out of logs, and reaps QEMU and
+both namespaces. The test also covers the `argv[0]`-based process check so a
+host command containing `qemu-system-xtensa` as an argument is not mistaken
+for a live emulator.
+
 Run as Linux root with `CAP_NET_ADMIN` and `CAP_SYS_ADMIN`:
 
 ```bash
@@ -43,23 +54,22 @@ This is worker control-plane validation, not cross-host QEMU execution.
 `worker_agent.py` now has a separately configurable runtime service API, but
 the default invocation still submits a no-QEMU job.
 
-The prepared execution-plane mode starts a second Device Service in the worker
+The execution-plane mode starts a second Device Service in the worker
 namespace and runs a real StickS3 QEMU session there:
 
 ```bash
 PYTHONPATH=platform/tools python3 \
   tests/network/worker_cross_netns/run_test.py \
   --qemu \
+  --qemu-path /path/to/linux/qemu-system-xtensa \
   --firmware /path/to/sticks3-full.bin \
   --out-dir /tmp/m5-worker-cross-netns-qemu
 ```
 
 The runtime must be a Linux QEMU build with the M5Stack StickS3 machine at the
-repository's registered runtime path. The fixture checks that the central
-service does not receive session calls, the worker-local service starts QEMU,
-evidence binds the source firmware, normalized artifact and QEMU SHA256,
-manifest/serial data is present, token redaction holds, QEMU is reaped and both
-namespaces are removed. This mode has not yet been executed after the API
-split. It validates separate network namespaces on one host, not physically
-separate hosts, companion/evidence-stream continuity, cross-host process
-re-attach or production multi-host scheduling.
+path supplied by `--qemu-path`; when omitted, the executable path is resolved
+from `tests/uiflow2/device_matrix.json`. `--qemu-path` also sets
+`M5_QEMU_XTENSA` for the worker-local service. This mode validates separate
+network namespaces on one host. It does not claim physically separate hosts,
+automatic worker-host discovery, companion/evidence-stream continuity,
+cross-host process re-attach or production multi-host scheduling.

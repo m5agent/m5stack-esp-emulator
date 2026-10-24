@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-cross-network-namespace",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "scope": "worker-local-qemu-across-network-namespaces-not-physical-hardware",
+  "environment": {
+    "platform": "privileged Linux arm64 container",
+    "namespaces": [
+      "central-control",
+      "worker-runtime"
+    ],
+    "link": "veth"
+  },
+  "checks": {
+    "worker_exit_zero": true,
+    "server_terminated_after_test": true,
+    "runtime_service_started": true,
+    "worker_route_uses_veth": true,
+    "registration_recorded": true,
+    "job_submitted": true,
+    "worker_job_heartbeat": true,
+    "terminal_pass": true,
+    "worker_local_execution": true,
+    "worker_local_qemu_started": true,
+    "worker_local_device_session_created": true,
+    "worker_local_evidence": true,
+    "firmware_sha256_present": true,
+    "firmware_source_sha256_present": true,
+    "qemu_sha256_present": true,
+    "qemu_reaped": true,
+    "namespaces_cleaned": true,
+    "api_token_not_logged": true
+  },
+  "artifacts": {
+    "firmware_source_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+    "firmware_normalized_sha256": "a5d027f6d2953edb9ece45cddea1490112d8e421ba563edc6e7c71cf7ac4f6ec",
+    "qemu_sha256": "f024f034d20bd5b8e2c224ce69deed70984b0514f8a310d221b388b74c179ecb",
+    "evidence_names": [
+      "manifest.json",
+      "serial.log",
+      "serial1.log",
+      "qemu.stdout",
+      "qemu.stderr",
+      "qom/snapshot.json"
+    ]
+  },
+  "result": {
+    "execution_plane": "worker-local",
+    "job_claimed": true,
+    "lease_observed": true,
+    "request_sha256_present": true,
+    "result_evidence_sha256_present": true,
+    "terminal": "completed"
+  },
+  "not_claimed": [
+    "cross-host QEMU execution",
+    "companion or evidence-stream continuity",
+    "cross-host process re-attach",
+    "automatic worker-host discovery",
+    "multi-host production scheduling",
+    "physical hardware"
+  ]
+}

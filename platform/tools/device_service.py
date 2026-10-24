@@ -1553,7 +1553,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
             )
             service_kind = "qemu"
             qemu = (
-                ROOT / backend["qemu"]
+                backend_qemu_path(row["backend"], backend["qemu"])
                 if backend.get("qemu")
                 else ROOT / "__missing_qemu__"
             )
@@ -2123,6 +2123,17 @@ class ArtifactStore:
             self._data(artifact_id).unlink(missing_ok=True)
             self._meta(artifact_id).unlink(missing_ok=True)
         return {"artifact_id": artifact_id, "deleted": True, "record": record}
+
+
+def backend_qemu_path(backend_id: str, configured: str) -> Path:
+    override_name = {
+        "qemu-esp32s3": "M5_QEMU_XTENSA",
+        "qemu-esp32lx6": "M5_QEMU_XTENSA",
+        "qemu-esp32c6": "M5_QEMU_RISCV32",
+    }.get(backend_id)
+    raw = os.environ.get(override_name, "").strip() if override_name else ""
+    path = Path(raw) if raw else ROOT / configured
+    return path if path.is_absolute() else ROOT / path
 
 
 class FirmwareStore:

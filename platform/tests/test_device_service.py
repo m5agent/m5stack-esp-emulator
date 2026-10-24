@@ -306,6 +306,22 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "docs/deployment.md",
         )
 
+    def test_backend_qemu_can_use_architecture_runtime_overrides(self):
+        xtensa_override = Path("/opt/m5-qemu/qemu-system-xtensa")
+        riscv_override = Path("/opt/m5-qemu/qemu-system-riscv32")
+        with mock.patch.dict(
+            os.environ,
+            {
+                "M5_QEMU_XTENSA": str(xtensa_override),
+                "M5_QEMU_RISCV32": str(riscv_override),
+            },
+        ):
+            specs = device_service_module.load_device_specs()
+
+        self.assertEqual(specs["sticks3"].qemu, xtensa_override)
+        self.assertEqual(specs["core2"].qemu, xtensa_override)
+        self.assertEqual(specs["nanoc6"].qemu, riscv_override)
+
     def test_merged_firmware_is_padded_to_device_flash(self):
         artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)
         firmware = self.service.create_firmware(

@@ -6,7 +6,9 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import secrets
+import shlex
 import socket
 import subprocess
 import sys
@@ -21,6 +23,13 @@ SERVE = ROOT / "platform/tools/serve.py"
 TOOLS = ROOT / "platform/tools"
 SERVER_ADDRESS = "10.252.0.1"
 WORKER_ADDRESS = "10.252.0.2"
+
+
+def redact_diagnostic(text: str, token: str) -> str:
+    text = text.replace(token, "<redacted>")
+    text = re.sub(r"\bjob-[0-9a-f]+\b", "<job-id>", text)
+    text = re.sub(r"\b[0-9a-f]{32}\b", "<ephemeral-id>", text)
+    return text.replace("127.0.0.1", "<runtime-host>")
 
 
 def free_port() -> int:
@@ -202,14 +211,29 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def qemu_process_lines(process_listing: str) -> list[str]:
+    processes = []
+    for line in process_listing.splitlines():
+        fields = line.strip().split(maxsplit=1)
+        if len(fields) != 2 or not fields[0].isdigit():
+            continue
+        try:
+            argv = shlex.split(fields[1])
+        except ValueError:
+            continue
+        if argv and Path(argv[0]).name.startswith("qemu-system-"):
+            processes.append(line)
+    return processes
+
+
 def registered_qemu_path(device_id: str = "sticks3") -> Path:
-    profiles = json.loads((ROOT / "platform/qemu/profiles.json").read_text())
+    matrix = json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())
     profile = next(
         device
-        for device in profiles["devices"]
+        for device in matrix["devices"]
         if device.get("id") == device_id
     )
-    backend = profiles["backends"][profile["backend"]]
+    backend = matrix["backends"][profile["backend"]]
     qemu = backend.get("qemu")
     if not isinstance(qemu, str):
         raise RuntimeError(f"{device_id} backend has no registered QEMU path")
@@ -223,6 +247,7 @@ def worker_qemu_probe(
     runtime_service_url: str,
     firmware: Path,
     runtime: str,
+    qemu_path: Path | None = None,
 ) -> int:
     from worker_agent import Api, WorkerAgent, initialize_identity
 
@@ -251,7 +276,7 @@ def worker_qemu_probe(
             "artifact_id": artifact["artifact_id"],
         },
     )
-    qemu_path = registered_qemu_path()
+    qemu_path = qemu_path or registered_qemu_path()
     qemu_sha256 = file_sha256(qemu_path)
 
     identity = initialize_identity(work_dir, "cross-netns-qemu-worker")
@@ -299,6 +324,9 @@ def worker_qemu_probe(
     payload = {
         "registration": identity,
         "job_submitted": job["job_id"],
+        "job_claimed": job["job_id"],
+        "lease_observed": True,
+        "request_sha256": terminal.get("request_sha256"),
         "terminal": terminal.get("status"),
         "result": result,
         "execution_plane": result.get("summary", {}).get("execution_plane"),
@@ -457,6 +485,7 @@ def main() -> int:
     parser.add_argument("--firmware", type=Path)
     parser.add_argument("--runtime", default="qemu")
     parser.add_argument("--qemu", action="store_true")
+    parser.add_argument("--qemu-path", type=Path)
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--worker-result", type=Path)
     args = parser.parse_args()
@@ -483,6 +512,7 @@ def main() -> int:
                 args.runtime_service_url,
                 args.firmware.resolve(),
                 args.runtime,
+                args.qemu_path.resolve() if args.qemu_path else None,
             )
         return worker_probe(
             args.work_dir.resolve(),
@@ -532,6 +562,18 @@ def main() -> int:
     try:
         with fabric:
             environment = os.environ.copy()
+            if args.qemu:
+                # The worker-local service receives an already merged full
+                # image. Avoid a host-architecture-specific esp-emu preparer.
+                environment["M5_SERVICE_FLASH_MODE"] = "host-image"
+                qemu_path = (
+                    args.qemu_path.resolve()
+                    if args.qemu_path
+                    else registered_qemu_path()
+                )
+                if not qemu_path.is_file():
+                    raise RuntimeError(f"Linux QEMU does not exist: {qemu_path}")
+                environment["M5_QEMU_XTENSA"] = str(qemu_path)
             environment["M5_SERVICE_API_TOKEN"] = token
             server = subprocess.Popen(
                 [
@@ -615,6 +657,12 @@ def main() -> int:
                             str(args.firmware.resolve()),
                             "--runtime",
                             args.runtime,
+                            "--qemu-path",
+                            str(
+                                args.qemu_path.resolve()
+                                if args.qemu_path
+                                else registered_qemu_path()
+                            ),
                         ]
                         if args.qemu
                         else []
@@ -637,6 +685,16 @@ def main() -> int:
                 json.loads(worker_result_path.read_text())
                 if worker_result_path.is_file()
                 else {}
+            )
+            (out / "worker-result.json").write_text(
+                json.dumps(
+                    json.loads(
+                        json.dumps(worker_result).replace(token, "<redacted>")
+                    ),
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
             )
             routes = run(
                 [
@@ -671,10 +729,23 @@ def main() -> int:
         runtime_stdout_path.read_text(errors="replace")
         + runtime_stderr_path.read_text(errors="replace")
     )
-    qemu_processes = run(
-        ["ps", "-eo", "pid=,command="],
-        check=False,
-    ).stdout
+    logs_dir = out / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    for name, text in (
+        ("server.log", server_log),
+        ("worker.log", worker_log),
+        ("runtime.log", runtime_log),
+    ):
+        (logs_dir / name).write_text(
+            redact_diagnostic(text, token),
+            encoding="utf-8",
+        )
+    active_qemu_processes = qemu_process_lines(
+        run(
+            ["ps", "-eo", "pid=,args="],
+            check=False,
+        ).stdout
+    )
     worker_exit_zero = worker is not None and worker.returncode == 0
     if args.qemu:
         job_result = worker_result.get("result")
@@ -720,7 +791,7 @@ def main() -> int:
                 isinstance(worker_result.get("qemu_sha256"), str)
                 and len(worker_result["qemu_sha256"]) == 64
             ),
-            "qemu_reaped": "qemu-system-xtensa" not in qemu_processes,
+            "qemu_reaped": not active_qemu_processes,
         }
     else:
         checks = {
@@ -784,12 +855,12 @@ def main() -> int:
                 worker_result.get("registration", {}).get("instance_id")
             ),
             "job_id_present": bool(worker_result.get("job_claimed")),
-            "lease_id_present": bool(worker_result.get("lease_id")),
+            "lease_observed": worker_result.get("lease_observed") is True,
             "request_sha256_present": bool(
                 worker_result.get("request_sha256")
             ),
             "result_evidence_sha256_present": bool(
-                worker_result.get("evidence_sha256")
+                worker_result.get("result", {}).get("evidence_sha256")
             ),
             "terminal": worker_result.get("terminal"),
             "execution_plane": worker_result.get("execution_plane"),
@@ -804,6 +875,23 @@ def main() -> int:
             ),
         },
         "route": {"server_reachable": SERVER_ADDRESS in routes.stdout},
+        "diagnostics": {
+            "worker_exit_code": worker.returncode if worker is not None else None,
+            "runtime_exit_code": (
+                runtime_service.returncode
+                if runtime_service is not None
+                else None
+            ),
+            "server_exit_code": server.returncode if server is not None else None,
+            "worker_error": worker_result.get("error"),
+            "job_error": (
+                worker_result["result"].get("error")
+                if isinstance(worker_result.get("result"), dict)
+                else None
+            ),
+            "worker_log_tail": redact_diagnostic(worker_log, token)[-4000:],
+            "runtime_log_tail": redact_diagnostic(runtime_log, token)[-4000:],
+        },
         "not_claimed": [
             *(
                 []
