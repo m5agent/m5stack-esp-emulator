@@ -772,9 +772,12 @@ HTTP endpoint automatically. Profiles without one require explicit
 sandbox creates a private mount namespace, binds a temporary resolver
 configuration only into the QEMU process tree, and serves allowlisted names
 from the controlled resolver while returning NXDOMAIN for other names.
-`allowed_hosts` is therefore required for `dns=controlled`; it controls DNS A
-records and the HTTP gateway's `Host` decision, while `allowed_endpoints`
-controls the actual network destination.
+`allowed_hosts` is therefore required for `dns=controlled`; it controls the
+HTTP gateway's `Host` decision and the current IPv4 resolver path, while
+`allowed_endpoints` controls the actual network destination. The resolver core
+also accepts exact A/AAAA records, but the Device Service's controlled HTTP
+fixture still exposes only its existing IPv4 path. An ESP firmware guest
+completing IPv6 DNS/HTTP remains `NET-06`.
 
 The Linux worker must provide root or equivalent `NET_ADMIN`/`SYS_ADMIN`
 capabilities, `nftables`, and `iproute2`. External IPv4 endpoints require

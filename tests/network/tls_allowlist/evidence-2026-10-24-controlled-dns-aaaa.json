@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-controlled-dns-a-aaaa",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "resolver-data-plane-not-firmware-guest-or-hardware",
+  "environment": {
+    "platform": "macOS test host",
+    "resolver_transport": "UDP",
+    "isolated_sandbox": true
+  },
+  "checks": {
+    "allowlisted_name_a_query_answered": true,
+    "allowlisted_name_aaaa_query_answered": true,
+    "aaaa_record_type_is_28": true,
+    "aaaa_payload_matches_configured_address": true,
+    "unknown_name_returns_nxdomain": true,
+    "decision_log_records_a_and_aaaa": true,
+    "unspecified_address_rejected": true,
+    "multicast_address_rejected": true,
+    "invalid_address_rejected": true,
+    "oversized_record_list_rejected": true
+  },
+  "records": {
+    "name": "allowed.lab.test",
+    "a": "<fixture-ipv4>",
+    "aaaa": "2001:db8:6d35::53"
+  },
+  "request_log": [
+    {
+      "qtype": 1,
+      "decision": "allow",
+      "status": "A"
+    },
+    {
+      "qtype": 28,
+      "decision": "allow",
+      "status": "AAAA"
+    },
+    {
+      "qtype": 1,
+      "decision": "deny",
+      "status": "NXDOMAIN"
+    }
+  ],
+  "not_claimed": [
+    "ESP firmware guest IPv6 DNS",
+    "ESP firmware guest IPv6 TCP or HTTP",
+    "public IPv6 reachability",
+    "physical hardware or RF",
+    "DNS rebinding or malicious resolver safety"
+  ]
+}

@@ -76,7 +76,7 @@ Not implemented yet:
 - companion HTTP/BLE helper and evidence-stream continuity across restart;
 - automatic worker-host discovery, cross-host credential migration, cross-host
   QEMU execution/re-attach, and production multi-host capacity scheduling;
-- CIDR/domain-set allowlisting and IPv6 DNS/AAAA policy;
+- CIDR/domain-set allowlisting and same-guest firmware IPv6 DNS/HTTP closure;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.

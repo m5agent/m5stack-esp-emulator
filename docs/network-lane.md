@@ -107,7 +107,9 @@ TLS 测试 CA 和 Host allowlist 的独立 fixture 位于
 它已在 trusted-host 和 Linux arm64 private namespace 下覆盖测试 CA 生成、
 HTTPS gateway、Host 允许 200 / 拒绝 403、请求决策日志和 pcap 断言；
 namespace 运行还通过 private mount namespace 安装 controlled DNS，对允许
-域名返回 A，对拒绝域名和后台 UIFlow/NTP 域名返回 NXDOMAIN。`0027` QEMU
+域名返回 exact A/AAAA，对拒绝域名和后台 UIFlow/NTP 域名返回 NXDOMAIN。
+当前 AAAA 验证到同一隔离路径的 resolver 数据面；ESP firmware guest 的
+IPv6 DNS/HTTP 仍需同 guest 验证。`0027` QEMU
 patch 修复了 AES/GDMA 访问外部内存时的读失败。Host allowlist 与网络
 destination policy 分开记录；精确 IPv4/IPv6 地址、协议和端口由
 `tests/network/egress_allowlist/` 的双栈 veth/NAT 与 nftables 路径验证。

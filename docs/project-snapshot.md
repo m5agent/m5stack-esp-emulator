@@ -47,6 +47,7 @@
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
 | `NET-04` | 进行中 | 自动主机发现/跨主机 worker 迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 |
+| `NET-06` | 进行中 | controlled resolver A/AAAA 与 Device Service IPv6 forwarding 预检已实现；下一步让同一 UIFlow2/ESP-IDF guest 完成 AAAA 查询、IPv6 TCP/HTTP、pcap 和拒绝路径 |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 和一次未绑定资产的 `7200s` 行为诊断已通过；新的 artifact-bound `7200s` soak 正在运行，reconnect 上限为 `1–120`，hold 上限为 `7200s`。完成后再做超过一百二十轮、coexistence 和 teardown |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
@@ -64,7 +65,7 @@
 
 ## 文档与测试
 
-- 平台测试：`336` 项。
+- 平台测试：`338` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

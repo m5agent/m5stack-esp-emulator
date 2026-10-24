@@ -445,14 +445,14 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 5. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 6. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
 
-网络部分已经具备 controlled DNS、TLS/Host allowlist、精确 IPv4/IPv6
+网络部分已经具备 controlled DNS A/AAAA、TLS/Host allowlist、精确 IPv4/IPv6
 地址/协议/端口 egress、pcap、DHCP renewal、虚拟 radio/AP 丢失恢复，以及
 两台 QEMU guest 的 DHCP/TCP/双侧 pcap/宿主隔离、本地 worker
 heartbeat/drain/restart classification、远程 worker 注册目录和 durable
 job queue/lease supervisor。同主机独立 HTTP executor 已完成真实 QEMU
 job、evidence ZIP/SHA256 回报和 worker HMAC；仍未完成的是跨主机
 executor/reattach、companion/evidence continuity、生产多机调度、CIDR/
-domain-set policy 和 IPv6 DNS/AAAA policy。固件文件系统 PASS
+domain-set policy 和同 guest firmware IPv6 DNS/HTTP。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 
 ## 11. 结论

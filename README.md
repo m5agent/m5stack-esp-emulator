@@ -104,7 +104,7 @@ curl -sS -H 'Content-Type: application/json' \
 - 串口、QEMU 日志、PNG framebuffer；
 - 按键/触摸/拖拽、QOM、reset、renew、stop；
 - Linux namespace 下的 nftables 精确 IPv4/IPv6 地址/协议/端口 allowlist、
-  controlled DNS、TLS Host decision 和 per-session 双栈 veth/NAT；
+  controlled DNS A/AAAA、TLS Host decision 和 per-session 双栈 veth/NAT；
 - application readiness、evidence ZIP、QOM/flash snapshot/diff；
 - 停止会话前保存最后一帧，历史会话仍可查看串口和最后画面；
 - stopped/failed 历史按时间、条数和字节数自动回收；停止后默认释放整份
@@ -258,8 +258,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - C6 软件复位后的 chip-id 错误已作为 Flash 地址宽度/PMP 模型缺陷修复；
   Zigbee/802.15.4 仍是 `OPEN` 运行时模型缺口。
 - `egress=allowlist` 的精确网络策略覆盖 IPv4/IPv6 地址、协议和端口，
-  IPv6 路径包含 neighbor discovery、veth 路由与 masquerade；CIDR、域名
-  和 IPv6 DNS AAAA policy 不会被当成隐式放行。
+  IPv6 路径包含 neighbor discovery、veth 路由与 masquerade；controlled
+  resolver 支持 exact A/AAAA records。CIDR、域名扩展和 ESP firmware guest
+  的 IPv6 DNS/HTTP 闭环仍不会被当成已完成。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
   internal-controller 路径。规范主路径是 QEMU
   `runtime=qemu-unified/profile=core2-native-hci`。旧的

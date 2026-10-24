@@ -44,7 +44,7 @@ enforcement mode, routes, inner probes and cleanup outcome.
 
 This validates the network policy engine. It does not by itself prove a
 firmware guest, physical RF, general public-internet availability, CIDR or
-domain policy, IPv6 DNS/AAAA behavior or malware safety.
+domain policy, same-guest firmware IPv6 DNS/HTTP behavior or malware safety.
 
 The local repeat result is recorded in
 [`evidence-2026-10-24-dual-stack-docker-pass.json`](evidence-2026-10-24-dual-stack-docker-pass.json).

@@ -386,12 +386,10 @@ class ControlledDns:
         *,
         host: str,
         port: int,
-        records: dict[str, str],
+        records: dict[str, Any],
         log_path: Path | None,
     ):
-        self.records = {
-            name.lower(): address for name, address in records.items()
-        }
+        self.records = self.normalize_records(records)
         self.requests: list[dict[str, str]] = []
         self.lock = threading.Lock()
         self.log_path = log_path
@@ -407,7 +405,52 @@ class ControlledDns:
         )
 
     @staticmethod
-    def parse_question(query: bytes) -> tuple[str, int, int] | None:
+    @staticmethod
+    def normalize_records(
+        records: dict[str, Any],
+    ) -> dict[str, tuple[ipaddress.IPv4Address | ipaddress.IPv6Address, ...]]:
+        normalized = {}
+        for raw_name, raw_addresses in records.items():
+            if not isinstance(raw_name, str) or not raw_name.strip():
+                raise SandboxError("sandbox DNS record names must be strings")
+            name = raw_name.strip().lower().rstrip(".")
+            values = (
+                [raw_addresses]
+                if isinstance(raw_addresses, str)
+                else raw_addresses
+            )
+            if (
+                not isinstance(values, list)
+                or not values
+                or len(values) > 8
+                or any(not isinstance(value, str) for value in values)
+            ):
+                raise SandboxError(
+                    "sandbox DNS record addresses must be a string or "
+                    "a non-empty list of at most 8 strings"
+                )
+            addresses = []
+            seen = set()
+            for value in values:
+                try:
+                    address = ipaddress.ip_address(value.strip())
+                except ValueError as error:
+                    raise SandboxError(
+                        f"sandbox DNS record for {name} is not an IP address"
+                    ) from error
+                if address.is_unspecified or address.is_multicast:
+                    raise SandboxError(
+                        f"sandbox DNS record for {name} is not a unicast address"
+                    )
+                if address in seen:
+                    continue
+                seen.add(address)
+                addresses.append(address)
+            normalized[name] = tuple(addresses)
+        return normalized
+
+    @staticmethod
+    def parse_question(query: bytes) -> tuple[str, int, int, int] | None:
         if len(query) < 17:
             return None
         offset = 12
@@ -432,22 +475,42 @@ class ControlledDns:
         if not labels or offset + 4 > len(query):
             return None
         qtype, qclass = struct.unpack_from("!HH", query, offset)
-        return ".".join(labels).lower(), qtype, offset + 4
+        return ".".join(labels).lower(), qtype, qclass, offset + 4
 
     def response(self, query: bytes) -> bytes:
         question = self.parse_question(query)
         if question is None:
             return b""
-        name, qtype, question_end = question
-        address = self.records.get(name)
-        allowed = address is not None
+        name, qtype, qclass, question_end = question
+        addresses = self.records.get(name)
+        allowed = addresses is not None
         answer = b""
-        if allowed and qtype == 1:
+        address = None
+        if allowed and qclass == 1 and qtype in {1, 28}:
+            address = next(
+                (
+                    item
+                    for item in addresses or ()
+                    if (
+                        qtype == 1
+                        and isinstance(item, ipaddress.IPv4Address)
+                    )
+                    or (
+                        qtype == 28
+                        and isinstance(item, ipaddress.IPv6Address)
+                    )
+                ),
+                None,
+            )
+        answer_type = None
+        if address is not None:
+            record_type = 1 if qtype == 1 else 28
             answer = (
                 b"\xc0\x0c"
-                + struct.pack("!HHIH", 1, 1, 60, 4)
-                + socket.inet_aton(address)
+                + struct.pack("!HHIH", record_type, 1, 60, len(address.packed))
+                + address.packed
             )
+            answer_type = "A" if qtype == 1 else "AAAA"
         flags = 0x8180 if allowed else 0x8183
         response = (
             query[:2]
@@ -456,9 +519,13 @@ class ControlledDns:
             + answer
         )
         status = (
-            "A"
-            if answer
+            answer_type
+            if answer_type is not None
             else "NOERROR_NO_A"
+            if allowed and qtype == 1
+            else "NOERROR_NO_AAAA"
+            if allowed and qtype == 28
+            else "NOERROR_NO_ANSWER"
             if allowed
             else "NXDOMAIN"
         )
@@ -763,14 +830,9 @@ def run(
             if (
                 not isinstance(records, dict)
                 or not records
-                or any(
-                    not isinstance(name, str)
-                    or not isinstance(address, str)
-                    for name, address in records.items()
-                )
             ):
                 raise SandboxError(
-                    "sandbox DNS hosts must be a non-empty string map"
+                    "sandbox DNS hosts must be a non-empty record map"
                 )
             raw_log = dns_config.get("log")
             dns = ControlledDns(

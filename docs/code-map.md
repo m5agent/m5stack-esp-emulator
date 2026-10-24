@@ -233,7 +233,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/network_policy.py` | `isolation`、`egress`、controlled DNS 和 pcap 策略 |
 | `platform/tools/network_egress.py` | exact IPv4/IPv6 地址/协议/端口、nftables、per-session 双栈 veth/NAT、IPv6 neighbor control 和清理 |
 | `platform/tools/network_fabric.py` | private namespace、双 guest QEMU socket switch、DHCP reservation、TAP/bridge primitive |
-| `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled DNS、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
+| `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled A/AAAA resolver、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
 | `platform/tools/network_lane.py` | `esp-emu` 诊断/Provisioning 网络 lane |
 | `platform/tools/pcap_summary.py` | flow、DNS、DHCP message/transaction/renewal、ARP、egress scope 和 payload hash |
 | `platform/tools/ble_probe.py` | 外部 BLE peer / GATT 验证；默认一轮，可要求同一 peer 进程连续多轮 |

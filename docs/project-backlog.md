@@ -38,6 +38,8 @@
    同主机 generation-pointer 批量迁移和本地 QEMU/QMP reattach 基础上补
    自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、
    companion/evidence continuity 和多机调度。
+   `NET-06` 在现有 exact IPv6 gateway 和 A/AAAA resolver 基础上补同一
+   ESP firmware guest 的 IPv6 DNS/HTTP 闭环。
 2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后推进
    `RUNTIME-02` C6 Zigbee 决策，再扩 `FW-03` 跨厂商样本；
    `FW-02` 做生产 key/eFuse 与真机安全配置。
@@ -57,6 +59,7 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 自动主机发现/跨主机 worker 迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-06` | 进行中 | controlled resolver A/AAAA 与 Device Service IPv6 forwarding 预检已实现；下一步让同一 UIFlow2/ESP-IDF guest 完成 AAAA 查询、IPv6 TCP/HTTP、pcap 和拒绝路径 | 同一 lease/guest 内 AAAA 允许/拒绝、IPv6 egress、pcap 和 cleanup 成立；不能用 host probe 或另一 session 拼接固件结论 |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 和一次未绑定资产的 `7200s` 行为诊断已通过；新的 artifact-bound `7200s` soak 正在运行，reconnect 上限为 `1–120`，hold 上限为 `7200s`。完成后再做超过一百二十轮、coexistence 和 teardown | 当前 soak 的启动资产哈希无漂移、RSS/HLI/网络/GATT/frame/pcap 和清理全部 PASS；超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -120,6 +123,24 @@
   可关联；
 - 本地 reattach 有 PID reuse、stale start-time、QMP 缺失、正常停止和残留清理
   证据；跨主机/companion reattach 仍待补。
+
+### NET-06 同 guest IPv6 DNS/HTTP
+
+当前已具备：
+
+- exact IPv4/IPv6 endpoint、双栈 veth/default route/NAT 和 cleanup；
+- Device Service 对含外部 IPv6 endpoint 的请求执行 IPv6 forwarding
+  capability 预检；
+- controlled resolver 对同一 allowlisted 名称返回 exact A/AAAA，并拒绝
+  unknown name；
+- resolver-level UDP 查询、response type/address 和 decision log 有契约测试。
+
+当前缺口：尚未由同一 ESP firmware guest 完成 IPv6 地址/路由、AAAA 查询和
+IPv6 TCP/HTTP。resolver host probe 不能替代 guest 应用路径。
+
+验收：同一 lease/guest 中，允许名称解析到 exact AAAA，guest 访问配置的
+IPv6 endpoint 并完成 HTTP；拒绝地址/端口仍被 nftables 阻断；pcap、
+namespace/NAT 清理和串口 marker 属于同一份 evidence。
 
 ## P1：Core2 物理与 controller 边界
 

@@ -24,6 +24,19 @@ import network_sandbox  # noqa: E402
 
 
 class NetworkSandboxTests(unittest.TestCase):
+    def test_controlled_dns_rejects_invalid_or_non_unicast_records(self):
+        for records in (
+            {"invalid.test": []},
+            {"invalid.test": ["not-an-address"]},
+            {"invalid.test": ["0.0.0.0"]},
+            {"invalid.test": ["ff02::1"]},
+            {"invalid.test": ["127.0.0.1"] * 9},
+        ):
+            with self.subTest(records=records), self.assertRaises(
+                network_sandbox.SandboxError
+            ):
+                network_sandbox.ControlledDns.normalize_records(records)
+
     def test_expected_ipv6_gateway_routes_are_not_external(self):
         host_ipv6 = "fd6d:1234:5678:9abc::1"
         guest_network = ipaddress.ip_network("fd6d:1234:5678:9abc::/126")
@@ -259,7 +272,12 @@ class NetworkSandboxTests(unittest.TestCase):
             dns = network_sandbox.ControlledDns(
                 host="127.0.0.1",
                 port=0,
-                records={"allowed.lab.test": "10.0.2.2"},
+                records={
+                    "allowed.lab.test": [
+                        "10.0.2.2",
+                        "2001:db8:6d35::53",
+                    ]
+                },
                 log_path=dns_log,
             )
             dns.start()
@@ -288,6 +306,21 @@ class NetworkSandboxTests(unittest.TestCase):
             query_socket.settimeout(2)
             query_socket.sendto(query, ("127.0.0.1", dns_port))
             dns_response, _ = query_socket.recvfrom(4096)
+            aaaa_query = (
+                struct.pack(
+                    "!HHHHHH",
+                    0x1236,
+                    0x0100,
+                    1,
+                    0,
+                    0,
+                    0,
+                )
+                + qname
+                + struct.pack("!HH", 28, 1)
+            )
+            query_socket.sendto(aaaa_query, ("127.0.0.1", dns_port))
+            aaaa_response, _ = query_socket.recvfrom(4096)
             denied_qname = (
                 b"".join(
                     bytes([len(label)]) + label
@@ -350,8 +383,10 @@ class NetworkSandboxTests(unittest.TestCase):
         )
         self.assertEqual(dns_requests[0]["decision"], "allow")
         self.assertEqual(dns_requests[0]["status"], "A")
-        self.assertEqual(dns_requests[1]["decision"], "deny")
-        self.assertEqual(dns_requests[1]["status"], "NXDOMAIN")
+        self.assertEqual(dns_requests[1]["decision"], "allow")
+        self.assertEqual(dns_requests[1]["status"], "AAAA")
+        self.assertEqual(dns_requests[2]["decision"], "deny")
+        self.assertEqual(dns_requests[2]["status"], "NXDOMAIN")
         self.assertEqual(
             struct.unpack_from("!H", dns_response, 6)[0],
             1,
@@ -359,6 +394,25 @@ class NetworkSandboxTests(unittest.TestCase):
         self.assertEqual(
             struct.unpack_from("!H", denied_response, 6)[0],
             0,
+        )
+        question = network_sandbox.ControlledDns.parse_question(aaaa_response)
+        self.assertIsNotNone(question)
+        _, query_type, query_class, question_end = question
+        self.assertEqual((query_type, query_class), (28, 1))
+        self.assertEqual(
+            struct.unpack_from("!H", aaaa_response, 6)[0],
+            1,
+        )
+        self.assertEqual(
+            struct.unpack_from("!H", aaaa_response, question_end + 2)[0],
+            28,
+        )
+        self.assertEqual(
+            socket.inet_ntop(
+                socket.AF_INET6,
+                aaaa_response[question_end + 12 : question_end + 28],
+            ),
+            "2001:db8:6d35::53",
         )
 
 

@@ -2002,8 +2002,10 @@ components:
               description: >
                 Optional HTTP Host and DNS-name allowlist. Required when
                 dns=controlled. Filters the Host header at the controlled HTTP
-                gateway and provides A records from the controlled resolver.
-                Actual network destinations are controlled separately by
+                gateway. The resolver core supports exact A/AAAA records; the
+                current controlled HTTP fixture exposes the existing IPv4
+                path, while same-guest IPv6 DNS/HTTP remains NET-06. Actual
+                network destinations are controlled separately by
                 allowed_endpoints.
               items:
                 type: string

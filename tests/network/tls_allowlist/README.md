@@ -50,6 +50,14 @@ UIFlow/NTP names. The host resolver configuration is not modified globally.
 Evidence:
 [`evidence-2026-10-24-controlled-dns-pass.json`](evidence-2026-10-24-controlled-dns-pass.json).
 
+The resolver model also accepts exact A and AAAA addresses for one allowlisted
+name. Contract coverage sends both query types over UDP, verifies the AAAA
+record type/payload and NXDOMAIN for an unknown name, and rejects malformed,
+unspecified, multicast and oversized record values. Evidence:
+[`evidence-2026-10-24-controlled-dns-aaaa.json`](evidence-2026-10-24-controlled-dns-aaaa.json).
+This is resolver-level validation; an ESP firmware guest completing IPv6
+DNS/HTTP is tracked separately as `NET-06`.
+
 The namespace lane now also installs nftables input/output default-drop rules.
 The guest TLS request is allowed only for the exact endpoint
 `10.0.2.2:18443/tcp`; required DNS and control ports are internal loopback

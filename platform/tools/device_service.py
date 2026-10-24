@@ -79,6 +79,7 @@ from network_egress import (  # noqa: E402
     EgressEndpoint,
     capability as egress_capability,
     requires_external_gateway,
+    requires_external_ipv6,
 )
 from network_policy import (  # noqa: E402
     NetworkPolicy,
@@ -612,7 +613,8 @@ def require_network_capabilities(policy: NetworkPolicy) -> None:
     capability = egress_capability(
         require_gateway=requires_external_gateway(
             policy.allowed_endpoints
-        )
+        ),
+        require_ipv6=requires_external_ipv6(policy.allowed_endpoints),
     )
     if capability["status"] != "PASS":
         raise ServiceError(

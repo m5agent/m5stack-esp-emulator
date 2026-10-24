@@ -1043,7 +1043,7 @@ class DocsConsistencyTests(unittest.TestCase):
             (DOCS / "qemu-device-adaptation-matrix.md").read_text(),
         )
         self.assertIn(
-            "controlled DNS、TLS/Host allowlist",
+            "controlled DNS A/AAAA、TLS/Host allowlist",
             status,
         )
         self.assertIn("controlled DNS", status)

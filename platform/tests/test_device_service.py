@@ -1253,6 +1253,55 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertTrue(parsed["policy"]["controlled_resolver"])
 
+    def test_network_namespace_ipv6_endpoint_requires_ipv6_capability(self):
+        request = {
+            "profile": "uiflow2-sticks3-unified",
+            "policy": {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "deny",
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "2001:db8:6d35::443",
+                        "port": 443,
+                    }
+                ],
+            },
+        }
+        capability = mock.Mock(
+            return_value={"status": "PASS", "checks": {}, "errors": []}
+        )
+        with (
+            mock.patch.object(
+                device_service_module,
+                "namespace_capability",
+                return_value={"status": "PASS", "checks": {}, "errors": []},
+            ),
+            mock.patch.object(
+                device_service_module,
+                "egress_capability",
+                capability,
+            ),
+        ):
+            parsed = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                request,
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        capability.assert_called_once_with(
+            require_gateway=True,
+            require_ipv6=True,
+        )
+        self.assertIn(
+            {
+                "protocol": "tcp",
+                "address": "2001:db8:6d35::443",
+                "port": 443,
+            },
+            parsed["policy"]["allowed_endpoints"],
+        )
+
     def test_capture_summary_is_written_after_qemu_stops(self):
         spec = self.service.specs["sticks3"]
         firmware = Path(self.tmp.name) / "capture-firmware.bin"
