@@ -93,24 +93,27 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
 On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不是承诺“所有 C6
 固件均可运行”。
 
-### RUNTIME-03：Core2 AXP I2C driver/bus handoff 未闭环
+### RUNTIME-03：Core2 legacy I2C controller/board-bus routing 未闭环
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `OPEN` |
-| 影响 | Core2 官方 UIFlow 与 FactoryTest 的 PMIC 初始化 |
-| 现象 | AXP 地址探测成功，QEMU trace 读到 chip id `0x4a`；随后 `disable_timer_interrupt()` 的下一读取在产生新的 address `0x34` 总线事务前返回 `I2C bus error (19)` |
-| A/B 结果 | 默认 AXP2101 和 `M5SW_CORE2_PMIC=axp192` 均在 PMIC 初始化阶段失败；AXP192 QOM 节点存在；当前 trace 已排除“首次 chip-id 寄存器响应错误” |
+| 影响 | Core2 官方 legacy UIFlow 与 FactoryTest 的 PMIC/RTC 初始化交接 |
+| 现象 | AXP 地址探测成功，QEMU trace 读到 chip id `0x4a`；随后 `disable_timer_interrupt()` 的下一事务发往 address `0x51`，`start_rc=1`（无 ACK），并在产生新的 address `0x34` PMIC 事务前返回 `I2C bus error (19)` |
+| 识别依据 | 冻结 qstr 中 `hardware/__init__.py`、`BM8563`、`disable_timer_interrupt` 和 `__read_byte` 相邻；`0x51` 与 PCF8563/BM8563 RTC 地址一致。该组合强烈指向 RTC-candidate 路径，但仍需匹配源码或端口 trace 确认 |
+| A/B 结果 | 默认 AXP2101 和 `M5SW_CORE2_PMIC=axp192` 均在初始化交接阶段失败；AXP192 QOM 节点存在；当前 trace 已排除“首次 chip-id 寄存器响应错误” |
 | 证据 | [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json)、[`core2-axp-i2c-trace.json`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
 
 关闭条件：
 
-1. 跟踪 M5GFX 到 `machine.I2C` 的 bus ownership、driver install 和 controller
-   state，解释为何失败读取没有生成新的 AXP 总线事务；
-2. 取得与 public firmware 匹配的 UIFlow source/frozen bytecode，确认
-   `disable_timer_interrupt()` 实际调用的 bus/address/read API；
-3. 若后续 trace 到达 AXP 设备，再判断是否仍需补 AXP192/AXP2101 寄存器语义；
-4. 同一固件 SHA 在 Device Service 中渲染非空应用帧并保持运行。
+1. 同时在 controller trace 中记录 I2C port id、配置的 SCL/SDA pins、目标
+   QEMU bus 和板级 slave bus，解释为什么 `0x51` 被发到无设备路径；
+2. 取得与 public firmware 匹配的 UIFlow1 source/frozen bytecode，确认
+   AXP/BM8563 类实际使用的 controller、address/read API 和初始化顺序；
+3. 修正板级 controller-to-physical-bus routing 或对应模型，不把同一 PMIC
+   寄存器复制到多条总线来掩盖问题；
+4. 若后续 trace 到达 AXP 设备，再判断是否仍需补 AXP192/AXP2101 寄存器语义；
+5. 同一固件 SHA 在 Device Service 中渲染非空应用帧并保持运行。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 

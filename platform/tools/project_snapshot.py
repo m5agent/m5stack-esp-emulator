@@ -238,7 +238,11 @@ def render_markdown(snapshot: dict) -> str:
         "| --- | --- | --- | --- | --- | --- |",
     ]
     for device in snapshot["devices"]:
-        blocker = device["blockers"][0] if device["blockers"] else "无登记 blocker"
+        blocker = (
+            "; ".join(device["blockers"])
+            if device["blockers"]
+            else "无登记 blocker"
+        )
         lines.append(
             f"| {device['name']} (`{device['id']}`) | {device['soc']} | "
             f"`{device['backend']}` | `{device['peripheral_status']}` | "

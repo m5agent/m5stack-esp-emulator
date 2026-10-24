@@ -265,8 +265,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   `core2-native-vhci` 依赖 GDB 暂停、callback 注入和 synthetic return，只保留
   为显式诊断/兼容路径。具体 hold、reconnect 和 HLI health 证据见
   [Core2 native HCI backend](docs/core2-native-hci-backend.md)和验证台账。
-- Core2 仍未证明 bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、
-  两小时 coexistence/soak、超过当前 API 上限的连接轮次或真机同路径。
+- Core2 已完成一次两小时 active-BLE 行为诊断，但运行中 QEMU 被临时重编，
+  因而尚未证明 artifact-bound 两小时 coexistence/soak；bit-exact ESP32 BT
+  baseband/controller、物理 cache/PSRAM、超过当前 API 上限的连接轮次和真机
+  同路径也仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

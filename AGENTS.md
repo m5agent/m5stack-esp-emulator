@@ -77,8 +77,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 
 ### Milestone/full regression only
 
-Do **not** run the full 67-case matrix after every small peripheral edit. Run
-it only when:
+Do **not** run the full matrix after every small peripheral edit. Run it only
+when:
 
 - the change touches shared SoC/QEMU controllers or builds;
 - a release or public handoff is requested;
@@ -190,157 +190,70 @@ diagnostics in `internal/records/`.
 
 ## Known boundaries
 
-- Tab5 remains `partial`: the closed-source `esp-emu 0.50.0` P4 backend lacks
-  dynamic I2C/RTC injection, I2S/PCM, MIPI-CSI, USB Host, SDIO control and
-  controller-level ST7123 touch.
-- Tab5 is still usable for virtual `esptool write-flash`, UIFlow2 boot,
-  framebuffer/touch tests, RS-485, C6 ESP-Hosted and static I2C probes. Do not
-  describe `partial` as “unusable”; document the flashing layout and ROM/eFuse
-  compatibility boundary when reviewing a production image.
-- Core2 peripheral, UI, radio and unified runs use deterministic TCG/icount
-  after the idle interrupt-WDT reproduction. Peripheral/UI matrices reject
-  configured retries by default; the latest full matrix passed 67/67 cases
-  with every case on its first attempt. RX8130/PCF8563 advance on the QEMU
-  virtual clock so guest RTC sleeps remain coherent. This does not prove
-  physical cache/PSRAM timing.
-- S3/C6 use device-level QEMU WiFi MAC/DMA plus SLiRP in the 11 unified
-  profiles. This is functional virtual networking, not a complete PHY, RF,
-  antenna, WPA2/WPA3 or security model.
-- Core2 exposes environment-gated `core2-unified` with OpenMAC WiFi and
-  UART1 HCI-offload BLE when `M5_CORE2_RADIO_QEMU` selects the matching QEMU.
-  DHCP, controlled HTTP, public DNS/HTTP and deterministic TCG/icount startup
-  are validated.
-- The standalone stock Core2 UIFlow2 native-VHCI runner uses a GDB bridge to
-  hand HCI to Bumble and passed external NUS GATT 5/5 without rebuilding for
-  UART HCI. The extended `unified_core2` runner also combines board, frame,
-  touch, audio, QOM, WiFi/public network and native-VHCI BLE in one guest,
-  3/3. The canonical `core2-native-hci` profile now combines
-  frame/QOM/WiFi/public-network/GATT/pcap/evidence in five independent
-  `/api/v1` leases with no GDB bridge. Legacy `core2-native-vhci` remains as
-  a diagnostic/compatibility path because its repeated-lease result was
-  `1/2`. This is stock-firmware controller-boundary evidence, not a bit-exact
-  Espressif BT baseband/controller model. Physical cache/PSRAM equivalence
-  remains open.
-- The QEMU native-HCI replacement has passed its staged gates: `HCI-1` host transport,
-  `HCI-2` H2C, `HCI-3a` diagnostic callback and `HCI-3b` full external NUS
-  GATT pass. `HCI-4` also passes five independent Device Service `/api/v1`
-  leases with the canonical `core2-native-hci` profile: frame, QOM, WiFi
-  DHCP/HTTP, public DNS/HTTP, external NUS GATT, pcap and evidence bundle all
-  pass without a GDB bridge. `0003-esp32-native-hci-api-transaction.patch`
-  owns H2C at the firmware API boundary, delivers event/ACL data through the
-  real HLI `g_rw_schd_queue`/meta queue and interrupts the guest controller
-  task.
-  `0004-xtensa-ccount-tb-yield.patch` preserves deterministic CCOUNT polling.
-  With a 15-byte probe (17-byte ATT PDU), discovery, subscription, write,
-  Python GATT handler, notification and Bumble ACK pass in 5/5 independent
-  runs. The earlier 21-byte probe failed because its 24-byte ATT PDU exceeded
-  the guest default MTU of 23; it was not a controller ACK defect.
-  `core2-native-vhci` remains a compatibility/diagnostic profile because its
-  GDB bridge is not a stable production backend. Bit-exact
-  controller/baseband, coexistence and physical cache/PSRAM equivalence
-  remain open. Do not describe this virtual HCI boundary as RF or a finished
-  bit-exact controller.
-- `HCI-4` is a five-lease functional baseline. The later hold-enabled crash
-  was traced to QEMU guest-call context: nested calls did not restore all
-  caller-saved Xtensa sregs, and HLI allocation/callback injection could run
-  from a non-halted cache-disabled WiFi/controller context. `0005` fixes both.
-  Two independent `5×10s` hold batches pass `10/10`, and three `60s` holds
-  pass `3/3`. Two independent `120s` holds also pass `2/2`, with
-  `hli-errors=0` and empty HLI/meta queues in every attempt.
-  Two active-BLE `600s` holds pass `2/2` with the peer connected at the end.
-  Historical
-  `semphr_give_wrapper`, `PC=0` and Cache-error evidence remains tracked.
-  This closes the repeated-start/two-minute virtual gate, not multi-hour soak,
-  physical cache/PSRAM equivalence, more than one hundred twenty reconnect cycles or
-  bit-exact controller behavior. Same-guest reconnect passes in three
-  independent stock-firmware leases at 20, 30, 60 and 120 cycles per lease.
-  The 120-cycle run balances 3377/3377 HLI posts/consumption, delivers 2297
-  events and 1080 ACLs, and returns all connection/L2CAP/GATT pools to their
-  free baseline. The Device Service, Bumble peer and runner share a 1-120
-  range and reject 121. The next gate is more than 120 cycles and a multi-hour
-  coexistence soak. The earlier ten-cycle milestone remains in the ledger. A
-  historical 30-second wait cap in Device Service terminated a valid
-  ten-cycle peer after cycle 6 started; the wait now uses the session ready
-  timeout and has a regression test. The former `ack returned 12`
-  failure was caused by the external Bumble compatibility layer returning an
-  invalid Command Status for the no-response
-  `HCI_Host_Number_of_Completed_Packets (0x0c35)` command; the next
-  `LE Set Advertising Data` consumed that stale ACK. Do not reintroduce a
-  response for `0x0c35`, and keep the no-response unit test.
-- The separate `esp-emu` `runtime=network` lane is for diagnosis, provisioning
-  portals and unreworked firmware. It does not provide same-instance board
-  framebuffer/input/QOM evidence.
-- Linux `egress=allowlist` enforces exact IPv4 IP/protocol/port with nftables
-  input/output default-drop rules. External IPv4 uses a per-session veth and
-  temporary NAT table; required DNS/HTTP/HCI/GDB loopback ports are explicit
-  internal exceptions. External IPv6, CIDRs and domain-to-multiple-IP grants
-  are not implemented and must fail rather than become implicit allow rules.
-- The two-guest lab fabric is a separate virtual-device path. The passing
-  fixture runs two StickS3 QEMU guests through an L2 switch inside a private
-  Linux network namespace, with reserved DHCP addresses, real guest TCP,
-  two-sided pcap, MAC-bound client slots and no host/public/metadata route.
-  The QEMU evidence uses a socket switch; the namespace bridge/TAP plus DHCP
-  helper is an independently tested host primitive. Neither result is
-  RF/WPA2/WPA3 validation or a production multi-tenant worker boundary.
-- `user,restrict=yes` and loopback `hostfwd` are not an untrusted-firmware
-  sandbox. The Linux fail-closed namespace runner and guest path are validated;
-  filesystem/resource isolation, companion/evidence continuity and formal
-  worker/VM lifecycle remain open. The local worker registry covers identity,
-  generation, heartbeat, drain/resume and restart lease classification. A
-  running local QEMU is re-attached only after PID start-time, session QMP
-  socket ownership and `query-status=running` checks. The remote directory and
-  durable job queue add idempotent enqueue, capability-matched claim, lease
-  heartbeat, expiry retry and stale/stopped worker reconciliation. The
-  separate `worker_agent.py` executes a claimed job through the public HTTP
-  API, downloads and hashes an evidence ZIP, stops the session and reports the
-  terminal result on the same host. When an API token is configured,
-  worker-only mutations require a worker/generation-derived HMAC over method,
-  path, timestamp, nonce and body. A real loopback HTTPS/mTLS process test
-  verifies server-certificate validation, required client certificates and
-  signed worker requests without weakening HMAC. The same path uploads and
-  composes full QEMU and unified StickS3 images, runs both jobs over mTLS with
-  evidence SHA256 and terminal PASS, and verifies unified board/WiFi/BLE
-  markers, network evidence, pcap and PNG frame. A separate run atomically
-  replaces the server certificate, client CA, worker client identity and
-  master token, sends `SIGHUP`, verifies the retired credentials are rejected,
-  drains an active request before committing the new configuration, then
-  completes a signed real QEMU job with the new credentials. A bounded overlap
-  run also accepts old/new client CAs and tokens until the previous files are
-  removed and a final `SIGHUP` retires them. A two-worker run also moves
-  through an A+B server-trust bridge and an atomic credential-generation
-  pointer, reloads each worker on its next request, writes secret-free
-  receipts and requires no worker `SIGHUP`. Automatic worker-host discovery,
-  cross-host credential migration, cross-host QEMU jobs and cross-host
-  reattach remain open.
+This file defines stable engineering rules. It is not a second current-status
+page. Do not add per-release profile counts, test counts, sample counts,
+long-soak results or per-device PASS tables here; those facts change and must
+remain in their authority documents:
+
+- current capabilities, evidence level and known risks:
+  `docs/project-status.md`;
+- unfinished tasks, dependencies and acceptance:
+  `docs/project-backlog.md`;
+- dated milestones and exact URLs/hashes:
+  `docs/validation-ledger.md`;
+- known runtime-model gaps and closure conditions:
+  `docs/runtime-model-gap-register.md`;
+- machine-readable device/task/test inventory:
+  `docs/project-snapshot.md`.
+
+Stable boundaries that must survive count changes:
+
+- Virtual-device PASS is not hardware PASS. QEMU/esp-emu functional networking
+  does not establish RF, antenna, WPA2/WPA3 security, power, acoustic, optical,
+  mechanical or electrical behavior.
+- A full-flash image is supported only when chip, board profile, flash/PSRAM,
+  eFuse/security mode, partition layout, controller coverage and merged or
+  segmented image metadata are explicit and compatible.
+- `runtime=network` is a diagnostic/provisioning lane. Do not splice its result
+  with a separate board run to claim one-device functional PASS.
+- `core2-native-vhci` is a diagnostic/compatibility path; new Core2 work uses
+  `core2-native-hci`. The current native-HCI boundary is a validated virtual
+  controller/HCI path, not a bit-exact Espressif baseband or RF model.
+- Core2 physical cache/PSRAM timing and the difference between board PSRAM
+  capacity and the current QEMU memory model remain separate validation
+  questions. A launch flag or QOM property alone is not a physical-memory PASS.
+- Tab5 remains `partial` while the closed-source P4 backend lacks required
+  dynamic I2C/RTC, I2S/PCM, MIPI-CSI, USB Host, SDIO and controller-level
+  ST7123 data planes. `partial` means usable in its documented subset, not
+  unusable.
+- `user,restrict=yes`, loopback `hostfwd`, trusted-host user networking and the
+  current namespace runner are not an untrusted-firmware sandbox. Production
+  review still requires disposable isolation, resource limits, auditable
+  evidence and fail-closed policy creation.
+- Linux exact endpoint policy currently covers IPv4. Unsupported IPv6, CIDR
+  and domain-to-multiple-IP grants must fail closed rather than become implicit
+  allow rules.
+- Closing one firmware family, sample or model gap never grants the same
+  result to another firmware SHA, board profile or controller path.
 
 ## Remaining work
 
-Current device capability and the latest validation snapshot are maintained in
-`docs/project-status.md`. Only unfinished work belongs in
-`docs/project-backlog.md`.
+The only execution queue is `docs/project-backlog.md`. Read it at task start
+and do not recreate a second ordered list here. The stable P0 families are:
 
-Dynamic platform-test counts and full-matrix counts belong only in
-`docs/project-status.md`; dated historical values belong in
-`docs/validation-ledger.md`. README, the documentation index and the workflow
-ledger should link to those pages instead of copying values that will drift.
-When a QEMU profile or device catalog records validation date/status, the two
-snapshots must agree and CI enforces that cross-check.
+- network isolation, DNS/egress policy, packet evidence, negative connection
+  tests, recovery and multi-device service productization;
+- Core2 native controller, long-duration WiFi/BLE coexistence, cache/PSRAM and
+  physical equivalence;
+- FirmwareManifest, WebBurner intake, security configuration, capability
+  mismatch and runtime model-gap handling across firmware families;
+- same-implementation-path hardware validation for externally published
+  claims.
 
-The main open streams are:
-
-- automatic worker-host discovery, cross-host credential and QEMU job
-  execution, companion/evidence continuity, cross-host QEMU re-attach,
-  multi-host scheduling and external IPv6 endpoint enforcement;
-- Core2 more-than-120-cycle and two-hour coexistence runs after the passing
-  three-independent-lease 120-cycle gate, bit-exact BT controller/baseband,
-  physical cache/PSRAM equivalence and hardware validation;
-- runtime permissions/license policy, production security-key flows and
-  broader cross-firmware compatibility; the current public matrix covers 18
-  samples across six S3/C6 devices and separates model gaps from firmware
-  failures, but does not cover the full fleet or LX6/P4;
-- warm pools, multi-host scheduling and hardened untrusted-firmware isolation;
-- Tab5 missing P4 data paths behind the closed-source backend;
-- physical-hardware validation and per-device visual fidelity.
+When a task closes, update the generated snapshot and the relevant authority
+document, append dated evidence when necessary, and archive reproducible work
+in `agent-work-logs`. Do not mark a whole workstream complete from a passing
+subcase.
 
 The v1 local Device Service is implemented by `platform/tools/device_service.py`
 and exposed by `platform/tools/serve.py`. It supports leased QEMU-backed ESP32

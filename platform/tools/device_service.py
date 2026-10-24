@@ -4300,6 +4300,10 @@ class DeviceSession:
                     f"driver={self.spec.efuse_driver},property=drive,value=efuse",
                 ]
             )
+        # Keep the memory policy explicit: native-controller profiles retain
+        # the validated -m 0 lane, while other QEMU devices use their declared
+        # emulated PSRAM size. Board inventory size is not a runtime-memory
+        # claim, and neither setting proves physical cache/PSRAM timing.
         if self.spec.memory is not None or native_bt:
             command.extend(
                 [

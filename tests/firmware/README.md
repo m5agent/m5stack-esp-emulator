@@ -44,11 +44,12 @@ Source path hashes and declarations are eligible for license policy, while
 generated code, absent third-party sources and legal review remain out of
 scope.
 
-For the Core2 public-firmware PMIC gap, focused I2C tracing distinguishes a
-successful AXP2101 chip-id read from the later legacy `machine.I2C`
-driver/bus-handoff failure. The next failing read does not produce a new
-address-0x34 transaction, so PMIC register semantics are not yet the proven
-first cause.
+For the Core2 public-firmware runtime gap, focused I2C tracing distinguishes a
+successful AXP2101 chip-id read from the later legacy controller/board-bus
+routing failure. The next controller transaction targets address `0x51` and
+receives no ACK before another address-0x34 PMIC read occurs. Frozen BM8563
+qstrs and the call stack point to the RTC-candidate path; PMIC register
+semantics are not yet the proven first cause.
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).

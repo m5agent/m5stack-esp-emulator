@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import importlib.util
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -33,6 +35,35 @@ def healthy(**overrides: int) -> dict[str, int]:
 
 
 class Core2NativeHciHealthTests(unittest.TestCase):
+    def test_parses_host_rss_samples(self) -> None:
+        self.assertEqual(runner.parse_ps_rss_kib(" 245760\n"), 245760)
+        self.assertIsNone(runner.parse_ps_rss_kib(""))
+        self.assertIsNone(runner.parse_ps_rss_kib("unavailable"))
+
+    def test_input_hashes_are_frozen_before_execution(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image = root / "firmware.bin"
+            elf = root / "firmware.elf"
+            qemu = root / "qemu-system-xtensa"
+            image.write_bytes(b"image-v1")
+            elf.write_bytes(b"elf-v1")
+            qemu.write_bytes(b"qemu-v1")
+
+            frozen = runner.freeze_input_hashes(image, elf, qemu)
+            image.write_bytes(b"image-v2")
+            elf.write_bytes(b"elf-v2")
+            qemu.write_bytes(b"qemu-v2")
+
+            self.assertEqual(frozen["firmware_bytes"], len(b"image-v1"))
+            self.assertEqual(
+                frozen["firmware_sha256"],
+                hashlib.sha256(b"image-v1").hexdigest(),
+            )
+            self.assertNotEqual(runner.sha256(image), frozen["firmware_sha256"])
+            self.assertNotEqual(runner.sha256(elf), frozen["elf_sha256"])
+            self.assertNotEqual(runner.sha256(qemu), frozen["qemu_sha256"])
+
     def test_accepts_queue_full_only_after_peer_close(self) -> None:
         self.assertTrue(
             runner.native_hci_health_ok(

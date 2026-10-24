@@ -11,7 +11,7 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `329` 项，`329` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `332` 项，`332` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - 设备、Backlog Task 和固件样本的动态计数已改由
   [`project_snapshot.py`](../platform/tools/project_snapshot.py)从 catalog、
@@ -105,6 +105,13 @@
   每 lease HLI `3377/3377`、events `2297`、ACLs `1080`，HLI errors、
   HLI/meta/TX queue、dropped 和 panic 均为 0，connection/L2CAP/GATT 池回到
   `3/9/3`，三次 frame SHA256 一致。
+- Core2 另完成一次 `7200s` active-BLE WiFi/公网/GATT 诊断保持：session 全程
+  running，frame、pcap、BLE peer 和 HLI health 正常，结束时 HLI
+  `45/45`、events `36`、ACLs `9`、errors/queue/dropped/peer-close 均为 0。
+  但运行期间 QEMU 路径被执行了 AXP trace 临时重编，旧 runner 又只在结束时
+  计算 QEMU 哈希，因此本轮只能标记 `DIAGNOSTIC_PASS`，不能关闭
+  “artifact-bound 两小时 soak”。runner 已改为首 lease 前冻结 firmware/
+  ELF/QEMU 哈希、结束时拒绝资产漂移，并采样 host RSS。
 - 首次 10 轮运行暴露了 Device Service 的独立等待缺陷：peer 已完成 5 轮并
   开始第 6 轮且 guest 未 panic，但 `_wait_hci_probe_result()` 把
   `ready_timeout_seconds` 硬截断为 30 秒，导致 session 被误判失败并终止
@@ -136,9 +143,9 @@
 | 能力面 | 虚拟设备验证 | 本地服务化 | 真机 | 当前结论 |
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
-| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold，以及 3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 均 PASS | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、持续 active BLE 和同 guest 120 轮重连数据面；之后仍需完整 RF/PHY、bit-exact BT controller、两小时 soak 与超过一百二十轮 |
+| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 均 PASS；另有 `7200s` active-BLE `DIAGNOSTIC_PASS` | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge | `NOT RUN` | 已能验证首轮、持续 active BLE 和同 guest 120 轮重连数据面；仍需 artifact-bound 两小时 soak、超过一百二十轮、RF/PHY 和 bit-exact BT controller |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact IPv4 egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain、previous token/CA 有界重叠和无 worker-SIGHUP 的双 worker generation-pointer 自动迁移 PASS；跨主机 QEMU job、自动主机发现、companion continuity 和 IPv6 未完成 | `NOT RUN` | 传输、认证、同主机 QEMU/unified job 和可审计批量迁移基础已具备，尚不是多租户恶意固件 VM |
-| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、文件级 `permission_policy`、包内源码 SPDX header、WebBurner 浏览器流式上传/刷新恢复 PASS；7 台设备 21 个公开非基线样本为 10 PASS / 11 PARTIAL；C6 Zigbee、Core2 legacy AXP I2C handoff、Core2 for AWS ATECC608 以结构化 `runtime_model_gap` 保留 | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环；运行态 ACL/权限强制、生成/vendor 源码完整许可、`RUNTIME-02/03/04`、FW-03 更多设备和生产安全仍未完成 |
+| 通用固件审查 | 导入、capability/security preflight、静态审查、LittleFS/FAT/SPIFFS、文件级 `permission_policy`、包内源码 SPDX header、WebBurner 浏览器流式上传/刷新恢复 PASS；7 台设备 21 个公开非基线样本为 10 PASS / 11 PARTIAL；C6 Zigbee、Core2 legacy I2C controller/board-bus routing、Core2 for AWS ATECC608 以结构化 `runtime_model_gap` 保留 | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | 浏览器入口已闭环；运行态 ACL/权限强制、生成/vendor 源码完整许可、`RUNTIME-02/03/04`、FW-03 更多设备和生产安全仍未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、active-request drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、worker lease 与失联回收 | 无跨主机 QEMU executor、worker 主机自动发现、companion/BLE/evidence 连续接管、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、drained overlap rotation、可审计批量迁移、local control-plane reattach 和远程 lease 基础，不是完整云端服务 |
 
 ## 验证证据
@@ -153,8 +160,8 @@
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、错误密码、radio/AP 丢失恢复；controlled DNS、TLS/Host allowlist；nftables exact IPv4 egress、veth/NAT；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；本地 worker lifecycle、QEMU/QMP reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执；GitHub Actions Linux policy CI PASS | 自动发现 worker 主机、跨主机 QEMU executor/reattach、companion/evidence continuity、生产多机调度、外部 IPv6 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；另 2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 均 PASS | 超过一百二十轮 reconnect、两小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机 |
-| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、文件级权限来源、包内源码 SPDX header 和声明级许可 allowlist/denylist；7 台设备 21 个公开非基线样本 10 PASS / 11 PARTIAL；`RUNTIME-01` Flash/PMP 修复已通过 Device Service 和 C6 回归 | 运行态 ACL/权限强制、生成代码/包外 vendor 依赖的完整许可覆盖、法律审批、真机 key/eFuse 流程、更多设备/firmware family 回归；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 PMIC 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT 均 PASS；1 个 `7200s` active-BLE `DIAGNOSTIC_PASS` | artifact-bound 两小时 soak、超过一百二十轮 reconnect、bit-exact controller/baseband、物理 cache/PSRAM 和真机 |
+| 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、可回滚 artifact backend、sdkconfig/分区 flag/eFuse summary 分层、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、文件级权限来源、包内源码 SPDX header 和声明级许可 allowlist/denylist；7 台设备 21 个公开非基线样本 10 PASS / 11 PARTIAL；`RUNTIME-01` Flash/PMP 修复已通过 Device Service 和 C6 回归 | 运行态 ACL/权限强制、生成代码/包外 vendor 依赖的完整许可覆盖、法律审批、真机 key/eFuse 流程、更多设备/firmware family 回归；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 legacy I2C routing 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
 
 ## 工作流入口
 
@@ -247,6 +254,8 @@
   [`hci4-active-ble-hold120-2x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json)。
   Active-BLE 600 秒 hold 证据：
   [`hci4-active-ble-hold600-2x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold600-2x.json)。
+  Active-BLE 7200 秒诊断保持证据：
+  [`hci4-active-ble-hold7200-diagnostic.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold7200-diagnostic.json)。
   十轮重连证据：
   [`hci4-reconnect10-3x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-3x.json)。
   二十轮重连证据：
@@ -331,9 +340,10 @@
   [`cross-vendor-runtime-model-gaps.json`](../tests/firmware/evidence-2026-10-24-cross-vendor-runtime-model-gaps.json)。
 - Core2 新增 `3` 个 MOST_DOWNLOADED 官方固件，运行窗口为 `90s`。
   `UIFlow_Core2` 与 `Core2FactoryTest` 可以完成 AXP 地址/chip-id 探测，但
-  M5GFX 到 `machine.I2C` handoff 后的下一读取在产生新 AXP 事务前返回 I2C
-  错误；`Core2_For_AWS` 因 ATECC608 安全元件未建模而 abort。三者均
-  无应用帧，归类为 `PARTIAL/runtime_model_gap`，不是固件 FAIL：
+  随后的 address-`0x51` 事务在 legacy controller 路径上无 ACK，并在产生新
+  PMIC `0x34` 事务前返回 I2C 错误；冻结 BM8563 qstr 和调用栈指向 RTC
+  candidate。`Core2_For_AWS` 因 ATECC608 安全元件未建模而 abort。三者均无
+  应用帧，归类为 `PARTIAL/runtime_model_gap`，不是固件 FAIL：
   [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json)。
   同一次扩展还修正了 matrix HTTP `/wait` 使用默认 90 秒超时导致长启动窗口
   被误杀的缺陷。
@@ -367,7 +377,7 @@
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS；Zigbee `thread-sim` 仅有双向帧，join 未通过 | 原生 BT controller、C6 WiFi PHY；Zigbee/802.15.4 `RUNTIME-02` commissioning 未建模 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller；`RUNTIME-01` Flash/PMP 修复已关闭，Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT 和同 guest 多轮重连 | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `600s` `2/2`，以及 3 个各 20、30、60、120 轮的 GATT lease 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | 超过一百二十轮、两小时 soak、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence、真机同路径 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT 和同 guest 多轮重连 | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `600s` `2/2`、3 个各 20、30、60、120 轮的 GATT lease 均 PASS；另 1 个 `7200s` active-BLE 行为 `DIAGNOSTIC_PASS`，旧 `core2-native-vhci` 仅诊断/兼容 | artifact-bound 两小时 soak、超过一百二十轮、bit-exact BT controller/baseband、物理 cache/PSRAM、coexistence、真机同路径 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
@@ -394,7 +404,7 @@
    3 个 `60s` hold 也 `3/3`，2 个 `120s` hold 为 `2/2`，且 HLI
    health 为零错误。该结果关闭当前 repeated-start/two-minute virtual
    extended-run 故障，但不覆盖 bit-exact controller/baseband、物理
-   cache/PSRAM、多小时 coexistence/soak 和真机同路径；同 guest 20、30、
+   cache/PSRAM、artifact-bound 多小时 coexistence/soak 和真机同路径；同 guest 20、30、
    60、120 轮 GATT 均已有 3 个独立 lease 的 PASS evidence。参数范围已扩到
    `1–120`，但 `121` 轮会被拒绝，不能把参数上限当成“超过一百二十轮已通过”。
    第一个 10 轮
@@ -403,6 +413,9 @@
    `core2-native-vhci` 的
    `1/2` 只说明 GDB 诊断桥不稳定；`core2-native-hci` 的 hook 偏移仍绑定
    已验证 UIFlow2 v2.5.3 build。
+   `7200s` 行为保持已经 `DIAGNOSTIC_PASS`，但 QEMU 在运行期间被临时重编，
+   旧 runner 未在启动前冻结哈希，因此不能写成完整 milestone PASS。新 runner
+   已修复该绑定缺陷并加入 host RSS 观测。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径

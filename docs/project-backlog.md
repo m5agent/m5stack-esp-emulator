@@ -23,11 +23,11 @@
 | --- | --- | --- | --- |
 | P0 | 网络产品化 | 自动发现/跨主机 worker 迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
-| P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 AXP I2C driver/bus handoff；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；legacy I2C ownership/controller state；安全元件 fixture |
+| P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 保持 3 个独立 lease × 120 轮 PASS；在 active-BLE `600s` 已通过的基础上完成两小时 soak，并继续验证超过一百二十轮与 coexistence，最后评估 bit-exact controller、cache/PSRAM | 120 轮 GATT 与 active-BLE 600s 已通过；reconnect 参数上限为 120；物理或权威模型证据 |
+| P1 | Core2 长稳与物理/controller 等价性 | 保持 3 个独立 lease × 120 轮 PASS；在 active-BLE `600s` 与未绑定资产的两小时诊断保持基础上完成 artifact-bound `7200s` soak，并继续验证超过一百二十轮与 coexistence，最后评估 bit-exact controller、cache/PSRAM | 120 轮 GATT、active-BLE 600s 与 `7200s` 行为诊断已通过；artifact-bound 两小时门禁仍待补；reconnect 参数上限为 120；物理或权威模型证据 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -45,7 +45,9 @@
    `FW-02` 做生产 key/eFuse 与真机安全配置。
 3. `CORE2-02`：`5×10s`、`3×60s`、`2×120s` extended-run 和同 guest
    20、30、60、3 个独立 lease × 120 轮 reconnect 和 active-BLE `600s` 已通过；
-   下一项补两小时 soak、超过一百二十轮和 WiFi/BLE coexistence。
+   `7200s` active-BLE 行为诊断为 `DIAGNOSTIC_PASS`，但 QEMU 在 run 中被重编，
+   下一项用已修复 hash-freeze/RSS runner 重跑 artifact-bound 两小时 soak，
+   再补超过一百二十轮和 WiFi/BLE coexistence。
    之后处理 controller/baseband 物理边界。
    `HW-01` 独立推进同路径真机证据。
 4. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
@@ -57,12 +59,12 @@
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 自动主机发现/跨主机 worker 迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 已通过；reconnect 上限为 `1–120`，hold 上限为 `7200s`。下一项做两小时 soak、超过一百二十轮、WiFi/BLE coexistence 和 teardown | 超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM、长时间 coexist 和真机 |
+| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 和一次未绑定资产的 `7200s` 行为诊断已通过；reconnect 上限为 `1–120`，hold 上限为 `7200s`。下一项重跑 artifact-bound 两小时 soak，再做超过一百二十轮、coexistence 和 teardown | 超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；artifact-bound `7200s` PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | 已有 7 台设备、21 个公开非基线样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
-| `RUNTIME-03` | 进行中 | 对齐 Core2 AXP192/AXP2101 `disable_timer_interrupt()` 等 PMIC 寄存器事务 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
+| `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |
 | `SVC-01` | 进行中 | companion/evidence continuity、worker 主机自动发现与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
@@ -161,7 +163,12 @@ guest-call 上下文问题并修复：
 - 120 轮门禁已完成：3 个独立 lease 各 120 轮，每 lease HLI
   `3377/3377`、events `2297`、ACLs `1080`，无错误、dropped 或 panic；
 - active-BLE 600 秒门禁已完成：2 个独立 lease `2/2`，peer 全程保持连接；
-- 仍未完成：超过一百二十轮连接、两小时 soak、吞吐、coexistence 和
+- 另完成 1 个 `7200s` active-BLE 行为保持：网络、GATT、frame、pcap 和
+  HLI health 均通过，但 QEMU 路径在 run 中被临时重编，旧 runner 只在结束时
+  计算哈希，因此该结果为 `DIAGNOSTIC_PASS`，不是 artifact-bound gate；
+- runner 已改为首个 lease 前冻结 firmware/ELF/QEMU 哈希、结束时拒绝资产
+  漂移，并记录 host RSS samples；
+- 仍未完成：artifact-bound 两小时 soak、超过一百二十轮连接、吞吐、coexistence 和
   process-stop/teardown 竞态；
 - 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
@@ -176,8 +183,8 @@ guest-call 上下文问题并修复：
 
 - 同一 guest 超过 120 轮完成 scan/connect/NUS GATT/disconnect 且无 retry，
   每轮都有 guest RX、notification、peer/pcap/evidence 和 HLI health；
-- 从已经通过的 120 轮和 600 秒 active-BLE 继续验证超过一百二十轮、两小时
-  soak 和 WiFi/BLE coexistence；
+- 从已经通过的 120 轮、600 秒 active-BLE 和 7200 秒行为诊断继续验证
+  artifact-bound 两小时 soak、超过一百二十轮和 WiFi/BLE coexistence；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
   次数；
 - 首轮 panic 必须先于 reboot 次生故障被分类和符号化；
@@ -245,19 +252,24 @@ On/Off 和离网生命周期。当前 backend 下不得用 host 伪造 Zigbee �
 不承诺全 C6 固件兼容。详情见
 [运行时模型缺口登记](runtime-model-gap-register.md)。
 
-### RUNTIME-03 Core2 AXP I2C driver/bus handoff
+### RUNTIME-03 Core2 legacy I2C controller/board-bus routing
 
 当前缺口：`UIFlow_Core2` 与 `Core2FactoryTest` 都发现 AXP I2C 地址；
 Controller/device trace 已确认 AXP2101 chip id `0x4a` 可以读出。随后
-`disable_timer_interrupt()` 的下一读取在生成新的 address `0x34` 事务前返回
-`OSError: I2C bus error (19)`。默认 AXP2101 和
-`M5SW_CORE2_PMIC=axp192` 都失败，因此当前首要边界是 M5GFX 到
-`machine.I2C` 的 driver/bus handoff，而不是已证实的寄存器响应错误。
+`disable_timer_interrupt()` 的下一事务发往 address `0x51`、`start_rc=1`
+（无 ACK），并在生成新的 address `0x34` 事务前返回
+`OSError: I2C bus error (19)`。冻结 qstr 中的 BM8563/`__read_byte` 和
+`0x51` RTC 地址指向 RTC-candidate 路径。默认 AXP2101 和
+`M5SW_CORE2_PMIC=axp192` 都失败，因此当前首要边界是 legacy controller
+到板级物理 I2C bus 的 routing/handoff，而不是已经证实的 PMIC 寄存器
+响应错误。
 
-下一项最小交付：跟踪 bus ownership、driver install 和 controller state；
-取得匹配源码/frozen bytecode 后确认实际 API。若后续事务到达 AXP 设备，再修
-对应数据面；`M5SW_CORE2_PMIC` 仍只允许通过受限 `runtime_env` 选择，不得用
-host 假值伪造启动结果。
+下一项最小交付：在 trace 中补 I2C port id、SCL/SDA pins、目标 QEMU bus
+和板级 slave bus；取得匹配 UIFlow1 源码/frozen bytecode 后确认 BM8563
+实际使用的 controller/address API；修 routing 而不是把同一设备复制到多条
+总线。若后续事务到达 AXP 设备，再修对应数据面；
+`M5SW_CORE2_PMIC` 仍只允许通过受限 `runtime_env` 选择，不得用 host 假值
+伪造启动结果。
 
 验收：同一 `UIFlow_Core2` SHA 在指定 PMIC 变体下进入应用帧并保持运行。
 

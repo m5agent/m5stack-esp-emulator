@@ -1458,11 +1458,15 @@ path does not support upper flash regions. Later sessions with the same device
 and firmware hash copy the prepared flash cache into a new per-session flash
 file.
 
-Core2 service sessions expose the machine's supported 4 MiB PSRAM model while
-retaining the existing raw regression-runner `-m 0` mode. Tab5 sessions attach
-the board's PI4IOE, INA226, RX8130 and BMI270 register devices to I2C1 before
-boot, so application firmware sees the documented addresses rather than an
-empty bus.
+Core2 board inventory has 8 MiB PSRAM, while the QEMU machine currently caps
+its emulated PSRAM at 4 MiB. Non-native-controller Core2 sessions can expose
+that 4 MiB model; native-controller profiles currently use the conservative
+QEMU `-m 0` lane so radio/HCI results are not silently mixed with a larger
+memory model. Always read the session command/evidence memory field before
+comparing runs. Neither configuration is physical cache/PSRAM timing
+validation. Tab5 sessions attach the board's PI4IOE, INA226, RX8130 and BMI270
+register devices to I2C1 before boot, so application firmware sees the
+documented addresses rather than an empty bus.
 
 ### Wait for boot
 

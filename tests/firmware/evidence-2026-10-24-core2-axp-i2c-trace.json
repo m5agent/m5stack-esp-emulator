@@ -15,17 +15,27 @@
     "machine": "m5core2",
     "pmic": "axp2101",
     "qemu_sha256": "fe74ac6fceb145d0abcf1bef574d1edd99c153395e9693c73eb82555244d597f",
+    "qemu_stderr_sha256": "7fe3c822cd392b707b1b5bd4dda56aa792eb0829354911cf5f4c4a4ca7cfb2e1",
+    "serial_log_sha256": "4d4c529c9ccd6f3903eada93964283df92e7ee7579a3e1681b51a34971c3f579",
     "trace_build_note": "temporary local address-filter instrumentation; the product QEMU build was restored after collecting the trace",
     "trace_env": {
       "M5SW_I2C_TRACE": "1",
       "M5SW_I2C_ADDR_TRACE": "34"
-    }
+    },
+    "address_filter_effective": false,
+    "trace_limit": "the saved log contains address 0x51 and scan addresses in addition to 0x34, so sequence evidence is valid but the requested address filter was not effective"
   },
   "observations": {
     "chip_id_read": "PASS",
     "chip_id_value": "0x4a",
     "successful_axp_start": true,
     "subsequent_axp_bus_transaction_observed": false,
+    "next_controller_transaction": {
+      "address": "0x51",
+      "read": false,
+      "start_rc": 1,
+      "classification": "BM8563/PCF8563 RTC-candidate transaction; no device acknowledged on the controller path used by this firmware"
+    },
     "serial_error": "OSError: I2C bus error (19)",
     "failing_path": [
       "hardware/__init__.py:167 pmic_axp",
@@ -42,16 +52,17 @@
       "[esp32-i2c-addr] address=34 read=1 start_rc=0 byte_num=1",
       "[axp2101] rd 03 -> 4a",
       "[esp32-i2c-addr] rx=4a cmd=0",
+      "[esp32-i2c-addr] address=51 read=0 start_rc=1 byte_num=1",
       "OSError: I2C bus error (19)"
     ]
   },
   "classification": {
     "code": "i2c_driver_or_bus_handoff_gap",
     "status": "OPEN",
-    "explanation": "The AXP2101 address probe and chip-id read succeed. The next failing Python read does not produce another address-0x34 controller transaction, so the current evidence does not support an AXP register-response mismatch as the first failure.",
+    "explanation": "The AXP2101 address probe and chip-id read succeed. The next failing Python read issues an address-0x51 transaction that receives no ACK and does not produce another address-0x34 controller transaction. Address 0x51 plus the frozen BM8563 qstrs and the disable_timer_interrupt/read_byte stack strongly identify an RTC-candidate path. The first confirmed gap is therefore controller-to-board-bus routing or handoff, not an AXP register-response mismatch.",
     "next_evidence": [
-      "trace machine.I2C driver state and bus ownership across M5GFX handoff",
-      "compare the public firmware with the matching UIFlow source revision or extracted frozen bytecode",
+      "trace the controller port id, configured SCL/SDA pins and selected QEMU I2C bus for the address-0x51 transaction",
+      "compare the public firmware with matching UIFlow1 source/frozen bytecode that contains the Axp192, Axp2101 and BM8563 classes",
       "retain A/B results for AXP2101 and AXP192"
     ]
   },

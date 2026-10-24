@@ -18,6 +18,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-3b` full transaction | `PASS` | `0003-esp32-native-hci-api-transaction.patch`、`0004-xtensa-ccount-tb-yield.patch`、`run_full.py --hli-c2h` | 无 GDB 完成 scan/connect/NUS discovery/subscribe/write/notify 和 Bumble ACK；合法 loader 为 15-byte probe / 17-byte ATT PDU，连续 `5/5` |
 | `HCI-4` stability | `PASS` | `run_service_5x.py`、`evidence-2026-10-24-hci4-service-5x.json` | 规范 profile `core2-native-hci` 通过五个独立 `/api/v1` lease；每轮同时验证 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP，且 `gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | `0005-esp32-native-hci-guest-call-sregs.patch`、hold 60/120s evidence、`evidence-2026-10-24-hci4-active-ble-hold600-2x.json` | caller-saved sregs 与 halted/idle gate 后，两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `600s` hold 已通过；600s hold 的 peer 全程连接，HLI `45/45` 且队列/错误为 0 |
+| `CORE2-02` 7200s diagnostic | `DIAGNOSTIC PASS` | `evidence-2026-10-24-hci4-active-ble-hold7200-diagnostic.json` | WiFi/公网/active BLE GATT/frame/pcap 保持 7200 秒，HLI `45/45` 且错误/队列/peer-close 为 0；QEMU 在 run 中被临时重编，旧 runner 未冻结启动哈希，因此不关闭 artifact-bound 门禁 |
 | `CORE2-02` same-guest reconnect | `PASS` | `run_service_5x.py --ble-reconnect-cycles 20`、`0006-esp32-native-hci-observability.patch`、`evidence-2026-10-24-hci4-reconnect10-3x.json`、`evidence-2026-10-24-hci4-reconnect20-3x.json` | 修正 Bumble 对无响应 `0x0c35` 的非法 Command Status 后，先完成 3 个 lease 各 10 轮，再扩到各 20 轮；二十轮结果每 lease HLI 577/577、events 397、ACLs 180 清空，连接/L2CAP/GATT 池回到 `3/9/3` |
 | `CORE2-02` 30-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 30 --attempts 3`、`evidence-2026-10-24-hci4-reconnect30-3x.json` | 3 个独立 lease 各 30 轮；每 lease HLI `857/857`、events 587、ACLs 270、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
 | `CORE2-02` 60-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 60 --attempts 3`、`evidence-2026-10-24-hci4-reconnect60-3x.json` | 3 个独立 lease 各 60 轮；每 lease HLI `1697/1697`、events `1157`、ACLs `540`、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
@@ -421,6 +422,8 @@ Active-BLE 120 秒 hold 证据：
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json`。
 Active-BLE 600 秒 hold 证据：
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold600-2x.json`。
+Active-BLE 7200 秒诊断保持证据：
+`tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold7200-diagnostic.json`。
 
 60 秒运行中 BLE peer 正常关闭后设备保持 running，QOM 的 write error
 仅在 `peer-closed>0` 时允许，其他 HLI errors 仍必须为 0。
@@ -483,8 +486,11 @@ conn/L2CAP/GATT `3/9/3` 的空闲池基线。
 
 20、30、60 和 120 轮 reconnect 关闭的是同 guest 连接生命周期门禁，不表示物理
 cache/PSRAM、bit-exact controller、两小时 coexistence 或真机已经等价。
-后续长稳仍需验证超过一百二十轮与两小时 soak。当前 reconnect 上限为
-`120`，hold 上限为 `7200s`；600 秒 active-BLE gate 已通过。
+一次 7200 秒 active-BLE 行为保持已通过，状态为 `DIAGNOSTIC_PASS`；由于
+QEMU 在该 run 中被临时重编，旧 runner 又只在结束时计算哈希，该结果不满足
+单资产绑定门禁。runner 现已在首 lease 前冻结 firmware/ELF/QEMU 哈希并拒绝
+运行期间资产漂移，下一步需用该版本重跑同一 `7200s` gate。当前 reconnect
+上限为 `120`，hold 上限为 `7200s`；600 秒 active-BLE gate 已通过。
 
 ## 剩余工作量
 
@@ -494,12 +500,12 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
 60、120 轮 reconnect 门禁已 PASS：
 
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
-- 物理 cache/PSRAM 等价性、超过一百二十轮连接、两小时 coexistence/soak 和真机
+- 物理 cache/PSRAM 等价性、超过一百二十轮连接、artifact-bound 两小时 coexistence/soak 和真机
   路径需要独立
   计划，不能由当前 `5×10s` / `3×60s` / `2×120s` 重复门禁推导；当前
-  PASS 覆盖 halt-gated guest 注入、最多两分钟的独立 lease 生命周期和
-  active BLE 共存、20、30、60 和 120 轮 reconnect；不覆盖超过一百二十轮
-  连接或多小时 soak。
+  PASS 覆盖 halt-gated guest 注入、最多两分钟的独立 lease 生命周期、
+  active BLE 共存和 20、30、60、120 轮 reconnect；7200 秒仅覆盖行为诊断，
+  不覆盖 artifact-bound 多小时 gate 或超过一百二十轮连接。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

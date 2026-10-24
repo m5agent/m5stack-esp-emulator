@@ -7,6 +7,7 @@ import hashlib
 import io
 import json
 import re
+import subprocess
 import sys
 import time
 import urllib.error
@@ -33,6 +34,41 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: source.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def freeze_input_hashes(
+    image: Path,
+    elf: Path,
+    qemu: Path,
+) -> dict[str, str | int]:
+    """Bind evidence to the exact inputs observed before the first lease."""
+    return {
+        "firmware_bytes": image.stat().st_size,
+        "firmware_sha256": sha256(image),
+        "elf_sha256": sha256(elf),
+        "qemu_sha256": sha256(qemu),
+    }
+
+
+def parse_ps_rss_kib(output: str) -> int | None:
+    value = output.strip()
+    return int(value) if value.isdigit() else None
+
+
+def process_rss_kib(pid: int | None) -> int | None:
+    if not pid:
+        return None
+    try:
+        result = subprocess.run(
+            ["ps", "-o", "rss=", "-p", str(pid)],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return parse_ps_rss_kib(result.stdout)
 
 
 class Api:
@@ -292,6 +328,8 @@ def run_attempt(
     hold_stable = False
     hold_state = "not_running"
     hold_error: str | None = None
+    rss_samples: list[int] = []
+    state_samples = 0
 
     try:
         session = api.json(
@@ -333,8 +371,22 @@ def run_attempt(
         hold_deadline = time.monotonic() + hold_seconds
         hold_stable = True
         hold_state = "running"
+        last_resource_sample: float | None = None
+        poll_seconds = 5.0 if hold_seconds >= 60 else 0.5
         while time.monotonic() < hold_deadline:
             current = api.json(f"/api/v1/sessions/{session_id}")
+            state_samples += 1
+            elapsed = time.monotonic() - (
+                hold_deadline - hold_seconds
+            )
+            if (
+                last_resource_sample is None
+                or elapsed - last_resource_sample >= 30
+            ):
+                rss = process_rss_kib(current.get("pid"))
+                if rss is not None:
+                    rss_samples.append(rss)
+                last_resource_sample = elapsed
             if current.get("state") != "running":
                 hold_stable = False
                 hold_state = str(current.get("state") or "unknown")
@@ -345,7 +397,7 @@ def run_attempt(
                 break
             time.sleep(
                 min(
-                    0.5,
+                    poll_seconds,
                     max(0.0, hold_deadline - time.monotonic()),
                 )
             )
@@ -618,6 +670,13 @@ def run_attempt(
         "network_status": str(network.get("status") or "UNAVAILABLE"),
         "hold_state": hold_state,
         "hold_error": hold_error,
+        "hold_resource_samples": {
+            "state_polls": state_samples,
+            "rss_kib_min": min(rss_samples) if rss_samples else None,
+            "rss_kib_max": max(rss_samples) if rss_samples else None,
+            "rss_kib_end": rss_samples[-1] if rss_samples else None,
+            "rss_kib_samples": rss_samples,
+        },
         "failure_diagnostics": {
             "panic_count": len(panic_events),
             "first_panic": panic_events[0] if panic_events else None,
@@ -671,10 +730,17 @@ def main() -> int:
         if not path.is_file():
             parser.error(f"{label} does not exist: {path}")
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    input_hashes = freeze_input_hashes(args.image, args.elf, args.qemu)
 
     api = Api(args.base_url, args.token)
     firmware_artifact = api.upload(args.image)
     elf_artifact = api.upload(args.elf)
+    if firmware_artifact != input_hashes["firmware_sha256"]:
+        raise SystemExit(
+            "firmware artifact hash changed between preflight and upload"
+        )
+    if elf_artifact != input_hashes["elf_sha256"]:
+        raise SystemExit("ELF artifact hash changed between preflight and upload")
     firmware = api.json(
         "/api/v1/firmware",
         payload={
@@ -700,6 +766,16 @@ def main() -> int:
     attempts_passed = sum(run["status"] == "PASS" for run in runs)
     failed_runs = [run for run in runs if run["status"] != "PASS"]
     all_checks_passed = all(all(run["checks"].values()) for run in runs)
+    post_run_hashes = freeze_input_hashes(args.image, args.elf, args.qemu)
+    input_assets_unchanged = post_run_hashes == input_hashes
+    input_asset_drift = {
+        key: {
+            "before": input_hashes[key],
+            "after": post_run_hashes[key],
+        }
+        for key in input_hashes
+        if post_run_hashes[key] != input_hashes[key]
+    }
     frame_hashes = {run["frame_sha256"] for run in runs}
     qom_node_counts = {run["qom_nodes"] for run in runs}
     checks_per_attempt = {
@@ -734,6 +810,7 @@ def main() -> int:
         if len(runs) == args.attempts
         and attempts_passed == args.attempts
         and all_checks_passed
+        and input_assets_unchanged
         else "FAIL"
     )
     evidence = {
@@ -747,11 +824,14 @@ def main() -> int:
         "runtime": "qemu-unified",
         "service_api": "/api/v1",
         "firmware": {
-            "sha256": sha256(args.image),
-            "bytes": args.image.stat().st_size,
+            "sha256": input_hashes["firmware_sha256"],
+            "bytes": input_hashes["firmware_bytes"],
         },
-        "elf_sha256": sha256(args.elf),
-        "qemu_sha256": sha256(args.qemu),
+        "elf_sha256": input_hashes["elf_sha256"],
+        "qemu_sha256": input_hashes["qemu_sha256"],
+        "input_hash_bound_at": "before_first_lease",
+        "input_assets_unchanged_during_run": input_assets_unchanged,
+        "input_asset_drift": input_asset_drift,
         "attempts_requested": args.attempts,
         "attempts_completed": len(runs),
         "attempts_passed": attempts_passed,

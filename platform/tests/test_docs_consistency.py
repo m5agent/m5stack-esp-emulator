@@ -240,6 +240,14 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn("## Backlog Task 板", checked_in)
         self.assertIn("`CORE2-02`", checked_in)
+        core2 = next(
+            device
+            for device in snapshot["devices"]
+            if device["id"] == "core2"
+        )
+        self.assertGreater(len(core2["blockers"]), 1)
+        for blocker in core2["blockers"]:
+            self.assertIn(blocker, checked_in)
 
     def test_filesystem_permission_policy_does_not_overclaim(self) -> None:
         evidence = json.loads(
@@ -311,6 +319,7 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertEqual(evidence["status"], "PASS")
         self.assertEqual(evidence["runtime"]["pmic"], "axp2101")
+        self.assertFalse(evidence["runtime"]["address_filter_effective"])
         self.assertEqual(evidence["observations"]["chip_id_value"], "0x4a")
         self.assertTrue(evidence["observations"]["successful_axp_start"])
         self.assertFalse(
@@ -319,12 +328,23 @@ class DocsConsistencyTests(unittest.TestCase):
             ]
         )
         self.assertEqual(
+            evidence["observations"]["next_controller_transaction"]["address"],
+            "0x51",
+        )
+        self.assertEqual(
+            evidence["observations"]["next_controller_transaction"][
+                "start_rc"
+            ],
+            1,
+        )
+        self.assertEqual(
             evidence["classification"]["code"],
             "i2c_driver_or_bus_handoff_gap",
         )
         register = (DOCS / "runtime-model-gap-register.md").read_text()
         self.assertIn("chip id `0x4a`", register)
-        self.assertIn("bus ownership", register)
+        self.assertIn("controller-to-physical-bus routing", register)
+        self.assertIn("address `0x51`", register)
 
     def test_relative_markdown_links_exist(self) -> None:
         paths = [
@@ -476,6 +496,26 @@ class DocsConsistencyTests(unittest.TestCase):
             "自动化客户端批量迁移、跨主机 QEMU executor",
         ):
             self.assertNotIn(stale, active)
+
+    def test_agents_does_not_duplicate_mutable_project_counts(self) -> None:
+        agents = (ROOT / "AGENTS.md").read_text()
+        for pattern in (
+            r"\b\d+\s+unified profiles\b",
+            r"\b\d+\s+(?:public\s+)?samples\b",
+            r"\b\d+/\d+\s+(?:PASS|cases?)\b",
+        ):
+            self.assertIsNone(
+                re.search(pattern, agents, re.IGNORECASE),
+                f"AGENTS.md must link mutable counts instead of copying them: {pattern}",
+            )
+        for authority in (
+            "docs/project-status.md",
+            "docs/project-backlog.md",
+            "docs/validation-ledger.md",
+            "docs/runtime-model-gap-register.md",
+            "docs/project-snapshot.md",
+        ):
+            self.assertIn(authority, agents)
 
     def test_runtime_model_gap_register_matches_evidence_and_backlog(self):
         register = (DOCS / "runtime-model-gap-register.md").read_text()

@@ -99,20 +99,22 @@ zero `FAIL`.
 
 | Firmware | SHA-256 | Current result | Runtime model gap |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | AXP address/chip-id probe passes; legacy M5GFX-to-`machine.I2C` handoff fails before the next AXP bus transaction |
-| `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | AXP discovery succeeds; legacy I2C driver/bus handoff error leaves no frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | AXP address/chip-id probe passes; the next address-`0x51` RTC-candidate transaction is not acknowledged on the legacy controller path |
+| `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | AXP discovery succeeds; legacy controller/board-bus routing fails during PMIC/RTC initialization and leaves no frame |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
 The `UIFlow_Core2` sample was rerun with both default AXP2101 and the narrow
 `M5SW_CORE2_PMIC=axp192` runtime override. Both variants produce the same
 `OSError: I2C bus error (19)` and black frame. Focused I2C tracing later
-confirmed that the AXP2101 chip id `0x4a` is readable; the failing next read
-does not produce a new address-`0x34` transaction, so the first confirmed gap
-is the legacy driver/bus handoff rather than a PMIC register value.
+confirmed that the AXP2101 chip id `0x4a` is readable. The next controller
+transaction targets address `0x51` with no ACK before another address-`0x34`
+PMIC read occurs. Frozen BM8563 qstrs, the RTC address and the call stack point
+to the legacy controller-to-board-bus routing/handoff path rather than a
+proven PMIC register value mismatch.
 
-These are tracked as `RUNTIME-03` for the Core2 AXP I2C driver/bus handoff and
-`RUNTIME-04` for the Core2 for AWS ATECC608 secure element. They remain
-`OPEN` until the relevant guest data paths complete.
+These are tracked as `RUNTIME-03` for Core2 legacy I2C controller/board-bus
+routing and `RUNTIME-04` for the Core2 for AWS ATECC608 secure element. They
+remain `OPEN` until the relevant guest data paths complete.
 
 Evidence:
 [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json).
@@ -139,10 +141,14 @@ functional PASS.
 - Tab5 service sessions attach the documented PI4IOE, INA226, RX8130 and
   BMI270 register devices to I2C1. Uploaded Tab5 images still lack a matching
   ELF, so AP-frame and touch capture remain unavailable.
-- Core2 sessions expose the supported 4 MiB PSRAM model. Radio/unified runs
-  now use deterministic TCG/icount scheduling and passed 10/10 independent
-  first attempts; the reproduced failure was interrupt-WDT/timer starvation,
-  not a proven cache fault. This does not prove physical cache/PSRAM timing.
+- Core2 has 8 MiB physical PSRAM, but the current QEMU machine supports at most
+  a 4 MiB emulated PSRAM model. Generic-firmware sessions can use that 4 MiB
+  model; native-controller runs currently use a conservative QEMU `-m 0`
+  lane. These are separate runtime-memory configurations, and neither proves
+  physical cache/PSRAM timing. Radio/unified runs now use deterministic
+  TCG/icount scheduling and passed 10/10 independent first attempts; the
+  reproduced failure was interrupt-WDT/timer starvation, not a proven cache
+  fault.
   Stock VHCI paths pass external
   NUS GATT 5/5 standalone and board+WiFi+public+BLE 3/3 in one guest, but
   the QEMU native-HCI path is now canonical. `HCI-4` passed five independent
@@ -156,8 +162,10 @@ functional PASS.
   and gates HLI allocation/callback injection to halted/idle vCPU state.
   Two independent `5×10s` batches pass `10/10`, three `60s` holds pass
   `3/3`, two `120s` holds pass `2/2`, and two active-BLE `600s` holds pass
-  `2/2`, with zero HLI errors and empty HLI/meta queues. Three independent
+  `2/2`, with zero HLI errors and empty HLI/meta queues. One `7200s`
+  active-BLE WiFi/public-network/GATT hold is `DIAGNOSTIC_PASS`, but the QEMU
+  path was rebuilt during that run and the old runner did not freeze the launch
+  hash, so an artifact-bound two-hour gate remains `NOT RUN`. Three independent
   stock-firmware leases complete 20, 30, 60 and 120 same-guest reconnect gates.
   Bit-exact Espressif BT controller behavior, physical cache/PSRAM equivalence,
-  more than 120 reconnect cycles, multi-hour coexistence/soak and hardware validation remain
-  `NOT RUN`.
+  more than 120 reconnect cycles and hardware validation remain `NOT RUN`.
