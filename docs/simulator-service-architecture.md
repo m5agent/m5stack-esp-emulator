@@ -270,8 +270,8 @@ and retained evidence.
 Status: local worker lifecycle, a persistent remote-worker registration
 directory, a durable pull-based job queue, a same-host HTTP executor and
 verified local QEMU/QMP restart re-attach exist; cross-host execution and
-authorization hardening, companion/evidence continuity, cross-host re-attach
-and multi-host scheduling remain open.
+TLS/mTLS/credential rotation, companion/evidence continuity, cross-host
+re-attach and multi-host scheduling remain open.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
@@ -286,10 +286,14 @@ and multi-host scheduling remain open.
   worker reconciliation;
 - `worker_agent.py` runs a claimed job through `/api/v1`, waits for a real
   session, downloads/hashes evidence, stops the session and reports the result;
+- when an API token is configured, worker-only mutations use a
+  worker/generation-derived HMAC with timestamp, nonce replay protection and
+  path/body identity binding;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- cross-host execution/auth hardening, companion HTTP/BLE/evidence continuity,
-  cross-host re-attach and production capacity scheduling remain open.
+- cross-host execution, TLS/mTLS and credential rotation, companion
+  HTTP/BLE/evidence continuity, cross-host re-attach and production capacity
+  scheduling remain open.
 
 ### Phase S2: warm/cold pool
 

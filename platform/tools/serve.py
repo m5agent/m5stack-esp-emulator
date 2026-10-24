@@ -30,6 +30,7 @@ from device_service import (
 )
 from peripheral_inventory import build_inventory
 from runtime_interfaces import build_interfaces
+from worker_auth import is_worker_auth_path, worker_identity_matches
 
 ROOT = Path(__file__).resolve().parents[2]
 DEVICES = ROOT / "devices"
@@ -181,6 +182,7 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _handle_v1(self, method: str, path: str, query: dict[str, list[str]]) -> None:
         request_id = uuid.uuid4().hex
+        self._cached_body: bytes | None = None
         if not self._authorized(path):
             self._json(
                 {
@@ -203,6 +205,14 @@ class Handler(SimpleHTTPRequestHandler):
             response: Any
             status = 200
             headers = {"X-Request-ID": request_id}
+            verified_worker: dict[str, Any] | None = None
+            if self.api_token and is_worker_auth_path(method, path):
+                verified_worker = service.verify_worker_request(
+                    self.headers,
+                    method,
+                    path,
+                    self._read_body(max_bytes=1024 * 1024),
+                )
 
             if method == "GET" and (not parts or parts == ["health"]):
                 response = {
@@ -541,7 +551,9 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.submit_remote_job(self._read_json())
                 status = 201
             elif method == "POST" and parts == ["jobs", "claim"]:
-                response = service.claim_remote_job(self._read_json())
+                payload = self._read_json()
+                self._require_worker_identity(payload, verified_worker)
+                response = service.claim_remote_job(payload)
             elif (
                 method == "POST"
                 and len(parts) == 3
@@ -550,10 +562,12 @@ class Handler(SimpleHTTPRequestHandler):
                 action = parts[2]
                 payload = self._read_json(required=action != "cancel")
                 if action == "heartbeat":
+                    self._require_worker_identity(payload, verified_worker)
                     response = service.heartbeat_remote_job(
                         parts[1], payload
                     )
                 elif action == "result":
+                    self._require_worker_identity(payload, verified_worker)
                     response = service.record_remote_job_result(
                         parts[1], payload
                     )
@@ -575,18 +589,38 @@ class Handler(SimpleHTTPRequestHandler):
                 payload = self._read_json()
                 action = parts[2]
                 if action == "heartbeat":
+                    self._require_worker_identity(
+                        payload,
+                        verified_worker,
+                        parts[1],
+                    )
                     response = service.heartbeat_remote_worker(
                         parts[1], payload
                     )
                 elif action == "drain":
+                    self._require_worker_identity(
+                        payload,
+                        verified_worker,
+                        parts[1],
+                    )
                     response = service.drain_remote_worker(
                         parts[1], payload
                     )
                 elif action == "stop":
+                    self._require_worker_identity(
+                        payload,
+                        verified_worker,
+                        parts[1],
+                    )
                     response = service.stop_remote_worker(
                         parts[1], payload
                     )
                 elif action == "results":
+                    self._require_worker_identity(
+                        payload,
+                        verified_worker,
+                        parts[1],
+                    )
                     response = service.record_remote_worker_result(
                         parts[1], payload
                     )
@@ -719,6 +753,9 @@ class Handler(SimpleHTTPRequestHandler):
             )
 
     def _read_body(self, max_bytes: int) -> bytes:
+        cached = getattr(self, "_cached_body", None)
+        if cached is not None:
+            return cached
         try:
             length = int(self.headers.get("Content-Length", "0"))
         except ValueError as error:
@@ -729,7 +766,30 @@ class Handler(SimpleHTTPRequestHandler):
             raise ServiceError(
                 "body_too_large", f"request body exceeds {max_bytes} bytes", 413
             )
-        return self.rfile.read(length)
+        body = self.rfile.read(length)
+        self._cached_body = body
+        return body
+
+    def _require_worker_identity(
+        self,
+        payload: dict[str, Any],
+        verified: dict[str, Any] | None,
+        worker_id: str | None = None,
+    ) -> None:
+        if verified is None:
+            return
+        if worker_id is not None and str(verified.get("worker_id")) != worker_id:
+            raise ServiceError(
+                "worker_auth_identity_mismatch",
+                "signed worker identity does not match the path",
+                409,
+            )
+        if not worker_identity_matches(verified, payload):
+            raise ServiceError(
+                "worker_auth_identity_mismatch",
+                "signed worker identity does not match the request body",
+                409,
+            )
 
     def _read_json(self, required: bool = True) -> dict:
         if not required and int(self.headers.get("Content-Length", "0") or "0") == 0:

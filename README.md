@@ -24,8 +24,8 @@ MicroPython 和其他完整 Flash 固件。
   `67/67` 用例、`274/274` 检查 PASS；所有用例均为 `attempts=1`、
   `retry_used=false`，Core2 6/6 也在 `tcg,thread=single` + `icount`
   下首轮通过。该轮包含双 guest WiFi patch `0028`。本轮在同一工作树执行
-  本地平台套件，共 `292` 项，
-  `292` 项通过、`0` 项跳过。
+  本地平台套件，共 `296` 项，
+  `296` 项通过、`0` 项跳过。
 - 网络新增一台 namespace 内的 QEMU socket L2 switch 夹具：两台 StickS3
   guest 各自完成 DHCP，A 通过真实 guest TCP 访问 B，双侧 pcap 同时包含
   双向流量；switch 按配置 MAC 绑定连接槽位；宿主控制面、公网 IPv4、
@@ -42,7 +42,9 @@ MicroPython 和其他完整 Flash 固件。
   worker 失联回收。独立 HTTP `worker_agent.py` 已能 claim job、运行真实
   QEMU session、下载 evidence ZIP/SHA256 并提交结果；本地 QEMU 也可在
   PID start-time、QMP ownership 和 `query-status=running` 校验后恢复
-  QMP 控制面。跨主机 executor、worker auth 强化、companion/BLE/evidence
+  QMP 控制面。启用 API token 时，worker-only mutation 需要
+  worker/generation 派生 HMAC、时间戳和 nonce replay 防护；跨主机
+  executor/TLS/mTLS、credential rotation、companion/BLE/evidence
   continuity 和生产多机调度仍未完成。
 - restart reattach 已做实跑：仅 SIGKILL Device Service、保留真实 StickS3
   QEMU，第二代服务以同一 PID 重新接管并恢复 worker lease，随后 stop
@@ -71,7 +73,7 @@ MicroPython 和其他完整 Flash 固件。
 
 | 主线 | 已交付 | 验证证据 | 仍开放 |
 | --- | --- | --- | --- |
-| 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap、双 guest DHCP/TCP/双侧 pcap 隔离、远程目录、durable job queue、HTTP executor 和本地 QEMU/QMP restart reattach | [`executor-pass.json`](tests/network/worker_executor/evidence-2026-10-24-executor-pass.json) | 跨主机 executor、worker auth 强化、companion/evidence continuity、跨主机 reattach、生产多机调度、外部 IPv6 |
+| 网络隔离与受控访问 | Linux namespace/CI、controlled DNS、TLS/SNI Host allowlist、nftables exact IPv4 egress、veth/NAT、DHCP renewal、虚拟 radio/AP 丢失恢复、QEMU pcap、双 guest DHCP/TCP/双侧 pcap 隔离、远程目录、durable job queue、authenticated HTTP executor 和本地 QEMU/QMP restart reattach | [`executor-auth-pass.json`](tests/network/worker_executor/evidence-2026-10-24-executor-auth-pass.json) | 跨主机 executor/TLS/mTLS、credential rotation、companion/evidence continuity、跨主机 reattach、生产多机调度、外部 IPv6 |
 | Core2 稳定性与无线 | 确定性 TCG/icount 10/10、OpenMAC WiFi、公网 DNS/HTTP、HCI-offload GATT、stock native-VHCI GATT、native-HCI `HCI-1` 至 `HCI-4` PASS；规范 profile `core2-native-hci` 在五个独立 Device Service lease 中完成 frame/QOM/WiFi/公网/NUS GATT/pcap | [`hci4-service-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json)、[`hli-api-gatt-5x.json`](tests/uiflow2/core2_native_hci/evidence-2026-10-24-hli-api-gatt-5x.json)、[`0003-esp32-native-hci-api-transaction.patch`](patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch) | HCI/GATT 服务化门禁已闭环，且 `gdb_bridge=false`。旧失败是 21-byte probe 形成 24-byte ATT PDU、超过默认 MTU 23；15-byte probe 的 17-byte PDU 全链路 `5/5`。旧 `core2-native-vhci` 降为 GDB 诊断/兼容 profile；剩余是 bit-exact controller/baseband、物理 cache/PSRAM、coexistence/soak、真机同路径 |
 | 通用固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、写入回滚和 staging GC、eFuse summary、capability mismatch、脱敏静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单与 SPDX、声明级许可 allowlist/denylist | [`spiffs-inventory.json`](tests/firmware/evidence-2026-10-24-spiffs-inventory.json)、[`webburner-ui.json`](tests/firmware/evidence-2026-10-24-webburner-ui.json) | 运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse、跨厂商回归 |
 | 共享 QEMU 回归 | 双 guest WiFi patch `0028` 合入后，S3/C6/Core2 全矩阵 `67/67` 首轮通过；键盘测试补齐 10 秒启动 settle | [`dual-guest-fabric-matrix.json`](tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json) | 后续共享控制器改动重跑受影响矩阵；真机同路径证据 |
@@ -82,9 +84,9 @@ MicroPython 和其他完整 Flash 固件。
 | --- | --- | --- |
 | 高保真逐设备外观建模 | `TODO` | 仅 StopWatch 接近参考质量，其余 13 台仍是通用近似外壳 |
 | Tab5 外设完整闭环 | `partial` | 烧录、启动、1280×720 画面和触摸可用；摄像头、音频、USB、SDIO、动态 I2C 等未完成 |
-| 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT、DHCP renewal、双 guest lab fabric、本地 worker lifecycle、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 和同主机 HTTP executor 已通；跨主机 executor、worker auth 强化、companion/evidence continuity、跨主机 reattach、生产多机调度和外部 IPv6 仍待补 |
+| 网络隔离与安全回归 | `mostly complete` | Linux namespace/CI、pcap、错误密码、radio/AP 丢失恢复、controlled DNS、TLS/Host allowlist、exact IPv4 egress、veth/NAT、DHCP renewal、双 guest lab fabric、本地 worker lifecycle、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor、同主机 HTTP executor 和 HMAC worker auth 已通；跨主机 executor/TLS/mTLS、rotation、companion/evidence continuity、跨主机 reattach、生产多机调度和外部 IPv6 仍待补 |
 | 通用固件正式入口 | `mostly complete` | merged/segmented、FirmwareManifest、WebBurner/M5Burner/flasher_args 导入、浏览器 chunk 上传与刷新恢复、脱敏 eFuse summary、capability mismatch、静态审查、SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单和声明级许可 allowlist/denylist 已通；运行时权限、完整源码级许可审批与真机 key 流程仍待补 |
-| 服务池与持久化 | `partial` | 已支持本地 worker heartbeat/drain/resume、PID/start-time/QMP 校验后的 restart reattach、远程目录、durable queue、HTTP executor、claim/lease/expiry retry、worker 失联回收和 evidence ZIP/SHA256 回传；尚无跨主机 executor、worker auth 强化、companion/BLE/evidence 连续接管、warm pool 和生产多机调度 |
+| 服务池与持久化 | `partial` | 已支持本地 worker heartbeat/drain/resume、PID/start-time/QMP 校验后的 restart reattach、远程目录、durable queue、HMAC-authenticated HTTP executor、claim/lease/expiry retry、worker 失联回收和 evidence ZIP/SHA256 回传；尚无跨主机 executor、TLS/mTLS、rotation、companion/BLE/evidence 连续接管、warm pool 和生产多机调度 |
 | Core2 稳定性与原生无线 | `partial` | unified WiFi、DNS/公网、HCI-offload、stock VHCI、QEMU native-HCI 均已有通过证据；`core2-native-hci` 在五个独立 Device Service lease 中合并 frame/QOM/WiFi/公网/NUS GATT/pcap，且不使用 GDB bridge | bit-exact Espressif BT controller/baseband、物理 cache/PSRAM、coexistence/soak 和真机同路径 |
 | 真机验证 | `NOT RUN` | 当前设备功能结论均为仿真证据，RF/功耗/声学/光学/机械仍需真机 |
 

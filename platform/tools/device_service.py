@@ -88,6 +88,7 @@ from worker_directory import (  # noqa: E402
     WorkerDirectory,
     WorkerDirectoryError,
 )
+from worker_auth import WorkerAuthError, WorkerAuthVerifier  # noqa: E402
 from worker_queue import WorkerJobQueue, WorkerQueueError  # noqa: E402
 from worker_registry import WorkerRegistry, WorkerRegistryError  # noqa: E402
 from xtensa_elf_symbols import (  # noqa: E402
@@ -6196,6 +6197,7 @@ class DeviceService:
         self.max_per_device = max(1, int(max_per_device))
         self.default_ttl = max(30, int(default_ttl))
         self.api_token = api_token
+        self.worker_auth = WorkerAuthVerifier(api_token)
         self.flash_preparer = flash_preparer or default_flash_preparer
         self._sessions: dict[str, DeviceSession] = {}
         self._lock = threading.RLock()
@@ -7742,6 +7744,22 @@ class DeviceService:
 
     def list_remote_workers(self) -> dict:
         return self.worker_directory.list_workers()
+
+    def verify_worker_request(
+        self,
+        headers: Any,
+        method: str,
+        path: str,
+        body: bytes,
+    ) -> dict:
+        try:
+            return self.worker_auth.verify(headers, method, path, body)
+        except WorkerAuthError as error:
+            raise ServiceError(
+                error.code,
+                error.message,
+                error.status,
+            ) from error
 
     def register_remote_worker(self, payload: dict) -> dict:
         try:

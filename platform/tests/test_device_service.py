@@ -42,6 +42,7 @@ from device_service import (
 )
 from serve import Handler, _wait_for_session
 from test_firmware_analysis import build_flash
+from worker_auth import sign_worker_request
 
 
 def hermetic_flash_preparer(
@@ -3949,7 +3950,10 @@ class DeviceServiceHttpTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
-        cls.service = DeviceService(state_dir=Path(cls.tmp.name))
+        cls.service = DeviceService(
+            state_dir=Path(cls.tmp.name),
+            api_token="test-auth-value",
+        )
         Handler.service = cls.service
         Handler.api_token = None
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
@@ -4418,7 +4422,10 @@ class LegacyApiAuthTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
-        cls.service = DeviceService(state_dir=Path(cls.tmp.name))
+        cls.service = DeviceService(
+            state_dir=Path(cls.tmp.name),
+            api_token="test-auth-value",
+        )
 
         class AuthHandler(Handler):
             api_token = "test-auth-value"
@@ -4474,6 +4481,58 @@ class LegacyApiAuthTests(unittest.TestCase):
             self.assertEqual(response.status, 201)
             payload = json.load(response)
         self.assertEqual(payload["worker"]["worker_id"], "auth-worker")
+
+        with self.assertRaises(HTTPError) as unsigned:
+            request = Request(
+                self.base + "/api/v1/workers/auth-worker/heartbeat",
+                method="POST",
+                data=json.dumps(
+                    {
+                        "worker_id": "auth-worker",
+                        "instance_id": "auth-instance",
+                        "generation": 1,
+                    }
+                ).encode(),
+                headers={
+                    "Authorization": "Bearer test-auth-value",
+                    "Content-Type": "application/json",
+                },
+            )
+            urlopen(request, timeout=5)
+        self.assertEqual(unsigned.exception.code, 401)
+
+        heartbeat_payload = json.dumps(
+            {
+                "worker_id": "auth-worker",
+                "instance_id": "auth-instance",
+                "generation": 1,
+                "state": "ready",
+                "active_lease_ids": [],
+            }
+        ).encode()
+        signed_headers = sign_worker_request(
+            "test-auth-value",
+            {
+                "worker_id": "auth-worker",
+                "instance_id": "auth-instance",
+                "generation": 1,
+            },
+            "POST",
+            "/api/v1/workers/auth-worker/heartbeat",
+            heartbeat_payload,
+        )
+        request = Request(
+            self.base + "/api/v1/workers/auth-worker/heartbeat",
+            method="POST",
+            data=heartbeat_payload,
+            headers={
+                "Authorization": "Bearer test-auth-value",
+                "Content-Type": "application/json",
+                **signed_headers,
+            },
+        )
+        with urlopen(request, timeout=5) as response:
+            self.assertEqual(response.status, 200)
 
 
 if __name__ == "__main__":

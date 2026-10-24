@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.18.0
+  version: 1.19.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1339,6 +1339,24 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
+      description: >
+        When an API token is configured, worker-only mutation endpoints also
+        require X-M5-Worker-Id, X-M5-Worker-Instance,
+        X-M5-Worker-Generation, X-M5-Worker-Timestamp, X-M5-Worker-Nonce and
+        X-M5-Worker-Signature. The signature is HMAC-SHA256 over method, path,
+        timestamp, nonce and body SHA256 using a key derived from the master
+        token and worker identity/generation.
+      x-worker-auth:
+        timestamp_window_seconds: 90
+        nonce_replay_cache: true
+        protected_operations:
+          - POST /jobs/claim
+          - POST /jobs/{job_id}/heartbeat
+          - POST /jobs/{job_id}/result
+          - POST /workers/{worker_id}/heartbeat
+          - POST /workers/{worker_id}/drain
+          - POST /workers/{worker_id}/stop
+          - POST /workers/{worker_id}/results
   parameters:
     DeviceId:
       name: device_id

@@ -76,11 +76,13 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/tools/worker_registry.py",
             "platform/tools/worker_directory.py",
             "platform/tools/worker_queue.py",
+            "platform/tools/worker_auth.py",
             "platform/tools/worker_agent.py",
             "platform/tests/test_network_fabric.py",
             "platform/tests/test_worker_registry.py",
             "platform/tests/test_worker_directory.py",
             "platform/tests/test_worker_queue.py",
+            "platform/tests/test_worker_auth.py",
             "platform/tests/test_worker_agent.py",
             "tests/network/lab_fabric/README.md",
             "tests/network/lab_fabric/run_test.py",
@@ -98,6 +100,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_queue/evidence-2026-10-24-queue-pass.json",
             "tests/network/worker_executor/README.md",
             "tests/network/worker_executor/evidence-2026-10-24-executor-pass.json",
+            "tests/network/worker_executor/evidence-2026-10-24-executor-auth-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -748,6 +751,23 @@ class DocsConsistencyTests(unittest.TestCase):
             "cross-host execution",
             executor["not_claimed"],
         )
+        executor_auth = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_executor/"
+                "evidence-2026-10-24-executor-auth-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(executor_auth["status"], "PASS")
+        self.assertEqual(
+            executor_auth["live_execution"]["unsigned_claim_http"],
+            401,
+        )
+        self.assertEqual(
+            executor_auth["live_execution"]["job_status"],
+            "completed",
+        )
+        self.assertTrue(executor_auth["authentication"]["nonce_replay_cache"])
         efuse_security = json.loads(
             (
                 ROOT
@@ -1141,9 +1161,11 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("legacy", core2_hci.lower())
         self.assertIn("platform/tools/worker_directory.py", code_map)
         self.assertIn("platform/tools/worker_queue.py", code_map)
+        self.assertIn("platform/tools/worker_auth.py", code_map)
         self.assertIn("platform/tools/worker_agent.py", code_map)
         self.assertIn("platform/tests/test_worker_directory.py", code_map)
         self.assertIn("platform/tests/test_worker_queue.py", code_map)
+        self.assertIn("platform/tests/test_worker_auth.py", code_map)
         self.assertIn("platform/tests/test_worker_agent.py", code_map)
 
         task_ids = sorted(
@@ -1210,6 +1232,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("/jobs/{job_id}/result", openapi)
         self.assertIn("WorkerJobList", openapi)
         self.assertIn("idempotency_key", openapi)
+        self.assertIn("X-M5-Worker-Signature", openapi)
+        self.assertIn("nonce_replay_cache", openapi)
         self.assertIn("reattached_process", openapi)
         self.assertIn("qemu-control-plane", openapi)
         self.assertIn("RemoteWorkerRegistration", openapi)

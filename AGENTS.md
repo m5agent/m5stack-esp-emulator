@@ -265,8 +265,10 @@ diagnostics in `internal/records/`.
   heartbeat, expiry retry and stale/stopped worker reconciliation. The
   separate `worker_agent.py` executes a claimed job through the public HTTP
   API, downloads and hashes an evidence ZIP, stops the session and reports the
-  terminal result on the same host. Cross-host transport and worker
-  authorization hardening remain open.
+  terminal result on the same host. When an API token is configured,
+  worker-only mutations require a worker/generation-derived HMAC over method,
+  path, timestamp, nonce and body. Cross-host TLS/mTLS and credential rotation
+  remain open.
 
 ## Remaining work
 
@@ -276,9 +278,9 @@ Current device capability and the latest validation snapshot are maintained in
 
 The main open streams are:
 
-- cross-host job execution and authorization hardening, companion/evidence
-  continuity, cross-host QEMU re-attach, multi-host scheduling and external
-  IPv6 endpoint enforcement;
+- cross-host job execution, TLS/mTLS and credential rotation,
+  companion/evidence continuity, cross-host QEMU re-attach, multi-host
+  scheduling and external IPv6 endpoint enforcement;
 - Core2 bit-exact BT controller/baseband and physical cache/PSRAM
   equivalence, coexistence and soak;
 - runtime permissions/license policy, production security-key flows and

@@ -21,7 +21,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络产品化 | 跨主机 executor、worker auth 强化、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；同主机 executor；本地 QEMU/QMP reattach |
+| P0 | 网络产品化 | 跨主机 executor、TLS/mTLS、credential rotation、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；同主机 authenticated executor；本地 QEMU/QMP reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 外部 IPv6 | exact IPv6 endpoint、veth/route、NAT 和清理 | worker 双栈；nftables |
@@ -34,9 +34,9 @@
 ## 当前执行顺序
 
 1. `NET-04` / `SVC-01`：在 durable queue、同主机 HTTP executor、远程注册
-   目录、lease supervisor 和本地 QEMU/QMP reattach 基础上补跨主机
-   executor/reattach、worker auth 强化、companion/evidence continuity
-   和多机调度；`NET-05` 独立推进 IPv6。
+   目录、lease supervisor、worker HMAC 和本地 QEMU/QMP reattach 基础上补
+   跨主机 executor/reattach、TLS/mTLS、credential rotation、
+   companion/evidence continuity 和多机调度；`NET-05` 独立推进 IPv6。
 2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后 `FW-03`
    扩跨厂商样本，
    `FW-02` 做生产 key/eFuse 与真机安全配置。
@@ -48,13 +48,13 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 跨主机 executor/reattach、worker auth 强化、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 跨主机 executor/reattach、TLS/mTLS、credential rotation、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-05` | 待做 | 外部 IPv6 exact endpoint 的 nftables + gateway 路径 | 允许/拒绝可重复，veth/route/NAT 与清理有同次 evidence |
 | `CORE2-02` | 待做 | bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和 soak | 物理边界可证；真机/RF 结论不冒充 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 待做 | ESP-IDF/Arduino/MicroPython/vendor 跨厂商回归集 | 每样本分层记录导入、capability、boot 和功能 |
-| `SVC-01` | 进行中 | 跨主机 worker auth、companion/evidence continuity 与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
+| `SVC-01` | 进行中 | 跨主机 TLS/mTLS/rotation、companion/evidence continuity 与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation |
@@ -75,8 +75,9 @@
 - durable job queue 已实现幂等提交、capability matching、claim/lease、
   expiry retry、cancel/result 和 worker stale/stop/generation 回收；
 - 同主机 HTTP executor 已能 claim job、运行真实 session、下载 evidence
-  ZIP/SHA256 并回报；没有跨主机执行、worker auth 强化、跨 worker 容量
-  调度和多机状态收敛；
+  ZIP/SHA256 并回报；启用 API token 时 worker-only mutation 已有
+  worker/generation HMAC、timestamp/nonce replay 防护；没有跨主机
+  TLS/mTLS、credential rotation、跨 worker 容量调度和多机状态收敛；
 - 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
   `query-status=running` 验证后 re-attach；Tab5/network lane、paused QEMU、
   companion HTTP/BLE helper、evidence 流和跨主机进程仍不能接管；
@@ -85,8 +86,8 @@
 
 下一项最小交付：
 
-1. 在现有同主机 executor 上补跨主机安全传输、worker authentication/
-   authorization 和 lease fencing，禁止旧 agent 覆盖新 generation。
+1. 在现有同主机 HMAC executor 上补跨主机 TLS/mTLS、credential rotation
+   和外部 side-effect fencing，禁止旧 agent 覆盖新 generation。
 2. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。
 3. 在本地 QEMU/QMP reattach 之上补 companion 状态重建、evidence 流连续性和
    跨主机接管；无法证明 ownership 时明确 `interrupted_failed`。

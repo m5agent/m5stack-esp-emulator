@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-authenticated-http-worker-executor",
+  "scope": "same-host-real-qemu-job-with-worker-hmac",
+  "validation": "virtual-device",
+  "status": "PASS",
+  "authentication": {
+    "master_token_required": true,
+    "worker_key_derivation": "HMAC-SHA256(master-token, worker-id:instance-id:generation)",
+    "request_signature": "HMAC-SHA256(worker-key, canonical-method:path:timestamp:nonce:body-sha256)",
+    "timestamp_window_seconds": 90,
+    "nonce_replay_cache": true,
+    "body_identity_binding": true
+  },
+  "checks": {
+    "unsigned_worker_claim_rejected": "PASS",
+    "signed_worker_registration": "PASS",
+    "signed_worker_heartbeat": "PASS",
+    "signed_job_claim": "PASS",
+    "signed_job_heartbeat": "PASS",
+    "signed_job_result": "PASS",
+    "real_sticks3_qemu_session": "PASS",
+    "evidence_zip_download": "PASS",
+    "evidence_sha256": "PASS",
+    "terminal_job_result": "PASS",
+    "clean_worker_stop": "PASS"
+  },
+  "live_execution": {
+    "unsigned_claim_http": 401,
+    "job_status": "completed",
+    "result_state": "PASS",
+    "attempts": 1,
+    "evidence_bytes": 6882,
+    "evidence_sha256": "2df3fdc392b3f3b2e15f736465d766936ebd0fc5c1ec5d30e355c583ac3eec67",
+    "agent_exit": 0
+  },
+  "tests": {
+    "worker_auth": "4/4 PASS",
+    "worker_agent": "3/3 PASS",
+    "live_authenticated_executor": "1/1 PASS",
+    "platform_suite": "296/296 PASS"
+  },
+  "not_claimed": [
+    "cross-host TLS or mTLS",
+    "worker credential rotation",
+    "multi-host scheduling",
+    "companion continuity after service restart",
+    "untrusted-firmware sandbox",
+    "hardware validation"
+  ]
+}

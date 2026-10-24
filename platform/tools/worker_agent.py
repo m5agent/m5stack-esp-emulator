@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 
+from worker_auth import is_worker_auth_path, sign_worker_request
+
 WORKER_AGENT_STATE_VERSION = 1
 DEFAULT_EVIDENCE_INCLUDE = (
     "manifest",
@@ -83,6 +85,7 @@ class Api:
     def __init__(self, base_url: str, token: str | None = None):
         self.base_url = base_url.rstrip("/")
         self.token = token
+        self.worker_identity: dict[str, Any] | None = None
 
     def request(
         self,
@@ -99,6 +102,16 @@ class Api:
             headers["Content-Type"] = "application/json"
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
+            if self.worker_identity is not None and is_worker_auth_path(method, path):
+                headers.update(
+                    sign_worker_request(
+                        self.token,
+                        self.worker_identity,
+                        method,
+                        path,
+                        data or b"",
+                    )
+                )
         request = urllib.request.Request(
             self.base_url + path,
             data=data,
@@ -159,6 +172,8 @@ class WorkerAgent:
         self.session_timeout = max(5.0, float(session_timeout))
         self.heartbeat_interval = max(1.0, float(heartbeat_interval))
         self.registered = False
+        if hasattr(self.api, "worker_identity"):
+            self.api.worker_identity = self.identity
 
     @property
     def identity(self) -> dict[str, Any]:

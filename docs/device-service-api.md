@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-24`.
 
-Status: local MVP with unified-device runtime contract `1.18.0` and bounded
+Status: local MVP with unified-device runtime contract `1.19.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -225,8 +225,21 @@ truthful. The separate `platform/tools/worker_agent.py` executor registers a
 persistent generation, claims one or more jobs, creates the requested session,
 waits for `running` while heartbeating both worker and job, downloads the
 evidence ZIP, stops with `purge=0`, and reports SHA256 plus terminal state.
-The retained live run used the same host; cross-host transport, worker
-authorization hardening and companion continuity remain open.
+The retained live run used the same host; cross-host TLS/mTLS, credential
+rotation and companion continuity remain open.
+
+When a service API token is configured, worker-only mutation endpoints
+(`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)
+also require an HMAC signature derived from:
+
+```text
+HMAC-SHA256(master-token, worker-id:instance-id:generation)
+```
+
+The request binds method, path, UTC timestamp, one-time nonce and body SHA256.
+The signature window is 90 seconds, nonces are replay-cached, and the signed
+identity must match both the path worker ID and JSON body. Missing/invalid
+signatures return `401`; replay and identity mismatch return `409`.
 
 ### Capacity sizing
 

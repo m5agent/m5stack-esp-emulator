@@ -17,6 +17,10 @@ public Device Service API:
 10. marks the worker generation stopped on clean exit.
 
 The executor stores evidence and result metadata under its own work directory.
+When `--token` or `M5_SERVICE_API_TOKEN` is configured, worker-specific
+claim/heartbeat/result requests also carry an HMAC signature derived from the
+worker ID, instance ID and generation. Timestamp and nonce prevent replay, and
+the signed identity must match the JSON body.
 
 ## Reproduce
 
@@ -30,17 +34,19 @@ One job:
 ```bash
 python3 platform/tools/worker_agent.py \
   --service-url http://127.0.0.1:8787 \
+  --token "$M5_SERVICE_API_TOKEN" \
   --worker-id local-executor \
   --work-dir /tmp/m5-worker-agent \
   --once
 ```
 
 Retained result:
-`evidence-2026-10-24-executor-pass.json`.
+`evidence-2026-10-24-executor-pass.json` and authenticated live evidence
+`evidence-2026-10-24-executor-auth-pass.json`.
 
 ## Boundaries
 
-The retained live run uses the same host and service process. Cross-host
-networking, worker authentication hardening, companion continuity after
-service restart, untrusted-firmware isolation, production scheduling and
-physical hardware remain `NOT RUN`.
+The retained live runs use the same host and service process. Cross-host
+TLS/mTLS, credential rotation, companion continuity after service restart,
+untrusted-firmware isolation, production scheduling and physical hardware
+remain `NOT RUN`.

@@ -52,7 +52,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 | 代码域 | 模块 | 入口 / 输出 |
 | --- | --- | --- |
-| 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、本地 worker lifecycle、远程注册目录、持久任务队列、HTTP executor、GC |
+| 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、本地 worker lifecycle、远程注册目录、持久任务队列、worker HMAC、HTTP executor、GC |
 | 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py` | 公开固件下载、manifest、静态/SBOM/文件系统证据和批量运行 |
 | 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/TLS、pcap 摘要 |
 | 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
@@ -75,6 +75,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/worker_registry.py` | 本地 worker identity、独占锁、generation、heartbeat、lease、drain/resume 和重启分类 | Device Service、worker 测试 |
 | `platform/tools/worker_directory.py` | 远程 worker 持久目录、identity/generation 冲突、heartbeat/drain/stop、capability 和有界结果元数据 | Device Service、worker directory 测试 |
 | `platform/tools/worker_queue.py` | 持久 job queue、idempotency、capability matching、claim/lease/heartbeat、超时重试、terminal result 和 worker 失联回收 | Device Service、worker queue 测试 |
+| `platform/tools/worker_auth.py` | master token 派生 worker key、时间戳/nonce HMAC、body/path identity binding 和 replay cache | Device Service、worker agent、auth 测试 |
 | `platform/tools/worker_agent.py` | HTTP-only worker executor：持久 generation、注册/heartbeat、claim、session 执行、evidence 下载、stop 和 terminal result | worker CLI、executor 测试 |
 | `platform/tools/storage_policy.py` | 历史、Flash 和缓存保留/回收策略 | Device Service |
 | `platform/tools/xtensa_elf_symbols.py` | 从 ELF32 LE Xtensa 符号表严格解析 Core2 native-VHCI 调用地址和 native-HCI hook/HLI 地址 | Device Service、Core2 runners |
@@ -117,6 +118,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
 | `platform/tests/test_worker_directory.py` | 远程 worker 注册、持久化、generation、stale/drain/stop、容量和结果元数据契约 | `/api/v1/workers` 或 `worker_directory.py` 改动 |
 | `platform/tests/test_worker_queue.py` | job submit/replay、capability、lease、expiry、retry、result/cancel、worker supervisor 和 schema 校验 | `/api/v1/jobs` 或 `worker_queue.py` 改动 |
+| `platform/tests/test_worker_auth.py` | path 分类、签名、body tamper、时间窗、generation key 和 nonce replay | `worker_auth.py` 或 handler auth 改动 |
 | `platform/tests/test_worker_agent.py` | generation 持久化、job 执行、evidence 保存、失败清理和 terminal result | `worker_agent.py` 或 executor 协议改动 |
 
 `run_profile_ui_test.py`、`run_peripheral_matrix.py` 和直接 QEMU 启动是仓库
@@ -177,6 +179,7 @@ HTTP / browser
 | `platform/tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、租约和 drain 状态机 |
 | `platform/tools/worker_directory.py` | 远程 worker 持久注册表、identity/generation 校验、stale/drain/stop 和有界结果索引 |
 | `platform/tools/worker_queue.py` | 持久任务、幂等提交、能力匹配、worker lease、超时重试和 terminal result |
+| `platform/tools/worker_auth.py` | worker-specific HMAC key derivation、request signature、timestamp 和 replay 防护 |
 | `platform/tools/worker_agent.py` | 独立 HTTP executor、worker/job heartbeat、session 执行、evidence 下载和 result 回报 |
 | `platform/tools/storage_policy.py` | 会话历史、Flash 保留与缓存 GC |
 | `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查 |
@@ -296,7 +299,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Worker lifecycle | `/api/v1/worker`、`/worker/drain`、`/worker/resume`；`platform/tests/test_worker_registry.py` | stable ID、独占状态目录、heartbeat、generation、drain/resume、active/abandoned lease 和 bounded results；不含远程调度或活动 QEMU re-attach |
 | Remote worker directory | `/api/v1/workers`、`/workers/{id}/heartbeat`、`drain`、`stop`、`results`；`platform/tests/test_worker_directory.py` | 持久 identity/generation、stale 判定、live-instance 冲突、capability/结果上限和原子 `0600` 状态文件；不启动、调度或接管 worker |
 | Remote job queue | `/api/v1/jobs`、`/jobs/claim`、`heartbeat`、`result`、`cancel`；`platform/tests/test_worker_queue.py` | 持久幂等任务、capability match、worker lease、expiry/retry、stale/stop/generation 回收和原子 `0600` 状态文件；不执行任务、不接管活动 QEMU |
-| Worker executor | `platform/tools/worker_agent.py`、`platform/tests/test_worker_agent.py`、`tests/network/worker_executor/` | 同主机真实 QEMU job 执行、evidence ZIP/SHA256 和 terminal result；跨主机、worker auth 强化和 companion continuity 仍开放 |
+| Worker executor | `platform/tools/worker_agent.py`、`worker_auth.py`、auth/executor tests、`tests/network/worker_executor/` | 同主机真实 QEMU job、worker HMAC、evidence ZIP/SHA256 和 terminal result；跨主机 TLS/mTLS/rotation 和 companion continuity 仍开放 |
 | Worker restart integration | `tests/network/worker_lifecycle/evidence-2026-10-24-pass.json` | 真实 QEMU session 跨 drain 保持；停止后 drained；SIGKILL 后 generation 2 记录 abandoned lease 并将会话恢复为 interrupted failed；进程组清理 PASS |
 
 设备级 PASS 至少要有固件 hash、runtime/profile、输入、串口、frame 和对应
