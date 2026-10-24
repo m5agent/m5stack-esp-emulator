@@ -312,7 +312,11 @@ class WorkerAgent:
             if state == "running":
                 return latest
             if state in TERMINAL_SESSION_STATES:
-                raise WorkerAgentError(f"session reached terminal state {state}")
+                detail = latest.get("error")
+                suffix = f": {detail}" if detail else ""
+                raise WorkerAgentError(
+                    f"session reached terminal state {state}{suffix}"
+                )
             time.sleep(0.25)
         raise WorkerAgentError("session did not reach running before timeout")
 

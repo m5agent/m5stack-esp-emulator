@@ -60,6 +60,7 @@ Device Service lease
 - [Core2 ten-cycle reconnect evidence](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-3x.json)
 - [Core2 ten-cycle service timeout failure](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-timeout-fail.json)
 - [Worker HTTPS/mTLS transport](../tests/network/worker_tls/evidence-2026-10-24-tls-mtls-pass.json)
+- [Worker real QEMU job over mTLS](../tests/network/worker_tls/evidence-2026-10-24-tls-mtls-qemu-job-pass.json)
 - [Core2 WiFi-only deterministic repeat](../tests/network/core2_openmac_wifi/evidence-2026-10-24-deterministic-5x.json)
 - [Core2 legacy native-VHCI diagnostic lease](../tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json)
 - [精确 IPv4 IP/端口和 NAT 证据](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json)
@@ -176,7 +177,7 @@ primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP re
 | N3 Tab5 P4↔C6 end-to-end | `NOT RUN` | association、DHCP、DNS、TCP 同一 P4 guest |
 | N4a Linux policy CI | DONE | GitHub-hosted namespace/nft/egress fixture 保持 fail-closed 并可重复 |
 | N4b 双设备 fabric | DONE (virtual) | 两台 StickS3 的 DHCP、guest TCP、双侧 pcap、宿主隔离与清理已通过；下一步接入 worker |
-| N4c durable queue/lease supervisor | DONE (contract/API) | 幂等 submit、capability claim、lease、expiry retry、cancel/result、worker stale/stop/generation 回收；authenticated 同主机 HTTP executor 已运行真实 QEMU job；真实 loopback HTTPS/mTLS 与 signed worker 生命周期 PASS；跨主机 QEMU job、证书/worker 凭据热轮换、companion/evidence continuity 仍开放 |
+| N4c durable queue/lease supervisor | DONE (contract/API) | 幂等 submit、capability claim、lease、expiry retry、cancel/result、worker stale/stop/generation 回收；authenticated 同主机 HTTP executor 已运行真实 QEMU job；真实 loopback HTTPS/mTLS、signed worker 生命周期和真实 QEMU job over mTLS PASS；跨主机 QEMU job、证书/worker 凭据热轮换、companion/evidence continuity 仍开放 |
 | N5 Core2 production BLE/PHY | PARTIAL | `HCI-4`、active hold 和十轮 reconnect 已通过；继续扩大当前 1–10 API 上限并补多小时 soak，再处理 bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 

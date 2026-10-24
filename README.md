@@ -25,8 +25,9 @@ MicroPython 和其他完整 Flash 固件。
   不再复制会随提交变化的数字。
 - 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络和 evidence API。
-- worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS 和本地 QEMU
-  restart reattach 已形成可用主线；跨主机 QEMU job/接管、
+- worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS、真实 QEMU
+  job over mTLS 和本地 QEMU restart reattach 已形成可用主线；跨主机 QEMU
+  job/接管、
   证书/worker 凭据热轮换、companion / evidence continuity 和生产调度仍是
   开放项。
 - Core2 规范路径是

@@ -69,6 +69,7 @@ class FakeApi:
                 "device_id": "sticks3",
                 "runtime": "qemu",
                 "state": state,
+                "error": "stub session failed" if state == "failed" else None,
             }
         if path.startswith("/api/v1/jobs/job-test/heartbeat"):
             return {"job": {"job_id": "job-test"}}
@@ -155,7 +156,10 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertTrue(agent.work_once())
         result = json.loads((self.work_dir / "job-test" / "result.json").read_text())
         self.assertEqual(result["state"], "FAIL")
-        self.assertIn("terminal state failed", result["summary"]["error"])
+        self.assertIn(
+            "terminal state failed: stub session failed",
+            result["summary"]["error"],
+        )
         result_calls = [
             call for call in api.calls if call[1] == "/api/v1/jobs/job-test/result"
         ]

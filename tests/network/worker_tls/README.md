@@ -15,6 +15,9 @@ server certificate and client CA, then verifies:
 - `worker_agent.py` registers, heartbeats, claims, and stops over HTTPS with a
   client certificate and exits successfully;
 - a plaintext HTTP request does not fall back successfully.
+- with `--real-qemu-job`, a complete StickS3 flash is uploaded and composed
+  over mTLS, then a durable worker job starts a real QEMU process, downloads
+  evidence, verifies SHA256 and reports terminal PASS.
 
 Run:
 
@@ -24,6 +27,15 @@ python3 tests/network/worker_tls/run_test.py
 
 Retained evidence:
 `evidence-2026-10-24-tls-mtls-pass.json`.
+
+Real QEMU job over mTLS:
+
+```bash
+python3 tests/network/worker_tls/run_test.py --real-qemu-job
+```
+
+Retained evidence:
+`evidence-2026-10-24-tls-mtls-qemu-job-pass.json`.
 
 ## Service configuration
 
@@ -64,6 +76,7 @@ Equivalent environment variables:
 
 The retained run is loopback on one host, not cross-host network validation.
 Certificate and worker credential hot rotation, production CA lifecycle,
-real QEMU job execution over mTLS, multi-host scheduling, companion
-continuity and hardware remain `NOT RUN`. Bearer/HMAC is an application
+multi-host scheduling, companion continuity and hardware remain `NOT RUN`.
+The real QEMU job proves process/session execution and evidence transfer, not
+a unified board/network application PASS. Bearer/HMAC is an application
 authentication layer and does not replace mTLS.

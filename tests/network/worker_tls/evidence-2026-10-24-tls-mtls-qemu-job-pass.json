@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-tls-mtls-transport",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "validation": "transport-security validation",
+  "scope": "same-host-loopback-real-tls-qemu-job",
+  "tls": {
+    "minimum_version": "TLSv1.2",
+    "observed_version": "TLSv1.3",
+    "server_certificate_verification": "PASS",
+    "client_certificate_required": "PASS",
+    "ephemeral_test_pki": true
+  },
+  "worker_transport": {
+    "base_url_scheme": "https",
+    "bearer_and_worker_hmac_preserved": "PASS",
+    "unsigned_claim_http": 401,
+    "worker_agent_exit_code": 0
+  },
+  "checks": {
+    "https_server_ready": "PASS",
+    "server_certificate_verified": "PASS",
+    "client_certificate_required": "PASS",
+    "mtls_client_certificate_accepted": "PASS",
+    "unsigned_worker_claim_rejected": "PASS",
+    "worker_agent_signed_requests_over_mtls": "PASS",
+    "no_plaintext_http_fallback": "PASS",
+    "real_sticks3_qemu_job_over_mtls": "PASS",
+    "terminal_job_pass": "PASS",
+    "job_evidence_sha256": "PASS"
+  },
+  "live_job": {
+    "status": "completed",
+    "result_state": "PASS",
+    "attempts": 1,
+    "evidence_bytes": 6852,
+    "evidence_sha256": "84cc4339184794536d36276e05be13d4e271274f6b8f5444bdd4831010f16065",
+    "firmware_sha256": "a5d027f6d2953edb9ece45cddea1490112d8e421ba563edc6e7c71cf7ac4f6ec",
+    "evidence_contains_manifest_and_serial": "PASS"
+  },
+  "not_claimed": [
+    "cross-host network topology or latency",
+    "certificate or worker credential rotation",
+    "production CA and certificate lifecycle",
+    "unified board/network application PASS for the QEMU job",
+    "multi-host scheduling or worker continuity",
+    "hardware validation"
+  ]
+}

@@ -291,9 +291,11 @@ diagnostics in `internal/records/`.
   worker-only mutations require a worker/generation-derived HMAC over method,
   path, timestamp, nonce and body. A real loopback HTTPS/mTLS process test
   verifies server-certificate validation, required client certificates and
-  signed worker requests without weakening HMAC. Certificate/worker
-  credential hot rotation, cross-host QEMU jobs and cross-host reattach remain
-  open.
+  signed worker requests without weakening HMAC. The same path uploads and
+  composes a full StickS3 image and runs a real QEMU job over mTLS with
+  evidence SHA256 and terminal PASS; this is not a unified board/network/UI
+  PASS. Certificate/worker credential hot rotation, cross-host QEMU jobs and
+  cross-host reattach remain open.
 
 ## Remaining work
 

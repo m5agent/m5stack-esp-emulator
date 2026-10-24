@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import http.client
 import json
 import os
@@ -16,6 +17,8 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.request
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -173,6 +176,30 @@ def write_evidence(path: Path, payload: dict) -> None:
     temporary.replace(path)
 
 
+def upload_artifact(
+    base_url: str,
+    token: str,
+    ssl_context: ssl.SSLContext,
+    path: Path,
+) -> dict:
+    request = urllib.request.Request(
+        base_url + "/api/v1/artifacts",
+        data=path.read_bytes(),
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/octet-stream",
+            "X-Artifact-Name": path.name,
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(
+        request,
+        timeout=60,
+        context=ssl_context,
+    ) as response:
+        return json.loads(response.read())
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -182,6 +209,11 @@ def main() -> int:
             Path(__file__).parent
             / "evidence-2026-10-24-tls-mtls-pass.json"
         ),
+    )
+    parser.add_argument(
+        "--real-qemu-job",
+        action="store_true",
+        help="submit and execute a real StickS3 QEMU job over mTLS",
     )
     args = parser.parse_args()
     if shutil.which("openssl") is None:
@@ -288,6 +320,70 @@ def main() -> int:
             else:
                 raise RuntimeError("mTLS bypassed signed worker authentication")
 
+            job_id: str | None = None
+            firmware_sha256 = ""
+            if args.real_qemu_job:
+                source_image = (
+                    ROOT
+                    / "platform/.cache/firmware/sticks3/uiflow2.bin"
+                )
+                if not source_image.is_file():
+                    raise RuntimeError(
+                        "StickS3 reference firmware is not cached"
+                    )
+                flash_size = 8 << 20
+                source = source_image.read_bytes()
+                if len(source) > flash_size:
+                    raise RuntimeError("StickS3 reference exceeds flash size")
+                full_image = temp_dir / "sticks3-reference-full.bin"
+                full_image.write_bytes(
+                    source + b"\xff" * (flash_size - len(source))
+                )
+                artifact = upload_artifact(
+                    base_url,
+                    token,
+                    mtls_context,
+                    full_image,
+                )
+                firmware = with_mtls.json(
+                    "/api/v1/firmware",
+                    method="POST",
+                    payload={
+                        "device_id": "sticks3",
+                        "kind": "merged",
+                        "artifact_id": artifact["artifact_id"],
+                    },
+                )
+                firmware_sha256 = str(firmware["sha256"])
+                submitted = with_mtls.json(
+                    "/api/v1/jobs",
+                    method="POST",
+                    payload={
+                        "label": "worker-mtls-sticks3-qemu",
+                        "request": {
+                            "session": {
+                                "device_id": "sticks3",
+                                "runtime": "qemu",
+                                "firmware_id": firmware["firmware_id"],
+                                "ready_timeout_seconds": 180,
+                            },
+                            "evidence_include": [
+                                "manifest",
+                                "serial",
+                                "frames",
+                                "logs",
+                                "qom",
+                            ],
+                        },
+                        "required_capabilities": {"qemu": True},
+                        "max_attempts": 1,
+                        "idempotency_key": (
+                            "worker-mtls-qemu-" + secrets.token_hex(8)
+                        ),
+                    },
+                )
+                job_id = str(submitted["job"]["job_id"])
+
             worker_env = os.environ.copy()
             worker_env["PYTHONPATH"] = str(ROOT / "platform/tools")
             worker = subprocess.run(
@@ -310,12 +406,14 @@ def main() -> int:
                     str(worker_dir),
                     "--capabilities-json",
                     '{"qemu": true}',
+                    "--session-timeout",
+                    "240",
                     "--once",
                 ],
                 cwd=ROOT,
                 env=worker_env,
                 capture_output=True,
-                timeout=30,
+                timeout=300 if args.real_qemu_job else 30,
             )
             if worker.returncode != 0:
                 raise RuntimeError(
@@ -323,6 +421,49 @@ def main() -> int:
                     + worker.stderr.decode(errors="replace")[-1000:]
                 )
             checks["worker_agent_signed_requests_over_mtls"] = "PASS"
+
+            live_job: dict[str, object] = {}
+            if job_id is not None:
+                terminal = with_mtls.json(f"/api/v1/jobs/{job_id}")
+                job = terminal["job"]
+                result = job.get("result")
+                result = result if isinstance(result, dict) else {}
+                if (
+                    job.get("status") != "completed"
+                    or result.get("state") != "PASS"
+                    or int(job.get("attempts", 0)) != 1
+                ):
+                    raise RuntimeError(f"mTLS job did not complete PASS: {job}")
+                evidence_path = worker_dir / job_id / "evidence.zip"
+                evidence = evidence_path.read_bytes()
+                evidence_sha256 = hashlib.sha256(evidence).hexdigest()
+                if (
+                    len(evidence_sha256) != 64
+                    or evidence_sha256 != result.get("evidence_sha256")
+                ):
+                    raise RuntimeError("mTLS job evidence SHA256 mismatch")
+                with zipfile.ZipFile(evidence_path) as archive:
+                    names = archive.namelist()
+                for required in (
+                    "manifest.json",
+                    "serial.log",
+                ):
+                    if required not in names:
+                        raise RuntimeError(
+                            f"mTLS job evidence lacks {required}"
+                        )
+                checks["real_sticks3_qemu_job_over_mtls"] = "PASS"
+                checks["terminal_job_pass"] = "PASS"
+                checks["job_evidence_sha256"] = "PASS"
+                live_job = {
+                    "status": job["status"],
+                    "result_state": result["state"],
+                    "attempts": job["attempts"],
+                    "evidence_bytes": len(evidence),
+                    "evidence_sha256": evidence_sha256,
+                    "firmware_sha256": firmware_sha256,
+                    "evidence_contains_manifest_and_serial": "PASS",
+                }
 
             try:
                 Api(
@@ -340,7 +481,11 @@ def main() -> int:
                 "date": "2026-10-24",
                 "status": "PASS",
                 "validation": "transport-security validation",
-                "scope": "same-host-loopback-real-tls-process",
+                "scope": (
+                    "same-host-loopback-real-tls-qemu-job"
+                    if args.real_qemu_job
+                    else "same-host-loopback-real-tls-process"
+                ),
                 "tls": {
                     "minimum_version": "TLSv1.2",
                     "observed_version": tls_version,
@@ -355,15 +500,25 @@ def main() -> int:
                     "worker_agent_exit_code": worker.returncode,
                 },
                 "checks": checks,
+                "live_job": live_job,
                 "not_claimed": [
                     "cross-host network topology or latency",
                     "certificate or worker credential rotation",
                     "production CA and certificate lifecycle",
-                    "real QEMU job execution over mTLS",
                     "multi-host scheduling or worker continuity",
                     "hardware validation",
                 ],
             }
+            if not args.real_qemu_job:
+                payload["not_claimed"].insert(
+                    3,
+                    "real QEMU job execution over mTLS",
+                )
+            else:
+                payload["not_claimed"].insert(
+                    3,
+                    "unified board/network application PASS for the QEMU job",
+                )
             if not all(value == "PASS" for value in checks.values()):
                 raise RuntimeError(f"TLS checks incomplete: {checks}")
             write_evidence(args.out, payload)

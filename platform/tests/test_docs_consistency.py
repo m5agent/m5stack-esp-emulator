@@ -125,6 +125,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_tls/README.md",
             "tests/network/worker_tls/run_test.py",
             "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-pass.json",
+            "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-qemu-job-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -1488,8 +1489,34 @@ class DocsConsistencyTests(unittest.TestCase):
             "cross-host network topology or latency",
             worker_tls["not_claimed"],
         )
+        worker_tls_job = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_tls/"
+                "evidence-2026-10-24-tls-mtls-qemu-job-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(worker_tls_job["status"], "PASS")
+        self.assertEqual(
+            worker_tls_job["checks"]["real_sticks3_qemu_job_over_mtls"],
+            "PASS",
+        )
+        self.assertEqual(
+            worker_tls_job["live_job"]["status"],
+            "completed",
+        )
+        self.assertEqual(
+            worker_tls_job["live_job"]["result_state"],
+            "PASS",
+        )
+        self.assertEqual(worker_tls_job["live_job"]["attempts"], 1)
+        self.assertIn(
+            "unified board/network application PASS for the QEMU job",
+            worker_tls_job["not_claimed"],
+        )
         self.assertIn("HTTPS/mTLS", status)
         self.assertIn("证书/worker 凭据热轮换", status)
+        self.assertIn("真实 QEMU job over mTLS", status)
         wifi_repeat = json.loads(
             (
                 ROOT
@@ -1533,6 +1560,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("hci4-reconnect10-timeout-fail.json", ledger)
         self.assertIn(
             "worker_tls/evidence-2026-10-24-tls-mtls-pass.json",
+            ledger,
+        )
+        self.assertIn(
+            "worker_tls/evidence-2026-10-24-tls-mtls-qemu-job-pass.json",
             ledger,
         )
         self.assertIn(

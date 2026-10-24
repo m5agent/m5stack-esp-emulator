@@ -247,9 +247,12 @@ loopback run verifies HTTPS/mTLS: TLS 1.2 is the configured minimum, TLS 1.3
 was negotiated, the server certificate was verified, clients without a
 certificate were rejected, trusted clients passed, Bearer/HMAC remained
 required, unsigned claim returned `401`, and `worker_agent.py` completed
-signed registration/heartbeat/claim/stop over mTLS. Certificate and worker
-credential hot rotation, cross-host QEMU jobs and companion continuity remain
-open.
+signed registration/heartbeat/claim/stop over mTLS. The same fixture also
+uploads and composes a complete StickS3 flash over mTLS, runs a durable job
+through a real QEMU session, downloads evidence, verifies SHA256 and reports
+terminal `completed/PASS`. This is not a unified board/network/UI PASS.
+Certificate and worker credential hot rotation, cross-host QEMU jobs and
+companion continuity remain open.
 
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)

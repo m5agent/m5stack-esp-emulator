@@ -87,10 +87,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   heartbeat、drain/resume 和重启租约分类，以及远程 worker 注册目录已实现；
   durable job queue 已支持幂等提交、claim/lease、expiry retry 和 worker
   失联回收；本地 QEMU/QMP 控制面已完成 ownership 校验后的 reattach。
-  同主机 HTTP executor、worker HMAC、可验证 HTTPS/mTLS 和 evidence
-  ZIP/SHA256 回报已实现；跨主机 QEMU executor/reattach、证书/worker
-  凭据热轮换、companion/BLE/evidence continuity、生产多机调度和 VM 隔离
-  仍未完成。
+  同主机 HTTP executor、worker HMAC、可验证 HTTPS/mTLS、真实 QEMU job
+  over mTLS 和 evidence ZIP/SHA256 回报已实现；跨主机 QEMU
+  executor/reattach、证书/worker 凭据热轮换、companion/BLE/evidence
+  continuity、生产多机调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
   已在同一隔离路径验证 exact IPv4 IP/协议/端口和 veth/NAT，上述内容也不
@@ -136,7 +136,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
 | `../tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain/resume、进程组清理和下一代 abandoned lease 分类 |
-| `../tests/network/worker_tls/` | 真实 HTTPS/mTLS 进程、服务端证书校验、客户端证书拒绝/通过、Bearer + worker HMAC 保持和明文回退拒绝 |
+| `../tests/network/worker_tls/` | 真实 HTTPS/mTLS 进程、服务端证书校验、客户端证书拒绝/通过、Bearer + worker HMAC、明文回退拒绝和真实 StickS3 QEMU job over mTLS |
 
 ## 目录服务 API
 
