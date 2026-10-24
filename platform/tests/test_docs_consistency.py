@@ -129,6 +129,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-qemu-job-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-tls-mtls-unified-job-pass.json",
             "tests/network/worker_tls/evidence-2026-10-24-security-rotation-job-pass.json",
+            "tests/network/worker_tls/evidence-2026-10-24-security-rotation-drain-job-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
@@ -323,6 +324,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "certificate and worker credential hot rotation",
             "Certificates and keys are loaded at process start; hot rotation is not implemented",
             "hot rotation is not implemented",
+            "零中断 request draining",
+            "Existing requests are not drained",
+            "request draining remain open",
         ):
             self.assertNotIn(stale, active)
 
@@ -1585,9 +1589,56 @@ class DocsConsistencyTests(unittest.TestCase):
             "zero-downtime request draining during rotation",
             worker_tls_rotation["not_claimed"],
         )
+        worker_tls_rotation_drain = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_tls/"
+                "evidence-2026-10-24-security-rotation-drain-job-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(worker_tls_rotation_drain["status"], "PASS")
+        self.assertEqual(
+            worker_tls_rotation_drain["scope"],
+            "same-host-loopback-sighup-drained-tls-token-rotation",
+        )
+        self.assertEqual(
+            worker_tls_rotation_drain["rotation"][
+                "active_request_drain"
+            ],
+            "PASS",
+        )
+        self.assertEqual(
+            worker_tls_rotation_drain["checks"][
+                "active_request_drained_across_rotation"
+            ],
+            "PASS",
+        )
+        self.assertTrue(
+            all(
+                value == "PASS"
+                for value in worker_tls_rotation_drain["checks"].values()
+            )
+        )
+        self.assertEqual(
+            worker_tls_rotation_drain["live_job"]["status"],
+            "completed",
+        )
+        self.assertEqual(
+            worker_tls_rotation_drain["live_job"]["result_state"],
+            "PASS",
+        )
+        self.assertEqual(
+            worker_tls_rotation_drain["live_job"]["attempts"],
+            1,
+        )
+        self.assertIn(
+            "credential overlap or zero-downtime client fleet migration",
+            worker_tls_rotation_drain["not_claimed"],
+        )
         self.assertIn("HTTPS/mTLS", status)
         self.assertIn("SIGHUP", status)
         self.assertIn("security-rotation-job-pass.json", status)
+        self.assertIn("security-rotation-drain-job-pass.json", status)
         self.assertIn("真实 QEMU job over mTLS", status)
         self.assertIn("unified StickS3 job over mTLS", status)
         wifi_repeat = json.loads(
@@ -1645,6 +1696,10 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn(
             "worker_tls/evidence-2026-10-24-security-rotation-job-pass.json",
+            ledger,
+        )
+        self.assertIn(
+            "worker_tls/evidence-2026-10-24-security-rotation-drain-job-pass.json",
             ledger,
         )
         self.assertIn(

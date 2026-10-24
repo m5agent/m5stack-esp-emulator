@@ -6,8 +6,11 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
+import urllib.request
 from contextlib import contextmanager
+from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -26,6 +29,25 @@ class QuietTlsServer(ServiceHTTPServer):
     def handle_error(self, request, client_address) -> None:
         # A deliberate client-certificate rejection aborts the TLS handshake
         # before an HTTP request exists. The test observes the client failure.
+        return
+
+
+class DrainTestHandler(BaseHTTPRequestHandler):
+    slow_started = threading.Event()
+    slow_release = threading.Event()
+
+    def do_GET(self) -> None:
+        if self.path == "/slow":
+            type(self).slow_started.set()
+            if not type(self).slow_release.wait(timeout=10):
+                self.send_error(503)
+                return
+        self.send_response(200)
+        self.send_header("Content-Length", "2")
+        self.end_headers()
+        self.wfile.write(b"ok")
+
+    def log_message(self, format, *args) -> None:
         return
 
 
@@ -213,6 +235,126 @@ class TransportSecurityTests(unittest.TestCase):
                 "http://127.0.0.1:1",
                 ssl_context=build_client_tls_context(),
             )
+
+    def test_security_reload_waits_for_active_requests(self):
+        DrainTestHandler.slow_started.clear()
+        DrainTestHandler.slow_release.clear()
+        reloaded = threading.Event()
+
+        def reload_callback():
+            reloaded.set()
+            return None
+
+        server = ServiceHTTPServer(
+            ("127.0.0.1", 0),
+            DrainTestHandler,
+            reload_callback=reload_callback,
+            reload_drain_timeout=5,
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        responses: list[int] = []
+        errors: list[BaseException] = []
+
+        def request_slow():
+            try:
+                with urllib.request.urlopen(
+                    f"http://127.0.0.1:{server.server_port}/slow",
+                    timeout=10,
+                ) as response:
+                    responses.append(response.status)
+                    self.assertEqual(response.read(), b"ok")
+            except Exception as error:
+                errors.append(error)
+
+        client = threading.Thread(target=request_slow)
+        client.start()
+        try:
+            self.assertTrue(DrainTestHandler.slow_started.wait(timeout=5))
+            self.assertEqual(server.request_gate.active, 1)
+            server.request_security_reload()
+
+            deadline = time.monotonic() + 5
+            while time.monotonic() < deadline:
+                if server.request_gate.draining:
+                    break
+                time.sleep(0.05)
+            self.assertTrue(server.request_gate.draining)
+            self.assertFalse(reloaded.is_set())
+
+            DrainTestHandler.slow_release.set()
+            client.join(timeout=10)
+            self.assertFalse(client.is_alive())
+            self.assertEqual(errors, [])
+            self.assertEqual(responses, [200])
+            self.assertTrue(reloaded.wait(timeout=5))
+        finally:
+            DrainTestHandler.slow_release.set()
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+            client.join(timeout=2)
+
+    def test_security_reload_timeout_keeps_old_configuration(self):
+        DrainTestHandler.slow_started.clear()
+        DrainTestHandler.slow_release.clear()
+        reloaded = threading.Event()
+
+        def reload_callback():
+            reloaded.set()
+            return None
+
+        server = ServiceHTTPServer(
+            ("127.0.0.1", 0),
+            DrainTestHandler,
+            reload_callback=reload_callback,
+            reload_drain_timeout=0.2,
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        responses: list[int] = []
+
+        def request_slow():
+            with urllib.request.urlopen(
+                f"http://127.0.0.1:{server.server_port}/slow",
+                timeout=10,
+            ) as response:
+                responses.append(response.status)
+                response.read()
+
+        client = threading.Thread(target=request_slow)
+        client.start()
+        try:
+            self.assertTrue(DrainTestHandler.slow_started.wait(timeout=5))
+            server.request_security_reload()
+
+            deadline = time.monotonic() + 5
+            drain_started = False
+            while time.monotonic() < deadline:
+                drain_started = (
+                    drain_started or server.request_gate.draining
+                )
+                if (
+                    drain_started
+                    and not server.request_gate.draining
+                    and not reloaded.is_set()
+                ):
+                    break
+                time.sleep(0.05)
+            self.assertTrue(drain_started)
+            self.assertFalse(server.request_gate.draining)
+            self.assertFalse(reloaded.is_set())
+
+            DrainTestHandler.slow_release.set()
+            client.join(timeout=10)
+            self.assertFalse(client.is_alive())
+            self.assertEqual(responses, [200])
+        finally:
+            DrainTestHandler.slow_release.set()
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+            client.join(timeout=2)
 
 
 if __name__ == "__main__":

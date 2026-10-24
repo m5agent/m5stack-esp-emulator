@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import http.client
 import json
 import os
 import secrets
@@ -81,6 +82,27 @@ def wait_for_log_marker(
     raise TimeoutError(f"log marker not observed: {marker}")
 
 
+def start_inflight_request(
+    port: int,
+    token: str,
+    context,
+    body: bytes,
+) -> http.client.HTTPSConnection:
+    connection = http.client.HTTPSConnection(
+        "127.0.0.1",
+        port,
+        timeout=15,
+        context=context,
+    )
+    connection.putrequest("POST", "/api/v1/artifacts")
+    connection.putheader("Authorization", f"Bearer {token}")
+    connection.putheader("Content-Type", "application/octet-stream")
+    connection.putheader("Content-Length", str(len(body)))
+    connection.endheaders()
+    connection.send(body[:1])
+    return connection
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -88,7 +110,7 @@ def main() -> int:
         type=Path,
         default=(
             Path(__file__).parent
-            / "evidence-2026-10-24-security-rotation-job-pass.json"
+            / "evidence-2026-10-24-security-rotation-drain-job-pass.json"
         ),
     )
     args = parser.parse_args()
@@ -162,6 +184,7 @@ def main() -> int:
             "new_tls_identity_accepted": "FAIL",
             "old_master_token_rejected": "FAIL",
             "worker_credentials_reload": "FAIL",
+            "active_request_drained_across_rotation": "FAIL",
             "signed_job_after_rotation": "FAIL",
             "job_evidence_sha256": "FAIL",
         }
@@ -208,17 +231,48 @@ def main() -> int:
             worker_record = wait_for_worker(api_a, "rotation-worker")
             checks["worker_registered_before_rotation"] = "PASS"
 
+            inflight_body = b"worker-rotation-drain-probe"
+            inflight = start_inflight_request(
+                port,
+                token_a,
+                client_a_context,
+                inflight_body,
+            )
+            time.sleep(0.2)
             os.kill(worker.pid, signal.SIGSTOP)
             install_active_security(pki_b, active, token_b)
             os.kill(service.pid, signal.SIGHUP)
             os.kill(worker.pid, signal.SIGHUP)
 
-            wait_for_https(api_b, service, 15)
+            wait_for_log_marker(
+                server_log,
+                "security configuration drain started",
+                15,
+            )
+            time.sleep(0.2)
+            if "security configuration reloaded" in server_log.read_text(
+                errors="replace"
+            ):
+                raise RuntimeError(
+                    "security reload completed before the active request drained"
+                )
+            inflight.send(inflight_body[1:])
+            response = inflight.getresponse()
+            response_body = response.read()
+            inflight.close()
+            if response.status != 201 or b"artifact_id" not in response_body:
+                raise RuntimeError(
+                    "in-flight artifact upload did not complete across rotation: "
+                    f"HTTP {response.status} {response_body[:500]!r}"
+                )
+            checks["active_request_drained_across_rotation"] = "PASS"
+
             wait_for_log_marker(
                 server_log,
                 "security configuration reloaded",
                 15,
             )
+            wait_for_https(api_b, service, 15)
             checks["server_security_reload"] = "PASS"
             checks["new_tls_identity_accepted"] = "PASS"
             try:
@@ -338,17 +392,21 @@ def main() -> int:
 
             payload = {
                 "schema_version": 1,
-                "kind": "m5stack-worker-security-rotation-qemu-job",
+                "kind": "m5stack-worker-security-rotation-drain-qemu-job",
                 "date": "2026-10-24",
                 "status": "PASS",
                 "validation": "transport-security validation",
-                "scope": "same-host-loopback-sighup-tls-token-rotation",
+                "scope": (
+                    "same-host-loopback-sighup-drained-"
+                    "tls-token-rotation"
+                ),
                 "rotation": {
                     "server_certificate": "A-to-B",
                     "client_ca": "A-to-B",
                     "worker_client_certificate": "A-to-B",
                     "master_token": "A-to-B",
                     "reload_signal": "SIGHUP",
+                    "active_request_drain": "PASS",
                 },
                 "live_job": {
                     "status": job["status"],
@@ -361,7 +419,7 @@ def main() -> int:
                 "checks": checks,
                 "not_claimed": [
                     "cross-host network topology",
-                    "zero-downtime request draining during rotation",
+                    "credential overlap or zero-downtime client fleet migration",
                     "production CA or secret manager integration",
                     "multi-host scheduling or worker continuity",
                     "hardware validation",

@@ -28,9 +28,9 @@ MicroPython 和其他完整 Flash 固件。
 - worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS、真实 QEMU
   和 unified StickS3 job over mTLS，以及本地 QEMU restart reattach 已形成
   可用主线；服务端证书/client CA、worker 客户证书和 token 已通过
-  `SIGHUP` 轮换，旧凭据拒绝且新凭据完成真实 QEMU job。零中断 request
-  draining、跨主机 QEMU job/接管、companion / evidence continuity、
-  secret-manager 和生产调度仍是开放项。
+  `SIGHUP` 轮换，活动请求会先完成再提交新配置；旧凭据拒绝且新凭据完成
+  真实 QEMU job。旧/新凭据重叠窗口、跨主机 QEMU job/接管、
+  companion / evidence continuity、secret-manager 和生产调度仍是开放项。
 - Core2 规范路径是
   `runtime=qemu-unified/profile=core2-native-hci`；GDB native-VHCI 只用于
   诊断/兼容。功能、active-BLE 120 秒 hold 和同 guest 十轮重连已通过；
@@ -54,7 +54,7 @@ MicroPython 和其他完整 Flash 固件。
 
 未完成项和 Task ID 只在[项目 Backlog](docs/project-backlog.md)维护；当前顺序是：
 
-1. `NET-04` / `SVC-01`：零中断凭据切换、跨主机 QEMU job/reattach、continuity 和多机调度。
+1. `NET-04` / `SVC-01`：凭据重叠窗口与客户端迁移、跨主机 QEMU job/reattach、continuity 和多机调度。
 2. `FW-01` → `FW-03` → `FW-02`：权限/许可、跨厂商样本、真机 key/eFuse。
 3. `CORE2-02`：超过十轮连接（需扩大当前 1–10 API 上限）、多小时 soak、WiFi/BLE coexistence 与物理等价性。
 4. `TAB5-01`、`CZ-01`、`UI-01` 和 `HW-01` 按专项依赖推进。

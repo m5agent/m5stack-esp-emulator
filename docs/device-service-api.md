@@ -72,7 +72,8 @@ python3 platform/tools/serve.py 8787 \
   --api-token-file /secure/service.token \
   --tls-cert /secure/server.crt \
   --tls-key /secure/server.key \
-  --tls-client-ca /secure/worker-ca.crt
+  --tls-client-ca /secure/worker-ca.crt \
+  --security-reload-drain-timeout 30
 ```
 
 The defaults can also be overridden without changing the command line:
@@ -105,6 +106,7 @@ Local worker identity and heartbeat can be controlled with:
 | `M5_WORKER_HEARTBEAT_INTERVAL` | 5 | heartbeat write interval in seconds |
 | `M5_WORKER_STALE_AFTER` | 15 | age at which a heartbeat is marked stale |
 | `M5_SERVICE_API_TOKEN_FILE` | unset | file-backed service/worker token; mutually exclusive with the in-memory token option |
+| `M5_SECURITY_RELOAD_DRAIN_TIMEOUT` | 30 | seconds to wait for active requests before a `SIGHUP` reload is canceled |
 | `M5_SERVICE_TLS_CERT` | unset | server certificate chain; requires `M5_SERVICE_TLS_KEY` |
 | `M5_SERVICE_TLS_KEY` | unset | server private key; requires `M5_SERVICE_TLS_CERT` |
 | `M5_SERVICE_TLS_CLIENT_CA` | unset | client CA; when set, HTTPS requires a trusted client certificate |
@@ -255,9 +257,11 @@ terminal `completed/PASS`. A second job uses the unified StickS3 image and
 requires its board/WiFi/BLE markers, network evidence, pcap and PNG frame in
 the same evidence ZIP. A third real-process run atomically rotates the server
 certificate, client CA, worker client identity and master token through
-`SIGHUP`; the retired TLS identity and token return `401`, the new credentials
-complete a signed QEMU job, and evidence SHA256 matches. Cross-host QEMU jobs
-and companion continuity remain open.
+`SIGHUP`; the service drains an active old-token request before committing
+the new configuration, the retired TLS identity and token then return `401`,
+the new credentials complete a signed QEMU job, and evidence SHA256 matches.
+Cross-host QEMU jobs, overlapping old/new credentials and companion
+continuity remain open.
 
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)
@@ -331,10 +335,19 @@ options are mutually exclusive.
 Send `SIGHUP` after atomically replacing the token and TLS files. The service
 validates all configured files before committing the new token and TLS
 context. The new TLS context applies to subsequent handshakes; an established
-socket retains its negotiated TLS session. The new token applies to subsequent
-protected requests. Invalid reload input leaves the previous configuration
-active. Existing requests are not drained, so this is not a zero-downtime
-rotation guarantee.
+socket retains its negotiated TLS session. Before committing the reload, the
+service stops admitting handlers, waits for already-active requests to finish,
+and then activates the new token for subsequent protected requests. New
+connections wait in the listener/backlog during this bounded drain. The
+default timeout is 30 seconds and can be changed with
+`--security-reload-drain-timeout` or
+`M5_SECURITY_RELOAD_DRAIN_TIMEOUT`. On timeout the reload is canceled and the
+old configuration stays active. Invalid reload input also leaves the previous
+configuration active.
+
+This closes active-request draining. It does not provide an overlapping
+old/new credential window or migrate a client fleet that still trusts only the
+retired CA/token.
 
 The worker uses verified TLS by default for `https://` URLs. `--ca-file`
 selects a private CA bundle, while `--client-cert` + `--client-key` enable an

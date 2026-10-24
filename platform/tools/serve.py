@@ -52,6 +52,56 @@ class ServiceHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
+    class RequestDrainGate:
+        def __init__(self) -> None:
+            self._condition = threading.Condition()
+            self._active = 0
+            self._draining = False
+
+        def enter(self) -> None:
+            with self._condition:
+                while self._draining:
+                    self._condition.wait()
+                self._active += 1
+
+        def leave(self) -> None:
+            with self._condition:
+                if self._active <= 0:
+                    raise RuntimeError("request drain gate is unbalanced")
+                self._active -= 1
+                if self._active == 0:
+                    self._condition.notify_all()
+
+        def begin_drain(self, timeout: float) -> bool:
+            deadline = time.monotonic() + timeout
+            with self._condition:
+                if self._draining:
+                    raise RuntimeError("request drain is already active")
+                self._draining = True
+                while self._active:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        self._draining = False
+                        self._condition.notify_all()
+                        return False
+                    self._condition.wait(remaining)
+                return True
+
+        def finish_drain(self) -> None:
+            with self._condition:
+                self._draining = False
+                self._condition.notify_all()
+
+        @property
+        def active(self) -> int:
+            with self._condition:
+                return self._active
+
+        @property
+        def draining(self) -> bool:
+            with self._condition:
+                return self._draining
+
     def __init__(
         self,
         server_address,
@@ -59,9 +109,14 @@ class ServiceHTTPServer(ThreadingHTTPServer):
         *,
         tls_context: ssl.SSLContext | None = None,
         reload_callback=None,
+        reload_drain_timeout: float = 30,
     ):
         self.tls_context = tls_context
         self.reload_callback = reload_callback
+        self.reload_drain_timeout = float(reload_drain_timeout)
+        if self.reload_drain_timeout <= 0:
+            raise ValueError("reload drain timeout must be positive")
+        self.request_gate = self.RequestDrainGate()
         self._reload_security = threading.Event()
         self._security_lock = threading.RLock()
         super().__init__(server_address, handler)
@@ -81,6 +136,20 @@ class ServiceHTTPServer(ThreadingHTTPServer):
     def request_security_reload(self) -> None:
         self._reload_security.set()
 
+    def process_request(self, request, client_address) -> None:
+        self.request_gate.enter()
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self.request_gate.leave()
+            raise
+
+    def finish_request(self, request, client_address) -> None:
+        try:
+            super().finish_request(request, client_address)
+        finally:
+            self.request_gate.leave()
+
     def service_actions(self) -> None:
         super().service_actions()
         if not self._reload_security.is_set():
@@ -88,17 +157,32 @@ class ServiceHTTPServer(ThreadingHTTPServer):
         self._reload_security.clear()
         if self.reload_callback is None:
             return
-        try:
-            context = self.reload_callback()
-        except Exception as error:
+        print("security configuration drain started", flush=True)
+        if not self.request_gate.begin_drain(self.reload_drain_timeout):
             print(
-                f"security configuration reload failed: {error}",
+                "security configuration reload canceled: "
+                "request drain timed out",
                 flush=True,
             )
             return
-        with self._security_lock:
-            self.tls_context = context
-        print("security configuration reloaded", flush=True)
+        try:
+            try:
+                context = self.reload_callback()
+            except Exception as error:
+                print(
+                    f"security configuration reload failed: {error}",
+                    flush=True,
+                )
+                return
+            with self._security_lock:
+                self.tls_context = context
+            print("security configuration reloaded", flush=True)
+        finally:
+            self.request_gate.finish_drain()
+
+    def server_close(self) -> None:
+        self.request_gate.finish_drain()
+        super().server_close()
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -1023,6 +1107,13 @@ def main() -> None:
         type=float,
         default=float(os.environ.get("M5_WORKER_STALE_AFTER", "15")),
     )
+    parser.add_argument(
+        "--security-reload-drain-timeout",
+        type=float,
+        default=float(
+            os.environ.get("M5_SECURITY_RELOAD_DRAIN_TIMEOUT", "30")
+        ),
+    )
     args = parser.parse_args()
     if args.api_token and args.api_token_file:
         parser.error("--api-token and --api-token-file are mutually exclusive")
@@ -1030,6 +1121,8 @@ def main() -> None:
         parser.error("--tls-cert and --tls-key must be provided together")
     if args.tls_client_ca is not None and args.tls_cert is None:
         parser.error("--tls-client-ca requires --tls-cert and --tls-key")
+    if args.security_reload_drain_timeout <= 0:
+        parser.error("--security-reload-drain-timeout must be positive")
 
     def load_api_token() -> str | None:
         if args.api_token_file is None:
@@ -1082,6 +1175,7 @@ def main() -> None:
         Handler,
         tls_context=tls_context,
         reload_callback=reload_security if needs_reload else None,
+        reload_drain_timeout=args.security_reload_drain_timeout,
     )
     scheme = "https" if tls_context is not None else "http"
     print(

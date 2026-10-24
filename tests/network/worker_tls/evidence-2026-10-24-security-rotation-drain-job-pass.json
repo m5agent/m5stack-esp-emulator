@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-security-rotation-drain-qemu-job",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "validation": "transport-security validation",
+  "scope": "same-host-loopback-sighup-drained-tls-token-rotation",
+  "rotation": {
+    "server_certificate": "A-to-B",
+    "client_ca": "A-to-B",
+    "worker_client_certificate": "A-to-B",
+    "master_token": "A-to-B",
+    "reload_signal": "SIGHUP",
+    "active_request_drain": "PASS"
+  },
+  "live_job": {
+    "status": "completed",
+    "result_state": "PASS",
+    "attempts": 1,
+    "firmware_sha256": "a5d027f6d2953edb9ece45cddea1490112d8e421ba563edc6e7c71cf7ac4f6ec",
+    "evidence_bytes": 6850,
+    "evidence_sha256": "c67f44265ecad925c8bd2069041fd4cfa65f9a3ac4dab2f1f03f2cb4403a1c0a"
+  },
+  "checks": {
+    "initial_https_credentials": "PASS",
+    "worker_registered_before_rotation": "PASS",
+    "server_security_reload": "PASS",
+    "old_tls_identity_rejected": "PASS",
+    "new_tls_identity_accepted": "PASS",
+    "old_master_token_rejected": "PASS",
+    "worker_credentials_reload": "PASS",
+    "active_request_drained_across_rotation": "PASS",
+    "signed_job_after_rotation": "PASS",
+    "job_evidence_sha256": "PASS"
+  },
+  "not_claimed": [
+    "cross-host network topology",
+    "credential overlap or zero-downtime client fleet migration",
+    "production CA or secret manager integration",
+    "multi-host scheduling or worker continuity",
+    "hardware validation"
+  ]
+}

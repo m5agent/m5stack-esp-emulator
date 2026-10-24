@@ -22,9 +22,10 @@ server certificate and client CA, then verifies:
   `qemu-unified` job; serial board/WiFi/BLE markers, network evidence, pcap and
   PNG frame are checked from the downloaded evidence ZIP;
 - `run_rotation_test.py` atomically replaces the server certificate, client
-  CA, worker client certificate/key and master token, sends `SIGHUP` to both
-  processes, verifies the old TLS identity and old token are rejected, then
-  runs a real QEMU job with the new credentials.
+  CA, worker client certificate/key and master token, holds an old-token
+  artifact upload open while sending `SIGHUP`, verifies that upload completes
+  before reload, verifies the old TLS identity and old token are then
+  rejected, and runs a real QEMU job with the new credentials.
 
 Run:
 
@@ -60,7 +61,7 @@ python3 tests/network/worker_tls/run_rotation_test.py
 ```
 
 Retained evidence:
-`evidence-2026-10-24-security-rotation-job-pass.json`.
+`evidence-2026-10-24-security-rotation-drain-job-pass.json`.
 
 ## Service configuration
 
@@ -111,19 +112,24 @@ credential to live use. The worker makes the same all-or-nothing update.
 
 - A new TLS context applies to subsequent TLS handshakes; sockets that have
   already completed a handshake retain their TLS session.
+- Before committing the reload, the service stops admitting handlers and
+  waits for active requests to finish. The default drain timeout is 30
+  seconds; a timeout keeps the old configuration and resumes admission.
 - The new master token applies to subsequent protected requests, including
   requests on an existing keep-alive connection.
-- Existing requests and sessions are not drained. Zero-downtime draining,
-  production secret-manager integration and cross-host continuity are not
-  claimed by this fixture.
+- This is active-request draining, not an overlapping old/new credential
+  window. Clients must still switch to the new token/CA before the final
+  cutover. Production secret-manager integration and cross-host continuity
+  are not claimed by this fixture.
 
 ## Boundaries
 
 The retained run is loopback on one host, not cross-host network validation.
 Certificate/token `SIGHUP` rotation, rejection of the retired credentials and
-a post-rotation real QEMU job are `PASS`. Zero-downtime request draining,
-production CA/secret-manager lifecycle, multi-host scheduling, companion
-continuity and hardware remain `NOT RUN`.
+a post-rotation real QEMU job are `PASS`. An active old-token artifact upload
+also completes before reload. Overlapping old/new credentials or automated
+client-fleet migration, production CA/secret-manager lifecycle, multi-host
+scheduling, companion continuity and hardware remain `NOT RUN`.
 The real QEMU job proves process/session execution and evidence transfer, not
 an arbitrary firmware's unified application PASS. The retained unified StickS3
 job additionally proves its board/WiFi/BLE markers, network evidence, pcap and
