@@ -130,7 +130,7 @@ Device Service execution of the refreshed bytes completed with
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
 | `XiaoZhi Voice Assistant For AtomS3R` | `74e714fcef825025c5df61cffeaefed3d5c01b97da4298b42be098740127dae4` | `PASS` | 128x128 Wi-Fi provisioning UI, frame and input response. Six nonfatal ES8311 audio writes failed; voice, audio, provisioning completion and cloud connectivity are `NOT RUN` |
-| `OpenAI Voice Assistant For AtomS3R` | `b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3` | `PARTIAL` | Stable black frame; NVS user data was absent and `app_main()` returned without provisioning/error UI. Trusted user-data fixture versus firmware precondition defect remains unresolved |
+| `OpenAI Voice Assistant For AtomS3R` | `b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3` | `PARTIAL` | The matrix UI/input rule remains `PARTIAL`, but the black-frame root cause is now separated: the public NVS partition is erased and the firmware requires external config. A dedicated NVS probe reaches association, DHCP, DNS and TCP/443; voice/cloud/audio are `NOT RUN` |
 | `阅读卡片 \| EDC Book` | `06eb3b595fc47bc5d35f760a16cdc5795ea8c0fad6295bcee8db5268cf906986` | `PASS` | 480x800 EDC Book launch/continue-reading screen with observable input change. External book-file ingestion and longer reader navigation remain `NOT RUN` |
 | `CrossPoint-PaperMono-CJK` | `e2dee32b468da1d743b9fe8889eca959f5c0acdbe09c8f4cc3e69c69f8ebe935` | `PASS` | With a deterministic 64 MiB FAT32+MBR SD fixture mounted as a session-isolated writable drive, the firmware reaches the recent-books main menu and responds to input. Book ingestion, EPUB rendering, Wi-Fi/OPDS and persistence remain `NOT RUN` |
 
@@ -139,8 +139,23 @@ initialized the SD controller but could not mount a card and rendered
 `SD card error`, classified as `runtime_fixture_gap`, not firmware `FAIL`.
 That historical result remains in
 [`refreshed-four-functional/evidence.json`](../tests/firmware/evidence-2026-10-25-refreshed-four-functional/evidence.json).
-The final run supersedes only the storage axis; OpenAI Voice Assistant remains
-black because user data is absent from NVS.
+The final run supersedes only the storage axis. A separate
+[`openai-nvs-precondition.json`](../tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json)
+checkpoint supersedes the OpenAI root-cause ambiguity: the public NVS partition
+is entirely erased, and the application requires `config/wifi_ssid`,
+`config/wifi_password` and `config/openaikey`. With a synthetic open-auth
+fixture it reaches Wi-Fi association, DHCP, `api.openai.com` DNS and TCP/443.
+A non-empty-password fixture loads the same values but raises the authmode
+threshold to WPA2 and cannot associate with the current Open-auth QEMU AP;
+that second result is `RUNTIME-05`, not a firmware WiFi failure or NVS failure.
+The black frame is no longer treated as evidence that NVS or display
+initialization failed.
+
+The probe uses `runtime=qemu-wifi` plus the generic ESP32-S3
+`generic-observe` profile. That profile runs an arbitrary complete S3 image
+with the QEMU board and WiFi NIC but does not require UIFlow/HCI markers, BLE
+or a UI frame. It is intended for network-first and headless firmware; its
+result remains separate from `qemu-unified` board/WiFi/BLE PASS.
 
 The final run retains four Device Service sessions, final screenshots, serial
 digests, normalized artifact hashes, session storage SHA and exact

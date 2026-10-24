@@ -122,6 +122,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/tools/worker_queue.py",
             "platform/tools/worker_auth.py",
             "platform/tools/worker_agent.py",
+            "platform/tools/nvs_image.py",
             "platform/tools/qemu_accel.py",
             "platform/tools/ble_runtime_limits.py",
             "platform/tests/test_ble_runtime_limits.py",
@@ -132,6 +133,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/tests/test_worker_queue.py",
             "platform/tests/test_worker_auth.py",
             "platform/tests/test_worker_agent.py",
+            "platform/tests/test_nvs_image.py",
             "platform/tests/test_worker_cross_netns_paths.py",
             "tests/network/lab_fabric/README.md",
             "tests/network/lab_fabric/run_test.py",
@@ -197,6 +199,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-c6-soft-reset-flash-addressing.json",
             "tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json",
             "tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json",
+            "tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json",
+            "tests/firmware/openai_nvs_precondition/README.md",
+            "tests/firmware/openai_nvs_precondition/run_test.py",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",
@@ -597,6 +602,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("fat32-mbr", matrix)
         self.assertIn("storage.sd_image_artifact_id", api)
         self.assertIn("StorageExecution:", openapi)
+        self.assertIn("nvs.image_artifact_id", api)
+        self.assertIn("NvsExecution:", openapi)
         self.assertIn(
             "公开 CDN 的 URL 和版本元数据不构成不可变内容承诺",
             manifest,
@@ -728,6 +735,79 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertFalse(resume_live["checks"]["qemu_started"])
 
+    def test_openai_first_boot_nvs_precondition_is_reconciled(self):
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-openai-nvs-precondition.json"
+            ).read_text()
+        )
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        register = (DOCS / "runtime-model-gap-register.md").read_text()
+        matrix = (DOCS / "user-firmware-simulation-matrix.md").read_text()
+        api = (DOCS / "device-service-api.md").read_text()
+
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(evidence["functional_status"], "PARTIAL")
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(
+            evidence["source"]["sha256"],
+            "b3597fcabbff57c98618caa8754af84745e9eac35b2868ab3c4cb0935b7c59b3",
+        )
+        self.assertTrue(evidence["nvs_partition"]["public_binary_erased"])
+        self.assertTrue(
+            evidence["open_run"]["markers"][
+                "wifi:connected with myssid"
+            ]
+        )
+        self.assertTrue(evidence["open_run"]["markers"]["got ip:"])
+        self.assertIn(
+            "api.openai.com.",
+            evidence["open_run"]["pcap"]["dns_queries"],
+        )
+        self.assertGreater(
+            evidence["open_run"]["pcap"]["tcp_443_flows"],
+            0,
+        )
+        self.assertTrue(
+            evidence["secure_run"]["markers"][
+                "authmode threshold changes from OPEN to WPA2"
+            ]
+        )
+        self.assertFalse(
+            evidence["secure_run"]["markers"][
+                "wifi:connected with myssid"
+            ]
+        )
+        self.assertEqual(
+            evidence["classification"]["nvs_precondition"],
+            "CONFIRMED_EXTERNAL_CONFIGURATION_REQUIRED",
+        )
+        for text in (status, backlog, workstreams, register, matrix, api):
+            self.assertIn("RUNTIME-05", text)
+        self.assertIn("session-isolated NVS", status)
+        self.assertIn("nvs_image.py", api)
+        self.assertIn("409\nnvs_not_supported", api)
+        self.assertIn(
+            "qemu-wifi/profile=generic-observe",
+            (ROOT / "README.md").read_text(),
+        )
+        architecture = (DOCS / "simulator-service-architecture.md").read_text()
+        self.assertNotIn(
+            "CIDR/domain-set allowlisting and same-guest firmware IPv6",
+            architecture,
+        )
+        self.assertIn("black frame", matrix)
+        self.assertTrue(
+            any(
+                "real OpenAI" in item
+                for item in evidence["not_claimed"]
+            )
+        )
+
     def test_runtime_model_gap_register_matches_evidence_and_backlog(self):
         register = (DOCS / "runtime-model-gap-register.md").read_text()
         status = (DOCS / "project-status.md").read_text()
@@ -778,7 +858,7 @@ class DocsConsistencyTests(unittest.TestCase):
                 "c6_chip_id_lost_after_software_reset",
             },
         )
-        self.assertEqual(register.count("| 状态 | `OPEN` |"), 3)
+        self.assertEqual(register.count("| 状态 | `OPEN` |"), 4)
         self.assertEqual(
             register.count(
                 "| 状态 | `FIXED`（virtual-device validation） |"
@@ -789,6 +869,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("RUNTIME-02", register)
         self.assertIn("RUNTIME-03", register)
         self.assertIn("RUNTIME-04", register)
+        self.assertIn("RUNTIME-05", register)
         self.assertIn("`LP_SW_HPSYS`", register)
         self.assertIn(
             "`Invalid chip id. Expected 13 read 12. Bootloader for wrong chip?`",

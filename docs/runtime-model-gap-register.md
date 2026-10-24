@@ -137,6 +137,26 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 2. 提供不从仓库分发生产私钥的测试 slot/config fixture；
 3. 同一固件完成安全元件初始化并进入应用帧，安全芯片结论仍与功能帧分开。
 
+### RUNTIME-05：S3 QEMU AP 未广告 WPA2/RSN 安全
+
+| 字段 | 当前值 |
+| --- | --- |
+| 状态 | `OPEN` |
+| 影响 | 只有非空 WiFi 密码才允许连接，或显式把 authmode threshold 提升到 WPA2/WPA3 的 ESP32-S3 固件 |
+| 现象 | 公开 OpenAI Voice Assistant 从 NVS 读取非空密码后输出 `authmode threshold changes from OPEN to WPA2`，持续 retry 但不会关联当前 QEMU AP；把测试密码改为空字符串后，同一 BIN 正常关联、DHCP、解析 `api.openai.com` 并发起 TCP/443 |
+| 当前模型 | QEMU S3 AP beacon 按 Open auth 广播，模型没有 WPA2 RSN advertisement、EAPOL/4-way handshake 和密码验证数据面 |
+| 证据 | [`openai-nvs-precondition.json`](../tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json) |
+
+关闭条件：
+
+1. 根据明确的 profile/config 广告 WPA2-PSK（必要时再评估 WPA3）RSN 能力，
+   而不是只在宿主层返回“连接成功”；
+2. 覆盖正确密码关联、错误密码拒绝、重试、DHCP 和断线/重连；
+3. 由 guest 驱动完成 802.11 auth/association 与 EAPOL/4-way 路径，保留
+   pcap、串口和 controller/QOM 证据；
+4. 在模型关闭前，涉及非空密码的 QEMU WiFi 固件只能标记
+   `runtime_model_gap`，不能据此写固件 WiFi FAIL。
+
 ## 与固件矩阵的关系
 
 跨厂商矩阵的状态语义由
@@ -147,6 +167,8 @@ SHA；公开 CDN 的当前 BIN 会变化，刷新后必须重新执行，不能�
 或 PARTIAL。其余 `PARTIAL`
 仍按首帧、输入、串口生命周期或
 仅串口设备等独立原因记录，不能因为页面放在同一个矩阵中就合并为模型缺陷。
+`RUNTIME-05` 来自后续 OpenAI 首次启动对照，不属于那 21 个历史样本的原始
+`runtime_model_gap` 计数。
 
 新增 `runtime_model_gap` 时必须同时：
 

@@ -25,6 +25,9 @@ MicroPython 和其他完整 Flash 固件。
 - 固件输入覆盖 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented
   flash、WebBurner/M5Burner 包、文件系统清单、静态审查和 capability
   mismatch。
+- Device Service 支持 session-isolated SD 和完整 NVS 分区 fixture；
+  `qemu-wifi/profile=generic-observe` 可为非 UIFlow、headless 或
+  network-first 的 ESP32-S3 固件提供板级加 WiFi 的最小执行路径。
 - 物理硬件验证仍是独立门禁；仓库中的 QEMU 和 `esp-emu` 结果只标记为
   `virtual-device validation`。
 

@@ -37,7 +37,7 @@
 | `patches/` | 可重放的 QEMU/板级补丁源；必须从匹配 worktree 生成和反向验证 | 是 |
 | `tests/uiflow2/` | 外设、UI、统一运行时、Core2 无线和证据包 | 是 |
 | `tests/network/` | namespace、DNS、TLS、错误密码、radio/AP 重连和 Core2 网络夹具 | 是 |
-| `tests/firmware/` | FirmwareManifest、静态审查和文件系统清单证据 | 是 |
+| `tests/firmware/` | FirmwareManifest、静态审查、文件系统、NVS 和跨厂商运行时证据 | 是 |
 | `devices/` | 源设备清单、生成后的设备档案、固件来源和说明 | 是 |
 | `platform/web/` | 设备目录、Live session、WebBurner、输入和 3D 外壳 | 是 |
 | `platform/runtime/wasm/` | 固定版本的第三方 `esp-emu` 运行时资产 | 仅 Tab5/诊断后端 |
@@ -55,7 +55,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | 代码域 | 模块 | 入口 / 输出 |
 | --- | --- | --- |
 | 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、本地 worker lifecycle、远程注册目录、持久任务队列、worker HMAC、HTTPS/mTLS、SIGHUP TLS/token rotation、executor、GC |
-| 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py` | 公开固件下载、manifest、静态/SBOM/文件系统证据和批量运行 |
+| 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`nvs_image.py`、`user_firmware_matrix.py` | 公开固件下载、manifest、静态/SBOM/文件系统和 NVS fixture、批量运行 |
 | 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/TLS、pcap 摘要 |
 | 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
 | BLE/发布工具 | `ble_probe.py`、`hci_stream.py`、`generate_catalog.py`、`export_bundle.py` | 外部 peer、H4 分包、生成的设备目录和可移植资产包 |
@@ -88,6 +88,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/firmware_filesystems.py` | LittleFS、FAT12/16/32 与 SPIFFS 只读清单、LUT/对象页校验、哈希和 SPDX | manifest |
 | `platform/tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查、SBOM 摘要 | manifest |
 | `platform/tools/user_firmware_matrix.py` | 热门公开固件经 Device Service 的批量仿真 | 回归操作员 |
+| `platform/tools/nvs_image.py` | 确定性 NVSv2 namespace/string fixture 生成器 | Device Service、firmware probes |
 | `platform/tools/network_policy.py` | isolation/egress/DNS/TLS/pcap 策略校验 | Device Service |
 | `platform/tools/network_egress.py` | 精确 IPv4/IPv6 地址/协议/端口、双栈 veth/route/NAT、IPv6 neighbor control 和清理 | Device Service、隔离测试 |
 | `platform/tools/network_fabric.py` | private namespace、双 TAP/bridge DHCP primitive 和双 guest QEMU socket L2 switch | lab-fabric runner、CI |
@@ -123,7 +124,8 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/core2_native_hci/run_service_5x.py` | 在首个 lease 前冻结 firmware/ELF/QEMU 哈希，通过真实 Device Service API 连续租用 `core2-native-hci`，支持 `--hold-seconds` 与 `--ble-reconnect-cycles`，低频采样 host RSS，校验 HLI health 和运行期间资产未变化，失败时保留 partial evidence 并汇总 aggregate FAIL | Core2 native-HCI、extended-run/soak/reconnect、Device Service profile 或 ELF hook 改动 |
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连、双 guest lab fabric 和 worker-local QEMU | 网络策略/运行时改动 |
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
-| `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS 证据 | manifest/filesystem 改动 |
+| `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS 证据 | manifest/filesystem/NVS 改动 |
+| `tests/firmware/openai_nvs_precondition/` | 对照空 NVS、Open/WPA2 虚拟 AP，区分首次启动配置与 WiFi 模型缺口 | NVS fixture、generic S3 qemu-wifi 或该样本分类改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 | `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
 | `platform/tests/test_worker_directory.py` | 远程 worker 注册、持久化、generation、stale/drain/stop、容量和结果元数据契约 | `/api/v1/workers` 或 `worker_directory.py` 改动 |
@@ -225,7 +227,8 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
-| [`tests/firmware/`](../tests/firmware/README.md) | 已提交的 manifest、静态审查、文件系统和跨厂商运行时 evidence；不是测试实现目录 |
+| `platform/tools/nvs_image.py` | 生成确定性 NVSv2 namespace/string 配置 fixture |
+| [`tests/firmware/`](../tests/firmware/README.md) | FirmwareManifest、静态审查、文件系统、NVS/OpenAI 专用探针和跨厂商运行时 evidence |
 | `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |
 | `platform/web/firmware.html`、`firmware.js`、`firmware-upload.js`、`sha256.js` | 浏览器 WebBurner 包上传、流式 SHA256、重试/取消/刷新恢复和 manifest 导入 |
 
@@ -319,7 +322,9 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Manifest 公共样本/WebBurner | `firmware_manifest.py`；`test_firmware_manifest.py`；`evidence-2026-10-24-public-manifest-web-conformance.json` | 同一公开固件的 merged 与 WebBurner 输入规范化到同一 artifact hash；`camera`-on-StickS3 结构化拒绝；安全证据分层和 HTTP import PASS |
 | Public artifact refresh invariant | `user_firmware_matrix.py:download_candidates`；`test_user_firmware_matrix.py`；`firmware-manifest.md` | 每个 matrix run 重新解析公开版本并 `force=True` 下载；同 firmware/version ID 的缓存不能证明当前 CDN 内容；新 SHA 必须重新执行 Device Service 才能继承功能结论 |
 | SD media fixture | `platform/tools/sd_image.py`；`test_sd_image.py`；Device Service `storage.sd_image_artifact_id` | 纯 Python 生成确定性 FAT32+MBR 或 FAT16 superfloppy raw image；Device Service 拒绝无 SD 模型的设备，校验 512-byte 对齐，复制到 session 后重新哈希并以 writable `if=sd` 挂载 |
-| Refreshed public artifacts functional | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；`evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json` | 4 个当前公开 BIN 的 Device Service 结果为 `3 PASS / 1 PARTIAL`；XiaoZhi/EDC/CrossPoint 达到 frame/input 层 PASS，CrossPoint 使用 64 MiB FAT32+MBR SD fixture 进入主菜单，OpenAI 仍因 NVS user data 缺失黑屏。Result key 包含 firmware SHA 与 fixture SHA |
+| NVS partition fixture | `platform/tools/nvs_image.py`；`test_nvs_image.py`；Device Service `nvs.image_artifact_id` | 生成与 ESP-IDF generator 逐字节一致的 NVSv2 namespace/string 数据；服务按固件分区表校验 label/offset/size，只覆盖 session Flash 副本并记录 base/effective SHA |
+| OpenAI first-boot NVS precondition | `tests/firmware/openai_nvs_precondition/run_test.py`；`evidence-2026-10-25-openai-nvs-precondition.json` | 公开 BIN 的 NVS 全空；Open 密码对照完成关联、DHCP、`api.openai.com` DNS 与 TCP/443；非空密码触发 WPA2 threshold 后被 Open-auth QEMU AP 阻断，登记 `RUNTIME-05` |
+| Refreshed public artifacts functional | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；`evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json`；`evidence-2026-10-25-openai-nvs-precondition.json` | 4 个当前公开 BIN 的 Device Service 结果为 `3 PASS / 1 PARTIAL`；XiaoZhi/EDC/CrossPoint 达到 frame/input 层 PASS；OpenAI 黑屏根因已拆分为空 NVS、headless/cloud 和 `RUNTIME-05`，不再记作显示控制器失败 |
 | 跨厂商公开固件 runtime matrix | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；S3/C6 与 Core2 evidence | 7 台设备、21 个公开样本；10 PASS / 11 PARTIAL；Core2 PMIC/AWS ATECC 与 C6 Zigbee 归类为 `runtime_model_gap` |
 | C6 Zigbee `thread-sim` 可行性 | `tests/firmware/c6_zigbee_thread_sim/run_feasibility.py`；`evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json` | 双实例 UDP relay 观察到双向 802.15.4 帧，但 commissioning/join 未完成；结果为 `PARTIAL/runtime_model_gap` |
 | 运行时模型缺口登记 | `runtime-model-gap-register.md`；C6 Flash/PMP patches；跨厂商与修复 evidence | `RUNTIME-01` 已关闭；`RUNTIME-02` 为 802.15.4 ACK/commissioning，`RUNTIME-03` 为 Core2 legacy I2C controller/board-bus routing，`RUNTIME-04` 为 ATECC608 |

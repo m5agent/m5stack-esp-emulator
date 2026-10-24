@@ -45,6 +45,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 详细 result 和 evidence 只在当前状态、快照和验证台账维护。稳定实现包括：
 
 - S3/C6 单 guest board + WiFi + HCI-UART BLE profile；
+- 任意 ESP32-S3 backend 的 `runtime=qemu-wifi/profile=generic-observe`
+  board+WiFi 最小观察路径，用于非 UIFlow、headless 和 network-first
+  固件；它不要求 HCI/BLE 或 UIFlow marker，也不提供 WPA2/RSN；
 - Core2 OpenMAC WiFi、公网 DNS/HTTP 和 `core2-native-hci` controller
   boundary；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；

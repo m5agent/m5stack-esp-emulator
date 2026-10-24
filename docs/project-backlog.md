@@ -23,7 +23,7 @@
 | --- | --- | --- | --- |
 | P0 | 网络产品化 | 自动发现/跨主机 worker 迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach 和生产调度 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
-| P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
+| P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608；S3 QEMU AP WPA2/RSN | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture；WiFi auth/EAPOL 数据面 |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
 | P1 | Core2 长稳与物理/controller 等价性 | 继续验证吞吐/teardown 与 bit-exact controller/cache/PSRAM | 3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 已 PASS |
@@ -39,15 +39,17 @@
    extended-run host-memory 门禁也已 PASS。
 2. `FW-03`：当前 AtomS3R/PaperMono 四样本已完成强制刷新、Manifest 和
    Device Service 执行；加入 session-isolated FAT32+MBR SD fixture 后为
-   `3 PASS / 1 PARTIAL`。下一步厘清 OpenAI 首次启动所需 NVS 数据，再扩
-   更多设备与 firmware family。
+   `3 PASS / 1 PARTIAL`。OpenAI 首次启动所需 NVS 数据已确认，并已用
+   session-isolated NVS fixture 走到 DHCP、DNS 和 TCP/443；下一步补
+   headless/cloud 执行预期并扩更多设备与 firmware family。
 3. `NET-04` / `SVC-01`：真实 control/runtime 双端点和 worker-local QEMU
    已在两个 network namespace 中 PASS；下一步在 durable queue、
    HTTPS/mTLS、rotation/drain、同主机 generation-pointer migration 和本地
    QEMU/QMP reattach 上补自动主机发现/跨主机迁移、跨主机 reattach、
    companion/evidence continuity 和多机调度。
-4. `FW-01/02`、`RUNTIME-02`、`HW-01`：补运行态权限/许可、生产 key/eFuse、
-   C6 Zigbee 决策和代表设备同固件 SHA 的真机验证。
+4. `FW-01/02`、`RUNTIME-02/05`、`HW-01`：补运行态权限/许可、生产
+   key/eFuse、C6 Zigbee 决策、S3 WPA2/RSN 数据面和代表设备同固件 SHA
+   的真机验证。
 5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
    专项后端和视觉工作，不与当前 P0 混算完成。
 
@@ -59,10 +61,11 @@
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease 和最终 `tb-size=128` artifact-bound `7200s` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 cache/PSRAM、长时吞吐/teardown 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 进行中 | API/WebBurner capability、Manifest、矩阵 SHA 与 SD fixture SHA 绑定已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。下一步区分 OpenAI Voice Assistant 的 NVS 首次启动前置条件与固件缺陷，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储前置条件可重复注入 |
+| `FW-03` | 进行中 | API/WebBurner capability、Manifest、矩阵 SHA、SD fixture SHA 和 session-isolated NVS fixture 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 首次启动 NVS 前置条件已确认；下一步补 headless/cloud 执行预期，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储/NVS 前置条件可重复注入 |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |
+| `RUNTIME-05` | 进行中 | 为 S3 QEMU AP 增加 WPA2/RSN advertisement、EAPOL/4-way 和正确/错误密码数据面 | guest 非空密码关联、错误密码拒绝、DHCP、重试和 pcap 同次通过 |
 | `SVC-01` | 进行中 | companion/evidence continuity、worker 主机自动发现与跨主机 reattach | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
@@ -249,6 +252,8 @@ preflight 已有；真机 secure boot、Flash Encryption、eFuse 和生产 key
 C6 软件复位 chip-id 缺口已经由 `RUNTIME-01` 修复并在 Device Service 重跑中移除
 `runtime_model_gap`，但该样本仍有独立应用异常。仍未覆盖全部设备、
 ESP32 LX6/P4、更多 MicroPython/vendor framework 和失败根因闭环。
+OpenAI 首次启动 NVS 前置条件已经用内容寻址 fixture 和 Open/WPA2 虚拟 AP
+对照关闭；空 NVS 不再作为模型故障。其非空密码路径由 `RUNTIME-05` 管理。
 Zigbee 缺口继续由 `RUNTIME-02` 管理，不把“已分类”算成该任务完成。
 
 CLI、WebBurner 和 `/api/v1/firmware/import` 已统一接受 required/optional
@@ -258,6 +263,13 @@ capability。网页上传不再只能生成空声明；`screen` 等别名会规�
 包内 `sdkconfig` 的 WiFi、Bluetooth 和 PSRAM 开关会作为 detected
 capability 保留 flag/source；目标 profile 缺失时只 warning，不会把
 “编译时启用”误当成“运行时使用”。
+
+Device Service 还接受完整 NVS partition fixture。服务验证固件
+`data/nvs` 分区的 label/offset/size，只覆盖 session Flash 副本，并在
+snapshot/evidence 中记录 base/effective Flash SHA 和 fixture SHA。
+`nvs_image.py` 生成确定性 namespace/string 数据；当前 encoder 已与
+ESP-IDF NVS generator 做字节级对照。下一步需要把“headless/network-first”
+作为显式执行预期接入矩阵，避免继续用首帧作为唯一的应用启动标准。
 
 验收：每个样本记录 importer、chip/board/profile、partition、capability、
 boot 和功能层；结构 PASS、UI PASS、功能 PASS、安全 PASS 不混算。
@@ -316,6 +328,22 @@ mux/bus handoff；当前 Core2 soak 期间不得替换正在使用的 QEMU。若
 
 验收：固件进入非空应用帧，安全元件和普通功能证据分层记录；若只能伪造
 返回值则继续 `runtime_model_gap`。
+
+### RUNTIME-05 S3 QEMU AP WPA2/RSN
+
+当前缺口：QEMU S3 AP 只按 Open auth 广播。公开 OpenAI Voice Assistant
+从 NVS 读取非空密码后把 threshold 提升到 WPA2，持续 retry 但不关联；
+把测试密码改为空字符串后，同一 guest 能关联、DHCP、解析
+`api.openai.com` 并发起 TCP/443。该差异证明首个失败点是 WiFi 安全模型，
+不是 NVS。
+
+下一项最小交付：在 QEMU WiFi AP 模型广告 WPA2-PSK RSN capability，并实现
+guest 可观察的 4-way/EAPOL 成功与错误密码失败路径；用现有
+wrong-password/reconnect runner 扩展正确密码和错误密码矩阵。
+
+验收：正确密码完成 auth/association/EAPOL/DHCP，错误密码明确认证失败且
+无 DHCP；pcap、串口、QEMU/guest 清理和同一 profile evidence 绑定。不能用
+宿主机预先注入“已连接”状态。
 
 ## P0：真机同路径
 
