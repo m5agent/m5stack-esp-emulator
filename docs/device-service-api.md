@@ -1888,9 +1888,11 @@ restart.
   Cardputer ADV, StopWatch, AtomS3R, PaperColor, PaperMono, StackChan,
   StamPLC, NanoC6 and Nesso N1 instead use `runtime=qemu-unified` with their
   unified profiles for one combined guest (`qemu-ble` remains a legacy alias);
-- unified S3 WiFi is an open AP on one fixed virtual channel and BLE is
-  HCI-offload over UART1 (UART2 on StackChan), not a native S3 PHY/radio
-  model;
+- supported S3 unified profiles exercise an Open AP on one fixed virtual
+  channel. `qemu-wifi/profile=generic-observe` additionally validates
+  WPA2-PSK M1-M4, pairwise CCMP RX and the correct/incorrect-password split.
+  WPA3, group-key multicast and a native S3 PHY/radio model remain out of
+  scope. BLE is HCI-offload over UART1 (UART2 on StackChan);
 - Core2 radio support remains environment-gated; `qemu-wifi` and `qemu-ble`
   are compatibility runtimes. `qemu-unified` with
   `profile=core2-unified` combines OpenMAC WiFi, UART1 BLE NUS and board
@@ -1901,18 +1903,21 @@ restart.
   board/frame/QOM, WiFi/public network, pcap and evidence in five independent
   service leases without GDB. Two independent `5×10s` hold batches also pass
   `10/10`; three `60s` holds pass `3/3`, and two `120s` holds pass `2/2`,
-  with zero HLI errors and empty HLI/meta queues. Three independent leases also
-  pass twenty same-guest reconnect cycles each, with balanced HLI 577/577,
-  397 events, 180 ACLs and connection/L2CAP/GATT pools back at 3/9/3.
+  with zero HLI errors and empty HLI/meta queues. Three independent leases
+  pass each of the 20, 30, 60 and 120 same-guest reconnect gates; all three
+  complete 120 cycles with balanced HLI 3377/3377, 2297 events, 1080 ACLs and
+  connection/L2CAP/GATT pools back at 3/9/3.
   `network.ble_linger_seconds` can keep the external GATT peer connected
   beyond its initial exchange; two active-link `600s` holds pass `2/2` with
   `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`. A `7200s`
   artifact-bound active-BLE hold passes the functional gate with frozen
   firmware/ELF/QEMU hashes, frame/QOM/WiFi/public DNS/HTTP/GATT/pcap and
   cleanup; QEMU host RSS grows from 744160 to 1202176 KiB, so memory growth
-  remains `REVIEW`. The later `tb-size=128` artifact-bound `7200s` rerun
-  also passes with 240 resource samples, RSS `323536→252992 KiB` and phys
-  footprint `250880→188416 KiB`.
+  remains the historical unbounded-TCG `REVIEW`. The later `tb-size=128`
+  artifact-bound `7200s` rerun also passes with 240 resource samples, RSS
+  `323536→252992 KiB` and phys footprint `250880→188416 KiB`; the tested
+  host-memory workload shows no sustained growth, while physical PSRAM/cache
+  timing remains `NOT RUN`.
   `network.ble_reconnect_cycles` (1-121) asks one external peer process to run
   multiple complete scan/connect/GATT/disconnect cycles without restarting the
   guest; `network.ble_reconnect_delay_seconds` controls the pause before the

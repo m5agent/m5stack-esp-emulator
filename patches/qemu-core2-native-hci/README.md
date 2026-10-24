@@ -1,6 +1,6 @@
 # QEMU classic ESP32 native HCI transport
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This patch adds the first QEMU-side slice of `CORE2-01`:
 
@@ -48,6 +48,19 @@ Python write/notify path and the Bumble ACK. See
 evidence and no GDB bridge. The extended-run gate adds a 10-second stable hold
 and requires `hli-errors=0`, balanced posts/consumption, zero queue depth and
 nonzero event/ACL delivery in every lease.
+
+Current extended validation for this patch set:
+
+- two independent active-BLE `600s` leases pass `2/2`;
+- one artifact-bound active-BLE `7200s` lease passes the functional,
+  bounded-TCG, HLI-health, pcap and cleanup gate;
+- three independent artifact-bound `121`-cycle reconnect leases pass `3/3`
+  with identical firmware/ELF/QEMU/tool hashes.
+
+The detailed gate and evidence index remain in
+[`docs/core2-native-hci-backend.md`](../../docs/core2-native-hci-backend.md).
+These are virtual-device functional results, not physical cache/PSRAM,
+bit-exact controller/baseband or hardware validation.
 
 Apply after `patches/qemu-core2-ble-controller/`:
 

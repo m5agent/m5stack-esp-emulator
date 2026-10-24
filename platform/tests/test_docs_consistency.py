@@ -40,6 +40,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/network-simulation-plan.md",
             "docs/network-lane.md",
             "docs/core2-native-hci-backend.md",
+            "tests/README.md",
+            "tests/network/README.md",
+            "patches/README.md",
             "platform/README.md",
             "platform/tests/test_ble_probe.py",
             "tests/uiflow2/README.md",
@@ -267,6 +270,7 @@ class DocsConsistencyTests(unittest.TestCase):
             checked_in,
         )
         self.assertIn("## Backlog Task 板", checked_in)
+        self.assertIn("## 代码与文档规模", checked_in)
         self.assertIn("`CORE2-02`", checked_in)
         core2 = next(
             device
@@ -384,6 +388,7 @@ class DocsConsistencyTests(unittest.TestCase):
             *sorted((ROOT / "devices").rglob("README.extra.md")),
             *sorted(DOCS.rglob("*.md")),
             *sorted((ROOT / "tests").rglob("README.md")),
+            *sorted((ROOT / "patches").rglob("README.md")),
         ]
         pattern = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
         for path in paths:
@@ -397,6 +402,33 @@ class DocsConsistencyTests(unittest.TestCase):
                 self.assertTrue(
                     (path.parent / target).resolve().exists(),
                     f"{path.relative_to(ROOT)} -> {raw}",
+                )
+
+    def test_executable_test_and_patch_directories_have_readmes(self) -> None:
+        for lane in ("uiflow2", "network", "firmware"):
+            root = ROOT / "tests" / lane
+            for directory in sorted(path for path in root.iterdir() if path.is_dir()):
+                if directory.name.startswith((".", "__")):
+                    continue
+                executable = any(
+                    path.is_file()
+                    for pattern in ("run_*.py", "test_*.py")
+                    for path in directory.glob(pattern)
+                )
+                if executable:
+                    self.assertTrue(
+                        (directory / "README.md").is_file(),
+                        f"{directory.relative_to(ROOT)} has an executable test "
+                        "but no README.md",
+                    )
+
+        for directory in sorted(
+            path for path in (ROOT / "patches").iterdir() if path.is_dir()
+        ):
+            if any(directory.glob("*.patch")):
+                self.assertTrue(
+                    (directory / "README.md").is_file(),
+                    f"{directory.relative_to(ROOT)} has patches but no README.md",
                 )
 
     def test_obsolete_current_status_claims_are_absent(self) -> None:
@@ -413,6 +445,9 @@ class DocsConsistencyTests(unittest.TestCase):
                 ROOT / "tests" / "network" / "core2_openeth" / "README.md",
                 ROOT / "tests" / "network" / "worker_cross_netns" / "README.md",
                 ROOT / "tests" / "uiflow2" / "sticks3_peripherals" / "README.md",
+                ROOT / "tests" / "README.md",
+                ROOT / "tests" / "network" / "README.md",
+                ROOT / "patches" / "README.md",
                 ROOT / "patches" / "qemu-core2-openmac-wifi" / "README.md",
                 ROOT / "patches" / "qemu-core2-ble-controller" / "README.md",
                 ROOT / "patches" / "qemu-multi-board-uiflow2" / "README.md",

@@ -63,9 +63,26 @@
 | `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和截图阈值 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
+## 代码与文档规模
+
+- `platform/tools`：`38` 个 Python 模块，`30353` 行；规模最大的模块如下。
+
+| 模块 | 行数 |
+| --- | ---: |
+| `device_service.py` | 9083 |
+| `firmware_manifest.py` | 2214 |
+| `user_firmware_matrix.py` | 2069 |
+| `firmware_filesystems.py` | 1469 |
+| `serve.py` | 1385 |
+| `network_fabric.py` | 1375 |
+
+- `tests/`：`56` 个可执行 Python 测试文件，分布在 `39` 个目录；`134` 个 evidence JSON。
+- `patches/`：`10` 个补丁组，`54` 个 patch 文件。
+- 文档：`192` 个 Markdown 页面，`16346` 行。
+
 ## 文档与测试
 
-- 平台测试：`395` 项。
+- 平台测试：`396` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 
@@ -75,4 +92,6 @@
 - 未完成 Task、依赖和验收：[项目 Backlog](project-backlog.md)。
 - 带日期的验证结果和 evidence：[验证证据台账](validation-ledger.md)。
 - 代码、测试和证据路径：[代码与验证入口地图](code-map.md)。
+- 测试分层和 evidence 规则：[测试总索引](../tests/README.md)。
+- QEMU/固件补丁分组：[补丁总索引](../patches/README.md)。
 - 文档职责和新鲜度：[文档导航](README.md)。

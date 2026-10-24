@@ -1,6 +1,6 @@
 # Core2 OpenMAC WiFi model
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This patch imports the ESP32 classic WiFi device from
 `esp32-open-mac/qemu` commit
@@ -48,7 +48,9 @@ now also pass public IPv4 DNS/HTTP and two BLE GATT paths:
 Those later results do not turn this patch into a complete PHY/rate/security/RF
 model. The legacy native-VHCI bridge still depends on QEMU GDB; the canonical
 `core2-native-hci` profile does not. A bit-exact Espressif BT
-baseband/controller remains `NOT RUN`.
+baseband/controller remains `NOT RUN`. The current Core2 long-run and
+121-cycle reconnect gates are maintained in
+[`docs/core2-native-hci-backend.md`](../../docs/core2-native-hci-backend.md).
 
 This is a simulation bring-up patch, not a complete WiFi implementation and not
 real-hardware validation.

@@ -250,6 +250,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 - [项目 Backlog](docs/project-backlog.md)
 - [代码与验证入口地图](docs/code-map.md)
 - [验证证据台账](docs/validation-ledger.md)
+- [测试入口与 evidence 规则](tests/README.md)
+- [QEMU / 固件补丁总索引](patches/README.md)
 - [设备服务架构](docs/simulator-service-architecture.md)
 - [设备服务 API](docs/device-service-api.md)
 - [设备高保真建模 Backlog](docs/device-visual-fidelity-backlog.md)

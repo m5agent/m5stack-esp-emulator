@@ -34,9 +34,10 @@
 | `platform/tests/` | 平台单元/契约测试与浏览器 upload/SHA256 Node 测试；`test_docs_consistency.py` 防止文档和 API 漂移 | 是 |
 | `platform/peripherals/` | 芯片模型登记、运行时 coverage、设备/模型模板和完成门禁 | 是 |
 | `platform/qemu/` | QEMU machine、runtime profile、资产和 blocker 注册表 | 是 |
-| `patches/` | 可重放的 QEMU/板级补丁源；必须从匹配 worktree 生成和反向验证 | 是 |
+| `patches/` | 可重放的 QEMU/板级补丁源；总索引见 `patches/README.md`，精确顺序见各子目录 | 是 |
+| `tests/` | 测试分层、evidence 命名和 Agent 功能测试路由；入口见 `tests/README.md` | 是 |
 | `tests/uiflow2/` | 外设、UI、统一运行时、Core2 无线和证据包 | 是 |
-| `tests/network/` | namespace、DNS、TLS、错误密码、radio/AP 重连和 Core2 网络夹具 | 是 |
+| `tests/network/` | namespace、DNS、TLS、错误密码、worker continuity 和 Core2 网络夹具；总索引见 `tests/network/README.md` | 是 |
 | `tests/firmware/` | FirmwareManifest、静态审查、文件系统、NVS 和跨厂商运行时证据 | 是 |
 | `devices/` | 源设备清单、生成后的设备档案、固件来源和说明 | 是 |
 | `platform/web/` | 设备目录、Live session、WebBurner、输入和 3D 外壳 | 是 |
@@ -144,16 +145,17 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 ## 当前代码组织债务
 
-2026-10-25 的静态盘点显示（生产代码中除第三方 vendor 外没有未处理
-`TODO/FIXME/HACK`，主要债务是文件边界和测试体积）：
+静态盘点显示生产代码中没有未处理的 `TODO/FIXME/HACK`，主要债务是文件边界
+和测试体积。会随提交变化的模块行数由
+[自动项目快照](project-snapshot.md#代码与文档规模)生成，本页不再手写。
 
-| 位置 | 规模/现象 | 处理原则 |
+| 位置 | 现象 | 处理原则 |
 | --- | --- | --- |
 | `platform/tools/device_service.py` | 最大服务编排单文件；session、存储、runtime、证据和生命周期仍在同一热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
-| `platform/tests/test_docs_consistency.py` | 大型文档契约测试；导航、链接、API、网络、Core2 和证据快照断言混在一个测试类 | 先保持“当前事实只在一处”的约束，再按导航/契约/证据拆成独立测试文件 |
+| `platform/tests/test_docs_consistency.py` | 导航、链接、API、网络、Core2 和证据快照断言仍在同一测试类 | 先保持“当前事实只在一处”的约束，再按导航/契约/证据拆成独立测试文件 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
-| `tests/uiflow2/unified_*/` | 11 个 S3/C6 profile 加 Core2 radio profiles，有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
+| `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 
 这些是维护成本，不是当前功能失败。没有 API 契约测试和同路径 evidence
 保护时，不做跨文件大重构。
@@ -360,6 +362,20 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 
 设备级 PASS 至少要有固件 hash、runtime/profile、输入、串口、frame 和对应
 数据面证据。进程启动、版本匹配或单条日志不能单独作为应用 PASS。
+
+## 当前接续边界：companion helpers
+
+下一项 `SVC-01` / `NET-04` 的实现热区已经明确，但尚未关闭：
+
+- `DeviceSession.reattach()` 当前只验证并恢复 QEMU PID/start-time、QMP
+  ownership 和 running 状态；
+- controlled HTTP fixture 是进程内 `UnifiedHttpFixture`，BLE peer 是
+  `_hci_probe` 子进程；两者当前只保存在内存句柄中，服务重启后不会恢复；
+- 现有 runtime-restart fixture 明确记录
+  `companion HTTP/BLE helper continuity: NOT RUN`；
+- 关闭该门禁前必须持久化 companion ownership、端点、日志 offset 和生命周期，
+  在重启后安全 adopt 原 helper 或幂等重建，且不能重复监听端口或伪造 BLE
+  PASS。无法证明 ownership 时必须返回结构化 recovery failure。
 
 ## 证据优先级
 

@@ -40,6 +40,56 @@ def platform_test_count() -> int:
     return suite.countTestCases()
 
 
+def code_inventory() -> dict:
+    tool_files = sorted((ROOT / "platform/tools").glob("*.py"))
+    tool_sizes = [
+        (path.name, len(path.read_text(errors="replace").splitlines()))
+        for path in tool_files
+    ]
+    executable_tests = [
+        path
+        for path in (ROOT / "tests").rglob("*.py")
+        if path.name.startswith(("run_", "test_"))
+    ]
+    executable_dirs = {path.parent for path in executable_tests}
+    patch_files = sorted((ROOT / "patches").rglob("*.patch"))
+    patch_groups = {
+        path.parent for path in patch_files if path.parent.parent == ROOT / "patches"
+    }
+    evidence_files = sorted(
+        (ROOT / "tests").rglob("evidence-*.json")
+    )
+    document_paths = [
+        ROOT / "README.md",
+        ROOT / "AGENTS.md",
+        *sorted((ROOT / "docs").rglob("*.md")),
+        *sorted((ROOT / "tests").rglob("README.md")),
+        *sorted((ROOT / "patches").rglob("README.md")),
+        *sorted((ROOT / "devices").rglob("README*.md")),
+    ]
+    document_lines = sum(
+        len(path.read_text(errors="replace").splitlines())
+        for path in document_paths
+    )
+    return {
+        "tool_modules": len(tool_files),
+        "tool_lines": sum(lines for _, lines in tool_sizes),
+        "largest_tools": [
+            {"path": path, "lines": lines}
+            for path, lines in sorted(
+                tool_sizes, key=lambda item: (-item[1], item[0])
+            )[:6]
+        ],
+        "executable_test_files": len(executable_tests),
+        "executable_test_dirs": len(executable_dirs),
+        "evidence_files": len(evidence_files),
+        "patch_groups": len(patch_groups),
+        "patch_files": len(patch_files),
+        "documented_markdown_files": len(document_paths),
+        "documented_markdown_lines": document_lines,
+    }
+
+
 def latest_evidence_date() -> str:
     dates = []
     for path in (ROOT / "tests").rglob("evidence-*.json"):
@@ -193,6 +243,7 @@ def collect() -> dict:
         "backlog": parse_backlog_tasks(),
         "documents": parse_document_rows(),
         "platform_tests": platform_test_count(),
+        "code_inventory": code_inventory(),
     }
 
 
@@ -287,6 +338,37 @@ def render_markdown(snapshot: dict) -> str:
 
     lines += [
         "",
+        "## 代码与文档规模",
+        "",
+        (
+            f"- `platform/tools`：`{snapshot['code_inventory']['tool_modules']}` "
+            f"个 Python 模块，`{snapshot['code_inventory']['tool_lines']}` 行；"
+            "规模最大的模块如下。"
+        ),
+        "",
+        "| 模块 | 行数 |",
+        "| --- | ---: |",
+    ]
+    for module in snapshot["code_inventory"]["largest_tools"]:
+        lines.append(f"| `{module['path']}` | {module['lines']} |")
+
+    lines += [
+        "",
+        (
+            f"- `tests/`：`{snapshot['code_inventory']['executable_test_files']}` "
+            f"个可执行 Python 测试文件，分布在 "
+            f"`{snapshot['code_inventory']['executable_test_dirs']}` 个目录；"
+            f"`{snapshot['code_inventory']['evidence_files']}` 个 evidence JSON。"
+        ),
+        (
+            f"- `patches/`：`{snapshot['code_inventory']['patch_groups']}` 个补丁组，"
+            f"`{snapshot['code_inventory']['patch_files']}` 个 patch 文件。"
+        ),
+        (
+            f"- 文档：`{snapshot['code_inventory']['documented_markdown_files']}` "
+            f"个 Markdown 页面，`{snapshot['code_inventory']['documented_markdown_lines']}` 行。"
+        ),
+        "",
         "## 文档与测试",
         "",
         f"- 平台测试：`{snapshot['platform_tests']}` 项。",
@@ -317,6 +399,8 @@ def render_markdown(snapshot: dict) -> str:
             "- 代码、测试和证据路径："
             "[代码与验证入口地图](code-map.md)。"
         ),
+        "- 测试分层和 evidence 规则：[测试总索引](../tests/README.md)。",
+        "- QEMU/固件补丁分组：[补丁总索引](../patches/README.md)。",
         "- 文档职责和新鲜度：[文档导航](README.md)。",
         "",
     ]

@@ -81,10 +81,10 @@
 | [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
 | [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
 | [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-25` | `.work/` 不随仓库发布；QEMU/namespace 的资产和权限要求 |
-| [设备中心接入契约](device-center-adapter.md) | 接口契约 | `2026-10-24` | 目录、外设接口、设备状态与页面消息 |
+| [设备中心接入契约](device-center-adapter.md) | 接口契约 | `2026-10-25` | 目录、外设接口、设备状态、worker lifecycle 与页面消息 |
 | [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-25` | 功能测试必须走 Device Service、保留 session evidence，并按 PID/QMP ownership 接管或明确失败 |
 | [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-25` | 审查证据分层、公开 BIN 刷新/SHA 绑定、运行路径和发布门禁 |
-| [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-24` | catalog、runtime coverage、后端数据面和设备本地验收 |
+| [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-25` | catalog、runtime coverage、S3 WPA2/Core2 native-HCI 边界和后端数据面 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-24` | Tab5 缺失的 P4 控制器、DMA 和端点 |
 | [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-25` | 单机模块化单体、control/runtime 执行面分离、双 namespace worker-local QEMU、跨主机与 warm-pool 边界 |
 | [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-25` | 历史哈希绑定结果、公开 CDN 强制刷新、四个当前样本、SD/NVS fixture、OpenAI 首次启动对照和模型/fixture 边界 |
@@ -108,6 +108,8 @@
 - [验证证据台账](validation-ledger.md)
 - [部署与运行时资产](deployment.md)
 - [仓库维护规则](../AGENTS.md)
+- [测试入口与 evidence 规则](../tests/README.md)
+- [QEMU / 固件补丁总索引](../patches/README.md)
 
 ### Device Service 与固件
 
@@ -200,3 +202,7 @@
 
 文档一致性由 `platform/tests/test_docs_consistency.py` 检查，包括关键文件、
 相对链接、API 版本、设备计数和已知过期陈述。
+
+设备本地 case README 只说明该 case 的运行方式和当时边界，不是当前能力
+来源。查当前状态先读 `project-status.md`，查动态设备/Task 计数先读
+`project-snapshot.md`，查测试归属先读 `tests/README.md`。

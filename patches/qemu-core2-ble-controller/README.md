@@ -1,6 +1,6 @@
 # Core2 classic ESP32 BT controller bootstrap
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This patch follows `qemu-core2-openmac-wifi` and adds the missing classic
 ESP32 Bluetooth shared-memory and control-register block used by stock
@@ -39,7 +39,9 @@ guest notification ACK 5/5. `unified_core2 --ble-transport native-vhci` keeps
 board, WiFi, public DNS/HTTP and that BLE path in one guest 3/3, and
 `qemu-unified/profile=core2-native-vhci` exposes it through Device Service.
 The bridge still depends on GDB; RF, pairing/security, coexistence and physical
-behavior remain out of scope.
+behavior remain out of scope. New work uses the no-GDB
+`core2-native-hci` layer instead; this patch remains a required Core2
+controller-bootstrap prerequisite.
 
 Apply after the OpenMAC WiFi patch:
 

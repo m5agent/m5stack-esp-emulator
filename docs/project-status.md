@@ -8,10 +8,43 @@
 需要按工作流查看交付状态、代码面和下一 Task ID 时，先看
 [工作流总台账](workstreams.md)。
 
+## 一页交接
+
+当前项目已经不是“只能跑 reference 固件”的早期阶段：设备 Service、单 guest
+unified runtime、受控网络、BLE peer、固件 Manifest/WebBurner、worker queue、
+HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主线是补齐生产
+生命周期边界，而不是重写主运行链路。
+
+- **最近已闭合**：authenticated multicast discovery、central control-plane
+  重启后原 lease/evidence 收敛、runtime Device Service 重启后同
+  PID/QMP reattach、`POST /sessions` 并发/重启幂等。对应提交依次为
+  `658b2d4`、`f85b8c9`、`cd3adc7`、`0e3a913`。
+- **当前实现待办**：`SVC-01` 的 companion continuity。`reattach()` 只恢复
+  QEMU/QMP，controlled HTTP fixture 和 BLE `_hci_probe` 仍没有跨服务重启的
+  ownership、端口、PID、日志 offset 和状态恢复；现有 runtime-restart 证据
+  明确把 companion HTTP/BLE continuity 记为 `NOT RUN`。
+- **随后 P0**：`NET-04` 的真实跨主机 executor/reattach、NAT/跨子网 discovery、
+  跨主机 idempotency 和生产调度；`FW-01/02/03` 的运行态 ACL/许可、真机
+  security/key 流程和更多固件族；`RUNTIME-02/03/04` 的 C6 Zigbee、Core2
+  legacy I2C 与 ATECC608；以及 `HW-01` 同固件 SHA 真机验证。
+- **不再误列为待办**：Manifest、WebBurner chunk upload、SHA-bound
+  UI/headless/network-first expectation、SD/NVS fixture、exact IPv4/IPv6
+  egress、S3 WPA2-PSK pair key、worker TLS/mTLS/rotation/drain、同主机
+  QEMU/QMP reattach 和 Core2 `3×121` reconnect 均已有实现与 evidence；
+  它们剩余的是更窄的边界，不是“尚未开发”。
+- **当前仍然失真的旧说法**：把 WebBurner、FAT/SPIFFS、DHCP renewal、
+  TLS allowlist、worker rotation、Core2 native-HCI、121-round reconnect 或
+  session idempotency 写成 TODO，均属于过期信息；当前权威状态以本页和
+  自动快照为准。
+
+设备本地 README、测试 case README 和早期设计页保留当时语境，不应单独用来
+判断今天是否支持某项能力。测试总入口见 [`tests/README.md`](../tests/README.md)，
+补丁总入口见 [`patches/README.md`](../patches/README.md)。
+
 ## 总览
 
 - 本轮事实快照以 `2026-10-25` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `395` 项，`395` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `396` 项，`396` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - 设备、Backlog Task 和固件样本的动态计数已改由
   [`project_snapshot.py`](../platform/tools/project_snapshot.py)从 catalog、

@@ -33,27 +33,26 @@
 
 ## 当前执行顺序
 
-1. `CORE2-02`：3 个独立 lease × 121 轮 reconnect 已完成 `3/3 PASS`；
-   随后补长时吞吐/teardown、controller/baseband 和物理边界。两轮
-   harness 失败 evidence 保留，最终 artifact-bound `7200s`
-   extended-run host-memory 门禁也已 PASS。
-2. `FW-03`：当前 AtomS3R/PaperMono 四样本已完成强制刷新、Manifest 和
-   Device Service 执行；加入 session-isolated FAT32+MBR SD fixture 后为
-   `3 PASS / 1 PARTIAL`。OpenAI 首次启动所需 NVS 数据已确认，并已用
-   session-isolated NVS fixture 走到 DHCP、DNS 和 TCP/443；Open/WPA2 正确
-   密码与错误密码三组也已完成。下一步是真实 key/cloud 服务结果，并扩更多
-   设备与 firmware family。SHA-bound headless 与
-   network-first expectation 已接入 matrix，并在同一 OpenAI BIN + NVS
-   fixture 上取得 DHCP、DNS、TCP/443、pcap 和 stop cleanup PASS。
-3. `NET-04` / `SVC-01`：真实 control/runtime 双端点和 worker-local QEMU
-   已在两个 network namespace 中 PASS，active-token multicast discovery
-   也已完成；下一步在 durable queue、HTTPS/mTLS、rotation/drain、同主机
-   generation-pointer migration 和本地 QEMU/QMP reattach 上补 NAT/跨子网
-   discovery、跨主机迁移/reattach、companion/evidence continuity 和多机调度。
-4. `FW-01/02`、`RUNTIME-02/03/04`、`HW-01`：补运行态权限/许可、生产
+1. `SVC-01` / `NET-04` companion continuity（当前实现项）：在已有
+   central/runtime restart、同 PID/QMP reattach 和 session idempotency 上，
+   为 controlled HTTP fixture 与 BLE `_hci_probe` 增加持久 ownership、端点、
+   PID/start-time、日志 offset 和 adopt-or-recreate 状态机；先扩展现有
+   runtime-restart fixture 到
+   `qemu-unified/profile=uiflow2-sticks3-unified`，证明重启后的 HTTP、
+   NUS GATT、serial/network/peer evidence 和最终 cleanup 连续。
+2. `NET-04` 跨主机阶段：在 companion gate 之后补真实跨主机 QEMU executor、
+   NAT/跨子网 discovery、跨主机 reattach/idempotency 和外部 side-effect
+   fencing；两个 network namespace 的同主机 PASS 不能替代。
+3. `FW-03`：当前四样本、Manifest、SHA-bound expectation、SD/NVS fixture、
+   OpenAI DHCP/DNS/TCP443/pcap 和正确/错误 WPA2 密码均已完成；下一步是真实
+   key/cloud 服务结果并扩更多设备与 firmware family。
+4. `CORE2-02` extended-run：`3×121`、active-BLE `600s` 和 artifact-bound
+   `7200s` 已完成；下一步只补长时吞吐/并发、teardown、bit-exact controller/baseband、
+   物理 cache/PSRAM 和真机路径。
+5. `FW-01/02`、`RUNTIME-02/03/04`、`HW-01`：补运行态权限/许可、生产
    key/eFuse、C6 Zigbee 决策、Core2 控制器缺口和代表设备同固件 SHA
    的真机验证。
-5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
+6. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
    专项后端和视觉工作，不与当前 P0 混算完成。
 
 ## 可执行任务板

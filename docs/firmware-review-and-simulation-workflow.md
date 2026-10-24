@@ -442,14 +442,20 @@ Device Service 和 review adapter 而言，联调至少需要确认以下外部�
 公开 CDN 的 URL 和版本号不是不可变内容承诺。热门固件矩阵在首次运行和
 `--resume` 时都会重新下载并绑定实际 BIN SHA；同一 ID/version 的旧结果不能
 继承到变化后的字节。当前 AtomS3R/PaperMono 四个刷新样本已完成结构、完整
-Manifest 和脱敏静态审查，Device Service 功能执行仍是 `NOT RUN`。
+Manifest 和脱敏静态审查，并通过 Device Service 执行。加入 session-isolated
+FAT32+MBR SD fixture 后的当前结果为 `3 PASS / 1 PARTIAL / 0 FAIL`：
+XiaoZhi、EDC Book 和 CrossPoint 达到声明的 UI/input expectation；OpenAI
+Voice Assistant 仍不符合 UI/input 规则，但空 NVS 前置条件、WPA2 正确/错误
+密码、DHCP、`api.openai.com` DNS、TCP/443 和 pcap 已分别验证。真实
+key/Realtime/云业务、WPA3/group multicast、物理 RF 和真机仍为 `NOT RUN`。
 
 仍开放的工作按 [项目 Backlog](project-backlog.md) 管理，近期重点为：
 
 1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
    LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
-2. NAT/跨子网 discovery、跨主机迁移、跨主机 QEMU job executor/reattach
-   和生产调度；同一 multicast domain 的 authenticated discovery、本地
+2. NAT/跨子网 discovery、跨主机迁移、跨主机 QEMU job executor/reattach、
+   companion/evidence continuity 和生产调度；同一 multicast domain 的
+   authenticated discovery、本地
    worker heartbeat/drain、远程目录、
    durable queue/lease supervisor、HTTPS/mTLS、SIGHUP TLS/token
    rotation + activity drain + bounded overlap、同主机 authenticated

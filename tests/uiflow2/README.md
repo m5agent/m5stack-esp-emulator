@@ -1,6 +1,6 @@
 # UIFlow2 虚拟烧录与 UI 回归
 
-最近核对：`2026-10-24`
+最近核对：`2026-10-25`
 
 设备参数在 `device_matrix.json` 中集中维护。统一流程：
 
@@ -75,7 +75,9 @@ callback 注入，因此单 lease PASS 不等于稳定后端。规范主路径�
 | `HCI-4` repeated lease | `PASS` | `core2_native_hci/run_service_5x.py`；五个独立 Device Service lease 同时通过 frame/QOM/WiFi/公网/NUS GATT/pcap/evidence，`gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | caller-saved Xtensa sregs 恢复 + halted/idle-only HLI 注入后，两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；每轮 `hli-errors=0` |
 | `CORE2-02` active-BLE 600s hold | `PASS` | 2 个独立 lease `2/2`；`ble_linger_seconds=660`，600 秒结束时 peer 仍连接，HLI `45/45`、队列和错误为 0 |
+| `CORE2-02` bounded 7200s hold | `PASS` | artifact-bound 单 lease 使用 `tcg,thread=single,tb-size=128`，frame/QOM、WiFi/公网、active NUS GATT、pcap、HLI 和 cleanup 全部通过；240 个 host-resource 采样无持续增长 |
 | `CORE2-02` same-guest reconnect | `PASS` | stock 固件在 3 个独立 lease 中分别完成 20、30、60、120 轮 scan/connect/NUS GATT/disconnect；120 轮每 lease HLI `3377/3377`、events `2297`、ACLs `1080`，HLI/TX queue、dropped 和 panic 为 0，连接池回到 `3/9/3`。根因是 Bumble 对无响应 `0x0c35` 返回非法 Command Status |
+| `CORE2-02` 121-cycle reconnect | `3/3 PASS` | 修复 readiness budget 和 reconnect-only accelerator-sampling 两个 harness 缺陷后，3 个 artifact-bound lease 均为 `121/121`；同 firmware/ELF/QEMU/工具哈希，每 lease HLI `3405/3405`、events 2316、ACLs 1089，队列/错误/dropped/peer-close/panic 为 0 |
 
 `HCI-4` 重跑需要已准备 unified Core2 镜像、匹配 ELF 和相同 QEMU build：
 

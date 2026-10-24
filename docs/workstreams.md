@@ -28,23 +28,24 @@
 
 ## 未完成项执行顺序
 
-1. `FW-03`：当前四样本已通过 Device Service 和 FAT32+MBR SD fixture；
-   OpenAI first-boot NVS 前置条件与 headless/network-first expectation 已关闭，
-   下一步补真实 key/cloud 结果，再扩固件族。
-2. `NET-04` / `SVC-01`：control/runtime 双端点、worker-local QEMU、两个
-   network namespace、authenticated multicast discovery、central
-   control-plane/runtime-service restart continuity 和 session-create
-   idempotency 已 PASS；下一步补物理跨主机 executor、NAT/跨子网 discovery、
-   跨主机 reattach、companion/evidence-stream continuity、跨主机
-   idempotency 和不可信固件隔离。
-3. `CORE2-02`：补长时吞吐/teardown、bit-exact controller/baseband 和
+1. `SVC-01` / `NET-04` companion continuity：control/runtime 双端点、
+   worker-local QEMU、两个 network namespace、authenticated multicast
+   discovery、central/runtime restart continuity 和 session-create
+   idempotency 已 PASS；当前补 HTTP fixture 与 BLE helper 的持久 ownership、
+   adopt-or-recreate、evidence-stream continuity 和统一 StickS3 restart
+   fixture。
+2. `NET-04` 跨主机阶段：补物理跨主机 executor/reattach、NAT/跨子网
+   discovery、跨主机 idempotency 和不可信固件隔离。
+3. `FW-03`：当前四样本、SD/NVS fixture、SHA-bound expectation 和
+   OpenAI network-first 已通过；下一步补真实 key/cloud 结果，再扩固件族。
+4. `CORE2-02`：补长时吞吐/teardown、bit-exact controller/baseband 和
    物理 cache/PSRAM 边界；已完成的重连与 TCG 门禁不重复列为待办。
-4. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
+5. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
    BM8563 RTC 路径；`RUNTIME-04` 独立补 ATECC608 fixture；
    `RUNTIME-02` 补 C6 802.15.4 commissioning 或保持显式不支持。
-5. `FW-01/02`：补运行态 ACL/许可和真实安全配置流程。
-6. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
-7. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
+6. `FW-01/02`：补运行态 ACL/许可和真实安全配置流程。
+7. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
+8. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
 
 ## 工作流
 

@@ -1,8 +1,11 @@
 # 外设仿真架构
 
-最近核对：`2026-10-24`
+最近核对：`2026-10-25`
 
-设备仿真被拆成四层：
+当前设备、外设状态和 blocker 的机器生成汇总见
+[自动项目快照](project-snapshot.md)；本页只解释契约和实现分层。
+
+设备仿真由五个部分构成：
 
 1. **设备档案**
    `devices/catalog.source.json` 声明真实的 SoC、屏幕、按键和传感器能力。
@@ -61,9 +64,9 @@
 因此后续设备不会只凭一张设备外壳和显示屏就进入 `reference-ready`。
 
 目录校验读取 `devices/catalog.source.json` 的完整硬件档案，而不是生成后的
-展示目录。当前 14 台设备共有 155 个唯一硬件需求，CI 同时检查需求和组件
-是否一一覆盖。生成后的展示目录若缺少 `hardware.sensors/controls`，不会再
-造成“零需求、假通过”。
+展示目录。CI 对全部已登记设备检查每个硬件需求与组件是否双向一一覆盖；
+逐设备计数以自动快照为准。生成后的展示目录若缺少
+`hardware.sensors/controls`，不会再造成“零需求、假通过”。
 反向检查同样生效：板级实现中的每个非显示组件都必须能在设备硬件档案中
 找到对应需求，防止“模型已经接了但设备中心清单漏项”的单向通过。
 `runtime-coverage.json` 还要求每个 `simulated` 模型至少绑定一个带运行时
@@ -88,7 +91,7 @@
 
 | 后端 | 已可用 | 未提供 |
 | --- | --- | --- |
-| QEMU ESP32-S3/C6/LX6 | GPIO、I2C、I2S/GDMA、PDM、RMT、LCD_CAM、SPI、SD、TWAI、UART peer、USB Host | 尚未建模的具体芯片需要逐项补寄存器/数据面 |
+| QEMU ESP32-S3/C6/LX6 | GPIO、I2C、I2S/GDMA、PDM、RMT、LCD_CAM、SPI、SD、TWAI、UART peer、USB Host；S3/C6 HCI BLE、S3 WPA2-PSK pairwise/unicast、Core2 OpenMAC WiFi 与 native-HCI | WPA3、group multicast、完整 PHY/RF；其他具体芯片仍需逐项补寄存器/数据面 |
 | `esp-emu` native P4 | UART 下载、GDB、framebuffer/touch 固件邮箱、ESP-Hosted、通用 I2C 寄存器设备 | I2S/PCM、MIPI DSI/CSI 控制器、USB Host、可写 I2C 器件/QOM、PCIe |
 | ARM64 Linux | BCM2837 机器、M5Stack DT overlay、ST7789v3 DRM、GPIO/I2C、TCA8418 input、ES8389 I2C/BCM2835 I2S FIFO/DREQ DMA、播放与麦克风 PCM、IP2315 充放电状态、寄存器驱动的 IMX219 + Unicam CSI1 V4L2 帧、GL852G MTT 兼容 FS/LS 路由、SR9900A/r8152 以太网帧回环、GPIO IR 收发、LVGL fb1 非黑首帧 | AW8737A 模拟电气链路 |
 

@@ -1,6 +1,6 @@
 # 设备中心接入契约
 
-最近核对：`2026-10-24`
+最近核对：`2026-10-25`
 
 ## 目录 API
 
@@ -119,6 +119,9 @@ window.parent.postMessage({
   网络状态；
 - 观测：session history、last frame、serial、QOM、pcap、BLE peer 和
   evidence ZIP。
+- worker 生命周期：durable queue、HMAC、HTTPS/mTLS、credential rotation、
+  active-token multicast discovery、central/runtime restart continuity、
+  QEMU/QMP reattach 和 session-create idempotency 已有实现。
 
 ## 仍开放
 

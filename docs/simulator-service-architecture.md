@@ -30,6 +30,8 @@ Implemented:
 - a durable pull-based job queue with idempotency, capability matching,
   claim/lease heartbeat, expiry retry, cancellation, terminal result and
   stale/stopped/generation reconciliation;
+- active-token HMAC-authenticated IPv4 multicast control discovery, including
+  expiry, wrong-token and post-rotation checks;
 - a same-host HTTP-only executor that claims a job, runs a real StickS3 QEMU
   session, downloads an evidence ZIP/SHA256, stops with `purge=0` and reports
   the terminal result;
@@ -53,8 +55,13 @@ Implemented:
   active instead of blocking indefinitely;
 - bounded old/new overlap through previous token/client-CA files; a final
   `SIGHUP` after removing those files retires the old credentials;
+- central control-plane restart/re-registration and worker-local runtime
+  Device Service restart with bounded status/evidence/stop retry and the
+  original job/lease/evidence convergence;
 - verified local QEMU/QMP restart re-attach after PID start-time, QMP socket
   ownership and `query-status=running` all match;
+- persistent session-create idempotency keyed by request hash and bound to one
+  session, including concurrent retry and service restart replay;
 - bounded stopped/failed history with age, count and byte limits;
 - stopped-session Flash release by default and reference-aware cache GC;
 - optional Bearer token;
@@ -80,9 +87,9 @@ Not implemented yet:
 
 - prestarted warm QEMU instances;
 - companion HTTP/BLE helper and evidence-stream continuity across restart;
-- worker control-plane discovery within one multicast domain is implemented;
-  NAT/cross-subnet discovery, cross-host credential migration, cross-host
-  QEMU execution/re-attach, and production multi-host capacity scheduling;
+- NAT/cross-subnet discovery, cross-host credential migration, cross-host
+  QEMU execution/re-attach, cross-host idempotency and production multi-host
+  capacity scheduling;
 - CIDR/domain-set allowlisting;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
