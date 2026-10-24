@@ -443,7 +443,13 @@ def run_attempt(
             timeout=timeout + 15,
         )
         phase = "wait_running"
-        wait_for_running(api, session_id, timeout)
+        running_session = wait_for_running(api, session_id, timeout)
+        # A reconnect-only run has hold_seconds=0 and never enters the hold
+        # loop below. Sample the live QEMU command when the session first
+        # becomes running so bounded-TCG evidence is independent of hold mode.
+        qemu_accelerator = process_qemu_accelerator(
+            running_session.get("pid")
+        )
         phase = "wait_network"
         network = wait_for_network(api, session_id, timeout)
         phase = "hold"

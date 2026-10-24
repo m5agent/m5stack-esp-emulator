@@ -73,6 +73,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
@@ -904,6 +905,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("reconnect_workload_timeout_seconds", limits)
         self.assertIn("reconnect_workload_timeout_seconds", service)
         self.assertIn("reconnect_workload_timeout_seconds", runner)
+        self.assertIn(
+            "qemu_accelerator = process_qemu_accelerator(",
+            runner.split("phase = \"wait_network\"", 1)[0],
+        )
         self.assertIn("core2_accel_args", service)
         self.assertIn('"bounded_tcg_cache"', runner)
         self.assertIn('"tool_hashes"', runner)
