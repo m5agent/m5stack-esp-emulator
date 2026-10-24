@@ -13,7 +13,10 @@ STATUS_LABEL = {
     "reference-ready": "reference-ready：真实固件、画面和输入已打通",
     "headless-ready": "headless-ready：真实固件、板级外设和串口/数据面已打通（无显示/画面契约）",
     "boot-capable": "boot-capable：对应 QEMU 后端可启动固件并查看串口，板级显示/外设仍在收口",
-    "backend-required": "backend-required：UIFlow2 不适用，独立架构后端按外设状态单独验收",
+    "backend-required": (
+        "backend-required：UIFlow2 不适用，由独立设备后端和外设证据验收；"
+        "该标签表示固件族分类，不等同于整体完成度"
+    ),
 }
 
 PRESET_LABEL = {

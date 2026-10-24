@@ -132,8 +132,9 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 | 位置 | 规模/现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | `8,165` 行；session、存储、runtime、证据和生命周期仍在同一编排热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
-| `platform/tests/test_device_service.py` | `4,539` 行 service 契约测试 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
+| `platform/tools/device_service.py` | 约 `8.2k` 行；session、存储、runtime、证据和生命周期仍在同一编排热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
+| `platform/tests/test_device_service.py` | 约 `4.5k` 行 service 契约测试 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
+| `platform/tests/test_docs_consistency.py` | 约 `1.4k` 行；导航、链接、API、网络、Core2 和证据快照断言混在一个契约测试类 | 先保持“当前事实只在一处”的约束，再按导航/契约/证据拆成独立测试文件 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | 11 个 S3/C6 profile 加 Core2 radio profiles，有相似 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 

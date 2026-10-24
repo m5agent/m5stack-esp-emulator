@@ -39,8 +39,8 @@ and the device must list the same model in `peripheral_blockers`.
 
 Validation reads `devices/catalog.source.json`, not the generated display
 catalog, so the real `hardware.sensors` and `hardware.controls` arrays are
-checked. The current 14-device source contains 155 unique hardware
-requirements; every requirement must be covered by a registered component.
+checked. Every requirement across the registered devices must be covered by a
+registered component.
 
 Display, framebuffer and touch do not satisfy this contract by themselves. A
 new board profile must enumerate every non-display sensor, actuator, storage,

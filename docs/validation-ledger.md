@@ -15,6 +15,7 @@
 
 | 工作流 | 结果 | 证据 |
 | --- | --- | --- |
+| 代码与文档基线 | 动态测试/矩阵计数集中到 `project-status.md`；README、文档导航和工作流台账改为链接；设备 catalog 与 QEMU profile 增加日期/状态交叉校验，并修正 AtomS3R、PaperMono 旧元数据；平台套件 `297/297 PASS` | [`test_qemu_profiles.py`](../platform/tests/test_qemu_profiles.py)、[`test_docs_consistency.py`](../platform/tests/test_docs_consistency.py) |
 | 网络隔离 | private net/mount namespace、fail-closed、controlled DNS、TLS/Host allowlist、200/403 与 pcap 联合 PASS | [`controlled-dns-pass.json`](../tests/network/tls_allowlist/evidence-2026-10-24-controlled-dns-pass.json) |
 | IP/端口 egress | nftables 默认 drop；允许/拒绝端口、允许/拒绝 IP、`1.1.1.1:80` veth/NAT、namespace/NAT 清理 PASS；TLS guest 在同一策略下 PASS | [`ip-port-pass.json`](../tests/network/egress_allowlist/evidence-2026-10-24-ip-port-pass.json) |
 | Linux CI | Ubuntu runner 执行当时的 `236` 项平台测试和 fail-closed namespace/egress fixture；允许端点、拒绝目标、veth/NAT 与清理 PASS。该数字是历史证据，当前套件规模见项目当前状态 | [`github-actions-pass.json`](../tests/network/egress_allowlist/evidence-2026-10-24-github-actions-pass.json) |

@@ -17,7 +17,7 @@
 | ESP32-S3 | StamPLC | ESP32-S3FN8 | 135×240 | 支持 | 否 | reference-ready |
 | ESP32-C6 | NanoC6 | ESP32-C6FH4 | 无屏 | 支持 | 否 | headless-ready |
 | ESP32-C6 | Arduino Nesso N1 | ESP32-C6 | 135×240 触摸 | 支持 | 否 | reference-ready |
-| ESP32-P4 | Tab5 | ESP32-P4 + C6 | 1280×720 触摸 | 支持 | 是 | ready |
+| ESP32-P4 | Tab5 | ESP32-P4 + C6 | 1280×720 触摸 | 支持 | 是 | reference-ready（外设 partial） |
 | ESP32 LX6 | Core2 | ESP32-D0WDQ6-V3 | 320×240 触摸 | 支持 | 是 | reference-ready |
 | Linux ARM64 | CardputerZero | RP3A0 / BCM2837 | 320×170 + 46 键 | 不支持 | 否 | backend-required |
 
@@ -27,6 +27,10 @@
 > 设备的固件、串口、板级外设和自动化数据面闭环。IMU、摄像头、音频等外设 API
 > 的完整度以 [`docs/uiflow2-peripheral-test-matrix.md`](../docs/uiflow2-peripheral-test-matrix.md)
 > 为准。
+>
+> `backend-required` 是固件族分类，表示设备使用独立架构后端，不表示后端还没有
+> 实现。CardputerZero 的实际完成度仍是 `PARTIAL`，具体边界见
+> [`docs/project-status.md`](../docs/project-status.md)。
 
 ## 统一虚拟主机回归
 
@@ -48,4 +52,6 @@ python3 tests/uiflow2/run_device_matrix.py --device nesso-n1
 执行 `write-flash`，Core2 通过 QEMU ESP32 ROM + `esptool --no-stub`
 写入，写完均逐字节校验完整虚拟 flash。NanoC6 无显示屏，检查
 USB-Serial-JTAG、RGB、IR、WiFi 和 BLE 标记，并以 `headless-ready` 表示；
-其余有屏设备均已进入 `reference-ready`。
+该 ESP32 矩阵中的其余有屏设备均已进入 `reference-ready`。Tab5 的运行时已
+进入 `reference-ready`，但外设整体仍是 `partial`；CardputerZero 仍按独立
+Linux 后端单独验收。

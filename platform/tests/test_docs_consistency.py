@@ -649,7 +649,6 @@ class DocsConsistencyTests(unittest.TestCase):
                 )
             )
         for document in (
-            (ROOT / "README.md").read_text(),
             status,
             (DOCS / "network-simulation-plan.md").read_text(),
             (ROOT / "tests/network/lab_fabric/README.md").read_text(),
@@ -1346,18 +1345,19 @@ class DocsConsistencyTests(unittest.TestCase):
     def test_documented_platform_test_count_is_current(self) -> None:
         count = self._platform_test_count()
         expected = f"`{count}` 项"
-        for relative in (
-            "README.md",
-            "docs/README.md",
-            "docs/project-status.md",
-            "docs/workstreams.md",
-        ):
-            document = (ROOT / relative).read_text()
-            self.assertIn(
-                expected, document,
-                f"{relative} must document {count} platform tests",
+        document = (DOCS / "project-status.md").read_text()
+        self.assertIn(
+            expected,
+            document,
+            f"docs/project-status.md must document {count} platform tests",
+        )
+        self.assertIn("跳过", document)
+        for relative in ("README.md", "docs/README.md", "docs/workstreams.md"):
+            self.assertNotIn(
+                expected,
+                (ROOT / relative).read_text(),
+                f"{relative} must link to project-status.md instead of copying {count}",
             )
-            self.assertIn("跳过", document, relative)
 
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()

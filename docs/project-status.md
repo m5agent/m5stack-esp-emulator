@@ -11,8 +11,11 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `296` 项，`296` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `297` 项，`297` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
+- 本轮文档对账把会随提交变化的测试与矩阵计数集中到本页；README、文档
+  导航和工作流台账改为链接。设备 catalog 与 QEMU profile 的验证日期/状态
+  已增加交叉校验，AtomS3R 和 PaperMono 的旧 profile 元数据已修正。
 - WebBurner 浏览器 SHA256/upload client Node 测试 `2/2 PASS`；真实页面对
   `9.44 MiB`、`3` chunk 的 WebBurner ZIP 完成上传、manifest 导入和刷新恢复。
 - 已登记 `14` 台设备：9 台 ESP32-S3、2 台 ESP32-C6、Core2、Tab5 和

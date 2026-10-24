@@ -18,6 +18,30 @@ class QemuProfileTest(unittest.TestCase):
         registry_ids = {row["id"] for row in self.registry["devices"]}
         self.assertEqual(registry_ids, self.device_ids)
 
+    def test_validated_profiles_match_device_catalog_snapshot(self):
+        source = json.loads(
+            (ROOT / "devices/catalog.source.json").read_text()
+        )
+        catalog = {
+            device["id"]: device["runtime"].get("validation", {})
+            for device in source["devices"]
+        }
+        for row in self.registry["devices"]:
+            if not row["backend"].startswith(("qemu-esp32", "esp-emulator")):
+                continue
+            validation = row.get("validation", {})
+            with self.subTest(device=row["id"]):
+                self.assertEqual(
+                    validation.get("date"),
+                    catalog[row["id"]].get("date"),
+                    f"{row['id']}: QEMU profile and device catalog dates differ",
+                )
+                self.assertEqual(
+                    validation.get("status"),
+                    catalog[row["id"]].get("status"),
+                    f"{row['id']}: QEMU profile and device catalog statuses differ",
+                )
+
     def test_stopwatch_is_reference_ready(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "stopwatch")
         self.assertEqual(row["qemu_status"], "ready")

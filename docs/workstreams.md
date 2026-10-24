@@ -12,16 +12,15 @@
 每项里程碑的日期、当时检查项和 evidence 见
 [验证证据台账](validation-ledger.md)。
 
-本轮台账对账到 `2026-10-24` 当前工作树、生成物和已提交 evidence。平台套件
-共 `296` 项，其中 `296` 项通过、`0` 项环境相关测试跳过。文档整理本身不
-产生新的设备能力；浏览器 SHA256/upload client Node 测试另为 `2/2 PASS`。
-运行时结论仍以对应固件 SHA、profile 和 evidence 为准。
+本页只维护工作流归属、代码入口和下一 Task ID。动态测试计数和最新验证结果
+只在 [项目当前状态](project-status.md)维护；运行时结论仍以对应固件 SHA、
+profile 和 evidence 为准。
 
 ## 交接摘要
 
-- **当前基线**：`main` 工作树通过平台 `296/296`、catalog/profile 校验，
-  最新共享 QEMU 全矩阵仍是 `67/67` case、`274/274` check；这些数字不覆盖
-  真机、RF 或未执行的新控制器路径。
+- **当前基线**：`main` 工作树通过当前平台契约、catalog/profile 校验和最新
+  共享 QEMU 全矩阵；准确计数由 `project-status.md` 维护，不覆盖真机、RF 或
+  未执行的新控制器路径。
 - **网络 P0**：单机 namespace、DNS/TLS、exact IPv4 egress、pcap、错误密码、
   radio/AP 恢复、DHCP renewal、双 guest lab fabric、本地 worker
   lifecycle、远程 worker 注册目录及 durable job queue/lease supervisor
@@ -44,6 +43,10 @@
   LittleFS/FAT/SPIFFS inventory、声明级许可 allowlist/denylist 已实现；
   运行时权限、完整源码级许可扫描/法律审批、真机 key/eFuse 闭环和跨厂商
   样本仍开放。
+- **代码/文档基线**：动态验证计数只在 `project-status.md` 维护；设备
+  catalog 与 QEMU profile 已加入日期/状态交叉校验。当前真实代码债务仍是
+  `device_service.py` 编排热区、大型契约测试和文档契约测试混载，见
+  `code-map.md`。
 - **下一手顺序**：推进 `NET-04` 远程 worker 和 `NET-05` IPv6；固件侧
   继续 `FW-01`/`FW-03`/`FW-02`；Core2 继续 `CORE2-02` 的更长 soak、
   物理与 controller 等价性；`HCI-4` 和短时 extended-run 均不再作为
@@ -67,7 +70,7 @@ QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型�
 | 工作流 | 当前状态 | 代码 / 契约 | 验证与证据 | 未完成项 |
 | --- | --- | --- | --- | --- |
 | 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
-| UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新 `67/67` case、`274/274` check，全部首轮无重试 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
+| UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新全矩阵首轮无重试；计数和 evidence 见项目当前状态 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
 | S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
 | Core2 稳定性与无线 | `PILOT`（functional + 10s/60s hold PASS） | `patches/qemu-core2-*`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT 与 `HCI-4` 均 `5/5`；两批 `5×10s` `10/10`、3 个 `60s` hold `3/3`，每轮 HLI health 零错误 | `CORE2-02` 多小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
 | 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` 跨主机 executor/TLS/mTLS、credential rotation、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |

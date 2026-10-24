@@ -286,6 +286,13 @@ Current device capability and the latest validation snapshot are maintained in
 `docs/project-status.md`. Only unfinished work belongs in
 `docs/project-backlog.md`.
 
+Dynamic platform-test counts and full-matrix counts belong only in
+`docs/project-status.md`; dated historical values belong in
+`docs/validation-ledger.md`. README, the documentation index and the workflow
+ledger should link to those pages instead of copying values that will drift.
+When a QEMU profile or device catalog records validation date/status, the two
+snapshots must agree and CI enforces that cross-check.
+
 The main open streams are:
 
 - cross-host job execution, TLS/mTLS and credential rotation,

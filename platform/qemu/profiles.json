@@ -100,9 +100,9 @@
       ],
       "blockers": [],
       "validation": {
-        "date": "2026-10-20",
+        "date": "2026-10-23",
         "status": "display-input-peripherals-wifi-ble-pass",
-        "detail": "Official UIFlow2 v2.5.3 renders a 128x128 UI; GPIO41 input, BMI270, BMM150, LP5562, WiFi DHCP/HTTP and HCI-UART BLE pass through their runtime data paths."
+        "detail": "Official UIFlow2 v2.5.3 renders a 128x128 UI; GPIO41 input, BMI270, BMM150, LP5562, IR, WiFi DHCP/HTTP and UART1 HCI BLE pass in one QEMU guest."
       }
     },
     {
@@ -571,7 +571,7 @@
       "blockers": [],
       "validation": {
         "date": "2026-10-23",
-        "status": "display-input-peripherals-wifi-ble-pass",
+        "status": "display-touch-peripherals-wifi-ble-pass",
         "detail": "Official UIFlow2 v2.5.3 renders a 480x800 four-gray frame; touch/key input, M5PM1/IP2315, BMI270, RX8130, RGB, speaker PCM, WiFi DHCP/HTTP and HCI-UART BLE pass in one QEMU guest."
       }
     },

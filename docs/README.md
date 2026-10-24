@@ -2,11 +2,10 @@
 
 日期：`2026-10-24`
 
-本页对账到当前工作树、生成物和最近一次本地全量验证快照。平台套件共
-`296` 项，`296` 项通过、`0` 项跳过；
-`runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验均为
-`PASS`；浏览器 SHA256/upload client Node 测试 `2/2 PASS`。这里记录的是
-证据快照，不把“测试总数”写成“全部功能或真机通过”。
+本页只维护阅读顺序、职责和新鲜度。动态测试计数、最新矩阵结果和当前能力
+只在[项目当前状态](project-status.md)维护；带日期的历史快照只在
+[验证证据台账](validation-ledger.md)追加。这里不把“测试通过”写成
+“全部功能或真机通过”。
 
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
@@ -64,7 +63,7 @@
 | [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复和双 guest lab fabric 已通；QEMU worker 边界单列 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
-| [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 最新 `67/67` case、`274/274` check |
+| [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 外设数据面覆盖；最新计数和边界见项目当前状态 |
 | [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-24` | 能力仍以 2026-10-22 定向证据为基线 |
 | [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-24` | StopWatch 是唯一参考质量外壳 |
 | [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-24` | 保留旧命名和复现，不覆盖当前状态 |
