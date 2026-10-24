@@ -68,6 +68,13 @@ jobs:
             "PYTHONPATH=$GITHUB_WORKSPACE/platform/tools" \
             python3 tests/network/lab_fabric/check_fabric.py \
             --out-dir /tmp/m5-lab-fabric
+      - name: Validate cross-network-namespace worker control plane
+        run: |
+          sudo env \
+            "PATH=$PATH" \
+            "PYTHONPATH=$GITHUB_WORKSPACE/platform/tools" \
+            python3 tests/network/worker_cross_netns/run_test.py \
+            --out-dir /tmp/m5-worker-cross-netns
       - name: Preserve network evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,4 +83,5 @@ jobs:
           path: |
             /tmp/m5-egress-allowlist
             /tmp/m5-lab-fabric
+            /tmp/m5-worker-cross-netns
           if-no-files-found: warn

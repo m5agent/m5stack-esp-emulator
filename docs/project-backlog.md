@@ -58,7 +58,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 自动主机发现/跨主机 worker 迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；下一步仍是自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `NET-06` | 进行中 | controlled resolver A/AAAA 与 Device Service IPv6 forwarding 预检已实现；下一步让同一 UIFlow2/ESP-IDF guest 完成 AAAA 查询、IPv6 TCP/HTTP、pcap 和拒绝路径 | 同一 lease/guest 内 AAAA 允许/拒绝、IPv6 egress、pcap 和 cleanup 成立；不能用 host probe 或另一 session 拼接固件结论 |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 和一次未绑定资产的 `7200s` 行为诊断已通过；新的 artifact-bound `7200s` soak 正在运行，reconnect 上限为 `1–120`，hold 上限为 `7200s`。完成后再做超过一百二十轮、coexistence 和 teardown | 当前 soak 的启动资产哈希无漂移、RSS/HLI/网络/GATT/frame/pcap 和清理全部 PASS；超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
@@ -96,8 +96,10 @@
   最终移除 previous 文件后拒绝旧身份与旧 token，再由新凭据完成真实
   QEMU job。同主机双 worker 已通过不可变 generation 目录、单个原子
   pointer 和 secret-free receipt 自动迁移，无需逐个发送 worker `SIGHUP`；
-  仍没有 worker 主机自动发现、跨主机 QEMU job、跨 worker 容量调度和多机
-  状态收敛；
+  两个独立 network namespace 中的真实 Device Service 和 `WorkerAgent`
+  已跨 veth 完成认证注册、job submit/claim、worker/job heartbeat、terminal
+  result、token 不落日志和 namespace 清理；仍没有 worker 主机自动发现、
+  跨主机 QEMU job、跨 worker 容量调度和多机状态收敛；
 - 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
   `query-status=running` 验证后 re-attach；Tab5/network lane、paused QEMU、
   companion HTTP/BLE helper、evidence 流和跨主机进程仍不能接管；

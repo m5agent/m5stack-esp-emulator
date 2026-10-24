@@ -270,8 +270,12 @@ the real QEMU job. A fifth run starts two workers from immutable credential
 generations. They first load an `A+B` server-trust bridge, continue through
 the service A-to-B overlap, then atomically replace one generation pointer;
 each worker reloads on its next request and writes a secret-free receipt
-without receiving `SIGHUP`. Cross-host QEMU jobs, automatic worker-host
-discovery and companion continuity remain open.
+without receiving `SIGHUP`. A separate Linux fixture places the real service
+and `worker_agent.py` client in two veth-connected network namespaces and
+passes authenticated registration, job submit/claim, worker/job heartbeat,
+terminal result, token-log redaction and namespace cleanup without starting
+QEMU. Cross-host QEMU jobs, automatic worker-host discovery and companion
+continuity remain open.
 
 When a service API token is configured, worker-only mutation endpoints
 (`/jobs/claim`, job heartbeat/result and worker heartbeat/drain/stop/results)

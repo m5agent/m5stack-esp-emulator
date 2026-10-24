@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-cross-network-namespace",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "worker-control-plane-only-not-qemu-executor-or-hardware",
+  "environment": {
+    "platform": "isolated privileged Linux container",
+    "namespaces": [
+      "server",
+      "worker"
+    ],
+    "link": "veth"
+  },
+  "checks": {
+    "worker_exit_zero": true,
+    "server_terminated_after_test": true,
+    "worker_route_uses_veth": true,
+    "registration_recorded": true,
+    "job_submitted": true,
+    "job_claimed": true,
+    "worker_and_job_heartbeat": true,
+    "terminal_completed": true,
+    "worker_stopped": true,
+    "no_qemu_started": true,
+    "no_device_session_created": true,
+    "namespaces_cleaned": true,
+    "api_token_not_logged": true
+  },
+  "result": {
+    "worker_id": "<redacted-worker-id>",
+    "instance_id": "<redacted-instance-id>",
+    "job_id": "<redacted-job-id>",
+    "lease_id": "<redacted-lease-id>",
+    "request_sha256": "<redacted-request-sha256>",
+    "result_evidence_sha256": "<redacted-evidence-sha256>",
+    "terminal": "completed"
+  },
+  "not_claimed": [
+    "cross-host QEMU execution",
+    "companion or evidence-stream continuity",
+    "cross-host process re-attach",
+    "multi-host production scheduling",
+    "physical hardware"
+  ]
+}
