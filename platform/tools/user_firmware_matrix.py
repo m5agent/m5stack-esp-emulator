@@ -356,7 +356,9 @@ def download_candidates(
                 destination,
                 api_base=base_url,
                 device_slug=target_slug or None,
-                force=False,
+                # Public CDN objects may change under one firmware/version ID.
+                # A review matrix must bind the artifact fetched for this run.
+                force=True,
                 analyze=False,
                 expected_chip_id_value=None,
             )

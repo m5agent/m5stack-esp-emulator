@@ -409,6 +409,8 @@ WebBurner 两种输入：
 review 状态为 `REVIEW_REQUIRED`，分别记录 URL、凭据特征、高熵编码块和
 SBOM 缺失；输出 manifest 中未出现原始 query、凭据值或编码载荷。证据：
 [`tests/firmware/evidence-2026-10-23-static-review.json`](../tests/firmware/evidence-2026-10-23-static-review.json)。
+批量公开固件矩阵会先解析当前公开版本，再强制刷新对应 BIN；缓存中已有同
+firmware ID/version ID 的文件不能单独证明它就是本轮公开制品。
 StickS3 UIFlow2 `sys`/`vfs` LittleFS 清单与哈希证据：
 [`tests/firmware/evidence-2026-10-24-filesystem-inventory.json`](../tests/firmware/evidence-2026-10-24-filesystem-inventory.json)。
 其中 `sys` 为 39 个文件、5 个目录、632603 bytes，`vfs` 为 17 个文件、

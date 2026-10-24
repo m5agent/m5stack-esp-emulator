@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -14,6 +15,7 @@ from user_firmware_matrix import (  # noqa: E402
     baseline_name,
     classify_result,
     detect_runtime_model_gaps,
+    download_candidates,
     error_lines,
     inputs_for_device,
     ServiceClient,
@@ -21,6 +23,58 @@ from user_firmware_matrix import (  # noqa: E402
 
 
 class UserFirmwareMatrixTests(unittest.TestCase):
+    def test_public_matrix_refreshes_cached_firmware(self):
+        row = {
+            "firmwareId": "firmware-1",
+            "firmwareName": "Community firmware",
+            "sourceType": "COMMUNITY",
+            "currentVersion": {
+                "versionName": "1.0",
+                "publishTime": "2026-10-25T00:00:00+08:00",
+            },
+            "developer": {"nickname": "developer"},
+            "statistics": {"downloadCount": 10},
+        }
+        with tempfile.TemporaryDirectory() as directory, (
+            mock.patch(
+                "user_firmware_matrix.burner_devices",
+                return_value=[
+                    {
+                        "deviceId": "device-1",
+                        "deviceName": "AtomS3R",
+                    }
+                ],
+            )
+        ), mock.patch(
+            "user_firmware_matrix.burner_search",
+            return_value=[row],
+        ), mock.patch(
+            "user_firmware_matrix.resolve_community_firmware",
+            return_value={
+                "bytes": 8,
+                "sha256": "0" * 64,
+                "url": "https://cdn.example/firmware.bin",
+            },
+        ) as resolve, mock.patch(
+            "user_firmware_matrix.analyze_firmware",
+            return_value={"valid": True},
+        ), mock.patch(
+            "user_firmware_matrix.expected_chip_id",
+            return_value=9,
+        ):
+            selection = download_candidates(
+                device_id="atoms3r",
+                target_name="AtomS3R",
+                target_slug="atoms3r",
+                base_url="https://burner.example",
+                cache_dir=Path(directory),
+                candidate_limit=5,
+                sample_limit=1,
+                device_soc="esp32s3",
+            )
+        self.assertEqual(len(selection["selected"]), 1)
+        self.assertTrue(resolve.call_args.kwargs["force"])
+
     @mock.patch("user_firmware_matrix.request_json")
     def test_service_client_wait_timeout_tracks_observation_window(
         self,

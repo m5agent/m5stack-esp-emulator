@@ -7,6 +7,10 @@ M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
 possible, uploads each merged image through the Device Service `/api/v1`, boots
 it, injects a small board-appropriate input probe set, captures serial and
 frame evidence after every probe, and stops the session with `purge=0`.
+Each run resolves the current public version and force-refreshes the selected
+BIN. A cached file is never treated as the current artifact merely because its
+firmware ID and version ID are unchanged; public CDN objects have been observed
+to change behind those identifiers.
 
 This is virtual-device validation evidence. It may support an external fix,
 issue reply, review or release note when the selected firmware boots, reaches a
