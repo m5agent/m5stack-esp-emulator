@@ -20,6 +20,7 @@ PCAP_MAGIC = {
 ETHERNET_LINKTYPE = 1
 VLAN_ETHERTYPES = {0x8100, 0x88A8, 0x9100}
 SLIRP_REDIRECT_NETWORK = ipaddress.IPv4Network("198.18.0.0/15")
+SITE_LOCAL_NETWORK = ipaddress.IPv6Network("fec0::/10")
 MAX_RECORDED_DNS_NAMES = 256
 MAX_RECORDED_FLOWS = 512
 MAX_RECORDED_PAYLOAD_HASHES = 16
@@ -97,6 +98,8 @@ def _scope(address: str) -> str:
         return "multicast"
     if value.is_unspecified:
         return "unspecified"
+    if value.version == 6 and value in SITE_LOCAL_NETWORK:
+        return "site-local"
     if value.version == 4 and value in SLIRP_REDIRECT_NETWORK:
         return "slirp-redirect"
     if value.is_private:

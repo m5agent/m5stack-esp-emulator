@@ -792,10 +792,12 @@ configuration only into the QEMU process tree, and serves allowlisted names
 from the controlled resolver while returning NXDOMAIN for other names.
 `allowed_hosts` is therefore required for `dns=controlled`; it controls the
 HTTP gateway's `Host` decision and the current IPv4 resolver path, while
-`allowed_endpoints` controls the actual network destination. The resolver core
-also accepts exact A/AAAA records, but the Device Service's controlled HTTP
-fixture still exposes only its existing IPv4 path. An ESP firmware guest
-completing IPv6 DNS/HTTP remains `NET-06`.
+`allowed_endpoints` controls the actual network destination. The sandbox core
+accepts exact A/AAAA records and can bind an IPv6 `ControlledHttp`; the Device
+Service's managed controlled HTTP fixture still exposes its existing IPv4 path.
+A standalone UIFlow2 test build has completed same-guest IPv6 TCP/HTTP, while
+managed controlled AAAA, denied-port and namespace-cleanup coverage remains
+`NET-06`.
 
 The Linux worker must provide root or equivalent `NET_ADMIN`/`SYS_ADMIN`
 capabilities, `nftables`, and `iproute2`. External IPv4 endpoints require
@@ -1783,28 +1785,30 @@ restart.
   `10/10`; three `60s` holds pass `3/3`, and two `120s` holds pass `2/2`,
   with zero HLI errors and empty HLI/meta queues. Three independent leases also
   pass twenty same-guest reconnect cycles each, with balanced HLI 577/577,
-  397 events, 180 ACLs and connection/L2CAP/GATT pools back at 3/9/3; this is
-  still not a multi-hour soak.
+  397 events, 180 ACLs and connection/L2CAP/GATT pools back at 3/9/3.
   `network.ble_linger_seconds` can keep the external GATT peer connected
   beyond its initial exchange; two active-link `600s` holds pass `2/2` with
-  `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`.
+  `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`. A `7200s`
+  artifact-bound active-BLE hold passes the functional gate with frozen
+  firmware/ELF/QEMU hashes, frame/QOM/WiFi/public DNS/HTTP/GATT/pcap and
+  cleanup; QEMU host RSS grows from 744160 to 1202176 KiB, so memory growth
+  remains `REVIEW`.
   `network.ble_reconnect_cycles` (1-120) asks one external peer process to run
   multiple complete scan/connect/GATT/disconnect cycles without restarting the
   guest; `network.ble_reconnect_delay_seconds` controls the pause before the
-  next scan. Stock Core2 passes twenty complete cycles in each of three leases
-  after the peer compatibility layer stopped returning a response for
-  no-response opcode `0x0c35`;
+  next scan. Stock Core2 passes 20, 30, 60 and 120 complete cycles in each of
+  three leases after the peer compatibility layer stopped returning a response
+  for no-response opcode `0x0c35`;
   the historical failure and root cause remain in
   `evidence-2026-10-24-reconnect2-fail.json`;
-  the earlier ten-cycle evidence is
-  `evidence-2026-10-24-hci4-reconnect10-3x.json`; the current twenty-cycle
-  evidence is `evidence-2026-10-24-hci4-reconnect20-3x.json`, and the
-  thirty-cycle evidence is
-  `evidence-2026-10-24-hci4-reconnect30-3x.json`; the sixty-cycle evidence is
-  `evidence-2026-10-24-hci4-reconnect60-3x.json`; the 120-cycle evidence is
+  the ten-, twenty-, thirty-, sixty- and 120-cycle evidence is
+  `evidence-2026-10-24-hci4-reconnect10-3x.json`,
+  `evidence-2026-10-24-hci4-reconnect20-3x.json`,
+  `evidence-2026-10-24-hci4-reconnect30-3x.json`,
+  `evidence-2026-10-24-hci4-reconnect60-3x.json` and
   `evidence-2026-10-24-hci4-reconnect120-3x.json`. Three independent leases
-  pass 120 cycles each; the next validation gate is more than 120 cycles
-  and a multi-hour coexistence soak;
+  pass 120 cycles each; the next validation gates are more than 120 cycles,
+  RSS-growth attribution and long-run throughput/teardown;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

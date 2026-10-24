@@ -16,6 +16,7 @@ from typing import TypeAlias
 IP = "ip"
 NFT = "nft"
 SLIRP_HOST_ADDRESS = ipaddress.ip_address("10.0.2.2")
+SLIRP_HOST_ADDRESS_V6 = ipaddress.ip_address("fec0::2")
 IPAddress: TypeAlias = ipaddress.IPv4Address | ipaddress.IPv6Address
 
 
@@ -101,6 +102,8 @@ def translated_address(endpoint: EgressEndpoint) -> IPAddress:
     address = ipaddress.ip_address(endpoint.address)
     if address == SLIRP_HOST_ADDRESS:
         return ipaddress.ip_address("127.0.0.1")
+    if address == SLIRP_HOST_ADDRESS_V6:
+        return ipaddress.ip_address("::1")
     return address
 
 

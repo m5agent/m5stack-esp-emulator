@@ -48,7 +48,19 @@ class SandboxError(RuntimeError):
     pass
 
 
-def install_controlled_resolv_conf() -> Path:
+class IPv6ThreadingHTTPServer(ThreadingHTTPServer):
+    address_family = socket.AF_INET6
+
+
+def install_controlled_resolv_conf(
+    nameserver: str = "127.0.0.1",
+) -> Path:
+    try:
+        address = ipaddress.ip_address(nameserver)
+    except ValueError as error:
+        raise SandboxError("controlled DNS nameserver is not an IP address") from error
+    if address.is_unspecified or address.is_multicast:
+        raise SandboxError("controlled DNS nameserver must be unicast")
     try:
         os.unshare(os.CLONE_NEWNS)
     except (AttributeError, OSError) as error:
@@ -64,8 +76,10 @@ def install_controlled_resolv_conf() -> Path:
     try:
         os.write(
             descriptor,
-            b"nameserver 127.0.0.1\n"
-            b"options timeout:1 attempts:1\n",
+            (
+                f"nameserver {address}\n"
+                "options timeout:1 attempts:1\n"
+            ).encode(),
         )
     finally:
         os.close(descriptor)
@@ -293,6 +307,7 @@ class ControlledHttp:
         port: int,
         body: bytes,
         log_path: Path | None,
+        host: str = "127.0.0.1",
         allowed_hosts: tuple[str, ...] | None = None,
         tls: dict[str, Any] | None = None,
     ):
@@ -339,7 +354,18 @@ class ControlledHttp:
                 return
 
         self.log_path = log_path
-        self.server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+        family = ipaddress.ip_address(host).version
+        bind_address = (
+            (host, port, 0, 0)
+            if family == 6
+            else (host, port)
+        )
+        server_class = (
+            IPv6ThreadingHTTPServer
+            if family == 6
+            else ThreadingHTTPServer
+        )
+        self.server = server_class(bind_address, Handler)
         if tls is not None:
             certfile = tls.get("certfile")
             keyfile = tls.get("keyfile")
@@ -394,9 +420,14 @@ class ControlledDns:
         self.lock = threading.Lock()
         self.log_path = log_path
         self.stop_event = threading.Event()
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        family = ipaddress.ip_address(host).version
+        self.socket = socket.socket(
+            socket.AF_INET6 if family == 6 else socket.AF_INET,
+            socket.SOCK_DGRAM,
+        )
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind((host, port))
+        bind_address = (host, port, 0, 0) if family == 6 else (host, port)
+        self.socket.bind(bind_address)
         self.socket.settimeout(0.2)
         self.thread = threading.Thread(
             target=self.serve,
@@ -723,7 +754,11 @@ def run(
     dns_config = config.get("dns")
     resolv_path: Path | None = None
     if dns_config is not None:
-        resolv_path = install_controlled_resolv_conf()
+        if not isinstance(dns_config, dict):
+            raise SandboxError("sandbox DNS config must be an object")
+        resolv_path = install_controlled_resolv_conf(
+            str(dns_config.get("host", "127.0.0.1"))
+        )
     bring_loopback_up()
     if gateway is None and route_table_has_external_route():
         raise SandboxError(
@@ -851,6 +886,7 @@ def run(
             if not isinstance(body, str):
                 raise SandboxError("sandbox HTTP body must be a string")
             raw_log = http_config.get("log")
+            host = str(http_config.get("host", "127.0.0.1"))
             raw_allowed_hosts = http_config.get("allowed_hosts")
             if raw_allowed_hosts is not None and (
                 not isinstance(raw_allowed_hosts, list)
@@ -869,6 +905,7 @@ def run(
                 port=port,
                 body=body.encode(),
                 log_path=Path(str(raw_log)) if raw_log else None,
+                host=host,
                 allowed_hosts=(
                     tuple(raw_allowed_hosts)
                     if raw_allowed_hosts is not None

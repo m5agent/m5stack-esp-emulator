@@ -30,8 +30,8 @@ Device Service lease
 | 模式 | 入口 | 能证明什么 | 不能证明什么 |
 | --- | --- | --- | --- |
 | User-mode lab | QEMU user net + 实例内 HTTP/BLE peer | scan、association、DHCP、DNS、TCP/UDP 和重连逻辑 | 宿主/公网隔离，真实 RF |
-| Controlled DNS/TLS | Linux network + mount namespace、测试 CA、A/AAAA resolver、Host allowlist | 允许/拒绝决策、证书路径和 pcap 一致 | 任意公网服务、固件 guest IPv6 闭环或证书固定 |
-| Exact dual-stack egress | nftables + per-session IPv4/IPv6 veth/NAT | 精确 IPv4/IPv6 地址、协议和端口的允许/拒绝及清理 | CIDR、domain-set、同 guest firmware IPv6 DNS/HTTP 或完整恶意固件沙箱 |
+| Controlled DNS/TLS | Linux network + mount namespace、测试 CA、A/AAAA resolver、Host allowlist | 允许/拒绝决策、证书路径和 pcap 一致 | 任意公网服务、原厂固件默认 IPv6 能力或证书固定 |
+| Exact dual-stack egress | nftables + per-session IPv4/IPv6 veth/NAT | 精确 IPv4/IPv6 地址、协议和端口的允许/拒绝及清理 | CIDR、domain-set、同 guest controlled AAAA/拒绝路径或完整恶意固件沙箱 |
 | Firmware SoftAP | `runtime=network`、AP 密码和 loopback `hostfwd` | 固件自建 provisioning portal | 手机、captive portal OS 或真实 roaming |
 | Multi-device lab fabric | private namespace 内的 QEMU socket L2 switch | 两台 guest 的 DHCP、私有 TCP 和双侧 pcap | TAP primitive、RF、WPA2/WPA3 或生产 worker |
 | CardputerZero Ethernet | 独立 Linux ARM64 后端 | SR9900A/r8152 Ethernet frame 数据面 | WiFi 或 ESP32/UIFlow2 网络 |
@@ -52,6 +52,8 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   Host 决策和 pcap 摘要；
 - nftables exact IPv4/IPv6 egress、双栈 veth/NAT、IPv6 neighbor
   discovery control、fail-closed 和清理；
+- 专用 UIFlow2 StickS3 测试构建在同一 guest 中完成 IPv6 TCP/HTTP 和 pcap
+  绑定；原厂 UIFlow2 尚未创建 IPv6 link-local；
 - 错误密码、radio/AP 丢失、DHCP renewal 和同 guest 重连负向/恢复探针；
 - private namespace 内两台 QEMU guest 的 socket L2 fabric；
 - Device Service 的 pcap、network evidence 和 `network-fault` API；
@@ -62,8 +64,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 
 当前仍未完成的网络产品化和协议项只列在
 [项目 Backlog](project-backlog.md)，重点包括 `NET-04` 跨主机 worker/
-QEMU executor、companion/evidence continuity；`NET-05` 已完成代码与
-Linux 数据面验证，外部发布前仍需核对目标 commit 的 CI evidence。
+QEMU executor、companion/evidence continuity，以及 `NET-06` 的 controlled
+AAAA、denied-port 和 Linux namespace cleanup；`NET-05` 已完成代码与 Linux
+数据面验证，外部发布前仍需核对目标 commit 的 CI evidence。
 
 ## Required test matrix
 

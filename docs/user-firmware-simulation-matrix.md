@@ -164,11 +164,12 @@ functional PASS.
   Two independent `5×10s` batches pass `10/10`, three `60s` holds pass
   `3/3`, two `120s` holds pass `2/2`, and two active-BLE `600s` holds pass
   `2/2`, with zero HLI errors and empty HLI/meta queues. One `7200s`
-  active-BLE WiFi/public-network/GATT hold is `DIAGNOSTIC_PASS`, but the QEMU
-  path was rebuilt during that run and the old runner did not freeze the launch
-  hash, so an artifact-bound two-hour gate remains `NOT RUN`. A replacement run
-  using input-hash freeze and RSS sampling is in progress; it is not a PASS
-  until its complete evidence and cleanup are reviewed. Three independent
+  active-BLE WiFi/public-network/GATT hold is `DIAGNOSTIC_PASS` because the
+  QEMU path was rebuilt during that run. A replacement run with pre-launch
+  firmware/ELF/QEMU hash binding passes the two-hour functional gate, including
+  frame/QOM, WiFi, public DNS/HTTP, external GATT, pcap, HLI health and cleanup.
+  Its QEMU host RSS rises from `744160` to `1202176 KiB`, so memory growth is
+  `REVIEW` rather than bounded. Three independent
   stock-firmware leases complete 20, 30, 60 and 120 same-guest reconnect gates.
   Bit-exact Espressif BT controller behavior, physical cache/PSRAM equivalence,
   more than 120 reconnect cycles and hardware validation remain `NOT RUN`.

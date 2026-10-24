@@ -1,0 +1,37 @@
+Test-only UIFlow2 StickS3 IPv6 build
+
+Apply from the `uiflow_micropython` repository root. This does not claim that
+the stock UIFlow2 image enables IPv6. It enables LWIP IPv6 autoconfiguration
+and creates the required link-local address after station association so the
+network probe can exercise the guest AAAA/TCP data plane.
+
+diff --git a/m5stack/boards/M5STACK_StickS3/sdkconfig.board b/m5stack/boards/M5STACK_StickS3/sdkconfig.board
+index 87317817..28f7c3da 100644
+--- a/m5stack/boards/M5STACK_StickS3/sdkconfig.board
++++ b/m5stack/boards/M5STACK_StickS3/sdkconfig.board
+@@ -15,3 +15,5 @@ CONFIG_FREERTOS_TLSP_DELETION_CALLBACKS=n
+ CONFIG_ESP_HTTP_CLIENT_ENABLE_HTTPS=y
+ CONFIG_MBEDTLS_SSL_ALPN=y
+ CONFIG_WOLFSSL_HAVE_ALPN=y
++CONFIG_LWIP_IPV6=y
++CONFIG_LWIP_IPV6_AUTOCONFIG=y
+diff --git a/m5stack/network_wlan.c b/m5stack/network_wlan.c
+index 9876b666..a2881f98 100644
+--- a/m5stack/network_wlan.c
++++ b/m5stack/network_wlan.c
+@@ -195,6 +195,15 @@ static void network_wlan_ip_event_handler(void *event_handler_arg, esp_event_bas
+             ESP_LOGI("network", "GOT_IP");
+             wifi_sta_connected = true;
+             wifi_sta_disconn_reason = 0; // Success so clear error. (in case of new error will be replaced anyway)
++#if CONFIG_LWIP_IPV6_AUTOCONFIG
++            {
++                esp_err_t err = esp_netif_create_ip6_linklocal(wlan_sta_obj.netif);
++                if (err != ESP_OK) {
++                    ESP_LOGE("network", "IPv6 link-local setup failed: %s",
++                             esp_err_to_name(err));
++                }
++            }
++#endif
+             #if MICROPY_HW_ENABLE_MDNS_QUERIES || MICROPY_HW_ENABLE_MDNS_RESPONDER
+             if (!mdns_initialised) {
+                 mdns_init();

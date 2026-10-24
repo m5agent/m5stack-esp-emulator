@@ -452,7 +452,7 @@ heartbeat/drain/restart classification、远程 worker 注册目录和 durable
 job queue/lease supervisor。同主机独立 HTTP executor 已完成真实 QEMU
 job、evidence ZIP/SHA256 回报和 worker HMAC；仍未完成的是跨主机
 executor/reattach、companion/evidence continuity、生产多机调度、CIDR/
-domain-set policy 和同 guest firmware IPv6 DNS/HTTP。固件文件系统 PASS
+domain-set policy 和同 guest controlled AAAA/denied-port IPv6 policy。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 
 ## 11. 结论

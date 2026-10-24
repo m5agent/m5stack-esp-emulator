@@ -69,6 +69,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold600-2x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect5-3x.json",
@@ -101,6 +102,12 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/egress_allowlist/run_test.py",
             "tests/network/idf_dhcp_renewal/README.md",
             "tests/network/idf_dhcp_renewal/run_test.py",
+            "tests/network/ipv6_end_to_end/README.md",
+            "tests/network/ipv6_end_to_end/boot.py",
+            "tests/network/ipv6_end_to_end/main.py",
+            "tests/network/ipv6_end_to_end/run_test.py",
+            "tests/network/ipv6_end_to_end/uiflow2-sticks3-ipv6-test-build.patch",
+            "tests/network/ipv6_end_to_end/evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json",
             "platform/tools/network_fabric.py",
             "platform/tools/transport_security.py",
             "platform/tools/worker_registry.py",
@@ -490,6 +497,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "| `CORE2-02` 30-cycle extension | `NOT RUN` |",
             "| `CORE2-02` 60-cycle extension | `NOT RUN` |",
             "| `CORE2-02` 120-cycle extension | `NOT RUN` |",
+            "| `CORE2-02` artifact-bound 7200s | `RUNNING / NOT RUN as PASS` |",
+            "artifact-bound run 当前在途",
+            "RSS 有界",
             "3 个独立 lease、每个 30 轮的下一门禁",
             "Automated discovery and migration of a client fleet is still",
             "Automated client-fleet migration, production",
@@ -737,6 +747,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-24-core2-native-hci-resolved-psram.json"
             ).read_text()
         )
+        artifact_bound = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("20/30/60/120", project_snapshot)
@@ -885,6 +902,82 @@ class DocsConsistencyTests(unittest.TestCase):
             self.assertEqual(health["peer-closed"], 0)
             self.assertEqual(health["dropped-packets"], 0)
 
+        self.assertEqual(artifact_bound["status"], "PASS")
+        self.assertEqual(artifact_bound["gate_result"], "PASS")
+        self.assertEqual(artifact_bound["attempts_requested"], 1)
+        self.assertEqual(artifact_bound["attempts_passed"], 1)
+        self.assertEqual(artifact_bound["attempts_failed"], 0)
+        self.assertEqual(artifact_bound["hold_seconds_per_attempt"], 7200)
+        self.assertEqual(artifact_bound["ble_linger_seconds"], 7260)
+        self.assertEqual(
+            artifact_bound["input_hash_bound_at"],
+            "before_first_lease",
+        )
+        self.assertTrue(
+            artifact_bound["input_assets_unchanged_during_run"]
+        )
+        self.assertEqual(artifact_bound["input_asset_drift"], {})
+        self.assertEqual(
+            artifact_bound["firmware"]["sha256"],
+            "4e1012c419d04e7188bb8c45476f6f5eb4d509f227bc4e385a805ce011916e02",
+        )
+        self.assertEqual(
+            artifact_bound["elf_sha256"],
+            "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+        )
+        self.assertEqual(
+            artifact_bound["qemu_sha256"],
+            "d970ddb54bf5fa070cf10d721f024f20a342a3837e3d19b564300f74f3f16fc1",
+        )
+        self.assertFalse(artifact_bound["boundary"]["gdb_bridge"])
+        self.assertTrue(
+            all(
+                value == "PASS"
+                for key, value in artifact_bound[
+                    "checks_per_attempt"
+                ].items()
+                if key
+                not in {
+                    "hci_transport",
+                    "frame_sha256",
+                    "qom_nodes",
+                }
+            )
+        )
+        artifact_run = artifact_bound["runs"][0]
+        artifact_health = artifact_run["native_hci_health"]
+        self.assertEqual(artifact_health["hli-posts"], 45)
+        self.assertEqual(artifact_health["hli-consumed"], 45)
+        self.assertEqual(artifact_health["hli-errors"], 0)
+        self.assertEqual(artifact_health["hli-c2h-events"], 36)
+        self.assertEqual(artifact_health["hli-c2h-acls"], 9)
+        self.assertEqual(artifact_health["hli-queue-depth"], 0)
+        self.assertEqual(artifact_health["meta-queue-depth"], 0)
+        self.assertEqual(artifact_health["tx-queue-depth"], 0)
+        self.assertEqual(artifact_health["dropped-packets"], 0)
+        self.assertEqual(artifact_health["last-error"], 0)
+        self.assertEqual(artifact_health["peer-closed"], 0)
+        self.assertEqual(artifact_run["failure_diagnostics"]["panic_count"], 0)
+        self.assertEqual(artifact_run["network_status"], "PASS")
+        self.assertEqual(artifact_run["hold_state"], "running")
+        self.assertEqual(artifact_run["qom_nodes"], 34)
+        self.assertEqual(artifact_run["pcap_bytes"], 66519)
+        self.assertEqual(artifact_run["evidence_bytes"], 52743)
+        resource_samples = artifact_run["hold_resource_samples"]
+        self.assertEqual(resource_samples["state_polls"], 1438)
+        self.assertEqual(resource_samples["rss_kib_min"], 744160)
+        self.assertEqual(resource_samples["rss_kib_max"], 1202176)
+        self.assertEqual(resource_samples["rss_kib_end"], 1202176)
+        self.assertEqual(len(resource_samples["rss_kib_samples"]), 240)
+        self.assertGreater(
+            resource_samples["rss_kib_end"],
+            resource_samples["rss_kib_min"],
+        )
+        self.assertIn("FUNCTIONAL PASS / RSS REVIEW", core2_backend)
+        self.assertIn("744160", status)
+        self.assertIn("1202176", status)
+        self.assertIn("RSS 增长归因", workstreams)
+
         core2_source = next(
             device for device in catalog_source["devices"]
             if device["id"] == "core2"
@@ -916,6 +1009,80 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(
             core2_generated["runtime"]["validation"]["detail"],
             source_detail,
+        )
+
+    def test_ipv6_test_build_evidence_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/ipv6_end_to_end/"
+                "evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json"
+            ).read_text()
+        )
+        patch = (
+            ROOT
+            / "tests/network/ipv6_end_to_end/"
+            "uiflow2-sticks3-ipv6-test-build.patch"
+        ).read_text()
+        fixture_readme = (
+            ROOT / "tests/network/ipv6_end_to_end/README.md"
+        ).read_text()
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        validation_ledger = (DOCS / "validation-ledger.md").read_text()
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(evidence["scope"], "virtual-device-not-physical-rf")
+        self.assertEqual(evidence["runtime"]["machine"], "m5sticks3")
+        self.assertEqual(
+            evidence["runtime"]["network"]["isolation"],
+            "trusted-host",
+        )
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(
+            evidence["http_requests"],
+            [{"path": "/ipv6", "host": "allowed.lab.test"}],
+        )
+        self.assertEqual(evidence["dns_requests"], [])
+        destinations = evidence["pcap"]["destinations"]
+        self.assertEqual(len(destinations), 1)
+        self.assertEqual(destinations[0]["address"], "fec0::2")
+        self.assertEqual(destinations[0]["port"], 18095)
+        self.assertEqual(destinations[0]["scope"], "site-local")
+        self.assertEqual(destinations[0]["protocols"], ["TCP"])
+        self.assertEqual(destinations[0]["packets"], 6)
+        test_build = evidence["test_build"]
+        self.assertEqual(
+            test_build["kind"],
+            "uiflow2-sticks3-ipv6-linklocal",
+        )
+        self.assertEqual(
+            test_build["patch_sha256"],
+            "cfab27ea15065ad19617ab6671bc1f70c820953177a54bb58588ef5afd269514",
+        )
+        self.assertIn(
+            "CONFIG_LWIP_IPV6_AUTOCONFIG=y",
+            patch,
+        )
+        self.assertIn(
+            "esp_netif_create_ip6_linklocal",
+            patch,
+        )
+        self.assertIn("network_wlan_ip_event_handler", patch)
+        self.assertIn("IPV6_WIFI_SCAN <redacted>", evidence["serial_tail"])
+        self.assertNotRegex(
+            json.dumps(evidence),
+            r"\b[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}\b",
+        )
+        self.assertIn("stock StickS3 UIFlow2 image", fixture_readme)
+        self.assertIn("controlled AAAA", fixture_readme)
+        self.assertIn("测试构建", status)
+        self.assertIn("原厂 UIFlow2", status)
+        self.assertIn("denied-port", backlog)
+        self.assertIn("同 guest IPv6 TCP/HTTP", workstreams)
+        self.assertIn(
+            "evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json",
+            validation_ledger,
         )
 
     def test_worker_generation_pointer_migration_is_reconciled(self):

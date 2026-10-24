@@ -259,16 +259,18 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   Zigbee/802.15.4 仍是 `OPEN` 运行时模型缺口。
 - `egress=allowlist` 的精确网络策略覆盖 IPv4/IPv6 地址、协议和端口，
   IPv6 路径包含 neighbor discovery、veth 路由与 masquerade；controlled
-  resolver 支持 exact A/AAAA records。CIDR、域名扩展和 ESP firmware guest
-  的 IPv6 DNS/HTTP 闭环仍不会被当成已完成。
+  resolver 支持 exact A/AAAA records。专用 UIFlow2 测试构建已在同一 guest
+  完成 IPv6 TCP/HTTP；原厂 UIFlow2 没有创建 IPv6 link-local。CIDR、域名
+  扩展和同 guest controlled AAAA/denied-port/cleanup 仍不会被当成已完成。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
   internal-controller 路径。规范主路径是 QEMU
   `runtime=qemu-unified/profile=core2-native-hci`。旧的
   `core2-native-vhci` 依赖 GDB 暂停、callback 注入和 synthetic return，只保留
   为显式诊断/兼容路径。具体 hold、reconnect 和 HLI health 证据见
   [Core2 native HCI backend](docs/core2-native-hci-backend.md)和验证台账。
-- Core2 已完成一次两小时 active-BLE 行为诊断，但运行中 QEMU 被临时重编，
-  因而尚未证明 artifact-bound 两小时 coexistence/soak；bit-exact ESP32 BT
+- Core2 已通过 artifact-bound 两小时 active-BLE WiFi/公网/GATT 功能保持，
+  启动 firmware/ELF/QEMU 哈希无漂移；但 QEMU host RSS 在该轮增长
+  `458016 KiB`，内存增长归因仍为 `REVIEW`。bit-exact ESP32 BT
   baseband/controller、物理 cache/PSRAM、超过当前 API 上限的连接轮次和真机
   同路径也仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意

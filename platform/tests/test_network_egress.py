@@ -39,6 +39,11 @@ class NetworkEgressTests(unittest.TestCase):
                     "address": "2001:db8:6d35::1",
                     "port": 443,
                 },
+                {
+                    "protocol": "tcp",
+                    "address": "fec0::2",
+                    "port": 18443,
+                },
             ]
         )
         self.assertEqual(
@@ -46,11 +51,16 @@ class NetworkEgressTests(unittest.TestCase):
             (
                 EgressEndpoint("tcp", "1.1.1.1", 443),
                 EgressEndpoint("tcp", "2001:db8:6d35::1", 443),
+                EgressEndpoint("tcp", "fec0::2", 18443),
                 EgressEndpoint("udp", "10.0.2.2", 53),
             ),
         )
         self.assertEqual(
             str(translated_address(endpoints[2])),
+            "::1",
+        )
+        self.assertEqual(
+            str(translated_address(endpoints[3])),
             "127.0.0.1",
         )
         self.assertTrue(requires_external_gateway(endpoints))
@@ -61,8 +71,21 @@ class NetworkEgressTests(unittest.TestCase):
             )
         )
         self.assertFalse(
+            requires_external_gateway(
+                (
+                    EgressEndpoint("tcp", "10.0.2.2", 18443),
+                    EgressEndpoint("tcp", "fec0::2", 18443),
+                )
+            )
+        )
+        self.assertFalse(
             requires_external_ipv6(
                 (EgressEndpoint("tcp", "10.0.2.2", 18443),)
+            )
+        )
+        self.assertFalse(
+            requires_external_ipv6(
+                (EgressEndpoint("tcp", "fec0::2", 18443),)
             )
         )
 

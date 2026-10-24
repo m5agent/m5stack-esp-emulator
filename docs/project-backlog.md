@@ -26,7 +26,7 @@
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 审计进行中的 artifact-bound `7200s` soak；继续保持 3 个独立 lease × 120 轮 PASS，并验证超过一百二十轮、coexistence、teardown 与 bit-exact controller/cache/PSRAM | 新 runner 已冻结 firmware/ELF/QEMU 输入哈希并采样 RSS；在 evidence 完成前仍是 `NOT RUN as PASS`；reconnect 参数上限为 120 |
+| P1 | Core2 长稳与物理/controller 等价性 | 解释 artifact-bound `7200s` soak 的 QEMU host RSS 增长；继续验证超过一百二十轮、吞吐/teardown 与 bit-exact controller/cache/PSRAM | 功能长稳和资产绑定已 PASS，RSS 仍 `REVIEW`；reconnect 参数上限为 120 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -38,18 +38,16 @@
    同主机 generation-pointer 批量迁移和本地 QEMU/QMP reattach 基础上补
    自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、
    companion/evidence continuity 和多机调度。
-   `NET-06` 在现有 exact IPv6 gateway 和 A/AAAA resolver 基础上补同一
-   ESP firmware guest 的 IPv6 DNS/HTTP 闭环。
+   `NET-06` 已用专用 UIFlow2 测试构建跑通同一 firmware guest 的 IPv6
+   TCP/HTTP；继续补 controlled AAAA、denied-port 和 Linux namespace cleanup。
 2. `FW-01`：补运行时权限、完整源码级许可扫描和法律审批；随后推进
    `RUNTIME-02` C6 Zigbee 决策，再扩 `FW-03` 跨厂商样本；
    `FW-02` 做生产 key/eFuse 与真机安全配置。
-3. `CORE2-02`：`5×10s`、`3×60s`、`2×120s` extended-run 和同 guest
-   20、30、60、3 个独立 lease × 120 轮 reconnect 和 active-BLE `600s` 已通过；
-   `7200s` active-BLE 行为诊断为 `DIAGNOSTIC_PASS`，但 QEMU 在 run 中被重编。
-   修复后的 hash-freeze/RSS runner 已启动新的 artifact-bound 两小时 soak；
-   本轮 evidence 完成前不记 PASS，之后再补超过一百二十轮和 WiFi/BLE
-   coexistence。
-   之后处理 controller/baseband 物理边界。
+3. `CORE2-02`：`5×10s`、`3×60s`、`2×120s` extended-run、同 guest
+   20、30、60、3 个独立 lease × 120 轮 reconnect、active-BLE `600s` 和
+   artifact-bound `7200s` 功能保持均已通过。两小时 soak 的 host RSS 增长
+   `458016 KiB`，下一步先解释采样对象和增长原因，再验证超过一百二十轮、
+   吞吐/teardown、controller/baseband 和物理边界。
    `HW-01` 独立推进同路径真机证据。
 4. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化、专项后端和
    视觉工作，不与当前 P0 混算完成。
@@ -59,8 +57,8 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；下一步仍是自动主机发现/跨主机迁移、跨主机 QEMU executor/reattach、companion/evidence continuity、生产调度 | worker 重启后 job/evidence 可收敛；rotation 已能完成活动请求；旧/新凭据 bounded overlap 与同主机自动迁移已完成；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
-| `NET-06` | 进行中 | controlled resolver A/AAAA 与 Device Service IPv6 forwarding 预检已实现；下一步让同一 UIFlow2/ESP-IDF guest 完成 AAAA 查询、IPv6 TCP/HTTP、pcap 和拒绝路径 | 同一 lease/guest 内 AAAA 允许/拒绝、IPv6 egress、pcap 和 cleanup 成立；不能用 host probe 或另一 session 拼接固件结论 |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 和一次未绑定资产的 `7200s` 行为诊断已通过；新的 artifact-bound `7200s` soak 正在运行，reconnect 上限为 `1–120`，hold 上限为 `7200s`。完成后再做超过一百二十轮、coexistence 和 teardown | 当前 soak 的启动资产哈希无漂移、RSS/HLI/网络/GATT/frame/pcap 和清理全部 PASS；超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
+| `NET-06` | 进行中 | controlled resolver A/AAAA、IPv6 forwarding 预检和专用 UIFlow2 测试构建的 guest IPv6 TCP/HTTP 已实现；下一步在同一 Linux guest 完成 controlled AAAA、denied-port 与 namespace cleanup | 同一 lease/guest 内 AAAA 允许/拒绝、IPv6 egress、pcap 和 cleanup 成立；不能用 host probe 或另一 session 拼接固件结论；原厂 UIFlow2 未启用 link-local |
+| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 与 artifact-bound `7200s` 功能保持已通过；先归因 QEMU host RSS `744160→1202176 KiB`，再扩超过一百二十轮和长时并发/吞吐 | 功能、输入哈希、HLI/网络/GATT/frame/pcap 和清理 PASS；RSS 增长有解释或受控；超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | API/WebBurner 已能声明 required/optional capability，sdkconfig WiFi/BT/PSRAM 能作为 detected warning 进入 manifest；已有 7 台设备、21 个公开非基线样本。下一步扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
@@ -135,10 +133,14 @@
   capability 预检；
 - controlled resolver 对同一 allowlisted 名称返回 exact A/AAAA，并拒绝
   unknown name；
-- resolver-level UDP 查询、response type/address 和 decision log 有契约测试。
+- resolver-level UDP 查询、response type/address 和 decision log 有契约测试；
+- 专用 UIFlow2 StickS3 测试构建在 `IP_EVENT_STA_GOT_IP` 后创建 IPv6
+  link-local，同一 guest 已完成 `fec0::2:18095` 的 TCP/HTTP；pcap、串口
+  marker 和 firmware/QEMU 哈希在同次 evidence 中。
 
-当前缺口：尚未由同一 ESP firmware guest 完成 IPv6 地址/路由、AAAA 查询和
-IPv6 TCP/HTTP。resolver host probe 不能替代 guest 应用路径。
+当前缺口：原厂 UIFlow2 没有创建 IPv6 link-local，因此直接使用原厂镜像会
+`EHOSTUNREACH`；测试构建不能描述成原厂默认能力。尚未在 Linux namespace
+中让同一 guest 完成 controlled AAAA、denied-port 和 cleanup。
 
 验收：同一 lease/guest 中，允许名称解析到 exact AAAA，guest 访问配置的
 IPv6 endpoint 并完成 HTTP；拒绝地址/端口仍被 nftables 阻断；pcap、
@@ -176,12 +178,14 @@ guest-call 上下文问题并修复：
 - 120 轮门禁已完成：3 个独立 lease 各 120 轮，每 lease HLI
   `3377/3377`、events `2297`、ACLs `1080`，无错误、dropped 或 panic；
 - active-BLE 600 秒门禁已完成：2 个独立 lease `2/2`，peer 全程保持连接；
-- 另完成 1 个 `7200s` active-BLE 行为保持：网络、GATT、frame、pcap 和
-  HLI health 均通过，但 QEMU 路径在 run 中被临时重编，旧 runner 只在结束时
-  计算哈希，因此该结果为 `DIAGNOSTIC_PASS`，不是 artifact-bound gate；
-- runner 已改为首个 lease 前冻结 firmware/ELF/QEMU 哈希、结束时拒绝资产
-  漂移，并记录 host RSS samples；
-- 仍未完成：artifact-bound 两小时 soak、超过一百二十轮连接、吞吐、coexistence 和
+- 旧 `7200s` active-BLE 行为保持保留为 `DIAGNOSTIC_PASS`，因为 QEMU 路径在
+  run 中被临时重编；
+- hash-freeze runner 的重跑完成 artifact-bound `7200s` 功能门禁：首 lease 前
+  冻结 firmware/ELF/QEMU，运行期无资产漂移，HLI `45/45`、网络、GATT、
+  frame、pcap、evidence 和清理均 PASS；
+- 同一次运行采样 QEMU host RSS 从 `744160 KiB` 增至 `1202176 KiB`
+  （`+458016 KiB`），所以功能长稳 PASS，但内存增长仍为 `REVIEW`；
+- 仍未完成：RSS 增长归因、超过一百二十轮连接、长时吞吐/并发和
   process-stop/teardown 竞态；
 - 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
@@ -196,8 +200,8 @@ guest-call 上下文问题并修复：
 
 - 同一 guest 超过 120 轮完成 scan/connect/NUS GATT/disconnect 且无 retry，
   每轮都有 guest RX、notification、peer/pcap/evidence 和 HLI health；
-- 从已经通过的 120 轮、600 秒 active-BLE 和 7200 秒行为诊断继续验证
-  artifact-bound 两小时 soak、超过一百二十轮和 WiFi/BLE coexistence；
+- 解释 7200 秒 artifact-bound 功能保持中的 RSS 增长，再验证超过一百二十轮、
+  长时吞吐/并发和 teardown；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
   次数；
 - 首轮 panic 必须先于 reboot 次生故障被分类和符号化；

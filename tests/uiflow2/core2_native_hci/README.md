@@ -17,6 +17,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `HCI-4` repeated lease | `PASS` | `evidence-2026-10-24-hci4-service-5x.json`; five independent `/api/v1` leases pass frame, 27-node QOM, WiFi/public network, NUS GATT, pcap and evidence with `gdb_bridge=false` |
 | `CORE2-02` extended run | `PASS` | `evidence-2026-10-24-hci4-halted-gate-5x.json`, `evidence-2026-10-24-hci4-hold60-3x.json`, `evidence-2026-10-24-hci4-hold120-2x.json` and `evidence-2026-10-24-hci4-active-ble-hold120-2x.json`; two 5-attempt batches with 10-second holds passed `10/10`, three 60-second holds passed `3/3`, two 120-second holds passed `2/2`, and two active-BLE 120-second holds passed `2/2`. Every attempt has `hli-errors=0` and zero HLI/meta queue depth |
 | `CORE2-02` active-BLE 600s hold | `PASS` | `evidence-2026-10-24-hci4-active-ble-hold600-2x.json`; two independent leases pass with `ble_linger_seconds=660`; the peer stays connected for 600 seconds, HLI is 45/45 and all queue/error counters are zero |
+| `CORE2-02` artifact-bound 7200s hold | `FUNCTIONAL PASS / RSS REVIEW` | `evidence-2026-10-24-hci4-active-ble-hold7200-artifact-bound-1x.json`; launch firmware/ELF/QEMU hashes are frozen before the first lease and do not drift. Frame/QOM, WiFi, public DNS/HTTP, external NUS GATT, pcap, evidence, HLI `45/45` and cleanup pass. QEMU host RSS grows from `744160` to `1202176 KiB`; memory-growth attribution remains open |
 | `CORE2-02` same-guest reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect20-3x.json`; three independent stock-firmware leases complete twenty full NUS GATT cycles each. Every lease balances HLI 577/577, delivers 397 events and 180 ACLs, leaves HLI/meta queues empty and returns the connection/L2CAP/GATT pools to their 3/9/3 free baseline. The earlier ten-cycle evidence remains as `evidence-2026-10-24-hci4-reconnect10-3x.json`; the forbidden Bumble Command Status for no-response opcode `0x0c35` was the historical stale-ACK root cause |
 | `CORE2-02` 30-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect30-3x.json`; three independent stock-firmware leases complete thirty full NUS GATT cycles each. Every lease balances HLI 857/857, delivers 587 events and 270 ACLs, with zero errors, empty queues and connection/L2CAP/GATT pools back at 3/9/3 |
 | `CORE2-02` 60-cycle reconnect | `PASS` | `evidence-2026-10-24-hci4-reconnect60-3x.json`; three independent leases complete sixty cycles each with HLI 1697/1697, 1157 events, 540 ACLs, zero errors and pools back at 3/9/3 |
@@ -252,8 +253,8 @@ tracked as history. A further `3×60s` run passed `3/3`, and `2×120s` passed
 `2/2`, including the normal BLE peer-close tail; `last-error=3` is accepted
 only when `peer-closed>0`, while every HLI error must remain zero. This closes
 the current short/two-minute virtual extended-run gate, not physical
-cache/PSRAM equivalence, more than 120 reconnect cycles, multi-hour coexistence
-or hardware.
+cache/PSRAM equivalence, more than 120 reconnect cycles, RSS-growth
+attribution or hardware.
 
 The runner now also sets `network.ble_linger_seconds` to
 `max(20, hold_seconds + 60)`. Keeping the peer connected through the full
@@ -280,7 +281,12 @@ thirty-cycle evidence is
 `evidence-2026-10-24-hci4-reconnect60-3x.json`; the 120-cycle evidence is
 `evidence-2026-10-24-hci4-reconnect120-3x.json`. The accepted range is 1-120
 cycles and 121 is rejected; three independent leases at 120 cycles each pass.
-The next execution gate is more than 120 cycles and multi-hour coexistence.
+The replacement artifact-bound two-hour hold passes the functional gate with
+HLI `45/45`, zero errors/queues/dropped packets and unchanged launch assets.
+Its `240` RSS samples rise from `744160` to `1202176 KiB`; this is recorded as
+`REVIEW`, not as bounded memory. The next execution gates are more than 120
+cycles, RSS-growth attribution, throughput and physical cache/PSRAM
+equivalence.
 The fix is covered by
 `platform/tests/test_ble_probe.py`; failure history remains in
 `evidence-2026-10-24-reconnect2-fail.json`. The first ten-cycle attempt

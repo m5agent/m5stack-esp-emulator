@@ -160,8 +160,9 @@ finding:
   HLI/meta queues.
 
 These are virtual-device context fixes. Later same-guest runs cover 20, 30,
-60 and 120 reconnect cycles, but they do not establish physical cache/PSRAM
-timing, more than 120 reconnect cycles, multi-hour coexistence or hardware
+60 and 120 reconnect cycles. A later artifact-bound 7200-second active-BLE
+hold establishes the functional two-hour gate, but not physical cache/PSRAM
+timing, RSS-growth attribution, more than 120 reconnect cycles or hardware
 equivalence.
 
 ## Next investigation

@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
-from pcap_summary import PcapError, summarize_pcap  # noqa: E402
+from pcap_summary import PcapError, _scope, summarize_pcap  # noqa: E402
 
 
 def _checksum(data: bytes) -> int:
@@ -167,6 +167,9 @@ def dhcp_packet(
 
 
 class PcapSummaryTests(unittest.TestCase):
+    def test_ipv6_site_local_scope_is_not_global(self) -> None:
+        self.assertEqual(_scope("fec0::2"), "site-local")
+
     def test_summarizes_dns_tcp_dhcp_without_payloads(self):
         dhcp = ethernet(
             ipv4_udp(

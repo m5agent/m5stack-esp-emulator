@@ -37,6 +37,41 @@ class NetworkSandboxTests(unittest.TestCase):
             ):
                 network_sandbox.ControlledDns.normalize_records(records)
 
+    @unittest.skipUnless(socket.has_ipv6, "IPv6 loopback is required")
+    def test_controlled_ipv6_dns_and_http_bind_loopback(self):
+        dns = network_sandbox.ControlledDns(
+            host="::1",
+            port=0,
+            records={"allowed.lab.test": "2001:db8:6d35::53"},
+            log_path=None,
+        )
+        dns.start()
+        try:
+            self.assertEqual(dns.socket.family, socket.AF_INET6)
+            self.assertGreater(dns.socket.getsockname()[1], 0)
+        finally:
+            dns.close()
+        fixture = network_sandbox.ControlledHttp(
+            host="::1",
+            port=0,
+            body=b"ipv6 fixture\n",
+            log_path=None,
+        )
+        fixture.start()
+        try:
+            connection = http.client.HTTPConnection(
+                "::1",
+                fixture.server.server_address[1],
+                timeout=2,
+            )
+            connection.request("GET", "/ipv6")
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertEqual(response.read(), b"ipv6 fixture\n")
+            connection.close()
+        finally:
+            fixture.close()
+
     def test_expected_ipv6_gateway_routes_are_not_external(self):
         host_ipv6 = "fd6d:1234:5678:9abc::1"
         guest_network = ipaddress.ip_network("fd6d:1234:5678:9abc::/126")

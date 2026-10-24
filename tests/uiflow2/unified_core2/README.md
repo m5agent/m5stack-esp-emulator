@@ -103,8 +103,9 @@ The stock/native-HCI Core2 guest passes 20, 30, 60 and 120 complete cycles in
 separate three-lease gates. The 120-cycle gate has HLI 3377/3377, 2297 events,
 1080 ACLs and pools back at 3/9/3. Device Service, Bumble and the service
 runner accept 1-120 cycles; three independent leases at 120 cycles each pass.
-The next required gate is more than 120 cycles and a multi-hour coexistence
-soak. The former
+The two-hour artifact-bound active-BLE functional hold now passes. The next
+required gates are RSS-growth attribution, more than 120 cycles and long-run
+throughput/teardown. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Removing that reply

@@ -67,7 +67,7 @@
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | API、对象、状态机、错误码和 transport 契约；动态证据不在契约页维护 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-24` | native-HCI 数据面、legacy GDB 对照、长稳门禁和物理边界 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-24` | native-HCI 数据面、legacy GDB 对照、artifact-bound 两小时功能门禁、RSS REVIEW 和物理边界 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | 导入、规范化、安全检查、文件系统、许可策略和 evidence 分层 |
 | [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-24` | 网络模式、exact dual-stack egress、测试矩阵、安全边界和证据要求；动态结果看状态页 |
@@ -141,6 +141,7 @@
 - [精确 IP/端口 egress allowlist](../tests/network/egress_allowlist/README.md)
 - [DNS/UDP 数据面探针](../tests/network/idf_dns_udp/README.md)
 - [DHCP renewal probe](../tests/network/idf_dhcp_renewal/README.md)
+- [UIFlow2 guest IPv6 TCP/HTTP test build](../tests/network/ipv6_end_to_end/README.md)
 - [双设备私有 lab fabric](../tests/network/lab_fabric/README.md)
 - [本地 worker drain/restart lifecycle](../tests/network/worker_lifecycle/README.md)
 - [远程 durable job queue 与 lease supervisor](../tests/network/worker_queue/README.md)

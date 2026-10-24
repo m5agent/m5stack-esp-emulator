@@ -55,8 +55,10 @@ name. Contract coverage sends both query types over UDP, verifies the AAAA
 record type/payload and NXDOMAIN for an unknown name, and rejects malformed,
 unspecified, multicast and oversized record values. Evidence:
 [`evidence-2026-10-24-controlled-dns-aaaa.json`](evidence-2026-10-24-controlled-dns-aaaa.json).
-This is resolver-level validation; an ESP firmware guest completing IPv6
-DNS/HTTP is tracked separately as `NET-06`.
+This is resolver-level validation. A dedicated UIFlow2 test build has
+completed same-guest IPv6 TCP/HTTP, but an ESP firmware guest completing
+controlled AAAA, denied-port and Linux namespace cleanup is tracked separately
+as `NET-06`.
 
 The namespace lane now also installs nftables input/output default-drop rules.
 The guest TLS request is allowed only for the exact endpoint

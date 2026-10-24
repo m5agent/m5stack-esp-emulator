@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-guest-ipv6-e2e",
+  "date": "2026-10-24",
+  "status": "PASS",
+  "scope": "virtual-device-not-physical-rf",
+  "runtime": {
+    "machine": "m5sticks3",
+    "network": {
+      "ipv6": "on",
+      "prefix": "fec0::/64",
+      "host": "fec0::2",
+      "isolation": "trusted-host"
+    },
+    "duration_seconds": 14.971
+  },
+  "hashes": {
+    "base_image": "2133afb1aef4ee69a58c611e293f1bb871130456a4062a510c67d08461d6c5b2",
+    "probe_image": "414a7a2671f92ff759e22144f65a911f13b9e38aca249e7996e538966755d0b6",
+    "qemu": "d970ddb54bf5fa070cf10d721f024f20a342a3837e3d19b564300f74f3f16fc1"
+  },
+  "checks": {
+    "wifi_ready": true,
+    "ipv6_socket_family": true,
+    "ipv6_http": true,
+    "result_pass": true,
+    "http_fixture_request": true,
+    "ipv6_target_seen": true
+  },
+  "serial_tail": "ESP-ROM:esp32s3-20210327\nBuild:Mar 27 2021\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\nSPIWP:0xee\nmode:DIO, clock div:1\nload:0x3fce2820,len:0xcf8\nload:0x403c8700,len:0xb34\nload:0x403cb700,len:0x2d24\nentry 0x403c8890\nE (821) i2c.master: this port has not been initialized, please initialize it first\n\n       _  __ _               \n _   _(_)/ _| | _____      __\n| | | | | |_| |/ _ \\ \\ /\\ / /\n| |_| | |  _| | (_) \\ V  V / \n \\__,_|_|_| |_|\\___/ \\_/\\_/  V2.5.3\n\nIPV6_E2E_BOOT\nE (4440) uart: call uart_driver_install API first\nIPV6_E2E_MAIN\nIPV6_WIFI_SCAN <redacted>\nIPV6_WIFI_CONNECT_RETURNED None\nIPV6_WIFI_READY ('10.0.2.15', '255.255.255.0', '10.0.2.2', '10.0.2.3')\nIPV6_SOCKET_FAMILY PASS\nE (10205) transport_ws: Error read data(-1)\nE (10206) websocket_client: esp_transport_read() failed with -1, transport_error=ESP_ERR_ESP_TLS_TCP_CLOSED_FIN, tls_error_code=0, tls_flags=0, errno=128\nE (10206) websocket_client: Error receive data\nE (13680) transport_ws: Error read data(-1)\nE (13681) websocket_client: esp_transport_read() failed with -1, transport_error=ESP_ERR_ESP_TLS_TCP_CLOSED_FIN, tls_error_code=0, tls_flags=0, errno=128\nE (13681) websocket_client: Error receive data\nIPV6_HTTP b'HTTP/1.0 200 OK\\r\\nServer: BaseHTTP/0.6 Python/3.13.15\\r\\nDate: Sat, 24 Oct 2026 15:23:24 GMT\\r\\nContent-Type: text/plain\\r\\nContent-Len'\nIPV6_HTTP PASS\nIPV6_E2E_RESULT PASS",
+  "http_requests": [
+    {
+      "path": "/ipv6",
+      "host": "allowed.lab.test"
+    }
+  ],
+  "dns_requests": [],
+  "pcap": {
+    "ipv6_destination_count": 1,
+    "destinations": [
+      {
+        "address": "fec0::2",
+        "port": 18095,
+        "scope": "site-local",
+        "protocols": [
+          "TCP"
+        ],
+        "packets": 6
+      }
+    ]
+  },
+  "not_claimed": [
+    "public IPv6 reachability",
+    "physical RF or hardware",
+    "IPv6 throughput or loss under real radio",
+    "malware safety"
+  ],
+  "test_build": {
+    "kind": "uiflow2-sticks3-ipv6-linklocal",
+    "patch": "uiflow2-sticks3-ipv6-test-build.patch",
+    "patch_sha256": "cfab27ea15065ad19617ab6671bc1f70c820953177a54bb58588ef5afd269514",
+    "app_sha256": "cd456e6d1a1a76ccb988d9831ee6f41f3acd32a4c4285e66c8029e8bb2df7936",
+    "app_bytes": 5119104,
+    "elf_sha256": "dc831c7ccefa47a749fedb401240f19bda86923141d7bbd4c11285ddf63809ab"
+  }
+}
