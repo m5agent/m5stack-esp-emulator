@@ -12,6 +12,8 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.request
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -145,6 +147,131 @@ def worker_probe(
         json.dumps(payload, indent=2) + "\n"
     )
     return 0
+
+
+def wait_for_service(api, timeout: float = 20.0) -> None:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            if api.json("/api/health").get("ok"):
+                return
+        except Exception:
+            time.sleep(0.2)
+    raise RuntimeError(f"service did not become ready: {api.base_url}")
+
+
+def upload_artifact(
+    base_url: str,
+    token: str,
+    path: Path,
+) -> dict:
+    request = urllib.request.Request(
+        base_url + "/api/v1/artifacts",
+        data=path.read_bytes(),
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/octet-stream",
+            "X-Artifact-Name": path.name,
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=60) as response:
+        return json.loads(response.read())
+
+
+def worker_qemu_probe(
+    work_dir: Path,
+    result_path: Path,
+    service_url: str,
+    runtime_service_url: str,
+    firmware: Path,
+    runtime: str,
+) -> int:
+    from worker_agent import Api, WorkerAgent, initialize_identity
+
+    token = os.environ.get("M5_CROSS_NETNS_TOKEN")
+    if not token:
+        raise RuntimeError("cross-netns worker token is missing")
+    control_api = Api(service_url, token)
+    runtime_api = Api(runtime_service_url, token)
+    wait_for_service(control_api)
+    wait_for_service(runtime_api)
+
+    flash_size = 8 << 20
+    source = firmware.read_bytes()
+    if len(source) > flash_size:
+        raise RuntimeError("StickS3 firmware exceeds 8 MiB flash")
+    full_image = work_dir / "sticks3-full.bin"
+    full_image.write_bytes(source + b"\xff" * (flash_size - len(source)))
+    artifact = upload_artifact(runtime_service_url, token, full_image)
+    imported = runtime_api.json(
+        "/api/v1/firmware",
+        method="POST",
+        payload={
+            "device_id": "sticks3",
+            "kind": "merged",
+            "artifact_id": artifact["artifact_id"],
+        },
+    )
+
+    identity = initialize_identity(work_dir, "cross-netns-qemu-worker")
+    agent = WorkerAgent(
+        control_api,
+        runtime_api=runtime_api,
+        work_dir=work_dir,
+        identity=identity,
+        capabilities={"qemu": True, "pcap": runtime != "qemu"},
+        heartbeat_interval=2,
+        session_timeout=240,
+    )
+    job = control_api.json(
+        "/api/v1/jobs",
+        method="POST",
+        payload={
+            "label": "cross-netns-qemu-execution",
+            "request": {
+                "session": {
+                    "device_id": "sticks3",
+                    "runtime": runtime,
+                    "firmware_id": imported["firmware_id"],
+                    "ready_timeout_seconds": 180,
+                },
+                "evidence_include": ["manifest", "serial", "logs", "qom"],
+            },
+            "required_capabilities": {"qemu": True},
+            "max_attempts": 1,
+            "idempotency_key": f"cross-netns-qemu-{secrets.token_hex(8)}",
+        },
+    )["job"]
+    agent.run(once=True)
+    terminal = control_api.json(f"/api/v1/jobs/{job['job_id']}")["job"]
+    result_path_value = work_dir / str(job["job_id"]) / "result.json"
+    result = (
+        json.loads(result_path_value.read_text())
+        if result_path_value.is_file()
+        else {}
+    )
+    evidence_path = work_dir / str(job["job_id"]) / "evidence.zip"
+    evidence_names = []
+    if evidence_path.is_file():
+        with zipfile.ZipFile(evidence_path) as archive:
+            evidence_names = archive.namelist()
+    payload = {
+        "registration": identity,
+        "job_submitted": job["job_id"],
+        "terminal": terminal.get("status"),
+        "result": result,
+        "execution_plane": result.get("summary", {}).get("execution_plane"),
+        "evidence_names": evidence_names,
+        "firmware_sha256": imported["sha256"],
+        "runtime": runtime,
+        "qemu_started": bool(result.get("summary", {}).get("device_id")),
+        "device_session_created": bool(
+            result.get("summary", {}).get("device_id")
+        ),
+    }
+    result_path.write_text(json.dumps(payload, indent=2) + "\n")
+    return 0 if result.get("state") == "PASS" else 1
 
 
 class Fabric:
@@ -282,11 +409,16 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out-dir", type=Path)
     parser.add_argument("--worker", action="store_true")
+    parser.add_argument("--qemu-worker", action="store_true")
     parser.add_argument("--service-url")
+    parser.add_argument("--runtime-service-url")
+    parser.add_argument("--firmware", type=Path)
+    parser.add_argument("--runtime", default="qemu")
+    parser.add_argument("--qemu", action="store_true")
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--worker-result", type=Path)
     args = parser.parse_args()
-    if args.worker:
+    if args.worker or args.qemu_worker:
         if (
             args.work_dir is None
             or args.worker_result is None
@@ -297,6 +429,19 @@ def main() -> int:
                 "--service-url"
             )
         args.work_dir.mkdir(parents=True, exist_ok=True)
+        if args.qemu_worker:
+            if not args.runtime_service_url or args.firmware is None:
+                parser.error(
+                    "--qemu-worker requires --runtime-service-url and --firmware"
+                )
+            return worker_qemu_probe(
+                args.work_dir.resolve(),
+                args.worker_result.resolve(),
+                args.service_url,
+                args.runtime_service_url,
+                args.firmware.resolve(),
+                args.runtime,
+            )
         return worker_probe(
             args.work_dir.resolve(),
             args.worker_result.resolve(),
@@ -306,6 +451,8 @@ def main() -> int:
         parser.error("--out-dir is required")
     if sys.platform != "linux":
         parser.error("cross-namespace worker fixture requires Linux")
+    if args.qemu and args.firmware is None:
+        parser.error("--qemu requires --firmware")
     out = args.out_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
     temporary_state = tempfile.TemporaryDirectory(
@@ -314,23 +461,32 @@ def main() -> int:
     temporary_root = Path(temporary_state.name)
     state_dir = temporary_root / "service-state"
     state_dir.mkdir()
+    runtime_state_dir = temporary_root / "runtime-state"
+    runtime_state_dir.mkdir()
     worker_work_dir = temporary_root / "worker-state"
     worker_result_path = temporary_root / "worker-result.json"
     port = free_port()
+    runtime_port = free_port()
     token = secrets.token_urlsafe(32)
     service_url = f"http://{SERVER_ADDRESS}:{port}"
+    runtime_service_url = f"http://127.0.0.1:{runtime_port}"
     started = time.monotonic()
     server_stderr_path = temporary_root / "server.stderr"
     server_stdout_path = temporary_root / "server.stdout"
     worker_stdout_path = temporary_root / "worker.stdout"
     worker_stderr_path = temporary_root / "worker.stderr"
+    runtime_stdout_path = temporary_root / "runtime.stdout"
+    runtime_stderr_path = temporary_root / "runtime.stderr"
     server_stderr = server_stderr_path.open("w")
     server_stdout = server_stdout_path.open("w")
     worker_stdout = worker_stdout_path.open("w")
     worker_stderr = worker_stderr_path.open("w")
+    runtime_stdout = runtime_stdout_path.open("w")
+    runtime_stderr = runtime_stderr_path.open("w")
     fabric = Fabric(out)
     server = None
     worker = None
+    runtime_service = None
     try:
         with fabric:
             environment = os.environ.copy()
@@ -359,6 +515,29 @@ def main() -> int:
                 text=True,
             )
             fabric.processes.append(server)
+            if args.qemu:
+                runtime_service = subprocess.Popen(
+                    [
+                        "ip",
+                        "netns",
+                        "exec",
+                        fabric.worker_namespace,
+                        sys.executable,
+                        str(SERVE),
+                        str(runtime_port),
+                        "--state-dir",
+                        str(runtime_state_dir),
+                        "--worker-id",
+                        "cross-netns-runtime",
+                    ],
+                    cwd=ROOT,
+                    env=environment,
+                    stdin=subprocess.DEVNULL,
+                    stdout=runtime_stdout,
+                    stderr=runtime_stderr,
+                    text=True,
+                )
+                fabric.processes.append(runtime_service)
             worker_environment = environment.copy()
             for proxy_name in (
                 "HTTP_PROXY",
@@ -381,11 +560,23 @@ def main() -> int:
                     fabric.worker_namespace,
                     sys.executable,
                     str(Path(__file__).resolve()),
-                    "--worker",
+                    "--qemu-worker" if args.qemu else "--worker",
                     "--out-dir",
                     str(out),
                     "--service-url",
                     service_url,
+                    *(
+                        [
+                            "--runtime-service-url",
+                            runtime_service_url,
+                            "--firmware",
+                            str(args.firmware.resolve()),
+                            "--runtime",
+                            args.runtime,
+                        ]
+                        if args.qemu
+                        else []
+                    ),
                     "--work-dir",
                     str(worker_work_dir),
                     "--worker-result",
@@ -399,7 +590,7 @@ def main() -> int:
                 text=True,
             )
             fabric.processes.append(worker)
-            worker.wait(timeout=30)
+            worker.wait(timeout=300 if args.qemu else 30)
             worker_result = (
                 json.loads(worker_result_path.read_text())
                 if worker_result_path.is_file()
@@ -423,6 +614,8 @@ def main() -> int:
         server_stderr.close()
         worker_stdout.close()
         worker_stderr.close()
+        runtime_stdout.close()
+        runtime_stderr.close()
     namespaces = run(["ip", "netns", "list"], check=False)
     server_log = (
         server_stdout_path.read_text(errors="replace")
@@ -432,46 +625,108 @@ def main() -> int:
         worker_stdout_path.read_text(errors="replace")
         + worker_stderr_path.read_text(errors="replace")
     )
-    checks = {
-        "worker_exit_zero": worker is not None and worker.returncode == 0,
-        "server_terminated_after_test": (
-            server is not None and server.poll() is not None
-        ),
-        "worker_route_uses_veth": fabric.worker_interface in routes.stdout,
-        "registration_recorded": bool(
-            worker_result.get("registration", {}).get("worker_id")
-        ),
-        "job_submitted": bool(worker_result.get("job_submitted")),
-        "job_claimed": (
-            worker_result.get("job_submitted")
-            == worker_result.get("job_claimed")
-        ),
-        "worker_and_job_heartbeat": worker_result.get("heartbeat") == "PASS",
-        "terminal_pass": (
-            worker_result.get("result") == "completed"
-            and worker_result.get("terminal") == "completed"
-        ),
-        "worker_stopped": worker_result.get("worker_stopped") is True,
-        "no_qemu_started": worker_result.get("qemu_started") is False,
-        "no_device_session_created": (
-            worker_result.get("device_session_created") is False
-        ),
+    runtime_log = (
+        runtime_stdout_path.read_text(errors="replace")
+        + runtime_stderr_path.read_text(errors="replace")
+    )
+    qemu_processes = run(
+        ["ps", "-eo", "pid=,command="],
+        check=False,
+    ).stdout
+    worker_exit_zero = worker is not None and worker.returncode == 0
+    if args.qemu:
+        job_result = worker_result.get("result")
+        job_result = job_result if isinstance(job_result, dict) else {}
+        checks = {
+            "worker_exit_zero": worker_exit_zero,
+            "server_terminated_after_test": (
+                server is not None and server.poll() is not None
+            ),
+            "runtime_service_started": runtime_service is not None,
+            "worker_route_uses_veth": fabric.worker_interface in routes.stdout,
+            "registration_recorded": bool(
+                worker_result.get("registration", {}).get("worker_id")
+            ),
+            "job_submitted": bool(worker_result.get("job_submitted")),
+            "worker_job_heartbeat": bool(job_result),
+            "terminal_pass": (
+                job_result.get("state") == "PASS"
+                and worker_result.get("terminal") == "completed"
+            ),
+            "worker_local_execution": (
+                worker_result.get("execution_plane") == "worker-local"
+            ),
+            "worker_local_qemu_started": (
+                worker_result.get("qemu_started") is True
+            ),
+            "worker_local_device_session_created": (
+                worker_result.get("device_session_created") is True
+            ),
+            "worker_local_evidence": (
+                {"manifest.json", "serial.log"}
+                <= set(worker_result.get("evidence_names", []))
+            ),
+            "firmware_sha256_present": (
+                isinstance(worker_result.get("firmware_sha256"), str)
+                and len(worker_result["firmware_sha256"]) == 64
+            ),
+            "qemu_reaped": "qemu-system-xtensa" not in qemu_processes,
+        }
+    else:
+        checks = {
+            "worker_exit_zero": worker_exit_zero,
+            "server_terminated_after_test": (
+                server is not None and server.poll() is not None
+            ),
+            "worker_route_uses_veth": fabric.worker_interface in routes.stdout,
+            "registration_recorded": bool(
+                worker_result.get("registration", {}).get("worker_id")
+            ),
+            "job_submitted": bool(worker_result.get("job_submitted")),
+            "job_claimed": (
+                worker_result.get("job_submitted")
+                == worker_result.get("job_claimed")
+            ),
+            "worker_and_job_heartbeat": (
+                worker_result.get("heartbeat") == "PASS"
+            ),
+            "terminal_pass": (
+                worker_result.get("result") == "completed"
+                and worker_result.get("terminal") == "completed"
+            ),
+            "worker_stopped": worker_result.get("worker_stopped") is True,
+            "no_qemu_started": worker_result.get("qemu_started") is False,
+            "no_device_session_created": (
+                worker_result.get("device_session_created") is False
+            ),
+        }
+    checks.update({
         "namespaces_cleaned": (
             fabric.server_namespace not in namespaces.stdout
             and fabric.worker_namespace not in namespaces.stdout
         ),
-        "token_not_logged": token not in server_log and token not in worker_log,
-    }
+        "token_not_logged": (
+            token not in server_log
+            and token not in worker_log
+            and token not in runtime_log
+        ),
+    })
     evidence = {
         "schema_version": 1,
         "kind": "m5stack-worker-cross-network-namespace",
-        "date": "2026-10-24",
+        "date": "2026-10-25",
         "status": "PASS" if all(checks.values()) else "FAIL",
-        "scope": "worker-control-plane-only-not-qemu-executor-or-hardware",
+        "scope": (
+            "worker-local-qemu-across-network-namespaces-not-physical-hardware"
+            if args.qemu
+            else "worker-control-plane-only-not-qemu-executor-or-hardware"
+        ),
         "duration_seconds": round(time.monotonic() - started, 3),
         "checks": checks,
         "result": {
-            "worker_id": "cross-netns-worker",
+            "worker_id": worker_result.get("registration", {}).get(
+                "worker_id"
+            ),
             "instance_id_present": bool(
                 worker_result.get("registration", {}).get("instance_id")
             ),
@@ -484,10 +739,17 @@ def main() -> int:
                 worker_result.get("evidence_sha256")
             ),
             "terminal": worker_result.get("terminal"),
+            "execution_plane": worker_result.get("execution_plane"),
+            "firmware_sha256": worker_result.get("firmware_sha256"),
+            "runtime": worker_result.get("runtime"),
         },
         "route": {"server_reachable": SERVER_ADDRESS in routes.stdout},
         "not_claimed": [
-            "cross-host QEMU execution",
+            *(
+                []
+                if args.qemu
+                else ["cross-host QEMU execution"]
+            ),
             "companion or evidence-stream continuity",
             "cross-host process reattach",
             "multi-host production scheduling",

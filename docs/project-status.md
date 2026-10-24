@@ -176,8 +176,9 @@
 - `WorkerAgent` 已把控制面与执行面拆成两个可配置的 `/api/v1` 端点：
   中央服务负责 claim/heartbeat/result，可选的 worker-local runtime service
   负责创建、等待、采集 evidence 和停止 QEMU session。单元契约验证所有
-  session 请求只发往 runtime plane，控制面不创建 session；真实跨 network
-  namespace QEMU 启动和应用级 evidence 仍未执行，因此不能据此宣称跨主机
+  session 请求只发往 runtime plane，控制面不创建 session；Linux fixture
+  也已加入真实 worker-local QEMU 模式，但尚未执行。真实跨 network
+  namespace QEMU 启动和应用级 evidence 仍未验证，因此不能据此宣称跨主机
   executor 已闭环。
 
 ## 能力成熟度

@@ -102,8 +102,8 @@
   跨主机 QEMU job、跨 worker 容量调度和多机状态收敛；
 - `worker_agent.py` 现支持 `--runtime-service-url`：中央服务只负责
   claim/heartbeat/result，独立 runtime service 负责 session、evidence 和
-  stop。单元契约已验证请求平面分离；真实 worker namespace 内 QEMU 启动、
-  固件/artifact 存储和端到端 evidence 仍是下一门禁；
+  stop。单元契约已验证请求平面分离；Linux fixture 已加入 worker namespace
+  内真实 QEMU/artifact/evidence 模式但尚未执行，该端到端门禁仍是下一步；
 - 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
   `query-status=running` 验证后 re-attach；Tab5/network lane、paused QEMU、
   companion HTTP/BLE helper、evidence 流和跨主机进程仍不能接管；

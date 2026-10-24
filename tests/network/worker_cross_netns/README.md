@@ -32,9 +32,24 @@ PYTHONPATH=platform/tools python3 \
 
 This is worker control-plane validation, not cross-host QEMU execution.
 `worker_agent.py` now has a separately configurable runtime service API, but
-this fixture still submits a no-QEMU job. The next integration must launch the
-real Device Service/QEMU runtime in the worker namespace, keep artifact uploads
-and evidence on that execution plane, then verify process cleanup through the
-central job result. Cross-host QEMU executor, companion/evidence-stream
-continuity, process re-attach and production multi-host scheduling remain
-`NOT RUN`.
+the default invocation still submits a no-QEMU job.
+
+The prepared execution-plane mode starts a second Device Service in the worker
+namespace and runs a real StickS3 QEMU session there:
+
+```bash
+PYTHONPATH=platform/tools python3 \
+  tests/network/worker_cross_netns/run_test.py \
+  --qemu \
+  --firmware /path/to/sticks3-full.bin \
+  --out-dir /tmp/m5-worker-cross-netns-qemu
+```
+
+The runtime must be a Linux QEMU build with the M5Stack StickS3 machine at the
+repository's registered runtime path. The fixture checks that the central
+service does not receive session calls, the worker-local service starts QEMU,
+evidence includes manifest/serial data, token redaction holds, QEMU is reaped
+and both namespaces are removed. This mode has not yet been executed after the
+API split. It validates separate network namespaces on one host, not physically
+separate hosts, companion/evidence-stream continuity, cross-host process
+re-attach or production multi-host scheduling.

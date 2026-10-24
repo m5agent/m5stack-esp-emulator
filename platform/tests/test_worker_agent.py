@@ -9,6 +9,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
@@ -20,6 +21,7 @@ from worker_agent import (  # noqa: E402
     credential_file_fingerprint,
     initialize_identity,
     load_credential_generation,
+    parse_arguments,
 )
 
 
@@ -227,6 +229,24 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertEqual(
             result["evidence_sha256"],
             hashlib.sha256(runtime_api.evidence).hexdigest(),
+        )
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "worker_agent.py",
+                "--service-url",
+                "http://control.example:8787",
+                "--runtime-service-url",
+                "http://runtime.example:8788",
+            ],
+        ):
+            args = parse_arguments()
+        self.assertEqual(args.service_url, "http://control.example:8787")
+        self.assertEqual(
+            args.runtime_service_url,
+            "http://runtime.example:8788",
         )
 
     def test_session_failure_is_reported_and_cleaned_up(self):
