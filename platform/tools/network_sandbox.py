@@ -293,11 +293,32 @@ def write_isolation_evidence(
                 "tls_gateway": bool(http.get("tls")),
                 "controlled_dns": dns.get("mode") == "controlled",
                 "dns_records": dns.get("hosts", {}),
+                "cleanup_completed": False,
             },
             indent=2,
         )
         + "\n"
     )
+
+
+def update_isolation_evidence(
+    path: Path,
+    fields: dict[str, Any],
+) -> None:
+    try:
+        evidence = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        raise SandboxError(
+            f"cannot update isolation evidence: {error}"
+        ) from error
+    if not isinstance(evidence, dict):
+        raise SandboxError("isolation evidence must be an object")
+    evidence.update(fields)
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    temporary.write_text(
+        json.dumps(evidence, ensure_ascii=False, indent=2) + "\n"
+    )
+    temporary.replace(path)
 
 
 class ControlledHttp:
@@ -969,6 +990,25 @@ def run(
             resolv_path.unlink(missing_ok=True)
         for signum, handler in previous.items():
             signal.signal(signum, handler)
+        if evidence_path:
+            qemu_process_reaped = (
+                qemu_process is None or qemu_process.poll() is not None
+            )
+            dns_closed = dns is None or not dns.thread.is_alive()
+            http_closed = http is None or not http.thread.is_alive()
+            update_isolation_evidence(
+                Path(str(evidence_path)),
+                {
+                    "cleanup_completed": (
+                        qemu_process_reaped
+                        and dns_closed
+                        and http_closed
+                    ),
+                    "qemu_process_reaped": qemu_process_reaped,
+                    "dns_closed": dns_closed,
+                    "http_closed": http_closed,
+                },
+            )
 
 
 def run_with_gateway(

@@ -24,6 +24,28 @@ import network_sandbox  # noqa: E402
 
 
 class NetworkSandboxTests(unittest.TestCase):
+    def test_isolation_evidence_cleanup_is_recorded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "isolation.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "private_network_namespace": True,
+                    }
+                )
+            )
+            network_sandbox.update_isolation_evidence(
+                path,
+                {
+                    "cleanup_completed": True,
+                    "qemu_process_reaped": True,
+                },
+            )
+            evidence = json.loads(path.read_text())
+        self.assertTrue(evidence["cleanup_completed"])
+        self.assertTrue(evidence["qemu_process_reaped"])
+
     def test_controlled_dns_rejects_invalid_or_non_unicast_records(self):
         for records in (
             {"invalid.test": []},

@@ -84,6 +84,23 @@ python3 tests/network/ipv6_end_to_end/run_test.py \
   --out-dir /tmp/m5-ipv6-e2e
 ```
 
+For a host without a Linux Python `littlefs` module, build the same probe image
+on the host and pass it into the isolated Linux run:
+
+```bash
+python3 tests/network/ipv6_end_to_end/run_test.py \
+  --isolation namespace \
+  --base-image /tmp/sticks3-ipv6.bin \
+  --prebuilt-image /tmp/sticks3-ipv6-namespace-probe.bin \
+  --qemu /path/to/linux/qemu-system-xtensa \
+  --rom-dir /path/to/qemu/pc-bios \
+  --out-dir /tmp/m5-ipv6-e2e
+```
+
+The isolated run reads `isolation.json` and only marks namespace cleanup PASS
+when the sandbox records `cleanup_completed`, QEMU process reaping, DNS close
+and HTTP close. It no longer supplies a hard-coded cleanup result.
+
 The Linux namespace AAAA and denied-port portion remains `NOT RUN` until a
 Linux QEMU binary runs the same guest. The direct Mac result only closes IPv6
 TCP/HTTP. It does not claim public IPv6 reachability, RF behavior, throughput

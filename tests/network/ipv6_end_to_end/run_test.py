@@ -325,6 +325,11 @@ def main() -> int:
     )
     pcap = out / "network.pcap"
     pcap_summary = summarize_pcap(pcap) if pcap.is_file() else {}
+    isolation_evidence = {}
+    if isolated and (out / "isolation.json").is_file():
+        isolation_evidence = json.loads(
+            (out / "isolation.json").read_text()
+        )
     ipv6_destinations = [
         row
         for row in pcap_summary.get("egress_destinations", [])
@@ -351,7 +356,19 @@ def main() -> int:
                 "denied_port_blocked": (
                     "IPV6_DENIED_PORT BLOCKED" in serial
                 ),
-                "namespace_cleanup": True,
+                "private_namespace": (
+                    isolation_evidence.get(
+                        "private_network_namespace"
+                    )
+                    is True
+                ),
+                "namespace_cleanup": (
+                    isolation_evidence.get("cleanup_completed") is True
+                    and isolation_evidence.get(
+                        "qemu_process_reaped"
+                    )
+                    is True
+                ),
             }
         )
     status = "PASS" if all(checks.values()) else "FAIL"
@@ -387,6 +404,7 @@ def main() -> int:
             "ipv6_destination_count": len(ipv6_destinations),
             "destinations": ipv6_destinations[:16],
         },
+        "isolation": isolation_evidence,
         "not_claimed": [
             "public IPv6 reachability",
             "physical RF or hardware",
