@@ -56,6 +56,7 @@ PYTHONPATH=platform/tools python3 -m unittest discover \
 python3 platform/tools/runtime_coverage.py --check
 python3 platform/tools/peripheral_catalog.py --check
 python3 platform/tools/qemu_profiles.py --check
+python3 platform/tools/project_snapshot.py --check
 ```
 
 ### Peripheral change

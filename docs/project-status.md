@@ -11,8 +11,13 @@
 ## 总览
 
 - 本轮事实快照以 `2026-10-24` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `323` 项，`323` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `324` 项，`324` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
+- 设备、Backlog Task 和固件样本的动态计数已改由
+  [`project_snapshot.py`](../platform/tools/project_snapshot.py)从 catalog、
+  profile、evidence 和 Backlog 生成到
+  [自动项目快照](project-snapshot.md)；README、工作流页、统一运行时契约和
+  网络方案不再复制逐轮 PASS 计数。
 - 本轮文档对账把会随提交变化的测试与矩阵计数集中到本页；README、文档
   导航和工作流台账改为链接。设备 catalog 与 QEMU profile 的验证日期/状态
   已增加交叉校验，AtomS3R 和 PaperMono 的旧 profile 元数据已修正。
@@ -413,7 +418,8 @@
 ## 文档职责
 
 - `README.md`：入口、当前摘要、快速开始和文档导航。
-- `workstreams.md`：按工作流汇总当前交付、代码/证据入口和未完成 Task ID。
+- `project-snapshot.md`：从机器可读源自动生成的设备、样本、缺口和 Task 板。
+- `workstreams.md`：按工作流汇总稳定代码入口、权威状态页和未完成 Task ID。
 - 本文：当前能力与设备状态。
 - `docs/project-backlog.md`：只列未完成事项、优先级和依赖。
 - `docs/validation-ledger.md`：按日期保存里程碑、检查项和 evidence。

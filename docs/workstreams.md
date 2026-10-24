@@ -2,148 +2,78 @@
 
 日期：`2026-10-24`
 
-本文把“现在在做什么、已经做到哪里、代码和证据在哪里、下一步是什么”放在
-一张表中。它不替代两个权威页面：
+本页只维护工作流归属、稳定代码入口、当前权威状态入口和未完成 Task ID。
+它不复制测试轮数、PASS 计数、固件 SHA 或逐设备结论：
 
-- 当前能力、验证日期和边界只看 [项目当前状态](project-status.md)。
-- 尚未达到验收条件的工作只看 [项目 Backlog](project-backlog.md)。
+- 设备、后端、固件样本和 Task 板自动汇总：
+  [项目快照](project-snapshot.md)。
+- 当前能力、风险和证据边界：[项目当前状态](project-status.md)。
+- 未完成 Task、依赖和验收：[项目 Backlog](project-backlog.md)。
+- 带日期的证据：[验证证据台账](validation-ledger.md)。
+- 代码和测试入口：[代码与验证入口地图](code-map.md)。
 
-代码入口和详细验证命令见 [代码与验证入口地图](code-map.md)。
-每项里程碑的日期、当时检查项和 evidence 见
-[验证证据台账](validation-ledger.md)。
+## 工作流
 
-本页只维护工作流归属、代码入口和下一 Task ID。动态测试计数和最新验证结果
-只在 [项目当前状态](project-status.md)维护；运行时结论仍以对应固件 SHA、
-profile 和 evidence 为准。
-
-## 交接摘要
-
-- **当前基线**：`main` 工作树通过当前平台契约、catalog/profile 校验和最新
-  共享 QEMU 全矩阵；准确计数由 `project-status.md` 维护，不覆盖真机、RF 或
-  未执行的新控制器路径。
-- **网络 P0**：单机 namespace、DNS/TLS、exact IPv4 egress、pcap、错误密码、
-  radio/AP 恢复、DHCP renewal、双 guest lab fabric、本地 worker
-  lifecycle、远程 worker 注册目录及 durable job queue/lease supervisor
-  已有实现/证据；同主机 HTTP executor、真实 HTTPS/mTLS、真实 QEMU 和
-  unified StickS3 job over mTLS，以及验证 PID start-time/QMP ownership
-  后的本地 QEMU/QMP restart reattach 也已通过；启用 API token 时 worker
-  mutation 已使用 HMAC、时间戳和 nonce replay 防护。服务端/worker client
-  已有 TLS 1.2+ 与可选 mTLS；`SIGHUP` A/B rotation 已验证服务端证书、
-  client CA、worker 客户证书/key 和 token 原子切换、旧凭据拒绝及新凭据
-  完成真实 QEMU job；活动请求会先 drain 再提交新配置；previous token/CA
-  可提供有界旧/新重叠，最终移除后旧凭据失效。同主机双 worker 已通过
-  不可变 generation 目录、单个原子 pointer 和 secret-free receipt 自动迁移，
-  不再要求逐个发送 worker `SIGHUP`。未完成的是 worker 主机自动发现、
-  跨主机 QEMU job、companion/evidence continuity、跨主机 reattach、生产
-  多机调度和外部 IPv6。
-- **Core2 milestone**：stock native-VHCI 已进入 Device Service，但仍是 GDB 诊断桥；
-  QEMU native-HCI 的 `HCI-1` 至 `HCI-4` 已闭环。规范 profile
-  `core2-native-hci` 在五个独立 Device Service lease 中同时通过
-  frame/QOM/WiFi/公网/NUS GATT/pcap，且不启动 GDB。旧
-  `core2-native-vhci` 仅保留为显式诊断/兼容路径。`CORE2-02` 的短时
-  extended-run 已修复：恢复 caller-saved sregs，并只在 halted/idle vCPU
-  注入 HLI allocator/callback；两批独立 `5×10s` 运行合计 `10/10`，每轮
-  `hli-errors=0`；3 个 `60s` hold 也 `3/3`，2 个 `120s` hold 为
-  `2/2`，另两组 active-BLE `600s` hold 也 `2/2`。同一 guest reconnect
-  已在 3 个独立 lease 中分别完成 20、30、60、120 轮；120 轮每 lease HLI
-  `3377/3377`、events `2297`、ACLs `1080`，HLI/TX queue、dropped 和 panic 均为 0，
-  连接/L2CAP/GATT 池回到 `3/9/3`。修复前 Bumble 对无响应的
-  `HCI_Host_Number_of_Completed_Packets (0x0c35)` 返回非法 Command
-  Status，修正后每轮 guest RX、notification、pcap 和 HLI health 全部通过。
-  API、peer 与 runner 当前共享 `1–120` 范围并拒绝 `121`。首次十轮 attempt
-  还暴露了 Device Service 的 30 秒 peer 等待硬上限；等待已改为 session
-  ready timeout，并保留失败证据与回归测试。下一步是超过一百二十轮、两小时
-  coexistence、bit-exact controller/baseband、物理 cache/PSRAM 和真机。
-- **固件审查 P0**：Manifest、WebBurner、静态审查、安全配置分层和
-  LittleFS/FAT/SPIFFS inventory、声明级许可 allowlist/denylist 已实现；
-  7 台设备的 21 个公开样本已形成运行时矩阵，C6 软件复位模型缺口已修复；
-  Zigbee、Core2 AXP PMIC I2C 和 Core2 for AWS ATECC608 缺口仍开放；运行时
-  权限、完整源码级许可扫描/法律审批、真机 key/eFuse 闭环、更多设备和
-  firmware family 仍开放。
-- **运行时模型缺口**：C6 软件复位 chip-id 错误已由 `RUNTIME-01` 关闭，
-  根因是 16 MiB Flash 全局 4-byte 地址模式误解析 legacy 3-byte 写擦命令，
-  以及 C6 复位后遗留 PMP range。`RUNTIME-02` Zigbee commissioning、
-  `RUNTIME-03` Core2 PMIC I2C 和 `RUNTIME-04` ATECC608 仍未建模；
-  统一登记见
-  [运行时模型缺口登记](runtime-model-gap-register.md)。
-- **代码/文档基线**：动态验证计数只在 `project-status.md` 维护；设备
-  catalog 与 QEMU profile 已加入日期/状态交叉校验。当前真实代码债务仍是
-  `device_service.py` 编排热区、大型契约测试和文档契约测试混载，见
-  `code-map.md`。
-- **下一手顺序**：推进 `NET-04` 远程 worker 和 `NET-05` IPv6；固件侧
-  继续 `FW-01`，随后 `RUNTIME-02/03/04`、`FW-03`、`FW-02`；
-  Core2 已通过 3 个独立 lease、每个 20/30/60/120 轮的 reconnect 和
-  active-BLE 600s hold；下一项做两小时 soak、超过一百二十轮与更长
-  coexistence，之后推进物理与
-  controller 等价性。`HCI-4`、短时
-  extended-run、十轮、二十轮和三十轮 reconnect 均不再作为待办。
+| 工作流 | 稳定代码面 | 权威状态 | 未完成 Task |
+| --- | --- | --- | --- |
+| 设备、板级与统一运行时 | `devices/`、`platform/qemu/`、`patches/`、`tests/uiflow2/` | `project-status.md` 的设备矩阵和统一运行时章节 | 无独立 Task；新增设备必须走 onboarding |
+| Device Service 与生命周期 | `serve.py`、`device_service.py`、`storage_policy.py` | `device-service-api.md`、`project-status.md` | `SVC-01`、`SVC-02`、`SVC-03` |
+| 网络隔离、双 guest lab fabric 与 worker | `network_*.py`、`worker_*.py`、`transport_security.py`、`tests/network/` | `network-simulation-plan.md`、`device-service-api.md` | `NET-04`、`NET-05` |
+| Core2 无线与长稳 | `core2_native_hci/`、`unified_core2/`、`ble_probe.py`、`ble_runtime_limits.py` | `core2-native-hci-backend.md`、`project-status.md` | `CORE2-02` |
+| 固件导入、静态审查与安全 | `firmware_*.py`、`fetch_firmware.py`、`user_firmware_matrix.py`、`platform/web/firmware.*` | `firmware-manifest.md`、`user-firmware-simulation-matrix.md` | `FW-01`、`FW-02`、`FW-03` |
+| 运行时模型缺口 | runtime coverage、QEMU patches、firmware evidence | `runtime-model-gap-register.md` | `RUNTIME-01`（已关闭）、`RUNTIME-02`、`RUNTIME-03`、`RUNTIME-04` |
+| 真机同路径验证 | Device Test Center 和硬件证据流程 | `project-status.md` 的 hardware 边界 | `HW-01` |
+| Tab5 P4 后端 | `platform/runtime/wasm/`、P4 patches、`tests/uiflow2/tab5_*` | `tab5-deferred-backlog.md` | `TAB5-01` |
+| 设备视觉保真 | `platform/web/device-shell*`、设备 renderer | `device-visual-fidelity-backlog.md` | `UI-01` |
+| CardputerZero | `patches/qemu-linux-arm64-cardputerzero/`、`tests/cardputer_zero/` | `project-status.md` 的 CardputerZero 边界 | `CZ-01` |
 
 ## 状态语义
 
 | 状态 | 含义 |
 | --- | --- |
-| `DELIVERED` | 主路径已实现，当前自动化测试或同路径虚拟设备证据通过 |
-| `PILOT` | 功能已跑通，但离生产服务、完整控制器或真机等价仍有明确距离 |
+| `DELIVERED` | 主路径已实现，当前契约测试和同路径虚拟设备证据通过 |
+| `PILOT` | 功能已跑通，但生产服务、完整控制器或真机等价仍有距离 |
 | `PARTIAL` | 已有可用子集，同时存在阻断完整验收的数据面或后端 |
-| `FAIL` | 同一路径已有可复现失败 evidence；不得用其它 lease 的 PASS 覆盖 |
-| `BACKLOG` | 设计和边界已明确，但尚未形成可用实现 |
+| `FAIL` | 同一路径已有可复现失败 evidence；不得被其他 lease 的 PASS 覆盖 |
+| `BACKLOG` | 设计或边界已明确，但尚未形成可用实现 |
 | `HARDWARE NOT RUN` | 没有完成同固件路径的物理硬件验证 |
 
-除明确标注 `HARDWARE` 外，本表所有结果都是 `virtual-device validation`。
-QEMU 的功能网络不是 RF、天线、WPA2/WPA3 安全模式或功耗模型。
+除非明确标注 `hardware validation`，所有项目结论都是
+`virtual-device validation`。QEMU 功能网络不是 RF、天线、安全模式或功耗
+模型；“能联网”和“物理无线行为通过”必须分开记录。
 
-## 交付台账
+## 工作流流转
 
-| 工作流 | 当前状态 | 代码 / 契约 | 验证与证据 | 未完成项 |
-| --- | --- | --- | --- | --- |
-| 设备与后端登记 | `DELIVERED` | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、`platform/qemu/profiles.json` | catalog、peripheral、runtime coverage、QEMU profile 校验 | 新设备必须走完整 onboarding；视觉保真另算 |
-| UIFlow2 板级与外设矩阵 | `DELIVERED`（virtual） | `patches/`、`tests/uiflow2/run_peripheral_matrix.py` | 最新全矩阵首轮无重试；计数和 evidence 见项目当前状态 | Tab5 外设、CoreS3 透明/调色板图像、真机同路径 |
-| S3/C6 单 guest unified runtime | `PILOT` | `platform/tools/device_service.py`、`tests/uiflow2/unified_*/` | 11 条 S3/C6 profile 在单 QEMU guest 合并 board、WiFi 和 HCI BLE；StickS3 radio/AP 丢失恢复 | 完整 PHY/RF、任意固件覆盖、真机 |
-| Core2 稳定性与无线 | `PARTIAL`（首轮功能、10s/60s/120s、active-BLE 600s hold 与 20/30/60/120 轮 reconnect PASS） | `platform/tools/ble_runtime_limits.py`、`ble_probe.py`、`device_service.py`、`tests/uiflow2/core2_*`、`unified_core2/`、`xtensa_elf_symbols.py` | deterministic TCG/icount 10/10、OpenMAC WiFi、公网 HTTP、HCI-offload、stock VHCI；native-HCI `HCI-1` 至 `HCI-4` PASS，`HCI-3b` HLI/API-boundary GATT `5/5`；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`、2 个 active-BLE `600s` `2/2`；3 个独立 lease 各 20、30、60、120 轮的 GATT 均 PASS；120 轮每 lease HLI `3377/3377`、events `2297`、ACLs `1080`、无错误或 panic；共享 reconnect 上限为 `120` 并有 `121` 轮拒绝测试，hold 上限为 `7200s` | `CORE2-02` 超过一百二十轮、两小时 coexistence/soak、bit-exact controller/baseband、物理 cache/PSRAM 和真机同路径 |
-| 网络隔离、策略与取证 | `DELIVERED`（单机、双 guest lab fabric、本地 worker lifecycle、authenticated HTTP executor、HTTPS/mTLS、SIGHUP rotation + activity drain + bounded credential overlap、generation-pointer fleet migration、QEMU/QMP restart reattach、远程目录、durable queue/lease supervisor 与 Linux policy CI） | `worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`network_fabric.py`、`network_sandbox.py`、`network_egress.py`、`network_policy.py`、`pcap_summary.py` | namespace、controlled DNS、TLS/Host allowlist、精确 IPv4 IP/端口、veth/NAT、pcap、radio/AP 丢失重连、DHCP renewal；双 guest lab fabric；本地 heartbeat/drain/restart；PID/start-time/QMP verified local reattach；远程目录；幂等 job、claim/lease/expiry retry；同主机 HTTP executor 运行真实 QEMU job、下载 evidence ZIP/SHA256 并回报；worker HMAC、时间戳、nonce replay；真实 loopback TLS 1.3/mTLS、客户端证书拒绝/通过、signed worker 生命周期、真实 StickS3 QEMU job、unified board/WiFi/BLE job over mTLS、SIGHUP A/B + overlap rotation、activity drain 和 final cutover；双 worker 通过 generation pointer 自动迁移并写出 secret-free receipt，无需 worker SIGHUP；GitHub Actions policy fixture 与 TAP/bridge primitive | `NET-04` worker 主机自动发现/跨主机迁移、跨主机 QEMU executor、companion/evidence continuity、跨主机 reattach、多机调度、`NET-05` IPv6 |
-| 通用固件导入与静态审查 | `DELIVERED`（静态、上传与浏览器入口范围；FW-03 runtime matrix `PARTIAL`） | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`user_firmware_matrix.py`、artifact upload API、`platform/web/firmware.*` | merged/segmented/ZIP、WebBurner/M5Burner/flasher_args、浏览器流式 SHA256/chunk 上传、进度/重试/取消/刷新恢复、capability mismatch、脱敏 review/SBOM、eFuse 安全摘要、LittleFS/FAT/SPIFFS 清单、声明级许可 allowlist/denylist；7 台设备 21 个公开非基线样本 10 PASS / 11 PARTIAL，runtime model gap 独立分类 | `FW-01` 运行时权限与完整源码许可扫描、`FW-02` 真机 key/eFuse、`FW-03` 更多设备和 firmware family 回归 |
-| 跨厂商运行时模型缺口 | `PARTIAL`（3 个 `OPEN`，1 个已修复） | `user_firmware_matrix.py`、`tests/firmware/c6_zigbee_thread_sim/run_feasibility.py`、Core2 QEMU PMIC/C6 worktree、Zigbee 与 Core2 public-firmware evidence | `RUNTIME-01` 已修复；`RUNTIME-02` Zigbee commissioning、`RUNTIME-03` Core2 AXP PMIC I2C、`RUNTIME-04` Core2 for AWS ATECC608 仍为结构化 `runtime_model_gap` | 补 802.15.4 ACK/commissioning、PMIC 事务和安全元件 fixture |
-| Device Service | `PILOT` | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py`、`docs/device-service-api.md` | 本地 lease/worker lifecycle；PID/start-time/QMP 验证后的 restart reattach；远程注册；durable queue、claim/lease/expiry/cancel/result；HTTPS/mTLS、SIGHUP rotation + activity drain + bounded overlap、generation-pointer migration/receipts、HTTP executor、evidence ZIP/SHA256、worker HMAC 和失联回收；烧录、serial/frame/input/QOM/audio/network/evidence、历史与 GC | `SVC-01` worker 主机自动发现、cross-host QEMU job 与 companion/evidence continuity、`SVC-02` warm pool/多机、`SVC-03` 拆分大型编排热区 |
-| 热门公开固件仿真 | `PILOT` | `fetch_firmware.py`、`user_firmware_matrix.py` | 按 M5Burner 热度选样并通过 `/api/v1` 留下 session/evidence | 更大样本面、跨厂商统计、长时间稳定性 |
-| 浏览器目录与设备页 | `DELIVERED`（本地） | `platform/web/`、`generate_catalog.py`、`peripheral_inventory.py` | 设备目录、Live sessions、输入和证据浏览 | `UI-01` 逐设备高保真外壳与视觉回归 |
-| Tab5 P4/C6 | `PARTIAL` | `esp-emu 0.50.0`、Tab5 patches、`tests/uiflow2/tab5_*` | 烧录、启动、1280×720、触摸、RS-485、静态 I2C | `TAB5-01` I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123、P4↔C6 端到端网络 |
-| CardputerZero Linux ARM64 | `PARTIAL` | `patches/qemu-linux-arm64-cardputerzero/`、`tests/cardputer_zero/` | 官方镜像、显示、输入、I2C、音频、摄像头、USB Hub、Ethernet 帧回环 | `CZ-01` 系统级长期回归、USB 时序、网络隔离和真机 |
-| 物理硬件验证 | `HARDWARE NOT RUN` | Device Test Center 工作流 | 当前没有可引用的同固件 SHA 真机记录 | `HW-01` 代表设备、同测试计划、明确标记 hardware validation |
+1. 新工作先进入 `project-backlog.md`，分配稳定 Task ID、依赖和验收条件。
+2. 实现时在 `code-map.md` 登记代码与测试入口，不直接复制运行计数。
+3. 验证后把带日期的检查项和 evidence 追加到 `validation-ledger.md`。
+4. 只有达到验收条件时才从 Backlog 移除，并在 `project-status.md` 更新当前
+   结论和边界。
+5. 运行 `project_snapshot.py --write` 更新自动快照；`--check` 必须通过。
+6. 外部结论使用完整 commit SHA 的 work-record permalink，并标明
+   `virtual-device validation` 或 `hardware validation`。
 
-## 当前执行顺序
-
-1. 推进网络产品化：双设备真实 QEMU lab fabric、本地 worker
-   heartbeat/drain、远程目录、durable queue、authenticated 同主机 HTTP
-   executor、`SIGHUP` TLS/token rotation + activity drain + bounded
-   credential overlap 和本地 QEMU/QMP reattach 已具备，下一步 `NET-04` /
-   `SVC-01` worker 主机自动发现、跨主机 QEMU executor/reattach、
-   companion/evidence continuity 与多机调度；`NET-05` 外部 IPv6 单列。
-2. 固件审查继续 `FW-01` 权限/许可，随后推进 `RUNTIME-02` Zigbee
-  可行性，再处理 `FW-03` 跨厂商样本和
-   `FW-02` 真机 key/eFuse。
-3. `CORE2-02` 已通过 3 个独立 lease、每个 120 轮的 GATT 和 active-BLE 600s
-   门禁；下一步验证超过一百二十轮、两小时 soak 和 WiFi/BLE coexistence，之后推进
-   controller/baseband 与物理 cache/PSRAM。
-   `HW-01` 独立推进同固件真机路径。
-4. Tab5、视觉保真与 CardputerZero 是专项工作；没有后端、素材和真机证据时
-   不把它们写成统一运行时完成。
+Worker 工作流把 generation、durable lease、credential rotation 和
+generation-pointer migration 视为同一状态机边界；旧 agent 不得覆盖新
+generation 的外部 side effect。
 
 ## 代码边界
 
-| 代码面 | 当前职责 | 维护原则 |
+| 代码面 | 职责 | 维护原则 |
 | --- | --- | --- |
-| 设备/外设/QEMU 注册 | 描述真实硬件与可执行覆盖 | 生成物从源 catalog 生成，不手改出第二份事实 |
-| QEMU 补丁 | SoC 控制器、板级器件、DMA/FIFO/端点 | 必须从匹配 worktree 生成，并做 reverse check |
-| Device Service | lease、运行时、证据、存储生命周期 | 对外 API 优先；新增能力先定状态机和证据契约 |
-| 固件工具 | 规范化、能力检查、静态审查、文件系统清单 | 结构 PASS、安全 REVIEW、运行 PASS 分开记录 |
-| 网络工具 | 策略生成、namespace、pcap 摘要、故障注入 | 失败必须 fail-closed；不使用 Python 假值绕过 guest |
-| UIFlow2 runners | 设备级数据面与 unified 验收 | 设备本地 probe 不得从另一块板继承 PASS |
+| 设备/外设/QEMU 注册 | 描述真实硬件与可执行覆盖 | 生成物从源 catalog/profile 生成，不手写第二份事实 |
+| QEMU 补丁 | SoC、板级器件、DMA/FIFO/endpoint | 从匹配 worktree 生成并做 reverse check |
+| Device Service | lease、runtime、evidence、storage | 先固定 API/evidence 契约，再拆内部模块 |
+| 固件工具 | 规范化、能力检查、静态审查、文件系统 | 结构 PASS、安全 REVIEW、运行 PASS 分层 |
+| 网络工具 | policy、namespace、pcap、fault injection | 失败 fail-closed，不使用宿主假值绕过 guest |
+| UIFlow2 runners | 设备级数据面和 unified 验收 | 每个模型必须有设备本地 case，不跨板继承 |
 
-## 证据读取顺序
+## 证据阅读顺序
 
-1. 先读本页确认工作流边界，再读 `project-status.md` 的当前结论。
-2. 打开 `validation-ledger.md` 找到对应日期的 evidence JSON，核对设备、
-   固件 SHA、runtime/profile、check 和 boundary。
-3. 只有 schema/单元测试时，把结论写成实现支撑，不写成设备功能 PASS。
-4. 对外结论必须使用完整 commit SHA 的可复现记录，并明确
-   `virtual-device validation` 或 `hardware validation`。
+1. 从 `project-snapshot.md` 找到设备、工作流和 Task ID。
+2. 从 `project-status.md` 确认当前结论和已知边界。
+3. 从 `validation-ledger.md` 找到对应日期的 evidence JSON。
+4. 核对 firmware/ELF/QEMU SHA、device、runtime/profile、输入、serial、frame、
+   网络或 peer 数据以及 `PASS`/`PARTIAL`/`FAIL` 字段。
+5. 只有 schema、单元测试或静态检查时，把它写成实现支撑，不写成设备功能
+   PASS。

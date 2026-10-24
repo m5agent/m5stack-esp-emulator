@@ -21,8 +21,10 @@ PYTHONPATH=platform/tools python3 -m unittest \
   platform/tests/test_user_firmware_matrix.py
 ```
 
-The public cross-vendor snapshot currently records 18 non-baseline samples on
-six S3/C6 devices. Its `PARTIAL` results are not all simulator defects:
+The historical cross-vendor snapshot records 18 non-baseline samples on six
+S3/C6 devices; the combined current selection adds three public Core2 images,
+for 21 non-baseline samples on seven devices. Its `PARTIAL` results are not all
+simulator defects:
 `runtime_model_gap`, missing application frame, absent input response,
 serial-only devices and fatal post-frame evidence retain separate reasons.
 The original C6 software-reset chip-id gap has a separate fix evidence snapshot;

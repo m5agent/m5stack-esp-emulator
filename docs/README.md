@@ -10,16 +10,18 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
-## 先看这七页
+## 先看这八页
 
-1. [工作流总台账](workstreams.md)：按工作流串起当前状态、代码、证据和下一任务。
-2. [项目当前状态](project-status.md)：现在能做什么、已经验证什么、仍有什么风险。
-3. [项目 Backlog](project-backlog.md)：尚未完成的工作、优先级、依赖和验收条件。
-4. [代码与验证入口地图](code-map.md)：实现落在哪些模块、测试如何复现、证据在哪里。
-5. [验证证据台账](validation-ledger.md)：按日期保存当时的检查项、结论和 evidence。
-6. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
+1. [自动项目快照](project-snapshot.md)：从 catalog、profile、evidence 和 Backlog
+   自动汇总的设备、样本、缺口与 Task 板。
+2. [工作流总台账](workstreams.md)：按工作流串起代码、权威状态入口和 Task ID。
+3. [项目当前状态](project-status.md)：现在能做什么、已经验证什么、仍有什么风险。
+4. [项目 Backlog](project-backlog.md)：尚未完成的工作、优先级、依赖和验收条件。
+5. [代码与验证入口地图](code-map.md)：实现落在哪些模块、测试如何复现、证据在哪里。
+6. [验证证据台账](validation-ledger.md)：按日期保存当时的检查项、结论和 evidence。
+7. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
    board/WiFi/BLE/evidence 的产品验收边界。
-7. [运行时模型缺口登记](runtime-model-gap-register.md)：已知“固件已执行但
+8. [运行时模型缺口登记](runtime-model-gap-register.md)：已知“固件已执行但
    模拟器能力不足”的缺口、证据、边界和关闭条件。
 
 如果页面之间冲突，以当前代码、生成后的 catalog/coverage、最新测试证据和
@@ -31,6 +33,8 @@
 - 当前能力、已闭合边界和风险只看 [项目当前状态](project-status.md)。
 - 未完成 Task ID、依赖和验收只看 [项目 Backlog](project-backlog.md)。
 - 某项结论何时、用什么证据验证，只看 [验证证据台账](validation-ledger.md)。
+- 具体设备/样本/Task 计数看 [自动项目快照](project-snapshot.md)；它由源文件
+  生成，不替代上述人工结论和边界说明。
 - 固件行为与模拟器差异不能直接归因时，先查
   [运行时模型缺口登记](runtime-model-gap-register.md)；分类不是修复。
 
@@ -55,17 +59,18 @@
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [工作流总台账](workstreams.md) | 当前工作台账 | `2026-10-24` | 交付状态、代码/证据入口和未完成 Task ID |
-| [项目当前状态](project-status.md) | 当前事实 | `2026-10-24` | 最新全矩阵、网络/CI、Core2、FirmwareManifest 与平台测试快照 |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority 与 evidence 入口 |
-| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期记录当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | runtime contract `1.24.0`；同 peer-process 多轮 BLE scan/connect/GATT/disconnect `1–120` 参数和最长 `7260s` active BLE peer linger；HTTPS/mTLS server/client 配置、真实 QEMU 与 unified StickS3 job over mTLS、token-file、SIGHUP rotation、active-request drain、previous token/client-CA bounded overlap 和 final cutover；保留 worker HMAC、QEMU restart re-attach、durable queue、WebBurner、resumable upload、staging GC 和 nftables egress |
-| [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 14 个 unified profile；Core2 主路径为 `core2-native-hci`，`HCI-1` 至 `HCI-4` PASS；旧的 native-VHCI GDB 路径仅保留为诊断/兼容 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 当前实现 | `2026-10-24` | `HCI-1` 至 `HCI-4` PASS；`60s`、`120s`、active-BLE `120s` 和 active-BLE `600s` 门禁通过；同 guest 20、30、60、120 轮 GATT 分别在 3 个独立 lease 中 PASS。120 轮运行每 lease HLI 3377/3377、events 2297、ACLs 1080。首次 10 轮运行的 Device Service 30 秒等待误杀已修复；共享参数范围 `1–120`，下一门禁是超过一百二十轮和两小时 soak；物理等价性与真机仍开放 |
-| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | WebBurner browser intake、eFuse summary、LittleFS/FAT12/16/32/SPIFFS 清单和声明级许可 allowlist/denylist 已通并有 evidence；运行时权限、完整源码级许可扫描和法律审批仍开放 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | C6 软件复位 chip-id 的 `RUNTIME-01` 已关闭；`RUNTIME-02` 仍有 esp-emu `thread-sim` 双向帧、无 commissioning/join；Meshtastic 修复后仍有独立应用异常 |
-| [网络模拟方案](network-simulation-plan.md) | 专题 | `2026-10-24` | namespace/egress CI、controlled DNS、TLS、pcap、radio/AP 丢失恢复、双 guest lab fabric、worker SIGHUP rotation、active-request drain、bounded credential overlap、final cutover 和双 worker generation-pointer 自动迁移已通；worker 主机自动发现、跨主机与 QEMU worker 边界单列 |
+| [工作流总台账](workstreams.md) | 工作流导航 | `2026-10-24` | 只维护工作流归属、稳定代码入口和未完成 Task ID |
+| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-24` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task 和测试规模 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-24` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-24` | 只保留尚未达到验收条件的任务、依赖和验收 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-24` | 当前源码、runtime priority、测试和 evidence 入口 |
+| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-24` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-24` | API、对象、状态机、错误码和 transport 契约；动态证据不在契约页维护 |
+| [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-24` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-24` | native-HCI 数据面、legacy GDB 对照、长稳门禁和物理边界 |
+| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-24` | 导入、规范化、安全检查、文件系统、许可策略和 evidence 分层 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-24` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件 |
+| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-24` | 网络模式、测试矩阵、安全边界和证据要求；动态结果看状态页 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-24` | 只描述诊断/Provisioning，不混同 unified 验收 |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-24` | 14 台设备与各 QEMU/Tab5/Linux 后端 |
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-24` | 外设数据面覆盖；最新计数和边界见项目当前状态 |
@@ -94,6 +99,7 @@
 
 ### 状态、计划与维护
 
+- [自动项目快照](project-snapshot.md)
 - [工作流总台账](workstreams.md)
 - [项目当前状态](project-status.md)
 - [项目 Backlog](project-backlog.md)
@@ -176,6 +182,8 @@
 - 新验证：保存 evidence，必要时写入 `agent-work-logs`；不要把聊天摘要当作证据。
 - 新验证记录：追加到 `validation-ledger.md`，并回查它是否改变
   `project-status.md` 或 `project-backlog.md`。
+- 设备、profile、固件矩阵或 Backlog Task 板变化后运行
+  `python3 platform/tools/project_snapshot.py --write`，并让 `--check` 通过。
 - 新增或关闭 `runtime_model_gap`：同步
   `runtime-model-gap-register.md` 和 Backlog；分类证据与修复证据分开保存。
 - 历史页保留原日期；若结论被推翻，在页首加“已由某页取代”，不要静默改写成

@@ -13,6 +13,7 @@
 | 问题 | 权威入口 |
 | --- | --- |
 | 文档应从哪里读、哪些是历史页 | [文档导航与新鲜度规则](README.md) |
+| 当前设备、样本、缺口、Task 和测试规模快照 | [自动项目快照](project-snapshot.md) |
 | 现在到底支持什么 | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、最新测试与 [项目当前状态](project-status.md) |
 | 还有什么没做 | [项目 Backlog](project-backlog.md) |
 | Device Service 如何调用 | [Device Service API](device-service-api.md) 与 [OpenAPI](device-service.openapi.yaml) |
@@ -102,6 +103,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/peripheral_inventory.py` | 生成设备中心可消费的外设/控制清单 | `serve.py`、设备页 |
 | `platform/tools/runtime_coverage.py` | 检查 simulated 模型到设备级运行证据的映射 | CI |
 | `platform/tools/runtime_interfaces.py` | 从 evidence/case 生成 QOM、输入和文件接口 | 设备中心 |
+| `platform/tools/project_snapshot.py` | 从设备、profile、外设、固件 evidence 和 Backlog 生成并校验项目快照 | CI、交接、文档维护 |
 | `platform/tools/generate_catalog.py` | 从源 catalog 生成设备 JSON/README | 发布与 CI |
 | `platform/tools/export_bundle.py` | 导出可移植设备/运行时资产包 | 部署 |
 
@@ -110,6 +112,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | 入口 | 负责范围 | 何时运行 |
 | --- | --- | --- |
 | `platform/tests/` | Python API/契约与 Node SHA256/upload client 测试 | 每次代码改动 |
+| `platform/tools/project_snapshot.py --check` | 校验自动项目快照是否与 catalog/profile/evidence/Backlog 同步 | 状态、设备或 Task 变化后 |
 | `platform/tests/test_ble_probe.py` | Bumble no-response HCI compatibility 回归 | `ble_probe.py` controller compatibility 改动 |
 | `tests/uiflow2/run_device_matrix.py` | 设备首帧、输入、烧录和板型 smoke | 设备/固件 profile 改动 |
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |

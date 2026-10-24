@@ -60,7 +60,7 @@
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s` 已通过；reconnect 上限为 `1–120`，hold 上限为 `7200s`。下一项做两小时 soak、超过一百二十轮、WiFi/BLE coexistence 和 teardown | 超过一百二十轮完整 scan/connect/GATT/disconnect 无 retry PASS；随后补 controller/baseband、物理 cache/PSRAM、长时间 coexist 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
-| `FW-03` | 进行中 | 已有 6 台 S3/C6、18 个公开官方/社区样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
+| `FW-03` | 进行中 | 已有 7 台设备、21 个公开非基线样本；扩到更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；模型缺口不得混作固件 FAIL |
 | `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF | 完成至少一个真实 guest 生命周期并保留证据；否则继续显式返回 `runtime_model_gap` 且保留阻断证据 |
 | `RUNTIME-03` | 进行中 | 对齐 Core2 AXP192/AXP2101 `disable_timer_interrupt()` 等 PMIC 寄存器事务 | `UIFlow_Core2` 同固件 SHA 渲染非空帧，AXP2101 与 AXP192 差异有同日 evidence |
 | `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture | 固件越过安全元件初始化并渲染应用帧；不提交生产私钥 |
@@ -211,9 +211,9 @@ preflight 已有；真机 secure boot、Flash Encryption、eFuse 和生产 key
 
 ### FW-03 跨厂商回归
 
-当前缺口：已有 18 个公开样本覆盖 6 台 S3/C6 设备，并区分 10 PASS、8
-PARTIAL、2 个历史 runtime model gap；其中 C6 软件复位 chip-id 缺口已经
-由 `RUNTIME-01` 修复并在 Device Service 重跑中移除
+当前缺口：已有 21 个公开非基线样本覆盖 7 台设备，并区分 10 PASS、11
+PARTIAL；其中 S3/C6 的 18 样本快照包含 2 个历史 runtime model gap，
+C6 软件复位 chip-id 缺口已经由 `RUNTIME-01` 修复并在 Device Service 重跑中移除
 `runtime_model_gap`，但该样本仍有独立应用异常。仍未覆盖全部设备、
 ESP32 LX6/P4、更多 MicroPython/vendor framework 和失败根因闭环。
 Zigbee 缺口继续由 `RUNTIME-02` 管理，不把“已分类”算成该任务完成。

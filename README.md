@@ -12,70 +12,39 @@ MicroPython 和其他完整 Flash 固件。
 
 ## 当前状态
 
-- 已登记 14 台设备：9 台 ESP32-S3、2 台 ESP32-C6、Tab5、Core2 和 CardputerZero。
-- 12 台 QEMU-backed ESP32 + Tab5 可通过设备服务创建和烧录。
-- 13 台设备已完成登记外设的模拟数据面；Tab5 外设状态仍为 `partial`。
-- CardputerZero 使用独立 ARM64 Linux 后端，不属于 ESP32/UIFlow2 路径。
-- S3/C6 已有 11 条设备级 QEMU WiFi/BLE 验证路径；Core2 在环境门控下增加
-  第 12 条设备级路径，并细分为 `core2-unified`、`core2-native-hci` 和
-  legacy `core2-native-vhci`。当前共 14 个 unified profile，规范 runtime 为
-  `qemu-unified`，`qemu-ble` 仅保留兼容。
-- 动态测试/矩阵计数只在[项目当前状态](docs/project-status.md)维护；
-  设备 catalog 和 QEMU profile 保存各自的验证日期/状态，并由平台测试
-  交叉校验，README 不再复制会随提交变化的计数。
-- 设备服务已在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
-  QOM、网络和 evidence API。
-- 热门公开固件矩阵已覆盖 7 台设备的 21 个非基线样本：
-  全部完成静态分析和服务执行，10 PASS / 11 PARTIAL；S3/C6 历史快照
-  为 6 台设备 18 个样本，Core2 新增 3 个热门官方固件，均为
-  `PARTIAL/runtime_model_gap`。历史快照最初把 C6
-  Zigbee 与软件复位 chip-id 归为两个模型缺口。`RUNTIME-01` 已确认根因是
-  16 MiB Flash legacy 写擦地址宽度与复位 PMP 状态并修复，重跑后该样本仍有
-  独立应用异常；`RUNTIME-02` Zigbee commissioning，以及 Core2
-  `RUNTIME-03` AXP PMIC I2C、`RUNTIME-04` AWS ATECC608 仍开放。边界与证据见
-  [运行时模型缺口登记](docs/runtime-model-gap-register.md)。
-- worker、durable queue、同主机 executor、HMAC、HTTPS/mTLS、真实 QEMU
-  和 unified StickS3 job over mTLS，以及本地 QEMU restart reattach 已形成
-  可用主线；服务端证书/client CA、worker 客户证书和 token 已通过
-  `SIGHUP` 轮换，活动请求会先完成再提交新配置；旧凭据拒绝且新凭据完成
-  真实 QEMU job。previous token/CA 文件还提供有界旧/新重叠窗口，最终移除
-  previous 文件后旧身份和旧 token 均失效。同主机双 worker 已通过
-  generation-pointer 自动迁移和 secret-free receipt 验证，无需逐个向
-  worker 发送 `SIGHUP`；自动发现 worker 主机、跨主机 QEMU job/接管、
-  companion / evidence continuity、secret-manager 和生产调度仍是开放项。
-- Core2 规范路径是
-  `runtime=qemu-unified/profile=core2-native-hci`；GDB native-VHCI 只用于
-  诊断/兼容。功能、active-BLE 600 秒 hold，以及 `3` 个独立 lease
-  **各自 20、30、60、120 轮** same-guest reconnect 已通过；一百二十轮每
-  lease HLI `3377/3377`、events `2297`、ACLs `1080`，无 HLI/TX queue
-  错误或 panic。下一次长稳门禁是超过一百二十轮和多小时 soak，物理边界见
-  [Core2 native HCI backend](docs/core2-native-hci-backend.md)。
+- 已建立 ESP32-S3、ESP32-C6、ESP32 LX6、ESP32-P4 和独立 ARM64 Linux
+  设备后端；CardputerZero 不属于 ESP32/UIFlow2 路径。
+- S3/C6/Core2 的产品验收主路径是 `qemu-unified`（请求字段为
+  `runtime=qemu-unified`）：同一 lease、同一
+  guest 内运行板级外设、WiFi 和 BLE，并返回 frame/QOM/network/peer evidence。
+  `qemu-ble` 仅保留兼容。
+- Core2 新调用使用 `profile=core2-native-hci`；GDB
+  `core2-native-vhci` 保留为诊断/兼容路径。
+- Device Service 在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
+  QOM、网络、worker job 和 evidence API。
+- 固件输入覆盖 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented
+  flash、WebBurner/M5Burner 包、文件系统清单、静态审查和 capability
+  mismatch。
+- 物理硬件验证仍是独立门禁；仓库中的 QEMU 和 `esp-emu` 结果只标记为
+  `virtual-device validation`。
 
-完整设备矩阵、证据日期和风险边界见
-[项目当前状态](docs/project-status.md)。
-按工作流查看“已交付、验证入口、未完成 Task ID”见
-[工作流总台账](docs/workstreams.md)。
-代码入口、模块职责和验证证据分层见
-[代码与验证入口地图](docs/code-map.md)。
-每项里程碑的日期、检查项和原始 evidence 见
+需要具体计数、设备状态和最新验证边界时，先读
+[自动项目快照](docs/project-snapshot.md)，再读
+[项目当前状态](docs/project-status.md)；README 不复制会随提交变化的结果。
+按工作流查看工作归属见[工作流总台账](docs/workstreams.md)，代码入口见
+[代码与验证入口地图](docs/code-map.md)，带日期的 evidence 见
 [验证证据台账](docs/validation-ledger.md)。
-第一次阅读建议从 [文档导航与新鲜度规则](docs/README.md) 开始；该页会区分
-当前事实、契约、历史调查和待办，避免把旧计划当成当前能力。
 
 ## 下一步
 
-未完成项和 Task ID 只在[项目 Backlog](docs/project-backlog.md)维护；当前顺序是：
-
-1. `NET-04` / `SVC-01`：自动发现/跨主机 worker 迁移、跨主机 QEMU job/reattach、continuity 和多机调度。
-2. `FW-01` → `RUNTIME-02` → `FW-03` → `FW-02`：权限/许可、C6 Zigbee
-  模型缺口、跨厂商样本、真机 key/eFuse。
-3. `CORE2-02`：`3` 个独立 lease、每个 `120` 轮已通过；继续推进超过一百二十轮、
-   多小时 soak、WiFi/BLE coexistence 与物理等价性。
-4. `TAB5-01`、`CZ-01`、`UI-01` 和 `HW-01` 按专项依赖推进。
+未完成项、优先级、依赖和验收只在
+[项目 Backlog](docs/project-backlog.md)维护。自动快照会同步展示其中的 Task
+板；README 不再保存第二份执行顺序。
 
 关键索引：
 
 - [文档导航与新鲜度规则](docs/README.md)
+- [自动项目快照](docs/project-snapshot.md)
 - [工作流总台账](docs/workstreams.md)
 - [项目当前状态](docs/project-status.md)
 - [完整项目 Backlog](docs/project-backlog.md)
@@ -168,10 +137,10 @@ curl -sS -H 'Content-Type: application/json' \
 
 | 分组 | 设备 | 状态 |
 | --- | --- | --- |
-| ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | 功能矩阵通过；StickS3 同 guest 公网 DNS/HTTP 通过；外观除 StopWatch 外为近似模型 |
-| ESP32-C6 | NanoC6、Arduino Nesso N1 | 功能矩阵通过；两台 C6 设备的板级外设、QEMU WiFi DHCP/HTTP 和 UART1 HCI BLE 均在同一 QEMU guest 与同一 Device Service lease 内通过；Nesso N1 同 guest 公网 DNS/HTTP 通过 |
-| ESP32-P4 | Tab5 | 烧录、启动、显示和触摸可用；外设 `partial` |
-| ESP32 LX6 | Core2 | 显示、触摸和外设通过；规范的 `qemu-unified/profile=core2-native-hci` 通过五 lease、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold，以及 3 个独立 lease 各自 20、30、60、120 轮的 same-guest GATT。全程无 GDB bridge。旧的 `core2-native-vhci` 保留为诊断/兼容路径；120 轮运行每 lease 为 HLI `3377/3377`、events `2297`、ACLs `1080`，连接池回到 `3/9/3`。后续仍是超过一百二十轮、两小时 soak、bit-exact controller、coexistence 和物理 cache/PSRAM |
+| ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | QEMU unified 板级 + WiFi + HCI BLE；具体证据和视觉边界见快照与当前状态 |
+| ESP32-C6 | NanoC6、Arduino Nesso N1 | QEMU unified 板级 + WiFi + HCI BLE；Zigbee/802.15.4 是独立模型缺口 |
+| ESP32-P4 | Tab5 | 烧录、启动、显示、touch mailbox、RS-485 和部分 I2C；外设 `partial` |
+| ESP32 LX6 | Core2 | QEMU unified board + OpenMAC WiFi + `core2-native-hci`；legacy VHCI 仅诊断 |
 | Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
@@ -179,8 +148,9 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
 [CoreS3 图像渲染边界](docs/cores3-image-rendering-boundary.md)，不影响启动、
 烧录和像素级 UI 测试，但尚不能称为完全视觉保真。
 
-详细逐设备状态见
-[`devices/README.md`](devices/README.md) 和
+逐设备机器可读状态和 blocker 见
+[自动项目快照](docs/project-snapshot.md)；设备档案见
+[`devices/README.md`](devices/README.md)，后端映射见
 [`docs/qemu-device-adaptation-matrix.md`](docs/qemu-device-adaptation-matrix.md)。
 
 ## 固件与审查
@@ -238,6 +208,7 @@ PYTHONPATH=platform/tools python3 -m unittest discover \
 python3 platform/tools/runtime_coverage.py --check
 python3 platform/tools/peripheral_catalog.py --check
 python3 platform/tools/qemu_profiles.py --check
+python3 platform/tools/project_snapshot.py --check
 ```
 
 相关外设用例：
@@ -257,6 +228,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
 ## 文档索引
 
 - [文档导航与新鲜度规则](docs/README.md)
+- [自动项目快照](docs/project-snapshot.md)
 - [项目当前状态](docs/project-status.md)
 - [项目 Backlog](docs/project-backlog.md)
 - [代码与验证入口地图](docs/code-map.md)
@@ -289,31 +261,12 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   不会被当成隐式放行。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
   internal-controller 路径。规范主路径是 QEMU
-  `runtime=qemu-unified/profile=core2-native-hci`：`HCI-4` 使用五个独立
-  `/api/v1` lease 通过 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和
-  evidence ZIP，且 `gdb_bridge=false`。`0005` 将 guest-call 注入限制在
-  halted/idle vCPU，并恢复 caller-saved sregs；两批 `5×10s` 运行合计
-  `10/10`，3 个 `60s` hold 为 `3/3`，2 个 `120s` hold 为 `2/2`；
-  active-BLE `600s` hold 也 `2/2`，peer 在 hold 完成时仍保持连接。
-  同一 guest 的断开后重连已在 3 个独立 lease 中分别完成 20、30、60、120 轮
-  scan/connect/NUS GATT/disconnect；一百二十轮每 lease 的 HLI posts/consumed
-  为 `3377/3377`、events `2297`、ACLs `1080`，HLI errors、
-  HLI/meta/TX queue、dropped 和 panic 均为 0，连接/L2CAP/GATT 池均回到
-  `3/9/3`。修复前 Bumble
-  compatibility 层错误地为
-  `HCI_Host_Number_of_Completed_Packets` 返回 Command Status，留下 stale ACK；
-  下一轮 `LE Set Advertising Data` 消费该 ACK，导致 NimBLE
-  `BLE_HS_ECONTROLLER (12)` 和 reset。移除非法响应后，每一轮均有 guest RX、
-  notification、pcap 和 evidence。Device Service、Bumble peer 和 runner
-  共享 `1–120` 参数范围，并有 `121` 轮拒绝测试。历史十轮运行还暴露了
-  Device Service 的 30 秒等待硬上限，修复后使用 session ready timeout，
-  并保留失败证据与回归测试。
-  旧的 `core2-native-vhci` 仍依赖
-  GDB 暂停、callback 注入和 synthetic return，只保留为显式诊断/兼容路径，
-  不再作为新调用首选。该结果仍不是 bit-exact ESP32 BT
-  baseband/controller、超过一百二十轮、多小时 soak、RF 或真机验证。当前 hook
-  偏移绑定已验证的
-  UIFlow2 v2.5.3 build；换 Core2 固件必须重新验证同一路径。
+  `runtime=qemu-unified/profile=core2-native-hci`。旧的
+  `core2-native-vhci` 依赖 GDB 暂停、callback 注入和 synthetic return，只保留
+  为显式诊断/兼容路径。具体 hold、reconnect 和 HLI health 证据见
+  [Core2 native HCI backend](docs/core2-native-hci-backend.md)和验证台账。
+- Core2 仍未证明 bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、
+  两小时 coexistence/soak、超过当前 API 上限的连接轮次或真机同路径。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

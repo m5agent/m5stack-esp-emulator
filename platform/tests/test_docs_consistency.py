@@ -7,6 +7,8 @@ import re
 import unittest
 from pathlib import Path
 
+import project_snapshot
+
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 
@@ -28,6 +30,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/project-status.md",
             "docs/project-backlog.md",
             "docs/validation-ledger.md",
+            "docs/project-snapshot.md",
             "docs/unified-device-runtime.md",
             "docs/runtime-model-gap-register.md",
             "docs/device-service-api.md",
@@ -217,6 +220,23 @@ class DocsConsistencyTests(unittest.TestCase):
                 continue
             self.assertIn(relative, linked, relative)
             self.assertIn(relative, freshness_linked, relative)
+
+    def test_project_snapshot_is_current(self) -> None:
+        snapshot = project_snapshot.collect()
+        rendered = project_snapshot.render_markdown(snapshot)
+        checked_in = (DOCS / "project-snapshot.md").read_text()
+        self.assertEqual(
+            rendered,
+            checked_in,
+            "docs/project-snapshot.md is stale; run "
+            "`python3 platform/tools/project_snapshot.py --write`",
+        )
+        self.assertIn(
+            f"设备登记：`{snapshot['devices_total']}` 台",
+            checked_in,
+        )
+        self.assertIn("## Backlog Task 板", checked_in)
+        self.assertIn("`CORE2-02`", checked_in)
 
     def test_relative_markdown_links_exist(self) -> None:
         paths = [
@@ -525,12 +545,12 @@ class DocsConsistencyTests(unittest.TestCase):
         status = (DOCS / "project-status.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()
-        readme = (ROOT / "README.md").read_text()
         adaptation_matrix = (
             DOCS / "qemu-device-adaptation-matrix.md"
         ).read_text()
         core2_backend = (DOCS / "core2-native-hci-backend.md").read_text()
         runtime_contract = (DOCS / "unified-device-runtime.md").read_text()
+        project_snapshot = (DOCS / "project-snapshot.md").read_text()
         catalog_source = json.loads(
             (ROOT / "devices/catalog.source.json").read_text()
         )
@@ -584,10 +604,13 @@ class DocsConsistencyTests(unittest.TestCase):
         )
 
         self.assertIn("3/3 PASS", status)
-        self.assertIn("各自 20、30、60、120 轮", readme)
+        self.assertIn("20/30/60/120", project_snapshot)
+        self.assertIn("one Device Service lease", runtime_contract)
+        self.assertIn("one guest instance", runtime_contract)
         self.assertIn("3 个独立 lease 各 120 轮", backlog)
-        self.assertIn("分别完成 20、30、60、120 轮", workstreams)
-        self.assertIn("20、30、60、120 轮 reconnect", adaptation_matrix)
+        self.assertIn("`CORE2-02`", workstreams)
+        self.assertIn("core2-native-hci", adaptation_matrix)
+        self.assertIn("core2-native-vhci", adaptation_matrix)
         self.assertIn(
             "| `CORE2-02` 30-cycle extension | `PASS` |",
             core2_backend,
@@ -596,10 +619,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "| `CORE2-02` 120-cycle extension | `PASS` |",
             core2_backend,
         )
-        self.assertIn(
-            "Three independent leases at 120 cycles each pass",
-            runtime_contract,
-        )
+        self.assertIn("Current profiles", runtime_contract)
+        self.assertIn("counts and blockers", runtime_contract)
         self.assertNotIn(
             "| `CORE2-02` 30-cycle extension | `NOT RUN` |",
             core2_backend,
@@ -868,7 +889,7 @@ class DocsConsistencyTests(unittest.TestCase):
             (ROOT / "tests/network/worker_lifecycle/README.md").read_text(),
         )
         self.assertIn(
-            "profile=core2-native-vhci",
+            "core2-native-vhci",
             (DOCS / "unified-device-runtime.md").read_text(),
         )
         self.assertIn(
@@ -2323,7 +2344,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("CORE2-02", backlog)
         self.assertIn("extended-run", backlog)
         self.assertIn("CORE2-02", workstreams)
-        self.assertIn("extended-run", workstreams)
+        self.assertIn(
+            "core2-native-hci",
+            (DOCS / "core2-native-hci-backend.md").read_text(),
+        )
         self.assertIn("same-guest reconnect", status)
         self.assertIn("二十轮", status)
         self.assertIn("0x0c35", backlog)
@@ -2402,13 +2426,12 @@ class DocsConsistencyTests(unittest.TestCase):
             "API boundary",
             (DOCS / "core2-native-hci-backend.md").read_text(),
         )
-        for document in (status, workstreams, code_map):
+        for document in (status, code_map):
             self.assertIn("HLI", document)
             self.assertIn("HCI-3b", document)
             self.assertIn("5/5", document)
         self.assertIn("HCI-4", status)
         self.assertIn("core2-native-hci", status)
-        self.assertIn("HCI-4", workstreams)
         self.assertIn("core2-native-hci", workstreams)
         self.assertIn("core2-native-hci", backlog)
         self.assertIn("HCI-4", code_map)

@@ -149,6 +149,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/pcap_summary.py` | pcap 元数据和 payload hash 摘要 |
 | `tools/ble_probe.py` | 外部 BLE controller/peer 与 GATT 验证；支持同一 peer process 多轮 disconnect/reconnect |
 | `tools/storage_policy.py` | 历史、Flash 和缓存回收策略 |
+| `tools/project_snapshot.py` | 从 catalog、profile、peripheral、firmware evidence 和 Backlog 生成并校验项目快照 |
 | `../tests/network/tls_allowlist/` | 测试 CA、HTTPS Host allowlist、200/403、pcap 断言和 AES/GDMA 回归证据 |
 | `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
@@ -190,6 +191,7 @@ PYTHONPATH=platform/tools python3 -m unittest discover \
 python3 platform/tools/runtime_coverage.py --check
 python3 platform/tools/peripheral_catalog.py --check
 python3 platform/tools/qemu_profiles.py --check
+python3 platform/tools/project_snapshot.py --check
 ```
 
 平台测试中的 `test_docs_consistency.py` 还负责检查关键文档、相对链接、API
