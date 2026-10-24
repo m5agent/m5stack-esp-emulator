@@ -8,6 +8,7 @@
   "profile": "core2-native-hci",
   "runtime": "qemu-unified",
   "recorded_at": "2026-10-24",
+  "superseded_by": "evidence-2026-10-24-hci4-reconnect2-3x.json",
   "question": "Can one stock Core2 guest complete a second external NUS GATT transaction after the peer disconnects?",
   "baseline": {
     "status": "PASS",
@@ -27,7 +28,7 @@
       "name": "stock-advertising-lifecycle",
       "firmware_sha256": "b9c91c40e60867186717938e075da8b19271cc8e7a22323524be213beff81982",
       "firmware_bytes": 16777216,
-      "guest_changes": "none; stock BLEUARTServer does not schedule a second advertisement after disconnect",
+      "guest_changes": "none; stock BLEUARTServer calls gap_advertise immediately from the disconnect IRQ",
       "requested_reconnect_cycles": 2,
       "observed": {
         "cycle_1": "PASS",
@@ -71,26 +72,58 @@
         "evidence_zip_bytes": 89426,
         "evidence_zip_sha256": "d23710c4d9912ade2eeaa39125aa3756e1d43084f23d95a0e97056a6d648424d"
       }
+    },
+    {
+      "name": "no-readvertise-control",
+      "firmware_sha256": "4b4dadcf961220fe6dd4f77104e837af2cc833ccf9cb1d148ac26cb52e439e92",
+      "firmware_bytes": 16777216,
+      "guest_changes": "test-only IRQ override removes the connection and deliberately does not advertise again",
+      "requested_reconnect_cycles": 2,
+      "observed": {
+        "cycle_1": "PASS",
+        "cycle_1_guest_rx": true,
+        "cycle_1_notification": "ACK:M5_CORE2_UNIFIED",
+        "peer_disconnect": "PASS",
+        "serial_error_marker": null,
+        "serial_error_marker_count": 0,
+        "cycle_2_advertisement": "TIMEOUT",
+        "guest_panic": false
+      },
+      "evidence_hashes": {
+        "serial_sha256": "631338883cd72ed28b675b96385ddf283353ecb47e93e772a9ed6115860aa553",
+        "peer_log_sha256": "a2fb5b8010b14a22921540b26979d5bbbccd05a01b4efd067d2f3f3cc0931d40",
+        "pcap_bytes": 6787,
+        "evidence_zip_bytes": 36992,
+        "evidence_zip_sha256": "211c1032478b40bb736e2ca53364b7262c50388ffb2e7ab909b3b6838dd8c45f"
+      }
     }
   ],
   "classification": {
-    "result": "same-guest disconnect lifecycle fails before re-advertising",
+    "result": "Bumble returned an invalid response for a no-response HCI command",
     "confirmed": [
-      "Both stock and test-only readvertising variants complete cycle 1 and disconnect cycle 1.",
-      "Both variants then emit repeated NimBLE 'HCI process ack returned 12' log messages and never expose a second advertisement.",
-      "The stock-advertising variant does not execute the test-only gap_advertise path, so guest readvertising is not the sole trigger.",
-      "No guest panic was observed; the reproduction is a controller/HCI command lifecycle failure, not the earlier cache panic."
+      "The stock and delayed-readvertising variants complete cycle 1, disconnect, then emit repeated NimBLE 'HCI process ack returned 12' and never expose a second advertisement.",
+      "The true no-readvertise control completes cycle 1 without any NimBLE reset, proving disconnect alone is harmless.",
+      "QEMU HLI delivery is ordered and error-free; connection, L2CAP and GATT pools remain available.",
+      "The external Bumble compatibility handler incorrectly returned Command Status for HCI_Host_Number_of_Completed_Packets (0x0c35).",
+      "The stale 0x0c35 ACK was consumed by the next LE Set Advertising Data command, so ble_hs_hci_process_ack returned BLE_HS_ECONTROLLER (12).",
+      "Bluetooth Core Vol 4, Part E, 7.3.35 defines no Command Complete or Command Status response for this command."
     ],
     "not_claimed": [
-      "a root cause in QEMU HLI delivery, firmware NimBLE, or Bumble without further HCI transaction tracing",
       "physical RF, bit-exact ESP32 BT controller/baseband or controller firmware equivalence",
-      "multi-hour coexistence or hardware validation"
+      "multi-hour coexistence or hardware validation",
+      "pairing, security or encrypted reconnect"
     ],
     "next_checks": [
-      "Capture H2C/C2H command and event pairs around the disconnect event and the first failing host command.",
-      "Repeat disconnect without any guest re-advertise or reconnect attempt and classify whether NimBLE resets by itself.",
-      "Separate controller event ordering from Bumble Command Disallowed replies before changing guest or controller-hook code."
+      "Keep the corrected no-response handling under unit test.",
+      "Run repeated two-cycle leases and multi-cycle soak in the follow-up evidence."
     ]
+  },
+  "root_cause": {
+    "component": "external Bumble controller compatibility layer",
+    "invalid_reply_opcode": "0x0c35",
+    "next_affected_command": "0x2008",
+    "nimble_error": 12,
+    "fix": "return no HCI event for HCI_Host_Number_of_Completed_Packets"
   },
   "reproduction": {
     "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",

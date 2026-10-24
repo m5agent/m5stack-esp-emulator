@@ -27,6 +27,10 @@ This patch adds the first QEMU-side slice of `CORE2-01`:
   calls and defers HLI allocator/callback injection until the target vCPU is
   halted/idle, preventing nested guest execution from a cache-disabled WiFi
   or controller context.
+- `0006` adds opt-in H4 packet tracing, HCI command/reset/advertising trace
+  counters, HLI deferred-delivery counters and connection/L2CAP/GATT pool
+  counters. Packet tracing is enabled only by
+  `M5_CORE2_HCI_PACKET_TRACE=1`.
 
 The optional poller captures guest H2C packets from real VHCI shared memory
 without GDB. `HCI-3a` now delivers a controller event through the firmware's
@@ -53,6 +57,7 @@ git apply /path/to/patches/qemu-core2-native-hci/0002-esp32-native-hci-hli-event
 git apply /path/to/patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch
 git apply /path/to/patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch
 git apply /path/to/patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-call-sregs.patch
+git apply /path/to/patches/qemu-core2-native-hci/0006-esp32-native-hci-observability.patch
 ninja -C build qemu-system-xtensa
 python3 tests/uiflow2/core2_native_hci/test_transport.py
 python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \

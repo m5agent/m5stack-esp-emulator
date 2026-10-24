@@ -107,6 +107,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | 入口 | 负责范围 | 何时运行 |
 | --- | --- | --- |
 | `platform/tests/` | Python API/契约与 Node SHA256/upload client 测试 | 每次代码改动 |
+| `platform/tests/test_ble_probe.py` | Bumble no-response HCI compatibility 回归 | `ble_probe.py` controller compatibility 改动 |
 | `tests/uiflow2/run_device_matrix.py` | 设备首帧、输入、烧录和板型 smoke | 设备/固件 profile 改动 |
 | `tests/uiflow2/run_profile_ui_test.py` | 单 profile UI 回归开发 | 显示/输入改动 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
@@ -287,7 +288,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 60-second hold | `run_service_5x.py --hold-seconds 60`；`evidence-2026-10-24-hci4-hold60-3x.json` | 3 个独立 lease `3/3`；BLE peer 正常关闭后设备保持 running，HLI errors 与队列深度为零 |
 | Core2 120-second hold | `run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-hold120-2x.json` | 2 个独立 lease `2/2`；每轮 frame/QOM、WiFi、公网、NUS GATT、pcap、evidence 和 HLI health 均 PASS，peer-close queue-full 尾态单独分类 |
 | Core2 active-BLE 120-second hold | `run_service_5x.py --hold-seconds 120` + `network.ble_linger_seconds=180`；`evidence-2026-10-24-hci4-active-ble-hold120-2x.json` | 2 个独立 lease `2/2`；peer 在 hold 完成时仍连接，`peer-closed=0`、TX queue 和 last error 均为 0 |
-| Core2 same-guest reconnect boundary | `run_service_5x.py --ble-reconnect-cycles 2`；`ble_probe.py --reconnect-cycles`；`evidence-2026-10-24-reconnect2-fail.json` | 第一轮 GATT PASS；disconnect 后无论 guest 是否 schedule re-advertise 都出现 `ack 12`/HCI reset，第二轮 advertisement timeout；当前只作为 FAIL 分类和后续 HCI transaction tracing 入口 |
+| Core2 same-guest reconnect | `run_service_5x.py --ble-reconnect-cycles 2`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`0006-esp32-native-hci-observability.patch`；`evidence-2026-10-24-hci4-reconnect2-3x.json` | 3 个独立 stock-firmware lease 均完成两轮 scan/connect/NUS GATT/disconnect；历史 `ack 12` 已定位到 Bumble 对无响应 `0x0c35` 的非法 Command Status，修正后 reset trace 为 0 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | Firmware redacted review | `tests/firmware/evidence-2026-10-23-static-review.json` | URL/访问凭据脱敏、高熵块指纹、SBOM 和真实公开固件 round-trip |

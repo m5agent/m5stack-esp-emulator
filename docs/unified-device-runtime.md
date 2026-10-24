@@ -45,15 +45,17 @@ complete simulated device or as a unified-device PASS.
   restoration. `0005` fixes both; two independent `5×10s` batches pass
   `10/10`, three independent `60s` holds pass `3/3`, and two independent
   `120s` holds pass `2/2`, with zero HLI errors and empty queues. This is not
-  a multi-hour soak, repeated in-guest reconnect or physical cache/PSRAM proof.
+  a multi-hour soak, more than two reconnect cycles or physical cache/PSRAM proof.
   A further two `120s` holds keep the BLE peer connected for the full hold,
   with `peer-closed=0`, zero TX queue depth and no last error.
-- Same-guest reconnect remains `FAIL`. A two-cycle peer workload completes
-  cycle 1 and disconnects, after which the guest repeatedly logs
-  `NimBLE: HCI process ack returned 12`, resets HCI and never advertises for
-  cycle 2. The stock unmodified guest reproduces without the test-only
-  re-advertise call. Active-link hold and reconnect are separate acceptance
-  gates.
+- Same-guest reconnect is **PASS** for two cycles. The historical failure was
+  caused by the Bumble compatibility layer returning a forbidden Command
+  Status for `HCI_Host_Number_of_Completed_Packets (0x0c35)`; the next
+  `LE Set Advertising Data (0x2008)` consumed the stale ACK and received
+  `BLE_HS_ECONTROLLER (12)`. Three independent stock-firmware leases now
+  complete two NUS GATT cycles with guest RX and notification in cycle 2,
+  zero reset traces and balanced HLI queues. Active-link hold and reconnect
+  remain separate gates, but both now pass.
 - Current blockers, not historical explanations, are owned by
   [project status](project-status.md) and [Backlog](project-backlog.md). The
   device bullets below preserve implementation evidence and must not be read
@@ -147,7 +149,7 @@ complete simulated device or as a unified-device PASS.
   A separate HCI-offload build also routes NimBLE's H4 traffic through QEMU
   UART1 to Bumble and passes external scan/connect/NUS write/notify 5/5.
   The remaining boundary is a bit-exact classic ESP32 controller/baseband,
-  physical cache/PSRAM equivalence, disconnect/HCI lifecycle, repeated in-guest reconnect, multi-hour
+  physical cache/PSRAM equivalence, more than two reconnect cycles, multi-hour
   coexistence/soak and hardware, not UIFlow2 API or Device Service integration.
 - The replacement QEMU native-HCI path has passed the staged gates:
   `HCI-1` host transport passes, `HCI-2` captures the first stock Reset
@@ -223,10 +225,10 @@ HLI/API-boundary hooks and Bumble, with no GDB bridge, and passed five
   independent leases. The legacy `core2-native-vhci` profile uses a GDB bridge
   and is diagnostic only. Two independent `5×10s` batches, three `60s` holds,
   two `120s` holds, plus two active-BLE `120s` holds pass with
-  `hli-errors=0` and empty queues. Core2 still
-  misses bit-exact controller/baseband, physical cache/PSRAM equivalence,
-  disconnect/HCI lifecycle, repeated in-guest reconnect, multi-hour
-  coexistence and hardware validation.
+  `hli-errors=0` and empty queues. Three independent leases also complete two
+  reconnect cycles each. Core2 still misses bit-exact controller/baseband,
+  physical cache/PSRAM equivalence, more than two connection cycles,
+  multi-hour coexistence and hardware validation.
 StickS3 and Nesso N1 also pass public DNS and HTTP when their runners are
 started with `--require-public-network`; this does not imply TLS validation or
 stable access to arbitrary internet services. Core2 now includes public DNS

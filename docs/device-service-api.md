@@ -859,9 +859,11 @@ GATT lifecycle:
 }
 ```
 
-The stock Core2 guest currently returns aggregate `FAIL` for this request after
-cycle 1 with repeated NimBLE `ack 12`/HCI reset and no second advertisement.
-The fields describe the peer workload; they do not imply guest support.
+The stock Core2 guest passes two cycles in three independent leases. The former
+failure was a stale ACK caused by the Bumble compatibility layer returning
+Command Status for the no-response
+`HCI_Host_Number_of_Completed_Packets (0x0c35)` command. The fields still
+describe the peer workload and must be verified per firmware/runtime.
 
 The legacy `core2-native-vhci` profile remains available for diagnosis:
 
@@ -1594,18 +1596,18 @@ restart.
   board/frame/QOM, WiFi/public network, pcap and evidence in five independent
   service leases without GDB. Two independent `5×10s` hold batches also pass
   `10/10`; three `60s` holds pass `3/3`, and two `120s` holds pass `2/2`,
-  with zero HLI errors and empty HLI/meta queues. This is still a two-minute
-  independent-lease gate rather than same-guest reconnect or multi-hour soak.
+  with zero HLI errors and empty HLI/meta queues. Three independent leases also
+  pass two same-guest reconnect cycles; this is still not a multi-hour soak.
   `network.ble_linger_seconds` can keep the external GATT peer connected
   beyond its initial exchange; two active-link `120s` holds pass `2/2` with
   `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`.
   `network.ble_reconnect_cycles` (1-10) asks one external peer process to run
   multiple complete scan/connect/GATT/disconnect cycles without restarting the
   guest; `network.ble_reconnect_delay_seconds` controls the pause before the
-  next scan. The primitive is available, but the stock Core2 guest currently
-  fails after the first disconnect with repeated NimBLE `ack 12`/HCI reset and
-  no second advertisement. This is tracked as `CORE2-02`, not as a reconnect
-  PASS;
+  next scan. Stock Core2 passes two complete cycles after the peer compatibility
+  layer stopped returning a response for no-response opcode `0x0c35`;
+  the historical failure and root cause remain in
+  `evidence-2026-10-24-reconnect2-fail.json`;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;

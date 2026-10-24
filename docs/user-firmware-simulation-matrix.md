@@ -81,8 +81,8 @@ response, serial digest and a bounded set of fatal error lines.
   and gates HLI allocation/callback injection to halted/idle vCPU state.
   Two independent `5×10s` batches pass `10/10`, three `60s` holds pass
   `3/3`, two `120s` holds pass `2/2`, and two active-BLE `120s` holds pass
-  `2/2`, with zero HLI errors and empty HLI/meta queues. Bit-exact Espressif
-  BT controller behavior, physical
-  cache/PSRAM equivalence, same-guest reconnect, multi-hour coexistence/soak
-  and hardware
-  validation remain `NOT RUN`.
+  `2/2`, with zero HLI errors and empty HLI/meta queues. Three independent
+  stock-firmware leases also complete two same-guest reconnect cycles. Bit-exact
+  Espressif BT controller behavior, physical cache/PSRAM equivalence, more than
+  two reconnect cycles, multi-hour coexistence/soak and hardware validation
+  remain `NOT RUN`.

@@ -37,6 +37,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "docs/network-lane.md",
             "docs/core2-native-hci-backend.md",
             "platform/README.md",
+            "platform/tests/test_ble_probe.py",
             "tests/uiflow2/README.md",
             "tests/uiflow2/core2_native_vhci/README.md",
             "tests/uiflow2/core2_native_hci/README.md",
@@ -64,12 +65,14 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch",
             "patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch",
             "patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-call-sregs.patch",
+            "patches/qemu-core2-native-hci/0006-esp32-native-hci-observability.patch",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
@@ -297,8 +300,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "HLI 尚未投递真实 controller event",
             "but no real HCI event or ACL packet was delivered",
             "同 guest 重连已通过",
-            "same-guest reconnect is PASS",
             "repeated in-guest reconnect PASS",
+            "same-guest disconnect lifecycle fails before re-advertising",
+            "The stock Core2 guest currently returns aggregate `FAIL`",
+            "stock guest reproduces without the test-only re-advertise call",
         ):
             self.assertNotIn(stale, active)
 
@@ -1312,20 +1317,50 @@ class DocsConsistencyTests(unittest.TestCase):
             reconnect_fail["validation"],
             "virtual-device validation",
         )
-        self.assertEqual(len(reconnect_fail["variants"]), 2)
+        self.assertEqual(len(reconnect_fail["variants"]), 3)
         self.assertTrue(
             all(
                 variant["requested_reconnect_cycles"] == 2
                 and variant["observed"]["cycle_1"] == "PASS"
                 and variant["observed"]["cycle_2_advertisement"] == "TIMEOUT"
                 and not variant["observed"]["guest_panic"]
-                and variant["observed"]["serial_error_marker_count"] > 0
                 for variant in reconnect_fail["variants"]
             )
         )
         self.assertEqual(
+            reconnect_fail["variants"][2]["observed"][
+                "serial_error_marker_count"
+            ],
+            0,
+        )
+        self.assertEqual(
             reconnect_fail["classification"]["result"],
-            "same-guest disconnect lifecycle fails before re-advertising",
+            "Bumble returned an invalid response for a no-response HCI command",
+        )
+        self.assertEqual(
+            reconnect_fail["root_cause"]["invalid_reply_opcode"],
+            "0x0c35",
+        )
+        reconnect_pass = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-24-hci4-reconnect2-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(reconnect_pass["status"], "PASS")
+        self.assertEqual(reconnect_pass["ble_reconnect_cycles"], 2)
+        self.assertEqual(reconnect_pass["attempts_passed"], 3)
+        self.assertTrue(
+            all(
+                run["status"] == "PASS"
+                and run["native_hci_health"]["trace-hs-sched-reset"] == 0
+                and run["native_hci_health"]["trace-gap-adv-start"] == 2
+                and run["native_hci_health"]["hli-errors"] == 0
+                and run["native_hci_health"]["hli-queue-depth"] == 0
+                and run["native_hci_health"]["meta-queue-depth"] == 0
+                for run in reconnect_pass["runs"]
+            )
         )
         wifi_repeat = json.loads(
             (
@@ -1362,8 +1397,9 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("CORE2-02", workstreams)
         self.assertIn("extended-run", workstreams)
         self.assertIn("same-guest reconnect", status)
-        self.assertIn("ack 12", backlog)
+        self.assertIn("0x0c35", backlog)
         self.assertIn("reconnect2-fail.json", ledger)
+        self.assertIn("hci4-reconnect2-3x.json", ledger)
         self.assertIn(
             "ble_reconnect_cycles",
             (DOCS / "device-service-api.md").read_text(),

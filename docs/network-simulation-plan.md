@@ -32,7 +32,7 @@ Device Service lease
 | S3/C6 unified | 11 个设备 profile 在单 guest 中完成板级、WiFi scan/association/DHCP/HTTP 和外部 HCI-UART BLE GATT | 固定开放 AP；不是完整 PHY/RF，也不覆盖 WPA2/WPA3 |
 | Core2 unified | OpenMAC WiFi、DHCP、受控 HTTP、公网 DNS/HTTP、UART1 HCI-offload BLE 和板级外设同一 guest；确定性 TCG/icount 10/10 首轮 | 环境门控；物理 cache/PSRAM 和 RF 未验；native-HCI 短时 extended-run 已 PASS |
 | Core2 stock BLE（legacy） | 不重建 HCI-UART，在 GDB 中介的 `esp_vhci_host_*` 边界接 Bumble；外部 NUS GATT 5/5，同 guest board+WiFi+公网+GATT 3/3 | 仅用于诊断/兼容；repeated lease `1/2`，不是 bit-exact BT baseband/controller |
-| Core2 QEMU native-HCI | `HCI-1` 至 `HCI-4` PASS；`0005` halt-gated guest call 后两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；第一轮 GATT、active-BLE 120 秒 hold 通过，disconnect 后二次连接 `FAIL` | `core2-native-hci` 无 GDB bridge，同包验证 frame/QOM/WiFi/公网/GATT/pcap 与 HLI health；disconnect 后持续 `ack 12`/HCI reset，bit-exact controller、同 guest 重连、多小时 soak 和物理 cache/PSRAM 仍开放 |
+| Core2 QEMU native-HCI | `HCI-1` 至 `HCI-4` PASS；`0005` halt-gated guest call 后两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；active-BLE 120 秒 hold 和 3 个双轮 GATT lease 均 PASS | `core2-native-hci` 无 GDB bridge，同包验证 frame/QOM/WiFi/公网/GATT/pcap 与 HLI health；reconnect blocker 已定位到 Bumble 对无响应 `0x0c35` 的非法 Command Status 并修正；bit-exact controller、更多连接轮次、多小时 soak 和物理 cache/PSRAM 仍开放 |
 | Device Service | `qemu-unified/profile=core2-native-hci` 五 lease PASS | 每轮均绑定同一固件/ELF/QEMU SHA 和完整 evidence ZIP |
 | 公网 | StickS3、Nesso N1 和 Core2 在对应同 guest 路径完成 IPv4 DNS/HTTP | 只证明一次可达的 IPv4 HTTP；不证明任意云服务、TLS 固定或长期稳定 |
 | 负向认证 | 错误密码要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker 同时成立 | 当前实际 AP 类型有限 |
@@ -83,9 +83,8 @@ Device Service lease
 - 外部 IPv6、CIDR 或域名到多个 IP 的 egress policy；
 - Tab5 P4↔C6 ESP-Hosted 端到端网络；
 - Core2 bit-exact BT controller/baseband、物理 cache/PSRAM、
-  RF/coexistence/throughput；two-minute halt-gated extended-run 已通过，但
-  disconnect 后同一 guest 的第二次连接仍触发 `ack 12`/HCI reset，不能推导
-  重复重连或多小时 soak；
+  RF/coexistence/throughput 和多小时 soak；two-minute halt-gated
+  extended-run 与双轮 reconnect 已通过，但仍不能推导更多连接轮次；
 - 基于一次网络观测判定固件安全。
 
 QEMU S3/C6 模型覆盖 guest 可见的 MAC、DMA descriptor、interrupt 和
@@ -98,7 +97,7 @@ OpenMAC 和 BT boundary 同样是功能级模型；PHY-ready 日志不等于应�
 | --- | --- | --- |
 | 9 台 ESP32-S3 | QEMU S3 WiFi MAC/DMA + board model + UART1/2 H4 BLE | Unified Device Service lease PASS |
 | NanoC6、Nesso N1 | QEMU C6 WiFi MAC/DMA + board model + UART1 H4 BLE | Unified Device Service lease PASS |
-| Core2 | OpenMAC WiFi；HCI-offload、legacy VHCI 或 canonical native-HCI | `core2-native-hci` 五 lease 与 hold PASS 且无 GDB；同一 guest 二次连接 `FAIL`；`core2-native-vhci` 仅诊断 |
+| Core2 | OpenMAC WiFi；HCI-offload、legacy VHCI 或 canonical native-HCI | `core2-native-hci` 五 lease、hold 和双轮 reconnect PASS 且无 GDB；`core2-native-vhci` 仅诊断 |
 | Tab5 | C6 ESP-Hosted transport | Transport starts; end-to-end network `NOT RUN` |
 | CardputerZero | Linux SR9900A Ethernet | Separate backend; not WiFi |
 
@@ -174,7 +173,7 @@ primitive，用于在没有 QEMU 的 CI 中检查 namespace、nftables、DHCP re
 | N4a Linux policy CI | DONE | GitHub-hosted namespace/nft/egress fixture 保持 fail-closed 并可重复 |
 | N4b 双设备 fabric | DONE (virtual) | 两台 StickS3 的 DHCP、guest TCP、双侧 pcap、宿主隔离与清理已通过；下一步接入 worker |
 | N4c durable queue/lease supervisor | DONE (contract/API) | 幂等 submit、capability claim、lease、expiry retry、cancel/result、worker stale/stop/generation 回收；authenticated 同主机 HTTP executor 已运行真实 QEMU job；跨主机 TLS/mTLS/rotation、companion/evidence continuity 仍开放 |
-| N5 Core2 production BLE/PHY | PARTIAL | `HCI-4`、首轮 GATT、active hold 已通过；disconnect 后二次连接 `FAIL`，先关闭 HCI command lifecycle，再处理多小时 soak、bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
+| N5 Core2 production BLE/PHY | PARTIAL | `HCI-4`、active hold 和双轮 reconnect 已通过；继续扩展连接轮次与多小时 soak，再处理 bit-exact controller/baseband、物理 cache/PSRAM、coexistence 和真机 |
 | N6 单实例产品契约 | S3/C6/Core2 slices PASS | 扩大固件覆盖并补真机同路径 |
 
 虚拟 radio/AP 丢失恢复和双设备 private lab fabric 已完成，远程 worker

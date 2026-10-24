@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import struct
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -32,6 +33,7 @@ CORE2_NATIVE_HCI_SYMBOLS = (
     "g_rw_schd_queue",
     "s_meta_queue_ptr",
     "ble_hs_conns",
+    "ble_hs_conn_ctx",
     "ble_transport_alloc_evt",
     "ble_transport_to_hs_evt_impl",
     "ble_transport_alloc_acl_from_ll",
@@ -42,6 +44,10 @@ CORE2_NATIVE_HCI_SYMBOLS = (
     "btdm_task_recycle",
     "r_rw_schedule",
     "ble_hs_hci_evt_acl_process",
+    "ble_hs_hci_cmd_tx",
+    "ble_hs_sched_reset",
+    "ble_gap_adv_start",
+    "ble_gap_adv_stop",
     "ble_l2cap_rx",
     "ble_att_rx",
     "ble_att_svr_rx_write",
@@ -53,6 +59,10 @@ CORE2_NATIVE_HCI_SYMBOLS = (
     "mp_bluetooth_gatts_notify_indicate",
     "ble_gatts_notify",
 )
+CORE2_NATIVE_HCI_DERIVED_POOL_SLOTS = {
+    "l2cap": 0x3FFCB3EC,
+    "gatts": 0x3FFCB3F8,
+}
 
 
 class ElfSymbolError(ValueError):
@@ -289,17 +299,29 @@ def core2_native_hci_device_args(path: Path) -> str:
     def address(name: str, offset: int = 0) -> str:
         return f"0x{symbols[name].value + offset:08x}"
 
+    packet_trace = (
+        "hci-packet-trace=on,hci-trace-limit=512,"
+        if os.environ.get("M5_CORE2_HCI_PACKET_TRACE") == "1"
+        else ""
+    )
+
     return (
         "esp32-native-hci,chardev=hci,"
         f"env-pointer-address={address('vhci_env_p')},"
         f"c2h-allocator-address={address('malloc')},"
         "c2h-scratch-size=2048,"
         "hli-c2h=on,"
+        f"{packet_trace}"
         f"api-vhci-send-hook-pc={address('esp_vhci_host_send_packet', 0x35)},"
         f"api-vhci-send-return-pc={address('esp_vhci_host_send_packet', 0x38)},"
         f"scheduler-queue-address={address('g_rw_schd_queue')},"
         f"meta-queue-pointer-address={address('s_meta_queue_ptr')},"
         f"trace-hs-conns-address={address('ble_hs_conns')},"
+        f"ble-hs-conn-ctx-address={address('ble_hs_conn_ctx')},"
+        "ble-l2cap-pool-slot-address="
+        f"0x{CORE2_NATIVE_HCI_DERIVED_POOL_SLOTS['l2cap']:08x},"
+        "ble-gatts-pool-slot-address="
+        f"0x{CORE2_NATIVE_HCI_DERIVED_POOL_SLOTS['gatts']:08x},"
         f"hli-event-allocator-address={address('ble_transport_alloc_evt')},"
         f"hli-test-callback={address('ble_transport_to_hs_evt_impl')},"
         "hli-event-buffer-size=256,"
@@ -316,6 +338,10 @@ def core2_native_hci_device_args(path: Path) -> str:
         f"acl-semaphore-hook-pc={address('ble_hci_trans_hs_cmd_tx', 0x79)},"
         f"acl-semaphore-return-pc={address('ble_hci_trans_hs_cmd_tx', 0x7c)},"
         f"trace-acl-process-pc={address('ble_hs_hci_evt_acl_process')},"
+        f"trace-hci-cmd-tx-pc={address('ble_hs_hci_cmd_tx')},"
+        f"trace-hs-sched-reset-pc={address('ble_hs_sched_reset')},"
+        f"trace-gap-adv-start-pc={address('ble_gap_adv_start')},"
+        f"trace-gap-adv-stop-pc={address('ble_gap_adv_stop')},"
         f"trace-l2cap-rx-pc={address('ble_l2cap_rx')},"
         f"trace-l2cap-incomplete-pc={address('ble_l2cap_rx', 0xfc)},"
         f"trace-l2cap-chan-found-pc={address('ble_l2cap_rx', 0x101)},"

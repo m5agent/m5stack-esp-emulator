@@ -17,7 +17,8 @@ QEMU 内部实现路线。当前能力结论仍以
 | `HCI-3b` HLI event | `PASS` | `0002-esp32-native-hci-hli-event.patch`、`test_hli_event.py` | guest 池分配真实 Reset Complete，经 HLI event 13 和 `ble_transport_to_hs_evt_impl` 交付；`01030c00 → 01011000` 连续 `5/5` |
 | `HCI-3b` full transaction | `PASS` | `0003-esp32-native-hci-api-transaction.patch`、`0004-xtensa-ccount-tb-yield.patch`、`run_full.py --hli-c2h` | 无 GDB 完成 scan/connect/NUS discovery/subscribe/write/notify 和 Bumble ACK；合法 loader 为 15-byte probe / 17-byte ATT PDU，连续 `5/5` |
 | `HCI-4` stability | `PASS` | `run_service_5x.py`、`evidence-2026-10-24-hci4-service-5x.json` | 规范 profile `core2-native-hci` 通过五个独立 `/api/v1` lease；每轮同时验证 frame、QOM、WiFi/公网、外部 NUS GATT、pcap 和 evidence ZIP，且 `gdb_bridge=false` |
-| `CORE2-02` extended run | `PARTIAL` | `0005-esp32-native-hci-guest-call-sregs.patch`、`run_service_5x.py --hold-seconds`、`run_service_5x.py --ble-reconnect-cycles`、`evidence-2026-10-24-hci4-halted-gate-5x.json`、`evidence-2026-10-24-hci4-hold60-3x.json`、`evidence-2026-10-24-hci4-hold120-2x.json`、`evidence-2026-10-24-hci4-active-ble-hold120-2x.json`、`evidence-2026-10-24-reconnect2-fail.json` | caller-saved sregs 与 halted/idle gate 后，两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `120s` hold 已通过，每轮 HLI health 零错误；同一 guest 第一轮 GATT 后 disconnect 会触发 `ack 12`/HCI reset，第二轮连接 `FAIL`，因此 extended-run/lifecycle 整体不能标为完成 |
+| `CORE2-02` extended run | `PASS` | `0005-esp32-native-hci-guest-call-sregs.patch`、`evidence-2026-10-24-hci4-halted-gate-5x.json`、`evidence-2026-10-24-hci4-hold60-3x.json`、`evidence-2026-10-24-hci4-hold120-2x.json`、`evidence-2026-10-24-hci4-active-ble-hold120-2x.json` | caller-saved sregs 与 halted/idle gate 后，两批 `5×10s`、3 个 `60s`、2 个 `120s` 和 2 个 active-BLE `120s` hold 已通过，每轮 HLI health 零错误 |
+| `CORE2-02` same-guest reconnect | `PASS` | `run_service_5x.py --ble-reconnect-cycles 2`、`0006-esp32-native-hci-observability.patch`、`evidence-2026-10-24-hci4-reconnect2-3x.json` | 修正 Bumble 对无响应 `0x0c35` 的非法 Command Status 后，3 个独立 lease 均完成两轮 scan/connect/NUS GATT/disconnect，第二轮 guest RX 与 notification PASS；`trace-hs-sched-reset=0`、HLI 73/73 清空 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -28,7 +29,9 @@ probe 后完整外部 NUS GATT 连续 `5/5`。`HCI-4` 随后让 Device Service
 cache/PSRAM 仍是独立边界。`CORE2-02` 随后修复 nested guest-call 上下文：
 恢复 caller-saved Xtensa 特殊寄存器，并只在 halted/idle vCPU 注入 HLI
 allocator/callback；两次独立 5×10 秒 hold 运行合计 `10/10`，随后
-3 个 60 秒 hold 运行 `3/3`，2 个 120 秒 hold 运行 `2/2`。
+3 个 60 秒 hold 运行 `3/3`，2 个 120 秒 hold 运行 `2/2`。随后 3 个
+独立 lease 又各自通过两轮 GATT reconnect；历史 `ack 12` 已定位到外部
+Bumble 对无响应 `0x0c35` 的非法回复。
 
 ## 结论先行
 
@@ -425,44 +428,52 @@ active hold 只覆盖一条连接不断开；它不能证明 disconnect 后还�
 #### 同一 guest 的 disconnect/reconnect 边界
 
 `run_service_5x.py --ble-reconnect-cycles 2` 会要求同一个外部 peer 完成两轮
-完整的 scan/connect/NUS subscribe/write/notify/disconnect。当前结果是：
+完整的 scan/connect/NUS subscribe/write/notify/disconnect。执行顺序是：
 
-- 第一轮完整 PASS；
-- first-cycle disconnect 后，guest 连续输出
-  `NimBLE: HCI process ack returned 12`；
-- 随后进入 HCI reset 循环，第二轮 advertisement timeout；
-- 未出现 guest panic；
-- 测试固件是否在 disconnect 后 500 ms 调用 `gap_advertise()` 不影响结果。
-  stock guest 也出现同样的 `ack 12` reset 循环，因此不能把问题归因于新增的
-  重广告调用本身。
+- 先仅保留第一轮，确认 disconnect 本身不会让 NimBLE reset；
+- 再开启外部 peer 的第二个 cycle；
+- 检查第二轮是否重新收到 advertisement、完成 NUS write/notify，并确认
+  HLI、TX/RX 和连接池健康。
 
-证据：
-`tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json`。
-该 JSON 记录两个固件 SHA、ELF/QEMU SHA、serial/peer log hash、第一轮 GATT
-结果和两轮扫描结论。当前下一检查项是抓取 disconnect 前后的 H2C/C2H
-command/event 配对，确认 `0x0c` Command Disallowed 来自哪条 host command、
-NimBLE 何时 reset，以及 QEMU HLI 是否重复/乱序投递 controller event。
+历史失败表现为 first-cycle disconnect 后连续
+`NimBLE: HCI process ack returned 12` 和 HCI reset。对照与 H2C/C2H trace
+最终确认：
 
-这一失败关闭的核心结论是：**首轮 active BLE、两分钟 hold 和同一 guest
-二次连接是三个不同门禁**，不能用一个 PASS 代替另外两个。
+- guest disconnect 事件正常经 HLI 交付；
+- connection、L2CAP 和 GATT pool 没有泄漏；
+- 外部 Bumble compatibility 层错误地为无响应的
+  `HCI_Host_Number_of_Completed_Packets (0x0c35)` 返回 Command Status；
+- 下一条 `LE Set Advertising Data (0x2008)` 把这个 stale ACK 当自己的
+  acknowledgement，`ble_hs_hci_process_ack` 因 opcode mismatch 返回
+  `BLE_HS_ECONTROLLER (12)`，随后 NimBLE reset。
 
-这关闭的是当前“非 halted 上下文注入导致 extended-run 崩溃”门禁，不表示
-物理 cache/PSRAM 时序、同 guest 重复重连、多小时 coexistence、bit-exact
-controller 或真机已经等价。后续长稳应继续扩大 hold 时长和连接/Socket
-生命周期覆盖。
+修正后，stock Core2 固件在 3 个独立 `/api/v1` lease 中都完成两轮
+NUS GATT；每轮 frame/QOM、WiFi、公网、pcap、evidence 和 HLI health PASS。
+第二轮 guest RX 与 notification 均成立，`trace-hs-sched-reset=0`、
+`trace-gap-adv-start=2`、HLI posts/consumed 为 `73/73`。
+
+- 成功证据：
+  `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect2-3x.json`
+- 历史失败与根因：
+  `tests/uiflow2/core2_native_hci/evidence-2026-10-24-reconnect2-fail.json`
+
+双轮 reconnect 关闭的是同 guest 连接生命周期门禁，不表示物理 cache/PSRAM、
+bit-exact controller、多小时 coexistence 或真机已经等价。后续长稳仍需扩大
+连接轮次与 hold 时长。
 
 ## 剩余工作量
 
 下面是当前阶段之后的重新估算，不包含已经完成的 HCI-1、HCI-2、
 HCI-3a、HLI event/ACL、`HCI-3b` 完整外部 NUS GATT 和 `HCI-4`
-Device Service repeated lease；`CORE2-02` 的短时 extended-run 门禁已 PASS：
+Device Service repeated lease；`CORE2-02` 的短时 extended-run 和双轮
+reconnect 门禁已 PASS：
 
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
-- disconnect/HCI command lifecycle、物理 cache/PSRAM 等价性、长期
-  coexistence/soak 和真机路径需要独立
+- 物理 cache/PSRAM 等价性、更多连接轮次、长期 coexistence/soak 和真机
+  路径需要独立
   计划，不能由当前 `5×10s` / `3×60s` / `2×120s` 重复门禁推导；当前
   PASS 覆盖 halt-gated guest 注入、最多两分钟的独立 lease 生命周期和
-  active BLE 共存；不覆盖同 guest 重复重连或多小时 soak。
+  active BLE 共存和双轮 reconnect；不覆盖更多连接轮次或多小时 soak。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

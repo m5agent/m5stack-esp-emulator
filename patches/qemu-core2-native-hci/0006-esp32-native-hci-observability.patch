@@ -1,0 +1,482 @@
+--- a/target/xtensa/cpu.h
++++ b/target/xtensa/cpu.h
+@@ -309,7 +309,7 @@
+ typedef struct CPUArchState CPUXtensaState;
+ typedef bool (*XtensaNativeHciSendCallback)(void *opaque, CPUState *cs,
+                                             uint32_t data, uint32_t length);
+-#define XTENSA_NATIVE_HCI_TRACE_SLOTS 15
++#define XTENSA_NATIVE_HCI_TRACE_SLOTS 19
+ typedef void (*XtensaNativeHciTraceCallback)(
+     void *opaque, CPUState *cs, uint32_t pc,
+     uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);
+--- a/include/hw/xtensa/esp32_native_hci.h
++++ b/include/hw/xtensa/esp32_native_hci.h
+@@ -21,7 +21,7 @@
+ #define ESP32_NATIVE_HCI_QUEUE_DEPTH 32
+ #define ESP32_NATIVE_HCI_PACKET_MAX 2048
+ #define ESP32_NATIVE_HCI_RX_BUFFER_SIZE 8192
+-#define ESP32_NATIVE_HCI_TRACE_SLOTS 15
++#define ESP32_NATIVE_HCI_TRACE_SLOTS 19
+ 
+ typedef struct Esp32NativeHciPacket {
+     uint16_t length;
+@@ -57,6 +57,9 @@
+     uint64_t scheduler_queue_address;
+     uint64_t meta_queue_pointer_address;
+     uint64_t trace_hs_conns_address;
++    uint64_t ble_hs_conn_ctx_address;
++    uint64_t ble_l2cap_pool_slot_address;
++    uint64_t ble_gatts_pool_slot_address;
+     uint64_t api_vhci_send_hook_pc;
+     uint64_t api_vhci_send_return_pc;
+     uint64_t cmd_semaphore_hook_pc;
+@@ -78,6 +81,10 @@
+     uint64_t hli_test_callback;
+     uint64_t hli_test_argument;
+     uint64_t trace_acl_process_pc;
++    uint64_t trace_hci_cmd_tx_pc;
++    uint64_t trace_hs_sched_reset_pc;
++    uint64_t trace_gap_adv_start_pc;
++    uint64_t trace_gap_adv_stop_pc;
+     uint64_t trace_l2cap_rx_pc;
+     uint64_t trace_l2cap_incomplete_pc;
+     uint64_t trace_l2cap_chan_found_pc;
+@@ -105,6 +112,7 @@
+     uint32_t hli_descriptor_pool_size;
+     uint32_t hli_descriptor_cursor;
+     uint32_t api_h2c_credits;
++    uint32_t hci_trace_limit;
+     uint32_t hli_event_buffer_size;
+     uint32_t hli_event_length;
+     uint32_t c2h_last_status;
+@@ -127,6 +135,13 @@
+     uint32_t meta_queue_begin;
+     uint32_t meta_queue_end;
+     uint32_t meta_queue_depth;
++    uint32_t hs_conns_head;
++    uint32_t conn_pool_free;
++    uint32_t conn_pool_valid;
++    uint32_t l2cap_pool_free;
++    uint32_t l2cap_pool_valid;
++    uint32_t gatts_pool_free;
++    uint32_t gatts_pool_valid;
+     uint32_t hli_post_end;
+     uint32_t hli_valid;
+     bool hli_c2h;
+@@ -138,6 +153,7 @@
+     bool hli_post_pending;
+     bool hli_send_available_pending;
+     bool sleep_disabled;
++    bool hci_packet_trace;
+ 
+     uint64_t rx_bytes;
+     uint64_t rx_packets;
+@@ -168,7 +184,14 @@
+     uint64_t tx_retry_count;
+     uint64_t tx_zero_writes;
+     uint64_t hli_errors;
++    uint64_t hli_deferred_not_halted;
++    uint64_t hci_trace_packets;
++    uint64_t api_send_trace_packets;
+     uint64_t trace_acl_process;
++    uint64_t trace_hci_cmd_tx;
++    uint64_t trace_hs_sched_reset;
++    uint64_t trace_gap_adv_start;
++    uint64_t trace_gap_adv_stop;
+     uint64_t trace_l2cap_rx;
+     uint64_t trace_l2cap_incomplete;
+     uint64_t trace_l2cap_chan_found;
+--- a/hw/xtensa/esp32_native_hci.c
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -76,6 +76,13 @@
+         uint64_t *counter;
+     } traces[] = {
+         {"acl_process", s->trace_acl_process_pc, &s->trace_acl_process},
++        {"hci_cmd_tx", s->trace_hci_cmd_tx_pc, &s->trace_hci_cmd_tx},
++        {"hs_sched_reset", s->trace_hs_sched_reset_pc,
++         &s->trace_hs_sched_reset},
++        {"gap_adv_start", s->trace_gap_adv_start_pc,
++         &s->trace_gap_adv_start},
++        {"gap_adv_stop", s->trace_gap_adv_stop_pc,
++         &s->trace_gap_adv_stop},
+         {"l2cap_rx", s->trace_l2cap_rx_pc, &s->trace_l2cap_rx},
+         {"l2cap_incomplete", s->trace_l2cap_incomplete_pc,
+          &s->trace_l2cap_incomplete},
+@@ -110,10 +117,11 @@
+         fprintf(stderr,
+                 "esp32-native-hci-trace name=%s t=%" PRId64
+                 " pc=0x%08x cpu=%d a2=0x%08x a3=0x%08x"
+-                " a4=0x%08x a5=0x%08x\n",
++                " a4=0x%08x a5=0x%08x a0=0x%08x a1=0x%08x\n",
+                 traces[i].name,
+                 qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
+-                pc, cs->cpu_index, a2, a3, a4, a5);
++                pc, cs->cpu_index, a2, a3, a4, a5,
++                cpu_env(cs)->regs[0], cpu_env(cs)->regs[1]);
+         if (strcmp(traces[i].name, "acl_process") == 0) {
+             uint32_t data_address = 0;
+             uint16_t data_length = 0;
+@@ -260,6 +268,38 @@
+     }
+ }
+ 
++static void esp32_native_hci_trace_packet(
++    Esp32NativeHciState *s,
++    const char *direction,
++    const uint8_t *data,
++    size_t length)
++{
++    uint8_t shown[64];
++    char hex[sizeof(shown) * 2 + 1] = {0};
++    size_t shown_size;
++    size_t index;
++
++    if (!s->hci_packet_trace ||
++        s->hci_trace_packets >= s->hci_trace_limit ||
++        !data ||
++        !length) {
++        return;
++    }
++    shown_size = MIN(length, sizeof(shown));
++    memcpy(shown, data, shown_size);
++    for (index = 0; index < shown_size; index++) {
++        snprintf(hex + index * 2, sizeof(hex) - index * 2,
++                 "%02x", shown[index]);
++    }
++    s->hci_trace_packets++;
++    fprintf(stderr,
++            "esp32-native-hci-packet t=%" PRId64
++            " direction=%s seq=%" PRIu64
++            " len=%zu shown=%zu hex=%s\n",
++            qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
++            direction, s->hci_trace_packets, length, shown_size, hex);
++}
++
+ static void consume_rx_buffer(Esp32NativeHciState *s)
+ {
+     while (s->rx_buffer_length) {
+@@ -291,6 +331,8 @@
+             packet = &s->rx_queue[tail];
+             packet->length = length;
+             memcpy(packet->data, s->rx_buffer, length);
++            esp32_native_hci_trace_packet(
++                s, "bumble-to-device", packet->data, packet->length);
+             s->rx_queue_count++;
+             s->rx_packets++;
+         }
+@@ -580,6 +622,7 @@
+ 
+     s->hli_scheduled = false;
+     if (!cs->halted) {
++        s->hli_deferred_not_halted++;
+         timer_mod(s->hli_timer,
+                   qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+                   ESP32_NATIVE_HCI_HLI_POLL_NS);
+@@ -605,6 +648,8 @@
+             return;
+         }
+         packet = &s->rx_queue[s->rx_queue_head];
++        esp32_native_hci_trace_packet(
++            s, "device-to-hli", packet->data, packet->length);
+         payload_length = packet->length - 1;
+         work_event = 13;
+         if (packet->data[0] == 0x04) {
+@@ -888,11 +933,84 @@
+     }
+ }
+ 
++static void esp32_native_hci_sample_ble_pools(Esp32NativeHciState *s)
++{
++    uint32_t conn_ctx = 0;
++    uint32_t l2cap_pool = 0;
++    uint32_t gatts_ctx = 0;
++    uint32_t gatts_pool = 0;
++    uint16_t pool_free = 0;
++
++    s->conn_pool_valid = false;
++    s->l2cap_pool_valid = false;
++    s->gatts_pool_valid = false;
++    s->hs_conns_head = 0;
++    s->conn_pool_free = 0;
++    s->l2cap_pool_free = 0;
++    s->gatts_pool_free = 0;
++    if (s->trace_hs_conns_address &&
++        address_space_read(
++            &address_space_memory, s->trace_hs_conns_address,
++            MEMTXATTRS_UNSPECIFIED, &s->hs_conns_head,
++            sizeof(s->hs_conns_head)) != MEMTX_OK) {
++        s->hs_conns_head = 0;
++    }
++    if (!s->ble_hs_conn_ctx_address ||
++        address_space_read(
++            &address_space_memory, s->ble_hs_conn_ctx_address,
++            MEMTXATTRS_UNSPECIFIED, &conn_ctx,
++            sizeof(conn_ctx)) != MEMTX_OK ||
++        !conn_ctx ||
++        address_space_read(
++            &address_space_memory, conn_ctx + 6,
++            MEMTXATTRS_UNSPECIFIED, &pool_free,
++            sizeof(pool_free)) != MEMTX_OK) {
++        return;
++    }
++    s->conn_pool_free = pool_free;
++    s->conn_pool_valid = true;
++
++    if (s->ble_l2cap_pool_slot_address &&
++        address_space_read(
++            &address_space_memory, s->ble_l2cap_pool_slot_address,
++            MEMTXATTRS_UNSPECIFIED, &l2cap_pool,
++            sizeof(l2cap_pool)) == MEMTX_OK &&
++        l2cap_pool &&
++        address_space_read(
++            &address_space_memory, l2cap_pool + 10,
++            MEMTXATTRS_UNSPECIFIED, &pool_free,
++            sizeof(pool_free)) == MEMTX_OK) {
++        s->l2cap_pool_free = pool_free;
++        s->l2cap_pool_valid = true;
++    }
++
++    if (s->ble_gatts_pool_slot_address &&
++        address_space_read(
++            &address_space_memory, s->ble_gatts_pool_slot_address,
++            MEMTXATTRS_UNSPECIFIED, &gatts_ctx,
++            sizeof(gatts_ctx)) == MEMTX_OK &&
++        gatts_ctx &&
++        address_space_read(
++            &address_space_memory, gatts_ctx + 52,
++            MEMTXATTRS_UNSPECIFIED, &gatts_pool,
++            sizeof(gatts_pool)) == MEMTX_OK) {
++        s->gatts_pool_valid = gatts_pool != 0;
++        if (s->gatts_pool_valid &&
++            address_space_read(
++                &address_space_memory, gatts_ctx + 22,
++                MEMTXATTRS_UNSPECIFIED, &pool_free,
++                sizeof(pool_free)) == MEMTX_OK) {
++            s->gatts_pool_free = pool_free;
++        }
++    }
++}
++
+ static void esp32_native_hci_hli_poll(void *opaque)
+ {
+     Esp32NativeHciState *s = opaque;
+ 
+     esp32_native_hci_observe_hli(s);
++    esp32_native_hci_sample_ble_pools(s);
+     esp32_native_hci_schedule_hli(s);
+     timer_mod(s->hli_timer,
+               qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+@@ -1390,6 +1508,7 @@
+     }
+     tail = (s->tx_queue_head + s->tx_queue_count) %
+            ESP32_NATIVE_HCI_QUEUE_DEPTH;
++    esp32_native_hci_trace_packet(s, "guest-to-bumble", data, size);
+     s->tx_queue[tail].length = size;
+     if (s->tx_queue_count == 0) {
+         s->tx_queue_offset = 0;
+@@ -1414,6 +1533,7 @@
+     uint32_t length)
+ {
+     Esp32NativeHciState *s = opaque;
++    CPUXtensaState *env = cpu_env(cs);
+     uint8_t packet[ESP32_NATIVE_HCI_PACKET_MAX];
+     size_t packet_length;
+     Error *error = NULL;
+@@ -1432,6 +1552,20 @@
+         s->last_error = ESP32_NATIVE_HCI_ERROR_MALFORMED;
+         return false;
+     }
++    if (s->hci_packet_trace &&
++        s->api_send_trace_packets < s->hci_trace_limit) {
++        uint16_t opcode = packet[0] == 0x01 && length >= 3 ?
++                          packet[1] | ((uint16_t)packet[2] << 8) : 0;
++        s->api_send_trace_packets++;
++        fprintf(stderr,
++                "esp32-native-hci-api-send t=%" PRId64
++                " seq=%" PRIu64 " cpu=%d pc=0x%08x a0=0x%08x"
++                " a1=0x%08x type=0x%02x op=0x%04x len=%u\n",
++                qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
++                s->api_send_trace_packets, cs->cpu_index,
++                env->pc, env->regs[0], env->regs[1],
++                packet[0], opcode, length);
++    }
+     if (!esp32_native_hci_send_h2c(s, packet, length, &error)) {
+         s->api_h2c_errors++;
+         qemu_log_mask(LOG_GUEST_ERROR,
+@@ -1490,34 +1624,42 @@
+                 ARRAY_SIZE(env->native_hci_trace_pcs) !=
+                 ESP32_NATIVE_HCI_TRACE_SLOTS);
+             env->native_hci_trace_pcs[0] =
+-                (uint32_t)s->trace_acl_process_pc;
++                (uint32_t)s->trace_hci_cmd_tx_pc;
+             env->native_hci_trace_pcs[1] =
+-                (uint32_t)s->trace_l2cap_rx_pc;
++                (uint32_t)s->trace_hs_sched_reset_pc;
+             env->native_hci_trace_pcs[2] =
+-                (uint32_t)s->trace_l2cap_incomplete_pc;
++                (uint32_t)s->trace_gap_adv_start_pc;
+             env->native_hci_trace_pcs[3] =
+-                (uint32_t)s->trace_l2cap_chan_found_pc;
++                (uint32_t)s->trace_gap_adv_stop_pc;
+             env->native_hci_trace_pcs[4] =
+-                (uint32_t)s->trace_l2cap_mtu_reject_pc;
++                (uint32_t)s->trace_acl_process_pc;
+             env->native_hci_trace_pcs[5] =
+-                (uint32_t)s->trace_l2cap_rxfn_pc;
++                (uint32_t)s->trace_l2cap_rx_pc;
+             env->native_hci_trace_pcs[6] =
+-                (uint32_t)s->trace_att_rx_pc;
++                (uint32_t)s->trace_l2cap_incomplete_pc;
+             env->native_hci_trace_pcs[7] =
+-                (uint32_t)s->trace_att_write_pc;
++                (uint32_t)s->trace_l2cap_chan_found_pc;
+             env->native_hci_trace_pcs[8] =
+-                (uint32_t)s->trace_att_write_no_rsp_pc;
++                (uint32_t)s->trace_l2cap_mtu_reject_pc;
+             env->native_hci_trace_pcs[9] =
+-                (uint32_t)s->trace_att_find_handle_pc;
++                (uint32_t)s->trace_l2cap_rxfn_pc;
+             env->native_hci_trace_pcs[10] =
+-                (uint32_t)s->trace_att_write_handle_pc;
++                (uint32_t)s->trace_att_rx_pc;
+             env->native_hci_trace_pcs[11] =
+-                (uint32_t)s->trace_python_gatts_on_write_pc;
++                (uint32_t)s->trace_att_write_pc;
+             env->native_hci_trace_pcs[12] =
+-                (uint32_t)s->trace_python_irq_pc;
++                (uint32_t)s->trace_att_write_no_rsp_pc;
+             env->native_hci_trace_pcs[13] =
+-                (uint32_t)s->trace_python_notify_pc;
++                (uint32_t)s->trace_att_find_handle_pc;
+             env->native_hci_trace_pcs[14] =
++                (uint32_t)s->trace_att_write_handle_pc;
++            env->native_hci_trace_pcs[15] =
++                (uint32_t)s->trace_python_gatts_on_write_pc;
++            env->native_hci_trace_pcs[16] =
++                (uint32_t)s->trace_python_irq_pc;
++            env->native_hci_trace_pcs[17] =
++                (uint32_t)s->trace_python_notify_pc;
++            env->native_hci_trace_pcs[18] =
+                 (uint32_t)s->trace_nimble_gatts_notify_pc;
+             env->native_hci_send_callback =
+                 esp32_native_hci_api_send_packet;
+@@ -1651,9 +1793,30 @@
+         OBJECT(dev), "hli-errors", &s->hli_errors,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-deferred-not-halted",
++        &s->hli_deferred_not_halted, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hci-trace-packets", &s->hci_trace_packets,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "api-send-trace-packets", &s->api_send_trace_packets,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
+         OBJECT(dev), "trace-acl-process", &s->trace_acl_process,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-hci-cmd-tx", &s->trace_hci_cmd_tx,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-hs-sched-reset", &s->trace_hs_sched_reset,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-gap-adv-start", &s->trace_gap_adv_start,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "trace-gap-adv-stop", &s->trace_gap_adv_stop,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
+         OBJECT(dev), "trace-l2cap-rx", &s->trace_l2cap_rx,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
+@@ -1731,6 +1894,27 @@
+     object_property_add_uint32_ptr(
+         OBJECT(dev), "meta-queue-depth", &s->meta_queue_depth,
+         OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "conn-pool-valid", &s->conn_pool_valid,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hs-conns-head", &s->hs_conns_head,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "conn-pool-free", &s->conn_pool_free,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "l2cap-pool-valid", &s->l2cap_pool_valid,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "l2cap-pool-free", &s->l2cap_pool_free,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "gatts-pool-valid", &s->gatts_pool_valid,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "gatts-pool-free", &s->gatts_pool_free,
++        OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
+         OBJECT(dev), "hli-event-buffer-address",
+         &s->hli_event_buffer_address, OBJ_PROP_FLAG_READ);
+@@ -1836,11 +2020,21 @@
+     s->hli_post_pending = false;
+     s->hli_valid = false;
+     s->hli_queue_depth = 0;
++    s->conn_pool_valid = false;
++    s->l2cap_pool_valid = false;
++    s->gatts_pool_valid = false;
++    s->hs_conns_head = 0;
++    s->conn_pool_free = 0;
++    s->l2cap_pool_free = 0;
++    s->gatts_pool_free = 0;
+     s->meta_queue_depth = 0;
+     s->hli_event_buffer_address = 0;
+     s->hli_acl_mbuf_address = 0;
+     s->hli_descriptor_pool_address = 0;
+     s->hli_descriptor_cursor = 0;
++    s->hli_deferred_not_halted = 0;
++    s->hci_trace_packets = 0;
++    s->api_send_trace_packets = 0;
+     if (s->scheduler_queue_address &&
+         s->meta_queue_pointer_address) {
+         timer_mod(s->hli_timer,
+@@ -1863,6 +2057,12 @@
+                        Esp32NativeHciState, meta_queue_pointer_address, 0),
+     DEFINE_PROP_UINT64("trace-hs-conns-address",
+                        Esp32NativeHciState, trace_hs_conns_address, 0),
++    DEFINE_PROP_UINT64("ble-hs-conn-ctx-address",
++                       Esp32NativeHciState, ble_hs_conn_ctx_address, 0),
++    DEFINE_PROP_UINT64("ble-l2cap-pool-slot-address",
++                       Esp32NativeHciState, ble_l2cap_pool_slot_address, 0),
++    DEFINE_PROP_UINT64("ble-gatts-pool-slot-address",
++                       Esp32NativeHciState, ble_gatts_pool_slot_address, 0),
+     DEFINE_PROP_UINT64("api-vhci-send-hook-pc",
+                        Esp32NativeHciState, api_vhci_send_hook_pc, 0),
+     DEFINE_PROP_UINT64("api-vhci-send-return-pc",
+@@ -1885,6 +2085,14 @@
+                        Esp32NativeHciState, sleep_post_return_pc, 0),
+     DEFINE_PROP_UINT64("trace-acl-process-pc",
+                        Esp32NativeHciState, trace_acl_process_pc, 0),
++    DEFINE_PROP_UINT64("trace-hci-cmd-tx-pc",
++                       Esp32NativeHciState, trace_hci_cmd_tx_pc, 0),
++    DEFINE_PROP_UINT64("trace-hs-sched-reset-pc",
++                       Esp32NativeHciState, trace_hs_sched_reset_pc, 0),
++    DEFINE_PROP_UINT64("trace-gap-adv-start-pc",
++                       Esp32NativeHciState, trace_gap_adv_start_pc, 0),
++    DEFINE_PROP_UINT64("trace-gap-adv-stop-pc",
++                       Esp32NativeHciState, trace_gap_adv_stop_pc, 0),
+     DEFINE_PROP_UINT64("trace-l2cap-rx-pc",
+                        Esp32NativeHciState, trace_l2cap_rx_pc, 0),
+     DEFINE_PROP_UINT64("trace-l2cap-incomplete-pc",
+@@ -1924,6 +2132,10 @@
+     DEFINE_PROP_UINT64("hli-acl-callback",
+                        Esp32NativeHciState, hli_acl_callback, 0),
+     DEFINE_PROP_BOOL("hli-c2h", Esp32NativeHciState, hli_c2h, false),
++    DEFINE_PROP_BOOL("hci-packet-trace",
++                     Esp32NativeHciState, hci_packet_trace, false),
++    DEFINE_PROP_UINT32("hci-trace-limit",
++                       Esp32NativeHciState, hci_trace_limit, 512),
+     DEFINE_PROP_UINT32("hli-test-event",
+                        Esp32NativeHciState, hli_test_event,
+                        UINT32_MAX),

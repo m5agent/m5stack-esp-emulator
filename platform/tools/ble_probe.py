@@ -133,10 +133,10 @@ def install_controller_command_compatibility(
     ):
 
         def host_completed_packets(controller: Any, command: Any) -> None:
-            controller._send_hci_command_status(
-                hci_module.HCI_ErrorCode.SUCCESS,
-                command.op_code,
-            )
+            # Bluetooth Core Vol 4, Part E, 7.3.35: this command has no
+            # command complete or command status response. Sending a status
+            # here leaves a stale ACK that corrupts the next HCI transaction.
+            return None
 
         controller_class.on_hci_host_number_of_completed_packets_command = (
             host_completed_packets
