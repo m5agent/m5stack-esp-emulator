@@ -332,9 +332,12 @@ each worker reloads on its next request and writes a secret-free receipt
 without receiving `SIGHUP`. A separate Linux fixture covers both the no-QEMU
 control-plane compatibility path and a worker-local real StickS3 QEMU
 execution path. A worker can discover the control URL from an active-token
-IPv4 multicast beacon within one multicast domain. Cross-subnet/NAT discovery,
-cross-host QEMU jobs, cross-host re-attach and namespace-managed/Tab5/
-cross-host companion recovery remain open.
+IPv4 multicast beacon within one multicast domain. A worker outside that
+domain can instead verify the same signed beacon fetched from a routable
+unicast discovery seed. Two routed/masqueraded subnets, wrong/old-token
+rejection, rotation and cleanup pass 3/3. Cross-host QEMU jobs, arbitrary NAT
+traversal without a reachable seed, cross-host re-attach and
+namespace-managed/Tab5/cross-host companion recovery remain open.
 
 `worker_agent.py --advertise-endpoint` stores an externally reachable HTTP(S)
 worker endpoint in the registration record. The worker directory rejects

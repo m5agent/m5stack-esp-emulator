@@ -81,6 +81,14 @@ jobs:
         run: |
           python3 tests/network/worker_discovery/run_test.py \
             --out-dir /tmp/m5-worker-discovery
+      - name: Validate unicast discovery through NAT and separate subnets
+        run: |
+          sudo sysctl --write net.ipv4.ip_forward=1
+          sudo env \
+            "PATH=$PATH" \
+            "PYTHONPATH=$GITHUB_WORKSPACE/platform/tools" \
+            python3 tests/network/worker_discovery_seed/run_test.py \
+            --out-dir /tmp/m5-worker-discovery-seed
       - name: Preserve network evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -91,4 +99,5 @@ jobs:
             /tmp/m5-lab-fabric
             /tmp/m5-worker-cross-netns
             /tmp/m5-worker-discovery
+            /tmp/m5-worker-discovery-seed
           if-no-files-found: warn

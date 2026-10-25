@@ -37,6 +37,8 @@ Implemented:
   stale/stopped/generation reconciliation;
 - active-token HMAC-authenticated IPv4 multicast control discovery, including
   expiry, wrong-token and post-rotation checks;
+- HMAC-authenticated unicast discovery seed for cross-subnet/NAT workers,
+  validated through two isolated subnets, IPv4 forwarding and masquerade;
 - a same-host HTTP-only executor that claims a job, runs a real StickS3 QEMU
   session, downloads an evidence ZIP/SHA256, stops with `purge=0` and reports
   the terminal result;
@@ -99,9 +101,9 @@ Not implemented yet:
 - prestarted warm QEMU instances;
 - namespace-managed, Tab5 and cross-host companion recovery, plus a continuous
   external evidence stream across restart;
-- NAT/cross-subnet discovery, cross-host credential migration, cross-host
-  QEMU execution/re-attach, cross-host idempotency and production multi-host
-  capacity scheduling;
+- arbitrary NAT traversal when no routable discovery seed is available,
+  cross-host credential migration, cross-host QEMU execution/re-attach,
+  cross-host idempotency and production multi-host capacity scheduling;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
@@ -325,7 +327,10 @@ TLS/token rotation with active-request draining exist; bounded old/new
 credentials, manual staged migration and a two-worker atomic-generation
 pointer migration with secret-free receipts are implemented; authenticated
 multicast discovery and worker bootstrap without a hard-coded control URL are
-implemented within one multicast domain. A worker also survives a central
+implemented within one multicast domain. Workers outside that domain can use
+an HMAC-authenticated unicast discovery seed; a privileged Linux fixture
+verified two routed subnets, masquerade, wrong/old token rejection, rotation
+and cleanup in three independent runs. A worker also survives a central
 control-plane restart through bounded transient retry, idempotent re-register,
 same-lease heartbeat and terminal evidence reporting while its runtime QEMU
 session remains untouched. A worker-local runtime Device Service can also
@@ -336,9 +341,10 @@ fixture from durable request generations, adopts a surviving BLE peer after
 exact process ownership checks, and completes a post-restart GATT/HTTP cycle.
 Session creation uses a persisted idempotency key; WorkerAgent
 derives it from job and lease so response-loss retries return the original
-session. Cross-subnet/NAT discovery, cross-host QEMU execution,
-namespace-managed/Tab5/cross-host companion recovery, a continuous external
-evidence stream, cross-host re-attach and multi-host scheduling remain open.
+session. Cross-host QEMU execution, arbitrary NAT traversal without a
+reachable discovery seed, namespace-managed/Tab5/cross-host companion
+recovery, a continuous external evidence stream, cross-host re-attach and
+multi-host scheduling remain open.
 
 Discovery requires an active API token and an explicitly advertised externally
 reachable control-plane URL:
@@ -352,12 +358,24 @@ python3 platform/tools/worker_agent.py \
   --discover-control \
   --token-file /secure/service.token \
   --ca-file /secure/control-ca.pem
+
+python3 platform/tools/worker_discovery_seed.py \
+  --service-url https://control.example:8787 \
+  --token-file /secure/service.token
+
+python3 platform/tools/worker_agent.py \
+  --discover-control-seed-url https://seed.example/worker-discovery/v1/beacon \
+  --token-file /secure/service.token \
+  --ca-file /secure/control-ca.pem
 ```
 
 The beacon contains no token. Its HMAC authenticates the advertised URL and
 TTL; TLS/mTLS still validates transport identity. The active token is used, so
 beacons follow successful `SIGHUP` rotation. IPv4 multicast is intentionally
-limited to one discovery domain and does not traverse arbitrary NAT/subnets.
+limited to one discovery domain. The unicast seed path works when the seed is
+reachable; it does not provide arbitrary NAT traversal without a rendezvous
+endpoint. HMAC proves authenticity, not confidentiality, so production seed
+transport should use HTTPS or a trusted private network.
 
 - submit, status, cancel, serial, input, screenshot and evidence endpoints;
 - one task per worker;
@@ -392,8 +410,9 @@ limited to one discovery domain and does not traverse arbitrary NAT/subnets.
   path/body identity binding;
 - a local QEMU process is re-attached only when PID start time, session QMP
   socket ownership and `query-status=running` agree;
-- NAT/cross-subnet worker discovery, cross-host credential migration, a real
-  cross-host QEMU execution fixture, namespace-managed/Tab5/cross-host
+- cross-host credential migration, a real cross-host QEMU execution fixture,
+  arbitrary NAT traversal when no routable seed is available,
+  namespace-managed/Tab5/cross-host
   companion recovery, a continuous external evidence stream, cross-host
   re-attach, cross-host idempotency storage and production capacity scheduling
   remain open.

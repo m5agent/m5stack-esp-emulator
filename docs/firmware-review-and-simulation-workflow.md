@@ -454,9 +454,10 @@ key/Realtime/云业务、WPA3/group multicast、物理 RF 和真机仍为 `NOT R
 
 1. 运行时权限、完整源码级许可扫描、法律审批和证书链校验；
    LittleFS/FAT/SPIFFS、SPDX、resumable chunk upload 和 WebBurner 浏览器入口已具备；
-2. NAT/跨子网 discovery、跨主机迁移、跨主机 QEMU job executor/reattach、
+2. 无 reachable seed 的任意 NAT traversal、跨主机迁移、跨主机 QEMU
+   job executor/reattach、
    namespace-managed/Tab5/cross-host companion、连续 evidence 流和生产调度；
-   同一 multicast domain 的 authenticated discovery、本地
+   同一 multicast domain 与跨 subnet unicast seed 的 authenticated discovery、本地
    worker heartbeat/drain、远程目录、
    durable queue/lease supervisor、HTTPS/mTLS、SIGHUP TLS/token
    rotation + activity drain + bounded overlap、同主机 authenticated

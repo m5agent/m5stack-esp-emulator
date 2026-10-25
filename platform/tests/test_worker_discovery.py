@@ -4,8 +4,10 @@ from __future__ import annotations
 import json
 import socket
 import sys
+import threading
 import time
 import unittest
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -17,8 +19,24 @@ from worker_discovery import (  # noqa: E402
     WorkerDiscoveryError,
     build_discovery_beacon,
     discover_service,
+    fetch_discovery_beacon,
     verify_discovery_beacon,
 )
+from worker_discovery_seed import (
+    DEFAULT_SEED_PATH,
+    DiscoverySeedHandler,
+    DiscoverySeedServer,
+)
+
+
+class RedirectHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(302)
+        self.send_header("Location", "http://127.0.0.1:1/redirected")
+        self.end_headers()
+
+    def log_message(self, format, *args):
+        pass
 
 
 class WorkerDiscoveryTests(unittest.TestCase):
@@ -136,6 +154,103 @@ class WorkerDiscoveryTests(unittest.TestCase):
         )
         self.assertEqual(discovered["port"], port)
         self.assertTrue(discovered["expires_at"] > time.time() - 1)
+
+    def test_unicast_seed_beacon_is_fetched_and_verified(self):
+        token = "synthetic-seed-live-token"
+        server = DiscoverySeedServer(
+            ("127.0.0.1", 0),
+            DiscoverySeedHandler,
+        )
+        server.token_provider = lambda: token
+        server.service_url = "https://control.example:8787"
+        server.discovery_group = DEFAULT_DISCOVERY_GROUP
+        server.discovery_port = 18790
+        server.ttl_seconds = 5
+        server.seed_path = DEFAULT_SEED_PATH
+        thread = threading.Thread(
+            target=server.serve_forever,
+            name="test-discovery-seed",
+            daemon=True,
+        )
+        thread.start()
+        try:
+            port = int(server.server_address[1])
+            discovered = fetch_discovery_beacon(
+                f"http://127.0.0.1:{port}{DEFAULT_SEED_PATH}",
+                token,
+                port=18790,
+                timeout=2,
+            )
+            with self.assertRaisesRegex(
+                WorkerDiscoveryError,
+                "signature is invalid",
+            ):
+                fetch_discovery_beacon(
+                    f"http://127.0.0.1:{port}{DEFAULT_SEED_PATH}",
+                    "wrong-token",
+                    port=18790,
+                    timeout=2,
+                )
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+        self.assertEqual(
+            discovered["service_url"],
+            "https://control.example:8787",
+        )
+        self.assertEqual(discovered["transport"], "unicast-seed")
+        self.assertEqual(discovered["source"], "127.0.0.1")
+        self.assertNotIn(token, json.dumps(discovered))
+
+    def test_unicast_seed_rejects_redirects(self):
+        redirect = ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            RedirectHandler,
+        )
+        thread = threading.Thread(
+            target=redirect.serve_forever,
+            name="test-discovery-redirect",
+            daemon=True,
+        )
+        thread.start()
+        try:
+            port = int(redirect.server_address[1])
+            with self.assertRaisesRegex(
+                WorkerDiscoveryError,
+                "returned HTTP 302",
+            ):
+                fetch_discovery_beacon(
+                    f"http://127.0.0.1:{port}{DEFAULT_SEED_PATH}",
+                    "synthetic-token",
+                    port=18790,
+                    timeout=2,
+                )
+        finally:
+            redirect.shutdown()
+            redirect.server_close()
+            thread.join(timeout=2)
+
+    def test_unicast_seed_url_is_credential_free(self):
+        with self.assertRaisesRegex(
+            WorkerDiscoveryError,
+            "without credentials",
+        ):
+            fetch_discovery_beacon(
+                "https://user:password@seed.example/beacon",
+                "synthetic-token",
+                timeout=2,
+            )
+        with self.assertRaisesRegex(
+            WorkerDiscoveryError,
+            "non-empty master token",
+        ):
+            fetch_discovery_beacon(
+                "https://seed.example/beacon",
+                "",
+                timeout=2,
+            )
 
 
 if __name__ == "__main__":

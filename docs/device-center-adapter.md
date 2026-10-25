@@ -120,14 +120,15 @@ window.parent.postMessage({
 - 观测：session history、last frame、serial、QOM、pcap、BLE peer 和
   evidence ZIP。
 - worker 生命周期：durable queue、HMAC、HTTPS/mTLS、credential rotation、
-  active-token multicast discovery、central/runtime restart continuity、
+  active-token multicast 与 cross-subnet unicast-seed discovery、
+  central/runtime restart continuity、
   QEMU/QMP reattach 和 session-create idempotency 已有实现。
 
 ## 仍开放
 
 - 二进制 WebSocket/WebRTC 图像与串口实时推送；当前 REST/轮询接口已可用，
   但还不是低延迟媒体协议；
-- NAT/跨子网 worker discovery、跨主机 QEMU executor/reattach、远程 worker 的
+- 无 reachable seed 的任意 NAT traversal、跨主机 QEMU executor/reattach、远程 worker 的
   namespace-managed/Tab5/cross-host companion、连续 evidence 流、warm pool
   和多机调度；同主机 QEMU/QMP 与 trusted-host unified HTTP/BLE companion
   重启接管已实现；

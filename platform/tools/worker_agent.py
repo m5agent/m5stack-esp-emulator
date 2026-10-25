@@ -32,6 +32,7 @@ from worker_discovery import (
     DEFAULT_DISCOVERY_PORT,
     WorkerDiscoveryError,
     discover_service,
+    fetch_discovery_beacon,
 )
 
 WORKER_AGENT_STATE_VERSION = 1
@@ -970,6 +971,14 @@ def parse_arguments() -> argparse.Namespace:
         help="discover the central control URL from an authenticated multicast beacon",
     )
     parser.add_argument(
+        "--discover-control-seed-url",
+        default=os.environ.get("M5_WORKER_DISCOVERY_SEED_URL"),
+        help=(
+            "discover the central control URL from an authenticated unicast "
+            "seed usable across subnets and NAT"
+        ),
+    )
+    parser.add_argument(
         "--discover-control-group",
         default=os.environ.get(
             "M5_WORKER_DISCOVERY_GROUP",
@@ -1101,9 +1110,17 @@ def parse_arguments() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_arguments()
-    if args.service_url and args.discover_control:
+    discovery_sources = sum(
+        (
+            bool(args.service_url),
+            bool(args.discover_control),
+            bool(args.discover_control_seed_url),
+        )
+    )
+    if discovery_sources > 1:
         raise SystemExit(
-            "--service-url and --discover-control are mutually exclusive"
+            "--service-url, --discover-control and "
+            "--discover-control-seed-url are mutually exclusive"
         )
     if args.discover_control_timeout <= 0:
         raise SystemExit("--discover-control-timeout must be positive")
@@ -1260,6 +1277,43 @@ def main() -> int:
         resolved_service_url = str(beacon["service_url"]).rstrip("/")
         log_worker_event(
             "worker control service discovered: "
+            f"{resolved_service_url}"
+        )
+    elif args.discover_control_seed_url:
+        if not token:
+            raise SystemExit(
+                "--discover-control-seed-url requires an API token or token file"
+            )
+        seed_ssl_context = None
+        if args.discover_control_seed_url.startswith("https://"):
+            generation = current_generation()
+            ca_file = (
+                generation["ca_file"]
+                if generation is not None
+                else args.ca_file
+            )
+            try:
+                seed_ssl_context = ssl.create_default_context(
+                    cafile=str(ca_file) if ca_file is not None else None
+                )
+            except (OSError, ssl.SSLError) as error:
+                raise SystemExit(
+                    f"cannot configure discovery seed TLS trust: {error}"
+                ) from error
+        try:
+            beacon = fetch_discovery_beacon(
+                args.discover_control_seed_url,
+                token,
+                group=args.discover_control_group,
+                port=args.discover_control_port,
+                timeout=args.discover_control_timeout,
+                ssl_context=seed_ssl_context,
+            )
+        except WorkerDiscoveryError as error:
+            raise SystemExit(str(error)) from error
+        resolved_service_url = str(beacon["service_url"]).rstrip("/")
+        log_worker_event(
+            "worker control service discovered via unicast seed: "
             f"{resolved_service_url}"
         )
     requested_runtime_url = (

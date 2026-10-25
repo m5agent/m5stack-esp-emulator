@@ -37,7 +37,7 @@ Device Service lease
 | Bounded dual-stack egress | nftables + per-session IPv4/IPv6 veth/NAT | 有界 IPv4/IPv6 地址或 CIDR、协议和端口的允许/拒绝及清理 | 任意宽泛网段、未绑定域名或完整恶意固件沙箱 |
 | Firmware SoftAP | `runtime=network`、AP 密码和 loopback `hostfwd` | 固件自建 provisioning portal | 手机、captive portal OS 或真实 roaming |
 | Multi-device lab fabric | private namespace 内的 QEMU socket L2 switch | 两台 guest 的 DHCP、私有 TCP 和双侧 pcap | TAP primitive、RF、WPA2/WPA3 或生产 worker |
-| Cross-container worker | 两个独立 Docker 容器 + user-defined bridge | central queue/directory 跨容器控制，worker 容器内 runtime Device Service 执行真实 QEMU 并返回 evidence | 物理跨主机、NAT/跨子网发现、迁移或 companion continuity |
+| Cross-container worker | 两个独立 Docker 容器 + user-defined bridge；routable unicast discovery seed | central queue/directory 跨容器控制，worker 容器内 runtime Device Service 执行真实 QEMU 并返回 evidence；跨子网 worker 通过 signed seed 发现 control URL | 物理跨主机、无 reachable seed 的任意 NAT traversal、迁移或 companion continuity |
 | CardputerZero Ethernet | 独立 Linux ARM64 后端 | SR9900A/r8152 Ethernet frame 数据面 | WiFi 或 ESP32/UIFlow2 网络 |
 
 S3/C6 的 QEMU 模型覆盖 guest 可见的 MAC、DMA descriptor、interrupt 和
@@ -83,6 +83,12 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - HMAC-authenticated IPv4 multicast control-plane discovery；worker 验证
   active-token 签名后自动注册，错误/旧 token reject，token rotation 后
   新 worker 可重新发现；beacon 不含 token；
+- 对无法接收 multicast 的跨子网/NAT worker，独立 unicast discovery seed
+  返回同一 HMAC-signed beacon；worker 通过
+  `--discover-control-seed-url` 验证签名后使用其中的 control URL。
+  privileged Linux fixture 用两个独立 subnet、IPv4 forwarding 和
+  masquerade 连续 `3/3 PASS`，同时证明 multicast 不跨 router、错误/旧
+  token reject、rotation、NAT 源地址和 cleanup；
 - job claim 后，worker 对 transient control-plane network/429/5xx 做有界
   heartbeat/result retry；central service 以同一 state dir 重启后，worker
   自动重注册、继续 heartbeat 并提交原 lease 的 evidence，runtime QEMU
@@ -113,7 +119,8 @@ controlled AAAA、allowed IPv6 HTTP、denied-port、pcap、namespace cleanup
 当前仍未完成的网络产品化项只列在
 [项目 Backlog](project-backlog.md)，重点是 `NET-04` 物理跨主机 worker/QEMU
 executor、namespace-managed/Tab5/cross-host companion continuity、连续
-external evidence 流、NAT/跨子网发现和不可信固件 disposable VM。
+external evidence 流、没有 reachable seed 时的任意 NAT traversal 和不可信
+固件 disposable VM。
 `NET-05` 与 `NET-06` 均已完成当前 accepted virtual-device scope。
 
 ## Required test matrix
@@ -175,6 +182,7 @@ external evidence 流、NAT/跨子网发现和不可信固件 disposable VM。
 - [Worker TLS/mTLS and rotation](../tests/network/worker_tls/README.md)
 - [Worker durable queue](../tests/network/worker_queue/README.md)
 - [Authenticated worker discovery](../tests/network/worker_discovery/README.md)
+- [Authenticated unicast discovery across NAT](../tests/network/worker_discovery_seed/README.md)
 - [Worker control-plane restart continuity](../tests/network/worker_control_restart/README.md)
 - [Worker runtime-service restart continuity](../tests/network/worker_runtime_restart/README.md)
 - [Idempotent session creation](../tests/network/session_idempotency/README.md)

@@ -29,7 +29,8 @@
 
 当前仍不是“任意固件都可无差别自动审查”的完成态。主要边界是：
 
-- 物理跨主机 QEMU、NAT/跨子网发现、跨主机 reattach/idempotency 和
+- 物理跨主机 QEMU、无 reachable seed 的任意 NAT traversal、跨主机
+  reattach/idempotency 和
   namespace-managed/Tab5/cross-host companion 尚未验证；
 - Core2 已具备功能级 native-HCI、WiFi、重连、QOM `8 MiB` PSRAM 模型、
   upper-bank MMU remap 和持续压力证据，但 bit-exact BT controller/baseband、
@@ -52,6 +53,8 @@
 - worker control/runtime 双平面、HMAC、HTTPS/mTLS、rotation/drain、
   authenticated discovery、central/runtime restart continuity、
   session-create idempotency 和 trusted-host companion continuity；
+- multicast 与 unicast discovery seed；后者在两个 routed/masqueraded
+  subnet 中 `3/3 PASS`，错误/旧 token、rotation 和 cleanup 同轮验证；
 - central 与 worker-local runtime/QEMU 在两个独立 Docker 容器中的真实
   QEMU job、terminal evidence、三工件哈希和 container/bridge cleanup；
 - Core2 `core2-native-hci`、同 guest 120/121 轮重连、active-stop、
@@ -72,8 +75,8 @@
 | 工作流 | 当前可执行面 | 阶段 | 主要边界 |
 | --- | --- | --- | --- |
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
-| 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric | `PILOT` | 物理跨主机、NAT/跨子网、任意公网解析 |
-| Worker 与恢复 | durable queue、lease ownership fence、HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度和断网远端进程外部 side-effect fencing |
+| 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
+| Worker 与恢复 | durable queue、lease ownership fence、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度和断网远端进程外部 side-effect fencing |
 | Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力 | `PILOT` | 物理 PSRAM/cache timing、bit-exact controller、长时并发 |
 | 通用固件审查 | Manifest/WebBurner、capability/security、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
@@ -106,7 +109,7 @@ devices/catalog.source.json
 | 设备/外设/后端登记 | `devices/`、`platform/peripherals/`、`platform/qemu/` | 声明真实硬件、模型覆盖和可执行 profile |
 | QEMU/板级模型 | `patches/` | SoC 控制器、板级器件、DMA/FIFO/端点 |
 | Device Service | `platform/tools/serve.py`、`device_service.py` | lease、Flash、runtime、网络、输入、证据和生命周期 |
-| Worker | `worker_queue.py`、`worker_agent.py`、`worker_auth.py`、`transport_security.py`、`worker_discovery.py` | 排队、执行、认证、TLS、发现、恢复和结果回报 |
+| Worker | `worker_queue.py`、`worker_agent.py`、`worker_auth.py`、`transport_security.py`、`worker_discovery.py`、`worker_discovery_seed.py` | 排队、执行、认证、TLS、multicast/unicast 发现、恢复和结果回报 |
 | 固件审查 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | 导入、规范化、capability/security、文件系统和静态审查 |
 | 网络 | `network_policy.py`、`network_egress.py`、`network_sandbox.py`、`network_fabric.py` | DNS/CNAME、nftables、namespace、veth/NAT、双 guest fabric |
 | Web | `platform/web/` | 设备目录、Live sessions、输入、WebBurner 和报告 |
@@ -160,7 +163,9 @@ worker-local runtime Device Service 负责 session、QEMU、evidence 和 stop。
 已覆盖同主机 restart、QEMU/QMP ownership reattach、trusted-host HTTP/BLE
 companion continuity、session-create idempotency 和跨容器 QEMU。
 
-尚未覆盖物理跨主机进程迁移、NAT/跨子网自动发现、跨主机幂等存储、
+multicast 不能跨 subnet 时，worker 可从 reachable HMAC-signed unicast seed
+取得 control URL；该路径已在两个 routed/masqueraded subnet 中 `3/3 PASS`。
+尚未覆盖物理跨主机进程迁移、无 reachable seed 的任意 NAT traversal、跨主机幂等存储、
 namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 ### 通用固件审查
@@ -184,7 +189,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `NET-04` | 物理跨主机 executor/reattach、NAT/跨子网 discovery、跨主机幂等和断网远端进程 side-effect fencing | lease/re-claim 与 worker-local runtime stop 已 fencing；跨容器 PASS 仍共享一个 Docker daemon，不能替代物理主机 |
+| `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等和断网远端进程 side-effect fencing | lease/re-claim 与 worker-local runtime stop 已 fencing；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | bit-exact controller/baseband、物理 PSRAM/cache timing、长时并发和其他 teardown | 功能级虚拟证据不能证明物理等价 |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据 |
@@ -200,8 +205,9 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |
 | `CZ-01` | CardputerZero 完整系统、驱动和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
-如果跨主机环境暂时不可用，先做可独立验证的 NAT/跨子网发现契约或 external
-side-effect fencing，不应把单机 namespace 结果改写成跨主机完成。
+如果跨主机环境暂时不可用，先做可独立验证的 external side-effect fencing
+或跨主机 idempotency/recovery 契约，不应把单机 namespace/subnet 结果改写成
+跨主机完成。
 
 ## 文档怎么维护
 

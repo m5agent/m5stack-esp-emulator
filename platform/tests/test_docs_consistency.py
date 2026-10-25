@@ -127,6 +127,18 @@ class DocsConsistencyTests(unittest.TestCase):
                 "tests/network/worker_cross_container/"
                 "evidence-2026-10-25-cross-container-qemu-3x.json"
             ),
+            "platform/tools/worker_discovery.py",
+            "platform/tools/worker_discovery_seed.py",
+            "tests/network/worker_discovery/README.md",
+            "tests/network/worker_discovery/run_test.py",
+            "tests/network/worker_discovery/evidence-2026-10-25-discovery-rotation-pass.json",
+            "tests/network/worker_discovery_seed/README.md",
+            "tests/network/worker_discovery_seed/run_test.py",
+            "tests/network/worker_discovery_seed/summarize_runs.py",
+            (
+                "tests/network/worker_discovery_seed/"
+                "evidence-2026-10-25-seed-nat-3x.json"
+            ),
             (
                 "tests/uiflow2/core2_native_hci/"
                 "evidence-2026-10-25-core2-psram-sustained-8m-3x120.json"
@@ -1995,7 +2007,7 @@ class DocsConsistencyTests(unittest.TestCase):
         for text in (status, backlog, workstreams, api, tls_readme):
             self.assertIn("generation", text.lower())
         self.assertIn("secret-free receipt", status)
-        self.assertIn("NAT/跨子网 discovery", backlog)
+        self.assertIn("cross-subnet/NAT unicast seed discovery", backlog)
         self.assertIn("active-token multicast discovery", backlog)
         self.assertIn(
             "--credential-generation-file",
@@ -4717,6 +4729,116 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "600-second",
             profile_core2["validation"]["memory_validation"],
+        )
+
+    def test_unicast_discovery_seed_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_discovery_seed/"
+                "evidence-2026-10-25-seed-nat-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(
+            evidence["validation"],
+            "virtual control-plane validation",
+        )
+        self.assertEqual(evidence["attempts_requested"], 3)
+        self.assertEqual(evidence["attempts_completed"], 3)
+        self.assertEqual(evidence["attempts_passed"], 3)
+        self.assertEqual(len(evidence["checks_per_attempt"]), 23)
+        self.assertTrue(
+            all(
+                status == "PASS"
+                for status in evidence["checks_per_attempt"].values()
+            )
+        )
+        self.assertTrue(evidence["input_assets_unchanged"])
+        for name, relative in {
+            "runner": (
+                "tests/network/worker_discovery_seed/run_test.py"
+            ),
+            "worker_agent": "platform/tools/worker_agent.py",
+            "worker_discovery": "platform/tools/worker_discovery.py",
+            "worker_discovery_seed": (
+                "platform/tools/worker_discovery_seed.py"
+            ),
+            "serve": "platform/tools/serve.py",
+        }.items():
+            self.assertEqual(
+                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+                evidence["tool_hashes"][name],
+            )
+        runs = evidence["runs"]
+        self.assertEqual(len(runs), 3)
+        self.assertEqual(
+            {run["control_observed_sources"][0] for run in runs},
+            {"10.213.1.1"},
+        )
+        self.assertEqual(
+            len({run["control_url"] for run in runs}),
+            3,
+        )
+        for run in runs:
+            self.assertEqual(
+                run["workers"]["seed_bootstrap"],
+                {"returncode": 0, "state": "stopped"},
+            )
+            self.assertEqual(
+                run["cleanup"]["namespaces"],
+                [],
+            )
+            self.assertFalse(run["cleanup"]["nftables_contains_table"])
+
+        worker_agent = (
+            ROOT / "platform/tools/worker_agent.py"
+        ).read_text()
+        discovery = (
+            ROOT / "platform/tools/worker_discovery.py"
+        ).read_text()
+        seed_server = (
+            ROOT / "platform/tools/worker_discovery_seed.py"
+        ).read_text()
+        self.assertIn("--discover-control-seed-url", worker_agent)
+        self.assertIn("fetch_discovery_beacon(", worker_agent)
+        self.assertIn("_RejectDiscoveryRedirect", discovery)
+        self.assertIn("unicast-seed", discovery)
+        self.assertIn("Cache-Control", seed_server)
+        self.assertIn("read_master_token_file", seed_server)
+
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        handoff = (DOCS / "engineering-handoff.md").read_text()
+        network_plan = (DOCS / "network-simulation-plan.md").read_text()
+        architecture = (
+            DOCS / "simulator-service-architecture.md"
+        ).read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        ledger = (DOCS / "validation-ledger.md").read_text()
+        tests_index = (ROOT / "tests/network/README.md").read_text()
+        for text in (
+            status,
+            backlog,
+            workstreams,
+            handoff,
+            network_plan,
+            architecture,
+            code_map,
+            ledger,
+            tests_index,
+        ):
+            self.assertIn("seed", text.lower())
+        self.assertIn("3/3 PASS", status)
+        self.assertIn("worker_discovery_seed", code_map)
+        self.assertIn(
+            "worker_discovery_seed/evidence-2026-10-25-seed-nat-3x.json",
+            ledger,
+        )
+        self.assertIn(
+            "--discover-control-seed-url",
+            network_plan,
         )
 
 

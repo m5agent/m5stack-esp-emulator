@@ -67,14 +67,14 @@
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task 和测试规模 |
 | [项目当前状态](project-status.md) | 当前结论 | `2026-10-25` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-25` | 只保留尚未达到验收条件的任务、依赖和验收 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、runtime priority、CIDR/domain-set/CNAME、worker namespace/container-local QEMU、测试和 evidence 入口 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、runtime priority、CIDR/domain-set/CNAME、multicast/unicast worker discovery、worker namespace/container-local QEMU、测试和 evidence 入口 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-25` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-25` | `1.33.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled domain suffix/CNAME chain、同 guest CNAME 网络证据和 transport 契约 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、legacy GDB 对照、QOM 8 MiB PSRAM + upper-bank MMU remap、artifact-bound 两小时功能门禁、三 lease 121 轮、active-stop/recovery 和持续压力 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、WebBurner 分段 size/digest 复算、安全检查、文件系统、许可策略、sdkconfig detected / image observed capability、WebBurner 来源展示和 evidence 分层 |
 | [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-25` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍明确为未覆盖边界 |
-| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-25` | 网络模式、有界 dual-stack CIDR egress、显式绑定 domain suffix、有界 CNAME chain、同 guest CNAME/AAAA/HTTP/denied-port/pcap/cleanup、trusted-host companion continuity、安全边界和证据要求 |
+| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-25` | 网络模式、有界 dual-stack CIDR egress、domain suffix/CNAME、multicast 与 cross-subnet unicast seed discovery、同 guest 网络生命周期、安全边界和证据要求 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-25` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-25` | 当前登记设备与各 QEMU/Tab5/Linux 后端，设备数量见自动快照；Core2 121 轮 readiness、持续 PSRAM/周期联网与物理边界已回写 |
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-25` | 外设数据面覆盖；最新计数和边界见项目当前状态 |
@@ -89,7 +89,7 @@
 | [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-25` | 审查证据分层、公开 BIN 刷新/SHA 绑定、运行路径和发布门禁 |
 | [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-25` | catalog、runtime coverage、S3 WPA2/Core2 native-HCI 边界和后端数据面 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-24` | Tab5 缺失的 P4 控制器、DMA 和端点 |
-| [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-25` | 单机模块化单体、control/runtime 执行面分离、双 namespace worker-local QEMU、trusted-host companion recovery、跨主机与 warm-pool 边界 |
+| [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-25` | 单机模块化单体、control/runtime 执行面分离、multicast/unicast seed discovery、双 namespace worker-local QEMU、trusted-host companion recovery、跨主机与 warm-pool 边界 |
 | [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-25` | 历史哈希绑定结果、公开 CDN 强制刷新、四个当前样本、SD/NVS fixture、OpenAI 首次启动对照和模型/fixture 边界 |
 | [CoreS3 图像边界](cores3-image-rendering-boundary.md) | 已知差异 | `2026-10-22` | 固定在当轮透明度/调色板图像分析 |
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |

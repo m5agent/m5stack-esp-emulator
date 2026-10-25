@@ -121,7 +121,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   + activity drain + bounded credential overlap、evidence ZIP/SHA256 回报，
   以及 generation-pointer 同主机双 worker 自动迁移和 secret-free receipts
   已实现；trusted-host unified HTTP/BLE companion continuity 也已完成。
-  自动发现 worker 主机、跨主机 QEMU executor/reattach、
+  active-token multicast discovery 覆盖同一广播域；跨子网/NAT worker 可从
+  HMAC-authenticated unicast discovery seed 获取同一 beacon，两个独立子网、
+  IPv4 forwarding、masquerade、rotation 和 cleanup 已在 privileged Linux
+  Docker fixture 中连续 `3/3 PASS`。物理跨主机 QEMU executor/reattach、
   namespace-managed/Tab5/cross-host companion、连续 evidence 流、生产
   secret manager/多机调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
@@ -171,6 +174,8 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/nvs_image.py` | 确定性 NVSv2 namespace/string fixture 生成器 |
 | `tools/network_policy.py` | isolation、egress、controlled DNS、Host allowlist 和 pcap 策略 |
 | `tools/network_egress.py` | nftables 精确 IP/端口规则、veth/NAT gateway、能力检查和清理 |
+| `tools/worker_discovery.py` | HMAC multicast beacon 与 unicast seed beacon 的签名、TTL、来源和 URL 校验 |
+| `tools/worker_discovery_seed.py` | 为无法接收 multicast 的 worker 提供 signed unicast discovery beacon |
 | `tools/network_fabric.py` | private namespace、双 guest QEMU socket L2 switch、DHCP reservation 和 TAP/bridge primitive |
 | `tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS 与 fail-closed runner |
 | `tools/network_lane.py` | esp-emu 网络/Provisioning 诊断 lane |
@@ -182,6 +187,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/dns_cname_chain/` | Controlled resolver 的 bounded CNAME chain、A/AAAA/CNAME encoding、NXDOMAIN 和非法图拒绝 |
 | `../tests/network/cname_guest_lifecycle/` | 同 guest CNAME→terminal A→HTTP、denied name/port、pcap、namespace cleanup 和三次独立 lease 复现 |
 | `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |
+| `../tests/network/worker_discovery_seed/` | 两个独立子网、NAT、unicast seed、错误/旧 token、rotation 和清理验证 |
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
 | `../tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain/resume、进程组清理和下一代 abandoned lease 分类 |

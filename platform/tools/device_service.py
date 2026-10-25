@@ -5340,7 +5340,7 @@ class DeviceSession:
             )
         # Keep the memory policy explicit: native-controller profiles request
         # `-m 0`, while other QEMU devices use their declared emulated PSRAM
-        # size. The m5core2 machine resolves `-m 0` to its 4 MiB default, so
+        # size. The m5core2 machine resolves `-m 0` to its 8 MiB default, so
         # evidence reports the QOM-effective value separately. Board inventory
         # size is not a runtime-memory claim, and neither setting proves
         # physical cache/PSRAM timing.

@@ -17,3 +17,8 @@ It does not create a QEMU session, traverse NAT/subnets without multicast, or
 validate multi-host scheduling. Discovery trusts only a beacon signed with the
 same active master token as the control plane; HTTPS certificate verification
 remains separate.
+
+Workers that cannot receive multicast can use the separate
+[`worker_discovery_seed`](../worker_discovery_seed/README.md) fixture. It
+serves the same signed beacon over a routable unicast seed and validates two
+isolated subnets with IPv4 forwarding, masquerade and token rotation.

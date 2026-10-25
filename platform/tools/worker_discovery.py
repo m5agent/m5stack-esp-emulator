@@ -9,9 +9,12 @@ import ipaddress
 import json
 import secrets
 import socket
+import ssl
 import struct
 import threading
 import time
+import urllib.error
+import urllib.request
 from collections.abc import Callable, Mapping
 from typing import Any
 from urllib.parse import urlsplit
@@ -25,6 +28,7 @@ DEFAULT_DISCOVERY_TTL = 8.0
 MAX_DISCOVERY_PACKET_BYTES = 4096
 DISCOVERY_CLOCK_SKEW_SECONDS = 30
 MAX_DISCOVERY_TTL_SECONDS = 300
+MAX_DISCOVERY_SEED_TIMEOUT_SECONDS = 60
 DISCOVERY_FIELDS = {
     "schema_version",
     "kind",
@@ -36,6 +40,11 @@ DISCOVERY_FIELDS = {
     "nonce",
     "signature",
 }
+
+
+class _RejectDiscoveryRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
 
 
 class WorkerDiscoveryError(RuntimeError):
@@ -88,6 +97,30 @@ def normalize_service_url(service_url: str) -> str:
             "invalid_discovery_service_url",
             "worker discovery service URL must be an HTTP(S) base URL "
             "without credentials, query or fragment",
+        )
+    return value
+
+
+def normalize_discovery_seed_url(seed_url: str) -> str:
+    if not isinstance(seed_url, str):
+        raise WorkerDiscoveryError(
+            "invalid_discovery_seed_url",
+            "worker discovery seed URL must be a string",
+        )
+    value = seed_url.rstrip("/")
+    parsed = urlsplit(value)
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise WorkerDiscoveryError(
+            "invalid_discovery_seed_url",
+            "worker discovery seed URL must be an HTTP(S) URL without "
+            "credentials, query or fragment",
         )
     return value
 
@@ -334,6 +367,99 @@ def discover_service(
         "discovery_timeout",
         "timed out waiting for an authenticated worker discovery beacon",
     )
+
+
+def fetch_discovery_beacon(
+    seed_url: str,
+    master_token: str,
+    *,
+    group: str = DEFAULT_DISCOVERY_GROUP,
+    port: int = DEFAULT_DISCOVERY_PORT,
+    timeout: float = 10.0,
+    ssl_context: ssl.SSLContext | None = None,
+) -> dict[str, Any]:
+    """Fetch and verify a signed beacon from a routable unicast seed."""
+
+    seed_url = normalize_discovery_seed_url(seed_url)
+    if not master_token:
+        raise WorkerDiscoveryError(
+            "invalid_discovery_secret",
+            "worker discovery requires a non-empty master token",
+        )
+    if (
+        timeout <= 0
+        or timeout > MAX_DISCOVERY_SEED_TIMEOUT_SECONDS
+    ):
+        raise WorkerDiscoveryError(
+            "invalid_discovery_timeout",
+            "worker discovery seed timeout must be positive and at most "
+            f"{MAX_DISCOVERY_SEED_TIMEOUT_SECONDS} seconds",
+        )
+    handlers: list[urllib.request.BaseHandler] = [
+        _RejectDiscoveryRedirect()
+    ]
+    if ssl_context is not None:
+        handlers.append(urllib.request.HTTPSHandler(context=ssl_context))
+    opener = urllib.request.build_opener(*handlers)
+    request = urllib.request.Request(
+        seed_url,
+        headers={"Accept": "application/json"},
+    )
+    try:
+        with opener.open(request, timeout=timeout) as response:
+            if response.status != 200:
+                raise WorkerDiscoveryError(
+                    "discovery_seed_http_error",
+                    "worker discovery seed returned an invalid HTTP status",
+                )
+            if response.headers.get_content_type() != "application/json":
+                raise WorkerDiscoveryError(
+                    "invalid_discovery_seed_response",
+                    "worker discovery seed must return application/json",
+                )
+            content_length = response.headers.get("Content-Length")
+            if content_length is not None:
+                try:
+                    declared_bytes = int(content_length)
+                except ValueError as error:
+                    raise WorkerDiscoveryError(
+                        "invalid_discovery_seed_response",
+                        "worker discovery seed returned an invalid "
+                        "Content-Length",
+                    ) from error
+                if declared_bytes > MAX_DISCOVERY_PACKET_BYTES:
+                    raise WorkerDiscoveryError(
+                        "invalid_discovery_seed_response",
+                        "worker discovery seed response is too large",
+                    )
+            data = response.read(MAX_DISCOVERY_PACKET_BYTES + 1)
+    except urllib.error.HTTPError as error:
+        raise WorkerDiscoveryError(
+            "discovery_seed_http_error",
+            f"worker discovery seed returned HTTP {error.code}",
+        ) from error
+    except WorkerDiscoveryError:
+        raise
+    except (urllib.error.URLError, TimeoutError, OSError) as error:
+        raise WorkerDiscoveryError(
+            "discovery_seed_unreachable",
+            "worker discovery seed is unreachable",
+        ) from error
+    if len(data) > MAX_DISCOVERY_PACKET_BYTES:
+        raise WorkerDiscoveryError(
+            "invalid_discovery_seed_response",
+            "worker discovery seed response is too large",
+        )
+    beacon = verify_discovery_beacon(
+        data,
+        master_token,
+        group=group,
+        port=port,
+    )
+    seed_host = urlsplit(seed_url).hostname or ""
+    beacon["source"] = seed_host
+    beacon["transport"] = "unicast-seed"
+    return beacon
 
 
 class WorkerDiscoveryAnnouncer:

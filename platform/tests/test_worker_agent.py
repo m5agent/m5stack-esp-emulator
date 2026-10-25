@@ -417,6 +417,8 @@ class WorkerAgentTests(unittest.TestCase):
                 "http://runtime.example:8788",
                 "--advertise-endpoint",
                 "https://worker.example:8788",
+                "--discover-control-seed-url",
+                "https://seed.example/discovery/beacon",
             ],
         ):
             args = parse_arguments()
@@ -428,6 +430,10 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertEqual(
             args.advertise_endpoint,
             "https://worker.example:8788",
+        )
+        self.assertEqual(
+            args.discover_control_seed_url,
+            "https://seed.example/discovery/beacon",
         )
 
         unhealthy_runtime = FakeRuntimeApi()

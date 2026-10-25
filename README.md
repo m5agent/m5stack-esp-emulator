@@ -30,8 +30,10 @@ MicroPython 和其他完整 Flash 固件。
 - Device Service 在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络、worker job 和 evidence API。
 - Remote worker 可通过 active-token HMAC 签名的 IPv4 multicast beacon 自动
-  发现 control URL；发现只覆盖同一 multicast domain，NAT/跨子网仍需显式
-  端点或后续网络方案。
+  发现同一广播域的 control URL；无法接收 multicast 的跨子网/NAT worker
+  可通过稳定的 unicast discovery seed 获取同一签名 beacon。两个独立子网、
+  IPv4 forwarding、masquerade、token rotation 和 cleanup 已在 privileged
+  Linux Docker fixture 中连续 `3/3 PASS`。
 - Worker 在 job 已 claim 后对 central control-plane transient failure 做
   有界 heartbeat/result 重试；控制面同 state 重启后会重新注册并完成原
   lease/evidence，worker-local runtime QEMU session 保持运行。
