@@ -85,6 +85,18 @@ class FirmwareManifestTests(unittest.TestCase):
             "image-below-efuse-unverified-source",
             anti_rollback_schema["properties"]["comparison"]["enum"],
         )
+        self.assertIn(
+            "disabled",
+            schema["properties"]["security"]["properties"][
+                "secure_boot_config"
+            ]["enum"],
+        )
+        self.assertIn(
+            "disabled",
+            schema["properties"]["security"]["properties"][
+                "flash_encryption_config"
+            ]["enum"],
+        )
         segment_properties = (
             schema["properties"]["artifact"]["properties"]["segments"]["items"][
                 "properties"
@@ -932,6 +944,135 @@ class FirmwareManifestTests(unittest.TestCase):
             )["manifest"]
         self.assertNotEqual(first["created_at"], second["created_at"])
         self.assertEqual(first["manifest_id"], second["manifest_id"])
+
+    def test_security_preflight_rejects_understated_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "secure-boot.bin"
+            image.write_bytes(build_flash_with_secure_boot_v2())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            manifest = import_package(
+                image,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+        device = load_device_profile("sticks3")
+
+        def codes(overrides: dict) -> set[str]:
+            candidate = json.loads(json.dumps(manifest))
+            candidate["security"].update(overrides)
+            return {
+                issue["code"]
+                for issue in validate_capabilities(
+                    candidate,
+                    device,
+                )["errors"]
+            }
+
+        signed_image = json.loads(
+            json.dumps(manifest["security"]["secure_boot_image"])
+        )
+        self.assertIn(
+            "secure_boot_image_not_modeled",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": signed_image,
+                }
+            ),
+        )
+        self.assertIn(
+            "secure_boot_config_not_modeled",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "v2",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                }
+            ),
+        )
+        self.assertIn(
+            "secure_boot_image_invalid",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "invalid",
+                    },
+                }
+            ),
+        )
+        self.assertIn(
+            "flash_encryption_config_not_modeled",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                    "flash_encryption": "unknown",
+                    "flash_encryption_config": "enabled",
+                }
+            ),
+        )
+        efuse_codes = codes(
+            {
+                "secure_boot": "unknown",
+                "secure_boot_config": "unknown",
+                "secure_boot_image": {
+                    **signed_image,
+                    "status": "not-found",
+                },
+                "flash_encryption": "unknown",
+                "flash_encryption_config": "unknown",
+                "efuse_summary": {
+                    "secure_boot": "v2",
+                    "flash_encryption": "enabled",
+                },
+            }
+        )
+        self.assertIn("secure_boot_efuse_not_modeled", efuse_codes)
+        self.assertIn("flash_encryption_efuse_not_modeled", efuse_codes)
+
+    def test_security_shape_is_required_even_without_schema_validator(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "probe.bin"
+            image.write_bytes(build_flash())
+            manifest = import_package(
+                image,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+        missing = json.loads(json.dumps(manifest))
+        missing["security"].pop("secure_boot")
+        self.assertIn(
+            "manifest.security.secure_boot is required",
+            validate_manifest_structure(missing),
+        )
+        invalid = json.loads(json.dumps(manifest))
+        invalid["security"]["flash_encryption"] = "enabled-elsewhere"
+        self.assertIn(
+            "manifest.security.flash_encryption is invalid",
+            validate_manifest_structure(invalid),
+        )
+        missing_validation_list = json.loads(json.dumps(manifest))
+        missing_validation_list["validation"].pop("warnings")
+        self.assertIn(
+            "manifest.validation.warnings must be an array",
+            validate_manifest_structure(missing_validation_list),
+        )
 
     def test_webburner_manifest_id_ignores_output_filename(self):
         with tempfile.TemporaryDirectory() as tmp:

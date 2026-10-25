@@ -104,11 +104,24 @@ live eFuse read or ROM/bootloader verification executes.
 the summary's `SECURE_VERSION` and warns when the image is below the declared
 minimum. Both comparisons remain `not-verified`. This is static image
 self-consistency, not a hardware secure-boot PASS.
-The current tool-hash-bound run after manifest identity/capability changes is
-[`evidence-2026-10-26-secure-boot-image.json`](evidence-2026-10-26-secure-boot-image.json);
+The current tool-hash-bound run after security-preflight hardening is
+[`evidence-2026-10-26-secure-boot-image-security-preflight.json`](evidence-2026-10-26-secure-boot-image-security-preflight.json);
+the preceding
+[`evidence-2026-10-26-secure-boot-image.json`](evidence-2026-10-26-secure-boot-image.json)
+is retained for its earlier tool hash;
 the earlier
 [`evidence-2026-10-25-secure-boot-image.json`](evidence-2026-10-25-secure-boot-image.json)
 remains as a historical checkpoint.
+
+Security preflight now checks every available evidence layer rather than only
+the aggregate `security.secure_boot` / `security.flash_encryption` field.
+sdkconfig, signed-image status and package-provided eFuse claims cannot be
+hidden by setting the aggregate to `unknown`. Missing security fields, invalid
+enums, invalid signature evidence and unmodeled enabled chains are rejected.
+The static probe and evidence are
+[`security_preflight/run_test.py`](security_preflight/run_test.py) and
+[`evidence-2026-10-26-firmware-security-preflight-fail-closed.json`](evidence-2026-10-26-firmware-security-preflight-fail-closed.json).
+This remains compatibility validation, not runtime trust or live eFuse proof.
 
 The four current public CDN artifacts refreshed on `2026-10-25` are bound in
 [`evidence-2026-10-25-refreshed-public-artifacts-static.json`](evidence-2026-10-25-refreshed-public-artifacts-static.json).

@@ -293,6 +293,17 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/firmware/secure_boot_image/run_test.py",
             "tests/firmware/evidence-2026-10-25-secure-boot-image.json",
             "tests/firmware/evidence-2026-10-26-secure-boot-image.json",
+            (
+                "tests/firmware/"
+                "evidence-2026-10-26-secure-boot-image-security-preflight.json"
+            ),
+            (
+                "tests/firmware/"
+                "evidence-2026-10-26-firmware-security-preflight-fail-closed.json"
+            ),
+            "tests/firmware/security_preflight/README.md",
+            "tests/firmware/security_preflight/run_test.py",
+            "platform/tests/test_security_preflight_evidence.py",
             "tests/firmware/evidence-2026-10-24-license-policy.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",

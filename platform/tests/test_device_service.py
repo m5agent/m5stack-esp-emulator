@@ -620,6 +620,30 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "unknown_required_capability",
         )
 
+        understated_security = json.loads(json.dumps(manifest))
+        understated_security["security"]["secure_boot"] = "unknown"
+        understated_security["security"]["secure_boot_config"] = "v2"
+        seal_manifest(understated_security)
+        with self.assertRaises(ServiceError) as security_caught:
+            self.service.create_firmware(
+                {
+                    "device_id": "sticks3",
+                    "kind": "manifest",
+                    "manifest": understated_security,
+                }
+            )
+        self.assertEqual(
+            security_caught.exception.code,
+            "unsupported_firmware_capability",
+        )
+        self.assertIn(
+            "secure_boot_config_not_modeled",
+            {
+                issue["code"]
+                for issue in security_caught.exception.extra["issues"]
+            },
+        )
+
     def test_qemu_runtime_accepts_eight_mib_board_psram(self):
         data = b"\xe9" + b"C" * 1023
         artifact = self.service.upload_artifact(data)

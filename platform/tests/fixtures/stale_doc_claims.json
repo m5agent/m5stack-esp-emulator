@@ -800,6 +800,21 @@
       "id": "STALE-157",
       "text": "manifest_id may vary with package output filename",
       "reason": "Manifest identity excludes artifact.file; identical semantic content from differently named output directories has the same manifest_id."
+    },
+    {
+      "id": "STALE-158",
+      "text": "only the aggregate secure_boot and flash_encryption fields are checked",
+      "reason": "Security preflight now checks aggregate fields, sdkconfig, signed/invalid image evidence and package-provided eFuse claims."
+    },
+    {
+      "id": "STALE-159",
+      "text": "setting aggregate security fields to unknown bypasses preflight",
+      "reason": "Understated aggregate fields fail closed when any other evidence layer requires an unmodeled secure-boot or Flash Encryption chain."
+    },
+    {
+      "id": "STALE-160",
+      "text": "secure_boot_config does not affect Device Service preflight",
+      "reason": "Enabled secure-boot sdkconfig is a structured preflight rejection, not a warning-only field."
     }
   ]
 }

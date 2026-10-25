@@ -1806,6 +1806,10 @@ components:
             capabilities fail closed; unknown optional capabilities remain
             warnings. manifest_id is content-stable and excludes created_at,
             manifest_id and artifact.file from its canonical payload.
+            Security preflight rejects enabled secure-boot or Flash
+            Encryption evidence in sdkconfig, signed/invalid image evidence or
+            package-provided eFuse claims even when aggregate security fields
+            are understated as unknown.
     Firmware:
       type: object
       additionalProperties: true

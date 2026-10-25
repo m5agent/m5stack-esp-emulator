@@ -136,6 +136,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/network/cname_guest_lifecycle/` | 三个独立 Device Service lease 的同一 guest CNAME→A→HTTP、denied-name/port、pcap、namespace cleanup 与 startup failure 诊断 | CNAME guest lifecycle、network evidence ZIP 或 namespace teardown 改动 |
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS capability 证据 | manifest/filesystem/NVS/capability 改动 |
+| `tests/firmware/security_preflight/run_test.py` | 用 synthetic Secure Boot v2 image、sdkconfig、eFuse summary 和篡改 aggregate 对照 Device Service security preflight；任何已声明 enabled 但 profile 未建模的链均 fail closed | security fields、Secure Boot/Flash Encryption preflight 或 schema enum 改动 |
 | `tests/firmware/unknown_required_capability/run_test.py` | 对同一 public StickS3 SHA 同时跑 merged/WebBurner baseline、unknown required 和 unknown optional；验证 required 未知时 CLI/import fail closed，optional 仅 warning | capability policy、Manifest importer 或 WebBurner capability 输入改动 |
 | `tests/firmware/openai_nvs_precondition/` | 对照空 NVS、Open/WPA2 正确密码和错误密码，绑定 NVS overlay、EAPOL/CCMP、DHCP/DNS/TCP 与 pcap | NVS fixture、generic S3 qemu-wifi、S3 WPA2 或该样本分类改动 |
 | `tests/firmware/core2_flash_ipc/run_test.py` | 通过独立 Device Service lease 执行 ESP-IDF CPU1 partition reads；默认校验已知 image/ELF SHA，按 first boot 分类 PASS、interrupt-WDT、spinlock assert，并保存 serial/evidence hash | Core2 flash/IPC、timer/WDT、flash-cache/DPORT 或 `RUNTIME-03` 探针改动 |
@@ -244,7 +245,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/fetch_firmware.py` | 公开 M5Burner 固件查询、校验、下载与缓存 |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 |
 | `platform/tools/firmware_filesystems.py` | LittleFS 挂载、FAT12/16/32 与 SPIFFS 只读解析、文件哈希、敏感路径脱敏和 SPDX 提取 |
-| `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、content-stable `manifest_id`、sdkconfig detected、低置信度 image-signature observed、Secure Boot v2/eFuse 摘要与 anti-rollback version 对照；known/unknown required capability mismatch fail closed，unknown optional 保持 warning |
+| `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、content-stable `manifest_id`、sdkconfig detected、低置信度 image-signature observed、Secure Boot v2/eFuse 摘要与 anti-rollback version 对照；known/unknown required capability mismatch fail closed，unknown optional 保持 warning；security aggregate 不能被 sdkconfig、signed/invalid image 或 eFuse 的 enabled 证据 understate |
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |

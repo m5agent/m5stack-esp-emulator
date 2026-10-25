@@ -112,6 +112,40 @@ CAPABILITY_ALIASES = {
     "ieee-802154": "ieee802154",
     "zigbee": "ieee802154",
 }
+SECURE_BOOT_VALUES = {
+    "unknown",
+    "disabled",
+    "not-indicated",
+    "v1",
+    "v2",
+    "enabled-unspecified",
+}
+FLASH_ENCRYPTION_VALUES = {
+    "unknown",
+    "disabled",
+    "not-indicated",
+    "partition-encryption-marked",
+    "enabled",
+}
+SECURE_BOOT_CONFIG_VALUES = {
+    "unknown",
+    "disabled",
+    "not-indicated",
+    "v1",
+    "v2",
+    "enabled-unspecified",
+}
+FLASH_ENCRYPTION_CONFIG_VALUES = {
+    "unknown",
+    "disabled",
+    "not-indicated",
+    "enabled",
+}
+SECURE_BOOT_REQUIRED_VALUES = {
+    "v1",
+    "v2",
+    "enabled-unspecified",
+}
 SDKCONFIG_CAPABILITY_FLAGS = (
     ("wifi", ("CONFIG_ESP_WIFI_ENABLED", "CONFIG_WIFI_ENABLED")),
     (
@@ -960,6 +994,121 @@ def _code_issues(
     return issue
 
 
+def _security_runtime_errors(security: dict) -> list[dict]:
+    errors = []
+    secure_boot = security.get("secure_boot")
+    if secure_boot in SECURE_BOOT_REQUIRED_VALUES:
+        errors.append(
+            _code_issues(
+                "secure_boot_not_modeled",
+                "target profile does not model the required secure-boot chain",
+                requirement=secure_boot,
+                available="not modeled",
+                path="security.secure_boot",
+            )
+        )
+    secure_boot_config = security.get("secure_boot_config")
+    if secure_boot_config in SECURE_BOOT_REQUIRED_VALUES:
+        errors.append(
+            _code_issues(
+                "secure_boot_config_not_modeled",
+                (
+                    "sdkconfig enables a secure-boot chain that the target "
+                    "profile does not model"
+                ),
+                requirement=secure_boot_config,
+                available="not modeled",
+                path="security.secure_boot_config",
+            )
+        )
+    secure_boot_image = security.get("secure_boot_image")
+    if isinstance(secure_boot_image, dict):
+        status = secure_boot_image.get("status")
+        if status == "signed-image-observed":
+            errors.append(
+                _code_issues(
+                    "secure_boot_image_not_modeled",
+                    (
+                        "a Secure Boot v2 signed image was observed, but the "
+                        "target profile does not model the boot trust chain"
+                    ),
+                    requirement=status,
+                    available="not modeled",
+                    path="security.secure_boot_image.status",
+                )
+            )
+        elif status == "invalid":
+            errors.append(
+                _code_issues(
+                    "secure_boot_image_invalid",
+                    (
+                        "Secure Boot v2 signature evidence is invalid; "
+                        "the image cannot be accepted as boot-compatible"
+                    ),
+                    requirement=status,
+                    available="invalid",
+                    path="security.secure_boot_image.status",
+                )
+            )
+    efuse_summary = security.get("efuse_summary")
+    if isinstance(efuse_summary, dict):
+        secure_boot = efuse_summary.get("secure_boot")
+        if secure_boot in SECURE_BOOT_REQUIRED_VALUES:
+            errors.append(
+                _code_issues(
+                    "secure_boot_efuse_not_modeled",
+                    (
+                        "package-provided eFuse summary indicates secure boot, "
+                        "which the target profile does not model"
+                    ),
+                    requirement=secure_boot,
+                    available="not modeled",
+                    path="security.efuse_summary.secure_boot",
+                )
+            )
+    flash_encryption = security.get("flash_encryption")
+    if flash_encryption == "enabled":
+        errors.append(
+            _code_issues(
+                "flash_encryption_not_modeled",
+                "target profile does not model this flash-encryption mode",
+                requirement="enabled",
+                available="not modeled",
+                path="security.flash_encryption",
+            )
+        )
+    flash_encryption_config = security.get("flash_encryption_config")
+    if flash_encryption_config == "enabled":
+        errors.append(
+            _code_issues(
+                "flash_encryption_config_not_modeled",
+                (
+                    "sdkconfig enables Flash Encryption, which the target "
+                    "profile does not model"
+                ),
+                requirement="enabled",
+                available="not modeled",
+                path="security.flash_encryption_config",
+            )
+        )
+    if isinstance(efuse_summary, dict):
+        flash_encryption = efuse_summary.get("flash_encryption")
+        if flash_encryption == "enabled":
+            errors.append(
+                _code_issues(
+                    "flash_encryption_efuse_not_modeled",
+                    (
+                        "package-provided eFuse summary indicates Flash "
+                        "Encryption, which the target profile does not model"
+                    ),
+                    requirement="enabled",
+                    available="not modeled",
+                    path="security.efuse_summary.flash_encryption",
+                )
+            )
+    return errors
+
+
 def validate_capabilities(
     manifest: dict,
     device: dict,
@@ -1014,31 +1163,10 @@ def validate_capabilities(
                 )
             )
     security = manifest.get("security", {})
-    if security.get("secure_boot") in {
-        "v1",
-        "v2",
-        "enabled-unspecified",
-    }:
-        errors.append(
-            _code_issues(
-                "secure_boot_not_modeled",
-                "target profile does not model the required secure-boot chain",
-                requirement=security.get("secure_boot"),
-                available="not modeled",
-                path="security.secure_boot",
-            )
-        )
-    if security.get("flash_encryption") == "enabled":
-        errors.append(
-            _code_issues(
-                "flash_encryption_not_modeled",
-                "target profile does not model this flash-encryption mode",
-                requirement="enabled",
-                available="not modeled",
-                path="security.flash_encryption",
-            )
-        )
-    elif security.get("flash_encryption") == "partition-encryption-marked":
+    if not isinstance(security, dict):
+        security = {}
+    errors.extend(_security_runtime_errors(security))
+    if security.get("flash_encryption") == "partition-encryption-marked":
         warnings.append(
             _code_issues(
                 "partition_encryption_not_modeled",
@@ -2620,6 +2748,39 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
     if not isinstance(security, dict):
         errors.append("manifest.security must be an object")
     else:
+        for key in ("secure_boot", "flash_encryption", "efuse"):
+            if key not in security:
+                errors.append(f"manifest.security.{key} is required")
+        if security.get("secure_boot") not in SECURE_BOOT_VALUES:
+            errors.append("manifest.security.secure_boot is invalid")
+        if (
+            security.get("flash_encryption")
+            not in FLASH_ENCRYPTION_VALUES
+        ):
+            errors.append(
+                "manifest.security.flash_encryption is invalid"
+            )
+        if (
+            not isinstance(security.get("efuse"), str)
+            or not security.get("efuse")
+        ):
+            errors.append("manifest.security.efuse is invalid")
+        if (
+            "secure_boot_config" in security
+            and security.get("secure_boot_config")
+            not in SECURE_BOOT_CONFIG_VALUES
+        ):
+            errors.append(
+                "manifest.security.secure_boot_config is invalid"
+            )
+        if (
+            "flash_encryption_config" in security
+            and security.get("flash_encryption_config")
+            not in FLASH_ENCRYPTION_CONFIG_VALUES
+        ):
+            errors.append(
+                "manifest.security.flash_encryption_config is invalid"
+            )
         trust_root = security.get("trust_root")
         if trust_root is not None:
             if not isinstance(trust_root, dict):
@@ -3003,15 +3164,21 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
         "REJECTED",
     }:
         errors.append("manifest.validation.status is invalid")
-    elif (
-        isinstance(license_policy, dict)
-        and license_policy.get("status") == "REJECTED"
-        and validation.get("status") != "REJECTED"
-    ):
-        errors.append(
-            "manifest.validation.status must be REJECTED when "
-            "license_policy.status is REJECTED"
-        )
+    else:
+        for key in ("errors", "warnings"):
+            if not isinstance(validation.get(key), list):
+                errors.append(
+                    f"manifest.validation.{key} must be an array"
+                )
+        if (
+            isinstance(license_policy, dict)
+            and license_policy.get("status") == "REJECTED"
+            and validation.get("status") != "REJECTED"
+        ):
+            errors.append(
+                "manifest.validation.status must be REJECTED when "
+                "license_policy.status is REJECTED"
+            )
     return errors
 
 

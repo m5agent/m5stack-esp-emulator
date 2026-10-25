@@ -678,7 +678,7 @@ class DocsFirmwareSecurityContractTests(DocsContractBase):
             (
                 ROOT
                 / "tests/firmware/"
-                "evidence-2026-10-26-secure-boot-image.json"
+                "evidence-2026-10-26-secure-boot-image-security-preflight.json"
             ).read_text()
         )
         self.assertEqual(evidence["date"], "2026-10-26")
@@ -741,6 +741,7 @@ class DocsFirmwareSecurityContractTests(DocsContractBase):
                 for block in image["blocks"]
             )
         )
+
         self.assertEqual(
             {
                 block["scheme"]
@@ -864,6 +865,47 @@ class DocsFirmwareSecurityContractTests(DocsContractBase):
             "secure_boot_v2_image_signature_invalid",
         ):
             self.assertIn(warning, code)
+
+    def test_security_evidence_cannot_be_understated(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-26-"
+                "firmware-security-preflight-fail-closed.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            evidence["kind"],
+            "m5stack-firmware-security-preflight",
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(all(evidence["checks"].values()))
+        cases = evidence["cases"]
+        self.assertEqual(cases["baseline"]["status"], "PASS")
+        for name in (
+            "aggregate_secure_boot",
+            "understated_secure_boot_config",
+            "understated_signed_image",
+            "invalid_signed_image",
+            "understated_flash_encryption_config",
+            "understated_efuse_summary",
+        ):
+            self.assertEqual(cases[name]["status"], "REJECTED", name)
+        manifest_doc = (DOCS / "firmware-manifest.md").read_text()
+        for code in (
+            "secure_boot_config_not_modeled",
+            "secure_boot_image_not_modeled",
+            "secure_boot_image_invalid",
+            "secure_boot_efuse_not_modeled",
+            "flash_encryption_config_not_modeled",
+            "flash_encryption_efuse_not_modeled",
+        ):
+            self.assertIn(code, manifest_doc)
+        api = (DOCS / "device-service-api.md").read_text()
+        openapi = (DOCS / "device-service.openapi.yaml").read_text()
+        self.assertIn("cannot\nhide secure boot or Flash Encryption", api)
+        self.assertIn("aggregate security fields", openapi)
 
 
 if __name__ == "__main__":

@@ -156,6 +156,32 @@ QEMU profile 没有建模对应的密钥和启动链。
 
 warning 不会把自报 eFuse 提升为可信真机状态，也不会推断生产 key 合法。
 
+### Device Service 安全 preflight
+
+Device Service 不只信任 manifest 的聚合 `secure_boot` /
+`flash_encryption` 字段。只要下列任一可用证据是否定或未知、但其它层声称
+启用了当前 profile 未建模的启动/加密链，就会 fail closed：
+
+- `security.secure_boot_config` 为 v1/v2/enabled-unspecified；
+- `security.secure_boot_image.status` 为 signed-image-observed 或 invalid；
+- `security.efuse_summary.secure_boot` 为 enabled；
+- `security.flash_encryption_config` 为 enabled；
+- `security.efuse_summary.flash_encryption` 为 enabled。
+
+因此手写或篡改 manifest 把聚合字段改成 `unknown`，不能绕过 preflight。
+结构校验同时要求 `secure_boot`、`flash_encryption` 和 `efuse` 存在且为
+受支持枚举；显式 `disabled` 的 sdkconfig 状态是合法值，不会被误判为
+字段缺失。相应 issue code 包括
+`secure_boot_config_not_modeled`、`secure_boot_image_not_modeled`、
+`secure_boot_image_invalid`、`secure_boot_efuse_not_modeled`、
+`flash_encryption_config_not_modeled` 和
+`flash_encryption_efuse_not_modeled`。
+
+证据：
+[`firmware-security-preflight-fail-closed.json`](../tests/firmware/evidence-2026-10-26-firmware-security-preflight-fail-closed.json)。
+这不是 live eFuse read 或启动链执行证明；包内 eFuse summary 仍标记为
+unverified。
+
 ### Secure Boot v2 镜像签名 sector
 
 导入器会从 bootloader 和 application partition 的 4 KiB 对齐边界扫描

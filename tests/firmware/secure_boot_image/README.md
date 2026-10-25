@@ -30,7 +30,10 @@ PYTHONPATH=platform/tools python3 \
 ```
 
 The committed evidence is
-[`evidence-2026-10-26-secure-boot-image.json`](../evidence-2026-10-26-secure-boot-image.json).
+[`evidence-2026-10-26-secure-boot-image-security-preflight.json`](../evidence-2026-10-26-secure-boot-image-security-preflight.json).
+The earlier
+[`evidence-2026-10-26-secure-boot-image.json`](../evidence-2026-10-26-secure-boot-image.json)
+is retained for the preceding tool hash.
 The earlier
 [`evidence-2026-10-25-secure-boot-image.json`](../evidence-2026-10-25-secure-boot-image.json)
 is retained as the historical tool-hash-bound checkpoint.

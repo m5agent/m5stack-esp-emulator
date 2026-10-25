@@ -673,6 +673,13 @@ capabilities remain warnings. The manifest identity is content-stable across
 different output/package filenames; `artifact.file` is not part of
 `manifest_id`.
 
+Security preflight also inspects every supplied evidence layer. A caller cannot
+hide secure boot or Flash Encryption by setting only the aggregate security
+fields to `unknown`: enabled sdkconfig, a signed/invalid Secure Boot v2 image
+claim, or a package-provided eFuse claim is rejected when the target runtime
+does not model that chain. These checks remain compatibility decisions; they
+do not authenticate the package summary or perform a live eFuse read.
+
 The browser page is `/platform/web/firmware.html`. It streams the complete
 SHA256 calculation and 4 MiB chunks, retries transient failures, exposes
 progress/cancel, and restores the upload checkpoint from browser storage.

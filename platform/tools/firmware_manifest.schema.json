@@ -397,6 +397,7 @@
         "secure_boot_config": {
           "enum": [
             "unknown",
+            "disabled",
             "not-indicated",
             "v1",
             "v2",
@@ -406,6 +407,7 @@
         "flash_encryption_config": {
           "enum": [
             "unknown",
+            "disabled",
             "not-indicated",
             "enabled"
           ]
