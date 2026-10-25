@@ -3978,6 +3978,114 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("CONFIG_BT_CLASSIC_ENABLED", manifest_code)
         self.assertIn("CONFIG_ZB_ENABLED", manifest_code)
 
+    def test_core2_guest_psram_stress_is_reconciled(self) -> None:
+        evidence_path = (
+            ROOT
+            / "tests/uiflow2/core2_native_hci/"
+            "evidence-2026-10-25-core2-psram-guest-stress-3x.json"
+        )
+        evidence = json.loads(evidence_path.read_text())
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(evidence["validation"], "virtual-device validation")
+        self.assertEqual(evidence["attempts_completed"], 3)
+        self.assertEqual(evidence["attempts_passed"], 3)
+        self.assertEqual(evidence["psram_gate"], "PASS")
+        self.assertTrue(evidence["input_assets_unchanged_during_run"])
+        for run in evidence["runs"]:
+            self.assertEqual(run["status"], "PASS")
+            self.assertEqual(run["psram"]["external_heap_total_bytes"], 4 << 20)
+            self.assertEqual(run["psram"]["requested_bytes"], 1 << 20)
+            self.assertGreaterEqual(
+                run["psram"]["allocated_bytes"],
+                run["psram"]["requested_bytes"],
+            )
+            self.assertEqual(run["psram"]["sweeps"], [1, 2, 3])
+            self.assertEqual(run["psram"]["init_pass_count"], 1)
+            self.assertEqual(run["psram"]["stress_pass_count"], 1)
+            self.assertEqual(run["psram"]["error_markers"], [])
+        checks = evidence["checks_per_attempt"]
+        for name in (
+            "psram_guest_stress",
+            "wifi_dhcp_http",
+            "public_dns_http",
+            "external_nus_gatt",
+            "frame_png",
+            "pcap_file_in_evidence_zip",
+            "api_evidence",
+        ):
+            self.assertEqual(checks[name], "PASS")
+        self.assertIn(
+            "physical 8 MiB PSRAM capacity",
+            evidence["boundary"]["not_claimed"],
+        )
+
+        runner = (
+            ROOT / "tests/uiflow2/core2_native_hci/run_service_5x.py"
+        ).read_text()
+        guest = (
+            ROOT / "tests/uiflow2/unified_core2/main.py"
+        ).read_text()
+        self.assertEqual(
+            hashlib.sha256(
+                (
+                    ROOT
+                    / "tests/uiflow2/core2_native_hci/run_service_5x.py"
+                ).read_bytes()
+            ).hexdigest(),
+            evidence["tool_hashes"]["runner"],
+        )
+        self.assertIn("--require-psram", runner)
+        self.assertIn("psram_buffer[offset + 2 : end]", guest)
+        self.assertIn("UNIFIED_CORE2_PSRAM_STRESS_PASS", guest)
+
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        backend = (DOCS / "core2-native-hci-backend.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        index = (DOCS / "README.md").read_text()
+        unified_readme = (
+            ROOT / "tests/uiflow2/unified_core2/README.md"
+        ).read_text()
+        catalog_source = json.loads(
+            (ROOT / "devices/catalog.source.json").read_text()
+        )
+        profiles = json.loads(
+            (ROOT / "platform/qemu/profiles.json").read_text()
+        )
+        source_core2 = next(
+            device
+            for device in catalog_source["devices"]
+            if device["id"] == "core2"
+        )
+        profile_core2 = next(
+            device for device in profiles["devices"] if device["id"] == "core2"
+        )
+        for text in (
+            status,
+            backlog,
+            workstreams,
+            backend,
+            code_map,
+            index,
+            unified_readme,
+        ):
+            self.assertIn("PSRAM", text)
+        self.assertIn("物理板载 `8 MiB`", status)
+        self.assertIn("物理 `8 MiB`", backlog)
+        self.assertIn(
+            "core2-psram-guest-stress-3x.json",
+            backend,
+        )
+        self.assertIn(
+            "memory_validation",
+            json.dumps(source_core2["runtime"]["validation"]),
+        )
+        self.assertIn(
+            "memory_validation",
+            json.dumps(profile_core2["validation"]),
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -1,10 +1,10 @@
 # Core2 unified runtime probe
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This probe runs the Core2 320x240 display, touch, AXP2101, INA3221,
-MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, WiFi, public IPv4
-DNS/HTTP and `BLEUARTServer` in one UIFlow2 guest.
+MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, PSRAM allocation/readback,
+WiFi, public IPv4 DNS/HTTP and `BLEUARTServer` in one UIFlow2 guest.
 
 It is simulation-only. WiFi uses the QEMU classic ESP32 OpenMAC model and
 QEMU user networking. BLE uses UART1 HCI-offload to an external Bumble
@@ -54,6 +54,33 @@ an interrupt-watchdog failure.
 `evidence-2026-10-23-icount-public.json` records ten independent first-attempt
 PASS runs, including public DNS/HTTP. The older
 `evidence-2026-10-23.json` remains as pre-mitigation history.
+
+## PSRAM probe
+
+The current probe reads `esp32.idf_heap_info(esp32.HEAP_DATA)`, selects the
+largest external heap, allocates a 1 MiB `bytearray`, writes a deterministic
+pattern plus a two-byte address tag in every 4 KiB block, checks the initial
+buffer and then verifies it in three post-READY sweeps. The serial markers are
+`UNIFIED_CORE2_PSRAM_ALLOC`, `UNIFIED_CORE2_PSRAM_INIT_PASS`,
+`UNIFIED_CORE2_PSRAM_SWEEP` and `UNIFIED_CORE2_PSRAM_STRESS_PASS`.
+
+The canonical service gate is opt-in because historical images do not contain
+these markers:
+
+```bash
+python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
+  --image /tmp/core2-native-hci-psram-stress.bin \
+  --elf .work/uiflow2-core2-symbols/micropython.elf \
+  --qemu .work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa \
+  --attempts 3 --hold-seconds 20 --require-psram \
+  --out-dir /tmp/m5-core2-psram-gate
+```
+
+Three independent leases from the same firmware passed with a 4 MiB effective
+external heap, a 1 MiB guest allocation, three sweeps and all board/network/
+BLE/frame/QOM/pcap checks. This is virtual PSRAM data-path validation; the
+board's physical 8 MiB capacity, cache/PSRAM timing and hardware remain
+`NOT RUN`.
 
 BLE in this unified profile remains UART1 HCI-offload to Bumble. Native ESP32
 controller advertising enable is proven separately. The

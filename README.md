@@ -20,6 +20,11 @@ MicroPython 和其他完整 Flash 固件。
   `qemu-ble` 仅保留兼容。
 - Core2 新调用使用 `profile=core2-native-hci`；GDB
   `core2-native-vhci` 保留为诊断/兼容路径。
+- Core2 unified guest 已在 3 个独立 lease 中从 QOM 生效的 `4 MiB` 虚拟
+  PSRAM 堆分配 `1 MiB` bytearray，完成地址标记与数据模式初始化、三轮读回，
+  并在同一实例保持 WiFi、公网 DNS/HTTP、外部 NUS GATT、frame/QOM、pcap
+  和清理 PASS。该结果只证明虚拟 PSRAM 的 guest 数据路径；物理 `8 MiB`、
+  cache/PSRAM 时序和 RF 仍是 `NOT RUN`。
 - Device Service 在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络、worker job 和 evidence API。
 - Remote worker 可通过 active-token HMAC 签名的 IPv4 multicast beacon 自动
@@ -158,13 +163,14 @@ curl -sS -H 'Content-Type: application/json' \
 
 ## 设备支持
 
-| 分组 | 设备 | 状态 |
-| --- | --- | --- |
-| ESP32-S3 | StopWatch、StickS3、CoreS3、AtomS3R、Cardputer-ADV、StackChan、StamPLC、PaperMono、PaperColor | QEMU unified 板级 + WiFi + HCI BLE；具体证据和视觉边界见快照与当前状态 |
-| ESP32-C6 | NanoC6、Arduino Nesso N1 | QEMU unified 板级 + WiFi + HCI BLE；Zigbee/802.15.4 是独立模型缺口 |
-| ESP32-P4 | Tab5 | 烧录、启动、显示、touch mailbox、RS-485 和部分 I2C；外设 `partial` |
-| ESP32 LX6 | Core2 | QEMU unified board + OpenMAC WiFi + `core2-native-hci`；legacy VHCI 仅诊断 |
-| Linux ARM64 | CardputerZero | 独立后端，部分外设通过 |
+设备清单由 `devices/catalog.source.json` 和
+`platform/qemu/profiles.json` 维护，验证日期、外设状态和 blocker 由
+[自动项目快照](docs/project-snapshot.md)生成。这里不再复制第二份设备表。
+
+- ESP32-S3/C6/LX6 的规范整机路径是 `runtime=qemu-unified`：同一 lease
+  中包含板级、WiFi、BLE 和 evidence；具体设备覆盖与边界见快照和当前状态。
+- Tab5 使用独立 P4 后端，当前外设状态是 `partial`。
+- CardputerZero 使用独立 Linux ARM64 后端，不属于 ESP32/UIFlow2 路径。
 
 CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 固件同样可复现；
 普通文字、矩形、RGB PNG 和自定义不透明绘制正常。该问题跟踪为
@@ -302,6 +308,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   `250880→188416 KiB`。3 个独立 lease 的 121 轮 reconnect 复现也已 PASS；
   active-stop/recovery 又在 3 个连续 session 中验证了 BLE/HTTP companion、
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
+  unified guest 还完成 `4 MiB` 虚拟 PSRAM 上的 `1 MiB` 分配和三轮回读，
   bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、长时并发/吞吐
   和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意

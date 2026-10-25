@@ -321,8 +321,11 @@ functional PASS.
   a 4 MiB emulated PSRAM model. Generic-firmware sessions can use that 4 MiB
   model. Native-controller runs request CLI `-m 0`, which the current
   `m5core2` machine resolves to a 4 MiB QOM memory with `has_psram=true`.
-  These are separate runtime-memory configurations, and neither proves
-  physical cache/PSRAM timing. Radio/unified runs now use deterministic
+  The unified guest now also allocates a 1 MiB bytearray from that heap,
+  checks address tags and a deterministic pattern, and completes three full
+  readback sweeps in three independent leases. This proves the virtual guest
+  data path, not the board's physical 8 MiB or cache timing. Radio/unified
+  runs now use deterministic
   TCG/icount scheduling and passed 10/10 independent first attempts; the
   reproduced failure was interrupt-WDT/timer starvation, not a proven cache
   fault.

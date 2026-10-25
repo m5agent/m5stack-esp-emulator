@@ -23,6 +23,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | Core2 host TCG memory bound | `VALIDATED / 120s` | `evidence-2026-10-24-hci4-tb128-hold120-1x.json`；`qemu_accel.py` | 原先未限定 TCG translation buffer，默认最多保留 `1 GiB`；`vmmap` 显示增长落在 `VM_ALLOCATE`。改为 `tb-size=128` 后 120 秒功能全 PASS，RSS delta `-16 KiB`、phys-footprint delta `-17408 KiB` |
 | `CORE2-02` final bounded 7200s | `PASS` | `run_service_5x.py --hold-seconds 7200 --attempts 1`；`evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json` | firmware/ELF/QEMU 与 runner/service/accelerator/limits 工具哈希在首 lease 前冻结，运行期无漂移；`bounded_tcg_cache`、frame/QOM、WiFi/公网、active-BLE GATT、pcap、HLI health 和 cleanup 全 PASS。240 个资源采样中 RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB`，未出现旧两小时的单调增长 |
 | Core2 runtime memory | `PASS` | `evidence-2026-10-24-core2-native-hci-resolved-psram.json`；`qemu_runtime_memory()` | 区分 CLI `-m 0` 与 QOM-effective `4 MiB` / `has_psram=true`；manifest preflight 使用有效值，物理 8 MiB cache/PSRAM timing 仍为 `NOT RUN` |
+| Core2 guest PSRAM stress | `3/3 PASS` | `run_service_5x.py --require-psram --hold-seconds 20 --attempts 3`；`evidence-2026-10-25-core2-psram-guest-stress-3x.json` | 3 个独立 artifact-bound lease 均观察到 `4,194,304 B` 外部堆，guest 分配 `1,048,576 B` bytearray，写入地址标记和数据模式后完成初始化校验及三轮读回；外部堆空闲量下降 `2,228,232 B`。同一实例 frame/QOM、WiFi/公网、NUS GATT、pcap、evidence 与 cleanup PASS。该门禁证明虚拟 PSRAM 数据路径，不覆盖物理 `8 MiB` 或 cache timing |
 | `CORE2-02` same-guest reconnect | `PASS` | `run_service_5x.py --ble-reconnect-cycles 20`、`0006-esp32-native-hci-observability.patch`、`evidence-2026-10-24-hci4-reconnect10-3x.json`、`evidence-2026-10-24-hci4-reconnect20-3x.json` | 修正 Bumble 对无响应 `0x0c35` 的非法 Command Status 后，先完成 3 个 lease 各 10 轮，再扩到各 20 轮；二十轮结果每 lease HLI 577/577、events 397、ACLs 180 清空，连接/L2CAP/GATT 池回到 `3/9/3` |
 | `CORE2-02` 30-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 30 --attempts 3`、`evidence-2026-10-24-hci4-reconnect30-3x.json` | 3 个独立 lease 各 30 轮；每 lease HLI `857/857`、events 587、ACLs 270、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
 | `CORE2-02` 60-cycle extension | `PASS` | `run_service_5x.py --ble-reconnect-cycles 60 --attempts 3`、`evidence-2026-10-24-hci4-reconnect60-3x.json` | 3 个独立 lease 各 60 轮；每 lease HLI `1697/1697`、events `1157`、ACLs `540`、HLI errors/queue/panic 为 0，连接池回到 `3/9/3` |
@@ -543,15 +544,16 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
 60、120 轮 reconnect 门禁已 PASS：
 
 - 若必须实现 bit-exact controller/baseband、PHY 与 coex，另计 `4–8` 周；
-- 物理 cache/PSRAM 等价性和真机
+- 物理板载 `8 MiB` PSRAM、cache/PSRAM 等价性和真机
   路径需要独立
   计划，不能由当前 `5×10s` / `3×60s` / `2×120s` 重复门禁推导；当前
   PASS 覆盖 halt-gated guest 注入、artifact-bound 两小时 active-BLE
   WiFi/公网/GATT 功能保持、限容 host-memory 和 20、30、60、120 轮
   reconnect；三 lease 121 轮已完成 `3/3`，active-stop/recovery 也已
   `3/3 PASS`：在 peer 仍处于 linger 时结束 session，companion、PID 和
-  worker lease 全部清理，并连续启动新 session。剩余长稳项只保留吞吐/
-  并发和物理 cache/PSRAM 等价性。
+  worker lease 全部清理，并连续启动新 session。guest 还已在 `4 MiB`
+  虚拟外部堆完成 `1 MiB` 分配和三轮读回。剩余长稳项只保留吞吐/并发、
+  物理 `8 MiB` 与 cache/PSRAM 等价性。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，
