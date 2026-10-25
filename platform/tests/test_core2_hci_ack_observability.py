@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -25,6 +26,21 @@ SERIAL = EVIDENCE / (
 )
 PEER = EVIDENCE / (
     "evidence-2026-10-25-core2-ack-observability-peer-summary.log"
+)
+CURRENT_DOCS = (
+    ROOT / "README.md",
+    ROOT / "platform/README.md",
+    ROOT / "docs/README.md",
+    ROOT / "docs/code-map.md",
+    ROOT / "docs/project-status.md",
+    ROOT / "docs/project-backlog.md",
+    ROOT / "docs/workstreams.md",
+    ROOT / "docs/engineering-handoff.md",
+    ROOT / "docs/core2-native-hci-backend.md",
+    ROOT / "docs/validation-ledger.md",
+    ROOT / "tests/uiflow2/README.md",
+    ROOT / "tests/uiflow2/core2_native_hci/README.md",
+    ROOT / "patches/qemu-core2-native-hci/README.md",
 )
 
 
@@ -138,6 +154,47 @@ class Core2HciAckObservabilityTests(unittest.TestCase):
             self.serial,
         )
         self.assertIn("BLE_BUMBLE_FAIL", self.peer)
+
+    def test_current_docs_label_host_trace_time(self) -> None:
+        pattern = re.compile(
+            r"(?:4\.506306.{0,240}host[- ]trace\s+(?:time|timestamp)|"
+            r"host[- ]trace\s+(?:time|timestamp).{0,240}4\.506306)",
+            re.DOTALL,
+        )
+        for path in CURRENT_DOCS:
+            text = path.read_text()
+            if "4.506306" not in text:
+                continue
+            self.assertRegex(
+                text,
+                pattern,
+                f"{path.relative_to(ROOT)} must distinguish host trace time "
+                "from guest virtual time",
+            )
+
+    def test_machine_readable_core2_metadata_contains_ack_observability(
+        self,
+    ) -> None:
+        source = json.loads(
+            (ROOT / "devices/catalog.source.json").read_text()
+        )
+        profiles = json.loads(
+            (ROOT / "platform/qemu/profiles.json").read_text()
+        )
+        source_core2 = next(
+            device for device in source["devices"] if device["id"] == "core2"
+        )
+        profile_core2 = next(
+            device for device in profiles["devices"] if device["id"] == "core2"
+        )
+        for validation in (
+            source_core2["runtime"]["validation"]["concurrency_validation"],
+            profile_core2["validation"]["concurrency_validation"],
+        ):
+            self.assertIn("0010", validation)
+            self.assertIn("4.506306s of host trace time", validation)
+            self.assertIn("not guest virtual time", validation)
+            self.assertIn("ack=NULL", validation)
 
     def test_evidence_files_match_recorded_hashes(self) -> None:
         expected = {

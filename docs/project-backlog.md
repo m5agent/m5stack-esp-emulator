@@ -56,10 +56,12 @@
   四实例 concurrent steady-state 不重复列为待办。五实例 30 秒错峰稳态已
   完成两批，但相同实现的零错峰冷启动先 `5/5 PASS`、独立确认批
   `3/5 FAIL`，因此同时冷启动仍是开放规模边界。`0010` ACK-state trace
-  已把因果链收敛到 HLI response delivery delay：首条 Reset Complete 从
-  Bumble 返回后延迟 `4.506306s` 才进入 HLI，旧 response 与新 command
-  交错后触发 process-ack error `12` 和次级 null-ACK panic；下一步应修
-  readiness/delivery ordering，而不是继续扩大 reserve、timeout 或 retry。
+  已把因果链收敛到 HLI response readiness/delivery ordering：首条 Reset
+  Complete 的 response→HLI 时间戳差为 `4.506306s`（host trace time，
+  不是 guest 虚拟时钟）；首条 ACK check 为 `ack=NULL`、semaphore count
+  `0`，旧 response 与新的 `0x1001` command 交错后触发 process-ack
+  error `12` 和次级 null-ACK panic；下一步应修 readiness/delivery ordering，
+  而不是继续扩大 reserve、timeout 或 retry。
 3. `FW-03`：当前四样本、Manifest、SHA-bound expectation、SD/NVS fixture、
    OpenAI DHCP/DNS/TCP443/pcap 和正确/错误 WPA2 密码均已完成；下一步是真实
    key/cloud 服务结果并扩更多设备与 firmware family。

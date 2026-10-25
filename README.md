@@ -306,8 +306,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   五实例 30 秒错峰稳态已通过两批，但零错峰五实例仍不稳定；大于五实例、
   bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、持续吞吐和
   真机同路径仍未完成。`0010` ACK-state trace 进一步把失败窗口定位到首条
-  Reset Complete 从 Bumble 返回后延迟 `4.506306s` 才进入 HLI；旧 response
-  与新 command 交错后触发 process-ack error `12`，最终 panic 是次生结果。
+  Reset Complete 从 Bumble 返回后延迟 `4.506306s` 才进入 HLI；该数值是
+  trace 时间戳差（host trace time），不是 guest 虚拟时钟。首条 ACK check
+  为 `ack=NULL`、semaphore count `0`；旧 Reset Complete 与新的 `0x1001`
+  command response 交错后触发 process-ack error `12`，最终 panic 是次生结果。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

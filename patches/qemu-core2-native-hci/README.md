@@ -50,8 +50,10 @@ This patch adds the first QEMU-side slice of `CORE2-01`:
   semaphore-count branch, and the HCI context's `hci_ack` pointer. It changes
   no default runtime behavior and is enabled only with
   `M5_CORE2_HCI_PACKET_TRACE=1`. The new evidence shows that zero-stagger
-  five-instance failures begin with delayed HLI delivery, not a stale ACK or
-  physical PSRAM/cache fault.
+  five-instance failures begin with HLI response readiness/delivery ordering,
+  not an initially stale ACK pointer/semaphore state or physical
+  PSRAM/cache fault. The measured `4.506306s` is a host-trace timestamp
+  delta, not guest virtual time.
 
 The optional poller captures guest H2C packets from real VHCI shared memory
 without GDB. `HCI-3a` now delivers a controller event through the firmware's

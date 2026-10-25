@@ -90,10 +90,12 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   HCI 稳定性、持续吞吐和其他 teardown。五实例 30 秒错峰稳态已由两批
   `5/5` 关闭，但相同实现的零错峰冷启动先 `5/5 PASS`、独立确认批
   `3/5 FAIL`，因此不能把错峰稳态继承给同时冷启动。`0010` ACK-state
-  trace 已把原因收敛到 HLI response delivery delay：首条 Reset Complete
-  延迟 `4.506306s`，旧 response 与新 command 交错后触发 process-ack
-  error `12` 和次级 null-ACK panic；初始 semaphore/ACK state 为空，
-  不是 stale token 或物理 cache/PSRAM 故障。
+  trace 已把原因收敛到 HLI response readiness/delivery ordering：首条
+  Reset Complete 的 response→HLI 时间戳差为 `4.506306s`（host trace
+  time，不是 guest 虚拟时钟）；首条 ACK check 为 `ack=NULL`、semaphore
+  count `0`，旧 Reset Complete 与新的 `0x1001` command response 交错后
+  触发 process-ack error `12` 和次级 null-ACK panic。初始 ACK pointer/
+  semaphore state 为空，不是 stale ACK state 或物理 cache/PSRAM 故障。
   随后是 `FW-01/02/03` 的运行态 ACL/许可、真机
   security/key 流程和更多固件族；`RUNTIME-02/03/04` 的 C6 Zigbee、Core2
   legacy I2C 与 ATECC608；以及 `HW-01` 同固件 SHA 真机验证。
@@ -733,7 +735,14 @@ CCMP RX 和单播 DHCP 数据路径；WPA3、group-key multicast、天线、距�
    backpressure 超过 NimBLE 2 秒预算。`0009` 扩大真实 guest 对象池后，
    两批四实例均 `4/4 PASS`；这关闭当前四实例规模边界。五实例 30 秒错峰
    另有两批 `10/10 PASS`，但零错峰五实例在相同实现下先 `5/5 PASS`、独立
-   确认批 `3/5 FAIL`，仍不稳定；也不证明 bit-exact controller。
+   确认批 `3/5 FAIL`，仍不稳定；也不证明 bit-exact controller。`0010`
+   的 `5×20s` ACK-state 诊断批为 `3 PASS / 2 FAIL`，把首个异常收敛到
+   HLI response readiness/delivery ordering：首条 Reset Complete 在网络端
+   已返回，但 response→HLI 时间戳差为 `4.506306s`（host trace time，不是
+   guest 虚拟时钟）；guest 在窗口内重发三次 Reset，首条 ACK check 为
+   `ack=NULL`、semaphore count `0`，随后旧 Reset Complete 与新的 `0x1001`
+   response 交错并触发 error `12`。因此下一修复点是 HLI delivery ordering，
+   不是继续放大 reserve、timeout、retry 或伪造 ACK。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。
 4. **网络隔离**：Linux namespace runner 和 guest-inside-namespace 整机路径
@@ -743,7 +752,7 @@ CCMP RX 和单播 DHCP 数据路径；WPA3、group-key multicast、天线、距�
    已 PASS；两台 guest 的 DHCP、TCP、双侧 pcap 与宿主隔离也已 PASS。它仍
    不等同于恶意固件沙箱、生产 worker 或 RF；本地 worker lifecycle、
    QEMU/QMP reattach、远程注册目录、durable job queue、同主机独立 HTTP
-   executor、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS
+   executor、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、
   两个 namespace 与三个独立 Docker 容器对中的 worker-local QEMU
   execution 也已实现。同一
    multicast domain 中的 active-token discovery 和 central control-plane

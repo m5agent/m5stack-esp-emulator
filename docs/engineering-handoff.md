@@ -56,9 +56,10 @@
   物理跨主机、迁移、跨主机幂等、namespace-managed/Tab5 companion 仍开放。
 - Core2：`core2-native-hci`、121 轮重连、artifact-bound 长稳、active-stop、
   QOM 8 MiB PSRAM/upper-bank MMU 和五实例 30 秒错峰并发已有证据。四实例
-  原始失败和五实例零错峰 `5/5 PASS`/`3/5 FAIL` 不稳定对照保留；零错峰
-  五实例、更多实例、持续吞吐、物理 PSRAM/cache timing、bit-exact
-  controller 和真机仍开放。
+  原始失败和五实例零错峰 `5/5 PASS`/`3/5 FAIL` 不稳定对照保留；`0010`
+  已把首个零错峰异常收敛到 HLI response readiness/delivery ordering，零错峰
+  五实例、更多实例、持续吞吐、物理 PSRAM/cache timing、bit-exact controller
+  和真机仍开放。
 - 固件：FirmwareManifest/WebBurner、分段完整性、capability/security、
   Secure Boot v2 数学与包内摘要对照、文件系统、SD/NVS fixture 和
   SHA-bound review expectation 已可执行；live eFuse/trust root、生产 key、
@@ -190,7 +191,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
-| `CORE2-02` | 先修复 HLI response readiness/delivery ordering，再补零错峰五实例及更多实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和其他 teardown | 双/三/四实例和五实例 30 秒错峰均已由两批独立复跑覆盖；`0010` trace 证明零错峰失败由首条 Reset Complete 延迟 `4.506306s`、旧 response 与新 command 交错引起，初始 ACK/semaphore 并非 stale |
+| `CORE2-02` | 先修复 HLI response readiness/delivery ordering，再补零错峰五实例及更多实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和其他 teardown | 双/三/四实例和五实例 30 秒错峰均已由两批独立复跑覆盖；`0010` trace 证明零错峰失败从首条 Reset Complete 的 response→HLI 时间戳差 `4.506306s` 开始（host trace time，不是 guest 虚拟时钟）；首条 ACK check 为空，旧 response 与新 command 交错后才触发 error `12` |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
