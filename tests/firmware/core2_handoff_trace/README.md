@@ -76,5 +76,11 @@ The ELF-derived PC mapping is stored separately from raw trace output so a
 summarizer rerun does not discard it. It remains explicitly unbound from the
 public BIN unless the ELF and image provenance are proven byte-identical.
 
+`0037` is predecessor-bound: it applies after `0036` on the retained
+M5StopWatch-QEMU-derived tree. It is not a standalone patch against raw
+upstream QEMU or the unpatched `da100c9` source commit. The recorded apply
+check reverses `0037` from that predecessor tree, then verifies forward apply
+and reverse apply again.
+
 The trace is diagnostic only. It does not prove physical cache timing or close
 `RUNTIME-03`.

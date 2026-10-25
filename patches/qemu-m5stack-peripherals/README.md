@@ -96,11 +96,14 @@ The peripheral work adds:
   peripherals in the same machine.
 
 Historical incremental replay uses `0001` then `0002` on their original
-derived tree. For the standalone M5StopWatch-QEMU-derived tree, use `0003`
-followed by the PCM capture fix `0004`:
+derived tree. The list below records predecessor order on the retained
+M5StopWatch-QEMU-derived target tree. It is **not** a validated raw-upstream
+bootstrap recipe: later snapshots contain state from earlier incremental
+changes, and some files exist only in the retained worktree.
 
 ```bash
 cd "$QEMU_ROOT/build/qemu"
+# Historical provenance order; apply only to the matching predecessor tree.
 git apply /path/to/0003-m5stack-shared-spi-full.patch
 git apply /path/to/0004-m5stack-i2s-pcm-capture.patch
 git apply /path/to/0005-m5stack-max3421e-usb.patch
@@ -153,7 +156,10 @@ Verified source baseline:
   `zqqf16/M5StopWatch-QEMU` v0.1.0 patches;
 - QEMU `9.2.2`;
 - historical `0001`/`0002` checks pass on their incremental baseline;
-- `0004` applies cleanly immediately after the current standalone `0003`.
+- `0004` and the later numbered patches are predecessor-bound, not standalone
+  raw-upstream patches. The current `0003` snapshot already contains later PCM
+  state, so replaying `0004` after that snapshot is not a supported
+  clean-room operation.
 
 The camera frame path is a simulation data plane, not real-camera validation.
 

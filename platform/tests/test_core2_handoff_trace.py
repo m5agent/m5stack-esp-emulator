@@ -105,12 +105,23 @@ class Core2HandoffTraceTests(unittest.TestCase):
             "0037-esp32-handoff-trace.patch"
         )
         patch = patch_path.read_text()
+        patch_readme = (
+            ROOT / "patches/qemu-m5stack-peripherals/README.md"
+        ).read_text()
+        normalized_patch_readme = " ".join(
+            patch_readme.replace("**", "").split()
+        )
         self.assertIn("M5SW_ESP32_HANDOFF_TRACE", patch)
         self.assertIn("M5SW_ESP32_HANDOFF_TRACE_SAMPLE", patch)
         self.assertIn("esp32_handoff_trace_event_always", patch)
         self.assertIn("wdt-timeout-gap", patch)
         self.assertIn("receive-data", patch)
         self.assertNotIn("M5SW_DISABLE_WDT", patch)
+        self.assertIn(
+            "not a validated raw-upstream bootstrap recipe",
+            normalized_patch_readme,
+        )
+        self.assertIn("predecessor-bound", patch_readme)
         self.assertEqual(
             evidence["runtime"]["trace_patch_sha256"],
             "4ef1cbaa60373132c5f2e375a5a39c590007b133f1359a7e3e76e22375e7bf5a",
@@ -134,6 +145,11 @@ class Core2HandoffTraceTests(unittest.TestCase):
         self.assertEqual(suite["platform_unittest"]["passed"], 504)
         self.assertEqual(suite["docs_contract"]["passed"], 41)
         self.assertEqual(suite["qemu_profile_contract"]["passed"], 19)
+        self.assertEqual(
+            suite["patch_predecessor_forward_reverse_check"],
+            "PASS",
+        )
+        self.assertIn("0036 applied", suite["patch_baseline"])
 
         pc_control = evidence["pc_sampling_control"]
         self.assertEqual(

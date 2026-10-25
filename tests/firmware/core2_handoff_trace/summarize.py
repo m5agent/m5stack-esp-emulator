@@ -327,7 +327,7 @@ def main() -> int:
             "qemu_profiles": "PASS",
             "project_snapshot": "PASS",
             "git_diff_check": "PASS",
-            "patch_clean_base_forward_reverse_check": "PASS",
+            "patch_predecessor_forward_reverse_check": "PASS",
         },
         "normal_watchdog": {
             "trace": normal_trace,
