@@ -65,12 +65,12 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`39` 个 Python 模块，`33513` 行；规模最大的模块如下。
+- `platform/tools`：`39` 个 Python 模块，`33624` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
 | `device_service.py` | 9778 |
-| `firmware_manifest.py` | 2956 |
+| `firmware_manifest.py` | 3067 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1556 |
 | `firmware_filesystems.py` | 1469 |
@@ -78,11 +78,11 @@
 
 - `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`158` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`55` 个 patch 文件。
-- 文档：`202` 个 Markdown 页面，`17811` 行。
+- 文档：`202` 个 Markdown 页面，`17843` 行。
 
 ## 文档与测试
 
-- 平台测试：`454` 项。
+- 平台测试：`455` 项。
 - Docs 新鲜度登记：`33` 行；其中非历史页 `26` 行，历史固定页 `7` 行。
 - 文档职责分布：待办 `3`，契约 `6`，历史固定 `7`，实现/设计 `6`，参考 `7`，工作流/导航 `4`。
 - 所有非历史页的最近复核日期均与当前事实日期一致。

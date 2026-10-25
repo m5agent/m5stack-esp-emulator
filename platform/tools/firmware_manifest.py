@@ -1540,16 +1540,59 @@ def _security_metadata(
             "hardware secure-boot execution",
         ],
     }
+    image_secure_version = descriptor.get("secure_version")
+    efuse_secure_version = (
+        efuse.get("secure_version") if efuse is not None else None
+    )
+    if not isinstance(image_secure_version, int):
+        rollback_comparison = "image-secure-version-unavailable"
+    elif efuse is None:
+        rollback_comparison = "efuse-summary-not-included"
+    elif not isinstance(efuse_secure_version, int):
+        rollback_comparison = "efuse-secure-version-unavailable"
+    elif image_secure_version < efuse_secure_version:
+        rollback_comparison = "image-below-efuse-unverified-source"
+    else:
+        rollback_comparison = "image-satisfies-efuse-unverified-source"
+    anti_rollback = {
+        "status": "not-verified",
+        "comparison": rollback_comparison,
+        "source": (
+            "package-espefuse-json-unverified"
+            if efuse is not None
+            else "not-included"
+        ),
+        "image_secure_version": (
+            image_secure_version
+            if isinstance(image_secure_version, int)
+            else None
+        ),
+        "efuse_secure_version": (
+            efuse_secure_version
+            if isinstance(efuse_secure_version, int)
+            else None
+        ),
+        "not_claimed": [
+            "package-provided eFuse summary authenticity",
+            "live eFuse read from the target device",
+            "bootloader anti-rollback enforcement",
+        ],
+    }
     return {
         "secure_boot": secure_boot,
         "secure_boot_image": secure_boot_image,
         "trust_root": trust_root,
+        "anti_rollback": anti_rollback,
         "flash_encryption": flash_encryption,
         "secure_boot_config": configured_secure_boot,
         "flash_encryption_config": configured_flash_encryption,
         "efuse": "summary-included" if efuse is not None else "not-included",
         "efuse_summary": efuse,
-        "secure_version": descriptor.get("secure_version"),
+        "secure_version": (
+            image_secure_version
+            if isinstance(image_secure_version, int)
+            else None
+        ),
         "sdkconfig_available": bool(config),
     }
 
@@ -1653,8 +1696,7 @@ def _efuse_sha256(
     if not isinstance(value, str):
         return None
     normalized = re.sub(r"[\s:_-]", "", value.strip().lower())
-    if normalized.startswith("0x"):
-        normalized = normalized[2:]
+    normalized = normalized.removeprefix("0x")
     if len(normalized) != 64 or any(
         char not in "0123456789abcdef" for char in normalized
     ):
@@ -2295,6 +2337,25 @@ def import_package(
                         path="security.trust_root",
                     )
                 )
+        anti_rollback = security.get("anti_rollback")
+        if (
+            isinstance(anti_rollback, dict)
+            and anti_rollback.get("comparison")
+            == "image-below-efuse-unverified-source"
+            and security["secure_boot"]
+            in {"v1", "v2", "enabled-unspecified"}
+        ):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "secure_boot_image_secure_version_below_efuse",
+                    (
+                        "application secure_version is below the "
+                        "package-provided eFuse secure_version; the summary "
+                        "remains unverified"
+                    ),
+                    path="security.anti_rollback",
+                )
+            )
         if (
             security["secure_boot"] == "v2"
             and secure_boot_image_status not in {
@@ -2616,6 +2677,56 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
                 ):
                     errors.append(
                         "manifest.security.trust_root.not_claimed is invalid"
+                    )
+        anti_rollback = security.get("anti_rollback")
+        if anti_rollback is not None:
+            if not isinstance(anti_rollback, dict):
+                errors.append(
+                    "manifest.security.anti_rollback must be an object"
+                )
+            else:
+                if anti_rollback.get("status") != "not-verified":
+                    errors.append(
+                        "manifest.security.anti_rollback must not claim "
+                        "verified runtime enforcement"
+                    )
+                if anti_rollback.get("comparison") not in {
+                    "image-secure-version-unavailable",
+                    "efuse-summary-not-included",
+                    "efuse-secure-version-unavailable",
+                    "image-below-efuse-unverified-source",
+                    "image-satisfies-efuse-unverified-source",
+                }:
+                    errors.append(
+                        "manifest.security.anti_rollback.comparison is invalid"
+                    )
+                if anti_rollback.get("source") not in {
+                    "package-espefuse-json-unverified",
+                    "not-included",
+                }:
+                    errors.append(
+                        "manifest.security.anti_rollback.source is invalid"
+                    )
+                for key in (
+                    "image_secure_version",
+                    "efuse_secure_version",
+                ):
+                    value = anti_rollback.get(key)
+                    if value is not None and not isinstance(value, int):
+                        errors.append(
+                            f"manifest.security.anti_rollback.{key} is invalid"
+                        )
+                not_claimed = anti_rollback.get("not_claimed")
+                if (
+                    not isinstance(not_claimed, list)
+                    or not not_claimed
+                    or any(
+                        not isinstance(value, str) or not value
+                        for value in not_claimed
+                    )
+                ):
+                    errors.append(
+                        "manifest.security.anti_rollback.not_claimed is invalid"
                     )
         secure_boot_image = security.get("secure_boot_image")
         if secure_boot_image is not None:

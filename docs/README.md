@@ -72,7 +72,7 @@
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-25` | `1.33.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled domain suffix/CNAME chain、同 guest CNAME 网络证据和 transport 契约 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、legacy GDB 对照、QOM 8 MiB PSRAM + upper-bank MMU remap、artifact-bound 两小时功能门禁、三 lease 121 轮、active-stop/recovery 和持续压力 |
-| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、WebBurner 分段 size/digest 复算、Secure Boot v2 签名/包内 eFuse 摘要对照、文件系统、许可策略、sdkconfig detected / image observed capability、WebBurner 来源展示和 evidence 分层 |
+| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、WebBurner 分段 size/digest 复算、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、文件系统、许可策略、sdkconfig detected / image observed capability、WebBurner 来源展示和 evidence 分层 |
 | [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-25` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍明确为未覆盖边界 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-25` | 网络模式、有界 CIDR egress、domain/CNAME、multicast/unicast discovery、worker process/QEMU/`qemu-unified` companion partition fencing、同 guest 网络生命周期和证据要求 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-25` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
@@ -86,7 +86,7 @@
 | [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-25` | `.work/` 不随仓库发布；提供已验证 macOS arm64 runtime release，QEMU/namespace 的资产和权限要求 |
 | [设备中心接入契约](device-center-adapter.md) | 接口契约 | `2026-10-25` | 目录、外设接口、设备状态、worker lifecycle 与页面消息 |
 | [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-25` | 功能测试必须走 Device Service、保留 session evidence，并按 PID/QMP ownership 接管或明确失败 |
-| [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-25` | 审查证据分层、Secure Boot v2/包内 eFuse 摘要对照、公开 BIN 刷新/SHA 绑定、运行路径和发布门禁 |
+| [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-25` | 审查证据分层、Secure Boot v2/包内 eFuse 摘要与 anti-rollback version 对照、公开 BIN 刷新/SHA 绑定、运行路径和发布门禁 |
 | [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-25` | catalog、runtime coverage、S3 WPA2/Core2 native-HCI 边界和后端数据面 |
 | [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-25` | Tab5 缺失的 P4 控制器、DMA 和端点；仍以 2026-10-22 focused probe 为能力基线 |
 | [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-25` | 单机模块化单体、control/runtime 分离、multicast/unicast discovery、network-partition fence、双 namespace worker-local QEMU、companion recovery 和 warm-pool 边界 |

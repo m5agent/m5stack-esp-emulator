@@ -114,6 +114,7 @@ Flash Encryption 执行。当前 evidence：
 | 镜像布局 | partition `flags`、app descriptor `secure_version` | 镜像声明、加密分区标记和 anti-rollback version |
 | 镜像签名 sector | `security.secure_boot_image` | Secure Boot v2 signature sector 的 magic/version、block CRC、embedded image digest 与镜像内容是否自洽；不证明公钥可信或 boot ROM 实际验签 |
 | 公钥/eFuse 对照 | `security.trust_root` | signature block 的公钥 SHA-256 是否出现在包内 eFuse summary 声明的 `SECURE_BOOT_DIGEST` 中；不证明 summary、公钥或设备 trust root 可信 |
+| anti-rollback 对照 | `security.anti_rollback` | application `secure_version` 是否不低于包内 eFuse summary 的 `SECURE_VERSION`；不证明 summary 来源或 bootloader 实际执行 |
 | sdkconfig | `secure_boot_config`、`flash_encryption_config` | 构建配置原本要求什么，不证明设备实际启用了什么 |
 | eFuse summary | `efuse`、`efuse_summary` | 包提供的一份 `espefuse` 读取结果声称设备状态是什么 |
 | 真机运行态 | 当前 manifest 不包含 | 必须由同设备、同安全配置的独立真机验证提供 |
@@ -207,6 +208,25 @@ summary 的来源、读取时点、目标设备身份、吊销状态或 ROM 实�
 
 该检查不覆盖 Secure Boot v1、Flash Encryption key、生产 eFuse、密钥吊销、
 secure version anti-rollback 真机状态、live eFuse read 或启动链执行。
+
+### Anti-rollback version 对照
+
+application descriptor 的 `secure_version` 同时保留在
+`security.secure_version`。当包内 eFuse summary 可读时，
+`security.anti_rollback` 还会记录：
+
+| comparison | 含义 |
+| --- | --- |
+| `image-secure-version-unavailable` | 没有可解析的 application secure version |
+| `efuse-summary-not-included` | 有镜像版本，但没有包内 eFuse summary |
+| `efuse-secure-version-unavailable` | summary 中没有可读的 `SECURE_VERSION` |
+| `image-below-efuse-unverified-source` | 镜像版本低于包内声明的最低版本 |
+| `image-satisfies-efuse-unverified-source` | 镜像版本不低于包内声明的最低版本 |
+
+`status` 同样固定为 `not-verified`。低于最低版本会产生
+`secure_boot_image_secure_version_below_efuse` warning；satisfied 也不代表
+设备当前 eFuse、secure boot 状态或 bootloader 执行已可信。该对照不覆盖
+key revocation、secure version 更新流程或 anti-rollback 真机行为。
 
 ## 静态审查
 

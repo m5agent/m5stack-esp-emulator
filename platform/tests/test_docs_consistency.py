@@ -4470,7 +4470,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "static secure-boot image validation",
         )
         self.assertTrue(evidence["input_assets_unchanged"])
-        self.assertEqual(len(evidence["checks"]), 21)
+        self.assertEqual(len(evidence["checks"]), 26)
         self.assertTrue(all(evidence["checks"].values()))
         for name, relative in {
             "runner": (
@@ -4579,18 +4579,38 @@ class DocsConsistencyTests(unittest.TestCase):
             trust_comparisons["digest_unavailable"]["comparison"],
             "efuse-key-digest-unavailable",
         )
+        anti_rollback = evidence["anti_rollback_comparisons"]
+        self.assertEqual(
+            anti_rollback["below"]["status"],
+            "not-verified",
+        )
+        self.assertEqual(
+            anti_rollback["below"]["comparison"],
+            "image-below-efuse-unverified-source",
+        )
+        self.assertEqual(
+            anti_rollback["satisfied"]["comparison"],
+            "image-satisfies-efuse-unverified-source",
+        )
+        self.assertEqual(
+            anti_rollback["secure_version_unavailable"]["comparison"],
+            "efuse-secure-version-unavailable",
+        )
 
         manifest = (DOCS / "firmware-manifest.md").read_text()
         for text in (
             "Secure Boot v2 signature sector",
             "secure_boot_v2_image_signature_authenticity_unverified",
             "secure_boot_v2_image_public_key_digest_mismatch",
+            "secure_boot_image_secure_version_below_efuse",
             "secure_boot_v2_image_signature_not_observed",
             "secure_boot_v2_image_signature_invalid",
             "signature_authenticity=not-verified",
             "security.trust_root.status",
+            "security.anti_rollback",
             "match-unverified-source",
             "mismatch-unverified-source",
+            "image-below-efuse-unverified-source",
         ):
             self.assertIn(text, manifest)
         schema = json.loads(
@@ -4609,12 +4629,19 @@ class DocsConsistencyTests(unittest.TestCase):
             ]["status"]["const"],
             "not-verified",
         )
+        self.assertEqual(
+            schema["properties"]["security"]["properties"]["anti_rollback"][
+                "properties"
+            ]["status"]["const"],
+            "not-verified",
+        )
         code = (
             ROOT / "platform/tools/firmware_manifest.py"
         ).read_text()
         for warning in (
             "secure_boot_v2_image_signature_authenticity_unverified",
             "secure_boot_v2_image_public_key_digest_mismatch",
+            "secure_boot_image_secure_version_below_efuse",
             "secure_boot_v2_image_signature_not_observed",
             "secure_boot_v2_image_signature_invalid",
         ):

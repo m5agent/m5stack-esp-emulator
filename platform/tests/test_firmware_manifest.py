@@ -74,6 +74,17 @@ class FirmwareManifestTests(unittest.TestCase):
             "mismatch-unverified-source",
             trust_root_schema["properties"]["comparison"]["enum"],
         )
+        anti_rollback_schema = schema["properties"]["security"]["properties"][
+            "anti_rollback"
+        ]
+        self.assertEqual(
+            anti_rollback_schema["properties"]["status"]["const"],
+            "not-verified",
+        )
+        self.assertIn(
+            "image-below-efuse-unverified-source",
+            anti_rollback_schema["properties"]["comparison"]["enum"],
+        )
         segment_properties = (
             schema["properties"]["artifact"]["properties"]["segments"]["items"][
                 "properties"
@@ -597,6 +608,10 @@ class FirmwareManifestTests(unittest.TestCase):
                 baseline["security"]["trust_root"]["comparison"],
                 "efuse-summary-not-included",
             )
+            self.assertEqual(
+                baseline["security"]["anti_rollback"]["comparison"],
+                "efuse-summary-not-included",
+            )
 
             matching = root / "matching"
             matching_image = matching / "signed.bin"
@@ -769,6 +784,132 @@ class FirmwareManifestTests(unittest.TestCase):
         ] = "trusted"
         self.assertIn(
             "manifest.security.trust_root.comparison is invalid",
+            "\n".join(validate_manifest_structure(invalid_comparison)),
+        )
+
+    def test_secure_boot_anti_rollback_does_not_claim_runtime(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            def import_with_efuse(
+                name: str,
+                *,
+                image_version: int,
+                efuse_version: int | None,
+                secure_boot_enabled: bool = True,
+            ) -> dict:
+                case = root / name
+                case.mkdir()
+                image = case / "signed.bin"
+                image.write_bytes(
+                    build_flash(secure_version=image_version)
+                )
+                (case / "sdkconfig").write_text(
+                    "CONFIG_SECURE_BOOT=y\n"
+                    "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+                )
+                summary = {
+                    "ABS_DONE_1": {
+                        "value": (
+                            "True" if secure_boot_enabled else "False"
+                        ),
+                        "readable": True,
+                    }
+                }
+                if efuse_version is not None:
+                    summary["SECURE_VERSION"] = {
+                        "value": efuse_version,
+                        "readable": True,
+                    }
+                (case / "efuse-summary.json").write_text(
+                    json.dumps(summary)
+                )
+                return import_package(
+                    image,
+                    case / "out",
+                    flash_size=8 << 20,
+                )["manifest"]
+
+            below = import_with_efuse(
+                "below",
+                image_version=2,
+                efuse_version=3,
+            )
+            satisfied = import_with_efuse(
+                "satisfied",
+                image_version=3,
+                efuse_version=2,
+            )
+            unavailable = import_with_efuse(
+                "unavailable",
+                image_version=3,
+                efuse_version=None,
+            )
+            disabled = import_with_efuse(
+                "secure-boot-disabled",
+                image_version=2,
+                efuse_version=3,
+                secure_boot_enabled=False,
+            )
+
+        below_policy = below["security"]["anti_rollback"]
+        self.assertEqual(below_policy["status"], "not-verified")
+        self.assertEqual(
+            below_policy["comparison"],
+            "image-below-efuse-unverified-source",
+        )
+        self.assertEqual(below_policy["image_secure_version"], 2)
+        self.assertEqual(below_policy["efuse_secure_version"], 3)
+        self.assertIn(
+            "secure_boot_image_secure_version_below_efuse",
+            {
+                row["code"]
+                for row in below["validation"]["warnings"]
+            },
+        )
+        self.assertEqual(validate_manifest_structure(below), [])
+
+        satisfied_policy = satisfied["security"]["anti_rollback"]
+        self.assertEqual(
+            satisfied_policy["comparison"],
+            "image-satisfies-efuse-unverified-source",
+        )
+        self.assertNotIn(
+            "secure_boot_image_secure_version_below_efuse",
+            {
+                row["code"]
+                for row in satisfied["validation"]["warnings"]
+            },
+        )
+        self.assertEqual(
+            unavailable["security"]["anti_rollback"]["comparison"],
+            "efuse-secure-version-unavailable",
+        )
+        self.assertEqual(disabled["security"]["secure_boot"], "disabled")
+        self.assertEqual(
+            disabled["security"]["anti_rollback"]["comparison"],
+            "image-below-efuse-unverified-source",
+        )
+        self.assertNotIn(
+            "secure_boot_image_secure_version_below_efuse",
+            {
+                row["code"]
+                for row in disabled["validation"]["warnings"]
+            },
+        )
+
+        claimed = json.loads(json.dumps(below))
+        claimed["security"]["anti_rollback"]["status"] = "verified"
+        self.assertIn(
+            "must not claim verified runtime enforcement",
+            "\n".join(validate_manifest_structure(claimed)),
+        )
+        invalid_comparison = json.loads(json.dumps(below))
+        invalid_comparison["security"]["anti_rollback"][
+            "comparison"
+        ] = "runtime-enforced"
+        self.assertIn(
+            "manifest.security.anti_rollback.comparison is invalid",
             "\n".join(validate_manifest_structure(invalid_comparison)),
         )
 

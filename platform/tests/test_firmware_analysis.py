@@ -38,11 +38,16 @@ ECDSA_TEST_VECTORS = json.loads(
 )
 
 
-def build_image(chip_id: int = 0x0009, descriptor: bool = True) -> bytes:
+def build_image(
+    chip_id: int = 0x0009,
+    descriptor: bool = True,
+    secure_version: int = 0,
+) -> bytes:
     segment = bytearray()
     if descriptor:
         desc = bytearray(256)
         struct.pack_into("<I", desc, 0, 0xABCD5432)
+        struct.pack_into("<I", desc, 4, secure_version)
         desc[16:24] = b"1.2.3\x00\x00\x00"
         desc[48:56] = b"probe\x00\x00\x00"
         desc[112:120] = b"v5.5.4\x00\x00"
@@ -56,11 +61,11 @@ def build_image(chip_id: int = 0x0009, descriptor: bool = True) -> bytes:
     return bytes(header) + struct.pack("<II", 0x3FC00000, len(segment)) + bytes(segment)
 
 
-def build_flash() -> bytes:
+def build_flash(secure_version: int = 0) -> bytes:
     image = bytearray(b"\xff" * 0x12000)
     boot = build_image(descriptor=False)
     image[:len(boot)] = boot
-    app = build_image()
+    app = build_image(secure_version=secure_version)
     image[0x10000:0x10000 + len(app)] = app
     entry = bytearray(32)
     struct.pack_into("<H", entry, 0, 0x50AA)
@@ -146,8 +151,9 @@ def build_flash_with_secure_boot_v2(
     *,
     scheme: str = "rsa",
     curve_id: int = 2,
+    secure_version: int = 0,
 ) -> bytes:
-    image = bytearray(build_flash())
+    image = bytearray(build_flash(secure_version=secure_version))
     boot_sector = 0x1000
     app_sector = 0x11000
     image[boot_sector : boot_sector + 4096] = build_secure_boot_v2_sector(

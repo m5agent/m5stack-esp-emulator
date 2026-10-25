@@ -72,7 +72,8 @@
 - FirmwareManifest/WebBurner required/optional capability、安全证据冲突、
   image-signature observation、WebBurner part size/SHA/MD5 复算、SD/NVS
   fixture、包内 eFuse `SECURE_BOOT_DIGEST` 与签名公钥摘要的
-  match/mismatch 对照，以及 SHA-bound UI/headless/network-first expectation；
+  match/mismatch 对照、application/eFuse `secure_version` 对照，以及
+  SHA-bound UI/headless/network-first expectation；
 - macOS arm64 可复现 runtime bundle，以及 Generic ESP32-S3
   `qemu-wifi/generic-observe`、Open/WPA2 正确密码和错误密码对照。
 
@@ -88,7 +89,7 @@
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
 | Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
 | Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力 | `PILOT` | 物理 PSRAM/cache timing、bit-exact controller、长时并发 |
-| 通用固件审查 | Manifest/WebBurner、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、运行态权限/许可、真机 key、更多固件族 |
+| 通用固件审查 | Manifest/WebBurner、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
 | CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |
 | 真机验证 | 已有测试入口和证据规则 | `NOT RUN` | 物理设备上的同固件路径验证 |
@@ -202,7 +203,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | bit-exact controller/baseband、物理 PSRAM/cache timing、长时并发和其他 teardown | 功能级虚拟证据不能证明物理等价 |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
-| `FW-02` | 真机 secure boot、Flash Encryption、live eFuse 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 不等于 trust root verified |
+| `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
 | `RUNTIME-02` | C6 Zigbee commissioning/join 或明确不支持 | 观察到 802.15.4 帧不等于完整生命周期 |
 | `RUNTIME-03` | Core2 legacy I2C port/pin/bus 路由 | AXP chip id 可读不代表后续 RTC/PMIC 路径 |

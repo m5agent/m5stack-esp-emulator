@@ -232,8 +232,9 @@
 - 镜像声明、sdkconfig、分区加密 flag 和可选 eFuse summary；
 - 签名、安全启动和 Flash 加密状态。Secure Boot v2 signature sector 可做
   CRC、镜像摘要、RSA-PSS/ECDSA 数学验证，并可与包内
-  `SECURE_BOOT_DIGEST` 做摘要对照；包内 eFuse summary 只作自报证据，
-  match 也不能替代 live eFuse read 或真机验证。
+  `SECURE_BOOT_DIGEST` 做摘要对照、与 `SECURE_VERSION` 做 anti-rollback
+  对照；包内 eFuse summary 只作自报证据，match 也不能替代 live eFuse
+  read、bootloader 执行或真机验证。
 
 ### 5.2 静态检查
 

@@ -6,11 +6,11 @@
   "status": "PASS",
   "schema_version_tested": 1,
   "tool_hashes": {
-    "runner": "2995788f4b65c6b6cb2d72322f8f0785039417cccfed0a9bc887e54e94fe508f",
-    "test_image_builder": "10a97b24f93b8d78cbd80d4e57615d021a18a6ee7091add8e70c5710b36397e2",
+    "runner": "1dcd9b770ed81777f98e61695cf782994b3e3dd3d1afee781a9bc820b188af28",
+    "test_image_builder": "511ea44594194ec0c6c3f82592e4758620509c366defb0620fa4ec1f4995bd43",
     "firmware_analysis": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
-    "firmware_manifest": "ca5bdfbcb782c3af985a02b3e504993935b06b1a9b78a0f11ffad6908c7ce04f",
-    "manifest_schema": "c54c8d5c64e5ec5fecef84306b1d9b808f83dfb998127d7b6d23c3cd78eaa11b"
+    "firmware_manifest": "77552302954be4d9b750582b04e338d1dfa4fe0f47645619514e605f7957f9e4",
+    "manifest_schema": "80d6f751a3335dd909e14d97cc53ea78291bae7c7319fe2f39a7fde4dec4692a"
   },
   "input_assets_unchanged": true,
   "checks": {
@@ -24,6 +24,11 @@
     "efuse_digest_mismatch_compared": true,
     "efuse_digest_mismatch_warning_recorded": true,
     "efuse_digest_unavailable": true,
+    "anti_rollback_image_version_recorded": true,
+    "anti_rollback_below_compared": true,
+    "anti_rollback_below_warning_recorded": true,
+    "anti_rollback_satisfied_compared": true,
+    "anti_rollback_version_unavailable": true,
     "tampered_digest_rejected": true,
     "tampered_warning_recorded": true,
     "unsigned_image_not_found": true,
@@ -542,10 +547,49 @@
       ]
     }
   },
+  "anti_rollback_comparisons": {
+    "below": {
+      "status": "not-verified",
+      "comparison": "image-below-efuse-unverified-source",
+      "source": "package-espefuse-json-unverified",
+      "image_secure_version": 2,
+      "efuse_secure_version": 3,
+      "not_claimed": [
+        "package-provided eFuse summary authenticity",
+        "live eFuse read from the target device",
+        "bootloader anti-rollback enforcement"
+      ]
+    },
+    "satisfied": {
+      "status": "not-verified",
+      "comparison": "image-satisfies-efuse-unverified-source",
+      "source": "package-espefuse-json-unverified",
+      "image_secure_version": 3,
+      "efuse_secure_version": 2,
+      "not_claimed": [
+        "package-provided eFuse summary authenticity",
+        "live eFuse read from the target device",
+        "bootloader anti-rollback enforcement"
+      ]
+    },
+    "secure_version_unavailable": {
+      "status": "not-verified",
+      "comparison": "efuse-secure-version-unavailable",
+      "source": "package-espefuse-json-unverified",
+      "image_secure_version": 0,
+      "efuse_secure_version": null,
+      "not_claimed": [
+        "package-provided eFuse summary authenticity",
+        "live eFuse read from the target device",
+        "bootloader anti-rollback enforcement"
+      ]
+    }
+  },
   "not_claimed": [
     "embedded public key authenticity",
     "package-provided eFuse summary authenticity",
     "embedded public key trust against live eFuse",
+    "bootloader anti-rollback enforcement",
     "Secure Boot ROM/bootloader execution",
     "Secure Boot v1",
     "Flash Encryption key or runtime state",

@@ -328,6 +328,60 @@
             }
           }
         },
+        "anti_rollback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "comparison",
+            "source",
+            "image_secure_version",
+            "efuse_secure_version",
+            "not_claimed"
+          ],
+          "properties": {
+            "status": {
+              "const": "not-verified"
+            },
+            "comparison": {
+              "enum": [
+                "image-secure-version-unavailable",
+                "efuse-summary-not-included",
+                "efuse-secure-version-unavailable",
+                "image-below-efuse-unverified-source",
+                "image-satisfies-efuse-unverified-source"
+              ]
+            },
+            "source": {
+              "enum": [
+                "package-espefuse-json-unverified",
+                "not-included"
+              ]
+            },
+            "image_secure_version": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "efuse_secure_version": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "not_claimed": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
         "flash_encryption": {
           "enum": [
             "unknown",

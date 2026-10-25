@@ -140,6 +140,24 @@ def main() -> int:
                 },
             },
         )
+        efuse_anti_rollback_below = import_case(
+            build_flash(secure_version=2),
+            root,
+            "efuse-anti-rollback-below",
+            efuse_summary={
+                "ABS_DONE_1": {"value": "True", "readable": True},
+                "SECURE_VERSION": {"value": 3, "readable": True},
+            },
+        )
+        efuse_anti_rollback_satisfied = import_case(
+            build_flash(secure_version=3),
+            root,
+            "efuse-anti-rollback-satisfied",
+            efuse_summary={
+                "ABS_DONE_1": {"value": "True", "readable": True},
+                "SECURE_VERSION": {"value": 2, "readable": True},
+            },
+        )
         tampered_bytes = bytearray(build_flash_with_secure_boot_v2())
         tampered_bytes[0x10500] ^= 0xFF
         tampered = import_case(
@@ -234,6 +252,15 @@ def main() -> int:
     efuse_unavailable_trust = efuse_digest_unavailable["security"][
         "trust_root"
     ]
+    anti_rollback_below = efuse_anti_rollback_below["security"][
+        "anti_rollback"
+    ]
+    anti_rollback_satisfied = efuse_anti_rollback_satisfied["security"][
+        "anti_rollback"
+    ]
+    anti_rollback_unavailable = efuse_digest_unavailable["security"][
+        "anti_rollback"
+    ]
     signed_by_label = {
         row["label"]: row for row in signed_image["images"]
     }
@@ -294,6 +321,30 @@ def main() -> int:
             efuse_unavailable_trust.get("comparison")
             == "efuse-key-digest-unavailable"
             and efuse_unavailable_trust.get("status") == "not-verified"
+        ),
+        "anti_rollback_image_version_recorded": (
+            efuse_anti_rollback_below["security"].get("secure_version")
+            == 2
+            and anti_rollback_below.get("image_secure_version") == 2
+        ),
+        "anti_rollback_below_compared": (
+            anti_rollback_below.get("comparison")
+            == "image-below-efuse-unverified-source"
+            and anti_rollback_below.get("status") == "not-verified"
+            and anti_rollback_below.get("efuse_secure_version") == 3
+        ),
+        "anti_rollback_below_warning_recorded": (
+            "secure_boot_image_secure_version_below_efuse"
+            in warning_codes(efuse_anti_rollback_below)
+        ),
+        "anti_rollback_satisfied_compared": (
+            anti_rollback_satisfied.get("comparison")
+            == "image-satisfies-efuse-unverified-source"
+            and anti_rollback_satisfied.get("status") == "not-verified"
+        ),
+        "anti_rollback_version_unavailable": (
+            anti_rollback_unavailable.get("comparison")
+            == "efuse-secure-version-unavailable"
         ),
         "tampered_digest_rejected": (
             tampered_image.get("status") == "invalid"
@@ -366,6 +417,8 @@ def main() -> int:
                 efuse_digest_match,
                 efuse_digest_mismatch,
                 efuse_digest_unavailable,
+                efuse_anti_rollback_below,
+                efuse_anti_rollback_satisfied,
             )
         ),
     }
@@ -397,10 +450,16 @@ def main() -> int:
             "mismatch": efuse_mismatch_trust,
             "digest_unavailable": efuse_unavailable_trust,
         },
+        "anti_rollback_comparisons": {
+            "below": anti_rollback_below,
+            "satisfied": anti_rollback_satisfied,
+            "secure_version_unavailable": anti_rollback_unavailable,
+        },
         "not_claimed": [
             "embedded public key authenticity",
             "package-provided eFuse summary authenticity",
             "embedded public key trust against live eFuse",
+            "bootloader anti-rollback enforcement",
             "Secure Boot ROM/bootloader execution",
             "Secure Boot v1",
             "Flash Encryption key or runtime state",

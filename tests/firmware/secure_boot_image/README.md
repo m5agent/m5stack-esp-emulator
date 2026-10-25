@@ -10,13 +10,16 @@ This static fixture verifies that the FirmwareManifest distinguishes:
 - a Secure Boot v2 configuration with no signature sector.
 - matching, mismatching and unavailable public-key digest comparisons against
   a package-provided `espefuse` summary.
+- below, satisfied and unavailable application `secure_version` comparisons
+  against the summary's `SECURE_VERSION`.
 
 The fixture also checks that a structurally valid signature block remains
 `signature_authenticity=not-verified`, and that both the per-image
 `trust_root=not-verified` and top-level `security.trust_root.status` remain
 unverified. A digest match only means the signed image agrees with a
 self-asserted package summary; the fixture does not authenticate that summary,
-read live eFuse contents, or execute boot ROM/bootloader verification.
+read live eFuse contents, enforce anti-rollback, or execute boot
+ROM/bootloader verification.
 
 Run:
 

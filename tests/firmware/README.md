@@ -90,7 +90,10 @@ signature mathematics are verified against block-embedded public keys. When a
 package includes an `espefuse` summary, `security.trust_root.comparison`
 separately records digest match, mismatch or unavailable evidence. The summary
 is self-asserted, so `security.trust_root.status` remains `not-verified`; no
-live eFuse read or ROM/bootloader verification executes. This is static image
+live eFuse read or ROM/bootloader verification executes.
+`security.anti_rollback` separately compares application `secure_version` with
+the summary's `SECURE_VERSION` and warns when the image is below the declared
+minimum. Both comparisons remain `not-verified`. This is static image
 self-consistency, not a hardware secure-boot PASS.
 
 The four current public CDN artifacts refreshed on `2026-10-25` are bound in
