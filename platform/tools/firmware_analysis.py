@@ -17,6 +17,34 @@ SECURE_BOOT_V2_SIGNATURE_MAGIC = 0xE7
 SECURE_BOOT_V2_SIGNATURE_SECTOR_SIZE = 0x1000
 SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE = 1216
 ECDSA_CURVES = {
+    1: {
+        "p": int(
+            "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF",
+            16,
+        ),
+        "a": -3,
+        "b": int(
+            "64210519E59C80E70FA7E9AB72243049"
+            "FEB8DEECC146B9B1",
+            16,
+        ),
+        "gx": int(
+            "188DA80EB03090F67CBF20EB43A18800"
+            "F4FF0AFD82FF1012",
+            16,
+        ),
+        "gy": int(
+            "07192B95FFC8DA78631011ED6B24CDD5"
+            "73F977A11E794811",
+            16,
+        ),
+        "n": int(
+            "FFFFFFFFFFFFFFFFFFFFFFFF99DEF836"
+            "146BC9B1B4D22831",
+            16,
+        ),
+        "bytes": 24,
+    },
     2: {
         "p": int(
             "FFFFFFFF00000001000000000000000000000000"
@@ -340,17 +368,36 @@ def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
         }.get(curve_id, f"unknown-{curve_id}")
         scheme = f"ecdsa-{curve_name}-sha256"
         public_key_digest = hashlib.sha256(block[36:101]).hexdigest()
-        if curve_id == 2:
+        if curve_id in {1, 2}:
+            component_width = 24 if curve_id == 1 else 32
             public_point = (
-                int.from_bytes(block[37:69], "little"),
-                int.from_bytes(block[69:101], "little"),
+                int.from_bytes(
+                    block[37 : 37 + component_width],
+                    "little",
+                ),
+                int.from_bytes(
+                    block[
+                        37 + component_width : 37
+                        + component_width * 2
+                    ],
+                    "little",
+                ),
             )
             signature_math_valid = _verify_ecdsa(
                 image_digest,
                 curve_id,
                 public_point,
-                int.from_bytes(block[101:133], "little"),
-                int.from_bytes(block[133:165], "little"),
+                int.from_bytes(
+                    block[101 : 101 + component_width],
+                    "little",
+                ),
+                int.from_bytes(
+                    block[
+                        101 + component_width : 101
+                        + component_width * 2
+                    ],
+                    "little",
+                ),
             )
             signature_math = (
                 "valid" if signature_math_valid else "invalid"

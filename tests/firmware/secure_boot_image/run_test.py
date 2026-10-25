@@ -156,6 +156,14 @@ def main() -> int:
             root,
             "ecdsa-p384",
         )
+        ecdsa_p192 = import_case(
+            build_flash_with_secure_boot_v2(
+                scheme="ecdsa",
+                curve_id=1,
+            ),
+            root,
+            "ecdsa-p192",
+        )
 
     signed_image = signed["security"]["secure_boot_image"]
     tampered_image = tampered["security"]["secure_boot_image"]
@@ -168,6 +176,7 @@ def main() -> int:
     ]
     ecdsa_p256_image = ecdsa_p256["security"]["secure_boot_image"]
     ecdsa_p384_image = ecdsa_p384["security"]["secure_boot_image"]
+    ecdsa_p192_image = ecdsa_p192["security"]["secure_boot_image"]
     signed_by_label = {
         row["label"]: row for row in signed_image["images"]
     }
@@ -226,6 +235,16 @@ def main() -> int:
                 for block in image.get("blocks", [])
             )
         ),
+        "ecdsa_p192_observed": (
+            ecdsa_p192_image.get("status")
+            == "signed-image-observed"
+            and all(
+                block.get("scheme") == "ecdsa-p192-sha256"
+                and block.get("signature_math") == "valid"
+                for image in ecdsa_p192_image["images"]
+                for block in image.get("blocks", [])
+            )
+        ),
         "ecdsa_p384_observed": (
             ecdsa_p384_image.get("status")
             == "signed-image-observed"
@@ -281,13 +300,13 @@ def main() -> int:
             "tampered": tampered_image,
             "unsigned": unsigned_image,
             "ecdsa_p256": ecdsa_p256_image,
+            "ecdsa_p192": ecdsa_p192_image,
             "ecdsa_p384": ecdsa_p384_image,
             "bad_signature": bad_signature_image,
             "bad_ecdsa_signature": bad_ecdsa_signature_image,
         },
         "not_claimed": [
             "embedded public key authenticity",
-            "ECDSA P-192 mathematical verification",
             "embedded public key trust against live eFuse",
             "Secure Boot ROM/bootloader execution",
             "Secure Boot v1",

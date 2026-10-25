@@ -6,9 +6,9 @@
   "status": "PASS",
   "schema_version_tested": 1,
   "tool_hashes": {
-    "runner": "907f7121e44fbd30c45912edae9fd95a2a9a31f9f2a05a358916ec1d7ff3fefb",
-    "test_image_builder": "de4ff2489f5039ae294abe15224062ee70e5d9b20d4b346e3b23861e8833746c",
-    "firmware_analysis": "1b1fb55deca39f9dc3556c072abada01d0bc01180e901f554fcd6e69e6ea0c3b",
+    "runner": "81f0100bc82164c7609e752fbea944e71a15792006fe478ac00793dd59d96b3c",
+    "test_image_builder": "10a97b24f93b8d78cbd80d4e57615d021a18a6ee7091add8e70c5710b36397e2",
+    "firmware_analysis": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
     "firmware_manifest": "ccfe00d5afe243fa8a30b01ba6ecd611928cf1e13fc9a9b8d781a23c349d8f6d",
     "manifest_schema": "be712ee4e66dff157a69a2fc21f4b0ca7b8d4fbccd3624f8690386bf022fe1fc"
   },
@@ -24,6 +24,7 @@
     "tampered_warning_recorded": true,
     "unsigned_image_not_found": true,
     "ecdsa_p256_observed": true,
+    "ecdsa_p192_observed": true,
     "ecdsa_p384_observed": true,
     "bad_signature_math_rejected": true,
     "bad_ecdsa_signature_math_rejected": true,
@@ -248,6 +249,67 @@
         }
       ]
     },
+    "ecdsa_p192": {
+      "status": "signed-image-observed",
+      "signature_authenticity": "not-verified",
+      "trust_root": "not-verified",
+      "images": [
+        {
+          "label": "bootloader",
+          "status": "image-digest-match",
+          "sector_offset": 4096,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 3,
+              "sha_version": 0,
+              "curve_id": 1,
+              "scheme": "ecdsa-p192-sha256",
+              "image_digest_sha256": "a5e642124f6529e9df0a25b4d2c3c6fdd62c838ae14d254c3b892fa40e868dd6",
+              "image_digest_sha384": null,
+              "public_key_digest_sha256": "071e2806532c48346ca1e53d2d5ec818a6f3f38d7484f51f938e196d72541569",
+              "signature_math": "valid",
+              "signature_math_valid": true,
+              "block_crc32": 2914643202
+            }
+          ],
+          "image_digest_match": true,
+          "signature_math_verified": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        },
+        {
+          "label": "factory",
+          "status": "image-digest-match",
+          "sector_offset": 69632,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 3,
+              "sha_version": 0,
+              "curve_id": 1,
+              "scheme": "ecdsa-p192-sha256",
+              "image_digest_sha256": "237a53ea70283962208e8964b9d688f440291de05b5e79f923011ff587317aaf",
+              "image_digest_sha384": null,
+              "public_key_digest_sha256": "071e2806532c48346ca1e53d2d5ec818a6f3f38d7484f51f938e196d72541569",
+              "signature_math": "valid",
+              "signature_math_valid": true,
+              "block_crc32": 2826482684
+            }
+          ],
+          "image_digest_match": true,
+          "signature_math_verified": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        }
+      ]
+    },
     "ecdsa_p384": {
       "status": "signed-image-observed",
       "signature_authenticity": "not-verified",
@@ -434,7 +496,6 @@
   },
   "not_claimed": [
     "embedded public key authenticity",
-    "ECDSA P-192 mathematical verification",
     "embedded public key trust against live eFuse",
     "Secure Boot ROM/bootloader execution",
     "Secure Boot v1",

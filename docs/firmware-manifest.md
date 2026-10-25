@@ -162,21 +162,20 @@ Secure Boot v2 signature sector，不执行签名或启动固件。当前支持�
 - block 中公钥区域的 SHA-256 指纹。
 - RSA-PSS/SHA-256 签名数学验证，包括 MGF1、PSS 编码、salt 和 signed
   image digest。
-- ECDSA P-256/SHA-256 与 P-384/SHA-384 数学验证，包括曲线点校验、标量乘、
-  inverse 和 recovered `r`。
+- ECDSA P-192/P-256/SHA-256 与 P-384/SHA-384 数学验证，包括曲线点校验、
+  标量乘、inverse 和 recovered `r`。
 
 `security.secure_boot_image.status` 的语义：
 
 | 状态 | 含义 |
 | --- | --- |
-| `signed-image-observed` | 至少一个 block 结构有效，image digest 与当前镜像内容一致；受支持的 RSA-PSS/ECDSA P-256/P-384 block 同时通过数学验签 |
+| `signed-image-observed` | 至少一个 block 结构有效，image digest 与当前镜像内容一致；RSA-PSS 或 ECDSA P-192/P-256/P-384 block 同时通过数学验签 |
 | `invalid` | 找到 signature-like sector，但 block CRC、image digest 或受支持曲线的数学签名不一致 |
 | `not-found` | 没有找到可解析的 v2 signature sector |
 
 每个 block 记录 `signature_math=valid/invalid/not-implemented`。RSA-PSS 使用
-block 内 modulus/exponent 对 signed image digest 验签；ECDSA P-256/P-384
+block 内 modulus/exponent 对 signed image digest 验签；ECDSA P-192/P-256/P-384
 使用 block 内 curve ID、public point、`r`/`s` 和 signed digest 完成数学验签。
-P-192 目前只做格式和摘要检查，`signature_math=not-implemented`。
 
 即使状态是 `signed-image-observed`，manifest 仍固定记录
 `signature_authenticity=not-verified` 和 `trust_root=not-verified`。原因是静态
@@ -184,12 +183,12 @@ P-192 目前只做格式和摘要检查，`signature_math=not-implemented`。
 真实 eFuse 比较，也没有让 boot ROM/bootloader 执行验签。对应 warnings：
 
 - `secure_boot_v2_image_signature_authenticity_unverified`；
-- `secure_boot_v2_image_signature_math_not_verified`（当前为 ECDSA P-192）；
+- `secure_boot_v2_image_signature_math_not_verified`（未知/未来曲线）；
 - `secure_boot_v2_image_signature_not_observed`（config/eFuse 声称 v2）；
 - `secure_boot_v2_image_signature_invalid`。
 
-该检查不覆盖 ECDSA P-192 数学验签、Secure Boot v1、Flash Encryption key、
-生产 eFuse、密钥吊销、secure version anti-rollback 真机状态或启动链执行。
+该检查不覆盖 Secure Boot v1、Flash Encryption key、生产 eFuse、密钥吊销、
+secure version anti-rollback 真机状态或启动链执行。
 
 ## 静态审查
 

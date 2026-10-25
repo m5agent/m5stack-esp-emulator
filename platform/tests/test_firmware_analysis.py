@@ -122,6 +122,18 @@ def build_secure_boot_v2_sector(
                 block[69:101] = bytes.fromhex(vector["y_little"])
                 block[101:133] = bytes.fromhex(signature["r_little"])
                 block[133:165] = bytes.fromhex(signature["s_little"])
+            elif curve_id == 1:
+                digest = bytes(block[4:36]).hex()
+                vector = ECDSA_TEST_VECTORS["p192"]
+                signature = vector["signatures"][digest]
+                block[37:61] = bytes.fromhex(vector["x_little"])
+                block[61:85] = bytes.fromhex(vector["y_little"])
+                block[101:125] = bytes.fromhex(
+                    signature["r_little"]
+                )
+                block[125:149] = bytes.fromhex(
+                    signature["s_little"]
+                )
     else:
         raise ValueError(scheme)
     struct.pack_into("<I", block, 1196, zlib.crc32(block[:1196]))
@@ -782,16 +794,12 @@ class FirmwareAnalysisTests(unittest.TestCase):
                     )
                     self.assertEqual(
                         row["blocks"][0]["signature_math"],
-                        (
-                            "not-implemented"
-                            if scheme == "ecdsa" and curve_id == 1
-                            else "valid"
-                        ),
+                        "valid",
                     )
                     self.assertTrue(row["image_digest_match"])
                     self.assertEqual(
                         row["signature_math_verified"],
-                        not (scheme == "ecdsa" and curve_id == 1),
+                        True,
                     )
                     self.assertEqual(
                         row["signature_authenticity"],

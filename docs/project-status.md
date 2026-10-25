@@ -79,7 +79,7 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 | 设备与统一运行时 | S3/C6/Core2 单 guest 的板级、WiFi、BLE、frame/QOM、pcap 和 evidence 已可执行 | 代表设备同固件 SHA 真机验证；剩余控制器/视觉差异 | 不能用同 SoC 其他板、其他固件 SHA 或真机 RF 继承 PASS |
 | 网络与 worker | DNS/CNAME、CIDR egress、discovery、重启恢复、control/runtime 分离、跨容器 QEMU，以及 QEMU process / unified companion partition fence 已落地 | QEMU 内 guest/controller side effect；worker 未拥有的外部 side effect；物理跨主机 | 三个 Docker 容器对仍共享宿主，不等于物理多机；QEMU PID 回收不等于 guest 内部已完成 quiesce |
 | Core2 | native-HCI 功能路径、121 轮重连、active-stop、8 MiB QOM/MMU 和长时虚拟压力已通过 | 物理 PSRAM/cache timing、bit-exact BT baseband/controller、长时吞吐/并发、其他 teardown | 7200 秒功能保持和 bounded TCG 只覆盖对应 workload |
-| 通用固件审查 | Manifest/WebBurner、完整性、capability、静态/SBOM/文件系统、Secure Boot v2 sector/摘要与 RSA-PSS、ECDSA P-256/P-384 数学验证、NVS/SD 和网络预期已可执行 | ECDSA P-192 数学验证、公钥 authenticity/eFuse trust root、运行态 ACL/许可、真机安全 key/eFuse、真实云端业务、更多固件族 | 结构 PASS、签名数学/摘要自洽、静态 PASS、网络 marker PASS 都不能替代 eFuse trust 与真机安全结论 |
+| 通用固件审查 | Manifest/WebBurner、完整性、capability、静态/SBOM/文件系统、Secure Boot v2 sector/摘要与 RSA-PSS、ECDSA P-192/P-256/P-384 数学验证、NVS/SD 和网络预期已可执行 | 公钥 authenticity/eFuse trust root、运行态 ACL/许可、真机安全 key/eFuse、真实云端业务、更多固件族 | 结构 PASS、签名数学/摘要自洽、静态 PASS、网络 marker PASS 都不能替代 eFuse trust 与真机安全结论 |
 | Tab5 / CardputerZero / UI | Tab5 与 Linux ARM64 后端有可用子集；StopWatch 是唯一参考级外壳 | P4 后端决策、CardputerZero 收尾、逐设备视觉模型 | `partial` 表示可用子集，不等同完整设备或全固件兼容 |
 
 ## 总览

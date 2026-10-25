@@ -4464,7 +4464,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "static secure-boot image validation",
         )
         self.assertTrue(evidence["input_assets_unchanged"])
-        self.assertEqual(len(evidence["checks"]), 16)
+        self.assertEqual(len(evidence["checks"]), 17)
         self.assertTrue(all(evidence["checks"].values()))
         for name, relative in {
             "runner": (
@@ -4525,6 +4525,15 @@ class DocsConsistencyTests(unittest.TestCase):
                 ][0]["blocks"]
             },
             {"ecdsa-p256-sha256"},
+        )
+        self.assertEqual(
+            {
+                block["scheme"]
+                for block in evidence["security_images"]["ecdsa_p192"][
+                    "images"
+                ][0]["blocks"]
+            },
+            {"ecdsa-p192-sha256"},
         )
         self.assertEqual(
             {

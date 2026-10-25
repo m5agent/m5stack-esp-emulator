@@ -1,5 +1,20 @@
 {
   "description": "Public-only ECDSA test vectors for deterministic Secure Boot v2 firmware signatures",
+  "p192": {
+    "curve_id": 1,
+    "x_little": "e0717ddddb18f0b259bf7a57fbff19a19bdd40c7dca958c4",
+    "y_little": "69536d852bcdaf67f4bee10ee6dbd9b537ccdab0b0622c37",
+    "signatures": {
+      "4f821d4c97f53c6d1bbdb7d36db8c1f56b63bc09c45d07d68c5085d754171813": {
+        "r_little": "54c1f80700d03e5076a9ec391ed6c31b172297bdd38c26ea",
+        "s_little": "f4fbdb7a69620cbccbb0bfe3b56df0b2b943801e12ce8a32"
+      },
+      "f60446628ffffd45b7bc67effbc9d6e30188c6327bfeffaa3ef71123712bbdba": {
+        "r_little": "1c5bdcd665175e8964ab43049f0e26bc5eb3208cc0be5a13",
+        "s_little": "8c4022ca40c1628c51bfb39bc262e38cb3d749bbc29e5815"
+      }
+    }
+  },
   "p256": {
     "curve_id": 2,
     "x_little": "e16cea2b0bfe529b744ac593e0db691a56d765d964ee5f8710fa6795956d89af",
