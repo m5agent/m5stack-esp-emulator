@@ -135,6 +135,7 @@ git apply /path/to/0032-esp32-timg-wdt-trace.patch
 git apply /path/to/0033-esp32-s32c1i-trace.patch
 git apply /path/to/0034-xtensa-ccompare-equal-deadline.patch
 git apply /path/to/0035-esp32-timg-wdt-int-ena.patch
+git apply /path/to/0036-ssi-transfer-buf.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -192,7 +193,7 @@ RTC, touch and IMU once. Legacy UIFlow performs AXP and BM8563 transactions
 through controller 0, while the previous model exposed RTC only on controller
 1. Port-level trace proves `0x34` and `0x51` now share
 `/machine/soc/i2c0/i2c`; the public UIFlow image advances beyond the prior
-`I2C bus error (19)`. Existing UIFlow2 Core2 peripheral cases pass `6/6`.
+`I2C bus error (19)`. Existing UIFlow2 Core2 peripheral cases pass.
 The same firmware still reaches an independent interrupt-WDT boundary and
 does not yet produce a non-empty application frame. This patch does not claim
 physical board timing or complete legacy-firmware compatibility.
@@ -234,6 +235,17 @@ timer but drives the level only from `INT_RAW & INT_ENA`. The trace observed
 `INT_ENA=0`, `INT_RAW=4`, masked status `0`; two Device Service controls still
 reached `TG0WDT_SYS_RESET` after the fix. This patch is a model-semantics fix,
 not closure of the legacy UIFlow QIO/cross-core/flash-cache path.
+
+`0036-ssi-transfer-buf.patch` adds an optional byte-buffer transfer callback to
+the generic SSI bus. Devices without the callback retain the original
+per-byte `ssi_transfer` behavior. m25p80 implements the callback only for
+`STATE_READ`; command, address, dummy-cycle, CS and address-wrap handling stay
+on the existing state machine. ESP32 SPI uses the callback only for
+receive-only data phases. In the legacy Core2 image, sampled batches matched
+the original per-byte path; the Core2 UIFlow2 device group and shared-controller
+full matrix passed, but watchdog-disabled legacy firmware still did not reach
+the REPL.
+This is a controller/data-path optimization, not closure of `RUNTIME-03`.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

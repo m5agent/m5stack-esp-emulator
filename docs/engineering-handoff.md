@@ -41,9 +41,10 @@
   `INT_ENA.WDT` mask 语义已分别修复。
   Timer 修复让 `CORE2_FLASH_IPC_READ_START`/partition-read probe 通过首启动
   门禁；WDT mask 修复后同一 legacy firmware 仍 reset PC `0`、黑帧并以
-  TG0 watchdog reset 循环。临时 QIO bulk-read 快路径推进到 REPL，
-  但绕过 SSI 数据阶段；关闭 WDT 后 cross-core IRQ 持续且 flash-cache
-  握手不完成。下一步是真实控制器数据面与 cross-core/DPORT 交接。
+  TG0 watchdog reset 循环。`0036` 的 stateful SSI 批量路径与原逐字节
+  路径匹配，并通过 UIFlow2 Core2 外设组，但 normal-WDT legacy 仍失败；
+  WDT 关闭后在观察窗口内也未到 REPL。cross-core/flash-op flags 会反复完成，
+  当前瓶颈判断转向同步 Flash/cache handoff 的累计吞吐，而不是永久死锁。
   运行比例和 evidence 只查验证台账；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
@@ -76,16 +77,20 @@
 - 旧版“flash 前 spinlock owner mismatch”已确认是探针把 4096-byte 局部
   数组放进 4096-byte 任务栈导致的栈溢出，已经撤销，不再作为模型证据；
 - probe timer 修复没有关闭 legacy UIFlow；legacy 仍出现 `TG0/TG1WDT_SYS_RESET`
-  和同一 black frame，当前调查转向 watchdog feed/clear、服务任务饥饿及其与
-  flash-cache disable、跨核 IPC、DPORT high-interrupt 的关系；
+  和同一 black frame，当前调查转向累计 flash-cache/IPC/DPORT handoff 吞吐
+  与 watchdog feed/services task 进度的关系；
 - `0035` 修正 `INT_ENA.WDT=0` 时仍注入 WDT level IRQ 的独立模型错误；
   legacy 在修复后仍复位，因此该补丁只修正寄存器语义；
-- QIO Flash 扫描诊断确认逐字节 SSI 是显著性能瓶颈；用同一 m25p80
-  BlockBackend 的临时批量读取得逐字节一致的样本并推进到 MicroPython REPL，
-  但该快路径绕过 SSI 命令/dummy/data 状态机，不能进入产品；
-- 关闭 WDT 只是移除 reset 症状：CPU0 停在 flash operation block 等待，
-  CPU1 位于 DPORT safe-read/cache handoff，cross-core IRQ 持续翻转，
-  握手完成条件仍未满足；
+- `0036` 新增通用 SSI byte-buffer 接口和 m25p80 QIO `STATE_READ` 快速路径；
+  抽样批次与原逐字节路径完全一致，Core2 UIFlow2 设备组和共享控制器完整
+  矩阵通过。它保留命令、地址、dummy、CS 和地址回绕语义；精确计数只查
+  验证台账；
+- stateful 批量路径仍没有关闭 legacy；正常 WDT 下继续 reset，关闭 WDT
+  后在观察窗口内也没有进入 setup/REPL。先前直接 read 到 REPL 的现象在当前
+  重建中未复现，不能再作为稳定里程碑；
+- 直接 state trace 显示 flash-op can-start/complete 和 cross-core reason
+  反复完成。当前工作假设是同步 Flash/cache handoff 的总吞吐不足，下一步
+  需要和 watchdog feed、批次、guest 进度放到同一虚拟时间轴；
 - 文档已拆成当前事实、待办、日期化证据、契约、实现地图和历史页五类，后续
   不应再把这些运行细节复制回总览。
 
@@ -227,7 +232,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 实现保留 SSI/m25p80 状态机的高效 QIO 路径；追踪 cross-core IRQ、flash-cache pause/ack、DPORT 交接、watchdog feed/clear 和 IDLE/service task | I2C、timer 和 WDT mask 已修复；临时 bulk bypass / 关闭 WDT 都只改变症状，legacy TG watchdog 与 black frame 仍 OPEN |
+| `RUNTIME-03` | 以 stateful SSI 批量面为基线，量化 flash-op handoff、guest 进度与 watchdog feed；优化累计同步吞吐 | I2C、timer、WDT mask 和 batch 数据面已有独立 evidence；正常 WDT legacy 仍失败，永久 cross-core 死锁假设已撤销 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

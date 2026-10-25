@@ -52,10 +52,11 @@
       "followed_by": [
         "TG0WDT_SYS_RESET",
         "WDT reset info: PRO CPU PC=0x0"
-      ]
+      ],
+      "reproduction": "NOT REPRODUCED in the later stateful-SSI rebuild within a 120-second direct-read window; treat the REPL observation as runtime/window-sensitive rather than a stable milestone"
     },
     "classification": "The temporary shortcut proved the backing-store bytes agree with the modeled SSI stream and that per-byte QIO forwarding is a major diagnostic cost. The shortcut bypasses the SSI data phase and is not an acceptable product fix.",
-    "next_product_step": "Implement controller-level efficient SSI transfer while preserving the m25p80 command/dummy/data state machine."
+    "next_product_step": "Preserve the stateful SSI batch path and correlate flash-operation, cross-core/DPORT handoff, guest progress and watchdog feed on one virtual timeline; do not reduce the fix to a direct BlockBackend bypass."
   },
   "wdt_int_ena_semantics": {
     "product_patch": "patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch",
@@ -111,7 +112,12 @@
     "stderr_sha256": "f874e02a27325f4d728f0101d600d342b43e1e3bc473d853a1cb22e628de6391",
     "serial_bytes": 507,
     "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
-    "classification": "Disabling watchdog reset only changes the symptom: the guest remains stalled while cross-core interrupt traffic continues. The handshake completion, interrupt-matrix routing and DPORT flash-cache handoff still require controller-level evidence."
+    "classification": "Disabling watchdog reset removed the reset symptom, but the earlier claim of a permanent cross-core deadlock was too strong. A later direct memory-state trace observed the flash-operation can-start/complete flags and cross-core reasons toggling repeatedly. The current leading boundary is aggregate synchronous flash/cache-handoff throughput, not a proven permanent handshake deadlock.",
+    "reproduction_follow_up": {
+      "evidence": "tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json",
+      "crosscore_handshake": "completes repeatedly",
+      "legacy_repl_reached": false
+    }
   },
   "checks": {
     "bulk_backing_store_bytes_match_ssi_stream": "PASS / diagnostic",

@@ -320,10 +320,12 @@ class DocsIndexContractTests(DocsContractBase):
                 "0034-xtensa-ccompare-equal-deadline.patch"
             ),
             "patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch",
+            "patches/qemu-m5stack-peripherals/0036-ssi-transfer-buf.patch",
             (
                 "tests/firmware/"
                 "evidence-2026-10-26-core2-qio-crosscore-diagnostic.json"
             ),
+            "tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",

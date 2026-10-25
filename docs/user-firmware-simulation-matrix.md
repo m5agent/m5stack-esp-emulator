@@ -275,7 +275,7 @@ zero `FAIL`.
 
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. A later diagnostic reached the MicroPython banner only through a temporary QIO `blk_pread` shortcut that bypasses the SSI state machine. Normal-WDT runs still reset with `TG0WDT_SYS_RESET` and reset PC `0`; with WDT disabled, cross-core IRQ traffic continues while CPU0 waits in the flash-operation block and CPU1 remains in the DPORT/cache handoff. No non-empty application frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. A stateful SSI batch path now matches the per-byte m25p80 data path and passes the Core2 UIFlow2 device group, but normal-WDT legacy still resets with `TG0WDT_SYS_RESET` and reset PC `0`; WDT-disabled runs did not reach setup text or REPL within 180 seconds. The earlier direct-read REPL observation did not reproduce. Flash-operation and cross-core flags complete repeatedly, so current evidence points to aggregate synchronous handoff throughput rather than a permanent cross-core deadlock. No non-empty application frame |
 | `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
@@ -320,18 +320,18 @@ longer the explanation for this reproducer.
 This does not close the public legacy firmware. The same image still reports
 `TG1WDT_SYS_RESET` and `TG0WDT_SYS_RESET`, with reset CPU PC `0`, and produces
 only a black frame. The next boundary is therefore the legacy firmware's
-TG0/TG1 watchdog feed/clear or service-starvation path rather than the minimal
-probe's timer deadline.
+interrupt-WDT timing and aggregate Flash/cache-handoff progress rather than the
+minimal probe's timer deadline.
 
-The subsequent QIO/cross-core trace added `0035` and narrowed the remaining
-work further. `0035` fixes a TIMG level-IRQ bug where `INT_ENA.WDT=0` did not
-mask the WDT source; the same legacy image still reset afterward. QIO reads
-from the m25p80 backing store matched the SSI byte stream in a bounded sample,
-but the temporary direct-read path bypassed the controller phases and is not a
-product fix. With watchdog reset disabled, both CPUs remained stalled around
-the flash-cache cross-core handshake. The next acceptance therefore requires a
-real SSI/m25p80 data path, normal WDT behavior and a non-empty application
-frame in one session.
+The subsequent QIO/cross-core trace added `0035`, then `0036` replaced the
+temporary direct-read path with a stateful SSI batch interface. Sampled m25p80
+`STATE_READ` batches matched the original per-byte path, and the Core2 UIFlow2
+device group passed. The same legacy image still reset under the normal
+watchdog; with watchdog reset disabled, the bounded observation was
+insufficient to reach setup text or REPL. Direct memory tracing showed
+flash-operation and cross-core reason flags repeatedly completing. The next acceptance therefore
+requires reducing aggregate synchronous flash/cache-handoff throughput, normal
+WDT behavior and a non-empty application frame in one session.
 
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for

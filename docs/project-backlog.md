@@ -23,7 +23,7 @@
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
-| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、最小 probe 的 `CCOMPARE == CCOUNT` timer deadline 和 TIMG `INT_ENA.WDT` mask 语义已修复；剩余是 legacy `TG0/TG1WDT_SYS_RESET`、reset PC `0`、高效 QIO 数据面、cross-core/DPORT 交接和非空应用帧 | probe timer PASS、单次 REPL marker、临时 bulk read 或关闭 WDT 都不代表 legacy 应用启动 |
+| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask 和 QIO/stateful SSI 批量数据面已修复/验证；剩余是大量同步 Flash/cache handoff 的累计吞吐、normal-WDT `TG0/TG1WDT_SYS_RESET`、reset PC `0` 和非空应用帧 | probe/UIFlow2 PASS、单次 REPL marker、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
 | P0 | 网络产品化 | 物理跨主机 worker、跨主机幂等、任意 NAT 和外部 side-effect fence | 单机 namespace/container 不能替代物理多机 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、其他 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | 运行态 ACL/许可、真机安全配置和更多真实业务 | 静态声明、镜像摘要自洽不等于设备 trust/ACL |
@@ -35,10 +35,10 @@
 
 ## 当前执行顺序
 
-1. `RUNTIME-03`：最小 flash/IPC timer 与 masked WDT interrupt 已分别修复并
-   通过模型对照；下一步回到 legacy UIFlow，在真实 SSI/m25p80 状态机上实现
-   高效 QIO 转发，并解释 cross-core IRQ、flash-cache pause/ack、DPORT 交接、
-   `TG0/TG1WDT_SYS_RESET`、reset PC `0` 和黑帧。
+1. `RUNTIME-03`：最小 flash/IPC timer、masked WDT interrupt 和 stateful SSI
+   数据面已分别验证；下一步把 flash-op can-start/complete、cross-core reason、
+   batch 字节、guest PC 和 watchdog feed 放到同一虚拟时间轴，降低累计
+  同步吞吐并解释 normal-WDT `TG0/TG1WDT_SYS_RESET`、reset PC `0` 和黑帧。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -60,7 +60,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 将临时 QIO bulk read 替换为保留 SSI/m25p80 状态的控制器级高效路径；追踪 cross-core IRQ、flash-cache pause/ack、DPORT 交接和 legacy watchdog feed/clear | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；保留 timer/WDT 对照和 UIFlow2 回归 |
+| `RUNTIME-03` | 进行中 | 以 `0036` stateful SSI 批量面为基线，量化 cross-core handoff、guest 进度与 watchdog feed 的累计吞吐并优化 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT 对照和 UIFlow2 回归保持 PASS |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -90,36 +90,43 @@ icount 对照中不再出现。
 同一轮 TIMG trace 还确认旧模型在 `INT_ENA.WDT=0` 时仍抬高 level IRQ；
 `0035` 只修正该 mask 语义，修复后 legacy 仍出现 `TG0WDT_SYS_RESET`。
 legacy Flash 扫描又暴露逐字节 SSI 成本；临时 `blk_pread` 快路径与抽样
-SSI 数据逐字节一致并把串口推进到 REPL，但绕过控制器数据阶段。关闭 WDT
-后，两核稳定停在 flash-cache cross-core 握手。上述结果只用于定位。
+SSI 数据逐字节一致，但绕过控制器数据阶段；旧 REPL 观察在当前重建中
+未复现。`0036` 的 QIO/stateful SSI 批量面与原逐字节路径一致，Core2
+UIFlow2 设备组通过，但 normal-WDT legacy 仍复位；关闭 WDT 后也未进入
+setup/REPL。state trace 显示 flash-op flags 与 cross-core reason 反复完成。
+精确计数只查验证台账。上述结果只用于定位。
 完整 trace 和边界见[运行时模型缺口登记](runtime-model-gap-register.md)。
 
 开放范围：
 
 - 回到同一 `UIFlow_Core2` SHA，解释 `TG0WDT_SYS_RESET`/
   `TG1WDT_SYS_RESET`、reset CPU PC `0` 和黑帧之间的先后关系；
-- 在 ESP32 SPI controller 和 m25p80 状态机内实现高效 QIO 数据转发；不能
-  继续使用绕过 dummy/data phase 的 `blk_pread` 快路径作为产品实现；
+- 保持 `0036` 的 stateful SSI 批量数据面，不使用绕过 dummy/data phase 的
+  `blk_pread` 快路径；
 - 追踪 TIMG watchdog feed/clear、timer expiry、`INTSET`、`INTENABLE`、
   interrupt stage/reset 和两个 CPU 的服务任务进度，区分模型与固件死锁；
 - 增加通用 DPORT/flash-cache 状态 trace，确认 flash-cache pause、cross-core
   call/ack、DPORT high-interrupt 标志和 guest 等待/清标志顺序；
 - 对 cross-core IRQ0/IRQ1 的 source CPU、interrupt matrix target、latch/
-  clear 和 CPU 状态做同时间轴关联，解释 WDT 关闭后握手为何不完成；
+  clear 和 CPU 状态做同时间轴关联，量化 WDT 关闭后 handoff 的完成频率；
+- 将 flash-op can-start/complete、cross-core reason、SSI batch、guest PC
+  和 watchdog feed 采样到同一虚拟时间轴，判断累计吞吐瓶颈来自 guest
+  忙等、TCG 调度、cache disable 还是控制器数据面；
 - 检查 legacy 初始化期间是否真的执行了足够的 watchdog feed/clear，或某个
   高优先级同步路径使 IDLE/service task 长时间无法运行；
 - 保留默认关闭的 S32C1I、TIMG 和 IRQ trace；不能把旧 probe 的 timer 根因
   直接复用于 legacy watchdog；
-- 当前工作假设是 legacy TG0/TG1 feed/clear 或服务任务饥饿，与
-  flash-cache/IPC/DPORT 的顺序交互仍需 evidence；
+- 当前工作假设是启动扫描产生的大量同步 flash-cache/IPC/DPORT handoff
+  使累计服务进度超过 watchdog 窗口；仍缺少同一虚拟时间轴的直接量化；
 - 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
 - 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
 
 验收：
 
 - 已满足的最小 probe 首启动门禁继续可重放，且业务补丁不包含 trace/ring；
-- 同一 UIFlow 固件 SHA 在正常 WDT、真实 SSI/m25p80 数据面下出现非空应用
-  帧并稳定运行；不得依赖 `M5SW_DISABLE_WDT`、bulk-read bypass 或 retry；
+- 同一 UIFlow 固件 SHA 在正常 WDT、`0036` stateful SSI/m25p80 数据面下
+  出现非空应用帧并稳定运行；不得依赖 `M5SW_DISABLE_WDT`、bulk-read
+  bypass、accelerator override 或 retry；
 - legacy TG0/TG1 reset 的触发点有证据，shared bus、TIMG trace 和 Core2
   UIFlow2 外设组回归保持 PASS；
 - 当前假设获得支持或被否定，且失败 trace、设备未建模部分和固件行为分开记录。

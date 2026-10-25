@@ -179,7 +179,7 @@ transaction on controller 0. The 2026-10-25 follow-up proved that the old board
 model exposed RTC only on controller 1. Patch `0031` now routes both controller
 register blocks to the single physical GPIO21/22 bus and attaches each slave
 once; AXP, RTC and INA transactions ACK on the same image, the prior I2C error
-is absent, and the existing UIFlow2 Core2 device group passes `6/6`. The same
+is absent, and the existing UIFlow2 Core2 device group passes. The same
 legacy image still reaches an independent interrupt-WDT boundary with a black
 frame, so `RUNTIME-03` stays open for that later failure.
 
@@ -211,21 +211,29 @@ That run is explicitly invalidated in
 The corrected evidence supports the flash-read data path and closes the minimal
 probe's timer-starvation reproduction. It does not close legacy UIFlow:
 `TG0WDT_SYS_RESET`/`TG1WDT_SYS_RESET`, reset CPU PC `0` and a black frame remain
-in the same public firmware path, so watchdog feed/clear or service starvation
-is now the next investigation boundary.
+in the same public firmware path, so interrupt-WDT timing and aggregate
+Flash/cache-handoff progress remain the next investigation boundary.
 
-The subsequent diagnostics are recorded in
+The earlier QIO/cross-core diagnostics are recorded in
 [`evidence-2026-10-26-core2-qio-crosscore-diagnostic.json`](evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)
 as `DIAGNOSTIC_ONLY`. Patch `0035` fixes a verified TIMG mask-semantics bug
 where a raw WDT status raised the level IRQ while `INT_ENA.WDT` was clear; the
 same legacy image still reset after that fix. A temporary QIO direct-read path
-matched the SSI byte stream for every sampled transaction and advanced a
-diagnostic run to the MicroPython banner, but it bypassed the SSI/m25p80 phase
-machine and must not become a product path. Disabling WDT reset then showed a
-cross-core stall: CPU0 was in the flash-operation wait, CPU1 was in the
-DPORT/cache handoff, and cross-core IRQ traffic continued. Normal-WDT,
-controller-level QIO transfer, completed handshake, non-empty application frame
-and physical hardware all remain unproven.
+matched the SSI byte stream for sampled transactions, but later rebuilds did
+not reproduce its older REPL observation and the path bypasses the SSI/m25p80
+phase machine. Patch `0036` adds a stateful batch interface: m25p80 accelerates
+only `STATE_READ`, the generic fallback remains per-byte equivalent, and the
+sampled batches matched exactly. The Core2 UIFlow2 device group and the
+shared-controller full matrix passed. Normal-WDT legacy still reset; with WDT
+disabled, the bounded observation was insufficient to reach setup text or
+REPL. Cross-core state tracing showed
+the flash-operation and reason flags repeatedly completing, moving the working
+hypothesis from permanent handshake deadlock to aggregate synchronous
+Flash/cache-handoff throughput. Normal-WDT application startup, non-empty frame
+and physical hardware remain unproven.
+
+See
+[`evidence-2026-10-26-core2-ssi-transfer-buf.json`](evidence-2026-10-26-core2-ssi-transfer-buf.json).
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).

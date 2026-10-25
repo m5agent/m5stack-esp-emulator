@@ -449,6 +449,71 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("0035-esp32-timg-wdt-int-ena.patch", patches_readme)
         self.assertIn("INT_RAW & INT_ENA", patches_readme)
 
+        ssi_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-26-core2-ssi-transfer-buf.json"
+            ).read_text()
+        )
+        self.assertEqual(ssi_evidence["status"], "PARTIAL")
+        self.assertEqual(
+            ssi_evidence["data_plane_equivalence"]["batches"],
+            512,
+        )
+        self.assertEqual(
+            ssi_evidence["data_plane_equivalence"]["mismatch_count"],
+            0,
+        )
+        self.assertEqual(ssi_evidence["regression"]["cases_passed"], 6)
+        self.assertEqual(ssi_evidence["regression"]["checks_passed"], 24)
+        self.assertFalse(ssi_evidence["regression"]["retry_used"])
+        self.assertEqual(
+            ssi_evidence["regression"]["summary_sha256"],
+            "62d7d42568be7758f51f7b61d960b3cadcd02940f4746f960078625afa47f450",
+        )
+        full_matrix = ssi_evidence["full_matrix_regression"]
+        self.assertEqual(full_matrix["cases_passed"], 67)
+        self.assertEqual(full_matrix["cases_failed"], 0)
+        self.assertEqual(full_matrix["checks_passed"], 274)
+        self.assertEqual(full_matrix["checks_failed"], 0)
+        self.assertFalse(full_matrix["retry_used"])
+        self.assertEqual(
+            full_matrix["summary_sha256"],
+            "44b65976d60589662e04454c4680cec90c8137a5934cece9bb371099297b3455",
+        )
+        suite = ssi_evidence["validation_suite"]
+        self.assertEqual(suite["platform_unittest"]["passed"], 501)
+        self.assertEqual(suite["docs_contract"]["passed"], 41)
+        self.assertEqual(suite["qemu_profile_contract"]["passed"], 19)
+        self.assertEqual(
+            ssi_evidence["checks"]["legacy_normal_watchdog_boot"],
+            "FAIL",
+        )
+        self.assertEqual(
+            ssi_evidence["checks"]["full_uiflow2_device_matrix"],
+            "PASS",
+        )
+        self.assertEqual(
+            ssi_evidence["checks"]["platform_static_and_contract_checks"],
+            "PASS",
+        )
+        self.assertEqual(
+            ssi_evidence["checks"]["crosscore_handshake_completes"],
+            "PASS",
+        )
+        ssi_patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0036-ssi-transfer-buf.patch"
+        ).read_text()
+        self.assertIn("ssi_transfer_buf", ssi_patch)
+        self.assertIn("m25p80_transfer_buf", ssi_patch)
+        self.assertIn("STATE_READ", ssi_patch)
+        self.assertNotIn("blk_pread", ssi_patch)
+        self.assertNotIn("M5SW_ESP32_SPI_DIRECT_READ", ssi_patch)
+        self.assertIn("0036-ssi-transfer-buf.patch", patches_readme)
+
         for path in (
             DOCS / "project-status.md",
             DOCS / "project-backlog.md",
@@ -461,6 +526,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             self.assertIn("0035", text, path.relative_to(ROOT))
             self.assertIn("QIO", text, path.relative_to(ROOT))
             self.assertIn("cross-core", text, path.relative_to(ROOT))
+            self.assertIn("0036", text, path.relative_to(ROOT))
         for path in (
             ROOT / "README.md",
             DOCS / "qemu-device-adaptation-matrix.md",

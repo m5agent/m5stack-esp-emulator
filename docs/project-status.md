@@ -51,7 +51,7 @@ harness 缺陷撤销。
 这个修复没有关闭 legacy UIFlow：同一公开固件仍在初始化后进入
 `TG0WDT_SYS_RESET`/`TG1WDT_SYS_RESET`、reset CPU PC `0` 和黑帧循环。
 因此 `RUNTIME-03` 的 timer-deadline 子问题已经 `FIXED`，但 legacy
-watchdog feed/clear 或服务饥饿路径仍 `OPEN`。
+interrupt-WDT reset 与累计 Flash/cache-handoff 服务进度仍 `OPEN`。
 
 继续对照后又确认两个独立模型事实：
 
@@ -61,17 +61,22 @@ watchdog feed/clear 或服务饥饿路径仍 `OPEN`。
   `0`，所以它不能关闭 `RUNTIME-03`；
 - legacy 启动期的 QIO Flash 扫描是明显的逐字节 SSI 成本热点。临时
   `blk_pread` 诊断路径在抽样 cache line 上与后续 SSI 数据流逐字节一致，
-  并让串口走到 `Performing initial setup`、MicroPython 版本和 `>>>`；
-  但该路径绕过 SSI 数据阶段，不是可提交实现。关闭 watchdog reset 后，
-  两核仍停在 flash-cache 跨核握手，CPU0 位于
-  `spi_flash_op_block_func` 等待路径，CPU1 位于 DPORT safe-read /
-  flash-cache 交接路径，同时 cross-core IRQ 持续翻转。
+  但该路径绕过 SSI 数据阶段；先前一次到达 `Performing initial setup`、
+  MicroPython 版本和 `>>>` 的结果在当前重建的 120 秒窗口中未复现；
+- `0036` 新增保留 m25p80 命令/地址/dummy/STATE_READ 语义的 SSI 批量
+  数据面。抽样批次与原逐字节路径完全一致，Core2 UIFlow2 设备组和共享
+  控制器完整 UIFlow2 矩阵都通过；但正常 WDT 下 legacy 仍在观察窗口内
+  复位，关闭 WDT 后也没有进入 setup/REPL；
+- 直接物理内存 state trace 观察到 `s_flash_op_can_start`、
+  `s_flash_op_complete` 和 cross-core reason 反复在 0/1 间变化。CPU0
+  会多次位于 `spi_flash_op_block_func` 等待路径，CPU1 位于 cache/DPORT
+  或任务切换路径，但这不支持“握手永久不完成”的旧判断。
 
-这说明剩余问题至少包含“高效且保持控制器状态机的 Flash 数据面”和
-“cross-core/DPORT 交接未完成”两个候选模型边界；它们与 legacy TG WDT
-的精确因果顺序仍需 controller-level trace 证明。当前工作假设是
-flash-cache/IPC/DPORT 交接与启动期长同步路径共同影响 watchdog feed，
-但仍需证明二者是先后因果而非并行症状。精确批次、通过率、
+这说明剩余问题更可能是大量同步 Flash 操作、cross-core yield 和
+flash-cache/DPORT handoff 造成的总吞吐不足。当前工作假设是 legacy
+启动扫描所需的工作量超过 watchdog 窗口，而不是单次 handshake 丢失；
+仍需把批次、handoff 次数、guest 进度和 watchdog feed 放到同一虚拟时间轴，
+并判断哪一段可以按控制器语义批量完成。精确批次、通过率、
 artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
@@ -82,7 +87,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus、`CCOMPARE == CCOUNT` timer deadline 和 TIMG `INT_ENA.WDT` mask 语义已修复；最小 ESP-IDF 探针首启动门禁通过 | 实现不绕过 SSI 状态机的高效 QIO 数据面，并追踪 cross-core IRQ、flash-cache pause/ack 与 DPORT 交接，取得同 SHA 非空应用帧 | 临时 `blk_pread`、关闭 WDT、probe timer PASS 或单次 REPL marker 都不能继承为 legacy UIFlow PASS；cross-core 卡住的根因尚未证明 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask 和 stateful SSI 批量数据面已修复/验证；最小探针和 UIFlow2 外设组 PASS | 将 cross-core handoff、Flash 批次、guest 进度和 watchdog feed 放到同一虚拟时间轴，减少总同步吞吐并取得正常 WDT 下的同 SHA 应用帧 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；永久死锁假设不再成立 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -99,7 +104,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、最小 probe timer deadline 和 TIMG WDT mask 语义已修复；legacy TG0/TG1 watchdog reset、reset PC `0`、QIO/SSI 性能与 cross-core 停滞未闭环；FactoryTest 修复后 `NOT RUN` |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、最小 probe timer deadline 和 TIMG WDT mask 语义已修复；stateful SSI 批量数据面已验证，但 legacy TG0/TG1 watchdog reset、reset PC `0` 和累计 Flash/cache-handoff 吞吐未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT 和生产调度未完成 |
@@ -123,7 +128,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器 | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE | Zigbee/802.15.4 由 `RUNTIME-02` 跟踪 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi/BLE | RGB 未验；Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、equal-deadline timer fix | legacy UIFlow 后初始化 TG0/TG1 WDT/黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI fixes | legacy UIFlow 后初始化 TG0/TG1 WDT/黑帧、累计 Flash/cache-handoff 吞吐、物理 PSRAM/cache、bit-exact controller 和真机 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
@@ -136,13 +141,14 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
    电气或真机安全 PASS。
 2. **Core2 启动兼容性**：legacy UIFlow 的共享 I2C routing 已修正，最小
    probe 暴露的 `CCOMPARE == CCOUNT` timer deadline，以及 `0035` 的
-   masked WDT interrupt 语义也已修复，但同一 legacy 固件仍会在 PMIC/RTC
-   初始化后进入 `TG0/TG1WDT_SYS_RESET`/黑帧，reset CPU PC 为 `0`；不能用
-   I2C ACK、chip-id 成功、probe timer PASS、单次 REPL marker 或 host 假值
-   当作 legacy 启动 PASS。QIO 快路径样本证明底层字节一致，但绕过 SSI 数据
-   阶段；关闭 WDT 后 cross-core IRQ 仍持续且 flash-cache 握手不完成。
-   下一调查点因此同时包含控制器级 QIO 转发与 cross-core/DPORT 交接顺序；
-   量化结果只以验证台账和 evidence 为准。
+   masked WDT interrupt 语义也已修复；`0036` 又验证了保留 m25p80 状态的
+   SSI 批量数据面，但同一 legacy 固件仍会在 PMIC/RTC 初始化后进入
+   `TG0/TG1WDT_SYS_RESET`/黑帧，reset CPU PC 为 `0`。不能用 I2C ACK、
+   probe/UIFlow2 PASS、旧 REPL 观察、关闭 WDT、accelerator 或 host 假值
+   当作 legacy 启动 PASS。当前证据显示 flash-operation/cross-core flags
+   会反复完成，下一步是量化大量同步 Flash/cache handoff 的累计吞吐，并把
+   controller batch、两核 PC 与 watchdog feed 放到同一虚拟时间轴；量化
+   结果只以验证台账和 evidence 为准。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

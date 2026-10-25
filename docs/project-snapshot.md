@@ -26,7 +26,7 @@
 | NanoC6 (`nanoc6`) | ESP32-C6FH4 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `board-peripherals-wifi-ble-pass` | Zigbee/802.15.4 controller data plane is not modeled (RUNTIME-02) |
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `display-touch-peripherals-wifi-ble-pass` | Meshtastic remains PARTIAL after an independent post-application instruction access fault (RUNTIME-01 flash/PMP defect is fixed) |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | `external-linux-arm64` | `simulated` | `2026-10-22` / `linux-display-input-i2c-audio-power-usb-camera-partial` | not an ESP32 firmware target |
-| Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | Core2 legacy UIFlow shared I2C, equal-deadline timer and TIMG WDT-mask semantics are fixed; legacy firmware still enters TG0/TG1 watchdog resets with reset PC 0 and a black frame. Temporary QIO bulk-read and watchdog-disable diagnostics are not product fixes; efficient SSI/m25p80 transfer and cross-core/DPORT handoff remain OPEN; physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; virtual-device concurrency gates cover the current service capacity; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN (CORE2-02); the bounded-TCG host-memory result is validated only for the tested long-hold workload |
+| Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | Core2 legacy UIFlow shared I2C, equal-deadline timer and TIMG WDT-mask semantics are fixed. Patch 0036 adds a byte-equivalent stateful SSI/m25p80 read path without bypassing command, address, dummy or CS state; the Core2 UIFlow2 device group and shared-controller full matrix pass. The same legacy firmware still enters TG0/TG1 interrupt-WDT resets with reset PC 0 and a black frame. Flash-operation and cross-core flags complete repeatedly, so a permanent deadlock is not supported; aggregate synchronous Flash/cache/DPORT handoff throughput remains OPEN. Temporary bulk-read and watchdog-disable diagnostics are not product fixes; physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; virtual-device concurrency gates cover the current service capacity; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN (CORE2-02); the bounded-TCG host-memory result is validated only for the tested long-hold workload |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | `esp-emulator-native` | `partial` | `2026-10-22` / `display-touch-rs485-pass-peripherals-partial` | SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0; ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0; ESP32-P4 USB Host controller and endpoint attachment missing; Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model; Tab5 SDIO storage is not wired to a host block backend; Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial |
 
 ## 通用固件审查
@@ -47,7 +47,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 将临时 QIO bulk read 替换为保留 SSI/m25p80 状态的控制器级高效路径；追踪 cross-core IRQ、flash-cache pause/ack、DPORT 交接和 legacy watchdog feed/clear |
+| `RUNTIME-03` | 进行中 | 以 `0036` stateful SSI 批量面为基线，量化 cross-core handoff、guest 进度与 watchdog feed 的累计吞吐并优化 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 |
@@ -76,9 +76,9 @@
 | `firmware_filesystems.py` | 1469 |
 | `worker_agent.py` | 1429 |
 
-- `tests/`：`67` 个可执行 Python 测试文件，分布在 `49` 个目录；`198` 个 evidence JSON。
-- `patches/`：`10` 个补丁组，`64` 个 patch 文件。
-- 文档：`215` 个 Markdown 页面，`19721` 行。
+- `tests/`：`67` 个可执行 Python 测试文件，分布在 `49` 个目录；`199` 个 evidence JSON。
+- `patches/`：`10` 个补丁组，`65` 个 patch 文件。
+- 文档：`215` 个 Markdown 页面，`19805` 行。
 
 ## 文档与测试
 

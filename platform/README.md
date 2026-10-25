@@ -101,8 +101,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   的长稳 workload。
 - Core2 legacy UIFlow 的 shared I2C、equal-deadline timer 和 TIMG WDT-mask
   已分别修复；同一固件仍有 normal-WDT `TG0WDT_SYS_RESET`/reset PC `0`。
-  QIO bulk-read 和关闭 WDT 只是诊断，下一步必须在 SSI/m25p80 数据面内实现
-  高效转发并解释 cross-core/DPORT 交接。
+  `0036` 已在 SSI/m25p80 数据面内实现保留命令/地址/dummy/CS 状态的批量
+  read，字节等价、Core2 UIFlow2 设备组和共享控制器完整矩阵通过；它仍未
+  关闭 legacy。关闭 WDT 只是诊断；当前下一步是量化累计 Flash/cache/DPORT
+  handoff 吞吐，并把 watchdog feed 和两核进度放到同一虚拟时间轴。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

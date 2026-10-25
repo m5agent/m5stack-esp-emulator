@@ -262,18 +262,54 @@ The summarized logs, byte comparison and boundaries are in
 That evidence is explicitly `DIAGNOSTIC_ONLY`; it is not artifact-bound to a
 product runtime, and the dirty QEMU worktree remains local.
 
+## 2026-10-26 stateful SSI batch and throughput correction
+
+The temporary direct-read path was replaced with
+[`0036-ssi-transfer-buf.patch`](../patches/qemu-m5stack-peripherals/0036-ssi-transfer-buf.patch).
+The generic SSI bus now has an optional byte-buffer transfer callback whose
+fallback is still the original per-byte `ssi_transfer`. m25p80 uses the fast
+path only in `STATE_READ`; command, address, dummy, CS and address-wrap
+semantics remain unchanged. ESP32 SPI invokes the buffer path only for a
+receive-only data phase.
+
+For the first 512 batches, the new path was executed alongside the original
+m25p80 per-byte implementation from the same saved address: all 512
+64-byte batches matched. The Core2 UIFlow2 peripheral group passed `6/6`.
+Nevertheless, the same legacy firmware still reset under the normal watchdog,
+and 180 seconds with watchdog reset disabled did not reach setup text or the
+REPL. The earlier direct-read REPL result did not reproduce in the current
+rebuild.
+
+A direct memory-state trace adds an important correction to the earlier
+hypothesis. `s_flash_op_can_start`, `s_flash_op_complete` and the cross-core
+reason words repeatedly transitioned between zero and one. CPU0 was repeatedly
+observed in `spi_flash_op_block_func`, while CPU1 appeared in cache/DPORT and
+scheduler paths, but this is not a permanent handshake deadlock. Accelerator
+controls were also slower: `thread=single` with icount `shift=5` or `shift=0`,
+and without icount, did not reach the full banner within their windows.
+
+The leading hypothesis is therefore aggregate throughput: legacy boot performs
+many synchronous flash operations and cross-core cache handoffs, and the sum
+does not fit inside the watchdog window. The next experiment must place flash
+batch size, handoff count, both guest PCs and watchdog feed/clear on one
+virtual-time axis before changing model behavior.
+
+See
+[`evidence-2026-10-26-core2-ssi-transfer-buf.json`](../tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json)
+for the equivalence, matrix and control results.
+
 ## Next investigation
 
 1. Preserve the minimal probe's equal-deadline regression gate and keep the
    business patch separate from diagnostic ring/trace code.
-2. Implement efficient controller-level QIO transfer while preserving the
-   m25p80 command state machine.
+2. Preserve the stateful SSI batch path and its byte-equivalence gate.
 3. For the same legacy UIFlow SHA, correlate TG0/TG1 feed/clear, stage0/stage1,
    `INTSET`, `INTENABLE`, expiry, reset PC `0`, and IDLE/service-task progress.
-4. Correlate cross-core source CPU, interrupt-matrix target, latch/clear,
-   flash-cache pause/ack and DPORT state with both CPUs' PCs.
-5. Determine whether the boot path starves the watchdog service/user tasks or
-   whether flash-cache, cross-core IPC and DPORT ordering prevents a valid feed.
+4. On one virtual-time axis, measure flash batch bytes, flash-operation
+   can-start/complete transitions, cross-core reasons, interrupt delivery, both
+   CPUs' PCs and watchdog feed/clear.
+5. Reduce aggregate synchronous handoff cost using controller-level behavior,
+   without skipping the guest flash/cache protocol.
 6. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
    collected.
 

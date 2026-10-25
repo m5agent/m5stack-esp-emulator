@@ -28,7 +28,7 @@
 | 网络隔离、双 guest fabric 与 worker | `network_*.py`、`worker_*.py`、`transport_security.py`、`tests/network/` | namespace、controlled DNS/TLS、CNAME、有界 IPv4/IPv6 egress、pcap、双 guest、跨 container 的 worker-local QEMU、同 guest IPv6 TCP/HTTP、generation-pointer credential migration、lease ownership `409` fencing、network-partition process/QEMU/`qemu-unified` companion fencing 和 companion continuity 已进入统一执行链；`NET-05`、`NET-06` 已完成当前虚拟设备范围 | `NET-04`：物理跨主机 executor/reattach、跨主机 idempotency、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller side effect、namespace-managed/Tab5/cross-host companion 和生产调度 |
 | Core2 无线、映射与长稳 | `tests/uiflow2/core2_native_hci/`、`unified_core2/`、`ble_probe.py`、`ble_runtime_limits.py`、`qemu_accel.py` | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop 和当前单设备容量门禁已有虚拟设备证据 | `CORE2-02`：大于当前服务容量、持续吞吐、active-stop 之外 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | 固件导入、静态审查与安全 | `firmware_*.py`、`fetch_firmware.py`、`user_firmware_matrix.py`、`platform/web/firmware.*` | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、capability、文件系统、SD/NVS fixture、SBOM、许可声明和 Secure Boot v2 镜像分析可执行 | `FW-01`、`FW-02`、`FW-03`：运行态 ACL/完整许可、live eFuse/生产 key、真实云端业务和更多固件族 |
-| 运行时模型缺口 | runtime coverage、QEMU patches、firmware/runtime evidence | `RUNTIME-01` Flash/PMP 与 `RUNTIME-05` S3 WPA2 已关闭；`RUNTIME-03` 的 Core2 shared I2C、最小 probe `CCOMPARE == CCOUNT`、`READ_START` 门禁与 TIMG WDT `INT_ENA` mask 语义已修复，`0035` 只修正后者。Legacy QIO 扫描暴露逐字节 SSI 成本；临时 `blk_pread` 快路径字节一致并推进到 REPL，但绕过控制器状态机，不能提交。关闭 WDT 后 cross-core IRQ 持续而 flash-cache 握手不完成，legacy interrupt-WDT/TG reset 仍开放。当前工作假设是 QIO、flash-cache/IPC/DPORT 交接与启动期长同步路径共同影响服务进度 | `RUNTIME-02`、`RUNTIME-03`、`RUNTIME-04` |
+| 运行时模型缺口 | runtime coverage、QEMU patches、firmware/runtime evidence | `RUNTIME-01` Flash/PMP 与 `RUNTIME-05` S3 WPA2 已关闭；`RUNTIME-03` 的 Core2 shared I2C、最小 probe `CCOMPARE == CCOUNT`、`READ_START` 门禁、`0035` TIMG WDT `INT_ENA` mask 和 `0036` QIO/stateful SSI 批量面已验证。批量字节等价、Core2 UIFlow2 设备组和共享控制器完整矩阵通过，精确计数只在验证台账；normal-WDT legacy 仍出现 interrupt-WDT/reset，关闭 WDT 也未到 setup/REPL。旧 direct-read REPL 结果未复现；flash-op/cross-core flags 会反复完成，当前工作假设转向累计同步 flash-cache/DPORT handoff 吞吐不足，而不是永久 deadlock | `RUNTIME-02`、`RUNTIME-03`、`RUNTIME-04` |
 | Device Service 与生命周期 | `serve.py`、`device_service.py`、`storage_policy.py`、docs contract tests | lease、history、artifact upload、QEMU/QMP 与 companion recovery、控制面/本地 runtime API 分离可执行 | `SVC-01`、`SVC-02`、`SVC-03` |
 | 真机同路径验证 | Device Test Center 和硬件证据流程 | 已有测试入口与分层规则；当前仓库结论仍以 virtual-device validation 为主 | `HW-01` |
 | Tab5 P4 后端 | `platform/runtime/wasm/`、P4 patches、`tests/uiflow2/tab5_*` | 烧录、画面、触摸、RS-485、ESP-Hosted 和部分 I2C 可用，外设仍为 `partial` | `TAB5-01` |
@@ -62,7 +62,7 @@ Task 的依赖、下一项最小交付和验收条件只在
 
 | 通道 | 当前内容 | 推进条件 |
 | --- | --- | --- |
-| 当前调查 | `RUNTIME-03`：在真实 SSI/m25p80 状态机上实现高效 QIO 转发；同时间轴追踪 cross-core IRQ、flash-cache pause/ack、DPORT 交接、watchdog feed/clear 和 IDLE/service task，并拿到同 SHA 非空应用帧 | 本地 Core2 runtime；涉及 `m5core2` QEMU 时与 `CORE2-02` 串行；不得依赖 bulk bypass 或关闭 WDT |
+| 当前调查 | `RUNTIME-03`：以 stateful SSI batch 为基线，将 flash-op can-start/complete、cross-core reason、batch、guest PC 和 watchdog feed 放入同一虚拟时间轴，减少累计同步吞吐并取得同 SHA 非空应用帧 | 本地 Core2 runtime；涉及 `m5core2` QEMU 时与 `CORE2-02` 串行；不得依赖 bulk bypass、关闭 WDT、accelerator 或 retry |
 | 可并行工程 | `FW-01`、`FW-03`、`SVC-03`、`UI-01`、`CZ-01` | 当前仓库和现有虚拟设备即可推进；代码拆分遵守“一次只移动一个边界” |
 | 需要多机环境 | `NET-04` 以及依赖它的跨主机部分 | 两个可失联、可 drain、可独立寻址的节点；单机 namespace/container 不计为完成 |
 | 需要真机/授权 | `FW-02`、`HW-01` | 同固件 SHA 的设备控制、外部观测和敏感 key/eFuse 流程授权 |
