@@ -16,6 +16,70 @@ PARTITION_TABLE_SIZE = 0x1000
 SECURE_BOOT_V2_SIGNATURE_MAGIC = 0xE7
 SECURE_BOOT_V2_SIGNATURE_SECTOR_SIZE = 0x1000
 SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE = 1216
+ECDSA_CURVES = {
+    2: {
+        "p": int(
+            "FFFFFFFF00000001000000000000000000000000"
+            "FFFFFFFFFFFFFFFFFFFFFFFF",
+            16,
+        ),
+        "a": -3,
+        "b": int(
+            "5AC635D8AA3A93E7B3EBBD55769886BC"
+            "651D06B0CC53B0F63BCE3C3E27D2604B",
+            16,
+        ),
+        "gx": int(
+            "6B17D1F2E12C4247F8BCE6E563A440F2"
+            "77037D812DEB33A0F4A13945D898C296",
+            16,
+        ),
+        "gy": int(
+            "4FE342E2FE1A7F9B8EE7EB4A7C0F9E1"
+            "62BCE33576B315ECECBB6406837BF51F5",
+            16,
+        ),
+        "n": int(
+            "FFFFFFFF00000000FFFFFFFFFFFFFFFF"
+            "BCE6FAADA7179E84F3B9CAC2FC632551",
+            16,
+        ),
+        "bytes": 32,
+    },
+    3: {
+        "p": int(
+            "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+            "FFFFFFFFFFFFFFFEFFFFFFFF0000000000000000FFFFFFFF",
+            16,
+        ),
+        "a": -3,
+        "b": int(
+            "B3312FA7E23EE7E4988E056BE3F82D19"
+            "181D9C6EFE8141120314088F5013875A"
+            "C656398D8A2ED19D2A85C8EDD3EC2AEF",
+            16,
+        ),
+        "gx": int(
+            "AA87CA22BE8B05378EB1C71EF320AD74"
+            "6E1D3B628BA79B9859F741E082542A38"
+            "5502F25DBF55296C3A545E3872760AB7",
+            16,
+        ),
+        "gy": int(
+            "3617DE4A96262C6F5D9E98BF9292DC29"
+            "F8F41DBD289A147CE9DA3113B5F0B8C0"
+            "0A60B1CE1D7E819D7A431D7C90EA0E5F",
+            16,
+        ),
+        "n": int(
+            "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+            "FFFFFFFFFFFFFFFFC7634D81F4372DDF"
+            "581A0DB248B0A77AECEC196ACCC52973",
+            16,
+        ),
+        "bytes": 48,
+    },
+}
 
 CHIP_IDS = {
     0x0000: "esp32",
@@ -119,6 +183,96 @@ def _verify_rsa_pss_sha256(
     return expected_hash == encoded_hash
 
 
+def _ec_point_add(
+    first: tuple[int, int] | None,
+    second: tuple[int, int] | None,
+    curve: dict,
+) -> tuple[int, int] | None:
+    if first is None:
+        return second
+    if second is None:
+        return first
+    prime = curve["p"]
+    x1, y1 = first
+    x2, y2 = second
+    if x1 == x2 and (y1 + y2) % prime == 0:
+        return None
+    if first == second:
+        if y1 == 0:
+            return None
+        slope = (
+            (3 * x1 * x1 + curve["a"])
+            * pow(2 * y1, -1, prime)
+        ) % prime
+    else:
+        slope = (
+            (y2 - y1) * pow((x2 - x1) % prime, -1, prime)
+        ) % prime
+    x3 = (slope * slope - x1 - x2) % prime
+    y3 = (slope * (x1 - x3) - y1) % prime
+    return x3, y3
+
+
+def _ec_point_mul(
+    scalar: int,
+    point: tuple[int, int] | None,
+    curve: dict,
+) -> tuple[int, int] | None:
+    result = None
+    addend = point
+    while scalar:
+        if scalar & 1:
+            result = _ec_point_add(result, addend, curve)
+        addend = _ec_point_add(addend, addend, curve)
+        scalar >>= 1
+    return result
+
+
+def _verify_ecdsa(
+    message_hash: bytes,
+    curve_id: int,
+    public_point: tuple[int, int],
+    r: int,
+    s: int,
+) -> bool:
+    curve = ECDSA_CURVES.get(curve_id)
+    if curve is None:
+        return False
+    order = curve["n"]
+    if not (0 < r < order and 0 < s < order):
+        return False
+    x_value, y_value = public_point
+    prime = curve["p"]
+    if not (0 <= x_value < prime and 0 <= y_value < prime):
+        return False
+    if (
+        y_value * y_value
+        - (
+            x_value * x_value * x_value
+            + curve["a"] * x_value
+            + curve["b"]
+        )
+    ) % prime:
+        return False
+    excess_bits = len(message_hash) * 8 - order.bit_length()
+    digest_value = int.from_bytes(message_hash, "big")
+    if excess_bits > 0:
+        digest_value >>= excess_bits
+    inverse_s = pow(s, -1, order)
+    u1 = digest_value * inverse_s % order
+    u2 = r * inverse_s % order
+    point = _ec_point_add(
+        _ec_point_mul(
+            u1,
+            (curve["gx"], curve["gy"]),
+            curve,
+        ),
+        _ec_point_mul(u2, public_point, curve),
+        curve,
+    )
+    return point is not None and point[0] % order == r
+
+
 def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
     start = index * SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE
     block = data[
@@ -159,8 +313,24 @@ def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
             else f"ecdsa-unknown-curve-{curve_id}-sha384"
         )
         public_key_digest = hashlib.sha256(block[52:149]).hexdigest()
-        signature_math_valid = None
-        signature_math = "not-implemented"
+        if curve_id == 3:
+            public_point = (
+                int.from_bytes(block[53:101], "little"),
+                int.from_bytes(block[101:149], "little"),
+            )
+            signature_math_valid = _verify_ecdsa(
+                image_digest,
+                curve_id,
+                public_point,
+                int.from_bytes(block[149:197], "little"),
+                int.from_bytes(block[197:245], "little"),
+            )
+            signature_math = (
+                "valid" if signature_math_valid else "invalid"
+            )
+        else:
+            signature_math_valid = None
+            signature_math = "not-implemented"
     else:
         curve_id = block[36]
         curve_name = {
@@ -170,8 +340,24 @@ def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
         }.get(curve_id, f"unknown-{curve_id}")
         scheme = f"ecdsa-{curve_name}-sha256"
         public_key_digest = hashlib.sha256(block[36:101]).hexdigest()
-        signature_math_valid = None
-        signature_math = "not-implemented"
+        if curve_id == 2:
+            public_point = (
+                int.from_bytes(block[37:69], "little"),
+                int.from_bytes(block[69:101], "little"),
+            )
+            signature_math_valid = _verify_ecdsa(
+                image_digest,
+                curve_id,
+                public_point,
+                int.from_bytes(block[101:133], "little"),
+                int.from_bytes(block[133:165], "little"),
+            )
+            signature_math = (
+                "valid" if signature_math_valid else "invalid"
+            )
+        else:
+            signature_math_valid = None
+            signature_math = "not-implemented"
     return {
         "index": index,
         "version": version,

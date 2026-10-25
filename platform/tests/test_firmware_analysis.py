@@ -29,6 +29,13 @@ RSA3072_TEST_VECTOR = json.loads(
         "secure_boot_rsa3072_test_vector.json"
     ).read_text()
 )
+ECDSA_TEST_VECTORS = json.loads(
+    (
+        ROOT
+        / "platform/tests/fixtures/"
+        "secure_boot_ecdsa_test_vectors.json"
+    ).read_text()
+)
 
 
 def build_image(chip_id: int = 0x0009, descriptor: bool = True) -> bytes:
@@ -97,9 +104,24 @@ def build_secure_boot_v2_sector(
             block[2] = 1
             block[4:52] = hashlib.sha384(image_content).digest()
             block[52] = curve_id
+            digest = bytes(block[4:52]).hex()
+            vector = ECDSA_TEST_VECTORS["p384"]
+            signature = vector["signatures"][digest]
+            block[53:101] = bytes.fromhex(vector["x_little"])
+            block[101:149] = bytes.fromhex(vector["y_little"])
+            block[149:197] = bytes.fromhex(signature["r_little"])
+            block[197:245] = bytes.fromhex(signature["s_little"])
         else:
             block[4:36] = hashlib.sha256(image_content).digest()
             block[36] = curve_id
+            if curve_id == 2:
+                digest = bytes(block[4:36]).hex()
+                vector = ECDSA_TEST_VECTORS["p256"]
+                signature = vector["signatures"][digest]
+                block[37:69] = bytes.fromhex(vector["x_little"])
+                block[69:101] = bytes.fromhex(vector["y_little"])
+                block[101:133] = bytes.fromhex(signature["r_little"])
+                block[133:165] = bytes.fromhex(signature["s_little"])
     else:
         raise ValueError(scheme)
     struct.pack_into("<I", block, 1196, zlib.crc32(block[:1196]))
@@ -760,12 +782,16 @@ class FirmwareAnalysisTests(unittest.TestCase):
                     )
                     self.assertEqual(
                         row["blocks"][0]["signature_math"],
-                        "valid" if scheme == "rsa" else "not-implemented",
+                        (
+                            "not-implemented"
+                            if scheme == "ecdsa" and curve_id == 1
+                            else "valid"
+                        ),
                     )
                     self.assertTrue(row["image_digest_match"])
                     self.assertEqual(
                         row["signature_math_verified"],
-                        scheme == "rsa",
+                        not (scheme == "ecdsa" and curve_id == 1),
                     )
                     self.assertEqual(
                         row["signature_authenticity"],
@@ -800,6 +826,39 @@ class FirmwareAnalysisTests(unittest.TestCase):
         )
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad-signature.bin"
+            path.write_bytes(image)
+            result = analyze_firmware(path, expected_chip_id_value=0x0009)
+
+        evidence = result["secure_boot_v2"]
+        self.assertEqual(evidence["status"], "invalid")
+        factory = next(
+            row for row in evidence["images"] if row["label"] == "factory"
+        )
+        self.assertEqual(factory["status"], "signature-math-mismatch")
+        self.assertTrue(factory["image_digest_match"])
+        self.assertFalse(factory["signature_math_verified"])
+        self.assertEqual(
+            factory["blocks"][0]["signature_math"],
+            "invalid",
+        )
+
+    def test_secure_boot_v2_ecdsa_signature_math_mismatch_is_invalid(self):
+        image = bytearray(
+            build_flash_with_secure_boot_v2(
+                scheme="ecdsa",
+                curve_id=2,
+            )
+        )
+        sector_offset = 0x11000
+        image[sector_offset + 115] ^= 0x01
+        struct.pack_into(
+            "<I",
+            image,
+            sector_offset + 1196,
+            zlib.crc32(image[sector_offset : sector_offset + 1196]),
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "bad-ecdsa-signature.bin"
             path.write_bytes(image)
             result = analyze_firmware(path, expected_chip_id_value=0x0009)
 

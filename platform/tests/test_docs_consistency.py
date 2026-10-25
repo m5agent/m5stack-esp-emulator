@@ -4539,6 +4539,10 @@ class DocsConsistencyTests(unittest.TestCase):
             evidence["security_images"]["bad_signature"]["status"],
             "invalid",
         )
+        self.assertEqual(
+            evidence["security_images"]["bad_ecdsa_signature"]["status"],
+            "invalid",
+        )
         self.assertIn(
             "embedded public key trust against live eFuse",
             evidence["not_claimed"],

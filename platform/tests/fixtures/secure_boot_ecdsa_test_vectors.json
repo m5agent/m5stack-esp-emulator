@@ -1,0 +1,33 @@
+{
+  "description": "Public-only ECDSA test vectors for deterministic Secure Boot v2 firmware signatures",
+  "p256": {
+    "curve_id": 2,
+    "x_little": "e16cea2b0bfe529b744ac593e0db691a56d765d964ee5f8710fa6795956d89af",
+    "y_little": "886b974adb018cfb083c057009a9878e7aac695b685ff239ada7191901650ed5",
+    "signatures": {
+      "4f821d4c97f53c6d1bbdb7d36db8c1f56b63bc09c45d07d68c5085d754171813": {
+        "r_little": "9dec32509c2f4e1630c92478f48d90ceacd42f2c937947ba1ded89779c1b19e7",
+        "s_little": "f24231b93a30534a0e03dc86957f39ebd762a28a0ea4ea1f6fc5117512aaeea6"
+      },
+      "f60446628ffffd45b7bc67effbc9d6e30188c6327bfeffaa3ef71123712bbdba": {
+        "r_little": "2f93328c70ab1dd124020eb1d91a28c6afdb640ddf847ec6cace8b4871a822a1",
+        "s_little": "49fa1e4d0b8f1f14c9432f631313eeb092941cba5be9b54f5a5eff63a0840247"
+      }
+    }
+  },
+  "p384": {
+    "curve_id": 3,
+    "x_little": "97a06c32baf13def64556aa5110bbae5fbd668c05e5ed289106e7478e1c9c5e2c3cff8e4ad9a6717ab65b102b222aee2",
+    "y_little": "8613a755a4d5af91eadb5e89ab2ccbd9cc3657ed51a74ba769af215dacd8d62556de5b22472481921fd8fb705802a4a2",
+    "signatures": {
+      "50ca296e02c61540e94eabff0d6e326290ecd4ef97bc253d3f740c360e2bbedf4e37937feda18afe94605b0dff34080a": {
+        "r_little": "4d7b6001d82da9840b5639f773d14d9bafc82f652292fd7587f932043e83a71961668f062192e05836065f3ebd0118e7",
+        "s_little": "c6c37592a58f4c9fe8638bc17b3130f815d794d112a166c14a0807ee1eb78889b7d2521acf7e532e2c3b01aa57084a9c"
+      },
+      "ded8d6e14b3ff4b1e18328a3b8e1217090b1d0278b510e70d314e4c20902b00f6a10d320199cce25310e58082c83fec8": {
+        "r_little": "3db05dd655458b873f99688b37d9c8fadd886bfd43269bc07c206fe956134ed342f545af8697e45c74f250d0826afa4a",
+        "s_little": "e7821de068f42c54230c97cd9e9fc3e6ee9ea76a5014c7eb1a5ab49d93bca596a6e5ba6727cb31cdeb02dfff646a0c35"
+      }
+    }
+  }
+}

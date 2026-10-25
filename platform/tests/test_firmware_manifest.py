@@ -463,6 +463,44 @@ class FirmwareManifestTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            image = root / "ecdsa-signed.bin"
+            image.write_bytes(
+                build_flash_with_secure_boot_v2(
+                    scheme="ecdsa",
+                    curve_id=2,
+                )
+            )
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            ecdsa_manifest = import_package(
+                image,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+
+        ecdsa_evidence = ecdsa_manifest["security"][
+            "secure_boot_image"
+        ]
+        self.assertTrue(
+            all(
+                block["signature_math"] == "valid"
+                and block["signature_math_valid"] is True
+                for image in ecdsa_evidence["images"]
+                for block in image["blocks"]
+            )
+        )
+        self.assertNotIn(
+            "secure_boot_v2_image_signature_math_not_verified",
+            {
+                row["code"]
+                for row in ecdsa_manifest["validation"]["warnings"]
+            },
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
             image = bytearray(build_flash_with_secure_boot_v2())
             image[0x10500] ^= 0xFF
             path = root / "tampered.bin"
