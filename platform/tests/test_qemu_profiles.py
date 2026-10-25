@@ -175,12 +175,15 @@ class QemuProfileTest(unittest.TestCase):
         self.assertIn("pass 10/10", text)
         self.assertIn("fixed-icount zero-stagger six-instance 6x120s", text)
         self.assertIn("pass 12/12", text)
+        self.assertIn("zero-stagger eight-instance 8x120s", text)
+        self.assertIn("pass 16/16", text)
+        self.assertIn("hold/12 sweep-floor calibration", text)
         self.assertIn(
             "one batch passed 5/5 and an independent confirmation failed 3/5",
             text,
         )
         self.assertIn("zero-stagger five-instance cold start", text)
-        self.assertIn("more-than-six-instance stability", text)
+        self.assertIn("more-than-eight-instance stability", text)
         self.assertIn("remain OPEN", text)
         self.assertIn("NOT RUN", text)
         self.assertNotIn("concurrent cold-start safety and sustained", text)

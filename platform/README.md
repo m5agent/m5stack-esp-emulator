@@ -122,7 +122,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   同时完成 WiFi/公网、外部 GATT、frame、31 节点 QOM、pcap、evidence 和
   14–15 次 1 MiB PSRAM 全缓冲校验。六实例进一步完成两批
   `6×120s`，合计 `12/12 PASS`，每 lease 12–13 次 PSRAM 全缓冲校验。
-  bit-exact Espressif BT baseband/controller、大于六实例、持续吞吐、
+  八实例在校准 `hold/12` sustained floor 后完成两批 `8×120s`，合计
+  `16/16 PASS`，达到当前服务单设备容量上限。bit-exact Espressif BT
+  baseband/controller、大于八实例、持续吞吐、
   物理 cache/PSRAM 和真机
   仍未完成。`tb-size=128` 的 artifact-bound 两小时 soak 已 PASS，host
   RSS 和 phys footprint 在 240 个采样中均未增长。

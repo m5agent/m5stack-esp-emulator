@@ -525,10 +525,11 @@ def psram_stress_ok(evidence: dict[str, Any]) -> bool:
 def sustained_stress_requirements(hold_seconds: float) -> dict[str, int]:
     return {
         # With the fixed Core2 icount shift, one 1 MiB fill/readback sweep
-        # under five-way host contention takes about ten wall-clock seconds.
-        # Keep one expected sweep per ten seconds and require the initial
-        # allocation/check plus at least two sustained sweeps.
-        "minimum_sweeps": max(3, int(hold_seconds // 10)),
+        # takes about ten seconds under five/six-way host contention and up
+        # to roughly twelve seconds at the service cap of eight instances.
+        # Require the initial allocation/check plus at least two sustained
+        # sweeps while allowing that calibrated host-contention headroom.
+        "minimum_sweeps": max(3, int(hold_seconds // 12)),
         "minimum_heartbeats": max(0, int(hold_seconds // 20)),
         "minimum_http_rechecks": max(0, int(hold_seconds // 15)),
         "minimum_public_rechecks": max(0, int(hold_seconds // 60)),

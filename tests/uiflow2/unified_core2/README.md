@@ -155,8 +155,11 @@ zero-stagger implementation produced a `5/5 PASS` batch and an independent
 `3/5 FAIL` batch. The current default fixed `shift=5` and BLE-first workload
 ordering then pass two independent zero-stagger `5x120s` batches (`10/10`).
 Two independent zero-stagger `6x120s` batches then pass `6/6` each (`12/12`)
-at maximum concurrency 6. More than six instances, long-run throughput,
-teardown beyond active-stop and physical equivalence remain open. The former
+at maximum concurrency 6. Eight-instance testing first exposed a 12-sweep
+floor mismatch; after calibrating the sustained floor to `hold/12`, two
+independent `8x120s` batches pass `8/8` each (`16/16`) at the service
+per-device cap of 8. More than eight instances, long-run throughput, teardown
+beyond active-stop and physical equivalence remain open. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Removing that reply

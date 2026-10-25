@@ -370,6 +370,8 @@ functional PASS.
   the test BLE server before WiFi/sustained PSRAM work, and passes two
   independent zero-stagger five-instance batches (`10/10`). Two independent
   zero-stagger six-instance batches then pass `12/12` at maximum concurrency
-  6. Bit-exact Espressif BT controller behavior, more-than-six-instance
-  stability, physical cache/PSRAM equivalence and hardware validation remain
-  open or `NOT RUN`.
+  6. Eight-instance testing first exposed a pure sweep-floor mismatch; after
+  calibrating `hold/12`, two independent batches pass `16/16` at the service
+  per-device cap. Bit-exact Espressif BT controller behavior,
+  more-than-eight-instance stability, physical cache/PSRAM equivalence and
+  hardware validation remain open or `NOT RUN`.

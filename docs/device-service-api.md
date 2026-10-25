@@ -2013,7 +2013,7 @@ restart.
   `4×120s` gates pass `8/8`, with 36 events and 9 ACLs per lease on the fast
   path and zero errors/reset/panic. Two three-instance `3×120s` gates also
   pass `6/6`; their peer scan window is derived from session readiness and
-  the current fixed-clock sustained PSRAM sweep floor is `hold/10`. The first four-instance
+  the current fixed-clock sustained PSRAM sweep floor is `hold/12`. The first four-instance
   `4×120s` batch failed `1/4` in NimBLE ACK/HLI handling; `0009` expands the
   real guest reserve to `8/4`, after which two independent four-instance
   batches pass `8/8`. Two independent five-instance `5×120s` batches with a
@@ -2028,8 +2028,11 @@ restart.
   concurrency 5, with 14-15 PSRAM sweeps per lease and zero HLI/reset/panic/
   dropped counters. Two independent zero-stagger `6×120s` batches then pass
   `6/6` each (`12/12`) at maximum concurrency 6, with 12-13 PSRAM sweeps per
-  lease; one batch retains a recoverable preallocation transient. More than
-  six instances remain open. Three independent
+  lease. An eight-instance control under the old floor failed `4/8` only
+  because four leases completed 11 contiguous sweeps while all other checks
+  passed. After calibrating to `hold/12`, two independent `8×120s` batches
+  pass `8/8` each (`16/16`) at the service per-device cap of 8. More than
+  eight instances remain open. Three independent
   leases pass
   each of the 20, 30, 60, 120 and 121 same-guest reconnect gates; the
   121-cycle runs balance HLI 3405/3405, deliver 2316 events and 1089 ACLs,
@@ -2078,9 +2081,10 @@ restart.
   independent four-instance batches then pass `8/8`. Two independent
   five-instance staggered batches then pass `10/10`; fixed-icount zero-stagger
   five-instance batches also pass `10/10`; two six-instance batches pass
-  `12/12`, while the earlier `shift=auto` `5/5 PASS`/`3/5 FAIL` pair remains
-  as historical evidence. The remaining validation gates are more than six
-  instances, long-run throughput and additional teardown modes;
+  `12/12`, and two calibrated eight-instance batches pass `16/16`, while the
+  earlier `shift=auto` `5/5 PASS`/`3/5 FAIL` and eight-instance threshold
+  `4/8` controls remain historical evidence. The remaining validation gates
+  are more than eight instances, long-run throughput and additional teardown modes;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -2121,8 +2125,9 @@ restart.
   four-instance gates then pass `8/8`. Two five-instance 30-second-stagger
   gates pass `10/10`, and two fixed-`shift=5` zero-stagger gates pass `10/10`;
   the earlier adaptive-time `5/5 PASS`/`3/5 FAIL` evidence remains retained.
-  Two fixed-icount zero-stagger six-instance gates pass `12/12`; more than six
-  instances remain open. Long-run throughput, additional teardown modes,
+  Two fixed-icount zero-stagger six-instance gates pass `12/12`; after
+  `hold/12` calibration, two eight-instance gates pass `16/16`. More than
+  eight instances remain open. Long-run throughput, additional teardown modes,
   bit-exact controller/baseband, coexistence and
   same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering

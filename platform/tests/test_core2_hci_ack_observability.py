@@ -188,8 +188,8 @@ class Core2HciAckObservabilityTests(unittest.TestCase):
             device for device in profiles["devices"] if device["id"] == "core2"
         )
         for validation in (
-            source_core2["runtime"]["validation"]["concurrency_validation"],
-            profile_core2["validation"]["concurrency_validation"],
+            source_core2["runtime"]["validation"]["ack_observability"],
+            profile_core2["validation"]["ack_observability"],
         ):
             self.assertIn("0010", validation)
             self.assertIn("4.506306s of host trace time", validation)

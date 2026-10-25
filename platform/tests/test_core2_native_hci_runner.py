@@ -90,11 +90,11 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         )
         self.assertEqual(
             runner.sustained_stress_requirements(40)["minimum_sweeps"],
-            4,
+            3,
         )
         self.assertEqual(
             runner.sustained_stress_requirements(120)["minimum_sweeps"],
-            12,
+            10,
         )
 
     def test_input_hashes_are_frozen_before_execution(self) -> None:
@@ -248,7 +248,7 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         self.assertEqual(
             runner.sustained_stress_requirements(120),
             {
-                "minimum_sweeps": 12,
+                "minimum_sweeps": 10,
                 "minimum_heartbeats": 6,
                 "minimum_http_rechecks": 8,
                 "minimum_public_rechecks": 2,

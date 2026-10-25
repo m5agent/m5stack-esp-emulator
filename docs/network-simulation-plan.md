@@ -66,7 +66,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   各 `5/5 PASS`；旧 `shift=auto` 零错峰实现先 `5/5 PASS`、独立确认批
   `3/5 FAIL`。默认固定 `icount shift=5` 并前置测试 BLE server 后，两批
   zero-stagger 五实例均 `5/5 PASS`；随后两批六实例又均 `6/6 PASS`，
-  合计 `12/12`。结论仍不外推到大于六实例、physical controller/RF 或真机；
+  合计 `12/12`；八实例先以旧 sweep 下限得到纯吞吐阈值失败，校准
+  `hold/12` 后两批均 `8/8 PASS`，合计 `16/16`，达到服务单设备容量上限。
+  结论仍不外推到大于八实例、physical controller/RF 或真机；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；
 - controlled DNS、exact A/AAAA records、domain suffix 的 label-boundary
   匹配、最多 8 跳 exact-name CNAME chain、测试 CA、DNS/TLS allowlist、

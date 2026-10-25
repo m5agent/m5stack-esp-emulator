@@ -25,11 +25,11 @@ MicroPython 和其他完整 Flash 固件。
   HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、
   control/runtime 分离、跨容器 QEMU 和 partition fence。
 - Core2 已通过 native-HCI、121 轮重连、长稳、active-stop、8 MiB PSRAM QOM、
-  五实例 30 秒错峰、固定 `icount shift=5` 五实例零错峰和六实例零错峰
-  virtual-device 门禁；六实例两批合计 `12/12`。
+  五实例 30 秒错峰、固定 `icount shift=5` 五实例/六实例和八实例零错峰
+  virtual-device 门禁；八实例两批合计 `16/16`，达到当前服务单设备容量上限。
   旧 `shift=auto` 路径的 `5/5 PASS` 与独立批 `3/5 FAIL` 仍作为失败对照保留；
   修复来自固定虚拟时钟、BLE-first 测试 workload 顺序，以及对实际 QEMU
-  `icount` 做门禁，不是伪造 ACK 或放宽 GATT 断言。大于六实例、持续吞吐、
+  `icount` 做门禁，不是伪造 ACK 或放宽 GATT 断言。大于八实例、持续吞吐、
   物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
@@ -304,7 +304,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
   unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
-  五实例 30 秒错峰、固定 icount 零错峰五实例和六实例已各通过两批；大于六实例、
+  五实例 30 秒错峰、固定 icount 零错峰五/六实例，以及校准后的八实例已各通过两批；大于八实例、
   bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、持续吞吐、
   active-stop 之外 teardown 和真机同路径仍未完成。旧 `shift=auto` 路径
   仍保留首条 Reset Complete 从 Bumble 返回后延迟 `4.506306s` 才进入 HLI
