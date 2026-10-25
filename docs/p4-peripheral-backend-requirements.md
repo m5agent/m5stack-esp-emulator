@@ -1,6 +1,6 @@
 # ESP32-P4 peripheral backend requirements
 
-Last reviewed: `2026-10-24`. Capability evidence remains the Tab5
+Last reviewed: `2026-10-25`. Capability evidence remains the Tab5
 `2026-10-22` focused probe.
 
 This document defines the minimum runtime interfaces needed to close the

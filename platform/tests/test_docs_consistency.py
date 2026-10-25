@@ -405,7 +405,13 @@ class DocsConsistencyTests(unittest.TestCase):
         rendered = (DOCS / "project-snapshot.md").read_text()
         self.assertIn("## 文档与测试", rendered)
         self.assertIn("文档职责分布", rendered)
-        self.assertIn("复核日期早于当前事实日期的非历史页", rendered)
+        if audit["older_current"]:
+            self.assertIn("复核日期早于当前事实日期的非历史页", rendered)
+        else:
+            self.assertIn(
+                "所有非历史页的最近复核日期均与当前事实日期一致",
+                rendered,
+            )
 
     def test_engineering_handoff_stays_a_current_navigation_summary(self) -> None:
         handoff = (DOCS / "engineering-handoff.md").read_text()
@@ -4464,7 +4470,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "static secure-boot image validation",
         )
         self.assertTrue(evidence["input_assets_unchanged"])
-        self.assertEqual(len(evidence["checks"]), 17)
+        self.assertEqual(len(evidence["checks"]), 21)
         self.assertTrue(all(evidence["checks"].values()))
         for name, relative in {
             "runner": (
@@ -4556,15 +4562,35 @@ class DocsConsistencyTests(unittest.TestCase):
             "embedded public key trust against live eFuse",
             evidence["not_claimed"],
         )
+        trust_comparisons = evidence["efuse_trust_comparisons"]
+        self.assertEqual(
+            trust_comparisons["match"]["status"],
+            "not-verified",
+        )
+        self.assertEqual(
+            trust_comparisons["match"]["comparison"],
+            "match-unverified-source",
+        )
+        self.assertEqual(
+            trust_comparisons["mismatch"]["comparison"],
+            "mismatch-unverified-source",
+        )
+        self.assertEqual(
+            trust_comparisons["digest_unavailable"]["comparison"],
+            "efuse-key-digest-unavailable",
+        )
 
         manifest = (DOCS / "firmware-manifest.md").read_text()
         for text in (
             "Secure Boot v2 signature sector",
             "secure_boot_v2_image_signature_authenticity_unverified",
+            "secure_boot_v2_image_public_key_digest_mismatch",
             "secure_boot_v2_image_signature_not_observed",
             "secure_boot_v2_image_signature_invalid",
             "signature_authenticity=not-verified",
-            "trust_root=not-verified",
+            "security.trust_root.status",
+            "match-unverified-source",
+            "mismatch-unverified-source",
         ):
             self.assertIn(text, manifest)
         schema = json.loads(
@@ -4577,11 +4603,18 @@ class DocsConsistencyTests(unittest.TestCase):
             "secure_boot_image",
             schema["properties"]["security"]["properties"],
         )
+        self.assertEqual(
+            schema["properties"]["security"]["properties"]["trust_root"][
+                "properties"
+            ]["status"]["const"],
+            "not-verified",
+        )
         code = (
             ROOT / "platform/tools/firmware_manifest.py"
         ).read_text()
         for warning in (
             "secure_boot_v2_image_signature_authenticity_unverified",
+            "secure_boot_v2_image_public_key_digest_mismatch",
             "secure_boot_v2_image_signature_not_observed",
             "secure_boot_v2_image_signature_invalid",
         ):

@@ -2,7 +2,7 @@
 
 Date: `2026-10-22`
 
-Last reviewed: `2026-10-24`. The evidence baseline remains the focused
+Last reviewed: `2026-10-25`. The evidence baseline remains the focused
 `2026-10-22` probes; no newer Tab5 data plane is implied.
 
 ## Status

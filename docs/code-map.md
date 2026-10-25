@@ -57,7 +57,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | 代码域 | 模块 | 入口 / 输出 |
 | --- | --- | --- |
 | 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_discovery.py`、`worker_discovery_seed.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、本地 worker lifecycle、远程注册目录、持久任务队列、worker HMAC、multicast/unicast discovery、HTTPS/mTLS、SIGHUP TLS/token rotation、executor、GC |
-| 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`nvs_image.py`、`user_firmware_matrix.py`、`user_firmware_expectations.schema.json` | 公开固件下载、manifest、sdkconfig detected / image-signature observed capability、静态/SBOM/文件系统、NVS/SD fixture、SHA-bound UI/headless/network-first 审查预期和批量运行 |
+| 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`nvs_image.py`、`user_firmware_matrix.py`、`user_firmware_expectations.schema.json` | 公开固件下载、manifest、sdkconfig detected / image-signature observed capability、Secure Boot v2 结构/数学验证和包内 eFuse 摘要对照、静态/SBOM/文件系统、NVS/SD fixture、SHA-bound UI/headless/network-first 审查预期和批量运行 |
 | 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/CNAME/TLS、pcap 摘要 |
 | 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
 | BLE/发布工具 | `ble_probe.py`、`hci_stream.py`、`generate_catalog.py`、`export_bundle.py` | 外部 peer、H4 分包、生成的设备目录和可移植资产包 |
@@ -238,7 +238,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/fetch_firmware.py` | 公开 M5Burner 固件查询、校验、下载与缓存 |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 |
 | `platform/tools/firmware_filesystems.py` | LittleFS 挂载、FAT12/16/32 与 SPIFFS 只读解析、文件哈希、敏感路径脱敏和 SPDX 提取 |
-| `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、manifest、sdkconfig detected、低置信度 image-signature observed 和 capability mismatch |
+| `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、manifest、sdkconfig detected、低置信度 image-signature observed、Secure Boot v2/eFuse 摘要对照和 capability mismatch |
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |

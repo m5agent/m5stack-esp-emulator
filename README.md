@@ -36,7 +36,9 @@ MicroPython 和其他完整 Flash 固件。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented Flash、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态审查和 capability
   mismatch；`qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first
-  固件提供最小执行路径。安全启动、生产 key、运行态 ACL/许可和完整云端业务
+  固件提供最小执行路径。Secure Boot v2 已能做 signature sector、RSA-PSS/
+  ECDSA 数学验证和包内 `SECURE_BOOT_DIGEST` 摘要对照，但 eFuse summary
+  仍是自报证据；live trust root、生产 key、运行态 ACL/许可和完整云端业务
   尚未闭环。
 - 所有 QEMU/esp-emu 结论只标记为 `virtual-device validation`；物理 RF、功耗、
   声学、光学、机械、电气和真机安全配置必须由同实现路径的硬件证据单独证明。
