@@ -157,6 +157,11 @@ class DocsCurrentStateContractTests(DocsContractBase):
         workstreams = (DOCS / "workstreams.md").read_text()
         code_map = (DOCS / "code-map.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
+        handoff = (DOCS / "engineering-handoff.md").read_text()
+        qemu_matrix = (
+            DOCS / "qemu-device-adaptation-matrix.md"
+        ).read_text()
+        network_plan = (DOCS / "network-simulation-plan.md").read_text()
         lab_fabric = (
             ROOT / "tests/network/lab_fabric/README.md"
         ).read_text()
@@ -212,6 +217,21 @@ class DocsCurrentStateContractTests(DocsContractBase):
             re.search(r"\b\d+/\d+\s+PASS\b", workstreams),
             "workstreams.md must route to status/ledger instead of copying counts",
         )
+        for relative, text in (
+            ("README.md", (ROOT / "README.md").read_text()),
+            ("docs/engineering-handoff.md", handoff),
+            ("docs/qemu-device-adaptation-matrix.md", qemu_matrix),
+            ("docs/network-simulation-plan.md", network_plan),
+        ):
+            self.assertIsNone(
+                re.search(r"\b\d+/\d+\s+PASS\b", text),
+                f"{relative} must route volatile run counts to the ledger",
+            )
+            self.assertTrue(
+                "validation-ledger.md" in text
+                or "证据台账" in text,
+                f"{relative} must route volatile run counts to the ledger",
+            )
         for task_id in task_ids:
             self.assertIn(
                 f"`{task_id}`",

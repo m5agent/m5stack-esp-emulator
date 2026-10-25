@@ -92,6 +92,10 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         for text in (status, backlog, register, workstreams, matrix):
             self.assertIn("shared", text.lower())
             self.assertIn("WDT", text)
+        for text in (status, backlog, register, workstreams):
+            self.assertIn("flash-cache", text)
+            self.assertIn("DPORT", text)
+            self.assertIn("假设", text)
         self.assertIn("后初始化 WDT", workstreams)
         self.assertIn("0031", matrix)
         self.assertIn("Core2FactoryTest", matrix)
@@ -167,8 +171,22 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         workstreams = (DOCS / "workstreams.md").read_text()
         ledger = (DOCS / "validation-ledger.md").read_text()
         firmware_readme = (ROOT / "tests/firmware/README.md").read_text()
+        qemu_matrix = (
+            DOCS / "qemu-device-adaptation-matrix.md"
+        ).read_text()
+        uiflow_index = (ROOT / "tests/uiflow2/README.md").read_text()
+        unified_core2 = (
+            ROOT / "tests/uiflow2/unified_core2/README.md"
+        ).read_text()
         for text in (status, backlog, register, workstreams, ledger):
             self.assertIn("TIMG", text)
+        self.assertIn("flash-cache/IPC/DPORT", qemu_matrix)
+        self.assertIn("历史诊断选项", uiflow_index)
+        self.assertIn("diagnostic evidence", unified_core2)
+        self.assertNotIn(
+            "Repeated-lease stability is currently",
+            unified_core2,
+        )
         self.assertIn("宿主调度", status)
         self.assertIn("timing-sensitive", register)
         self.assertIn("5/8", ledger)

@@ -47,9 +47,9 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | shared GPIO21/22 board bus 已修复；用 TIMG trace 隔离启动期同步路径、虚拟时间和调度 |
+| `RUNTIME-03` | 进行中 | 验证 flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接假设；优先增加通用 trace，不继续绑定临时固件地址 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
-| `CORE2-02` | 进行中 | 大于八实例、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
+| `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 |
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 |
@@ -57,7 +57,7 @@
 | `RUNTIME-04` | 进行中 | ATECC608 I2C 命令和测试 slot/config fixture |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 idempotency |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 |
-| `SVC-03` | 待做 | 拆分 `device_service.py` 的 store/runtime/evidence/session 状态机 |
+| `SVC-03` | 待做 | 先提取纯配置/请求解析边界，再拆 store、runtime adapter、evidence collector 和 session 状态机 |
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
@@ -78,7 +78,7 @@
 
 - `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`195` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`61` 个 patch 文件。
-- 文档：`214` 个 Markdown 页面，`19271` 行。
+- 文档：`214` 个 Markdown 页面，`19304` 行。
 
 ## 文档与测试
 

@@ -1,6 +1,6 @@
 # 工程交接总览
 
-最近核对：`2026-10-25`
+最近核对：`2026-10-26`
 
 本页用于让新接手的人快速理解“项目现在是什么、代码在哪里、哪些已经能跑、
 接下来做什么”。它是导航摘要，不维护动态数量，也不替代以下权威入口：
@@ -43,60 +43,46 @@
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
 - 当前单机 namespace/container 路径不是恶意多租户固件的最终 VM 沙箱。
 
-## 最近交付与当前整理
+## 当前代码盘点
 
-- 代码：Core2 的共享 QEMU 参数默认改为固定 `icount shift=5`，环境变量只
-  作为显式诊断覆盖；concurrency runner 会从实际 QEMU 进程命令行同时校验
-  `tb-size=128` 和 `shift=5`。统一 probe 在 WiFi 和长 PSRAM 压力前启动
-  测试 BLE server，sustained sweep 下限按最高服务并发 8 校准为 `hold/12`。
-- 证据：两批独立零错峰五/六实例和八实例门禁均已入仓，并由专项测试锁定原始
-  JSON SHA、firmware/ELF/QEMU/tool hashes、PSRAM sweep、HLI/GATT、frame、
-  QOM、pcap 和 clean shutdown 字段；旧 `shift=auto` 失败、八实例
-  threshold-fail control、prealloc transient 与 `0010` trace 继续保留。
-- Core2 legacy 固件：`0031` 将 ESP32 的两个 I2C controller 路由到唯一
-  GPIO21/22 物理 Core2 board bus，AXP `0x34`、RTC `0x51` 和 INA3221
-  `0x40` 已 ACK，原 `I2C bus error (19)` 消失，UIFlow2 Core2 设备组
-  `6/6` 无 retry 回归 PASS。`0032` 的 TIMG trace 进一步证明默认单会话可
-  持续喂狗超过分钟级，而并发 lease 和显式 accelerator 对照会在不同
-  CPU/PC 触发 watchdog；应用帧仍为 black，不能据此关闭 `RUNTIME-03`。
-- 文档：README、状态、Backlog、工作流、交接、Device Service、QEMU 适配
-  矩阵、Core2 专题、测试 README、设备 catalog 和 profile 已统一使用同一
-  口径。当前权威关系仍是 `project-status` 定义能力、`project-backlog`
-  定义未完成项、`validation-ledger` 保存日期化证据。原 6400 行
-  `test_docs_consistency.py` 已拆成导航、当前状态、Core2、固件安全和
-  网络/worker 五个领域模块，旧路径只保留兼容入口；144 条退役说法已迁到
-  结构化 claim/authority fixture。
-- 待办：`RUNTIME-03` 的 Core2 shared board bus 已修正，当前最小调查入口
-  是 legacy UIFlow 初始化后的 interrupt WDT；随后继续 `NET-04` 物理跨主机边界和
-  `CORE2-02` 的更大规模/物理等价。`FW-01/02/03`、`RUNTIME-02/04`、
-  `HW-01` 仍是独立工作流，完成五/六/八实例门禁不等于整个 goal 完成。
+本页只保留稳定的代码边界。运行次数、PASS 比例、资源和提交 SHA 会随每次
+验证变化，统一放在[验证证据台账](validation-ledger.md)和 evidence 文件中。
+
+| 代码面 | 当前可执行基线 | 主要未闭环 | 稳定入口 |
+| --- | --- | --- | --- |
+| Device Service | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复和本地 worker 生命周期 | 跨主机接管、生产池、模块边界仍偏大 | `serve.py`、`device_service.py` |
+| 统一运行时 | S3/C6/Core2 在同一 lease/guest 中组合板级、WiFi、BLE 和 evidence；Core2 规范 BLE 路径为 `core2-native-hci` | 真机、RF、bit-exact controller、物理 PSRAM/cache | `platform/qemu/profiles.json`、`tests/uiflow2/` |
+| 网络 | controlled DNS/TLS、有界 IPv4/IPv6 egress、CNAME、WPA2、错误密码、断线恢复、双 guest fabric 和 pcap | 任意 NAT、跨物理主机、不可信固件 VM 沙箱 | `network_*.py`、`tests/network/` |
+| Worker | durable queue、HMAC、HTTPS/mTLS、轮换、发现、restart/reattach、跨容器 QEMU 和 process/companion fencing | 物理跨主机、迁移、外部 side effect ownership、生产调度 | `worker_*.py`、`transport_security.py` |
+| 固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF、capability、文件系统、SD/NVS fixture、静态审查和 Secure Boot v2 镜像分析 | 运行态 ACL/许可、live eFuse/trust root、生产 key、真实云端业务 | `firmware_*.py`、`user_firmware_matrix.py` |
+| 设备差异 | ESP32 设备矩阵可由 Device Service 创建；Tab5 与 CardputerZero 是独立后端 | Tab5 外设、CardputerZero 长期回归、逐设备视觉保真 | `devices/`、`platform/peripherals/` |
+
+最近这一轮真正改变当前事实的内容是：
+
+- Core2 的两个 I2C controller 已统一下层到一个物理 GPIO21/22 板级 bus，
+  原 AXP/RTC 路由错误不再是首个失败点；
+- 剩余 legacy UIFlow 启动问题已从固定外设/固定 PC 收敛到启动期同步路径；
+- 当前正在验证“flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接
+  未完整复现”的工作假设。S32C1I 锁在采样时为空闲，因此目前不把锁泄漏列为
+  首要根因；该假设尚无匹配 ELF/源码闭环，不能写成结论；
+- 文档已拆成当前事实、待办、日期化证据、契约、实现地图和历史页五类，后续
+  不应再把这些运行细节复制回总览。
 
 ## 最近成果已经并入哪里
 
 已完成里程碑只保留为依赖摘要，精确轮次、SHA、检查数量和 evidence 路径
-统一在[验证证据台账](validation-ledger.md)维护：
+统一在[验证证据台账](validation-ledger.md)维护。当前稳定代码面的摘要如下：
 
-- 网络：controlled DNS/CNAME、domain suffix、有界 IPv4/IPv6 CIDR egress、
-  TLS Host policy、pcap、WPA2 正确/错误密码、断线与 DHCP renewal 已进入
-  unified/namespace 路径；物理 RF、任意公网解析和恶意固件 VM 隔离仍开放。
-- Worker：durable queue、HMAC、HTTPS/mTLS、rotation、multicast/unicast
-  discovery、control/runtime 分离、restart/reattach、跨容器 QEMU、
-  network-partition fence 和 trusted-host companion recovery 已落地；
-  物理跨主机、迁移、跨主机幂等、namespace-managed/Tab5 companion 仍开放。
-- Core2：`core2-native-hci`、121 轮重连、artifact-bound 长稳、active-stop、
-  QOM 8 MiB PSRAM/upper-bank MMU、错峰和固定 `icount shift=5` 的
-  五/六/八实例零错峰并发均已有虚拟设备证据；八实例已达到当前服务单设备
-  容量。四实例原始失败、八实例旧 sweep-floor control 和旧 `shift=auto`
-  零错峰失败继续保留；`0010` 说明 PSRAM 初始化关中断窗口与自适应虚拟时间
-  可放大 HLI delivery 等待。当前大于八实例、持续吞吐、active-stop 之外
-  teardown、物理 PSRAM/cache timing、bit-exact controller 和真机仍开放。
-- 固件：FirmwareManifest/WebBurner、分段完整性、capability/security、
-  Secure Boot v2 数学与包内摘要对照、文件系统、SD/NVS fixture 和
-  SHA-bound review expectation 已可执行；live eFuse/trust root、生产 key、
-  运行态 ACL/许可、更多厂商与云端业务仍开放。
-- 运行与分发：Device Service、Live sessions、WebBurner、可复现 macOS
-  arm64 runtime bundle 和 generic ESP32-S3 observe 路径可用；服务池、
-  模块拆分、真机同路径和跨主机生产调度仍未完成。
+- 网络：controlled DNS/CNAME、domain/CIDR egress、TLS Host policy、pcap、
+  WPA2 正误密码、断线与 DHCP renewal 已进入 unified/namespace 路径；
+- Worker：durable queue、认证、TLS/mTLS、轮换、发现、控制/执行面分离、
+  restart/reattach、跨容器 QEMU 和 side-effect fencing 已落地；
+- Core2：native-HCI、WiFi/公网/GATT、QOM PSRAM/MMU、长稳、重连、
+  active-stop 和当前服务容量门禁已有虚拟设备证据；
+- 固件：Manifest/WebBurner、capability/security、文件系统、SD/NVS fixture
+  和 SHA-bound review expectation 已可执行；
+- 运行与分发：Device Service、Live sessions、WebBurner、macOS arm64 runtime
+  bundle 和 generic ESP32-S3 observe 路径可用。
 
 本页不复制运行流水；当前结论只来自状态页，开放项只来自 Backlog。
 
@@ -107,7 +93,7 @@
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
 | Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
-| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG/固定 icount、8 MiB PSRAM MMU、虚拟 PSRAM 压力、错峰、双/三/四实例无错峰、五实例错峰、固定 icount 五/六/八实例零错峰 | `PILOT` | 大于八实例、物理 PSRAM/cache timing、bit-exact controller、持续吞吐和其他 teardown |
+| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG/固定 icount、8 MiB PSRAM MMU、虚拟 PSRAM 压力和当前容量内并发 | `PILOT` | 大于当前服务容量、物理 PSRAM/cache timing、bit-exact controller、持续吞吐和其他 teardown |
 | 通用固件审查 | Manifest/WebBurner、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
 | CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |
@@ -195,7 +181,7 @@ worker-local runtime Device Service 负责 session、QEMU、evidence 和 stop。
 companion continuity、session-create idempotency 和跨容器 QEMU。
 
 multicast 不能跨 subnet 时，worker 可从 reachable HMAC-signed unicast seed
-取得 control URL；该路径已在两个 routed/masqueraded subnet 中 `3/3 PASS`。
+取得 control URL；该路径已在 routed/masqueraded subnet fixture 中通过。
 尚未覆盖物理跨主机进程迁移、无 reachable seed 的任意 NAT traversal、跨主机幂等存储、
 namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
@@ -220,9 +206,9 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | shared GPIO21/22 board bus 已修复；定位启动期长同步路径与 TIMG/虚拟时间/宿主调度的交互 | I2C `0x34`/`0x51` ACK 已成立；WDT 在不同并发和 accelerator 配置下形态不同，应用帧仍为 black |
+| `RUNTIME-03` | 验证 flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接假设；增加通用 trace，减少固件地址绑定 | I2C routing 已修复；当前仍是工作假设，应用帧仍为 black |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
-| `CORE2-02` | 补大于八实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 双/三/四/五/六/八实例均有独立复跑覆盖；八实例 threshold-fail control 与旧 `shift=auto` `0010` trace 保留，当前结论不外推到更大规模或物理 controller |
+| `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |

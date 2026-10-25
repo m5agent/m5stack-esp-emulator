@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文只记录带日期的验证结果和证据入口。它用于回答“这项结论是什么时候、
 用什么路径验证的”，不定义当前能力，也不定义待办。当前能力以
@@ -10,6 +10,12 @@
 所有未明确标为 hardware validation 的结果都是 virtual-device validation。
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
+
+## 2026-10-26
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| Code/document work-state consolidation | 将总览、状态、Backlog、工作流和 QEMU 适配矩阵收敛为“当前能力 / 调查假设 / 待办依赖 / 日期化证据”四层；README、handoff、QEMU/network 专题不再复制易漂移的 PASS 比例、轮次和资源数字，具体结果统一留在本台账与 evidence。Backlog 新增立即可做、多机环境、真机/授权、后端阻塞四类依赖；`RUNTIME-03` 明确当前仅验证 flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接假设，S32C1I 锁空闲只否定首要锁泄漏假设，不写成根因。Core2 GDB/VHCI lane 统一标为 historical/diagnostic，避免 `current 1/2` 等旧措辞回流。`SVC-03` 记录“先锁 API/evidence 契约、一次只移一个边界、代码变动必须配套重跑 tool-hash-bound evidence”的拆分门禁。验证：平台 `499/499`、文档契约 `39/39`、Node SHA256/upload/UI smoke、runtime coverage、peripheral catalog、QEMU profiles、project snapshot、compileall、selected Ruff `E9/F` 和 `git diff --check` PASS；未改 `device_service.py` 或 QEMU/固件行为，未新增 hardware validation | [`project-status.md`](project-status.md)、[`project-backlog.md`](project-backlog.md)、[`workstreams.md`](workstreams.md)、[`engineering-handoff.md`](engineering-handoff.md)、[`code-map.md`](code-map.md)、[`runtime-model-gap-register.md`](runtime-model-gap-register.md)、[`project-snapshot.md`](project-snapshot.md)、[`current-state contract`](../platform/tests/test_docs_current_state_contract.py)、[`Core2 contract`](../platform/tests/test_docs_core2_runtime_contract.py) |
 
 ## 2026-10-25
 

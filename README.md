@@ -1,6 +1,6 @@
 # M5Stack Firmware Simulation and Review Platform
 
-Last reconciled: `2026-10-25`
+Last reconciled: `2026-10-26`
 
 [![CI](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/m5agent/m5stack-esp-emulator/actions/workflows/ci.yml)
 
@@ -24,12 +24,10 @@ MicroPython 和其他完整 Flash 固件。
   密码、断线恢复、双 guest fabric 和 pcap。Worker 路径已有 durable queue、
   HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、
   control/runtime 分离、跨容器 QEMU 和 partition fence。
-- Core2 已通过 native-HCI、121 轮重连、长稳、active-stop、8 MiB PSRAM QOM、
-  五实例 30 秒错峰、固定 `icount shift=5` 五实例/六实例和八实例零错峰
-  virtual-device 门禁；八实例两批合计 `16/16`，达到当前服务单设备容量上限。
-  旧 `shift=auto` 路径的 `5/5 PASS` 与独立批 `3/5 FAIL` 仍作为失败对照保留；
-  修复来自固定虚拟时钟、BLE-first 测试 workload 顺序，以及对实际 QEMU
-  `icount` 做门禁，不是伪造 ACK 或放宽 GATT 断言。大于八实例、持续吞吐、
+- Core2 已具备 native-HCI、WiFi/公网/GATT、重连、长稳、active-stop、
+  8 MiB PSRAM QOM 和当前服务容量内的并发 virtual-device 门禁。能力范围
+  不以轮次或某一批 PASS 表示；精确结果、失败 control 和运行参数只查
+  [验证证据台账](docs/validation-ledger.md)。大于当前容量、持续吞吐、
   物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
 - Core2 legacy UIFlow 的 AXP/RTC/INA 已统一路由到共享 GPIO21/22 物理
   board bus，原 `I2C bus error (19)` 已消失；同一固件随后仍进入
@@ -299,22 +297,11 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   `core2-native-vhci` 依赖 GDB 暂停、callback 注入和 synthetic return，只保留
   为显式诊断/兼容路径。具体 hold、reconnect 和 HLI health 证据见
   [Core2 native HCI backend](docs/core2-native-hci-backend.md)和验证台账。
-- Core2 已通过 artifact-bound 两小时 active-BLE WiFi/公网/GATT 功能保持，
-  启动 firmware/ELF/QEMU 与工具哈希无漂移。旧的 `458016 KiB` host RSS
-  增长已归因到未限容 TCG translation buffer；统一改用 `tb-size=128` 后的
-  最终两小时复测也 PASS，RSS `323536→252992 KiB`、phys footprint
-  `250880→188416 KiB`。3 个独立 lease 的 121 轮 reconnect 复现也已 PASS；
-  active-stop/recovery 又在 3 个连续 session 中验证了 BLE/HTTP companion、
-  QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
-  unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
-  `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
-  五实例 30 秒错峰、固定 icount 零错峰五/六实例，以及校准后的八实例已各通过两批；大于八实例、
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、持续吞吐、
-  active-stop 之外 teardown 和真机同路径仍未完成。旧 `shift=auto` 路径
-  仍保留首条 Reset Complete 从 Bumble 返回后延迟 `4.506306s` 才进入 HLI
-  的 ACK-state trace；该数值是 host trace time，不是 guest 虚拟时钟。
-  当前默认固定 `shift=5`，并在开始 WiFi/长 PSRAM 压力前初始化测试 BLE
-  server；两批独立 `5×120s` 零错峰门禁随后均为 `5/5 PASS`。
+- Core2 的 bounded TCG、长稳、reconnect、active-stop/recovery、PSRAM
+  压力和当前容量内并发均有 virtual-device evidence；这些结果不外推到
+  更大规模、持续吞吐、active-stop 之外 teardown、物理 cache/PSRAM 或真机。
+  当前默认使用固定 `icount shift=5`，旧 `shift=auto` 的失败和延迟 trace
+  继续保留。轮次、RSS、时长和失败比例只在验证证据台账与 evidence 中维护。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

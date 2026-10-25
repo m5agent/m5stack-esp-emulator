@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -162,7 +162,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 | 位置 | 现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | 最大服务编排单文件；session、存储、runtime、证据和生命周期仍在同一热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
+| `platform/tools/device_service.py` | `ServiceError`、`DeviceSpec`、三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和请求解析仍集中在同一模块；Core2 并发 evidence 还绑定该文件 SHA | 按 `SVC-03` 先锁契约并计划配套 evidence 重跑，再移无状态配置/解析、存储、runtime adapter、evidence 和 history；不得让新代码借用旧 tool hash |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
@@ -172,11 +172,13 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 
 `SVC-03` 的目标不是一次搬空 `device_service.py`，而是按可回滚边界拆：
 
-1. content-addressed firmware/artifact store 与 resumable upload；
-2. session repository、状态机和历史恢复；
-3. QEMU、esp-emu/Tab5、network runtime adapters；
-4. serial/frame/QOM/audio/network evidence collector；
-5. HTTP handler 与 orchestration facade。
+1. 锁定并测试 `/api/v1`、session JSON、evidence ZIP、历史恢复和现有公开符号；
+2. 提取无状态请求解析、运行参数构造与设备规格加载；
+3. content-addressed firmware/artifact store 与 resumable upload；
+4. session repository、状态机和历史恢复；
+5. QEMU、esp-emu/Tab5、network runtime adapters；
+6. serial/frame/QOM/audio/network evidence collector；
+7. HTTP handler 与 orchestration facade。
 
 每一步先保留现有 `/api/v1`、session JSON、evidence ZIP 和 stopped-session
 恢复契约，再迁移一个边界；禁止在同一变更里同时改 API、存储布局和运行时。

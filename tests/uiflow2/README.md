@@ -1,6 +1,6 @@
 # UIFlow2 虚拟烧录与 UI 回归
 
-最近核对：`2026-10-25`
+最近核对：`2026-10-26`
 
 设备参数在 `device_matrix.json` 中集中维护。统一流程：
 
@@ -45,7 +45,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_vhci/run_test.py \
 外部 NUS GATT 5/5 PASS；该 GDB 路线只用于 legacy/diagnostic 对照。
 bit-exact Espressif BT baseband/controller 仍 `NOT RUN`。
 
-同一 guest 的 board/WiFi/公网与 native-VHCI BLE：
+历史诊断选项：同一 guest 的 board/WiFi/公网与 debugger-mediated
+native-VHCI BLE：
 
 ```bash
 PYTHONPATH=.work/py python3 tests/uiflow2/unified_core2/run_test.py \
@@ -55,15 +56,15 @@ PYTHONPATH=.work/py python3 tests/uiflow2/unified_core2/run_test.py \
   --attempts 3 --require-all-attempts
 ```
 
-当前为 3/3 PASS；镜像必须是匹配的 stock internal-controller UIFlow2 构建。
-同一路径已进入 Device Service：
+该直连 runner 曾在匹配的 stock internal-controller UIFlow2 构建上通过，
+但结果只用于 GDB 路线对照。同一历史路径已进入 Device Service：
 `runtime=qemu-unified`、`profile=core2-native-vhci`，真实 `/api/v1` lease
 同时返回 board/frame/QOM/audio/WiFi/公网/BLE，并保留 pcap、bridge 和 peer
 evidence；该 profile 仍依赖服务托管的 GDB bridge，只用于诊断/兼容。
 
-Device Service 的 GDB 诊断桥 repeated lease 目前为 `1/2`，失败在 C2H
-callback 注入，因此单 lease PASS 不等于稳定后端。规范主路径改为
-`core2-native-hci`：
+Device Service 的 GDB 诊断桥在历史 repeated-lease 检查中出现过 C2H callback
+注入失败，因此这条旧路线不能作为稳定后端。规范主路径为
+`core2-native-hci`，新验证不应继续使用 GDB profile：
 
 | 阶段 | 状态 | 验证入口 |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 # 运行时模型缺口登记
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文是“固件行为与模拟器模型不一致”时的统一登记页。它记录已经复现的
 运行时能力缺口、关闭证据、责任边界和剩余验收条件；当前总体能力见
@@ -141,14 +141,15 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 | 修复 | `0031-core2-shared-board-i2c.patch` 将两个 controller register block 都路由到唯一物理 GPIO21/22 board bus，器件只挂一份 |
 | 修复后 | `0x34` write/read、`0x51` write/read、INA3221 `0x40` 均 ACK；原先的 `I2C bus error (19)` 消失，AXP2101 与 AXP192 变体都能继续进入后续初始化 |
 | 当前阻断 | 固件随后进入 timing-sensitive watchdog failure：默认单会话可稳定 feed 超过 285 秒；两个四实例并发批次的 5/8 lease 在不同 CPU/PC 触发 interrupt-WDT。显式 thread/icount 对照没有修复，部分还触发 TG hardware reset |
-| 当前判断 | 不是单个固定外设缺失，也没有固定 firmware PC；最可能边界是 legacy 启动期长同步路径与 QEMU 虚拟时间/宿主调度的组合。尚不能判定固件缺陷 |
+| 当前判断 | TIMG trace 已排除单一固定外设和固定 firmware PC。当前工作假设是 legacy 启动期 `spi_flash_disable_interrupts_caches_and_other_cpu()`、跨核 IPC 与 DPORT high-interrupt 交接未被完整复现；采样中 S32C1I 自旋锁为空闲，因此锁泄漏不是首要假设。该假设尚未由匹配源码/ELF 或通用 DPORT/flash-cache trace 证实，不能判定固件缺陷 |
 | 证据 | [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`0032 trace patch`](../patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch)、[`previous trace`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
 
 关闭条件：
 
-1. 使用 `M5SW_TIMG_TRACE=1` 定位长同步启动阶段最后一次 feed 对应的 guest
-   代码路径，保留 reset reason、PC/backtrace 和前后 trace；
-2. 判断 WDT 来自 timer/WDT 虚拟时间换算、宿主调度暂停，还是固件自身；
+1. 增加默认关闭、与具体固件地址解耦的 flash-cache pause、cross-core
+   call/ack、DPORT high-interrupt 和 guest 清标志顺序 trace；
+2. 判断等待发生在 flash-cache disable、IPC acknowledgement、DPORT
+   high-interrupt 交接、timer/WDT 虚拟时间换算还是固件自身；
 3. 同一固件 SHA 在 Device Service 中渲染非空应用帧并保持运行；
 4. 回归现有 UIFlow2 Core2 设备组，确保 shared bus 不破坏 touch/IMU/RTC/
    audio/mic 路径。

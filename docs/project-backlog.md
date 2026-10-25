@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -44,13 +44,23 @@
 5. `RUNTIME-02/04`、`HW-01`：补 C6 Zigbee、ATECC608 和真机同路径。
 6. `SVC-01/02/03`、`TAB5-01`、`UI-01`、`CZ-01`：服务化和专项收尾。
 
+## 依赖与并行原则
+
+| 类别 | Task | 开始条件 | 与其他工作的关系 |
+| --- | --- | --- | --- |
+| 立即可做 | `RUNTIME-03`、`FW-01`、`FW-03`、`SVC-03`、`UI-01` | 当前仓库、测试和本地 runtime 可用 | `RUNTIME-03` 触碰 Core2 QEMU 时与 `CORE2-02` 串行；`SVC-03` 先做无语义移动并保持 API/evidence 契约 |
+| 需要多机环境 | `NET-04`、`SVC-01`、`SVC-02` | 至少两个可失联、可 drain、可独立寻址的执行节点 | `SVC-01/02` 的跨主机部分依赖 `NET-04`；单机 namespace/container 结果不能替代 |
+| 需要真机或外部控制面 | `FW-02`、`HW-01` | 同固件 SHA 的设备控制、串口、画面、网络和外设观测入口 | `FW-02` 还必须取得 live eFuse/生产 key 流程授权；静态镜像分析不能代填 |
+| 后端/ELF 阻塞 | `RUNTIME-02`、`RUNTIME-04` | 可重建 802.15.4 MAC 路径，或公开固件匹配 ELF、ATECC608 命令与测试配置 | 在 blocker 消除前保持 `PARTIAL`/`runtime_model_gap`，不承诺完整兼容 |
+| 决策或独立后端 | `TAB5-01`、`CZ-01` | P4 backend 重建/扩展决策；CardputerZero Linux 回归资源 | 不继承 S3/C6/Core2 的完成度，可与主线并行 |
+
 ## 可执行任务板
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | shared GPIO21/22 board bus 已修复；用 TIMG trace 隔离启动期同步路径、虚拟时间和调度 | 同固件 SHA 渲染非空应用帧并保持运行；并发、单实例和 accelerator 对照可重复；保留 UIFlow2 回归证据 |
+| `RUNTIME-03` | 进行中 | 验证 flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接假设；优先增加通用 trace，不继续绑定临时固件地址 | 同固件 SHA 渲染非空应用帧并保持运行；假设有支持或否定证据；并发、单实例和 accelerator 对照可重复；保留 UIFlow2 回归证据 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
-| `CORE2-02` | 进行中 | 大于八实例、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
+| `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key | 测试/生产 key 不入库；安全状态可审计 |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 | 导入、capability、boot、输入、功能和网络分层记录 |
@@ -58,7 +68,7 @@
 | `RUNTIME-04` | 进行中 | ATECC608 I2C 命令和测试 slot/config fixture | 固件越过安全元件初始化并进入应用帧；不提交生产私钥 |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 idempotency | 重启后接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 | 租户状态隔离，资源与 GC 可观测 |
-| `SVC-03` | 待做 | 拆分 `device_service.py` 的 store/runtime/evidence/session 状态机 | 对外 API 与 evidence 不回归 |
+| `SVC-03` | 待做 | 先提取纯配置/请求解析边界，再拆 store、runtime adapter、evidence collector 和 session 状态机 | 每一步只移动一个边界；对外 API、历史恢复和 evidence 字段不回归 |
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
@@ -75,16 +85,20 @@ RTC；`0031` 将两个 controller 路由到唯一的 GPIO21/22 板级 bus 后，
 
 开放范围：
 
-- 定位 AXP/RTC/INA 初始化之后、长同步启动阶段停止喂狗的具体位置；
-- 区分 timer/WDT 模型、虚拟时间换算、宿主调度和固件自身死锁；
+- 验证或推翻当前工作假设：启动期 `spi_flash_disable_interrupts_caches_and_other_cpu()`、
+  跨核 IPC 与 DPORT high-interrupt 交接未被完整复现；
+- 增加通用 DPORT/flash-cache 状态 trace，确认 flash-cache pause、cross-core
+  call/ack、DPORT high-interrupt 标志和 guest 等待/清标志顺序；
+- 区分 timer/WDT 模型、虚拟时间换算、宿主调度和固件自身死锁；S32C1I
+  自旋锁是否占用只是其中一项，不能单独作为根因；
 - 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
 - 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
 
 验收：
 
 - 同一固件 SHA 出现非空应用帧并稳定运行；
-- shared bus、TIMG trace 和 UIFlow2 `6/6` 回归保持 PASS；
-- 失败 trace、设备未建模部分和固件行为分开记录。
+- shared bus、TIMG trace 和 Core2 UIFlow2 外设组回归保持 PASS；
+- 当前假设获得支持或被否定，且失败 trace、设备未建模部分和固件行为分开记录。
 
 ## P0：网络与 worker
 
@@ -238,15 +252,19 @@ running。
 ### SVC-03 编排拆分
 
 `platform/tools/device_service.py` 仍承担 session、存储、runtime、证据和
-HTTP 热区。按以下顺序拆：
+HTTP 热区。Core2 并发 evidence 绑定该文件的 tool hash，因此任何拆分都必须
+配套重跑受影响证据，不能让新代码继承旧 PASS。按以下顺序拆：
 
-1. 固定 `/api/v1`、session JSON、evidence ZIP 和历史恢复契约；
-2. 拆 content-addressed firmware/artifact store；
-3. 拆 QEMU、Tab5、network runtime adapters；
-4. 拆 evidence collector 和 lifecycle/history repository；
-5. 最后收敛 HTTP/orchestration facade。
+1. 固定 `/api/v1`、session JSON、evidence ZIP 和历史恢复契约，并记录当前
+   `device_service.py` 的公开符号；
+2. 先移动无状态请求解析、运行参数构造和设备规格加载，保持原模块 re-export；
+3. 拆 content-addressed firmware/artifact store；
+4. 拆 QEMU、Tab5、network runtime adapters；
+5. 拆 evidence collector 和 lifecycle/history repository；
+6. 最后收敛 HTTP/orchestration facade。
 
-验收：平台测试、目标 unified lease、历史恢复和 evidence 字段不回归。
+验收：每步单独可回滚；平台测试、目标 unified lease、历史恢复和 evidence
+字段不回归；不在移动文件的同时改变错误码、状态机、运行参数或 evidence 结构。
 
 ## P1：专项
 
