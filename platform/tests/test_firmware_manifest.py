@@ -63,6 +63,17 @@ class FirmwareManifestTests(unittest.TestCase):
             "secure_boot_image",
             schema["properties"]["security"]["properties"],
         )
+        trust_root_schema = schema["properties"]["security"]["properties"][
+            "trust_root"
+        ]
+        self.assertEqual(
+            trust_root_schema["properties"]["status"]["const"],
+            "not-verified",
+        )
+        self.assertIn(
+            "mismatch-unverified-source",
+            trust_root_schema["properties"]["comparison"]["enum"],
+        )
         segment_properties = (
             schema["properties"]["artifact"]["properties"]["segments"]["items"][
                 "properties"
@@ -551,6 +562,214 @@ class FirmwareManifestTests(unittest.TestCase):
                 row["code"]
                 for row in unsigned["validation"]["warnings"]
             },
+        )
+        self.assertEqual(
+            unsigned["security"]["trust_root"]["comparison"],
+            "not-applicable",
+        )
+
+    def test_secure_boot_image_compares_efuse_key_digest_without_trust(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "signed.bin"
+            image.write_bytes(build_flash_with_secure_boot_v2())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            baseline = import_package(
+                image,
+                root / "out-baseline",
+                flash_size=8 << 20,
+            )["manifest"]
+            digest = {
+                block["public_key_digest_sha256"]
+                for evidence_image in baseline["security"][
+                    "secure_boot_image"
+                ]["images"]
+                for block in evidence_image["blocks"]
+            }
+            self.assertEqual(len(digest), 1)
+            matching_digest = digest.pop()
+            self.assertEqual(
+                baseline["security"]["trust_root"]["comparison"],
+                "efuse-summary-not-included",
+            )
+
+            matching = root / "matching"
+            matching_image = matching / "signed.bin"
+            matching.mkdir()
+            matching_image.write_bytes(build_flash_with_secure_boot_v2())
+            (matching / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            (matching / "efuse-summary.json").write_text(
+                json.dumps(
+                    {
+                        "ABS_DONE_1": {
+                            "value": "True",
+                            "readable": True,
+                        },
+                        "KEY_PURPOSE_0": {
+                            "value": "SECURE_BOOT_DIGEST0",
+                            "readable": True,
+                        },
+                        "BLOCK_KEY0": {
+                            "value": matching_digest.upper(),
+                            "readable": True,
+                        },
+                    }
+                )
+            )
+            matched_manifest = import_package(
+                matching_image,
+                matching / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+            matched_trust = matched_manifest["security"]["trust_root"]
+            self.assertEqual(matched_trust["status"], "not-verified")
+            self.assertEqual(
+                matched_trust["comparison"],
+                "match-unverified-source",
+            )
+            self.assertEqual(
+                matched_trust["source"],
+                "package-espefuse-json-unverified",
+            )
+            self.assertEqual(
+                {
+                    (row["image"], row["public_key_digest_sha256"])
+                    for row in matched_trust["matching_pairs"]
+                },
+                {
+                    ("bootloader", matching_digest),
+                    ("factory", matching_digest),
+                },
+            )
+            self.assertEqual(
+                matched_manifest["security"]["efuse_summary"][
+                    "secure_boot_key_digests"
+                ],
+                [
+                    {
+                        "block": 0,
+                        "purpose": "SECURE_BOOT_DIGEST0",
+                        "digest_sha256": matching_digest,
+                    }
+                ],
+            )
+            self.assertEqual(
+                validate_manifest_structure(matched_manifest),
+                [],
+            )
+
+            mismatched = root / "mismatched"
+            mismatched_image = mismatched / "signed.bin"
+            mismatched.mkdir()
+            mismatched_image.write_bytes(
+                build_flash_with_secure_boot_v2()
+            )
+            (mismatched / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            (mismatched / "efuse-summary.json").write_text(
+                json.dumps(
+                    {
+                        "ABS_DONE_1": {
+                            "value": "True",
+                            "readable": True,
+                        },
+                        "KEY_PURPOSE_0": {
+                            "value": "SECURE_BOOT_DIGEST0",
+                            "readable": True,
+                        },
+                        "BLOCK_KEY0": {
+                            "value": "0" * 64,
+                            "readable": True,
+                        },
+                    }
+                )
+            )
+            mismatched_manifest = import_package(
+                mismatched_image,
+                mismatched / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+            self.assertEqual(
+                mismatched_manifest["security"]["trust_root"][
+                    "comparison"
+                ],
+                "mismatch-unverified-source",
+            )
+            self.assertEqual(
+                mismatched_manifest["security"]["trust_root"][
+                    "matching_pairs"
+                ],
+                [],
+            )
+            self.assertIn(
+                "secure_boot_v2_image_public_key_digest_mismatch",
+                {
+                    row["code"]
+                    for row in mismatched_manifest["validation"][
+                        "warnings"
+                    ]
+                },
+            )
+
+            unavailable = root / "unavailable"
+            unavailable_image = unavailable / "signed.bin"
+            unavailable.mkdir()
+            unavailable_image.write_bytes(
+                build_flash_with_secure_boot_v2()
+            )
+            (unavailable / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            (unavailable / "efuse-summary.json").write_text(
+                json.dumps(
+                    {
+                        "ABS_DONE_1": {
+                            "value": "True",
+                            "readable": True,
+                        },
+                        "KEY_PURPOSE_0": {
+                            "value": "SECURE_BOOT_DIGEST0",
+                            "readable": True,
+                        },
+                    }
+                )
+            )
+            unavailable_manifest = import_package(
+                unavailable_image,
+                unavailable / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+            self.assertEqual(
+                unavailable_manifest["security"]["trust_root"][
+                    "comparison"
+                ],
+                "efuse-key-digest-unavailable",
+            )
+
+        claimed = json.loads(json.dumps(matched_manifest))
+        claimed["security"]["trust_root"]["status"] = "verified"
+        self.assertIn(
+            "must not claim a verified trust root",
+            "\n".join(validate_manifest_structure(claimed)),
+        )
+        invalid_comparison = json.loads(json.dumps(matched_manifest))
+        invalid_comparison["security"]["trust_root"][
+            "comparison"
+        ] = "trusted"
+        self.assertIn(
+            "manifest.security.trust_root.comparison is invalid",
+            "\n".join(validate_manifest_structure(invalid_comparison)),
         )
 
     def test_manifest_id_is_content_stable(self):

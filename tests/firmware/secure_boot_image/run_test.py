@@ -56,6 +56,7 @@ def import_case(
     name: str,
     *,
     secure_boot_config: str = "v2",
+    efuse_summary: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     case = root / name
     case.mkdir()
@@ -65,6 +66,10 @@ def import_case(
         "CONFIG_SECURE_BOOT=y\n"
         f"CONFIG_SECURE_BOOT_{secure_boot_config.upper()}_ENABLED=y\n"
     )
+    if efuse_summary is not None:
+        (case / "efuse-summary.json").write_text(
+            json.dumps(efuse_summary)
+        )
     return import_package(
         image,
         case / "out",
@@ -87,6 +92,53 @@ def main() -> int:
             build_flash_with_secure_boot_v2(),
             root,
             "signed",
+        )
+        signed_key_digest = signed["security"]["secure_boot_image"][
+            "images"
+        ][0]["blocks"][0]["public_key_digest_sha256"]
+        efuse_digest_match = import_case(
+            build_flash_with_secure_boot_v2(),
+            root,
+            "efuse-digest-match",
+            efuse_summary={
+                "ABS_DONE_1": {"value": "True", "readable": True},
+                "KEY_PURPOSE_0": {
+                    "value": "SECURE_BOOT_DIGEST0",
+                    "readable": True,
+                },
+                "BLOCK_KEY0": {
+                    "value": signed_key_digest,
+                    "readable": True,
+                },
+            },
+        )
+        efuse_digest_mismatch = import_case(
+            build_flash_with_secure_boot_v2(),
+            root,
+            "efuse-digest-mismatch",
+            efuse_summary={
+                "ABS_DONE_1": {"value": "True", "readable": True},
+                "KEY_PURPOSE_0": {
+                    "value": "SECURE_BOOT_DIGEST0",
+                    "readable": True,
+                },
+                "BLOCK_KEY0": {
+                    "value": "0" * 64,
+                    "readable": True,
+                },
+            },
+        )
+        efuse_digest_unavailable = import_case(
+            build_flash_with_secure_boot_v2(),
+            root,
+            "efuse-digest-unavailable",
+            efuse_summary={
+                "ABS_DONE_1": {"value": "True", "readable": True},
+                "KEY_PURPOSE_0": {
+                    "value": "SECURE_BOOT_DIGEST0",
+                    "readable": True,
+                },
+            },
         )
         tampered_bytes = bytearray(build_flash_with_secure_boot_v2())
         tampered_bytes[0x10500] ^= 0xFF
@@ -177,6 +229,11 @@ def main() -> int:
     ecdsa_p256_image = ecdsa_p256["security"]["secure_boot_image"]
     ecdsa_p384_image = ecdsa_p384["security"]["secure_boot_image"]
     ecdsa_p192_image = ecdsa_p192["security"]["secure_boot_image"]
+    efuse_match_trust = efuse_digest_match["security"]["trust_root"]
+    efuse_mismatch_trust = efuse_digest_mismatch["security"]["trust_root"]
+    efuse_unavailable_trust = efuse_digest_unavailable["security"][
+        "trust_root"
+    ]
     signed_by_label = {
         row["label"]: row for row in signed_image["images"]
     }
@@ -214,6 +271,29 @@ def main() -> int:
             signed_image.get("signature_authenticity")
             == "not-verified"
             and signed_image.get("trust_root") == "not-verified"
+            and signed["security"]["trust_root"].get("status")
+            == "not-verified"
+        ),
+        "efuse_digest_match_compared": (
+            efuse_match_trust.get("comparison")
+            == "match-unverified-source"
+            and efuse_match_trust.get("status") == "not-verified"
+            and len(efuse_match_trust.get("matching_pairs", [])) == 2
+        ),
+        "efuse_digest_mismatch_compared": (
+            efuse_mismatch_trust.get("comparison")
+            == "mismatch-unverified-source"
+            and efuse_mismatch_trust.get("status") == "not-verified"
+            and efuse_mismatch_trust.get("matching_pairs") == []
+        ),
+        "efuse_digest_mismatch_warning_recorded": (
+            "secure_boot_v2_image_public_key_digest_mismatch"
+            in warning_codes(efuse_digest_mismatch)
+        ),
+        "efuse_digest_unavailable": (
+            efuse_unavailable_trust.get("comparison")
+            == "efuse-key-digest-unavailable"
+            and efuse_unavailable_trust.get("status") == "not-verified"
         ),
         "tampered_digest_rejected": (
             tampered_image.get("status") == "invalid"
@@ -279,7 +359,14 @@ def main() -> int:
         ),
         "manifest_structure_valid": all(
             not validate_manifest_structure(manifest)
-            for manifest in (signed, tampered, unsigned)
+            for manifest in (
+                signed,
+                tampered,
+                unsigned,
+                efuse_digest_match,
+                efuse_digest_mismatch,
+                efuse_digest_unavailable,
+            )
         ),
     }
     hashes_after = {
@@ -305,8 +392,14 @@ def main() -> int:
             "bad_signature": bad_signature_image,
             "bad_ecdsa_signature": bad_ecdsa_signature_image,
         },
+        "efuse_trust_comparisons": {
+            "match": efuse_match_trust,
+            "mismatch": efuse_mismatch_trust,
+            "digest_unavailable": efuse_unavailable_trust,
+        },
         "not_claimed": [
             "embedded public key authenticity",
+            "package-provided eFuse summary authenticity",
             "embedded public key trust against live eFuse",
             "Secure Boot ROM/bootloader execution",
             "Secure Boot v1",

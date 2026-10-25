@@ -113,6 +113,7 @@ Flash Encryption 执行。当前 evidence：
 | --- | --- | --- |
 | 镜像布局 | partition `flags`、app descriptor `secure_version` | 镜像声明、加密分区标记和 anti-rollback version |
 | 镜像签名 sector | `security.secure_boot_image` | Secure Boot v2 signature sector 的 magic/version、block CRC、embedded image digest 与镜像内容是否自洽；不证明公钥可信或 boot ROM 实际验签 |
+| 公钥/eFuse 对照 | `security.trust_root` | signature block 的公钥 SHA-256 是否出现在包内 eFuse summary 声明的 `SECURE_BOOT_DIGEST` 中；不证明 summary、公钥或设备 trust root 可信 |
 | sdkconfig | `secure_boot_config`、`flash_encryption_config` | 构建配置原本要求什么，不证明设备实际启用了什么 |
 | eFuse summary | `efuse`、`efuse_summary` | 包提供的一份 `espefuse` 读取结果声称设备状态是什么 |
 | 真机运行态 | 当前 manifest 不包含 | 必须由同设备、同安全配置的独立真机验证提供 |
@@ -129,12 +130,16 @@ espefuse.py --chip esp32s3 summary --format json > efuse-summary.json
 - `SPI_BOOT_CRYPT_CNT`；
 - `SECURE_VERSION`；
 - `KEY_PURPOSE_0..7` 的用途名称；
+- 用途为 `SECURE_BOOT_DIGEST0..7` 时，对应 `BLOCK_KEYn` 的
+  64 位十六进制 SHA-256 摘要；
 - 安全启动与 Flash Encryption 的 write-disable 状态；
 - 原文件 SHA256 和字段数。
 
 不含 eFuse summary 时，eFuse 状态仍为 `not-included`，安全启动/加密状态只能
 由 sdkconfig 和镜像标记推断。包含 summary 时也只标记
 `efuse_summary_unverified`：包内 JSON 可以由调用者伪造，不是从真机实时读取。
+`BLOCK_KEYn` 只有在用途明确为 secure-boot digest 时才作为公钥摘要提取；
+非匹配用途的 raw value 不进入 manifest。
 Device Service 仍拒绝启用 secure boot 或 Flash Encryption 的镜像，因为当前
 QEMU profile 没有建模对应的密钥和启动链。
 
@@ -178,17 +183,30 @@ block 内 modulus/exponent 对 signed image digest 验签；ECDSA P-192/P-256/P-
 使用 block 内 curve ID、public point、`r`/`s` 和 signed digest 完成数学验签。
 
 即使状态是 `signed-image-observed`，manifest 仍固定记录
-`signature_authenticity=not-verified` 和 `trust_root=not-verified`。原因是静态
-扫描只用 block 内自带的公钥检查签名数学和摘要自洽，没有把公钥 digest 与
-真实 eFuse 比较，也没有让 boot ROM/bootloader 执行验签。对应 warnings：
+`signature_authenticity=not-verified`。`security.trust_root.status` 也固定为
+`not-verified`。当包内有 eFuse summary 时，`security.trust_root.comparison`
+会把 block 的公钥 SHA-256 与其中的 `SECURE_BOOT_DIGEST` 做摘要字符串对照：
+
+| comparison | 含义 |
+| --- | --- |
+| `not-applicable` | 没有观察到 signed image |
+| `efuse-summary-not-included` | 有 signed image，但没有包内 eFuse summary |
+| `efuse-key-digest-unavailable` | 有 eFuse summary，但没有可读的 secure-boot key digest |
+| `match-unverified-source` | 至少一个 signed image 的公钥摘要出现在包内 summary 中 |
+| `mismatch-unverified-source` | 没有 signed image 公钥摘要出现在包内 summary 中 |
+
+这个对照只发现“镜像公钥摘要”和“包内自报摘要”是否一致，不证明 eFuse
+summary 的来源、读取时点、目标设备身份、吊销状态或 ROM 实际执行结果；因此
+`status` 永远不能提升为 `verified`。对应 warnings：
 
 - `secure_boot_v2_image_signature_authenticity_unverified`；
 - `secure_boot_v2_image_signature_math_not_verified`（未知/未来曲线）；
 - `secure_boot_v2_image_signature_not_observed`（config/eFuse 声称 v2）；
-- `secure_boot_v2_image_signature_invalid`。
+- `secure_boot_v2_image_signature_invalid`；
+- `secure_boot_v2_image_public_key_digest_mismatch`（包内摘要存在但不匹配）。
 
 该检查不覆盖 Secure Boot v1、Flash Encryption key、生产 eFuse、密钥吊销、
-secure version anti-rollback 真机状态或启动链执行。
+secure version anti-rollback 真机状态、live eFuse read 或启动链执行。
 
 ## 静态审查
 

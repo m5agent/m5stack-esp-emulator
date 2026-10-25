@@ -85,13 +85,13 @@ purposes without claiming that a package-supplied eFuse summary is authentic.
 Secure Boot v2 image evidence now parses up to three signature blocks at
 4 KiB-aligned bootloader/application boundaries, validates block magic,
 version, CRC32 and the embedded SHA-256/SHA-384 image digest, and records the
-embedded public-key digest. Synthetic RSA-PSS, ECDSA P-256 and ECDSA P-384
-blocks are covered. RSA-PSS and ECDSA P-192/P-256/P-384 signature
-mathematics are verified against block-embedded public keys. Authenticity
-remains `not-verified` because the
-key digest is not compared with a live eFuse read and no ROM/bootloader
-verification executes. This is static image self-consistency, not a hardware
-secure-boot PASS.
+embedded public-key digest. Synthetic RSA-PSS and ECDSA P-192/P-256/P-384
+signature mathematics are verified against block-embedded public keys. When a
+package includes an `espefuse` summary, `security.trust_root.comparison`
+separately records digest match, mismatch or unavailable evidence. The summary
+is self-asserted, so `security.trust_root.status` remains `not-verified`; no
+live eFuse read or ROM/bootloader verification executes. This is static image
+self-consistency, not a hardware secure-boot PASS.
 
 The four current public CDN artifacts refreshed on `2026-10-25` are bound in
 [`evidence-2026-10-25-refreshed-public-artifacts-static.json`](evidence-2026-10-25-refreshed-public-artifacts-static.json).

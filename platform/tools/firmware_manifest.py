@@ -1480,17 +1480,70 @@ def _security_metadata(
         flash_encryption = "partition-encryption-marked"
     else:
         flash_encryption = configured_flash_encryption
+    secure_boot_image = analysis.get(
+        "secure_boot_v2",
+        {
+            "status": "not-found",
+            "signature_authenticity": "not-verified",
+            "trust_root": "not-verified",
+            "images": [],
+        },
+    )
+    image_key_digests = {
+        (image.get("label"), block.get("public_key_digest_sha256"))
+        for image in secure_boot_image.get("images", [])
+        if isinstance(image, dict)
+        for block in image.get("blocks", [])
+        if isinstance(block, dict)
+        and isinstance(block.get("public_key_digest_sha256"), str)
+    }
+    efuse_key_digests = (
+        {
+            row.get("digest_sha256")
+            for row in efuse.get("secure_boot_key_digests", [])
+            if isinstance(row, dict)
+            and isinstance(row.get("digest_sha256"), str)
+        }
+        if efuse is not None
+        else set()
+    )
+    matching_pairs = [
+        {
+            "image": label,
+            "public_key_digest_sha256": digest,
+        }
+        for label, digest in sorted(image_key_digests)
+        if digest in efuse_key_digests
+    ]
+    if secure_boot_image.get("status") != "signed-image-observed":
+        trust_comparison = "not-applicable"
+    elif efuse is None:
+        trust_comparison = "efuse-summary-not-included"
+    elif not efuse_key_digests:
+        trust_comparison = "efuse-key-digest-unavailable"
+    elif matching_pairs:
+        trust_comparison = "match-unverified-source"
+    else:
+        trust_comparison = "mismatch-unverified-source"
+    trust_root = {
+        "status": "not-verified",
+        "comparison": trust_comparison,
+        "source": (
+            "package-espefuse-json-unverified"
+            if efuse is not None
+            else "not-included"
+        ),
+        "matching_pairs": matching_pairs,
+        "not_claimed": [
+            "package-provided eFuse summary authenticity",
+            "live eFuse read from the target device",
+            "hardware secure-boot execution",
+        ],
+    }
     return {
         "secure_boot": secure_boot,
-        "secure_boot_image": analysis.get(
-            "secure_boot_v2",
-            {
-                "status": "not-found",
-                "signature_authenticity": "not-verified",
-                "trust_root": "not-verified",
-                "images": [],
-            },
-        ),
+        "secure_boot_image": secure_boot_image,
+        "trust_root": trust_root,
         "flash_encryption": flash_encryption,
         "secure_boot_config": configured_secure_boot,
         "flash_encryption_config": configured_flash_encryption,
@@ -1587,6 +1640,28 @@ def _efuse_text(
     return value.strip()
 
 
+def _efuse_sha256(
+    document: dict[str, Any],
+    name: str,
+) -> str | None:
+    field = _efuse_field(document, name)
+    if field is None:
+        return None
+    value = field.get("value")
+    if not isinstance(value, str):
+        value = field.get("raw_value")
+    if not isinstance(value, str):
+        return None
+    normalized = re.sub(r"[\s:_-]", "", value.strip().lower())
+    if normalized.startswith("0x"):
+        normalized = normalized[2:]
+    if len(normalized) != 64 or any(
+        char not in "0123456789abcdef" for char in normalized
+    ):
+        return None
+    return normalized
+
+
 def _parse_efuse_security(
     document: dict[str, Any] | None,
     source: Path | None,
@@ -1625,6 +1700,7 @@ def _parse_efuse_security(
         flash_encryption = "unknown"
 
     purposes = []
+    secure_boot_key_digests = []
     for index in range(8):
         purpose = _efuse_text(document, f"KEY_PURPOSE_{index}")
         if purpose is not None:
@@ -1634,6 +1710,19 @@ def _parse_efuse_security(
                     "purpose": purpose,
                 }
             )
+            if purpose.upper().startswith("SECURE_BOOT_DIGEST"):
+                digest = _efuse_sha256(
+                    document,
+                    f"BLOCK_KEY{index}",
+                )
+                if digest is not None:
+                    secure_boot_key_digests.append(
+                        {
+                            "block": index,
+                            "purpose": purpose,
+                            "digest_sha256": digest,
+                        }
+                    )
     return {
         "source": "espefuse-json",
         "summary_sha256": (
@@ -1656,6 +1745,7 @@ def _parse_efuse_security(
             ),
         },
         "key_purposes": purposes,
+        "secure_boot_key_digests": secure_boot_key_digests,
     }
 
 
@@ -2162,9 +2252,10 @@ def import_package(
                 _code_issues(
                     "secure_boot_v2_image_signature_authenticity_unverified",
                     (
-                        "signature-sector structure and image digest match, "
-                        "but the embedded public key was not verified against "
-                        "hardware eFuse trust roots"
+                        "signature-sector structure and image digest match; "
+                        "any public-key digest match is against a "
+                        "self-asserted package eFuse summary, not a live "
+                        "hardware trust root"
                     ),
                     path="security.secure_boot_image",
                 )
@@ -2185,6 +2276,23 @@ def import_package(
                             "implemented"
                         ),
                         path="security.secure_boot_image",
+                    )
+                )
+            trust_root = security.get("trust_root")
+            if (
+                isinstance(trust_root, dict)
+                and trust_root.get("comparison")
+                == "mismatch-unverified-source"
+            ):
+                manifest["validation"]["warnings"].append(
+                    _code_issues(
+                        "secure_boot_v2_image_public_key_digest_mismatch",
+                        (
+                            "signed-image public-key digests do not match "
+                            "the package-provided eFuse secure-boot digest "
+                            "summary; the summary itself remains unverified"
+                        ),
+                        path="security.trust_root",
                     )
                 )
         if (
@@ -2439,6 +2547,76 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
     if not isinstance(security, dict):
         errors.append("manifest.security must be an object")
     else:
+        trust_root = security.get("trust_root")
+        if trust_root is not None:
+            if not isinstance(trust_root, dict):
+                errors.append(
+                    "manifest.security.trust_root must be an object"
+                )
+            else:
+                if trust_root.get("status") != "not-verified":
+                    errors.append(
+                        "manifest.security.trust_root must not claim "
+                        "a verified trust root"
+                    )
+                if trust_root.get("comparison") not in {
+                    "not-applicable",
+                    "efuse-summary-not-included",
+                    "efuse-key-digest-unavailable",
+                    "match-unverified-source",
+                    "mismatch-unverified-source",
+                }:
+                    errors.append(
+                        "manifest.security.trust_root.comparison is invalid"
+                    )
+                if trust_root.get("source") not in {
+                    "package-espefuse-json-unverified",
+                    "not-included",
+                }:
+                    errors.append(
+                        "manifest.security.trust_root.source is invalid"
+                    )
+                matching_pairs = trust_root.get("matching_pairs")
+                if not isinstance(matching_pairs, list):
+                    errors.append(
+                        "manifest.security.trust_root.matching_pairs must be "
+                        "an array"
+                    )
+                else:
+                    for pair in matching_pairs:
+                        digest = (
+                            pair.get("public_key_digest_sha256")
+                            if isinstance(pair, dict)
+                            else None
+                        )
+                        if (
+                            not isinstance(pair, dict)
+                            or not isinstance(pair.get("image"), str)
+                            or not pair["image"]
+                            or not isinstance(digest, str)
+                            or len(digest) != 64
+                            or any(
+                                char not in "0123456789abcdef"
+                                for char in digest
+                            )
+                        ):
+                            errors.append(
+                                "manifest.security.trust_root.matching_pairs "
+                                "is invalid"
+                            )
+                            break
+                not_claimed = trust_root.get("not_claimed")
+                if (
+                    not isinstance(not_claimed, list)
+                    or not not_claimed
+                    or any(
+                        not isinstance(value, str) or not value
+                        for value in not_claimed
+                    )
+                ):
+                    errors.append(
+                        "manifest.security.trust_root.not_claimed is invalid"
+                    )
         secure_boot_image = security.get("secure_boot_image")
         if secure_boot_image is not None:
             if not isinstance(secure_boot_image, dict):
