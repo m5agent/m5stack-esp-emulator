@@ -239,7 +239,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/nvs_image.py` | 生成确定性 NVSv2 namespace/string 配置 fixture |
 | [`tests/firmware/`](../tests/firmware/README.md) | FirmwareManifest、静态审查、文件系统、NVS/OpenAI 专用探针和跨厂商运行时 evidence |
 | `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |
-| `platform/web/firmware.html`、`firmware.js`、`firmware-upload.js`、`sha256.js` | 浏览器 WebBurner 包上传、流式 SHA256、重试/取消/刷新恢复和 manifest 导入 |
+| `platform/web/firmware.html`、`firmware.js`、`firmware-report.js`、`firmware-upload.js`、`sha256.js` | 浏览器 WebBurner 包上传、流式 SHA256、重试/取消/刷新恢复、manifest 导入、sdkconfig/image capability 来源与 warning 展示 |
 
 ### 网络与 BLE
 

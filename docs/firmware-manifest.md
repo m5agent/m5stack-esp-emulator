@@ -412,6 +412,16 @@ camera、display、touch、audio 和 SD。链接库中残留 token、剥离符�
 被结构化拒绝：
 [`evidence-2026-10-25-image-capability-observation.json`](../tests/firmware/evidence-2026-10-25-image-capability-observation.json)。
 
+WebBurner 导入结果会分别显示 `SDKConfig capabilities`、`Image observations`
+和 `Image scan`，并把 warning 标成 `[warning:<code>]`。真实页面使用同一公开
+StickS3 Weather 样本验证：
+
+![WebBurner image capability observation](images/webburner-capability-observation.jpg)
+
+截图对应 normalized 8 MiB 镜像、`SCANNED · 8.00 MiB / 8.00 MiB · complete`、
+observed `wifi`/`display` 和 5 条 review warning；它不表示固件已经启动或
+实际调用这些外设。
+
 如果 manifest 声明了 `target.psram_size`，创建 session 时还会按所选
 runtime/profile 的实际 QEMU memory policy 重新检查。Core2
 `core2-native-hci` 的命令行请求为 `-m 0`，但当前 `m5core2` QOM 实际解析为

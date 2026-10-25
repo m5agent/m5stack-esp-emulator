@@ -209,6 +209,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json",
             "tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json",
             "tests/firmware/evidence-2026-10-25-image-capability-observation.json",
+            "tests/firmware/evidence-2026-10-25-webburner-capability-display.json",
             "tests/firmware/image_capability_observation/README.md",
             "tests/firmware/image_capability_observation/run_test.py",
             "tests/uiflow2/evidence-2026-10-25-s3-wpa2-regression.json",
@@ -220,10 +221,12 @@ class DocsConsistencyTests(unittest.TestCase):
             "platform/web/firmware.html",
             "platform/web/firmware.css",
             "platform/web/firmware.js",
+            "platform/web/firmware-report.js",
             "platform/web/firmware-upload.js",
             "platform/web/sha256.js",
             "platform/tests/test_firmware_upload.mjs",
             "platform/tests/test_sha256.mjs",
+            "docs/images/webburner-capability-observation.jpg",
             "patches/qemu-core2-openmac-wifi/README.md",
             "patches/qemu-core2-ble-controller/README.md",
         ):
@@ -725,6 +728,39 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "observed_capability_not_declared",
             manifest,
+        )
+        firmware_report = (
+            ROOT / "platform/web/firmware-report.js"
+        ).read_text()
+        upload_test = (
+            ROOT / "platform/tests/test_firmware_upload.mjs"
+        ).read_text()
+        self.assertIn("capabilitySummary", firmware_report)
+        self.assertIn("validationIssueRows", firmware_report)
+        self.assertIn("Image observations", (
+            ROOT / "platform/web/firmware.js"
+        ).read_text())
+        self.assertIn("capabilitySummary", upload_test)
+        self.assertIn(
+            "webburner-capability-observation.jpg",
+            manifest,
+        )
+        webburner_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-webburner-capability-display.json"
+            ).read_text()
+        )
+        self.assertEqual(webburner_evidence["status"], "PASS")
+        self.assertEqual(
+            webburner_evidence["visible_assertions"]["image_scan"],
+            "SCANNED · 8.00 MiB / 8.00 MiB · complete",
+        )
+        screenshot = ROOT / webburner_evidence["screenshot"]["file"]
+        self.assertEqual(
+            hashlib.sha256(screenshot.read_bytes()).hexdigest(),
+            webburner_evidence["screenshot"]["sha256"],
         )
         refreshed_functional = json.loads(
             (

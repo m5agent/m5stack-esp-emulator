@@ -4,6 +4,11 @@ import {
   readUploadCheckpoint,
   writeUploadCheckpoint,
 } from '../web/firmware-upload.js';
+import {
+  capabilitySummary,
+  manifestNotice,
+  validationIssueRows,
+} from '../web/firmware-report.js';
 import { sha256Bytes } from '../web/sha256.js';
 
 function jsonResponse(payload, status = 200) {
@@ -178,6 +183,57 @@ assert.equal(
   'a'.repeat(32),
 );
 writeUploadCheckpoint(null, storage);
+
+const capabilityRows = capabilitySummary({
+  required: ['wifi'],
+  optional: ['display'],
+  detected: [
+    {
+      capability: 'ble',
+      source: 'sdkconfig',
+      flag: 'CONFIG_BT_ENABLED',
+    },
+  ],
+  observed: [
+    {
+      capability: 'wifi',
+      source: 'image-signature',
+      confidence: 'low',
+      signatures: ['esp_wifi_init'],
+    },
+  ],
+  observation: {
+    status: 'SCANNED',
+    source: 'normalized-flash',
+    bytes_total: 8 * 1024 * 1024,
+    bytes_scanned: 8 * 1024 * 1024,
+    truncated: false,
+  },
+});
+assert.equal(capabilityRows.required, 'wifi');
+assert.equal(capabilityRows.optional, 'display');
+assert.equal(capabilityRows.detected, 'ble (CONFIG_BT_ENABLED)');
+assert.equal(capabilityRows.observed, 'wifi (low: esp_wifi_init)');
+assert.equal(
+  capabilityRows.observation,
+  'SCANNED · 8.00 MiB / 8.00 MiB · complete',
+);
+assert.deepEqual(
+  validationIssueRows({
+    errors: [{ code: 'unsupported_capability', message: 'camera missing' }],
+    warnings: [
+      {
+        code: 'observed_capability_not_declared',
+        message: 'wifi observed',
+      },
+    ],
+  }),
+  [
+    '[error:unsupported_capability] camera missing',
+    '[warning:observed_capability_not_declared] wifi observed',
+  ],
+);
+assert.match(manifestNotice({ status: 'PASS', errors: [], warnings: [1] }), /1 条审查 warning/);
 assert.equal(readUploadCheckpoint(storage), null);
 
 console.log('FIRMWARE_UPLOAD_OK');

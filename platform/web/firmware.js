@@ -3,6 +3,11 @@ import {
   readUploadCheckpoint,
   writeUploadCheckpoint,
 } from './firmware-upload.js';
+import {
+  capabilitySummary,
+  manifestNotice,
+  validationIssueRows,
+} from './firmware-report.js';
 
 const state = {
   devices: [],
@@ -116,6 +121,7 @@ function renderFirmware(firmware) {
   const validation = manifest.validation || {};
   const provenance = manifest.provenance || {};
   const capabilities = manifest.capabilities || {};
+  const capabilityRows = capabilitySummary(capabilities);
   const warnings = validation.warnings || [];
   const errors = validation.errors || [];
   $('requiredCapabilitiesInput').value = (
@@ -129,8 +135,11 @@ function renderFirmware(firmware) {
     ['Source format', provenance.source_format || firmware.kind || 'unknown'],
     ['Target', `${firmware.device_id} · ${target.soc || 'unknown SoC'}`],
     ['Normalized', `${formatBytes(firmware.size)} · ${artifact.normalized_from || artifact.kind || 'merged-flash'}`],
-    ['Required capabilities', (capabilities.required || []).join(', ') || 'none'],
-    ['Optional capabilities', (capabilities.optional || []).join(', ') || 'none'],
+    ['Required capabilities', capabilityRows.required],
+    ['Optional capabilities', capabilityRows.optional],
+    ['SDKConfig capabilities', capabilityRows.detected],
+    ['Image observations', capabilityRows.observed],
+    ['Image scan', capabilityRows.observation],
     ['Validation', validation.status || 'unknown'],
     ['Security', `secure boot ${manifest.security?.secure_boot || 'unknown'} · encryption ${manifest.security?.flash_encryption || 'unknown'}`],
   ];
@@ -146,15 +155,14 @@ function renderFirmware(firmware) {
   $('resultChip').textContent = validation.status || 'imported';
   $('resultChip').className = `status-chip ${validation.status === 'PASS' ? 'ok' : 'danger'}`;
   $('resultSub').textContent =
-    `FirmwareManifest ${manifest.manifest_id?.slice(0, 12) || 'created'} · ${formatBytes(firmware.size)}`;
-  const issueRows = [...errors, ...warnings].map(issue => {
-    if (typeof issue === 'string') return issue;
-    return `[${issue.severity || 'info'}:${issue.code || 'issue'}] ${issue.message || ''}`;
-  });
+    `FirmwareManifest ${manifest.manifest_id?.slice(0, 12) || 'created'} · ${formatBytes(firmware.size)} · warnings ${warnings.length}`;
+  const issueRows = validationIssueRows(validation);
   $('issues').hidden = issueRows.length === 0;
   $('issueList').textContent = issueRows.join('\n');
   $('createSessionBtn').hidden = false;
-  addTimeline(`manifest ${validation.status || 'unknown'} · warnings ${warnings.length} · errors ${errors.length}`);
+  addTimeline(
+    `manifest ${validation.status || 'unknown'} · errors ${errors.length} · warnings ${warnings.length} · observed ${(capabilities.observed || []).length}`,
+  );
 }
 
 function renderCheckpoint() {
@@ -327,7 +335,7 @@ async function startImport() {
     });
     updateProgress({ ratio: 1, message: '固件规范化完成' });
     renderFirmware(firmware);
-    setNotice('FirmwareManifest 已生成；capability 检查通过，可以创建虚拟设备。', 'ok');
+    setNotice(manifestNotice(firmware.manifest?.validation || {}), 'ok');
   } catch (error) {
     if (error.name === 'AbortError') {
       setNotice('操作已取消。已确认的 upload offset 保留，可稍后续传。');

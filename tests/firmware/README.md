@@ -51,6 +51,11 @@ signatures; required WiFi passes while required camera remains a structured
 StickS3 mismatch. Missing/undeclared observations produce review warnings and
 do not become runtime capability proof.
 
+The real WebBurner result layout is captured in
+[`evidence-2026-10-25-webburner-capability-display.json`](evidence-2026-10-25-webburner-capability-display.json):
+it shows sdkconfig capabilities, image observations, scan coverage and warning
+codes separately.
+
 Security-evidence conflicts have a separate static regression:
 [`evidence-2026-10-25-security-evidence-conflicts.json`](evidence-2026-10-25-security-evidence-conflicts.json).
 It covers config/eFuse disagreement, secure-boot mode mismatch and missing key

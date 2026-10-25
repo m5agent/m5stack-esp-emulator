@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-webburner-capability-display",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "validation": "browser-ui validation",
+  "source": {
+    "page": "/platform/web/firmware.html",
+    "device_id": "sticks3",
+    "firmware_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+    "manifest_id": "3b6b3f71e2655860daaf380b0d03d75b0285a8b5d78652846f0802596884a9db"
+  },
+  "screenshot": {
+    "file": "docs/images/webburner-capability-observation.jpg",
+    "format": "jpeg",
+    "width": 319,
+    "height": 864,
+    "sha256": "92a126f1c8bd613675d84ce1ff889f4a9eabeb4126aba5dd4a86094ef26ecfad"
+  },
+  "visible_assertions": {
+    "manifest_status": "PASS",
+    "warnings": 5,
+    "required_capabilities": ["wifi"],
+    "optional_capabilities": ["display"],
+    "sdkconfig_capabilities": "none",
+    "image_observations": [
+      "wifi (low: esp_wifi_init)",
+      "display (low: lcd_panel_|m5gfx)"
+    ],
+    "image_scan": "SCANNED · 8.00 MiB / 8.00 MiB · complete",
+    "warning_codes": [
+      "license_policy_review_required",
+      "security_metadata_incomplete",
+      "static_review_required",
+      "filesystem_inventory_incomplete",
+      "sbom_not_provided"
+    ]
+  },
+  "code_checks": {
+    "firmware_report_module": "PASS",
+    "node_firmware_upload": "PASS",
+    "node_sha256": "PASS"
+  },
+  "not_claimed": [
+    "firmware boot or application behavior",
+    "runtime capability use",
+    "network or RF behavior",
+    "secure-boot or eFuse execution",
+    "license or legal approval",
+    "physical hardware validation"
+  ]
+}
