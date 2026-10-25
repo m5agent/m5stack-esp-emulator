@@ -547,6 +547,13 @@ class FirmwareManifestTests(unittest.TestCase):
                 },
                 "conflicting sha256",
             ),
+            (
+                "unknown-integrity",
+                {
+                    "integrity": {"crc32": "not-supported"},
+                },
+                "unsupported integrity fields",
+            ),
         )
         for label, declared, expected in cases:
             with self.subTest(label=label), tempfile.TemporaryDirectory() as tmp:

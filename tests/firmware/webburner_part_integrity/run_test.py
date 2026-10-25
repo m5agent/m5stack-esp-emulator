@@ -211,6 +211,17 @@ def main() -> int:
             },
             "conflicting sha256",
         ),
+        reject_case(
+            "unknown-integrity-field",
+            image,
+            {
+                "size": None,
+                "sha256": None,
+                "md5": None,
+                "integrity": {"crc32": "not-supported"},
+            },
+            "unsupported integrity fields",
+        ),
     ]
     checks = {
         "valid_declarations_import": manifest["validation"]["status"] == "PASS",
@@ -219,6 +230,7 @@ def main() -> int:
         "size_mismatch_rejected": rejects[1]["error_match"],
         "invalid_digest_rejected": rejects[2]["error_match"],
         "conflicting_declarations_rejected": rejects[3]["error_match"],
+        "unknown_integrity_rejected": rejects[4]["error_match"],
     }
     evidence = {
         "schema_version": 1,

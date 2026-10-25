@@ -2,7 +2,7 @@
   "schema_version": 1,
   "kind": "webburner-part-integrity",
   "date": "2026-10-25",
-  "generated_at": "2026-10-25T01:37:25.465764+00:00",
+  "generated_at": "2026-10-25T01:39:46.333677+00:00",
   "status": "PASS",
   "validation": "static-manifest validation",
   "device_id": "sticks3",
@@ -58,6 +58,14 @@
       "expected_error": "conflicting sha256",
       "error_match": true,
       "error": "WebBurner part 0 has conflicting sha256 values"
+    },
+    {
+      "label": "unknown-integrity-field",
+      "status": "REJECTED",
+      "error_type": "ManifestError",
+      "expected_error": "unsupported integrity fields",
+      "error_match": true,
+      "error": "WebBurner part 0 has unsupported integrity fields: crc32"
     }
   ],
   "checks": {
@@ -66,7 +74,8 @@
     "sha256_mismatch_rejected": true,
     "size_mismatch_rejected": true,
     "invalid_digest_rejected": true,
-    "conflicting_declarations_rejected": true
+    "conflicting_declarations_rejected": true,
+    "unknown_integrity_rejected": true
   },
   "not_claimed": [
     "source authenticity or publisher identity",
