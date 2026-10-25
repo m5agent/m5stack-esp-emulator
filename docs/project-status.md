@@ -29,8 +29,9 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   Service 重启后同 PID/QMP reattach（`cd3adc7`）、`POST /sessions`
   并发/重启幂等（`0e3a913`），以及 trusted-host unified HTTP/BLE
   companion continuity（当前实现与 evidence 见下文）。worker-local
-  `qemu-unified` partition lane 又完成三次独立验证：partition 前同 session
-  已有 HTTP、BLE PASS 和非空 pcap；fence 后 HTTP/BLE companion 终止、
+  `qemu-unified` partition lane（`d846c4b`）又完成三次独立验证：
+  partition 前同 session 已有 HTTP、BLE PASS 和非空 pcap；fence 后
+  HTTP/BLE companion 终止、
   BLE PID 回收、pcap summary 完成，fresh retry 重新取得 unified evidence。
   网络策略还闭合了
   有界 IPv4/IPv6 CIDR、显式绑定 controlled domain suffix 与有界 CNAME

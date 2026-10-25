@@ -4,11 +4,13 @@
   "date": "2026-10-25",
   "validation": "virtual control-plane validation",
   "status": "PASS",
+  "source_revision": "d846c4b6bb5fb9ba3eb31e87bd764f9821ddb40d",
+  "source_worktree_clean": true,
   "attempts_requested": 3,
   "attempts_completed": 3,
   "attempts_passed": 3,
   "tool_hashes": {
-    "runner": "6672b3a1924d9133fcdcfefaadc19a66770587f75d1e184d38ce6868631ac3eb",
+    "runner": "d5f572f8200c7bebd184e923228f868b1b08e5a11f45e60d43a170e5baf8cf3d",
     "runtime_fixture": "22d9aadac063caf22b5d40777860cb9345ba846eff00aa0a2a4cd1ba33df9592",
     "worker_agent": "bf250820f879ce232df2d8df95827908cd4a6ebe7335c257129d022e6bf102cb",
     "device_service": "6f9b526e936941ebeb2a05acb3442f619f296d4bba5479a9ef98be7839363662",
@@ -37,8 +39,8 @@
   },
   "runs": [
     {
-      "evidence_sha256": "17a054f9fee628b16ee80a8f590c3e1aa58dcf633438675b4bd12e5d12111520",
-      "job_id_sha256": "e79208b5a2dca29dfe4ccb89010d7206fd2b27a182d9f1fb7d306c8edd3b1cee",
+      "evidence_sha256": "e86f844efb13842188b2a39193002e707dd40419eb0709d8013607cae42387db",
+      "job_id_sha256": "14c36ebacda1cc60cf84c316d2b562d86e9b7c84c0e292103cfed2aaac175743",
       "attempts": 2,
       "result_state": "PASS",
       "first_worker_returncode": 1,
@@ -54,8 +56,8 @@
       "runtime_kind": "fake-process"
     },
     {
-      "evidence_sha256": "330ba634bcf9950d12b7f017d5e2ef5b572b5e66c4665c1d10c39fb50df9ffe6",
-      "job_id_sha256": "fa4f57ebeb5c1c80b9d1a0b197bfc6cd7f7cc9f50885c3f24ceaa04b19255de4",
+      "evidence_sha256": "3dfed843719de52ef021b02342b66c06e8a0fd4a41a48f8997799637ca56287d",
+      "job_id_sha256": "cfb65365926a85fb17edf3e19cb555abd800b98f381f5e0c14a2cc64cf2aca09",
       "attempts": 2,
       "result_state": "PASS",
       "first_worker_returncode": 1,
@@ -71,8 +73,8 @@
       "runtime_kind": "fake-process"
     },
     {
-      "evidence_sha256": "20baae40ab701abd251dedd669c5d5b6eb97d526bcf24ed708dbaa61a487f75f",
-      "job_id_sha256": "2658e1c71e8c929e80df38ae223d99ea7634f0c69f985e3ea59292e4342294f7",
+      "evidence_sha256": "5b87564355d56a1859c057d0ddd2289ffb3461f5c3d6f4aff1fa9702bbbeb25d",
+      "job_id_sha256": "3c978155104e33f6efe6c47f3e5930c9dfc71ff71120c7e162662f8afc8db28c",
       "attempts": 2,
       "result_state": "PASS",
       "first_worker_returncode": 1,
@@ -90,6 +92,8 @@
   ],
   "not_claimed": [
     "QEMU side-effect fencing",
+    "qemu-unified companion and pcap fencing",
+    "QEMU guest/device/controller-internal side effects",
     "physical cross-host execution",
     "external network side effects not owned by the worker",
     "production scheduler",

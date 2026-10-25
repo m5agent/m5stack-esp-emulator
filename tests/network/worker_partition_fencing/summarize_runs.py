@@ -132,9 +132,13 @@ def main() -> int:
             }
         runs.append(run)
     not_claimed = list(documents[0][1]["not_claimed"])
-    if all(
-        document["runtime"]["kind"] == "qemu"
-        for _, document in documents
+    if (
+        "QEMU guest/device/controller-internal side effects"
+        not in not_claimed
+        and all(
+            document["runtime"]["kind"] == "qemu"
+            for _, document in documents
+        )
     ):
         not_claimed.append(
             "QEMU guest/device/controller-internal side effects"

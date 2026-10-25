@@ -221,8 +221,8 @@ Stable boundaries that must survive count changes:
 - Worker partition fencing has separate evidence layers. The plain QEMU lane
   proves the worker-local QEMU process was stopped. The `qemu-unified` lane
   additionally requires the same session's HTTP fixture, BLE peer and pcap
-  summary to terminate or finalize. Neither lane proves guest/controller-
-  internal state or external effects not owned by the worker.
+  summary to terminate or finalize. Neither lane proves
+  guest/controller-internal state or external effects not owned by the worker.
 - `core2-native-vhci` is a diagnostic/compatibility path; new Core2 work uses
   `core2-native-hci`. The current native-HCI boundary is a validated virtual
   controller/HCI path, not a bit-exact Espressif baseband or RF model.
