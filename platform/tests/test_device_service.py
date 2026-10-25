@@ -1661,6 +1661,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "egress": "allowlist",
             "dns": "controlled",
             "allowed_hosts": ["qemu.test"],
+            "allowed_domains": ["fixture.test"],
         }
         with mock.patch.object(
             device_service_module,
@@ -1704,6 +1705,10 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ["qemu.test"],
         )
         self.assertEqual(
+            parsed["policy"]["allowed_domains"],
+            ["fixture.test"],
+        )
+        self.assertEqual(
             parsed["policy"]["allowed_endpoints"],
             [
                 {
@@ -1716,6 +1721,48 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ],
         )
         self.assertTrue(parsed["policy"]["controlled_resolver"])
+
+    def test_controlled_domain_policy_requires_a_bound_slirp_endpoint(self):
+        external = device_service_module.NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_domains": ["fixture.test"],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 443,
+                    }
+                ],
+            }
+        )
+        with self.assertRaises(ServiceError) as missing:
+            device_service_module.require_allowlist_http_fixture(
+                "core2-ble-advertise",
+                external,
+            )
+        self.assertEqual(missing.exception.code, "allowlist_not_supported")
+        bound = device_service_module.NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_domains": ["fixture.test"],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "10.0.2.2",
+                        "port": 18443,
+                    }
+                ],
+            }
+        )
+        device_service_module.require_allowlist_http_fixture(
+            "core2-ble-advertise",
+            bound,
+        )
 
     def test_network_namespace_ipv6_endpoint_requires_ipv6_capability(self):
         request = {

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.28.0` and bounded
+Status: local MVP with unified-device runtime contract `1.29.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -806,6 +806,7 @@ when advertised, and the assigned address. This distinguishes initial
     "egress": "allowlist",
     "dns": "controlled",
     "allowed_hosts": ["allowed.lab.test"],
+    "allowed_domains": ["fixture.test"],
     "allowed_endpoints": [
       {
         "protocol": "tcp",
@@ -824,28 +825,36 @@ only exact IPv4 or IPv6 `protocol + address + port` endpoints,
 established/related flows, IPv6 neighbor discovery, and required loopback
 control ports are accepted.
 
-`allowed_endpoints` accepts at most 64 exact endpoints. A guest-visible
-`10.0.2.2` endpoint is enforced against the SLiRP host-loopback socket; other
-IPv4 and IPv6 endpoints use a per-session veth and temporary worker-side NAT
-table. CIDRs and domains are rejected rather than treated as implicitly
-allowed. Loopback allowances are derived internally from controlled DNS,
-HTTP/TLS fixtures and HCI/GDB control ports; callers cannot grant arbitrary
-host-loopback services through `allowed_endpoints`.
+`allowed_endpoints` accepts at most 64 IPv4/IPv6 address-or-CIDR endpoints.
+IPv4 CIDRs must be `/16` or narrower and IPv6 CIDRs `/48` or narrower. The
+parser rejects broad prefixes, unspecified/loopback/link-local/multicast
+space, IPv4-mapped IPv6 CIDRs and CIDRs covering the QEMU SLiRP synthetic
+networks. Exact loopback and link-local endpoints are also rejected;
+callers cannot grant arbitrary host-loopback services. A guest-visible exact
+`10.0.2.2` or `fec0::2` endpoint is enforced against the corresponding SLiRP
+host-loopback socket; other destinations use a per-session dual-stack veth
+and temporary worker-side NAT table. Loopback allowances are derived
+internally from controlled DNS, HTTP/TLS fixtures and HCI/GDB control ports.
 
-`egress=allowlist` requires at least one of `allowed_hosts` or
-`allowed_endpoints`. Profiles with a controlled HTTP fixture add their exact
-HTTP endpoint automatically. Profiles without one require explicit
-`allowed_endpoints`; otherwise the request fails with
-`allowlist_not_supported`.
+`egress=allowlist` requires at least one of `allowed_hosts`,
+`allowed_domains` or `allowed_endpoints`. Profiles with a controlled HTTP
+fixture add their exact HTTP endpoint automatically. Profiles without one
+require an explicit endpoint that covers every managed DNS answer; otherwise
+the request fails with `allowlist_not_supported`.
 `dns=controlled` requires namespace isolation and `egress=allowlist`. The
 sandbox creates a private mount namespace, binds a temporary resolver
-configuration only into the QEMU process tree, and serves allowlisted names
-from the controlled resolver while returning NXDOMAIN for other names.
-`allowed_hosts` is therefore required for `dns=controlled`; it controls the
-HTTP gateway's `Host` decision and the current IPv4 resolver path, while
-`allowed_endpoints` controls the actual network destination. The sandbox core
-accepts exact A/AAAA records and can bind an IPv6 `ControlledHttp`; the Device
-Service's managed controlled HTTP fixture still exposes its existing IPv4 path.
+configuration only into the QEMU process tree, and serves explicitly bound
+names or domain suffixes while returning NXDOMAIN for other names.
+`allowed_hosts` is an exact Host/DNS allowlist. `allowed_domains` is a suffix
+allowlist with DNS-label boundaries: `allowy.test` also matches
+`api.allowy.test`, but not `evilallowy.test`; exact records win and the
+longest suffix wins. Every suffix must have explicit resolver answers covered
+by an allowed endpoint. Managed profiles bind Host/domain grants to
+`10.0.2.2` and therefore require a controlled HTTP profile or an exact
+`10.0.2.2` endpoint. A domain suffix never authorizes arbitrary addresses
+from an outside resolver. The sandbox core accepts exact A/AAAA records and
+can bind an IPv6 `ControlledHttp`; the Device Service's managed controlled
+HTTP fixture still exposes its existing IPv4 path.
 A standalone UIFlow2 test build in a Linux private network namespace has
 completed controlled AAAA, allowed IPv6 HTTP, denied-port blocking, pcap,
 namespace cleanup and QEMU reap in one guest lifecycle. That closes `NET-06`

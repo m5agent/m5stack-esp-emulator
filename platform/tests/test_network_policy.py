@@ -251,6 +251,77 @@ class NetworkPolicyTests(unittest.TestCase):
                 with self.assertRaises(NetworkPolicyError):
                     NetworkPolicy.from_mapping(value)
 
+    def test_domain_suffix_policy_is_normalized_and_strict(self):
+        policy = NetworkPolicy.from_mapping(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_domains": [
+                    "Example.COM.",
+                    "api.example.com",
+                ],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "10.0.2.2",
+                        "port": 18443,
+                    }
+                ],
+            }
+        )
+        self.assertEqual(
+            policy.allowed_domains,
+            ("api.example.com", "example.com"),
+        )
+        self.assertEqual(
+            policy.evidence()["allowed_domains"],
+            ["api.example.com", "example.com"],
+        )
+        for domains in (
+            ["*.example.com"],
+            [".example.com"],
+            ["localhost"],
+            ["bad domain.example"],
+            ["example..com"],
+            ["-bad.example.com"],
+        ):
+            with self.subTest(domains=domains):
+                with self.assertRaises(NetworkPolicyError):
+                    NetworkPolicy.from_mapping(
+                        {
+                            "isolation": "namespace",
+                            "egress": "allowlist",
+                            "dns": "controlled",
+                            "allowed_domains": domains,
+                            "allowed_endpoints": [
+                                {
+                                    "protocol": "tcp",
+                                    "address": "10.0.2.2",
+                                    "port": 18443,
+                                }
+                            ],
+                        }
+                    )
+        for dns in ("deny", "slirp"):
+            with self.subTest(dns=dns):
+                with self.assertRaises(NetworkPolicyError):
+                    NetworkPolicy.from_mapping(
+                        {
+                            "isolation": "namespace",
+                            "egress": "allowlist",
+                            "dns": dns,
+                            "allowed_domains": ["example.com"],
+                            "allowed_endpoints": [
+                                {
+                                    "protocol": "tcp",
+                                    "address": "10.0.2.2",
+                                    "port": 18443,
+                                }
+                            ],
+                        }
+                    )
+
     def test_namespace_builder_fails_closed(self):
         with mock.patch(
             "network_policy.namespace_capability",

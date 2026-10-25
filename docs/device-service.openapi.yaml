@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.28.0
+  version: 1.29.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2071,7 +2071,7 @@ components:
             refuses to start if a private network namespace cannot be created.
             lab-only starts loopback fixtures without an external route.
             allowlist installs nftables default-drop rules and permits only
-            exact declared endpoints plus required loopback control ports.
+            declared IP/CIDR endpoints plus required loopback control ports.
           properties:
             isolation:
               type: string
@@ -2089,36 +2089,49 @@ components:
                 controlled requires namespace isolation and
                 egress=allowlist. It installs a temporary resolver
                 configuration in a private mount namespace and serves only
-                allowed_hosts.
+                allowed_hosts and explicitly bound allowed_domains.
             allowed_hosts:
               type: array
               maxItems: 32
               uniqueItems: true
               description: >
-                Optional HTTP Host and DNS-name allowlist. Required when
-                dns=controlled. Filters the Host header at the controlled HTTP
-                gateway. The resolver core supports exact A/AAAA records; the
-                current controlled HTTP fixture exposes the existing IPv4
-                path. A standalone UIFlow2 guest run has completed controlled
-                AAAA, allowed IPv6 HTTP, denied-port and cleanup; this does
-                not imply every managed profile defaults to IPv6. Actual
-                network destinations are controlled separately by
-                allowed_endpoints.
+                Optional exact HTTP Host and DNS-name allowlist. Filters the
+                Host header at the controlled HTTP gateway. Managed
+                dns=controlled profiles resolve these names to 10.0.2.2 and
+                therefore require a controlled HTTP profile or an exact
+                10.0.2.2 endpoint. The resolver core supports exact A/AAAA
+                records; the managed HTTP fixture currently exposes IPv4.
               items:
                 type: string
                 pattern: "^[A-Za-z0-9.-]{1,253}$"
+            allowed_domains:
+              type: array
+              maxItems: 32
+              uniqueItems: true
+              description: >
+                DNS suffix grants for egress=allowlist with dns=controlled.
+                Matching is on a DNS label boundary, so allowy.test permits
+                allowy.test and api.allowy.test but not evilallowy.test.
+                Every suffix must be bound to controlled resolver answers
+                that are covered by an allowed_endpoints entry. Managed
+                profiles bind suffixes to 10.0.2.2 and require a controlled
+                HTTP profile or an exact 10.0.2.2 endpoint. A suffix never
+                grants arbitrary addresses returned by an external resolver.
+              items:
+                type: string
+                pattern: "^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
             allowed_endpoints:
               type: array
               maxItems: 64
               description: >
-                Exact IPv4 or IPv6 protocol/address/port egress grants for
-                egress=allowlist. 10.0.2.2 is mapped to the QEMU SLiRP host
-                loopback socket; other IPv4 destinations use a per-session
-                veth and temporary NAT table. External IPv6 destinations use
-                the same veth gateway with IPv6 routing, neighbor discovery
-                control and masquerade. CIDRs and domains are rejected.
-                Profiles with a controlled HTTP fixture add the fixture
-                endpoint automatically.
+                IPv4/IPv6 protocol/address-or-CIDR/port egress grants for
+                egress=allowlist. IPv4 rules are at least /16 and IPv6 rules
+                at least /48; broad, special-use, IPv4-mapped and QEMU SLiRP
+                synthetic CIDRs are rejected. 10.0.2.2 and fec0::2 are
+                mapped to QEMU SLiRP host loopback sockets; other destinations
+                use a per-session dual-stack veth/NAT gateway. Profiles with a
+                controlled HTTP fixture add the exact fixture endpoint
+                automatically.
               items:
                 type: object
                 additionalProperties: false
@@ -2129,10 +2142,12 @@ components:
                     enum: [tcp, udp]
                   address:
                     type: string
-                    oneOf:
-                      - format: ipv4
-                      - format: ipv6
-                    description: Exact IPv4 or IPv6 address.
+                    description: >
+                      Exact unicast non-loopback/non-link-local IPv4 or IPv6
+                      address, or a CIDR of at least /16 (IPv4) or /48
+                      (IPv6). IPv4-mapped IPv6 and QEMU SLiRP synthetic
+                      ranges must use the exact 10.0.2.2 or fec0::2 host
+                      address instead.
                   port:
                     type: integer
                     minimum: 1

@@ -467,15 +467,17 @@ key/Realtime/云业务、WPA3/group multicast、物理 RF 和真机仍为 `NOT R
 5. 更广的 ESP-IDF/Arduino/MicroPython/vendor 固件回归；
 6. Tab5、CardputerZero 和时间序列 QOM 等覆盖增强。
 
-网络部分已经具备 controlled DNS A/AAAA、TLS/Host allowlist、精确 IPv4/IPv6
-地址/协议/端口 egress、pcap、DHCP renewal、虚拟 radio/AP 丢失恢复，以及
+网络部分已经具备 controlled DNS A/AAAA、label-boundary domain suffix、
+TLS/Host allowlist、有界 IPv4/IPv6 地址或 CIDR/协议/端口 egress、
+pcap、DHCP renewal、虚拟 radio/AP 丢失恢复，以及
 两台 QEMU guest 的 DHCP/TCP/双侧 pcap/宿主隔离、本地 worker
 heartbeat/drain/restart classification、远程 worker 注册目录和 durable
 job queue/lease supervisor。同主机独立 HTTP executor 已完成真实 QEMU
 job、evidence ZIP/SHA256 回报和 worker HMAC；仍未完成的是跨主机
 executor/reattach、namespace-managed/Tab5/cross-host companion、连续
-evidence 流、生产多机调度、CIDR/domain-set policy 和不可信固件
-disposable VM。同 guest controlled AAAA、
+evidence 流、生产多机调度和不可信固件 disposable VM。domain suffix 不能
+授权外部 resolver 返回的任意地址，每个 answer 仍必须落在允许 endpoint
+内。同 guest controlled AAAA、
 IPv6 HTTP、denied-port、pcap 和 cleanup 已在 Linux namespace PASS。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 

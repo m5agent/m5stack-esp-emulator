@@ -33,6 +33,26 @@ class NetworkPolicyError(ValueError):
     pass
 
 
+def valid_domain_suffix(value: str) -> bool:
+    labels = value.split(".")
+    return bool(
+        "." in value
+        and len(value) <= 253
+        and all(
+            label
+            and len(label) <= 63
+            and not label.startswith("-")
+            and not label.endswith("-")
+            and all(
+                character.isascii()
+                and (character.isalnum() or character == "-")
+                for character in label
+            )
+            for label in labels
+        )
+    )
+
+
 @dataclass(frozen=True)
 class NetworkPolicy:
     isolation: str = "trusted-host"
@@ -40,6 +60,7 @@ class NetworkPolicy:
     dns: str = "slirp"
     capture_pcap: bool = True
     allowed_hosts: tuple[str, ...] = ()
+    allowed_domains: tuple[str, ...] = ()
     allowed_endpoints: tuple[EgressEndpoint, ...] = ()
 
     def with_allowed_endpoints(
@@ -52,6 +73,7 @@ class NetworkPolicy:
             dns=self.dns,
             capture_pcap=self.capture_pcap,
             allowed_hosts=self.allowed_hosts,
+            allowed_domains=self.allowed_domains,
             allowed_endpoints=tuple(
                 sorted(set(self.allowed_endpoints) | set(endpoints))
             ),
@@ -89,6 +111,36 @@ class NetworkPolicy:
         if len(allowed_hosts) > 32:
             raise NetworkPolicyError(
                 "network.policy.allowed_hosts exceeds 32 entries"
+            )
+        raw_allowed_domains = value.get("allowed_domains", [])
+        if not isinstance(raw_allowed_domains, list) or any(
+            not isinstance(domain, str)
+            for domain in raw_allowed_domains
+        ):
+            raise NetworkPolicyError(
+                "network.policy.allowed_domains must be a string list"
+            )
+        allowed_domains = tuple(
+            sorted(
+                {
+                    domain.strip().lower().rstrip(".")
+                    for domain in raw_allowed_domains
+                    if domain.strip()
+                }
+            )
+        )
+        if len(allowed_domains) > 32:
+            raise NetworkPolicyError(
+                "network.policy.allowed_domains exceeds 32 entries"
+            )
+        if any(
+            not HOST_PATTERN.fullmatch(domain)
+            or not valid_domain_suffix(domain)
+            for domain in allowed_domains
+        ):
+            raise NetworkPolicyError(
+                "network.policy.allowed_domains must contain registrable "
+                "domain suffixes without wildcards or leading dots"
             )
         try:
             allowed_endpoints = parse_endpoints(
@@ -136,10 +188,11 @@ class NetworkPolicy:
                 "dns=controlled requires egress=allowlist"
             )
         if egress == "allowlist" and not (
-            allowed_hosts or allowed_endpoints
+            allowed_hosts or allowed_domains or allowed_endpoints
         ):
             raise NetworkPolicyError(
-                "egress=allowlist requires allowed_hosts or allowed_endpoints"
+                "egress=allowlist requires allowed_hosts, allowed_domains "
+                "or allowed_endpoints"
             )
         if egress != "allowlist" and allowed_endpoints:
             raise NetworkPolicyError(
@@ -147,9 +200,17 @@ class NetworkPolicy:
             )
         if egress != "allowlist" and allowed_hosts:
             raise NetworkPolicyError("allowed_hosts requires egress=allowlist")
-        if dns == "controlled" and not allowed_hosts:
+        if egress != "allowlist" and allowed_domains:
             raise NetworkPolicyError(
-                "dns=controlled requires non-empty allowed_hosts"
+                "allowed_domains requires egress=allowlist"
+            )
+        if allowed_domains and dns != "controlled":
+            raise NetworkPolicyError(
+                "allowed_domains requires dns=controlled"
+            )
+        if dns == "controlled" and not (allowed_hosts or allowed_domains):
+            raise NetworkPolicyError(
+                "dns=controlled requires allowed_hosts or allowed_domains"
             )
         return cls(
             isolation=isolation,
@@ -157,6 +218,7 @@ class NetworkPolicy:
             dns=dns,
             capture_pcap=True,
             allowed_hosts=allowed_hosts,
+            allowed_domains=allowed_domains,
             allowed_endpoints=allowed_endpoints,
         )
 
@@ -167,13 +229,14 @@ class NetworkPolicy:
             "dns": self.dns,
             "capture_pcap": self.capture_pcap,
             "allowed_hosts": list(self.allowed_hosts),
+            "allowed_domains": list(self.allowed_domains),
             "allowed_endpoints": [
                 endpoint.as_dict() for endpoint in self.allowed_endpoints
             ],
             "controlled_resolver": self.dns == "controlled",
             "claim": (
-                "Linux network namespace with kernel-enforced exact "
-                "IPv4/IPv6 protocol/address/port egress"
+                "Linux network namespace with kernel-enforced IPv4/IPv6 "
+                "address-or-CIDR/protocol/port egress"
                 if self.egress == "allowlist"
                 else "Linux network namespace with no external route"
                 if self.isolation == "namespace"

@@ -14,7 +14,7 @@ capability and open tasks remain in
 | --- | --- | --- |
 | [`linux_isolation`](linux_isolation/README.md) | Guest boot and route isolation inside a private Linux namespace | production malicious-firmware sandbox |
 | [`tls_allowlist`](tls_allowlist/README.md) | Test CA, controlled DNS, Host decision, TLS 200/403 and pcap | arbitrary public services or certificate pinning |
-| [`egress_allowlist`](egress_allowlist/README.md) | Exact IPv4/IPv6 destination, protocol and port policy with cleanup | CIDR or domain-set policy |
+| [`egress_allowlist`](egress_allowlist/README.md) | Bounded IPv4 CIDR plus exact IPv6 destination, protocol and port policy with cleanup | Arbitrary broad/special CIDRs or unbound public-domain resolution |
 | [`idf_dns_udp`](idf_dns_udp/README.md) | ESP-IDF DNS/UDP data plane through the controlled resolver | UI or complete-device behavior |
 | [`idf_dhcp_renewal`](idf_dhcp_renewal/README.md) | Guest-issued DHCP renewal with address and HTTP continuity | long-term lease churn |
 | [`wrong_password`](wrong_password/README.md) | WPA2-PSK wrong-password rejection and no-DHCP/no-HTTP negative gate | WPA3 or RF behavior |

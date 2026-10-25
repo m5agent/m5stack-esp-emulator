@@ -76,10 +76,11 @@ Implemented:
   with generated test CA, HTTPS gateway, 200/403 Host decisions and pcap
   evidence;
 - a controlled namespace-local DNS resolver using a temporary private
-  resolver configuration, with A/NXDOMAIN and query-log evidence;
-- nftables default-drop exact IPv4/IPv6 address/protocol/port egress with a
-  per-session dual-stack veth/NAT path, IPv6 neighbor control and verified
-  cleanup;
+  resolver configuration, with exact A/AAAA, label-boundary domain suffix,
+  explicit answer binding, NXDOMAIN and query-log evidence;
+- nftables default-drop bounded IPv4/IPv6 address-or-CIDR/protocol/port
+  egress with a per-session dual-stack veth/NAT path, IPv6 neighbor control
+  and verified cleanup;
 - guest-issued DHCP renewal with DORA baseline, later REQUEST/ACK, retained
   address, HTTP continuity and pcap summaries;
 - a two-guest StickS3 lab fabric inside a private namespace, with reserved
@@ -94,7 +95,6 @@ Not implemented yet:
 - NAT/cross-subnet discovery, cross-host credential migration, cross-host
   QEMU execution/re-attach, cross-host idempotency and production multi-host
   capacity scheduling;
-- CIDR/domain-set allowlisting;
 - production worker integration and replay storage for the two-guest lab fabric;
 - disposable VM/copy-on-write isolation for untrusted multi-tenant review;
 - pcap/evidence object storage, retention policy and audit integration.
@@ -407,8 +407,8 @@ the overall service is still trusted-local and not an untrusted-firmware
 sandbox.
 
 - container/VM isolation for untrusted firmware;
-- worker-enforced CIDR/domain-set policy beyond the delivered exact
-  dual-stack address path, and object-backed pcap/evidence retention;
+- portable worker-policy export/enforcement and object-backed
+  pcap/evidence retention;
 - worker health, eviction and teardown verification;
 - multi-host scheduling and artifact storage.
 

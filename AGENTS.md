@@ -232,11 +232,14 @@ Stable boundaries that must survive count changes:
   current namespace runner are not an untrusted-firmware sandbox. Production
   review still requires disposable isolation, resource limits, auditable
   evidence and fail-closed policy creation.
-- Linux exact endpoint policy covers IPv4 and IPv6 `protocol + address + port`
-  endpoints. CIDR and domain-to-multiple-IP grants remain unsupported and must
-  fail closed rather than become implicit allow rules; guest IPv6 availability
-  must still be proven per firmware configuration and is not inherited from the
-  host policy test.
+- Linux egress policy covers IPv4 and IPv6 `protocol + address-or-CIDR + port`
+  endpoints. IPv4 rules are at least `/16` and IPv6 rules at least `/48`;
+  broad, special-use, IPv4-mapped and QEMU SLiRP synthetic CIDRs fail closed.
+  Controlled domain suffixes match only on DNS label boundaries, and every
+  suffix answer must be explicitly bound to an address covered by an allowed
+  endpoint. A domain grant must never authorize arbitrary addresses returned by
+  an outside resolver. Guest IPv6 availability must still be proven per
+  firmware configuration and is not inherited from the host policy test.
 - Closing one firmware family, sample or model gap never grants the same
   result to another firmware SHA, board profile or controller path.
 

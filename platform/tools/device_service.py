@@ -12,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import io
+import ipaddress
 import json
 import os
 import shutil
@@ -60,6 +61,7 @@ from firmware_manifest import (  # noqa: E402
 )
 from network_egress import (  # noqa: E402
     EgressEndpoint,
+    endpoint_contains_address,
     requires_external_gateway,
     requires_external_ipv6,
 )
@@ -614,11 +616,24 @@ def require_allowlist_http_fixture(
     profile: str,
     policy: NetworkPolicy,
 ) -> None:
-    if (
-        policy.egress != "allowlist"
-        or profile in UNIFIED_HTTP_PORTS
-        or policy.allowed_endpoints
-    ):
+    if policy.egress != "allowlist" or profile in UNIFIED_HTTP_PORTS:
+        return
+    controlled_names = policy.allowed_hosts or policy.allowed_domains
+    if controlled_names and policy.dns == "controlled":
+        slirp_host = ipaddress.ip_address("10.0.2.2")
+        if not any(
+            endpoint_contains_address(endpoint, slirp_host)
+            for endpoint in policy.allowed_endpoints
+        ):
+            raise ServiceError(
+                "allowlist_not_supported",
+                "dns=controlled Host/domain allowlists resolve to "
+                "10.0.2.2 and require a controlled HTTP profile or an "
+                "exact 10.0.2.2 endpoint",
+                400,
+            )
+        return
+    if policy.allowed_endpoints:
         return
     raise ServiceError(
         "allowlist_not_supported",
@@ -5247,14 +5262,20 @@ class DeviceSession:
                     "tcp_ports": control_tcp_ports,
                 }
             if policy.dns == "controlled":
+                dns_hosts = {
+                    host: "10.0.2.2"
+                    for host in policy.allowed_hosts
+                }
+                dns_domain_records = {
+                    domain: ["10.0.2.2"]
+                    for domain in policy.allowed_domains
+                }
                 sandbox_config["dns"] = {
                     "mode": "controlled",
                     "host": "127.0.0.1",
                     "port": 53,
-                    "hosts": {
-                        host: "10.0.2.2"
-                        for host in policy.allowed_hosts
-                    },
+                    "hosts": dns_hosts,
+                    "domain_records": dns_domain_records,
                     "log": str(self.dns_fixture_log),
                 }
             if http_profile:
@@ -5274,6 +5295,10 @@ class DeviceSession:
                 if policy.allowed_hosts:
                     http_fixture["allowed_hosts"] = list(
                         policy.allowed_hosts
+                    )
+                if policy.allowed_domains:
+                    http_fixture["allowed_domains"] = list(
+                        policy.allowed_domains
                     )
                 sandbox_config["http"] = http_fixture
             if hci_gatt:
@@ -5307,6 +5332,7 @@ class DeviceSession:
                 isolation=policy.isolation,
                 egress=policy.egress,
                 dns=policy.dns,
+                allowed_domains=list(policy.allowed_domains),
             )
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")

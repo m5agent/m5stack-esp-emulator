@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import ipaddress
 import sys
 import unittest
 from pathlib import Path
@@ -13,6 +14,7 @@ from network_egress import (
     EgressError,
     EgressGateway,
     build_egress_ruleset,
+    endpoint_contains_address,
     parse_endpoints,
     requires_external_gateway,
     requires_external_ipv6,
@@ -95,8 +97,13 @@ class NetworkEgressTests(unittest.TestCase):
             [{"protocol": "tcp", "address": "example.com", "port": 443}],
             [{"protocol": "tcp", "address": "0.0.0.0", "port": 443}],
             [{"protocol": "tcp", "address": "224.0.0.1", "port": 443}],
+            [{"protocol": "tcp", "address": "127.0.0.1", "port": 443}],
+            [{"protocol": "tcp", "address": "169.254.1.1", "port": 443}],
             [{"protocol": "tcp", "address": "::", "port": 443}],
             [{"protocol": "tcp", "address": "ff02::1", "port": 443}],
+            [{"protocol": "tcp", "address": "::1", "port": 443}],
+            [{"protocol": "tcp", "address": "fe80::1", "port": 443}],
+            [{"protocol": "tcp", "address": "::ffff:127.0.0.1", "port": 443}],
             [{"protocol": "tcp", "address": "1.1.1.1", "port": 0}],
             [{"protocol": "tcp", "address": "1.1.1.1", "port": True}],
             [{"protocol": "tcp", "address": "1.1.1.1", "port": 443, "x": 1}],
@@ -119,6 +126,87 @@ class NetworkEgressTests(unittest.TestCase):
             (EgressEndpoint("tcp", "1.1.1.1", 443),),
         )
         self.assertFalse(requires_external_ipv6(endpoints))
+
+    def test_cidr_endpoints_are_canonicalized_and_bounded(self):
+        endpoints = parse_endpoints(
+            [
+                {
+                    "protocol": "tcp",
+                    "address": "10.203.0.7/30",
+                    "port": 8443,
+                },
+                {
+                    "protocol": "udp",
+                    "address": "2001:db8:6d35:1::abcd/64",
+                    "port": 5353,
+                },
+            ]
+        )
+        self.assertEqual(
+            endpoints,
+            (
+                EgressEndpoint("tcp", "10.203.0.4/30", 8443),
+                EgressEndpoint("udp", "2001:db8:6d35:1::/64", 5353),
+            ),
+        )
+        self.assertEqual(
+            str(translated_address(endpoints[0])),
+            "10.203.0.4/30",
+        )
+        self.assertTrue(
+            endpoint_contains_address(
+                endpoints[0],
+                ipaddress.ip_address("10.203.0.6"),
+            )
+        )
+        self.assertFalse(
+            endpoint_contains_address(
+                endpoints[0],
+                ipaddress.ip_address("10.203.0.8"),
+            )
+        )
+        self.assertTrue(requires_external_gateway(endpoints))
+        self.assertTrue(requires_external_ipv6(endpoints))
+        rules = build_egress_ruleset(
+            endpoints,
+            loopback_tcp_ports=set(),
+            loopback_udp_ports=set(),
+        )
+        self.assertIn(
+            "ip daddr 10.203.0.4/30 tcp dport 8443 accept",
+            rules,
+        )
+        self.assertIn(
+            "ip6 daddr 2001:db8:6d35:1::/64 udp dport 5353 accept",
+            rules,
+        )
+
+    def test_cidr_endpoints_reject_broad_special_mapped_and_slirp_space(self):
+        for address in (
+            "1.1.0.0/15",
+            "2001:db8::/47",
+            "0.0.0.0/16",
+            "127.0.0.0/16",
+            "169.254.0.0/24",
+            "224.0.0.0/24",
+            "::/48",
+            "::1/128",
+            "fe80::/64",
+            "ff00::/64",
+            "::ffff:0:0/95",
+            "10.0.2.0/24",
+            "fec0::/64",
+        ):
+            with self.subTest(address=address), self.assertRaises(EgressError):
+                parse_endpoints(
+                    [
+                        {
+                            "protocol": "tcp",
+                            "address": address,
+                            "port": 443,
+                        }
+                    ]
+                )
 
     def test_ruleset_defaults_to_drop_and_allows_exact_endpoints(self):
         rules = build_egress_ruleset(

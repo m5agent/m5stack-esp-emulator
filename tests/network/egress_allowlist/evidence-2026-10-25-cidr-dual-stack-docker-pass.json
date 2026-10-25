@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-egress-ip-cidr-port-allowlist",
+  "scope": "linux-virtual-network-policy-not-firmware-or-hardware",
+  "date": "2026-10-25",
+  "status": "PASS",
+  "duration_seconds": 4.601,
+  "checks": {
+    "sandbox_exit_zero": true,
+    "allowed_ip_port_connected": true,
+    "denied_port_filtered": true,
+    "denied_ip_filtered": true,
+    "allowed_ipv6_port_connected": true,
+    "denied_ipv6_port_filtered": true,
+    "denied_ipv6_filtered": true,
+    "allowed_server_saw_one_request": true,
+    "denied_server_saw_no_request": true,
+    "allowed_ipv6_server_saw_one_request": true,
+    "denied_ipv6_server_saw_no_request": true,
+    "denied_ipv6_ip_server_saw_no_request": true,
+    "nftables_default_drop": true,
+    "gateway_mode": true,
+    "ipv4_nat_used": true,
+    "ipv6_nat_used": true,
+    "ipv6_default_interface_present": true,
+    "allowed_endpoint_recorded": true,
+    "namespace_cleaned": true,
+    "nat_table_cleaned": true,
+    "worker_namespace_cleaned": true,
+    "upstream_namespace_cleaned": true
+  },
+  "target": {
+    "host": "<fixture-upstream-ipv4>",
+    "allowed_cidr": "10.203.0.4/30",
+    "allowed_port": 34309,
+    "denied_port": 45739,
+    "denied_ip": "10.203.0.9",
+    "ipv6_host": "2001:db8:6d35::1",
+    "ipv6_allowed_port": 46113,
+    "ipv6_denied_port": 40021,
+    "ipv6_denied_ip": "2001:db8:6d35::2"
+  },
+  "inner_probe": {
+    "allowed_ip_port": {
+      "connected": true,
+      "status": 200,
+      "elapsed_seconds": 0.001
+    },
+    "denied_port": {
+      "connected": false,
+      "error": "TimeoutError",
+      "elapsed_seconds": 1.001
+    },
+    "denied_ip": {
+      "connected": false,
+      "error": "TimeoutError",
+      "elapsed_seconds": 1.003
+    },
+    "allowed_ipv6_port": {
+      "connected": true,
+      "status": 200,
+      "elapsed_seconds": 0.005
+    },
+    "denied_ipv6_port": {
+      "connected": false,
+      "error": "TimeoutError",
+      "elapsed_seconds": 1.008
+    },
+    "denied_ipv6": {
+      "connected": false,
+      "error": "TimeoutError",
+      "elapsed_seconds": 1.002
+    }
+  },
+  "isolation": {
+    "schema_version": 1,
+    "platform": "linux",
+    "private_network_namespace": true,
+    "interfaces": [
+      "erspan0",
+      "gre0",
+      "gretap0",
+      "ip6_vti0",
+      "ip6gre0",
+      "ip6tnl0",
+      "ip_vti0",
+      "lo",
+      "m5g-64ee8c",
+      "sit0",
+      "tunl0"
+    ],
+    "external_route": true,
+    "egress": "allowlist",
+    "dns": "deny",
+    "allowed_hosts": [],
+    "allowed_domains": [],
+    "allowed_endpoints": [
+      {
+        "protocol": "tcp",
+        "address": "10.203.0.4/30",
+        "port": 34309
+      },
+      {
+        "protocol": "tcp",
+        "address": "2001:db8:6d35::1",
+        "port": 46113
+      }
+    ],
+    "control_tcp_ports": [],
+    "control_udp_ports": [],
+    "egress_enforcement": "nftables-input-output-default-drop",
+    "gateway": {
+      "mode": "veth-nat",
+      "namespace": "m5eg-64ee8c",
+      "host_interface": "m5h-64ee8c",
+      "guest_interface": "m5g-64ee8c",
+      "host_address": "10.213.49.101",
+      "guest_address": "10.213.49.102",
+      "prefix_length": 30,
+      "default_interface": "m5w-f9a74d",
+      "default_ipv6_interface": "m5w-f9a74d",
+      "nat_table": "m5nat_64ee8c",
+      "ipv6_required": true,
+      "host_ipv6_address": "fd6d:64ee:8c59:5f88::1",
+      "guest_ipv6_address": "fd6d:64ee:8c59:5f88::2",
+      "ipv6_prefix_length": 126
+    },
+    "tls_gateway": false,
+    "controlled_dns": false,
+    "dns_records": {},
+    "dns_domain_records": {},
+    "cleanup_completed": true,
+    "qemu_process_reaped": true,
+    "dns_closed": true,
+    "http_closed": true
+  },
+  "requests": {
+    "allowed": [
+      "/10.203.0.5:34309"
+    ],
+    "denied": [],
+    "denied_ip": [],
+    "allowed_ipv6": [
+      "/2001:db8:6d35::1:46113"
+    ],
+    "denied_ipv6": [],
+    "denied_ipv6_ip": []
+  },
+  "peers": {
+    "allowed": [
+      "10.203.0.1"
+    ],
+    "denied": [],
+    "denied_ip": [],
+    "allowed_ipv6": [
+      "fd00:6d35:1::1"
+    ],
+    "denied_ipv6": [],
+    "denied_ipv6_ip": []
+  },
+  "sandbox_returncode": 0,
+  "not_claimed": [
+    "firmware guest behavior",
+    "physical hardware or RF",
+    "general public internet availability",
+    "malware safety"
+  ]
+}

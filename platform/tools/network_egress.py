@@ -18,6 +18,25 @@ NFT = "nft"
 SLIRP_HOST_ADDRESS = ipaddress.ip_address("10.0.2.2")
 SLIRP_HOST_ADDRESS_V6 = ipaddress.ip_address("fec0::2")
 IPAddress: TypeAlias = ipaddress.IPv4Address | ipaddress.IPv6Address
+IPNetwork: TypeAlias = ipaddress.IPv4Network | ipaddress.IPv6Network
+EgressTarget: TypeAlias = IPAddress | IPNetwork
+MIN_IPV4_PREFIX_LENGTH = 16
+MIN_IPV6_PREFIX_LENGTH = 48
+SPECIAL_IPV4_NETWORKS = (
+    ipaddress.IPv4Network("0.0.0.0/8"),
+    ipaddress.IPv4Network("127.0.0.0/8"),
+    ipaddress.IPv4Network("169.254.0.0/16"),
+    ipaddress.IPv4Network("224.0.0.0/4"),
+)
+SPECIAL_IPV6_NETWORKS = (
+    ipaddress.IPv6Network("::/128"),
+    ipaddress.IPv6Network("::1/128"),
+    ipaddress.IPv6Network("fe80::/10"),
+    ipaddress.IPv6Network("ff00::/8"),
+)
+IPV4_MAPPED_IPV6_NETWORK = ipaddress.IPv6Network("::ffff:0:0/96")
+SLIRP_IPV4_NETWORK = ipaddress.IPv4Network("10.0.2.0/24")
+SLIRP_IPV6_NETWORK = ipaddress.IPv6Network("fec0::/64")
 
 
 class EgressError(RuntimeError):
@@ -55,30 +74,83 @@ def parse_endpoint(value: object) -> EgressEndpoint:
         )
     if not isinstance(address_value, str) or not address_value.strip():
         raise EgressError(
-            "network.policy.allowed_endpoints.address must be an IP address"
+            "network.policy.allowed_endpoints.address must be an IP or CIDR"
         )
+    raw_address = address_value.strip()
     try:
-        address = ipaddress.ip_address(address_value.strip())
+        if "/" in raw_address:
+            network = ipaddress.ip_network(raw_address, strict=False)
+            if (
+                isinstance(network, ipaddress.IPv6Network)
+                and network.overlaps(IPV4_MAPPED_IPV6_NETWORK)
+            ):
+                raise EgressError(
+                    "IPv4-mapped IPv6 CIDRs must use an IPv4 network"
+                )
+            minimum_prefix = (
+                MIN_IPV4_PREFIX_LENGTH
+                if network.version == 4
+                else MIN_IPV6_PREFIX_LENGTH
+            )
+            if network.prefixlen < minimum_prefix:
+                raise EgressError(
+                    "network.policy.allowed_endpoints CIDR is too broad; "
+                    f"IPv{network.version} requires /{minimum_prefix} "
+                    "or narrower"
+                )
+            special_networks = (
+                SPECIAL_IPV4_NETWORKS
+                if isinstance(network, ipaddress.IPv4Network)
+                else SPECIAL_IPV6_NETWORKS
+            )
+            if any(network.overlaps(item) for item in special_networks):
+                raise EgressError(
+                    "network.policy.allowed_endpoints CIDR cannot cover "
+                    "unspecified, multicast, link-local or loopback space"
+                )
+            slirp_network = (
+                SLIRP_IPV4_NETWORK
+                if isinstance(network, ipaddress.IPv4Network)
+                else SLIRP_IPV6_NETWORK
+            )
+            if network.overlaps(slirp_network):
+                raise EgressError(
+                    "network.policy.allowed_endpoints CIDR cannot cover "
+                    "a QEMU SLiRP synthetic network; declare an exact "
+                    "10.0.2.2 or fec0::2 endpoint instead"
+                )
+            address = str(network)
+        else:
+            parsed = ipaddress.ip_address(raw_address)
+            if isinstance(parsed, ipaddress.IPv6Address):
+                mapped = parsed.ipv4_mapped
+                if mapped is not None:
+                    parsed = mapped
+            if (
+                parsed.is_unspecified
+                or parsed.is_multicast
+                or parsed.is_loopback
+                or parsed.is_link_local
+            ):
+                raise EgressError(
+                    "network.policy.allowed_endpoints.address cannot be "
+                    "unspecified, multicast, loopback or link-local; "
+                    "use the QEMU SLiRP 10.0.2.2 or fec0::2 host address"
+                )
+            address = str(parsed)
+    except EgressError:
+        raise
     except ValueError as error:
         raise EgressError(
-            "network.policy.allowed_endpoints.address must be an IP address"
+            "network.policy.allowed_endpoints.address must be an IP or CIDR"
         ) from error
-    if isinstance(address, ipaddress.IPv6Address):
-        mapped = address.ipv4_mapped
-        if mapped is not None:
-            address = mapped
-    if address.is_unspecified or address.is_multicast:
-        raise EgressError(
-            "network.policy.allowed_endpoints.address cannot be unspecified "
-            "or multicast"
-        )
     if not isinstance(port, int) or isinstance(port, bool) or not 1 <= port <= 65535:
         raise EgressError(
             "network.policy.allowed_endpoints.port must be from 1 to 65535"
         )
     return EgressEndpoint(
         protocol=protocol,
-        address=str(address),
+        address=address,
         port=port,
     )
 
@@ -98,13 +170,29 @@ def parse_endpoints(value: object) -> tuple[EgressEndpoint, ...]:
     return endpoints
 
 
-def translated_address(endpoint: EgressEndpoint) -> IPAddress:
+def translated_address(endpoint: EgressEndpoint) -> EgressTarget:
+    if "/" in endpoint.address:
+        return ipaddress.ip_network(endpoint.address, strict=False)
     address = ipaddress.ip_address(endpoint.address)
     if address == SLIRP_HOST_ADDRESS:
         return ipaddress.ip_address("127.0.0.1")
     if address == SLIRP_HOST_ADDRESS_V6:
         return ipaddress.ip_address("::1")
     return address
+
+
+def endpoint_contains_address(
+    endpoint: EgressEndpoint,
+    address: IPAddress,
+) -> bool:
+    target: EgressTarget = (
+        ipaddress.ip_network(endpoint.address, strict=False)
+        if "/" in endpoint.address
+        else ipaddress.ip_address(endpoint.address)
+    )
+    if isinstance(target, IPNetwork):
+        return address.version == target.version and address in target
+    return address == target
 
 
 def requires_external_gateway(endpoints: tuple[EgressEndpoint, ...]) -> bool:

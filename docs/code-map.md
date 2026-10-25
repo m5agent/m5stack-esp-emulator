@@ -244,10 +244,10 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 
 | 路径 | 职责 |
 | --- | --- |
-| `platform/tools/network_policy.py` | `isolation`、`egress`、controlled DNS 和 pcap 策略 |
-| `platform/tools/network_egress.py` | exact IPv4/IPv6 地址/协议/端口、nftables、per-session 双栈 veth/NAT、IPv6 neighbor control 和清理 |
+| `platform/tools/network_policy.py` | `isolation`、`egress`、controlled DNS、exact Host/domain suffix 和 pcap 策略 |
+| `platform/tools/network_egress.py` | 有界 IPv4/IPv6 地址或 CIDR/协议/端口、nftables、per-session 双栈 veth/NAT、IPv6 neighbor control 和清理 |
 | `platform/tools/network_fabric.py` | private namespace、双 guest QEMU socket switch、DHCP reservation、TAP/bridge primitive |
-| `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled A/AAAA resolver、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
+| `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled A/AAAA + label-boundary domain suffix resolver、explicit answer binding、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
 | `platform/tools/network_lane.py` | `esp-emu` 诊断/Provisioning 网络 lane |
 | `platform/tools/pcap_summary.py` | flow、DNS、DHCP message/transaction/renewal、ARP、egress scope 和 payload hash |
 | `platform/tools/ble_probe.py` | 外部 BLE peer / GATT 验证；默认一轮，可要求同一 peer 进程连续多轮 |
@@ -260,7 +260,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `tests/network/idf_dhcp_renewal/` | ESP-IDF `netifapi_dhcp_renew()`、Device Service 和 pcap renewal 断言 |
 | `tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 TAP/bridge primitive |
 | `tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain、resume、强杀清理和下一代 abandoned lease 分类 |
-| `tests/network/` | 隔离、错误密码、exact dual-stack egress、radio/AP 丢失重连和 Core2 网络夹具 |
+| `tests/network/` | 隔离、错误密码、有界 CIDR/dual-stack egress、domain-set、radio/AP 丢失重连和 Core2 网络夹具 |
 
 QEMU 主路径必须在同一个 guest 内同时具备板级外设、网络和 HCI/BT 数据面。
 `runtime=network` 只用于诊断，不能和另一条 QEMU 板级结果拼成整机 PASS。
@@ -345,7 +345,8 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 WiFi-only deterministic repeat | `tests/network/core2_openmac_wifi/run_test.py`；`evidence-2026-10-24-deterministic-5x.json` | runner 显式传入 `tcg,thread=single,tb-size=128` + `icount`；scan/association/DHCP/HTTP 独立 `5/5`，不含 BLE/DNS/公网 |
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
 | UIFlow2 guest IPv6 lifecycle | `tests/network/ipv6_end_to_end/`；test-only patch；`evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json`；`evidence-2026-10-25-ipv6-namespace-aaaa-http-pass.json` | Direct run 在同一 StickS3 guest 创建 link-local 并完成 IPv6 HTTP；Linux namespace run 进一步由同一 test-build guest 完成 controlled AAAA、allowed HTTP、denied-port、pcap、namespace/QEMU cleanup。原厂 UIFlow2 仍未默认启用 IPv6，结果不等于公网 IPv6 或 RF |
-| Exact dual-stack egress | `tests/network/egress_allowlist/` | nftables 默认 drop、IPv4/IPv6 允许/拒绝端口与地址、worker→upstream 双栈 veth/NAT、源地址转换、IPv6 neighbor control、namespace/NAT 清理 |
+| Bounded CIDR/dual-stack egress | `tests/network/egress_allowlist/` | nftables 默认 drop、IPv4 CIDR 与 IPv6 exact 地址的允许/拒绝端口/地址、worker→upstream 双栈 veth/NAT、源地址转换、IPv6 neighbor control、namespace/NAT 清理 |
+| Controlled domain set | `network_policy.py`；`network_sandbox.py`；`test_network_policy.py`；`test_network_sandbox.py` | suffix 只在 DNS label boundary 匹配；exact 优先、最长 suffix 优先；每个受控 answer 必须被 allowed endpoint 地址/CIDR 覆盖；`evilallowy.test` 不匹配 `allowy.test` |
 | DHCP renewal | `tests/network/idf_dhcp_renewal/` | guest 调用 renew API；pcap 区分初次 DORA 与后续 REQUEST/ACK，lease/地址/HTTP 联合 PASS |
 | 双设备 lab fabric | `tests/network/lab_fabric/`、patches `0028` | private namespace 内两台 QEMU guest 完成 DORA、A→B TCP 和双侧 pcap；宿主、公网、metadata、默认路由不可达并按预期清理。QEMU 运行路径是 socket switch；TAP/bridge 是独立 primitive |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |

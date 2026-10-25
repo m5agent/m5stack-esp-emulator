@@ -117,8 +117,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   secret manager/多机调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下
   PASS，QEMU patch `0027` 闭合 AES/GDMA 外部内存读取；`egress=allowlist`
-  已在同一隔离路径验证 exact IPv4/IPv6 IP/协议/端口、双栈 veth/NAT、
-  IPv6 neighbor control 和清理，上述内容也不等于 CIDR、域名、IPv6 DNS
+  已在同一隔离路径验证有界 IPv4/IPv6 地址或 CIDR/协议/端口、双栈
+  veth/NAT、IPv6 neighbor control 和清理。controlled resolver 支持
+  exact A/AAAA 与显式绑定 domain suffix；每个 answer 必须被 allowed
+  endpoint 覆盖。上述内容仍不等于任意公网域名解析、guest IPv6 默认能力
   或恶意固件沙箱。
 - 双设备 lab fabric 同样是 virtual-device 证据：private namespace 内两台
   StickS3 通过 QEMU socket L2 switch 完成 DHCP、A→B TCP 和双侧 pcap，宿主

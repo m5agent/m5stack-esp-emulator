@@ -33,6 +33,9 @@ MicroPython 和其他完整 Flash 固件。
   running 状态重新接管同一 QEMU。Trusted-host unified session 还会按持久
   generation 重建 HTTP fixture，并在精确 PID/start-time/command-SHA 校验后
   adopt 存活 BLE peer，再完成重启后的 GATT/HTTP 连续性检查。
+- Linux namespace 网络策略支持有界 IPv4/IPv6 CIDR 和 controlled DNS
+  domain suffix；域名 answer 必须落在允许的 endpoint 地址/CIDR 内，Host
+  匹配使用 DNS label boundary，不把“允许域名”扩大成任意公网地址。
 - Session create 使用持久化 `idempotency_key`；同一 key/请求重试返回原
   session，不同请求返回 409，worker 以 job+lease 派生稳定 key，避免响应
   丢失后创建第二个 QEMU/session。
@@ -278,12 +281,13 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   PHY/RF/天线模型。
 - C6 软件复位后的 chip-id 错误已作为 Flash 地址宽度/PMP 模型缺陷修复；
   Zigbee/802.15.4 仍是 `OPEN` 运行时模型缺口。
-- `egress=allowlist` 的精确网络策略覆盖 IPv4/IPv6 地址、协议和端口，
-  IPv6 路径包含 neighbor discovery、veth 路由与 masquerade；controlled
-  resolver 支持 exact A/AAAA records。专用 UIFlow2 测试构建已在同一 guest
-  完成 IPv6 TCP/HTTP；原厂 UIFlow2 没有创建 IPv6 link-local。CIDR 和
-  domain-set 仍未完成；Linux namespace 内同一 guest 的 controlled AAAA、
-  allowed IPv6 HTTP、denied-port、pcap、cleanup 和 QEMU reap 已 PASS。
+- `egress=allowlist` 的网络策略覆盖 IPv4/IPv6 地址或有界 CIDR、协议和
+  端口，IPv6 路径包含 neighbor discovery、veth 路由与 masquerade；
+  controlled resolver 支持 exact A/AAAA 和显式绑定的 domain suffix。
+  专用 UIFlow2 测试构建已在同一 guest 完成 IPv6 TCP/HTTP；原厂 UIFlow2
+  没有创建 IPv6 link-local。Linux namespace 内同一 guest 的 controlled
+  AAAA、allowed IPv6 HTTP、denied-port、pcap、cleanup 和 QEMU reap 已
+  PASS；任意公网域名解析和恶意固件 VM 隔离仍不在该结论内。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
   internal-controller 路径。规范主路径是 QEMU
   `runtime=qemu-unified/profile=core2-native-hci`。旧的

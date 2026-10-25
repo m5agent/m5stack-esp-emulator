@@ -52,7 +52,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes iproute2 nftables
-      - name: Run fail-closed exact IPv4 and IPv6 egress test
+      - name: Run fail-closed CIDR/dual-stack egress test
         run: |
           sudo sysctl --write net.ipv4.ip_forward=1
           sudo sysctl --write net.ipv6.conf.all.forwarding=1

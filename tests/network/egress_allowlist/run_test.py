@@ -18,8 +18,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 SANDBOX = ROOT / "platform/tools/network_sandbox.py"
 WORKER_IPV4 = "10.203.0.1"
-ALLOWED_IP = "10.203.0.2"
-DENIED_IP = "10.203.0.3"
+ALLOWED_CIDR = "10.203.0.4/30"
+ALLOWED_IP = "10.203.0.5"
+DENIED_IP = "10.203.0.9"
 WORKER_IPV6 = "fd00:6d35:1::1"
 UPSTREAM_IPV6 = "fd00:6d35:1::2"
 IPV6_ALLOWED_IP = "2001:db8:6d35::1"
@@ -207,7 +208,7 @@ class WorkerFabric:
                 "ip",
                 "addr",
                 "add",
-                f"{WORKER_IPV4}/29",
+                f"{WORKER_IPV4}/28",
                 "dev",
                 self.worker_interface,
             ]
@@ -238,7 +239,7 @@ class WorkerFabric:
                 "ip",
                 "addr",
                 "add",
-                f"{ALLOWED_IP}/29",
+                f"{ALLOWED_IP}/28",
                 "dev",
                 self.upstream_interface,
             ]
@@ -252,7 +253,7 @@ class WorkerFabric:
                 "ip",
                 "addr",
                 "add",
-                f"{DENIED_IP}/29",
+                f"{DENIED_IP}/28",
                 "dev",
                 self.upstream_interface,
             ]
@@ -654,7 +655,7 @@ def main() -> int:
         endpoints = [
             {
                 "protocol": "tcp",
-                "address": ALLOWED_IP,
+                "address": ALLOWED_CIDR,
                 "port": allowed_port,
             },
             {
@@ -895,14 +896,15 @@ def main() -> int:
     }
     evidence = {
         "schema_version": 1,
-        "kind": "m5stack-egress-ip-port-allowlist",
+        "kind": "m5stack-egress-ip-cidr-port-allowlist",
         "scope": "linux-virtual-network-policy-not-firmware-or-hardware",
-        "date": "2026-10-24",
+        "date": "2026-10-25",
         "status": "PASS" if all(checks.values()) else "FAIL",
         "duration_seconds": round(time.monotonic() - started, 3),
         "checks": checks,
         "target": {
             "host": "<fixture-upstream-ipv4>",
+            "allowed_cidr": ALLOWED_CIDR,
             "allowed_port": allowed_port,
             "denied_port": denied_port,
             "denied_ip": DENIED_IP,

@@ -25,6 +25,7 @@ from network_egress import (
     EgressEndpoint,
     EgressError,
     EgressGateway,
+    endpoint_contains_address,
     install_egress_rules,
     parse_endpoints,
     requires_external_gateway,
@@ -50,6 +51,80 @@ class SandboxError(RuntimeError):
 
 class IPv6ThreadingHTTPServer(ThreadingHTTPServer):
     address_family = socket.AF_INET6
+
+
+def domain_matches_suffix(host: str, suffix: str) -> bool:
+    normalized_host = host.strip().lower().rstrip(".")
+    normalized_suffix = suffix.strip().lower().rstrip(".")
+    return bool(
+        normalized_suffix
+        and (
+            normalized_host == normalized_suffix
+            or normalized_host.endswith("." + normalized_suffix)
+        )
+    )
+
+
+def normalize_domain_suffixes(value: object) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    if not isinstance(value, (list, tuple)) or any(
+        not isinstance(item, str)
+        for item in value
+    ):
+        raise SandboxError("sandbox allowed_domains must be a string list")
+    normalized = tuple(
+        sorted(
+            {
+                item.strip().lower().rstrip(".")
+                for item in value
+                if item.strip()
+            }
+        )
+    )
+    for suffix in normalized:
+        labels = suffix.split(".")
+        if (
+            "." not in suffix
+            or len(suffix) > 253
+            or any(
+                not label
+                or len(label) > 63
+                or label.startswith("-")
+                or label.endswith("-")
+                or not all(
+                    character.isascii()
+                    and (character.isalnum() or character == "-")
+                    for character in label
+                )
+                for label in labels
+            )
+        ):
+            raise SandboxError("sandbox allowed_domains contains an invalid suffix")
+    return normalized
+
+
+def normalize_allowed_hosts(
+    value: object,
+    *,
+    field: str,
+) -> tuple[str, ...] | None:
+    if value is None:
+        return None
+    if not isinstance(value, (list, tuple)) or any(
+        not isinstance(item, str)
+        for item in value
+    ):
+        raise SandboxError(f"{field} must be a string list")
+    return tuple(
+        sorted(
+            {
+                item.strip().lower().rstrip(".")
+                for item in value
+                if item.strip()
+            }
+        )
+    )
 
 
 def install_controlled_resolv_conf(
@@ -281,6 +356,7 @@ def write_isolation_evidence(
                 "egress": policy.get("egress", "deny-all"),
                 "dns": policy.get("dns", "deny"),
                 "allowed_hosts": policy.get("allowed_hosts", []),
+                "allowed_domains": policy.get("allowed_domains", []),
                 "allowed_endpoints": policy.get("allowed_endpoints", []),
                 "control_tcp_ports": control.get("tcp_ports", []),
                 "control_udp_ports": control.get("udp_ports", []),
@@ -293,6 +369,7 @@ def write_isolation_evidence(
                 "tls_gateway": bool(http.get("tls")),
                 "controlled_dns": dns.get("mode") == "controlled",
                 "dns_records": dns.get("hosts", {}),
+                "dns_domain_records": dns.get("domain_records", {}),
                 "cleanup_completed": False,
             },
             indent=2,
@@ -330,13 +407,23 @@ class ControlledHttp:
         log_path: Path | None,
         host: str = "127.0.0.1",
         allowed_hosts: tuple[str, ...] | None = None,
+        allowed_domains: tuple[str, ...] | None = None,
         tls: dict[str, Any] | None = None,
     ):
         self.requests: list[dict[str, str]] = []
         self.lock = threading.Lock()
         self.allowed_hosts = (
-            set(allowed_hosts or ())
+            {
+                host.strip().lower().rstrip(".")
+                for host in allowed_hosts or ()
+                if host.strip()
+            }
             if allowed_hosts is not None
+            else None
+        )
+        self.allowed_domains = (
+            normalize_domain_suffixes(allowed_domains)
+            if allowed_domains is not None
             else None
         )
         owner = self
@@ -344,17 +431,34 @@ class ControlledHttp:
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self) -> None:
                 host_header = self.headers.get("Host", "")
-                host = host_header.rsplit(":", 1)[0].lower()
+                host = (
+                    host_header.rsplit(":", 1)[0]
+                    .strip()
+                    .lower()
+                    .rstrip(".")
+                )
                 allowed = (
                     owner.allowed_hosts is None
-                    or host in owner.allowed_hosts
+                    and owner.allowed_domains is None
+                ) or (
+                    owner.allowed_hosts is not None
+                    and host in owner.allowed_hosts
+                ) or (
+                    owner.allowed_domains is not None
+                    and any(
+                        domain_matches_suffix(host, suffix)
+                        for suffix in owner.allowed_domains
+                    )
                 )
                 status = 200 if allowed else 403
                 request = {
                     "path": self.path,
                     "host": self.headers.get("Host", ""),
                 }
-                if owner.allowed_hosts is not None:
+                if (
+                    owner.allowed_hosts is not None
+                    or owner.allowed_domains is not None
+                ):
                     request.update(
                         {
                             "decision": "allow" if allowed else "deny",
@@ -435,9 +539,13 @@ class ControlledDns:
         port: int,
         records: dict[str, Any],
         log_path: Path | None,
+        domain_records: dict[str, Any] | None = None,
     ):
         self.records = self.normalize_records(records)
-        self.requests: list[dict[str, str]] = []
+        self.domain_records = self.normalize_domain_records(
+            domain_records or {}
+        )
+        self.requests: list[dict[str, Any]] = []
         self.lock = threading.Lock()
         self.log_path = log_path
         self.stop_event = threading.Event()
@@ -456,7 +564,6 @@ class ControlledDns:
             daemon=True,
         )
 
-    @staticmethod
     @staticmethod
     def normalize_records(
         records: dict[str, Any],
@@ -501,6 +608,18 @@ class ControlledDns:
             normalized[name] = tuple(addresses)
         return normalized
 
+    @classmethod
+    def normalize_domain_records(
+        cls,
+        records: dict[str, Any],
+    ) -> dict[
+        str,
+        tuple[ipaddress.IPv4Address | ipaddress.IPv6Address, ...],
+    ]:
+        normalized = cls.normalize_records(records)
+        normalize_domain_suffixes(tuple(normalized))
+        return normalized
+
     @staticmethod
     def parse_question(query: bytes) -> tuple[str, int, int, int] | None:
         if len(query) < 17:
@@ -535,6 +654,17 @@ class ControlledDns:
             return b""
         name, qtype, qclass, question_end = question
         addresses = self.records.get(name)
+        matched_rule = f"exact:{name}" if addresses is not None else "none"
+        if addresses is None:
+            for suffix in sorted(
+                self.domain_records,
+                key=len,
+                reverse=True,
+            ):
+                if domain_matches_suffix(name, suffix):
+                    addresses = self.domain_records[suffix]
+                    matched_rule = f"suffix:{suffix}"
+                    break
         allowed = addresses is not None
         answer = b""
         address = None
@@ -588,6 +718,7 @@ class ControlledDns:
                     "qtype": str(qtype),
                     "decision": "allow" if allowed else "deny",
                     "status": status,
+                    "rule": matched_rule,
                 }
             )
             self.persist()
@@ -728,6 +859,33 @@ def _egress_endpoints(config: dict[str, Any]) -> tuple[EgressEndpoint, ...]:
         raise SandboxError(str(error)) from error
 
 
+def validate_domain_record_bindings(
+    records: dict[str, Any],
+    allowed_domains: tuple[str, ...],
+    endpoints: tuple[EgressEndpoint, ...],
+) -> dict[
+    str,
+    tuple[ipaddress.IPv4Address | ipaddress.IPv6Address, ...],
+]:
+    domain_records = ControlledDns.normalize_domain_records(records)
+    if set(domain_records) != set(allowed_domains):
+        raise SandboxError(
+            "sandbox DNS domain_records must exactly match "
+            "policy.allowed_domains"
+        )
+    for suffix, addresses in domain_records.items():
+        for address in addresses:
+            if not any(
+                endpoint_contains_address(endpoint, address)
+                for endpoint in endpoints
+            ):
+                raise SandboxError(
+                    f"sandbox DNS suffix {suffix} resolves to "
+                    f"{address}, which is not covered by an allowed endpoint"
+                )
+    return domain_records
+
+
 def _loopback_ports(config: dict[str, Any]) -> tuple[set[int], set[int]]:
     control = config.get("control", {})
     if not isinstance(control, dict):
@@ -835,6 +993,11 @@ def run(
         if isinstance(policy, dict)
         else None
     )
+    allowed_domains = (
+        normalize_domain_suffixes(policy.get("allowed_domains"))
+        if isinstance(policy, dict)
+        else ()
+    )
     endpoints: tuple[EgressEndpoint, ...] = ()
     loopback_tcp_ports: set[int] = set()
     loopback_udp_ports: set[int] = set()
@@ -882,20 +1045,41 @@ def run(
         if dns_config is not None:
             if not isinstance(dns_config, dict):
                 raise SandboxError("sandbox DNS config must be an object")
-            records = dns_config.get("hosts")
-            if (
-                not isinstance(records, dict)
-                or not records
-            ):
+            records = dns_config.get("hosts", {})
+            raw_domain_records = dns_config.get("domain_records", {})
+            if not isinstance(records, dict):
+                raise SandboxError("sandbox DNS hosts must be a record map")
+            if not isinstance(raw_domain_records, dict):
                 raise SandboxError(
-                    "sandbox DNS hosts must be a non-empty record map"
+                    "sandbox DNS domain_records must be a record map"
                 )
+            if not records and not raw_domain_records:
+                raise SandboxError(
+                    "sandbox DNS requires hosts or domain_records"
+                )
+            normalized_records = ControlledDns.normalize_records(records)
+            domain_records = validate_domain_record_bindings(
+                raw_domain_records,
+                allowed_domains,
+                endpoints,
+            )
+            if isinstance(policy, dict):
+                policy_hosts = normalize_allowed_hosts(
+                    policy.get("allowed_hosts", []),
+                    field="sandbox policy allowed_hosts",
+                ) or ()
+                if set(normalized_records) != set(policy_hosts):
+                    raise SandboxError(
+                        "sandbox DNS hosts must exactly match "
+                        "policy.allowed_hosts"
+                    )
             raw_log = dns_config.get("log")
             dns = ControlledDns(
                 host=str(dns_config.get("host", "127.0.0.1")),
                 port=int(dns_config.get("port", 53)),
-                records=records,
+                records=normalized_records,
                 log_path=Path(str(raw_log)) if raw_log else None,
+                domain_records=domain_records,
             )
             dns.start()
 
@@ -908,16 +1092,35 @@ def run(
                 raise SandboxError("sandbox HTTP body must be a string")
             raw_log = http_config.get("log")
             host = str(http_config.get("host", "127.0.0.1"))
-            raw_allowed_hosts = http_config.get("allowed_hosts")
-            if raw_allowed_hosts is not None and (
-                not isinstance(raw_allowed_hosts, list)
-                or any(
-                    not isinstance(host, str)
-                    for host in raw_allowed_hosts
-                )
-            ):
+            http_allowed_hosts = normalize_allowed_hosts(
+                http_config.get("allowed_hosts"),
+                field="sandbox http allowed_hosts",
+            )
+            policy_hosts = normalize_allowed_hosts(
+                (
+                    policy.get("allowed_hosts", [])
+                    if isinstance(policy, dict)
+                    else []
+                ),
+                field="sandbox policy allowed_hosts",
+            ) or ()
+            if http_allowed_hosts is None and policy_hosts:
+                http_allowed_hosts = policy_hosts
+            if not set(http_allowed_hosts or ()).issubset(policy_hosts):
                 raise SandboxError(
-                    "sandbox http allowed_hosts must be a string list"
+                    "sandbox http allowed_hosts must be a subset of "
+                    "policy.allowed_hosts"
+                )
+            raw_allowed_domains = http_config.get("allowed_domains")
+            if raw_allowed_domains is None and allowed_domains:
+                raw_allowed_domains = list(allowed_domains)
+            http_allowed_domains = normalize_domain_suffixes(
+                raw_allowed_domains
+            )
+            if not set(http_allowed_domains).issubset(allowed_domains):
+                raise SandboxError(
+                    "sandbox http allowed_domains must be a subset of "
+                    "policy.allowed_domains"
                 )
             tls_config = http_config.get("tls")
             if tls_config is not None and not isinstance(tls_config, dict):
@@ -928,8 +1131,13 @@ def run(
                 log_path=Path(str(raw_log)) if raw_log else None,
                 host=host,
                 allowed_hosts=(
-                    tuple(raw_allowed_hosts)
-                    if raw_allowed_hosts is not None
+                    http_allowed_hosts
+                    if http_allowed_hosts is not None
+                    else None
+                ),
+                allowed_domains=(
+                    http_allowed_domains
+                    if raw_allowed_domains is not None
                     else None
                 ),
                 tls=tls_config,

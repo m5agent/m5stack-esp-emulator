@@ -518,6 +518,11 @@ class DocsConsistencyTests(unittest.TestCase):
             "`NET-03` 双设备 fabric",
             "external IPv6 egress 和双设备 lab fabric 仍开放",
             "external IPv6/CIDR/domain-set allowlisting and multi-device lab fabric",
+            "CIDRs and domains are rejected",
+            "CIDR/domain-set 仍未实现",
+            "CIDR/domain-set allowlisting",
+            "CIDR、域名、IPv6 DNS",
+            "CIDR and domain-to-multiple-IP grants remain unsupported",
             "下一步是 `NET-03` 双设备 fabric",
             "two-device lab fabric and external",
             "现网 Agent Review API 已具备",
@@ -2091,7 +2096,8 @@ class DocsConsistencyTests(unittest.TestCase):
             (DOCS / "qemu-device-adaptation-matrix.md").read_text(),
         )
         self.assertIn(
-            "controlled DNS A/AAAA、TLS/Host allowlist",
+            "controlled DNS A/AAAA 与 label-boundary domain suffix、"
+            "TLS/Host allowlist",
             status,
         )
         self.assertIn("controlled DNS", status)
@@ -3777,8 +3783,12 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("without a GDB bridge", openapi)
         self.assertIn("allowlist", openapi)
         self.assertIn("allowed_hosts", openapi)
+        self.assertIn("allowed_domains", openapi)
         self.assertIn("allowed_endpoints", openapi)
         self.assertIn("controlled", openapi)
+        self.assertIn("at least /16", openapi)
+        self.assertIn("at least /48", openapi)
+        self.assertIn("DNS label boundary", openapi)
         self.assertIn("ble_linger_seconds", openapi)
         self.assertIn("artifact-uploads", openapi)
         self.assertIn("/firmware/import", openapi)
