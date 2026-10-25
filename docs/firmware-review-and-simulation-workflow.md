@@ -505,8 +505,9 @@ health/prealloc failure，两个在 NimBLE `ble_hs_hci_process_ack` panic；
 `shift=auto` 零错峰实现先 `5/5 PASS`、独立确认批 `3/5 FAIL`；trace
 显示 PSRAM 初始化关中断窗口与宿主争用下的自适应虚拟时间放大了 HLI
 delivery 等待。默认固定 `icount shift=5`、测试 BLE server 前移后，两批
-独立零错峰五实例均 `5/5 PASS`。后续仍需补大于五实例、长时
-吞吐/teardown、bit-exact controller/baseband、物理 cache/PSRAM 和真机。
+独立零错峰五实例均 `5/5 PASS`，两批六实例又均 `6/6 PASS`，合计 `12/12`。
+后续仍需补大于六实例、长时吞吐/teardown、bit-exact controller/baseband、
+物理 cache/PSRAM 和真机。
 
 ## 11. 结论
 

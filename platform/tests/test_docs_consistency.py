@@ -1974,7 +1974,11 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         source_detail = core2_source["runtime"]["validation"]["detail"]
         self.assertIn("121 轮重连", source_detail)
-        self.assertIn("HLI 45/45", source_detail)
+        self.assertIn("6/6 PASS", source_detail)
+        self.assertIn(
+            "HLI 45/45",
+            core2_source["runtime"]["validation"]["concurrency_validation"],
+        )
         self.assertIn("最终 `tb-size=128` 两小时复测", source_detail)
         self.assertIn("323536", source_detail)
         self.assertIn("250880", source_detail)
@@ -2002,7 +2006,9 @@ class DocsConsistencyTests(unittest.TestCase):
                 and "pass 10/10" in blocker
                 and "fixed-icount zero-stagger five-instance 5x120s gates pass 10/10"
                 in blocker
-                and "more-than-five-instance stability" in blocker
+                and "fixed-icount zero-stagger six-instance 6x120s" in blocker
+                and "pass 12/12" in blocker
+                and "more-than-six-instance stability" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )
@@ -5505,7 +5511,21 @@ class DocsConsistencyTests(unittest.TestCase):
                 "fixed-icount-blefirst-pass-b.json",
             )
         ]
-        current_concurrent = fixed_icount_runs
+        six_instance_runs = [
+            json.loads(
+                (
+                    root
+                    / filename
+                ).read_text()
+            )
+            for filename in (
+                "evidence-2026-10-25-core2-concurrent-6x120-"
+                "fixed-icount-pass-a.json",
+                "evidence-2026-10-25-core2-concurrent-6x120-"
+                "fixed-icount-pass-b.json",
+            )
+        ]
+        current_concurrent = [*fixed_icount_runs, *six_instance_runs]
         current_tools = current_concurrent[0]["tool_hashes"]
         self.assertTrue(
             all(
@@ -5545,6 +5565,46 @@ class DocsConsistencyTests(unittest.TestCase):
                     run["failure_diagnostics"]["panic_count"],
                     0,
                 )
+        for evidence in six_instance_runs:
+            self.assertEqual(evidence["status"], "PASS")
+            self.assertEqual(evidence["attempts_requested"], 6)
+            self.assertEqual(evidence["attempts_passed"], 6)
+            self.assertEqual(evidence["attempts_failed"], 0)
+            self.assertEqual(evidence["maximum_concurrent_sessions"], 6)
+            self.assertEqual(evidence["stagger_seconds"], 0)
+            self.assertEqual(evidence["hold_seconds_per_attempt"], 120)
+            self.assertTrue(evidence["input_assets_unchanged_during_run"])
+            for run in evidence["runs"]:
+                self.assertEqual(run["qemu_icount"], "shift=5,align=off,sleep=off")
+                self.assertEqual(run["qom_nodes"], 31)
+                self.assertGreaterEqual(len(run["psram"]["sweeps"]), 12)
+                self.assertLessEqual(len(run["psram"]["sweeps"]), 13)
+                health = run["native_hci_health"]
+                self.assertEqual(health["hli-posts"], 45)
+                self.assertEqual(health["hli-consumed"], 45)
+                self.assertEqual(health["hli-errors"], 0)
+                self.assertEqual(health["hli-c2h-events"], 36)
+                self.assertEqual(health["hli-c2h-acls"], 9)
+                self.assertEqual(health["trace-hs-sched-reset"], 0)
+                self.assertEqual(health["dropped-packets"], 0)
+                self.assertEqual(
+                    run["failure_diagnostics"]["panic_count"],
+                    0,
+                )
+        self.assertEqual(
+            sum(
+                run["native_hci_health"]["hli-prealloc-failures"]
+                for run in six_instance_runs[0]["runs"]
+            ),
+            0,
+        )
+        self.assertEqual(
+            sum(
+                run["native_hci_health"]["hli-prealloc-failures"]
+                for run in six_instance_runs[1]["runs"]
+            ),
+            1,
+        )
 
         device_group = json.loads(
             (
@@ -5681,6 +5741,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("two independent four-instance 4x120s gates pass 8/8", profiles)
         self.assertIn("five-instance 30-second-stagger 5x120s", profiles)
         self.assertIn("pass 10/10", profiles)
+        self.assertIn("fixed-icount zero-stagger six-instance 6x120s", profiles)
+        self.assertIn("pass 12/12", profiles)
         self.assertIn(
             "fixed-icount zero-stagger five-instance 5x120s gates pass 10/10",
             profiles,
@@ -5689,7 +5751,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "one batch passed 5/5 and an independent confirmation failed 3/5",
             profiles,
         )
-        self.assertIn("more-than-five-instance stability", profiles)
+        self.assertIn("more-than-six-instance stability", profiles)
         for text in (platform_readme, unified_core2):
             self.assertIn("0008", text)
             self.assertIn("0009", text)
@@ -5700,7 +5762,8 @@ class DocsConsistencyTests(unittest.TestCase):
             or "五实例" in platform_readme
         )
         self.assertIn("四实例", platform_readme)
-        self.assertIn("five instances", unified_core2)
+        self.assertIn("`5x120s`", unified_core2)
+        self.assertIn("`6x120s`", unified_core2)
         self.assertIn("| P0 | Core2 长稳与物理/controller 等价性 |", backlog)
         self.assertNotIn("| P1 | Core2 长稳与物理/controller 等价性 |", backlog)
         self.assertIn("`CORE2-02` 仍为 P0", status)

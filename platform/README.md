@@ -120,8 +120,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   `icount shift=5`，并把测试 BLE server 放到 WiFi 和长 PSRAM 压力前。
   两批独立零错峰 `5×120s` 随后均 `5/5 PASS`，合计 `10/10`，每 lease
   同时完成 WiFi/公网、外部 GATT、frame、31 节点 QOM、pcap、evidence 和
-  14–15 次 1 MiB PSRAM 全缓冲校验。bit-exact Espressif BT
-  baseband/controller、大于五实例、持续吞吐、物理 cache/PSRAM 和真机
+  14–15 次 1 MiB PSRAM 全缓冲校验。六实例进一步完成两批
+  `6×120s`，合计 `12/12 PASS`，每 lease 12–13 次 PSRAM 全缓冲校验。
+  bit-exact Espressif BT baseband/controller、大于六实例、持续吞吐、
+  物理 cache/PSRAM 和真机
   仍未完成。`tb-size=128` 的 artifact-bound 两小时 soak 已 PASS，host
   RSS 和 phys footprint 在 240 个采样中均未增长。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。

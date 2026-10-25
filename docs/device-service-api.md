@@ -2026,7 +2026,10 @@ restart.
   its BLE server before WiFi and sustained PSRAM stress. Two new independent
   zero-stagger `5×120s` batches then pass `5/5` each (`10/10`) at maximum
   concurrency 5, with 14-15 PSRAM sweeps per lease and zero HLI/reset/panic/
-  dropped counters. More than five instances remain open. Three independent
+  dropped counters. Two independent zero-stagger `6×120s` batches then pass
+  `6/6` each (`12/12`) at maximum concurrency 6, with 12-13 PSRAM sweeps per
+  lease; one batch retains a recoverable preallocation transient. More than
+  six instances remain open. Three independent
   leases pass
   each of the 20, 30, 60, 120 and 121 same-guest reconnect gates; the
   121-cycle runs balance HLI 3405/3405, deliver 2316 events and 1089 ACLs,
@@ -2074,10 +2077,10 @@ restart.
   in NimBLE ACK/HLI handling; `0009` expands the real guest reserve and two
   independent four-instance batches then pass `8/8`. Two independent
   five-instance staggered batches then pass `10/10`; fixed-icount zero-stagger
-  five-instance batches also pass `10/10`, while the earlier `shift=auto`
-  `5/5 PASS`/`3/5 FAIL` pair remains as historical evidence. The remaining
-  validation gates are more than five instances, long-run throughput and
-  additional teardown modes;
+  five-instance batches also pass `10/10`; two six-instance batches pass
+  `12/12`, while the earlier `shift=auto` `5/5 PASS`/`3/5 FAIL` pair remains
+  as historical evidence. The remaining validation gates are more than six
+  instances, long-run throughput and additional teardown modes;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -2118,7 +2121,8 @@ restart.
   four-instance gates then pass `8/8`. Two five-instance 30-second-stagger
   gates pass `10/10`, and two fixed-`shift=5` zero-stagger gates pass `10/10`;
   the earlier adaptive-time `5/5 PASS`/`3/5 FAIL` evidence remains retained.
-  More than five instances remain open. Long-run throughput, additional teardown modes,
+  Two fixed-icount zero-stagger six-instance gates pass `12/12`; more than six
+  instances remain open. Long-run throughput, additional teardown modes,
   bit-exact controller/baseband, coexistence and
   same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
