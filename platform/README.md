@@ -122,9 +122,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   veth/NAT、IPv6 neighbor control 和清理。controlled resolver 支持
   exact A/AAAA、显式绑定 domain suffix 与最多 8 跳 CNAME chain；每个
   alias/terminal/answer 必须受 policy 和 allowed endpoint 约束。CNAME
-  resolver fixture 已 PASS，但同 guest 跟随 CNAME 后完成 TCP/HTTP 仍为
-  `NOT RUN`（`NET-07`）。上述内容仍不等于任意公网域名解析、guest IPv6
-  默认能力或恶意固件沙箱。
+  resolver fixture 与三个独立 Device Service lease 均 PASS；后三者由同一
+  stock UIFlow2 guest 跟随 CNAME terminal A、完成 allowed HTTP、拒绝未
+  允许名称/端口，并保留 DNS/HTTP/pcap/cleanup。上述内容仍不等于任意公网
+  域名解析、guest IPv6 默认能力或恶意固件沙箱。
 - 双设备 lab fabric 同样是 virtual-device 证据：private namespace 内两台
   StickS3 通过 QEMU socket L2 switch 完成 DHCP、A→B TCP 和双侧 pcap，宿主
   与公网不可达。TAP/bridge + DHCP helper 是 CI 单独检查的 host primitive，
@@ -171,6 +172,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/project_snapshot.py` | 从 catalog、profile、peripheral、firmware evidence 和 Backlog 生成并校验项目快照 |
 | `../tests/network/tls_allowlist/` | 测试 CA、HTTPS Host allowlist、200/403、pcap 断言和 AES/GDMA 回归证据 |
 | `../tests/network/dns_cname_chain/` | Controlled resolver 的 bounded CNAME chain、A/AAAA/CNAME encoding、NXDOMAIN 和非法图拒绝 |
+| `../tests/network/cname_guest_lifecycle/` | 同 guest CNAME→terminal A→HTTP、denied name/port、pcap、namespace cleanup 和三次独立 lease 复现 |
 | `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |

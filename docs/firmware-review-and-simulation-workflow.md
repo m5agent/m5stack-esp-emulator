@@ -478,8 +478,9 @@ job、evidence ZIP/SHA256 回报和 worker HMAC；仍未完成的是跨主机
 executor/reattach、namespace-managed/Tab5/cross-host companion、连续
 evidence 流、生产多机调度和不可信固件 disposable VM。domain suffix 不能
 授权外部 resolver 返回的任意地址，每个 answer 仍必须落在允许 endpoint
-内。CNAME resolver A/AAAA/CNAME/NXDOMAIN 与非法图拒绝已 PASS，但同 guest
-跟随 CNAME 后完成 TCP/HTTP 仍为 `NOT RUN`（`NET-07`）。同 guest controlled AAAA、
+内。CNAME resolver A/AAAA/CNAME/NXDOMAIN 与非法图拒绝已 PASS；三个独立
+Device Service lease 还证明同一 stock UIFlow2 guest 跟随 CNAME 后完成
+allowed HTTP、拒绝名称/端口、pcap 与 cleanup。同 guest controlled AAAA、
 IPv6 HTTP、denied-port、pcap 和 cleanup 已在 Linux namespace PASS。固件文件系统 PASS
 只表示清单可解析且结果可追踪，不表示镜像安全或许可证合规。
 

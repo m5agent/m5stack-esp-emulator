@@ -1819,7 +1819,7 @@ def load_device_specs() -> dict[str, DeviceSpec]:
                 else ROOT / "__missing_qemu__"
             )
             rom_dir = (
-                ROOT / backend["rom_dir"]
+                backend_rom_dir(row["backend"], backend["rom_dir"])
                 if backend.get("rom_dir")
                 else ROOT / "__missing_rom__"
             )
@@ -2397,6 +2397,17 @@ def backend_qemu_path(backend_id: str, configured: str) -> Path:
     return path if path.is_absolute() else ROOT / path
 
 
+def backend_rom_dir(backend_id: str, configured: str) -> Path:
+    override_name = {
+        "qemu-esp32s3": "M5_QEMU_XTENSA_ROM_DIR",
+        "qemu-esp32lx6": "M5_QEMU_XTENSA_ROM_DIR",
+        "qemu-esp32c6": "M5_QEMU_RISCV32_ROM_DIR",
+    }.get(backend_id)
+    raw = os.environ.get(override_name, "").strip() if override_name else ""
+    path = Path(raw) if raw else ROOT / configured
+    return path if path.is_absolute() else ROOT / path
+
+
 class FirmwareStore:
     """Build complete/flash-sized images from uploaded or segmented artifacts."""
 
@@ -2924,6 +2935,7 @@ class DeviceSession:
         self.native_vhci_log = self.dir / "native-vhci-gdb.log"
         self.http_fixture_log = self.dir / "http-fixture.json"
         self.dns_fixture_log = self.dir / "dns-fixture.json"
+        self.network_isolation_path = self.dir / "network-isolation.json"
         self.network_pcap = self.dir / "network.pcap"
         self.network_pcap_summary = self.dir / "network.pcap.json"
         self.sd_card_image = self.dir / "sd-card.img"
@@ -3613,6 +3625,43 @@ class DeviceSession:
             self._record_event("state", **{"from": previous, "to": state})
             self._persist_session()
 
+    @staticmethod
+    def _read_json_list(path: Path) -> list[dict[str, Any]]:
+        if not path.is_file():
+            return []
+        try:
+            value = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            return []
+        if not isinstance(value, list):
+            return []
+        return [item for item in value if isinstance(item, dict)]
+
+    def _network_isolation_evidence(self) -> dict[str, Any]:
+        if not self.network_isolation_path.is_file():
+            return {
+                "status": "NOT_RUN",
+                "reason": "network isolation evidence is unavailable",
+            }
+        try:
+            evidence = json.loads(self.network_isolation_path.read_text())
+        except (OSError, json.JSONDecodeError) as error:
+            return {
+                "status": "FAIL",
+                "reason": str(error),
+            }
+        if not isinstance(evidence, dict):
+            return {
+                "status": "FAIL",
+                "reason": "network isolation evidence is not an object",
+            }
+        evidence["status"] = (
+            "PASS"
+            if evidence.get("cleanup_completed") is True
+            else "ACTIVE"
+        )
+        return evidence
+
     def _build_network_evidence(self) -> dict:
         if self.runtime not in QEMU_RADIO_RUNTIMES:
             raise ServiceError(
@@ -4174,6 +4223,47 @@ class DeviceSession:
             f"marker:{index + 1}": marker in serial
             for index, marker in enumerate(markers)
         }
+        cname_records = self.network_config.get("cname_records", {})
+        if isinstance(cname_records, dict) and cname_records:
+            dns_requests = self._read_json_list(self.dns_fixture_log)
+            chain_matches = []
+            for alias, terminal in cname_records.items():
+                matching = next(
+                    (
+                        row
+                        for row in dns_requests
+                        if row.get("name") == alias
+                        and row.get("qtype") == "1"
+                    ),
+                    None,
+                )
+                chain_matches.append(
+                    isinstance(matching, dict)
+                    and matching.get("decision") == "allow"
+                    and matching.get("cname_terminal") == terminal
+                    and bool(matching.get("cname_chain"))
+                )
+            checks["dns:cname_chain"] = bool(chain_matches) and all(
+                chain_matches
+            )
+        policy_config = self.network_config.get("policy")
+        if (
+            profile == STICKS3_WIFI_PROFILE
+            and isinstance(policy_config, dict)
+            and policy_config.get("dns") == "controlled"
+        ):
+            http_requests = self._read_json_list(self.http_fixture_log)
+            allowed_hosts = {
+                str(host)
+                for host in policy_config.get("allowed_hosts", [])
+            }
+            checks["http:controlled_request"] = any(
+                row.get("decision") == "allow"
+                and row.get("status") == "200"
+                and str(row.get("host", "")).rsplit(":", 1)[0]
+                in allowed_hosts
+                for row in http_requests
+            )
         if markers and all(checks.values()):
             status = "PASS"
         elif serial.strip():
@@ -4273,6 +4363,13 @@ class DeviceSession:
         evidence = self._build_network_evidence()
         if self.network_config.get("policy"):
             evidence["policy"] = self.network_config["policy"]
+            evidence["isolation"] = self._network_isolation_evidence()
+            evidence["dns_requests"] = self._read_json_list(
+                self.dns_fixture_log
+            )
+            evidence["http_fixture_requests"] = self._read_json_list(
+                self.http_fixture_log
+            )
         evidence["packet_capture"] = self._network_capture_evidence()
         previous = self.network_result or {}
         self.network_result = evidence
@@ -5376,6 +5473,9 @@ class DeviceSession:
                     },
                 }
             sandbox_config_path = self.dir / "network-sandbox.json"
+            sandbox_config["isolation_evidence"] = str(
+                self.network_isolation_path
+            )
             atomic_write_json(sandbox_config_path, sandbox_config)
             try:
                 launch_command = build_sandbox_command(
@@ -6426,6 +6526,18 @@ class DeviceSession:
                 files["network/pcap-summary.json"] = (
                     self.network_pcap_summary.read_bytes()
                 )
+            if self.dns_fixture_log.is_file():
+                files["network/dns-requests.json"] = (
+                    self.dns_fixture_log.read_bytes()
+                )
+            if self.http_fixture_log.is_file():
+                files["network/http-fixture.json"] = (
+                    self.http_fixture_log.read_bytes()
+                )
+            if self.network_isolation_path.is_file():
+                files["network/isolation.json"] = (
+                    self.network_isolation_path.read_bytes()
+                )
         if self.virtual_flash and self.virtual_flash.is_file():
             flash_data = self.virtual_flash.read_bytes()
             manifest["flash"] = {
@@ -6568,9 +6680,13 @@ class DeviceSession:
         self._native_vhci_gdb = None
         proc = self._proc
         if proc is not None and proc.poll() is None:
+            isolation = self.network_config.get("policy", {}).get(
+                "isolation"
+            )
+            termination_timeout = 20 if isolation == "namespace" else 5
             try:
                 proc.terminate()
-                proc.wait(timeout=5)
+                proc.wait(timeout=termination_timeout)
             except subprocess.TimeoutExpired:
                 proc.kill()
                 proc.wait(timeout=5)

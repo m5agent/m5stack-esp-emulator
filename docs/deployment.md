@@ -128,11 +128,14 @@ Device Service 默认使用设备矩阵登记的 QEMU 可执行路径。Linux wo
 | --- | --- |
 | `M5_QEMU_XTENSA` | `qemu-esp32s3` 与 `qemu-esp32lx6` |
 | `M5_QEMU_RISCV32` | `qemu-esp32c6` |
+| `M5_QEMU_XTENSA_ROM_DIR` | 上述两个 Xtensa 后端共用的 `pc-bios`/ROM 目录 |
+| `M5_QEMU_RISCV32_ROM_DIR` | `qemu-esp32c6` 的 `pc-bios`/ROM 目录 |
 
-值可以是绝对路径，也可以是相对仓库根目录的路径。该覆盖只替换 QEMU
-可执行文件，不替代匹配的 `pc-bios`、ROM/eFuse、参考固件或 target smoke
-test；主机架构不匹配时仍必须拒绝启动。worker-local namespace fixture 会在
-`--qemu-path` 时自动设置 `M5_QEMU_XTENSA`。
+值可以是绝对路径，也可以是相对仓库根目录的路径。二进制与 ROM 目录必须
+来自兼容的同一 QEMU 构建；ROM 目录还要包含目标 machine 所需的 machine
+ROM。覆盖不替代 eFuse、参考固件或 target smoke test；主机架构不匹配时仍
+必须拒绝启动。worker-local namespace fixture 会在 `--qemu-path` 时自动
+设置 `M5_QEMU_XTENSA`。
 
 ### 方案 B：从固定源码和补丁重建
 

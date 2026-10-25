@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.30.0` and bounded
+Status: local MVP with unified-device runtime contract `1.31.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -876,9 +876,21 @@ exact or domain-suffix address data are rejected with `invalid_network`.
 Matching A/AAAA responses include the CNAME chain followed by the terminal
 address record, while a CNAME query returns the chain without inventing an
 address. The resolver test covers A/AAAA CNAME-chain encoding, CNAME-query
-encoding, NXDOMAIN and invalid graphs; a same-guest firmware lifecycle that
-follows a CNAME and completes TCP/HTTP is `NOT RUN` (`NET-07`). CNAME
-resolution never bypasses endpoint IP/CIDR/port egress rules.
+encoding, NXDOMAIN and invalid graphs. The `cname_guest_lifecycle` fixture
+also validates the same-guest path: one `qemu-wifi/uiflow2-sticks3-wifi`
+lease resolves the controlled alias, follows its terminal A record to
+`10.0.2.2`, completes HTTP/1.0 200 on the allowed port, rejects an unlisted
+name and rejects an unlisted port. Three independent leases PASS with
+identical probe/QEMU/service/sandbox hashes. CNAME resolution never bypasses
+endpoint IP/CIDR/port egress rules.
+
+For namespaced QEMU radio sessions, `GET /sessions/{id}/network` also returns
+the sandbox `isolation` state plus bounded `dns_requests` and
+`http_fixture_requests` logs. The session evidence ZIP includes
+`network/dns-requests.json`, `network/http-fixture.json` and
+`network/isolation.json` when those files exist. Namespace sessions receive a
+20-second termination grace so the sandbox can finish QEMU reap, fixture
+closure and cleanup evidence before Device Service escalates.
 
 The Linux worker must provide root or equivalent `NET_ADMIN`/`SYS_ADMIN`
 capabilities, `nftables`, and `iproute2`. External IPv4 endpoints require

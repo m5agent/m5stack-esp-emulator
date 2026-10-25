@@ -42,8 +42,9 @@ MicroPython 和其他完整 Flash 固件。
 - Linux namespace 网络策略支持有界 IPv4/IPv6 CIDR、controlled DNS
   domain suffix 和有界 CNAME chain；域名/CNAME terminal answer 必须落在
   允许的 endpoint 地址/CIDR 内，Host 匹配使用 DNS label boundary，不把
-  “允许域名”扩大成任意公网地址。CNAME resolver 数据面已通过，同 guest
-  固件跟随 CNAME 后完成 TCP/HTTP 仍为 `NOT RUN`（`NET-07`）。
+  “允许域名”扩大成任意公网地址。三个独立 Device Service lease 已让同一
+  stock UIFlow2 guest 跟随 CNAME terminal A、完成 allowed HTTP、拒绝未
+  允许名称/端口，并保留 DNS/HTTP/pcap/namespace cleanup 证据。
 - Session create 使用持久化 `idempotency_key`；同一 key/请求重试返回原
   session，不同请求返回 409，worker 以 job+lease 派生稳定 key，避免响应
   丢失后创建第二个 QEMU/session。
@@ -307,8 +308,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   专用 UIFlow2 测试构建已在同一 guest 完成 IPv6 TCP/HTTP；原厂 UIFlow2
   没有创建 IPv6 link-local。Linux namespace 内同一 guest 的 controlled
   AAAA、allowed IPv6 HTTP、denied-port、pcap、cleanup 和 QEMU reap 已
-  PASS；CNAME resolver 已通过，但同 guest CNAME→TCP/HTTP 生命周期、
-  任意公网域名解析和恶意固件 VM 隔离仍不在该结论内。
+  PASS；CNAME resolver 和三个独立同 guest CNAME→HTTP lease 均通过。
+  任意公网域名解析、DNSSEC 和恶意固件 VM 隔离仍不在该结论内。
 - BLE 默认是 HCI-UART offload 到 Bumble；Core2 另有 stock
   internal-controller 路径。规范主路径是 QEMU
   `runtime=qemu-unified/profile=core2-native-hci`。旧的

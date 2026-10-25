@@ -458,11 +458,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_backend_qemu_can_use_architecture_runtime_overrides(self):
         xtensa_override = Path("/opt/m5-qemu/qemu-system-xtensa")
         riscv_override = Path("/opt/m5-qemu/qemu-system-riscv32")
+        xtensa_rom_override = Path("/opt/m5-qemu/xtensa-pc-bios")
+        riscv_rom_override = Path("/opt/m5-qemu/riscv32-pc-bios")
         with mock.patch.dict(
             os.environ,
             {
                 "M5_QEMU_XTENSA": str(xtensa_override),
                 "M5_QEMU_RISCV32": str(riscv_override),
+                "M5_QEMU_XTENSA_ROM_DIR": str(xtensa_rom_override),
+                "M5_QEMU_RISCV32_ROM_DIR": str(riscv_rom_override),
             },
         ):
             specs = device_service_module.load_device_specs()
@@ -470,6 +474,9 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(specs["sticks3"].qemu, xtensa_override)
         self.assertEqual(specs["core2"].qemu, xtensa_override)
         self.assertEqual(specs["nanoc6"].qemu, riscv_override)
+        self.assertEqual(specs["sticks3"].rom_dir, xtensa_rom_override)
+        self.assertEqual(specs["core2"].rom_dir, xtensa_rom_override)
+        self.assertEqual(specs["nanoc6"].rom_dir, riscv_rom_override)
 
     def test_merged_firmware_is_padded_to_device_flash(self):
         artifact = self.service.upload_artifact(b"\xe9" + b"X" * 1023)
@@ -3056,6 +3063,132 @@ class DeviceServiceUnitTests(unittest.TestCase):
         with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
             self.assertIn("network/evidence.json", archive.namelist())
             self.assertIn("serial.log", archive.namelist())
+        session.state = "stopped"
+        session._proc = None
+        session._qmp = None
+
+    def test_controlled_cname_network_evidence_and_archive(self):
+        spec = self.service.specs["sticks3"]
+        firmware_path = Path(self.tmp.name) / "sticks3-cname.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="f" * 32,
+            spec=spec,
+            firmware_id="e" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="e" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="CNAME_GUEST_RESULT PASS",
+            ready_timeout=30,
+            ready_conditions=None,
+            runtime="qemu-wifi",
+            network_config={
+                "profile": "uiflow2-sticks3-wifi",
+                "net_mode": "user",
+                "nic": "misc.esp32s3.wifi",
+                "capture_pcap": False,
+                "expected_markers": [
+                    "CNAME_HTTP PASS",
+                    "CNAME_GUEST_RESULT PASS",
+                ],
+                "attempts": 1,
+                "policy": {
+                    "isolation": "namespace",
+                    "egress": "allowlist",
+                    "dns": "controlled",
+                    "allowed_hosts": [
+                        "alias.cname.test",
+                        "origin.cname.test",
+                    ],
+                },
+                "cname_records": {
+                    "alias.cname.test": "origin.cname.test",
+                },
+            },
+        )
+        session.state = "running"
+        session.serial0.write_text(
+            "CNAME_WIFI_READY\n"
+            "CNAME_RESOLVED 10.0.2.2\n"
+            "CNAME_HTTP PASS\n"
+            "CNAME_GUEST_RESULT PASS\n"
+        )
+        session.dns_fixture_log.write_text(
+            json.dumps(
+                [
+                    {
+                        "name": "alias.cname.test",
+                        "qtype": "1",
+                        "decision": "allow",
+                        "status": "A",
+                        "rule": "exact:origin.cname.test",
+                        "cname_chain": [
+                            {
+                                "owner": "alias.cname.test",
+                                "target": "origin.cname.test",
+                            }
+                        ],
+                        "cname_terminal": "origin.cname.test",
+                    }
+                ]
+            )
+            + "\n"
+        )
+        session.http_fixture_log.write_text(
+            json.dumps(
+                [
+                    {
+                        "path": "/cname",
+                        "host": "alias.cname.test",
+                        "decision": "allow",
+                        "status": "200",
+                    }
+                ]
+            )
+            + "\n"
+        )
+        session.network_isolation_path.write_text(
+            json.dumps(
+                {
+                    "private_network_namespace": True,
+                    "controlled_dns": True,
+                    "dns_cname_records": {
+                        "alias.cname.test": "origin.cname.test",
+                    },
+                    "cleanup_completed": True,
+                    "qemu_process_reaped": True,
+                    "dns_closed": True,
+                    "http_closed": True,
+                }
+            )
+            + "\n"
+        )
+        sandbox_process = mock.Mock()
+        sandbox_process.poll.return_value = None
+        sandbox_process.wait.return_value = 0
+        session._proc = sandbox_process
+        session._terminate_process()
+        sandbox_process.wait.assert_called_once_with(timeout=20)
+        session._proc = None
+        evidence = session.network_evidence()
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(evidence["checks"]["dns:cname_chain"])
+        self.assertTrue(evidence["checks"]["http:controlled_request"])
+        self.assertEqual(evidence["isolation"]["status"], "PASS")
+        self.assertEqual(len(evidence["dns_requests"]), 1)
+        self.assertEqual(len(evidence["http_fixture_requests"]), 1)
+        bundle = session.evidence_bundle({"manifest", "serial", "network"})
+        with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+            for name in (
+                "network/evidence.json",
+                "network/dns-requests.json",
+                "network/http-fixture.json",
+                "network/isolation.json",
+            ):
+                self.assertIn(name, archive.namelist())
         session.state = "stopped"
         session._proc = None
         session._qmp = None

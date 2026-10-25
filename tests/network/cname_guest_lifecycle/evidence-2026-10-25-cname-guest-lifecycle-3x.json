@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-guest-cname-lifecycle",
+  "date": "2026-10-25",
+  "generated_at": "2026-10-25T02:15:16.246802+00:00",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "scope": "three-independent-device-service-leases-not-physical-rf",
+  "runtime": {
+    "machine": "m5sticks3",
+    "runtime": "qemu-wifi",
+    "profile": "uiflow2-sticks3-wifi",
+    "isolation": "namespace",
+    "egress": "allowlist",
+    "dns": "controlled",
+    "lease_count": 3
+  },
+  "hashes": {
+    "probe_image": "53170651ccabc8fb16b5cf993d348693c12bcc643a6f0c60bf7a479d8a456c73",
+    "qemu": "f024f034d20bd5b8e2c224ce69deed70984b0514f8a310d221b388b74c179ecb",
+    "runner": "c026238e6625de1f2ad1dc9c7a2c422591c0a6634bb30aabecdbbf8a327dc3fc",
+    "device_service": "38f84f5c156231f2435fc9b0a892cd06e5b6f8bf2717e626a576de959470d728",
+    "network_sandbox": "47761829a8b6fe9f71f181a44695156afca1556f17445e4c571d28de39e6d045",
+    "summarizer": "5b0d17bb0d5ec15e4ef246edfcb3c85d68acad87f130fc86871be6c4b4845d10"
+  },
+  "checks": {
+    "wifi_ready": true,
+    "guest_resolved_terminal": true,
+    "guest_http": true,
+    "guest_denied_name": true,
+    "guest_denied_port": true,
+    "guest_result": true,
+    "cname_alias_query": true,
+    "cname_terminal_a": true,
+    "denied_name_nxdomain": true,
+    "http_fixture_request": true,
+    "pcap_allowed_http": true,
+    "pcap_denied_port": true,
+    "service_cname_check": true,
+    "service_http_check": true,
+    "private_namespace": true,
+    "no_external_route": true,
+    "cleanup_completed": true,
+    "session_stopped": true,
+    "evidence_archive_complete": true
+  },
+  "runs": [
+    {
+      "label": "cname-guest-final-1",
+      "status": "PASS",
+      "duration_seconds": 17.817,
+      "session_id_sha256": "bdfcb4b7a1b8c354c0091a0d06a04d963b7718f0ee9aba1351b1a622bcd3538d",
+      "evidence_zip_sha256": "c2ed2e083694c2f3e86fb242c76fc89d676429e36eb83ff70f756bd64d0c581b",
+      "dns_alias_query": {
+        "name": "alias.cname.test",
+        "qtype": "1",
+        "decision": "allow",
+        "status": "A",
+        "rule": "exact:origin.cname.test",
+        "cname_chain": [
+          {
+            "owner": "alias.cname.test",
+            "target": "origin.cname.test"
+          }
+        ],
+        "cname_terminal": "origin.cname.test"
+      },
+      "dns_denied_query": {
+        "name": "denied.cname.test",
+        "qtype": "1",
+        "decision": "deny",
+        "status": "NXDOMAIN",
+        "rule": "none"
+      },
+      "http_requests": [
+        {
+          "path": "/cname",
+          "host": "alias.cname.test",
+          "decision": "allow",
+          "status": "200"
+        }
+      ],
+      "pcap_destinations": [
+        {
+          "address": "10.0.2.2",
+          "port": 18080,
+          "scope": "private",
+          "protocols": [
+            "TCP"
+          ],
+          "packets": 5
+        },
+        {
+          "address": "10.0.2.2",
+          "port": 18081,
+          "scope": "private",
+          "protocols": [
+            "TCP"
+          ],
+          "packets": 3
+        }
+      ],
+      "cleanup": {
+        "private_network_namespace": true,
+        "external_route": false,
+        "cleanup_completed": true,
+        "qemu_process_reaped": true,
+        "dns_closed": true,
+        "http_closed": true
+      }
+    },
+    {
+      "label": "cname-guest-final-2",
+      "status": "PASS",
+      "duration_seconds": 17.744,
+      "session_id_sha256": "80f403110251cd2d344a038e94f799ed8b46ebd3a0a1249f66c9821ad1caef93",
+      "evidence_zip_sha256": "e53728bf985e4f6c893e1b463f66267f1b9f9e4b82823d97c374918fcc1f2f6b",
+      "dns_alias_query": {
+        "name": "alias.cname.test",
+        "qtype": "1",
+        "decision": "allow",
+        "status": "A",
+        "rule": "exact:origin.cname.test",
+        "cname_chain": [
+          {
+            "owner": "alias.cname.test",
+            "target": "origin.cname.test"
+          }
+        ],
+        "cname_terminal": "origin.cname.test"
+      },
+      "dns_denied_query": {
+        "name": "denied.cname.test",
+        "qtype": "1",
+        "decision": "deny",
+        "status": "NXDOMAIN",
+        "rule": "none"
+      },
+      "http_requests": [
+        {
+          "path": "/cname",
+          "host": "alias.cname.test",
+          "decision": "allow",
+          "status": "200"
+        }
+      ],
+      "pcap_destinations": [
+        {
+          "address": "10.0.2.2",
+          "port": 18080,
+          "scope": "private",
+          "protocols": [
+            "TCP"
+          ],
+          "packets": 5
+        },
+        {
+          "address": "10.0.2.2",
+          "port": 18081,
+          "scope": "private",
+          "protocols": [
+            "TCP"
+          ],
+          "packets": 3
+        }
+      ],
+      "cleanup": {
+        "private_network_namespace": true,
+        "external_route": false,
+        "cleanup_completed": true,
+        "qemu_process_reaped": true,
+        "dns_closed": true,
+        "http_closed": true
+      }
+    },
+    {
+      "label": "cname-guest-final-3",
+      "status": "PASS",
+      "duration_seconds": 17.937,
+      "session_id_sha256": "79a0ab749c525db84c9c61b4edf9a9dd23cf52153d475e3272a217cf9fb0f5f4",
+      "evidence_zip_sha256": "24f858ca008ab584918206ceace4d4cd6db4538de1c3352268ebb55f70ffeb3b",
+      "dns_alias_query": {
+        "name": "alias.cname.test",
+        "qtype": "1",
+        "decision": "allow",
+        "status": "A",
+        "rule": "exact:origin.cname.test",
+        "cname_chain": [
+          {
+            "owner": "alias.cname.test",
+            "target": "origin.cname.test"
+          }
+        ],
+        "cname_terminal": "origin.cname.test"
+      },
+      "dns_denied_query": {
+        "name": "denied.cname.test",
+        "qtype": "1",
+        "decision": "deny",
+        "status": "NXDOMAIN",
+        "rule": "none"
+      },
+      "http_requests": [
+        {
+          "path": "/cname",
+          "host": "alias.cname.test",
+          "decision": "allow",
+          "status": "200"
+        }
+      ],
+      "pcap_destinations": [
+        {
+          "address": "10.0.2.2",
+          "port": 18080,
+          "scope": "private",
+          "protocols": [
+            "TCP"
+          ],
+          "packets": 5
+        },
+        {
+          "address": "10.0.2.2",
+          "port": 18081,
+          "scope": "private",
+          "protocols": [
+            "TCP"
+          ],
+          "packets": 3
+        }
+      ],
+      "cleanup": {
+        "private_network_namespace": true,
+        "external_route": false,
+        "cleanup_completed": true,
+        "qemu_process_reaped": true,
+        "dns_closed": true,
+        "http_closed": true
+      }
+    }
+  ],
+  "diagnostic_failures": [
+    {
+      "label": "cname-guest-run-fail1",
+      "status": "FAIL",
+      "stage": "sandbox_dns_record_renormalization",
+      "session_state": "failed",
+      "session_error": "process exited with code 126",
+      "guest_serial_bytes": 0,
+      "qemu_stderr": "network sandbox failed: sandbox DNS record addresses must be a string or a non-empty list of at most 8 strings",
+      "classification": "pre-guest service/QEMU startup failure, not firmware"
+    },
+    {
+      "label": "cname-guest-run-fail2",
+      "status": "FAIL",
+      "stage": "qemu_rom_directory_missing_machine_rom",
+      "session_state": "failed",
+      "session_error": "process exited with code 1",
+      "guest_serial_bytes": 0,
+      "qemu_stderr": "Adding SPI flash device\nqemu-system-xtensa: Error: -bios argument not set, and ROM code binary not found (1)",
+      "classification": "pre-guest service/QEMU startup failure, not firmware"
+    }
+  ],
+  "not_claimed": [
+    "public DNS or DNSSEC",
+    "DNS rebinding resistance",
+    "arbitrary public domain resolution",
+    "physical RF, power or electrical behavior",
+    "physical hardware validation"
+  ]
+}

@@ -598,27 +598,45 @@ class ControlledDns:
             values = (
                 [raw_addresses]
                 if isinstance(raw_addresses, str)
+                else list(raw_addresses)
+                if isinstance(raw_addresses, tuple)
                 else raw_addresses
             )
             if (
                 not isinstance(values, list)
                 or not values
                 or len(values) > 8
-                or any(not isinstance(value, str) for value in values)
+                or any(
+                    not isinstance(
+                        value,
+                        (
+                            str,
+                            ipaddress.IPv4Address,
+                            ipaddress.IPv6Address,
+                        ),
+                    )
+                    for value in values
+                )
             ):
                 raise SandboxError(
                     "sandbox DNS record addresses must be a string or "
-                    "a non-empty list of at most 8 strings"
+                    "a non-empty list/tuple of at most 8 addresses"
                 )
             addresses = []
             seen = set()
             for value in values:
-                try:
-                    address = ipaddress.ip_address(value.strip())
-                except ValueError as error:
-                    raise SandboxError(
-                        f"sandbox DNS record for {name} is not an IP address"
-                    ) from error
+                if isinstance(
+                    value,
+                    (ipaddress.IPv4Address, ipaddress.IPv6Address),
+                ):
+                    address = value
+                else:
+                    try:
+                        address = ipaddress.ip_address(value.strip())
+                    except ValueError as error:
+                        raise SandboxError(
+                            f"sandbox DNS record for {name} is not an IP address"
+                        ) from error
                 if address.is_unspecified or address.is_multicast:
                     raise SandboxError(
                         f"sandbox DNS record for {name} is not a unicast address"

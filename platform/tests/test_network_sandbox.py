@@ -74,6 +74,38 @@ class NetworkSandboxTests(unittest.TestCase):
             ):
                 network_sandbox.ControlledDns.normalize_records(records)
 
+    def test_controlled_dns_accepts_pre_normalized_records(self):
+        records = network_sandbox.ControlledDns.normalize_records(
+            {
+                "origin.example.test": "203.0.113.10",
+            }
+        )
+        domains = network_sandbox.ControlledDns.normalize_domain_records(
+            {
+                "service.example.test": ["198.51.100.20"],
+            }
+        )
+        dns = network_sandbox.ControlledDns(
+            host="127.0.0.1",
+            port=0,
+            records=records,
+            domain_records=domains,
+            cname_records={
+                "api.example.test": "origin.example.test",
+            },
+            log_path=None,
+        )
+        dns.start()
+        self.assertEqual(
+            dns.records["origin.example.test"],
+            (ipaddress.ip_address("203.0.113.10"),),
+        )
+        self.assertEqual(
+            dns.domain_records["service.example.test"],
+            (ipaddress.ip_address("198.51.100.20"),),
+        )
+        dns.close()
+
     def test_domain_suffix_matching_respects_dns_label_boundaries(self):
         self.assertTrue(
             network_sandbox.domain_matches_suffix(

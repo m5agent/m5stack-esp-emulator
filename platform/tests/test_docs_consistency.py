@@ -109,6 +109,15 @@ class DocsConsistencyTests(unittest.TestCase):
                 "tests/network/dns_cname_chain/"
                 "evidence-2026-10-25-controlled-cname-chain.json"
             ),
+            "tests/network/cname_guest_lifecycle/README.md",
+            "tests/network/cname_guest_lifecycle/boot.py",
+            "tests/network/cname_guest_lifecycle/main.py",
+            "tests/network/cname_guest_lifecycle/run_test.py",
+            "tests/network/cname_guest_lifecycle/summarize_runs.py",
+            (
+                "tests/network/cname_guest_lifecycle/"
+                "evidence-2026-10-25-cname-guest-lifecycle-3x.json"
+            ),
             "tests/network/wrong_password/README.md",
             "tests/network/wrong_password/run_test.py",
             "tests/network/wrong_password/evidence-2026-10-24-wrong-password-pass.json",
@@ -3880,7 +3889,7 @@ class DocsConsistencyTests(unittest.TestCase):
                 f"copying {count}",
             )
 
-    def test_controlled_dns_cname_chain_is_reconciled(self) -> None:
+    def test_controlled_dns_cname_lifecycle_is_reconciled(self) -> None:
         evidence = json.loads(
             (
                 ROOT
@@ -3908,6 +3917,55 @@ class DocsConsistencyTests(unittest.TestCase):
             "guest firmware DNS lifecycle",
             evidence["not_claimed"],
         )
+        guest_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/cname_guest_lifecycle/"
+                "evidence-2026-10-25-cname-guest-lifecycle-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(guest_evidence["status"], "PASS")
+        self.assertEqual(
+            guest_evidence["validation"],
+            "virtual-device validation",
+        )
+        self.assertEqual(guest_evidence["runtime"]["lease_count"], 3)
+        self.assertTrue(all(guest_evidence["checks"].values()))
+        self.assertEqual(len(guest_evidence["runs"]), 3)
+        self.assertEqual(
+            len(
+                {
+                    run["session_id_sha256"]
+                    for run in guest_evidence["runs"]
+                }
+            ),
+            3,
+        )
+        self.assertEqual(
+            len(
+                {
+                    run["evidence_zip_sha256"]
+                    for run in guest_evidence["runs"]
+                }
+            ),
+            3,
+        )
+        for run in guest_evidence["runs"]:
+            self.assertEqual(run["status"], "PASS")
+            self.assertTrue(run["cleanup"]["cleanup_completed"])
+            self.assertTrue(run["cleanup"]["qemu_process_reaped"])
+            self.assertTrue(run["cleanup"]["dns_closed"])
+            self.assertTrue(run["cleanup"]["http_closed"])
+        self.assertEqual(
+            {
+                failure["stage"]
+                for failure in guest_evidence["diagnostic_failures"]
+            },
+            {
+                "sandbox_dns_record_renormalization",
+                "qemu_rom_directory_missing_machine_rom",
+            },
+        )
         status = (DOCS / "project-status.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()
@@ -3927,11 +3985,17 @@ class DocsConsistencyTests(unittest.TestCase):
             openapi,
         ):
             self.assertIn("CNAME", text)
-        self.assertIn("`NET-07`", backlog)
-        self.assertIn("同 guest CNAME", backlog)
-        self.assertIn("`NOT RUN`", status)
-        self.assertIn("`NOT RUN` (`NET-07`)", api)
+        self.assertNotIn("`NET-07`", backlog)
+        self.assertNotIn("`NOT RUN` (`NET-07`)", api)
+        self.assertIn("同 guest CNAME", status)
+        self.assertIn("同 guest CNAME", network_plan)
+        self.assertIn("cname_guest_lifecycle", network_index)
+        self.assertIn("cname_guest_lifecycle", code_map)
+        self.assertIn("cname-guest-lifecycle-3x.json", ledger)
         self.assertIn("cname_records:", openapi)
+        self.assertIn("dns_requests:", openapi)
+        self.assertIn("http_fixture_requests:", openapi)
+        self.assertIn("isolation:", openapi)
         self.assertIn("dns_cname_chain", network_index)
         self.assertIn("controlled-cname-chain.json", ledger)
         sandbox = (ROOT / "platform/tools/network_sandbox.py").read_text()
@@ -3941,6 +4005,11 @@ class DocsConsistencyTests(unittest.TestCase):
         service = (ROOT / "platform/tools/device_service.py").read_text()
         self.assertIn("def parse_dns_cname_records", service)
         self.assertIn("validate_cname_record_bindings", service)
+        self.assertIn("network_isolation_path", service)
+        self.assertIn("termination_timeout = 20", service)
+        self.assertIn("network/dns-requests.json", service)
+        self.assertIn("network/http-fixture.json", service)
+        self.assertIn("network/isolation.json", service)
 
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()
@@ -3959,7 +4028,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(markdown_version.group(1), openapi_version.group(1))
         self.assertGreaterEqual(
             tuple(int(part) for part in openapi_version.group(1).split(".")),
-            (1, 30, 0),
+            (1, 31, 0),
         )
         self.assertIn("core2-native-hci", openapi)
         self.assertGreaterEqual(openapi.count("core2-native-hci"), 3)

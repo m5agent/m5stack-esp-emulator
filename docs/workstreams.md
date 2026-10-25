@@ -17,7 +17,7 @@
 | 工作流 | 已交付的可执行面 | 当前在途 | 下一验收门禁 |
 | --- | --- | --- | --- |
 | 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；设备覆盖与 Tab5 边界见当前状态和自动快照 | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
-| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、active-token multicast worker discovery、central/runtime restart 后同 lease/session/evidence continuity、session-create idempotency、trusted-host unified HTTP/BLE companion continuity、controlled DNS A/AAAA、显式绑定 domain suffix 与 bounded CNAME chain、TLS、有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离、worker-local QEMU 与 worker namespace 内真实 StickS3 QEMU/artifact/evidence、generic ESP32-S3 `qemu-wifi` observe、S3 WPA2-PSK 正确/错误密码 | `NET-07` 同 guest CNAME→terminal→TCP/HTTP 生命周期；`NET-04` 真实跨主机 QEMU executor、NAT/跨子网 discovery、namespace-managed/Tab5/cross-host companion、连续 evidence 流、跨主机 idempotency；WPA3/group multicast | CNAME resolver 证据不能替代 guest 生命周期；跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
+| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、active-token multicast worker discovery、central/runtime restart 后同 lease/session/evidence continuity、session-create idempotency、trusted-host unified HTTP/BLE companion continuity、controlled DNS A/AAAA、显式绑定 domain suffix、bounded CNAME chain 与同 guest CNAME→HTTP/denied-name/denied-port/cleanup、TLS、有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离、worker-local QEMU 与 worker namespace 内真实 StickS3 QEMU/artifact/evidence、generic ESP32-S3 `qemu-wifi` observe、S3 WPA2-PSK 正确/错误密码 | `NET-04` 真实跨主机 QEMU executor、NAT/跨子网 discovery、namespace-managed/Tab5/cross-host companion、连续 evidence 流、跨主机 idempotency；WPA3/group multicast | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
 | Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；同 guest 多轮重连、active-BLE、active-stop/recovery、bounded-TCG、`3×120s` 和单次 600 秒虚拟 PSRAM/周期联网持续压力已闭合 | 长时并发/吞吐和其余 teardown 模式；bit-exact controller/baseband 与物理 `8 MiB` PSRAM/cache timing | controller/物理边界和同固件路径真机验证 |
 | 通用固件审查 | manifest、API/WebBurner required/optional capability、WebBurner 分段 size/SHA-256/SHA-1/MD5 复算、sdkconfig detected 与 image-signature observed capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传、公开 BIN 强制刷新、session-isolated SD/NVS fixture、SHA-bound UI/headless/network-first expectation；OpenAI NVS、Open/WPA2 正确密码与错误密码、network-first DHCP/DNS/TCP/pcap 对照 | 真实 key/cloud 结果；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN/expectation/fixture SHA、分层区分 firmware/model/fixture 结果、更多固件族、运行态权限/许可闭环和同 SHA 真机安全流程 |
 | Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 QEMU/QMP 与 trusted-host companion reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/namespace-managed/Tab5 companion、warm pool、容量和大型编排模块拆分 |
@@ -28,25 +28,23 @@
 
 ## 未完成项执行顺序
 
-1. `NET-07`：controlled CNAME resolver 已 PASS；下一步由同一 guest 跟随
-   terminal A/AAAA 并完成 TCP/HTTP，同时保留 pcap/cleanup。
-2. `NET-04` 跨主机阶段：trusted-host unified companion continuity 和
+1. `NET-04` 跨主机阶段：trusted-host unified companion continuity 和
    CIDR Linux fixture 与 domain-set 契约测试已 PASS；当前补物理跨主机
    executor/reattach、NAT/跨子网 discovery、
    namespace-managed/Tab5/cross-host companion、跨主机 idempotency 和
    不可信固件隔离。
-3. `FW-03`：当前四样本、SD/NVS fixture、SHA-bound expectation 和
+2. `FW-03`：当前四样本、SD/NVS fixture、SHA-bound expectation 和
    OpenAI network-first 已通过；下一步补真实 key/cloud 结果，再扩固件族。
-4. `CORE2-02`：补长时吞吐/并发与其他 teardown 模式、bit-exact
+3. `CORE2-02`：补长时吞吐/并发与其他 teardown 模式、bit-exact
    controller/baseband 和
    物理 `8 MiB` PSRAM/cache timing；已完成的重连、TCG、guest PSRAM
    `3×120s`/600s 持续压力与 active-stop 门禁不重复列为待办。
-5. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
+4. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
    BM8563 RTC 路径；`RUNTIME-04` 独立补 ATECC608 fixture；
    `RUNTIME-02` 补 C6 802.15.4 commissioning 或保持显式不支持。
-6. `FW-01/02`：补运行态 ACL/许可和真实安全配置流程。
-7. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
-8. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
+5. `FW-01/02`：补运行态 ACL/许可和真实安全配置流程。
+6. `HW-01`：用代表设备完成同固件 SHA 的 physical hardware validation。
+7. 后续再排 `TAB5-01`、`SVC-02/03`、`UI-01` 和 `CZ-01`。
 
 ## 工作流
 
@@ -54,7 +52,7 @@
 | --- | --- | --- | --- |
 | 设备、板级与统一运行时 | `devices/`、`platform/qemu/`、`patches/`、`tests/uiflow2/` | `project-status.md` 的设备矩阵和统一运行时章节 | 无独立 Task；新增设备必须走 onboarding |
 | Device Service 与生命周期 | `serve.py`、`device_service.py`、`storage_policy.py` | `device-service-api.md`、`project-status.md` | `SVC-01`、`SVC-02`、`SVC-03` |
-| 网络隔离、双 guest lab fabric 与 worker | `network_*.py`、`worker_*.py`、`transport_security.py`、`tests/network/` | `network-simulation-plan.md`、`device-service-api.md` | `NET-07`、`NET-04` |
+| 网络隔离、双 guest lab fabric 与 worker | `network_*.py`、`worker_*.py`、`transport_security.py`、`tests/network/` | `network-simulation-plan.md`、`device-service-api.md` | `NET-04` |
 | Core2 无线与长稳 | `core2_native_hci/`、`unified_core2/`、`ble_probe.py`、`ble_runtime_limits.py` | `core2-native-hci-backend.md`、`project-status.md` | `CORE2-02` |
 | 固件导入、静态审查与安全 | `firmware_*.py`、`fetch_firmware.py`、`user_firmware_matrix.py`、`platform/web/firmware.*` | `firmware-manifest.md`、`user-firmware-simulation-matrix.md` | `FW-01`、`FW-02`、`FW-03` |
 | 运行时模型缺口 | runtime coverage、QEMU patches、firmware evidence | `runtime-model-gap-register.md` | `RUNTIME-02`、`RUNTIME-03`、`RUNTIME-04`；`RUNTIME-01`、`RUNTIME-05` 已关闭 |
@@ -101,8 +99,8 @@ AAAA、allowed IPv6 HTTP、denied-port、pcap、cleanup 和 QEMU reap。
 有界 CIDR 与显式绑定 domain suffix 进入同一 nftables/controlled resolver
 路径；它们仍不等于任意公网域名策略或恶意固件沙箱。
 controlled CNAME resolver 同属这个已完成边界：A/AAAA chain encoding、
-CNAME query、循环和越权拒绝已有 fixture；真实 guest 跟随 CNAME 并完成
-TCP/HTTP 仍由 `NET-07` 跟踪。
+CNAME query、循环和越权拒绝已有 resolver fixture；三个独立 Device Service
+lease 进一步证明同 guest CNAME→HTTP、拒绝域名/端口、pcap 和 cleanup。
 
 ## 代码边界
 

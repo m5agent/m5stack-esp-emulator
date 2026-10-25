@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.30.0
+  version: 1.31.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1597,6 +1597,29 @@ components:
             PASS with a hashed pcap summary, CAPTURING while QEMU is running,
             or NOT_RUN with a reason. DHCP summaries distinguish initial DORA,
             renewal requests and correlated ACKs without retaining payloads.
+        isolation:
+          type: object
+          additionalProperties: true
+          description: >
+            Namespace, egress and cleanup state read from the sandbox evidence.
+            cleanup_completed becomes PASS only after QEMU reap and controlled
+            DNS/HTTP fixture closure.
+        dns_requests:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: >
+            Bounded controlled-DNS decision log, including CNAME chains,
+            terminal names and exact/suffix rules.
+        http_fixture_requests:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: >
+            Requests received by the controlled HTTP fixture in the same
+            session.
         expected_markers:
           type: array
           items:

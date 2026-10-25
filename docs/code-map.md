@@ -128,6 +128,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/core2_native_hci/run_service_teardown.py` | 在 BLE/HTTP companion 仍活跃时 DELETE session，验证 stopped、无错误、companion terminate、QEMU/BLE PID reap、worker lease release，并连续创建下一 session 验证恢复 | Core2 stop/teardown、companion cleanup、worker lease lifecycle 改动 |
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连、双 guest lab fabric 和 worker-local QEMU | 网络策略/运行时改动 |
 | `tests/network/dns_cname_chain/` | Controlled resolver 的 2-hop chain、A/AAAA chain encoding、CNAME query、NXDOMAIN、非法图与 8 跳边界 | `network_sandbox.py` resolver/CNAME 策略改动 |
+| `tests/network/cname_guest_lifecycle/` | 三个独立 Device Service lease 的同一 guest CNAME→A→HTTP、denied-name/port、pcap、namespace cleanup 与 startup failure 诊断 | CNAME guest lifecycle、network evidence ZIP 或 namespace teardown 改动 |
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS 证据 | manifest/filesystem/NVS 改动 |
 | `tests/firmware/openai_nvs_precondition/` | 对照空 NVS、Open/WPA2 正确密码和错误密码，绑定 NVS overlay、EAPOL/CCMP、DHCP/DNS/TCP 与 pcap | NVS fixture、generic S3 qemu-wifi、S3 WPA2 或该样本分类改动 |
@@ -353,7 +354,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | UIFlow2 guest IPv6 lifecycle | `tests/network/ipv6_end_to_end/`；test-only patch；`evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json`；`evidence-2026-10-25-ipv6-namespace-aaaa-http-pass.json` | Direct run 在同一 StickS3 guest 创建 link-local 并完成 IPv6 HTTP；Linux namespace run 进一步由同一 test-build guest 完成 controlled AAAA、allowed HTTP、denied-port、pcap、namespace/QEMU cleanup。原厂 UIFlow2 仍未默认启用 IPv6，结果不等于公网 IPv6 或 RF |
 | Bounded CIDR/dual-stack egress | `tests/network/egress_allowlist/` | nftables 默认 drop、IPv4 CIDR 与 IPv6 exact 地址的允许/拒绝端口/地址、worker→upstream 双栈 veth/NAT、源地址转换、IPv6 neighbor control、namespace/NAT 清理 |
 | Controlled domain set | `network_policy.py`；`network_sandbox.py`；`test_network_policy.py`；`test_network_sandbox.py` | suffix 只在 DNS label boundary 匹配；exact 优先、最长 suffix 优先；每个受控 answer 必须被 allowed endpoint 地址/CIDR 覆盖；`evilallowy.test` 不匹配 `allowy.test` |
-| Controlled CNAME chain | `network_sandbox.py`；`test_network_sandbox.py`；`device_service.py:parse_dns_cname_records`；`tests/network/dns_cname_chain/` | alias/terminal 受 policy 覆盖，最多 8 跳；A/AAAA 返回 chain+terminal，CNAME query 返回 chain；cycle、uncontrolled/unauthorized terminal 和冲突 fail-closed。只证明 resolver data plane，真实 guest 生命周期见 `NET-07` |
+| Controlled CNAME lifecycle | `network_sandbox.py`；`device_service.py`；`tests/network/dns_cname_chain/`；`tests/network/cname_guest_lifecycle/` | resolver 覆盖最多 8 跳、cycle/权限/冲突；三个独立 lease 由同一 stock UIFlow2 guest 完成 CNAME→terminal A→HTTP、denied-name/port、pcap、namespace cleanup。evidence ZIP 同时带 DNS/HTTP fixture 和 isolation 文件 |
 | DHCP renewal | `tests/network/idf_dhcp_renewal/` | guest 调用 renew API；pcap 区分初次 DORA 与后续 REQUEST/ACK，lease/地址/HTTP 联合 PASS |
 | 双设备 lab fabric | `tests/network/lab_fabric/`、patches `0028` | private namespace 内两台 QEMU guest 完成 DORA、A→B TCP 和双侧 pcap；宿主、公网、metadata、默认路由不可达并按预期清理。QEMU 运行路径是 socket switch；TAP/bridge 是独立 primitive |
 | 热门用户固件 | `platform/tools/user_firmware_matrix.py` | 公开固件的启动、首帧、输入和串口结果 |

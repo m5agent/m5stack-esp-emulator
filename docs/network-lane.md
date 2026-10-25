@@ -121,8 +121,11 @@ Controlled DNS 的 CNAME resolver fixture 位于
 [`tests/network/dns_cname_chain/`](../tests/network/dns_cname_chain/README.md)。
 它在本地 UDP resolver 上验证两跳 chain、A/AAAA chain+terminal 编码、
 独立 CNAME query、NXDOMAIN、cycle、uncontrolled terminal、越权 alias 和
-8 跳上限。该结果是 resolver-data-plane validation；真实 guest 跟随 CNAME
-并完成 TCP/HTTP 仍为 `NOT RUN`，由 `NET-07` 跟踪。
+8 跳上限。同 guest 路径由
+[`tests/network/cname_guest_lifecycle/`](../tests/network/cname_guest_lifecycle/README.md)
+覆盖：三个独立 `/api/v1` lease 均让 stock StickS3 UIFlow2 guest 跟随
+CNAME terminal A、完成 allowed HTTP、拒绝未允许名称/端口，并保留
+DNS/HTTP/pcap/namespace cleanup 证据。
 
 ## 证据边界
 
@@ -130,7 +133,7 @@ PASS 只证明本次运行时列出的数据面。它不证明：
 
 - 真机 RF、天线、距离、功耗或干扰；
 - 稳定访问任意公网服务；
-- 未由同一 guest 执行的 CNAME 解析/连接生命周期；
+- 公网 DNS、DNSSEC 或域名重绑定安全；
 - TLS 证书固定或云端业务正确；
 - WPA3-SAE-only、WPA2 group-key multicast、hidden SSID 或所有安全模式；
 - Bluedroid、Classic Bluetooth 或任意手机互通；

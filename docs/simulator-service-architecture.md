@@ -78,8 +78,8 @@ Implemented:
 - a controlled namespace-local DNS resolver using a temporary private
   resolver configuration, with exact A/AAAA, label-boundary domain suffix,
   bounded CNAME chains, explicit answer binding, NXDOMAIN and query-log
-  evidence; the committed CNAME gate is resolver-level until `NET-07`
-  completes the same-guest TCP/HTTP lifecycle;
+  evidence; three independent Device Service leases also prove the same guest
+  CNAME→terminal A→HTTP lifecycle with denied-name/port, pcap and cleanup;
 - nftables default-drop bounded IPv4/IPv6 address-or-CIDR/protocol/port
   egress with a per-session dual-stack veth/NAT path, IPv6 neighbor control
   and verified cleanup;
