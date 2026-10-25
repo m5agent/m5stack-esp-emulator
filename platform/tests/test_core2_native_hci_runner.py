@@ -151,13 +151,44 @@ class Core2NativeHciHealthTests(unittest.TestCase):
                 "UNIFIED_CORE2_PSRAM_SWEEP 1",
                 "UNIFIED_CORE2_PSRAM_SWEEP 2",
                 "UNIFIED_CORE2_PSRAM_SWEEP 3",
+                "UNIFIED_CORE2_PSRAM_SWEEP 4",
+                "UNIFIED_CORE2_PSRAM_SWEEP 5",
+                "UNIFIED_CORE2_PSRAM_SWEEP 6",
                 "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+                "UNIFIED_CORE2_HTTP_RECHECK_PASS 1",
+                "UNIFIED_CORE2_STRESS_HEARTBEAT 10 5 0 0",
+                "UNIFIED_CORE2_STRESS_HEARTBEAT 20 6 1 0",
             )
         )
         parsed = runner.parse_psram_stress(serial)
         self.assertTrue(parsed["marker_present"])
-        self.assertEqual(parsed["sweeps"], [1, 2, 3])
+        self.assertEqual(parsed["sweeps"], [1, 2, 3, 4, 5, 6])
         self.assertTrue(runner.psram_stress_ok(parsed))
+        self.assertTrue(runner.sustained_stress_ok(parsed, 20))
+
+    def test_sustained_psram_stress_is_hold_aware(self) -> None:
+        serial = "\n".join(
+            (
+                "UNIFIED_CORE2_PSRAM_ALLOC 4194304 1048576 1048576",
+                "UNIFIED_CORE2_PSRAM_INIT_PASS",
+                "UNIFIED_CORE2_PSRAM_SWEEP 1",
+                "UNIFIED_CORE2_PSRAM_SWEEP 2",
+                "UNIFIED_CORE2_PSRAM_SWEEP 3",
+                "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+            )
+        )
+        parsed = runner.parse_psram_stress(serial)
+        self.assertTrue(runner.psram_stress_ok(parsed))
+        self.assertFalse(runner.sustained_stress_ok(parsed, 120))
+        self.assertEqual(
+            runner.sustained_stress_requirements(120),
+            {
+                "minimum_sweeps": 30,
+                "minimum_heartbeats": 6,
+                "minimum_http_rechecks": 8,
+                "minimum_public_rechecks": 2,
+            },
+        )
 
     def test_rejects_incomplete_or_failed_psram_stress(self) -> None:
         incomplete = runner.parse_psram_stress(

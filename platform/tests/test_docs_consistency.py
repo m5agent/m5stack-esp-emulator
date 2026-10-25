@@ -3982,7 +3982,7 @@ class DocsConsistencyTests(unittest.TestCase):
         evidence_path = (
             ROOT
             / "tests/uiflow2/core2_native_hci/"
-            "evidence-2026-10-25-core2-psram-guest-stress-3x.json"
+            "evidence-2026-10-25-core2-psram-sustained-3x120.json"
         )
         evidence = json.loads(evidence_path.read_text())
         self.assertEqual(evidence["status"], "PASS")
@@ -3990,7 +3990,9 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertEqual(evidence["attempts_completed"], 3)
         self.assertEqual(evidence["attempts_passed"], 3)
         self.assertEqual(evidence["psram_gate"], "PASS")
+        self.assertEqual(evidence["hold_seconds_per_attempt"], 120)
         self.assertTrue(evidence["input_assets_unchanged_during_run"])
+        sweep_counts = []
         for run in evidence["runs"]:
             self.assertEqual(run["status"], "PASS")
             self.assertEqual(run["psram"]["external_heap_total_bytes"], 4 << 20)
@@ -3999,13 +4001,33 @@ class DocsConsistencyTests(unittest.TestCase):
                 run["psram"]["allocated_bytes"],
                 run["psram"]["requested_bytes"],
             )
-            self.assertEqual(run["psram"]["sweeps"], [1, 2, 3])
+            sweeps = run["psram"]["sweeps"]
+            sweep_counts.append(len(sweeps))
+            self.assertEqual(sweeps, list(range(1, len(sweeps) + 1)))
+            self.assertGreaterEqual(len(sweeps), 30)
+            self.assertEqual(
+                run["psram"]["verified_bytes"],
+                len(sweeps) * (1 << 20),
+            )
+            self.assertGreaterEqual(
+                run["psram"]["http_recheck_pass_count"],
+                8,
+            )
+            self.assertGreaterEqual(
+                run["psram"]["public_recheck_pass_count"],
+                2,
+            )
+            self.assertGreaterEqual(len(run["psram"]["heartbeats"]), 6)
             self.assertEqual(run["psram"]["init_pass_count"], 1)
             self.assertEqual(run["psram"]["stress_pass_count"], 1)
             self.assertEqual(run["psram"]["error_markers"], [])
+            self.assertGreater(run["pcap_bytes"], 20_000)
+        self.assertEqual(sweep_counts, [36, 35, 35])
+        self.assertEqual(sum(sweep_counts), 106)
         checks = evidence["checks_per_attempt"]
         for name in (
             "psram_guest_stress",
+            "psram_sustained_stress",
             "wifi_dhcp_http",
             "public_dns_http",
             "external_nus_gatt",
@@ -4018,6 +4040,40 @@ class DocsConsistencyTests(unittest.TestCase):
             "physical 8 MiB PSRAM capacity",
             evidence["boundary"]["not_claimed"],
         )
+        failure = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-core2-psram-sustained-threshold-fail-1x.json"
+            ).read_text()
+        )
+        self.assertEqual(failure["status"], "FAIL")
+        self.assertEqual(
+            failure["checks_per_attempt"]["psram_sustained_stress"],
+            "FAIL",
+        )
+        self.assertEqual(
+            failure["runs"][0]["psram_requirements"]["minimum_sweeps"],
+            40,
+        )
+        pcap_summary = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-core2-psram-sustained-3x120-pcap-summary.json"
+            ).read_text()
+        )
+        self.assertEqual(pcap_summary["status"], "PASS")
+        self.assertEqual(
+            [attempt["packets"] for attempt in pcap_summary["attempts"]],
+            [222, 205, 211],
+        )
+        for attempt in pcap_summary["attempts"]:
+            self.assertEqual(
+                attempt["dhcp_message_types"],
+                {"discover": 1, "offer": 1, "request": 1, "ack": 1},
+            )
+            self.assertIn("example.com.", attempt["dns_queries"])
 
         runner = (
             ROOT / "tests/uiflow2/core2_native_hci/run_service_5x.py"
@@ -4035,8 +4091,12 @@ class DocsConsistencyTests(unittest.TestCase):
             evidence["tool_hashes"]["runner"],
         )
         self.assertIn("--require-psram", runner)
+        self.assertIn("UNIFIED_CORE2_STRESS_HEARTBEAT", runner)
         self.assertIn("psram_buffer[offset + 2 : end]", guest)
         self.assertIn("UNIFIED_CORE2_PSRAM_STRESS_PASS", guest)
+        self.assertIn("UNIFIED_CORE2_HTTP_RECHECK_PASS", guest)
+        self.assertIn("UNIFIED_CORE2_PUBLIC_RECHECK_PASS", guest)
+        self.assertIn("UNIFIED_CORE2_STRESS_HEARTBEAT", guest)
 
         status = (DOCS / "project-status.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
@@ -4074,7 +4134,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("物理板载 `8 MiB`", status)
         self.assertIn("物理 `8 MiB`", backlog)
         self.assertIn(
-            "core2-psram-guest-stress-3x.json",
+            "core2-psram-sustained-3x120.json",
             backend,
         )
         self.assertIn(
@@ -4084,6 +4144,14 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "memory_validation",
             json.dumps(profile_core2["validation"]),
+        )
+        self.assertIn(
+            "120-second",
+            source_core2["runtime"]["validation"]["memory_validation"],
+        )
+        self.assertIn(
+            "120-second",
+            profile_core2["validation"]["memory_validation"],
         )
 
 

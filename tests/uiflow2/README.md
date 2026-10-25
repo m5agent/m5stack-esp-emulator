@@ -78,7 +78,7 @@ callback 注入，因此单 lease PASS 不等于稳定后端。规范主路径�
 | `CORE2-02` bounded 7200s hold | `PASS` | artifact-bound 单 lease 使用 `tcg,thread=single,tb-size=128`，frame/QOM、WiFi/公网、active NUS GATT、pcap、HLI 和 cleanup 全部通过；240 个 host-resource 采样无持续增长 |
 | `CORE2-02` same-guest reconnect | `PASS` | stock 固件在 3 个独立 lease 中分别完成 20、30、60、120 轮 scan/connect/NUS GATT/disconnect；120 轮每 lease HLI `3377/3377`、events `2297`、ACLs `1080`，HLI/TX queue、dropped 和 panic 为 0，连接池回到 `3/9/3`。根因是 Bumble 对无响应 `0x0c35` 返回非法 Command Status |
 | `CORE2-02` 121-cycle reconnect | `3/3 PASS` | 修复 readiness budget 和 reconnect-only accelerator-sampling 两个 harness 缺陷后，3 个 artifact-bound lease 均为 `121/121`；同 firmware/ELF/QEMU/工具哈希，每 lease HLI `3405/3405`、events 2316、ACLs 1089，队列/错误/dropped/peer-close/panic 为 0 |
-| Core2 guest PSRAM | `3/3 PASS` | 3 个 artifact-bound lease 从 QOM 生效的 `4 MiB` 虚拟外部堆分配 `1 MiB`，完成地址/数据模式初始化与三轮读回；same lease 的 WiFi/公网/NUS GATT/frame/QOM/pcap/cleanup PASS。`--require-psram` 是显式门禁，旧镜像不会被强制要求新 marker；物理 `8 MiB`/cache timing 仍 `NOT RUN` |
+| Core2 guest PSRAM sustained | `3/3 PASS` | 3 个 artifact-bound lease 各 120 秒，从 QOM 生效的 `4 MiB` 虚拟外部堆分配 `1 MiB`，分别完成 35/35/36 次全缓冲校验（累计 `106 MiB`）；每轮另做 10 次受控 HTTP、3–4 次公网 recheck，active BLE/frame/QOM/pcap/cleanup PASS。物理 `8 MiB`/cache timing 仍 `NOT RUN` |
 
 `HCI-4` 重跑需要已准备 unified Core2 镜像、匹配 ELF 和相同 QEMU build：
 
@@ -95,9 +95,9 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
 当前证据为
 `core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`。它是
 `virtual-device validation`，不是 RF、bit-exact controller 或真机结果。
-新 PSRAM 压力镜像使用同一 runner 并追加
-`--require-psram --hold-seconds 20`；当前证据为
-`core2_native_hci/evidence-2026-10-25-core2-psram-guest-stress-3x.json`。
+新 PSRAM 持续压力镜像使用同一 runner 并追加
+`--require-psram --hold-seconds 120 --attempts 3`；当前证据为
+`core2_native_hci/evidence-2026-10-25-core2-psram-sustained-3x120.json`。
 历史 extended-run 失败证据仍保留在
 `core2_native_hci/evidence-2026-10-24-extended-run-fail.json`。当前修复后
 证据为

@@ -52,7 +52,7 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 ## 总览
 
 - 本轮事实快照以 `2026-10-25` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `417` 项，`417` 项通过、`0` 项环境相关测试跳过；
+  平台套件共 `418` 项，`418` 项通过、`0` 项环境相关测试跳过；
   `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
 - 设备、Backlog Task 和固件样本的动态计数已改由
   [`project_snapshot.py`](../platform/tools/project_snapshot.py)从 catalog、
@@ -173,14 +173,15 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   DHCP/HTTP、公网 DNS/HTTP、外部 NUS GATT、pcap 和 evidence ZIP；
   `gdb_bridge=false`，五次 frame SHA256 一致。旧 `core2-native-vhci`
   保留为显式 GDB 诊断/兼容 profile。
-- Core2 unified guest 的 PSRAM 功能路径已通过：3 个独立 artifact-bound
-  lease 都从 QOM 生效的 `4 MiB` 虚拟外部堆分配 `1 MiB` bytearray，写入
-  4096-byte 块地址标记和数据模式，完成初始化校验及三轮全缓冲读回；同一
-  lease 同时保持 frame/QOM、WiFi DHCP/HTTP、公网 DNS/HTTP、外部 NUS GATT、
-  pcap、evidence 和 cleanup PASS。每轮观测到的外部堆空闲量下降
-  `2,228,232 B`，因此不只证明“QOM 里有 PSRAM 节点”。这仍是 virtual-device
-  validation：物理板载 `8 MiB` PSRAM、物理 cache/PSRAM 时序和真机验证均
-  `NOT RUN`。
+- Core2 unified guest 的 PSRAM 稳定性路径已通过：3 个独立 artifact-bound
+  lease 各运行 120 秒，都从 QOM 生效的 `4 MiB` 虚拟外部堆分配 `1 MiB`
+  bytearray，并在 4096-byte 块地址标记/数据模式上完成 35、35、36 次
+  全缓冲读回校验，累计 `106 MiB`。每轮同时执行 10 次受控 HTTP recheck、
+  3–4 次公网 DNS/HTTP recheck，并保持 active BLE、frame/QOM、pcap、evidence
+  和 cleanup PASS；pcap 分别包含 222、205、211 个包，识别到 DHCP DORA、
+  `example.com` DNS 和持续 TCP。每轮外部堆空闲量下降 `2,228,232 B`，因此
+  不只证明“QOM 里有 PSRAM 节点”。这仍是 virtual-device validation：
+  物理板载 `8 MiB` PSRAM、物理 cache/PSRAM 时序和真机验证均 `NOT RUN`。
 - Core2 repeated-start/two-minute extended-run 已从 `FAIL` 修到 `PASS`：先恢复 nested guest
   call 前后的 caller-saved Xtensa 特殊寄存器，再把 HLI
   allocator/callback 注入限制在 halted/idle vCPU。中间 sregs-only 构建
@@ -297,7 +298,7 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 | 能力面 | 虚拟设备验证 | 本地服务化 | 真机 | 当前结论 |
 | --- | --- | --- | --- | --- |
 | 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
-| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；S3 `generic-observe` 完成 Open/WPA2-PSK 正确密码 DHCP/DNS/TCP443 和错误密码 M2 拒绝；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s` 和 guest PSRAM `1 MiB` 分配/三轮读回 `3/3` 均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终两小时 host RSS/phys footprint 未增长 | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge；121 轮 readiness 与 accelerator-sampling 缺陷已修复并完成 `3/3` 复现 | `NOT RUN` | 已能验证 WPA2-PSK 成对密钥、首轮、同 guest 120/121 轮重连、限容 host-memory 稳定性和 `4 MiB` 虚拟 PSRAM 数据路径；后续补 WPA3/group multicast、物理 `8 MiB` PSRAM/cache timing、RF/PHY、bit-exact BT controller 和真机 |
+| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；S3 `generic-observe` 完成 Open/WPA2-PSK 正确密码 DHCP/DNS/TCP443 和错误密码 M2 拒绝；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s` 和 `3×120s` guest PSRAM 持续压力（累计 106 次/106 MiB 全缓冲校验）均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终两小时 host RSS/phys footprint 未增长 | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge；121 轮 readiness 与 accelerator-sampling 缺陷已修复并完成 `3/3` 复现 | `NOT RUN` | 已能验证 WPA2-PSK 成对密钥、首轮、同 guest 120/121 轮重连、限容 host-memory 稳定性和 `4 MiB` 虚拟 PSRAM 持续数据路径；后续补 WPA3/group multicast、物理 `8 MiB` PSRAM/cache timing、RF/PHY、bit-exact BT controller 和真机 |
 | 网络隔离与取证 | namespace、DNS/TLS allowlist、exact A/AAAA resolver 与显式绑定 domain suffix、有界 IPv4/IPv6 地址或 CIDR egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP、Linux namespace 内同 guest controlled AAAA + IPv6 HTTP + denied-port + cleanup PASS；真实 server/worker namespace 的 Bearer+HMAC control plane、worker-local StickS3 QEMU execution、active-token multicast discovery、central control-plane restart、runtime-service restart continuity 和 trusted-host unified HTTP/BLE companion continuity PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；worker 控制面/本地 runtime 双端点已经由单测和双 namespace 真实 QEMU job 验证；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain、previous token/CA 有界重叠和无 worker-SIGHUP 的双 worker generation-pointer 自动迁移 PASS；worker 可在同一 multicast domain 自动发现 control URL，错误/旧 token reject；central/runtime 重启后同 worker/lease/session/evidence 可收敛；真实跨主机 QEMU job、NAT/跨子网 discovery 和 namespace-managed/Tab5/cross-host companion continuity 未完成 | `NOT RUN` | 传输、认证、同主机 QEMU/unified job、worker namespace-local QEMU、可审计批量迁移、同 multicast domain 自动 bootstrap、central/runtime restart continuity、trusted-host companion continuity、有界地址/CIDR 与 domain suffix 策略已具备，尚不是多租户恶意固件 VM、任意公网域名解析器或跨主机调度器 |
 | 通用固件审查 | 导入、capability/security preflight、required/optional 重叠拒绝、unsupported optional warning、security evidence 双向冲突 warning、静态审查、LittleFS/FAT/SPIFFS、文件级 `permission_policy`、包内源码 SPDX header、WebBurner 浏览器流式上传/刷新恢复与 capability 来源展示、session-isolated SD/NVS fixture、sdkconfig detected 与 image-signature observed capability、SHA-bound UI/headless/network-first review expectation PASS；7 台设备 21 个公开非基线样本的历史哈希绑定结果为 10 PASS / 11 PARTIAL；矩阵（含 resume）每轮强制刷新公开 BIN，结果键绑定 device/firmware/SHA/SD/NVS/expectation；当前 CDN 四样本用 SD fixture 得到 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 公开 BIN 的 network-first 模式在合成 NVS 下完成 DHCP、`api.openai.com` DNS、TCP/443 和 pcap；Open、正确 WPA2 与错误 WPA2 三组共用同一固件 SHA | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | Matrix PASS 分别覆盖 frame/input 或显式 runtime/network expectation；OpenAI 后续仍需真实 key/Realtime/音频和云端业务验证。运行态 ACL/权限、完整许可和 `RUNTIME-02/03/04` 仍未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；trusted-host HTTP fixture generation recovery 与 BLE peer adopt；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、active-request drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、active-token multicast discovery、central control-plane/runtime-service restart continuity、session-create idempotency、worker lease 与失联回收；控制面与本地 runtime API 双端点分离 | 无真实跨主机 QEMU executor、NAT/跨子网 discovery、namespace-managed/Tab5/cross-host companion recovery、跨主机 idempotency、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、drained overlap rotation、可审计批量迁移、local control-plane reattach、trusted-host companion reattach、远程 lease、同 multicast domain 自动 bootstrap、central/runtime restart continuity、session-create idempotency 和控制/执行面分离基础，不是完整云端服务 |
@@ -314,7 +315,7 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、WPA2-PSK 正确/错误密码、radio/AP 丢失恢复；controlled DNS A/AAAA 与 label-boundary domain suffix、TLS/Host allowlist；nftables 有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT、IPv6 neighbor control 和清理；专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP 与 Linux namespace 内 controlled AAAA、IPv6 HTTP、denied-port、pcap、cleanup；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；跨 server/worker namespace 的 Bearer+HMAC worker control plane；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup；本地 worker lifecycle、QEMU/QMP reattach、trusted-host unified HTTP/BLE companion continuity、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、active-token multicast discovery、central/runtime restart continuity、session-create idempotency、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、控制/本地 runtime API 分离；GitHub Actions Linux policy CI PASS | WPA3、group-key multicast、真实跨主机 QEMU executor/reattach、NAT/跨子网 discovery、namespace-managed/Tab5/cross-host companion continuity、跨主机 idempotency、生产多机调度、任意公网域名解析器 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3` 和 `4 MiB` 虚拟 PSRAM 上 `1 MiB` 分配/三轮读回 `3/3` 均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终 host RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB` | bit-exact controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时并发/吞吐、其他 teardown 模式和真机 |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3` 和 `3×120s` 虚拟 PSRAM 持续压力 `3/3` 均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终 host RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB` | bit-exact controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时并发/吞吐、其他 teardown 模式和真机 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、required/optional capability 声明与重叠拒绝、optional mismatch warning、sdkconfig radio/PSRAM detected capability、image-signature observed capability、公开 CDN 每次强制刷新、可回滚 artifact backend、security evidence 双向冲突 warning、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、文件级权限来源、包内源码 SPDX header 和声明级许可 allowlist/denylist；Device Service 支持 session-isolated SD 和分区校验 NVS fixture，矩阵结果键可绑定 fixture、expectation 与 firmware SHA；UI、headless-serial 和 network-first expectation 已可用；7 台设备 21 个公开非基线样本的历史哈希绑定结果为 10 PASS / 11 PARTIAL；当前 CDN 四样本 `3 PASS / 1 PARTIAL / 0 FAIL`；OpenAI NVS、WPA2 正确/错误密码和 network-first pcap 路径绑定同一 BIN SHA；`RUNTIME-01` Flash/PMP 与 `RUNTIME-05` S3 WPA2 已通过虚拟设备验证 | OpenAI 无 UI/云服务完整流程、真实 key/Realtime/音频、书籍内容流程、运行态 ACL/权限、完整许可、法律审批、真机 key/eFuse、更多设备/firmware family；WPA3/group multicast；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 legacy I2C 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
 
 ## 工作流入口
@@ -546,7 +547,7 @@ CCMP RX 和单播 DHCP 数据路径；WPA3、group-key multicast、天线、距�
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS；Zigbee `thread-sim` 仅有双向帧，join 未通过 | 原生 BT controller、C6 WiFi PHY；Zigbee/802.15.4 `RUNTIME-02` commissioning 未建模 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller；`RUNTIME-01` Flash/PMP 修复已关闭，Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT、同 guest 多轮重连、`4 MiB` 虚拟 PSRAM 分配/读回和 active-stop/recovery | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `600s` `2/2`、3 个各 20、30、60、120 轮的 GATT lease、3 个 121 轮 lease、最终 `tb-size=128` `7200s`、PSRAM `1 MiB`/三轮只读压力 `3/3` 和 active-stop/recovery `3/3` 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | bit-exact BT controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时并发/吞吐、其他 teardown 模式、真机同路径 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT、同 guest 多轮重连、`4 MiB` 虚拟 PSRAM 持续压力/周期性联网和 active-stop/recovery | `HCI-4` 五 lease、`5×10s` `10/10`、`60s` `3/3`、`120s` `2/2`、active-BLE `600s` `2/2`、3 个各 20、30、60、120 轮的 GATT lease、3 个 121 轮 lease、最终 `tb-size=128` `7200s`、PSRAM `3×120s`/累计 106 次全缓冲校验和 active-stop/recovery `3/3` 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | bit-exact BT controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时并发/吞吐、其他 teardown 模式、真机同路径 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 
@@ -594,9 +595,9 @@ CCMP RX 和单播 DHCP 数据路径；WPA3、group-key multicast、天线、距�
    PASS；240 个资源采样的 RSS `323536→252992 KiB`、phys footprint
    `250880→188416 KiB`。旧的未限容增长已定位到 TCG translation buffer，
    当前 workload 的 host-memory 风险关闭；这不等于物理 cache/PSRAM 等价。
-   unified guest 已在 3 个独立 lease 中完成 `4 MiB` QOM 生效堆上的 `1 MiB`
-   分配、地址/数据模式初始化和三轮读回，且同一实例仍通过 WiFi、公网、
-   GATT、frame/QOM 和 pcap。它关闭“只有 QOM 可见、没有 guest 数据面”的
+   unified guest 已在 `3×120s` 中完成 `4 MiB` QOM 生效堆上的累计 106 次
+   `1 MiB` 全缓冲校验，每轮同时保持 active BLE、受控 HTTP、公网 DNS/HTTP、
+   frame/QOM 和 pcap。它关闭“只有 QOM 可见、没有持续 guest 数据面”的
    功能缺口，但不覆盖物理 `8 MiB`、cache/PSRAM 时序或真机。
 3. **Tab5 闭源后端**：`esp-emu 0.50.0` 缺少若干动态设备与控制面，Tab5 仍是
    `partial`。

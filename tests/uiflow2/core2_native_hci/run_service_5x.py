@@ -395,6 +395,16 @@ def parse_psram_stress(serial_text: str) -> dict[str, Any]:
             serial_text,
         )
     )
+    heartbeats = [
+        tuple(int(value) for value in match.groups())
+        for match in re.finditer(
+            (
+                r"(?m)^UNIFIED_CORE2_STRESS_HEARTBEAT\s+"
+                r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$"
+            ),
+            serial_text,
+        )
+    ]
     return {
         "marker_present": bool(
             "UNIFIED_CORE2_PSRAM_" in serial_text
@@ -416,11 +426,25 @@ def parse_psram_stress(serial_text: str) -> dict[str, Any]:
         "stress_pass_count": serial_text.count(
             "UNIFIED_CORE2_PSRAM_STRESS_PASS"
         ),
+        "heartbeats": heartbeats,
+        "http_recheck_pass_count": serial_text.count(
+            "UNIFIED_CORE2_HTTP_RECHECK_PASS"
+        ),
+        "public_recheck_pass_count": serial_text.count(
+            "UNIFIED_CORE2_PUBLIC_RECHECK_PASS"
+        ),
+        "verified_bytes": (
+            len(sweeps) * allocations[0][1]
+            if len(allocations) == 1
+            else None
+        ),
         "error_markers": [
             marker
             for marker in (
                 "UNIFIED_CORE2_PSRAM_ERROR",
                 "UNIFIED_CORE2_PSRAM_STRESS_ERROR",
+                "UNIFIED_CORE2_HTTP_RECHECK_ERROR",
+                "UNIFIED_CORE2_PUBLIC_RECHECK_ERROR",
             )
             if marker in serial_text
         ],
@@ -435,14 +459,57 @@ def psram_stress_ok(evidence: dict[str, Any]) -> bool:
     if len(allocations) != 1 or len(allocations[0]) != 3:
         return False
     total, requested, allocated = allocations[0]
+    contiguous_sweeps = sweeps == list(range(1, len(sweeps) + 1))
     return bool(
         total >= PSRAM_EXTERNAL_HEAP_MIN_BYTES
         and requested == PSRAM_REQUESTED_BYTES
         and allocated >= requested
-        and sweeps == [1, 2, 3]
+        and len(sweeps) >= 3
+        and contiguous_sweeps
         and evidence.get("init_pass_count") == 1
         and evidence.get("stress_pass_count") == 1
         and not evidence.get("error_markers")
+    )
+
+
+def sustained_stress_requirements(hold_seconds: float) -> dict[str, int]:
+    return {
+        "minimum_sweeps": max(3, int(hold_seconds // 4)),
+        "minimum_heartbeats": max(0, int(hold_seconds // 20)),
+        "minimum_http_rechecks": max(0, int(hold_seconds // 15)),
+        "minimum_public_rechecks": max(0, int(hold_seconds // 60)),
+    }
+
+
+def sustained_stress_ok(
+    evidence: dict[str, Any],
+    hold_seconds: float,
+) -> bool:
+    requirements = sustained_stress_requirements(hold_seconds)
+    sweeps = evidence.get("sweeps")
+    heartbeats = evidence.get("heartbeats")
+    if not isinstance(sweeps, list) or not isinstance(heartbeats, list):
+        return False
+    latest_psram = heartbeats[-1][1] if heartbeats else 0
+    latest_http = heartbeats[-1][2] if heartbeats else 0
+    latest_public = heartbeats[-1][3] if heartbeats else 0
+    monotonic_heartbeats = all(
+        all(left <= right for left, right in zip(previous, current))
+        for previous, current in zip(heartbeats, heartbeats[1:])
+    )
+    return bool(
+        len(sweeps) >= requirements["minimum_sweeps"]
+        and len(heartbeats) >= requirements["minimum_heartbeats"]
+        and monotonic_heartbeats
+        and latest_psram <= len(sweeps)
+        and latest_http
+        <= evidence.get("http_recheck_pass_count", 0)
+        and latest_public
+        <= evidence.get("public_recheck_pass_count", 0)
+        and evidence.get("http_recheck_pass_count", 0)
+        >= requirements["minimum_http_rechecks"]
+        and evidence.get("public_recheck_pass_count", 0)
+        >= requirements["minimum_public_rechecks"]
     )
 
 
@@ -756,8 +823,13 @@ def run_attempt(
     serial_text = serial.decode("utf-8", errors="replace")
     peer_text = peer_log.decode("utf-8", errors="replace")
     psram = parse_psram_stress(serial_text)
+    psram_requirements = sustained_stress_requirements(hold_seconds)
     if require_psram:
         checks["psram_guest_stress"] = psram_stress_ok(psram)
+        checks["psram_sustained_stress"] = sustained_stress_ok(
+            psram,
+            hold_seconds,
+        )
     checks["ble_cycle_count"] = (
         peer_text.count("BLE_BUMBLE_CYCLE_PASS")
         >= ble_reconnect_cycles
@@ -781,6 +853,9 @@ def run_attempt(
             "UNIFIED_CORE2_PSRAM_INIT_PASS",
             "UNIFIED_CORE2_PSRAM_SWEEP",
             "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+            "UNIFIED_CORE2_HTTP_RECHECK_PASS",
+            "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
+            "UNIFIED_CORE2_STRESS_HEARTBEAT",
         )
         if marker in serial_text
     ]
@@ -852,6 +927,7 @@ def run_attempt(
         "hci_transport": str(transport or ""),
         "native_hci_health": hci_health,
         "psram": psram,
+        "psram_requirements": psram_requirements,
         "network_status": str(network.get("status") or "UNAVAILABLE"),
         "hold_state": hold_state,
         "hold_error": hold_error,

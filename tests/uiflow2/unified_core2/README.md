@@ -60,9 +60,10 @@ PASS runs, including public DNS/HTTP. The older
 The current probe reads `esp32.idf_heap_info(esp32.HEAP_DATA)`, selects the
 largest external heap, allocates a 1 MiB `bytearray`, writes a deterministic
 pattern plus a two-byte address tag in every 4 KiB block, checks the initial
-buffer and then verifies it in three post-READY sweeps. The serial markers are
+buffer and then keeps verifying it after READY. The serial markers are
 `UNIFIED_CORE2_PSRAM_ALLOC`, `UNIFIED_CORE2_PSRAM_INIT_PASS`,
-`UNIFIED_CORE2_PSRAM_SWEEP` and `UNIFIED_CORE2_PSRAM_STRESS_PASS`.
+`UNIFIED_CORE2_PSRAM_SWEEP`, `UNIFIED_CORE2_PSRAM_STRESS_PASS` and
+`UNIFIED_CORE2_STRESS_HEARTBEAT`.
 
 The canonical service gate is opt-in because historical images do not contain
 these markers:
@@ -72,15 +73,16 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
   --image /tmp/core2-native-hci-psram-stress.bin \
   --elf .work/uiflow2-core2-symbols/micropython.elf \
   --qemu .work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa \
-  --attempts 3 --hold-seconds 20 --require-psram \
+  --attempts 3 --hold-seconds 120 --require-psram \
   --out-dir /tmp/m5-core2-psram-gate
 ```
 
-Three independent leases from the same firmware passed with a 4 MiB effective
-external heap, a 1 MiB guest allocation, three sweeps and all board/network/
-BLE/frame/QOM/pcap checks. This is virtual PSRAM data-path validation; the
-board's physical 8 MiB capacity, cache/PSRAM timing and hardware remain
-`NOT RUN`.
+Three independent 120-second leases from the same firmware passed with a
+4 MiB effective external heap, a 1 MiB guest allocation, 35/35/36 sweeps
+(106 full-buffer checks), 30 controlled HTTP rechecks, 10 public rechecks and
+all board/network/BLE/frame/QOM/pcap checks. This is sustained virtual PSRAM
+data-path validation; the board's physical 8 MiB capacity, cache/PSRAM timing
+and hardware remain `NOT RUN`.
 
 BLE in this unified profile remains UART1 HCI-offload to Bumble. Native ESP32
 controller advertising enable is proven separately. The

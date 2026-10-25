@@ -20,11 +20,11 @@ MicroPython 和其他完整 Flash 固件。
   `qemu-ble` 仅保留兼容。
 - Core2 新调用使用 `profile=core2-native-hci`；GDB
   `core2-native-vhci` 保留为诊断/兼容路径。
-- Core2 unified guest 已在 3 个独立 lease 中从 QOM 生效的 `4 MiB` 虚拟
-  PSRAM 堆分配 `1 MiB` bytearray，完成地址标记与数据模式初始化、三轮读回，
-  并在同一实例保持 WiFi、公网 DNS/HTTP、外部 NUS GATT、frame/QOM、pcap
-  和清理 PASS。该结果只证明虚拟 PSRAM 的 guest 数据路径；物理 `8 MiB`、
-  cache/PSRAM 时序和 RF 仍是 `NOT RUN`。
+- Core2 unified guest 已在 3 个独立 lease 中各运行 120 秒，每轮从 QOM 生效的
+  `4 MiB` 虚拟 PSRAM 堆分配 `1 MiB`，完成 35–36 次全缓冲校验，累计读回
+  `106 MiB`；期间每轮还有 10 次受控 HTTP recheck、3–4 次公网 recheck，
+  并保持 active BLE、frame/QOM、pcap、evidence 和 cleanup PASS。物理
+  `8 MiB`、cache/PSRAM 时序和 RF 仍是 `NOT RUN`。
 - Device Service 在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络、worker job 和 evidence API。
 - Remote worker 可通过 active-token HMAC 签名的 IPv4 multicast beacon 自动
@@ -308,7 +308,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   `250880→188416 KiB`。3 个独立 lease 的 121 轮 reconnect 复现也已 PASS；
   active-stop/recovery 又在 3 个连续 session 中验证了 BLE/HTTP companion、
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
-  unified guest 还完成 `4 MiB` 虚拟 PSRAM 上的 `1 MiB` 分配和三轮回读，
+  unified guest 还在 `3×120s` 中完成 106 次 `1 MiB` 虚拟 PSRAM 全缓冲校验、
+  30 次受控 HTTP 和 10 次公网 recheck，
   bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、长时并发/吞吐
   和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意

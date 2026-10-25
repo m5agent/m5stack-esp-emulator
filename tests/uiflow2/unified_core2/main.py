@@ -15,7 +15,11 @@ HTTP_PORT = 18089
 BLE_NAME = "M5-CORE2-UNIFIED"
 PSRAM_BUFFER_BYTES = 1 << 20
 PSRAM_CHUNK_BYTES = 4096
-PSRAM_SWEEPS_REQUIRED = 3
+PSRAM_INITIAL_SWEEPS_REQUIRED = 3
+PSRAM_SWEEP_INTERVAL_MS = 2000
+HTTP_RECHECK_INTERVAL_MS = 10000
+PUBLIC_RECHECK_INTERVAL_MS = 30000
+STRESS_HEARTBEAT_INTERVAL_MS = 10000
 PSRAM_PATTERN = bytes([(index * 37 + 11) & 0xFF for index in range(PSRAM_CHUNK_BYTES)])
 
 state = {
@@ -26,6 +30,7 @@ state = {
     "ina": "init",
     "mic": "init",
     "power": (0, 0, 0),
+    "public": "init",
     "psram": "init",
     "rtc": "init",
     "touch": "init",
@@ -35,6 +40,12 @@ log_uart = None
 psram_buffer = None
 psram_sweeps = 0
 psram_next_sweep = 0
+http_rechecks = 0
+public_rechecks = 0
+next_http_recheck = 0
+next_public_recheck = 0
+next_stress_heartbeat = 0
+stress_started = 0
 
 
 def emit(*parts):
@@ -203,7 +214,6 @@ def poll_psram_sweep():
     if (
         psram_buffer is None
         or state["psram"] == "fail"
-        or psram_sweeps >= PSRAM_SWEEPS_REQUIRED
     ):
         return
     now = time.ticks_ms()
@@ -213,19 +223,79 @@ def poll_psram_sweep():
         verify_psram_buffer()
         psram_sweeps += 1
         emit("UNIFIED_CORE2_PSRAM_SWEEP", psram_sweeps)
-        if psram_sweeps >= PSRAM_SWEEPS_REQUIRED:
+        if psram_sweeps == PSRAM_INITIAL_SWEEPS_REQUIRED:
             state["psram"] = "pass"
             emit("UNIFIED_CORE2_PSRAM_STRESS_PASS")
             draw()
-        else:
-            psram_next_sweep = time.ticks_add(now, 2000)
+        psram_next_sweep = time.ticks_add(now, PSRAM_SWEEP_INTERVAL_MS)
     except Exception as error:
         state["psram"] = "fail"
         emit("UNIFIED_CORE2_PSRAM_STRESS_ERROR", repr(error))
 
 
+def poll_network_rechecks():
+    global http_rechecks, public_rechecks
+    global next_http_recheck, next_public_recheck
+
+    if state["wifi"] != "pass":
+        return
+    now = time.ticks_ms()
+    if (
+        state["http"] == "pass"
+        and time.ticks_diff(now, next_http_recheck) >= 0
+    ):
+        try:
+            probe_http()
+            http_rechecks += 1
+            emit("UNIFIED_CORE2_HTTP_RECHECK_PASS", http_rechecks)
+        except Exception as error:
+            state["http"] = "fail"
+            emit("UNIFIED_CORE2_HTTP_RECHECK_ERROR", repr(error))
+        next_http_recheck = time.ticks_add(now, HTTP_RECHECK_INTERVAL_MS)
+
+    if (
+        state["public"] == "pass"
+        and time.ticks_diff(now, next_public_recheck) >= 0
+    ):
+        try:
+            probe_public()
+            public_rechecks += 1
+            emit(
+                "UNIFIED_CORE2_PUBLIC_RECHECK_PASS",
+                public_rechecks,
+            )
+        except Exception as error:
+            state["public"] = "fail"
+            emit("UNIFIED_CORE2_PUBLIC_RECHECK_ERROR", repr(error))
+        next_public_recheck = time.ticks_add(
+            now,
+            PUBLIC_RECHECK_INTERVAL_MS,
+        )
+
+
+def poll_stress_heartbeat():
+    global next_stress_heartbeat
+    now = time.ticks_ms()
+    if time.ticks_diff(now, next_stress_heartbeat) < 0:
+        return
+    elapsed = time.ticks_diff(now, stress_started) // 1000
+    emit(
+        "UNIFIED_CORE2_STRESS_HEARTBEAT",
+        elapsed,
+        psram_sweeps,
+        http_rechecks,
+        public_rechecks,
+    )
+    next_stress_heartbeat = time.ticks_add(
+        now,
+        STRESS_HEARTBEAT_INTERVAL_MS,
+    )
+
+
 def main():
     global log_uart, psram_next_sweep
+    global next_http_recheck, next_public_recheck
+    global next_stress_heartbeat, stress_started
 
     from machine import I2C, Pin
     from rtc_probe import check_pcf8563
@@ -363,7 +433,9 @@ def main():
             emit("UNIFIED_CORE2_HTTP_ERROR", repr(error))
         try:
             probe_public()
+            state["public"] = "pass"
         except Exception as error:
+            state["public"] = "fail"
             emit("UNIFIED_CORE2_PUBLIC_HTTP_ERROR", repr(error))
 
     try:
@@ -434,11 +506,29 @@ def main():
 
     draw()
     emit("UNIFIED_CORE2_READY")
-    psram_next_sweep = time.ticks_add(time.ticks_ms(), 2000)
+    stress_started = time.ticks_ms()
+    psram_next_sweep = time.ticks_add(
+        stress_started,
+        PSRAM_SWEEP_INTERVAL_MS,
+    )
+    next_http_recheck = time.ticks_add(
+        stress_started,
+        HTTP_RECHECK_INTERVAL_MS,
+    )
+    next_public_recheck = time.ticks_add(
+        stress_started,
+        PUBLIC_RECHECK_INTERVAL_MS,
+    )
+    next_stress_heartbeat = time.ticks_add(
+        stress_started,
+        STRESS_HEARTBEAT_INTERVAL_MS,
+    )
     touch_seen = False
     while True:
         M5.update()
         poll_psram_sweep()
+        poll_network_rechecks()
+        poll_stress_heartbeat()
         if state["ble"] == "pass":
             server.poll_readvertise()
         if M5.Touch.getCount() > 0 and not touch_seen:
