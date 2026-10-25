@@ -28,6 +28,8 @@ MicroPython 和其他完整 Flash 固件。
   和五实例 30 秒错峰并发 virtual-device 门禁；四实例原始失败保留，五实例
   零错峰 `5/5 PASS` 后独立批 `3/5 FAIL` 的不稳定对照也保留。零错峰五实例、
   更多实例、物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
+  ACK-state trace 已证明该不稳定从 HLI response delivery delay 开始，而不是
+  初始 stale ACK 或物理 PSRAM/cache 故障。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件
@@ -303,7 +305,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
   五实例 30 秒错峰稳态已通过两批，但零错峰五实例仍不稳定；大于五实例、
   bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、持续吞吐和
-  真机同路径仍未完成。
+  真机同路径仍未完成。`0010` ACK-state trace 进一步把失败窗口定位到首条
+  Reset Complete 从 Bumble 返回后延迟 `4.506306s` 才进入 HLI；旧 response
+  与新 command 交错后触发 process-ack error `12`，最终 panic 是次生结果。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

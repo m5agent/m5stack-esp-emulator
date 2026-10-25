@@ -1,0 +1,45 @@
+UNIFIED_CORE2_HTTP b'HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 17\r\nConnection: close\r\n\r\nUNIFIED_CORE2_OK\n'
+UNIFIED_CORE2_HTTP_PASS
+UNIFIED_CORE2_PUBLIC_DNS 198.18.0.86
+UNIFIED_CORE2_PUBLIC_HTTP b'HTTP/1.1 200 OK\r\nDate: Sun, 25 Oct 2026 11:01:27 GMT\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\nServer: cloudfl'
+UNIFIED_CORE2_PUBLIC_HTTP_PASS
+E (43670) NimBLE: HCI wait for ack returned 19
+
+UNIFIED_CORE2_BLE_ERROR OSError(116,)
+UNIFIED_CORE2_AUDIO_HOLD
+E (45792) NimBLE: HCI wait for ack returned 19
+
+E (47467) NimBLE: HCI process ack returned 12
+
+
+A fatal error occurred. The crash dump printed below may be used to help
+determine what caused it. If you are not already running the most recent
+version of MicroPython, consider upgrading. New versions often fix bugs.
+
+To learn more about how to debug and/or report this crash visit the wiki
+page at: https://github.com/micropython/micropython/wiki/ESP32-debugging
+
+MPY version : v1.27.0-dirty on 2026-10-22
+IDF version : v5.5.4-dirty
+Machine     : M5STACK Core2 with ESP32(SPIRAM)
+
+Guru Meditation Error: Core  1 panic'ed (LoadProhibited). Exception was unhandled.
+
+Core  1 register dump:
+PC      : 0x402630cc  PS      : 0x00060230  A0      : 0x8025d9d5  A1      : 0x3ffe9780
+A2      : 0x00000000  A3      : 0x3ffcb5e4  A4      : 0x3ffcb404  A5      : 0x00000000
+A6      : 0x00000000  A7      : 0x00000c03  A8      : 0x00000000  A9      : 0x3ffe9770
+A10     : 0x0000000e  A11     : 0x00000000  A12     : 0x00000010  A13     : 0x3ffe97a0
+A14     : 0x00000c03  A15     : 0x00000001  SAR     : 0x00000001  EXCCAUSE: 0x0000001c
+EXCVADDR: 0x00000000  LBEG    : 0x40092e4a  LEND    : 0x40092e55  LCOUNT  : 0x00000000
+
+
+Backtrace: 0x402630c9:0x3ffe9780 0x4025d9d2:0x3ffe97d0 0x40259fa6:0x3ffe98c0 0x4025a025:0x3ffe98e0 0x4025a068:0x3ffe9900 0x40329d67:0x3ffe9920 0x40087501:0x3ffe9940 0x4023df22:0x3ffe9960
+
+
+
+
+ELF file SHA256: 5bec056bb
+
+Rebooting...
+ets Jul 29 2019 12:21:46

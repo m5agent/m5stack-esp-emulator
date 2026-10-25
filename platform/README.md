@@ -117,7 +117,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   baseband/controller、零错峰五实例与大于五实例、持续吞吐、物理
   cache/PSRAM 和真机仍未完成。五实例（five-instance）30 秒错峰已完成两批 `5×120s`，
   合计 `10/10`；同一实现下零错峰一批 `5/5 PASS`、独立确认批
-  `3/5 FAIL`，因此不能把错峰稳态继承给同时冷启动；
+  `3/5 FAIL`，因此不能把错峰稳态继承给同时冷启动。`0010` ACK-state trace
+  已证明首条 Reset Complete 的 HLI delivery 延迟 `4.506306s`，旧
+  response 与新 command 交错后才触发 process-ack error `12`；
   `tb-size=128` 的 artifact-bound 两小时 soak 已 PASS，host RSS 和 phys
   footprint 在 240 个采样中均未增长。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。

@@ -102,6 +102,12 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc-4way-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-pass-a.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-confirm-pass-b.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-5x20-ack-observability.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-ack-observability-default-1x.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-ack-observability-summary.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-ack-observability-trace-summary.log",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-ack-observability-serial-summary.log",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-ack-observability-peer-summary.log",
             "tests/uiflow2/evidence-2026-10-25-core2-hli-preallocation-full-matrix.json",
             "tests/uiflow2/evidence-2026-10-25-core2-0009-device-group.json",
             "tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json",
@@ -116,6 +122,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "patches/qemu-core2-native-hci/0007-esp32-native-hci-require-valid-guest-queue.patch",
             "patches/qemu-core2-native-hci/0008-esp32-native-hci-preallocate-hli-objects.patch",
             "patches/qemu-core2-native-hci/0009-esp32-native-hci-expand-hli-preallocation.patch",
+            "patches/qemu-core2-native-hci/0010-esp32-native-hci-ack-observability.patch",
             "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
@@ -5607,6 +5614,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("0007", code_map)
         self.assertIn("0008", code_map)
         self.assertIn("0009", code_map)
+        self.assertIn("0010", code_map)
         self.assertIn("no-stagger 4x120s", profiles)
         self.assertIn("Two independent two-instance no-stagger 4x120s gates", profiles)
         self.assertIn("three-instance 3x120s gates pass 6/6", profiles)

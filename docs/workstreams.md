@@ -39,7 +39,10 @@
 2. `CORE2-02`：无错峰双实例、三实例和四实例已分别由两批独立复跑关闭；
    四实例首批原始 `1 PASS / 3 FAIL` 仍保留，`0009` 扩大真实 guest 备用池
    后两批均 `4/4 PASS`。五实例 30 秒错峰两批均 `5/5 PASS`；零错峰五实例
-   一批 `5/5 PASS`、独立确认批 `3/5 FAIL`，因此下一步补零错峰五实例、
+   一批 `5/5 PASS`、独立确认批 `3/5 FAIL`。`0010` ACK-state trace 已把
+   因果链收敛到 HLI response delivery delay：首条 Reset Complete 延迟
+   `4.506306s`，旧 response 与新 command 交错后触发 process-ack error
+   `12`；下一步先修 readiness/delivery ordering，再补零错峰五实例、
    更多实例、持续吞吐与其他 teardown、bit-exact controller/baseband 和
    物理 PSRAM/cache timing。
    已完成的重连、TCG、8 MiB QOM/upper-bank、PSRAM `3×120s`/600s 持续压力

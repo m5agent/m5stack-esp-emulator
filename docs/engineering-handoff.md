@@ -190,7 +190,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
-| `CORE2-02` | 零错峰五实例及更多实例的 HCI 稳定性、bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和其他 teardown | 双/三/四实例和五实例 30 秒错峰均已由两批独立复跑覆盖；四实例原始 `1/4` 与五实例零错峰 `5/5 PASS`/`3/5 FAIL` 不稳定对照保留 |
+| `CORE2-02` | 先修复 HLI response readiness/delivery ordering，再补零错峰五实例及更多实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和其他 teardown | 双/三/四实例和五实例 30 秒错峰均已由两批独立复跑覆盖；`0010` trace 证明零错峰失败由首条 Reset Complete 延迟 `4.506306s`、旧 response 与新 command 交错引起，初始 ACK/semaphore 并非 stale |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |

@@ -44,6 +44,8 @@ CORE2_NATIVE_HCI_SYMBOLS = (
     "btdm_task_recycle",
     "r_rw_schedule",
     "ble_hs_hci_evt_acl_process",
+    "ble_hs_hci_ctx",
+    "ble_hs_hci_rx_evt",
     "ble_hs_hci_cmd_tx",
     "ble_hs_sched_reset",
     "ble_gap_adv_start",
@@ -304,6 +306,15 @@ def core2_native_hci_device_args(path: Path) -> str:
         if os.environ.get("M5_CORE2_HCI_PACKET_TRACE") == "1"
         else ""
     )
+    hci_ack_diagnostics = (
+        "trace-hci-rx-evt-pc="
+        f"{address('ble_hs_hci_rx_evt')},"
+        "trace-hci-rx-ack-check-pc="
+        f"{address('ble_hs_hci_rx_evt', 0x88)},"
+        f"ble-hs-hci-ctx-address={address('ble_hs_hci_ctx')},"
+        if os.environ.get("M5_CORE2_HCI_PACKET_TRACE") == "1"
+        else ""
+    )
 
     return (
         "esp32-native-hci,chardev=hci,"
@@ -312,6 +323,7 @@ def core2_native_hci_device_args(path: Path) -> str:
         "c2h-scratch-size=2048,"
         "hli-c2h=on,"
         f"{packet_trace}"
+        f"{hci_ack_diagnostics}"
         f"api-vhci-send-hook-pc={address('esp_vhci_host_send_packet', 0x35)},"
         f"api-vhci-send-return-pc={address('esp_vhci_host_send_packet', 0x38)},"
         f"scheduler-queue-address={address('g_rw_schd_queue')},"

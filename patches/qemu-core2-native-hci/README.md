@@ -46,6 +46,12 @@ This patch adds the first QEMU-side slice of `CORE2-01`:
   waited behind NimBLE's two-second HCI ACK budget. The larger reserve covers
   the startup burst without synthesizing ACKs or nesting guest calls. Two
   independent four-instance `4x120s` batches then pass `4/4` each (`8/8`).
+- `0010` adds opt-in ACK-state tracing at `ble_hs_hci_rx_evt`, its
+  semaphore-count branch, and the HCI context's `hci_ack` pointer. It changes
+  no default runtime behavior and is enabled only with
+  `M5_CORE2_HCI_PACKET_TRACE=1`. The new evidence shows that zero-stagger
+  five-instance failures begin with delayed HLI delivery, not a stale ACK or
+  physical PSRAM/cache fault.
 
 The optional poller captures guest H2C packets from real VHCI shared memory
 without GDB. `HCI-3a` now delivers a controller event through the firmware's
@@ -114,6 +120,7 @@ git apply /path/to/patches/qemu-core2-native-hci/0006-esp32-native-hci-observabi
 git apply /path/to/patches/qemu-core2-native-hci/0007-esp32-native-hci-require-valid-guest-queue.patch
 git apply /path/to/patches/qemu-core2-native-hci/0008-esp32-native-hci-preallocate-hli-objects.patch
 git apply /path/to/patches/qemu-core2-native-hci/0009-esp32-native-hci-expand-hli-preallocation.patch
+git apply /path/to/patches/qemu-core2-native-hci/0010-esp32-native-hci-ack-observability.patch
 ninja -C build qemu-system-xtensa
 python3 tests/uiflow2/core2_native_hci/test_transport.py
 python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \

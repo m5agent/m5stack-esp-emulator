@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import os
 import struct
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
@@ -208,6 +210,36 @@ class XtensaElfSymbolTests(unittest.TestCase):
                 "exceeds file size",
             ):
                 parse_elf32_symbols(path)
+
+    def test_hci_ack_diagnostics_require_packet_trace_opt_in(self):
+        symbol_rows = [
+            (
+                name,
+                0x40010000 + index * 0x20,
+                0x100,
+                0x12,
+                1,
+            )
+            for index, name in enumerate(CORE2_NATIVE_HCI_SYMBOLS)
+        ]
+        image = build_elf(symbol_rows)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "firmware.elf"
+            path.write_bytes(image)
+            with patch.dict(os.environ, {}, clear=True):
+                default_args = core2_native_hci_device_args(path)
+            with patch.dict(
+                os.environ,
+                {"M5_CORE2_HCI_PACKET_TRACE": "1"},
+                clear=True,
+            ):
+                traced_args = core2_native_hci_device_args(path)
+
+        self.assertNotIn("trace-hci-rx-evt-pc=", default_args)
+        self.assertNotIn("ble-hs-hci-ctx-address=", default_args)
+        self.assertIn("trace-hci-rx-evt-pc=0x", traced_args)
+        self.assertIn("trace-hci-rx-ack-check-pc=0x", traced_args)
+        self.assertIn("ble-hs-hci-ctx-address=0x", traced_args)
 
 
 if __name__ == "__main__":

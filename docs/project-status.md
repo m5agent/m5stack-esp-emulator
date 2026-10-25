@@ -89,7 +89,11 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   controller/baseband、物理 PSRAM/cache timing、零错峰五实例及更多实例的
   HCI 稳定性、持续吞吐和其他 teardown。五实例 30 秒错峰稳态已由两批
   `5/5` 关闭，但相同实现的零错峰冷启动先 `5/5 PASS`、独立确认批
-  `3/5 FAIL`，因此不能把错峰稳态继承给同时冷启动。
+  `3/5 FAIL`，因此不能把错峰稳态继承给同时冷启动。`0010` ACK-state
+  trace 已把原因收敛到 HLI response delivery delay：首条 Reset Complete
+  延迟 `4.506306s`，旧 response 与新 command 交错后触发 process-ack
+  error `12` 和次级 null-ACK panic；初始 semaphore/ACK state 为空，
+  不是 stale token 或物理 cache/PSRAM 故障。
   随后是 `FW-01/02/03` 的运行态 ACL/许可、真机
   security/key 流程和更多固件族；`RUNTIME-02/03/04` 的 C6 Zigbee、Core2
   legacy I2C 与 ATECC608；以及 `HW-01` 同固件 SHA 真机验证。

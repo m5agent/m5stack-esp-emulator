@@ -1,0 +1,112 @@
+--- a/hw/xtensa/esp32_native_hci.c
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -121,6 +121,10 @@
+          &s->trace_python_notify},
+         {"nimble_gatts_notify", s->trace_nimble_gatts_notify_pc,
+          &s->trace_nimble_gatts_notify},
++        {"hci_rx_evt", s->trace_hci_rx_evt_pc,
++         &s->trace_hci_rx_evt},
++        {"hci_rx_ack_check", s->trace_hci_rx_ack_check_pc,
++         &s->trace_hci_rx_ack_check},
+     };
+     size_t i;
+ 
+@@ -132,11 +136,32 @@
+         fprintf(stderr,
+                 "esp32-native-hci-trace name=%s t=%" PRId64
+                 " pc=0x%08x cpu=%d a2=0x%08x a3=0x%08x"
+-                " a4=0x%08x a5=0x%08x a0=0x%08x a1=0x%08x\n",
++                " a4=0x%08x a5=0x%08x a6=0x%08x a10=0x%08x"
++                " a0=0x%08x a1=0x%08x\n",
+                 traces[i].name,
+                 qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
+                 pc, cs->cpu_index, a2, a3, a4, a5,
++                cpu_env(cs)->regs[6], cpu_env(cs)->regs[10],
+                 cpu_env(cs)->regs[0], cpu_env(cs)->regs[1]);
++        if (s->ble_hs_hci_ctx_address) {
++            uint32_t hci_ctx = 0;
++            uint32_t hci_ack = 0;
++
++            if (esp32_native_hci_read_u32(
++                    cs, (uint32_t)s->ble_hs_hci_ctx_address,
++                    &hci_ctx) &&
++                hci_ctx &&
++                esp32_native_hci_read_u32(
++                    cs, hci_ctx + 136, &hci_ack)) {
++                fprintf(stderr,
++                        "esp32-native-hci-trace-hci-state"
++                        " t=%" PRId64 " name=%s ctx=0x%08x"
++                        " ack=0x%08x sem_count_reg=0x%08x\n",
++                        qemu_clock_get_ns(QEMU_CLOCK_REALTIME),
++                        traces[i].name, hci_ctx, hci_ack,
++                        cpu_env(cs)->regs[10]);
++            }
++        }
+         if (strcmp(traces[i].name, "acl_process") == 0) {
+             uint32_t data_address = 0;
+             uint16_t data_length = 0;
+@@ -1828,6 +1853,10 @@
+                 (uint32_t)s->trace_python_notify_pc;
+             env->native_hci_trace_pcs[18] =
+                 (uint32_t)s->trace_nimble_gatts_notify_pc;
++            env->native_hci_trace_pcs[19] =
++                (uint32_t)s->trace_hci_rx_evt_pc;
++            env->native_hci_trace_pcs[20] =
++                (uint32_t)s->trace_hci_rx_ack_check_pc;
+             env->native_hci_send_callback =
+                 esp32_native_hci_api_send_packet;
+             env->native_hci_send_opaque = s;
+@@ -2309,6 +2338,12 @@
+     DEFINE_PROP_UINT64("trace-nimble-gatts-notify-pc",
+                        Esp32NativeHciState,
+                        trace_nimble_gatts_notify_pc, 0),
++    DEFINE_PROP_UINT64("trace-hci-rx-evt-pc",
++                       Esp32NativeHciState, trace_hci_rx_evt_pc, 0),
++    DEFINE_PROP_UINT64("trace-hci-rx-ack-check-pc",
++                       Esp32NativeHciState, trace_hci_rx_ack_check_pc, 0),
++    DEFINE_PROP_UINT64("ble-hs-hci-ctx-address",
++                       Esp32NativeHciState, ble_hs_hci_ctx_address, 0),
+     DEFINE_PROP_UINT64("hli-event-allocator-address",
+                        Esp32NativeHciState, hli_event_allocator_address, 0),
+     DEFINE_PROP_UINT64("hli-acl-allocator-address",
+--- a/include/hw/xtensa/esp32_native_hci.h
++++ b/include/hw/xtensa/esp32_native_hci.h
+@@ -21,7 +21,7 @@
+ #define ESP32_NATIVE_HCI_QUEUE_DEPTH 32
+ #define ESP32_NATIVE_HCI_PACKET_MAX 2048
+ #define ESP32_NATIVE_HCI_RX_BUFFER_SIZE 8192
+-#define ESP32_NATIVE_HCI_TRACE_SLOTS 19
++#define ESP32_NATIVE_HCI_TRACE_SLOTS 21
+ /*
+  * Four simultaneous cold starts can consume the initial HCI command ACKs
+  * before CPU0 reaches another safe idle point. Keep enough real guest
+@@ -106,6 +106,9 @@
+     uint64_t trace_python_irq_pc;
+     uint64_t trace_python_notify_pc;
+     uint64_t trace_nimble_gatts_notify_pc;
++    uint64_t trace_hci_rx_evt_pc;
++    uint64_t trace_hci_rx_ack_check_pc;
++    uint64_t ble_hs_hci_ctx_address;
+     uint64_t hli_event_buffer_address;
+     uint64_t hli_acl_mbuf_address;
+     uint64_t hli_descriptor_pool_address;
+@@ -222,6 +225,8 @@
+     uint64_t trace_python_irq;
+     uint64_t trace_python_notify;
+     uint64_t trace_nimble_gatts_notify;
++    uint64_t trace_hci_rx_evt;
++    uint64_t trace_hci_rx_ack_check;
+ };
+ 
+ bool esp32_native_hci_send_h2c(Esp32NativeHciState *s,
+--- a/target/xtensa/cpu.h
++++ b/target/xtensa/cpu.h
+@@ -309,7 +309,7 @@
+ typedef struct CPUArchState CPUXtensaState;
+ typedef bool (*XtensaNativeHciSendCallback)(void *opaque, CPUState *cs,
+                                             uint32_t data, uint32_t length);
+-#define XTENSA_NATIVE_HCI_TRACE_SLOTS 19
++#define XTENSA_NATIVE_HCI_TRACE_SLOTS 21
+ typedef void (*XtensaNativeHciTraceCallback)(
+     void *opaque, CPUState *cs, uint32_t pc,
+     uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);

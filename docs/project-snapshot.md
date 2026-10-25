@@ -48,7 +48,7 @@
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、worker-local `qemu-unified` 的 HTTP/BLE/pcap companion fence、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
-| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 `2×120s`、双/三/四实例两批独立门禁和五实例 30 秒错峰两批 `10/10` 均已 PASS；`0008` 建立真实 guest HCI event/ACL fast path，`0009` 以 `8/4` 备用池关闭四实例启动 ACK burst，四实例每轮 36 events/9 ACLs、HLI `45/45`、`hli-errors=0`。原始四实例 `1/4` 失败及五实例零错峰 `5/5 PASS`/`3/5 FAIL` 不稳定对照仍保留 |
+| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 `2×120s`、双/三/四实例两批独立门禁和五实例 30 秒错峰两批 `10/10` 均已 PASS；`0008` 建立真实 guest HCI event/ACL fast path，`0009` 以 `8/4` 备用池关闭四实例启动 ACK burst，四实例每轮 36 events/9 ACLs、HLI `45/45`、`hli-errors=0`。`0010` ACK-state trace 证明零错峰五实例失败从 HLI delivery delay 开始，旧 response 与新 command 交错；behavioral workaround 均未稳定 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
 | `FW-03` | 进行中 | API/WebBurner capability、Manifest、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family |
@@ -66,7 +66,7 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`40` 个 Python 模块，`33999` 行；规模最大的模块如下。
+- `platform/tools`：`40` 个 Python 模块，`34011` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
@@ -77,13 +77,13 @@
 | `firmware_filesystems.py` | 1469 |
 | `worker_agent.py` | 1429 |
 
-- `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`183` 个 evidence JSON。
-- `patches/`：`10` 个补丁组，`58` 个 patch 文件。
-- 文档：`214` 个 Markdown 页面，`19882` 行。
+- `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`186` 个 evidence JSON。
+- `patches/`：`10` 个补丁组，`59` 个 patch 文件。
+- 文档：`214` 个 Markdown 页面，`19915` 行。
 
 ## 文档与测试
 
-- 平台测试：`470` 项。
+- 平台测试：`477` 项。
 - Docs 新鲜度登记：`33` 行；其中非历史页 `26` 行，历史固定页 `7` 行。
 - 文档职责分布：待办 `3`，契约 `6`，历史固定 `7`，实现/设计 `6`，参考 `7`，工作流/导航 `4`。
 - 全量文档盘点：`214` 个 Markdown 页面；职责分布：权威/专题页 `33`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `11`，平台说明 `3`，仓内历史记录 `5`，测试/用例说明 `137`，第三方来源说明 `2`。
