@@ -42,6 +42,20 @@ sudo env \
   --out-dir /tmp/m5-worker-partition-qemu
 ```
 
+The stronger lane runs one `qemu-unified` guest with the HTTP fixture, external
+BLE peer and pcap in the same runtime:
+
+```bash
+sudo env \
+  "PATH=$PATH" \
+  "PYTHONPATH=$PWD/platform/tools" \
+  python3 tests/network/worker_partition_fencing/run_test.py \
+  --qemu-unified \
+  --qemu-path /path/to/linux/qemu-system-xtensa \
+  --firmware /path/to/sticks3-unified-8MiB.bin \
+  --out-dir /tmp/m5-worker-partition-unified
+```
+
 Both lanes prove control-plane fencing and process cleanup. The QEMU lane
 additionally proves that the worker-local QEMU PID is reaped after the
 blackhole and that attempt 2 can boot a fresh QEMU and complete the job.
@@ -58,9 +72,14 @@ All three runs pass `18/18` checks. In each run, attempt 1 starts a real
 StickS3 QEMU, loses the control plane, is fenced, and has its QEMU PID
 reaped; attempt 2 starts a fresh QEMU and reaches terminal `PASS`.
 
-The QEMU lane uses plain `runtime=qemu`. It proves ownership and cleanup of
-the worker-local QEMU **process**. It does not prove that a
-`qemu-unified` HTTP companion, BLE peer, pcap writer or guest/device-
-controller internal state is quiesced by the same fence, nor does it prove
-physical cross-host execution or hardware behavior. That unified companion
-partition lane is the next `NET-04` gate.
+The plain `--qemu` lane uses `runtime=qemu` and proves ownership and cleanup
+of the worker-local QEMU **process**. The `--qemu-unified` lane additionally
+waits for the same session's HTTP request, BLE pass and non-empty pcap before
+partitioning, then requires both companion states to terminate, the BLE peer
+PID to be reaped, the pcap summary to finalize, and a fresh unified retry to
+complete.
+
+Neither lane proves physical cross-host execution or hardware behavior. The
+unified lane also does not expose guest/controller-internal state after QEMU
+exit; process and provider cleanup must not be described as an internal guest
+quiesce.

@@ -5028,10 +5028,17 @@ class DocsConsistencyTests(unittest.TestCase):
             unit_test,
         )
         for fragment in (
-            'parser.add_argument("--qemu"',
+            'qemu_mode.add_argument("--qemu"',
+            '"--qemu-unified"',
             "upload_firmware(",
             "wait_qemu_started(",
             "wait_qemu_stopped(",
+            "wait_unified_ready(",
+            '"uiflow2-sticks3-unified"',
+            '"capture_pcap": True',
+            "unified_http_request_observed_before_partition",
+            "unified_ble_pid_reaped",
+            "retry_unified_pcap_finalized",
         ):
             self.assertIn(fragment, partition_runner)
 

@@ -48,6 +48,22 @@ def main() -> int:
         raise SystemExit("independent runs have no tool hashes")
     if any(value != hashes[0] for value in hashes[1:]):
         raise SystemExit("independent runs used different tool hashes")
+    revisions = {
+        document.get("base_commit") for _, document in documents
+    }
+    if len(revisions) != 1 or None in revisions:
+        raise SystemExit("independent runs used different source revisions")
+    if any(
+        document.get("source_worktree_clean") is not True
+        for _, document in documents
+    ):
+        raise SystemExit("source worktree was dirty during an independent run")
+    runtime_kinds = {
+        document["runtime"]["kind"] for _, document in documents
+    }
+    if len(runtime_kinds) != 1:
+        raise SystemExit("independent runs used different runtime kinds")
+    runtime_kind = runtime_kinds.pop()
 
     runs = []
     for evidence_path, document in documents:
@@ -68,25 +84,53 @@ def main() -> int:
             or checks.get("retry_side_effect_reaped") is not True
         ):
             raise SystemExit(f"{evidence_path} does not prove fencing")
-        runs.append(
-            {
-                "evidence_sha256": sha256(evidence_path),
-                "job_id_sha256": job["job_id_sha256"],
-                "attempts": job["attempts"],
-                "result_state": job["result"]["state"],
-                "first_worker_returncode": first["returncode"],
-                "first_worker_lease_fenced": True,
-                "first_side_effect_reaped": checks[
-                    "runtime_side_effect_reaped"
-                ],
-                "retry_worker_returncode": retry["returncode"],
-                "retry_side_effect_reaped": checks[
-                    "retry_side_effect_reaped"
-                ],
-                "cleanup": document["cleanup"],
-                "runtime_kind": document["runtime"]["kind"],
+        run = {
+            "evidence_sha256": sha256(evidence_path),
+            "job_id_sha256": job["job_id_sha256"],
+            "attempts": job["attempts"],
+            "result_state": job["result"]["state"],
+            "first_worker_returncode": first["returncode"],
+            "first_worker_lease_fenced": True,
+            "first_side_effect_reaped": checks[
+                "runtime_side_effect_reaped"
+            ],
+            "retry_worker_returncode": retry["returncode"],
+            "retry_side_effect_reaped": checks[
+                "retry_side_effect_reaped"
+            ],
+            "cleanup": document["cleanup"],
+            "runtime_kind": document["runtime"]["kind"],
+        }
+        if runtime_kind == "qemu-unified":
+            first_assets = first.get("session", {}).get(
+                "unified_assets", {}
+            )
+            retry_assets = retry.get("unified_assets", {})
+            run["companion_fencing"] = {
+                "http_requests_before_fence": len(
+                    first_assets.get("http_requests") or []
+                ),
+                "ble_pass_before_fence": (
+                    first_assets.get("ble_probe_pass") is True
+                ),
+                "ble_pid_reaped": checks.get(
+                    "unified_ble_pid_reaped"
+                )
+                is True,
+                "pcap_bytes_before_fence": first_assets.get(
+                    "pcap_bytes", 0
+                ),
+                "pcap_summary_after_fence": first_assets.get(
+                    "pcap_summary_status"
+                ),
+                "retry_http_requests": len(
+                    retry_assets.get("http_requests") or [],
+                ),
+                "retry_pcap_summary": retry_assets.get(
+                    "pcap_summary_status"
+                ),
             }
-        )
+        runs.append(run)
     not_claimed = list(documents[0][1]["not_claimed"])
     if all(
         document["runtime"]["kind"] == "qemu"
@@ -99,8 +143,14 @@ def main() -> int:
         "schema_version": 1,
         "kind": "m5stack-worker-network-partition-fencing-3x",
         "date": "2026-10-25",
-        "validation": "virtual control-plane validation",
+        "validation": (
+            "virtual control-plane + unified companion validation"
+            if runtime_kind == "qemu-unified"
+            else "virtual control-plane validation"
+        ),
         "status": "PASS",
+        "source_revision": next(iter(revisions)),
+        "source_worktree_clean": True,
         "attempts_requested": len(documents),
         "attempts_completed": len(documents),
         "attempts_passed": len(documents),

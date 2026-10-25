@@ -516,6 +516,86 @@ def qemu_session(
     return sessions[0] if isinstance(sessions, list) and sessions else {}
 
 
+def unified_session_assets(
+    session: dict[str, Any],
+    runtime_state_dir: Path,
+) -> dict[str, Any]:
+    session_id = str(session.get("session_id") or "")
+    if not session_id:
+        return {}
+    session_dir = runtime_state_dir / "sessions" / session_id
+    http_requests: list[dict[str, Any]] = []
+    http_path = session_dir / "http-fixture.json"
+    if http_path.is_file():
+        try:
+            loaded = json.loads(http_path.read_text())
+        except json.JSONDecodeError:
+            loaded = []
+        if isinstance(loaded, list):
+            http_requests = [
+                item for item in loaded if isinstance(item, dict)
+            ]
+    ble_log = session_dir / "ble-probe.log"
+    ble_text = (
+        ble_log.read_text(errors="replace")
+        if ble_log.is_file()
+        else ""
+    )
+    pcap = session_dir / "network.pcap"
+    pcap_summary = session_dir / "network.pcap.json"
+    summary: dict[str, Any] = {}
+    if pcap_summary.is_file():
+        try:
+            loaded_summary = json.loads(pcap_summary.read_text())
+        except json.JSONDecodeError:
+            loaded_summary = {}
+        if isinstance(loaded_summary, dict):
+            summary = loaded_summary
+    return {
+        "session_dir": str(session_dir),
+        "http_requests": http_requests,
+        "ble_probe_pass": "BLE_BUMBLE_PASS" in ble_text,
+        "pcap_bytes": pcap.stat().st_size if pcap.is_file() else 0,
+        "pcap_summary_present": bool(summary),
+        "pcap_summary_status": summary.get("status"),
+    }
+
+
+def wait_unified_ready(
+    service_url: str,
+    token_file: Path,
+    runtime_state_dir: Path,
+    *,
+    timeout: float,
+) -> dict[str, Any]:
+    deadline = time.monotonic() + timeout
+    latest: dict[str, Any] = {}
+    while time.monotonic() < deadline:
+        latest = qemu_session(service_url, token_file)
+        companions = latest.get("companions") or {}
+        if (
+            latest.get("state") == "running"
+            and isinstance(latest.get("pid"), int)
+            and (companions.get("http_fixture") or {}).get("state")
+            == "running"
+            and (companions.get("ble_probe") or {}).get("state")
+            == "running"
+        ):
+            assets = unified_session_assets(latest, runtime_state_dir)
+            if (
+                assets.get("http_requests")
+                and assets.get("ble_probe_pass")
+                and assets.get("pcap_bytes", 0) > 0
+            ):
+                latest["unified_assets"] = assets
+                return latest
+        time.sleep(0.1)
+    raise FixtureError(
+        "worker-local qemu-unified session did not reach companion readiness: "
+        f"{latest}"
+    )
+
+
 def wait_qemu_started(
     service_url: str,
     token_file: Path,
@@ -541,6 +621,7 @@ def wait_qemu_stopped(
     pid: int,
     *,
     timeout: float,
+    runtime_state_dir: Path | None = None,
 ) -> dict[str, Any]:
     deadline = time.monotonic() + timeout
     latest: dict[str, Any] = {}
@@ -551,6 +632,26 @@ def wait_qemu_stopped(
             session_id=session_id,
         )
         if latest.get("state") == "stopped" and not pid_alive(pid):
+            if runtime_state_dir is not None:
+                companions = latest.get("companions") or {}
+                if any(
+                    (companions.get(name) or {}).get("state")
+                    != "terminated"
+                    for name in ("http_fixture", "ble_probe")
+                ):
+                    time.sleep(0.1)
+                    continue
+                assets = unified_session_assets(
+                    latest,
+                    runtime_state_dir,
+                )
+                if (
+                    not assets.get("pcap_summary_present")
+                    or assets.get("pcap_summary_status") != "PASS"
+                ):
+                    time.sleep(0.1)
+                    continue
+                latest["unified_assets"] = assets
             latest["side_effect_reaped"] = True
             return latest
         time.sleep(0.1)
@@ -564,25 +665,46 @@ def main() -> int:
     os.environ["no_proxy"] = "*"
     parser = argparse.ArgumentParser()
     parser.add_argument("--out-dir", type=Path, required=True)
-    parser.add_argument("--qemu", action="store_true")
+    qemu_mode = parser.add_mutually_exclusive_group()
+    qemu_mode.add_argument("--qemu", action="store_true")
+    qemu_mode.add_argument("--qemu-unified", action="store_true")
     parser.add_argument("--qemu-path", type=Path)
     parser.add_argument("--firmware", type=Path)
     args = parser.parse_args()
-    if args.qemu and (
+    uses_qemu = args.qemu or args.qemu_unified
+    if uses_qemu and (
         args.qemu_path is None or args.firmware is None
     ):
-        parser.error("--qemu requires --qemu-path and --firmware")
-    if not args.qemu and (
+        parser.error(
+            "--qemu/--qemu-unified require --qemu-path and --firmware"
+        )
+    if not uses_qemu and (
         args.qemu_path is not None or args.firmware is not None
     ):
-        parser.error("--qemu-path/--firmware require --qemu")
+        parser.error(
+            "--qemu-path/--firmware require --qemu or --qemu-unified"
+        )
     qemu_path = args.qemu_path.resolve() if args.qemu_path else None
     firmware = args.firmware.resolve() if args.firmware else None
     if qemu_path is not None and not qemu_path.is_file():
         parser.error("--qemu-path does not exist")
     if firmware is not None and not firmware.is_file():
         parser.error("--firmware does not exist")
-    runtime_kind = "qemu" if args.qemu else "fake-process"
+    if args.qemu_unified and (
+        firmware is None or firmware.stat().st_size != (8 << 20)
+    ):
+        parser.error("--qemu-unified firmware must be exactly 8 MiB")
+    runtime_kind = (
+        "qemu-unified"
+        if args.qemu_unified
+        else ("qemu" if args.qemu else "fake-process")
+    )
+    source_revision = checked(
+        ["git", "rev-parse", "HEAD"]
+    ).stdout.strip()
+    source_worktree_clean = not command(
+        ["git", "status", "--porcelain"]
+    ).stdout.strip()
     args.out_dir.mkdir(parents=True, exist_ok=True)
     logs_dir = args.out_dir / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
@@ -660,7 +782,7 @@ def main() -> int:
             service_url + "/api/health",
             service,
         )
-        if args.qemu:
+        if uses_qemu:
             runtime = subprocess.Popen(
                 [
                     "ip",
@@ -716,9 +838,35 @@ def main() -> int:
                 token_file,
                 firmware,
             )
-            if args.qemu and firmware is not None
+            if uses_qemu and firmware is not None
             else None
         )
+
+        session_payload: dict[str, Any] = {
+            "device_id": "sticks3",
+            "runtime": runtime_kind if args.qemu_unified else "qemu",
+            **(
+                {"firmware_id": firmware_id}
+                if firmware_id is not None
+                else {}
+            ),
+        }
+        evidence_include = ["manifest", "serial"]
+        if args.qemu_unified:
+            session_payload.update(
+                {
+                    "ready_timeout_seconds": 240,
+                    "network": {
+                        "profile": "uiflow2-sticks3-unified",
+                        "attempts": 1,
+                        "capture_pcap": True,
+                        "ble_reconnect_cycles": 1,
+                        "ble_reconnect_delay_seconds": 2,
+                        "ble_linger_seconds": 20,
+                    },
+                }
+            )
+            evidence_include.extend(["network", "frames", "qom"])
 
         submitted = api_json(
             SERVER_NS,
@@ -731,16 +879,8 @@ def main() -> int:
                 "max_attempts": 3,
                 "idempotency_key": f"partition-{secrets.token_hex(8)}",
                 "request": {
-                    "session": {
-                        "device_id": "sticks3",
-                        "runtime": "qemu",
-                        **(
-                            {"firmware_id": firmware_id}
-                            if firmware_id is not None
-                            else {}
-                        ),
-                    },
-                    "evidence_include": ["manifest", "serial"],
+                    "session": session_payload,
+                    "evidence_include": evidence_include,
                     "evidence_delay_seconds": EVIDENCE_DELAY_SECONDS,
                 },
             },
@@ -761,13 +901,29 @@ def main() -> int:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
-        if args.qemu:
+        if args.qemu_unified:
+            first_session = wait_unified_ready(
+                runtime_url,
+                token_file,
+                runtime_state_dir,
+                timeout=240,
+            )
+            first_pid = int(first_session["pid"])
+            first_ble_pid = int(
+                (
+                    (first_session.get("companions") or {}).get("ble_probe")
+                    or {}
+                ).get("pid")
+                or 0
+            )
+        elif args.qemu:
             first_session = wait_qemu_started(
                 runtime_url,
                 token_file,
                 timeout=30,
             )
             first_pid = int(first_session["pid"])
+            first_ble_pid = 0
         else:
             first_session = wait_runtime_session(
                 runtime_state,
@@ -778,7 +934,9 @@ def main() -> int:
                 timeout=5,
             )
             first_pid = int(first_session["side_effect_pid"])
+            first_ble_pid = 0
         pid_before = pid_alive(first_pid)
+        ble_pid_before = pid_alive(first_ble_pid) if first_ble_pid else None
         partition_network(control_port)
 
         try:
@@ -797,13 +955,16 @@ def main() -> int:
             else {}
         )
         first_summary = first_result.get("summary", {})
-        if args.qemu:
+        if uses_qemu:
             fenced_session = wait_qemu_stopped(
                 runtime_url,
                 token_file,
                 str(first_session["session_id"]),
                 first_pid,
                 timeout=20,
+                runtime_state_dir=(
+                    runtime_state_dir if args.qemu_unified else None
+                ),
             )
         else:
             fenced_session = wait_runtime_session(
@@ -816,6 +977,7 @@ def main() -> int:
                 timeout=10,
             )
         pid_after = pid_alive(first_pid)
+        ble_pid_after = pid_alive(first_ble_pid) if first_ble_pid else None
 
         leased = api_json(
             SERVER_NS,
@@ -849,7 +1011,9 @@ def main() -> int:
             lambda job: job.get("status") == "completed",
             timeout=20,
         )
-        if args.qemu:
+        second_ble_pid = 0
+        second_unified_assets: dict[str, Any] = {}
+        if uses_qemu:
             qemu_sessions = api_json(
                 WORKER_NS,
                 runtime_url + "/api/v1/sessions",
@@ -864,6 +1028,20 @@ def main() -> int:
                 {},
             )
             second_pid = int(second_session.get("pid") or 0)
+            if args.qemu_unified:
+                second_ble_pid = int(
+                    (
+                        (second_session.get("companions") or {}).get(
+                            "ble_probe"
+                        )
+                        or {}
+                    ).get("pid")
+                    or 0
+                )
+                second_unified_assets = unified_session_assets(
+                    second_session,
+                    runtime_state_dir,
+                )
         else:
             final_state = read_runtime_state(runtime_state)
             final_sessions = list(
@@ -895,6 +1073,12 @@ def main() -> int:
         runtime_log_text = (logs_dir / "runtime.log").read_text(
             errors="replace"
         )
+        first_unified_assets = first_session.get("unified_assets") or {}
+        fenced_unified_assets = (
+            fenced_session.get("unified_assets") or {}
+        )
+        first_companions = first_session.get("companions") or {}
+        fenced_companions = fenced_session.get("companions") or {}
         checks = {
             "worker_and_server_routes_present": (
                 SERVER_ADDRESS in fixture.routes.get("server", "")
@@ -952,21 +1136,98 @@ def main() -> int:
                 for namespace in (SERVER_NS, WORKER_NS)
             ),
         }
-        if args.qemu:
+        if uses_qemu:
             checks["qemu_started"] = pid_before
         else:
             checks["no_qemu_started"] = True
+        if args.qemu_unified:
+            checks.update(
+                {
+                    "unified_http_fixture_running_before_partition": (
+                        (
+                            first_companions.get("http_fixture") or {}
+                        ).get("state")
+                        == "running"
+                    ),
+                    "unified_ble_peer_running_before_partition": (
+                        (
+                            first_companions.get("ble_probe") or {}
+                        ).get("state")
+                        == "running"
+                        and ble_pid_before is True
+                    ),
+                    "unified_http_request_observed_before_partition": bool(
+                        first_unified_assets.get("http_requests")
+                    ),
+                    "unified_ble_pass_observed_before_partition": (
+                        first_unified_assets.get("ble_probe_pass") is True
+                    ),
+                    "unified_pcap_nonempty_before_partition": (
+                        int(first_unified_assets.get("pcap_bytes") or 0) > 0
+                    ),
+                    "unified_http_fixture_terminated": (
+                        (
+                            fenced_companions.get("http_fixture") or {}
+                        ).get("state")
+                        == "terminated"
+                    ),
+                    "unified_ble_companion_terminated": (
+                        (
+                            fenced_companions.get("ble_probe") or {}
+                        ).get("state")
+                        == "terminated"
+                    ),
+                    "unified_ble_pid_reaped": (
+                        ble_pid_before is True and ble_pid_after is False
+                    ),
+                    "unified_pcap_finalized": (
+                        fenced_unified_assets.get(
+                            "pcap_summary_status"
+                        )
+                        == "PASS"
+                    ),
+                    "retry_unified_companions_terminated": all(
+                        (
+                            (
+                                second_session.get("companions") or {}
+                            ).get(name)
+                            or {}
+                        ).get("state")
+                        == "terminated"
+                        for name in ("http_fixture", "ble_probe")
+                    ),
+                    "retry_unified_ble_pid_reaped": (
+                        second_ble_pid > 0 and not pid_alive(second_ble_pid)
+                    ),
+                    "retry_unified_pcap_finalized": (
+                        second_unified_assets.get(
+                            "pcap_summary_status"
+                        )
+                        == "PASS"
+                    ),
+                }
+            )
         evidence = {
             "schema_version": 1,
             "kind": "m5stack-worker-network-partition-fencing",
             "date": "2026-10-25",
-            "validation": "virtual control-plane validation",
+            "validation": (
+                "virtual control-plane + unified companion validation"
+                if args.qemu_unified
+                else "virtual control-plane validation"
+            ),
             "status": "PASS" if all(checks.values()) else "FAIL",
-            "base_commit": "fa902c2c3f67b560d4d7d64b8b1df302b4fa1067",
+            "base_commit": source_revision,
+            "source_worktree_clean": source_worktree_clean,
             "runtime": {
                 "kind": runtime_kind,
                 "side_effect": (
-                    "worker-local QEMU process"
+                    (
+                        "worker-local QEMU process, HTTP fixture, "
+                        "BLE peer and pcap writer"
+                    )
+                    if args.qemu_unified
+                    else "worker-local QEMU process"
                     if args.qemu
                     else "worker-local OS child process"
                 ),
@@ -997,10 +1258,15 @@ def main() -> int:
                 "session": fenced_session,
                 "side_effect_pid_alive_before": pid_before,
                 "side_effect_pid_alive_after": pid_after,
+                "companions": first_companions,
+                "companion_ble_pid_alive_before": ble_pid_before,
+                "companion_ble_pid_alive_after": ble_pid_after,
+                "unified_assets": first_unified_assets,
             },
             "retry_worker": {
                 "returncode": second.returncode,
                 "session": second_session,
+                "unified_assets": second_unified_assets,
             },
             "checks": checks,
             "cleanup": {
@@ -1011,9 +1277,15 @@ def main() -> int:
             "not_claimed": [
                 *(
                     []
-                    if args.qemu
+                    if uses_qemu
                     else ["QEMU side-effect fencing"]
                 ),
+                *(
+                    []
+                    if args.qemu_unified
+                    else ["qemu-unified companion and pcap fencing"]
+                ),
+                "QEMU guest/device/controller-internal side effects",
                 "physical cross-host execution",
                 "external network side effects not owned by the worker",
                 "production scheduler",
