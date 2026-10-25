@@ -39,7 +39,7 @@
 | `tests/` | 测试分层、evidence 命名和 Agent 功能测试路由；入口见 `tests/README.md` | 是 |
 | `tests/uiflow2/` | 外设、UI、统一运行时、Core2 无线和证据包 | 是 |
 | `tests/network/` | namespace、DNS、TLS、错误密码、worker continuity 和 Core2 网络夹具；总索引见 `tests/network/README.md` | 是 |
-| `tests/firmware/` | FirmwareManifest、静态审查、文件系统、NVS 和跨厂商运行时证据 | 是 |
+| `tests/firmware/` | FirmwareManifest、静态审查、文件系统、NVS、Core2 PSRAM/flash-IPC 探针和跨厂商运行时证据 | 是 |
 | `devices/` | 源设备清单、生成后的设备档案、固件来源和说明 | 是 |
 | `platform/web/` | 设备目录、Live session、WebBurner、输入和 3D 外壳 | 是 |
 | `platform/runtime/wasm/` | 固定版本的第三方 `esp-emu` 运行时资产 | 仅 Tab5/诊断后端 |
@@ -137,6 +137,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS 证据 | manifest/filesystem/NVS 改动 |
 | `tests/firmware/openai_nvs_precondition/` | 对照空 NVS、Open/WPA2 正确密码和错误密码，绑定 NVS overlay、EAPOL/CCMP、DHCP/DNS/TCP 与 pcap | NVS fixture、generic S3 qemu-wifi、S3 WPA2 或该样本分类改动 |
+| `tests/firmware/core2_flash_ipc/run_test.py` | 通过独立 Device Service lease 复现 ESP-IDF CPU1 worker + CPU0 等待路径；检查 PRID、`READ_START`、spinlock assert、serial/evidence hash | Core2 跨核锁、S32C1I、flash-cache/DPORT 或 `RUNTIME-03` 探针改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 | `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
 | `platform/tests/test_worker_directory.py` | 远程 worker 注册、持久化、generation、stale/drain/stop、容量和结果元数据契约 | `/api/v1/workers` 或 `worker_directory.py` 改动 |
@@ -248,7 +249,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
 | `platform/tools/user_firmware_expectations.schema.json` | UI/headless/network-first review expectation v1 schema |
 | `platform/tools/nvs_image.py` | 生成确定性 NVSv2 namespace/string 配置 fixture |
-| [`tests/firmware/`](../tests/firmware/README.md) | FirmwareManifest、静态审查、文件系统、NVS/OpenAI 专用探针和跨厂商运行时 evidence |
+| [`tests/firmware/`](../tests/firmware/README.md) | FirmwareManifest、静态审查、文件系统、NVS/OpenAI、Core2 PSRAM/flash-IPC 专用探针和跨厂商运行时 evidence |
 | `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |
 | `platform/web/firmware.html`、`firmware.js`、`firmware-report.js`、`firmware-upload.js`、`sha256.js` | 浏览器 WebBurner 包上传、流式 SHA256、重试/取消/刷新恢复、manifest 导入、sdkconfig/image capability 来源与 warning 展示 |
 
@@ -328,6 +329,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 bounded TCG memory | `platform/tools/qemu_accel.py`；`run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-tb128-hold120-1x.json` | `tb-size=128` 后 120 秒 WiFi/公网/GATT/frame/pcap/HLI 全 PASS；RSS `323600→323584 KiB`、phys footprint `214016→196608 KiB`；最终 7200 秒限容门禁独立保留 |
 | Core2 final bounded 7200-second hold | `run_service_5x.py --hold-seconds 7200 --attempts 1`；`evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json` | 1/1 artifact-bound lease；`bounded_tcg_cache`、frame/QOM、WiFi/公网、active NUS GATT、pcap、HLI `45/45`、active peer、evidence 和 cleanup 全 PASS；240 个资源采样 RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB`，输入与工具哈希无漂移 |
 | Core2 PSRAM/QOM and bank switch | `device_service.qemu_runtime_memory()`；`0030-core2-eight-mib-psram.patch`；`tests/firmware/core2_psram_himem/` | CLI `-m 0` 与 QOM-effective `8 MiB` 分开记录；普通 DRAM1 heap 保持 `4 MiB`，upper-bank `esp_himem` MMU remap 3/3 PASS；物理 cache/PSRAM 仍为 `NOT RUN` |
+| Core2 flash/IPC spinlock diagnostic | `tests/firmware/core2_flash_ipc/`；`run_test.py`；`evidence-2026-10-26-core2-flash-ipc-spinlock.json`；本地诊断 QEMU 的 `M5SW_CROSSCORE_INT_TRACE=1`、`M5SW_DPORT_TRACE=1` | 3/3 独立 ESP-IDF 5.5.4 lease 读到 CPU0/CPU1 PRID `0xcdcd`/`0xabab`，CPU1 已 READY 但 CPU0 在 `xQueueSemaphoreTake()` 退临界区时 `spinlock_release()` 断言；没有 `READ_START`。旧 portable runtime control 为 2/3 同类断言、1/3 interrupt-WDT，仍没有 `READ_START`。当前下一项是 S32C1I/锁 owner trace；trace build 尚未进入正式 patch 序列 |
 | Core2 legacy shared I2C bus | `hw/m5stopwatch/m5core2.c`；`0031-core2-shared-board-i2c.patch`；`M5SW_I2C_CTRL_TRACE=1`；`evidence-2026-10-25-core2-shared-board-i2c.json` | Port trace 证明旧固件在 controller 0 上访问 AXP/RTC；两个 controller 现共享 GPIO21/22 板级 bus，`0x34`/`0x51`/INA `0x40` 均 ACK，原 I2C error 消失。后续 interrupt WDT 与 black frame 仍为 OPEN；现有 UIFlow2 Core2 设备组 `6/6 PASS` |
 | Core2 legacy WDT timing | `hw/timer/esp32_timg.c`；`0032-esp32-timg-wdt-trace.patch`；`M5SW_TIMG_TRACE=1`；`evidence-2026-10-25-core2-wdt-timing.json` | 默认单会话保持超过 285 秒且 TG0/TG1 持续 feed；两批四实例并发中的 5/8 lease 出现 interrupt-WDT，CPU/PC 不固定。`thread=single`、`thread=multi` 和 `icount shift=0/5` 均不能修复，thread/icount 对照还暴露 TG hardware reset。当前调查点是长同步启动阶段与虚拟时间/宿主调度的组合 |
 | Core2 guest PSRAM sustained stress | `tests/uiflow2/unified_core2/main.py`；`run_service_5x.py --require-psram`；`evidence-2026-10-25-core2-psram-sustained-8m-3x120.json` | 3 个独立 120 秒 lease 各完成 35 次 `1 MiB` 全缓冲校验（累计 `105 MiB`），同时执行 30 次受控 HTTP、10 次公网 recheck 并保持 active BLE/frame/QOM/pcap；QOM 8 MiB，物理 cache timing 不在结论内 |
@@ -356,7 +358,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Refreshed public artifacts functional | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；`evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json`；`evidence-2026-10-25-openai-nvs-precondition.json` | 4 个当前公开 BIN 的 Device Service 结果为 `3 PASS / 1 PARTIAL`；XiaoZhi/EDC/CrossPoint 达到 frame/input 层 PASS；OpenAI 的 UI/input 规则仍为 PARTIAL，但空 NVS、WPA2 与错误密码前置条件已分层验证 |
 | 跨厂商公开固件 runtime matrix | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；S3/C6 与 Core2 evidence | 7 台设备、21 个公开样本；10 PASS / 11 PARTIAL；Core2 PMIC/AWS ATECC 与 C6 Zigbee 归类为 `runtime_model_gap` |
 | C6 Zigbee `thread-sim` 可行性 | `tests/firmware/c6_zigbee_thread_sim/run_feasibility.py`；`evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json` | 双实例 UDP relay 观察到双向 802.15.4 帧，但 commissioning/join 未完成；结果为 `PARTIAL/runtime_model_gap` |
-| 运行时模型缺口登记 | `runtime-model-gap-register.md`；C6 Flash/PMP patches；跨厂商与修复 evidence | `RUNTIME-01` 已关闭；`RUNTIME-02` 为 802.15.4 ACK/commissioning，`RUNTIME-03` 的 Core2 shared I2C 已修复但后初始化 WDT/非空帧仍开放，`RUNTIME-04` 为 ATECC608 |
+| 运行时模型缺口登记 | `runtime-model-gap-register.md`；C6 Flash/PMP patches；Core2 flash-IPC 探针；跨厂商与修复 evidence | `RUNTIME-01` 已关闭；`RUNTIME-02` 为 802.15.4 ACK/commissioning，`RUNTIME-03` 的 Core2 shared I2C 已修复，但最小探针在 flash 读取前暴露 spinlock owner mismatch，legacy WDT/非空帧仍开放，`RUNTIME-04` 为 ATECC608 |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码 P0 | `tests/network/wrong_password/run_test.py`；`evidence-2026-10-24-wrong-password-pass.json` | 6 次 auth/reject、无 DHCP、无 HTTP、固件失败 marker 和 SoftAP wrong-password warning 同次 `7/7 PASS` |
 | 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/run_test.py`；`evidence-2026-10-24-radio-loss-recovery-pass.json` | radio QOM `false→true`、scan `1→0→1`、双 DHCP、前后 HTTP 200、双侧流 pcap 和同 session 证据 |

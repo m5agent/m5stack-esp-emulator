@@ -31,7 +31,9 @@ MicroPython 和其他完整 Flash 固件。
   物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
 - Core2 legacy UIFlow 的 AXP/RTC/INA 已统一路由到共享 GPIO21/22 物理
   board bus，原 `I2C bus error (19)` 已消失；同一固件随后仍进入
-  interrupt-WDT 并保持黑帧，`Core2FactoryTest` 修复后尚未重跑，因此
+  interrupt-WDT 并保持黑帧。独立 ESP-IDF 最小探针已在 3 个 lease 中复现
+  flash 读取之前的 FreeRTOS 临界区 spinlock owner mismatch，当前先调查
+  S32C1I/CAS 与跨核调度；`Core2FactoryTest` 修复后尚未重跑，因此
   `RUNTIME-03` 仍为 `OPEN`。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。

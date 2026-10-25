@@ -1,11 +1,12 @@
 # Core2 intermittent cache-panic investigation
 
-Last reviewed: `2026-10-25`. Historical root-cause record; current capability
+Last reviewed: `2026-10-26`. Historical root-cause record; current capability
 and open production boundaries are maintained in
 [Project current status](project-status.md) and
 [project backlog](project-backlog.md).
 
-Status: **mitigated for virtual-device runs; physical/hardware equivalence
+Status: **mitigated for the official UIFlow2 virtual-device path; the legacy
+UIFlow `RUNTIME-03` lane is still open, and physical/hardware equivalence
 remains open**. This is an emulator scheduling/runtime issue, not a
 peripheral-data failure.
 
@@ -170,14 +171,53 @@ timing or hardware equivalence. The later three-lease 121-cycle reconnect gate
 also passed and is recorded in the current status page; this historical
 investigation does not treat that functional result as a physical cache model.
 
+## 2026-10-26 update
+
+The legacy-UIFlow investigation has moved away from a single fixed firmware PC.
+A new ESP-IDF 5.5.4 probe at
+[`tests/firmware/core2_flash_ipc/`](../tests/firmware/core2_flash_ipc/)
+reproduced in three independent Device Service leases:
+
+```text
+CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd
+CORE2_FLASH_IPC_READY core=1 prid=0x0000abab
+assert failed: spinlock_release spinlock.h:190 (core_owner_id == lock->owner)
+```
+
+None of the runs reached `CORE2_FLASH_IPC_READ_START`. Symbolizing the stable
+backtrace gives:
+
+```text
+spinlock_release
+  <- vPortExitCritical
+  <- xQueueSemaphoreTake
+  <- app_main
+```
+
+This changes the immediate question. The guest sees the expected ESP32 PRID
+values, and cross-core/DPORT trace channels are active, but a CPU0 task still
+exits a FreeRTOS critical section with an owner mismatch before partition reads
+begin. The next evidence must identify the actual spinlock address and owner and
+record `S32C1I` compare-and-swap inputs/result. The earlier legacy trace showing
+CPU0 waiting in the flash-operation start path and CPU1 repeating DPORT safe-read
+remains relevant, but it cannot yet be called the root cause of this smaller
+failure.
+
+The dated evidence and exact artifact hashes are in
+[`evidence-2026-10-26-core2-flash-ipc-spinlock.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-spinlock.json).
+An older portable-runtime control produced two spinlock-owner assertions and one
+interrupt-WDT in three first boots, again without `READ_START`. The failure is
+therefore not caused solely by the current diagnostic trace build, but the
+pre-read path can still terminate in more than one way.
+
 ## Next investigation
 
-1. Instrument vCPU idle, `CCOMPARE`, `INTSET`, `INTENABLE`, timer expiry and
-   WDT expiry timestamps to quantify the TCG starvation window.
-2. Compare default TCG multi-thread, single-thread and icount over larger
-   repeated matrices and other classic ESP32 images.
-3. Add a long-running soak test with concurrent QOM/FIFO/audio activity beyond
-   one boot/readiness cycle.
+1. Add default-off `S32C1I` tracing for CPU, PC, address, `SCOMPARE1`, desired
+   value, returned old value and CAS success/failure.
+2. Correlate the failing FreeRTOS critical-section lock address and owner with
+   its acquire/release sites and both CPUs' PRID values.
+3. Make `core2_flash_ipc` pass repeatedly and reach `READ_START` before returning
+   to legacy UIFlow flash-cache/DPORT work.
 4. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
    collected.
 

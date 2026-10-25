@@ -1,6 +1,6 @@
 # Firmware review and runtime evidence
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This directory stores committed evidence for firmware normalization, static
 review and public-firmware runtime tests. The evidence files are snapshots, not
@@ -192,6 +192,18 @@ not fix the path and sometimes triggered TG hardware resets earlier. The
 evidence therefore classifies the remaining boundary as timing-sensitive
 pending a guest code-point diagnosis, not as another fixed I2C or PMIC device
 gap.
+
+The later minimal
+[`core2_flash_ipc`](core2_flash_ipc/) probe narrows the question further. Three
+independent ESP-IDF 5.5.4 leases all print CPU0/CPU1 PRIDs `0xcdcd`/`0xabab`
+and a CPU1 READY marker, then assert in `spinlock_release()` from
+`vPortExitCritical()` while the CPU0 main task exits `xQueueSemaphoreTake()`.
+No attempt reaches `CORE2_FLASH_IPC_READ_START`, so this evidence does **not**
+yet prove that `esp_partition_read()` or the flash-cache data path caused the
+failure. It proves a smaller, firmware-independent multicore lock-ownership
+reproducer that must be explained before another legacy-UIFlow address-specific
+patch is attempted. See
+[`evidence-2026-10-26-core2-flash-ipc-spinlock.json`](core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-spinlock.json).
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).

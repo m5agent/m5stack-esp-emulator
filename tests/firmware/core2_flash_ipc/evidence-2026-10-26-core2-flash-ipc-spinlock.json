@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "kind": "m5stack-core2-flash-ipc-spinlock-diagnostic",
+  "validation": "virtual-device validation",
+  "status": "REPRODUCED",
+  "classification": "runtime_model_gap_candidate",
+  "device_id": "core2",
+  "runtime": "qemu",
+  "firmware": {
+    "image_sha256": "7e786a27678285d60c006fcb25226b98212672b34ec8b3b844833b5050a18da3",
+    "image_bytes": 16777216,
+    "elf_sha256": "af6d765b5f17052d92bf582e9e3ab1ec05b12b3a43f61366f7da5f31eb5db648",
+    "build": "ESP-IDF 5.5.4",
+    "target": "esp32"
+  },
+  "runtime_assets": {
+    "qemu_sha256": "a40455957b68453df63586829f5f843239572ebbd98edf7c84fab506f9b4fd23",
+    "trace_build_boundary": "The primary QEMU binary included local default-off cross-core/DPORT trace additions. The portable-runtime control below repeated the pre-read failure without those trace channels; a replay patch for the diagnostic trace build is not yet part of the committed patch series.",
+    "traces": [
+      "M5SW_CROSSCORE_INT_TRACE=1",
+      "M5SW_DPORT_TRACE=1"
+    ]
+  },
+  "attempts_requested": 3,
+  "attempts_reproduced": 3,
+  "runs": [
+    {
+      "session_id_sha256": "90db1c3b0d9bac2c5f243fa14eb8bd7bc5fc29d268d89857a3456906f8b301a3",
+      "serial_sha256": "dde1ab809e1da55c44faceaf8030a84f73db74db39e2f2fd6f0d16ede46f64fa",
+      "status": "REPRODUCED",
+      "main_core": 0,
+      "main_prid": "0x0000cdcd",
+      "worker_core": 1,
+      "worker_prid": "0x0000abab",
+      "spinlock_owner_assert": true,
+      "flash_read_started": false,
+      "interrupt_wdt_in_first_boot": false,
+      "reboot_observed": true,
+      "progress_markers": 0,
+      "worker_pass_markers": 0,
+      "backtrace": "0x400851c1:0x3ffb5400 0x40085189:0x3ffb5420 0x4008b20d:0x3ffb5440 0x40085e87:0x3ffb5560 0x40085a7e:0x3ffb5580 0x400d6696:0x3ffb55c0 0x400deeb5:0x3ffb55f0 0x40085b91:0x3ffb5620"
+    },
+    {
+      "session_id_sha256": "f43aeb2b0d16e6af8efa0c3cc2065bd42384cfbc0a3df4173c8d2742410a3b06",
+      "serial_sha256": "7a3f553aae0f3793cfc66d8090ec70a473485af66dc4e1a07b25ef8928ae9121",
+      "status": "REPRODUCED",
+      "main_core": 0,
+      "main_prid": "0x0000cdcd",
+      "worker_core": 1,
+      "worker_prid": "0x0000abab",
+      "spinlock_owner_assert": true,
+      "flash_read_started": false,
+      "interrupt_wdt_in_first_boot": false,
+      "reboot_observed": true,
+      "progress_markers": 0,
+      "worker_pass_markers": 0,
+      "backtrace": "0x400851c1:0x3ffb5400 0x40085189:0x3ffb5420 0x4008b20d:0x3ffb5440 0x40085e87:0x3ffb5560 0x40085a7e:0x3ffb5580 0x400d6696:0x3ffb55c0 0x400deeb5:0x3ffb55f0 0x40085b91:0x3ffb5620"
+    },
+    {
+      "session_id_sha256": "8cb8601b6b806f459ed6fd5cab187f88e14a8f3f22f96792fa6eb21c56ccde8d",
+      "serial_sha256": "51c53fed91c9607e488f8b9fb7c6ed35648c1032f0151031efbd9f42bc8a6aee",
+      "status": "REPRODUCED",
+      "main_core": 0,
+      "main_prid": "0x0000cdcd",
+      "worker_core": 1,
+      "worker_prid": "0x0000abab",
+      "spinlock_owner_assert": true,
+      "flash_read_started": false,
+      "interrupt_wdt_in_first_boot": false,
+      "reboot_observed": true,
+      "progress_markers": 0,
+      "worker_pass_markers": 0,
+      "backtrace": "0x400851c1:0x3ffb5400 0x40085189:0x3ffb5420 0x4008b20d:0x3ffb5440 0x40085e87:0x3ffb5560 0x40085a7e:0x3ffb5580 0x400d6696:0x3ffb55c0 0x400deeb5:0x3ffb55f0 0x40085b91:0x3ffb5620"
+    }
+  ],
+  "symbolization": [
+    {
+      "pc": "0x400851c1",
+      "symbol": "panic_abort",
+      "source": "components/esp_system/panic.c:477"
+    },
+    {
+      "pc": "0x40085189",
+      "symbol": "esp_system_abort",
+      "source": "components/esp_system/port/esp_system_chip.c:87"
+    },
+    {
+      "pc": "0x4008b20d",
+      "symbol": "__assert_func",
+      "source": "components/newlib/src/assert.c:81"
+    },
+    {
+      "pc": "0x40085e87",
+      "symbol": "spinlock_release <- vPortExitCritical",
+      "source": "components/esp_hw_support/include/spinlock.h:190; components/freertos/FreeRTOS-Kernel/portable/xtensa/port.c:501"
+    },
+    {
+      "pc": "0x40085a7e",
+      "symbol": "xQueueSemaphoreTake",
+      "source": "components/freertos/FreeRTOS-Kernel/queue.c:1853"
+    },
+    {
+      "pc": "0x400d6696",
+      "symbol": "app_main",
+      "source": "tests/firmware/core2_flash_ipc/main/app_main.c:148"
+    },
+    {
+      "pc": "0x400deeb5",
+      "symbol": "main_task",
+      "source": "components/freertos/app_startup.c:208"
+    },
+    {
+      "pc": "0x40085b91",
+      "symbol": "vPortTaskWrapper",
+      "source": "components/freertos/FreeRTOS-Kernel/portable/xtensa/port.c:139"
+    }
+  ],
+  "trace_summary": {
+    "stable_across_attempts": true,
+    "crosscore_irq": {
+      "0": {
+        "writes": 3,
+        "set": 2,
+        "clear": 1
+      },
+      "1": {
+        "writes": 12,
+        "set": 6,
+        "clear": 6
+      },
+      "2": {
+        "writes": 0,
+        "set": 0,
+        "clear": 0
+      },
+      "3": {
+        "writes": 4,
+        "set": 2,
+        "clear": 2
+      }
+    },
+    "dport_cache_control_writes": 174,
+    "dport_cache_control1_writes": 197,
+    "appcpu_boot_trace_events": 3,
+    "qemu_stderr_sha256": "33d7fc7aa60a5b300c2fe3c54a0a6ed0cdce643d516d0808abf9c46eca0d06e9"
+  },
+  "portable_runtime_control": {
+    "qemu_sha256": "4095fb1180f128f9d5fe8c240643dcc0fa99fca72981f6241b089667c0ca2fa8",
+    "sessions": 3,
+    "first_boot_spinlock_owner_assert": 2,
+    "first_boot_interrupt_wdt": 1,
+    "read_start_observed": 0,
+    "session_id_sha256": [
+      "1370303a68bbb0fe74e33dd029d008b34662511be55a385bd7979c49d832f895",
+      "18797013f07b927734ba27cc748feaf758a49fc9f1a12ed7613611c099153d51",
+      "9e1f91a92c75424650203a47878de39b33a15125dcaa5471bb5b9a066d1671e8"
+    ],
+    "serial_sha256": [
+      "d181afa3d053ad6e638aa47e46ead6a55f089781c645142757926546b2141b64",
+      "dde554dd1e4dea22b0175b6a2b32191cc82f258d6783260abb28bcaf4b4a06f5",
+      "aaef3e11867bb9de8b619d2c3caf587d2f06d9a0dbd3107a90509f68b7cbd76e"
+    ],
+    "conclusion": "The pre-read failure is not introduced solely by the current diagnostic trace build; both spinlock-owner and interrupt-WDT first-boot paths exist."
+  },
+  "checks": {
+    "three_independent_sessions": "PASS",
+    "main_cpu0_prid_cdcd": "PASS",
+    "worker_cpu1_prid_abab": "PASS",
+    "spinlock_owner_assert": "PASS",
+    "assert_before_flash_read_start": "PASS",
+    "flash_worker_pass": "FAIL",
+    "nonempty_application_result": "NOT RUN"
+  },
+  "interpretation": {
+    "proven": [
+      "The minimal ESP-IDF probe reproduces a spinlock owner mismatch in 3/3 independent sessions.",
+      "The assertion occurs while the CPU0 main task exits xQueueSemaphoreTake, before the CPU1 worker reaches the partition-read start marker.",
+      "PRID values visible to the guest match the expected ESP32 PRO/APP values in these runs.",
+      "Cross-core and DPORT cache writes are present, so the failure is not explained by absent trace channels.",
+      "The older portable runtime also fails before READ_START, in 2/3 spinlock-owner and 1/3 interrupt-WDT paths."
+    ],
+    "not_proven": [
+      "Whether S32C1I compare-and-swap returns or writes an incorrect value.",
+      "Which spinlock address has the mismatched owner.",
+      "Whether the same model defect is the sole cause of the legacy UIFlow interrupt-WDT.",
+      "Physical multicore, flash-cache, PSRAM or hardware behavior."
+    ],
+    "next": [
+      "Trace S32C1I CPU index, PC, address, SCOMPARE1, desired value, returned old value and success/failure.",
+      "Correlate the failing critical-section lock address and owner value with the CPU0/CPU1 PRID reads.",
+      "Add a minimal internal-RAM compare-and-swap test on both CPUs before changing the QEMU model."
+    ]
+  }
+}

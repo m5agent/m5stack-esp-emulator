@@ -307,6 +307,15 @@ also exposed TG hardware resets during boot. The remaining issue is therefore
 timing-sensitive rather than a fixed missing peripheral or one proven firmware
 deadlock.
 
+The 2026-10-26 minimal ESP-IDF probe moved the diagnostic boundary earlier
+again. In three independent leases, CPU0 and CPU1 read the expected PRID values
+`0xcdcd` and `0xabab`, and CPU1 printed its READY marker. Before any
+`esp_partition_read()` start marker appeared, the CPU0 main task asserted in
+`spinlock_release()` while exiting a `xQueueSemaphoreTake()` critical section.
+This does not yet prove an S32C1I defect or the cause of the legacy UIFlow
+interrupt-WDT, but it rules out presenting the partition-read/flash-data path
+as the confirmed first failure. The next evidence is an S32C1I/lock-owner trace.
+
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for
 AWS ATECC608 secure element. They remain `OPEN` until the relevant guest data
@@ -315,7 +324,8 @@ paths complete.
 Evidence:
 [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json),
 [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json),
-[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json).
+[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json),
+[`core2-flash-ipc-spinlock.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-spinlock.json).
 
 The 90-second run also exposed and fixed a matrix-client timeout: the HTTP
 `/wait` request used 90 seconds while the server was allowed to wait 90 seconds

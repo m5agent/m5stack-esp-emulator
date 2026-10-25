@@ -1,0 +1,335 @@
+#!/usr/bin/env python3
+"""Reproduce the Core2 flash/IPC spinlock ownership diagnostic."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+from typing import Any
+
+SPINLOCK_ASSERT = (
+    "assert failed: spinlock_release spinlock.h:190 "
+    "(core_owner_id == lock->owner)"
+)
+READY_PATTERN = re.compile(
+    r"(?m)^CORE2_FLASH_IPC_READY core=([01]) "
+    r"prid=0x([0-9a-fA-F]{8})\s*$"
+)
+MAIN_PATTERN = re.compile(
+    r"(?m)^CORE2_FLASH_IPC_MAIN core=([01]) "
+    r"prid=0x([0-9a-fA-F]{8})\s*$"
+)
+BACKTRACE_PATTERN = re.compile(
+    r"(?m)^Backtrace: ([0-9a-fA-Fx: ]+)\r?$"
+)
+
+
+class Api:
+    def __init__(self, base_url: str):
+        self.base_url = base_url.rstrip("/")
+
+    def request(
+        self,
+        path: str,
+        *,
+        method: str = "GET",
+        data: bytes | None = None,
+        content_type: str | None = None,
+        timeout: float = 60,
+    ) -> tuple[int, bytes, str]:
+        headers: dict[str, str] = {}
+        if content_type is not None:
+            headers["Content-Type"] = content_type
+        request = urllib.request.Request(
+            self.base_url + path,
+            data=data,
+            method=method,
+            headers=headers,
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                return (
+                    response.status,
+                    response.read(),
+                    response.headers.get("Content-Type", ""),
+                )
+        except urllib.error.HTTPError as error:
+            detail = error.read().decode(errors="replace")[:2000]
+            raise RuntimeError(
+                f"{path} returned HTTP {error.code}: {detail}"
+            ) from error
+
+    def json(
+        self,
+        path: str,
+        *,
+        method: str = "GET",
+        payload: dict[str, Any] | None = None,
+        timeout: float = 60,
+    ) -> Any:
+        data = None
+        content_type = None
+        if payload is not None:
+            data = json.dumps(payload).encode()
+            content_type = "application/json"
+        status, body, _ = self.request(
+            path,
+            method=method,
+            data=data,
+            content_type=content_type,
+            timeout=timeout,
+        )
+        if status not in {200, 201, 202}:
+            raise RuntimeError(f"{path} returned HTTP {status}")
+        return json.loads(body)
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def first_boot_serial(serial: str) -> str:
+    reboot = re.search(r"(?m)^Rebooting\.\.\.\s*$", serial)
+    return serial[: reboot.start()] if reboot else serial
+
+
+def classify_serial(serial: str) -> dict[str, Any]:
+    first_boot = first_boot_serial(serial)
+    ready = READY_PATTERN.search(first_boot)
+    main = MAIN_PATTERN.search(first_boot)
+    backtrace = BACKTRACE_PATTERN.search(first_boot)
+    spinlock_assert = SPINLOCK_ASSERT in first_boot
+    read_started = "CORE2_FLASH_IPC_READ_START" in first_boot
+    progress_count = first_boot.count("CORE2_FLASH_IPC_PROGRESS")
+    worker_pass_count = first_boot.count("CORE2_FLASH_IPC_WORKER_PASS")
+    complete_pass_count = len(
+        re.findall(r"(?m)^CORE2_FLASH_IPC_PASS\s*$", first_boot)
+    )
+    interrupt_wdt = "Interrupt wdt timeout" in first_boot
+    reboot_observed = first_boot != serial
+
+    if complete_pass_count == 1 and worker_pass_count == 1:
+        status = "PASS"
+    elif ready and spinlock_assert and not read_started:
+        status = "REPRODUCED"
+    elif spinlock_assert:
+        status = "REPRODUCED_AFTER_READ_START"
+    else:
+        status = "NOT_REPRODUCED"
+
+    return {
+        "status": status,
+        "main_core": int(main.group(1)) if main else None,
+        "main_prid": f"0x{main.group(2).lower()}" if main else None,
+        "worker_core": int(ready.group(1)) if ready else None,
+        "worker_prid": f"0x{ready.group(2).lower()}" if ready else None,
+        "spinlock_owner_assert": spinlock_assert,
+        "flash_read_started": read_started,
+        "progress_markers": progress_count,
+        "worker_pass_markers": worker_pass_count,
+        "complete_pass_markers": complete_pass_count,
+        "interrupt_wdt_in_first_boot": interrupt_wdt,
+        "reboot_observed": reboot_observed,
+        "backtrace": backtrace.group(1) if backtrace else None,
+    }
+
+
+def wait_and_collect(
+    api: Api,
+    session_id: str,
+    *,
+    timeout: float,
+    observe_seconds: float,
+) -> tuple[dict[str, Any], str]:
+    deadline = time.monotonic() + timeout
+    running: dict[str, Any] = {}
+    while time.monotonic() < deadline:
+        running = api.json(f"/api/v1/sessions/{session_id}")
+        if running.get("state") == "running":
+            break
+        if running.get("state") in {"failed", "stopped"}:
+            break
+        time.sleep(0.25)
+    else:
+        raise RuntimeError("session did not become observable before timeout")
+
+    observe_deadline = time.monotonic() + observe_seconds
+    serial = ""
+    while time.monotonic() < observe_deadline:
+        payload = api.json(
+            f"/api/v1/sessions/{session_id}/serial?offset=0&limit=65536"
+        )
+        serial = str(payload.get("data") or "")
+        if SPINLOCK_ASSERT in serial or "CORE2_FLASH_IPC_PASS" in serial:
+            break
+        time.sleep(0.25)
+    return running, serial
+
+
+def run_attempt(
+    api: Api,
+    firmware_id: str,
+    attempt_dir: Path,
+    *,
+    timeout: float,
+    observe_seconds: float,
+) -> dict[str, Any]:
+    attempt_dir.mkdir(parents=True, exist_ok=True)
+    session_id = ""
+    try:
+        created = api.json(
+            "/api/v1/sessions",
+            method="POST",
+            payload={
+                "device_id": "core2",
+                "firmware_id": firmware_id,
+                "runtime": "qemu",
+                "ttl_seconds": 120,
+            },
+        )
+        session_id = str(created["session_id"])
+        observed, serial = wait_and_collect(
+            api,
+            session_id,
+            timeout=timeout,
+            observe_seconds=observe_seconds,
+        )
+        (attempt_dir / "serial.log").write_text(serial)
+
+        status, evidence, _ = api.request(
+            f"/api/v1/sessions/{session_id}/evidence"
+            "?include=manifest,serial,logs",
+            timeout=timeout,
+        )
+        if evidence:
+            (attempt_dir / "evidence.zip").write_bytes(evidence)
+
+        classification = classify_serial(serial)
+        classification.update(
+            {
+                "session_id_sha256": hashlib.sha256(
+                    session_id.encode()
+                ).hexdigest(),
+                "session_state": observed.get("state"),
+                "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
+                "evidence_zip": (
+                    status == 200 and evidence.startswith(b"PK\x03\x04")
+                ),
+            }
+        )
+        return classification
+    finally:
+        if session_id:
+            api.json(
+                f"/api/v1/sessions/{session_id}?purge=0",
+                method="DELETE",
+                payload={},
+            )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--base-url", default="http://127.0.0.1:8787")
+    parser.add_argument("--image", type=Path, required=True)
+    parser.add_argument("--elf", type=Path, required=True)
+    parser.add_argument("--attempts", type=int, default=3)
+    parser.add_argument("--timeout", type=float, default=30)
+    parser.add_argument("--observe-seconds", type=float, default=4)
+    parser.add_argument("--out-dir", type=Path, required=True)
+    args = parser.parse_args()
+    if args.attempts < 1 or args.attempts > 10:
+        parser.error("--attempts must be from 1 to 10")
+    if not args.image.is_file():
+        parser.error(f"--image does not exist: {args.image}")
+    if not args.elf.is_file():
+        parser.error(f"--elf does not exist: {args.elf}")
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+
+    image_sha256 = sha256(args.image)
+    api = Api(args.base_url)
+    status, body, _ = api.request(
+        "/api/v1/artifacts",
+        method="POST",
+        data=args.image.read_bytes(),
+        content_type="application/octet-stream",
+        timeout=120,
+    )
+    artifact = json.loads(body)
+    if status != 201 or artifact.get("sha256") != image_sha256:
+        raise SystemExit("artifact upload did not preserve the image hash")
+    firmware = api.json(
+        "/api/v1/firmware",
+        method="POST",
+        payload={
+            "device_id": "core2",
+            "kind": "merged",
+            "artifact_id": artifact["artifact_id"],
+        },
+    )
+
+    runs = [
+        run_attempt(
+            api,
+            str(firmware["firmware_id"]),
+            args.out_dir / f"attempt-{attempt}",
+            timeout=args.timeout,
+            observe_seconds=args.observe_seconds,
+        )
+        for attempt in range(1, args.attempts + 1)
+    ]
+    reproduced = sum(run["status"] == "REPRODUCED" for run in runs)
+    if reproduced == args.attempts:
+        result_status = "REPRODUCED"
+    elif reproduced == 0:
+        result_status = "NOT_REPRODUCED"
+    else:
+        result_status = "MIXED"
+    evidence = {
+        "schema_version": 1,
+        "kind": "m5stack-core2-flash-ipc-spinlock-diagnostic",
+        "validation": "virtual-device validation",
+        "status": result_status,
+        "classification": "runtime_model_gap_candidate",
+        "firmware_sha256": image_sha256,
+        "firmware_bytes": args.image.stat().st_size,
+        "elf_sha256": sha256(args.elf),
+        "attempts_requested": args.attempts,
+        "attempts_reproduced": reproduced,
+        "runs": runs,
+        "expected_assert": SPINLOCK_ASSERT,
+        "boundary": {
+            "guest_path": (
+                "ESP-IDF 5.5.4 FreeRTOS task on CPU1; CPU0 waits for the "
+                "worker before esp_partition_read() begins"
+            ),
+            "proven": [
+                "the guest observes a spinlock owner mismatch",
+                "the assert occurs before the flash read start marker",
+                "the minimal reproducer does not depend on legacy UIFlow",
+            ],
+            "not_proven": [
+                "QEMU S32C1I semantics are the root cause",
+                "flash-cache or DPORT handoff is the root cause",
+                "physical hardware behavior",
+            ],
+        },
+    }
+    evidence_path = args.out_dir / "evidence.json"
+    evidence_path.write_text(json.dumps(evidence, indent=2) + "\n")
+    print(json.dumps(evidence, indent=2))
+    print(f"evidence={evidence_path}")
+    return 0 if evidence["status"] == "REPRODUCED" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

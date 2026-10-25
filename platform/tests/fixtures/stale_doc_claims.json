@@ -729,6 +729,26 @@
       "id": "STALE-144",
       "text": "next address-`0x51` RTC-candidate transaction is not acknowledged on the legacy controller path",
       "reason": "Retired current result; the follow-up trace acknowledges address 0x51 after routing both controllers to the physical board bus."
+    },
+    {
+      "id": "STALE-145",
+      "text": "CPU1 flash/partition access is the confirmed first failure",
+      "reason": "Retired by the 3/3 ESP-IDF flash-IPC probe: the spinlock assertion occurs before the worker reaches READ_START."
+    },
+    {
+      "id": "STALE-146",
+      "text": "failure is inside `esp_partition_read()`",
+      "reason": "Retired by symbolization; the reproduced assertion is in spinlock_release from xQueueSemaphoreTake in the CPU0 main task."
+    },
+    {
+      "id": "STALE-147",
+      "text": "S32C1I CAS behavior is already confirmed as the root cause",
+      "reason": "S32C1I is the next high-priority trace target, but no CAS input/result or defective compare-and-swap has been captured."
+    },
+    {
+      "id": "STALE-148",
+      "text": "`READ_START` appeared before the spinlock assertion",
+      "reason": "All three dated flash-IPC runs assert before CORE2_FLASH_IPC_READ_START."
     }
   ]
 }

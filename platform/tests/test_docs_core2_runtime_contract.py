@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
+import sys
 import unittest
 
 from _docs_contract_support import DocsContractBase, ROOT, DOCS
@@ -197,6 +199,86 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
                 ROOT / "patches/qemu-m5stack-peripherals/README.md"
             ).read_text(),
         )
+
+    def test_core2_flash_ipc_probe_reports_the_smaller_boundary(self) -> None:
+        probe_root = ROOT / "tests/firmware/core2_flash_ipc"
+        evidence = json.loads(
+            (
+                probe_root
+                / "evidence-2026-10-26-core2-flash-ipc-spinlock.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "REPRODUCED")
+        self.assertEqual(evidence["attempts_reproduced"], 3)
+        self.assertEqual(len(evidence["runs"]), 3)
+        for run in evidence["runs"]:
+            self.assertEqual(run["main_prid"], "0x0000cdcd")
+            self.assertEqual(run["worker_prid"], "0x0000abab")
+            self.assertTrue(run["spinlock_owner_assert"])
+            self.assertFalse(run["flash_read_started"])
+            self.assertFalse(run["interrupt_wdt_in_first_boot"])
+            self.assertEqual(run["progress_markers"], 0)
+        portable = evidence["portable_runtime_control"]
+        self.assertEqual(portable["sessions"], 3)
+        self.assertEqual(portable["first_boot_spinlock_owner_assert"], 2)
+        self.assertEqual(portable["first_boot_interrupt_wdt"], 1)
+        self.assertEqual(portable["read_start_observed"], 0)
+
+        runner_path = probe_root / "run_test.py"
+        spec = importlib.util.spec_from_file_location(
+            "core2_flash_ipc_runner",
+            runner_path,
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        classified = module.classify_serial(
+            "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
+            "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "assert failed: spinlock_release spinlock.h:190 "
+            "(core_owner_id == lock->owner)\n"
+        )
+        self.assertEqual(classified["status"], "REPRODUCED")
+        self.assertFalse(classified["flash_read_started"])
+        cross_reboot = module.classify_serial(
+            "Guru Meditation Error: Core  0 panic'ed "
+            "(Interrupt wdt timeout on CPU0).\n"
+            "Rebooting...\n"
+            "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
+            "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "assert failed: spinlock_release spinlock.h:190 "
+            "(core_owner_id == lock->owner)\n"
+        )
+        self.assertEqual(cross_reboot["status"], "NOT_REPRODUCED")
+        self.assertTrue(cross_reboot["interrupt_wdt_in_first_boot"])
+        self.assertTrue(cross_reboot["reboot_observed"])
+
+        source = (probe_root / "main/app_main.c").read_text()
+        self.assertIn("CORE2_FLASH_IPC_READ_START", source)
+        self.assertIn("read_raw_prid", source)
+        readme = (probe_root / "README.md").read_text()
+        self.assertIn("xQueueSemaphoreTake", readme)
+        self.assertIn("spinlock_release", readme)
+        self.assertIn("READ_START", readme)
+
+        for path in (
+            DOCS / "project-status.md",
+            DOCS / "project-backlog.md",
+            DOCS / "runtime-model-gap-register.md",
+            DOCS / "engineering-handoff.md",
+            DOCS / "workstreams.md",
+            DOCS / "validation-ledger.md",
+        ):
+            text = path.read_text()
+            self.assertIn("S32C1I", text)
+            self.assertIn("spinlock", text)
+            self.assertIn("READ_START", text)
+        history = (DOCS / "core2-cache-panic-investigation.md").read_text()
+        self.assertIn("2026-10-26 update", history)
+        self.assertIn("None of the runs reached", history)
+        self.assertIn("S32C1I", history)
 
     def test_core2_reconnect_evidence_is_reconciled(self):
         backlog = (DOCS / "project-backlog.md").read_text()

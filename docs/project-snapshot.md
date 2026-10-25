@@ -2,7 +2,7 @@
 
 # 项目快照（自动生成）
 
-来源日期：`2026-10-25`；最新 evidence 日期：`2026-10-25`。
+来源日期：`2026-10-25`；最新 evidence 日期：`2026-10-26`。
 
 本页只汇总机器可读源和已提交 evidence，避免在多个文档手写同一组动态事实。实现结论、风险说明和验证层级仍以[项目当前状态](project-status.md)、[验证证据台账](validation-ledger.md)和 [项目 Backlog](project-backlog.md) 为准。
 
@@ -47,7 +47,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 验证 flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接假设；优先增加通用 trace，不继续绑定临时固件地址 |
+| `RUNTIME-03` | 进行中 | 增加默认关闭的 S32C1I/锁 owner trace，解释 3/3 最小 ESP-IDF 探针在 `READ_START` 前的 owner mismatch；探针通过后再验证 flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 |
@@ -76,16 +76,16 @@
 | `firmware_filesystems.py` | 1469 |
 | `worker_agent.py` | 1429 |
 
-- `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`195` 个 evidence JSON。
+- `tests/`：`67` 个可执行 Python 测试文件，分布在 `49` 个目录；`196` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`61` 个 patch 文件。
-- 文档：`214` 个 Markdown 页面，`19304` 行。
+- 文档：`215` 个 Markdown 页面，`19495` 行。
 
 ## 文档与测试
 
-- 平台测试：`499` 项。
+- 平台测试：`500` 项。
 - Docs 新鲜度登记：`33` 行；其中非历史页 `26` 行，历史固定页 `7` 行。
 - 文档职责分布：待办 `3`，契约 `6`，历史固定 `7`，实现/设计 `6`，参考 `7`，工作流/导航 `4`。
-- 全量文档盘点：`214` 个 Markdown 页面；职责分布：权威/专题页 `33`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `11`，平台说明 `3`，仓内历史记录 `5`，测试/用例说明 `137`，第三方来源说明 `2`。
+- 全量文档盘点：`215` 个 Markdown 页面；职责分布：权威/专题页 `33`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `11`，平台说明 `3`，仓内历史记录 `5`，测试/用例说明 `138`，第三方来源说明 `2`。
 - 所有非历史页的最近复核日期均与当前事实日期一致。
 - 没有带显式旧复核日期的委派文档。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
