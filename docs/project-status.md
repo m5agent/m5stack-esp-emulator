@@ -31,9 +31,9 @@
 当前阶段仍是 `PILOT`，不是“任意固件、任意设备都能自动审查”的完成态。
 Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 现在共享 `/machine/soc/i2c0/i2c` 并正常 ACK，原 `I2C bus error (19)` 消失。
-同一固件随后进入独立的 TG0/TG1 watchdog reset 循环，仍没有非空应用帧，因此
-`RUNTIME-03` 继续作为当前调查入口，但不能再用 PMIC 寄存器或 I2C routing
-解释首个失败点。
+同一固件随后由 TG0 stage-1 触发 watchdog system reset，仍没有非空应用帧，
+因此 `RUNTIME-03` 继续作为当前调查入口，但不能再用 PMIC 寄存器或 I2C
+routing 解释首个失败点。
 
 TIMG watchdog trace 已证明默认单会话能够持续喂狗，而并发 lease 或显式
 accelerator 对照会在不同 CPU/PC 触发 interrupt-WDT；这些结果已排除了把问题
@@ -48,10 +48,10 @@ Core2 上延迟约 26.8 秒，足以触发 interrupt-WDT。`0034` 只把相等�
 mismatch”来自探针把 4096-byte 局部数组放进 4096-byte 任务栈，已经作为
 harness 缺陷撤销。
 
-这个修复没有关闭 legacy UIFlow：同一公开固件仍在初始化后进入
-`TG0WDT_SYS_RESET`/`TG1WDT_SYS_RESET`、reset CPU PC `0` 和黑帧循环。
-因此 `RUNTIME-03` 的 timer-deadline 子问题已经 `FIXED`，但 legacy
-interrupt-WDT reset 与累计 Flash/cache-handoff 服务进度仍 `OPEN`。
+这个修复没有关闭 legacy UIFlow：同一公开固件仍在初始化阶段由 TG0
+stage-1 触发 system reset，reset CPU PC `0` 并保持黑帧。因此
+`RUNTIME-03` 的 timer-deadline 子问题已经 `FIXED`，但 legacy 应用初始化、
+TG0 stage-1 reset 和累计 Flash/cache-handoff 服务进度仍 `OPEN`。
 
 继续对照后又确认两个独立模型事实：
 
@@ -73,8 +73,9 @@ interrupt-WDT reset 与累计 Flash/cache-handoff 服务进度仍 `OPEN`。
   或任务切换路径，但这不支持“握手永久不完成”的旧判断。
 - `0037` 增加默认关闭的统一 handoff trace，把 virtual time、CPU、guest PC、
   cross-core、DPORT cache、SSI transaction 和 TIMG WDT 写进同一日志格式。
-  两次 normal-WDT 运行都在 TG1 最后一次 feed 后恰好 `800,000,000 ns`
-  进入 stage-0 timeout，再经过约 `1.6 s` 进入 reset；timeout PC 可变化。
+  早期 normal-WDT 配置曾观察到 TG1 最后一次 feed 后恰好
+  `800,000,000 ns` 进入 stage-0 timeout；该现象保留为特定 trace 配置下的
+  历史观测，不能用它继续断言当前固定配置必然出现 TG1 feed gap。
   WDT-disabled `sample=1024` 与 trace-off 产生相同 Serial SHA，均为
   启动 banner、无 setup/REPL，说明该采样级别没有改变序列结果。
 - 额外的 1 ms PC 采样对照仍复现固定 800 ms gap，但更早 reset。最终窗口
@@ -106,13 +107,24 @@ interrupt-WDT reset 与累计 Flash/cache-handoff 服务进度仍 `OPEN`。
   timeout、`15.914787 s` 首次 reset；reset 前四个 setter 各命中约
   `4,377` 次。cache handoff 反复返回，不再支持“单次 handshake 永久
   不返回”。
+- 新增 `run_wdt_liveness.py` 的三次独立 artifact-bound 对照关闭 PC trace、
+  保留 TIMG verbose trace。三次运行都在约 `5.91 s` 观察到 TG0 stage-0
+  timeout，此时 WDT 中断被 mask；随后同一 TG0 在约 `15.91 s` 进入
+  stage-1 system reset。TG1 每轮仍完成 `6,618-6,807` 次 feed，最大相邻
+  间隔 `8.478-10.410 ms`，最后一次 feed 距 reset 仅
+  `1.779-4.271 ms`，`0` 次 TG1 interrupt-WDT；stage-0 后也没有 TG0
+  feed、reconfigure 或 protect 写入。当前首 reset 分类为
+  `BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE`，历史 `800 ms` TG1 gap
+  为 `NOT_REPRODUCED`。
 
-当前工作假设是大量已经完成的 Flash/cache/DPORT 周期与启动 workload
-超过 watchdog budget，或首个 stage-0 timeout 后有一条独立 service/feed
-liveness 路径没有被恢复。高频采样下的固定 UART/VM PC 簇不再成立；
-“单次 cache restore 未返回”也被 `0039/0040` 否定。下一步是围绕首个
-stage-0 timeout 前后继续量化 WDT feed、service task 和 controller 操作，
-同时取得 v1.15.4 ELF/MAP。
+当前工作假设是 legacy 应用初始化没有在约 15 秒的 TG0 stage-1 deadline
+前完成；TG1 feed 并非当前配置下的停摆点。大量已经完成的
+Flash/cache/DPORT handoff 周期仍可能解释启动进度为何不足，但需要按启动
+phase 和每类周期耗时继续量化。高频采样下的固定 UART/VM PC 簇不再成立；
+“单次 cache restore 未返回”被 `0039/0040` 否定；历史 `800 ms` TG1 gap
+在三次当前配置中为 `NOT_REPRODUCED`，不能继续作为首要根因。下一步是把
+TG0 stage-1 deadline 前的 guest/controller 工作按启动阶段切分，同时取得
+v1.15.4 ELF/MAP。
 精确批次、通过率、
 artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
@@ -124,7 +136,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝、exact-time state sweep 和 setter PC trace 已验证；已证明 CPU1 持续执行且 handoff 在 reset 前完成约 4,376 次 | 量化首个 stage-0 timeout 前后 WDT feed/service/controller liveness，解释为何完成周期和约 250 KiB SSI 数据仍无应用进度；取得 matching ELF/MAP 可并行 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；UART 高频 PC 映射和“永久 handoff deadlock”都不得复用 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝、exact-time state sweep、setter PC trace 和三次 WDT liveness 已验证；当前 reset 来自 TG0 stage-1，TG1 到 reset 前仍持续 feed | 按启动 phase 量化为何应用初始化没有在 TG0 stage-1 前完成，并解释完成 handoff/SSI 工作与实际 guest 进度之间的差距；取得 matching ELF/MAP 可并行 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；UART 高频 PC 映射、“永久 handoff deadlock”和当前配置未复现的 TG1 `800 ms` gap 都不得复用 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -141,7 +153,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、timer deadline、TIMG WDT mask 和 stateful SSI 已验证；统一 timeline 复现最后 feed 后固定 800 ms timeout，但 legacy reset、reset PC `0` 和该停滞窗口的 guest 根因未闭环；FactoryTest 修复后 `NOT RUN` |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、timer deadline、TIMG WDT mask 和 stateful SSI 已验证；三次 WDT liveness 显示 TG0 stage-1 触发首 reset，TG1 到 reset 前仍持续 feed，历史 `800 ms` gap 未复现；应用初始化逾时、reset PC `0` 和 guest 根因未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT 和生产调度未完成 |
@@ -165,7 +177,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器 | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE | Zigbee/802.15.4 由 `RUNTIME-02` 跟踪 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi/BLE | RGB 未验；Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI fixes | legacy UIFlow 后初始化 TG0/TG1 WDT/黑帧、累计 Flash/cache-handoff 吞吐、物理 PSRAM/cache、bit-exact controller 和真机 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI fixes | legacy UIFlow 应用初始化超过 TG0 stage-1 deadline、黑帧、累计 Flash/cache-handoff 吞吐、物理 PSRAM/cache、bit-exact controller 和真机 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
@@ -179,16 +191,17 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 2. **Core2 启动兼容性**：legacy UIFlow 的共享 I2C routing 已修正，最小
    probe 暴露的 `CCOMPARE == CCOUNT` timer deadline，以及 `0035` 的
    masked WDT interrupt 语义也已修复；`0036` 又验证了保留 m25p80 状态的
-   SSI 批量数据面，但同一 legacy 固件仍会在 PMIC/RTC 初始化后进入
-   `TG0/TG1WDT_SYS_RESET`/黑帧，reset CPU PC 为 `0`。不能用 I2C ACK、
+   SSI 批量数据面，但同一 legacy 固件仍会在 PMIC/RTC 初始化后由 TG0
+   stage-1 触发 system reset，并保持黑帧、reset CPU PC 为 `0`。不能用 I2C ACK、
    probe/UIFlow2 PASS、旧 REPL 观察、关闭 WDT、accelerator 或 host 假值
    当作 legacy 启动 PASS。当前证据显示 flash-operation/cross-core flags
    会反复完成；`0037` 已把 controller batch、两核 PC 与 watchdog feed
-   放到同一虚拟时间轴，并复现最后 feed 后固定 800 ms timeout。`0039/0040`
-   又证明 CPU1 持续执行且 handoff 在 reset 前完成约 4,376 次。下一步是
-   解释首个 stage-0 timeout 后的 feed/service liveness，而不是继续寻找
-   单次未返回 handoff；该轮仍属于 legacy `flash-cache/IPC/DPORT` 启动
-   边界，量化结果只以验证台账和 evidence 为准。
+   放到同一虚拟时间轴。`0039/0040` 证明 CPU1 持续执行且 handoff 在 reset
+   前完成约 4,376 次；三次 WDT liveness 又证明 TG1 持续 feed 到 TG0
+   stage-1 reset 前数毫秒，历史 800 ms gap 未复现。下一步是解释应用
+   初始化为何没有在 TG0 stage-1 前完成，不再寻找已不成立的 TG1 feed
+   停摆；该轮仍属于 legacy `flash-cache/IPC/DPORT` 启动边界，量化结果只
+   以验证台账和 evidence 为准。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

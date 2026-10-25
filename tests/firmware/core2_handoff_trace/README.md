@@ -160,8 +160,34 @@ reset at `15.914787 s`, and 4,376 complete-flag setter hits before reset.
 Complete-clear/can-start set/clear setters each hit 4,377 times. Serial still
 stopped before setup/REPL and the frame SHA remained the 302-byte black frame.
 The repeated completed handoffs reject the simple permanent-deadlock
-explanation; the remaining failure is cumulative handoff/flash service time or
-a separate liveness bug that runs concurrently with those cycles.
+explanation.
+
+`run_wdt_liveness.py` reconciles the watchdog stages without a PC trace:
+
+```bash
+python3 tests/firmware/core2_handoff_trace/run_wdt_liveness.py \
+  --image path/to/normalized-core2.bin \
+  --qemu path/to/qemu-system-xtensa \
+  --attempts 3 \
+  --observe-seconds 18 \
+  --out-dir /tmp/core2-wdt-liveness
+```
+
+The three attempts classify as
+`BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE`:
+
+- TG0 stage-0 timeout is masked at `5.9107-5.9226 s`;
+- TG0 stage-1 triggers the first reset at `15.9119-15.9266 s`;
+- TG1 records 6,618-6,807 feeds, no timeout and a maximum feed interval of
+  `10.410 ms`;
+- the last TG1 feed is only `1.779-4.271 ms` before reset;
+- no TG0 feed, reconfigure or protect write occurs after stage-0.
+
+The earlier TG1 `800 ms` gap is retained as a configuration-specific
+historical observation and classified `NOT_REPRODUCED` by this control. The
+next boundary is why application initialization does not complete before the
+TG0 stage-1 deadline. The evidence is in
+`evidence-2026-10-26-core2-wdt-liveness-3x.json`.
 
 An exploratory change that skipped `memory_region_flush_rom_device()` when
 `changed_pages == 0` was rejected. The same firmware still entered

@@ -36,9 +36,12 @@ MicroPython 和其他完整 Flash 固件。
   已把最后窗口收敛到 cross-core Flash/cache/DPORT handoff；`0039` state
   sweep 和 `0040` setter trace 又证明 CPU1 持续执行，且首次 reset 前约
   4,376 次 handoff 已完整往返。BIN/ELF 字节审计拒绝了旧 UART/VM 符号
-  映射，UART 和永久 deadlock 解释均不支持。当前未解决点是首个 stage-0
-  timeout 后 feed/service liveness 和启动 workload 的累计 virtual time；
-  matching ELF/MAP、`Core2FactoryTest` 重跑和 `RUNTIME-03` 关闭条件以
+  映射，UART 和永久 deadlock 解释均不支持。新增三次 artifact-bound WDT
+  liveness 对照显示 TG0 stage-0 timeout 被 mask，随后 stage-1 触发 system
+  reset；TG1 在 reset 前仍持续 feed，未出现 TG1 interrupt-WDT，历史
+  `800 ms` gap 在当前配置下未复现。当前未解决点是应用初始化为何没有在
+  TG0 stage-1 前完成；matching ELF/MAP、`Core2FactoryTest` 重跑和
+  `RUNTIME-03` 关闭条件以
   [项目当前状态](docs/project-status.md)与
   [验证证据台账](docs/validation-ledger.md)为准。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、

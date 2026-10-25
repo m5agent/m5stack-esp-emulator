@@ -264,9 +264,10 @@ transactions. Each line records virtual time, current CPU, guest PC and four
 component-specific values. Routine events support
 `M5SW_ESP32_HANDOFF_TRACE_SAMPLE`; WDT timeout/interrupt/reset events are always
 emitted. `M5SW_ESP32_HANDOFF_PC_SAMPLE_NS=1000000` optionally samples both
-guest PCs, but is off by default because it perturbs scheduling. Two
+guest PCs, but is off by default because it perturbs scheduling. Early
 normal-WDT runs showed a fixed 800 ms gap between the last TG1 feed and stage-0
-timeout. The PC control kept that gap. A later same-VMA byte audit rejected the
+timeout, but a later no-PC-trace TIMG liveness control classified that gap as
+`NOT_REPRODUCED`. A same-VMA byte audit rejected the
 local UIFlow2 v2.5.3 ELF mapping of the public legacy v1.15.4 BIN to UART
 ISR/MicroPython; the exact BIN bytes are consistent with cross-core
 Flash/cache-disable handoff but remain symbol-unbound. WDT-disabled
@@ -293,8 +294,10 @@ Service diagnostics.
 PRID, PS, INTENABLE and INTSET, avoiding the scheduling perturbation of a
 periodic PC sampler. A normal-WDT run observed 4,376 completed cache-handoff
 cycles before reset at `15.914787 s`, so `RUNTIME-03` is not a permanent
-cross-core deadlock. Exact counts and evidence remain in the validation
-ledger.
+cross-core deadlock. The three-run liveness control further shows a masked TG0
+stage-0 timeout, TG0 stage-1 as the first reset path, and TG1 feeding until
+`1.779-4.271 ms` before reset with zero TG1 timeouts. Exact counts and evidence
+remain in the validation ledger.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

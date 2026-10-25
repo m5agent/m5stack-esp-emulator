@@ -98,7 +98,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             self.assertIn("flash-cache", text)
             self.assertIn("DPORT", text)
             self.assertIn("假设", text)
-        self.assertIn("后初始化 WDT", workstreams)
+        self.assertIn("应用初始化", workstreams)
         self.assertIn("0031", matrix)
         self.assertIn("Core2FactoryTest", matrix)
         self.assertIn("rerun is `NOT RUN`", matrix)
@@ -190,7 +190,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             unified_core2,
         )
         self.assertIn("宿主调度", status)
-        self.assertIn("timing-sensitive", register)
+        self.assertIn("NOT_REPRODUCED", register)
         self.assertIn("5/8", ledger)
         self.assertIn("M5SW_TIMG_TRACE", firmware_readme)
         self.assertIn(
@@ -2598,6 +2598,66 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         ):
             self.assertIn("4,376", text)
             self.assertNotIn("specific non-returning", text.lower())
+
+    def test_core2_wdt_liveness_reconciles_stage1_reset(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-wdt-liveness-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["kind"], "core2-wdt-liveness")
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(len(evidence["runs"]), 3)
+        self.assertFalse(evidence["failures"])
+        for run in evidence["runs"]:
+            self.assertEqual(
+                run["classification"],
+                "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+            )
+            self.assertTrue(run["tg0"]["stage0_interrupt_masked"])
+            self.assertEqual(
+                run["tg0"][
+                    "reconfigure_feed_or_protect_after_stage0"
+                ],
+                0,
+            )
+            self.assertEqual(run["tg1"]["timeout_count_before_reset"], 0)
+            self.assertEqual(run["tg1"]["intervals_over_100ms"], 0)
+            self.assertFalse(run["serial"]["has_repl_prompt"])
+        self.assertEqual(
+            evidence["classification"]["single_tg1_800ms_gap"],
+            "NOT_REPRODUCED",
+        )
+
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        register = (DOCS / "runtime-model-gap-register.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        matrix = (DOCS / "qemu-device-adaptation-matrix.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        firmware_readme = (ROOT / "tests/firmware/README.md").read_text()
+        trace_readme = (
+            ROOT / "tests/firmware/core2_handoff_trace/README.md"
+        ).read_text()
+        platform_readme = (ROOT / "platform/README.md").read_text()
+        self.assertIn(
+            "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+            status,
+        )
+        self.assertIn("NOT_REPRODUCED", status)
+        self.assertIn("TG0 stage-1", backlog)
+        self.assertIn(
+            "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+            register,
+        )
+        self.assertIn("未复现", workstreams)
+        self.assertIn("TG1 一直 feed", matrix)
+        self.assertIn("Core2 WDT liveness", code_map)
+        self.assertIn("run_wdt_liveness.py", firmware_readme)
+        self.assertIn("run_wdt_liveness.py", trace_readme)
+        self.assertIn("三次 WDT liveness", platform_readme)
 
 
 if __name__ == "__main__":

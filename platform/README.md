@@ -100,11 +100,11 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   之外的 teardown 和真机仍未完成。bounded-TCG host-memory 结论只覆盖已测试
   的长稳 workload。
 - Core2 legacy UIFlow 的 shared I2C、equal-deadline timer 和 TIMG WDT-mask
-  已分别修复；同一固件仍有 normal-WDT `TG0WDT_SYS_RESET`/reset PC `0`。
+  已分别修复；同一固件仍由 TG0 stage-1 触发 system reset，reset PC `0`。
   `0036` 已在 SSI/m25p80 数据面内实现保留命令/地址/dummy/CS 状态的批量
   read，字节等价、Core2 UIFlow2 设备组和共享控制器完整矩阵通过；它仍未
-  关闭 legacy。`0037` 已统一 virtual time/CPU/PC handoff trace；两次
-  normal-WDT 运行都在最后 feed 后固定 `800 ms` timeout，WDT-disabled
+  关闭 legacy。`0037` 已统一 virtual time/CPU/PC handoff trace；早期
+  normal-WDT 配置曾在最后 feed 后出现 `800 ms` timeout，WDT-disabled
   `sample=1024` 与 trace-off Serial 相同。后续 BIN/ELF 字节审计拒绝了
   local UIFlow2 v2.5.3 ELF 对 public legacy v1.15.4 BIN 的 UART/VM 符号
   映射；最后 CPU0 地址簇来自 public BIN，控制流看似 cross-core
@@ -114,8 +114,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   源码形态匹配旧 IDF Flash block/cache handshake。`0039` state sweep
   证明 CPU1 在 CPU0 等待期间继续执行，cache/SSI/cross-core counters
   持续增长；`0040` setter trace 在首次 reset 前记录约 4,376 次完成的
-  complete/can-start handoff。永久跨核 deadlock 和 UART 解释均撤回，
-  但首个 stage-0 timeout 后 feed/service liveness 仍未解释。
+  complete/can-start handoff。三次 WDT liveness 对照显示 TG1 到 TG0
+  stage-1 reset 前仍持续 feed，最后间隔仅 1.779-4.271 ms，历史 800 ms
+  gap 未复现。永久跨核 deadlock、UART 和“TG1 feed 停止”解释均撤回，
+  但应用初始化为何未在 TG0 stage-1 前完成仍未解释。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

@@ -210,8 +210,8 @@ That run is explicitly invalidated in
 [`evidence-2026-10-26-core2-flash-ipc-wdt.json`](core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json).
 The corrected evidence supports the flash-read data path and closes the minimal
 probe's timer-starvation reproduction. It does not close legacy UIFlow:
-`TG0WDT_SYS_RESET`/`TG1WDT_SYS_RESET`, reset CPU PC `0` and a black frame remain
-in the same public firmware path, so interrupt-WDT timing and aggregate
+TG0 stage-1 system reset, reset CPU PC `0` and a black frame remain in the same
+public firmware path, so pre-deadline application initialization and aggregate
 Flash/cache-handoff progress remain the next investigation boundary.
 
 The earlier QIO/cross-core diagnostics are recorded in
@@ -235,10 +235,10 @@ and physical hardware remain unproven.
 See
 [`evidence-2026-10-26-core2-ssi-transfer-buf.json`](evidence-2026-10-26-core2-ssi-transfer-buf.json).
 
-Patch `0037` adds a unified virtual-time/CPU/PC trace across cross-core, DPORT,
-SSI, UART and TIMG events. Two normal-WDT runs both placed the last TG1 feed
-exactly 800 ms before stage-0 timeout; the final timeout PC changed between
-runs. A 1 ms dual-PC control kept the same gap but reset earlier. The initial
+`0037` adds a unified virtual-time/CPU/PC trace across cross-core, DPORT, SSI,
+UART and TIMG events. Early normal-WDT runs placed the last TG1 feed exactly
+800 ms before stage-0 timeout; the final timeout PC changed between runs, and
+a 1 ms dual-PC control kept the same gap but reset earlier. The initial
 different-version ELF mapping to UART ISR/MicroPython VM was later rejected by
 a same-VMA public-BIN byte audit; all three CPU0 windows differ. The PC sampler
 is intentionally off by default because it changes scheduling. The BIN-bound
@@ -257,6 +257,14 @@ then reset at `15.914787 s`, after roughly 4,376 completed handoff cycles.
 This rejects the simple permanent-handoff-deadlock explanation. A zero
 changed-page host-flush skip control still reset with the same black frame and
 was not retained.
+[`run_wdt_liveness.py`](core2_handoff_trace/run_wdt_liveness.py) disables PC
+tracing and runs three isolated 18-second TIMG controls. Each observed a masked
+TG0 stage-0 timeout at about `5.91 s`, then a TG0 stage-1 reset at about
+`15.91 s`. TG1 completed 6,618-6,807 feeds, stayed within a 10.410 ms maximum
+inter-feed interval and fed within 1.779-4.271 ms of reset; no TG1 timeout
+occurred. The earlier 800 ms gap is therefore `NOT_REPRODUCED` in the current
+configuration, and the next question is why application initialization does
+not finish before the TG0 stage-1 deadline.
 WDT-disabled `sample=1024` and trace-off produced the same banner-only serial
 hash. The reusable summarizer and evidence are in
 [`core2_handoff_trace/`](core2_handoff_trace/). The unbound local-ELF PC

@@ -455,11 +455,32 @@ retained as a rejected control and the change is not in the patch series.
 
 The remaining question is why roughly 4,376 completed handoff cycles and about
 250 KiB of SSI data before the first reset still do not advance the firmware
-past its startup phase, and why WDT feed/service does not resume after the
-first stage-0 timeout.
+past its startup phase.
 
 See
 [`evidence-2026-10-26-core2-handoff-pc-trace.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pc-trace.json).
+
+## 2026-10-26 WDT liveness reconciliation
+
+Three independent Device Service leases disabled the PC trace and enabled the
+TIMG verbose trace for 18 virtual seconds. All three reached the same
+classification:
+`BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE`.
+
+| run | TG0 stage-0 | TG0 stage-1 reset | TG1 feeds | max TG1 interval | last feed to reset |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1 | `5.910698 s` | `15.912522 s` | 6,681 | `8.505 ms` | `1.797 ms` |
+| 2 | `5.922631 s` | `15.926661 s` | 6,618 | `10.410 ms` | `4.271 ms` |
+| 3 | `5.910705 s` | `15.912004 s` | 6,807 | `8.478 ms` | `1.779 ms` |
+
+The TG0 stage-0 timeout is masked. TG1 records no interrupt-WDT before the
+TG0 stage-1 system reset, and there are no TG0 feed, reconfigure or protect
+writes after stage-0. The earlier 800 ms feed gap therefore belongs to an
+earlier trace configuration and is `NOT_REPRODUCED` by this control; it must
+not be treated as the current first-cause path.
+
+See
+[`evidence-2026-10-26-core2-wdt-liveness-3x.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-liveness-3x.json).
 
 ## Next investigation
 
@@ -472,9 +493,10 @@ See
    low-perturbation events to classify the final CPU0 cluster as vCPU
    starvation, guest spin, or a specific cross-core/cache-disable handoff
    waiter; do not reuse local v2.5.3 symbols.
-5. Use `0039/0040` to quantify WDT feed/service liveness and guest/controller
-   work around the first stage-0 timeout; do not keep searching for a single
-   cache-restore call that never returns.
+5. Use the three-run WDT liveness baseline and `0039/0040` to split pre-TG0
+   stage-1 startup work by phase. Do not keep searching for a single
+   cache-restore call that never returns or assume the current path stops
+   feeding TG1.
 6. Reduce aggregate synchronous handoff cost using controller-level behavior,
    without skipping the guest flash/cache protocol.
 7. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is

@@ -355,6 +355,10 @@ class DocsIndexContractTests(DocsContractBase):
             ),
             (
                 "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-wdt-liveness-3x.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
                 "evidence-2026-10-26-core2-handoff-timeline.json"
             ),
             "platform/tests/test_core2_handoff_trace.py",
@@ -362,8 +366,10 @@ class DocsIndexContractTests(DocsContractBase):
             "platform/tests/test_core2_handoff_pause.py",
             "platform/tests/test_core2_handoff_state_sweep.py",
             "platform/tests/test_core2_handoff_pc_trace.py",
+            "platform/tests/test_core2_wdt_liveness.py",
             "tests/firmware/core2_handoff_trace/run_pause_sweep.py",
             "tests/firmware/core2_handoff_trace/run_pc_trace.py",
+            "tests/firmware/core2_handoff_trace/run_wdt_liveness.py",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",

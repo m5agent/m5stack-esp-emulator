@@ -275,7 +275,7 @@ zero `FAIL`.
 
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Stateful SSI, the `0037` unified timeline, `0038` exact-time pause, `0039` state sweep and `0040` setter PC trace are validated, but normal-WDT legacy still resets with `TG0WDT_SYS_RESET` and reset PC `0`. Two runs placed stage-0 timeout exactly 800 ms after the last TG1 feed. A byte audit rejected the earlier local-UIFlow2-ELF mapping to UART ISR/MicroPython VM. Later traces show CPU1 continuing through different PCs while CPU0 waits, with about 4,376 completed complete/can-start handoff cycles before the first reset. Permanent deadlock and UART storm explanations are rejected; startup workload/liveness and WDT feed recovery remain open. WDT-disabled sampled and trace-off runs both stopped at the MicroPython banner without setup text or REPL. No non-empty application frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Stateful SSI, the `0037` unified timeline, `0038` exact-time pause, `0039` state sweep, `0040` setter PC trace and three WDT liveness controls are validated, but normal-WDT legacy still resets from TG0 stage-1 and reset PC `0`. The three controls show TG0 stage-0 masked at about `5.91 s`, TG0 stage-1 reset at about `15.91 s`, and TG1 still feeding until `1.779-4.271 ms` before reset with zero TG1 timeouts; the earlier `800 ms` TG1 gap is `NOT_REPRODUCED`. A byte audit rejected the earlier local-UIFlow2-ELF mapping to UART ISR/MicroPython VM. Later traces show CPU1 continuing through different PCs while CPU0 waits, with about 4,376 completed complete/can-start handoff cycles before the first reset. Permanent deadlock and UART storm explanations are rejected; the remaining gate is why application initialization does not complete before TG0 stage-1. WDT-disabled sampled and trace-off runs both stopped at the MicroPython banner without setup text or REPL. No non-empty application frame |
 | `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
@@ -317,23 +317,23 @@ minimal probe's first-boot gate passed in trace-enabled and trace-disabled
 controls, so PRID, S32C1I and the original virtual-time hypothesis are no
 longer the explanation for this reproducer.
 
-This does not close the public legacy firmware. The same image still reports
-`TG1WDT_SYS_RESET` and `TG0WDT_SYS_RESET`, with reset CPU PC `0`, and produces
-only a black frame. The next boundary is therefore the legacy firmware's
-interrupt-WDT timing and aggregate Flash/cache-handoff progress rather than the
-minimal probe's timer deadline.
+This does not close the public legacy firmware. The same image still reaches a
+TG0 stage-1 system reset with reset CPU PC `0` and produces only a black frame.
+The next boundary is therefore why legacy application initialization and
+aggregate Flash/cache-handoff progress do not complete before that deadline,
+rather than the minimal probe's timer deadline.
 
 The subsequent QIO/cross-core trace added `0035`, then `0036` replaced the
-temporary direct-read path with a stateful SSI batch interface. `0037` now
-records cross-core, DPORT/cache, SSI and TIMG events on one virtual timeline.
-Two normal-WDT runs placed stage-0 timeout exactly 800 ms after the last TG1
-feed, while the WDT-disabled `sample=1024` and trace-off controls produced the
-same banner-only serial hash. The later BIN/ELF byte audit rejected the
-different-version UART/VM symbol names and moved the last PC cluster back to an
-unbound cross-core Flash/cache-disable handoff candidate. The next acceptance
-therefore requires a matching v1.15.4 ELF/MAP or direct vCPU/handoff evidence,
-resolving the final 800 ms synchronous-stall window, restoring normal WDT
-behavior and producing a non-empty application frame in one session.
+temporary direct-read path with a stateful SSI batch interface. `0037` records
+cross-core, DPORT/cache, SSI and TIMG events on one virtual timeline. An early
+normal-WDT configuration placed stage-0 timeout exactly 800 ms after the last
+TG1 feed; a later three-run liveness control kept TG1 alive until a TG0
+stage-1 reset and marked that gap `NOT_REPRODUCED`. The BIN/ELF byte audit
+rejected the different-version UART/VM symbol names and moved the last PC
+cluster back to an unbound cross-core Flash/cache-disable handoff candidate.
+The next acceptance therefore requires a matching v1.15.4 ELF/MAP or direct
+vCPU/handoff evidence that explains the pre-stage-1 startup delay and produces
+a non-empty application frame in one session.
 
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for
