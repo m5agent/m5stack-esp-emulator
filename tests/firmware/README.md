@@ -183,6 +183,16 @@ is absent, and the existing UIFlow2 Core2 device group passes `6/6`. The same
 legacy image still reaches an independent interrupt-WDT boundary with a black
 frame, so `RUNTIME-03` stays open for that later failure.
 
+`0032-esp32-timg-wdt-trace.patch` adds a default-off `M5SW_TIMG_TRACE=1`
+channel for watchdog reset/config/feed/arm/timeout events. A default
+single-session control kept feeding TG0/TG1 for more than 285 seconds;
+consecutive four-session batches produced interrupt-WDT failures at varying
+CPUs and PCs in five of eight leases. Explicit thread and icount controls did
+not fix the path and sometimes triggered TG hardware resets earlier. The
+evidence therefore classifies the remaining boundary as timing-sensitive
+pending a guest code-point diagnosis, not as another fixed I2C or PMIC device
+gap.
+
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).
 Current overall status and unfinished work must be read from

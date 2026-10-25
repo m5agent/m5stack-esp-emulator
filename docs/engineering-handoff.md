@@ -56,8 +56,9 @@
 - Core2 legacy 固件：`0031` 将 ESP32 的两个 I2C controller 路由到唯一
   GPIO21/22 物理 Core2 board bus，AXP `0x34`、RTC `0x51` 和 INA3221
   `0x40` 已 ACK，原 `I2C bus error (19)` 消失，UIFlow2 Core2 设备组
-  `6/6` 无 retry 回归 PASS；同一 legacy UIFlow SHA 随后仍触发独立
-  interrupt WDT，应用帧仍为 black，不能据此关闭 `RUNTIME-03`。
+  `6/6` 无 retry 回归 PASS。`0032` 的 TIMG trace 进一步证明默认单会话可
+  持续喂狗超过分钟级，而并发 lease 和显式 accelerator 对照会在不同
+  CPU/PC 触发 watchdog；应用帧仍为 black，不能据此关闭 `RUNTIME-03`。
 - 文档：README、状态、Backlog、工作流、交接、Device Service、QEMU 适配
   矩阵、Core2 专题、测试 README、设备 catalog 和 profile 已统一使用同一
   口径。当前权威关系仍是 `project-status` 定义能力、`project-backlog`
@@ -219,7 +220,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | shared GPIO21/22 board bus 已修复；定位 AXP/RTC/INA 初始化后的 interrupt WDT | I2C `0x34`/`0x51` ACK 已成立，但应用帧仍为 black；WDT 是独立后续失败 |
+| `RUNTIME-03` | shared GPIO21/22 board bus 已修复；定位启动期长同步路径与 TIMG/虚拟时间/宿主调度的交互 | I2C `0x34`/`0x51` ACK 已成立；WDT 在不同并发和 accelerator 配置下形态不同，应用帧仍为 black |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于八实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 双/三/四/五/六/八实例均有独立复跑覆盖；八实例 threshold-fail control 与旧 `shift=auto` `0010` trace 保留，当前结论不外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

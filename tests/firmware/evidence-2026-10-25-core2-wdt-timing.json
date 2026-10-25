@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25",
+  "kind": "core2-legacy-wdt-timing-diagnosis",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "device_id": "core2",
+  "firmware": {
+    "name": "UIFlow_Core2",
+    "version": "v1.15.4",
+    "firmware_id": "1897200000000002280",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "embedded_build": {
+      "micropython": "a3bd196ef-dirty",
+      "micropython_version": "1.12.0",
+      "esp_idf": "3.4.0",
+      "compiled": "2026-07-28T16:15:09"
+    }
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_version": "9.2.2",
+    "qemu_sha256": "85fab9c048a31ba37bed930fe67a0e245e81f53ee6fbeb1749b4d4228116b505",
+    "trace_environment": {
+      "M5SW_TIMG_TRACE": "1",
+      "scope": "single-session diagnosis only"
+    }
+  },
+  "default_concurrency": {
+    "configuration": "Device Service qemu runtime, no explicit accelerator override",
+    "attempts": 8,
+    "batches": 2,
+    "observation_seconds_per_batch": 84,
+    "interrupt_wdt_failures": 5,
+    "no_wdt": 3,
+    "batch_results": [
+      {
+        "batch": "A",
+        "interrupt_wdt": 3,
+        "no_wdt": 1
+      },
+      {
+        "batch": "B",
+        "interrupt_wdt": 2,
+        "no_wdt": 2
+      }
+    ],
+    "failure_pcs": [
+      "0x40087980",
+      "0x400938af",
+      "0x4026306e",
+      "0x40084494",
+      "0x4009637f",
+      "0x4017477c",
+      "0x40087a85",
+      "0x400e4575",
+      "0x4000bff0"
+    ],
+    "representative_failure": {
+      "session_id": "d2d14e39e6274ec3862f5063539278a6",
+      "serial_bytes": 5719,
+      "serial_sha256": "58520c05e0bcdff05ed8f6119f28c6aef49845f7a4c383d710008c044c691858",
+      "qemu_stderr_bytes": 140,
+      "qemu_stderr_sha256": "785b5d7ed883f1610d5ddfd3c988b18e33711b7b62b85687f3c699a899a38d5b",
+      "first_core": 0,
+      "first_panic": "Interrupt wdt timeout on CPU0",
+      "first_pc": "0x40087980"
+    },
+    "representative_stable": {
+      "session_id": "47b776854741492f8d1a42415ec812e4",
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "qemu_stderr_bytes": 140,
+      "qemu_stderr_sha256": "785b5d7ed883f1610d5ddfd3c988b18e33711b7b62b85687f3c699a899a38d5b"
+    }
+  },
+  "single_session_controls": {
+    "default_no_trace": {
+      "session_id": "bba1a684522f4a9d9898cf69263e8912",
+      "observation_seconds": 285,
+      "interrupt_wdt": false,
+      "hardware_tg_wdt": false,
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62"
+    },
+    "default_with_timg_trace": {
+      "session_id": "bd96cffb6ea2426f87a7c499b83ac081",
+      "observation_seconds": 195,
+      "interrupt_wdt": false,
+      "hardware_tg_wdt": false,
+      "tg0_interrupt_stage_observed": true,
+      "tg1_feed_continued_beyond_observation": true,
+      "qemu_stderr_bytes": 32892323,
+      "qemu_stderr_sha256": "dce92aa4a822392253557e416a261d5d9a6c3d6ce0ad5e049ea3a8a9fb076843"
+    }
+  },
+  "accelerator_controls": [
+    {
+      "mode": "tcg,thread=single,tb-size=128",
+      "attempts": 4,
+      "hardware_tg_wdt": 4,
+      "interrupt_wdt": 0
+    },
+    {
+      "mode": "icount shift=5,align=off,sleep=off",
+      "attempts": 4,
+      "hardware_tg_wdt": 4,
+      "interrupt_wdt": 2
+    },
+    {
+      "mode": "icount shift=0,align=off,sleep=off",
+      "attempts": 4,
+      "hardware_tg_wdt": 4,
+      "interrupt_wdt": 0
+    },
+    {
+      "mode": "tcg,thread=multi,tb-size=128",
+      "attempts": 4,
+      "hardware_tg_wdt": 0,
+      "interrupt_wdt": 2
+    }
+  ],
+  "icount_wdt_trace": {
+    "session_id": "b571745e9dc34f1fb04a3b2051f4ddde",
+    "accelerator": "icount shift=0,align=off,sleep=off",
+    "result": "TG1WDT_SYS_RESET",
+    "last_tg1_feed_virtual_ns": 13782001927,
+    "tg1_interrupt_stage_virtual_ns": 14582001927,
+    "tg1_system_reset_virtual_ns": 16182001927,
+    "feed_to_interrupt_ns": 800000000,
+    "interrupt_to_reset_ns": 1600000000,
+    "serial_bytes": 2093,
+    "serial_sha256": "93e082ee77351aa9c1f49de0e411fbeb5641726e6a4922ccf6dcc6815905b678",
+    "qemu_stderr_bytes": 90938,
+    "qemu_stderr_sha256": "88c5703a71c5b2f9239e4089b5905e61a9ce7dd890de1318b0937c7852c7ca72"
+  },
+  "classification": {
+    "confirmed": [
+      "legacy boot watchdog behavior is timing-sensitive",
+      "default single-session runs can feed TG0/TG1 for minutes",
+      "parallel default sessions produce interrupt-WDT failures at varying PCs",
+      "explicit thread/icount controls do not provide a safe fix and can introduce TG hardware resets"
+    ],
+    "not_proven": [
+      "one deterministic firmware source function or board peripheral causes every WDT",
+      "the exact host scheduling point that stalls the guest",
+      "whether real Core2 hardware takes the same boot path"
+    ]
+  },
+  "checks": {
+    "shared_i2c_error_absent": "PASS",
+    "default_single_session_short_term_stability": "PASS",
+    "default_four_session_no_stall": "FAIL",
+    "accelerator_override_fix": "FAIL",
+    "nonempty_application_frame": "FAIL",
+    "stable_guest_after_initialization": "FAIL",
+    "physical_hardware": "NOT RUN"
+  },
+  "not_claimed": [
+    "complete legacy UIFlow compatibility",
+    "a working accelerator configuration",
+    "physical watchdog or timing behavior",
+    "physical hardware validation",
+    "a firmware defect from a simulator-only WDT"
+  ]
+}

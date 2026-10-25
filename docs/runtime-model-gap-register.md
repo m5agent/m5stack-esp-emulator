@@ -140,21 +140,23 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 | 根因 | AXP `0x34` chip id `0x4a` 读取成功；controller trace 进一步证明旧固件在 `/machine/soc/i2c0/i2c` 上访问 AXP 和 RTC address `0x51`，而旧板模型只把 AXP/INA 挂在 controller 0，把 RTC/touch/IMU 挂在 controller 1。`0x51` 的 `start_rc=1` 由 controller-to-physical-bus routing 拆分直接解释 |
 | 修复 | `0031-core2-shared-board-i2c.patch` 将两个 controller register block 都路由到唯一物理 GPIO21/22 board bus，器件只挂一份 |
 | 修复后 | `0x34` write/read、`0x51` write/read、INA3221 `0x40` 均 ACK；原先的 `I2C bus error (19)` 消失，AXP2101 与 AXP192 变体都能继续进入后续初始化 |
-| 当前阻断 | 固件随后触发独立 interrupt-WDT reset/panic，frame 仍为 black；该失败发生在 RTC/PMIC I2C ACK 之后，不能继续归因于先前 bus routing |
-| 证据 | [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`previous trace`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
+| 当前阻断 | 固件随后进入 timing-sensitive watchdog failure：默认单会话可稳定 feed 超过 285 秒；两个四实例并发批次的 5/8 lease 在不同 CPU/PC 触发 interrupt-WDT。显式 thread/icount 对照没有修复，部分还触发 TG hardware reset |
+| 当前判断 | 不是单个固定外设缺失，也没有固定 firmware PC；最可能边界是 legacy 启动期长同步路径与 QEMU 虚拟时间/宿主调度的组合。尚不能判定固件缺陷 |
+| 证据 | [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`0032 trace patch`](../patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch)、[`previous trace`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
 
 关闭条件：
 
-1. 定位 RTC/PMIC 初始化之后触发的 CPU0/CPU1 interrupt WDT，保留 reset
-   reason、PC/backtrace 和前后 trace；
-2. 判断 WDT 来自缺失外设/PMIC 状态机、timer/WDT 模型，还是固件自身；
+1. 使用 `M5SW_TIMG_TRACE=1` 定位长同步启动阶段最后一次 feed 对应的 guest
+   代码路径，保留 reset reason、PC/backtrace 和前后 trace；
+2. 判断 WDT 来自 timer/WDT 虚拟时间换算、宿主调度暂停，还是固件自身；
 3. 同一固件 SHA 在 Device Service 中渲染非空应用帧并保持运行；
 4. 回归现有 UIFlow2 Core2 设备组，确保 shared bus 不破坏 touch/IMU/RTC/
    audio/mic 路径。
 
 当前调查边界：shared bus 修复已经由现有 UIFlow2 Core2 设备组 `6/6` 验证，
-但旧 UIFlow1 的 non-empty frame 与稳定运行仍为 `FAIL`。WDT 失败不能归因于
-先前 I2C routing，也不能据此声称完整 legacy firmware PASS。
+但旧 UIFlow1 的 non-empty frame 与稳定运行仍为 `FAIL`。默认单会话稳定和并发
+失败同时存在，因此 WDT 不能归因于先前 I2C routing，也不能直接归因于固件缺陷
+或某一个固定外设。`Core2FactoryTest` 修复后仍未重跑。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 

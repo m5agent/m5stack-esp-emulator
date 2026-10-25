@@ -275,7 +275,7 @@ zero `FAIL`.
 
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The 2026-10-24 snapshot stopped at RTC address `0x51`; after the 2026-10-25 shared-bus fix, AXP/RTC/INA transactions ACK and that I2C error is gone, but the same image still enters interrupt-WDT and renders a black frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The 2026-10-24 snapshot stopped at RTC address `0x51`; after the 2026-10-25 shared-bus fix, AXP/RTC/INA transactions ACK. A TIMG trace then showed default single-session watchdog feed staying healthy for minutes, while concurrent and explicit accelerator runs failed at varying PCs; the image still renders a black frame |
 | `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
@@ -297,6 +297,16 @@ the existing UIFlow2 Core2 device group `6/6`. The same legacy image then hits
 an independent interrupt-WDT boundary and still has no non-empty application
 frame.
 
+A further default-off `M5SW_TIMG_TRACE` run separated watchdog behavior from
+the I2C fix. One default session fed TG0/TG1 for more than 285 seconds without
+an interrupt-WDT or system reset. Two independent four-session default batches
+instead produced interrupt-WDT failures in five of eight leases, at different
+CPUs and PCs. Explicit `thread=single`, `thread=multi`, `icount shift=5` and
+`icount shift=0` controls did not remove the failure; thread/icount controls
+also exposed TG hardware resets during boot. The remaining issue is therefore
+timing-sensitive rather than a fixed missing peripheral or one proven firmware
+deadlock.
+
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for
 AWS ATECC608 secure element. They remain `OPEN` until the relevant guest data
@@ -304,7 +314,8 @@ paths complete.
 
 Evidence:
 [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json),
-[`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json).
+[`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json),
+[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json).
 
 The 90-second run also exposed and fixed a matrix-client timeout: the HTTP
 `/wait` request used 90 seconds while the server was allowed to wait 90 seconds

@@ -100,6 +100,86 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("I2C bus error (19)", register)
         self.assertIn("nonempty_application_frame", evidence["checks"])
 
+    def test_core2_wdt_timing_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-core2-wdt-timing.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PARTIAL")
+        self.assertEqual(
+            evidence["firmware"]["embedded_build"],
+            {
+                "micropython": "a3bd196ef-dirty",
+                "micropython_version": "1.12.0",
+                "esp_idf": "3.4.0",
+                "compiled": "2026-07-28T16:15:09",
+            },
+        )
+        concurrency = evidence["default_concurrency"]
+        self.assertEqual(concurrency["attempts"], 8)
+        self.assertEqual(concurrency["interrupt_wdt_failures"], 5)
+        self.assertEqual(concurrency["no_wdt"], 3)
+        self.assertEqual(
+            evidence["single_session_controls"]["default_no_trace"][
+                "observation_seconds"
+            ],
+            285,
+        )
+        accelerator_failures = {
+            item["mode"]: (
+                item["hardware_tg_wdt"],
+                item["interrupt_wdt"],
+            )
+            for item in evidence["accelerator_controls"]
+        }
+        self.assertEqual(
+            accelerator_failures["tcg,thread=single,tb-size=128"],
+            (4, 0),
+        )
+        self.assertEqual(
+            accelerator_failures["icount shift=0,align=off,sleep=off"],
+            (4, 0),
+        )
+        trace = evidence["icount_wdt_trace"]
+        self.assertEqual(trace["feed_to_interrupt_ns"], 800_000_000)
+        self.assertEqual(trace["interrupt_to_reset_ns"], 1_600_000_000)
+        self.assertEqual(
+            evidence["checks"]["accelerator_override_fix"],
+            "FAIL",
+        )
+
+        patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0032-esp32-timg-wdt-trace.patch"
+        ).read_text()
+        self.assertIn('getenv("M5SW_TIMG_TRACE")', patch)
+        self.assertIn("WDTFEED", patch)
+        self.assertIn("WDTCONFIG0", patch)
+        self.assertIn("timeout now=", patch)
+
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        register = (DOCS / "runtime-model-gap-register.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        ledger = (DOCS / "validation-ledger.md").read_text()
+        firmware_readme = (ROOT / "tests/firmware/README.md").read_text()
+        for text in (status, backlog, register, workstreams, ledger):
+            self.assertIn("TIMG", text)
+        self.assertIn("宿主调度", status)
+        self.assertIn("timing-sensitive", register)
+        self.assertIn("5/8", ledger)
+        self.assertIn("M5SW_TIMG_TRACE", firmware_readme)
+        self.assertIn(
+            "0032-esp32-timg-wdt-trace.patch",
+            (
+                ROOT / "patches/qemu-m5stack-peripherals/README.md"
+            ).read_text(),
+        )
+
     def test_core2_reconnect_evidence_is_reconciled(self):
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()

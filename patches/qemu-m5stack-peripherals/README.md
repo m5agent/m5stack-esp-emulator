@@ -131,6 +131,7 @@ git apply /path/to/0028-esp32-wifi-dual-guest-fabric.patch
 git apply /path/to/0029-esp32s3-wpa2-psk-data-plane.patch
 git apply /path/to/0030-core2-eight-mib-psram.patch
 git apply /path/to/0031-core2-shared-board-i2c.patch
+git apply /path/to/0032-esp32-timg-wdt-trace.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -192,6 +193,18 @@ through controller 0, while the previous model exposed RTC only on controller
 The same firmware still reaches an independent interrupt-WDT boundary and
 does not yet produce a non-empty application frame. This patch does not claim
 physical board timing or complete legacy-firmware compatibility.
+
+`0032-esp32-timg-wdt-trace.patch` adds a default-off `M5SW_TIMG_TRACE`
+diagnostic channel for timer-group watchdog reset/config/feed/arm/timeout
+events. It does not alter watchdog behavior. In a default single-session run,
+the legacy image continued feeding TG0/TG1 for more than three minutes; two
+independent four-session default batches produced interrupt-WDT failures in
+five of eight leases at varying CPUs and PCs. Explicit `thread=single`,
+`thread=multi`, and `icount shift=0/5` controls did not remove the failure:
+the thread and icount controls instead exposed TG hardware resets during boot.
+The remaining investigation is the interaction between the guest's long
+synchronous boot phase and virtual-time/host scheduling, not a missing PMIC
+transaction.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

@@ -73,7 +73,7 @@
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、QOM 8 MiB PSRAM/MMU、两小时、121 轮、active-stop、双/三/四实例无错峰、五实例错峰 `10/10`、固定 `icount shift=5`/BLE-first 后五实例 `10/10`、六实例 `12/12` 和校准后八实例 `16/16`；旧 `shift=auto`、旧 sweep threshold 与 `0010` trace 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、WebBurner 分段 size/digest 复算、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、文件系统、许可策略、sdkconfig detected / image observed capability、WebBurner 来源展示和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-25` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-03` 的 Core2 共享 I2C routing 已修复，后初始化 WDT/非空帧仍开放；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍明确为未覆盖边界 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-25` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-03` 的 Core2 共享 I2C routing 已修复，后续 WDT 已定位为调度/虚拟时间敏感但尚未修复；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍明确为未覆盖边界 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-25` | 网络模式、有界 CIDR egress、domain/CNAME、multicast/unicast discovery、worker process/QEMU/`qemu-unified` companion partition fencing、同 guest 网络生命周期和证据要求 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-25` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-25` | 当前登记设备与各 QEMU/Tab5/Linux 后端，设备数量见自动快照；Core2 121 轮、双/三/四实例无错峰、五实例错峰 `10/10`、固定 icount 五实例 `10/10`、六实例 `12/12`、校准后八实例 `16/16`、持续 PSRAM/周期联网与物理边界已回写 |

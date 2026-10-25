@@ -35,6 +35,12 @@ Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 `RUNTIME-03` 继续作为当前调查入口，但不能再用 PMIC 寄存器或 I2C routing
 解释首个失败点。
 
+新增 TIMG watchdog trace 后，默认单会话可持续喂 TG0/TG1 超过三分钟，而多个
+Core2 legacy 并发 lease 会以不同 CPU/PC 触发 interrupt-WDT。显式
+`thread=single`、`thread=multi` 和 `icount shift=0/5` 都没有修复，部分对照
+转而更早触发 TG hardware reset。当前结论是 legacy 启动路径对宿主调度和虚拟
+时间高度敏感，尚无证据支持“某一个固定外设缺失”或“固件必然死锁”。
+
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
 `hardware validation` 的同固件路径结果才能描述物理 RF、功耗、声学、光学、
 机械、电气或真机安全状态。
@@ -43,7 +49,7 @@ Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus 已修正，AXP `0x34`、RTC `0x51` 和 INA3221 `0x40` 均 ACK；AXP2101/AXP192 都越过原 `I2C bus error (19)` | 定位 RTC/PMIC 初始化后的 interrupt WDT；同 SHA 非空应用帧并保持运行 | I2C ACK 不代表应用启动；WDT 不能归因于已修复的 bus routing |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus 已修正；TIMG trace 证明默认单会话可持续 feed，并发和 accelerator 对照则暴露不同形态的 WDT | 隔离启动期长同步路径与 QEMU 虚拟时间/宿主调度；同 SHA 非空应用帧并保持运行 | WDT 不固定在单一 PC 或外设；I2C ACK 与单次短稳都不代表应用启动 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
