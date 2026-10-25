@@ -23,7 +23,7 @@
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
-| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask 和 QIO/stateful SSI 批量数据面已修复/验证；三次 WDT liveness 显示 TG0 stage-1 触发首 reset，而 TG1 到 reset 前仍持续 feed；剩余是应用初始化逾时、handoff/启动 phase 耗时、reset PC `0` 和非空应用帧 | probe/UIFlow2 PASS、单次 REPL marker、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
+| P0 | Core2 legacy UIFlow 启动 | 共享 I2C、timer deadline、WDT mask 和 QIO/stateful SSI 批量数据面已修复/验证；TG0 stage-1/TG1-live 已取证；WDT-off 45/120 秒状态显示 flash-cache/IPC/DPORT Flash 工作约 44 秒结束，随后 CPU1 持续等待 `0x40100049` 的 flag/object | probe/UIFlow2 PASS、单次 REPL marker、临时 bulk read、关闭 WDT 或 accelerator 都不代表 legacy 应用启动 |
 | P0 | 网络产品化 | 物理跨主机 worker、跨主机幂等、任意 NAT 和外部 side-effect fence | 单机 namespace/container 不能替代物理多机 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、其他 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | 运行态 ACL/许可、真机安全配置和更多真实业务 | 静态声明、镜像摘要自洽不等于设备 trust/ACL |
@@ -36,12 +36,11 @@
 ## 当前执行顺序
 
 1. `RUNTIME-03`：timer、WDT mask、stateful SSI 和统一 handoff timeline 已
-   验证。三次 WDT liveness 都显示 TG0 stage-0 timeout 被 mask，TG0
-   stage-1 在约 `15.91 s` 触发首次 reset，而 TG1 到 reset 前仍持续 feed，
-   未出现 interrupt-WDT；历史 `800 ms` gap 标记为 `NOT_REPRODUCED`。PC
-   地址有效，但 local UIFlow2 v2.5.3 ELF 对 public legacy v1.15.4 BIN 的
-   UART/VM 符号映射已因字节不一致被拒绝。下一步按启动 phase 定位应用
-   初始化为何没有在 TG0 stage-1 前完成。
+   验证。三次 WDT liveness 都显示 TG0 stage-1 首次 reset、TG1 仍 live；
+   WDT-off 45/120 秒对照显示 Flash 工作约在 44 秒结束，随后 CPU0 idle、
+   CPU1 在同一 `0x40100049` flag/object 上持续等待。PC 地址有效，但 local
+   UIFlow2 v2.5.3 ELF 与 public legacy v1.15.4 BIN 字节不一致，不能复用
+   符号。下一步识别这个 late-boot object。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -63,7 +62,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | `0039/0040` 已证明 CPU1 持续执行且 handoff 在 reset 前完成约 4,376 次；三次 WDT liveness 证明当前首 reset 来自 TG0 stage-1，TG1 仍在 feed。下一项是把 TG0 deadline 前的启动 phase/handoff 周期耗时拆分并定位应用初始化逾时；matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT liveness 对照和 UIFlow2 回归保持 PASS |
+| `RUNTIME-03` | 进行中 | `0041` plus WDT-off 45/120 秒状态把失败收敛到约 44 秒后 CPU1 `0x40100049` wait：A2+24 保持 1，但 A10+28 为 0。下一项是识别该 flag/object 和最后启动 phase；matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT liveness 与 late-state 对照保持可重放 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -83,69 +82,37 @@
 
 ### RUNTIME-03
 
-已满足的前置基线：端口 trace 已证明旧固件在 controller 0 上访问 AXP 和
-RTC；`0031` 将两个 controller 路由到唯一的 GPIO21/22 板级 bus 后，
-`0x34`、`0x51` 和 INA3221 `0x40` 均 ACK，原 `I2C bus error (19)` 消失。
-最小 `core2_flash_ipc` 探针又在 `CORE2_FLASH_IPC_READ_START` 后捕获到
-`CCOMPARE == CCOUNT` 被旧 QEMU 解释为 `2^32` ticks；`0034` 已将相等期限
-安排到下一 cycle，原 interrupt-WDT reproducer 在 trace 开/关和固定/auto
-icount 对照中不再出现。
-同一轮 TIMG trace 还确认旧模型在 `INT_ENA.WDT=0` 时仍抬高 level IRQ；
-`0035` 只修正该 mask 语义，修复后 legacy 仍出现 `TG0WDT_SYS_RESET`。
-legacy Flash 扫描又暴露逐字节 SSI 成本；临时 `blk_pread` 快路径与抽样
-SSI 数据逐字节一致，但绕过控制器数据阶段；旧 REPL 观察在当前重建中
-未复现。`0036` 的 QIO/stateful SSI 批量面与原逐字节路径一致，Core2
-UIFlow2 设备组通过，但 normal-WDT legacy 仍复位；关闭 WDT 后也未进入
-setup/REPL。state trace 显示 flash-op flags 与 cross-core reason 反复完成。
-`0037` 统一了 cross-core、DPORT/cache、SSI 与 TIMG 的 virtual time/CPU/PC
-trace；早期 normal-WDT 配置曾在最后 TG1 feed 后 `800 ms` 进入 timeout，
-WDT-disabled `sample=1024` 与 trace-off Serial 相同。新增三次 WDT
-liveness 对照关闭 PC trace，确认 TG0 stage-0 被 mask、TG0 stage-1 触发
-首次 reset，而 TG1 到 reset 前仍持续 feed；历史 `800 ms` gap 在该配置下
-未复现。精确计数只查验证台账。
-上述结果只用于定位。
-完整 trace 和边界见[运行时模型缺口登记](runtime-model-gap-register.md)。
+已满足的前置基线：shared I2C、equal-deadline timer、WDT mask、stateful
+SSI、handoff timeline/state sweep/setter trace、三次 WDT liveness 和
+WDT-off 45/120 秒 late-state 捕获均可重放。
+
+上述结果都没有把 legacy 固件变成产品 PASS。精确时间线、哈希和检查数只在
+[验证证据台账](validation-ledger.md)；缺口语义见
+[运行时模型缺口登记](runtime-model-gap-register.md)。
+
+当前阻断：
+
+- normal-WDT 在同一 public legacy SHA 上仍由 TG0 stage-1 触发首次 system
+  reset，reset CPU PC 为 `0`，没有非空应用帧；
+- 关闭 WDT 只作为诊断 control 后，Flash/SSI 活动约在 44 秒结束，但 CPU1
+  到 120 秒仍停在 `0x40100049` 的 flag/object wait，无 setup/REPL；
+- 当前 local UIFlow2 ELF 与该 BIN 字节不一致，late object 不能命名；
+  `Core2FactoryTest` 在 I2C 修复后仍未重跑。
 
 开放范围：
 
-- 回到同一 `UIFlow_Core2` SHA，解释 TG0 stage-1 system reset、reset CPU
-  PC `0` 和黑帧之间的先后关系；
-- 保持 `0036` 的 stateful SSI 批量数据面，不使用绕过 dummy/data phase 的
-  `blk_pread` 快路径；
-- 以三次 artifact-bound WDT liveness 为基线，保留 TG0 stage0/stage1、
-  TG1 feed 间隔和 interrupt mask 证据，不再把已未复现的 TG1 `800 ms`
-  gap 当作默认失败路径；
-- 取得 public `UIFlow_Core2 v1.15.4` 的 matching ELF/MAP；byte audit
-  已证明 local UIFlow2 v2.5.3 ELF 在三个 CPU0 采样地址上全部不等，
-  因而不能把地址命名为 `uart_rx_intr_handler_default` 或
-  `mp_execute_bytecode`；
-- 在 matching symbol 缺失时，用 BIN 自身字节和低扰动事件确认
-  `0x40084330` 附近的 cross-core/DPORT/cache-disable 控制流，并区分 CPU0
-  vCPU 未获调度、guest spin 和 handoff 永久等待；
-- 使用 `0038` 的 exact-time `SIGSTOP` 在 14.8 s、15.3 s 及更接近 timeout
-  的窗口复制两核状态；当前晚窗口已稳定落在 CPU0 `0x40087980` /
-  CPU1 `0x40084484`，下一步沿 caller/return 和 SSI/DPORT 操作继续定位；
-- `0039` state sweep 在 CPU0 等待时观察到 CPU1 PC 变化，
-  cache-sync calls、SSI transactions 和 cross-core writes 持续增加；
-  changed-page 累计值停在 `6679`，因此两核整体没有永久停止；
-- `0040` 的 BIN-bound setter trace 在首轮 reset 前记录约 `4,376` 次
-  complete/can-start 完成周期，stage-0 timeout 为 `5.913935 s`，首次 reset
-  为 `15.914787 s`；“单次 handoff 永久不返回”解释不再成立；
-- 解释应用初始化为何没有在 TG0 stage-1 deadline 前完成，并把启动 workload
-  按 phase、handoff 周期和 controller 操作拆分，避免把“TG1 feed 停止”
-  继续当作未经验证的前提；
-- 对 cross-core IRQ0/IRQ1 的 source CPU、interrupt matrix target、latch/
-  clear 和 CPU 状态做同时间轴关联，量化 TG0 stage-1 前的完成频率；
-- 把应用初始化阶段映射到具体固件代码点，判断耗时来自 guest 忙等、TCG
-  调度、cache disable、Flash/cache handoff 还是控制器数据面；
-- 保留默认关闭的 S32C1I、TIMG 和 IRQ trace；不能把旧 probe 的 timer 根因
-  直接复用于 legacy watchdog；
-- 当前工作假设是大量已完成 flash-cache/IPC/DPORT handoff 与初始化 workload
-  使应用未能在 TG0 stage-1 前完成；“单次 handoff 未返回”解释已被
-  `0039/0040` 否定，“TG1 feed 停止”在三次当前 liveness 配置中也未复现；
-  下一门禁是按启动 phase 解释应用初始化逾时；
-- 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
-- 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
+1. 取得 public `UIFlow_Core2 v1.15.4` 的 matching ELF/MAP。byte audit 已证明
+   local UIFlow2 v2.5.3 ELF 不能用于符号命名；
+2. 在 matching symbol 缺失时，沿 BIN 的 call/return 和数据结构访问绑定
+   `0x40100049`、`A2+24`、`A3`、`A10+28`，确定 flag 的生产者、消费者和
+   最后一次可能释放点；
+3. 关联最后 SSI 活动（约 44 秒）、cross-core writes 与 late loop，回答
+   “Flash 工作结束后为何没有进入 setup/REPL”；保留 `0036` stateful SSI
+   数据面，不使用 `blk_pread` bypass；
+4. 在 normal WDT 下把 TG0 stage-1、TG1 feed、interrupt mask 和 late phase
+   放回同一条启动时间线，解释 reset 与 late state 的关系；
+5. 保持同一 public SHA 的 AXP2101/AXP192 A/B 对照，并重跑
+   `Core2FactoryTest` 与 Core2 UIFlow2 设备组，防止 shared bus 回归。
 
 验收：
 
@@ -155,9 +122,9 @@ liveness 对照关闭 PC trace，确认 TG0 stage-0 被 mask、TG0 stage-1 触�
   bypass、accelerator override 或 retry；
 - legacy TG0/TG1 reset 的触发点有证据，shared bus、TIMG trace 和 Core2
   UIFlow2 外设组回归保持 PASS；
-- matching ELF/MAP 或 direct runtime trace 能把最后 CPU0 地址簇绑定到具体
-  handoff 函数/等待条件；当前假设获得支持或被否定，失败 trace、设备未建模
-  部分和固件行为分开记录。
+- matching ELF/MAP 或 direct runtime trace 能解释 WDT-off late loop 和
+  normal-WDT TG0 stage-1 reset 的关系；失败 trace、设备未建模部分和固件
+  行为分开记录。
 
 ## P0：网络与 worker
 

@@ -334,6 +334,10 @@ class DocsIndexContractTests(DocsContractBase):
             "patches/qemu-m5stack-peripherals/0039-esp32-handoff-state-dump.patch",
             "patches/qemu-m5stack-peripherals/0040-xtensa-handoff-pc-trace.patch",
             (
+                "patches/qemu-m5stack-peripherals/"
+                "0041-esp32-handoff-register-stack-dump.patch"
+            ),
+            (
                 "tests/firmware/core2_handoff_trace/"
                 "pc-symbolization-2026-10-26-core2-handoff.json"
             ),
@@ -359,6 +363,10 @@ class DocsIndexContractTests(DocsContractBase):
             ),
             (
                 "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-wdt-off-late-state.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
                 "evidence-2026-10-26-core2-handoff-timeline.json"
             ),
             "platform/tests/test_core2_handoff_trace.py",
@@ -367,6 +375,7 @@ class DocsIndexContractTests(DocsContractBase):
             "platform/tests/test_core2_handoff_state_sweep.py",
             "platform/tests/test_core2_handoff_pc_trace.py",
             "platform/tests/test_core2_wdt_liveness.py",
+            "platform/tests/test_core2_wdt_off_late_state.py",
             "tests/firmware/core2_handoff_trace/run_pause_sweep.py",
             "tests/firmware/core2_handoff_trace/run_pc_trace.py",
             "tests/firmware/core2_handoff_trace/run_wdt_liveness.py",
@@ -693,7 +702,22 @@ class DocsIndexContractTests(DocsContractBase):
                 ROOT / "tests" / "uiflow2" / "sticks3_peripherals" / "README.md",
                 ROOT / "tests" / "README.md",
                 ROOT / "tests" / "network" / "README.md",
+                ROOT / "tests" / "firmware" / "README.md",
+                (
+                    ROOT
+                    / "tests"
+                    / "firmware"
+                    / "core2_handoff_trace"
+                    / "README.md"
+                ),
                 ROOT / "patches" / "README.md",
+                (
+                    ROOT
+                    / "patches"
+                    / "qemu-m5stack-peripherals"
+                    / "README.md"
+                ),
+                ROOT / "platform" / "qemu" / "profiles.json",
                 ROOT / "patches" / "qemu-core2-openmac-wifi" / "README.md",
                 ROOT / "patches" / "qemu-core2-ble-controller" / "README.md",
                 ROOT / "patches" / "qemu-multi-board-uiflow2" / "README.md",

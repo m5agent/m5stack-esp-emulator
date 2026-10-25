@@ -299,6 +299,14 @@ stage-0 timeout, TG0 stage-1 as the first reset path, and TG1 feeding until
 `1.779-4.271 ms` before reset with zero TG1 timeouts. Exact counts and evidence
 remain in the validation ledger.
 
+`0041-esp32-handoff-register-stack-dump.patch` extends the exact-time dump with
+A0-A15, PS, selected object pointers and an optional bounded stack window.
+`M5SW_ESP32_HANDOFF_STACK_WORDS` is clamped to 64 words, defaults to zero and
+is read through each vCPU's address space. WDT-off 45/120-second snapshots
+placed CPU0 in `waiti` idle and CPU1 in the same `0x40100049` flag/object loop
+after Flash activity ended around 44 seconds. This is diagnostic only; the
+late object has no matching ELF symbol.
+
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC
 register layout used by Cardputer Meshtastic, preserves PSRAM cache control

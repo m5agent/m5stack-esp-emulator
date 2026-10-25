@@ -2,12 +2,18 @@
   "schema_version": 1,
   "purpose": "Forbid retired claims from returning to current project-entry documents.",
   "authorities": [
+    "docs/README.md",
+    "docs/engineering-handoff.md",
+    "docs/workstreams.md",
     "docs/project-status.md",
     "docs/project-backlog.md",
     "docs/validation-ledger.md",
     "docs/runtime-model-gap-register.md",
     "docs/project-snapshot.md",
-    "docs/code-map.md"
+    "docs/code-map.md",
+    "docs/qemu-device-adaptation-matrix.md",
+    "docs/user-firmware-simulation-matrix.md",
+    "docs/core2-cache-panic-investigation.md"
   ],
   "claims": [
     {
@@ -759,6 +765,31 @@
       "id": "STALE-150",
       "text": "the flash-before spinlock mismatch is current runtime evidence",
       "reason": "The mismatch is retained only as a corrected probe-harness failure; it is not evidence of a QEMU runtime model defect."
+    },
+    {
+      "id": "STALE-151",
+      "text": "next question is why application initialization does not finish before the TG0 stage-1 deadline",
+      "reason": "The WDT-off late-state control moved the current boundary past startup-time attribution to a stable CPU1 flag/object wait after Flash/SSI activity ends."
+    },
+    {
+      "id": "STALE-152",
+      "text": "remaining gate is why application initialization does not complete before TG0 stage-1",
+      "reason": "This was superseded by the 45/120-second WDT-off snapshots and the normal-WDT reset split."
+    },
+    {
+      "id": "STALE-153",
+      "text": "当前瓶颈判断转为累计同步 Flash/cache handoff 吞吐",
+      "reason": "The later WDT-off late-state evidence shows Flash/SSI work has an endpoint, so aggregate throughput is no longer the current leading boundary."
+    },
+    {
+      "id": "STALE-154",
+      "text": "应用初始化尚未在 TG0 stage-1 前完成",
+      "reason": "The current boundary is the late CPU1 flag/object wait after Flash/SSI activity, together with the unexplained normal-WDT reset."
+    },
+    {
+      "id": "STALE-155",
+      "text": "应用初始化超过 TG0 stage-1 deadline",
+      "reason": "Current evidence separates normal-WDT reset timing from the WDT-off late loop; the old single-cause wording is retired."
     }
   ]
 }

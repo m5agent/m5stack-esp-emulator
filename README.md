@@ -39,8 +39,10 @@ MicroPython 和其他完整 Flash 固件。
   映射，UART 和永久 deadlock 解释均不支持。新增三次 artifact-bound WDT
   liveness 对照显示 TG0 stage-0 timeout 被 mask，随后 stage-1 触发 system
   reset；TG1 在 reset 前仍持续 feed，未出现 TG1 interrupt-WDT，历史
-  `800 ms` gap 在当前配置下未复现。当前未解决点是应用初始化为何没有在
-  TG0 stage-1 前完成；matching ELF/MAP、`Core2FactoryTest` 重跑和
+  `800 ms` gap 在当前配置下未复现。WDT-off 诊断进一步显示 Flash 工作约在
+  44 秒结束，随后 CPU0 idle、CPU1 在 `0x40100049` 相同 flag/object 上持续
+  自旋到 120 秒。当前未解决点从“启动太慢”收敛到这个 late-boot wait；
+  matching ELF/MAP、`Core2FactoryTest` 重跑和
   `RUNTIME-03` 关闭条件以
   [项目当前状态](docs/project-status.md)与
   [验证证据台账](docs/validation-ledger.md)为准。

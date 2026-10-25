@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "kind": "core2-wdt-off-late-state",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "bytes": 16777216
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_binary_sha256": "b7ed19e7502e2a04ef48287c3622061ee640077bacc469e571ece5b6f802c1ea",
+    "trace_sample": 1024,
+    "pc_sampling": "NOT RUN",
+    "runtime": "qemu",
+    "wdt_disabled": true,
+    "pause_action": "exit",
+    "stack_words": 0
+  },
+  "snapshots": [
+    {
+      "pause_target_ns": 45000000000,
+      "pause_event_ns": 45000355000,
+      "cpu": {
+        "0": {
+          "pc": "0x4026306e",
+          "interrupt_request": "0x00000002",
+          "state_flags": 1
+        },
+        "1": {
+          "pc": "0x40100049",
+          "interrupt_request": "0x00000002",
+          "state_flags": 2
+        }
+      },
+      "handoff_flags": {
+        "0x3ffc7ec8": "0x01",
+        "0x3ffc7ec9": "0x01",
+        "0x3ffc7750": "0x00000001",
+        "0x3ffc7754": "0x00000001"
+      },
+      "flash_handoff": {
+        "cache_sync_calls": 49848,
+        "changed_pages": 45847,
+        "state_updates": 49265,
+        "last_cache_sync_ns": 43914275000
+      },
+      "ssi": {
+        "transactions": 22554,
+        "rx_bytes": 671936,
+        "tx_bytes": 162247,
+        "last_event_ns": 43926227000
+      },
+      "crosscore_writes": 123476,
+      "cpu1_registers": {
+        "a0": "0x80100402",
+        "a1": "0x3ffda550",
+        "a2": "0x3f953a30",
+        "a3": "0x3ffc455c",
+        "a6": "0x3f953de4",
+        "a7": "0x3ffda790",
+        "a9": "0x3ffda530",
+        "a10": "0x3f953c50",
+        "a15": "0x3f953e08"
+      },
+      "cpu1_objects": {
+        "a2": {
+          "value": "0x3ffe436c",
+          "offset24": "0x00000001",
+          "offset28": "0x00000000"
+        },
+        "a3": {
+          "value": "0x3f953c50",
+          "offset24": "0x00000001",
+          "offset28": "0x00000000"
+        },
+        "a10": {
+          "value": "0x00f00140",
+          "offset24": "0x00000000",
+          "offset28": "0x00000000"
+        }
+      },
+      "serial": {
+        "bytes": 507,
+        "sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+        "has_setup_text": false,
+        "has_repl_prompt": false
+      }
+    },
+    {
+      "pause_target_ns": 120000000000,
+      "pause_event_ns": 120000370000,
+      "cpu": {
+        "0": {
+          "pc": "0x4026306e",
+          "interrupt_request": "0x00000002",
+          "state_flags": 1
+        },
+        "1": {
+          "pc": "0x40100049",
+          "interrupt_request": "0x00000002",
+          "state_flags": 2
+        }
+      },
+      "handoff_flags": {
+        "0x3ffc7ec8": "0x01",
+        "0x3ffc7ec9": "0x01",
+        "0x3ffc7750": "0x00000001",
+        "0x3ffc7754": "0x00000001"
+      },
+      "flash_handoff": {
+        "cache_sync_calls": 49848,
+        "changed_pages": 45847,
+        "state_updates": 49265,
+        "last_cache_sync_ns": 43987842000
+      },
+      "ssi": {
+        "transactions": 22554,
+        "rx_bytes": 671936,
+        "tx_bytes": 162247,
+        "last_event_ns": 44002235000
+      },
+      "crosscore_writes": 139094,
+      "cpu1_registers": {
+        "a0": "0x80100402",
+        "a1": "0x3ffda550",
+        "a2": "0x3f953a00",
+        "a3": "0x3ffc455c",
+        "a6": "0x3f953db4",
+        "a7": "0x3ffda790",
+        "a9": "0x3ffda530",
+        "a10": "0x3f953c20",
+        "a15": "0x3f953dd8"
+      },
+      "cpu1_objects": {
+        "a2": {
+          "value": "0x3ffe436c",
+          "offset24": "0x00000001",
+          "offset28": "0x00000000"
+        },
+        "a3": {
+          "value": "0x3f953c20",
+          "offset24": "0x00000001",
+          "offset28": "0x00000000"
+        },
+        "a10": {
+          "value": "0x00f00140",
+          "offset24": "0x00000000",
+          "offset28": "0x00000000"
+        }
+      },
+      "serial": {
+        "bytes": 507,
+        "sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+        "has_setup_text": false,
+        "has_repl_prompt": false
+      }
+    }
+  ],
+  "classification": {
+    "normal_wdt_product_path": "UNCHANGED",
+    "wdt_disabled_diagnostic": "FLASH_WORK_COMPLETED_LATE_LOOP",
+    "flash_phase_end": "ABOUT_44_SECONDS",
+    "cpu0": "HALTED_WAITI",
+    "cpu1": "SPIN_WAIT_FLAG_AT_0x40100049",
+    "late_pointer_fields": "A2+24=1, *(A3)=A10, A10+28=0",
+    "legacy_boot": "FAIL",
+    "runtime_03": "OPEN"
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "WDT disabled is a diagnostic control, not a product fix.",
+    "The late CPU1 flag/object has no matching ELF symbol.",
+    "Physical hardware, RF, cache timing and electrical behavior remain NOT RUN."
+  ]
+}

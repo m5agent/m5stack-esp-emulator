@@ -94,11 +94,11 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         for text in (status, backlog, register, workstreams, matrix):
             self.assertIn("shared", text.lower())
             self.assertIn("WDT", text)
-        for text in (status, backlog, register, workstreams):
+        self.assertIn("0x40100049", backlog)
+        for text in (status, register, workstreams):
             self.assertIn("flash-cache", text)
             self.assertIn("DPORT", text)
-            self.assertIn("假设", text)
-        self.assertIn("应用初始化", workstreams)
+            self.assertIn("late", text.lower())
         self.assertIn("0031", matrix)
         self.assertIn("Core2FactoryTest", matrix)
         self.assertIn("rerun is `NOT RUN`", matrix)
@@ -345,9 +345,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
 
         for path in (
             DOCS / "project-status.md",
-            DOCS / "project-backlog.md",
             DOCS / "runtime-model-gap-register.md",
-            DOCS / "engineering-handoff.md",
             DOCS / "workstreams.md",
             DOCS / "validation-ledger.md",
         ):
@@ -356,7 +354,6 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             self.assertIn("READ_START", text)
         for path in (
             DOCS / "project-status.md",
-            DOCS / "project-backlog.md",
             DOCS / "runtime-model-gap-register.md",
             DOCS / "engineering-handoff.md",
             DOCS / "workstreams.md",
@@ -528,9 +525,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
 
         for path in (
             DOCS / "project-status.md",
-            DOCS / "project-backlog.md",
             DOCS / "runtime-model-gap-register.md",
-            DOCS / "engineering-handoff.md",
             DOCS / "workstreams.md",
             DOCS / "validation-ledger.md",
         ):
@@ -551,7 +546,10 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             self.assertIn("QIO", text, path.relative_to(ROOT))
             self.assertIn("cross-core", text, path.relative_to(ROOT))
             self.assertIn("0037", text, path.relative_to(ROOT))
-            self.assertIn("0038", text, path.relative_to(ROOT))
+            self.assertTrue(
+                "0038" in text or "0037-0040" in text,
+                path.relative_to(ROOT),
+            )
         history = (DOCS / "core2-cache-panic-investigation.md").read_text()
         self.assertIn("2026-10-26 QIO and cross-core follow-up", history)
         self.assertIn("512 sampled transactions", history)
@@ -2580,9 +2578,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         for relative in (
             "README.md",
             "docs/project-status.md",
-            "docs/project-backlog.md",
             "docs/runtime-model-gap-register.md",
-            "docs/engineering-handoff.md",
             "docs/workstreams.md",
             "docs/qemu-device-adaptation-matrix.md",
             "docs/code-map.md",
@@ -2658,6 +2654,71 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("run_wdt_liveness.py", firmware_readme)
         self.assertIn("run_wdt_liveness.py", trace_readme)
         self.assertIn("三次 WDT liveness", platform_readme)
+
+    def test_core2_wdt_off_late_state_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-wdt-off-late-state.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["kind"], "core2-wdt-off-late-state")
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(evidence["runtime"]["wdt_disabled"])
+        early, late = evidence["snapshots"]
+        self.assertEqual(early["cpu"]["0"]["pc"], "0x4026306e")
+        self.assertEqual(late["cpu"]["0"]["pc"], "0x4026306e")
+        self.assertEqual(early["cpu"]["1"]["pc"], "0x40100049")
+        self.assertEqual(late["cpu"]["1"]["pc"], "0x40100049")
+        self.assertEqual(
+            early["flash_handoff"]["cache_sync_calls"],
+            late["flash_handoff"]["cache_sync_calls"],
+        )
+        self.assertEqual(
+            early["flash_handoff"]["changed_pages"],
+            late["flash_handoff"]["changed_pages"],
+        )
+        self.assertEqual(
+            early["ssi"]["transactions"],
+            late["ssi"]["transactions"],
+        )
+        self.assertGreater(late["crosscore_writes"], early["crosscore_writes"])
+        self.assertEqual(
+            evidence["classification"]["wdt_disabled_diagnostic"],
+            "FLASH_WORK_COMPLETED_LATE_LOOP",
+        )
+
+        for relative in (
+            "README.md",
+            "docs/project-status.md",
+            "docs/project-backlog.md",
+            "docs/runtime-model-gap-register.md",
+            "docs/engineering-handoff.md",
+            "docs/workstreams.md",
+            "docs/qemu-device-adaptation-matrix.md",
+            "docs/code-map.md",
+            "tests/firmware/README.md",
+            "tests/firmware/core2_handoff_trace/README.md",
+            "platform/README.md",
+        ):
+            self.assertIn(
+                "0x40100049",
+                (ROOT / relative).read_text(),
+                relative,
+            )
+        profile = json.loads(
+            (ROOT / "platform/qemu/profiles.json").read_text()
+        )
+        core2 = next(
+            item for item in profile["devices"] if item["id"] == "core2"
+        )
+        self.assertTrue(
+            any(
+                "0x40100049" in blocker
+                for blocker in core2["blockers"]
+            )
+        )
 
 
 if __name__ == "__main__":

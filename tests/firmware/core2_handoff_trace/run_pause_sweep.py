@@ -180,6 +180,9 @@ def snapshot_at_pause(
     memory = {}
     dport = {}
     io = {}
+    registers: dict[str, dict[str, str]] = {}
+    points: dict[str, dict[str, str]] = {}
+    stack_words: list[dict[str, Any]] = []
     for event in same_time:
         if event["component"] == "cpu" and event["event"] == "freeze":
             cpu[str(event["cpu"])] = {
@@ -187,6 +190,38 @@ def snapshot_at_pause(
                 "interrupt_request": f"0x{int(event['a'], 16):08x}",
                 "state_flags": int(event["b"], 10),
             }
+        elif event["component"] == "cpu" and event["event"] == "freeze-reg":
+            registers[str(event["cpu"])] = {
+                "a0": f"0x{int(event['a'], 16):08x}",
+                "a1": f"0x{int(event['b'], 16):08x}",
+                "ps": f"0x{int(event['c'], 16):08x}",
+            }
+        elif event["component"] == "cpu" and event["event"].startswith(
+            "freeze-reg"
+        ):
+            key = str(event["cpu"])
+            base = int(event["event"].removeprefix("freeze-reg"))
+            values = registers.setdefault(key, {})
+            fields = ("a", "b") if base == 14 else ("a", "b", "c", "d")
+            for offset, field in enumerate(fields):
+                values[f"a{base + offset}"] = (
+                    f"0x{int(event[field], 16):08x}"
+                )
+        elif event["component"] == "mem" and event["event"] == "freeze-point":
+            points[f"0x{int(event['a'], 16):08x}"] = {
+                "value": f"0x{int(event['b'], 16):08x}",
+                "offset24": f"0x{int(event['c'], 16):08x}",
+                "offset28": f"0x{int(event['d'], 16):08x}",
+            }
+        elif event["component"] == "mem" and event["event"] == "stack-word":
+            stack_words.append(
+                {
+                    "cpu": int(event["c"], 10),
+                    "index": int(event["d"], 10),
+                    "address": f"0x{int(event['a'], 16):08x}",
+                    "value": f"0x{int(event['b'], 16):08x}",
+                }
+            )
         elif event["component"] == "mem" and event["event"] in {
             "freeze-byte",
             "freeze-word",
@@ -239,7 +274,7 @@ def snapshot_at_pause(
         raise RuntimeError("missing DPORT freeze state")
     if "ssi:freeze-counters" not in io:
         raise RuntimeError("missing SSI freeze counters")
-    return {
+    snapshot = {
         "pause_target_ns": target_ns,
         "pause_event_ns": pause["now_ns"],
         "pause_delta_ns": pause["now_ns"] - target_ns,
@@ -248,6 +283,16 @@ def snapshot_at_pause(
         "dport": dport,
         "io": io,
     }
+    if registers:
+        snapshot["registers"] = registers
+    if points:
+        snapshot["points"] = points
+    if stack_words:
+        snapshot["stack_words"] = sorted(
+            stack_words,
+            key=lambda item: (item["cpu"], item["index"]),
+        )
+    return snapshot
 
 
 def stop_service(process: subprocess.Popen) -> None:
@@ -271,6 +316,7 @@ def run_target(
     icount_shift: str,
     timeout: float,
     tolerance_ns: int,
+    disable_wdt: bool,
 ) -> dict[str, Any]:
     run_dir = out_dir / f"pause-{target_ns}-attempt-{attempt}"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -290,6 +336,10 @@ def run_target(
             "M5SW_ESP32_HANDOFF_PAUSE_ACTION": "exit",
         }
     )
+    if disable_wdt:
+        env["M5SW_DISABLE_WDT"] = "1"
+    else:
+        env.pop("M5SW_DISABLE_WDT", None)
     service_log = (run_dir / "device-service.log").open("wb")
     process = subprocess.Popen(
         [
@@ -386,6 +436,7 @@ def run_target(
                 "attempt": attempt,
                 "runtime": runtime,
                 "icount_shift": icount_shift,
+                "wdt_disabled": disable_wdt,
                 "session_id_sha256": sha256_bytes(session_id.encode()),
                 "qemu_stderr_sha256": sha256_bytes(stderr.encode()),
                 "serial_bytes": len(serial.encode()),
@@ -395,6 +446,12 @@ def run_target(
         return snapshot
     finally:
         if session_id:
+            session_dir = run_dir / "service-state" / "sessions" / session_id
+            for name in ("qemu.stderr", "serial.log", "session.json"):
+                source = session_dir / name
+                destination = run_dir / name
+                if source.is_file() and not destination.exists():
+                    shutil.copy2(source, destination)
             try:
                 api.json(
                     f"/api/v1/sessions/{session_id}?purge=0",
@@ -426,6 +483,7 @@ def main() -> int:
     parser.add_argument("--timeout-seconds", type=float, default=45)
     parser.add_argument("--pause-tolerance-ms", type=float, default=5)
     parser.add_argument("--attempts", type=int, default=1)
+    parser.add_argument("--disable-wdt", action="store_true")
     parser.add_argument(
         "--runtime",
         choices=("qemu", "qemu-wifi"),
@@ -468,6 +526,7 @@ def main() -> int:
                     args.icount_shift,
                     args.timeout_seconds,
                     int(args.pause_tolerance_ms * 1_000_000),
+                    args.disable_wdt,
                 )
                 snapshots.append(snapshot)
                 print(
@@ -510,6 +569,7 @@ def main() -> int:
                 args.icount_shift if args.runtime == "qemu-wifi" else None
             ),
             "pause_action": "exit",
+            "wdt_disabled": args.disable_wdt,
             "attempts_per_target": args.attempts,
             "pause_tolerance_ns": int(
                 args.pause_tolerance_ms * 1_000_000

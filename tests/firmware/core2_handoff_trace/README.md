@@ -184,10 +184,36 @@ The three attempts classify as
 - no TG0 feed, reconfigure or protect write occurs after stage-0.
 
 The earlier TG1 `800 ms` gap is retained as a configuration-specific
-historical observation and classified `NOT_REPRODUCED` by this control. The
-next boundary is why application initialization does not complete before the
-TG0 stage-1 deadline. The evidence is in
+historical observation and classified `NOT_REPRODUCED` by this control. This
+run moves the next diagnostic question away from TG1 liveness and toward the
+work and waits that precede the normal-WDT TG0 stage-1 reset. The evidence is in
 `evidence-2026-10-26-core2-wdt-liveness-3x.json`.
+
+`0041-esp32-handoff-register-stack-dump.patch` adds a default-off register,
+object-pointer and bounded stack dump to the exact-time pause. With WDT disabled
+only as a diagnostic control, 45-second and 120-second snapshots show:
+
+- Flash/SSI counters are identical and stop changing around 44 seconds;
+- CPU0 is halted in `waiti` at `0x4026306e`;
+- CPU1 repeatedly executes `0x40100049`;
+- `A2+24 == 1`, `*(A3) == A10`, and `A10+28 == 0`;
+- cross-core counters continue increasing while the serial remains the same
+  507-byte banner-only hash.
+
+The late object is not symbol-bound. Evidence is in
+`evidence-2026-10-26-core2-wdt-off-late-state.json`. WDT-disabled is not a
+product fix.
+
+```bash
+python3 tests/firmware/core2_handoff_trace/run_pause_sweep.py \
+  --image path/to/normalized-core2.bin \
+  --qemu path/to/qemu-system-xtensa \
+  --disable-wdt \
+  --pause-seconds 45 \
+  --pause-seconds 120 \
+  --timeout-seconds 240 \
+  --out-dir /tmp/core2-wdt-off-late-state
+```
 
 An exploratory change that skipped `memory_region_flush_rom_device()` when
 `changed_pages == 0` was rejected. The same firmware still entered

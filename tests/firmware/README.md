@@ -211,8 +211,9 @@ That run is explicitly invalidated in
 The corrected evidence supports the flash-read data path and closes the minimal
 probe's timer-starvation reproduction. It does not close legacy UIFlow:
 TG0 stage-1 system reset, reset CPU PC `0` and a black frame remain in the same
-public firmware path, so pre-deadline application initialization and aggregate
-Flash/cache-handoff progress remain the next investigation boundary.
+public firmware path. Later WDT liveness and WDT-off late-state controls are
+required before assigning a cause; the minimal-probe timer must not be inherited
+as the legacy root cause.
 
 The earlier QIO/cross-core diagnostics are recorded in
 [`evidence-2026-10-26-core2-qio-crosscore-diagnostic.json`](evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)
@@ -263,8 +264,14 @@ TG0 stage-0 timeout at about `5.91 s`, then a TG0 stage-1 reset at about
 `15.91 s`. TG1 completed 6,618-6,807 feeds, stayed within a 10.410 ms maximum
 inter-feed interval and fed within 1.779-4.271 ms of reset; no TG1 timeout
 occurred. The earlier 800 ms gap is therefore `NOT_REPRODUCED` in the current
-configuration, and the next question is why application initialization does
-not finish before the TG0 stage-1 deadline.
+configuration.
+WDT-off 45/120-second pauses now bracket the later failure. Flash and SSI
+counters stop changing at about 44 seconds; CPU0 remains in `waiti` idle at
+`0x4026306e`, while CPU1 spins at `0x40100049`. CPU1 holds `A2+24=1` and
+`A10+28=0`. `0041` dumps A0-A15, PS, selected object pointers and an optional
+bounded stack window so this late-boot wait can be analyzed without naming
+symbols from the mismatched local ELF. The current boundary is to identify that
+late flag/object and reconcile it with the normal-WDT TG0 stage-1 reset.
 WDT-disabled `sample=1024` and trace-off produced the same banner-only serial
 hash. The reusable summarizer and evidence are in
 [`core2_handoff_trace/`](core2_handoff_trace/). The unbound local-ELF PC

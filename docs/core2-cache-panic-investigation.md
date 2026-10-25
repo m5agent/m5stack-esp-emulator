@@ -453,9 +453,10 @@ An exploratory host-side change that skipped
 `TG0WDT_SYS_RESET`, reset PC `0` and the same black frame. The result is
 retained as a rejected control and the change is not in the patch series.
 
-The remaining question is why roughly 4,376 completed handoff cycles and about
-250 KiB of SSI data before the first reset still do not advance the firmware
-past its startup phase.
+At that point, the unresolved question was how roughly 4,376 completed handoff
+cycles and about 250 KiB of SSI data before the first reset related to startup
+progress. The WDT-off late-state section below narrows the later phase but does
+not yet answer this reset-time question.
 
 See
 [`evidence-2026-10-26-core2-handoff-pc-trace.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pc-trace.json).
@@ -482,23 +483,53 @@ not be treated as the current first-cause path.
 See
 [`evidence-2026-10-26-core2-wdt-liveness-3x.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-liveness-3x.json).
 
+## 2026-10-26 WDT-off late state
+
+`0041-esp32-handoff-register-stack-dump.patch` extends the exact-time pause
+with A0-A15, PS, selected object forward pointers and an optional bounded stack
+window. WDT disable is used only as a diagnostic control so the boot can pass
+the normal reset window.
+
+Two independent 45-second and 120-second snapshots converge on the same state:
+
+| item | observed state |
+| --- | --- |
+| CPU0 | halted in `waiti` at `0x4026306e` |
+| CPU1 | running spin at `0x40100049` |
+| Flash handoff | `49,848` cache-sync calls, `45,847` changed pages, `49,265` state updates |
+| SSI | `22,554` transactions, `671,936` RX bytes |
+| last Flash/SSI activity | about `43.91-44.00 s` |
+| cross-core writes | `123,476` at 45 s, `139,094` at 120 s |
+| CPU1 pointers | `A2+24=1`, `*(A3)=A10`, `A10+28=0` |
+| serial | same 507-byte banner-only hash at both snapshots |
+
+The Flash/SSI counters are identical at both snapshots, so the former
+"Flash scan has no endpoint" hypothesis is retired. The boot instead reaches a
+stable late-loop wait. `RUNTIME-03` remains open because WDT-off is not a
+product fix, the object has no matching symbol and the normal-WDT path still
+resets at TG0 stage-1 without a non-empty frame.
+
+See
+[`evidence-2026-10-26-core2-wdt-off-late-state.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-off-late-state.json)
+and
+[`0041-esp32-handoff-register-stack-dump.patch`](../patches/qemu-m5stack-peripherals/0041-esp32-handoff-register-stack-dump.patch).
+
 ## Next investigation
 
 1. Preserve the minimal probe's equal-deadline regression gate and keep the
    business patch separate from diagnostic ring/trace code.
 2. Preserve the stateful SSI batch path and its byte-equivalence gate.
-3. For the same legacy UIFlow SHA, correlate TG0/TG1 feed/clear, stage0/stage1,
-   `INTSET`, `INTENABLE`, expiry, reset PC `0`, and IDLE/service-task progress.
-4. Obtain a matching v1.15.4 ELF/MAP. Until then, use BIN-bound byte ranges and
-   low-perturbation events to classify the final CPU0 cluster as vCPU
-   starvation, guest spin, or a specific cross-core/cache-disable handoff
-   waiter; do not reuse local v2.5.3 symbols.
-5. Use the three-run WDT liveness baseline and `0039/0040` to split pre-TG0
-   stage-1 startup work by phase. Do not keep searching for a single
-   cache-restore call that never returns or assume the current path stops
-   feeding TG1.
-6. Reduce aggregate synchronous handoff cost using controller-level behavior,
-   without skipping the guest flash/cache protocol.
+3. Obtain a matching v1.15.4 ELF/MAP. Until then, follow BIN call/return and data
+   accesses around `0x40100049`, `A2+24`, `A3`, and `A10+28` to identify the
+   late flag producer and consumer; do not reuse local v2.5.3 symbols.
+4. Correlate the last Flash/SSI event at about 44 seconds with the start of the
+   CPU1 late loop. Explain which expected event or object transition is absent
+   after Flash work ends.
+5. Reconcile the normal-WDT TG0 stage-1 reset with the WDT-off late state. Keep
+   TG0/TG1 feed/clear, stage, mask, `INTSET`, `INTENABLE`, reset PC `0`, and
+   service-task progress on the same virtual timeline.
+6. Re-run `Core2FactoryTest` after the shared-I2C fix and keep the Core2
+   UIFlow2 device group as the shared-bus regression gate.
 7. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
    collected.
 

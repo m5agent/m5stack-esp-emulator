@@ -43,10 +43,11 @@
   门禁；WDT mask 修复后同一 legacy firmware 仍 reset PC `0`、黑帧并以
   TG0 watchdog reset 循环。`0036` 的 stateful SSI 批量路径与原逐字节
   路径匹配，并通过 UIFlow2 Core2 外设组，但 normal-WDT legacy 仍失败；
-  WDT 关闭后在观察窗口内也未到 REPL。cross-core/flash-op flags 会反复完成；
-  三次 WDT liveness 对照显示 TG1 在 TG0 stage-1 reset 前仍持续 feed，因此
-  当前瓶颈不是 TG1 feed 停止，而是应用初始化尚未在 TG0 stage-1 前完成。
-  运行比例和 evidence 只查验证台账；
+  WDT 关闭后的 45/120 秒对照显示 Flash/SSI 工作约在 44 秒结束，随后 CPU1
+  稳定停在 `0x40100049` 的同一 flag/object 等待，仍无 setup/REPL 或应用帧。
+  当前未闭合物是 normal-WDT 下 TG0 stage-1 的首 reset、该 late-loop object
+  和 matching 符号；不再沿用“TG1 feed 停止”“永久 handoff deadlock”或
+  “Flash 扫描没有终点”作为当前结论。运行比例和 evidence 只查验证台账；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
@@ -66,48 +67,18 @@
 | 固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF、capability、文件系统、SD/NVS fixture、静态审查和 Secure Boot v2 镜像分析 | 运行态 ACL/许可、live eFuse/trust root、生产 key、真实云端业务 | `firmware_*.py`、`user_firmware_matrix.py` |
 | 设备差异 | ESP32 设备矩阵可由 Device Service 创建；Tab5 与 CardputerZero 是独立后端 | Tab5 外设、CardputerZero 长期回归、逐设备视觉保真 | `devices/`、`platform/peripherals/` |
 
-最近这一轮真正改变当前事实的内容是：
+最近这一轮只改变调查边界，不改变产品结论：
 
-- Core2 的两个 I2C controller 已统一下层到一个物理 GPIO21/22 板级 bus，
-  原 AXP/RTC 路由错误不再是首个失败点；
-- 剩余 legacy UIFlow 启动问题已从固定外设/固定 PC 收敛到启动期同步路径；
-- 最小 `core2_flash_ipc` probe 在 `READ_START` 后捕获到
-  `CCOMPARE == CCOUNT` 被错误算成 `2^32` ticks；业务补丁只在相等窗口安排
-  下一 cycle，其他回绕语义保持不变，原 interrupt-WDT reproducer 修复后通过
-  首启动门禁；
-- 旧版“flash 前 spinlock owner mismatch”已确认是探针把 4096-byte 局部
-  数组放进 4096-byte 任务栈导致的栈溢出，已经撤销，不再作为模型证据；
-- probe timer 修复没有关闭 legacy UIFlow；legacy 仍由 TG0 stage-1 产生首次
-  system reset，并保持同一 black frame；当前调查转向应用初始化为何没有在
-  该 reset 前完成；
-- `0035` 修正 `INT_ENA.WDT=0` 时仍注入 WDT level IRQ 的独立模型错误；
-  legacy 在修复后仍复位，因此该补丁只修正寄存器语义；
-- `0036` 新增通用 SSI byte-buffer 接口和 m25p80 QIO `STATE_READ` 快速路径；
-  抽样批次与原逐字节路径完全一致，Core2 UIFlow2 设备组和共享控制器完整
-  矩阵通过。它保留命令、地址、dummy、CS 和地址回绕语义；精确计数只查
-  验证台账；
-- stateful 批量路径仍没有关闭 legacy；正常 WDT 下继续 reset，关闭 WDT
-  后在观察窗口内也没有进入 setup/REPL。先前直接 read 到 REPL 的现象在当前
-  重建中未复现，不能再作为稳定里程碑；
-- 直接 state trace 显示 flash-op can-start/complete 和 cross-core reason
-  反复完成。`0037` 已将统一 virtual time/CPU/PC trace 覆盖 cross-core、
-  DPORT/cache、SSI 和 TIMG；两次 normal-WDT 运行都在最后 feed 后固定
-  `800 ms` timeout。后续 BIN/ELF 字节审计拒绝了 local UIFlow2 v2.5.3
-  ELF 对 public legacy v1.15.4 BIN 的 UART/VM 符号映射；BIN 自身在最后
-  CPU0 地址簇上包含 cross-core、DPORT 和 Flash/cache-disable 控制流，但
-  精确函数仍缺 matching ELF/MAP；
-- `0038` 的 virtual-time `SIGSTOP` 对照避免了 PC 高频采样：14.800 s 早窗口
-  没有固定 PC，15.301 s 晚窗口落在 CPU0 `0x40087980` / CPU1
-  `0x40084484`。BIN 源码形态分别匹配 `spi_flash_op_block_func` complete
-  wait 与 cache handshake candidate；`0039` state sweep 又显示 CPU0 等待时
-  CPU1 继续执行，cache/SSI/cross-core counters 持续增长；`0040` setter
-  trace 在首次 reset 前记录约 4,376 次完成的 handoff。UART 与永久
-  handoff deadlock 解释都已退出。新的三次 WDT liveness 对照中，TG0
-  stage-0 timeout 均被 mask，TG0 stage-1 在约 `15.91 s` reset；TG1
-  每次仍持续 feed，最后 feed 距 reset 仅 1.8-4.3 ms，历史 `800 ms` gap
-  在当前配置下未复现。当前需解释应用初始化为何没有在 TG0 stage-1 前完成；
-- 文档已拆成当前事实、待办、日期化证据、契约、实现地图和历史页五类，后续
-  不应再把这些运行细节复制回总览。
+- shared I2C、equal-deadline timer、TIMG WDT mask 和 stateful SSI 已是可重放
+  的修复或验证控制；它们都没有让 legacy 固件完成启动；
+- state sweep、setter trace、三次 WDT liveness 和 WDT-off late-state 已逐项
+  排除当前配置下的 UART storm、永久 handoff deadlock、TG1 feed 停止和
+  “Flash 扫描永不结束”；
+- 当前最窄的下一步是取得 matching ELF/MAP，或用 BIN-bound 证据解析
+  `0x40100049` 附近的 late-loop object，并说明最后 SSI 活动到该等待之间
+  缺少了什么；
+- 当前事实只在[项目当前状态](project-status.md)，详细证据只在
+  [验证证据台账](validation-ledger.md)；本页不再复制逐次运行时间线。
 
 ## 最近成果已经并入哪里
 
@@ -247,7 +218,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 以三次 WDT liveness 和 `0039/0040` 为基线，按启动 phase 拆分应用初始化、cache restore 和 SSI/DPORT 操作；同版本 ELF/MAP 可并行取得 | TG0 stage-1 到点前 TG1 仍在 feed；当前问题是应用初始化逾时，仍无同 SHA 非空应用帧 |
+| `RUNTIME-03` | 绑定 WDT-off 45/120 秒 late state 的 `0x40100049`、`A2+24`、`A3`、`A10+28` 对象；同版本 ELF/MAP 可并行取得 | Flash 工作约 44 秒结束，但 CPU1 late-loop 到 120 秒仍未释放；仍无同 SHA 非空应用帧 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

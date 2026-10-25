@@ -266,6 +266,7 @@ def run_once(
     observe_seconds: float,
     runtime: str,
     icount_shift: str,
+    trace_sample: int,
 ) -> dict[str, Any]:
     run_dir = out_dir / f"attempt-{attempt}"
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -280,7 +281,7 @@ def run_once(
             "M5_CORE2_ICOUNT_SHIFT": icount_shift,
             "M5SW_TIMG_TRACE": "1",
             "M5SW_ESP32_HANDOFF_TRACE": "1",
-            "M5SW_ESP32_HANDOFF_TRACE_SAMPLE": "1024",
+            "M5SW_ESP32_HANDOFF_TRACE_SAMPLE": str(trace_sample),
         }
     )
     service_log = (run_dir / "device-service.log").open("wb")
@@ -394,6 +395,7 @@ def main() -> int:
     parser.add_argument("--qemu", type=Path, default=DEFAULT_QEMU)
     parser.add_argument("--observe-seconds", type=float, default=18)
     parser.add_argument("--attempts", type=int, default=3)
+    parser.add_argument("--trace-sample", type=int, default=1024)
     parser.add_argument(
         "--runtime",
         choices=("qemu", "qemu-wifi"),
@@ -427,6 +429,8 @@ def main() -> int:
         parser.error("--observe-seconds must be from 2 to 120")
     if not 1 <= args.attempts <= 10:
         parser.error("--attempts must be from 1 to 10")
+    if not 1 <= args.trace_sample <= 1_000_000:
+        parser.error("--trace-sample must be from 1 to 1000000")
     image_sha256 = sha256_file(args.image)
     if image_sha256 != EXPECTED_IMAGE_SHA256:
         parser.error(
@@ -447,6 +451,7 @@ def main() -> int:
                 args.observe_seconds,
                 args.runtime,
                 args.icount_shift,
+                args.trace_sample,
             )
         except Exception as error:
             failures.append({"attempt": attempt, "error": str(error)})
@@ -494,6 +499,7 @@ def main() -> int:
             ),
             "pc_trace": "NOT RUN",
             "timg_verbose_trace": "ENABLED",
+            "trace_sample": args.trace_sample,
             "tg1_live_gap_limit_ns": TG1_FEED_LIVE_GAP_NS,
             "tg1_max_gap_limit_ns": TG1_FEED_MAX_GAP_NS,
         },

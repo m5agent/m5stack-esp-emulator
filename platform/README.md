@@ -117,7 +117,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   complete/can-start handoff。三次 WDT liveness 对照显示 TG1 到 TG0
   stage-1 reset 前仍持续 feed，最后间隔仅 1.779-4.271 ms，历史 800 ms
   gap 未复现。永久跨核 deadlock、UART 和“TG1 feed 停止”解释均撤回，
-  但应用初始化为何未在 TG0 stage-1 前完成仍未解释。
+  WDT-off 45/120 秒对照又显示 Flash 工作约 44 秒结束后，CPU0 进入 waiti
+  idle，CPU1 在 `0x40100049` 同一 flag/object 上持续自旋。`0041` 提供
+  默认关闭的寄存器、对象指针和有界 stack dump；late-loop 语义仍未绑定。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

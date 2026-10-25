@@ -130,12 +130,12 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
 On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不是承诺“所有 C6
 固件均可运行”。
 
-### RUNTIME-03：Core2 I2C/timer/WDT-mask 已修复，legacy Flash/cross-core 未闭环
+### RUNTIME-03：Core2 I2C/timer/WDT-mask 已修复，legacy late-boot wait 未闭环
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `OPEN` |
-| 修复进度 | controller-to-physical-bus routing `FIXED`；minimal probe 的 `CCOMPARE == CCOUNT` equal-deadline `FIXED`；TIMG WDT level IRQ 的 `INT_ENA` mask `FIXED`；stateful SSI 批量数据面 `VALIDATED`；统一 handoff timeline `VALIDATED`；三次 WDT liveness 显示 TG0 stage-1 触发首 reset 时 TG1 仍在 feed；legacy 应用初始化逾时、reset PC `0` 和 black-frame `OPEN` |
+| 修复进度 | controller-to-physical-bus routing `FIXED`；minimal probe 的 `CCOMPARE == CCOUNT` equal-deadline `FIXED`；TIMG WDT level IRQ 的 `INT_ENA` mask `FIXED`；stateful SSI 批量数据面 `VALIDATED`；统一 handoff timeline `VALIDATED`；三次 WDT liveness 显示 TG0 stage-1 触发首 reset 时 TG1 仍在 feed；WDT-off 45/120 秒对照把失败收敛到约 44 秒后的 CPU1 flag/object wait；reset PC `0` 和 black-frame `OPEN` |
 | 影响 | Core2 官方 legacy UIFlow、FactoryTest，以及 long-synchronous flash/partition-read workload |
 | I2C 根因 | AXP `0x34` chip id `0x4a` 读取成功；controller trace 进一步证明旧固件在 `/machine/soc/i2c0/i2c` 上访问 AXP 和 RTC address `0x51`，而旧板模型只把 AXP/INA 挂在 controller 0，把 RTC/touch/IMU 挂在 controller 1。`0x51` 的 `start_rc=1` 由 controller-to-physical-bus routing 拆分直接解释 |
 | I2C 修复 | `0031-core2-shared-board-i2c.patch` 将两个 controller register block 都路由到唯一物理 GPIO21/22 board bus，器件只挂一份 |
@@ -144,7 +144,7 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 | WDT mask 根因 | `0032` trace 捕获到 `INT_ENA=0x00000000`、`INT_RAW=0x00000004`、masked status `0x00000000` 时，旧模型仍抬高 WDT level IRQ。WDT raw status 本身不是 interrupt request，level line 只应由 `INT_RAW & INT_ENA` 驱动 |
 | WDT mask 修复 | `0035-esp32-timg-wdt-int-ena.patch` 只在 `INT_ENA.WDT` 置位时抬高 level IRQ，保留 raw status 和 WDT stage timer 行为；同一 legacy SHA 修复后仍出现 `TG0WDT_SYS_RESET` 和 reset PC `0`，因此它不是 `RUNTIME-03` 根因修复 |
 | QIO 修复/诊断 | `0036-ssi-transfer-buf.patch` 增加通用 byte-buffer SSI 接口和 m25p80 `STATE_READ` 快速路径，保留 command/address/dummy/CS/wrap 状态；前 512 个 64-byte 批次与原逐字节路径完全一致，Core2 UIFlow2 外设组 `6/6 PASS`。临时 `blk_pread` 与 SSI 字节一致，但绕过状态机；旧 REPL 观察在当前重建 120 秒窗口中未复现 |
-| cross-core 诊断 | 关闭 WDT reset 后，直接 state trace 观察到 flash-op `can_start`/`complete` 和 cross-core reason 反复在 0/1 间变化；CPU0 会多次位于 `spi_flash_op_block_func` 等待路径，CPU1 位于 cache/DPORT 或任务切换路径。永久 handshake deadlock 不再是当前判断，累计同步 handoff 吞吐成为首要边界 |
+| cross-core 诊断 | 关闭 WDT reset 后，直接 state trace 观察到 flash-op `can_start`/`complete` 和 cross-core reason 反复在 0/1 间变化；CPU0 会多次位于 `spi_flash_op_block_func` 等待路径，CPU1 位于 cache/DPORT 或任务切换路径。该阶段排除了永久 handshake deadlock，并曾把累计同步 handoff 吞吐列为候选；后续 WDT-off 45/120 秒 late-state 证明 Flash/SSI 活动有终点，候选已退役 |
 | handoff timeline | `0037-esp32-handoff-trace.patch` 用默认关闭的 `M5SW_ESP32_HANDOFF_TRACE` 把 virtual time、CPU、guest PC、cross-core、DPORT cache、SSI transaction、UART IRQ 与 TIMG WDT 写入统一格式。早期 normal-WDT 配置曾在 TG1 最后一次 feed 后 `800,000,000 ns` 进入 stage-0 timeout；该结果保留为历史 trace 配置证据，不作为当前固定路径 |
 | PC 地址审计 | 早期 1 ms PC 采样对照复现过固定 800 ms gap，但 reset 提前。`audit_elf_bin_mapping.py` 对 public legacy v1.15.4 BIN 与 local UIFlow2 v2.5.3 ELF 做同 VMA 字节比较，CPU0 `0x400843ac/af/b1` 三处全部 mismatch，因此 `uart_rx_intr_handler_default` 与 `mp_execute_bytecode` 符号映射被拒绝 |
 | PC 当前解释 | 地址簇本身仍来自同一 public BIN。BIN 自身在 `0x400843ac` 附近读取/写入 cross-core、DPORT `0x3ff000e8/e4` 与 Flash/cache handoff 状态，和旧 IDF cache-disable 控制流一致；但没有 matching ELF/MAP，不能命名精确函数或证明具体等待对象。UART storm 解释撤回 |
@@ -152,11 +152,12 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 | exact-time state sweep | `0039-esp32-handoff-state-dump.patch` 在 pause 前直接记录两核 PC/IRQ 状态、`0x3ffc7ec8/c9`、`0x3ffc7750/54`、DPORT cache、cache-sync、SSI 和 cross-core counters。14.8/15.3/15.9 s 三轮中 CPU0 前两轮均停在 `0x40087980`，CPU1 在 15.9 s 已进入不同路径；cache-sync calls `16144→16180→17444`，changed-page 累计停在 `6679`，SSI transactions `6984→6998→7506`、cross-core writes `40274→40566→43584` 继续增加。两核永久停止被排除 |
 | completed handoff setter trace | `0040-xtensa-handoff-pc-trace.patch` 只记录显式 BIN-bound setter PC。normal-WDT 首轮在 `5.913935 s` 出现 stage-0 timeout，`15.914787 s` 首次 reset；reset 前 complete/can-start 的 set/clear 四个 setter 各命中约 `4,377` 次。说明 cache handoff 反复完成；旧“永久 deadlock”解释不支持，剩余问题是大量完成周期为何仍未产生足够应用进度 |
 | WDT liveness 3x | `run_wdt_liveness.py` 关闭 PC trace，保留 TIMG verbose trace，通过三个独立 Device Service lease 观察同一 firmware。TG0 stage-0 在 `5.9107-5.9226 s` timeout 且中断被 mask；TG0 stage-1 在 `15.9119-15.9266 s` 触发首次 reset。TG1 每轮完成 `6,618-6,807` 次 feed，最大相邻间隔 `8.478-10.410 ms`，最后 feed 距 reset `1.779-4.271 ms`，`0` 次 TG1 timeout；stage-0 后没有 TG0 feed/reconfigure/protect 写入。三轮分类统一为 `BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE`，历史 `800 ms` TG1 gap 当前为 `NOT_REPRODUCED` |
+| WDT-off late state | `0041` 增加 A0-A15、PS、对象前向指针和有界 stack dump。WDT-off 45/120 秒两个独立 lease 均停在 CPU0 `0x4026306e` halted waiti、CPU1 `0x40100049` running spin；cache-sync calls `49,848`、changed pages `45,847`、state updates `49,265` 和 SSI `22,554` transactions / `671,936` RX bytes 在两次 snapshot 中完全相同，最后 Flash/SSI 活动约 `43.91-44.00 s`。cross-core writes 从 `123,476` 增至 `139,094`。CPU1 `A2+24=1`、`*(A3)=A10`、`A10+28=0`。该 control 只用于定位，不是产品修复；late object 仍无 matching ELF 语义 |
 | host flush control | 当 `changed_pages == 0` 时跳过 `memory_region_flush_rom_device()` 的探索性修改仍进入 `TG0WDT_SYS_RESET`，reset PC `0` 和黑帧 SHA 不变。该修改未保留为补丁；host-side 整块 flush 不是已测得的根因 |
 | 修复后 | `0x34`、`0x51`、INA3221 `0x40` 均 ACK，原 `I2C bus error (19)` 消失；最小 probe 在 trace 开/关和 `shift=5`/`auto` 对照中通过首启动门禁，进入 `CORE2_FLASH_IPC_PASS` |
-| 当前阻断 | legacy `UIFlow_Core2 v1.15.4` 仍在 TG0 stage-1 触发首次 system reset，bootloader 报告 reset CPU PC `0`，只有同一黑帧；三次 liveness 中 TG1 feed 一直存活到 reset 前数毫秒。`0036` stateful batch、`0037` trace 和关闭 WDT 都不能形成产品 PASS；WDT 关闭 180 秒仍未进入 setup/REPL |
-| 当前判断 | TIMG trace 已排除单一固定外设和固定 firmware PC；`0038` 把晚窗口收敛到 Flash block/cache handshake；`0039` 证明 CPU1 在 CPU0 等待期间继续执行 SSI/cross-core/DPORT 工作；`0040` 证明 complete/can-start handoff 在 reset 前完成约 `4,376` 次。三次 WDT liveness 进一步否定了“当前配置下 TG1 feed 已停止”，并把首 reset 归到 TG0 stage-1 的应用初始化 deadline。当前问题是大量完成周期与约 250 KiB SSI 数据为何仍未让应用在 15 秒前完成；历史 800 ms `TG1` gap 只保留为特定 trace 配置证据，需重新复现后才能继续作为根因 |
-| 证据 | [`core2-wdt-liveness-3x.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-liveness-3x.json)、[`WDT liveness runner`](../tests/firmware/core2_handoff_trace/run_wdt_liveness.py)、[`WDT liveness contract`](../platform/tests/test_core2_wdt_liveness.py)、[`core2-handoff-pc-trace.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pc-trace.json)、[`core2-handoff-state-sweep.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-state-sweep.json)、[`core2-handoff-pause.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pause.json)、[`0038 pause patch`](../patches/qemu-m5stack-peripherals/0038-esp32-handoff-pause.patch)、[`0039 state dump patch`](../patches/qemu-m5stack-peripherals/0039-esp32-handoff-state-dump.patch)、[`0040 PC trace patch`](../patches/qemu-m5stack-peripherals/0040-xtensa-handoff-pc-trace.patch)、[`state sweep runner`](../tests/firmware/core2_handoff_trace/run_pause_sweep.py)、[`PC trace runner`](../tests/firmware/core2_handoff_trace/run_pc_trace.py)、[`state sweep contract`](../platform/tests/test_core2_handoff_state_sweep.py)、[`PC trace contract`](../platform/tests/test_core2_handoff_pc_trace.py)、[`core2-pc-mapping-audit.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-pc-mapping-audit.json)、[`mapping audit tool`](../tests/firmware/core2_handoff_trace/audit_elf_bin_mapping.py)、[`core2-handoff-timeline.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)、[`summarizer`](../tests/firmware/core2_handoff_trace/summarize.py)、[`core2-ssi-transfer-buf.json`](../tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json)、[`core2-qio-crosscore-diagnostic.json`](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)、[`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json)、[`core2-flash-ipc-wdt.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json)、[`equal-deadline evidence`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-ccompare-equal-deadline.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`0032 trace patch`](../patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch)、[`0034 timer patch`](../patches/qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch)、[`0035 WDT mask patch`](../patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch)、[`0036 SSI batch patch`](../patches/qemu-m5stack-peripherals/0036-ssi-transfer-buf.patch)、[`0037 handoff trace patch`](../patches/qemu-m5stack-peripherals/0037-esp32-handoff-trace.patch) |
+| 当前阻断 | normal-WDT 下 legacy `UIFlow_Core2 v1.15.4` 仍在 TG0 stage-1 触发首次 system reset，bootloader 报告 reset CPU PC `0`，只有同一黑帧。WDT-off 仅能让应用越过 reset 并完成约 44 秒 Flash 工作，之后 CPU1 停在 `0x40100049` flag/object wait，120 秒仍无 setup/REPL。`0036` stateful batch、`0037` trace 和 WDT-off 都不能形成产品 PASS |
+| 当前判断 | TIMG trace 已排除单一固定外设和固定 firmware PC；`0038` 把早先晚窗口收敛到 Flash block/cache handshake；`0039` 证明 CPU1 在 CPU0 等待期间继续执行；`0040` 证明 complete/can-start handoff 在 reset 前完成约 `4,376` 次；三次 WDT liveness 否定了当前配置下 TG1 feed 停止。WDT-off late-state 又证明 Flash 工作有终点，随后进入稳定的 CPU1 wait。当前不再是“扫描永不结束”，而是约 44 秒后的 flag/object 未释放；历史 `800 ms` gap 只保留为特定 trace 配置证据 |
+| 证据 | [`core2-wdt-off-late-state.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-off-late-state.json)、[`0041 register/stack patch`](../patches/qemu-m5stack-peripherals/0041-esp32-handoff-register-stack-dump.patch)、[`late-state contract`](../platform/tests/test_core2_wdt_off_late_state.py)、[`core2-wdt-liveness-3x.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-liveness-3x.json)、[`WDT liveness runner`](../tests/firmware/core2_handoff_trace/run_wdt_liveness.py)、[`WDT liveness contract`](../platform/tests/test_core2_wdt_liveness.py)、[`core2-handoff-pc-trace.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pc-trace.json)、[`core2-handoff-state-sweep.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-state-sweep.json)、[`core2-handoff-pause.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pause.json)、[`0038 pause patch`](../patches/qemu-m5stack-peripherals/0038-esp32-handoff-pause.patch)、[`0039 state dump patch`](../patches/qemu-m5stack-peripherals/0039-esp32-handoff-state-dump.patch)、[`0040 PC trace patch`](../patches/qemu-m5stack-peripherals/0040-xtensa-handoff-pc-trace.patch)、[`state sweep runner`](../tests/firmware/core2_handoff_trace/run_pause_sweep.py)、[`PC trace runner`](../tests/firmware/core2_handoff_trace/run_pc_trace.py)、[`state sweep contract`](../platform/tests/test_core2_handoff_state_sweep.py)、[`PC trace contract`](../platform/tests/test_core2_handoff_pc_trace.py)、[`core2-pc-mapping-audit.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-pc-mapping-audit.json)、[`mapping audit tool`](../tests/firmware/core2_handoff_trace/audit_elf_bin_mapping.py)、[`core2-handoff-timeline.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)、[`summarizer`](../tests/firmware/core2_handoff_trace/summarize.py)、[`core2-ssi-transfer-buf.json`](../tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json)、[`core2-qio-crosscore-diagnostic.json`](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)、[`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json)、[`core2-flash-ipc-wdt.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json)、[`equal-deadline evidence`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-ccompare-equal-deadline.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`0032 trace patch`](../patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch)、[`0034 timer patch`](../patches/qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch)、[`0035 WDT mask patch`](../patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch)、[`0036 SSI batch patch`](../patches/qemu-m5stack-peripherals/0036-ssi-transfer-buf.patch)、[`0037 handoff trace patch`](../patches/qemu-m5stack-peripherals/0037-esp32-handoff-trace.patch) |
 
 关闭条件：
 
@@ -177,27 +178,24 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 7. 在 matching 符号缺失时，用 BIN 自身字节和中低频事件确认
    cross-core/DPORT/cache-disable 区域，并直接区分 CPU0 vCPU 未获调度、
    guest spin 与 handoff 永久等待；
-8. 判断 legacy 失败发生在应用初始化逾时、累计 Flash/cache handoff、
-   interrupt 模型、flash-cache disable、IPC acknowledgement、DPORT 交接
-   还是固件自身；
+8. 绑定 WDT-off late state 的 `0x40100049` 循环、`A2+24`、`A3` 和
+   `A10+28` 对象，判断它属于 RTOS、MicroPython、显示/PMIC 或其它驱动；
+   取得 matching ELF/MAP 后才能使用符号名；
 9. 同一 legacy 固件 SHA 在正常 WDT、真实 SSI/m25p80 数据面下渲染非空
    应用帧并保持运行，不得依赖 WDT 关闭、bulk bypass 或 retry；
 10. 回归现有 UIFlow2 Core2 设备组，确保 shared bus 不破坏 touch/IMU/RTC/
    audio/mic 路径。
 
-当前调查边界：shared bus 修复已经由现有 UIFlow2 Core2 设备组 `6/6` 验证；
-equal-deadline timer 修复已经由最小 probe 的 trace 开/关和 accelerator 对照
-验证；WDT mask 修复已由显式 `INT_ENA=0/INT_RAW=4/masked status=0` trace
-证明，但修复后 legacy 仍复位。`0036` 已用 512 个批次和 UIFlow2 `6/6`
-证明 stateful SSI 数据面；`0037` 的统一 timeline 曾记录最后 TG1 feed 后
-`800 ms` timeout，但该现象在当前三次无 PC trace 的 TIMG liveness 配置中
-为 `NOT_REPRODUCED`。三次对照显示 TG0 stage-0 被 mask、TG0 stage-1 产生
-首 reset，而 TG1 最后 feed 距 reset 仅 `1.779-4.271 ms`。当前工作假设是
-应用初始化未在约 15 秒 deadline 前完成，而不是 TG1 feed/service 已经停摆。
-旧 UIFlow1 的 TG0 stage-1 reset、reset PC `0`、non-empty frame 与稳定运行
-仍为 `FAIL`。最小 probe 或 UIFlow2 的 PASS 不能归因或关闭 legacy watchdog。此前
-spinlock owner mismatch 已由探针栈溢出纠正，不能继续作为当前模型缺口证据。
-`Core2FactoryTest` 修复后仍未重跑。
+当前调查边界：shared bus、equal-deadline timer、WDT mask、stateful SSI、
+统一 timeline、state sweep、setter trace 和三-run WDT liveness 都已形成可重放
+控制，但 normal-WDT legacy 仍在 TG0 stage-1 首 reset，且没有非空帧。
+WDT-off 45/120 秒对照进一步显示 Flash/SSI 活动约在 44 秒结束，CPU0 进入
+`waiti`，CPU1 稳定在 `0x40100049` 的同一 flag/object spin；120 秒时仍没有
+setup/REPL。当前最窄问题是解析该 late-loop object 和最后 SSI 活动之后的
+等待链，而不是继续假设 TG1 feed 停止或 Flash 扫描永不结束。旧 UIFlow1 的
+TG0 stage-1 reset、reset PC `0`、non-empty frame 与稳定运行仍为 `FAIL`。
+matching ELF/MAP 缺失时不得从不同版本固件借用符号；`Core2FactoryTest`
+修复后仍未重跑。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 

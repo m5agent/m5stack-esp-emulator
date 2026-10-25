@@ -75,8 +75,8 @@
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-26` | 产品边界、当前代码盘点、成熟度、代码阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-26` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-26` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力、最新验证结论、TIMG WDT-mask、stateful SSI、统一 handoff timeline、exact-time state sweep、setter trace 和三次 WDT liveness 对照；当前首 reset 是 TG0 stage-1，TG1 在 reset 前仍持续 feed |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是解释应用初始化为何未在 TG0 stage-1 前完成、matching ELF/MAP 和同 SHA 非空应用帧 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力、最新验证结论、TIMG WDT-mask、stateful SSI、统一 handoff timeline、exact-time state sweep、setter trace、三次 WDT liveness 和 WDT-off late-state 对照；当前首 reset 是 TG0 stage-1，Flash 工作约 44 秒结束后进入 CPU1 late-boot wait |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是识别约 44 秒后的 CPU1 flag/object wait、matching ELF/MAP 和同 SHA 非空应用帧 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-26` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core 探针、网络/worker 路径、测试、evidence 和文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-26` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-26` | `1.33.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled domain suffix/CNAME chain、同 guest CNAME 网络证据和 transport 契约 |
