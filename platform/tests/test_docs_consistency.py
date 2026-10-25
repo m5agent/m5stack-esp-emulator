@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import unittest
+from collections import Counter
 from pathlib import Path
 
 import project_snapshot
@@ -337,6 +338,67 @@ class DocsConsistencyTests(unittest.TestCase):
                 continue
             self.assertIn(relative, linked, relative)
             self.assertIn(relative, freshness_linked, relative)
+
+    def test_documentation_index_has_no_duplicate_links_per_section(self) -> None:
+        text = (DOCS / "README.md").read_text()
+        headings = list(re.finditer(r"(?m)^(##+ .+)$", text))
+        for index, heading in enumerate(headings):
+            end = (
+                headings[index + 1].start()
+                if index + 1 < len(headings)
+                else len(text)
+            )
+            body = text[heading.end() : end]
+            links = re.findall(
+                r"\]\(([^)#]+\.md)(?:#[^)]*)?\)",
+                body,
+            )
+            duplicates = sorted(
+                link for link, count in Counter(links).items() if count > 1
+            )
+            self.assertEqual(
+                duplicates,
+                [],
+                f"{heading.group(1)} has duplicate document links",
+            )
+
+    def test_authority_documents_do_not_repeat_long_lines(self) -> None:
+        for relative in (
+            "docs/project-status.md",
+            "docs/project-backlog.md",
+            "docs/engineering-handoff.md",
+            "docs/workstreams.md",
+        ):
+            lines = [
+                line.strip()
+                for line in (ROOT / relative).read_text().splitlines()
+                if len(line.strip()) >= 100
+            ]
+            duplicates = sorted(
+                line for line, count in Counter(lines).items() if count > 1
+            )
+            self.assertEqual(
+                duplicates,
+                [],
+                f"{relative} repeats long prose lines",
+            )
+
+    def test_project_snapshot_exposes_document_freshness_audit(self) -> None:
+        snapshot = project_snapshot.collect()
+        audit = snapshot["document_audit"]
+        self.assertEqual(audit["total"], len(snapshot["documents"]))
+        self.assertEqual(
+            sum(audit["categories"].values()),
+            audit["total"],
+        )
+        self.assertEqual(
+            audit["current"] + audit["historical"],
+            audit["total"],
+        )
+        rendered = (DOCS / "project-snapshot.md").read_text()
+        self.assertIn("## 文档与测试", rendered)
+        self.assertIn("文档职责分布", rendered)
+        self.assertIn("复核日期早于当前事实日期的非历史页", rendered)
 
     def test_engineering_handoff_stays_a_current_navigation_summary(self) -> None:
         handoff = (DOCS / "engineering-handoff.md").read_text()

@@ -12,73 +12,33 @@ MicroPython 和其他完整 Flash 固件。
 
 ## 当前状态
 
-- 已建立 ESP32-S3、ESP32-C6、ESP32 LX6、ESP32-P4 和独立 ARM64 Linux
-  设备后端；CardputerZero 不属于 ESP32/UIFlow2 路径。
-- S3/C6/Core2 的产品验收主路径是 `qemu-unified`（请求字段为
-  `runtime=qemu-unified`）：同一 lease、同一
-  guest 内运行板级外设、WiFi 和 BLE，并返回 frame/QOM/network/peer evidence。
-  `qemu-ble` 仅保留兼容。
-- Core2 新调用使用 `profile=core2-native-hci`；GDB
-  `core2-native-vhci` 保留为诊断/兼容路径。
-- Core2 `m5core2` machine 现已模型化 QOM `8 MiB` PSRAM device 和 DRAM1
-  32 KiB MMU 页；普通 ESP32 heap 仍是 4 MiB 直接映射窗口，上半 4 MiB 由
-  3 个独立 `esp_himem` lease 在同一虚拟窗口切换不同物理块后读回，`3/3
-  PASS`。unified guest 又在 3 个独立 120 秒 lease 中从普通 heap 分配
-  `1 MiB`，每轮完成 35 次全缓冲校验（累计 `105 MiB`），并保持 HTTP、公网、
-  BLE、frame/QOM、pcap、evidence 和 cleanup PASS；一次 600 秒 lease 完成
-  179 次同规格校验。物理 PSRAM/cache 时序和 RF 仍是 `NOT RUN`。
+- 设备后端覆盖 ESP32-S3、ESP32-C6、ESP32 LX6、ESP32-P4 和独立 ARM64
+  Linux；CardputerZero 不属于 ESP32/UIFlow2 路径。
+- S3/C6/Core2 的规范整机路径是 `qemu-unified`
+  （`runtime=qemu-unified`）：同一 lease、同一 guest 内执行板级外设、
+  WiFi、BLE、网络和 evidence，`qemu-ble` 仅保留兼容。
+  Core2 新调用使用 `profile=core2-native-hci`，GDB
+  `core2-native-vhci` 只用于诊断。
 - Device Service 在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
-  QOM、网络、worker job 和 evidence API。
-- Remote worker 可通过 active-token HMAC 签名的 IPv4 multicast beacon 自动
-  发现同一广播域的 control URL；无法接收 multicast 的跨子网/NAT worker
-  可通过稳定的 unicast discovery seed 获取同一签名 beacon。两个独立子网、
-  IPv4 forwarding、masquerade、token rotation 和 cleanup 已在 privileged
-  Linux Docker fixture 中连续 `3/3 PASS`。
-- Worker 在 job 已 claim 后对 central control-plane transient failure 做
-  有界 heartbeat/result 重试；每个请求的 socket timeout 受剩余恢复预算约束。
-  网络 blackhole 或 `409` ownership loss 都会 fence 本地 runtime side effect，
-  不提交 stale result；恢复后由新 lease 重试。控制面同 state 重启时会重新
-  注册并完成原 lease/evidence，worker-local runtime QEMU session 保持运行。
-- Runtime Device Service 使用同一 state dir 重启时，worker 对已知 session
-  retry status/evidence/stop；新服务按 PID start-time、QMP ownership 和
-  running 状态重新接管同一 QEMU。Trusted-host unified session 还会按持久
-  generation 重建 HTTP fixture，并在精确 PID/start-time/command-SHA 校验后
-  adopt 存活 BLE peer，再完成重启后的 GATT/HTTP 连续性检查。
-- Central 与 worker-local runtime/QEMU 已在三个独立 Docker 容器对中跨
-  user-defined bridge 完成 durable job、terminal evidence、三工件哈希和
-  container/bridge cleanup。该结果验证独立执行容器，不等同于物理跨主机。
-- Job 被 lease expiry/stale/stop/generation change 后重新 claim 时使用新的
-  `lease_id`；旧 lease 的 heartbeat/result 返回 `409 job_lease_mismatch`。
-  WorkerAgent 检测到所有权丢失或控制面恢复超时后，会停止自己可达的
-  worker-local runtime session，并拒绝上报 stale result。worker→central
-  网络 blackhole 已有 `3/3` 真实 namespace fence：bounded heartbeat、
-  runtime DELETE、OS process reap、lease expiry/requeue 和 retry PASS；
-  worker-local Device Service + StickS3 QEMU lane 也完成 `3/3`，首轮
-  QEMU PID 被 reap、attempt 2 重新启动并 PASS。QEMU 内 guest/device side
-  effect、未被 worker 拥有的外部网络 side effect 和物理跨主机执行仍未验证。
-- Linux namespace 网络策略支持有界 IPv4/IPv6 CIDR、controlled DNS
-  domain suffix 和有界 CNAME chain；域名/CNAME terminal answer 必须落在
-  允许的 endpoint 地址/CIDR 内，Host 匹配使用 DNS label boundary，不把
-  “允许域名”扩大成任意公网地址。三个独立 Device Service lease 已让同一
-  stock UIFlow2 guest 跟随 CNAME terminal A、完成 allowed HTTP、拒绝未
-  允许名称/端口，并保留 DNS/HTTP/pcap/namespace cleanup 证据。
-- Session create 使用持久化 `idempotency_key`；同一 key/请求重试返回原
-  session，不同请求返回 409，worker 以 job+lease 派生稳定 key，避免响应
-  丢失后创建第二个 QEMU/session。
-- 固件输入覆盖 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented
-  flash、WebBurner/M5Burner 包、文件系统清单、静态审查和 capability
-  mismatch。WebBurner `parts[]` 若提供 `size`、SHA-256、SHA-1 或 MD5，
-  importer 会在规范化前复算并拒绝不匹配；MD5/SHA-1 只用于损坏检测，
-  不是发布者签名。没有 sdkconfig 时，manifest 还会记录低置信度
-  image-signature observed capability，用于提示声明/镜像偏差；它不是
-  运行态调用证明。
-- Device Service 支持 session-isolated SD 和完整 NVS 分区 fixture；
-  `qemu-wifi/profile=generic-observe` 可为非 UIFlow、headless 或
-  network-first 的 ESP32-S3 固件提供板级加 WiFi 的最小执行路径；用户固件
-  matrix 可用 SHA-bound UI/headless/network-first expectation 决定应用验收
-  标准，而不是把所有有屏固件都强制成首帧输入测试。
-- 物理硬件验证仍是独立门禁；仓库中的 QEMU 和 `esp-emu` 结果只标记为
-  `virtual-device validation`。
+  QOM、worker job、网络故障、pcap 和 evidence API；普通 Agent 功能测试统一走
+  `/api/v1`。
+- 网络侧已落地受控 DNS/CNAME、有界 IPv4/IPv6 CIDR egress、WPA2-PSK 正误密码、
+  断线重连、双 guest lab fabric、multicast/unicast-seed discovery 和 pcap。
+  这些是虚拟网络数据面验证，不是 RF/PHY 或恶意固件 VM 沙箱。
+- Worker 侧已落地 durable queue、HMAC、HTTPS/mTLS、轮换、重启恢复、
+  control/runtime 分离和跨容器 QEMU。最新真实 namespace 验证中，断网会
+  fence worker-local QEMU process 并由新 attempt 重启；QEMU 内
+  guest/device-controller、worker 未拥有的外部 side effect 和物理跨主机仍未验证。
+- Core2 已有 native-HCI 功能验证、3×121 轮重连、两小时 active-BLE 保持、
+  8 MiB PSRAM QOM/upper-bank MMU 和持续 guest 压力证据；物理 PSRAM/cache、
+  bit-exact BT baseband/controller 和长时并发仍为 `NOT RUN`。
+- 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented Flash、
+  WebBurner/M5Burner、文件系统/NVS/SD fixture、静态审查和 capability
+  mismatch；`qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first
+  固件提供最小执行路径。安全启动、生产 key、运行态 ACL/许可和完整云端业务
+  尚未闭环。
+- 所有 QEMU/esp-emu 结论只标记为 `virtual-device validation`；物理 RF、功耗、
+  声学、光学、机械、电气和真机安全配置必须由同实现路径的硬件证据单独证明。
 
 需要具体计数、设备状态和最新验证边界时，先读
 [工程交接总览](docs/engineering-handoff.md)，再读

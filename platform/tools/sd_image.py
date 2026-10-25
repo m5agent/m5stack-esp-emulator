@@ -126,7 +126,6 @@ def mbr_sector(*, partition_sectors: int) -> bytes:
     mbr = bytearray(BYTES_PER_SECTOR)
     mbr[0:3] = b"\xfa\x31\xc0"
     start = MBR_PARTITION_START
-    end = start + partition_sectors - 1
     entry = 446
     mbr[entry] = 0
     mbr[entry + 1:entry + 4] = b"\xfe\xff\xff"

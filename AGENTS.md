@@ -218,6 +218,11 @@ Stable boundaries that must survive count changes:
   segmented image metadata are explicit and compatible.
 - `runtime=network` is a diagnostic/provisioning lane. Do not splice its result
   with a separate board run to claim one-device functional PASS.
+- Worker partition fencing at the QEMU-process boundary is not a guest,
+  device-controller, companion or external-side-effect fence. A reaped
+  worker-local QEMU PID proves the runtime process was stopped; it does not
+  prove that a unified HTTP fixture, BLE peer, pcap writer or guest-internal
+  state quiesced unless the same session evidence verifies each one.
 - `core2-native-vhci` is a diagnostic/compatibility path; new Core2 work uses
   `core2-native-hci`. The current native-HCI boundary is a validated virtual
   controller/HCI path, not a bit-exact Espressif baseband or RF model.

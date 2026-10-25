@@ -65,7 +65,7 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`39` 个 Python 模块，`32600` 行；规模最大的模块如下。
+- `platform/tools`：`39` 个 Python 模块，`32676` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
@@ -78,12 +78,14 @@
 
 - `tests/`：`65` 个可执行 Python 测试文件，分布在 `47` 个目录；`156` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`55` 个 patch 文件。
-- 文档：`201` 个 Markdown 页面，`17757` 行。
+- 文档：`201` 个 Markdown 页面，`17655` 行。
 
 ## 文档与测试
 
-- 平台测试：`444` 项。
-- Docs 新鲜度登记：`33` 行。
+- 平台测试：`447` 项。
+- Docs 新鲜度登记：`33` 行；其中非历史页 `26` 行，历史固定页 `7` 行。
+- 文档职责分布：待办 `3`，契约 `6`，历史固定 `7`，实现/设计 `6`，参考 `7`，工作流/导航 `4`。
+- 复核日期早于当前事实日期的非历史页：[tab5-deferred-backlog.md](tab5-deferred-backlog.md) `2026-10-24`，[device-visual-fidelity-backlog.md](device-visual-fidelity-backlog.md) `2026-10-24`，[p4-peripheral-backend-requirements.md](p4-peripheral-backend-requirements.md) `2026-10-24`，[cores3-image-rendering-boundary.md](cores3-image-rendering-boundary.md) `2026-10-22`。这不自动表示内容错误；状态页变更时应优先复核。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 
 ## 维护入口

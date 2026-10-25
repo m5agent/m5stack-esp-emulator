@@ -2,9 +2,9 @@
 
 日期：`2026-10-25`
 
-本页只维护阅读顺序、职责和新鲜度。动态测试计数与设备/Task 计数由
-[自动项目快照](project-snapshot.md)生成，当前能力结论在
-[项目当前状态](project-status.md)，带日期的历史快照只在
+本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
+“非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
+生成；当前能力结论在[项目当前状态](project-status.md)，带日期的历史快照只在
 [验证证据台账](validation-ledger.md)追加。这里不把“测试通过”写成
 “全部功能或真机通过”。
 
@@ -64,7 +64,7 @@
 | --- | --- | --- | --- |
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-25` | 产品边界、成熟度、代码阅读顺序、当前工作流、P0 下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-25` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
-| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task 和测试规模 |
+| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模和文档新鲜度审计 |
 | [项目当前状态](project-status.md) | 当前结论 | `2026-10-25` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-25` | 只保留尚未达到验收条件的任务、依赖和验收 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、runtime priority、CIDR/domain-set/CNAME、multicast/unicast discovery、network-partition fencing、worker namespace/container-local QEMU、测试和 evidence 入口 |
@@ -204,6 +204,8 @@
   `runtime-model-gap-register.md` 和 Backlog；分类证据与修复证据分开保存。
 - 历史页保留原日期；若结论被推翻，在页首加“已由某页取代”，不要静默改写成
   好像当时就知道后来结果。
+- 非历史页复核后更新本页新鲜度表；自动快照会列出复核日期早于当前事实日期的
+  页面，CI 不把历史固定页误报为过期。
 - 同一证据的 SHA、测试数、Task 状态不要复制到历史页或设计页；应链接当前
   状态/Backlog，减少多处数字漂移。
 

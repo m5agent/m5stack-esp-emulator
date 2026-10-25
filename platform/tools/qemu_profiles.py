@@ -45,7 +45,7 @@ def cmd_check(registry):
             errors.append(f"{row['id']}: bad status {row['qemu_status']}")
     summary = registry.get("validation_matrix", {}).get("result", "")
     qemu_summary = f"{qemu_count} QEMU-backed ESP32"
-    native_summary = f"Tab5 through esp-emu"
+    native_summary = "Tab5 through esp-emu"
     if qemu_summary not in summary:
         errors.append(f"validation summary must contain {qemu_summary!r}")
     if native_count and native_summary not in summary:

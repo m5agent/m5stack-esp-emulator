@@ -82,87 +82,38 @@
 
 ### NET-04 远程 worker
 
-当前缺口：
+现有基线只作为依赖，不在这里重复完成流水：
 
-- 本地 worker identity、generation、heartbeat、drain/resume、
-  abandoned lease 和 bounded result 已实现；
-- 远程 worker 注册目录已实现 identity/generation、heartbeat、drain/stop、
-  capability 和有界结果元数据，但它只是目录，不是 supervisor；
-- durable job queue 已实现幂等提交、capability matching、claim/lease、
-  expiry retry、cancel/result 和 worker stale/stop/generation 回收；
-- 同主机 HTTP executor 已能 claim job、运行真实 session、下载 evidence
-  ZIP/SHA256 并回报；启用 API token 时 worker-only mutation 已有
-  worker/generation HMAC、timestamp/nonce replay 防护。服务端与 worker
-  client 已支持 TLS 1.2+，配置 client CA 后强制 mTLS，并有真实 loopback
-  进程、证书拒绝/通过、签名请求和 `SIGHUP` A/B TLS/token rotation 证据。
-  rotation 会先完成活动请求，并以 previous token/CA 提供有界旧/新重叠，
-  最终移除 previous 文件后拒绝旧身份与旧 token，再由新凭据完成真实
-  QEMU job。同主机双 worker 已通过不可变 generation 目录、单个原子
-  pointer 和 secret-free receipt 自动迁移，无需逐个发送 worker `SIGHUP`；
-  两个独立 network namespace 中的真实 Device Service 和 `WorkerAgent`
-  已跨 veth 完成认证注册、job submit/claim、worker/job heartbeat、terminal
-  result、token 不落日志和 namespace 清理；`--qemu` 路径还让 worker
-  namespace 内独立 Device Service 创建真实 StickS3 QEMU session，绑定
-  source/normalized firmware 与 QEMU SHA，取得 serial/frame/QOM evidence
-  并完成 central job result；QEMU 和 namespace 均回收。这仍是一台主机上的
-  两个 namespace，不代表物理跨主机。进一步增加的
-  `worker_cross_container` fixture 让 central 与 worker-local runtime/QEMU
-  分属两个独立 Docker 容器和 user-defined bridge；三个独立容器对均完成
-  terminal job、source/normalized/QEMU hash、manifest/serial evidence、
-  QEMU reap 和 container/bridge cleanup。这仍共享一个 Docker daemon，
-  不代表物理主机、进程迁移或 companion continuity。Device Service 现在广播 active-token
-  HMAC 签名的 IPv4 multicast beacon，真实 `WorkerAgent` 可自动发现 control
-  URL 并注册；错误 token、SIGHUP 前旧 token 均被拒绝，新 token 可重新发现。
-  这仍只覆盖同一 multicast domain；独立 unicast seed 已让无法接收
-  multicast 的跨子网/NAT worker 从 reachable HTTP(S) seed 获取同一 signed
-  beacon，并在两个 routed/masqueraded subnet 中 `3/3 PASS`。无 reachable
-  seed 的任意 traversal、物理跨主机 QEMU job、
-  跨 worker 容量调度和多机状态收敛仍开放；
-- `worker_agent.py` 现支持 `--runtime-service-url`：中央服务只负责
-  claim/heartbeat/result，独立 runtime service 负责 session、evidence 和
-  stop。单元契约和 Linux worker-local QEMU 路径都已验证请求平面分离；
-  runtime health 未通过时 worker 会在每次 register/claim 前失败，并可通过
-  `--advertise-endpoint` 登记外部可达执行端点；`--discover-control` 可从
-  已认证 multicast beacon 获得控制面 URL，`--discover-control-seed-url`
-  可从跨 subnet reachable unicast seed 取得同一 signed URL。trusted-host
-  unified HTTP/BLE companion continuity 已完成；无 reachable seed 的任意
-  NAT traversal 和 namespace-managed/Tab5/cross-host companion recovery
-  仍是下一步；
-- 本地 QEMU/QMP 控制面可在 PID start-time、QMP ownership 和
-  `query-status=running` 验证后 re-attach；trusted-host unified session
-  还能重建 HTTP fixture 并在精确 PID/start-time/command SHA 校验后 adopt
-  BLE peer。Tab5/network lane、paused QEMU、namespace-managed companion、
-  连续外部 evidence 流和跨主机进程仍不能接管；
-- central control plane 与 worker runtime 分为两个真实 Device Service 时，
-  worker 对 transient network/429/5xx 使用有界 retry。central 用同一 state
-  dir 停止并重启 2.2 秒后，worker 自动重注册，原 identity/generation、
-  lease、evidence、terminal PASS 和 runtime QEMU cleanup 均收敛。该结果
-  不覆盖跨主机进程迁移；
-- runtime Device Service 也可 SIGKILL 后以同一 port/state 重启。新服务按
-  PID start-time、QMP ownership 和 running 状态重新接管原 QEMU；worker
-  对已知 session 的 status/evidence/stop 有界 retry，最终仍以原
-  worker/instance/generation/lease 完成 PASS，并清理 QEMU。Unified StickS3
-  模式还完成 HTTP generation-1→2、BLE peer adoption、重启后 GATT cycle 2、
-  guest HTTP recheck、原 evidence ZIP 和 companion cleanup。Session create
-  使用 job+lease 派生 key 和持久化 mapping；并发/响应丢失重试返回同一
-  session，不同请求返回 409；
-- 双 guest lab fabric 和 Linux policy CI 尚未成为自托管 worker 的正式
-  调度与 evidence replay 路径。
+- durable queue、worker directory、HMAC、HTTPS/mTLS、rotation/drain、
+  session-create idempotency、central/runtime restart continuity 和
+  trusted-host unified HTTP/BLE companion continuity 已可用；
+- active-token multicast discovery、cross-subnet/NAT unicast seed discovery、
+  worker control/runtime 双平面、双 namespace worker-local StickS3 QEMU 和
+  三个独立 Docker 容器对已通过；后两者仍分别属于单主机 namespace/容器；
+- worker→control network blackhole 已在 process 与真实 worker-local QEMU
+  两个 lane 各 `3/3 PASS`：bounded heartbeat、runtime DELETE、OS/QEMU PID
+  reap、lease expiry/requeue 和 retry completion 均成立；
+- `worker_partition_fencing` 只关闭 worker-owned QEMU process。它不证明
+  QEMU 内 guest/device-controller 已 quiesce，也不证明 worker 未拥有的外部
+  side effect 已停止。
+
+当前开放缺口：
+
+- 物理跨主机 executor/reattach、迁移期间跨主机幂等与 evidence 收敛；
+- 无 reachable seed 时的任意 NAT traversal；
+- worker-local `qemu-unified` 的网络 companion、BLE peer、pcap 和磁盘
+  side effect 在 partition fence 时随 session 一起停止；
+- namespace-managed/Tab5/cross-host companion、连续外部 evidence 流和
+  生产多机调度。
 
 下一项最小交付：
 
-1. 在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain、
-   bounded credential overlap、同主机 generation-pointer migration、
-   multicast/unicast-seed discovery 和 worker-local QEMU 基础上补
-   无 reachable seed 的任意 NAT traversal、跨主机 QEMU job、QEMU 内 guest/device-controller
-   和 worker 未拥有的外部 side-effect fencing，禁止旧 agent 覆盖新
-   generation。Lease-level result fencing、worker-owned runtime process fence 与
-   worker 可达 runtime 的 stop-before-report 已实现；仍不能把网络隔离后的
-   远端 QEMU/companion 视为已停止。
+1. 扩展 partition fixture 到 worker-local `qemu-unified`，加入同 session
+   HTTP fixture、BLE peer 和 pcap；断网后要求 worker fence 整个 runtime，
+   回收 QEMU、companion、PID 和 namespace，并禁止旧 attempt 提交 evidence。
 2. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。
-3. trusted-host companion gate 已关闭；继续补 namespace-managed/Tab5/
-   cross-host companion recovery 和连续外部 evidence 流。无法证明
-   ownership 时继续明确 `interrupted_failed`。
+3. 在真实多主机环境验证 executor、reattach、idempotency 和 control-plane
+   故障边界；无法证明 ownership 时继续明确 `interrupted_failed`。
 4. 把 namespace、pcap、session history 和 cleanup 结果绑定到同一个 lease。
 
 验收：
@@ -182,87 +133,40 @@
 
 ### CORE2-02 物理与 controller 边界
 
-短时 `5×10s` 门禁已经通过：两批独立运行合计 `10/10`，每轮
-`hli-errors=0`、HLI/meta queue 深度为 0。此前失败已定位到两个 QEMU
-guest-call 上下文问题并修复：
+已闭合输入见[验证证据台账](validation-ledger.md)，这里只保留不可回退的
+边界：
 
-- 历史失败：`HCI-4 5/5` 之后，带 hold 的独立运行曾在
-  READY、WiFi/公网和 BLE 连接之后 panic。一次首轮
-  `IllegalInstruction` 落在 `semphr_give_wrapper`
-  (`components/bt/controller/esp32/bt.c:677`)，后续
-  `InstrFetchProhibited` 形成 reboot loop；另一轮在 attempt 4 直接出现
-  `PC=0` panic。失败发生在 hold 检查前，不能归因于“hold 太长”；
-- 修复：恢复 nested guest call 的 caller-saved sregs，并只在
-  halted/idle vCPU 注入 HLI allocator/callback；
-- 后续 `3×60s` hold 也 `3/3` PASS，2 个 `120s` hold 为 `2/2`，覆盖
-  BLE peer 正常关闭后的尾态；
-- 第一轮 GATT、active-BLE 120 秒 hold 和同一 guest 多轮重连均已通过。
-  reconnect blocker 根因是外部 Bumble compatibility 层错误地为无响应的
-  `HCI_Host_Number_of_Completed_Packets (0x0c35)` 返回 Command Status；
-  下一命令消费 stale ACK 后触发 `BLE_HS_ECONTROLLER (12)` 与 reset。
-  QEMU HLI、NimBLE host 连接池和 GATT/L2CAP 池均已排除；
-- 三十轮门禁已完成：3 个独立 lease 各 30 轮，每 lease HLI `857/857`、
-  events `587`、ACLs `270`，无错误、无 panic、连接池回到 `3/9/3`；
-- 六十轮门禁已完成：3 个独立 lease 各 60 轮，每 lease HLI
-  `1697/1697`、events `1157`、ACLs `540`，无错误或 panic；
-- 120 轮门禁已完成：3 个独立 lease 各 120 轮，每 lease HLI
-  `3377/3377`、events `2297`、ACLs `1080`，无错误、dropped 或 panic；
-- active-BLE 600 秒门禁已完成：2 个独立 lease `2/2`，peer 全程保持连接；
-- 旧 `7200s` active-BLE 行为保持保留为 `DIAGNOSTIC_PASS`，因为 QEMU 路径在
-  run 中被临时重编；
-- hash-freeze runner 的重跑完成 artifact-bound `7200s` 功能门禁：首 lease 前
-  冻结 firmware/ELF/QEMU，运行期无资产漂移，HLI `45/45`、网络、GATT、
-  frame、pcap、evidence 和清理均 PASS；
-- 旧未限容运行采样 QEMU host RSS 从 `744160 KiB` 增至 `1202176 KiB`
-  （`+458016 KiB`），后续归因到 TCG translation buffer；
-- 最终 `tb-size=128` artifact-bound `7200s` 复测 PASS：1/1 lease，
-  `bounded_tcg_cache`、全部功能/HLI/pcap/evidence/cleanup gate 成立；
-  240 个资源采样 RSS `323536→252992 KiB`、phys footprint
-  `250880→188416 KiB`，无持续增长；
-- 第一次 `121` 轮运行在应用 READY、WiFi、公网和 29 个完整 GATT
-  cycle 后，被固定 `180s` readiness 预算终止；第 30 轮已经开始，guest
-  无 panic，peer 无 GATT timeout。该失败不是 controller FAIL。runner
-  和 Device Service 现共享
-  `min(7200, 60 + cycles × (6 + delay))s` 预算，`121` 轮、`2s` 延迟为
-  `1028s`；
-- 第二次复跑完成 `121/121`，但 reconnect-only 路径没有进入 hold loop，
-  accelerator 采样返回 null，导致 `bounded_tcg_cache` 假失败。runner 已
-  在 session first running 时独立采样 QEMU 命令；最终单 lease 复测
-  `1/1 PASS`，`tb-size=128`、HLI `3405/3405`、events `2316`、
-  ACLs `1089`，队列、错误、dropped、peer-close 和 panic 均为 0；
-- 随后在同一 firmware/ELF/QEMU/工具哈希下补跑另 2 个独立 lease，
-  三个 lease 均为 `121/121 PASS`；active-stop/recovery 随后又通过三个连续
-  session。仍未完成的是长时吞吐/并发和其他 process-stop/teardown 模式；
-- guest PSRAM 持续压力已在 `core2-native-hci` 中完成：3 个独立 120 秒
-  lease 均从普通 4 MiB DRAM1 外部堆窗口分配 `1 MiB` bytearray，分别完成
-  35、35、35 次全缓冲读回（累计 `105 MiB`）；每轮同时完成 10 次受控 HTTP
-  recheck、3–4 次公网 recheck，并与 active BLE/frame/QOM/pcap 同实例通过。
-  QOM PSRAM device 已是 `8 MiB`，另用 3 个独立 `esp_himem` lease 完成上
-  4 MiB 的 MMU bank-switch 读写回；物理 PSRAM 和 cache timing 仍未验证；
-- 单次 600 秒 soak 进一步完成 179 次 `1 MiB` 校验（约 `179 MiB`）、51 次
-  受控 HTTP 和 18 次公网 recheck；active BLE、bounded TCG、frame/QOM、
-  pcap、evidence 和 cleanup 全 PASS；20 个 host RSS 采样仅增加 `352 KiB`，
-  但结论仍只覆盖该虚拟 workload；
+- `semphr_give_wrapper` panic 已通过恢复 guest-call sregs 和限制 HLI
+  注入上下文修复；两批短 hold 合计 `5×10s`，后续 `60s`/`120s` hold 与
+  active-BLE 均通过。
+- 同一 guest 的 30/60/120/121 轮 reconnect 已有三 lease 门禁；
+  `3 个独立 lease 各 120 轮` 的 stale-ACK 根因是 Bumble 非法响应
+  `HCI_Host_Number_of_Completed_Packets (0x0c35)`，不是 guest panic。
+- artifact-bound `7200s`、`tcg,thread=single,tb-size=128`、
+  active-stop/recovery、QOM `8 MiB`、upper-bank `esp_himem 3/3`、
+  `3×120s` 和 600 秒 guest 压力均只覆盖对应虚机 workload。
+
+当前开放缺口：
+
 - 当前 native-HCI hook 偏移只对已验证的 UIFlow2 v2.5.3 build 成立；
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
 - bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；
 - 物理板载 `8 MiB` PSRAM 与物理 cache/PSRAM 时序对比；
+- 长时吞吐/并发和其他 teardown 模式；
 - 同固件路径真机验证。
 
 新调用必须使用 `core2-native-hci`。`core2-native-vhci` 依赖 GDB，只允许
 作为显式诊断/兼容路径，不能用来证明稳定生产能力。
 
-验收追加条件：
+开放项验收：
 
-- 3 个独立 lease 各 121 轮完成 scan/connect/NUS GATT/disconnect 且无
-  retry，每轮都有 guest RX、notification、peer/pcap/evidence 和 HLI
-  health；
-- 验证 121 轮、长时吞吐/并发和其他 teardown 模式；最终 7200 秒 artifact-bound
-  限容门禁已经满足；
+- 新目标固件完成 hook/符号校验，并在对应长稳场景中保持 guest RX、
+  notification、peer/pcap/evidence 和 HLI health；
+- 物理 PSRAM/cache、controller/baseband 和真机行为分别提供同路径证据；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
   次数；
 - 首轮 panic 必须先于 reboot 次生故障被分类和符号化；
-- `HCI-4` 历史 `5/5` 可以继续引用，但不得替代新的长稳结果。
+- 已闭合的 `extended-run` 与 `HCI-4` 只能作为依赖，不得替代开放项结论。
 
 ## P0：通用固件审查
 

@@ -54,5 +54,13 @@ its side effect, the lease expires and is requeued, and attempt 2 completes
 
 The QEMU lane also has three independent runs:
 [`evidence-2026-10-25-partition-fencing-qemu-3x.json`](evidence-2026-10-25-partition-fencing-qemu-3x.json).
-It does not prove physical hardware or side effects outside the worker-owned
-QEMU process.
+All three runs pass `18/18` checks. In each run, attempt 1 starts a real
+StickS3 QEMU, loses the control plane, is fenced, and has its QEMU PID
+reaped; attempt 2 starts a fresh QEMU and reaches terminal `PASS`.
+
+The QEMU lane uses plain `runtime=qemu`. It proves ownership and cleanup of
+the worker-local QEMU **process**. It does not prove that a
+`qemu-unified` HTTP companion, BLE peer, pcap writer or guest/device-
+controller internal state is quiesced by the same fence, nor does it prove
+physical cross-host execution or hardware behavior. That unified companion
+partition lane is the next `NET-04` gate.

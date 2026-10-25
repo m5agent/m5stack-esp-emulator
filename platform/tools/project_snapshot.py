@@ -159,6 +159,46 @@ def parse_document_rows() -> list[dict[str, str]]:
     return rows
 
 
+def summarize_documents(
+    documents: list[dict[str, str]], source_date: str
+) -> dict:
+    def category(role: str) -> str:
+        if "历史" in role:
+            return "historical"
+        if "Backlog" in role or "待办" in role:
+            return "backlog"
+        if "契约" in role:
+            return "contract"
+        if "证据" in role:
+            return "evidence"
+        if any(token in role for token in ("架构", "实现", "设计", "验证专题")):
+            return "implementation"
+        if any(token in role for token in ("工作流", "运维", "导航", "交接", "生成事实")):
+            return "workflow"
+        return "reference"
+
+    category_counts = Counter(category(row["role"]) for row in documents)
+    current_rows = [
+        row for row in documents if category(row["role"]) != "historical"
+    ]
+    older_current_rows = [
+        {
+            "page": row["page"],
+            "role": row["role"],
+            "reviewed": row["reviewed"],
+        }
+        for row in current_rows
+        if row["reviewed"] != "unknown" and row["reviewed"] < source_date
+    ]
+    return {
+        "total": len(documents),
+        "categories": dict(sorted(category_counts.items())),
+        "current": len(current_rows),
+        "historical": category_counts["historical"],
+        "older_current": older_current_rows,
+    }
+
+
 def peripheral_state(entry: dict) -> str:
     if entry.get("peripheral_status"):
         return entry["peripheral_status"]
@@ -229,6 +269,7 @@ def collect() -> dict:
         or device["backend"] == "esp-emulator-native"
         for device in profile_devices
     )
+    documents = parse_document_rows()
     return {
         "source_date": source["generated_at"],
         "latest_evidence_date": latest_evidence_date(),
@@ -241,7 +282,10 @@ def collect() -> dict:
         "firmware_review": firmware,
         "runtime_gaps": parse_runtime_gaps(),
         "backlog": parse_backlog_tasks(),
-        "documents": parse_document_rows(),
+        "documents": documents,
+        "document_audit": summarize_documents(
+            documents, source["generated_at"]
+        ),
         "platform_tests": platform_test_count(),
         "code_inventory": code_inventory(),
     }
@@ -372,8 +416,41 @@ def render_markdown(snapshot: dict) -> str:
         "## 文档与测试",
         "",
         f"- 平台测试：`{snapshot['platform_tests']}` 项。",
-        f"- Docs 新鲜度登记：`{len(snapshot['documents'])}` 行。",
+        (
+            f"- Docs 新鲜度登记：`{snapshot['document_audit']['total']}` 行；"
+            f"其中非历史页 `{snapshot['document_audit']['current']}` 行，"
+            f"历史固定页 `{snapshot['document_audit']['historical']}` 行。"
+        ),
     ]
+    category_labels = {
+        "backlog": "待办",
+        "contract": "契约",
+        "evidence": "证据/差异",
+        "historical": "历史固定",
+        "implementation": "实现/设计",
+        "reference": "参考",
+        "workflow": "工作流/导航",
+    }
+    lines.append(
+        "- 文档职责分布："
+        + "，".join(
+            f"{category_labels.get(name, name)} `{count}`"
+            for name, count in snapshot["document_audit"]["categories"].items()
+        )
+        + "。"
+    )
+    older = snapshot["document_audit"]["older_current"]
+    if older:
+        lines.append(
+            "- 复核日期早于当前事实日期的非历史页："
+            + "，".join(
+                f"[{row['page']}]({row['page']}) `{row['reviewed']}`"
+                for row in older
+            )
+            + "。这不自动表示内容错误；状态页变更时应优先复核。"
+        )
+    else:
+        lines.append("- 所有非历史页的最近复核日期均与当前事实日期一致。")
     lines.append(
         "- 代码边界和大型模块的维护建议由"
         "[代码与验证入口地图](code-map.md)维护。"
