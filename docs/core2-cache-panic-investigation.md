@@ -336,15 +336,73 @@ CPU0/CPU1 PC pairs:
 - CPU1 stayed at `0x4008649c` or `0x4008649e`, inside
   `mp_execute_bytecode`.
 
-The local UIFlow Core2 ELF used for symbolization is not proven byte-identical
-to the public BIN, so this remains a diagnostic mapping. UART `INT_ENA`,
-`INT_CLR` and IRQ-state tracing recorded no UART event inside the final 800 ms.
-The PC result therefore raises an interrupt/service-starvation hypothesis, but
-does not prove a UART storm. The PC sampler itself perturbs scheduling and is
+At the time of this run, the local UIFlow Core2 ELF mapping was treated as
+diagnostic but not artifact-bound. A later same-VMA byte audit rejected that
+mapping completely: the public BIN contains different bytes at all three CPU0
+sample addresses, so the `uart_rx_intr_handler_default` and
+`mp_execute_bytecode` names in this timeline must not be used as the current
+explanation. UART `INT_ENA`, `INT_CLR` and IRQ-state tracing recorded no UART
+event inside the final 800 ms. The PC sampler itself perturbs scheduling and is
 kept off by default.
 
 See
 [`evidence-2026-10-26-core2-handoff-timeline.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json).
+
+## 2026-10-26 BIN/ELF address audit
+
+[`audit_elf_bin_mapping.py`](../tests/firmware/core2_handoff_trace/audit_elf_bin_mapping.py)
+parses the ESP32 application inside the normalized 16 MiB flash image, locates
+the segment covering a virtual address, and compares its bytes with the ELF32
+section at the same address.
+
+For public `UIFlow_Core2 v1.15.4`:
+
+- app image offset: `0x10000`;
+- segment 3 load address: `0x40080400`;
+- CPU0 sample addresses: `0x400843ac`, `0x400843af`, `0x400843b1`;
+- all three 16-byte windows differ from local `UIFlow2 v2.5.3` ELF
+  `5bec056b…`;
+- audit classification: `BIN_ELF_BYTES_MISMATCH`.
+
+The exact BIN bytes around the sample cluster select CPU0/CPU1 DPORT addresses
+`0x3ff000e8`/`0x3ff000e4` and access state around `0x3ffc7750`, `0x3ffc7748`,
+`0x3ffc7760` and `0x3ffc7758`. That shape is consistent with older ESP-IDF
+cross-core Flash/cache-disable handoff code, but without a matching ELF/MAP it
+does not prove a function name or a specific waiter.
+
+See
+[`evidence-2026-10-26-core2-pc-mapping-audit.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-pc-mapping-audit.json).
+
+## 2026-10-26 exact-time vCPU freeze
+
+[`0038-esp32-handoff-pause.patch`](../patches/qemu-m5stack-peripherals/0038-esp32-handoff-pause.patch)
+adds `M5SW_ESP32_HANDOFF_PAUSE_NS`. At the requested QEMU virtual timestamp,
+QEMU writes a pause marker and sends `SIGSTOP` to itself, freezing both vCPUs
+without enabling the perturbing high-frequency PC sampler.
+
+Two independent first-boot controls produced:
+
+- at `14.800033 s`, no fixed CPU cluster; both CPUs showed `INTSET=0x40`, but
+  neither had a pending QEMU hard-interrupt request;
+- at `15.301447 s`, CPU0 at `0x40087980`, CPU1 at `0x40084484`; CPU1 had
+  `INTSET=0x40` and `CPU_INTERRUPT_HARD` pending;
+- both runs retained the same 507-byte banner-only Serial and had not reached
+  a WDT timeout or reset.
+
+The public BIN around `0x40087958` clears `0x3ffc7ec8`, sets `0x3ffc7ec9`, then
+loops on the first byte. That source pattern matches the old ESP-IDF
+`spi_flash_op_block_func`: mark cache hand-off ready and wait for the initiating
+CPU to mark the flash operation complete. CPU1's late-window caller and
+`0x40084478` helper are in the companion cache hand-off path.
+
+This evidence removes UART ISR/service starvation as the primary explanation
+for the sampled cluster and narrows the remaining question to which cache
+restore, SSI operation or return path fails to complete within the final
+800 ms. The addresses are BIN-bound; the function names are source-pattern
+matches, not ELF-symbol-bound.
+
+See
+[`evidence-2026-10-26-core2-handoff-pause.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pause.json).
 
 ## Next investigation
 
@@ -353,12 +411,15 @@ See
 2. Preserve the stateful SSI batch path and its byte-equivalence gate.
 3. For the same legacy UIFlow SHA, correlate TG0/TG1 feed/clear, stage0/stage1,
    `INTSET`, `INTENABLE`, expiry, reset PC `0`, and IDLE/service-task progress.
-4. Use the unified timeline to resolve the final 800 ms feed-to-timeout window:
-   map the last CPU0/CPU1 paths, flash-operation can-start/complete transitions,
-   cross-core reasons and DPORT cache state to concrete guest functions.
-5. Reduce aggregate synchronous handoff cost using controller-level behavior,
+4. Obtain a matching v1.15.4 ELF/MAP. Until then, use BIN-bound byte ranges and
+   low-perturbation events to classify the final CPU0 cluster as vCPU
+   starvation, guest spin, or a specific cross-core/cache-disable handoff
+   waiter; do not reuse local v2.5.3 symbols.
+5. Use `0038` to freeze later points in the feed-to-timeout gap and follow the
+   cache-restore caller/return chain plus SSI/DPORT MMIO at each step.
+6. Reduce aggregate synchronous handoff cost using controller-level behavior,
    without skipping the guest flash/cache protocol.
-6. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
+7. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
    collected.
 
 ## Reproduction

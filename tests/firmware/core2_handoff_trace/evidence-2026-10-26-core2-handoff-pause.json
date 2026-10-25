@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "kind": "core2-handoff-pause-probe",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_binary_sha256": "076894c2944205c983f2e19784ac1f9d8ae7a0efda9aa65a8dd648076335cd37",
+    "pause_patch_sha256": "54a1f6ad5720723cb9c92bc05d60925db330f5977f3ef43477917821cec992b4",
+    "trace_sample": 1024,
+    "pc_sampling": "NOT RUN",
+    "pause_mechanism": "M5SW_ESP32_HANDOFF_PAUSE_NS schedules SIGSTOP on QEMU virtual time"
+  },
+  "artifact_mapping": {
+    "audit": "evidence-2026-10-26-core2-pc-mapping-audit.json",
+    "classification": "BIN_ELF_BYTES_MISMATCH",
+    "uart_isr_symbol_mapping": "REJECTED",
+    "exact_bin_function_names": "NOT BOUND"
+  },
+  "runs": [
+    {
+      "name": "near_final_feed",
+      "pause_target_ns": 14800000000,
+      "pause_event_ns": 14800033000,
+      "last_trace_event_before_pause": {
+        "now_ns": 14769555000,
+        "component": "timg",
+        "event": "wdt-arm",
+        "timer_group": 1,
+        "stage": 0,
+        "count_to_timeout": 1600,
+        "timeout_count": 1600
+      },
+      "session_id_sha256": "5c4c95a0c333280a51430fe2c28c25422be4143a108263062154c0ba858a2275",
+      "qemu_stderr": {
+        "bytes": 12363,
+        "sha256": "2978727a453d63ccd7806e9278ed538ea428c51704fc98ccf167e6972aac8fd2"
+      },
+      "serial": {
+        "bytes": 507,
+        "sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+        "has_micropython_banner": true,
+        "has_repl_prompt": false
+      },
+      "lldb_state": {
+        "output_sha256": "4ca6059376735cf56c166a35cc0e632b916e54a9725f27bb4f33119fec67e1f6",
+        "cpu0": {
+          "pc": "0x40095aaa",
+          "ps": "0x00060d23",
+          "intenable": "0x1300124c",
+          "intset": "0x00000040",
+          "exccause": "0x00000004",
+          "interrupt_request": "0x00000000",
+          "a0": "0x80095255",
+          "a1": "0x3ffb7da0"
+        },
+        "cpu1": {
+          "pc": "0x400977e0",
+          "ps": "0x00060023",
+          "intenable": "0x1300005c",
+          "intset": "0x00000040",
+          "exccause": "0x00000004",
+          "interrupt_request": "0x00000000",
+          "a0": "0x00060021",
+          "a1": "0x3ffbfee0"
+        }
+      }
+    },
+    {
+      "name": "inside_feed_to_timeout_gap",
+      "pause_target_ns": 15300000000,
+      "pause_event_ns": 15301447000,
+      "last_trace_event_before_pause": {
+        "now_ns": 15179855000,
+        "component": "dport",
+        "event": "app-cache-ctrl",
+        "old": 16416,
+        "new": 16424,
+        "flush_done": 0
+      },
+      "session_id_sha256": "a9b5a062b7cd9dd31fddab49268337dc94560a309b43f766950818ff2edd6099",
+      "qemu_stderr": {
+        "bytes": 12477,
+        "sha256": "d2fb61481101314e0a8467edf0c9401db694cad1722a061eccc193536d2c8757"
+      },
+      "serial": {
+        "bytes": 507,
+        "sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+        "has_micropython_banner": true,
+        "has_repl_prompt": false
+      },
+      "lldb_state": {
+        "output_sha256": "61900d4462c204bec78a73429f549e550eab420d2371b20bf94d04dc8ec07a90",
+        "cpu0": {
+          "pc": "0x40087980",
+          "ps": "0x00060d20",
+          "intenable": "0x13000248",
+          "intset": "0x00000000",
+          "exccause": "0x00000004",
+          "interrupt_request": "0x00000000",
+          "a0": "0x80088a31",
+          "a1": "0x3ffb7df0"
+        },
+        "cpu1": {
+          "pc": "0x40084484",
+          "ps": "0x00060d20",
+          "intenable": "0x1300004c",
+          "intset": "0x00000040",
+          "exccause": "0x00000004",
+          "interrupt_request": "0x00000002",
+          "a0": "0x80087aec",
+          "a1": "0x3ffda7d0"
+        }
+      }
+    }
+  ],
+  "bin_source_pattern": {
+    "cpu0_0x40087958": [
+      "entry a1,32",
+      "clear byte at 0x3ffc7ec8",
+      "set byte at 0x3ffc7ec9",
+      "loop reading 0x3ffc7ec8 at 0x40087990"
+    ],
+    "cpu1_0x40084478": [
+      "entry a1,32",
+      "clear two words at 0x3ffc7750 and 0x3ffc7754"
+    ],
+    "interpretation": "The BIN control flow matches the older ESP-IDF flash-operation block/cache handoff source pattern. Names are source-pattern candidates, not ELF-bound symbols."
+  },
+  "classification": {
+    "near_final_feed": "NO_FIXED_PC",
+    "inside_feed_to_timeout_gap": "FLASH_HANDSHAKE_AND_CACHE_RESTORE_CANDIDATE",
+    "cpu0_service_starvation": "NOT ESTABLISHED BY THIS CONTROL",
+    "uart_storm": "REJECTED",
+    "guest_deadlock": "NOT PROVEN"
+  },
+  "regression": {
+    "core2_uiflow2": {
+      "cases_passed": 6,
+      "cases_failed": 0,
+      "checks_passed": 24,
+      "checks_failed": 0,
+      "retry_used": false,
+      "summary_sha256": "559a963830b7034be3dda833ec326c72cd4933ea52e6b7069e454ba8ebed1c16"
+    },
+    "full_uiflow2_matrix": "NOT RUN"
+  },
+  "validation_suite": {
+    "platform_unittest": {
+      "passed": 508,
+      "failed": 0
+    },
+    "docs_contract": {
+      "passed": 41,
+      "failed": 0
+    },
+    "qemu_profile_contract": {
+      "passed": 19,
+      "failed": 0
+    },
+    "node_sha256_upload": "PASS",
+    "worker_credential_migration": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS (E9/F over platform/tools and platform/tests)",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "git_diff_check": "PASS",
+    "patch_predecessor_forward_reverse_check": "PASS"
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "PC sampling was disabled; SIGSTOP is the only diagnostic perturbation.",
+    "The early pause state differs from the prior 1 ms sampler, so the old fixed PC cluster was sampling-dependent.",
+    "The late pause still does not prove whether the cache restore eventually returns.",
+    "No physical cache, PSRAM, Flash, RF, electrical or hardware validation is claimed."
+  ]
+}

@@ -72,15 +72,52 @@ python3 tests/firmware/core2_handoff_trace/summarize.py \
   --out summary.json
 ```
 
-The ELF-derived PC mapping is stored separately from raw trace output so a
-summarizer rerun does not discard it. It remains explicitly unbound from the
-public BIN unless the ELF and image provenance are proven byte-identical.
+The initial ELF-derived PC mapping is stored separately from raw trace output.
+A later same-VMA audit rejected it: the public `UIFlow_Core2 v1.15.4` BIN and
+local `UIFlow2 v2.5.3` ELF differ at all three CPU0 sample addresses. The
+rejected names remain in metadata only to document the correction; current
+analysis must not reuse them.
+
+Run the binding audit with:
+
+```bash
+python3 tests/firmware/core2_handoff_trace/audit_elf_bin_mapping.py \
+  --image normalized-flash.bin \
+  --image-label normalized-UIFlow_Core2-v1.15.4.bin \
+  --elf .work/uiflow2-core2-symbols/micropython.elf \
+  --elf-label UIFlow2-v2.5.3-Core2-micropython.elf \
+  --app-offset 0x10000 \
+  --address 0x400843ac \
+  --address 0x400843af \
+  --address 0x400843b1 \
+  --window 16 \
+  --out pc-mapping-audit.json
+```
+
+`BIN_ELF_BYTES_MATCH` is required before using an ELF symbol as evidence for a
+PC sampled from a different image.
 
 `0037` is predecessor-bound: it applies after `0036` on the retained
 M5StopWatch-QEMU-derived tree. It is not a standalone patch against raw
 upstream QEMU or the unpatched `da100c9` source commit. The recorded apply
 check reverses `0037` from that predecessor tree, then verifies forward apply
 and reverse apply again.
+
+`0038-esp32-handoff-pause.patch` adds an exact-virtual-time freeze control:
+
+```bash
+M5SW_ESP32_HANDOFF_TRACE=1 \
+M5SW_ESP32_HANDOFF_TRACE_SAMPLE=1024 \
+M5SW_ESP32_HANDOFF_PAUSE_NS=15300000000 \
+qemu-system-xtensa -snapshot -machine m5core2 ...
+```
+
+At the target timestamp QEMU emits a `component=cpu event=pause` line and
+raises `SIGSTOP`. A debugger can then inspect both vCPUs without the scheduling
+disturbance of `M5SW_ESP32_HANDOFF_PC_SAMPLE_NS`. The paired controls freeze
+near the final feed and inside the feed-to-timeout gap. They show that the
+earlier fixed UART/VM PC cluster was sampling-dependent and that the late
+window converges on a Flash/cache-handshake source pattern.
 
 The trace is diagnostic only. It does not prove physical cache timing or close
 `RUNTIME-03`.

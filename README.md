@@ -49,10 +49,15 @@ MicroPython 和其他完整 Flash 固件。
   cross-core、DPORT/cache、SSI 与 TIMG WDT 放到同一虚拟时间轴；两次正常
   WDT 运行都显示最后一次 TG1 feed 后固定 `800 ms` 进入 stage-0 timeout，
   随后约 `1.6 s` reset。关闭 WDT 时 `sample=1024` 与 trace-off 的串口
-  完全相同，仍只有启动 banner。1 ms PC 采样对照保持同样的 800 ms gap，
-  CPU0 样本落在 UART RX 中断处理器的清中断指令簇，CPU1 在 MicroPython VM；
-  但该窗口没有新的 UART 寄存器事件，因此目前是中断/服务饥饿候选，不是已证
-  UART 根因。下一步是确认 CPU0 为何没有返回 WDT 服务任务。
+  完全相同，仍只有启动 banner。后续 BIN/ELF 字节审计又否定了此前把 PC
+  样本映射到 UART ISR/MicroPython VM 的结论：本地 UIFlow2 v2.5.3 ELF
+  与 public UIFlow_Core2 v1.15.4 BIN 在 CPU0 的三个采样地址上字节均不一致。
+  BIN 自身在该区域表现为 cross-core Flash/cache-disable handoff 控制流，
+  但精确函数仍缺 matching ELF/MAP。`0038` 新增的精确 virtual-time `SIGSTOP`
+  对照又显示：14.800 s 的早窗口没有固定 PC；15.301 s 的晚窗口稳定落在
+  CPU0 `0x40087980` / CPU1 `0x40084484`，与旧 IDF
+  `spi_flash_op_block_func`/cache handshake 源码形态一致。下一步是该
+  handoff 区间内的 cache restore 和返回值，而不是 UART。
   精确轮次、哈希和对照只在
   [验证证据台账](docs/validation-ledger.md)；`Core2FactoryTest` 修复后尚未
   重跑，`RUNTIME-03` 仍为 `OPEN`。

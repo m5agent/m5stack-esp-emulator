@@ -185,6 +185,10 @@ class Core2HandoffTraceTests(unittest.TestCase):
             pc_control["symbolization"]["artifact_bound_to_public_image"]
         )
         self.assertEqual(
+            pc_control["symbolization"]["status"],
+            "REJECTED_BY_BIN_BYTES",
+        )
+        self.assertEqual(
             pc_control["symbolization"],
             json.loads(PC_SYMBOLIZATION.read_text()),
         )

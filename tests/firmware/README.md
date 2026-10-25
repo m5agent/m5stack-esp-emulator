@@ -238,15 +238,21 @@ See
 Patch `0037` adds a unified virtual-time/CPU/PC trace across cross-core, DPORT,
 SSI, UART and TIMG events. Two normal-WDT runs both placed the last TG1 feed
 exactly 800 ms before stage-0 timeout; the final timeout PC changed between
-runs. A 1 ms dual-PC control kept the same gap but reset earlier, sampling CPU0
-inside the UART RX ISR and CPU1 inside the MicroPython VM. The PC sampler is
-intentionally off by default because it changes scheduling; no UART register
-event occurred in that final window, so UART storm remains unproven.
+runs. A 1 ms dual-PC control kept the same gap but reset earlier. The initial
+different-version ELF mapping to UART ISR/MicroPython VM was later rejected by
+a same-VMA public-BIN byte audit; all three CPU0 windows differ. The PC sampler
+is intentionally off by default because it changes scheduling. The BIN-bound
+cluster is consistent with a cross-core Flash/cache-disable handoff, but its
+function name remains unbound.
+`0038` adds a virtual-time `SIGSTOP` control without PC sampling. At 14.800 s
+the sampled PCs are not fixed; at 15.301 s they converge on CPU0
+`0x40087980` and CPU1 `0x40084484`, matching a Flash block/cache-handshake
+source pattern in the public BIN.
 WDT-disabled `sample=1024` and trace-off produced the same banner-only serial
 hash. The reusable summarizer and evidence are in
 [`core2_handoff_trace/`](core2_handoff_trace/). The unbound local-ELF PC
 symbolization is retained as separate metadata so rerunning the summarizer does
-not silently drop it.
+not silently reintroduce it.
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).

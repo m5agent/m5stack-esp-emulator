@@ -91,9 +91,15 @@
 - 直接 state trace 显示 flash-op can-start/complete 和 cross-core reason
   反复完成。`0037` 已将统一 virtual time/CPU/PC trace 覆盖 cross-core、
   DPORT/cache、SSI 和 TIMG；两次 normal-WDT 运行都在最后 feed 后固定
-  `800 ms` timeout。1 ms PC 采样保持同样 gap，把 CPU0 放在 UART RX ISR、
-  CPU1 放在 MicroPython VM，但最终窗口没有 UART register event；下一步是
-  确认 CPU0 为何未返回 WDT 服务任务，UART storm 仍是未证实候选；
+  `800 ms` timeout。后续 BIN/ELF 字节审计拒绝了 local UIFlow2 v2.5.3
+  ELF 对 public legacy v1.15.4 BIN 的 UART/VM 符号映射；BIN 自身在最后
+  CPU0 地址簇上包含 cross-core、DPORT 和 Flash/cache-disable 控制流，但
+  精确函数仍缺 matching ELF/MAP；
+- `0038` 的 virtual-time `SIGSTOP` 对照避免了 PC 高频采样：14.800 s 早窗口
+  没有固定 PC，15.301 s 晚窗口落在 CPU0 `0x40087980` / CPU1
+  `0x40084484`。BIN 源码形态分别匹配 `spi_flash_op_block_func` complete
+  wait 与 cache handshake candidate；UART 解释退出，当前需继续追
+  restore/caller/return 和实际 SSI/DPORT 时间；
 - 文档已拆成当前事实、待办、日期化证据、契约、实现地图和历史页五类，后续
   不应再把这些运行细节复制回总览。
 
@@ -235,7 +241,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 用低扰动方法确认 CPU0 在最后 `800 ms` 内停在 UART ISR 区间的原因 | timeline、PC/UART 诊断和固定 timeout 间隔已有 evidence；但 PC 采样会扰动调度，正常 WDT 应用帧仍未闭环 |
+| `RUNTIME-03` | 在 `0038` 的晚窗口基础上继续冻结 cache restore caller/return、SSI/DPORT 操作和服务进度；同版本 ELF/MAP 可并行取得 | timeline 和 fixed timeout 已有 evidence；晚窗口已进入 block/cache handshake 源码形态，但仍无同 SHA 非空应用帧 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

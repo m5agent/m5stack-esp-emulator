@@ -105,9 +105,13 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   read，字节等价、Core2 UIFlow2 设备组和共享控制器完整矩阵通过；它仍未
   关闭 legacy。`0037` 已统一 virtual time/CPU/PC handoff trace；两次
   normal-WDT 运行都在最后 feed 后固定 `800 ms` timeout，WDT-disabled
-  `sample=1024` 与 trace-off Serial 相同。1 ms PC 采样把 CPU0 放在 UART RX
-  ISR、CPU1 放在 MicroPython VM，但窗口内没有 UART register event，且采样
-  本身会扰动调度。下一步是用低扰动方法确认 CPU0 为何未返回 WDT 服务任务。
+  `sample=1024` 与 trace-off Serial 相同。后续 BIN/ELF 字节审计拒绝了
+  local UIFlow2 v2.5.3 ELF 对 public legacy v1.15.4 BIN 的 UART/VM 符号
+  映射；最后 CPU0 地址簇来自 public BIN，控制流看似 cross-core
+  Flash/cache-disable handoff，但精确函数仍缺 matching ELF/MAP。
+  `0038` 的 exact-time `SIGSTOP` 对照进一步显示 14.800 s 早窗口无固定 PC，
+  15.301 s 晚窗口稳定落在 CPU0 `0x40087980` / CPU1 `0x40084484`；
+  源码形态匹配旧 IDF Flash block/cache handshake。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

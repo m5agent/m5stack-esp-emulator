@@ -275,7 +275,7 @@ zero `FAIL`.
 
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Stateful SSI and the unified `0037` handoff timeline are validated, but normal-WDT legacy still resets with `TG0WDT_SYS_RESET` and reset PC `0`. Two runs placed stage-0 timeout exactly 800 ms after the last TG1 feed. A perturbing 1 ms PC control put CPU0 samples in the UART RX ISR and CPU1 in MicroPython, without matching UART register events in that window. WDT-disabled sampled and trace-off runs both stopped at the MicroPython banner without setup text or REPL. No non-empty application frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Stateful SSI, the `0037` unified timeline and the `0038` exact-time pause are validated, but normal-WDT legacy still resets with `TG0WDT_SYS_RESET` and reset PC `0`. Two runs placed stage-0 timeout exactly 800 ms after the last TG1 feed. A byte audit rejected the earlier local-UIFlow2-ELF mapping to UART ISR/MicroPython VM. Exact-time freezes show no fixed PC near the final feed, then a late window at CPU0 `0x40087980` / CPU1 `0x40084484` matching older IDF Flash block/cache handshake source flow. WDT-disabled sampled and trace-off runs both stopped at the MicroPython banner without setup text or REPL. No non-empty application frame |
 | `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
@@ -328,9 +328,12 @@ temporary direct-read path with a stateful SSI batch interface. `0037` now
 records cross-core, DPORT/cache, SSI and TIMG events on one virtual timeline.
 Two normal-WDT runs placed stage-0 timeout exactly 800 ms after the last TG1
 feed, while the WDT-disabled `sample=1024` and trace-off controls produced the
-same banner-only serial hash. The next acceptance therefore requires resolving
-the final 800 ms synchronous-stall window, restoring normal WDT behavior and
-producing a non-empty application frame in one session.
+same banner-only serial hash. The later BIN/ELF byte audit rejected the
+different-version UART/VM symbol names and moved the last PC cluster back to an
+unbound cross-core Flash/cache-disable handoff candidate. The next acceptance
+therefore requires a matching v1.15.4 ELF/MAP or direct vCPU/handoff evidence,
+resolving the final 800 ms synchronous-stall window, restoring normal WDT
+behavior and producing a non-empty application frame in one session.
 
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for

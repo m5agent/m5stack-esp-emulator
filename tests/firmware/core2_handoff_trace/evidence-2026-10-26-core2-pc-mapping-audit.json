@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "kind": "esp32-app-elf-mapping-audit",
+  "validation": "static artifact mapping audit",
+  "app_offset": 65536,
+  "segments": [
+    {
+      "index": 0,
+      "load_addr": 1061158944,
+      "length": 3474732,
+      "file_offset": 65568,
+      "index_file_offset": 65560
+    },
+    {
+      "index": 1,
+      "load_addr": 1073470304,
+      "length": 21204,
+      "file_offset": 3540308,
+      "index_file_offset": 3540300
+    },
+    {
+      "index": 2,
+      "load_addr": 1074266112,
+      "length": 1024,
+      "file_offset": 3561520,
+      "index_file_offset": 3561512
+    },
+    {
+      "index": 3,
+      "load_addr": 1074267136,
+      "length": 41944,
+      "file_offset": 3562552,
+      "index_file_offset": 3562544
+    },
+    {
+      "index": 4,
+      "load_addr": 1074593816,
+      "length": 1667692,
+      "file_offset": 3604504,
+      "index_file_offset": 3604496
+    },
+    {
+      "index": 5,
+      "load_addr": 1074309080,
+      "length": 71804,
+      "file_offset": 5272204,
+      "index_file_offset": 5272196
+    },
+    {
+      "index": 6,
+      "load_addr": 1074528256,
+      "length": 108,
+      "file_offset": 5344016,
+      "index_file_offset": 5344008
+    },
+    {
+      "index": 7,
+      "load_addr": 1342177792,
+      "length": 2056,
+      "file_offset": 5344132,
+      "index_file_offset": 5344124
+    }
+  ],
+  "addresses": [
+    {
+      "address": 1074283436,
+      "window": 16,
+      "app_segment": {
+        "index": 3,
+        "load_addr": 1074267136,
+        "length": 41944,
+        "file_offset": 3562552,
+        "index_file_offset": 3562544
+      },
+      "elf_section": {
+        "index": 9,
+        "addr": 1074267140,
+        "size": 114807,
+        "file_offset": 3449860
+      },
+      "bin_bytes_hex": "c0200048081674ff4117f1c020004804",
+      "bin_bytes_sha256": "8aaaec4e66cb8dcb4913a69620923b77fd38d9062ac11e2c0d799cd0152bb141",
+      "elf_bytes_hex": "6088c05088b0822802c0200099480c58",
+      "elf_bytes_sha256": "66a6ecb312d868a66a9a4026cc091958e7642995ea0253d45d87587274332782",
+      "matches": false
+    },
+    {
+      "address": 1074283439,
+      "window": 16,
+      "app_segment": {
+        "index": 3,
+        "load_addr": 1074267136,
+        "length": 41944,
+        "file_offset": 3562552,
+        "index_file_offset": 3562544
+      },
+      "elf_section": {
+        "index": 9,
+        "addr": 1074267140,
+        "size": 114807,
+        "file_offset": 3449860
+      },
+      "bin_bytes_hex": "48081674ff4117f1c0200048043a82c0",
+      "bin_bytes_sha256": "5d20f04b9f5879ec0e76aef609545984e623abcf2fbfd3ff81cdfbd8687b5027",
+      "elf_bytes_hex": "5088b0822802c0200099480c58066cff",
+      "elf_bytes_sha256": "030a6e9ac2b1ce4698788bb1b94a97476ed492ef0d1c49d368f82c264cbdf607",
+      "matches": false
+    },
+    {
+      "address": 1074283441,
+      "window": 16,
+      "app_segment": {
+        "index": 3,
+        "load_addr": 1074267136,
+        "length": 41944,
+        "file_offset": 3562552,
+        "index_file_offset": 3562544
+      },
+      "elf_section": {
+        "index": 9,
+        "addr": 1074267140,
+        "size": 114807,
+        "file_offset": 3449860
+      },
+      "bin_bytes_hex": "1674ff4117f1c0200048043a82c02000",
+      "bin_bytes_sha256": "77fd5dc66a52ed122b3132783e7251eed143eb82df0314eb47d0d14c9069f3f3",
+      "elf_bytes_hex": "b0822802c0200099480c58066cff00c7",
+      "elf_bytes_sha256": "b31b02c0d64f5ac828dd7b482e7cc5aa0b506dad07957bd8d05595af0aa2774e",
+      "matches": false
+    }
+  ],
+  "all_match": false,
+  "classification": "BIN_ELF_BYTES_MISMATCH",
+  "image": {
+    "label": "normalized-UIFlow_Core2-v1.15.4.bin",
+    "bytes": 16777216,
+    "sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc"
+  },
+  "elf": {
+    "label": "UIFlow2-v2.5.3-Core2-micropython.elf",
+    "bytes": 50143184,
+    "sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49"
+  }
+}

@@ -329,15 +329,27 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json",
             "tests/firmware/core2_handoff_trace/README.md",
             "tests/firmware/core2_handoff_trace/summarize.py",
+            "tests/firmware/core2_handoff_trace/audit_elf_bin_mapping.py",
+            "patches/qemu-m5stack-peripherals/0038-esp32-handoff-pause.patch",
             (
                 "tests/firmware/core2_handoff_trace/"
                 "pc-symbolization-2026-10-26-core2-handoff.json"
             ),
             (
                 "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-pc-mapping-audit.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-pause.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
                 "evidence-2026-10-26-core2-handoff-timeline.json"
             ),
             "platform/tests/test_core2_handoff_trace.py",
+            "platform/tests/test_core2_pc_mapping_audit.py",
+            "platform/tests/test_core2_handoff_pause.py",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",

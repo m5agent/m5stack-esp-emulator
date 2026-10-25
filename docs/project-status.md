@@ -77,18 +77,32 @@ interrupt-WDT reset 与累计 Flash/cache-handoff 服务进度仍 `OPEN`。
   进入 stage-0 timeout，再经过约 `1.6 s` 进入 reset；timeout PC 可变化。
   WDT-disabled `sample=1024` 与 trace-off 产生相同 Serial SHA，均为
   启动 banner、无 setup/REPL，说明该采样级别没有改变序列结果。
-- 额外的 1 ms PC 采样对照仍复现固定 800 ms gap，但更早 reset。最终窗口中
-  800 个采样点只出现 CPU0 `uart_rx_intr_handler_default` 的三个 PC 和 CPU1
-  `mp_execute_bytecode` 的两个 PC；UART register trace 在该窗口没有任何新
-  RX 或 `INT_CLR` 事件。该结果指向中断/服务饥饿候选路径，但不足以证明
-  UART storm，且 PC 采样本身会改变调度。
+- 额外的 1 ms PC 采样对照仍复现固定 800 ms gap，但更早 reset。最终窗口
+  的地址簇是 CPU0 `0x400843ac/af/b1`、CPU1 `0x4008649c/9e`。后续
+  BIN/ELF 字节审计否定了此前沿用的 UART ISR/MicroPython VM 符号：local
+  UIFlow2 v2.5.3 ELF 与 public UIFlow_Core2 v1.15.4 BIN 在三个 CPU0
+  地址上全部不一致。BIN 自身在该区域是包含 CPU ID、DPORT
+  `0x3ff000e8/e4` 和 Flash/cache handoff 状态的控制流，但精确函数仍未被
+  matching ELF/MAP 绑定。UART storm 解释因此撤回。
+- `0038` 增加默认关闭的 `M5SW_ESP32_HANDOFF_PAUSE_NS`：QEMU 在指定
+  virtual time 输出 pause marker 后对自身发送 `SIGSTOP`，不启用高频 PC
+  采样。两次独立冻结分别落在 `14.800033 s` 和 `15.301447 s`：
+  - 早窗口没有固定 PC；
+  - 晚窗口中 CPU0 停在 `0x40087980`，CPU1 停在 `0x40084484`；
+  - CPU1 `INTSET=0x40`、`interrupt_request=CPU_INTERRUPT_HARD`；
+  - BIN 自身在 CPU0 地址附近清零 `0x3ffc7ec8`、置位
+    `0x3ffc7ec9` 后循环等待前者，形态与旧 ESP-IDF
+    `spi_flash_op_block_func` 的 complete/can-start 握手一致；
+  - CPU1 地址附近清零 `0x3ffc7750/54`，调用者位于同族的 cache handoff
+    路径。
 
 这说明剩余问题更可能是大量同步 Flash 操作、cross-core yield 和
 flash-cache/DPORT handoff 造成的总吞吐不足。当前工作假设是 legacy
 启动扫描所需的工作量超过 watchdog 窗口，而不是单次 handshake 丢失；
-统一时间轴已经具备，下一步要解释最后一次 feed 后固定 800 ms 的停滞窗口，
-PC/UART 诊断进一步把 CPU0 指向中断服务饥饿候选，但尚未证明 UART storm。
-后续需要并用低扰动中断/锁 trace 判断哪一段可以按控制器语义批量完成。
+统一时间轴和精确 freeze 已经具备。高频采样下的固定 UART/VM PC 簇不再成立；
+晚窗口则稳定进入 Flash/cache handshake 源码形态。下一步是取得 v1.15.4
+ELF/MAP，或在 BIN-bound 地址上继续冻结 cache restore/caller/return 链，
+确认 CPU1 的 cache handoff 是否返回、在哪个 SSI/DPORT 操作累计超过窗口。
 精确批次、通过率、
 artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
@@ -100,7 +114,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline 和 PC/UART 诊断已验证；固定 feed-to-timeout 800 ms 已复现 | 确认最后 800 ms 内 CPU0 为何停在 UART ISR 路径而未返回 WDT 服务任务，再减少总 handoff 吞吐 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；UART storm 仍未证实 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝和两段 exact-time freeze 已验证；晚窗口进入 BIN-bound Flash/cache handshake 源码形态 | 继续冻结 cache restore/caller/return 链和实际 SSI/DPORT 操作，解释 800 ms 累计服务时间；取得 matching ELF/MAP 可并行 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；UART 高频 PC 映射不得复用 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |

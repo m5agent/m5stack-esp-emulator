@@ -80,7 +80,7 @@
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-25` | 外设数据面覆盖、Core2 `0008/0009` 完整与定向回归入口；轮次和 case/check 数量只查验证台账与 evidence |
 | [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-25` | 能力仍以 2026-10-22 定向证据为基线；后来的 S3/C6/Core2 无线工作不继承给 P4 |
 | [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-25` | StopWatch 是唯一参考质量外壳；后续功能验证不代表视觉模型已升级 |
-| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-26` | 保留旧命名和复现、TCG translation-buffer 归因与 UIFlow2 门禁；补充 timer/WDT-mask、stateful SSI、统一 handoff timeline、固定 800 ms feed-to-timeout、低扰动 WDT-disabled 对照和 UART/PC 候选路径。精确计数只查验证台账；PC 采样、临时 bypass、关闭 WDT 和 accelerator 均不构成产品修复 |
+| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-26` | 保留旧命名和复现、TCG translation-buffer 归因与 UIFlow2 门禁；补充 timer/WDT-mask、stateful SSI、统一 timeline、固定 800 ms timeout、WDT-disabled 对照、public BIN/local ELF 字节审计和 exact-time SIGSTOP freeze。UART/VM 符号已拒绝，晚窗口收敛到 Flash block/cache handshake；精确计数只查验证台账 |
 | [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
 | [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
 | [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-25` | `.work/` 不随仓库发布；提供已验证 macOS arm64 runtime release，QEMU/namespace 的资产和权限要求 |

@@ -36,9 +36,11 @@
 ## 当前执行顺序
 
 1. `RUNTIME-03`：timer、WDT mask、stateful SSI 和统一 handoff timeline 已
-   验证；normal-WDT 两次运行都复现最后 feed 后 `800 ms` timeout。PC 采样
-   把 CPU0 放在 UART RX ISR、CPU1 放在 MicroPython VM，但 UART register
-   trace 在窗口内没有事件；下一步确认 CPU0 为什么未返回 WDT 服务任务。
+   验证；normal-WDT 两次运行都复现最后 feed 后 `800 ms` timeout。PC 地址
+   有效，但 local UIFlow2 v2.5.3 ELF 对 public legacy v1.15.4 BIN 的
+   UART/VM 符号映射已因字节不一致被拒绝。exact-time freeze 显示 14.800 s
+   没有固定 PC，15.301 s 进入 Flash block/cache handshake 源码形态；下一步
+   沿 BIN-bound 调用链定位未返回的 cache restore/SSI/DPORT 操作。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -60,7 +62,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 用低扰动 trace 确认 CPU0 在最后 `800 ms` 内停在 UART ISR 区间的原因，并优化累计 handoff 吞吐 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT 对照和 UIFlow2 回归保持 PASS |
+| `RUNTIME-03` | 进行中 | 在 `0038` freeze 基础上继续捕获 cache restore 的 caller/return 与 SSI/DPORT 时间；取得 matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT 对照和 UIFlow2 回归保持 PASS |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -111,9 +113,16 @@ WDT-disabled `sample=1024` 与 trace-off Serial 相同。精确计数只查验�
 - 使用 `0037` 统一 timeline 确认最后一次 WDT feed 后 `800 ms` 停滞窗口内
   flash-cache pause、cross-core call/ack、DPORT high-interrupt 和 guest
   等待/清标志顺序；
-- 用低扰动的中断/锁诊断确认 CPU0 是否卡在 UART ISR 的临界区或中断门禁；
-  当前 PC 样本指向该区间，但 UART register trace 没有对应事件，不能把
-  “UART storm”写成根因；
+- 取得 public `UIFlow_Core2 v1.15.4` 的 matching ELF/MAP；byte audit
+  已证明 local UIFlow2 v2.5.3 ELF 在三个 CPU0 采样地址上全部不等，
+  因而不能把地址命名为 `uart_rx_intr_handler_default` 或
+  `mp_execute_bytecode`；
+- 在 matching symbol 缺失时，用 BIN 自身字节和低扰动事件确认
+  `0x40084330` 附近的 cross-core/DPORT/cache-disable 控制流，并区分 CPU0
+  vCPU 未获调度、guest spin 和 handoff 永久等待；
+- 使用 `0038` 的 exact-time `SIGSTOP` 在 14.8 s、15.3 s 及更接近 timeout
+  的窗口复制两核状态；当前晚窗口已稳定落在 CPU0 `0x40087980` /
+  CPU1 `0x40084484`，下一步沿 caller/return 和 SSI/DPORT 操作继续定位；
 - 对 cross-core IRQ0/IRQ1 的 source CPU、interrupt matrix target、latch/
   clear 和 CPU 状态做同时间轴关联，确认最后 800 ms 内是否仍有未完成的
   handoff；
@@ -123,10 +132,9 @@ WDT-disabled `sample=1024` 与 trace-off Serial 相同。精确计数只查验�
   是哪个高优先级同步路径使 IDLE/service task 无法运行；
 - 保留默认关闭的 S32C1I、TIMG 和 IRQ trace；不能把旧 probe 的 timer 根因
   直接复用于 legacy watchdog；
-- 当前工作假设是启动扫描产生的大量同步 flash-cache/IPC/DPORT handoff
-  使累计服务进度超过 watchdog 窗口；统一 timeline 已复现固定 timeout
-  间隔，PC 样本进一步指向 CPU0 的 UART ISR/服务饥饿路径，但尚未定位最后
-  一个服务循环；
+- 当前工作假设仍是大量同步 flash-cache/IPC/DPORT handoff 使累计服务进度
+  超过 watchdog 窗口；exact-time freeze 已把晚窗口收敛到
+  block/cache-handshake 源码形态，但还需证明具体未返回操作；
 - 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
 - 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
 
@@ -138,7 +146,9 @@ WDT-disabled `sample=1024` 与 trace-off Serial 相同。精确计数只查验�
   bypass、accelerator override 或 retry；
 - legacy TG0/TG1 reset 的触发点有证据，shared bus、TIMG trace 和 Core2
   UIFlow2 外设组回归保持 PASS；
-- 当前假设获得支持或被否定，且失败 trace、设备未建模部分和固件行为分开记录。
+- matching ELF/MAP 或 direct runtime trace 能把最后 CPU0 地址簇绑定到具体
+  handoff 函数/等待条件；当前假设获得支持或被否定，失败 trace、设备未建模
+  部分和固件行为分开记录。
 
 ## P0：网络与 worker
 

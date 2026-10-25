@@ -140,6 +140,7 @@ git apply /path/to/0034-xtensa-ccompare-equal-deadline.patch
 git apply /path/to/0035-esp32-timg-wdt-int-ena.patch
 git apply /path/to/0036-ssi-transfer-buf.patch
 git apply /path/to/0037-esp32-handoff-trace.patch
+git apply /path/to/0038-esp32-handoff-pause.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -263,11 +264,20 @@ component-specific values. Routine events support
 emitted. `M5SW_ESP32_HANDOFF_PC_SAMPLE_NS=1000000` optionally samples both
 guest PCs, but is off by default because it perturbs scheduling. Two
 normal-WDT runs showed a fixed 800 ms gap between the last TG1 feed and stage-0
-timeout. The PC control kept that gap and sampled CPU0 in the UART RX ISR while
-CPU1 ran MicroPython; UART register tracing found no event in the final
-window, so a UART storm is unproven. WDT-disabled `sample=1024` and trace-off
-produced the same serial output. This patch closes the missing-timeline
-prerequisite, not `RUNTIME-03`.
+timeout. The PC control kept that gap. A later same-VMA byte audit rejected the
+local UIFlow2 v2.5.3 ELF mapping of the public legacy v1.15.4 BIN to UART
+ISR/MicroPython; the exact BIN bytes are consistent with cross-core
+Flash/cache-disable handoff but remain symbol-unbound. WDT-disabled
+`sample=1024` and trace-off produced the same serial output. This patch closes
+the missing-timeline prerequisite, not `RUNTIME-03`.
+
+`0038-esp32-handoff-pause.patch` adds the default-off
+`M5SW_ESP32_HANDOFF_PAUSE_NS` diagnostic timer. At the requested QEMU virtual
+time it records a `component=cpu event=pause` marker and sends `SIGSTOP` to the
+QEMU process. This freezes both vCPUs without enabling high-frequency PC
+sampling, allowing a debugger to read guest PS, `INTENABLE`, `INTSET`,
+`EXCCAUSE`, register windows and QEMU CPU state at an exact virtual timestamp.
+It is diagnostic-only and does not alter reset, WDT or controller behavior.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC
