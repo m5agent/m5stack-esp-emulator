@@ -173,51 +173,41 @@ investigation does not treat that functional result as a physical cache model.
 
 ## 2026-10-26 update
 
-The legacy-UIFlow investigation has moved away from a single fixed firmware PC.
-A new ESP-IDF 5.5.4 probe at
-[`tests/firmware/core2_flash_ipc/`](../tests/firmware/core2_flash_ipc/)
-reproduced in three independent Device Service leases:
+The legacy-UIFlow investigation produced a useful harness correction. An early
+ESP-IDF
+[`core2_flash_ipc`](../tests/firmware/core2_flash_ipc/) revision placed a
+4096-byte local read buffer on a 4096-byte CPU1 task stack. Its stack overflow
+corrupted a FreeRTOS queue lock and produced a `spinlock_release()` owner
+mismatch before `READ_START`. The PRID values were correct; the lock itself was
+inside the overrun stack allocation. That run is no longer model evidence.
 
-```text
-CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd
-CORE2_FLASH_IPC_READY core=1 prid=0x0000abab
-assert failed: spinlock_release spinlock.h:190 (core_owner_id == lock->owner)
-```
+The corrected probe uses a static aligned buffer and yields every 50 iterations.
+Across current and portable QEMU batches:
 
-None of the runs reached `CORE2_FLASH_IPC_READ_START`. Symbolizing the stable
-backtrace gives:
+- 20/20 first boots reached `CORE2_FLASH_IPC_READ_START`;
+- 14/20 completed 1000 CPU1-side 4 KiB `esp_partition_read()` calls;
+- 6/20 entered interrupt-WDT after at least 250 reads;
+- 0/20 produced a spinlock owner assertion.
 
-```text
-spinlock_release
-  <- vPortExitCritical
-  <- xQueueSemaphoreTake
-  <- app_main
-```
-
-This changes the immediate question. The guest sees the expected ESP32 PRID
-values, and cross-core/DPORT trace channels are active, but a CPU0 task still
-exits a FreeRTOS critical section with an owner mismatch before partition reads
-begin. The next evidence must identify the actual spinlock address and owner and
-record `S32C1I` compare-and-swap inputs/result. The earlier legacy trace showing
-CPU0 waiting in the flash-operation start path and CPU1 repeating DPORT safe-read
-remains relevant, but it cannot yet be called the root cause of this smaller
-failure.
+In the WDT samples both CPU0 and CPU1 were sampled in the idle
+`esp_cpu_wait_for_intr()`/`waiti` path. This supports continued work on virtual
+timer/interrupt delivery and host scheduling during long synchronous flash
+workloads. It does not prove that legacy UIFlow has the same trigger, and it
+does not establish physical timer/cache/PSRAM behavior.
 
 The dated evidence and exact artifact hashes are in
-[`evidence-2026-10-26-core2-flash-ipc-spinlock.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-spinlock.json).
-An older portable-runtime control produced two spinlock-owner assertions and one
-interrupt-WDT in three first boots, again without `READ_START`. The failure is
-therefore not caused solely by the current diagnostic trace build, but the
-pre-read path can still terminate in more than one way.
+[`evidence-2026-10-26-core2-flash-ipc-wdt.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json).
+The invalid early image/ELF hashes and stack-overflow correction are retained in
+that evidence file.
 
 ## Next investigation
 
-1. Add default-off `S32C1I` tracing for CPU, PC, address, `SCOMPARE1`, desired
-   value, returned old value and CAS success/failure.
-2. Correlate the failing FreeRTOS critical-section lock address and owner with
-   its acquire/release sites and both CPUs' PRID values.
-3. Make `core2_flash_ipc` pass repeatedly and reach `READ_START` before returning
-   to legacy UIFlow flash-cache/DPORT work.
+1. Compare current, portable and explicit accelerator runs with the corrected
+   probe and larger first-boot samples.
+2. Trace `CCOMPARE`, `INTSET`, `INTENABLE`, timer expiry and virtual-time
+   progression around the idle `waiti` failure.
+3. Correlate the minimal post-flash-start WDT with legacy UIFlow flash-cache,
+   cross-core IPC and DPORT traces before changing the model.
 4. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
    collected.
 

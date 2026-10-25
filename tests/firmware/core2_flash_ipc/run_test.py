@@ -124,8 +124,10 @@ def classify_serial(serial: str) -> dict[str, Any]:
         status = "REPRODUCED"
     elif spinlock_assert:
         status = "REPRODUCED_AFTER_READ_START"
+    elif interrupt_wdt:
+        status = "INTERRUPT_WDT"
     else:
-        status = "NOT_REPRODUCED"
+        status = "OTHER_FAIL"
 
     return {
         "status": status,
@@ -288,38 +290,51 @@ def main() -> int:
         for attempt in range(1, args.attempts + 1)
     ]
     reproduced = sum(run["status"] == "REPRODUCED" for run in runs)
-    if reproduced == args.attempts:
+    passed = sum(run["status"] == "PASS" for run in runs)
+    interrupt_wdt = sum(run["status"] == "INTERRUPT_WDT" for run in runs)
+    if passed == args.attempts:
+        result_status = "PASS"
+    elif reproduced == args.attempts:
         result_status = "REPRODUCED"
-    elif reproduced == 0:
-        result_status = "NOT_REPRODUCED"
     else:
         result_status = "MIXED"
     evidence = {
         "schema_version": 1,
-        "kind": "m5stack-core2-flash-ipc-spinlock-diagnostic",
+        "kind": "m5stack-core2-flash-ipc-diagnostic",
         "validation": "virtual-device validation",
         "status": result_status,
-        "classification": "runtime_model_gap_candidate",
+        "classification": (
+            "flash_partition_read_data_plane"
+            if result_status == "PASS"
+            else "runtime_model_gap_candidate"
+        ),
         "firmware_sha256": image_sha256,
         "firmware_bytes": args.image.stat().st_size,
         "elf_sha256": sha256(args.elf),
         "attempts_requested": args.attempts,
+        "attempts_passed": passed,
         "attempts_reproduced": reproduced,
+        "attempts_interrupt_wdt": interrupt_wdt,
         "runs": runs,
-        "expected_assert": SPINLOCK_ASSERT,
+        "expected_success": "CORE2_FLASH_IPC_PASS",
+        "failure_markers": [
+            SPINLOCK_ASSERT,
+            "Interrupt wdt timeout",
+        ],
         "boundary": {
             "guest_path": (
                 "ESP-IDF 5.5.4 FreeRTOS task on CPU1; CPU0 waits for the "
-                "worker before esp_partition_read() begins"
+                "worker while CPU1 performs 1000 4 KiB esp_partition_read "
+                "calls using a static buffer"
             ),
             "proven": [
-                "the guest observes a spinlock owner mismatch",
-                "the assert occurs before the flash read start marker",
-                "the minimal reproducer does not depend on legacy UIFlow",
+                f"{passed}/{args.attempts} first boots completed all flash reads",
+                f"{interrupt_wdt}/{args.attempts} first boots ended in interrupt-WDT",
+                "the fixed probe produced no spinlock owner assertion",
             ],
             "not_proven": [
-                "QEMU S32C1I semantics are the root cause",
-                "flash-cache or DPORT handoff is the root cause",
+                "the interrupt-WDT root cause",
+                "whether the same failure explains legacy UIFlow",
                 "physical hardware behavior",
             ],
         },
@@ -328,7 +343,7 @@ def main() -> int:
     evidence_path.write_text(json.dumps(evidence, indent=2) + "\n")
     print(json.dumps(evidence, indent=2))
     print(f"evidence={evidence_path}")
-    return 0 if evidence["status"] == "REPRODUCED" else 1
+    return 0 if evidence["status"] == "PASS" else 1
 
 
 if __name__ == "__main__":

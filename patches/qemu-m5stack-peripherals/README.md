@@ -206,6 +206,14 @@ The remaining investigation is the interaction between the guest's long
 synchronous boot phase and virtual-time/host scheduling, not a missing PMIC
 transaction.
 
+`0033-esp32-s32c1i-trace.patch` adds a default-off
+`M5SW_S32C1I_TRACE` channel for CPU index, PRID, stack pointer, PC, virtual
+address, `SCOMPARE1`, desired value, returned old value and CAS success. It is
+a diagnostic only and does not change compare-and-swap semantics. The corrected
+`core2_flash_ipc` probe produced no spinlock-owner assertion across dated
+current/portable runs, so this trace is retained to audit atomic operations
+rather than as evidence of a confirmed CAS defect.
+
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC
 register layout used by Cardputer Meshtastic, preserves PSRAM cache control

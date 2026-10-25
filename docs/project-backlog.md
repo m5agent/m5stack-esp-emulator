@@ -35,9 +35,9 @@
 
 ## 当前执行顺序
 
-1. `RUNTIME-03`：先解释最小 ESP-IDF 探针中、任何 flash 读取之前的
-   FreeRTOS 临界区 spinlock owner mismatch；再回到 legacy UIFlow 的
-   启动期长同步路径与 QEMU 虚拟时间/宿主调度交互。
+1. `RUNTIME-03`：用最小 flash/IPC 探针的 `14 PASS / 6 interrupt-WDT`
+   结果定位虚拟定时器/中断交付停摆窗口，再回到 legacy UIFlow 的启动期长
+   同步路径与宿主调度交互。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -59,7 +59,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 增加默认关闭的 S32C1I/锁 owner trace，解释 3/3 最小 ESP-IDF 探针在 `READ_START` 前的 owner mismatch；探针通过后再验证 flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接 | 同固件 SHA 渲染非空应用帧并保持运行；锁 owner/PRID/CAS 证据可重复；假设有支持或否定证据；保留 UIFlow2 回归证据 |
+| `RUNTIME-03` | 进行中 | 关联 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，解释修正后探针在 `READ_START` 后的 6/20 interrupt-WDT；再验证 legacy UIFlow 的 flash-cache/IPC/DPORT 交接 | 同固件 SHA 渲染非空应用帧并保持运行；current/portable QEMU 对照和 accelerator 证据可重复；保留 UIFlow2 回归证据 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -86,23 +86,21 @@ RTC；`0031` 将两个 controller 路由到唯一的 GPIO21/22 板级 bus 后，
 
 开放范围：
 
-- 解释最小 `core2_flash_ipc` 探针：CPU0/CPU1 PRID 分别读到
-  `0xcdcd`/`0xabab`，CPU1 已进入任务但 CPU0 在
-  `xQueueSemaphoreTake()` 退出临界区时触发 `spinlock_release()` owner
-  mismatch，且尚未到达 `CORE2_FLASH_IPC_READ_START`；
-- 增加默认关闭的 S32C1I trace，记录 CPU、PC、地址、`SCOMPARE1`、desired
-  value、returned old value 和 CAS 成功/失败，并关联实际 spinlock 地址与
-  owner；
+- 关联 `core2_flash_ipc` 探针中 `14 PASS / 6 interrupt-WDT` 的差异：20 次
+  首启动均到达 `CORE2_FLASH_IPC_READ_START`，失败点在至少 250 次 4 KiB
+  partition read 之后，且两核 PC 位于 idle `waiti`；
+- 在同一固件/ELF/SHA 下比较 current 与 portable QEMU，并追踪
+  `CCOMPARE`、`INTSET`、`INTENABLE`、timer expiry 和虚拟时间推进；
 - 增加通用 DPORT/flash-cache 状态 trace，确认 flash-cache pause、cross-core
   call/ack、DPORT high-interrupt 标志和 guest 等待/清标志顺序；
-- 区分 S32C1I/临界区模型、timer/WDT 模型、虚拟时间换算、宿主调度和固件
-  自身死锁，不能把任何单一采样值单独作为根因；
+- 区分 timer/WDT 模型、虚拟时间换算、宿主调度和固件自身死锁，不能把任何
+  单一采样值单独作为根因；保留默认关闭的 S32C1I trace 排除锁问题；
 - 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
 - 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
 
 验收：
 
-- 最小探针稳定通过 3 次并真正进入 `CORE2_FLASH_IPC_READ_START`；
+- 最小探针先稳定通过首启动门禁，并保留 current/portable/accelerator 对照；
 - 同一 UIFlow 固件 SHA 出现非空应用帧并稳定运行；
 - shared bus、TIMG trace 和 Core2 UIFlow2 外设组回归保持 PASS；
 - 当前假设获得支持或被否定，且失败 trace、设备未建模部分和固件行为分开记录。

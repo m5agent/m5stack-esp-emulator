@@ -37,8 +37,9 @@
   物理 PSRAM/cache timing 尚未覆盖；
 - C6 Zigbee/802.15.4、Core2 legacy UIFlow 后初始化 WDT 和 Core2 for AWS
   ATECC608 仍是明确的 `runtime_model_gap`；Core2 共享 I2C routing 已单独修复。
-  最小 ESP-IDF 探针进一步在 3/3 lease 中证明了 flash 读取前的 FreeRTOS
-  临界区 spinlock owner mismatch，当前调查点是 S32C1I/CAS 与跨核调度；
+  修正后的最小 ESP-IDF 探针可执行 partition reads，但 20 次合并首启动仍有
+  6 次 interrupt-WDT；失败 PC 位于两核 idle `waiti`，当前调查点是虚拟
+  定时器/中断交付与宿主调度；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
@@ -63,13 +64,14 @@
 - Core2 的两个 I2C controller 已统一下层到一个物理 GPIO21/22 板级 bus，
   原 AXP/RTC 路由错误不再是首个失败点；
 - 剩余 legacy UIFlow 启动问题已从固定外设/固定 PC 收敛到启动期同步路径；
-- 新的最小 `core2_flash_ipc` ESP-IDF 探针 3/3 复现：CPU0/CPU1 PRID 分别为
-  `0xcdcd`/`0xabab`，CPU1 已打印 READY，但 CPU0 主任务退出
-  `xQueueSemaphoreTake()` 时在 `spinlock_release()` 断言，尚未到达
-  `esp_partition_read()`；
-- 因此当前先把 S32C1I/锁 owner/跨核调度作为首要调查；legacy UIFlow 的
+- 修正后的最小 `core2_flash_ipc` ESP-IDF 探针 20/20 到达 `READ_START`，
+  current/portable 合并为 `14 PASS / 6 interrupt-WDT`；失败时 CPU0/CPU1
+  都在 idle `waiti`，并有至少 250 次 4 KiB partition read 的进度；
+- 旧版“flash 前 spinlock owner mismatch”已确认是探针把 4096-byte 局部
+  数组放进 4096-byte 任务栈导致的栈溢出，已经撤销，不再作为模型证据；
+- 当前假设转向虚拟 timer/interrupt 交付和宿主调度；legacy UIFlow 的
   flash-cache disable、跨核 IPC 与 DPORT high-interrupt 仍相关，但因果关系
-  尚未证明，不能写成结论；
+  尚未证明；
 - 文档已拆成当前事实、待办、日期化证据、契约、实现地图和历史页五类，后续
   不应再把这些运行细节复制回总览。
 
@@ -211,7 +213,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 先增加 S32C1I/锁 owner trace，解释最小探针在 `READ_START` 前的失败；再验证 legacy UIFlow 的 flash-cache/IPC/DPORT 路径 | I2C routing 已修复；3/3 最小探针仍在 flash 读取前失败，legacy 应用帧仍为 black |
+| `RUNTIME-03` | 追踪 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，解释最小探针在 `READ_START` 后的 WDT；再验证 legacy UIFlow 路径 | I2C routing 已修复；最小探针可读 flash，但仍有 6/20 WDT，legacy 应用帧仍为 black |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

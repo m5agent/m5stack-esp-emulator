@@ -21,6 +21,7 @@ typedef struct {
 } flash_worker_context_t;
 
 static flash_worker_context_t worker;
+static uint8_t flash_buffer[FLASH_CHUNK_BYTES] __attribute__((aligned(4)));
 
 static uint32_t read_raw_prid(void)
 {
@@ -33,7 +34,6 @@ static uint32_t read_raw_prid(void)
 static void flash_worker(void *argument)
 {
     flash_worker_context_t *worker = argument;
-    uint8_t buffer[FLASH_CHUNK_BYTES] __attribute__((aligned(4)));
 
     worker->result = ESP_OK;
     printf(
@@ -53,8 +53,8 @@ static void flash_worker(void *argument)
         worker->result = esp_partition_read(
             worker->partition,
             offset,
-            buffer,
-            sizeof(buffer)
+            flash_buffer,
+            sizeof(flash_buffer)
         );
         if (worker->result != ESP_OK) {
             printf(
@@ -73,6 +73,7 @@ static void flash_worker(void *argument)
                 iteration + 1
             );
             fflush(stdout);
+            vTaskDelay(pdMS_TO_TICKS(1));
         }
         taskYIELD();
     }

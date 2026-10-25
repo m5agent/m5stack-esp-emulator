@@ -47,7 +47,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 增加默认关闭的 S32C1I/锁 owner trace，解释 3/3 最小 ESP-IDF 探针在 `READ_START` 前的 owner mismatch；探针通过后再验证 flash-cache disable、跨核 IPC 与 DPORT high-interrupt 交接 |
+| `RUNTIME-03` | 进行中 | 关联 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，解释修正后探针在 `READ_START` 后的 6/20 interrupt-WDT；再验证 legacy UIFlow 的 flash-cache/IPC/DPORT 交接 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 |
@@ -77,8 +77,8 @@
 | `worker_agent.py` | 1429 |
 
 - `tests/`：`67` 个可执行 Python 测试文件，分布在 `49` 个目录；`196` 个 evidence JSON。
-- `patches/`：`10` 个补丁组，`61` 个 patch 文件。
-- 文档：`215` 个 Markdown 页面，`19495` 行。
+- `patches/`：`10` 个补丁组，`62` 个 patch 文件。
+- 文档：`215` 个 Markdown 页面，`19502` 行。
 
 ## 文档与测试
 

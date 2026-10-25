@@ -733,12 +733,12 @@
     {
       "id": "STALE-145",
       "text": "CPU1 flash/partition access is the confirmed first failure",
-      "reason": "Retired by the 3/3 ESP-IDF flash-IPC probe: the spinlock assertion occurs before the worker reaches READ_START."
+      "reason": "Retired by the corrected ESP-IDF flash-IPC probe: CPU1 regularly reaches READ_START and completes partition reads; the old pre-read assertion was a probe stack overflow."
     },
     {
       "id": "STALE-146",
       "text": "failure is inside `esp_partition_read()`",
-      "reason": "Retired by symbolization; the reproduced assertion is in spinlock_release from xQueueSemaphoreTake in the CPU0 main task."
+      "reason": "Corrected runs complete 1000 partition reads; WDT samples occur later with both CPUs in idle waiti and do not currently attribute failure to a specific read call."
     },
     {
       "id": "STALE-147",
@@ -747,8 +747,18 @@
     },
     {
       "id": "STALE-148",
-      "text": "`READ_START` appeared before the spinlock assertion",
-      "reason": "All three dated flash-IPC runs assert before CORE2_FLASH_IPC_READ_START."
+      "text": "`READ_START` is never reached by the flash-IPC probe",
+      "reason": "The corrected probe reaches CORE2_FLASH_IPC_READ_START in 20/20 dated first boots."
+    },
+    {
+      "id": "STALE-149",
+      "text": "a 4096-byte local read buffer on a 4096-byte task stack is a valid test harness",
+      "reason": "That buffer overran the CPU1 task stack, corrupted a queue spinlock and invalidated the earlier pre-read assertion."
+    },
+    {
+      "id": "STALE-150",
+      "text": "the flash-before spinlock mismatch is current runtime evidence",
+      "reason": "The mismatch is retained only as a corrected probe-harness failure; it is not evidence of a QEMU runtime model defect."
     }
   ]
 }

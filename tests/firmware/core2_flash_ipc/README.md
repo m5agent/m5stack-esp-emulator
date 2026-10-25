@@ -1,6 +1,6 @@
-# Core2 flash/IPC spinlock diagnostic
+# Core2 flash/IPC and interrupt-WDT diagnostic
 
-Status: `DIAGNOSTIC / REPRODUCED BEFORE FLASH READ`
+Status: `PARTIAL / FLASH READS RUN, FIRST-BOOT STABILITY FAILS`
 
 This ESP-IDF 5.5.4 probe creates a CPU1 worker that is intended to call
 `esp_partition_read()` repeatedly while the CPU0 application task waits for it.
@@ -8,49 +8,52 @@ The probe exists to isolate the Core2 legacy-UIFlow flash-cache, cross-core IPC
 and interrupt-WDT failure with a small image instead of a vendor firmware
 address.
 
-It does not inject flash data, bypass a lock or patch firmware code. The
-repository QEMU sees the guest's own ESP-IDF synchronization instructions.
+It does not inject flash data, bypass a lock or patch firmware code. The read
+buffer is static aligned internal RAM, and the worker yields every 50
+iterations so the task stack and IDLE1 are not deliberately starved.
 
 ## Current observation
 
-In three independent Device Service sessions on the tested `m5core2` QEMU
-machine, the guest prints:
+The corrected probe reaches `CORE2_FLASH_IPC_READ_START` in every attempt:
 
 ```text
-CORE2_FLASH_IPC_MAIN ...
+CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd
 CORE2_FLASH_IPC_READY core=1 prid=0x0000abab
-assert failed: spinlock_release spinlock.h:190 (core_owner_id == lock->owner)
+CORE2_FLASH_IPC_READ_START core=1
+CORE2_FLASH_IPC_PROGRESS core=1 iteration=50
+...
+CORE2_FLASH_IPC_PASS
 ```
 
-No `CORE2_FLASH_IPC_READ_START` appears in any run. Symbolizing the stable
-backtrace places the assert in:
+A completed run performs all 1000 `esp_partition_read()` calls. Across the
+dated current and portable runtime batches:
 
-```text
-spinlock_release
-  <- vPortExitCritical
-  <- xQueueSemaphoreTake
-  <- app_main
-```
+- 20/20 boots reached `READ_START`;
+- 14/20 completed all reads;
+- 6/20 first boots ended in interrupt-WDT after flash reads had started;
+- 0/20 produced a spinlock owner assertion.
 
-The failure therefore occurs before the CPU1 worker begins
-`esp_partition_read()`. It is evidence of a multicore critical-section or
-spinlock-ownership mismatch, not yet proof that the flash read controller is
-the root cause. A matching fix must explain the observed PRID/owner values and
-`S32C1I` compare-and-swap behavior before `RUNTIME-03` can advance.
+The interrupt-WDT samples show both CPU0 and CPU1 in the idle
+`esp_cpu_wait_for_intr()`/`waiti` path. This moves the remaining question toward
+virtual timer/interrupt delivery and host scheduling during or after flash
+activity, not toward PRID, spinlock ownership or an isolated S32C1I mismatch.
 
 The earlier legacy UIFlow trace remains useful: CPU0 was observed waiting for
 the flash-operation start flag while CPU1 repeated the DPORT safe-read path.
-That trace and this minimal reproducer must be explained by one model fix; a
-firmware-specific address workaround is not acceptable.
+The minimal probe now proves the ordinary partition-read path can run, but does
+not yet prove that the legacy firmware failure has the same trigger.
 
 The dated run, artifact hashes, symbolization and cross-core/DPORT trace summary
 are in
-[`evidence-2026-10-26-core2-flash-ipc-spinlock.json`](evidence-2026-10-26-core2-flash-ipc-spinlock.json).
-A separate three-session control on the older portable QEMU runtime produced
-two first-boot spinlock assertions and one first-boot interrupt-WDT, with no
-`READ_START` in any run. That control rules out the current diagnostic trace
-build as the sole cause, while also showing that the same small image can take
-more than one pre-read failure path.
+[`evidence-2026-10-26-core2-flash-ipc-wdt.json`](evidence-2026-10-26-core2-flash-ipc-wdt.json).
+
+## Corrected harness failure
+
+An earlier probe revision placed a 4096-byte local array on a 4096-byte task
+stack. Its stack overflow corrupted a FreeRTOS queue lock and produced a
+`spinlock_release()` owner mismatch before `READ_START`. That observation was a
+probe defect, not simulator evidence. The dated evidence file preserves the
+invalid image/ELF hashes and the correction. Do not restore the local buffer.
 
 ## Build
 
@@ -90,12 +93,12 @@ python3 tests/firmware/core2_flash_ipc/run_test.py \
 ```
 
 The runner uses independent Device Service sessions, captures serial and
-evidence, and exits successfully only when the intended diagnostic is
-reproduced in every attempt. `REPRODUCED` is not a product PASS. It identifies
-a QEMU runtime gap that remains to be fixed.
+evidence, and exits successfully only when every attempt completes all reads.
+It also classifies first-boot interrupt-WDT separately from spinlock assertions
+and other failures.
 
 ## Boundary
 
 This is virtual-device validation. It does not establish physical ESP32 flash
-timing, cache behavior, multicore coherence, electrical behavior or hardware
-compatibility.
+timing, cache behavior, timer delivery, multicore coherence, electrical
+behavior or hardware compatibility.

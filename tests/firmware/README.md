@@ -193,17 +193,20 @@ evidence therefore classifies the remaining boundary as timing-sensitive
 pending a guest code-point diagnosis, not as another fixed I2C or PMIC device
 gap.
 
-The later minimal
-[`core2_flash_ipc`](core2_flash_ipc/) probe narrows the question further. Three
-independent ESP-IDF 5.5.4 leases all print CPU0/CPU1 PRIDs `0xcdcd`/`0xabab`
-and a CPU1 READY marker, then assert in `spinlock_release()` from
-`vPortExitCritical()` while the CPU0 main task exits `xQueueSemaphoreTake()`.
-No attempt reaches `CORE2_FLASH_IPC_READ_START`, so this evidence does **not**
-yet prove that `esp_partition_read()` or the flash-cache data path caused the
-failure. It proves a smaller, firmware-independent multicore lock-ownership
-reproducer that must be explained before another legacy-UIFlow address-specific
-patch is attempted. See
-[`evidence-2026-10-26-core2-flash-ipc-spinlock.json`](core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-spinlock.json).
+The later minimal [`core2_flash_ipc`](core2_flash_ipc/) probe reaches
+`CORE2_FLASH_IPC_READ_START` in every dated attempt and can complete 1000
+CPU1-side 4 KiB `esp_partition_read()` calls. Combined current/portable results
+are `14 PASS / 6 interrupt-WDT / 0 spinlock-owner assertion` across 20 first
+boots. WDT samples show both CPUs in the idle `waiti` path after flash reads
+have started.
+
+An earlier probe revision placed a 4096-byte local buffer on a 4096-byte task
+stack; its stack overflow caused the previously reported spinlock assertion.
+That run is explicitly invalidated in
+[`evidence-2026-10-26-core2-flash-ipc-wdt.json`](core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json).
+The corrected evidence supports the flash-read data path and keeps the remaining
+boundary on intermittent virtual timer/interrupt delivery, but it does not prove
+the same trigger for legacy UIFlow.
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).

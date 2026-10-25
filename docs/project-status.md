@@ -37,15 +37,16 @@ Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 
 TIMG watchdog trace 已证明默认单会话能够持续喂狗，而并发 lease 或显式
 accelerator 对照会在不同 CPU/PC 触发 interrupt-WDT；这些结果已排除了把问题
-归因于单一固定 PC、PMIC 或 RTC 地址的做法。新的最小 ESP-IDF 探针在 3 个独立
-lease 中全部复现 `spinlock_release()` 的 owner mismatch：CPU0/CPU1 的 PRID
-分别为 `0xcdcd`/`0xabab`，CPU1 已打印 READY，但 CPU0 主任务退出
-`xQueueSemaphoreTake()` 临界区时断言，尚未到达 `esp_partition_read()`。
-因此当前工作假设已从“flash 数据面本身”收敛到跨核临界区 owner、S32C1I
-compare-and-swap 与调度交接；PRID 映射在这条路径上看起来正确，但实际错配的
-锁地址和 owner 值尚未采集。旧 UIFlow 的 flash-cache disable、跨核 IPC 与
-DPORT high-interrupt 仍是相关路径，但不能在最小探针尚于 READ_START 前失败时
-写成已确认根因；宿主调度和虚拟时间换算也仍需作为对照因素排除。
+归因于单一固定 PC、PMIC 或 RTC 地址的做法。修正后的最小 ESP-IDF 探针不再
+触发 spinlock 断言，20/20 次首启动都进入 `CORE2_FLASH_IPC_READ_START`，
+其中 14/20 完成 1000 次 CPU1 `esp_partition_read()`；另外 6/20 在 flash
+读取已经启动后进入 interrupt-WDT，失败样本中 CPU0/CPU1 都停在 idle 的
+`esp_cpu_wait_for_intr()`/`waiti` 路径。此前“flash 读取前 spinlock owner
+mismatch”来自探针把 4096-byte 局部数组放进 4096-byte 任务栈，已经作为
+harness 缺陷撤销。当前工作假设因此回到虚拟定时器/中断交付、宿主调度与
+long-synchronous flash workload 的交互；PRID、S32C1I 或单次 CAS 返回错误
+均没有获得支持。legacy UIFlow 的 flash-cache disable、跨核 IPC 与 DPORT
+high-interrupt 仍是相关路径，但与最小 WDT 的因果关系尚未证实。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
 `hardware validation` 的同固件路径结果才能描述物理 RF、功耗、声学、光学、
@@ -55,7 +56,7 @@ DPORT high-interrupt 仍是相关路径，但不能在最小探针尚于 READ_ST
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus 已修正；TIMG trace 后，3 个独立最小 ESP-IDF lease 均在任何 flash 读取前触发 FreeRTOS 临界区 spinlock owner mismatch | 先用默认关闭的 S32C1I/锁 owner trace 解释最小探针；探针通过后再回到 legacy UIFlow 的 flash-cache/DPORT 路径并取得同 SHA 非空应用帧 | WDT 不固定在单一 PC 或外设；PRID 值正确不代表 CAS 正确；锁 owner mismatch 与 flash/DPORT 的因果关系尚未证明 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus 已修正；修正后的最小探针可完成 CPU1 partition reads，但 20 次合并 current/portable 首启动仍有 6 次在 flash 启动后 interrupt-WDT，失败 PC 位于 idle waiti | 关联 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，定位 flash workload 后中断停摆窗口；再回到 legacy UIFlow 取得同 SHA 非空应用帧 | partition read 可运行不等于长期稳定；spinlock/CAS 已不再得到最小探针支持；WDT 与 legacy 非空帧的因果关系尚未证明 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -109,9 +110,10 @@ DPORT high-interrupt 仍是相关路径，但不能在最小探针尚于 READ_ST
    电气或真机安全 PASS。
 2. **Core2 启动兼容性**：legacy UIFlow 的共享 I2C routing 已修正，但同一
    固件仍会在 PMIC/RTC 初始化后进入 interrupt-WDT/黑帧；不能用 I2C ACK、
-   chip-id 成功或 host 假值当作启动 PASS。最小 ESP-IDF 探针已稳定证明 CPU0
-   在 flash worker 启动前遇到 spinlock owner mismatch；S32C1I/CAS、锁地址和
-   外层调度路径是当前调查点，但与 legacy WDT 的因果关系仍未证实。
+   chip-id 成功或 host 假值当作启动 PASS。修正后的最小探针证明 partition
+   read 路径本身可以执行，但合并样本仍有 6/20 首启动在读取过程中触发
+   interrupt-WDT，两核 PC 位于 idle waiti；虚拟定时器/中断交付是当前调查点，
+   与 legacy WDT 的因果关系仍未证实。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

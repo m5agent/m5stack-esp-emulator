@@ -140,21 +140,21 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 | 根因 | AXP `0x34` chip id `0x4a` 读取成功；controller trace 进一步证明旧固件在 `/machine/soc/i2c0/i2c` 上访问 AXP 和 RTC address `0x51`，而旧板模型只把 AXP/INA 挂在 controller 0，把 RTC/touch/IMU 挂在 controller 1。`0x51` 的 `start_rc=1` 由 controller-to-physical-bus routing 拆分直接解释 |
 | 修复 | `0031-core2-shared-board-i2c.patch` 将两个 controller register block 都路由到唯一物理 GPIO21/22 board bus，器件只挂一份 |
 | 修复后 | `0x34` write/read、`0x51` write/read、INA3221 `0x40` 均 ACK；原先的 `I2C bus error (19)` 消失，AXP2101 与 AXP192 变体都能继续进入后续初始化 |
-| 当前阻断 | legacy 固件随后进入 timing-sensitive watchdog failure：默认单会话可稳定 feed 超过 285 秒；两个四实例并发批次的 5/8 lease 在不同 CPU/PC 触发 interrupt-WDT。显式 thread/icount 对照没有修复，部分还触发 TG hardware reset。独立最小 ESP-IDF 5.5.4 探针在 3/3 lease 中、任何 partition read 之前触发 FreeRTOS 临界区 spinlock owner mismatch |
-| 最小复现 | CPU0 主任务与 CPU1 worker 分别读到 PRID `0xcdcd`/`0xabab`，CPU1 已打印 READY；CPU0 随后退出 `xQueueSemaphoreTake()` 临界区时在 `spinlock_release()` 断言。三次都没有出现 `CORE2_FLASH_IPC_READ_START`，符号化栈为 `spinlock_release <- vPortExitCritical <- xQueueSemaphoreTake <- app_main` |
-| 当前判断 | TIMG trace 已排除单一固定外设和固定 firmware PC；最小探针又把失败提前到 flash 读取之前。当前工作假设是 S32C1I compare-and-swap 返回值/写入、实际 spinlock 地址与 owner、PRID/外层临界区或跨核调度交接中存在模型差异。PRID 读数符合 ESP32 PRO/APP 值，不能据此宣称 PRID 映射已坏；也不能在 `READ_START` 前失败时把 `esp_partition_read()` 写成已证明根因 |
-| 证据 | [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json)、[`core2-flash-ipc-spinlock.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-spinlock.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`0032 trace patch`](../patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch)、[`previous trace`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
+| 当前阻断 | legacy 固件随后进入 timing-sensitive watchdog failure：默认单会话可稳定 feed 超过 285 秒；两个四实例并发批次的 5/8 lease 在不同 CPU/PC 触发 interrupt-WDT。显式 thread/icount 对照没有修复，部分还触发 TG hardware reset。修正后的最小 ESP-IDF 5.5.4 探针可执行 CPU1 partition reads，但合并 current/portable 20 次首启动中仍有 6 次 interrupt-WDT |
+| 最小复现 | 20/20 到达 `CORE2_FLASH_IPC_READ_START`；14/20 完成 1000 次 4 KiB `esp_partition_read()`，6/20 在至少 250 次读取后进入 interrupt-WDT。失败样本中 CPU0/CPU1 的 PC 都在 idle `esp_cpu_wait_for_intr()`/`waiti`，没有出现 spinlock owner assertion |
+| 当前判断 | TIMG trace 已排除单一固定外设和固定 firmware PC；修正后的探针又证明普通 partition-read 数据面可以运行。当前工作假设是虚拟 timer/interrupt 交付、宿主调度或虚拟时间推进在 long-synchronous flash workload 后停摆。S32C1I、PRID 和单条 CAS 没有获得错误证据；旧 `spinlock_release()` mismatch 已确认由探针任务栈溢出造成并撤销 |
+| 证据 | [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json)、[`core2-flash-ipc-wdt.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`0032 trace patch`](../patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch)、[`previous trace`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
 
 关闭条件：
 
-1. 增加默认关闭的 S32C1I trace，记录 CPU、PC、锁地址、`SCOMPARE1`、
-   desired/returned old value 和 CAS 成功/失败，并关联 FreeRTOS 临界区 owner；
-2. 让最小 `core2_flash_ipc` 探针连续 3 次通过并出现
-   `CORE2_FLASH_IPC_READ_START`；
-3. 再增加与具体固件地址解耦的 flash-cache pause、cross-core call/ack、
+1. 在相同 firmware/ELF/QEMU hashes 下比较 current/portable/accelerator
+   对照，扩大首启动样本并固定随机失败分类；
+2. 记录 `CCOMPARE`、`INTSET`、`INTENABLE`、timer expiry 和虚拟时间推进，
+   定位 idle `waiti` 后中断停摆的窗口；
+3. 增加与具体固件地址解耦的 flash-cache pause、cross-core call/ack、
    DPORT high-interrupt 和 guest 清标志顺序 trace；
-4. 判断等待发生在锁/CAS、flash-cache disable、IPC acknowledgement、DPORT
-   high-interrupt 交接、timer/WDT 虚拟时间换算还是固件自身；
+4. 判断失败发生在 timer/WDT 模型、虚拟时间换算、宿主调度、flash-cache
+   disable、IPC acknowledgement、DPORT 交接还是固件自身；
 5. 同一 legacy 固件 SHA 在 Device Service 中渲染非空应用帧并保持运行；
 6. 回归现有 UIFlow2 Core2 设备组，确保 shared bus 不破坏 touch/IMU/RTC/
    audio/mic 路径。
@@ -162,10 +162,10 @@ On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不
 当前调查边界：shared bus 修复已经由现有 UIFlow2 Core2 设备组 `6/6` 验证，
 但旧 UIFlow1 的 non-empty frame 与稳定运行仍为 `FAIL`。默认单会话稳定和并发
 失败同时存在，因此 WDT 不能归因于先前 I2C routing，也不能直接归因于固件缺陷
-或某一个固定外设。最小探针证明的是 guest 自身观察到 spinlock owner mismatch；
-目前还没有取得错误锁地址、owner 值或单条 S32C1I CAS 错误，所以它仍是
-`runtime_model_gap` 候选而不是已定位模型缺陷。`Core2FactoryTest` 修复后仍未
-重跑。
+或某一个固定外设。最小探针证明 CPU1 partition read 可以运行，也复现了
+flash 启动后的 interrupt-WDT；但失败根因尚未定位。此前 spinlock owner
+mismatch 已由探针栈溢出纠正，不能继续作为当前模型缺口证据。
+`Core2FactoryTest` 修复后仍未重跑。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 

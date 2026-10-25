@@ -200,29 +200,35 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             ).read_text(),
         )
 
-    def test_core2_flash_ipc_probe_reports_the_smaller_boundary(self) -> None:
+    def test_core2_flash_ipc_probe_reports_the_wdt_boundary(self) -> None:
         probe_root = ROOT / "tests/firmware/core2_flash_ipc"
         evidence = json.loads(
             (
                 probe_root
-                / "evidence-2026-10-26-core2-flash-ipc-spinlock.json"
+                / "evidence-2026-10-26-core2-flash-ipc-wdt.json"
             ).read_text()
         )
-        self.assertEqual(evidence["status"], "REPRODUCED")
-        self.assertEqual(evidence["attempts_reproduced"], 3)
-        self.assertEqual(len(evidence["runs"]), 3)
-        for run in evidence["runs"]:
-            self.assertEqual(run["main_prid"], "0x0000cdcd")
-            self.assertEqual(run["worker_prid"], "0x0000abab")
-            self.assertTrue(run["spinlock_owner_assert"])
-            self.assertFalse(run["flash_read_started"])
-            self.assertFalse(run["interrupt_wdt_in_first_boot"])
-            self.assertEqual(run["progress_markers"], 0)
+        self.assertEqual(evidence["status"], "PARTIAL")
+        current = evidence["current_runtime"]
+        self.assertEqual(current["attempts"], 5)
+        self.assertEqual(current["passed"], 1)
+        self.assertEqual(current["interrupt_wdt"], 4)
+        self.assertEqual(current["spinlock_owner_assert"], 0)
+        self.assertEqual(current["read_start_observed"], 5)
         portable = evidence["portable_runtime_control"]
-        self.assertEqual(portable["sessions"], 3)
-        self.assertEqual(portable["first_boot_spinlock_owner_assert"], 2)
-        self.assertEqual(portable["first_boot_interrupt_wdt"], 1)
-        self.assertEqual(portable["read_start_observed"], 0)
+        self.assertEqual(portable["attempts"], 15)
+        self.assertEqual(portable["passed"], 13)
+        self.assertEqual(portable["interrupt_wdt"], 2)
+        self.assertEqual(portable["spinlock_owner_assert"], 0)
+        combined = evidence["combined_result"]
+        self.assertEqual(combined["attempts"], 20)
+        self.assertEqual(combined["passed"], 14)
+        self.assertEqual(combined["interrupt_wdt"], 6)
+        self.assertEqual(combined["spinlock_owner_assert"], 0)
+        self.assertIn(
+            "4096-byte CPU1 task stack",
+            evidence["historical_correction"]["observation"],
+        )
 
         runner_path = probe_root / "run_test.py"
         spec = importlib.util.spec_from_file_location(
@@ -234,14 +240,27 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         module = importlib.util.module_from_spec(spec)
         sys.modules[spec.name] = module
         spec.loader.exec_module(module)
-        classified = module.classify_serial(
+        passed = module.classify_serial(
             "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
             "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "CORE2_FLASH_IPC_READ_START core=1\n"
+            "CORE2_FLASH_IPC_WORKER_PASS core=1\n"
+            "CORE2_FLASH_IPC_PASS\n"
+        )
+        self.assertEqual(passed["status"], "PASS")
+        self.assertTrue(passed["flash_read_started"])
+        spinlock_after_start = module.classify_serial(
+            "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
+            "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "CORE2_FLASH_IPC_READ_START core=1\n"
             "assert failed: spinlock_release spinlock.h:190 "
             "(core_owner_id == lock->owner)\n"
         )
-        self.assertEqual(classified["status"], "REPRODUCED")
-        self.assertFalse(classified["flash_read_started"])
+        self.assertEqual(
+            spinlock_after_start["status"],
+            "REPRODUCED_AFTER_READ_START",
+        )
+        self.assertTrue(spinlock_after_start["flash_read_started"])
         cross_reboot = module.classify_serial(
             "Guru Meditation Error: Core  0 panic'ed "
             "(Interrupt wdt timeout on CPU0).\n"
@@ -251,16 +270,18 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             "assert failed: spinlock_release spinlock.h:190 "
             "(core_owner_id == lock->owner)\n"
         )
-        self.assertEqual(cross_reboot["status"], "NOT_REPRODUCED")
+        self.assertEqual(cross_reboot["status"], "INTERRUPT_WDT")
         self.assertTrue(cross_reboot["interrupt_wdt_in_first_boot"])
         self.assertTrue(cross_reboot["reboot_observed"])
 
         source = (probe_root / "main/app_main.c").read_text()
         self.assertIn("CORE2_FLASH_IPC_READ_START", source)
         self.assertIn("read_raw_prid", source)
+        self.assertIn("static uint8_t flash_buffer", source)
+        self.assertIn("vTaskDelay", source)
         readme = (probe_root / "README.md").read_text()
-        self.assertIn("xQueueSemaphoreTake", readme)
-        self.assertIn("spinlock_release", readme)
+        self.assertIn("stack overflow", readme)
+        self.assertIn("interrupt-WDT", readme)
         self.assertIn("READ_START", readme)
 
         for path in (
@@ -272,13 +293,13 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             DOCS / "validation-ledger.md",
         ):
             text = path.read_text()
-            self.assertIn("S32C1I", text)
-            self.assertIn("spinlock", text)
+            self.assertIn("interrupt-WDT", text)
+            self.assertIn("14", text)
             self.assertIn("READ_START", text)
         history = (DOCS / "core2-cache-panic-investigation.md").read_text()
         self.assertIn("2026-10-26 update", history)
-        self.assertIn("None of the runs reached", history)
-        self.assertIn("S32C1I", history)
+        self.assertIn("stack overflow", history)
+        self.assertIn("idle", history)
 
     def test_core2_reconnect_evidence_is_reconciled(self):
         backlog = (DOCS / "project-backlog.md").read_text()

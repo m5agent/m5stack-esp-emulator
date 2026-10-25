@@ -73,14 +73,14 @@
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、WebBurner 分段 size/digest 复算、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、文件系统、许可策略、sdkconfig detected / image observed capability、WebBurner 来源展示和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-26` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-03` 的 Core2 共享 I2C routing 已修复，最小 ESP-IDF 探针 3/3 在 flash 读取前触发 spinlock owner mismatch，当前先检查 S32C1I/CAS 与跨核调度；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍明确为未覆盖边界 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-26` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-03` 的 Core2 共享 I2C routing 已修复，修正后的 flash/IPC 探针可执行 partition read，但仍有 `14 PASS / 6 interrupt-WDT`，当前检查虚拟 timer/interrupt 交付与宿主调度；旧 spinlock 断言已因探针栈溢出撤销；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-26` | 网络模式、有界 CIDR egress、domain/CNAME、discovery、worker/companion fencing、同 guest 生命周期和证据要求；运行比例转交验证台账 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-25` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-26` | 当前登记设备与各 QEMU/Tab5/Linux 后端、稳定运行时映射和能力边界；设备数量与运行比例分别转交自动快照和验证台账 |
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-25` | 外设数据面覆盖；Core2 `0008` 后完整回归 `67/67`、`274/274`；`0009` 源码构建的定向 Core2 组 `6/6`、`24/24`，固定脱敏汇总已入仓 |
 | [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-25` | 能力仍以 2026-10-22 定向证据为基线；后来的 S3/C6/Core2 无线工作不继承给 P4 |
 | [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-25` | StopWatch 是唯一参考质量外壳；后续功能验证不代表视觉模型已升级 |
-| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-26` | 保留旧命名和复现、TCG translation-buffer 归因与 UIFlow2 门禁；补充 legacy 最小探针的 flash 前 spinlock owner mismatch 和后续 S32C1I 调查，但不把该失败回写成 UIFlow2 回归 |
+| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-26` | 保留旧命名和复现、TCG translation-buffer 归因与 UIFlow2 门禁；补充修正后的 flash/IPC 探针 `14 PASS / 6 interrupt-WDT`、idle waiti 符号化，以及旧 spinlock 结果由任务栈溢出撤销 |
 | [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
 | [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
 | [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-25` | `.work/` 不随仓库发布；提供已验证 macOS arm64 runtime release，QEMU/namespace 的资产和权限要求 |
