@@ -1586,8 +1586,11 @@ class DocsConsistencyTests(unittest.TestCase):
         device_readme = (
             ROOT / "devices/esp32-lx6/core2/README.md"
         ).read_text()
-        self.assertIn("上限为 121 并拒绝 122", catalog_source_text)
-        self.assertIn("The accepted reconnect range is 1-121", qemu_profiles_text)
+        self.assertIn("reconnect contract remains 1-121 with 122 rejected", catalog_source_text)
+        self.assertIn(
+            "Three independent leases complete 121 reconnect cycles",
+            qemu_profiles_text,
+        )
         self.assertIn("接受 `1–121` 轮", platform_readme)
         self.assertIn("docs/project-status.md", device_readme)
         self.assertIn("docs/validation-ledger.md", device_readme)
@@ -1970,9 +1973,9 @@ class DocsConsistencyTests(unittest.TestCase):
             if device["id"] == "core2"
         )
         source_detail = core2_source["runtime"]["validation"]["detail"]
-        self.assertIn("分别完成 20、30、60、120 轮", source_detail)
-        self.assertIn("3377/3377", source_detail)
-        self.assertIn("最终两小时限容复测 PASS", source_detail)
+        self.assertIn("121 轮重连", source_detail)
+        self.assertIn("HLI 45/45", source_detail)
+        self.assertIn("最终 `tb-size=128` 两小时复测", source_detail)
         self.assertIn("323536", source_detail)
         self.assertIn("250880", source_detail)
         self.assertNotIn("更多轮次", source_detail)
@@ -1983,10 +1986,10 @@ class DocsConsistencyTests(unittest.TestCase):
             if device["id"] == "core2"
         )
         profile_detail = core2_profile["validation"]["detail"]
-        self.assertIn("at 20, 30, 60, 120 and 121 cycles", profile_detail)
-        self.assertIn("3377/3377", profile_detail)
-        self.assertIn("tb-size=128 7200s rerun passes", profile_detail)
-        self.assertIn("323536->252992", profile_detail)
+        self.assertIn("Three independent leases complete 121 reconnect cycles", profile_detail)
+        self.assertIn("HLI 3405/3405", profile_detail)
+        self.assertIn("artifact-bound tb-size=128 7200s", profile_detail)
+        self.assertIn("bounded host memory", profile_detail)
         self.assertNotIn("More than sixty", profile_detail)
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
         self.assertTrue(
@@ -1997,7 +2000,7 @@ class DocsConsistencyTests(unittest.TestCase):
                 and "four-instance 4x120s gates pass 8/8" in blocker
                 and "five-instance 30-second-stagger 5x120s" in blocker
                 and "pass 10/10" in blocker
-                and "zero-stagger five-instance cold start remains unstable"
+                and "fixed-icount zero-stagger five-instance 5x120s gates pass 10/10"
                 in blocker
                 and "more-than-five-instance stability" in blocker
                 for blocker in core2_profile["blockers"]
@@ -5471,11 +5474,38 @@ class DocsConsistencyTests(unittest.TestCase):
                 for evidence in historical_concurrent
             )
         )
-        current_concurrent = [
+        legacy_five_concurrent = [
             *five_instance_staggered,
             no_stagger_pass,
             no_stagger_fail,
         ]
+        legacy_tools = legacy_five_concurrent[0]["tool_hashes"]
+        self.assertTrue(
+            all(
+                evidence["tool_hashes"] == legacy_tools
+                for evidence in legacy_five_concurrent
+            )
+        )
+        self.assertNotEqual(
+            historical_tools["runner"],
+            legacy_tools["runner"],
+        )
+
+        fixed_icount_runs = [
+            json.loads(
+                (
+                    root
+                    / filename
+                ).read_text()
+            )
+            for filename in (
+                "evidence-2026-10-25-core2-concurrent-5x120-"
+                "fixed-icount-blefirst-pass-a.json",
+                "evidence-2026-10-25-core2-concurrent-5x120-"
+                "fixed-icount-blefirst-pass-b.json",
+            )
+        ]
+        current_concurrent = fixed_icount_runs
         current_tools = current_concurrent[0]["tool_hashes"]
         self.assertTrue(
             all(
@@ -5484,9 +5514,37 @@ class DocsConsistencyTests(unittest.TestCase):
             )
         )
         self.assertNotEqual(
-            historical_tools["runner"],
+            legacy_tools["runner"],
             current_tools["runner"],
         )
+        for evidence in fixed_icount_runs:
+            self.assertEqual(evidence["status"], "PASS")
+            self.assertEqual(evidence["attempts_requested"], 5)
+            self.assertEqual(evidence["attempts_passed"], 5)
+            self.assertEqual(evidence["attempts_failed"], 0)
+            self.assertEqual(evidence["maximum_concurrent_sessions"], 5)
+            self.assertEqual(evidence["stagger_seconds"], 0)
+            self.assertEqual(evidence["hold_seconds_per_attempt"], 120)
+            self.assertTrue(evidence["input_assets_unchanged_during_run"])
+            for run in evidence["runs"]:
+                self.assertEqual(run["qemu_icount"], "shift=5,align=off,sleep=off")
+                self.assertEqual(run["qom_nodes"], 31)
+                self.assertGreaterEqual(len(run["psram"]["sweeps"]), 12)
+                self.assertLessEqual(len(run["psram"]["sweeps"]), 15)
+                health = run["native_hci_health"]
+                self.assertEqual(health["hli-posts"], 45)
+                self.assertEqual(health["hli-consumed"], 45)
+                self.assertEqual(health["hli-errors"], 0)
+                self.assertEqual(health["hli-c2h-events"], 36)
+                self.assertEqual(health["hli-c2h-acls"], 9)
+                self.assertEqual(health["hli-event-prealloc-depth"], 8)
+                self.assertEqual(health["hli-acl-prealloc-depth"], 4)
+                self.assertEqual(health["trace-hs-sched-reset"], 0)
+                self.assertEqual(health["dropped-packets"], 0)
+                self.assertEqual(
+                    run["failure_diagnostics"]["panic_count"],
+                    0,
+                )
 
         device_group = json.loads(
             (
@@ -5510,6 +5568,7 @@ class DocsConsistencyTests(unittest.TestCase):
         for name, relative in {
             "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "device_service": "platform/tools/device_service.py",
+            "qemu_accel": "platform/tools/qemu_accel.py",
             "ble_runtime_limits": "platform/tools/ble_runtime_limits.py",
             "ble_probe": "platform/tools/ble_probe.py",
             "network_policy": "platform/tools/network_policy.py",
@@ -5602,6 +5661,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "four-instance expanded reserve",
             "five-instance staggered",
             "five-instance simultaneous cold start",
+            "fixed icount",
             "guestfwd",
             "ble_hs_hci_process_ack",
             "hli-errors=3",
@@ -5621,13 +5681,24 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("two independent four-instance 4x120s gates pass 8/8", profiles)
         self.assertIn("five-instance 30-second-stagger 5x120s", profiles)
         self.assertIn("pass 10/10", profiles)
-        self.assertIn("one 5/5 PASS and one independent 3/5 FAIL", profiles)
+        self.assertIn(
+            "fixed-icount zero-stagger five-instance 5x120s gates pass 10/10",
+            profiles,
+        )
+        self.assertIn(
+            "one batch passed 5/5 and an independent confirmation failed 3/5",
+            profiles,
+        )
         self.assertIn("more-than-five-instance stability", profiles)
         for text in (platform_readme, unified_core2):
             self.assertIn("0008", text)
             self.assertIn("0009", text)
             self.assertIn("8/8", text)
-            self.assertIn("five-instance", text.lower())
+            self.assertIn("shift=5", text)
+        self.assertTrue(
+            "five-instance" in platform_readme.lower()
+            or "五实例" in platform_readme
+        )
         self.assertIn("四实例", platform_readme)
         self.assertIn("five instances", unified_core2)
         self.assertIn("| P0 | Core2 长稳与物理/controller 等价性 |", backlog)

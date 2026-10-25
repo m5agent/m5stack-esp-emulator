@@ -113,16 +113,17 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   `6/6 PASS`；BLE peer scan 按 session readiness 有界扩展，三实例
   PSRAM sweep 下限按实际负载校准。四实例首批 `1/4` 暴露启动期 ACK
   backpressure；`0009` 将真实 guest 备用池扩为 8 event/4 ACL 后，两批
-  四实例 `4×120s` 各 `4/4 PASS`，合计 `8/8`。bit-exact Espressif BT
-  baseband/controller、零错峰五实例与大于五实例、持续吞吐、物理
-  cache/PSRAM 和真机仍未完成。五实例（five-instance）30 秒错峰已完成两批 `5×120s`，
-  合计 `10/10`；同一实现下零错峰一批 `5/5 PASS`、独立确认批
-  `3/5 FAIL`，因此不能把错峰稳态继承给同时冷启动。`0010` ACK-state trace
-  已证明首条 Reset Complete 的 HLI delivery 差为 `4.506306s`（host trace
-  time，不是 guest 虚拟时钟）；首条 ACK check 为 `ack=NULL`、semaphore
-  count `0`，旧 response 与新 command 交错后才触发 process-ack error `12`；
-  `tb-size=128` 的 artifact-bound 两小时 soak 已 PASS，host RSS 和 phys
-  footprint 在 240 个采样中均未增长。
+  四实例 `4×120s` 各 `4/4 PASS`，合计 `8/8`。五实例 30 秒错峰已完成
+  两批 `5×120s`，合计 `10/10`。旧 `shift=auto` 零错峰路径曾出现
+  `5/5 PASS` 与独立 `3/5 FAIL`，trace 将失败窗口定位到 PSRAM 初始化
+  关中断时 HLI delivery 超出 NimBLE ACK 预算；当前默认改为固定
+  `icount shift=5`，并把测试 BLE server 放到 WiFi 和长 PSRAM 压力前。
+  两批独立零错峰 `5×120s` 随后均 `5/5 PASS`，合计 `10/10`，每 lease
+  同时完成 WiFi/公网、外部 GATT、frame、31 节点 QOM、pcap、evidence 和
+  14–15 次 1 MiB PSRAM 全缓冲校验。bit-exact Espressif BT
+  baseband/controller、大于五实例、持续吞吐、物理 cache/PSRAM 和真机
+  仍未完成。`tb-size=128` 的 artifact-bound 两小时 soak 已 PASS，host
+  RSS 和 phys footprint 在 240 个采样中均未增长。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

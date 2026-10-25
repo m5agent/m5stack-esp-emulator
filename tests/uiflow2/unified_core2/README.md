@@ -44,12 +44,14 @@ PYTHONPATH=.work/py python3 \
   --out-dir /tmp/m5-core2-unified
 ```
 
-The controlled HTTP fixture listens on host port `18089`. The runner records
-every attempt, but the current evidence uses first attempts with no retries.
-The scheduling fix is `tcg,thread=single,tb-size=128` plus
-`icount shift=auto,align=off,sleep=off`. QOM values are written while the guest
-runs because QMP stop/continue during early board setup reproducibly triggered
-an interrupt-watchdog failure.
+The canonical Device Service path uses a per-session QEMU `guestfwd` HTTP
+fixture, so concurrent guests do not share host port `18089`. The runner
+records every attempt without retries. The scheduling contract is
+`tcg,thread=single,tb-size=128` plus the default fixed
+`icount shift=5,align=off,sleep=off`; `M5_CORE2_ICOUNT_SHIFT=auto` remains an
+explicit diagnostic override and is recorded in the evidence. QOM values are
+written while the guest runs because QMP stop/continue during early board
+setup reproducibly triggered an interrupt-watchdog failure.
 
 `evidence-2026-10-23-icount-public.json` records ten independent first-attempt
 PASS runs, including public DNS/HTTP. The older
@@ -148,12 +150,12 @@ fixed 40-second BLE scan window expired before guest initialization, so the
 peer now derives a bounded scan window from session readiness. The initial
 four-instance gate then failed `1/4` when the two-packet reserve was exhausted;
 `0009` expands the real guest reserve to eight event/four ACL objects, and two
-independent four-instance `4x120s` gates pass `8/8`. The remaining gates are
-zero-stagger five instances, more than five instances, long-run
-throughput/teardown and physical equivalence. Two five-instance batches with a
-30-second stagger pass `10/10`, but zero-stagger five instances produced both a
-`5/5 PASS` batch and an independent `3/5 FAIL` batch on the same
-implementation. The former
+independent four-instance `4x120s` gates pass `8/8`. The older `shift=auto`
+zero-stagger implementation produced a `5/5 PASS` batch and an independent
+`3/5 FAIL` batch. The current default fixed `shift=5` and BLE-first workload
+ordering then pass two independent zero-stagger `5x120s` batches (`10/10`).
+More than five instances, long-run throughput, teardown beyond active-stop and
+physical equivalence remain open. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Removing that reply

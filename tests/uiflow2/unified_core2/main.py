@@ -292,6 +292,62 @@ def poll_stress_heartbeat():
     )
 
 
+def start_ble_server():
+    from bleuart import BLEUARTServer
+
+    # Test-only lifecycle probe; the production BLE server does not
+    # automatically re-advertise after a peer disconnect.
+    class ReconnectProbeBLEUARTServer(BLEUARTServer):
+        def __init__(self, *args, **kwargs):
+            self._readvertise_at = None
+            super().__init__(*args, **kwargs)
+
+        def _irq(self, event, data):
+            if event == 2:
+                conn_handle = data[0]
+                self._connections.discard(conn_handle)
+                self._readvertise_at = time.ticks_add(
+                    time.ticks_ms(),
+                    500,
+                )
+                emit("UNIFIED_CORE2_BLE_DISCONNECTED", conn_handle)
+                return
+            super()._irq(event, data)
+
+        def poll_readvertise(self):
+            if self._readvertise_at is None:
+                return
+            if (
+                time.ticks_diff(
+                    self._readvertise_at,
+                    time.ticks_ms(),
+                )
+                > 0
+            ):
+                return
+            self._readvertise_at = None
+            try:
+                self._advertise()
+                emit("UNIFIED_CORE2_BLE_READVERTISED")
+            except Exception as error:
+                emit(
+                    "UNIFIED_CORE2_BLE_READVERTISE_ERROR",
+                    repr(error),
+                )
+
+    server = ReconnectProbeBLEUARTServer(name=BLE_NAME, verbose=True)
+
+    def on_receive():
+        payload = bytes(server.read())
+        emit("UNIFIED_CORE2_BLE_RX", payload)
+        server.write(b"ACK:" + payload)
+        emit("UNIFIED_CORE2_BLE_ACK_SENT")
+
+    server.irq(on_receive)
+    emit("UNIFIED_CORE2_BLE_READY")
+    return server
+
+
 def main():
     global log_uart, psram_next_sweep
     global next_http_recheck, next_public_recheck
@@ -401,6 +457,14 @@ def main():
 
     draw()
 
+    server = None
+    try:
+        server = start_ble_server()
+        state["ble"] = "pass"
+    except Exception as error:
+        state["ble"] = "fail"
+        emit("UNIFIED_CORE2_BLE_ERROR", repr(error))
+
     try:
         station = network.WLAN(network.STA_IF)
         station.active(True)
@@ -437,61 +501,6 @@ def main():
         except Exception as error:
             state["public"] = "fail"
             emit("UNIFIED_CORE2_PUBLIC_HTTP_ERROR", repr(error))
-
-    try:
-        from bleuart import BLEUARTServer
-
-        # Test-only lifecycle probe; the production BLE server does not
-        # automatically re-advertise after a peer disconnect.
-        class ReconnectProbeBLEUARTServer(BLEUARTServer):
-            def __init__(self, *args, **kwargs):
-                self._readvertise_at = None
-                super().__init__(*args, **kwargs)
-
-            def _irq(self, event, data):
-                if event == 2:
-                    conn_handle = data[0]
-                    self._connections.discard(conn_handle)
-                    self._readvertise_at = time.ticks_add(
-                        time.ticks_ms(),
-                        500,
-                    )
-                    emit("UNIFIED_CORE2_BLE_DISCONNECTED", conn_handle)
-                    return
-                super()._irq(event, data)
-
-            def poll_readvertise(self):
-                if self._readvertise_at is None:
-                    return
-                if (
-                    time.ticks_diff(
-                        self._readvertise_at,
-                        time.ticks_ms(),
-                    )
-                    > 0
-                ):
-                    return
-                self._readvertise_at = None
-                try:
-                    self._advertise()
-                    emit("UNIFIED_CORE2_BLE_READVERTISED")
-                except Exception as error:
-                    emit("UNIFIED_CORE2_BLE_READVERTISE_ERROR", repr(error))
-
-        server = ReconnectProbeBLEUARTServer(name=BLE_NAME, verbose=True)
-
-        def on_receive():
-            payload = bytes(server.read())
-            emit("UNIFIED_CORE2_BLE_RX", payload)
-            server.write(b"ACK:" + payload)
-            emit("UNIFIED_CORE2_BLE_ACK_SENT")
-
-        server.irq(on_receive)
-        state["ble"] = "pass"
-        emit("UNIFIED_CORE2_BLE_READY")
-    except Exception as error:
-        state["ble"] = "fail"
-        emit("UNIFIED_CORE2_BLE_ERROR", repr(error))
 
     if state["audio"] == "pass":
         try:

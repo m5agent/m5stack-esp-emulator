@@ -78,9 +78,9 @@ callback 注入，因此单 lease PASS 不等于稳定后端。规范主路径�
 | `CORE2-02` bounded 7200s hold | `PASS` | artifact-bound 单 lease 使用 `tcg,thread=single,tb-size=128`，frame/QOM、WiFi/公网、active NUS GATT、pcap、HLI 和 cleanup 全部通过；240 个 host-resource 采样无持续增长 |
 | `CORE2-02` same-guest reconnect | `PASS` | stock 固件在 3 个独立 lease 中分别完成 20、30、60、120 轮 scan/connect/NUS GATT/disconnect；120 轮每 lease HLI `3377/3377`、events `2297`、ACLs `1080`，HLI/TX queue、dropped 和 panic 为 0，连接池回到 `3/9/3`。根因是 Bumble 对无响应 `0x0c35` 返回非法 Command Status |
 | `CORE2-02` 121-cycle reconnect | `3/3 PASS` | 修复 readiness budget 和 reconnect-only accelerator-sampling 两个 harness 缺陷后，3 个 artifact-bound lease 均为 `121/121`；同 firmware/ELF/QEMU/工具哈希，每 lease HLI `3405/3405`、events 2316、ACLs 1089，队列/错误/dropped/peer-close/panic 为 0 |
-| `CORE2-02` no-stagger concurrency | `双实例 8/8 + 三实例 6/6 + 四实例 8/8 PASS` | 双实例两批 `4×120s`、三实例两批 `3×120s`；`0008` 预分配真实 guest event/ACL 对象，所有 lease 36 events/9 ACLs 走 fast path、HLI `45/45`、errors/reset/panic 为 0。三实例首轮暴露固定 `40s` peer scan 预算过短，后续按 session readiness 有界扩展到 `≤120s`；PSRAM sweep 下限按 `hold/5` 校准。四实例首批先 `1/4`，`0009` 扩到 8 event/4 ACL 后两批各 `4/4 PASS`；五实例及物理 controller 仍开放 |
-| `CORE2-02` five-instance concurrency | `错峰 10/10 PASS；零错峰 OPEN` | 两批 30 秒错峰 `5×120s` 均 `5/5`，真实最大并发 5；每 lease HLI `45/45`、36 events/9 ACLs、WiFi/公网/GATT/PSRAM/frame/QOM/pcap/evidence 和 cleanup 全 PASS。相同实现下零错峰五实例一批 `5/5 PASS`、独立确认批 `3/5 FAIL`，失败复现 `0x402630cc` NimBLE ACK panic 或 external GATT exchange failure；更多实例及物理 controller 仍开放 |
-| `CORE2-02` zero-stagger ACK observability | `FAIL / ROOT CAUSE NARROWED` | `0010` trace 在 `3 PASS / 2 FAIL` 诊断批中证明首条 Reset Complete 的 response→HLI 时间戳差为 `4.506306s`（host trace time，不是 guest 虚拟时钟）；旧 response 与新 command 交错，导致 process-ack error 12 和随后的 `0x402630cc` panic。首条 ACK check 为 `ack=null`、semaphore count `0`；behavioral experiments 均未稳定且未合入 |
+| `CORE2-02` no-stagger concurrency | `双实例 8/8 + 三实例 6/6 + 四实例 8/8 PASS` | 双实例两批 `4×120s`、三实例两批 `3×120s`；`0008` 预分配真实 guest event/ACL 对象，所有 lease 36 events/9 ACLs 走 fast path、HLI `45/45`、errors/reset/panic 为 0。三实例首轮暴露固定 `40s` peer scan 预算过短，后续按 session readiness 有界扩展到 `≤120s`；PSRAM sweep 下限按 `hold/5` 校准。四实例首批先 `1/4`，`0009` 扩到 8 event/4 ACL 后两批各 `4/4 PASS`；物理 controller 仍开放 |
+| `CORE2-02` five-instance concurrency | `错峰 10/10 + 固定 icount 零错峰 10/10 PASS` | 两批 30 秒错峰 `5×120s` 均 `5/5`；默认 `icount shift=5` 和 BLE-first harness 下，两批独立零错峰 `5×120s` 也均 `5/5`，合计 `10/10`，真实最大并发 5。每 lease HLI `45/45`、36 events/9 ACLs、14–15 次 PSRAM 全缓冲校验，WiFi/公网/GATT/frame/31 节点 QOM/pcap/evidence 全 PASS；更多实例及物理 controller 仍开放 |
+| `CORE2-02` zero-stagger ACK observability | `HISTORICAL FAIL / ROOT CAUSE RETAINED` | 旧 `shift=auto` 诊断批 `3 PASS / 2 FAIL` 已定位到 PSRAM 初始化关中断窗口与 HLI delivery 延迟，首条 response→HLI 时间戳差 `4.506306s` 是 host trace time，不是 guest 虚拟时钟。`0010` 只保留 opt-in 观测；当前默认固定 `shift=5`、BLE server 前置后的两个独立 5 实例批次已经 PASS，但历史失败证据不删除 |
 | Core2 guest PSRAM sustained | `3/3 PASS` | QOM PSRAM device 为 `8 MiB`，普通 ESP32 DRAM1 heap 保持 `4 MiB` 直接映射窗口。3 个 artifact-bound lease 各 120 秒，从普通 heap 分配 `1 MiB`，分别完成 35/35/35 次全缓冲校验（累计 `105 MiB`）；上 4 MiB 另由 `esp_himem` MMU bank switch `3/3` 覆盖。每轮另做 10 次受控 HTTP、3–4 次公网 recheck，active BLE/frame/QOM/pcap/cleanup PASS。物理 PSRAM/cache timing 仍 `NOT RUN` |
 | Core2 8 MiB device-group compatibility | `6/6 PASS` | 当前重建 QEMU `b5b2d878…` 下 6 个 UIFlow2 case、24 个检查全部一次通过且无 retry；覆盖触摸、RTC、电源键、音频、麦克风、INA3221、MPU6886 和 AXP192。INA3221 固定通道值改用 boot-time QOM 注入，避免默认 8 秒 post-boot 窗口的测试竞态 |
 | Core2 guest PSRAM 600s | `1/1 PASS` | 单 lease 600 秒完成 179 次 `1 MiB` 全缓冲校验、51 次受控 HTTP、18 次公网 recheck；active BLE/HLI/bounded TCG/frame/QOM/912-packet pcap/cleanup PASS。20 个 RSS 采样增加 `352 KiB`，只覆盖本次虚拟 workload |
@@ -171,7 +171,9 @@ python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \
 
 Core2 peripheral 和 device matrix 现在都显式使用
 `tcg,thread=single,tb-size=128` +
-`icount shift=auto,align=off,sleep=off`。matrices
+`icount shift=5,align=off,sleep=off`。只有显式设置
+`M5_CORE2_ICOUNT_SHIFT=auto` 或 `0-10` 才切换到诊断参数；concurrency
+门禁要求固定 `shift=5` 并在 evidence 中记录实际进程命令行。matrices
 不再配置自动重试；若 case 声明 `retries`，runner 默认拒绝运行，只有显式
 `--allow-retries` 才执行诊断重试。2026-10-24 06:47 的完整矩阵为
 `67/67`、`274/274`，全部 `attempts=1`；该轮包含双 guest WiFi patch

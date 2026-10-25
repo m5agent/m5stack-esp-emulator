@@ -25,7 +25,10 @@ from ble_runtime_limits import (  # noqa: E402
     MAX_BLE_RECONNECT_CYCLES,
     reconnect_workload_timeout_seconds,
 )
-from qemu_accel import CORE2_TCG_TB_SIZE_MIB  # noqa: E402
+from qemu_accel import (  # noqa: E402
+    CORE2_ICOUNT_MODE,
+    CORE2_TCG_TB_SIZE_MIB,
+)
 
 PROFILE = "core2-native-hci"
 READY_MARKER = "UNIFIED_CORE2_READY"
@@ -36,6 +39,7 @@ PSRAM_REQUESTED_BYTES = 1 << 20
 EXPECTED_QEMU_ACCELERATOR = (
     f"tcg,thread=single,tb-size={CORE2_TCG_TB_SIZE_MIB}"
 )
+EXPECTED_QEMU_ICOUNT = CORE2_ICOUNT_MODE
 TOOL_PATHS = {
     "runner": Path(__file__).resolve(),
     "device_service": ROOT / "platform/tools/device_service.py",
@@ -142,7 +146,12 @@ def parse_qemu_accelerator(command: str) -> str | None:
     return match.group(1) if match else None
 
 
-def process_qemu_accelerator(pid: int | None) -> str | None:
+def parse_qemu_icount(command: str) -> str | None:
+    match = re.search(r"(?:^|\s)-icount\s+(\S+)", command)
+    return match.group(1) if match else None
+
+
+def process_qemu_command(pid: int | None) -> str | None:
     if not pid:
         return None
     try:
@@ -155,7 +164,17 @@ def process_qemu_accelerator(pid: int | None) -> str | None:
         )
     except (OSError, subprocess.SubprocessError):
         return None
-    return parse_qemu_accelerator(result.stdout)
+    return result.stdout
+
+
+def process_qemu_accelerator(pid: int | None) -> str | None:
+    command = process_qemu_command(pid)
+    return parse_qemu_accelerator(command) if command else None
+
+
+def process_qemu_icount(pid: int | None) -> str | None:
+    command = process_qemu_command(pid)
+    return parse_qemu_icount(command) if command else None
 
 
 class Api:
@@ -505,10 +524,11 @@ def psram_stress_ok(evidence: dict[str, Any]) -> bool:
 
 def sustained_stress_requirements(hold_seconds: float) -> dict[str, int]:
     return {
-        # Three concurrent guests each completed 29 of 30 expected sweeps in
-        # 120 seconds. Keep a conservative floor with one sweep per five
-        # seconds under the highest current concurrency.
-        "minimum_sweeps": max(3, int(hold_seconds // 5)),
+        # With the fixed Core2 icount shift, one 1 MiB fill/readback sweep
+        # under five-way host contention takes about ten wall-clock seconds.
+        # Keep one expected sweep per ten seconds and require the initial
+        # allocation/check plus at least two sustained sweeps.
+        "minimum_sweeps": max(3, int(hold_seconds // 10)),
         "minimum_heartbeats": max(0, int(hold_seconds // 20)),
         "minimum_http_rechecks": max(0, int(hold_seconds // 15)),
         "minimum_public_rechecks": max(0, int(hold_seconds // 60)),
@@ -634,6 +654,7 @@ def run_attempt(
     rss_samples: list[int] = []
     phys_footprint_samples: list[int] = []
     qemu_accelerator: str | None = None
+    qemu_icount: str | None = None
     state_samples = 0
 
     try:
@@ -677,6 +698,7 @@ def run_attempt(
         qemu_accelerator = process_qemu_accelerator(
             running_session.get("pid")
         )
+        qemu_icount = process_qemu_icount(running_session.get("pid"))
         phase = "wait_network"
         network = wait_for_network(api, session_id, timeout)
         phase = "hold"
@@ -700,6 +722,10 @@ def run_attempt(
                 phys_footprint = memory["phys_footprint_kib"]
                 if qemu_accelerator is None:
                     qemu_accelerator = process_qemu_accelerator(
+                        current.get("pid")
+                    )
+                if qemu_icount is None:
+                    qemu_icount = process_qemu_icount(
                         current.get("pid")
                     )
                 if isinstance(rss, int):
@@ -885,6 +911,7 @@ def run_attempt(
         "bounded_tcg_cache": (
             qemu_accelerator == EXPECTED_QEMU_ACCELERATOR
         ),
+        "deterministic_icount": qemu_icount == EXPECTED_QEMU_ICOUNT,
         "native_hci_health": native_hci_health_ok(hci_health),
         "hold_stable": hold_stable,
         "active_ble_link_during_hold": (
@@ -1020,6 +1047,7 @@ def run_attempt(
         "session_started_epoch": session_started_epoch,
         "session_finished_epoch": session_finished_epoch,
         "qemu_accelerator": qemu_accelerator,
+        "qemu_icount": qemu_icount,
         "hold_resource_samples": {
             "state_polls": state_samples,
             "sample_interval_seconds": 30,

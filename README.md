@@ -24,12 +24,12 @@ MicroPython 和其他完整 Flash 固件。
   密码、断线恢复、双 guest fabric 和 pcap。Worker 路径已有 durable queue、
   HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、
   control/runtime 分离、跨容器 QEMU 和 partition fence。
-- Core2 已通过 native-HCI、121 轮重连、长稳、active-stop、8 MiB PSRAM QOM
-  和五实例 30 秒错峰并发 virtual-device 门禁；四实例原始失败保留，五实例
-  零错峰 `5/5 PASS` 后独立批 `3/5 FAIL` 的不稳定对照也保留。零错峰五实例、
-  更多实例、物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
-  ACK-state trace 已证明该不稳定从 HLI response delivery delay 开始，而不是
-  初始 stale ACK 或物理 PSRAM/cache 故障。
+- Core2 已通过 native-HCI、121 轮重连、长稳、active-stop、8 MiB PSRAM QOM、
+  五实例 30 秒错峰和固定 `icount shift=5` 五实例零错峰 virtual-device 门禁。
+  旧 `shift=auto` 路径的 `5/5 PASS` 与独立批 `3/5 FAIL` 仍作为失败对照保留；
+  修复来自固定虚拟时钟、BLE-first 测试 workload 顺序，以及对实际 QEMU
+  `icount` 做门禁，不是伪造 ACK 或放宽 GATT 断言。大于五实例、持续吞吐、
+  物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件
@@ -303,13 +303,13 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
   unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
-  五实例 30 秒错峰稳态已通过两批，但零错峰五实例仍不稳定；大于五实例、
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、持续吞吐和
-  真机同路径仍未完成。`0010` ACK-state trace 进一步把失败窗口定位到首条
-  Reset Complete 从 Bumble 返回后延迟 `4.506306s` 才进入 HLI；该数值是
-  trace 时间戳差（host trace time），不是 guest 虚拟时钟。首条 ACK check
-  为 `ack=NULL`、semaphore count `0`；旧 Reset Complete 与新的 `0x1001`
-  command response 交错后触发 process-ack error `12`，最终 panic 是次生结果。
+  五实例 30 秒错峰和固定 icount 零错峰五实例已各通过两批；大于五实例、
+  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、持续吞吐、
+  active-stop 之外 teardown 和真机同路径仍未完成。旧 `shift=auto` 路径
+  仍保留首条 Reset Complete 从 Bumble 返回后延迟 `4.506306s` 才进入 HLI
+  的 ACK-state trace；该数值是 host trace time，不是 guest 虚拟时钟。
+  当前默认固定 `shift=5`，并在开始 WiFi/长 PSRAM 压力前初始化测试 BLE
+  server；两批独立 `5×120s` 零错峰门禁随后均为 `5/5 PASS`。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

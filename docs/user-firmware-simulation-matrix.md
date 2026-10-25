@@ -365,7 +365,10 @@ functional PASS.
   (`8/8` total) with HLI `45/45`, 36 events/9 ACLs, zero errors/reset/panic
   and final `8/4` spare depth. Two independent five-instance
   `5×120s` batches with a 30-second stagger then pass `5/5` each (`10/10`);
-  a zero-stagger five-instance batch passes `5/5`, but an independent
-  confirmation fails `3/5`. Bit-exact Espressif BT controller behavior,
-  zero-stagger five-instance and more-than-five-instance stability, physical
-  cache/PSRAM equivalence and hardware validation remain open or `NOT RUN`.
+  the earlier `shift=auto` zero-stagger path passed `5/5` but an independent
+  confirmation failed `3/5`. The current default fixes `icount shift=5`, moves
+  the test BLE server before WiFi/sustained PSRAM work, and passes two
+  independent zero-stagger five-instance batches (`10/10`). Bit-exact
+  Espressif BT controller behavior, more-than-five-instance stability,
+  physical cache/PSRAM equivalence and hardware validation remain open or
+  `NOT RUN`.

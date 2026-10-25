@@ -31,11 +31,11 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`; a reconnect-only run completed all functional checks but did not sample the QEMU accelerator because that sampling lived only in the hold loop |
 | `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json`; three independent artifact-bound leases each complete 121 cycles with identical firmware/ELF/QEMU/tool hashes, `tb-size=128`, WiFi/public network, NUS GATT, frame/QOM, pcap, evidence and cleanup. Every lease has HLI 3405/3405, 2316 events, 1089 ACLs and zero queue/error/drop/peer-close/panic |
 | `CORE2-02` active stop/recovery | `3/3 PASS` | `evidence-2026-10-25-core2-active-stop-recovery-3x.json`; three consecutive sessions are deleted while their BLE peer is still in the linger window. Each stop reaches `stopped` with no error, terminates HTTP/BLE companions, reaps both BLE and QEMU PIDs, releases the worker lease, and is followed by a new ready session with the same network/GATT/QOM health |
-| `CORE2-02` no-stagger concurrency | `8/8 + 6/6 PASS` | two independent two-instance `4x120s` runs pass `8/8`; two independent three-instance `3x120s` runs pass `6/6`. `0008` preallocates real guest event buffers and ACL mbufs; every lease records 36/9 fast-path event/ACLs, HLI 45/45 and zero errors/reset/panic. Three-instance startup exposed a fixed 40-second peer scan budget that expired before guest BLE init, then a sweep threshold calibrated only for lower concurrency; peer scan now follows session readiness within 120 seconds and the sustained floor is `hold/5` |
+| `CORE2-02` no-stagger concurrency | `8/8 + 6/6 + 8/8 PASS` | two independent two-instance `4x120s` runs pass `8/8`, two independent three-instance `3x120s` runs pass `6/6`, and two independent four-instance `4x120s` runs pass `8/8`. `0008` preallocates real guest event buffers and ACL mbufs, while `0009` expands the real reserve to 8 event/4 ACL objects. Every lease records 36/9 fast-path event/ACLs, HLI 45/45 and zero errors/reset/panic. Three-instance startup exposed a fixed 40-second peer scan budget that expired before guest BLE init; peer scan now follows session readiness within 120 seconds |
 | `CORE2-02` four-instance no-stagger gate | `FAIL 1/4 → 8/8 PASS` | one initial four-instance `4x120s` run reached real concurrency 4 but failed aggregate: attempt 2 exposed HLI/preallocation failure and attempts 3/4 panicked in NimBLE `ble_hs_hci_process_ack` after ACK timeout. The peer actually returned Command Complete, identifying exhaustion of the two-packet `0008` reserve. `0009` expands the real guest reserve to 8 events/4 ACLs; two independent four-instance batches then pass `4/4` each (`8/8`) with final QOM depth `8/4`, HLI `45/45`, 36 events/9 ACLs and zero errors/reset/panic |
 | `CORE2-02` five-instance staggered gate | `10/10 PASS` | two independent `5×120s` batches use a 30-second startup stagger and both pass `5/5`. Every lease completes WiFi/public HTTP, external NUS GATT, sustained PSRAM stress, frame/QOM/pcap/evidence, HLI `45/45`, 36 events/9 ACLs and zero errors/reset/panic. The runner accepts concurrency up to the service per-device capacity of 8 |
-| `CORE2-02` five-instance simultaneous cold start | `OPEN / UNSTABLE` | with identical firmware/QEMU/tool hashes, one zero-stagger `5×120s` run passed `5/5`, while an independent confirmation batch failed `3/5`; the failures reproduced `0x402630cc` NimBLE ACK panic or an external GATT exchange failure. Five-instance steady state with stagger is closed, but five-instance simultaneous cold start is not |
-| `CORE2-02` ACK-state observability | `FAIL / ROOT CAUSE NARROWED` | `0010` records `ble_hs_hci_rx_evt`, its semaphore-count branch and `ble_hs_hci_ctx->hci_ack`. In a `3 PASS / 2 FAIL` zero-stagger batch, the first Reset Complete returned from Bumble but its response→HLI timestamp delta was `4.506306s` of host trace time, not guest virtual time. At the first ACK check `ack=NULL` and the semaphore count was `0`, ruling out an initially stale ACK pointer/semaphore state; delayed Reset Complete packets later crossed a new `0x1001` command, producing process-ack error 12 and the secondary `0x402630cc` panic. A trace-off single lease still passes with HLI `45/45` and zero errors/panic, confirming the diagnostic is default-off |
+| `CORE2-02` five-instance simultaneous cold start | `10/10 PASS with fixed icount` | the historical `shift=auto` implementation produced one `5/5 PASS` batch and an independent `3/5 FAIL` batch. Trace showed transient CPU0 interrupt masking during PSRAM initialization plus host-contention-scaled virtual time delaying HLI delivery beyond the NimBLE ACK budget. The current default fixes `icount shift=5`, and the test firmware starts BLE before WiFi and the long PSRAM workload. Two new independent zero-stagger `5×120s` batches then pass `5/5` each (`10/10`), maximum concurrency 5, with 14-15 full 1 MiB PSRAM sweeps, WiFi/public HTTP, external NUS GATT, frame/31-node QOM/pcap/evidence and zero HLI/reset/panic/dropped counters |
+| `CORE2-02` ACK-state observability | `HISTORICAL FAIL / RETAINED` | `0010` records `ble_hs_hci_rx_evt`, its semaphore-count branch and `ble_hs_hci_ctx->hci_ack`. In the former `3 PASS / 2 FAIL` zero-stagger batch, the first Reset Complete returned from Bumble but its response→HLI timestamp delta was `4.506306s` of host trace time, not guest virtual time. At the first ACK check `ack=NULL` and the semaphore count was `0`; delayed Reset Complete packets later crossed a new `0x1001` command, producing process-ack error 12 and the secondary `0x402630cc` panic. `0010` remains default-off observability, and the historical evidence remains committed |
 
 Build the patched QEMU, then run:
 
@@ -288,8 +288,10 @@ The no-stagger path was diagnosed and closed for two concurrent instances:
    bounded to `120s`; GATT request and notification timeouts remain separate.
 9. The next three-instance run completed guest/network/GATT/PSRAM work, but
    two leases produced 29 sweeps against an over-tight 30-sweep floor. The
-   sustained gate now uses a conservative `hold/5` floor while still
-   requiring contiguous sweeps, heartbeats, HTTP and public-network rechecks.
+   historical calibration used `hold/5`; with the current fixed `shift=5`
+   clock one full sweep under five-way host contention takes about ten
+   seconds, so the current floor is `hold/10` while still requiring
+   contiguous sweeps, heartbeats, HTTP and public-network rechecks.
 10. Two independent three-instance `3x120s` runs then passed `3/3` each
     (`6/6` total).
 11. One four-instance `4x120s` run then reached real concurrency 4 but failed
@@ -323,19 +325,18 @@ Evidence:
 - `evidence-2026-10-25-core2-concurrent-4x120-prealloc-4way-fail.json`
 - `evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-pass-a.json`
 - `evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-confirm-pass-b.json`
+- `evidence-2026-10-25-core2-concurrent-5x120-fixed-icount-blefirst-pass-a.json`
+- `evidence-2026-10-25-core2-concurrent-5x120-fixed-icount-blefirst-pass-b.json`
 - `../evidence-2026-10-25-core2-0009-device-group.json`
 
-The historical failure is retained. Two instances pass `8/8`; two independent
-three-instance runs pass `6/6`. The fixed `40s` peer scan budget and the
-three-instance PSRAM sweep calibration failure are also retained. The final
-scope remains the bound stock firmware/ELF/QEMU and current hook ABI; it does
-not claim zero-stagger stability above four instances: the initial four-instance
-run failed `1/4`, and `0009` then passed two independent `8/8` aggregate gates.
-Five-instance steady state passes with a 30-second stagger in two independent
-`5×120s` batches, but zero-stagger five-instance cold start is explicitly
-unstable (`5/5` PASS then `3/5` FAIL on the same implementation). More than five
-instances remains `NOT RUN`. Physical controller timing and RF remain separate
-boundaries.
+The historical failures are retained. Two, three and four instances pass two
+independent no-stagger batches each (`8/8`, `6/6`, `8/8`). Five-instance
+steady state passes with a 30-second stagger in two independent `5×120s`
+batches, and the current fixed-icount/BLE-first implementation passes two
+independent zero-stagger `5×120s` batches (`10/10`). This closes only the
+five-instance, 120-second, bound stock-firmware workload. More than five
+instances, sustained throughput, teardown modes beyond active-stop, physical
+controller timing and RF remain separate boundaries.
 
 The `0009` source build also passes the Core2 six-case UIFlow2 peripheral
 group (`6/6`, `24/24` checks) with one attempt per case and no retry.
@@ -433,7 +434,8 @@ HLI `45/45`, zero errors/queues/dropped packets and unchanged launch assets.
 The final `tb-size=128` rerun binds launch assets and tools, then passes
 `240` host-resource samples with RSS `323536→252992 KiB` and phys footprint
 `250880→188416 KiB`. The remaining execution gates are throughput, more than
-four concurrent instances and physical cache/PSRAM equivalence.
+five zero-stagger instances, teardown beyond active-stop and physical
+cache/PSRAM equivalence.
 The fix is covered by
 `platform/tests/test_ble_probe.py`; failure history remains in
 `evidence-2026-10-24-reconnect2-fail.json`. The first ten-cycle attempt

@@ -43,7 +43,7 @@ class Core2OpenMacWifiTests(unittest.TestCase):
                 "-accel",
                 "tcg,thread=single,tb-size=128",
                 "-icount",
-                "shift=auto,align=off,sleep=off",
+                "shift=5,align=off,sleep=off",
             ),
         )
 

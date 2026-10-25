@@ -62,16 +62,39 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         command = (
             "qemu-system-xtensa -M m5core2 -display none "
             "-accel tcg,thread=single,tb-size=128 "
-            "-icount shift=auto,align=off,sleep=off -m 0"
+            "-icount shift=5,align=off,sleep=off -m 0"
         )
         self.assertEqual(
             runner.parse_qemu_accelerator(command),
             "tcg,thread=single,tb-size=128",
         )
+        self.assertEqual(
+            runner.parse_qemu_icount(command),
+            "shift=5,align=off,sleep=off",
+        )
         self.assertIsNone(runner.parse_qemu_accelerator("qemu -M m5core2"))
+        self.assertIsNone(runner.parse_qemu_icount("qemu -M m5core2"))
         self.assertEqual(
             runner.EXPECTED_QEMU_ACCELERATOR,
             "tcg,thread=single,tb-size=128",
+        )
+        self.assertEqual(
+            runner.EXPECTED_QEMU_ICOUNT,
+            "shift=5,align=off,sleep=off",
+        )
+
+    def test_sustained_stress_floor_matches_fixed_clock(self) -> None:
+        self.assertEqual(
+            runner.sustained_stress_requirements(10)["minimum_sweeps"],
+            3,
+        )
+        self.assertEqual(
+            runner.sustained_stress_requirements(40)["minimum_sweeps"],
+            4,
+        )
+        self.assertEqual(
+            runner.sustained_stress_requirements(120)["minimum_sweeps"],
+            12,
         )
 
     def test_input_hashes_are_frozen_before_execution(self) -> None:
@@ -225,7 +248,7 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         self.assertEqual(
             runner.sustained_stress_requirements(120),
             {
-                "minimum_sweeps": 24,
+                "minimum_sweeps": 12,
                 "minimum_heartbeats": 6,
                 "minimum_http_rechecks": 8,
                 "minimum_public_rechecks": 2,

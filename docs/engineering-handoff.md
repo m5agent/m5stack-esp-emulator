@@ -42,6 +42,24 @@
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
 - 当前单机 namespace/container 路径不是恶意多租户固件的最终 VM 沙箱。
 
+## 本轮代码与文档整理
+
+- 代码：Core2 的共享 QEMU 参数默认改为固定 `icount shift=5`，环境变量只
+  作为显式诊断覆盖；concurrency runner 会从实际 QEMU 进程命令行同时校验
+  `tb-size=128` 和 `shift=5`。统一 probe 在 WiFi 和长 PSRAM 压力前启动
+  测试 BLE server，sustained sweep 下限按固定虚拟时钟校准为 `hold/10`。
+- 证据：两批独立 `5×120s` 零错峰五实例门禁已入仓，并由专项测试锁定原始
+  JSON SHA、firmware/ELF/QEMU/tool hashes、PSRAM sweep、HLI/GATT、frame、
+  QOM、pcap 和 clean shutdown 字段；旧 `shift=auto` 失败与 `0010` trace
+  继续保留。
+- 文档：README、状态、Backlog、工作流、交接、Device Service、QEMU 适配
+  矩阵、Core2 专题、测试 README、设备 catalog 和 profile 已统一使用同一
+  口径。当前权威关系仍是 `project-status` 定义能力、`project-backlog`
+  定义未完成项、`validation-ledger` 保存日期化证据。
+- 待办：优先继续 `NET-04` 的物理跨主机边界和 `CORE2-02` 的大于五实例/
+  持续吞吐/其他 teardown；`FW-01/02/03`、`RUNTIME-02/03/04`、`HW-01`
+  仍是独立工作流。完成五实例门禁不等于整个 goal 完成。
+
 ## 最近成果已经并入哪里
 
 已完成里程碑只保留为依赖摘要，精确轮次、SHA、检查数量和 evidence 路径
@@ -55,11 +73,12 @@
   network-partition fence 和 trusted-host companion recovery 已落地；
   物理跨主机、迁移、跨主机幂等、namespace-managed/Tab5 companion 仍开放。
 - Core2：`core2-native-hci`、121 轮重连、artifact-bound 长稳、active-stop、
-  QOM 8 MiB PSRAM/upper-bank MMU 和五实例 30 秒错峰并发已有证据。四实例
-  原始失败和五实例零错峰 `5/5 PASS`/`3/5 FAIL` 不稳定对照保留；`0010`
-  已把首个零错峰异常收敛到 HLI response readiness/delivery ordering，零错峰
-  五实例、更多实例、持续吞吐、物理 PSRAM/cache timing、bit-exact controller
-  和真机仍开放。
+  QOM 8 MiB PSRAM/upper-bank MMU、五实例 30 秒错峰和固定
+  `icount shift=5` 五实例零错峰并发已有证据。四实例原始失败和旧
+  `shift=auto` 零错峰 `5/5 PASS`/`3/5 FAIL` 对照保留；`0010` 说明
+  PSRAM 初始化关中断窗口与自适应虚拟时间可放大 HLI delivery 等待。当前
+  大于五实例、持续吞吐、active-stop 之外 teardown、物理 PSRAM/cache
+  timing、bit-exact controller 和真机仍开放。
 - 固件：FirmwareManifest/WebBurner、分段完整性、capability/security、
   Secure Boot v2 数学与包内摘要对照、文件系统、SD/NVS fixture 和
   SHA-bound review expectation 已可执行；live eFuse/trust root、生产 key、
@@ -77,7 +96,7 @@
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
 | Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
-| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力、错峰、双/三/四实例无错峰和五实例错峰并发 | `PILOT` | 零错峰五实例及更多并发、物理 PSRAM/cache timing、bit-exact controller、持续吞吐 |
+| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG/固定 icount、8 MiB PSRAM MMU、虚拟 PSRAM 压力、错峰、双/三/四实例无错峰、五实例错峰和固定 icount 五实例零错峰 | `PILOT` | 大于五实例、物理 PSRAM/cache timing、bit-exact controller、持续吞吐和其他 teardown |
 | 通用固件审查 | Manifest/WebBurner、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
 | CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |
@@ -191,7 +210,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
-| `CORE2-02` | 先修复 HLI response readiness/delivery ordering，再补零错峰五实例及更多实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和其他 teardown | 双/三/四实例和五实例 30 秒错峰均已由两批独立复跑覆盖；`0010` trace 证明零错峰失败从首条 Reset Complete 的 response→HLI 时间戳差 `4.506306s` 开始（host trace time，不是 guest 虚拟时钟）；首条 ACK check 为空，旧 response 与新 command 交错后才触发 error `12` |
+| `CORE2-02` | 补大于五实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 双/三/四实例、五实例 30 秒错峰和固定 `shift=5` 五实例零错峰均已由两批独立复跑覆盖；旧 `shift=auto` `0010` trace 保留 HLI delivery 失败路径，当前结论不外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
