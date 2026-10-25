@@ -358,9 +358,11 @@ functional PASS.
   deliver HLI `3405/3405`, 2316 events and 1089 ACLs with zero health errors.
   `0008` then closes two-instance and three-instance no-stagger concurrency in
   two independent batches each (`8/8` and `6/6`). The first four-instance
-  `4×120s` batch reaches concurrency 4 but is `1 PASS / 3 FAIL`: one session
-  completes the visible workload with `hli-errors=1` and two preallocation
-  failures, while two sessions panic before READY in NimBLE
-  `ble_hs_hci_process_ack` at `0x402630cc`. Bit-exact Espressif BT controller
-  behavior, four-or-more-instance stability, physical cache/PSRAM equivalence
-  and hardware validation remain open or `NOT RUN`.
+  `4×120s` batch reached concurrency 4 but failed `1/4`: one session exposed
+  HLI/preallocation failure and two panicked before READY in NimBLE
+  `ble_hs_hci_process_ack`. `0009` then expanded the real guest reserve from
+  `2/2` to `8/4`; two independent four-instance batches pass `4/4` each
+  (`8/8` total) with HLI `45/45`, 36 events/9 ACLs, zero errors/reset/panic
+  and final `8/4` spare depth. Bit-exact Espressif BT controller behavior,
+  five-or-more-instance stability, physical cache/PSRAM equivalence and
+  hardware validation remain open or `NOT RUN`.

@@ -498,9 +498,10 @@ controller 的固件 FAIL；修复后 3 个独立 artifact-bound lease 均为
 `8/8 PASS`，每 lease 36 events/9 ACLs 走真实 guest-object fast path。
 随后两批三实例 `3×120s` 合计 `6/6 PASS`；固定 `40s` peer scan 预算在
 冷启动约 55 秒时会先于 guest 广播退出，现改为按 session readiness 推导且
-上限 `120s`。四实例首批 `4×120s` 已实际执行并 `1 PASS / 3 FAIL`：一个
-HLI health/prealloc failure，两个在 NimBLE `ble_hs_hci_process_ack` panic。
-后续仍需修复四实例及更多实例稳定性，并补长时吞吐/teardown、bit-exact
+上限 `120s`。四实例首批 `4×120s` 先得到 `1 PASS / 3 FAIL`：一个 HLI
+health/prealloc failure，两个在 NimBLE `ble_hs_hci_process_ack` panic；
+`0009` 扩大真实 guest 备用对象池后，两批四实例各 `4/4 PASS`，合计 `8/8`。
+后续仍需补五实例及更多实例稳定性、长时吞吐/teardown、bit-exact
 controller/baseband、物理 cache/PSRAM 和真机。
 
 ## 11. 结论

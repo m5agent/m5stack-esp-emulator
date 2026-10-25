@@ -1166,6 +1166,12 @@ to `0.328s`. Two additional three-instance `3×120s` gates pass `6/6`.
 The first four-instance `4×120s` batch is explicitly `1 PASS / 3 FAIL`: one
 lease reports `hli-errors=1` and `hli-prealloc-failures=2`, while two leases
 panic before READY in NimBLE `ble_hs_hci_process_ack` at `0x402630cc`.
+After retaining that failure, `0009` expands the real guest reserve from two
+event/two ACL objects to eight event/four ACL objects. Two independent
+four-instance `4×120s` batches then pass `4/4` each (`8/8`), ending with QOM
+spare depth `8/4`, HLI `45/45`, 36 events/9 ACLs and zero
+errors/reset/panic. One passing first-batch lease records two transient refill
+failures before recovery; the confirmation batch records none.
 For unified profiles, the external BLE peer scan window follows the session
 readiness budget within `40–120s`; the former fixed `40s` window expired
 before guest BLE initialization under three-instance startup load.
@@ -2008,8 +2014,10 @@ restart.
   path and zero errors/reset/panic. Two three-instance `3×120s` gates also
   pass `6/6`; their peer scan window is derived from session readiness and
   the sustained PSRAM sweep floor is `hold/5`. The first four-instance
-  `4×120s` batch is `1 PASS / 3 FAIL` in NimBLE ACK/HLI handling, so scale-out
-  remains open. Three independent leases pass
+  `4×120s` batch failed `1/4` in NimBLE ACK/HLI handling; `0009` expands the
+  real guest reserve to `8/4`, after which two independent four-instance
+  batches pass `8/8`. More than four instances remain open. Three independent
+  leases pass
   each of the 20, 30, 60, 120 and 121 same-guest reconnect gates; the
   121-cycle runs balance HLI 3405/3405, deliver 2316 events and 1089 ACLs,
   and return the connection/L2CAP/GATT pools to 3/9/3.
@@ -2053,8 +2061,10 @@ restart.
   `evidence-2026-10-25-hci4-reconnect121-3x.json`; it binds identical
   firmware/ELF/QEMU/tool hashes across runs and includes the earlier
   single-lease evidence. The first four-instance `4x120s` batch fails `1/4`
-  in NimBLE ACK/HLI handling, so the remaining validation gates are four or
-  more instances, long-run throughput and additional teardown modes;
+  in NimBLE ACK/HLI handling; `0009` expands the real guest reserve and two
+  independent four-instance batches then pass `8/8`. The remaining validation
+  gates are five or more instances, long-run throughput and additional
+  teardown modes;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -2091,8 +2101,9 @@ restart.
   extended-run gate passes two independent batches. The `0008` fast path also
   closes two-instance no-stagger cold start with two independent `8/8`
   aggregate gates; two three-instance gates add `6/6`. The first four-instance
-  batch fails `1/4`, so more than three instances remain open; long-run
-  throughput, additional teardown modes,
+  batch failed `1/4`; `0009` expands the real guest reserve and two independent
+  four-instance gates then pass `8/8`. More than four instances remain open;
+  long-run throughput, additional teardown modes,
   bit-exact controller/baseband, coexistence and
   same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering

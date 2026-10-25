@@ -145,8 +145,11 @@ Both the functional and bounded-TCG two-hour holds pass, and `0008` closes the
 two-instance no-stagger cold-start gate at `8/8`; two independent three-instance
 `3x120s` gates then pass `6/6`. Three-instance startup showed that the former
 fixed 40-second BLE scan window expired before guest initialization, so the
-peer now derives a bounded scan window from session readiness. The remaining
-gates are more than three instances, long-run throughput/teardown and physical
+peer now derives a bounded scan window from session readiness. The initial
+four-instance gate then failed `1/4` when the two-packet reserve was exhausted;
+`0009` expands the real guest reserve to eight event/four ACL objects, and two
+independent four-instance `4x120s` gates pass `8/8`. The remaining gates are
+more than four instances, long-run throughput/teardown and physical
 equivalence. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response

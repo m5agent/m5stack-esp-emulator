@@ -32,7 +32,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json`; three independent artifact-bound leases each complete 121 cycles with identical firmware/ELF/QEMU/tool hashes, `tb-size=128`, WiFi/public network, NUS GATT, frame/QOM, pcap, evidence and cleanup. Every lease has HLI 3405/3405, 2316 events, 1089 ACLs and zero queue/error/drop/peer-close/panic |
 | `CORE2-02` active stop/recovery | `3/3 PASS` | `evidence-2026-10-25-core2-active-stop-recovery-3x.json`; three consecutive sessions are deleted while their BLE peer is still in the linger window. Each stop reaches `stopped` with no error, terminates HTTP/BLE companions, reaps both BLE and QEMU PIDs, releases the worker lease, and is followed by a new ready session with the same network/GATT/QOM health |
 | `CORE2-02` no-stagger concurrency | `8/8 + 6/6 PASS` | two independent two-instance `4x120s` runs pass `8/8`; two independent three-instance `3x120s` runs pass `6/6`. `0008` preallocates real guest event buffers and ACL mbufs; every lease records 36/9 fast-path event/ACLs, HLI 45/45 and zero errors/reset/panic. Three-instance startup exposed a fixed 40-second peer scan budget that expired before guest BLE init, then a sweep threshold calibrated only for lower concurrency; peer scan now follows session readiness within 120 seconds and the sustained floor is `hold/5` |
-| `CORE2-02` four-instance no-stagger gate | `FAIL 1/4` | one real four-instance `4x120s` run reaches maximum concurrency 4 but fails aggregate. attempt 2 completes the visible network/GATT/PSRAM workload with HLI health still bad (`hli-errors=1`, `hli-prealloc-failures=2`); attempts 3/4 panic before READY in NimBLE `ble_hs_hci_process_ack` (`0x402630cc`) after HCI ACK timeout/reset. The `PC=0` reboot is secondary. Evidence is retained in `evidence-2026-10-25-core2-concurrent-4x120-prealloc-4way-fail.json` |
+| `CORE2-02` four-instance no-stagger gate | `FAIL 1/4 → 8/8 PASS` | one initial four-instance `4x120s` run reached real concurrency 4 but failed aggregate: attempt 2 exposed HLI/preallocation failure and attempts 3/4 panicked in NimBLE `ble_hs_hci_process_ack` after ACK timeout. The peer actually returned Command Complete, identifying exhaustion of the two-packet `0008` reserve. `0009` expands the real guest reserve to 8 events/4 ACLs; two independent four-instance batches then pass `4/4` each (`8/8`) with final QOM depth `8/4`, HLI `45/45`, 36 events/9 ACLs and zero errors/reset/panic |
 
 Build the patched QEMU, then run:
 
@@ -295,6 +295,14 @@ The no-stagger path was diagnosed and closed for two concurrent instances:
     timeout/process errors, then repeatedly panicked at
     `ble_hs_hci_process_ack()` while reading the ACK opcode
     (`0x402630cc`). Rebooting into `PC=0` is a secondary failure.
+12. The peer H4 log showed that Bumble returned every expected Command
+    Complete, so the missing responses were queued behind QEMU HLI delivery.
+    `0009` expands the real-guest reserve from two event/two ACL objects to
+    eight event/four ACL objects. Two independent four-instance `4x120s`
+    batches then pass `4/4` each (`8/8`), ending with QOM depth `8/4`,
+    HLI `45/45`, 36 events/9 ACLs and zero errors/reset/panic. The first
+    passing batch records two transient refill failures on one lease before
+    the pool refills; the independent confirmation batch records none.
 
 Evidence:
 
@@ -310,14 +318,21 @@ Evidence:
 - `evidence-2026-10-25-core2-concurrent-3x120-pass-a.json`
 - `evidence-2026-10-25-core2-concurrent-3x120-confirm-pass-b.json`
 - `evidence-2026-10-25-core2-concurrent-4x120-prealloc-4way-fail.json`
+- `evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-pass-a.json`
+- `evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-confirm-pass-b.json`
+- `../evidence-2026-10-25-core2-0009-device-group.json`
 
 The historical failure is retained. Two instances pass `8/8`; two independent
 three-instance runs pass `6/6`. The fixed `40s` peer scan budget and the
 three-instance PSRAM sweep calibration failure are also retained. The final
 scope remains the bound stock firmware/ELF/QEMU and current hook ABI; it does
-not claim more than three instances: the first four-instance run fails `1/4`,
-so four-instance HCI stability remains open. Physical controller timing and RF
-remain separate `NOT RUN` boundaries.
+not claim more than four instances: the initial four-instance run failed
+`1/4`, and `0009` then passed two independent `8/8` aggregate gates. Five
+instances and above remain `NOT RUN`. Physical controller timing and RF remain
+separate boundaries.
+
+The `0009` source build also passes the Core2 six-case UIFlow2 peripheral
+group (`6/6`, `24/24` checks) with one attempt per case and no retry.
 
 `run_service_teardown.py` exercises process-stop ordering rather than another
 hold. It creates a ready Core2 session, captures pre-stop frame/QOM/network/

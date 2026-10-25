@@ -59,10 +59,11 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - Core2 `0008` 在 CPU0 idle 时预分配真实 guest HCI event/ACL 对象，避免
   ACL FIFO head 把 Command Status/LE Meta 延迟到 NimBLE `2s` ACK 预算之外；
   两批双实例 `4×120s` 为 `8/8 PASS`，两批三实例 `3×120s` 为
-  `6/6 PASS`；extended BLE peer scan 预算随 session readiness 有界扩展，
-  但不外推到四实例及更多实例、physical controller/RF 或真机。四实例
-  `4×120s` 首批已执行并 `1 PASS / 3 FAIL`，失败点是 HLI health/prealloc
-  failure 和 NimBLE `ble_hs_hci_process_ack` panic；
+  `6/6 PASS`；extended BLE peer scan 预算随 session readiness 有界扩展。
+  四实例首批先 `1 PASS / 3 FAIL`，暴露 HLI health/prealloc failure 和
+  NimBLE `ble_hs_hci_process_ack` panic；`0009` 将真实 guest event/ACL
+  备用池扩到 `8/4` 后，两批四实例各 `4/4 PASS`。结论不外推到五实例及
+  更多、physical controller/RF 或真机；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；
 - controlled DNS、exact A/AAAA records、domain suffix 的 label-boundary
   匹配、最多 8 跳 exact-name CNAME chain、测试 CA、DNS/TLS allowlist、

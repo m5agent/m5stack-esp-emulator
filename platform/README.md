@@ -111,8 +111,10 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   合计 `8/8 PASS`，每 lease 36 events/9 ACLs 走 fast path、HLI `45/45`、
   errors/reset/panic 为 0。并发再扩展到两批三实例 `3×120s`，合计
   `6/6 PASS`；BLE peer scan 按 session readiness 有界扩展，三实例
-  PSRAM sweep 下限按实际负载校准。bit-exact Espressif BT
-  baseband/controller、大于三实例的并发、持续吞吐、物理 cache/PSRAM
+  PSRAM sweep 下限按实际负载校准。四实例首批 `1/4` 暴露启动期 ACK
+  backpressure；`0009` 将真实 guest 备用池扩为 8 event/4 ACL 后，两批
+  四实例 `4×120s` 各 `4/4 PASS`，合计 `8/8`。bit-exact Espressif BT
+  baseband/controller、大于四实例的并发、持续吞吐、物理 cache/PSRAM
   和真机仍未完成；
   `tb-size=128` 的 artifact-bound 两小时 soak 已 PASS，host RSS 和 phys
   footprint 在 240 个采样中均未增长。

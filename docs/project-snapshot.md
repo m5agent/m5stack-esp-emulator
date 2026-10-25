@@ -26,7 +26,7 @@
 | NanoC6 (`nanoc6`) | ESP32-C6FH4 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `board-peripherals-wifi-ble-pass` | Zigbee/802.15.4 controller data plane is not modeled (RUNTIME-02) |
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `display-touch-peripherals-wifi-ble-pass` | Meshtastic remains PARTIAL after an independent post-application instruction access fault (RUNTIME-01 flash/PMP defect is fixed) |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | `external-linux-arm64` | `simulated` | `2026-10-22` / `linux-display-input-i2c-audio-power-usb-camera-partial` | not an ESP32 firmware target |
-| Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; two independent two-instance no-stagger 4x120s gates pass 8/8 and two independent three-instance 3x120s gates pass 6/6 with preallocated guest HLI events and ACL mbufs; one four-instance 4x120s batch reaches concurrency 4 and fails 1/4 (one HLI/prealloc health failure and two NimBLE ble_hs_hci_process_ack panics at 0x402630cc), so four-or-more-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN; the bounded-TCG host-memory result is validated only for the tested 7200s workload |
+| Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; two independent two-instance no-stagger 4x120s gates pass 8/8, two independent three-instance 3x120s gates pass 6/6, and two independent four-instance 4x120s gates pass 8/8 with real guest HLI event/ACL preallocation; 0009 expands the reserve from 2/2 to 8/4 after the initial four-instance gate failed 1/4 in NimBLE ACK/HLI handling; five-or-more-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN; the bounded-TCG host-memory result is validated only for the tested 7200s workload |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | `esp-emulator-native` | `partial` | `2026-10-22` / `display-touch-rs485-pass-peripherals-partial` | SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0; ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0; ESP32-P4 USB Host controller and endpoint attachment missing; Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model; Tab5 SDIO storage is not wired to a host block backend; Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial |
 
 ## 通用固件审查
@@ -48,7 +48,7 @@
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、worker-local `qemu-unified` 的 HTTP/BLE/pcap companion fence、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
-| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 `2×120s`、两批双实例无错峰 `8/8` 和两批三实例无错峰 `6/6` 均已 PASS；`0008` 为真实 guest HCI event/ACL 对象建立预分配 fast path，全部 lease fast events 36、fast ACLs 9、`hli-errors=0`。四实例首批 `4×120s` 为 `1 PASS / 3 FAIL`：一个 HLI error/prealloc failure，两个 NimBLE ACK panic |
+| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 `2×120s`、双/三/四实例两批独立门禁均已 PASS；`0008` 建立真实 guest HCI event/ACL fast path，`0009` 以 `8/4` 备用池关闭四实例启动 ACK burst，四实例每轮 36 events/9 ACLs、HLI `45/45`、`hli-errors=0`。原始四实例 `1/4` 失败仍保留 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
 | `FW-03` | 进行中 | API/WebBurner capability、Manifest、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family |
@@ -77,9 +77,9 @@
 | `firmware_filesystems.py` | 1469 |
 | `worker_agent.py` | 1429 |
 
-- `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`176` 个 evidence JSON。
-- `patches/`：`10` 个补丁组，`57` 个 patch 文件。
-- 文档：`202` 个 Markdown 页面，`18185` 行。
+- `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`179` 个 evidence JSON。
+- `patches/`：`10` 个补丁组，`58` 个 patch 文件。
+- 文档：`202` 个 Markdown 页面，`18260` 行。
 
 ## 文档与测试
 

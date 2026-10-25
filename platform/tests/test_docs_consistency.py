@@ -100,7 +100,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-pass-a.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-confirm-pass-b.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc-4way-fail.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-pass-a.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-confirm-pass-b.json",
             "tests/uiflow2/evidence-2026-10-25-core2-hli-preallocation-full-matrix.json",
+            "tests/uiflow2/evidence-2026-10-25-core2-0009-device-group.json",
             "tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json",
             "tests/uiflow2/evidence-2026-10-25-core2-qom-boot-device-group.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
@@ -112,6 +115,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "patches/qemu-core2-native-hci/0006-esp32-native-hci-observability.patch",
             "patches/qemu-core2-native-hci/0007-esp32-native-hci-require-valid-guest-queue.patch",
             "patches/qemu-core2-native-hci/0008-esp32-native-hci-preallocate-hli-objects.patch",
+            "patches/qemu-core2-native-hci/0009-esp32-native-hci-expand-hli-preallocation.patch",
             "patches/qemu-esp32c6-uiflow2-adapters/0006-espressif-riscv-reset-pmp.patch",
             "tests/uiflow2/core2_native_vhci/evidence-2026-10-23-vhci.json",
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci.json",
@@ -1946,8 +1950,8 @@ class DocsConsistencyTests(unittest.TestCase):
                 "two independent two-instance no-stagger 4x120s gates pass 8/8"
                 in blocker
                 and "three-instance 3x120s gates pass 6/6" in blocker
-                and "four-instance 4x120s batch" in blocker
-                and "fails 1/4" in blocker
+                and "four-instance 4x120s gates pass 8/8" in blocker
+                and "five-or-more-instance stability" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )
@@ -5243,6 +5247,92 @@ class DocsConsistencyTests(unittest.TestCase):
                 "0x00000000",
             )
 
+        four_instance_passes = [
+            json.loads(
+                (
+                    root
+                    / filename
+                ).read_text()
+            )
+            for filename in (
+                "evidence-2026-10-25-core2-concurrent-"
+                "4x120-prealloc8x4-pass-a.json",
+                "evidence-2026-10-25-core2-concurrent-"
+                "4x120-prealloc8x4-confirm-pass-b.json",
+            )
+        ]
+        for evidence in four_instance_passes:
+            self.assertEqual(evidence["status"], "PASS")
+            self.assertEqual(evidence["attempts_requested"], 4)
+            self.assertEqual(evidence["attempts_completed"], 4)
+            self.assertEqual(evidence["attempts_passed"], 4)
+            self.assertEqual(evidence["attempts_failed"], 0)
+            self.assertEqual(evidence["maximum_concurrent_sessions"], 4)
+            self.assertTrue(evidence["concurrency_observed"])
+            self.assertEqual(evidence["stagger_seconds"], 0)
+            self.assertEqual(evidence["hold_seconds_per_attempt"], 120)
+            self.assertTrue(evidence["input_assets_unchanged_during_run"])
+            self.assertEqual(
+                len({run["frame_sha256"] for run in evidence["runs"]}),
+                1,
+            )
+            for run in evidence["runs"]:
+                health = run["native_hci_health"]
+                self.assertEqual(run["qom_memory_bytes"], 8 << 20)
+                self.assertEqual(health["hli-posts"], 45)
+                self.assertEqual(health["hli-consumed"], 45)
+                self.assertEqual(health["hli-errors"], 0)
+                self.assertEqual(health["hli-fast-path-events"], 36)
+                self.assertEqual(health["hli-fast-path-acls"], 9)
+                self.assertEqual(health["hli-event-prealloc-depth"], 8)
+                self.assertEqual(health["hli-acl-prealloc-depth"], 4)
+                self.assertEqual(health["trace-hs-sched-reset"], 0)
+                self.assertEqual(
+                    run["failure_diagnostics"]["panic_count"],
+                    0,
+                )
+                self.assertGreaterEqual(len(run["psram"]["sweeps"]), 24)
+        self.assertEqual(
+            sum(
+                run["native_hci_health"]["hli-prealloc-failures"]
+                for run in four_instance_passes[0]["runs"]
+            ),
+            2,
+        )
+        self.assertEqual(
+            sum(
+                run["native_hci_health"]["hli-prealloc-failures"]
+                for run in four_instance_passes[1]["runs"]
+            ),
+            0,
+        )
+        self.assertEqual(
+            four_instance_passes[0]["qemu_sha256"],
+            four_instance_passes[1]["qemu_sha256"],
+        )
+        self.assertEqual(
+            four_instance_passes[0]["tool_hashes"],
+            four_instance_passes[1]["tool_hashes"],
+        )
+        device_group = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/"
+                "evidence-2026-10-25-core2-0009-device-group.json"
+            ).read_text()
+        )
+        self.assertEqual(device_group["device_id"], "core2")
+        self.assertEqual(device_group["cases"], 6)
+        self.assertEqual(device_group["checks"], 24)
+        self.assertEqual(device_group["attempts"], 6)
+        self.assertFalse(device_group["retry_used"])
+        self.assertTrue(
+            all(
+                result["status"] == "PASS"
+                for result in device_group["results"].values()
+            )
+        )
+
         for name, relative in {
             "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "device_service": "platform/tools/device_service.py",
@@ -5256,7 +5346,7 @@ class DocsConsistencyTests(unittest.TestCase):
             current_digest = hashlib.sha256(
                 (ROOT / relative).read_bytes()
             ).hexdigest()
-            for evidence in three_instance_runs:
+            for evidence in [*three_instance_runs, *four_instance_passes]:
                 self.assertEqual(
                     evidence["tool_hashes"][name],
                     current_digest,
@@ -5325,13 +5415,21 @@ class DocsConsistencyTests(unittest.TestCase):
             / "patches/qemu-core2-native-hci/"
             "0008-esp32-native-hci-preallocate-hli-objects.patch"
         ).read_text()
+        expansion_patch = (
+            ROOT
+            / "patches/qemu-core2-native-hci/"
+            "0009-esp32-native-hci-expand-hli-preallocation.patch"
+        ).read_text()
         for text in (
             "staggered concurrent leases",
             "simultaneous cold-start history",
             "simultaneous cold-start preallocation",
+            "four-instance initial failure",
+            "four-instance expanded reserve",
             "guestfwd",
             "ble_hs_hci_process_ack",
             "hli-errors=3",
+            "8/8 PASS",
             "36 events/9 ACLs",
             "0.328s",
         ):
@@ -5339,12 +5437,18 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("unified_http_guestfwd.py", code_map)
         self.assertIn("0007", code_map)
         self.assertIn("0008", code_map)
+        self.assertIn("0009", code_map)
         self.assertIn("no-stagger 4x120s", profiles)
         self.assertIn("Two independent two-instance no-stagger 4x120s gates", profiles)
         self.assertIn("three-instance 3x120s gates pass 6/6", profiles)
+        self.assertIn("two independent four-instance 4x120s gates pass 8/8", profiles)
+        self.assertIn("five-or-more-instance stability", profiles)
         for text in (platform_readme, unified_core2):
             self.assertIn("0008", text)
+            self.assertIn("0009", text)
             self.assertIn("8/8", text)
+        self.assertIn("四实例", platform_readme)
+        self.assertIn("four instances", unified_core2)
         self.assertIn("| P0 | Core2 长稳与物理/controller 等价性 |", backlog)
         self.assertNotIn("| P1 | Core2 长稳与物理/controller 等价性 |", backlog)
         self.assertIn("`CORE2-02` 仍为 P0", status)
@@ -5352,6 +5456,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC", prealloc_patch)
         self.assertIn("ESP32_NATIVE_HCI_HLI_ACL_PREALLOC", prealloc_patch)
         self.assertIn("hli-fast-path-events", prealloc_patch)
+        self.assertIn("ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC 8", expansion_patch)
+        self.assertIn("ESP32_NATIVE_HCI_HLI_ACL_PREALLOC 4", expansion_patch)
         self.assertTrue(
             (ROOT / "platform/tools/unified_http_guestfwd.py").is_file()
         )

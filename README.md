@@ -43,8 +43,13 @@ MicroPython 和其他完整 Flash 固件。
   WiFi/公网/GATT、PSRAM、frame/QOM/pcap/evidence 同时成立。四实例
   `4×120s` 首批已实际执行但为 `1 PASS / 3 FAIL`：一个 lease 出现
   `hli-errors=1`，另外两个在 READY 前于 NimBLE
-  `ble_hs_hci_process_ack` 反复 `LoadProhibited`。因此已通过范围仍只覆盖
-  当前双实例和三实例 `virtual-device` workload。
+  `ble_hs_hci_process_ack` 反复 `LoadProhibited`。失败证据保留后，
+  `0009` 把真实 guest event/ACL 备用对象从 `2/2` 扩到 `8/4`，覆盖并发
+  启动的 Command Complete burst；两批独立四实例 `4×120s` 随后各 `4/4
+  PASS`，合计 `8/8`。四个 lease 都以 `8/4` spare depth 结束，HLI
+  `45/45`、36 events/9 ACLs、errors/reset/panic 为 0；其中一个 lease
+  记录过 2 次可恢复的 refill failure。已通过范围现在包括双实例、三实例和
+  四实例 `virtual-device` workload，五实例及更多仍未运行。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented Flash、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态审查和 capability
   mismatch；`qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first
@@ -319,8 +324,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
   unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、大于三实例的
-  并发（四实例首批已失败）、持续吞吐和真机同路径仍未完成。
+  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、大于四实例的
+  并发、持续吞吐和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

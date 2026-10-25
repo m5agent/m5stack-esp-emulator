@@ -13,7 +13,7 @@
 | --- | --- | --- | --- |
 | ESP32-S3 | `qemu-esp32s3` | 单 guest 板级、WiFi（含 WPA2-PSK pairwise/unicast）和 HCI BLE | 功能级 MAC/DMA/网络模型，不是 WPA3/group multicast、PHY/RF、功耗或电气模型 |
 | ESP32-C6 | `qemu-esp32c6` | 单 guest 板级、WiFi 和 HCI BLE | Zigbee/802.15.4 由 `RUNTIME-02` 单列 |
-| ESP32 LX6 | `qemu-esp32lx6` | Core2 板级、OpenMAC WiFi、BLE controller boundary、8 MiB PSRAM QOM、DRAM1 MMU upper-bank remap 与周期联网 | canonical BLE 路径为 `core2-native-hci`；legacy VHCI 仅诊断；普通 4 MiB heap stress + upper-bank `3/3` 已覆盖；两批双实例无错峰 `8/8`、两批三实例无错峰 `6/6`；四实例首批 `1/4 PASS` 已失败，物理 PSRAM/cache timing 仍不覆盖 |
+| ESP32 LX6 | `qemu-esp32lx6` | Core2 板级、OpenMAC WiFi、BLE controller boundary、8 MiB PSRAM QOM、DRAM1 MMU upper-bank remap 与周期联网 | canonical BLE 路径为 `core2-native-hci`；legacy VHCI 仅诊断；普通 4 MiB heap stress + upper-bank `3/3` 已覆盖；双实例 `8/8`、三实例 `6/6`、四实例修复后 `8/8`；四实例原始 `1/4` 失败保留，五实例及物理 PSRAM/cache timing 仍不覆盖 |
 | ESP32-P4 | `esp-emulator-native` | Tab5 烧录、M5GFX framebuffer、touch mailbox 和部分 I2C | 闭源 P4 后端，外设仍为 `partial` |
 | Linux ARM64 | `external-linux-arm64` | CardputerZero 独立 Linux 设备 | 不是 ESP32/UIFlow2 固件目标，也不由当前 `/api/v1` 管理 |
 

@@ -40,6 +40,12 @@ This patch adds the first QEMU-side slice of `CORE2-01`:
   guest objects and queues the inherited HLI descriptor without nesting guest
   calls. This prevents an ACL FIFO head from delaying a Command Status/LE Meta
   event beyond NimBLE's two-second command-ack budget.
+- `0009` expands that real-guest reserve to eight HCI-event buffers and four
+  ACL mbufs. Four simultaneous cold starts consumed the two-packet reserve
+  before CPU0 reached another idle point, so later Command Complete events
+  waited behind NimBLE's two-second HCI ACK budget. The larger reserve covers
+  the startup burst without synthesizing ACKs or nesting guest calls. Two
+  independent four-instance `4x120s` batches then pass `4/4` each (`8/8`).
 
 The optional poller captures guest H2C packets from real VHCI shared memory
 without GDB. `HCI-3a` now delivers a controller event through the firmware's
@@ -80,6 +86,16 @@ Current extended validation for this patch set:
   30-sweep floor was one above the observed three-instance rate. Peer scan
   now follows session readiness within 40-120 seconds and sustained PSRAM
   uses a conservative `hold/5` floor.
+- with the expanded `0009` reserve, two independent four-instance `4x120s`
+  gates pass `4/4` each (`8/8` total). Every lease accepts the real network
+  and GATT lifecycle, records HLI `45/45`, 36 events / 9 ACLs, ends with
+  `8/4` spare guest objects, and has no HCI error, scheduler reset or panic.
+  One first-batch lease records two transient refill failures before the pool
+  reaches its target; the follow-up health checks and the independent
+  confirmation batch still complete. This covers four simultaneous cold
+  starts, not unbounded concurrency or physical controller equivalence.
+  The `0009` source build also passes the Core2 six-case UIFlow2 peripheral
+  group `6/6` with `24/24` checks, one attempt per case and no retry.
 
 The detailed gate and evidence index remain in
 [`docs/core2-native-hci-backend.md`](../../docs/core2-native-hci-backend.md).
@@ -97,6 +113,7 @@ git apply /path/to/patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-cal
 git apply /path/to/patches/qemu-core2-native-hci/0006-esp32-native-hci-observability.patch
 git apply /path/to/patches/qemu-core2-native-hci/0007-esp32-native-hci-require-valid-guest-queue.patch
 git apply /path/to/patches/qemu-core2-native-hci/0008-esp32-native-hci-preallocate-hli-objects.patch
+git apply /path/to/patches/qemu-core2-native-hci/0009-esp32-native-hci-expand-hli-preallocation.patch
 ninja -C build qemu-system-xtensa
 python3 tests/uiflow2/core2_native_hci/test_transport.py
 python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \

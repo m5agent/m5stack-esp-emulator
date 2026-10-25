@@ -1,0 +1,18 @@
+--- a/include/hw/xtensa/esp32_native_hci.h
++++ b/include/hw/xtensa/esp32_native_hci.h
+@@ -22,8 +22,13 @@
+ #define ESP32_NATIVE_HCI_PACKET_MAX 2048
+ #define ESP32_NATIVE_HCI_RX_BUFFER_SIZE 8192
+ #define ESP32_NATIVE_HCI_TRACE_SLOTS 19
+-#define ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC 2
+-#define ESP32_NATIVE_HCI_HLI_ACL_PREALLOC 2
++/*
++ * Four simultaneous cold starts can consume the initial HCI command ACKs
++ * before CPU0 reaches another safe idle point. Keep enough real guest
++ * transport objects to cover the startup burst without nested guest calls.
++ */
++#define ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC 8
++#define ESP32_NATIVE_HCI_HLI_ACL_PREALLOC 4
+ 
+ typedef struct Esp32NativeHciPacket {
+     uint16_t length;

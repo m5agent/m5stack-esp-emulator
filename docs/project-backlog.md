@@ -29,7 +29,7 @@
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
-| P0 | Core2 长稳与物理/controller 等价性 | 修复四实例首批 `1 PASS / 3 FAIL` 的 NimBLE ACK/HLI 稳定性，再补更多实例、持续吞吐与其他 teardown 模式，以及 bit-exact controller 和物理 PSRAM/cache timing | 3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、30 秒错峰 `2/2`、两批双实例无错峰 `8/8`、两批三实例无错峰 `6/6`、QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap stress `3/3` 和单次 600 秒联网压力 `1/1` 已 PASS；四实例 `4×120s` 已 FAIL，保留为开放项 |
+| P0 | Core2 长稳与物理/controller 等价性 | 补五实例及更多实例、持续吞吐与其他 teardown 模式，以及 bit-exact controller 和物理 PSRAM/cache timing | 3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、30 秒错峰 `2/2`、双/三/四实例各两批无错峰 PASS（`8/8`、`6/6`、`8/8`）、QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap stress `3/3` 和单次 600 秒联网压力 `1/1` 已 PASS；四实例原始 `1/4` 失败和 `0009` 修复均保留 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
@@ -46,14 +46,13 @@
 2. `CORE2-02` extended-run：`3×121`、active-BLE `600s`、
    artifact-bound `7200s`、30 秒错峰 `2/2` 和两批独立无错峰
   `4×120s`（`8/8`）以及两批三实例 `3×120s`（`6/6`）已完成。下一步补
-  四实例及更多实例的 HCI 稳定性、持续吞吐、其他 teardown、bit-exact
+  五实例及更多实例的 HCI 稳定性、持续吞吐、其他 teardown、bit-exact
   controller/baseband、物理 `8 MiB` PSRAM/cache timing 和真机路径。四实例
-  首批 `4×120s` 已得到 `1 PASS / 3 FAIL`：一个 lease 功能面完成后仍出现
-  `hli-errors=1`/prealloc failure 2，两个在 NimBLE
-  `ble_hs_hci_process_ack` 的 `0x402630cc` 处 panic。QOM `8 MiB`、普通
-  4 MiB heap `3×120s`/600s 持续压力、上 4 MiB `esp_himem` bank switch
-  3/3、周期联网、active-stop 和最多三实例 concurrent steady-state 不重复
-  列为待办。
+  首批曾 `1 PASS / 3 FAIL`，暴露 NimBLE ACK panic；`0009` 把真实 guest
+  event/ACL 备用池从 `2/2` 扩到 `8/4` 后，两批独立 `4×120s` 各
+  `4/4 PASS`。QOM `8 MiB`、普通 4 MiB heap `3×120s`/600s 持续压力、
+  上 4 MiB `esp_himem` bank switch 3/3、周期联网、active-stop 和最多
+  四实例 concurrent steady-state 不重复列为待办。
 3. `FW-03`：当前四样本、Manifest、SHA-bound expectation、SD/NVS fixture、
    OpenAI DHCP/DNS/TCP443/pcap 和正确/错误 WPA2 密码均已完成；下一步是真实
    key/cloud 服务结果并扩更多设备与 firmware family。
@@ -68,7 +67,7 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、worker-local `qemu-unified` 的 HTTP/BLE/pcap companion fence、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
-| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 `2×120s`、两批双实例无错峰 `8/8` 和两批三实例无错峰 `6/6` 均已 PASS；`0008` 为真实 guest HCI event/ACL 对象建立预分配 fast path，全部 lease fast events 36、fast ACLs 9、`hli-errors=0`。四实例首批 `4×120s` 为 `1 PASS / 3 FAIL`：一个 HLI error/prealloc failure，两个 NimBLE ACK panic | 修复四实例失败并取得两批独立 aggregate PASS；再补更多实例、持续吞吐、其他 teardown、controller/baseband、物理 PSRAM/cache timing 和真机 |
+| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 `2×120s`、双/三/四实例两批独立门禁均已 PASS；`0008` 建立真实 guest HCI event/ACL fast path，`0009` 以 `8/4` 备用池关闭四实例启动 ACK burst，四实例每轮 36 events/9 ACLs、HLI `45/45`、`hli-errors=0`。原始四实例 `1/4` 失败仍保留 | 再补五实例及更多实例、持续吞吐、其他 teardown、controller/baseband、物理 PSRAM/cache timing 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | API/WebBurner capability、Manifest、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA、expectation 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储/NVS 与网络 expectation 可重复注入 |
@@ -156,9 +155,9 @@
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
 - bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；
 - 物理板载 `8 MiB` PSRAM 与物理 cache/PSRAM 时序对比；
-- 四实例及更多实例的 HCI 稳定性、持续吞吐和其他 teardown 模式；当前
-  双实例 `8/8` 和三实例 `6/6` 只覆盖对应实例数、指定固件和 QEMU hook
-  build，四实例首批已 `1 PASS / 3 FAIL`；
+- 五实例及更多实例的 HCI 稳定性、持续吞吐和其他 teardown 模式；当前
+  双实例 `8/8`、三实例 `6/6` 和四实例 `8/8` 只覆盖对应实例数、指定固件
+  和 QEMU hook build；
 - 同固件路径真机验证。
 
 新调用必须使用 `core2-native-hci`。`core2-native-vhci` 依赖 GDB，只允许
@@ -169,8 +168,8 @@
 - 新目标固件完成 hook/符号校验，并在对应长稳场景中保持 guest RX、
   notification、peer/pcap/evidence 和 HLI health；
 - 物理 PSRAM/cache、controller/baseband 和真机行为分别提供同路径证据；
-- 四实例及更多实例在独立 artifact-bound 复跑中保持 aggregate `PASS`；
-  四实例失败必须作为首个失败保留并由修复证据关闭；双实例和三实例无错峰
+- 五实例及更多实例在独立 artifact-bound 复跑中保持 aggregate `PASS`；
+  四实例原始失败及 `0009` 修复必须同时保留；双实例、三实例和四实例无错峰
   门禁已分别由两批独立复跑覆盖；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
   次数；

@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-uiflow2-device-group-summary-redacted",
+  "generated_at": "2026-10-25T17:08:24.150189+08:00",
+  "validation": "virtual-device validation",
+  "device_id": "core2",
+  "qemu_sha256": "0e1165fb866ecb573cdaca2084bdf498b45432aaa1937674ca73d04eeaa7a7fc",
+  "cases": 6,
+  "checks": 24,
+  "attempts": 6,
+  "retry_used": false,
+  "results": {
+    "core2-peripherals": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "ft6336_touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "pcf8563_rtc_write_read",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_key",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_peripheral_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    "core2-audio": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_dma_capture",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_ns4168_enable",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "qom",
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    "core2-mic": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "esp32_i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    "core2-power-monitor": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "ina3221_device_id",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_bus_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_shunt_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "ina3221_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    "core2-imu": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "mpu6886_identity",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    },
+    "core2-axp192": {
+      "status": "PASS",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "core2_axp192_detect",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_voltage",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_current",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_charging",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "core2_axp192_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ]
+    }
+  }
+}
