@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-psram-himem-bank-switch",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "firmware_sha256": "802358cf500e838a555a75b96d792a14fe98c517471df19a406b168b97259e13",
+  "firmware_bytes": 16777216,
+  "attempts_requested": 3,
+  "attempts_completed": 3,
+  "attempts_passed": 3,
+  "checks": {
+    "session_running": true,
+    "physical_himem_bytes": true,
+    "reserved_mmu_bytes": true,
+    "bank_switch_pass": true,
+    "no_mismatch": true,
+    "no_failure_marker": true,
+    "machine_memory_8_mib": true,
+    "evidence_zip": true
+  },
+  "runs": [
+    {
+      "session_id_sha256": "a999e86b945bd2b8d611c5b8843876ed285de6f8c8482550cbc4871e1c25ff05",
+      "status": "PASS",
+      "checks": {
+        "session_running": true,
+        "physical_himem_bytes": true,
+        "reserved_mmu_bytes": true,
+        "bank_switch_pass": true,
+        "no_mismatch": true,
+        "no_failure_marker": true,
+        "machine_memory_8_mib": true,
+        "evidence_zip": true
+      },
+      "serial_sha256": "a360a8d57897c0557fc9c2f981017a1f6656b91f22addb5b0b5e199f166cfb92",
+      "physical_himem_bytes": 4456448,
+      "reserved_mmu_bytes": 262144,
+      "machine_memory_bytes": 8388608,
+      "evidence_bytes": 8079
+    },
+    {
+      "session_id_sha256": "c39622fb32b484e38c12fd56fc6725f8298c67ede01969584532d57ed5d5f9f0",
+      "status": "PASS",
+      "checks": {
+        "session_running": true,
+        "physical_himem_bytes": true,
+        "reserved_mmu_bytes": true,
+        "bank_switch_pass": true,
+        "no_mismatch": true,
+        "no_failure_marker": true,
+        "machine_memory_8_mib": true,
+        "evidence_zip": true
+      },
+      "serial_sha256": "917879a2cdd5e7c0cb02ea212087f491c88c6c71a1c57a1825e2a7defe34d561",
+      "physical_himem_bytes": 4456448,
+      "reserved_mmu_bytes": 262144,
+      "machine_memory_bytes": 8388608,
+      "evidence_bytes": 8072
+    },
+    {
+      "session_id_sha256": "b6b1a477b49392e9505e7e46eadcc34c5588e5092abb60da43b5b33632ec0745",
+      "status": "PASS",
+      "checks": {
+        "session_running": true,
+        "physical_himem_bytes": true,
+        "reserved_mmu_bytes": true,
+        "bank_switch_pass": true,
+        "no_mismatch": true,
+        "no_failure_marker": true,
+        "machine_memory_8_mib": true,
+        "evidence_zip": true
+      },
+      "serial_sha256": "234512411bfa82449b26ec305a2f713b309416784caf6607da617919afc821c2",
+      "physical_himem_bytes": 4456448,
+      "reserved_mmu_bytes": 262144,
+      "machine_memory_bytes": 8388608,
+      "evidence_bytes": 8077
+    }
+  ],
+  "boundary": {
+    "guest_data_path": "esp_himem upper 4 MiB with DRAM1 MMU remap",
+    "not_claimed": [
+      "physical PSRAM capacity",
+      "physical cache/PSRAM timing",
+      "physical hardware validation",
+      "RF or electrical behavior"
+    ]
+  }
+}

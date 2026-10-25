@@ -34,6 +34,18 @@ without a `runtime_model_gap`. The C6 Zigbee gap remains open:
 frames from source-built switch/light examples, but commissioning/join did not
 complete.
 
+## Core2 8 MiB PSRAM bank switch
+
+[`core2_psram_himem/`](core2_psram_himem/) builds a small ESP-IDF firmware that
+remaps two distinct upper PSRAM blocks through the same virtual MMU window and
+verifies both after remap. Three independent Device Service leases pass with
+QOM memory `8,388,608 B`, himem capacity `4,456,448 B`, reserve `262,144 B` and
+no mismatch markers:
+[`evidence-2026-10-25-core2-himem-bank-switch-3x.json`](core2_psram_himem/evidence-2026-10-25-core2-himem-bank-switch-3x.json).
+
+This is virtual-device validation of the DRAM1 MMU data path, not physical
+PSRAM or cache timing.
+
 Filesystem inventories include a per-file `permission_policy`. FAT directory
 attributes are recorded without treating them as POSIX access control;
 LittleFS and SPIFFS explicitly report that Unix mode bits are absent. Runtime

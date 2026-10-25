@@ -48,7 +48,7 @@
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing + worker-local runtime stop 已 PASS。下一步补 NAT/跨子网发现、物理跨主机迁移/reattach、断网远端进程外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` 虚拟 PSRAM/周期联网 `3/3` 和单次 600 秒持续压力 `1/1` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 |
+| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s 和 active-stop/recovery 均已 PASS；121 轮 readiness 与 accelerator-sampling harness 缺陷已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
 | `FW-03` | 进行中 | API/WebBurner capability、Manifest、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family |
@@ -76,13 +76,13 @@
 | `firmware_filesystems.py` | 1469 |
 | `serve.py` | 1385 |
 
-- `tests/`：`62` 个可执行 Python 测试文件，分布在 `44` 个目录；`150` 个 evidence JSON。
-- `patches/`：`10` 个补丁组，`54` 个 patch 文件。
-- 文档：`198` 个 Markdown 页面，`17442` 行。
+- `tests/`：`63` 个可执行 Python 测试文件，分布在 `45` 个目录；`153` 个 evidence JSON。
+- `patches/`：`10` 个补丁组，`55` 个 patch 文件。
+- 文档：`199` 个 Markdown 页面，`17522` 行。
 
 ## 文档与测试
 
-- 平台测试：`433` 项。
+- 平台测试：`438` 项。
 - Docs 新鲜度登记：`33` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

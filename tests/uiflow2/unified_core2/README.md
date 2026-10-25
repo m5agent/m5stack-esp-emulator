@@ -77,14 +77,15 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
   --out-dir /tmp/m5-core2-psram-gate
 ```
 
-Three independent 120-second leases from the same firmware passed with a
-4 MiB effective external heap, a 1 MiB guest allocation, 35/35/36 sweeps
-(106 full-buffer checks), 30 controlled HTTP rechecks, 10 public rechecks and
-all board/network/BLE/frame/QOM/pcap checks. A separate 600-second lease
-completed 179 sweeps, 51 controlled HTTP rechecks and 18 public rechecks with
-active BLE, bounded TCG, frame/QOM, pcap and cleanup still passing. This is sustained virtual PSRAM
-data-path validation; the board's physical 8 MiB capacity, cache/PSRAM timing
-and hardware remain `NOT RUN`.
+Three independent 120-second leases from the same firmware pass with an
+8 MiB QOM PSRAM device. The normal ESP32 DRAM1 heap remains a 4 MiB directly
+mapped window: each lease allocates 1 MiB and completes 35/35/35 sweeps
+(105 full-buffer checks), 30 controlled HTTP rechecks, 10 public rechecks and
+all board/network/BLE/frame/QOM/pcap checks. The separate
+`tests/firmware/core2_psram_himem/` probe exercises the upper 4 MiB through
+`esp_himem` and DRAM1 MMU remapping in three independent leases. This is
+sustained virtual PSRAM data-path validation; physical PSRAM/cache timing and
+hardware remain `NOT RUN`.
 
 BLE in this unified profile remains UART1 HCI-offload to Bumble. Native ESP32
 controller advertising enable is proven separately. The

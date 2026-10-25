@@ -317,14 +317,15 @@ functional PASS.
 - Tab5 service sessions attach the documented PI4IOE, INA226, RX8130 and
   BMI270 register devices to I2C1. Uploaded Tab5 images still lack a matching
   ELF, so AP-frame and touch capture remain unavailable.
-- Core2 has 8 MiB physical PSRAM, but the current QEMU machine supports at most
-  a 4 MiB emulated PSRAM model. Generic-firmware sessions can use that 4 MiB
-  model. Native-controller runs request CLI `-m 0`, which the current
-  `m5core2` machine resolves to a 4 MiB QOM memory with `has_psram=true`.
-  The unified guest now also allocates a 1 MiB bytearray from that heap and
-  completes 35, 35 and 36 full readback sweeps in three independent
+- Core2 has 8 MiB PSRAM. Native-controller runs request CLI `-m 0`, which the
+  current `m5core2` machine resolves to an 8 MiB QOM memory with
+  `has_psram=true`. The normal ESP32 DRAM1 heap remains a 4 MiB directly
+  mapped window; the upper half is exercised separately through `esp_himem`
+  and DRAM1 MMU remapping.
+  The unified guest now also allocates a 1 MiB bytearray from the normal heap
+  and completes 35, 35 and 35 full readback sweeps in three independent
   120-second leases, plus 179 sweeps in one 600-second lease, while repeating
-  controlled and public HTTP checks. This proves the virtual guest data path
+  controlled and public HTTP checks. This proves the virtual guest heap data path
   over time, not the board's physical 8 MiB or cache timing. Radio/unified
   runs now use deterministic
   TCG/icount scheduling and passed 10/10 independent first attempts; the

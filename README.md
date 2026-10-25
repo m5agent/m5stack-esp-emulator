@@ -20,12 +20,13 @@ MicroPython 和其他完整 Flash 固件。
   `qemu-ble` 仅保留兼容。
 - Core2 新调用使用 `profile=core2-native-hci`；GDB
   `core2-native-vhci` 保留为诊断/兼容路径。
-- Core2 unified guest 已在 3 个独立 lease 中各运行 120 秒，每轮从 QOM 生效的
-  `4 MiB` 虚拟 PSRAM 堆分配 `1 MiB`，完成 35–36 次全缓冲校验，累计读回
-  `106 MiB`；期间每轮还有 10 次受控 HTTP recheck、3–4 次公网 recheck，
-  并保持 active BLE、frame/QOM、pcap、evidence 和 cleanup PASS。另一次
-  600 秒 lease 完成 179 次同规格校验（约 `179 MiB`）、51 次受控 HTTP 和
-  18 次公网 recheck。物理 `8 MiB`、cache/PSRAM 时序和 RF 仍是 `NOT RUN`。
+- Core2 `m5core2` machine 现已模型化 QOM `8 MiB` PSRAM device 和 DRAM1
+  32 KiB MMU 页；普通 ESP32 heap 仍是 4 MiB 直接映射窗口，上半 4 MiB 由
+  3 个独立 `esp_himem` lease 在同一虚拟窗口切换不同物理块后读回，`3/3
+  PASS`。unified guest 又在 3 个独立 120 秒 lease 中从普通 heap 分配
+  `1 MiB`，每轮完成 35 次全缓冲校验（累计 `105 MiB`），并保持 HTTP、公网、
+  BLE、frame/QOM、pcap、evidence 和 cleanup PASS；一次 600 秒 lease 完成
+  179 次同规格校验。物理 PSRAM/cache 时序和 RF 仍是 `NOT RUN`。
 - Device Service 在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
   QOM、网络、worker job 和 evidence API。
 - Remote worker 可通过 active-token HMAC 签名的 IPv4 multicast beacon 自动
@@ -333,7 +334,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   `250880→188416 KiB`。3 个独立 lease 的 121 轮 reconnect 复现也已 PASS；
   active-stop/recovery 又在 3 个连续 session 中验证了 BLE/HTTP companion、
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
-  unified guest 还在 `3×120s` 中完成 106 次、在单次 600 秒中完成 179 次
+  unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
   bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、长时并发/吞吐
   和真机同路径仍未完成。

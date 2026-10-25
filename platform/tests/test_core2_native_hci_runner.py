@@ -143,6 +143,28 @@ class Core2NativeHciHealthTests(unittest.TestCase):
             runner.native_hci_health_ok(healthy(**{"meta-queue-depth": 1}))
         )
 
+    def test_reads_eight_mib_machine_capacity_from_qom(self) -> None:
+        self.assertEqual(
+            runner.qom_memory_bytes(
+                {
+                    "nodes": {
+                        "memory": {
+                            "value": {
+                                "size": 8 << 20,
+                            }
+                        }
+                    }
+                }
+            ),
+            8 << 20,
+        )
+        self.assertIsNone(runner.qom_memory_bytes({}))
+        self.assertIsNone(
+            runner.qom_memory_bytes(
+                {"nodes": {"memory": {"value": {"size": "8M"}}}}
+            )
+        )
+
     def test_parses_and_accepts_complete_psram_stress(self) -> None:
         serial = "\n".join(
             (

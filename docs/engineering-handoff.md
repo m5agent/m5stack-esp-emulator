@@ -31,8 +31,9 @@
 
 - 物理跨主机 QEMU、NAT/跨子网发现、跨主机 reattach/idempotency 和
   namespace-managed/Tab5/cross-host companion 尚未验证；
-- Core2 已具备功能级 native-HCI、WiFi、重连和虚拟 PSRAM 压力证据，但
-  bit-exact BT controller/baseband、物理 `8 MiB` PSRAM/cache timing 尚未覆盖；
+- Core2 已具备功能级 native-HCI、WiFi、重连、QOM `8 MiB` PSRAM 模型、
+  upper-bank MMU remap 和持续压力证据，但 bit-exact BT controller/baseband、
+  物理 PSRAM/cache timing 尚未覆盖；
 - C6 Zigbee/802.15.4、Core2 legacy I2C 和 Core2 for AWS ATECC608 仍是
   明确的 `runtime_model_gap`；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
@@ -54,7 +55,8 @@
 - central 与 worker-local runtime/QEMU 在两个独立 Docker 容器中的真实
   QEMU job、terminal evidence、三工件哈希和 container/bridge cleanup；
 - Core2 `core2-native-hci`、同 guest 120/121 轮重连、active-stop、
-  bounded TCG、虚拟 PSRAM 持续压力和长时间 active-BLE 功能保持；
+  bounded TCG、QOM 8 MiB PSRAM、upper-bank MMU remap、虚拟 PSRAM 持续压力
+  和长时间 active-BLE 功能保持；
 - FirmwareManifest/WebBurner required/optional capability、安全证据冲突、
   image-signature observation、WebBurner part size/SHA/MD5 复算、SD/NVS
   fixture 和 SHA-bound UI/headless/network-first expectation；
@@ -72,7 +74,7 @@
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric | `PILOT` | 物理跨主机、NAT/跨子网、任意公网解析 |
 | Worker 与恢复 | durable queue、lease ownership fence、HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度和断网远端进程外部 side-effect fencing |
-| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、虚拟 PSRAM 压力 | `PILOT` | 物理 cache/PSRAM、bit-exact controller、长时并发 |
+| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力 | `PILOT` | 物理 PSRAM/cache timing、bit-exact controller、长时并发 |
 | 通用固件审查 | Manifest/WebBurner、capability/security、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
 | CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |

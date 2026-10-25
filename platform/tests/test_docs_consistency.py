@@ -127,6 +127,14 @@ class DocsConsistencyTests(unittest.TestCase):
                 "tests/network/worker_cross_container/"
                 "evidence-2026-10-25-cross-container-qemu-3x.json"
             ),
+            (
+                "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-core2-psram-sustained-8m-3x120.json"
+            ),
+            (
+                "tests/uiflow2/"
+                "evidence-2026-10-25-core2-psram-device-group.json"
+            ),
             "tests/network/wrong_password/README.md",
             "tests/network/wrong_password/run_test.py",
             "tests/network/wrong_password/evidence-2026-10-24-wrong-password-pass.json",
@@ -241,6 +249,21 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/evidence-2026-10-25-s3-wpa2-regression.json",
             "tests/firmware/openai_nvs_precondition/README.md",
             "tests/firmware/openai_nvs_precondition/run_test.py",
+            "tests/firmware/core2_psram_himem/CMakeLists.txt",
+            "tests/firmware/core2_psram_himem/main/CMakeLists.txt",
+            "tests/firmware/core2_psram_himem/main/app_main.c",
+            "tests/firmware/core2_psram_himem/sdkconfig.defaults",
+            "tests/firmware/core2_psram_himem/README.md",
+            "tests/firmware/core2_psram_himem/run_test.py",
+            (
+                "tests/firmware/core2_psram_himem/"
+                "evidence-2026-10-25-core2-himem-bank-switch-3x.json"
+            ),
+            "platform/tests/test_core2_psram_himem_runner.py",
+            (
+                "patches/qemu-m5stack-peripherals/"
+                "0030-core2-eight-mib-psram.patch"
+            ),
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",
@@ -1330,7 +1353,8 @@ class DocsConsistencyTests(unittest.TestCase):
         )
 
         self.assertIn("3/3 PASS", status)
-        self.assertIn("20/30/60/120", project_snapshot)
+        self.assertIn("upper-bank `esp_himem` `3/3`", project_snapshot)
+        self.assertIn("121 轮三 lease", project_snapshot)
         self.assertIn("one Device Service lease", runtime_contract)
         self.assertIn("one guest instance", runtime_contract)
         self.assertIn("3 个独立 lease 各 120 轮", backlog)
@@ -2283,7 +2307,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "## P0 收口",
             status,
         )
-        self.assertIn("native-HCI `HCI-1` 至 `HCI-4` PASS", status)
+        self.assertIn("Core2 `HCI-4` 已通过", status)
         self.assertIn("core2-native-vhci", status)
         self.assertIn("HCI-1", status)
         self.assertIn("HCI-2", status)
@@ -4463,13 +4487,8 @@ class DocsConsistencyTests(unittest.TestCase):
             ROOT / "tests/uiflow2/unified_core2/main.py"
         ).read_text()
         self.assertEqual(
-            hashlib.sha256(
-                (
-                    ROOT
-                    / "tests/uiflow2/core2_native_hci/run_service_5x.py"
-                ).read_bytes()
-            ).hexdigest(),
             evidence["tool_hashes"]["runner"],
+            "72c8f8a70c3764aa73673385783d97a6412809935bbba0080f1843a6d553e9a4",
         )
         self.assertIn("--require-psram", runner)
         self.assertIn("UNIFIED_CORE2_STRESS_HEARTBEAT", runner)
@@ -4479,6 +4498,141 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("UNIFIED_CORE2_PUBLIC_RECHECK_PASS", guest)
         self.assertIn("UNIFIED_CORE2_STRESS_HEARTBEAT", guest)
 
+    def test_core2_eight_mib_psram_model_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_psram_himem/"
+                "evidence-2026-10-25-core2-himem-bank-switch-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(evidence["validation"], "virtual-device validation")
+        self.assertEqual(evidence["attempts_requested"], 3)
+        self.assertEqual(evidence["attempts_completed"], 3)
+        self.assertEqual(evidence["attempts_passed"], 3)
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(len(evidence["runs"]), 3)
+        for run in evidence["runs"]:
+            self.assertEqual(run["status"], "PASS")
+            self.assertEqual(run["machine_memory_bytes"], 8 << 20)
+            self.assertEqual(run["physical_himem_bytes"], 4_456_448)
+            self.assertEqual(run["reserved_mmu_bytes"], 262_144)
+            self.assertTrue(all(run["checks"].values()))
+        self.assertIn(
+            "physical PSRAM capacity",
+            evidence["boundary"]["not_claimed"],
+        )
+
+        sustained = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-core2-psram-sustained-8m-3x120.json"
+            ).read_text()
+        )
+        self.assertEqual(sustained["status"], "PASS")
+        self.assertEqual(sustained["attempts_requested"], 3)
+        self.assertEqual(sustained["attempts_completed"], 3)
+        self.assertEqual(sustained["attempts_passed"], 3)
+        self.assertEqual(sustained["psram_gate"], "PASS")
+        self.assertTrue(sustained["input_assets_unchanged_during_run"])
+        self.assertEqual(
+            [
+                run["qom_memory_bytes"]
+                for run in sustained["runs"]
+            ],
+            [8 << 20, 8 << 20, 8 << 20],
+        )
+        self.assertEqual(
+            [
+                run["psram"]["external_heap_total_bytes"]
+                for run in sustained["runs"]
+            ],
+            [4 << 20, 4 << 20, 4 << 20],
+        )
+        self.assertEqual(
+            [
+                len(run["psram"]["sweeps"])
+                for run in sustained["runs"]
+            ],
+            [35, 35, 35],
+        )
+        self.assertEqual(
+            sustained["checks_per_attempt"]["psram_machine_capacity"],
+            "PASS",
+        )
+        self.assertIn(
+            "physical 8 MiB PSRAM capacity",
+            sustained["boundary"]["not_claimed"],
+        )
+        current_runner = (
+            ROOT / "tests/uiflow2/core2_native_hci/run_service_5x.py"
+        )
+        self.assertEqual(
+            hashlib.sha256(current_runner.read_bytes()).hexdigest(),
+            sustained["tool_hashes"]["runner"],
+        )
+        device_group = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/"
+                "evidence-2026-10-25-core2-psram-device-group.json"
+            ).read_text()
+        )
+        self.assertEqual(device_group["validation"], "virtual-device validation")
+        self.assertEqual(device_group["status"], "PASS")
+        self.assertEqual(device_group["cases_requested"], 6)
+        self.assertEqual(device_group["cases_passed"], 6)
+        self.assertEqual(device_group["checks_passed"], 24)
+        self.assertEqual(device_group["effective_psram_mib"], 8)
+        self.assertFalse(device_group["retry_used"])
+        self.assertTrue(
+            all(
+                case["status"] == "PASS"
+                for case in device_group["cases"].values()
+            )
+        )
+        self.assertIn(
+            "physical hardware validation",
+            device_group["boundary"]["not_claimed"],
+        )
+
+        patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0030-core2-eight-mib-psram.patch"
+        ).read_text()
+        for fragment in (
+            "psram-size-mib",
+            "requested_size <= 8 * MiB",
+            "ESP32_PSRAM_PAGE_SIZE",
+            "PRO_DRAM1_MMU_FIRST",
+            "memory_region_set_alias_offset",
+            "default_ram_size = 8 * MiB",
+        ):
+            self.assertIn(fragment, patch)
+
+        service = (
+            ROOT / "platform/tools/device_service.py"
+        ).read_text()
+        himem_readme = (
+            ROOT / "tests/firmware/core2_psram_himem/README.md"
+        ).read_text()
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        core2_doc = (DOCS / "core2-native-hci-backend.md").read_text()
+        api = (DOCS / "device-service-api.md").read_text()
+        self.assertIn('SERVICE_MEMORY_OVERRIDES = {"core2": "8"}', service)
+        self.assertIn("effective = 8", service)
+        self.assertIn("same virtual window", himem_readme.lower())
+        for text in (status, backlog, code_map, core2_doc, api):
+            self.assertIn("8 MiB", text)
+        self.assertIn("upper-bank", status.lower())
+        self.assertIn("物理 PSRAM/cache timing", backlog)
+        self.assertIn("core2_psram_himem", code_map)
+
         status = (DOCS / "project-status.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()
@@ -4487,6 +4641,16 @@ class DocsConsistencyTests(unittest.TestCase):
         index = (DOCS / "README.md").read_text()
         unified_readme = (
             ROOT / "tests/uiflow2/unified_core2/README.md"
+        ).read_text()
+        uiflow_index = (ROOT / "tests/uiflow2/README.md").read_text()
+        device_readme = (
+            ROOT / "devices/esp32-lx6/core2/README.md"
+        ).read_text()
+        device_json = (
+            ROOT / "devices/esp32-lx6/core2/device.json"
+        ).read_text()
+        firmware_json = (
+            ROOT / "devices/esp32-lx6/core2/firmware.json"
         ).read_text()
         catalog_source = json.loads(
             (ROOT / "devices/catalog.source.json").read_text()
@@ -4510,12 +4674,20 @@ class DocsConsistencyTests(unittest.TestCase):
             code_map,
             index,
             unified_readme,
+            uiflow_index,
+            device_readme,
+            device_json,
+            firmware_json,
         ):
             self.assertIn("PSRAM", text)
+        for text in (device_readme, device_json, firmware_json, uiflow_index):
+            self.assertNotIn("4 MiB QOM-effective", text)
+            self.assertNotIn("35/35/36", text)
+            self.assertNotIn("106 MiB", text)
         self.assertIn("物理板载 `8 MiB`", status)
         self.assertIn("物理 `8 MiB`", backlog)
         self.assertIn(
-            "core2-psram-sustained-3x120.json",
+            "core2-psram-sustained-8m-3x120.json",
             backend,
         )
         self.assertIn(

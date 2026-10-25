@@ -29,6 +29,7 @@ from qemu_accel import CORE2_TCG_TB_SIZE_MIB  # noqa: E402
 PROFILE = "core2-native-hci"
 READY_MARKER = "UNIFIED_CORE2_READY"
 PSRAM_EXTERNAL_HEAP_MIN_BYTES = 4 << 20
+PSRAM_MACHINE_CAPACITY_MIN_BYTES = 8 << 20
 PSRAM_REQUESTED_BYTES = 1 << 20
 EXPECTED_QEMU_ACCELERATOR = (
     f"tcg,thread=single,tb-size={CORE2_TCG_TB_SIZE_MIB}"
@@ -378,6 +379,19 @@ def native_hci_health_ok(hci_health: dict[str, int]) -> bool:
             > 0
         )
     )
+
+
+def qom_memory_bytes(qom: dict[str, Any]) -> int | None:
+    memory = qom.get("nodes", {}).get("memory")
+    if not isinstance(memory, dict):
+        return None
+    value = memory.get("value")
+    if not isinstance(value, dict):
+        return None
+    size = value.get("size")
+    if isinstance(size, bool) or not isinstance(size, int):
+        return None
+    return size
 
 
 def parse_psram_stress(serial_text: str) -> dict[str, Any]:
@@ -752,6 +766,7 @@ def run_attempt(
     transport = network.get("runtime", {}).get("hci_transport")
     expected_transport = "ESP32 native HCI device + HLI to Bumble"
     hci_health = native_hci_health(qom)
+    machine_memory_bytes = qom_memory_bytes(qom)
     evidence_names = {
         "serial.log",
         "frames/current.png",
@@ -826,6 +841,10 @@ def run_attempt(
     psram_requirements = sustained_stress_requirements(hold_seconds)
     if require_psram:
         checks["psram_guest_stress"] = psram_stress_ok(psram)
+        checks["psram_machine_capacity"] = (
+            machine_memory_bytes is not None
+            and machine_memory_bytes >= PSRAM_MACHINE_CAPACITY_MIN_BYTES
+        )
         checks["psram_sustained_stress"] = sustained_stress_ok(
             psram,
             hold_seconds,
@@ -916,6 +935,7 @@ def run_attempt(
             hashlib.sha256(frame).hexdigest() if frame else None
         ),
         "qom_nodes": len(qom.get("nodes", [])),
+        "qom_memory_bytes": machine_memory_bytes,
         "evidence_bytes": len(evidence),
         "serial_sha256": (
             hashlib.sha256(serial).hexdigest() if serial else None

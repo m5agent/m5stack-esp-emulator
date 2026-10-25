@@ -123,7 +123,7 @@ from xtensa_elf_symbols import (  # noqa: E402
 DEFAULT_STATE_DIR = ROOT / "platform/.cache/service"
 DEFAULT_MAX_SESSIONS = 12
 DEFAULT_MAX_PER_DEVICE = 8
-SERVICE_MEMORY_OVERRIDES = {"core2": "4"}
+SERVICE_MEMORY_OVERRIDES = {"core2": "8"}
 TAB5_I2C_DEVICES = (
     "1:0x32,fill=0",
     "1:0x41,fill=0,reg=0xFE=0x54,reg=0xFF=0x49,"
@@ -267,9 +267,9 @@ def qemu_runtime_memory(
     effective = cli_requested
     effective_source = "qemu-cli-request"
     if native_controller and device_id == "core2":
-        # The m5core2 machine resolves `-m 0` to its 4 MiB default memory.
-        # QOM evidence verifies memory=4 MiB and has_psram=true.
-        effective = 4
+        # The m5core2 machine resolves `-m 0` to its 8 MiB board default.
+        # QOM evidence verifies memory=8 MiB and has_psram=true.
+        effective = 8
         effective_source = "validated-m5core2-qom"
     if native_controller:
         policy = "native-controller-machine-default-psram"

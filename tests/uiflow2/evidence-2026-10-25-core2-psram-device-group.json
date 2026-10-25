@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-psram-device-group-regression",
+  "generated_at": "2026-10-25T11:28:19+08:00",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "machine": "m5core2",
+  "cli_memory_request": 0,
+  "effective_psram_mib": 8,
+  "firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+  "qemu_sha256": "80d3c50d1cc1d24a9686492bcb064891d43b7058c4e829ba2dc5879fbfee8881",
+  "cases_requested": 6,
+  "cases_passed": 6,
+  "checks_passed": 24,
+  "cases": {
+    "core2-peripherals": {
+      "status": "PASS",
+      "checks": [
+        "ft6336_touch",
+        "pcf8563_rtc_write_read",
+        "power_key",
+        "core2_peripheral_ui_marker"
+      ]
+    },
+    "core2-audio": {
+      "status": "PASS",
+      "checks": [
+        "speaker_tone",
+        "esp32_i2s_dma_capture",
+        "axp2101_ns4168_enable",
+        "speaker_ui_marker"
+      ]
+    },
+    "core2-mic": {
+      "status": "PASS",
+      "checks": [
+        "mic_record",
+        "esp32_i2s_rx_pcm_injection",
+        "mic_ui_marker"
+      ]
+    },
+    "core2-power-monitor": {
+      "status": "PASS",
+      "checks": [
+        "ina3221_device_id",
+        "ina3221_bus_voltage",
+        "ina3221_shunt_voltage",
+        "ina3221_ui_marker"
+      ]
+    },
+    "core2-imu": {
+      "status": "PASS",
+      "checks": [
+        "mpu6886_identity",
+        "mpu6886_accel",
+        "mpu6886_gyro",
+        "imu_ui_marker"
+      ]
+    },
+    "core2-axp192": {
+      "status": "PASS",
+      "checks": [
+        "core2_axp192_detect",
+        "core2_axp192_voltage",
+        "core2_axp192_current",
+        "core2_axp192_charging",
+        "core2_axp192_ui_marker"
+      ]
+    }
+  },
+  "attempts_per_case": 1,
+  "retry_used": false,
+  "boundary": {
+    "scope": "Core2 board, display/touch and modeled peripheral regression after the 8 MiB PSRAM default and DRAM1 MMU change",
+    "not_claimed": [
+      "physical PSRAM capacity",
+      "physical PSRAM/cache timing",
+      "physical hardware validation",
+      "RF or electrical behavior"
+    ]
+  }
+}

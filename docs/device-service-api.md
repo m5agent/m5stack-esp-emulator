@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.32.0` and bounded
+Status: local MVP with unified-device runtime contract `1.33.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -1109,7 +1109,7 @@ The preferred stock-firmware path is `core2-native-hci`:
 `elf_artifact_id` is mandatory and must point to the matching symbol ELF.
 The service starts one `m5core2` guest with CLI `-m 0`, the OpenMAC WiFi NIC
 and the QEMU `esp32-native-hci` device. QOM reports the resolved machine
-memory as 4 MiB with `has_psram=true`; evidence keeps the CLI request and
+memory as 8 MiB with `has_psram=true`; evidence keeps the CLI request and
 effective value separate. Before launch it strictly resolves every
 API-boundary, HLI queue, ATT trace and task-recycle address required by the
 device arguments. No QEMU GDB endpoint is created. Event and ACL delivery use
@@ -1121,8 +1121,10 @@ The network evidence `runtime.memory` object records the requested CLI and
 QOM-effective QEMU PSRAM size, the selected policy, and
 `physical_cache_psram_timing=NOT RUN`. Native-controller profiles report
 `cli_requested_psram_mib=0`; for Core2 the resolved
-`effective_psram_mib=4` comes from the current `m5core2` QOM. Other profiles
-report the CLI model unless another board-specific resolution is documented.
+`effective_psram_mib=8` comes from the current `m5core2` QOM. The normal
+ESP32 DRAM1 heap remains the architectural 4 MiB mapped window; the upper
+4 MiB requires the modelled MMU bank switch. Other profiles report the CLI
+model unless another board-specific resolution is documented.
 This makes memory policy auditable without claiming physical PSRAM or cache
 timing.
 
@@ -1679,12 +1681,14 @@ path does not support upper flash regions. Later sessions with the same device
 and firmware hash copy the prepared flash cache into a new per-session flash
 file.
 
-Core2 board inventory has 8 MiB PSRAM, while the QEMU machine currently caps
-its emulated PSRAM at 4 MiB. Native-controller profiles request CLI `-m 0`,
-but the current `m5core2` machine resolves this to a 4 MiB QOM memory with
-`has_psram=true`; the evidence records both values. Always read the session
-evidence memory fields before comparing runs. Neither configuration is
-physical cache/PSRAM timing validation. Tab5 sessions attach the board's
+Core2 board inventory and the QEMU machine both expose 8 MiB PSRAM.
+Native-controller profiles request CLI `-m 0`, and the current `m5core2`
+machine resolves this to an 8 MiB QOM memory with `has_psram=true`; the
+evidence records both values. The normal heap is limited to the ESP32 4 MiB
+DRAM1 mapping window, while `tests/firmware/core2_psram_himem/` covers the
+upper bank through MMU remapping. Always read the session evidence memory
+fields before comparing runs. This is not physical cache/PSRAM timing
+validation. Tab5 sessions attach the board's
 PI4IOE, INA226, RX8130 and BMI270 register devices to I2C1 before boot, so
 application firmware sees the documented addresses rather than an empty bus.
 

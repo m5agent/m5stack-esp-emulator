@@ -117,6 +117,10 @@ python3 platform/tools/serve.py 8787
 依赖和 runtime manifest，不包含 M5Stack 参考固件。参考固件仍按设备使用
 `fetch_firmware.py` 获取，或通过 `/api/v1/artifacts` 上传匹配镜像。
 
+该 release 的 source commit 早于 Core2 8 MiB PSRAM/DRAM1 MMU 补丁；运行
+upper-bank `core2_psram_himem` 证据时必须用当前 commit 重新构建的
+`qemu-system-xtensa`，不能继续复用这个旧 release 中的 Core2 二进制。
+
 这不是 clean-room 源码重建，也不覆盖 Linux/Windows。它解决的是“第三方
 拿到当前 commit 后无法直接启动 QEMU 后端”的可执行运行时缺口；源码重建路径
 仍见方案 B。

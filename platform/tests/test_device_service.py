@@ -583,7 +583,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "unsupported_capability",
         )
 
-    def test_qemu_runtime_rejects_psram_capability_mismatch(self):
+    def test_qemu_runtime_accepts_eight_mib_board_psram(self):
         data = b"\xe9" + b"C" * 1023
         artifact = self.service.upload_artifact(data)
         manifest = {
@@ -636,30 +636,28 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 "manifest": manifest,
             }
         )
-        elf = self.service.upload_artifact(b"\x7fELF-test")
-        with mock.patch.dict(
-            os.environ,
-            {"M5_CORE2_RADIO_QEMU": str(self.service.specs["core2"].qemu)},
-        ):
-            with self.assertRaises(ServiceError) as caught:
-                self.service.create_session(
-                    {
-                        "device_id": "core2",
-                        "firmware_id": firmware["firmware_id"],
-                        "runtime": "qemu-unified",
-                        "network": {
-                            "profile": "core2-native-hci",
-                            "elf_artifact_id": elf["artifact_id"],
-                        },
-                    }
-                )
         self.assertEqual(
-            caught.exception.code,
-            "unsupported_firmware_capability",
+            firmware["manifest"]["target"]["psram_size"],
+            8 << 20,
         )
-        issue = caught.exception.extra["issues"][0]
+        self.assertIsNone(
+            device_service_module.runtime_psram_mismatch(
+                "8",
+                "core2-native-hci",
+                8 << 20,
+                "core2",
+            )
+        )
+        issue = device_service_module.runtime_psram_mismatch(
+            "8",
+            "core2-native-hci",
+            16 << 20,
+            "core2",
+        )
+        self.assertIsNotNone(issue)
+        assert issue is not None
         self.assertEqual(issue["code"], "runtime_psram_mismatch")
-        self.assertEqual(issue["available"], 4 << 20)
+        self.assertEqual(issue["available"], 8 << 20)
 
     def test_qemu_wifi_network_result_refreshes_before_stop(self):
         spec = self.service.specs["sticks3"]
@@ -727,21 +725,21 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 self.assertEqual(prepared["path"].stat().st_size, spec.flash_size)
 
     def test_core2_service_exposes_board_psram(self):
-        self.assertEqual(self.service.specs["core2"].memory, "4")
+        self.assertEqual(self.service.specs["core2"].memory, "8")
         regular = device_service_module.qemu_runtime_memory(
-            "4",
+            "8",
             "core2-unified",
             "core2",
         )
         native = device_service_module.qemu_runtime_memory(
-            "4",
+            "8",
             "core2-native-hci",
             "core2",
         )
-        self.assertEqual(regular["effective_psram_mib"], 4)
+        self.assertEqual(regular["effective_psram_mib"], 8)
         self.assertEqual(regular["policy"], "qemu-emulated-psram")
         self.assertEqual(native["cli_requested_psram_mib"], 0)
-        self.assertEqual(native["effective_psram_mib"], 4)
+        self.assertEqual(native["effective_psram_mib"], 8)
         self.assertEqual(
             native["effective_source"],
             "validated-m5core2-qom",
@@ -755,22 +753,22 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "NOT RUN",
         )
         issue = device_service_module.runtime_psram_mismatch(
-            "4",
+            "8",
             "core2-native-hci",
-            8 << 20,
+            16 << 20,
             "core2",
         )
         self.assertEqual(issue["code"], "runtime_psram_mismatch")
-        self.assertEqual(issue["available"], 4 << 20)
+        self.assertEqual(issue["available"], 8 << 20)
         self.assertEqual(
             issue["memory_policy"],
             "native-controller-machine-default-psram",
         )
         self.assertIsNone(
             device_service_module.runtime_psram_mismatch(
-                "4",
+                "8",
                 "core2-unified",
-                4 << 20,
+                8 << 20,
                 "core2",
             )
         )
@@ -4047,13 +4045,13 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(evidence["runtime"]["wifi_nic"], "misc.esp32_wifi")
         self.assertEqual(
             evidence["runtime"]["memory"]["effective_psram_mib"],
-            4,
+            8,
         )
         self.assertEqual(evidence["gatt"]["name"], "M5-CORE2-UNIFIED")
         self.assertEqual(evidence["gatt"]["payload"], "M5_CORE2_UNIFIED")
         self.assertEqual(
             session.snapshot()["runtime_memory"]["effective_psram_mib"],
-            4,
+            8,
         )
         session.state = "stopped"
         session._proc = None

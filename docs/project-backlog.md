@@ -30,7 +30,7 @@
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 继续验证吞吐/并发与其他 teardown 模式，以及 bit-exact controller 和物理 `8 MiB` PSRAM/cache timing | 3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` PSRAM `3/3` 和单次 600 秒 PSRAM/联网压力 `1/1` 已 PASS |
+| P1 | Core2 长稳与物理/controller 等价性 | 继续验证吞吐/并发与其他 teardown 模式，以及 bit-exact controller 和物理 PSRAM/cache timing | 3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap stress `3/3` 和单次 600 秒联网压力 `1/1` 已 PASS |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -48,7 +48,8 @@
 3. `CORE2-02` extended-run：`3×121`、active-BLE `600s` 和 artifact-bound
    `7200s` 已完成；下一步只补长时吞吐/并发、其他 teardown 模式、
    bit-exact controller/baseband、物理 `8 MiB` PSRAM/cache timing 和
-   真机路径。QOM 可见、guest `4 MiB` PSRAM `3×120s`/600s 持续压力、周期联网和 active-stop
+   真机路径。QOM `8 MiB`、普通 4 MiB heap `3×120s`/600s 持续压力、
+   上 4 MiB `esp_himem` bank switch 3/3、周期联网和 active-stop
    均已完成，不再列为待办。
 4. `FW-01/02`、`RUNTIME-02/03/04`、`HW-01`：补运行态权限/许可、生产
    key/eFuse、C6 Zigbee 决策、Core2 控制器缺口和代表设备同固件 SHA
@@ -61,7 +62,7 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing + worker-local runtime stop 已 PASS。下一步补 NAT/跨子网发现、物理跨主机迁移/reattach、断网远端进程外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
-| `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` 虚拟 PSRAM/周期联网 `3/3` 和单次 600 秒持续压力 `1/1` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时吞吐/并发、其他 teardown 模式和真机 |
+| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s 和 active-stop/recovery 均已 PASS；121 轮 readiness 与 accelerator-sampling harness 缺陷已修复 | 补 controller/baseband、物理 PSRAM/cache timing、长时吞吐/并发、其他 teardown 模式和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | API/WebBurner capability、Manifest、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA、expectation 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储/NVS 与网络 expectation 可重复注入 |
@@ -226,10 +227,11 @@ guest-call 上下文问题并修复：
   三个 lease 均为 `121/121 PASS`；active-stop/recovery 随后又通过三个连续
   session。仍未完成的是长时吞吐/并发和其他 process-stop/teardown 模式；
 - guest PSRAM 持续压力已在 `core2-native-hci` 中完成：3 个独立 120 秒
-  lease 均从 QOM 生效的 `4 MiB` 外部堆分配 `1 MiB` bytearray，分别完成
-  35、35、36 次全缓冲读回（累计 `106 MiB`）；每轮同时完成 10 次受控 HTTP
+  lease 均从普通 4 MiB DRAM1 外部堆窗口分配 `1 MiB` bytearray，分别完成
+  35、35、35 次全缓冲读回（累计 `105 MiB`）；每轮同时完成 10 次受控 HTTP
   recheck、3–4 次公网 recheck，并与 active BLE/frame/QOM/pcap 同实例通过。
-  QEMU 模型上限仍为 `4 MiB`，物理 `8 MiB` 和 cache/PSRAM 时序没有验证；
+  QOM PSRAM device 已是 `8 MiB`，另用 3 个独立 `esp_himem` lease 完成上
+  4 MiB 的 MMU bank-switch 读写回；物理 PSRAM 和 cache timing 仍未验证；
 - 单次 600 秒 soak 进一步完成 179 次 `1 MiB` 校验（约 `179 MiB`）、51 次
   受控 HTTP 和 18 次公网 recheck；active BLE、bounded TCG、frame/QOM、
   pcap、evidence 和 cleanup 全 PASS；20 个 host RSS 采样仅增加 `352 KiB`，

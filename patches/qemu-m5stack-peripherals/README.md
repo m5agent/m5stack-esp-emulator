@@ -129,6 +129,7 @@ git apply /path/to/0026-m5stack-rtc-virtual-clock.patch
 git apply /path/to/0027-esp32s3-gdma-external-memory.patch
 git apply /path/to/0028-esp32-wifi-dual-guest-fabric.patch
 git apply /path/to/0029-esp32s3-wpa2-psk-data-plane.patch
+git apply /path/to/0030-core2-eight-mib-psram.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -171,6 +172,14 @@ from the generic ST7735 `0x7683` default to the ST7789 `0x81` family. With the
 old value, M5GFX's LGA56 autodetection accepted the AtomS3R probe and mapped
 the application through a 128x128 ST7735 panel; a normal 240x135 StickS3 layout
 therefore appeared as only a clipped corner.
+
+`0030-core2-eight-mib-psram.patch` expands the `m5core2` PSRAM memory region
+to 8 MiB and models the 128 32 KiB DRAM1 MMU entries used by
+ESP-IDF bank switching. It keeps the normal ESP32 heap window at 4 MiB and
+maps the upper half on demand. The `core2_psram_himem` firmware probe passes
+three independent leases by alternating two distinct upper physical blocks
+through the same virtual window and verifying both after remap. This is not a
+physical PSRAM or cache-timing measurement.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

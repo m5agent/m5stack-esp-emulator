@@ -104,7 +104,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   `121` 轮在 29 轮后被固定 `180s` readiness 预算误杀，guest 无 panic；
   第二次又暴露 reconnect-only accelerator 采样缺失；两处 harness 问题
   修复后先取得单 lease `121/121 PASS`，随后另外两个独立 lease 也完成
-  `121/121`，三 lease 门禁已关闭。bit-exact Espressif BT
+  `121/121`，三 lease 门禁已关闭。`m5core2` 现提供 QOM 8 MiB PSRAM 和
+  DRAM1 32 KiB MMU 页；普通 heap 仍为 4 MiB，upper 4 MiB 由 3 个独立
+  `esp_himem` lease 完成同窗口物理块切换和读回。bit-exact Espressif BT
   baseband/controller、物理
   cache/PSRAM 和真机仍未完成；`tb-size=128` 的 artifact-bound 两小时 soak
   已 PASS，host RSS 和 phys footprint 在 240 个采样中均未增长。
