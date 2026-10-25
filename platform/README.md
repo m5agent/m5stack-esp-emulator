@@ -162,7 +162,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/worker_directory.py` | 远程 worker identity/generation 注册、stale/drain/stop、capability 与有界结果目录 |
 | `tools/worker_queue.py` | 持久 job queue、idempotency、capability 匹配、lease/heartbeat、超时重试和 supervisor 回收 |
 | `tools/worker_auth.py` | 严格 token-file、worker key 派生、HMAC 请求签名、时间戳、nonce replay cache 和 identity binding |
-| `tools/worker_agent.py` | HTTP-only worker executor、control/runtime API 双端点、token/TLS `SIGHUP` reload、atomic generation-pointer auto reload/receipts、generation、claim、heartbeat、session 执行、evidence 和 result |
+| `tools/worker_agent.py` | HTTP-only worker executor、control/runtime API 双端点、按剩余预算限时的 reconnect、network/409 lease fence、token/TLS `SIGHUP` reload、atomic generation-pointer auto reload/receipts、generation、claim、heartbeat、session 执行、evidence 和 result |
 | `tools/transport_security.py` | TLS 1.2+ server/client context、服务端证书校验、可选 client CA、mTLS 客户端证书 |
 | `tools/firmware_manifest.py` | ZIP/目录/WebBurner/M5Burner/flasher_args 导入与脱敏 eFuse 安全摘要 |
 | `tools/firmware_static_review.py` | 脱敏 URL/凭据/高熵审查和 SPDX/CycloneDX SBOM 摘要 |
@@ -188,6 +188,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/cname_guest_lifecycle/` | 同 guest CNAME→terminal A→HTTP、denied name/port、pcap、namespace cleanup 和三次独立 lease 复现 |
 | `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |
 | `../tests/network/worker_discovery_seed/` | 两个独立子网、NAT、unicast seed、错误/旧 token、rotation 和清理验证 |
+| `../tests/network/worker_partition_fencing/` | worker→control 断网、bounded heartbeat failure、runtime/process stop、lease expiry/requeue 和 retry 完成 |
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
 | `../tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain/resume、进程组清理和下一代 abandoned lease 分类 |

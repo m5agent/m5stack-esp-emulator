@@ -105,6 +105,7 @@ Local worker identity and heartbeat can be controlled with:
 | `M5_WORKER_STATE_PATH` | `<state-dir>/worker.json` | worker lifecycle and lease record |
 | `M5_WORKER_HEARTBEAT_INTERVAL` | 5 | heartbeat write interval in seconds |
 | `M5_WORKER_STALE_AFTER` | 15 | age at which a heartbeat is marked stale |
+| `M5_JOB_LEASE_SECONDS` | 60 | remote job lease renewal/expiry interval; clamped to 5–3600 seconds |
 | `M5_SERVICE_API_TOKEN_FILE` | unset | file-backed service/worker token; mutually exclusive with the in-memory token option |
 | `M5_SERVICE_API_TOKEN_PREVIOUS_FILE` | unset | optional token accepted only during a bounded overlap; remove it and send `SIGHUP` to finalize |
 | `M5_SECURITY_RELOAD_DRAIN_TIMEOUT` | 30 | seconds to wait for active requests before a `SIGHUP` reload is canceled |
@@ -338,6 +339,16 @@ unicast discovery seed. Two routed/masqueraded subnets, wrong/old-token
 rejection, rotation and cleanup pass 3/3. Cross-host QEMU jobs, arbitrary NAT
 traversal without a reachable seed, cross-host re-attach and
 namespace-managed/Tab5/cross-host companion recovery remain open.
+
+Control-plane reconnect is also time-bounded at the request level: the
+remaining reconnect budget caps each registration/heartbeat socket timeout.
+A worker-to-control blackhole therefore fences ownership, deletes its
+reachable runtime session, reaps a process side effect and suppresses the
+stale result instead of waiting for a full default HTTP timeout. The central
+job lease then expires and is requeued after `M5_JOB_LEASE_SECONDS`; a new
+worker attempt can complete the job after connectivity returns. The committed
+Linux fixture covers this for an authenticated OS-process runtime, not for
+QEMU/device-specific or externally owned network side effects.
 
 `worker_agent.py --advertise-endpoint` stores an externally reachable HTTP(S)
 worker endpoint in the registration record. The worker directory rejects

@@ -139,6 +139,14 @@ class DocsConsistencyTests(unittest.TestCase):
                 "tests/network/worker_discovery_seed/"
                 "evidence-2026-10-25-seed-nat-3x.json"
             ),
+            "tests/network/worker_partition_fencing/README.md",
+            "tests/network/worker_partition_fencing/runtime_fixture.py",
+            "tests/network/worker_partition_fencing/run_test.py",
+            "tests/network/worker_partition_fencing/summarize_runs.py",
+            (
+                "tests/network/worker_partition_fencing/"
+                "evidence-2026-10-25-partition-fencing-3x.json"
+            ),
             (
                 "tests/uiflow2/core2_native_hci/"
                 "evidence-2026-10-25-core2-psram-sustained-8m-3x120.json"
@@ -2198,7 +2206,10 @@ class DocsConsistencyTests(unittest.TestCase):
             self.assertIn("fenc", text.lower())
         self.assertIn("job_lease_mismatch", api)
         self.assertIn("job_lease_mismatch", openapi)
-        self.assertIn("断网远端进程", backlog)
+        self.assertIn(
+            "network blackhole 后 runtime process stop/reap",
+            backlog,
+        )
         self.assertIn("NOT RUN", ledger)
 
     def test_runtime_companion_continuity_is_reconciled(self):
@@ -4839,6 +4850,110 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "--discover-control-seed-url",
             network_plan,
+        )
+
+    def test_worker_partition_side_effect_fencing_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_partition_fencing/"
+                "evidence-2026-10-25-partition-fencing-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(
+            evidence["validation"],
+            "virtual control-plane validation",
+        )
+        self.assertEqual(evidence["attempts_requested"], 3)
+        self.assertEqual(evidence["attempts_completed"], 3)
+        self.assertEqual(evidence["attempts_passed"], 3)
+        self.assertEqual(len(evidence["checks_per_attempt"]), 18)
+        self.assertTrue(
+            all(
+                value == "PASS"
+                for value in evidence["checks_per_attempt"].values()
+            )
+        )
+        self.assertTrue(evidence["input_assets_unchanged"])
+        tool_paths = {
+            "runner": (
+                "tests/network/worker_partition_fencing/run_test.py"
+            ),
+            "runtime_fixture": (
+                "tests/network/worker_partition_fencing/runtime_fixture.py"
+            ),
+            "worker_agent": "platform/tools/worker_agent.py",
+            "device_service": "platform/tools/device_service.py",
+            "serve": "platform/tools/serve.py",
+        }
+        for name, relative in tool_paths.items():
+            self.assertEqual(
+                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+                evidence["tool_hashes"][name],
+            )
+        self.assertEqual(len(evidence["runs"]), 3)
+        for run in evidence["runs"]:
+            self.assertEqual(run["attempts"], 2)
+            self.assertEqual(run["result_state"], "PASS")
+            self.assertNotEqual(run["first_worker_returncode"], 0)
+            self.assertEqual(run["retry_worker_returncode"], 0)
+            self.assertTrue(run["first_worker_lease_fenced"])
+            self.assertTrue(run["first_side_effect_reaped"])
+            self.assertTrue(run["retry_side_effect_reaped"])
+            self.assertEqual(run["cleanup"]["namespaces"], [])
+
+        worker_agent = (
+            ROOT / "platform/tools/worker_agent.py"
+        ).read_text()
+        device_service = (
+            ROOT / "platform/tools/device_service.py"
+        ).read_text()
+        unit_test = (
+            ROOT / "platform/tests/test_worker_agent.py"
+        ).read_text()
+        self.assertIn(
+            "operation: Callable[[float], Any]",
+            worker_agent,
+        )
+        self.assertIn(
+            "timeout=min(timeout, request_timeout)",
+            worker_agent,
+        )
+        self.assertIn('M5_JOB_LEASE_SECONDS", "60"', device_service)
+        self.assertIn(
+            "test_transient_network_loss_is_time_bounded_and_fences_runtime",
+            unit_test,
+        )
+
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        handoff = (DOCS / "engineering-handoff.md").read_text()
+        network_plan = (DOCS / "network-simulation-plan.md").read_text()
+        architecture = (
+            DOCS / "simulator-service-architecture.md"
+        ).read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        ledger = (DOCS / "validation-ledger.md").read_text()
+        tests_index = (ROOT / "tests/network/README.md").read_text()
+        for text in (
+            status,
+            backlog,
+            workstreams,
+            handoff,
+            network_plan,
+            architecture,
+            code_map,
+            ledger,
+            tests_index,
+        ):
+            self.assertIn("partition", text.lower())
+        self.assertIn("worker_partition_fencing", code_map)
+        self.assertIn(
+            "worker_partition_fencing/evidence-"
+            "2026-10-25-partition-fencing-3x.json",
+            ledger,
         )
 
 

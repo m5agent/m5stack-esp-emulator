@@ -441,7 +441,7 @@ class WorkerAgent:
                 "worker runtime health did not return ok=true"
             )
 
-    def _register_once(self) -> dict[str, Any]:
+    def _register_once(self, *, timeout: float = 60) -> dict[str, Any]:
         with self._registration_lock:
             self._check_runtime_health()
             response = self.api.json(
@@ -457,13 +457,14 @@ class WorkerAgent:
                     "capabilities": self.capabilities,
                     "active_lease_ids": [],
                 },
+                timeout=timeout,
             )
             self.registered = True
             return response["worker"]
 
     def _control_recovery(
         self,
-        operation: Callable[[], Any],
+        operation: Callable[[float], Any],
         *,
         recover_registration: bool,
     ) -> Any:
@@ -471,9 +472,10 @@ class WorkerAgent:
         retry_reported = False
         while True:
             try:
+                remaining = max(0.05, deadline - time.monotonic())
                 if recover_registration and not self.registered:
-                    self._register_once()
-                result = operation()
+                    self._register_once(timeout=min(60.0, remaining))
+                result = operation(min(60.0, remaining))
                 if retry_reported:
                     self._control_retry_active = False
                     log_worker_event("worker control plane reconnected")
@@ -501,11 +503,11 @@ class WorkerAgent:
         timeout: float = 60,
     ) -> Any:
         return self._control_recovery(
-            lambda: self.api.json(
+            lambda request_timeout: self.api.json(
                 path,
                 method=method,
                 payload=payload,
-                timeout=timeout,
+                timeout=min(timeout, request_timeout),
             ),
             recover_registration=True,
         )
@@ -586,7 +588,9 @@ class WorkerAgent:
 
     def register(self) -> dict[str, Any]:
         return self._control_recovery(
-            self._register_once,
+            lambda request_timeout: self._register_once(
+                timeout=request_timeout
+            ),
             recover_registration=False,
         )
 

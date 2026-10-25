@@ -93,6 +93,11 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   heartbeat/result retry；central service 以同一 state dir 重启后，worker
   自动重注册、继续 heartbeat 并提交原 lease 的 evidence，runtime QEMU
   session 不被重启。claim 本身没有稳定 dedup token 前不自动盲重试；
+- worker→control blackhole 会受剩余 reconnect budget 约束。真实 Linux
+  namespace fixture 在 local runtime session 与 child process 已创建后
+  drop control traffic，worker fence、DELETE runtime、reap process、拒绝
+  stale result；5 秒 lease expiry 后 job re-queue，网络恢复后第二个 worker
+  以新 attempt 完成 PASS，连续 `3/3`；
 - 已获得具体 runtime session ID 后，worker 对 runtime status/evidence/stop
   做有界 transient retry；runtime Device Service 同 state 重启后按
   PID start-time、QMP ownership 和 running 状态重新接管同一 QEMU；
@@ -138,7 +143,7 @@ external evidence 流、没有 reachable seed 时的任意 NAT traversal 和不�
 | Multi-device | 两台 guest 只能通过预期 lab fabric 通信 |
 | Core egress | 允许/拒绝 IP 或 CIDR+protocol+port 可重复，不能被 user-net 旁路 |
 | Domain/CNAME | suffix 只在 DNS label boundary 匹配；exact/longest suffix 顺序稳定；CNAME chain 有界、无 cycle、alias/terminal 受 policy 覆盖；同一 guest 使用 terminal address 完成 TCP/HTTP，未允许名称/端口被拒绝 |
-| Worker transport | 认证、TLS/mTLS、rotation、drain、replay 防护和 fail-closed 有同次证据 |
+| Worker transport | 认证、TLS/mTLS、rotation、drain、replay 防护、network-partition runtime fence 和 fail-closed 有同次证据 |
 | Evidence | 只保存允许的网络元数据和 payload hash，artifact 可复现 |
 
 ## Security boundary
@@ -183,6 +188,7 @@ external evidence 流、没有 reachable seed 时的任意 NAT traversal 和不�
 - [Worker durable queue](../tests/network/worker_queue/README.md)
 - [Authenticated worker discovery](../tests/network/worker_discovery/README.md)
 - [Authenticated unicast discovery across NAT](../tests/network/worker_discovery_seed/README.md)
+- [Worker network-partition side-effect fencing](../tests/network/worker_partition_fencing/README.md)
 - [Worker control-plane restart continuity](../tests/network/worker_control_restart/README.md)
 - [Worker runtime-service restart continuity](../tests/network/worker_runtime_restart/README.md)
 - [Idempotent session creation](../tests/network/session_idempotency/README.md)

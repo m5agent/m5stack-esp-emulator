@@ -6,6 +6,7 @@ import io
 import json
 import sys
 import tempfile
+import time
 import unittest
 import zipfile
 from pathlib import Path
@@ -278,6 +279,51 @@ class FencedHeartbeatApi(FakeApi):
                 "job lease ownership changed",
                 status=409,
             )
+        return super().json(
+            path,
+            method=method,
+            payload=payload,
+            timeout=timeout,
+        )
+
+
+class TransientBlackholeHeartbeatApi(FakeApi):
+    def __init__(self):
+        super().__init__()
+        self.job_heartbeat_count = 0
+        self.observed_timeouts: list[float] = []
+
+    def json(self, path, *, method="GET", payload=None, timeout=60):
+        if path == "/api/v1/jobs/claim":
+            self.calls.append((method, path, payload))
+            return {
+                "job": {
+                    "job_id": "job-test",
+                    "lease": {
+                        "lease_id": "lease-test",
+                        "worker_id": payload["worker_id"],
+                        "instance_id": payload["instance_id"],
+                        "generation": payload["generation"],
+                    },
+                    "request": {
+                        "session": {
+                            "device_id": "sticks3",
+                            "runtime": "qemu-unified",
+                        },
+                        "evidence_delay_seconds": 2,
+                    },
+                }
+            }
+        if path == "/api/v1/jobs/job-test/heartbeat":
+            self.calls.append((method, path, payload))
+            self.job_heartbeat_count += 1
+            if self.job_heartbeat_count >= 2:
+                self.observed_timeouts.append(timeout)
+                time.sleep(timeout + 0.01)
+                raise WorkerAgentError(
+                    "stub control-plane blackhole",
+                    transient=True,
+                )
         return super().json(
             path,
             method=method,
@@ -645,6 +691,49 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertTrue(result["summary"]["lease_fenced"])
         self.assertIn(
             "job lease ownership changed",
+            result["summary"]["heartbeat_error"],
+        )
+
+    def test_transient_network_loss_is_time_bounded_and_fences_runtime(self):
+        control_api = TransientBlackholeHeartbeatApi()
+        runtime_api = FakeRuntimeApi()
+        agent = self.agent(
+            control_api,
+            runtime_api=runtime_api,
+            heartbeat_interval=0.05,
+            control_reconnect_timeout=0.2,
+        )
+        agent.heartbeat_interval = 0.05
+        started = time.monotonic()
+        with self.assertRaisesRegex(
+            WorkerLeaseLostError,
+            "stale result was not reported",
+        ):
+            agent.work_once()
+        elapsed = time.monotonic() - started
+
+        self.assertLess(elapsed, 1.5)
+        self.assertTrue(control_api.observed_timeouts)
+        self.assertTrue(
+            all(timeout <= 0.25 for timeout in control_api.observed_timeouts)
+        )
+        self.assertIn(
+            f"/api/v1/sessions/{'b' * 32}?purge=0",
+            [call[1] for call in runtime_api.calls],
+        )
+        self.assertFalse(
+            any(
+                call[1] == "/api/v1/jobs/job-test/result"
+                for call in control_api.calls
+            )
+        )
+        result = json.loads(
+            (self.work_dir / "job-test" / "result.json").read_text()
+        )
+        self.assertEqual(result["state"], "FAIL")
+        self.assertTrue(result["summary"]["lease_fenced"])
+        self.assertIn(
+            "control-plane blackhole",
             result["summary"]["heartbeat_error"],
         )
 

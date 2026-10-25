@@ -47,7 +47,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing + worker-local runtime stop 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、断网远端进程外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
+| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 runtime process stop/reap + lease expiry/requeue/retry、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing + worker-local runtime stop 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU/device-specific 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
 | `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s 和 active-stop/recovery 均已 PASS；121 轮 readiness 与 accelerator-sampling harness 缺陷已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
@@ -65,24 +65,24 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`39` 个 Python 模块，`32593` 行；规模最大的模块如下。
+- `platform/tools`：`39` 个 Python 模块，`32600` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 9775 |
+| `device_service.py` | 9778 |
 | `firmware_manifest.py` | 2643 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1556 |
 | `firmware_filesystems.py` | 1469 |
-| `worker_agent.py` | 1425 |
+| `worker_agent.py` | 1429 |
 
-- `tests/`：`64` 个可执行 Python 测试文件，分布在 `46` 个目录；`154` 个 evidence JSON。
+- `tests/`：`65` 个可执行 Python 测试文件，分布在 `47` 个目录；`155` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`55` 个 patch 文件。
-- 文档：`200` 个 Markdown 页面，`17639` 行。
+- 文档：`201` 个 Markdown 页面，`17725` 行。
 
 ## 文档与测试
 
-- 平台测试：`442` 项。
+- 平台测试：`444` 项。
 - Docs 新鲜度登记：`33` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

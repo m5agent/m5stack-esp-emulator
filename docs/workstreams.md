@@ -19,7 +19,7 @@
 | 工作流 | 已交付的可执行面 | 当前在途 | 下一验收门禁 |
 | --- | --- | --- | --- |
 | 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；设备覆盖与 Tab5 边界见当前状态和自动快照 | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
-| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、active-token multicast 与 cross-subnet/NAT unicast-seed worker discovery、central/runtime restart 后同 lease/session/evidence continuity、session-create idempotency、trusted-host unified HTTP/BLE companion continuity、controlled DNS A/AAAA、显式绑定 domain suffix、bounded CNAME chain 与同 guest CNAME→HTTP/denied-name/denied-port/cleanup、TLS、有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离、worker-local QEMU、worker namespace 与三个独立 Docker 容器对内的真实 StickS3 QEMU/artifact/evidence、generic ESP32-S3 `qemu-wifi` observe、S3 WPA2-PSK 正确/错误密码 | `NET-04` 物理跨主机 QEMU executor、无 reachable seed 的任意 NAT traversal、namespace-managed/Tab5/cross-host companion、连续 evidence 流、跨主机 idempotency；WPA3/group multicast | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
+| 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、active-token multicast 与 cross-subnet/NAT unicast-seed worker discovery、network-partition runtime-process fence、central/runtime restart 后同 lease/session/evidence continuity、session-create idempotency、trusted-host unified HTTP/BLE companion continuity、controlled DNS A/AAAA、显式绑定 domain suffix、bounded CNAME chain 与同 guest CNAME→HTTP/denied-name/denied-port/cleanup、TLS、有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离、worker-local QEMU、worker namespace 与三个独立 Docker 容器对内的真实 StickS3 QEMU/artifact/evidence、generic ESP32-S3 `qemu-wifi` observe、S3 WPA2-PSK 正确/错误密码 | `NET-04` 物理跨主机 QEMU executor、无 reachable seed 的任意 NAT traversal、QEMU/device-specific 和外部 side effect、namespace-managed/Tab5/cross-host companion、连续 evidence 流、跨主机 idempotency；WPA3/group multicast | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
 | Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；QOM 8 MiB PSRAM、upper-bank MMU remap、同 guest 多轮重连、active-BLE、active-stop/recovery、bounded-TCG 和持续压力已闭合 | 长时并发/吞吐和其余 teardown 模式；bit-exact controller/baseband 与物理 PSRAM/cache timing | controller/物理边界和同固件路径真机验证 |
 | 通用固件审查 | manifest、API/WebBurner required/optional capability、WebBurner 分段 size/SHA-256/SHA-1/MD5 复算、sdkconfig detected 与 image-signature observed capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传、公开 BIN 强制刷新、session-isolated SD/NVS fixture、SHA-bound UI/headless/network-first expectation；OpenAI NVS、Open/WPA2 正确密码与错误密码、network-first DHCP/DNS/TCP/pcap 对照 | 真实 key/cloud 结果；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN/expectation/fixture SHA、分层区分 firmware/model/fixture 结果、更多固件族、运行态权限/许可闭环和同 SHA 真机安全流程 |
 | Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 QEMU/QMP 与 trusted-host companion reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/namespace-managed/Tab5 companion、warm pool、容量和大型编排模块拆分 |
@@ -94,7 +94,10 @@ Worker 工作流把 generation、durable lease、credential rotation、
 generation-pointer migration 和 lease ownership fence 视为同一状态机边界。
 队列以新 `lease_id` 拒绝旧 claim 的 heartbeat/result；WorkerAgent 在所有权
 丢失或恢复超时后停止可达的 worker-local runtime 并拒绝上报 stale result。
-断网远端进程和物理跨主机外部 side effect 仍不能由该单机证明。
+worker→central 网络 blackhole 下已用两个 namespace 连续 `3/3` 证明
+bounded heartbeat、DELETE runtime、reap process、lease expiry/requeue 和
+retry PASS。QEMU/device-specific side effect、worker 未拥有的外部网络 side
+effect 和物理跨主机执行仍不能由该单机证明。
 
 `NET-05` 已从 Backlog 关闭：exact IPv4/IPv6 endpoint、双栈
 veth/route/NAT、IPv6 neighbor control 和清理已在 Linux virtual-network

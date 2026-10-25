@@ -89,6 +89,13 @@ jobs:
             "PYTHONPATH=$GITHUB_WORKSPACE/platform/tools" \
             python3 tests/network/worker_discovery_seed/run_test.py \
             --out-dir /tmp/m5-worker-discovery-seed
+      - name: Validate worker side-effect fencing across network partition
+        run: |
+          sudo env \
+            "PATH=$PATH" \
+            "PYTHONPATH=$GITHUB_WORKSPACE/platform/tools" \
+            python3 tests/network/worker_partition_fencing/run_test.py \
+            --out-dir /tmp/m5-worker-partition-fencing
       - name: Preserve network evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -100,4 +107,5 @@ jobs:
             /tmp/m5-worker-cross-netns
             /tmp/m5-worker-discovery
             /tmp/m5-worker-discovery-seed/evidence.json
+            /tmp/m5-worker-partition-fencing/evidence.json
           if-no-files-found: warn

@@ -39,7 +39,8 @@
 
 1. `NET-04` 跨主机阶段：cross-container QEMU/evidence 和 unicast seed
    跨子网/NAT discovery 已完成；补物理跨主机 QEMU executor、
-   跨主机 reattach/idempotency、无 reachable seed 的任意 NAT traversal 和外部 side-effect fencing；两个 network
+   跨主机 reattach/idempotency、无 reachable seed 的任意 NAT traversal、
+   QEMU/device-specific 和 worker 未拥有的外部 side-effect fencing；两个 network
    namespace 的同主机 PASS 不能替代。trusted-host companion continuity 已
    通过；剩余单独处理 namespace-managed/Tab5/cross-host companion。
 2. `FW-03`：当前四样本、Manifest、SHA-bound expectation、SD/NVS fixture、
@@ -61,7 +62,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing + worker-local runtime stop 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、断网远端进程外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 runtime process stop/reap + lease expiry/requeue/retry、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing + worker-local runtime stop 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU/device-specific 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
 | `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s 和 active-stop/recovery 均已 PASS；121 轮 readiness 与 accelerator-sampling harness 缺陷已修复 | 补 controller/baseband、物理 PSRAM/cache timing、长时吞吐/并发、其他 teardown 模式和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -153,8 +154,9 @@
 1. 在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain、
    bounded credential overlap、同主机 generation-pointer migration、
    multicast/unicast-seed discovery 和 worker-local QEMU 基础上补
-   无 reachable seed 的任意 NAT traversal、跨主机 QEMU job 和断网远端进程的外部 side-effect
-   fencing，禁止旧 agent 覆盖新 generation。Lease-level result fencing 与
+   无 reachable seed 的任意 NAT traversal、跨主机 QEMU job、QEMU/device-specific
+   和 worker 未拥有的外部 side-effect fencing，禁止旧 agent 覆盖新
+   generation。Lease-level result fencing、worker-owned runtime process fence 与
    worker 可达 runtime 的 stop-before-report 已实现；仍不能把网络隔离后的
    远端 QEMU/companion 视为已停止。
 2. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。

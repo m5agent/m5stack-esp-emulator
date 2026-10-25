@@ -35,8 +35,10 @@ MicroPython 和其他完整 Flash 固件。
   IPv4 forwarding、masquerade、token rotation 和 cleanup 已在 privileged
   Linux Docker fixture 中连续 `3/3 PASS`。
 - Worker 在 job 已 claim 后对 central control-plane transient failure 做
-  有界 heartbeat/result 重试；控制面同 state 重启后会重新注册并完成原
-  lease/evidence，worker-local runtime QEMU session 保持运行。
+  有界 heartbeat/result 重试；每个请求的 socket timeout 受剩余恢复预算约束。
+  网络 blackhole 或 `409` ownership loss 都会 fence 本地 runtime side effect，
+  不提交 stale result；恢复后由新 lease 重试。控制面同 state 重启时会重新
+  注册并完成原 lease/evidence，worker-local runtime QEMU session 保持运行。
 - Runtime Device Service 使用同一 state dir 重启时，worker 对已知 session
   retry status/evidence/stop；新服务按 PID start-time、QMP ownership 和
   running 状态重新接管同一 QEMU。Trusted-host unified session 还会按持久
@@ -48,8 +50,11 @@ MicroPython 和其他完整 Flash 固件。
 - Job 被 lease expiry/stale/stop/generation change 后重新 claim 时使用新的
   `lease_id`；旧 lease 的 heartbeat/result 返回 `409 job_lease_mismatch`。
   WorkerAgent 检测到所有权丢失或控制面恢复超时后，会停止自己可达的
-  worker-local runtime session，并拒绝上报 stale result。断网远端进程、
-  外部网络 side effect 和物理跨主机执行仍未验证。
+  worker-local runtime session，并拒绝上报 stale result。worker→central
+  网络 blackhole 已有 `3/3` 真实 namespace fence：bounded heartbeat、
+  runtime DELETE、OS process reap、lease expiry/requeue 和 retry PASS。
+  QEMU/device-specific side effect、未被 worker 拥有的外部网络 side effect
+  和物理跨主机执行仍未验证。
 - Linux namespace 网络策略支持有界 IPv4/IPv6 CIDR、controlled DNS
   domain suffix 和有界 CNAME chain；域名/CNAME terminal answer 必须落在
   允许的 endpoint 地址/CIDR 内，Host 匹配使用 DNS label boundary，不把

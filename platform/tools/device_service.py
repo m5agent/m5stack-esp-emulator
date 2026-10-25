@@ -7495,7 +7495,10 @@ class DeviceService:
             self.state_dir / "workers.json"
         )
         self.worker_queue = WorkerJobQueue(
-            self.state_dir / "jobs.json"
+            self.state_dir / "jobs.json",
+            lease_seconds=float(
+                os.environ.get("M5_JOB_LEASE_SECONDS", "60")
+            ),
         )
         try:
             self.worker.start()

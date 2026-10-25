@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-network-partition-fencing-3x",
+  "date": "2026-10-25",
+  "validation": "virtual control-plane validation",
+  "status": "PASS",
+  "attempts_requested": 3,
+  "attempts_completed": 3,
+  "attempts_passed": 3,
+  "tool_hashes": {
+    "runner": "020a9215db5e97fe2156e7674f49416ade230dbbaf304cf3bc00ba5e6a0b4d10",
+    "runtime_fixture": "22d9aadac063caf22b5d40777860cb9345ba846eff00aa0a2a4cd1ba33df9592",
+    "worker_agent": "bf250820f879ce232df2d8df95827908cd4a6ebe7335c257129d022e6bf102cb",
+    "device_service": "6f9b526e936941ebeb2a05acb3442f619f296d4bba5479a9ef98be7839363662",
+    "serve": "e747704d92f205ea2952c8a0954c4272fb0374c429faa7925352e6ad6a8f8c07"
+  },
+  "input_assets_unchanged": true,
+  "checks_per_attempt": {
+    "first_result_lease_fenced": "PASS",
+    "first_worker_created_side_effect": "PASS",
+    "first_worker_failed_closed": "PASS",
+    "heartbeat_failure_recorded": "PASS",
+    "lease_expired_and_requeued": "PASS",
+    "namespaces_cleaned": "PASS",
+    "network_partition_installed": "PASS",
+    "no_qemu_started": "PASS",
+    "retry_runtime_stopped": "PASS",
+    "retry_side_effect_reaped": "PASS",
+    "retry_worker_completed_job": "PASS",
+    "retry_worker_exit_zero": "PASS",
+    "runtime_session_stopped": "PASS",
+    "runtime_side_effect_reaped": "PASS",
+    "stale_result_not_reported": "PASS",
+    "token_absent_from_logs": "PASS",
+    "tool_hashes_unchanged": "PASS",
+    "worker_and_server_routes_present": "PASS"
+  },
+  "runs": [
+    {
+      "evidence_sha256": "605e0d1d1804e5cdfabc2a89341582203249d8c7f911b7f0a22e3a12c5385031",
+      "job_id_sha256": "ce338dd886c6e6be543e9e7eae838d0904f50022dd801d909e8ea57cb95970f6",
+      "attempts": 2,
+      "result_state": "PASS",
+      "first_worker_returncode": 1,
+      "first_worker_lease_fenced": true,
+      "first_side_effect_reaped": true,
+      "retry_worker_returncode": 0,
+      "retry_side_effect_reaped": true,
+      "cleanup": {
+        "service_exit": true,
+        "runtime_exit": true,
+        "namespaces": []
+      }
+    },
+    {
+      "evidence_sha256": "2d3e8256890dc971f1deb05a82df1b3d5c44f593e4dd0a88aba7e438e282201c",
+      "job_id_sha256": "0c8746c22e3585832d1ca5de4124070c9e3b0189d13dc16cde1f0b7e6bf6f8b2",
+      "attempts": 2,
+      "result_state": "PASS",
+      "first_worker_returncode": 1,
+      "first_worker_lease_fenced": true,
+      "first_side_effect_reaped": true,
+      "retry_worker_returncode": 0,
+      "retry_side_effect_reaped": true,
+      "cleanup": {
+        "service_exit": true,
+        "runtime_exit": true,
+        "namespaces": []
+      }
+    },
+    {
+      "evidence_sha256": "5746c1f71fff8d499f8ba9894eddacfc2d1adbc493144f2eeb5eb9d759ceb310",
+      "job_id_sha256": "2a27e4857947e923874400bf048e18cece7a56d0c9277fd6c45eb3a2eb4b19e4",
+      "attempts": 2,
+      "result_state": "PASS",
+      "first_worker_returncode": 1,
+      "first_worker_lease_fenced": true,
+      "first_side_effect_reaped": true,
+      "retry_worker_returncode": 0,
+      "retry_side_effect_reaped": true,
+      "cleanup": {
+        "service_exit": true,
+        "runtime_exit": true,
+        "namespaces": []
+      }
+    }
+  ],
+  "not_claimed": [
+    "QEMU side-effect fencing",
+    "physical cross-host execution",
+    "external network side effects not owned by the worker",
+    "production scheduler",
+    "physical hardware validation"
+  ]
+}
