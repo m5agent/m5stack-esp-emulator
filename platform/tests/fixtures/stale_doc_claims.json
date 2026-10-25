@@ -1,0 +1,719 @@
+{
+  "schema_version": 1,
+  "purpose": "Forbid retired claims from returning to current project-entry documents.",
+  "authorities": [
+    "docs/project-status.md",
+    "docs/project-backlog.md",
+    "docs/validation-ledger.md",
+    "docs/runtime-model-gap-register.md",
+    "docs/project-snapshot.md",
+    "docs/code-map.md"
+  ],
+  "claims": [
+    {
+      "id": "STALE-001",
+      "text": "网络模拟尚未接入统一设备服务",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-002",
+      "text": "CoreS3's stock UIFlow2 board initialization still needs separate",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-003",
+      "text": "same-instance board + WiFi model only if later required",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-004",
+      "text": "network simulation has not yet been integrated",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-005",
+      "text": "network namespaces and packet capture",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-006",
+      "text": "current full matrix  NOT RUN after 7823bef",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-007",
+      "text": "发布级“当前全矩阵”仍为 `NOT RUN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-008",
+      "text": "连续 3/3 首轮 PASS",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-009",
+      "text": "cache/WDT startup instability remains a known simulation-only blocker",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-010",
+      "text": "原生 BT controller 外部 peer/GATT 仍为 NOT RUN",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-011",
+      "text": "native-controller peer/GATT remains `NOT RUN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-012",
+      "text": "GDB bridge 仍未进入 Device Service",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-013",
+      "text": "Device Service integration of the bridge",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-014",
+      "text": "Service production bridge",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-015",
+      "text": "single-lease integration remains",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-016",
+      "text": "GDB-based runners are not yet exposed as a Device Service runtime",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-017",
+      "text": "not yet part of this unified lease",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-018",
+      "text": "retries by default five times",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-019",
+      "text": "cache startup panic is still intermittent",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-020",
+      "text": "DNS, external internet access and BLE are not covered",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-021",
+      "text": "the ST7789 panel first frame is still black",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-022",
+      "text": "It does not yet validate the first frame",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-023",
+      "text": "TLS fixture 在当前 S3 QEMU 上停在",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-024",
+      "text": "currently stalls while creating",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-025",
+      "text": "TLS/Host allowlist fixture is wired but blocked",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-026",
+      "text": "Linux namespace TLS remains `NOT RUN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-027",
+      "text": "Linux namespace TLS、可控 resolver",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-028",
+      "text": "继续补可控 resolver",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-029",
+      "text": "网络模拟暂不开放",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-030",
+      "text": "DNS requests, external internet access and BLE remain `NOT RUN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-031",
+      "text": "QOM injection runs without pausing the guest to avoid the known Core2 cache/watchdog failure",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-032",
+      "text": "PSRAM/cache stability remains",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-033",
+      "text": "It does not yet prove over-the-air advertising, external discovery",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-034",
+      "text": "FAT inventory is not implemented",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-035",
+      "text": "SPIFFS/FAT 解包",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-036",
+      "text": "FAT/SPIFFS 返回可验证清单",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-037",
+      "text": "This is not a generic destination-IP/port allowlist",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-038",
+      "text": "通用 destination allowlist",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-039",
+      "text": "still not prove arbitrary destination IP/port",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-040",
+      "text": "DHCP renewal remains `NOT RUN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-041",
+      "text": "DHCP renewal has not been validated",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-042",
+      "text": "仍不是任意 公网目标 IP/端口 allowlist",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-043",
+      "text": "generic allowlisted egress and object-backed",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-044",
+      "text": "文件系统提取、敏感资产/权限审批",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-045",
+      "text": "243/243",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-046",
+      "text": "guest VHCI 未接入",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-047",
+      "text": "`243` 项",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-048",
+      "text": "`7f8343d",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-049",
+      "text": "6.8k 行",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-050",
+      "text": "6840 行",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-051",
+      "text": "6843 行",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-052",
+      "text": "WebBurner UI 未接线",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-053",
+      "text": "WebBurner UI 接线仍开放",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-054",
+      "text": "WebBurner UI 尚未调用 chunk API",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-055",
+      "text": "双设备 fabric、自托管 QEMU worker、外部 IPv6",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-056",
+      "text": "自托管 QEMU worker、双设备 fabric 和外部 IPv6 仍待补",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-057",
+      "text": "`NET-03` 双设备 fabric",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-058",
+      "text": "external IPv6 egress 和双设备 lab fabric 仍开放",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-059",
+      "text": "external IPv6/CIDR/domain-set allowlisting and multi-device lab fabric",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-060",
+      "text": "CIDRs and domains are rejected",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-061",
+      "text": "CIDR/domain-set 仍未实现",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-062",
+      "text": "CIDR/domain-set allowlisting",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-063",
+      "text": "CIDR、域名、IPv6 DNS",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-064",
+      "text": "CIDR and domain-to-multiple-IP grants remain unsupported",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-065",
+      "text": "下一步是 `NET-03` 双设备 fabric",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-066",
+      "text": "two-device lab fabric and external",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-067",
+      "text": "现网 Agent Review API 已具备",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-068",
+      "text": "| `HCI-3a` C2H callback | `PASS` |",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-069",
+      "text": "Tab5 and Core2 are `not-supported`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-070",
+      "text": "The stock Core2 guest passes thirty cycles",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-071",
+      "text": "no-stagger cold-start stability and longer sustained throughput remain OPEN",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-072",
+      "text": "no-stagger cold-start stability and sustained HCI/GATT throughput",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-073",
+      "text": "concurrent cold-start safety remains open",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-074",
+      "text": "SPIFFS 仍 `UNSUPPORTED`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-075",
+      "text": "SPIFFS 目前只做分区识别",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-076",
+      "text": "SPIFFS inventory is not implemented",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-077",
+      "text": "SPIFFS 解包",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-078",
+      "text": "HLI 尚未投递真实 controller event",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-079",
+      "text": "but no real HCI event or ACL packet was delivered",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-080",
+      "text": "同 guest 重连已通过",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-081",
+      "text": "repeated in-guest reconnect PASS",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-082",
+      "text": "same-guest disconnect lifecycle fails before re-advertising",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-083",
+      "text": "The stock Core2 guest currently returns aggregate `FAIL`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-084",
+      "text": "stock guest reproduces without the test-only re-advertise call",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-085",
+      "text": "more than two reconnect cycles",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-086",
+      "text": "more than two connection cycles",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-087",
+      "text": "证书/worker 凭据热轮换",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-088",
+      "text": "Certificate and worker credential hot rotation",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-089",
+      "text": "certificate and worker credential hot rotation",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-090",
+      "text": "Certificates and keys are loaded at process start; hot rotation is not implemented",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-091",
+      "text": "hot rotation is not implemented",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-092",
+      "text": "零中断 request draining",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-093",
+      "text": "Existing requests are not drained",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-094",
+      "text": "request draining remain open",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-095",
+      "text": "凭据重叠/客户端批量迁移",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-096",
+      "text": "credential overlap/client-fleet migration",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-097",
+      "text": "超过十轮连接",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-098",
+      "text": "more than ten reconnect cycles",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-099",
+      "text": "keeps the Core2 WiFi path `PARTIAL`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-100",
+      "text": "accelerometer/gyroscope values: PARTIAL",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-101",
+      "text": "暂用 `-m 0` 规避 PSRAM/cache 稳定性问题",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-102",
+      "text": "Both gaps are still `OPEN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-103",
+      "text": "两个 `runtime_model_gap` 仍为 `OPEN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-104",
+      "text": "C6 LP_SW_HPSYS software reset can lose the expected chip id (RUNTIME-01)",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-105",
+      "text": "`RUNTIME-01` 复位/eFuse/寄存器语义",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-106",
+      "text": "| `CORE2-02` 30-cycle extension | `NOT RUN` |",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-107",
+      "text": "| `CORE2-02` 60-cycle extension | `NOT RUN` |",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-108",
+      "text": "| `CORE2-02` 120-cycle extension | `NOT RUN` |",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-109",
+      "text": "| `CORE2-02` artifact-bound 7200s | `RUNNING / NOT RUN as PASS` |",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-110",
+      "text": "artifact-bound run 当前在途",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-111",
+      "text": "最终两小时复测尚未完成",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-112",
+      "text": "bounded-TCG two-hour confirmation",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-113",
+      "text": "121 is accepted by contract but still needs a runtime gate",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-114",
+      "text": "121-cycle runtime evidence is still pending",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-115",
+      "text": "`FIXED / RERUN PENDING`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-116",
+      "text": "replacement three-lease 121-cycle gate remains pending",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-117",
+      "text": "另外两个独立 lease 尚未复现",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-118",
+      "text": "one artifact-bound 121-cycle lease passes",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-119",
+      "text": "Two additional independent leases",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-120",
+      "text": "the other two 121-cycle leases",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-121",
+      "text": "controlled AAAA/denied-port 仍 `NOT RUN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-122",
+      "text": "same-guest IPv6 DNS/HTTP remains NET-06",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-123",
+      "text": "managed controlled AAAA, denied-port and namespace-cleanup coverage remains",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-124",
+      "text": "完整 Linux namespace AAAA/allowed IPv6 HTTP/denied-port/cleanup 尚未",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-125",
+      "text": "同 guest controlled AAAA/拒绝路径",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-126",
+      "text": "the 121-cycle gate or hardware equivalence",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-127",
+      "text": "121 轮运行、bit-exact",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-128",
+      "text": "Device Service boot/frame/input validation is `NOT RUN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-129",
+      "text": "no functional execution has been performed",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-130",
+      "text": "RSS 有界",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-131",
+      "text": "3 个独立 lease、每个 30 轮的下一门禁",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-132",
+      "text": "Automated discovery and migration of a client fleet is still",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-133",
+      "text": "Automated client-fleet migration, production",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-134",
+      "text": "自动化客户端批量迁移、跨主机 QEMU executor",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-135",
+      "text": "worker namespace 内真实 QEMU、本地 artifact/firmware 和端到端 evidence 仍为 `NOT RUN`",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-136",
+      "text": "Linux fixture 已加入 worker namespace",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-137",
+      "text": "内真实 QEMU/artifact/evidence 模式但尚未执行",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-138",
+      "text": "This mode has not yet been executed after the API split",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-139",
+      "text": "已准备真实 worker namespace Device Service/QEMU 模式",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-140",
+      "text": "control/runtime split currently has unit coverage",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-141",
+      "text": "尚缺另外两个 lease 复现",
+      "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    }
+  ]
+}

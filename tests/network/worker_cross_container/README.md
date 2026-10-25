@@ -2,7 +2,11 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: Linux/Docker fixture for the next `NET-04` boundary.
+Status: `PASS` for the reviewed two-container implementation. The committed
+three-run aggregate is
+[`evidence-2026-10-25-cross-container-qemu-3x.json`](evidence-2026-10-25-cross-container-qemu-3x.json).
+This closes the one-Docker-daemon cross-container QEMU boundary; it is not a
+claim of physical cross-host execution.
 
 This fixture advances the existing one-host network-namespace worker test to
 two independent Docker containers on a user-defined bridge:
@@ -50,5 +54,6 @@ python3 tests/network/worker_cross_container/summarize_runs.py \
 ```
 
 This proves two independent execution units on one Docker daemon. It does not
-prove physically separate hosts, NAT/cross-subnet discovery, process migration
-or re-attach, companion continuity, production scheduling or hardware.
+prove physically separate hosts, arbitrary NAT traversal without a reachable
+seed, process migration or re-attach, companion continuity, production
+scheduling or hardware.

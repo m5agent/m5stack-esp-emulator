@@ -47,21 +47,20 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、worker-local `qemu-unified` 的 HTTP/BLE/pcap companion fence、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
-| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、双/三/四实例两批独立无错峰、五实例 30 秒错峰 `10/10`、固定 icount 零错峰五实例 `10/10`、六实例 `12/12` 和八实例校准后 `16/16` 均已 PASS；`0008` 建立真实 guest HCI event/ACL fast path，`0009` 以 `8/4` 备用池关闭四实例启动 ACK burst，四实例每轮 36 events/9 ACLs、HLI `45/45`、`hli-errors=0`。八实例旧 threshold `4/8` control、旧 `shift=auto` 零错峰失败和 `0010` trace 保留 |
-| `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
-| `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
-| `FW-03` | 进行中 | API/WebBurner capability、Manifest、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family |
-| `RUNTIME-02` | 进行中（backend blocked） | esp-emu `--thread-sim` 已观察到双向 802.15.4 帧，但 commissioning/join 未完成；补 MAC ACK/commissioning 语义或取得公开固件匹配 ELF |
-| `RUNTIME-03` | 进行中 | 对齐 Core2 legacy I2C controller port、SCL/SDA pin 与板级 bus；确认 `disable_timer_interrupt()` 的 BM8563 RTC 路径 |
-| `RUNTIME-04` | 进行中 | 为 Core2 for AWS 提供 ATECC608 测试 slot/config fixture |
-| `SVC-01` | 进行中 | central control-plane、runtime-service restart continuity、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已完成；namespace-managed/Tab5/cross-host companion、跨主机 idempotency、无 reachable seed 的任意 NAT traversal 与跨主机 reattach 仍待做 |
-| `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 |
-| `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 |
-| `DOC-01` | 待做 | 将接近 6000 行的 `test_docs_consistency.py` 按文档索引、权威状态/Backlog、Core2、网络/worker、固件安全等领域拆分；把手写 stale-claim 断言收敛为结构化 claim/evidence 清单 |
-| `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 |
+| `RUNTIME-03` | 进行中 | 同一事务记录 controller port/MMIO、SCL/SDA、目标 QEMU bus 与板级 slave bus；重跑公开 `UIFlow_Core2` 的 AXP2101/AXP192 变体 |
+| `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
+| `CORE2-02` | 进行中 | 大于八实例、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
+| `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 |
+| `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key |
+| `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 |
+| `RUNTIME-02` | 进行中（backend blocked） | C6 802.15.4 MAC ACK/commissioning 和 join/收发/离网生命周期 |
+| `RUNTIME-04` | 进行中 | ATECC608 I2C 命令和测试 slot/config fixture |
+| `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 idempotency |
+| `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 |
+| `SVC-03` | 待做 | 拆分 `device_service.py` 的 store/runtime/evidence/session 状态机 |
+| `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
-| `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和截图阈值 |
+| `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 ## 代码与文档规模
@@ -79,7 +78,7 @@
 
 - `tests/`：`66` 个可执行 Python 测试文件，分布在 `48` 个目录；`193` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`59` 个 patch 文件。
-- 文档：`214` 个 Markdown 页面，`20029` 行。
+- 文档：`214` 个 Markdown 页面，`19189` 行。
 
 ## 文档与测试
 

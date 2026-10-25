@@ -32,7 +32,7 @@
 | 目录 | 职责 | 是否产品入口 |
 | --- | --- | --- |
 | `platform/tools/` | Device Service、固件导入/审查、网络策略、存储、QEMU profile 和目录生成 | 是 |
-| `platform/tests/` | 平台单元/契约测试与浏览器 upload/SHA256 Node 测试；`test_docs_consistency.py` 防止文档和 API 漂移 | 是 |
+| `platform/tests/` | 平台单元/契约测试与浏览器 upload/SHA256 Node 测试；`test_docs_*_contract.py` 分域防止文档和 API 漂移 | 是 |
 | `platform/peripherals/` | 芯片模型登记、运行时 coverage、设备/模型模板和完成门禁 | 是 |
 | `platform/qemu/` | QEMU machine、runtime profile、资产和 blocker 注册表 | 是 |
 | `patches/` | 可重放的 QEMU/板级补丁源；总索引见 `patches/README.md`，精确顺序见各子目录 | 是 |
@@ -70,7 +70,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 ## 平台工具完整清单
 
 下表中的 `platform/tools/*.py` 都由文档测试检查，新增顶层工具时
-`platform/tests/test_docs_consistency.py` 会要求同步本页。
+`platform/tests/test_docs_index_contract.py` 会要求同步本页。
 
 | 路径 | 职责 | 主要调用方 |
 | --- | --- | --- |
@@ -120,6 +120,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | 入口 | 负责范围 | 何时运行 |
 | --- | --- | --- |
 | `platform/tests/` | Python API/契约与 Node SHA256/upload client 测试 | 每次代码改动 |
+| `platform/tests/test_docs_*_contract.py` | 文档契约分域：`test_docs_index_contract.py`、`test_docs_current_state_contract.py`、`test_docs_core2_runtime_contract.py`、`test_docs_firmware_security_contract.py`、`test_docs_network_worker_contract.py`；兼容入口为 `test_docs_consistency.py`；退役说法由 `fixtures/stale_doc_claims.json` 数据化 | 文档、当前状态、Backlog、API 或 evidence 口径变化 |
 | `platform/tools/project_snapshot.py --check` | 校验自动项目快照是否与 catalog/profile/evidence/Backlog 同步 | 状态、设备或 Task 变化后 |
 | `platform/tests/test_ble_probe.py` | Bumble no-response HCI compatibility 回归 | `ble_probe.py` controller compatibility 改动 |
 | `platform/tests/test_ble_runtime_limits.py` | reconnect cycle/delay 上限与 workload-aware readiness 预算 | BLE 长任务预算或参数范围改动 |
@@ -163,7 +164,6 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | --- | --- | --- |
 | `platform/tools/device_service.py` | 最大服务编排单文件；session、存储、runtime、证据和生命周期仍在同一热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
-| `platform/tests/test_docs_consistency.py` | 导航、链接、API、网络、Core2 和证据快照断言仍在同一测试类 | 先保持“当前事实只在一处”的约束，再按导航/契约/证据拆成独立测试文件 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
 
@@ -330,7 +330,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 guest PSRAM 600-second stress | `run_service_5x.py --require-psram --hold-seconds 600 --attempts 1`；`evidence-2026-10-25-core2-psram-sustained-1x600.json`；pcap summary | 单 lease 600 秒完成 179 次 `1 MiB` 全缓冲校验（约 `179 MiB`）、51 次受控 HTTP、18 次公网 recheck；active BLE/HLI/bounded TCG/frame/QOM/912-packet pcap/evidence/cleanup PASS；物理边界不变 |
 | Core2 concurrent unified leases | `run_service_5x.py --attempts 2/3/4/5/6/8 --concurrency 2/3/4/5/6/8 --stagger-seconds 0/30 --hold-seconds 120`；`unified_http_guestfwd.py`；`qemu_accel.py` 固定 `shift=5`；`0007` valid-queue gate；`0008` guest event/ACL preallocation；`0009` `8/4` expanded reserve；`0010` ACK-state observability；五/六/八实例 focused tests | 双/三/四实例各两批无错峰 `8/8`、`6/6`、`8/8`，五实例 30 秒错峰 `10/10`，固定 `shift=5`/BLE-first 零错峰五实例 `10/10`、六实例 `12/12`、八实例 `16/16`。八实例旧 `hold/10` control 为 `4/8` 纯 sweep 阈值失败，校准 `hold/12` 后通过。每轮 120 秒完成 11–15 次 PSRAM 全缓冲校验、WiFi/公网/GATT/frame/31 节点 QOM/pcap/evidence；HLI `45/45`、36 events/9 ACLs、errors/reset/panic/dropped 为 0，prealloc transient 保留 |
 | Core2 same-guest reconnect | `ble_runtime_limits.py:reconnect_workload_timeout_seconds`；`run_service_5x.py --ble-reconnect-cycles 20/30/60/120/121`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_ble_runtime_limits.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；20/30/60/120 轮、两个 121 harness failure 和 121 three-lease PASS evidence | 3 个独立 stock-firmware lease 各完成 20、30、60、120 轮；120 轮每 lease HLI `3377/3377`、events 2297、ACLs 1080；参数范围 `1–121`，`122` 拒绝。修复固定 readiness 预算和 reconnect-only accelerator 采样后，3 个独立 lease 均完成 `121/121`，同 firmware/ELF/QEMU/工具哈希 |
-| Core2 evidence binding | `run_service_5x.py:tool_hashes`；`qemu_accel.py`；`ble_runtime_limits.py`；五/六/八实例 focused tests；`test_qemu_accel.py`；`test_docs_consistency.py` | runner 在首 lease 前记录工具哈希，运行期对 firmware/ELF/QEMU 做漂移检查；每轮同时断言 bounded `tb-size=128` 和实际 `icount shift=5`。五/六/八实例证据还锁定原始 JSON SHA；八实例 control 绑定旧 runner hash，证明阈值是唯一变更。该机制只绑定本轮实现，不替代设备功能或物理等价证据 |
+| Core2 evidence binding | `run_service_5x.py:tool_hashes`；`qemu_accel.py`；`ble_runtime_limits.py`；五/六/八实例 focused tests；`test_qemu_accel.py`；`test_docs_core2_runtime_contract.py` | runner 在首 lease 前记录工具哈希，运行期对 firmware/ELF/QEMU 做漂移检查；每轮同时断言 bounded `tb-size=128` 和实际 `icount shift=5`。五/六/八实例证据还锁定原始 JSON SHA；八实例 control 绑定旧 runner hash，证明阈值是唯一变更。该机制只绑定本轮实现，不替代设备功能或物理等价证据 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
 | Dual-guest WiFi + latest full matrix | `tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json` | patch `0028` 后 67/67、274/274；Cardputer-ADV 键盘 settle 加固后所有 case 首轮 PASS |
 | S3 WPA2-PSK data plane | `patches/qemu-m5stack-peripherals/0029-esp32s3-wpa2-psk-data-plane.patch`；`tests/firmware/openai_nvs_precondition/run_test.py`；`tests/uiflow2/evidence-2026-10-25-s3-wpa2-regression.json` | WPA2 RSN、M1-M4、正确/错误密码、CCMP RX、eFuse/NIC MAC 绑定和 unicast DHCP；三组 Device Service session 均绑定同一 OpenAI BIN SHA，AtomS3R/StickS3/CoreS3 定向矩阵 15/15 PASS |

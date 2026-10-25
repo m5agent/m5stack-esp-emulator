@@ -42,7 +42,7 @@
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
 - 当前单机 namespace/container 路径不是恶意多租户固件的最终 VM 沙箱。
 
-## 本轮代码与文档整理
+## 最近交付与当前整理
 
 - 代码：Core2 的共享 QEMU 参数默认改为固定 `icount shift=5`，环境变量只
   作为显式诊断覆盖；concurrency runner 会从实际 QEMU 进程命令行同时校验
@@ -55,10 +55,14 @@
 - 文档：README、状态、Backlog、工作流、交接、Device Service、QEMU 适配
   矩阵、Core2 专题、测试 README、设备 catalog 和 profile 已统一使用同一
   口径。当前权威关系仍是 `project-status` 定义能力、`project-backlog`
-  定义未完成项、`validation-ledger` 保存日期化证据。
-- 待办：优先继续 `NET-04` 的物理跨主机边界和 `CORE2-02` 的大于八实例/
-  持续吞吐/其他 teardown；`FW-01/02/03`、`RUNTIME-02/03/04`、`HW-01`
-  仍是独立工作流。完成五/六/八实例门禁不等于整个 goal 完成。
+  定义未完成项、`validation-ledger` 保存日期化证据。原 6400 行
+  `test_docs_consistency.py` 已拆成导航、当前状态、Core2、固件安全和
+  网络/worker 五个领域模块，旧路径只保留兼容入口；141 条退役说法已迁到
+  结构化 claim/authority fixture。
+- 待办：当前最小调查入口是 `RUNTIME-03` 的 Core2 legacy I2C
+  controller/board-bus routing；随后继续 `NET-04` 物理跨主机边界和
+  `CORE2-02` 的更大规模/物理等价。`FW-01/02/03`、`RUNTIME-02/04`、
+  `HW-01` 仍是独立工作流，完成五/六/八实例门禁不等于整个 goal 完成。
 
 ## 最近成果已经并入哪里
 
@@ -73,12 +77,12 @@
   network-partition fence 和 trusted-host companion recovery 已落地；
   物理跨主机、迁移、跨主机幂等、namespace-managed/Tab5 companion 仍开放。
 - Core2：`core2-native-hci`、121 轮重连、artifact-bound 长稳、active-stop、
-  QOM 8 MiB PSRAM/upper-bank MMU、五实例 30 秒错峰和固定
-  `icount shift=5` 五实例零错峰并发已有证据。四实例原始失败和旧
-  `shift=auto` 零错峰 `5/5 PASS`/`3/5 FAIL` 对照保留；`0010` 说明
-  PSRAM 初始化关中断窗口与自适应虚拟时间可放大 HLI delivery 等待。当前
-  大于八实例、持续吞吐、active-stop 之外 teardown、物理 PSRAM/cache
-  timing、bit-exact controller 和真机仍开放。
+  QOM 8 MiB PSRAM/upper-bank MMU、错峰和固定 `icount shift=5` 的
+  五/六/八实例零错峰并发均已有虚拟设备证据；八实例已达到当前服务单设备
+  容量。四实例原始失败、八实例旧 sweep-floor control 和旧 `shift=auto`
+  零错峰失败继续保留；`0010` 说明 PSRAM 初始化关中断窗口与自适应虚拟时间
+  可放大 HLI delivery 等待。当前大于八实例、持续吞吐、active-stop 之外
+  teardown、物理 PSRAM/cache timing、bit-exact controller 和真机仍开放。
 - 固件：FirmwareManifest/WebBurner、分段完整性、capability/security、
   Secure Boot v2 数学与包内摘要对照、文件系统、SD/NVS fixture 和
   SHA-bound review expectation 已可执行；live eFuse/trust root、生产 key、
@@ -139,9 +143,9 @@ devices/catalog.source.json
 
 - `device_service.py` 同时承担存储、runtime、证据和 session 状态机，拆分由
   `SVC-03` 跟踪；
-- `test_device_service.py` 和 `test_docs_consistency.py` 体量较大，应在保持
-  API/evidence 契约的前提下按领域拆测试；文档契约的具体迁移由 `DOC-01`
-  跟踪；
+- `test_device_service.py` 仍是大型 service 契约测试；文档契约已从单一
+  6400 行文件拆成五个领域模块，并保留 `test_docs_consistency.py` 兼容入口；
+  当前状态页和 stale-claim 目录也已收敛；
 - 当前仓库没有从空目录重建全部运行时的 bootstrap；macOS arm64 有可复现
   release 包，其他主机仍需匹配 commit/架构的 runtime 资产；
 - Tab5 的闭源 `esp-emu` 后端必须视为单独边界，不能把 QEMU S3/C6/LX6 的
@@ -209,18 +213,17 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
+| `RUNTIME-03` | 记录 legacy controller port/MMIO、SCL/SDA pin 和板级 bus，重跑公开 `UIFlow_Core2` 与 AXP2101/AXP192 变体 | AXP chip id 可读不代表后续 RTC/PMIC 路径；当前首个失败点是 address `0x51` 无 ACK |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于八实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 双/三/四/五/六/八实例均有独立复跑覆盖；八实例 threshold-fail control 与旧 `shift=auto` `0010` trace 保留，当前结论不外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
 | `RUNTIME-02` | C6 Zigbee commissioning/join 或明确不支持 | 观察到 802.15.4 帧不等于完整生命周期 |
-| `RUNTIME-03` | Core2 legacy I2C port/pin/bus 路由 | AXP chip id 可读不代表后续 RTC/PMIC 路径 |
 | `RUNTIME-04` | ATECC608 测试 slot/config fixture | 安全元件未建模时固件只能得到模型缺口 |
 | `SVC-01` | namespace-managed/Tab5/cross-host companion、跨主机 idempotency 和连续 evidence 流 | trusted-host 和单机 restart PASS 不能继承 |
 | `SVC-02` | warm pool、配额、对象存储、审计和容量观测 | 当前仍是 cold/on-demand 本地服务 |
 | `SVC-03` | 拆分 service 的存储、runtime、evidence 和 session 状态机 | 维护边界仍集中在少数大文件 |
-| `DOC-01` | 拆分近 6000 行文档契约测试并结构化 stale-claim 规则 | 当前每个新证据/旧说法都追加到单一测试文件，review 和冲突定位成本高 |
 | `HW-01` | 代表设备同固件 SHA 真机验证 | 仓库目前没有 hardware validation 结果 |
 | `TAB5-01` | 可扩展/可重建 P4 backend | 闭源后端缺少多个必需端点和数据面 |
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |

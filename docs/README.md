@@ -228,8 +228,12 @@
 - 同一证据的 SHA、测试数、Task 状态不要复制到历史页或设计页；应链接当前
   状态/Backlog，减少多处数字漂移。
 
-文档一致性由 `platform/tests/test_docs_consistency.py` 检查，包括关键文件、
-相对链接、API 版本、设备计数和已知过期陈述。
+文档一致性由五个 `platform/tests/test_docs_*_contract.py` 模块分域检查，
+覆盖导航/链接、当前状态、Core2、固件安全和网络/worker；
+`platform/tests/test_docs_consistency.py` 只保留兼容入口。检查内容包括关键
+文件、相对链接、API 版本、设备计数和已知过期陈述；退役说法存放在
+`platform/tests/fixtures/stale_doc_claims.json`；目录级字段列权威文档路径，
+每条 claim 包含稳定 ID、禁止文本和退役原因。
 
 设备本地 case README 只说明该 case 的运行方式和当时边界，不是当前能力
 来源。查当前状态先读 `project-status.md`，查动态设备/Task 计数先读

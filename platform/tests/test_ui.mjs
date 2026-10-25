@@ -147,6 +147,9 @@ if (tab5.count !== 17 || tab5.blockers !== 15) {
 
 await page.goto(`${base}/platform/web/sessions.html`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => document.querySelectorAll('#deviceSelect option').length >= 13);
+await page.waitForFunction(() =>
+  document.querySelector('#serviceSummary')?.textContent?.includes('API online')
+);
 const sessionsUi = await page.evaluate(() => ({
   service: document.querySelector('#serviceSummary')?.textContent,
   devices: document.querySelectorAll('#deviceSelect option').length,

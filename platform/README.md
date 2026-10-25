@@ -250,5 +250,9 @@ python3 platform/tools/qemu_profiles.py --check
 python3 platform/tools/project_snapshot.py --check
 ```
 
-平台测试中的 `test_docs_consistency.py` 还负责检查关键文档、相对链接、API
-版本和设备计数，防止旧状态重新写回当前入口。
+平台测试中的 `test_docs_consistency.py` 是兼容入口；实际契约按领域位于
+`test_docs_index_contract.py`、`test_docs_current_state_contract.py`、
+`test_docs_core2_runtime_contract.py`、`test_docs_firmware_security_contract.py`
+和 `test_docs_network_worker_contract.py`。它们共同检查关键文档、相对链接、
+API 版本、生成计数和旧状态回流；退役说法由
+`platform/tests/fixtures/stale_doc_claims.json` 结构化维护。
