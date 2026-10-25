@@ -62,7 +62,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 在 `0038` freeze 基础上继续捕获 cache restore 的 caller/return 与 SSI/DPORT 时间；取得 matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT 对照和 UIFlow2 回归保持 PASS |
+| `RUNTIME-03` | 进行中 | `0039/0040` 已证明 CPU1 持续执行且 handoff 在 reset 前完成约 4,376 次；下一项是定位首个 stage-0 timeout 后 WDT feed 为何不再恢复，以及累计虚拟时间落在哪些 guest/controller 操作；matching ELF/MAP 可并行 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT 对照和 UIFlow2 回归保持 PASS |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -123,18 +123,27 @@ WDT-disabled `sample=1024` 与 trace-off Serial 相同。精确计数只查验�
 - 使用 `0038` 的 exact-time `SIGSTOP` 在 14.8 s、15.3 s 及更接近 timeout
   的窗口复制两核状态；当前晚窗口已稳定落在 CPU0 `0x40087980` /
   CPU1 `0x40084484`，下一步沿 caller/return 和 SSI/DPORT 操作继续定位；
+- `0039` state sweep 在 CPU0 等待时观察到 CPU1 PC 变化，
+  cache-sync calls、SSI transactions 和 cross-core writes 持续增加；
+  changed-page 累计值停在 `6679`，因此两核整体没有永久停止；
+- `0040` 的 BIN-bound setter trace 在首轮 reset 前记录约 `4,376` 次
+  complete/can-start 完成周期，stage-0 timeout 为 `5.913935 s`，首次 reset
+  为 `15.914787 s`；“单次 handoff 永久不返回”解释不再成立；
+- 解释首个 stage-0 timeout 后 WDT feed 为何不再恢复，并判断是启动 workload
+  超过 budget、某类 guest 循环，还是另一个 controller/调度 liveness 问题；
 - 对 cross-core IRQ0/IRQ1 的 source CPU、interrupt matrix target、latch/
-  clear 和 CPU 状态做同时间轴关联，确认最后 800 ms 内是否仍有未完成的
-  handoff；
+  clear 和 CPU 状态做同时间轴关联，量化最后一个 stage-0 窗口内的完成频率，
+  而不是继续寻找单次未完成 handoff；
 - 把最后 `800 ms` 窗口映射到具体固件代码点，判断停滞来自 guest 忙等、
   TCG 调度、cache disable 还是控制器数据面；
 - 解释 CPU0 在连续 feed 上万次后为何于最后 800 ms 停止 feed/clear，判断
   是哪个高优先级同步路径使 IDLE/service task 无法运行；
 - 保留默认关闭的 S32C1I、TIMG 和 IRQ trace；不能把旧 probe 的 timer 根因
   直接复用于 legacy watchdog；
-- 当前工作假设仍是大量同步 flash-cache/IPC/DPORT handoff 使累计服务进度
-  超过 watchdog 窗口；exact-time freeze 已把晚窗口收敛到
-  block/cache-handshake 源码形态，但还需证明具体未返回操作；
+- 当前工作假设是大量已完成 flash-cache/IPC/DPORT handoff 与初始化 workload
+  使累计虚拟时间超过 watchdog budget；“单次 handoff 未返回”解释已被
+  `0039/0040` 否定，下一门禁是解释首个 stage-0 timeout 后 service/feed
+  为何不能恢复；
 - 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
 - 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
 

@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "kind": "core2-handoff-pause-sweep",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "bytes": 16777216
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_binary_sha256": "f7ac5a0352eb4345f5c3b719a5dd656c5c0cdfb3d805cf258f144d1ae1fb6718",
+    "trace_sample": 1024,
+    "pc_sampling": "NOT RUN",
+    "runtime": "qemu",
+    "icount_shift": null,
+    "pause_action": "exit",
+    "attempts_per_target": 1,
+    "pause_tolerance_ns": 5000000
+  },
+  "snapshots": [
+    {
+      "pause_target_ns": 14800000000,
+      "pause_event_ns": 14802289000,
+      "pause_delta_ns": 2289000,
+      "cpu": {
+        "0": {
+          "pc": "0x40087980",
+          "interrupt_request": "0x00000000",
+          "state_flags": 0
+        },
+        "1": {
+          "pc": "0x40084487",
+          "interrupt_request": "0x00000000",
+          "state_flags": 2
+        }
+      },
+      "memory": {
+        "0x3ffc7ec8": "0x00",
+        "0x3ffc7ec9": "0x01",
+        "0x3ffc7750": "0x00000001",
+        "0x3ffc7754": "0x00000001"
+      },
+      "dport": {
+        "freeze-state": {
+          "a": 0,
+          "b": 1,
+          "c": "0x00010028",
+          "d": "0x00004028"
+        },
+        "freeze-state1": {
+          "a": 6,
+          "b": 0,
+          "c": "0x000fc03f",
+          "d": "0x00000000"
+        },
+        "freeze-counters": {
+          "a": 16144,
+          "b": 6679,
+          "c": 16173,
+          "d": 14801801000
+        },
+        "freeze-counters1": {
+          "a": 100,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        }
+      },
+      "io": {
+        "ssi:freeze-counters": {
+          "a": 6984,
+          "b": 236116,
+          "c": 71,
+          "d": 4255883
+        },
+        "ssi:freeze-last": {
+          "a": 187,
+          "b": 64,
+          "c": 0,
+          "d": 14800925000
+        },
+        "crosscore:freeze-counters": {
+          "a": 40274,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        }
+      },
+      "attempt": 1,
+      "runtime": "qemu",
+      "icount_shift": "5",
+      "session_id_sha256": "7686d718c7bff88e50d6564985d8edcdb0ad07f4790705e48e3715b978cdbdf0",
+      "qemu_stderr_sha256": "12a3d47a59247d9218db0d53639d8e933386c0a75466f262bcfc31e2dd3f2cbd",
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62"
+    },
+    {
+      "pause_target_ns": 15300000000,
+      "pause_event_ns": 15300312000,
+      "pause_delta_ns": 312000,
+      "cpu": {
+        "0": {
+          "pc": "0x40087980",
+          "interrupt_request": "0x00000002",
+          "state_flags": 0
+        },
+        "1": {
+          "pc": "0x40084487",
+          "interrupt_request": "0x00000000",
+          "state_flags": 2
+        }
+      },
+      "memory": {
+        "0x3ffc7ec8": "0x00",
+        "0x3ffc7ec9": "0x01",
+        "0x3ffc7750": "0x00000001",
+        "0x3ffc7754": "0x00000001"
+      },
+      "dport": {
+        "freeze-state": {
+          "a": 0,
+          "b": 1,
+          "c": "0x00010028",
+          "d": "0x00004028"
+        },
+        "freeze-state1": {
+          "a": 6,
+          "b": 0,
+          "c": "0x000fc03f",
+          "d": "0x00000000"
+        },
+        "freeze-counters": {
+          "a": 16180,
+          "b": 6679,
+          "c": 16209,
+          "d": 15299818000
+        },
+        "freeze-counters1": {
+          "a": 100,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        }
+      },
+      "io": {
+        "ssi:freeze-counters": {
+          "a": 6998,
+          "b": 236571,
+          "c": 71,
+          "d": 2142347
+        },
+        "ssi:freeze-last": {
+          "a": 187,
+          "b": 64,
+          "c": 0,
+          "d": 15298930000
+        },
+        "crosscore:freeze-counters": {
+          "a": 40566,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        }
+      },
+      "attempt": 1,
+      "runtime": "qemu",
+      "icount_shift": "5",
+      "session_id_sha256": "663b0fe5885de04b19783a1a7dc4f940cac883059d8ddba0677107dd916e0393",
+      "qemu_stderr_sha256": "88652be10056f7ffca03ccdee9af0e702a8b0f82ab53d311fc296c798e8a3df9",
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62"
+    },
+    {
+      "pause_target_ns": 15900000000,
+      "pause_event_ns": 15900155000,
+      "pause_delta_ns": 155000,
+      "cpu": {
+        "0": {
+          "pc": "0x40095733",
+          "interrupt_request": "0x00000000",
+          "state_flags": 2
+        },
+        "1": {
+          "pc": "0x4019622f",
+          "interrupt_request": "0x00000002",
+          "state_flags": 2
+        }
+      },
+      "memory": {
+        "0x3ffc7ec8": "0x01",
+        "0x3ffc7ec9": "0x01",
+        "0x3ffc7750": "0x00000001",
+        "0x3ffc7754": "0x00000001"
+      },
+      "dport": {
+        "freeze-state": {
+          "a": 0,
+          "b": 1,
+          "c": "0x00010028",
+          "d": "0x00004028"
+        },
+        "freeze-state1": {
+          "a": 6,
+          "b": 0,
+          "c": "0x000fc03f",
+          "d": "0x00000000"
+        },
+        "freeze-counters": {
+          "a": 17444,
+          "b": 6679,
+          "c": 17473,
+          "d": 15899634000
+        },
+        "freeze-counters1": {
+          "a": 100,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        }
+      },
+      "io": {
+        "ssi:freeze-counters": {
+          "a": 7506,
+          "b": 253081,
+          "c": 71,
+          "d": 6306183
+        },
+        "ssi:freeze-last": {
+          "a": 187,
+          "b": 64,
+          "c": 0,
+          "d": 15898744000
+        },
+        "crosscore:freeze-counters": {
+          "a": 43584,
+          "b": 0,
+          "c": 0,
+          "d": 0
+        }
+      },
+      "attempt": 1,
+      "runtime": "qemu",
+      "icount_shift": "5",
+      "session_id_sha256": "3a822648ae7f385de2fbd80c0630ee65901368459a7bfd7f6c1af245982cb3f9",
+      "qemu_stderr_sha256": "fef6eeab9e78de0c8e02e3086011cf6156a422dfca481df92be48227e95cb0db",
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62"
+    }
+  ],
+  "failures": [],
+  "classification": {
+    "uart_storm": "REJECTED",
+    "guest_deadlock": "NOT PROVEN",
+    "application_frame": "NOT RUN"
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "The state dump reads SRAM and DPORT model state at the pause boundary.",
+    "Exact-time CPU register snapshots do not prove a permanent deadlock.",
+    "No physical cache, PSRAM, Flash, RF, electrical or hardware validation is claimed."
+  ]
+}

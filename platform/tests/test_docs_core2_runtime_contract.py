@@ -2549,6 +2549,56 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             profile_core2["validation"]["memory_validation"],
         )
 
+    def test_core2_completed_handoff_trace_is_reconciled(self) -> None:
+        state_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-state-sweep.json"
+            ).read_text()
+        )
+        setter_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-pc-trace.json"
+            ).read_text()
+        )
+        self.assertEqual(state_evidence["status"], "PASS")
+        self.assertEqual(
+            setter_evidence["summary"]["first_wdt_timeout_ns"],
+            5_913_935_000,
+        )
+        self.assertEqual(
+            setter_evidence["summary"]["first_wdt_reset_ns"],
+            15_914_787_000,
+        )
+        self.assertEqual(
+            setter_evidence["summary"]["pc_counts"]["0x40087b02"],
+            4_376,
+        )
+        for relative in (
+            "README.md",
+            "docs/project-status.md",
+            "docs/project-backlog.md",
+            "docs/runtime-model-gap-register.md",
+            "docs/engineering-handoff.md",
+            "docs/workstreams.md",
+            "docs/qemu-device-adaptation-matrix.md",
+            "docs/code-map.md",
+            "docs/validation-ledger.md",
+        ):
+            text = (ROOT / relative).read_text()
+            self.assertIn("0039", text, relative)
+            self.assertIn("0040", text, relative)
+        for text in (
+            (ROOT / "docs/project-status.md").read_text(),
+            (ROOT / "docs/runtime-model-gap-register.md").read_text(),
+            (ROOT / "docs/workstreams.md").read_text(),
+        ):
+            self.assertIn("4,376", text)
+            self.assertNotIn("specific non-returning", text.lower())
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

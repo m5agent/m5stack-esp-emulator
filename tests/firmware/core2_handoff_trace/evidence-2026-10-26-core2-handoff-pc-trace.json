@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "kind": "core2-handoff-pc-trace",
+  "validation": "virtual-device validation",
+  "status": "DIAGNOSTIC",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "bytes": 16777216
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_binary_sha256": "f7ac5a0352eb4345f5c3b719a5dd656c5c0cdfb3d805cf258f144d1ae1fb6718",
+    "pc_trace": [
+      "0x40087965",
+      "0x4008797a",
+      "0x40087a25",
+      "0x40087b02"
+    ],
+    "observe_seconds": 18.0
+  },
+  "summary": {
+    "trace_events": 18165,
+    "pc_events": 18014,
+    "first_boot_pc_events": 17507,
+    "first_wdt_reset_ns": 15914787000,
+    "first_wdt_timeout_ns": 5913935000,
+    "pc_counts": {
+      "0x40087965": 4377,
+      "0x4008797a": 4377,
+      "0x40087a25": 4377,
+      "0x40087b02": 4376
+    },
+    "first_boot_first_pc_ns": 1010329000,
+    "first_boot_last_pc_ns": 15912233000,
+    "serial": {
+      "bytes": 1292,
+      "sha256": "23d017c2eb258f279dd64f08b0e6635eed30f4faaff9c309d77b1b48897736e4",
+      "first_boot_bytes": 1140,
+      "first_boot_sha256": "09fa4a68a287b7237be9ece494b78aca6eb13ef58bc9c550acb65c03900053b1",
+      "has_micropython_banner": true,
+      "has_repl_prompt": false,
+      "has_wdt_reset": true
+    },
+    "frame": {
+      "bytes": 302,
+      "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "png": true
+    },
+    "classification": {
+      "handoff_cycles": "REPEATED",
+      "permanent_deadlock": "NOT SUPPORTED",
+      "legacy_boot": "FAIL"
+    },
+    "session_id_sha256": "f85c942464f5ac4af52ca6e990cd80b952582304916f9609dd03af3ffcef71b0",
+    "qemu_stderr_sha256": "6ffd8d7d0402d2b29c945d903ec37495065f556922a3155171b3f6442e9fc0e0"
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "The PC list is BIN-bound and does not imply matching ELF symbols.",
+    "Repeated handoff completion does not prove physical cache timing.",
+    "A watchdog reset under this execution model is not a hardware result."
+  ]
+}

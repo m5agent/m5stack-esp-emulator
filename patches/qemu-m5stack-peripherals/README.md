@@ -141,6 +141,8 @@ git apply /path/to/0035-esp32-timg-wdt-int-ena.patch
 git apply /path/to/0036-ssi-transfer-buf.patch
 git apply /path/to/0037-esp32-handoff-trace.patch
 git apply /path/to/0038-esp32-handoff-pause.patch
+git apply /path/to/0039-esp32-handoff-state-dump.patch
+git apply /path/to/0040-xtensa-handoff-pc-trace.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -278,6 +280,21 @@ QEMU process. This freezes both vCPUs without enabling high-frequency PC
 sampling, allowing a debugger to read guest PS, `INTENABLE`, `INTSET`,
 `EXCCAUSE`, register windows and QEMU CPU state at an exact virtual timestamp.
 It is diagnostic-only and does not alter reset, WDT or controller behavior.
+
+`0039-esp32-handoff-state-dump.patch` makes the pause self-describing. It logs
+both vCPU PCs, interrupt-request and halted/running state, the Core2 handoff
+flags, DPORT cache state, and aggregate cache/SSI/cross-core counters before
+optionally entering `SIGSTOP`. The default action remains `SIGSTOP`;
+`M5SW_ESP32_HANDOFF_PAUSE_ACTION=exit` is only for isolated one-point Device
+Service diagnostics.
+
+`0040-xtensa-handoff-pc-trace.patch` adds a default-off list of
+`M5SW_XTENSA_PC_TRACE` addresses. It records only selected BIN-bound PCs with
+PRID, PS, INTENABLE and INTSET, avoiding the scheduling perturbation of a
+periodic PC sampler. A normal-WDT run observed 4,376 completed cache-handoff
+cycles before reset at `15.914787 s`, so `RUNTIME-03` is not a permanent
+cross-core deadlock. Exact counts and evidence remain in the validation
+ledger.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

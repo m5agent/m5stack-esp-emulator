@@ -111,7 +111,11 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   Flash/cache-disable handoff，但精确函数仍缺 matching ELF/MAP。
   `0038` 的 exact-time `SIGSTOP` 对照进一步显示 14.800 s 早窗口无固定 PC，
   15.301 s 晚窗口稳定落在 CPU0 `0x40087980` / CPU1 `0x40084484`；
-  源码形态匹配旧 IDF Flash block/cache handshake。
+  源码形态匹配旧 IDF Flash block/cache handshake。`0039` state sweep
+  证明 CPU1 在 CPU0 等待期间继续执行，cache/SSI/cross-core counters
+  持续增长；`0040` setter trace 在首次 reset 前记录约 4,376 次完成的
+  complete/can-start handoff。永久跨核 deadlock 和 UART 解释均撤回，
+  但首个 stage-0 timeout 后 feed/service liveness 仍未解释。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、

@@ -98,8 +98,11 @@
 - `0038` 的 virtual-time `SIGSTOP` 对照避免了 PC 高频采样：14.800 s 早窗口
   没有固定 PC，15.301 s 晚窗口落在 CPU0 `0x40087980` / CPU1
   `0x40084484`。BIN 源码形态分别匹配 `spi_flash_op_block_func` complete
-  wait 与 cache handshake candidate；UART 解释退出，当前需继续追
-  restore/caller/return 和实际 SSI/DPORT 时间；
+  wait 与 cache handshake candidate；`0039` state sweep 又显示 CPU0 等待时
+  CPU1 继续执行，cache/SSI/cross-core counters 持续增长；`0040` setter
+  trace 在首次 reset 前记录约 4,376 次完成的 handoff。UART 与永久
+  handoff deadlock 解释都已退出，当前需解释首个 stage-0 timeout 后
+  feed/service 为何不恢复，以及启动 workload 的累计 virtual time；
 - 文档已拆成当前事实、待办、日期化证据、契约、实现地图和历史页五类，后续
   不应再把这些运行细节复制回总览。
 

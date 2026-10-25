@@ -248,6 +248,15 @@ function name remains unbound.
 the sampled PCs are not fixed; at 15.301 s they converge on CPU0
 `0x40087980` and CPU1 `0x40084484`, matching a Flash block/cache-handshake
 source pattern in the public BIN.
+`0039` adds exact-time CPU/handoff/cache/SSI/cross-core state dumps. A
+14.8/15.3/15.9-second sweep observed CPU0 waiting while CPU1 continued through
+different PCs; cache, SSI transaction and cross-core counters kept increasing.
+`0040` adds a default-off BIN-bound PC list for the four complete/can-start
+setters. The first normal-WDT boot reached stage-0 timeout at `5.913935 s`,
+then reset at `15.914787 s`, after roughly 4,376 completed handoff cycles.
+This rejects the simple permanent-handoff-deadlock explanation. A zero
+changed-page host-flush skip control still reset with the same black frame and
+was not retained.
 WDT-disabled `sample=1024` and trace-off produced the same banner-only serial
 hash. The reusable summarizer and evidence are in
 [`core2_handoff_trace/`](core2_handoff_trace/). The unbound local-ELF PC

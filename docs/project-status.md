@@ -95,14 +95,24 @@ interrupt-WDT reset 与累计 Flash/cache-handoff 服务进度仍 `OPEN`。
     `spi_flash_op_block_func` 的 complete/can-start 握手一致；
   - CPU1 地址附近清零 `0x3ffc7750/54`，调用者位于同族的 cache handoff
     路径。
+- `0039` 在 pause 前直接记录 CPU、handoff flag、DPORT/cache、SSI 和
+  cross-core counters。14.8/15.3/15.9 s 三点中 CPU0 前两点均停在
+  `0x40087980`，CPU1 在 15.9 s 进入不同路径；cache-sync calls 增加
+  `16144 → 16180 → 17444`，changed-page 累计值停在 `6679`，而 SSI
+  transactions `6984 → 6998 → 7506`、cross-core writes
+  `40274 → 40566 → 43584` 继续增加。两核整体永久停止被排除。
+- `0040` 用默认关闭的 BIN-bound PC 列表记录 complete/can-start
+  set/clear 四个 setter。首轮 normal-WDT 在 `5.913935 s` 出现 stage-0
+  timeout、`15.914787 s` 首次 reset；reset 前四个 setter 各命中约
+  `4,377` 次。cache handoff 反复返回，不再支持“单次 handshake 永久
+  不返回”。
 
-这说明剩余问题更可能是大量同步 Flash 操作、cross-core yield 和
-flash-cache/DPORT handoff 造成的总吞吐不足。当前工作假设是 legacy
-启动扫描所需的工作量超过 watchdog 窗口，而不是单次 handshake 丢失；
-统一时间轴和精确 freeze 已经具备。高频采样下的固定 UART/VM PC 簇不再成立；
-晚窗口则稳定进入 Flash/cache handshake 源码形态。下一步是取得 v1.15.4
-ELF/MAP，或在 BIN-bound 地址上继续冻结 cache restore/caller/return 链，
-确认 CPU1 的 cache handoff 是否返回、在哪个 SSI/DPORT 操作累计超过窗口。
+当前工作假设是大量已经完成的 Flash/cache/DPORT 周期与启动 workload
+超过 watchdog budget，或首个 stage-0 timeout 后有一条独立 service/feed
+liveness 路径没有被恢复。高频采样下的固定 UART/VM PC 簇不再成立；
+“单次 cache restore 未返回”也被 `0039/0040` 否定。下一步是围绕首个
+stage-0 timeout 前后继续量化 WDT feed、service task 和 controller 操作，
+同时取得 v1.15.4 ELF/MAP。
 精确批次、通过率、
 artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
@@ -114,7 +124,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝和两段 exact-time freeze 已验证；晚窗口进入 BIN-bound Flash/cache handshake 源码形态 | 继续冻结 cache restore/caller/return 链和实际 SSI/DPORT 操作，解释 800 ms 累计服务时间；取得 matching ELF/MAP 可并行 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；UART 高频 PC 映射不得复用 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝、exact-time state sweep 和 setter PC trace 已验证；已证明 CPU1 持续执行且 handoff 在 reset 前完成约 4,376 次 | 量化首个 stage-0 timeout 前后 WDT feed/service/controller liveness，解释为何完成周期和约 250 KiB SSI 数据仍无应用进度；取得 matching ELF/MAP 可并行 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；UART 高频 PC 映射和“永久 handoff deadlock”都不得复用 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -174,8 +184,11 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
    probe/UIFlow2 PASS、旧 REPL 观察、关闭 WDT、accelerator 或 host 假值
    当作 legacy 启动 PASS。当前证据显示 flash-operation/cross-core flags
    会反复完成；`0037` 已把 controller batch、两核 PC 与 watchdog feed
-   放到同一虚拟时间轴，并复现最后 feed 后固定 800 ms timeout。下一步是
-   定位该窗口内的同步停顿；量化结果只以验证台账和 evidence 为准。
+   放到同一虚拟时间轴，并复现最后 feed 后固定 800 ms timeout。`0039/0040`
+   又证明 CPU1 持续执行且 handoff 在 reset 前完成约 4,376 次。下一步是
+   解释首个 stage-0 timeout 后的 feed/service liveness，而不是继续寻找
+   单次未返回 handoff；该轮仍属于 legacy `flash-cache/IPC/DPORT` 启动
+   边界，量化结果只以验证台账和 evidence 为准。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。
@@ -208,7 +221,9 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
   [固件审查工作流](firmware-review-and-simulation-workflow.md)。
 - Core2 历史诊断：[cache/panic 调查](core2-cache-panic-investigation.md)、
   [QIO/cross-core evidence](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)、
-  [handoff timeline evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)。
+  [handoff timeline evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)、
+  [state sweep evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-state-sweep.json)、
+  [setter PC trace evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pc-trace.json)。
 - 文档契约：五个 `platform/tests/test_docs_*_contract.py` 领域模块，以及
   `platform/tests/fixtures/stale_doc_claims.json` 结构化退役说法目录。
 

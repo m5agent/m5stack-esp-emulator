@@ -119,5 +119,54 @@ near the final feed and inside the feed-to-timeout gap. They show that the
 earlier fixed UART/VM PC cluster was sampling-dependent and that the late
 window converges on a Flash/cache-handshake source pattern.
 
+`0039-esp32-handoff-state-dump.patch` extends the pause callback with
+artifact-bound CPU, handoff-flag, DPORT/cache, SSI and cross-core counters.
+`M5SW_ESP32_HANDOFF_PAUSE_ACTION=exit` makes one isolated Device Service lease
+collect one virtual-time point without a debugger:
+
+```bash
+python3 tests/firmware/core2_handoff_trace/run_pause_sweep.py \
+  --image path/to/normalized-core2.bin \
+  --qemu path/to/qemu-system-xtensa \
+  --pause-seconds 14.8 \
+  --pause-seconds 15.3 \
+  --pause-seconds 15.9 \
+  --out-dir /tmp/core2-handoff-state-sweep
+```
+
+The artifact-bound sweep in
+`evidence-2026-10-26-core2-handoff-state-sweep.json` recorded CPU0 at
+`0x40087980` at both 14.8 and 15.3 seconds while CPU1 changed PC. Cache-sync
+calls increased `16144 → 16180 → 17444`; changed-page work plateaued at
+`6679`, while SSI transactions continued `6984 → 6998 → 7506` and
+cross-core writes increased `40274 → 40566 → 43584`. This rejects a permanent
+two-core stop but does not identify the operation that consumes the watchdog
+budget.
+
+`0040-xtensa-handoff-pc-trace.patch` adds a default-off,
+`M5SW_XTENSA_PC_TRACE` comma-separated PC list. Only selected BIN-bound
+instructions emit virtual time, CPU, PRID, PS, INTENABLE and INTSET:
+
+```bash
+python3 tests/firmware/core2_handoff_trace/run_pc_trace.py \
+  --image path/to/normalized-core2.bin \
+  --qemu path/to/qemu-system-xtensa \
+  --observe-seconds 18 \
+  --out-dir /tmp/core2-handoff-pc-trace
+```
+
+The retained run records first stage-0 WDT timeout at `5.913935 s`, first
+reset at `15.914787 s`, and 4,376 complete-flag setter hits before reset.
+Complete-clear/can-start set/clear setters each hit 4,377 times. Serial still
+stopped before setup/REPL and the frame SHA remained the 302-byte black frame.
+The repeated completed handoffs reject the simple permanent-deadlock
+explanation; the remaining failure is cumulative handoff/flash service time or
+a separate liveness bug that runs concurrently with those cycles.
+
+An exploratory change that skipped `memory_region_flush_rom_device()` when
+`changed_pages == 0` was rejected. The same firmware still entered
+`TG0WDT_SYS_RESET`, reset PC `0`, and the same black-frame hash. That change
+is not part of the retained patch series.
+
 The trace is diagnostic only. It does not prove physical cache timing or close
 `RUNTIME-03`.

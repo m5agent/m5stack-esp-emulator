@@ -331,6 +331,8 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/firmware/core2_handoff_trace/summarize.py",
             "tests/firmware/core2_handoff_trace/audit_elf_bin_mapping.py",
             "patches/qemu-m5stack-peripherals/0038-esp32-handoff-pause.patch",
+            "patches/qemu-m5stack-peripherals/0039-esp32-handoff-state-dump.patch",
+            "patches/qemu-m5stack-peripherals/0040-xtensa-handoff-pc-trace.patch",
             (
                 "tests/firmware/core2_handoff_trace/"
                 "pc-symbolization-2026-10-26-core2-handoff.json"
@@ -345,11 +347,23 @@ class DocsIndexContractTests(DocsContractBase):
             ),
             (
                 "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-state-sweep.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-pc-trace.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
                 "evidence-2026-10-26-core2-handoff-timeline.json"
             ),
             "platform/tests/test_core2_handoff_trace.py",
             "platform/tests/test_core2_pc_mapping_audit.py",
             "platform/tests/test_core2_handoff_pause.py",
+            "platform/tests/test_core2_handoff_state_sweep.py",
+            "platform/tests/test_core2_handoff_pc_trace.py",
+            "tests/firmware/core2_handoff_trace/run_pause_sweep.py",
+            "tests/firmware/core2_handoff_trace/run_pc_trace.py",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",

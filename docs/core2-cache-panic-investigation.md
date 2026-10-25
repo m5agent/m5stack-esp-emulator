@@ -404,6 +404,63 @@ matches, not ELF-symbol-bound.
 See
 [`evidence-2026-10-26-core2-handoff-pause.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pause.json).
 
+## 2026-10-26 exact-time state sweep
+
+[`0039-esp32-handoff-state-dump.patch`](../patches/qemu-m5stack-peripherals/0039-esp32-handoff-state-dump.patch)
+makes the exact-time pause self-describing. Before stopping or exiting, QEMU
+records:
+
+- both vCPU PCs and QEMU interrupt-request/halted state;
+- `0x3ffc7ec8`, `0x3ffc7ec9`, `0x3ffc7750` and `0x3ffc7754`;
+- DPORT cache-control/stall state;
+- cache-sync, SSI transaction/byte and cross-core write counters.
+
+The artifact-bound 14.8/15.3/15.9-second sweep observed CPU0 at
+`0x40087980` at both earlier points while CPU1 changed PC. Cache-sync calls
+increased `16144 → 16180 → 17444`; changed-page work stopped increasing at
+`6679`; SSI transactions increased `6984 → 6998 → 7506`; cross-core writes
+increased `40274 → 40566 → 43584`.
+
+This is not a two-core permanent stop. CPU1 continues entering DPORT/cache,
+SSI and cross-core paths while CPU0 waits in the flash-operation block
+function.
+
+See
+[`evidence-2026-10-26-core2-handoff-state-sweep.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-state-sweep.json).
+
+## 2026-10-26 completed handoff setter trace
+
+[`0040-xtensa-handoff-pc-trace.patch`](../patches/qemu-m5stack-peripherals/0040-xtensa-handoff-pc-trace.patch)
+adds a default-off `M5SW_XTENSA_PC_TRACE` list in the Xtensa translator. It
+logs only explicitly selected BIN-bound instructions with CPU, PRID, PS,
+INTENABLE and INTSET; there is no periodic sampler.
+
+For the four observed handoff setters:
+
+- `0x40087965`: clear complete;
+- `0x4008797a`: set can-start;
+- `0x40087a25`: clear can-start;
+- `0x40087b02`: set complete.
+
+The first normal-WDT run reached stage-0 timeout at `5.913935 s`, then reset at
+`15.914787 s`. Before reset, each setter was hit about `4,377` times. CPU0 is
+therefore repeatedly waiting and being released, while CPU1 repeatedly runs
+flash/cache operations. The old “one handoff never returns” explanation is
+not supported.
+
+An exploratory host-side change that skipped
+`memory_region_flush_rom_device()` when `changed_pages == 0` still produced
+`TG0WDT_SYS_RESET`, reset PC `0` and the same black frame. The result is
+retained as a rejected control and the change is not in the patch series.
+
+The remaining question is why roughly 4,376 completed handoff cycles and about
+250 KiB of SSI data before the first reset still do not advance the firmware
+past its startup phase, and why WDT feed/service does not resume after the
+first stage-0 timeout.
+
+See
+[`evidence-2026-10-26-core2-handoff-pc-trace.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-pc-trace.json).
+
 ## Next investigation
 
 1. Preserve the minimal probe's equal-deadline regression gate and keep the
@@ -415,8 +472,9 @@ See
    low-perturbation events to classify the final CPU0 cluster as vCPU
    starvation, guest spin, or a specific cross-core/cache-disable handoff
    waiter; do not reuse local v2.5.3 symbols.
-5. Use `0038` to freeze later points in the feed-to-timeout gap and follow the
-   cache-restore caller/return chain plus SSI/DPORT MMIO at each step.
+5. Use `0039/0040` to quantify WDT feed/service liveness and guest/controller
+   work around the first stage-0 timeout; do not keep searching for a single
+   cache-restore call that never returns.
 6. Reduce aggregate synchronous handoff cost using controller-level behavior,
    without skipping the guest flash/cache protocol.
 7. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is

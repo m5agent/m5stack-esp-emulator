@@ -33,10 +33,12 @@ MicroPython 和其他完整 Flash 固件。
   equal-deadline timer、TIMG WDT mask 和保留 m25p80 状态的 QIO/stateful
   SSI 批量数据面已修复/验证，但同一 public firmware 仍会 watchdog reset，
   且没有同 SHA 非空应用帧。`0037` 统一时间轴和 `0038` exact-time pause
-  已把最后窗口收敛到 cross-core Flash/cache/DPORT handoff；BIN/ELF 字节
-  审计拒绝了旧 UART/VM 符号映射，
-  也没有证据支持永久跨核死锁。具体未返回操作、matching ELF/MAP、
-  `Core2FactoryTest` 重跑和 `RUNTIME-03` 关闭条件以
+  已把最后窗口收敛到 cross-core Flash/cache/DPORT handoff；`0039` state
+  sweep 和 `0040` setter trace 又证明 CPU1 持续执行，且首次 reset 前约
+  4,376 次 handoff 已完整往返。BIN/ELF 字节审计拒绝了旧 UART/VM 符号
+  映射，UART 和永久 deadlock 解释均不支持。当前未解决点是首个 stage-0
+  timeout 后 feed/service liveness 和启动 workload 的累计 virtual time；
+  matching ELF/MAP、`Core2FactoryTest` 重跑和 `RUNTIME-03` 关闭条件以
   [项目当前状态](docs/project-status.md)与
   [验证证据台账](docs/validation-ledger.md)为准。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
