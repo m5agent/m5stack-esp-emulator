@@ -2,7 +2,8 @@
 
 Last reviewed: `2026-10-24`
 
-该补丁应用在 Espressif QEMU 的 ESP32-C6 后端 `febae18` 上，新增：
+该补丁应用在公开的 Espressif QEMU ESP32-C6 提交
+`febae182e132e4055529be423a818225ebddaa3a` 上，新增：
 
 - C6 启动所需的 SARADC 一次性采样完成握手；
 - C6 SPI flash 的 command-aware address width：16 MiB 读路径使用 4-byte

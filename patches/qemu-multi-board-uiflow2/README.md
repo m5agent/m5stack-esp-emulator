@@ -21,13 +21,19 @@ Last reviewed: `2026-10-24`
 - 通用 SPI 面板模型：DC 相位、CASET/RASET/RAMWR、玻璃方向、触摸输入；
 - 可变 GPIO 软件 I2C 引脚、无设备 NACK 完成语义、CoreS3 四线 PSRAM。
 
-## 应用顺序
+这是历史快照补丁，不能与当前的
+`patches/qemu-m5stack-peripherals/0003-m5stack-shared-spi-full.patch`
+按任意顺序继续叠加：两者都修改 `hw/gpio/esp32_gpio.c` 等共享文件，具有
+不同的前像/后像。需要完整运行时请使用上面的 macOS arm64 release；需要源码
+重建时先确认目标树，不要把两个历史分支拼成一条补丁序列。
 
-```bash
-cd "$QEMU_ROOT/build/qemu"
-git apply /path/to/qemu-stopwatch-uiflow2-boot/0001-qemu-uiflow2-stopwatch-boot.patch
-git apply /path/to/qemu-multi-board-uiflow2/0001-qemu-m5stack-multiboard-uiflow2.patch
-```
+## 历史快照状态
+
+本页原先给出的 `stopwatch -> multiboard` 顺序只在内部中间树成立。使用公开
+tag、公开的 zqqf16 v0.1.0 补丁和当前 stopwatch patch 重建时，
+multiboard patch 在 `hw/gpio/esp32_gpio.c`、多个 `hw/m5stopwatch/*.c` 和
+`hw/xtensa/meson.build` 上失败。因此该顺序不再作为可执行重建指令；
+完整运行时使用 release bundle，源码重建需要目标分支的合并快照。
 
 ## 已验收
 

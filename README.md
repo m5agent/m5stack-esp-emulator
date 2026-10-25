@@ -215,6 +215,11 @@ CoreS3 的 UIFlow2 启动菜单顶部图标目前存在条纹伪影，reference 
 烧录、串口、截图或输入的 `/api/v1/sessions` 路径时，还必须有匹配当前
 commit 与主机架构的 `.work/` 运行时：
 
+macOS arm64 + Python 3.13 可直接使用已验证的
+[运行时包](https://github.com/m5agent/m5stack-esp-emulator/releases/tag/runtime-macos-arm64-2026.10.25)，
+解压后即可启动 Device Service。包内包含 QEMU、ROM、`esp-emu` 和 Python
+依赖，但不包含参考固件，也不替代 Linux/Windows 构建或 clean-room 源码重建。
+
 - `.work/M5StopWatch-QEMU/`：按补丁构建的 QEMU；
 - `.work/esp-emu-versions/0.50.0/`：Tab5 P4 和 network 诊断 lane 使用的
   `esp-emu`；

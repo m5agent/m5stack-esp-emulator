@@ -1,7 +1,16 @@
 # M5Stack peripheral models and data planes
 
-This patch is incremental to `qemu-multi-board-uiflow2` and
-`qemu-core2-qemu-esptool`. It adds:
+This directory contains historical snapshot branches, not one universal
+linear patch sequence. The standalone `0003` snapshot is based on the
+M5StopWatch-QEMU-derived tree; it is **not** applicable after
+`qemu-multi-board-uiflow2/0001`, and the two patches have different images of
+shared files such as `hw/gpio/esp32_gpio.c`.
+
+For a working runtime, use the published macOS arm64 release bundle or the
+target-specific tree described below. Do not reconstruct a clean tree by
+applying both historical branches in sequence.
+
+The peripheral work adds:
 
 - a corrected ESP32-S3 I2C FIFO and repeated-start model;
 - level-triggered ESP32-S3 interrupt-matrix retriggering and the special
@@ -86,9 +95,9 @@ This patch is incremental to `qemu-multi-board-uiflow2` and
   and QEMU user networking, while preserving the existing StickS3 board
   peripherals in the same machine.
 
-Historical incremental replay uses `0001` then `0002`. For a fresh upstream
-tree, use the current standalone snapshot `0003` followed by the PCM capture
-fix `0004`:
+Historical incremental replay uses `0001` then `0002` on their original
+derived tree. For the standalone M5StopWatch-QEMU-derived tree, use `0003`
+followed by the PCM capture fix `0004`:
 
 ```bash
 cd "$QEMU_ROOT/build/qemu"
@@ -131,7 +140,9 @@ later backend file.
 
 Verified source baseline:
 
-- `espressif/qemu` base `da100c909249926b9f4458f18e4f2d216d08f51a`;
+- public `espressif/qemu` tag `esp-develop-9.2.2-20260417`
+  (`6cdce334bfa5541a5e46c860a9b40a4fe5a13aae`) plus the published
+  `zqqf16/M5StopWatch-QEMU` v0.1.0 patches;
 - QEMU `9.2.2`;
 - historical `0001`/`0002` checks pass on their incremental baseline;
 - `0004` applies cleanly immediately after the current standalone `0003`.

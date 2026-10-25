@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25",
+  "kind": "public-runtime-bundle-validation",
+  "issue": "https://github.com/m5agent/m5stack-esp-emulator/issues/1",
+  "source_commit": "10df26ece0b605a3a8bb36a3661b53494fdae9a0",
+  "release": {
+    "url": "https://github.com/m5agent/m5stack-esp-emulator/releases/tag/runtime-macos-arm64-2026.10.25",
+    "asset": "m5stack-esp-emulator-runtime-macos-arm64-2026.10.25.tar.gz",
+    "sha256": "735464198c5f7f3ffa930307c0e4cedb973ac48934b73d0092a3a4659831c7a9",
+    "platform": "macOS arm64",
+    "python": "3.13"
+  },
+  "reproduced_findings": {
+    "invalid_public_base_commit": {
+      "sha": "da100c909249926b9f4458f18e4f2d216d08f51a",
+      "github_api_status": 422,
+      "result": "REPRODUCED",
+      "meaning": "The SHA is present in the local development clone but is not a public upstream reachable commit."
+    },
+    "patch_series_not_linearly_composable": {
+      "public_baseline": [
+        "espressif/qemu:esp-develop-9.2.2-20260417",
+        "zqqf16/M5StopWatch-QEMU:v0.1.0 five patches",
+        "qemu-stopwatch-uiflow2-boot/0001"
+      ],
+      "first_failure": "qemu-multi-board-uiflow2/0001 rejected shared files including hw/gpio/esp32_gpio.c, hw/m5stopwatch/co5300.c, hw/xtensa/meson.build and several m5stopwatch sources",
+      "second_failure": "qemu-m5stack-peripherals/0003 rejected the same shared-file preimages after the preceding tree",
+      "result": "REPRODUCED",
+      "meaning": "The historical patch groups are alternate snapshot branches, not a single public replay sequence."
+    },
+    "c6_base_commit": {
+      "sha": "febae182e132e4055529be423a818225ebddaa3a",
+      "github_api_status": 200,
+      "result": "NOT REPRODUCED",
+      "meaning": "The C6 commit is publicly reachable. The C6 adapter README now names this exact commit; the upstream 9.2.2 tag alone is not a valid C6 baseline."
+    },
+    "no_release_runtime": {
+      "before": "0 releases",
+      "result": "REPRODUCED",
+      "meaning": "There was no prebuilt runtime for a fresh clone."
+    },
+    "ci_does_not_build_qemu": {
+      "result": "REPRODUCED",
+      "meaning": "The existing CI validates contracts and network helpers but is not a QEMU build job."
+    }
+  },
+  "clean_clone_validation": {
+    "clone_commit": "10df26ece0b605a3a8bb36a3661b53494fdae9a0",
+    "extract_command": "tar -xzf runtime.tar.gz --strip-components=1",
+    "service_devices": [
+      {
+        "device_id": "sticks3",
+        "backend_ready": true,
+        "creatable": true,
+        "missing_runtime_files": []
+      },
+      {
+        "device_id": "nesso-n1",
+        "backend_ready": true,
+        "creatable": true,
+        "missing_runtime_files": []
+      }
+    ],
+    "sessions": [
+      {
+        "device_id": "sticks3",
+        "firmware_sha256": "f1ed15f3cb29dbe9274f6f09c8c7772514dcda800b3fe1d067b2e2cd2ec468d2",
+        "session_id": "1ceea149e4e04790aef1802b829b1459",
+        "state": "stopped",
+        "frame_width": 135,
+        "frame_height": 240,
+        "frame_sha256": "b7c4ffd92cde08e0455596fa125492f721a834d886992659a161bfad80aa3ab6",
+        "input": "key:a",
+        "input_accepted": true
+      },
+      {
+        "device_id": "nesso-n1",
+        "firmware_sha256": "53a01cdde00de8763767d6eefb48965a5d95326b4e88df0f26ad08fe1c00816d",
+        "session_id": "dd9b305e58cd4819882c80a755c26b15",
+        "state": "stopped",
+        "frame_width": 135,
+        "frame_height": 240,
+        "frame_nonblack_pixels": 4411,
+        "frame_sha256": "a2736261cf6264f197490803809d35b12b3fe413b0566bc17ccc22ff0a845334",
+        "input": "touch:67,120",
+        "input_accepted": true
+      }
+    ],
+    "first_sticks3_attempt": {
+      "session_id": "b20c0805ab9e4e5ea2c33abddc1bd54c",
+      "result": "FAIL",
+      "reason": "QEMU QMP startup timeout observed after a nonblank frame; immediate clean retry passed",
+      "classification": "residual service startup flake, not attributed to the runtime bundle"
+    }
+  },
+  "bundle_contents": {
+    "qemu_system_xtensa_sha256": "905d26f11ecbec2a27d11c0acfa088bb3e4c421f1d1b183c97f991405fecce11",
+    "qemu_system_riscv32_sha256": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+    "esp_emu_050_sha256": "a4c3468a4abf3f2e55ca0912fa7cdfbe5e101ecb6ab74a9ec35182d70ba6a771"
+  },
+  "limits": [
+    "macOS arm64 and Python 3.13 only",
+    "M5Stack reference firmware is not bundled",
+    "not a clean-room source rebuild",
+    "not physical-hardware validation",
+    "Linux and Windows runtime bundles are not provided"
+  ]
+}

@@ -76,9 +76,9 @@
 | `serve.py` | 1385 |
 | `network_fabric.py` | 1375 |
 
-- `tests/`：`59` 个可执行 Python 测试文件，分布在 `41` 个目录；`146` 个 evidence JSON。
+- `tests/`：`59` 个可执行 Python 测试文件，分布在 `41` 个目录；`147` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`54` 个 patch 文件。
-- 文档：`194` 个 Markdown 页面，`16814` 行。
+- 文档：`194` 个 Markdown 页面，`16873` 行。
 
 ## 文档与测试
 

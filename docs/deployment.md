@@ -90,6 +90,36 @@ Tab5、网络和扩展测试还需要设备矩阵声明的 `esp-emu`、P4 ROM/eF
 仓库 commit、主机架构、补丁清单、校验和及测试结果。不要直接把某台开发机
 的 macOS arm64 目录复制到 Linux x86_64 主机。
 
+当前提供一个已验证的 macOS arm64 起步包：
+
+- Release：<https://github.com/m5agent/m5stack-esp-emulator/releases/tag/runtime-macos-arm64-2026.10.25>
+- Asset：`m5stack-esp-emulator-runtime-macos-arm64-2026.10.25.tar.gz`
+- SHA256：`735464198c5f7f3ffa930307c0e4cedb973ac48934b73d0092a3a4659831c7a9`
+- Source commit：`10df26ece0b605a3a8bb36a3661b53494fdae9a0`
+- 运行要求：macOS arm64 + Python 3.13
+
+从仓库根目录安装：
+
+```bash
+curl -fL \
+  -o /tmp/m5stack-esp-emulator-runtime-macos-arm64-2026.10.25.tar.gz \
+  https://github.com/m5agent/m5stack-esp-emulator/releases/download/runtime-macos-arm64-2026.10.25/m5stack-esp-emulator-runtime-macos-arm64-2026.10.25.tar.gz
+shasum -a 256 /tmp/m5stack-esp-emulator-runtime-macos-arm64-2026.10.25.tar.gz
+tar -xzf /tmp/m5stack-esp-emulator-runtime-macos-arm64-2026.10.25.tar.gz \
+  --strip-components=1
+PYTHONPATH="$PWD/.work/py${PYTHONPATH:+:$PYTHONPATH}" \
+M5_CORE2_RADIO_QEMU="$PWD/.work/M5StopWatch-QEMU/build/qemu/build/qemu-system-xtensa" \
+python3 platform/tools/serve.py 8787
+```
+
+该包包含 xtensa/riscv32 QEMU、必要 ROM、`esp-emu 0.50.0`、Python 3.13
+依赖和 runtime manifest，不包含 M5Stack 参考固件。参考固件仍按设备使用
+`fetch_firmware.py` 获取，或通过 `/api/v1/artifacts` 上传匹配镜像。
+
+这不是 clean-room 源码重建，也不覆盖 Linux/Windows。它解决的是“第三方
+拿到当前 commit 后无法直接启动 QEMU 后端”的可执行运行时缺口；源码重建路径
+仍见方案 B。
+
 Device Service 默认使用设备矩阵登记的 QEMU 可执行路径。Linux worker 或
 容器中需要替换同一 commit 重新构建的二进制时，可设置：
 
