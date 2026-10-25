@@ -47,6 +47,11 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   below/satisfied/unavailable 对照；顶层 `security.trust_root.status` 和
   `security.anti_rollback.status` 仍固定为 `not-verified`，因为 summary
   不是目标设备的 live eFuse 读取，bootloader 也未执行。
+  Core2 native-HCI 并发路径也完成一次独立门禁：两个 `qemu-unified` lease
+  在 30 秒启动错峰后同时运行 120 秒，均完成 WiFi、公网、active BLE GATT、
+  PSRAM 压力、frame/QOM、pcap 和 evidence。HTTP 改成 per-session QEMU
+  `guestfwd`，消除了共享 18089 端口冲突；无错峰同时冷启动仍会在第二个
+  guest 触发 `ble_hs_hci_process_ack` LoadProhibited，保持开放。
 - **当前已闭合的 companion 门禁**：trusted-host unified StickS3 在 runtime
   service SIGKILL 后保持同一 QEMU PID；HTTP fixture 从持久 generation-1
   请求重建为 generation-2，BLE peer 在 PID/start-time/command-SHA 全部匹配后
@@ -85,7 +90,7 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 | --- | --- | --- | --- |
 | 设备与统一运行时 | S3/C6/Core2 单 guest 的板级、WiFi、BLE、frame/QOM、pcap 和 evidence 已可执行 | 代表设备同固件 SHA 真机验证；剩余控制器/视觉差异 | 不能用同 SoC 其他板、其他固件 SHA 或真机 RF 继承 PASS |
 | 网络与 worker | DNS/CNAME、CIDR egress、discovery、重启恢复、control/runtime 分离、跨容器 QEMU，以及 QEMU process / unified companion partition fence 已落地 | QEMU 内 guest/controller side effect；worker 未拥有的外部 side effect；物理跨主机 | 三个 Docker 容器对仍共享宿主，不等于物理多机；QEMU PID 回收不等于 guest 内部已完成 quiesce |
-| Core2 | native-HCI 功能路径、121 轮重连、active-stop、8 MiB QOM/MMU 和长时虚拟压力已通过 | 物理 PSRAM/cache timing、bit-exact BT baseband/controller、长时吞吐/并发、其他 teardown | 7200 秒功能保持和 bounded TCG 只覆盖对应 workload |
+| Core2 | native-HCI 功能路径、121 轮重连、active-stop、8 MiB QOM/MMU、长时虚拟压力和 30 秒错峰的 2×120s 并发稳态已通过 | 物理 PSRAM/cache timing、bit-exact BT baseband/controller、同时冷启动并发、持续吞吐、其他 teardown | 7200 秒功能保持和 bounded TCG 只覆盖对应 workload；2×120s 不能证明无错峰冷启动 |
 | 通用固件审查 | Manifest/WebBurner、完整性、capability、静态/SBOM/文件系统、Secure Boot v2 sector/摘要与 RSA-PSS、ECDSA P-192/P-256/P-384 数学验证、包内 `SECURE_BOOT_DIGEST` 摘要对照、`secure_version` anti-rollback 对照、NVS/SD 和网络预期已可执行 | 包内 eFuse 来源、公钥 authenticity/live eFuse trust root、bootloader anti-rollback 执行、运行态 ACL/许可、真机安全 key/eFuse、真实云端业务、更多固件族 | 结构 PASS、签名数学/摘要自洽、包内摘要 match、静态 PASS、网络 marker PASS 都不能替代 eFuse trust 与真机安全结论 |
 | Tab5 / CardputerZero / UI | Tab5 与 Linux ARM64 后端有可用子集；StopWatch 是唯一参考级外壳 | P4 后端决策、CardputerZero 收尾、逐设备视觉模型 | `partial` 表示可用子集，不等同完整设备或全固件兼容 |
 
@@ -381,7 +386,7 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
 | 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、WPA2-PSK 正确/错误密码、radio/AP 丢失恢复；controlled DNS A/AAAA、label-boundary domain suffix、bounded CNAME chain 与同 guest CNAME→HTTP、denied-name/port、TLS/Host allowlist；nftables 有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT、IPv6 neighbor control 和清理；专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP 与 Linux namespace 内 controlled AAAA、IPv6 HTTP、denied-port、pcap、cleanup；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；跨 server/worker namespace 与三个独立 Docker 容器对的 Bearer+HMAC worker control plane；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap、namespace/container/bridge cleanup；本地 worker lifecycle、QEMU/QMP reattach、trusted-host unified HTTP/BLE companion continuity、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、active-token multicast discovery、unicast-seed discovery across two routed/masqueraded subnets `3/3`、central/runtime restart continuity、session-create idempotency、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、控制/本地 runtime API 分离；GitHub Actions Linux policy CI PASS | WPA3、group-key multicast、物理跨主机 QEMU executor/reattach、无 reachable seed 的任意 NAT traversal、namespace-managed/Tab5/cross-host companion continuity、跨主机 idempotency、生产多机调度、任意公网域名解析器 |
-| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI、QOM 8 MiB PSRAM、upper-bank MMU remap、121 轮重连、7200s、active-stop 和持续压力均已通过；3 个独立 `esp_himem` lease 在同一个虚拟窗口切换不同 upper physical block，3 个 120 秒 unified lease 在普通 4 MiB heap 各完成 35 次校验；旧未限容 RSS 增长已归因到 TCG buffer | bit-exact controller/baseband、物理板载 `8 MiB` PSRAM/cache timing/性能、长时并发/吞吐、其他 teardown 模式和真机 |
+| Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI、QOM 8 MiB PSRAM、upper-bank MMU remap、121 轮重连、7200s、active-stop、持续压力和 30 秒错峰的 2×120s 并发稳态均已通过；两个并发 lease 使用 per-session QEMU `guestfwd` HTTP，最大同时数为 2，各自完成 active BLE、WiFi、公网、30+ 次 PSRAM 校验、pcap 和 evidence；无 stagger 的对照在第二个 guest 的 `ble_hs_hci_process_ack` 触发 LoadProhibited | bit-exact controller/baseband、物理板载 `8 MiB` PSRAM/cache timing/性能、同时冷启动安全、持续吞吐、其他 teardown 模式和真机 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、required/optional capability 声明与重叠拒绝、optional mismatch warning、sdkconfig radio/PSRAM detected capability、image-signature observed capability、Secure Boot v2 结构/摘要/数学验证、包内 eFuse digest 与 anti-rollback version 对照、公开 CDN 每次强制刷新、可回滚 artifact backend、security evidence 双向冲突 warning、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、文件级权限来源、包内源码 SPDX header 和声明级许可 allowlist/denylist；Device Service 支持 session-isolated SD 和分区校验 NVS fixture，矩阵结果键可绑定 fixture、expectation 与 firmware SHA；UI、headless-serial 和 network-first expectation 已可用；7 台设备 21 个公开非基线样本的历史哈希绑定结果为 10 PASS / 11 PARTIAL；当前 CDN 四样本 `3 PASS / 1 PARTIAL / 0 FAIL`；OpenAI NVS、WPA2 正确/错误密码和 network-first pcap 路径绑定同一 BIN SHA；`RUNTIME-01` Flash/PMP 与 `RUNTIME-05` S3 WPA2 已通过虚拟设备验证 | OpenAI 无 UI/云服务完整流程、真实 key/Realtime/音频、书籍内容流程、运行态 ACL/权限、完整许可、法律审批、包内 eFuse 来源/live eFuse/公钥 trust root、bootloader anti-rollback 执行、真机 key/eFuse、更多设备/firmware family；WPA3/group multicast；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 legacy I2C 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
 
 ## 工作流入口
@@ -624,7 +629,7 @@ CCMP RX 和单播 DHCP 数据路径；WPA3、group-key multicast、天线、距�
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器通过 | `qemu-unified` PASS | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE 通过 | `qemu-unified` PASS；独立公网探针 PASS；Zigbee `thread-sim` 仅有双向帧，join 未通过 | 原生 BT controller、C6 WiFi PHY；Zigbee/802.15.4 `RUNTIME-02` commissioning 未建模 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi、BLE 通过 | `qemu-unified` PASS；同 guest 公网 DNS/HTTP PASS | stock `hardware.RGB()` 未验、原生 BT controller；`RUNTIME-01` Flash/PMP 修复已关闭，Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT、同 guest 多轮重连、8 MiB PSRAM QOM/upper-bank MMU、持续压力/周期联网和 active-stop/recovery | `HCI-4` 五 lease、upper-bank `3/3`、heap `3×120s`/600s、3 个 121 轮 lease、最终 `tb-size=128` `7200s` 和 active-stop/recovery `3/3` 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | bit-exact BT controller/baseband、物理 PSRAM/cache timing、长时并发/吞吐、其他 teardown 模式、真机同路径 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、QEMU native-HCI 外部 GATT、同 guest 多轮重连、8 MiB PSRAM QOM/upper-bank MMU、持续压力/周期联网、active-stop/recovery 和 2×120s 错峰并发稳态 | `HCI-4` 五 lease、upper-bank `3/3`、heap `3×120s`/600s、3 个 121 轮 lease、最终 `tb-size=128` `7200s`、active-stop/recovery `3/3` 和 concurrent `2/2` 均 PASS；旧 `core2-native-vhci` 仅诊断/兼容 | bit-exact BT controller/baseband、物理 PSRAM/cache timing、无错峰同时冷启动、持续吞吐、其他 teardown 模式、真机同路径 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、C6 ESP-Hosted、静态 I2C | P4↔C6 end-to-end unified network `NOT RUN` | I2S/PCM、CSI、USB Host、SDIO、动态 I2C、ST7123 controller |
 | CardputerZero | BCM2837 / Linux ARM64 | 官方镜像、显示、键盘、I2C、双向 PCM、USB Hub、摄像头、SR9900A 帧回环 | Ethernet 路径，不是 WiFi | 完整系统回归、生产级 USB/时序和真机验证 |
 

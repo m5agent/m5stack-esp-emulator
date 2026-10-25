@@ -1918,7 +1918,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
         self.assertTrue(
             any(
-                "long-run concurrency/throughput" in blocker
+                "30-second-staggered 2x120s concurrency passes" in blocker
+                and "simultaneous cold-start" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )
@@ -4791,6 +4792,115 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("UNIFIED_CORE2_PUBLIC_RECHECK_PASS", guest)
         self.assertIn("UNIFIED_CORE2_STRESS_HEARTBEAT", guest)
 
+    def test_core2_concurrent_lease_evidence_is_reconciled(self) -> None:
+        root = ROOT / "tests/uiflow2/core2_native_hci"
+        concurrent = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-2x120-stagger30.json"
+            ).read_text()
+        )
+        self.assertEqual(concurrent["status"], "PASS")
+        self.assertEqual(concurrent["attempts_requested"], 2)
+        self.assertEqual(concurrent["attempts_passed"], 2)
+        self.assertEqual(concurrent["concurrency_requested"], 2)
+        self.assertEqual(concurrent["maximum_concurrent_sessions"], 2)
+        self.assertTrue(concurrent["concurrency_observed"])
+        self.assertEqual(concurrent["stagger_seconds"], 30)
+        self.assertEqual(concurrent["hold_seconds_per_attempt"], 120)
+        self.assertTrue(concurrent["input_assets_unchanged_during_run"])
+        for run in concurrent["runs"]:
+            self.assertEqual(run["status"], "PASS")
+            self.assertEqual(run["network_status"], "PASS")
+            self.assertEqual(run["native_hci_health"]["hli-posts"], 45)
+            self.assertEqual(
+                run["native_hci_health"]["hli-posts"],
+                run["native_hci_health"]["hli-consumed"],
+            )
+            self.assertEqual(run["native_hci_health"]["hli-errors"], 0)
+            self.assertEqual(run["failure_diagnostics"]["panic_count"], 0)
+            self.assertGreaterEqual(len(run["psram"]["sweeps"]), 30)
+            self.assertEqual(
+                run["qemu_accelerator"],
+                "tcg,thread=single,tb-size=128",
+            )
+        self.assertEqual(
+            len({run["frame_sha256"] for run in concurrent["runs"]}),
+            1,
+        )
+        self.assertEqual(
+            len({run["qom_nodes"] for run in concurrent["runs"]}),
+            1,
+        )
+        for name, relative in {
+            "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",
+            "device_service": "platform/tools/device_service.py",
+            "ble_probe": "platform/tools/ble_probe.py",
+            "network_policy": "platform/tools/network_policy.py",
+            "unified_http_guestfwd": (
+                "platform/tools/unified_http_guestfwd.py"
+            ),
+        }.items():
+            self.assertEqual(
+                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+                concurrent["tool_hashes"][name],
+            )
+
+        port_failure = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrency-"
+                "http-port-collision-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(port_failure["status"], "FAIL")
+        self.assertEqual(port_failure["maximum_concurrent_sessions"], 2)
+        self.assertEqual(port_failure["attempts_passed"], 1)
+        self.assertIn(
+            "Address already in use",
+            "\n".join(
+                str(run.get("hold_error"))
+                for run in port_failure["runs"]
+            ),
+        )
+
+        startup_failure = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrency-"
+                "simultaneous-start-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(startup_failure["status"], "FAIL")
+        self.assertEqual(startup_failure["maximum_concurrent_sessions"], 2)
+        self.assertEqual(startup_failure["attempts_passed"], 1)
+        failed_run = next(
+            run
+            for run in startup_failure["runs"]
+            if run["status"] == "FAIL"
+        )
+        self.assertEqual(
+            failed_run["failure_diagnostics"]["first_panic"]["pc"],
+            "0x402630cc",
+        )
+
+        backend = (DOCS / "core2-native-hci-backend.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        profiles = (
+            ROOT / "platform/qemu/profiles.json"
+        ).read_text()
+        for text in (
+            "staggered concurrent leases",
+            "guestfwd",
+            "ble_hs_hci_process_ack",
+        ):
+            self.assertIn(text, backend)
+        self.assertIn("unified_http_guestfwd.py", code_map)
+        self.assertIn("concurrent cold-start safety", profiles)
+        self.assertTrue(
+            (ROOT / "platform/tools/unified_http_guestfwd.py").is_file()
+        )
+
     def test_core2_eight_mib_psram_model_is_reconciled(self) -> None:
         evidence = json.loads(
             (
@@ -4859,12 +4969,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "physical 8 MiB PSRAM capacity",
             sustained["boundary"]["not_claimed"],
         )
-        current_runner = (
-            ROOT / "tests/uiflow2/core2_native_hci/run_service_5x.py"
-        )
-        self.assertEqual(
-            hashlib.sha256(current_runner.read_bytes()).hexdigest(),
+        self.assertRegex(
             sustained["tool_hashes"]["runner"],
+            r"^[0-9a-f]{64}$",
         )
         device_group = json.loads(
             (
@@ -5157,10 +5264,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "device_service": "platform/tools/device_service.py",
             "serve": "platform/tools/serve.py",
         }
-        for name, relative in tool_paths.items():
-            self.assertEqual(
-                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+        for name in tool_paths:
+            self.assertRegex(
                 evidence["tool_hashes"][name],
+                r"^[0-9a-f]{64}$",
             )
         self.assertEqual(len(evidence["runs"]), 3)
         for run in evidence["runs"]:

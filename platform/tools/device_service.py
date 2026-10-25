@@ -15,6 +15,7 @@ import io
 import ipaddress
 import json
 import os
+import shlex
 import shutil
 import signal
 import subprocess
@@ -153,6 +154,9 @@ ALLOWED_RUNTIME_ENV = {
 CORE2_PMIC_VARIANTS = {"axp192", "axp2101"}
 NETWORK_LANE = ROOT / "platform/tools/network_lane.py"
 BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
+UNIFIED_HTTP_GUESTFWD = (
+    ROOT / "platform/tools/unified_http_guestfwd.py"
+)
 NATIVE_VHCI_GDB_SCRIPT = (
     ROOT / "tests/uiflow2/core2_radio_probe/native_vhci_bridge.gdb"
 )
@@ -3189,6 +3193,19 @@ class DeviceSession:
     def _close_http_fixture(self) -> None:
         fixture = self._http_fixture
         if fixture is None:
+            state = self._companions.get("http")
+            if (
+                isinstance(state, dict)
+                and state.get("kind") == "qemu-guestfwd-command"
+                and state.get("state") in {"running", "recovered", "adopted"}
+            ):
+                self._update_companion(
+                    "http",
+                    state="terminated",
+                    ownership_verified=False,
+                    adopted=False,
+                    terminated_at=iso_now(),
+                )
             return
         try:
             fixture.close()
@@ -3316,6 +3333,17 @@ class DeviceSession:
                 "HTTP fixture port metadata does not match the profile",
                 409,
             )
+        if state.get("kind") == "qemu-guestfwd-command":
+            self._update_companion(
+                "http",
+                state="adopted",
+                ownership_verified=True,
+                adopted=True,
+                recovery_action="qemu-process-owned",
+                recovered_at=iso_now(),
+            )
+            self._persist_session()
+            return dict(self._companions["http"])
         self._launch_http_fixture(recover=True)
         assert "http" in self._companions
         return dict(self._companions["http"])
@@ -4923,6 +4951,45 @@ class DeviceSession:
         )
         self._persist_session()
 
+    def _configure_guestfwd_http_fixture(self) -> str:
+        profile = self.network_config.get("profile")
+        body = UNIFIED_HTTP_BODIES.get(profile)
+        port = UNIFIED_HTTP_PORTS.get(profile)
+        if body is None or port is None:
+            raise ServiceError(
+                "http_fixture_failed",
+                f"no controlled HTTP port for profile {profile}",
+                500,
+            )
+        self.http_fixture_log.unlink(missing_ok=True)
+        command = [
+            sys.executable,
+            str(UNIFIED_HTTP_GUESTFWD),
+            "--log",
+            str(self.http_fixture_log),
+            "--body-hex",
+            body.hex(),
+        ]
+        self._update_companion(
+            "http",
+            kind="qemu-guestfwd-command",
+            state="running",
+            pid=None,
+            port=port,
+            generation=1,
+            ownership_verified=True,
+            adopted=False,
+            recovery_action="qemu-process-owned",
+            started_at=iso_now(),
+        )
+        self._record_event(
+            "http_guestfwd_configured",
+            port=port,
+            generation=1,
+        )
+        self._persist_session()
+        return shlex.join(command)
+
     def _prepare_stackchan_peripheral_inputs(self) -> None:
         commands = (
             (
@@ -5188,6 +5255,7 @@ class DeviceSession:
                 *UNIFIED_PROFILES,
             }
         )
+        guestfwd_http_command: str | None = None
         ble_probe_command: list[str] | None = None
         ble_probe_env: dict[str, str] = {}
         if hci_gatt and not isolated:
@@ -5196,7 +5264,12 @@ class DeviceSession:
             ble_probe_command, ble_probe_env = self._hci_probe_command()
         http_profile = unified or profile == STICKS3_WIFI_PROFILE
         if http_profile and not isolated:
-            self._launch_http_fixture()
+            if profile == CORE2_NATIVE_HCI_PROFILE:
+                guestfwd_http_command = (
+                    self._configure_guestfwd_http_fixture()
+                )
+            else:
+                self._launch_http_fixture()
         if profile == STACKCHAN_UNIFIED_PROFILE:
             self._prepare_stackchan_peripheral_inputs()
         elif profile in {
@@ -5323,6 +5396,17 @@ class DeviceSession:
                         nic=nic,
                         policy=policy,
                         mac=wifi_mac,
+                        guest_forwards=(
+                            [
+                                (
+                                    "tcp:10.0.2.2:"
+                                    f"{UNIFIED_HTTP_PORTS[profile]}"
+                                    f"-cmd:{guestfwd_http_command}"
+                                )
+                            ]
+                            if guestfwd_http_command is not None
+                            else None
+                        ),
                     ),
                 ]
             )

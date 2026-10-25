@@ -3555,6 +3555,47 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertTrue(fixture.closed)
         self.assertIsNone(session._http_fixture)
 
+    def test_core2_guestfwd_http_companion_needs_no_host_port(self):
+        spec = self.service.specs["core2"]
+        firmware_path = Path(self.tmp.name) / "guestfwd-core2.bin"
+        firmware_path.write_bytes(b"\xff" * 1024)
+        session = DeviceSession(
+            self.service,
+            session_id="6" * 32,
+            spec=spec,
+            firmware_id="7" * 64,
+            firmware_path=firmware_path,
+            firmware_sha="7" * 64,
+            firmware_source="uploaded",
+            source_artifacts=[],
+            ttl_seconds=60,
+            ready_marker="UNIFIED_CORE2_READY",
+            ready_timeout=10,
+            ready_conditions=None,
+            runtime="qemu-unified",
+            network_config={
+                "profile": "core2-native-hci",
+                "nic": "misc.esp32_wifi",
+                "expected_markers": list(
+                    device_service_module.CORE2_UNIFIED_MARKERS
+                ),
+                "attempts": 1,
+            },
+        )
+        session._companions["http"] = {
+            "kind": "qemu-guestfwd-command",
+            "state": "running",
+            "port": 18089,
+            "generation": 1,
+        }
+        recovered = session._recover_http_fixture()
+        self.assertEqual(recovered["state"], "adopted")
+        self.assertTrue(recovered["ownership_verified"])
+        self.assertIsNone(session._http_fixture)
+
+        session._close_http_fixture()
+        self.assertEqual(session._companions["http"]["state"], "terminated")
+
     def test_cardputer_unified_qemu_evidence(self):
         spec = self.service.specs["cardputer-adv"]
         firmware_path = Path(self.tmp.name) / "cardputer-unified.bin"

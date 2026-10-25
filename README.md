@@ -32,7 +32,9 @@ MicroPython 和其他完整 Flash 固件。
   worker 未拥有的外部 side effect 和物理跨主机仍未验证。
 - Core2 已有 native-HCI 功能验证、3×121 轮重连、两小时 active-BLE 保持、
   8 MiB PSRAM QOM/upper-bank MMU 和持续 guest 压力证据；物理 PSRAM/cache、
-  bit-exact BT baseband/controller 和长时并发仍为 `NOT RUN`。
+  bit-exact BT baseband/controller 仍为 `NOT RUN`。两个 native-HCI lease
+  在 30 秒启动错峰后已同时保持 120 秒并各自完成 WiFi、公网、BLE、PSRAM
+  和 evidence；同时冷启动安全仍为 `OPEN`。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented Flash、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态审查和 capability
   mismatch；`qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first
@@ -307,8 +309,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
   unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、长时并发/吞吐
-  和真机同路径仍未完成。
+  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、同时冷启动、
+  持续吞吐和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

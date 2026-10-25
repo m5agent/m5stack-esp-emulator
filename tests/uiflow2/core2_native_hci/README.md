@@ -231,6 +231,31 @@ under trusted-host isolation. It is not bit-exact controller, RF, malware
 sandbox or physical-hardware validation. The legacy `core2-native-vhci`
 profile remains available for diagnosis but is not the canonical path.
 
+Two concurrent 120-second leases can be exercised with a 30-second startup
+stagger:
+
+```bash
+python3 run_service_5x.py \
+  --image /path/to/unified-core2.bin \
+  --elf /path/to/matching/micropython.elf \
+  --qemu /path/to/qemu-system-xtensa \
+  --attempts 2 \
+  --concurrency 2 \
+  --stagger-seconds 30 \
+  --hold-seconds 120 \
+  --require-psram \
+  --out-dir /tmp/m5-core2-concurrent-2x120
+```
+
+The canonical HTTP fixture for `core2-native-hci` now uses a per-session QEMU
+`guestfwd` command, so concurrent QEMUs do not share host port 18089. The
+committed `2/2 PASS` evidence is
+`evidence-2026-10-25-core2-concurrent-2x120-stagger30.json`. Two failure
+controls preserve the initial shared-port collision and the no-stagger
+second-guest `ble_hs_hci_process_ack` `LoadProhibited`. Simultaneous cold-start
+concurrency is therefore still open even though the staggered 120-second
+steady-state overlap passes.
+
 `run_service_teardown.py` exercises process-stop ordering rather than another
 hold. It creates a ready Core2 session, captures pre-stop frame/QOM/network/
 peer/pcap evidence while the BLE peer is still active, deletes the session,

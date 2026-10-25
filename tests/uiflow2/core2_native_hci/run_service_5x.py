@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import io
 import json
@@ -39,6 +40,11 @@ TOOL_PATHS = {
     "device_service": ROOT / "platform/tools/device_service.py",
     "qemu_accel": ROOT / "platform/tools/qemu_accel.py",
     "ble_runtime_limits": ROOT / "platform/tools/ble_runtime_limits.py",
+    "ble_probe": ROOT / "platform/tools/ble_probe.py",
+    "network_policy": ROOT / "platform/tools/network_policy.py",
+    "unified_http_guestfwd": (
+        ROOT / "platform/tools/unified_http_guestfwd.py"
+    ),
 }
 
 
@@ -495,6 +501,36 @@ def sustained_stress_requirements(hold_seconds: float) -> dict[str, int]:
     }
 
 
+def attempt_batches(
+    attempts: int,
+    concurrency: int,
+) -> list[list[int]]:
+    return [
+        list(range(start, min(start + concurrency, attempts + 1)))
+        for start in range(1, attempts + 1, concurrency)
+    ]
+
+
+def maximum_interval_overlap(
+    intervals: list[tuple[float, float]],
+) -> int:
+    events = sorted(
+        [
+            event
+            for start, end in intervals
+            if end >= start
+            for event in ((start, 1), (end, -1))
+        ],
+        key=lambda event: (event[0], event[1]),
+    )
+    active = 0
+    maximum = 0
+    for _, delta in events:
+        active += delta
+        maximum = max(maximum, active)
+    return maximum
+
+
 def sustained_stress_ok(
     evidence: dict[str, Any],
     hold_seconds: float,
@@ -549,7 +585,10 @@ def run_attempt(
     hold_seconds: float,
     ble_reconnect_cycles: int,
     require_psram: bool,
+    start_delay_seconds: float = 0,
 ) -> dict[str, Any]:
+    if start_delay_seconds > 0:
+        time.sleep(start_delay_seconds)
     attempt_dir.mkdir(parents=True, exist_ok=True)
     session_id: str | None = None
     phase = "create_session"
@@ -568,6 +607,8 @@ def run_attempt(
     hold_stable = False
     hold_state = "not_running"
     hold_error: str | None = None
+    session_started_epoch: float | None = None
+    session_finished_epoch: float | None = None
     rss_samples: list[int] = []
     phys_footprint_samples: list[int] = []
     qemu_accelerator: str | None = None
@@ -596,6 +637,7 @@ def run_attempt(
             },
         )
         session_id = str(session["session_id"])
+        session_started_epoch = time.time()
         phase = "wait_ready"
         api.json(
             f"/api/v1/sessions/{session_id}/wait",
@@ -741,8 +783,10 @@ def run_attempt(
                 payload={},
                 method="DELETE",
             )
+            session_finished_epoch = time.time()
         except (RuntimeError, OSError, ValueError) as error:
             cleanup_error = str(error).replace(session_id, "<session>")
+            session_finished_epoch = time.time()
 
     if session_id and not evidence:
         try:
@@ -951,6 +995,8 @@ def run_attempt(
         "network_status": str(network.get("status") or "UNAVAILABLE"),
         "hold_state": hold_state,
         "hold_error": hold_error,
+        "session_started_epoch": session_started_epoch,
+        "session_finished_epoch": session_finished_epoch,
         "qemu_accelerator": qemu_accelerator,
         "hold_resource_samples": {
             "state_polls": state_samples,
@@ -1013,6 +1059,8 @@ def main() -> int:
     parser.add_argument("--elf", type=Path, required=True)
     parser.add_argument("--qemu", type=Path, required=True)
     parser.add_argument("--attempts", type=int, default=5)
+    parser.add_argument("--concurrency", type=int, default=1)
+    parser.add_argument("--stagger-seconds", type=float, default=0)
     parser.add_argument("--hold-seconds", type=float, default=0)
     parser.add_argument("--timeout", type=float, default=180)
     parser.add_argument(
@@ -1033,6 +1081,10 @@ def main() -> int:
     args = parser.parse_args()
     if args.attempts < 1 or args.attempts > 30:
         parser.error("--attempts must be from 1 to 30")
+    if args.concurrency < 1 or args.concurrency > 4:
+        parser.error("--concurrency must be from 1 to 4")
+    if not 0 <= args.stagger_seconds <= 120:
+        parser.error("--stagger-seconds must be from 0 to 120")
     if args.hold_seconds < 0 or args.hold_seconds > MAX_BLE_HOLD_SECONDS:
         parser.error(
             "--hold-seconds must be from 0 to "
@@ -1089,19 +1141,30 @@ def main() -> int:
         },
     )
     runs = []
-    for attempt in range(1, args.attempts + 1):
-        result = run_attempt(
-            api,
-            str(firmware["firmware_id"]),
-            elf_artifact,
-            args.out_dir / f"attempt-{attempt}",
-            effective_timeout,
-            args.hold_seconds,
-            args.ble_reconnect_cycles,
-            args.require_psram,
-        )
-        runs.append(result)
-        if result["status"] != "PASS":
+    batches = attempt_batches(args.attempts, args.concurrency)
+    for batch in batches:
+        with ThreadPoolExecutor(max_workers=len(batch)) as executor:
+            futures = {
+                attempt: executor.submit(
+                    run_attempt,
+                    api,
+                    str(firmware["firmware_id"]),
+                    elf_artifact,
+                    args.out_dir / f"attempt-{attempt}",
+                    effective_timeout,
+                    args.hold_seconds,
+                    args.ble_reconnect_cycles,
+                    args.require_psram,
+                    args.stagger_seconds * batch.index(attempt),
+                )
+                for attempt in batch
+            }
+            batch_results = {
+                attempt: futures[attempt].result()
+                for attempt in batch
+            }
+        runs.extend(batch_results[attempt] for attempt in batch)
+        if any(result["status"] != "PASS" for result in runs):
             break
     attempts_passed = sum(run["status"] == "PASS" for run in runs)
     failed_runs = [run for run in runs if run["status"] != "PASS"]
@@ -1113,6 +1176,20 @@ def main() -> int:
         TOOL_PATHS,
     )
     input_assets_unchanged = post_run_hashes == input_hashes
+    session_intervals = [
+        (
+            float(run["session_started_epoch"]),
+            float(run["session_finished_epoch"]),
+        )
+        for run in runs
+        if isinstance(run.get("session_started_epoch"), (int, float))
+        and isinstance(run.get("session_finished_epoch"), (int, float))
+    ]
+    maximum_concurrent_sessions = maximum_interval_overlap(
+        session_intervals
+    )
+    required_overlap = min(args.concurrency, args.attempts)
+    concurrency_observed = maximum_concurrent_sessions >= required_overlap
     input_asset_drift = {
         key: {
             "before": input_hashes[key],
@@ -1156,6 +1233,7 @@ def main() -> int:
         and attempts_passed == args.attempts
         and all_checks_passed
         and input_assets_unchanged
+        and concurrency_observed
         else "FAIL"
     )
     evidence = {
@@ -1185,6 +1263,11 @@ def main() -> int:
         "attempts_completed": len(runs),
         "attempts_passed": attempts_passed,
         "attempts_failed": len(failed_runs),
+        "concurrency_requested": args.concurrency,
+        "maximum_concurrent_sessions": maximum_concurrent_sessions,
+        "concurrency_observed": concurrency_observed,
+        "attempt_batches": batches,
+        "stagger_seconds": args.stagger_seconds,
         "hold_seconds_per_attempt": args.hold_seconds,
         "ble_linger_seconds": max(20, args.hold_seconds + 60),
         "ble_reconnect_cycles": args.ble_reconnect_cycles,
@@ -1221,8 +1304,8 @@ def main() -> int:
             "isolation": "trusted-host",
             "gdb_bridge": False,
             "session_reuse": (
-                f"up to {args.attempts} independent sequential leases "
-                "and QEMU processes"
+                f"up to {args.attempts} independent leases and QEMU "
+                f"processes with concurrency {args.concurrency}"
             ),
             "pcap": (
                 "captured in each evidence ZIP; packet summaries are "

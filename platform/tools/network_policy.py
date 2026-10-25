@@ -329,6 +329,7 @@ def qemu_user_netdev(
     nic: str,
     policy: NetworkPolicy,
     mac: str | None = None,
+    guest_forwards: list[str] | None = None,
 ) -> str:
     # QEMU user-mode restrict=yes also blocks 10.0.2.2 (host loopback), which
     # is where namespace-local lab fixtures listen. The namespace itself
@@ -336,6 +337,12 @@ def qemu_user_netdev(
     # SLiRP to reach those loopback fixtures.
     restricted = policy.egress == "deny-all"
     suffix = ",restrict=yes" if restricted else ""
+    for guest_forward in guest_forwards or []:
+        if not guest_forward or "," in guest_forward:
+            raise NetworkPolicyError(
+                "QEMU guest forward must be non-empty and comma-free"
+            )
+        suffix += f",guestfwd={guest_forward}"
     address = ""
     if mac is not None:
         normalized = mac.strip().lower()

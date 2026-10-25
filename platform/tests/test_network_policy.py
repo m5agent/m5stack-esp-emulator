@@ -36,10 +36,29 @@ class NetworkPolicyTests(unittest.TestCase):
             ),
             "user,model=misc.esp32s3.wifi,mac=02:00:00:00:00:01,id=wifi0",
         )
+        self.assertEqual(
+            qemu_user_netdev(
+                nic="misc.esp32_wifi",
+                policy=policy,
+                guest_forwards=[
+                    "tcp:10.0.2.2:18089-cmd:python3 helper.py"
+                ],
+            ),
+            (
+                "user,guestfwd=tcp:10.0.2.2:18089-cmd:python3 helper.py,"
+                "model=misc.esp32_wifi,id=wifi0"
+            ),
+        )
         self.assertIn(
             "malware safety",
             policy.evidence()["not_claimed"],
         )
+        with self.assertRaises(NetworkPolicyError):
+            qemu_user_netdev(
+                nic="misc.esp32_wifi",
+                policy=policy,
+                guest_forwards=["tcp:10.0.2.2:18089-cmd:a,b"],
+            )
 
     def test_isolated_lab_only_reaches_loopback_fixture_without_restrict(self):
         policy = NetworkPolicy.from_mapping(

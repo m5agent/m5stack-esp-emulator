@@ -212,6 +212,41 @@ class Core2NativeHciHealthTests(unittest.TestCase):
             },
         )
 
+    def test_attempt_batches_preserve_attempt_order(self) -> None:
+        self.assertEqual(
+            runner.attempt_batches(5, 1),
+            [[1], [2], [3], [4], [5]],
+        )
+        self.assertEqual(
+            runner.attempt_batches(5, 2),
+            [[1, 2], [3, 4], [5]],
+        )
+        self.assertEqual(
+            runner.attempt_batches(3, 4),
+            [[1, 2, 3]],
+        )
+
+    def test_maximum_interval_overlap_counts_live_sessions(self) -> None:
+        self.assertEqual(runner.maximum_interval_overlap([]), 0)
+        self.assertEqual(
+            runner.maximum_interval_overlap(
+                [(1.0, 3.0), (1.5, 2.5), (4.0, 5.0)]
+            ),
+            2,
+        )
+        self.assertEqual(
+            runner.maximum_interval_overlap(
+                [(1.0, 2.0), (2.0, 3.0)]
+            ),
+            1,
+        )
+        self.assertEqual(
+            runner.maximum_interval_overlap(
+                [(1.0, 2.0), (2.1, 3.0)]
+            ),
+            1,
+        )
+
     def test_rejects_incomplete_or_failed_psram_stress(self) -> None:
         incomplete = runner.parse_psram_stress(
             "\n".join(
