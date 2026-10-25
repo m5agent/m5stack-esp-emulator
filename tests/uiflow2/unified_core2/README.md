@@ -149,8 +149,11 @@ peer now derives a bounded scan window from session readiness. The initial
 four-instance gate then failed `1/4` when the two-packet reserve was exhausted;
 `0009` expands the real guest reserve to eight event/four ACL objects, and two
 independent four-instance `4x120s` gates pass `8/8`. The remaining gates are
-more than four instances, long-run throughput/teardown and physical
-equivalence. The former
+zero-stagger five instances, more than five instances, long-run
+throughput/teardown and physical equivalence. Two five-instance batches with a
+30-second stagger pass `10/10`, but zero-stagger five instances produced both a
+`5/5 PASS` batch and an independent `3/5 FAIL` batch on the same
+implementation. The former
 `NimBLE: HCI process ack returned 12` failure came from the external Bumble
 compatibility layer returning a forbidden Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Removing that reply

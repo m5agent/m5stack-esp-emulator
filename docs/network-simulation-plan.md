@@ -62,8 +62,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   `6/6 PASS`；extended BLE peer scan 预算随 session readiness 有界扩展。
   四实例首批先 `1 PASS / 3 FAIL`，暴露 HLI health/prealloc failure 和
   NimBLE `ble_hs_hci_process_ack` panic；`0009` 将真实 guest event/ACL
-  备用池扩到 `8/4` 后，两批四实例各 `4/4 PASS`。结论不外推到五实例及
-  更多、physical controller/RF 或真机；
+  备用池扩到 `8/4` 后，两批四实例各 `4/4 PASS`。两批五实例 30 秒错峰
+  又各 `5/5 PASS`；零错峰五实例先 `5/5 PASS`、独立确认批 `3/5 FAIL`，
+  因此结论不外推到零错峰五实例、更多实例、physical controller/RF 或真机；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；
 - controlled DNS、exact A/AAAA records、domain suffix 的 label-boundary
   匹配、最多 8 跳 exact-name CNAME chain、测试 CA、DNS/TLS allowlist、

@@ -1988,7 +1988,11 @@ class DocsConsistencyTests(unittest.TestCase):
                 in blocker
                 and "three-instance 3x120s gates pass 6/6" in blocker
                 and "four-instance 4x120s gates pass 8/8" in blocker
-                and "five-or-more-instance stability" in blocker
+                and "five-instance 30-second-stagger 5x120s" in blocker
+                and "pass 10/10" in blocker
+                and "zero-stagger five-instance cold start remains unstable"
+                in blocker
+                and "more-than-five-instance stability" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )
@@ -5351,6 +5355,132 @@ class DocsConsistencyTests(unittest.TestCase):
             four_instance_passes[0]["tool_hashes"],
             four_instance_passes[1]["tool_hashes"],
         )
+        five_instance_staggered = [
+            json.loads(
+                (
+                    root / filename
+                ).read_text()
+            )
+            for filename in (
+                "evidence-2026-10-25-core2-concurrent-"
+                "5x120-stagger30-pass-a.json",
+                "evidence-2026-10-25-core2-concurrent-"
+                "5x120-stagger30-confirm-pass-b.json",
+            )
+        ]
+        for evidence in five_instance_staggered:
+            self.assertEqual(evidence["status"], "PASS")
+            self.assertEqual(evidence["attempts_requested"], 5)
+            self.assertEqual(evidence["attempts_completed"], 5)
+            self.assertEqual(evidence["attempts_passed"], 5)
+            self.assertEqual(evidence["attempts_failed"], 0)
+            self.assertEqual(evidence["maximum_concurrent_sessions"], 5)
+            self.assertTrue(evidence["concurrency_observed"])
+            self.assertEqual(evidence["stagger_seconds"], 30)
+            self.assertEqual(evidence["hold_seconds_per_attempt"], 120)
+            self.assertTrue(evidence["input_assets_unchanged_during_run"])
+            for run in evidence["runs"]:
+                health = run["native_hci_health"]
+                self.assertEqual(health["hli-posts"], 45)
+                self.assertEqual(health["hli-consumed"], 45)
+                self.assertEqual(health["hli-errors"], 0)
+                self.assertEqual(health["hli-fast-path-events"], 36)
+                self.assertEqual(health["hli-fast-path-acls"], 9)
+                self.assertEqual(health["hli-event-prealloc-depth"], 8)
+                self.assertEqual(health["hli-acl-prealloc-depth"], 4)
+                self.assertEqual(health["trace-hs-sched-reset"], 0)
+                self.assertEqual(
+                    run["failure_diagnostics"]["panic_count"],
+                    0,
+                )
+                self.assertGreaterEqual(len(run["psram"]["sweeps"]), 24)
+        self.assertEqual(
+            five_instance_staggered[0]["qemu_sha256"],
+            five_instance_staggered[1]["qemu_sha256"],
+        )
+        self.assertEqual(
+            five_instance_staggered[0]["tool_hashes"],
+            five_instance_staggered[1]["tool_hashes"],
+        )
+
+        no_stagger_pass = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "5x120-no-stagger-pass-1.json"
+            ).read_text()
+        )
+        no_stagger_fail = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "5x120-no-stagger-fail-1.json"
+            ).read_text()
+        )
+        self.assertEqual(no_stagger_pass["status"], "PASS")
+        self.assertEqual(no_stagger_pass["attempts_passed"], 5)
+        self.assertEqual(no_stagger_pass["maximum_concurrent_sessions"], 5)
+        self.assertEqual(no_stagger_pass["stagger_seconds"], 0)
+        self.assertEqual(no_stagger_fail["status"], "FAIL")
+        self.assertEqual(no_stagger_fail["attempts_passed"], 3)
+        self.assertEqual(no_stagger_fail["attempts_failed"], 2)
+        self.assertEqual(no_stagger_fail["maximum_concurrent_sessions"], 5)
+        self.assertEqual(no_stagger_fail["stagger_seconds"], 0)
+        self.assertEqual(
+            no_stagger_pass["qemu_sha256"],
+            no_stagger_fail["qemu_sha256"],
+        )
+        self.assertEqual(
+            no_stagger_pass["tool_hashes"],
+            no_stagger_fail["tool_hashes"],
+        )
+        failed_five = [
+            run
+            for run in no_stagger_fail["runs"]
+            if run["status"] == "FAIL"
+        ]
+        self.assertEqual(len(failed_five), 2)
+        self.assertTrue(
+            any(
+                run["failure_class"] == "panic_load_prohibited"
+                and run["failure_diagnostics"]["first_panic"]["pc"]
+                == "0x402630cc"
+                for run in failed_five
+            )
+        )
+        self.assertTrue(
+            any(
+                run["hold_error"]
+                == "external BLE peer did not complete the GATT exchange"
+                for run in failed_five
+            )
+        )
+
+        historical_concurrent = [*three_instance_runs, *four_instance_passes]
+        historical_tools = historical_concurrent[0]["tool_hashes"]
+        self.assertTrue(
+            all(
+                evidence["tool_hashes"] == historical_tools
+                for evidence in historical_concurrent
+            )
+        )
+        current_concurrent = [
+            *five_instance_staggered,
+            no_stagger_pass,
+            no_stagger_fail,
+        ]
+        current_tools = current_concurrent[0]["tool_hashes"]
+        self.assertTrue(
+            all(
+                evidence["tool_hashes"] == current_tools
+                for evidence in current_concurrent
+            )
+        )
+        self.assertNotEqual(
+            historical_tools["runner"],
+            current_tools["runner"],
+        )
+
         device_group = json.loads(
             (
                 ROOT
@@ -5383,7 +5513,7 @@ class DocsConsistencyTests(unittest.TestCase):
             current_digest = hashlib.sha256(
                 (ROOT / relative).read_bytes()
             ).hexdigest()
-            for evidence in [*three_instance_runs, *four_instance_passes]:
+            for evidence in current_concurrent:
                 self.assertEqual(
                     evidence["tool_hashes"][name],
                     current_digest,
@@ -5463,6 +5593,8 @@ class DocsConsistencyTests(unittest.TestCase):
             "simultaneous cold-start preallocation",
             "four-instance initial failure",
             "four-instance expanded reserve",
+            "five-instance staggered",
+            "five-instance simultaneous cold start",
             "guestfwd",
             "ble_hs_hci_process_ack",
             "hli-errors=3",
@@ -5479,13 +5611,17 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("Two independent two-instance no-stagger 4x120s gates", profiles)
         self.assertIn("three-instance 3x120s gates pass 6/6", profiles)
         self.assertIn("two independent four-instance 4x120s gates pass 8/8", profiles)
-        self.assertIn("five-or-more-instance stability", profiles)
+        self.assertIn("five-instance 30-second-stagger 5x120s", profiles)
+        self.assertIn("pass 10/10", profiles)
+        self.assertIn("one 5/5 PASS and one independent 3/5 FAIL", profiles)
+        self.assertIn("more-than-five-instance stability", profiles)
         for text in (platform_readme, unified_core2):
             self.assertIn("0008", text)
             self.assertIn("0009", text)
             self.assertIn("8/8", text)
+            self.assertIn("five-instance", text.lower())
         self.assertIn("四实例", platform_readme)
-        self.assertIn("four instances", unified_core2)
+        self.assertIn("five instances", unified_core2)
         self.assertIn("| P0 | Core2 长稳与物理/controller 等价性 |", backlog)
         self.assertNotIn("| P1 | Core2 长稳与物理/controller 等价性 |", backlog)
         self.assertIn("`CORE2-02` 仍为 P0", status)

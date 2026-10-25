@@ -2016,7 +2016,12 @@ restart.
   the sustained PSRAM sweep floor is `hold/5`. The first four-instance
   `4×120s` batch failed `1/4` in NimBLE ACK/HLI handling; `0009` expands the
   real guest reserve to `8/4`, after which two independent four-instance
-  batches pass `8/8`. More than four instances remain open. Three independent
+  batches pass `8/8`. Two independent five-instance `5×120s` batches with a
+  30-second startup stagger pass `5/5` each (`10/10`) at maximum concurrency 5.
+  A zero-stagger five-instance batch passed `5/5`, but an independent
+  confirmation failed `3/5` with the same input/tool hashes and reproduced the
+  NimBLE ACK panic or an external GATT exchange failure. Zero-stagger five
+  instances and more than five instances remain open. Three independent
   leases pass
   each of the 20, 30, 60, 120 and 121 same-guest reconnect gates; the
   121-cycle runs balance HLI 3405/3405, deliver 2316 events and 1089 ACLs,
@@ -2062,9 +2067,11 @@ restart.
   firmware/ELF/QEMU/tool hashes across runs and includes the earlier
   single-lease evidence. The first four-instance `4x120s` batch fails `1/4`
   in NimBLE ACK/HLI handling; `0009` expands the real guest reserve and two
-  independent four-instance batches then pass `8/8`. The remaining validation
-  gates are five or more instances, long-run throughput and additional
-  teardown modes;
+  independent four-instance batches then pass `8/8`. Two independent
+  five-instance staggered batches then pass `10/10`; zero-stagger five
+  instances remain unstable after `5/5 PASS` and `3/5 FAIL` on identical
+  inputs. The remaining validation gates are zero-stagger five instances,
+  more than five instances, long-run throughput and additional teardown modes;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -2102,8 +2109,10 @@ restart.
   closes two-instance no-stagger cold start with two independent `8/8`
   aggregate gates; two three-instance gates add `6/6`. The first four-instance
   batch failed `1/4`; `0009` expands the real guest reserve and two independent
-  four-instance gates then pass `8/8`. More than four instances remain open;
-  long-run throughput, additional teardown modes,
+  four-instance gates then pass `8/8`. Two five-instance 30-second-stagger
+  gates then pass `10/10`; zero-stagger five-instance cold start remains
+  unstable (`5/5 PASS`, then `3/5 FAIL`) and more than five instances remain
+  open. Long-run throughput, additional teardown modes,
   bit-exact controller/baseband, coexistence and
   same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering

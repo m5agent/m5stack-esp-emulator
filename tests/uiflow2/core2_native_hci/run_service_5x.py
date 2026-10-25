@@ -29,6 +29,7 @@ from qemu_accel import CORE2_TCG_TB_SIZE_MIB  # noqa: E402
 
 PROFILE = "core2-native-hci"
 READY_MARKER = "UNIFIED_CORE2_READY"
+MAX_CONCURRENCY = 8
 PSRAM_EXTERNAL_HEAP_MIN_BYTES = 4 << 20
 PSRAM_MACHINE_CAPACITY_MIN_BYTES = 8 << 20
 PSRAM_REQUESTED_BYTES = 1 << 20
@@ -512,6 +513,14 @@ def sustained_stress_requirements(hold_seconds: float) -> dict[str, int]:
         "minimum_http_rechecks": max(0, int(hold_seconds // 15)),
         "minimum_public_rechecks": max(0, int(hold_seconds // 60)),
     }
+
+
+def validate_concurrency(value: int) -> int:
+    if not 1 <= value <= MAX_CONCURRENCY:
+        raise ValueError(
+            f"concurrency must be from 1 to {MAX_CONCURRENCY}"
+        )
+    return value
 
 
 def attempt_batches(
@@ -1094,8 +1103,10 @@ def main() -> int:
     args = parser.parse_args()
     if args.attempts < 1 or args.attempts > 30:
         parser.error("--attempts must be from 1 to 30")
-    if args.concurrency < 1 or args.concurrency > 4:
-        parser.error("--concurrency must be from 1 to 4")
+    try:
+        args.concurrency = validate_concurrency(args.concurrency)
+    except ValueError as error:
+        parser.error(f"--concurrency {error}")
     if not 0 <= args.stagger_seconds <= 120:
         parser.error("--stagger-seconds must be from 0 to 120")
     if args.hold_seconds < 0 or args.hold_seconds > MAX_BLE_HOLD_SECONDS:

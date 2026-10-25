@@ -25,9 +25,9 @@ MicroPython 和其他完整 Flash 固件。
   HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、
   control/runtime 分离、跨容器 QEMU 和 partition fence。
 - Core2 已通过 native-HCI、121 轮重连、长稳、active-stop、8 MiB PSRAM QOM
-  和最多四实例并发 virtual-device 门禁；四实例原始失败保留，修复证据也
-  保留。五实例及更多、物理 PSRAM/cache timing、bit-exact BT controller 和
-  真机仍未完成。
+  和五实例 30 秒错峰并发 virtual-device 门禁；四实例原始失败保留，五实例
+  零错峰 `5/5 PASS` 后独立批 `3/5 FAIL` 的不稳定对照也保留。零错峰五实例、
+  更多实例、物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件
@@ -301,8 +301,9 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
   unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、大于四实例的
-  并发、持续吞吐和真机同路径仍未完成。
+  五实例 30 秒错峰稳态已通过两批，但零错峰五实例仍不稳定；大于五实例、
+  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、持续吞吐和
+  真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

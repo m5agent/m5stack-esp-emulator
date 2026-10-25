@@ -40,6 +40,8 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` three-instance no-stagger gate | `6/6 PASS` | `evidence-2026-10-25-core2-concurrent-3x120-pass-a.json`、`evidence-2026-10-25-core2-concurrent-3x120-confirm-pass-b.json`；失败对照 `...peer-timeout-fail.json`、`...scan120-threshold-fail.json` | 两批独立三实例 `3×120s` 均为 `3/3 PASS`。三个 QEMU、BLE peer 和 per-session HTTP fixture 同时运行；每 lease HLI `45/45`、events 36、ACLs 9、errors/reset/panic 为 0，完成 WiFi/公网/GATT/frame/QOM/pcap/evidence 和 29–30 次 `1 MiB` PSRAM 全缓冲校验。第一轮暴露固定 `40s` peer scan 预算过短；扩展 readiness 后再暴露并发下 sweep 下限 `30` 过紧。最终使用按 session readiness 推导、上限 `120s` 的 peer scan 预算和 `hold/5` 的保守 sweep 下限，没有改 guest 数据面 |
 | `CORE2-02` four-instance initial failure | `FAIL 1/4` | `evidence-2026-10-25-core2-concurrent-4x120-prealloc-4way-fail.json` | 最大并发 session 数为 `4`，确实同时启动四个 QEMU。attempt 2 完成可见 WiFi/公网/GATT/PSRAM/frame/QOM/pcap，但 `hli-errors=1`、`hli-prealloc-failures=2`；attempt 3/4 在 READY 前反复 `LoadProhibited @ 0x402630cc`。Bumble peer 实际逐条返回 Command Complete，排除了“没有 controller 响应”；符号指向 `ble_hs_hci_process_ack()` 的 ACK opcode 读取 (`ble_hs_hci.c:495`)，reboot 后的 `PC=0` 是次生故障 |
 | `CORE2-02` four-instance expanded reserve | `8/8 PASS` | `evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-pass-a.json`、`evidence-2026-10-25-core2-concurrent-4x120-prealloc8x4-confirm-pass-b.json`；`0009-esp32-native-hci-expand-hli-preallocation.patch` | 两批独立四实例 `4×120s` 均 `4/4 PASS`。`0008` 的 2 个 event buffer 会被四条并发 guest 启动命令序列耗尽，CPU0 尚未再次 idle 时后续 Bumble ACK 无法注入 HLI；`0009` 将真实 guest reserve 扩为 8 event/4 ACL。每 lease 完成 WiFi/公网/GATT/PSRAM/frame/QOM/pcap/evidence，HLI `45/45`、36 events/9 ACLs、errors/reset/panic 为 0，结束时 spare depth `8/4`。首批一个 lease 有 2 次 transient refill failure，后补满且不产生 HCI error |
+| `CORE2-02` five-instance staggered | `10/10 PASS` | `evidence-2026-10-25-core2-concurrent-5x120-stagger30-pass-a.json`、`evidence-2026-10-25-core2-concurrent-5x120-stagger30-confirm-pass-b.json` | 两批独立 `5×120s` 均使用 30 秒 startup stagger 并通过 `5/5`。最大并发 session 数为 5；每个 lease 完成 WiFi/公网/NUS GATT/PSRAM/frame/QOM/pcap/evidence，HLI `45/45`、36 events/9 ACLs、errors/reset/panic 为 0。runner 并发上限与服务默认单设备容量一致，当前为 8 |
+| `CORE2-02` five-instance simultaneous cold start | `OPEN / UNSTABLE` | `evidence-2026-10-25-core2-concurrent-5x120-no-stagger-pass-1.json`、`evidence-2026-10-25-core2-concurrent-5x120-no-stagger-fail-1.json` | 相同 firmware/ELF/QEMU/tool hashes 下，一批零错峰 `5×120s` 为 `5/5 PASS`，独立确认批为 `3/5 FAIL`。失败分别为 `LoadProhibited @ 0x402630cc`、HLI queue 残留和 external GATT exchange failure，证明五实例错峰稳态不能继承给同时冷启动 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -618,8 +620,10 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
   HCI ACK timeout/reset。Bumble peer 的 H4 日志显示 Command Complete 已返回，
   因而根因收敛到 `0008` 两 packet reserve 在四条并发启动 burst 中耗尽。
   `0009` 将 reserve 扩到 8 event/4 ACL 后，两批独立四实例各 `4/4 PASS`，
-  合计 `8/8`。之后仍需五实例及更多实例、持续吞吐、其他 teardown、物理
-  `8 MiB` 与 cache/PSRAM 等价性。
+  合计 `8/8`。五实例又分成两个边界：30 秒错峰稳态两批各 `5/5`，合计
+  `10/10`；相同实现的零错峰冷启动一批 `5/5`、独立确认批 `3/5`，因此仍是
+  `OPEN / UNSTABLE`。之后仍需零错峰五实例、大于五实例、持续吞吐、其他
+  teardown、物理 `8 MiB` 与 cache/PSRAM 等价性。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

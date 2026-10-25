@@ -33,6 +33,8 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` active stop/recovery | `3/3 PASS` | `evidence-2026-10-25-core2-active-stop-recovery-3x.json`; three consecutive sessions are deleted while their BLE peer is still in the linger window. Each stop reaches `stopped` with no error, terminates HTTP/BLE companions, reaps both BLE and QEMU PIDs, releases the worker lease, and is followed by a new ready session with the same network/GATT/QOM health |
 | `CORE2-02` no-stagger concurrency | `8/8 + 6/6 PASS` | two independent two-instance `4x120s` runs pass `8/8`; two independent three-instance `3x120s` runs pass `6/6`. `0008` preallocates real guest event buffers and ACL mbufs; every lease records 36/9 fast-path event/ACLs, HLI 45/45 and zero errors/reset/panic. Three-instance startup exposed a fixed 40-second peer scan budget that expired before guest BLE init, then a sweep threshold calibrated only for lower concurrency; peer scan now follows session readiness within 120 seconds and the sustained floor is `hold/5` |
 | `CORE2-02` four-instance no-stagger gate | `FAIL 1/4 → 8/8 PASS` | one initial four-instance `4x120s` run reached real concurrency 4 but failed aggregate: attempt 2 exposed HLI/preallocation failure and attempts 3/4 panicked in NimBLE `ble_hs_hci_process_ack` after ACK timeout. The peer actually returned Command Complete, identifying exhaustion of the two-packet `0008` reserve. `0009` expands the real guest reserve to 8 events/4 ACLs; two independent four-instance batches then pass `4/4` each (`8/8`) with final QOM depth `8/4`, HLI `45/45`, 36 events/9 ACLs and zero errors/reset/panic |
+| `CORE2-02` five-instance staggered gate | `10/10 PASS` | two independent `5×120s` batches use a 30-second startup stagger and both pass `5/5`. Every lease completes WiFi/public HTTP, external NUS GATT, sustained PSRAM stress, frame/QOM/pcap/evidence, HLI `45/45`, 36 events/9 ACLs and zero errors/reset/panic. The runner accepts concurrency up to the service per-device capacity of 8 |
+| `CORE2-02` five-instance simultaneous cold start | `OPEN / UNSTABLE` | with identical firmware/QEMU/tool hashes, one zero-stagger `5×120s` run passed `5/5`, while an independent confirmation batch failed `3/5`; the failures reproduced `0x402630cc` NimBLE ACK panic or an external GATT exchange failure. Five-instance steady state with stagger is closed, but five-instance simultaneous cold start is not |
 
 Build the patched QEMU, then run:
 
@@ -326,10 +328,13 @@ The historical failure is retained. Two instances pass `8/8`; two independent
 three-instance runs pass `6/6`. The fixed `40s` peer scan budget and the
 three-instance PSRAM sweep calibration failure are also retained. The final
 scope remains the bound stock firmware/ELF/QEMU and current hook ABI; it does
-not claim more than four instances: the initial four-instance run failed
-`1/4`, and `0009` then passed two independent `8/8` aggregate gates. Five
-instances and above remain `NOT RUN`. Physical controller timing and RF remain
-separate boundaries.
+not claim zero-stagger stability above four instances: the initial four-instance
+run failed `1/4`, and `0009` then passed two independent `8/8` aggregate gates.
+Five-instance steady state passes with a 30-second stagger in two independent
+`5×120s` batches, but zero-stagger five-instance cold start is explicitly
+unstable (`5/5` PASS then `3/5` FAIL on the same implementation). More than five
+instances remains `NOT RUN`. Physical controller timing and RF remain separate
+boundaries.
 
 The `0009` source build also passes the Core2 six-case UIFlow2 peripheral
 group (`6/6`, `24/24` checks) with one attempt per case and no retry.

@@ -363,6 +363,9 @@ functional PASS.
   `ble_hs_hci_process_ack`. `0009` then expanded the real guest reserve from
   `2/2` to `8/4`; two independent four-instance batches pass `4/4` each
   (`8/8` total) with HLI `45/45`, 36 events/9 ACLs, zero errors/reset/panic
-  and final `8/4` spare depth. Bit-exact Espressif BT controller behavior,
-  five-or-more-instance stability, physical cache/PSRAM equivalence and
-  hardware validation remain open or `NOT RUN`.
+  and final `8/4` spare depth. Two independent five-instance
+  `5×120s` batches with a 30-second stagger then pass `5/5` each (`10/10`);
+  a zero-stagger five-instance batch passes `5/5`, but an independent
+  confirmation fails `3/5`. Bit-exact Espressif BT controller behavior,
+  zero-stagger five-instance and more-than-five-instance stability, physical
+  cache/PSRAM equivalence and hardware validation remain open or `NOT RUN`.

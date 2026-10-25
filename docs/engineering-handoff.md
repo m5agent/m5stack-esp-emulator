@@ -55,9 +55,10 @@
   network-partition fence 和 trusted-host companion recovery 已落地；
   物理跨主机、迁移、跨主机幂等、namespace-managed/Tab5 companion 仍开放。
 - Core2：`core2-native-hci`、121 轮重连、artifact-bound 长稳、active-stop、
-  QOM 8 MiB PSRAM/upper-bank MMU 和最多四实例并发已有证据。四实例原始失败
-  保留，`0009` 修复后独立复跑通过；五实例及更多、持续吞吐、物理
-  PSRAM/cache timing、bit-exact controller 和真机仍开放。
+  QOM 8 MiB PSRAM/upper-bank MMU 和五实例 30 秒错峰并发已有证据。四实例
+  原始失败和五实例零错峰 `5/5 PASS`/`3/5 FAIL` 不稳定对照保留；零错峰
+  五实例、更多实例、持续吞吐、物理 PSRAM/cache timing、bit-exact
+  controller 和真机仍开放。
 - 固件：FirmwareManifest/WebBurner、分段完整性、capability/security、
   Secure Boot v2 数学与包内摘要对照、文件系统、SD/NVS fixture 和
   SHA-bound review expectation 已可执行；live eFuse/trust root、生产 key、
@@ -75,7 +76,7 @@
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
 | Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
-| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力、错峰、双实例/三实例/四实例无错峰并发 | `PILOT` | 五实例及更多并发、物理 PSRAM/cache timing、bit-exact controller、持续吞吐 |
+| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力、错峰、双/三/四实例无错峰和五实例错峰并发 | `PILOT` | 零错峰五实例及更多并发、物理 PSRAM/cache timing、bit-exact controller、持续吞吐 |
 | 通用固件审查 | Manifest/WebBurner、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
 | CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |
@@ -189,7 +190,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
-| `CORE2-02` | 五实例及更多实例的 HCI 稳定性、bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和其他 teardown | 双实例、三实例和四实例已分别由两批独立复跑覆盖；四实例由 `0009` 的 `8/4` 真实 guest 备用对象关闭，原始 `1/4` 失败仍保留 |
+| `CORE2-02` | 零错峰五实例及更多实例的 HCI 稳定性、bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和其他 teardown | 双/三/四实例和五实例 30 秒错峰均已由两批独立复跑覆盖；四实例原始 `1/4` 与五实例零错峰 `5/5 PASS`/`3/5 FAIL` 不稳定对照保留 |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |

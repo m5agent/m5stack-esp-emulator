@@ -501,7 +501,9 @@ controller 的固件 FAIL；修复后 3 个独立 artifact-bound lease 均为
 上限 `120s`。四实例首批 `4×120s` 先得到 `1 PASS / 3 FAIL`：一个 HLI
 health/prealloc failure，两个在 NimBLE `ble_hs_hci_process_ack` panic；
 `0009` 扩大真实 guest 备用对象池后，两批四实例各 `4/4 PASS`，合计 `8/8`。
-后续仍需补五实例及更多实例稳定性、长时吞吐/teardown、bit-exact
+两批五实例 30 秒错峰 `5×120s` 又各 `5/5 PASS`，合计 `10/10`；但相同实现
+的零错峰五实例先 `5/5 PASS`、独立确认批 `3/5 FAIL`。后续仍需补零错峰
+五实例与更多实例稳定性、长时吞吐/teardown、bit-exact
 controller/baseband、物理 cache/PSRAM 和真机。
 
 ## 11. 结论
