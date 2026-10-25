@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-network-partition-fencing-3x",
+  "date": "2026-10-25",
+  "validation": "virtual control-plane + unified companion validation",
+  "status": "PASS",
+  "source_revision": "6866fbdb28c827a3cd558e1867ab6f33d6a048b9",
+  "source_worktree_clean": true,
+  "attempts_requested": 3,
+  "attempts_completed": 3,
+  "attempts_passed": 3,
+  "tool_hashes": {
+    "runner": "d5f572f8200c7bebd184e923228f868b1b08e5a11f45e60d43a170e5baf8cf3d",
+    "runtime_fixture": "22d9aadac063caf22b5d40777860cb9345ba846eff00aa0a2a4cd1ba33df9592",
+    "worker_agent": "bf250820f879ce232df2d8df95827908cd4a6ebe7335c257129d022e6bf102cb",
+    "device_service": "6f9b526e936941ebeb2a05acb3442f619f296d4bba5479a9ef98be7839363662",
+    "serve": "e747704d92f205ea2952c8a0954c4272fb0374c429faa7925352e6ad6a8f8c07",
+    "qemu": "f024f034d20bd5b8e2c224ce69deed70984b0514f8a310d221b388b74c179ecb",
+    "firmware": "c05803b4fb62b1aacc926a5f138feb03be91fb7da026cf5b36b5f74d5ac7560a"
+  },
+  "input_assets_unchanged": true,
+  "checks_per_attempt": {
+    "first_result_lease_fenced": "PASS",
+    "first_worker_created_side_effect": "PASS",
+    "first_worker_failed_closed": "PASS",
+    "heartbeat_failure_recorded": "PASS",
+    "lease_expired_and_requeued": "PASS",
+    "namespaces_cleaned": "PASS",
+    "network_partition_installed": "PASS",
+    "qemu_started": "PASS",
+    "retry_runtime_stopped": "PASS",
+    "retry_side_effect_reaped": "PASS",
+    "retry_unified_ble_pid_reaped": "PASS",
+    "retry_unified_companions_terminated": "PASS",
+    "retry_unified_pcap_finalized": "PASS",
+    "retry_worker_completed_job": "PASS",
+    "retry_worker_exit_zero": "PASS",
+    "runtime_session_stopped": "PASS",
+    "runtime_side_effect_reaped": "PASS",
+    "stale_result_not_reported": "PASS",
+    "token_absent_from_logs": "PASS",
+    "tool_hashes_unchanged": "PASS",
+    "unified_ble_companion_terminated": "PASS",
+    "unified_ble_pass_observed_before_partition": "PASS",
+    "unified_ble_peer_running_before_partition": "PASS",
+    "unified_ble_pid_reaped": "PASS",
+    "unified_http_fixture_running_before_partition": "PASS",
+    "unified_http_fixture_terminated": "PASS",
+    "unified_http_request_observed_before_partition": "PASS",
+    "unified_pcap_finalized": "PASS",
+    "unified_pcap_nonempty_before_partition": "PASS",
+    "worker_and_server_routes_present": "PASS"
+  },
+  "runs": [
+    {
+      "evidence_sha256": "3b63fc5a103a6dfa457aa85923ce74a204f500a4f2a2b904d6215dbb0016a68d",
+      "job_id_sha256": "3af7a7745469a641d3ebb86df20794ab68866c8dde1450eea901ee445af34044",
+      "attempts": 2,
+      "result_state": "PASS",
+      "first_worker_returncode": 1,
+      "first_worker_lease_fenced": true,
+      "first_side_effect_reaped": true,
+      "retry_worker_returncode": 0,
+      "retry_side_effect_reaped": true,
+      "cleanup": {
+        "service_exit": true,
+        "runtime_exit": true,
+        "namespaces": []
+      },
+      "runtime_kind": "qemu-unified",
+      "companion_fencing": {
+        "http_requests_before_fence": 1,
+        "ble_pass_before_fence": true,
+        "ble_pid_reaped": true,
+        "pcap_bytes_before_fence": 8249,
+        "pcap_summary_after_fence": "PASS",
+        "retry_http_requests": 1,
+        "retry_pcap_summary": "PASS"
+      }
+    },
+    {
+      "evidence_sha256": "8e0ccd3db244b4a1129a286f7d9fa983337fb7dc10d20ce7a1e00103ccd2466a",
+      "job_id_sha256": "f05beddd36d3611ea8a133a75086f89bf03c29cd3f974f342dbfd07915caa6fa",
+      "attempts": 2,
+      "result_state": "PASS",
+      "first_worker_returncode": 1,
+      "first_worker_lease_fenced": true,
+      "first_side_effect_reaped": true,
+      "retry_worker_returncode": 0,
+      "retry_side_effect_reaped": true,
+      "cleanup": {
+        "service_exit": true,
+        "runtime_exit": true,
+        "namespaces": []
+      },
+      "runtime_kind": "qemu-unified",
+      "companion_fencing": {
+        "http_requests_before_fence": 1,
+        "ble_pass_before_fence": true,
+        "ble_pid_reaped": true,
+        "pcap_bytes_before_fence": 8249,
+        "pcap_summary_after_fence": "PASS",
+        "retry_http_requests": 1,
+        "retry_pcap_summary": "PASS"
+      }
+    },
+    {
+      "evidence_sha256": "e5f6d763c4871adb6ecc9aaf17c070ce643c929cbc9942c17d00db5ad42a9fa5",
+      "job_id_sha256": "bc7f99a0b961bddb579537f281a1bc555ddc97bf9c0dd1fcb1a973279b352599",
+      "attempts": 2,
+      "result_state": "PASS",
+      "first_worker_returncode": 1,
+      "first_worker_lease_fenced": true,
+      "first_side_effect_reaped": true,
+      "retry_worker_returncode": 0,
+      "retry_side_effect_reaped": true,
+      "cleanup": {
+        "service_exit": true,
+        "runtime_exit": true,
+        "namespaces": []
+      },
+      "runtime_kind": "qemu-unified",
+      "companion_fencing": {
+        "http_requests_before_fence": 1,
+        "ble_pass_before_fence": true,
+        "ble_pid_reaped": true,
+        "pcap_bytes_before_fence": 8249,
+        "pcap_summary_after_fence": "PASS",
+        "retry_http_requests": 1,
+        "retry_pcap_summary": "PASS"
+      }
+    }
+  ],
+  "not_claimed": [
+    "QEMU guest/device/controller-internal side effects",
+    "physical cross-host execution",
+    "external network side effects not owned by the worker",
+    "production scheduler",
+    "physical hardware validation"
+  ]
+}

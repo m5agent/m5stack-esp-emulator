@@ -28,7 +28,11 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   control-plane 重启后原 lease/evidence 收敛（`f85b8c9`）、runtime Device
   Service 重启后同 PID/QMP reattach（`cd3adc7`）、`POST /sessions`
   并发/重启幂等（`0e3a913`），以及 trusted-host unified HTTP/BLE
-  companion continuity（当前实现与 evidence 见下文）。网络策略还闭合了
+  companion continuity（当前实现与 evidence 见下文）。worker-local
+  `qemu-unified` partition lane 又完成三次独立验证：partition 前同 session
+  已有 HTTP、BLE PASS 和非空 pcap；fence 后 HTTP/BLE companion 终止、
+  BLE PID 回收、pcap summary 完成，fresh retry 重新取得 unified evidence。
+  网络策略还闭合了
   有界 IPv4/IPv6 CIDR、显式绑定 controlled domain suffix 与有界 CNAME
   chain；Linux namespace policy fixture 通过，CNAME resolver 数据面也已
   通过。同一 guest 的三独立 lease 又完成 CNAME→terminal A→HTTP 200，
@@ -41,8 +45,8 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   adopt，并完成重启后的第二轮 GATT 和 guest HTTP recheck。相同 lease 的
   evidence ZIP 同时包含两代 HTTP、BLE continuity、serial、network/pcap 和
   cleanup。
-- **下一 P0**：`NET-04` 先补 worker-local `qemu-unified` 的 HTTP/BLE/pcap/
-  companion partition fence，再做真实跨主机 executor/reattach、跨主机
+- **下一 P0**：`NET-04` 已补 worker-local `qemu-unified` 的 HTTP/BLE/pcap/
+  companion partition fence；继续做真实跨主机 executor/reattach、跨主机
   idempotency、无 reachable seed 时的任意 NAT traversal、QEMU 内
   guest/device-controller side-effect fencing 和生产调度；namespace-managed/Tab5/cross-host
   companion recovery；`FW-01/02/03` 的运行态 ACL/许可、真机
@@ -72,7 +76,7 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 | 工作流 | 当前结论 | 下一项最小交付 | 不能继承的边界 |
 | --- | --- | --- | --- |
 | 设备与统一运行时 | S3/C6/Core2 单 guest 的板级、WiFi、BLE、frame/QOM、pcap 和 evidence 已可执行 | 代表设备同固件 SHA 真机验证；剩余控制器/视觉差异 | 不能用同 SoC 其他板、其他固件 SHA 或真机 RF 继承 PASS |
-| 网络与 worker | DNS/CNAME、CIDR egress、discovery、重启恢复、control/runtime 分离、跨容器 QEMU 和 partition process fence 已落地 | QEMU unified companion 随 worker fence 一起停止；QEMU 内 guest/controller side effect；物理跨主机 | 三个 Docker 容器对仍共享宿主，不等于物理多机；QEMU PID 回收不等于 guest 内部已完成 quiesce |
+| 网络与 worker | DNS/CNAME、CIDR egress、discovery、重启恢复、control/runtime 分离、跨容器 QEMU，以及 QEMU process / unified companion partition fence 已落地 | QEMU 内 guest/controller side effect；worker 未拥有的外部 side effect；物理跨主机 | 三个 Docker 容器对仍共享宿主，不等于物理多机；QEMU PID 回收不等于 guest 内部已完成 quiesce |
 | Core2 | native-HCI 功能路径、121 轮重连、active-stop、8 MiB QOM/MMU 和长时虚拟压力已通过 | 物理 PSRAM/cache timing、bit-exact BT baseband/controller、长时吞吐/并发、其他 teardown | 7200 秒功能保持和 bounded TCG 只覆盖对应 workload |
 | 通用固件审查 | Manifest/WebBurner、完整性、capability、静态/SBOM/文件系统、NVS/SD 和网络预期已可执行 | 运行态 ACL/许可、真机安全 key/eFuse、真实云端业务、更多固件族 | 结构 PASS、静态 PASS、网络 marker PASS 都不能替代运行态/真机安全结论 |
 | Tab5 / CardputerZero / UI | Tab5 与 Linux ARM64 后端有可用子集；StopWatch 是唯一参考级外壳 | P4 后端决策、CardputerZero 收尾、逐设备视觉模型 | `partial` 表示可用子集，不等同完整设备或全固件兼容 |

@@ -153,6 +153,10 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-25-partition-fencing-qemu-3x.json"
             ),
             (
+                "tests/network/worker_partition_fencing/"
+                "evidence-2026-10-25-partition-fencing-unified-3x.json"
+            ),
+            (
                 "tests/uiflow2/core2_native_hci/"
                 "evidence-2026-10-25-core2-psram-sustained-8m-3x120.json"
             ),
@@ -5002,6 +5006,66 @@ class DocsConsistencyTests(unittest.TestCase):
             self.assertTrue(run["first_side_effect_reaped"])
             self.assertTrue(run["retry_side_effect_reaped"])
 
+        unified_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_partition_fencing/"
+                "evidence-2026-10-25-partition-fencing-unified-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(unified_evidence["status"], "PASS")
+        self.assertEqual(
+            unified_evidence["validation"],
+            "virtual control-plane + unified companion validation",
+        )
+        self.assertEqual(unified_evidence["attempts_passed"], 3)
+        self.assertEqual(
+            len(unified_evidence["checks_per_attempt"]),
+            30,
+        )
+        self.assertTrue(
+            all(
+                status == "PASS"
+                for status in unified_evidence[
+                    "checks_per_attempt"
+                ].values()
+            )
+        )
+        self.assertTrue(unified_evidence["input_assets_unchanged"])
+        self.assertTrue(unified_evidence["source_worktree_clean"])
+        self.assertEqual(len(unified_evidence["runs"]), 3)
+        for run in unified_evidence["runs"]:
+            self.assertEqual(run["runtime_kind"], "qemu-unified")
+            self.assertEqual(run["attempts"], 2)
+            self.assertEqual(run["result_state"], "PASS")
+            self.assertNotEqual(run["first_worker_returncode"], 0)
+            self.assertEqual(run["retry_worker_returncode"], 0)
+            self.assertTrue(run["first_worker_lease_fenced"])
+            self.assertTrue(run["first_side_effect_reaped"])
+            self.assertTrue(run["retry_side_effect_reaped"])
+            self.assertEqual(
+                run["companion_fencing"]["http_requests_before_fence"],
+                1,
+            )
+            self.assertTrue(
+                run["companion_fencing"]["ble_pass_before_fence"]
+            )
+            self.assertTrue(
+                run["companion_fencing"]["ble_pid_reaped"]
+            )
+            self.assertGreater(
+                run["companion_fencing"]["pcap_bytes_before_fence"],
+                0,
+            )
+            self.assertEqual(
+                run["companion_fencing"]["pcap_summary_after_fence"],
+                "PASS",
+            )
+            self.assertEqual(
+                run["companion_fencing"]["retry_pcap_summary"],
+                "PASS",
+            )
+
         worker_agent = (
             ROOT / "platform/tools/worker_agent.py"
         ).read_text()
@@ -5074,6 +5138,11 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "worker_partition_fencing/evidence-"
             "2026-10-25-partition-fencing-qemu-3x.json",
+            ledger,
+        )
+        self.assertIn(
+            "worker_partition_fencing/evidence-"
+            "2026-10-25-partition-fencing-unified-3x.json",
             ledger,
         )
 

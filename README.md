@@ -27,8 +27,9 @@ MicroPython 和其他完整 Flash 固件。
   这些是虚拟网络数据面验证，不是 RF/PHY 或恶意固件 VM 沙箱。
 - Worker 侧已落地 durable queue、HMAC、HTTPS/mTLS、轮换、重启恢复、
   control/runtime 分离和跨容器 QEMU。最新真实 namespace 验证中，断网会
-  fence worker-local QEMU process 并由新 attempt 重启；QEMU 内
-  guest/device-controller、worker 未拥有的外部 side effect 和物理跨主机仍未验证。
+  fence worker-local `qemu-unified` 的 QEMU、HTTP fixture、BLE peer 和
+  pcap writer，并由新 attempt 重启；QEMU 内 guest/device-controller、
+  worker 未拥有的外部 side effect 和物理跨主机仍未验证。
 - Core2 已有 native-HCI 功能验证、3×121 轮重连、两小时 active-BLE 保持、
   8 MiB PSRAM QOM/upper-bank MMU 和持续 guest 压力证据；物理 PSRAM/cache、
   bit-exact BT baseband/controller 和长时并发仍为 `NOT RUN`。

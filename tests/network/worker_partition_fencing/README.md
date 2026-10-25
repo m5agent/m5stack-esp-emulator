@@ -72,6 +72,14 @@ All three runs pass `18/18` checks. In each run, attempt 1 starts a real
 StickS3 QEMU, loses the control plane, is fenced, and has its QEMU PID
 reaped; attempt 2 starts a fresh QEMU and reaches terminal `PASS`.
 
+The unified lane has three independent runs:
+[`evidence-2026-10-25-partition-fencing-unified-3x.json`](evidence-2026-10-25-partition-fencing-unified-3x.json).
+Each run passes `30/30` checks. Before the partition, the same session has an
+HTTP request, BLE `PASS` and a non-empty pcap. After fencing, the HTTP and BLE
+companions are `terminated`, the BLE PID is gone, and the pcap summary is
+finalized. Attempt 2 starts a fresh unified session and produces its own
+HTTP/BLE/pcap evidence.
+
 The plain `--qemu` lane uses `runtime=qemu` and proves ownership and cleanup
 of the worker-local QEMU **process**. The `--qemu-unified` lane additionally
 waits for the same session's HTTP request, BLE pass and non-empty pcap before

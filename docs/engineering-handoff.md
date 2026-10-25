@@ -59,9 +59,11 @@
   namespace 中 runtime session、OS child process、lease expiry/requeue 和
   retry completion 连续 `3/3 PASS`；worker-local Device Service + StickS3
   QEMU lane 也 `3/3 PASS`，首轮 QEMU PID 与 attempt 2 QEMU PID 均回收；
-- 上述 QEMU partition lane 使用普通 `runtime=qemu`。`qemu-unified` 的
-  HTTP companion、BLE peer、pcap 和 guest/controller 内部 side effect
-  在断网 fence 时是否都已停止，仍是下一项 P0；
+- worker-local `qemu-unified` partition lane 也完成 `3/3 PASS`：断网前
+  同 session 已有 HTTP、BLE PASS 和非空 pcap；fence 后 HTTP/BLE companion
+  终止、BLE PID 回收、pcap summary 完成，attempt 2 重新取得 unified
+  evidence。QEMU 内 guest/controller 内部状态和 worker 未拥有的外部
+  side effect 仍开放；
 - central 与 worker-local runtime/QEMU 在两个独立 Docker 容器中的真实
   QEMU job、terminal evidence、三工件哈希和 container/bridge cleanup；
 - Core2 `core2-native-hci`、同 guest 120/121 轮重连、active-stop、
@@ -196,7 +198,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `NET-04` | 先做 worker-local `qemu-unified` partition/companion lane；再做物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等和 worker 未拥有的外部 side effect | 409 与 network partition 都已 fence worker-owned OS/QEMU process；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
+| `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | bit-exact controller/baseband、物理 PSRAM/cache timing、长时并发和其他 teardown | 功能级虚拟证据不能证明物理等价 |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据 |

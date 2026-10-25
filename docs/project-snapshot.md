@@ -47,7 +47,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
+| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、worker-local `qemu-unified` 的 HTTP/BLE/pcap companion fence、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
 | `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s 和 active-stop/recovery 均已 PASS；121 轮 readiness 与 accelerator-sampling harness 缺陷已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
@@ -76,9 +76,9 @@
 | `firmware_filesystems.py` | 1469 |
 | `worker_agent.py` | 1429 |
 
-- `tests/`：`65` 个可执行 Python 测试文件，分布在 `47` 个目录；`156` 个 evidence JSON。
+- `tests/`：`65` 个可执行 Python 测试文件，分布在 `47` 个目录；`157` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`55` 个 patch 文件。
-- 文档：`201` 个 Markdown 页面，`17656` 行。
+- 文档：`201` 个 Markdown 页面，`17691` 行。
 
 ## 文档与测试
 

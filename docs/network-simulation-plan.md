@@ -99,9 +99,11 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   stale result；5 秒 lease expiry 后 job re-queue，网络恢复后第二个 worker
   以新 attempt 完成 PASS，连续 `3/3`。同一 runner 另有真实 worker-local
   Device Service + StickS3 QEMU lane：首轮 QEMU PID 被 reap，attempt 2
-  启动新 QEMU 并完成 PASS，亦为 `3/3`。该 lane 使用普通 `runtime=qemu`；
-  `qemu-unified` companion、pcap、BLE peer 与 guest/controller 内部 side
-  effect 的随停验证仍属于 `NET-04`；
+  启动新 QEMU 并完成 PASS，亦为 `3/3`。worker-local `qemu-unified` lane
+  又在三次独立运行中等待同 session 的 HTTP request、BLE PASS 和非空 pcap
+  后断网，验证 HTTP/BLE companion 进入 terminated、BLE PID 回收、pcap
+  summary 完成以及 fresh retry 重新取得 unified evidence；QEMU 内
+  guest/controller 内部状态与 worker 未拥有的外部 side effect 仍开放；
 - 已获得具体 runtime session ID 后，worker 对 runtime status/evidence/stop
   做有界 transient retry；runtime Device Service 同 state 重启后按
   PID start-time、QMP ownership 和 running 状态重新接管同一 QEMU；

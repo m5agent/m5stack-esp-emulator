@@ -25,7 +25,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络产品化 | controlled DNS CNAME resolver、同 guest CNAME→HTTP 生命周期、跨 Docker 容器 worker-local QEMU 和跨子网/NAT unicast seed discovery 已完成；物理跨主机 worker 迁移/QEMU executor、无 reachable seed 的任意 NAT traversal、namespace-managed/Tab5/cross-host companion、跨主机 reattach 和生产调度仍待做 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP + trusted-host companion reattach |
+| P0 | 网络产品化 | controlled DNS CNAME resolver、同 guest CNAME→HTTP 生命周期、跨 Docker 容器 worker-local QEMU、worker-local `qemu-unified` companion/pcap partition fence 和跨子网/NAT unicast seed discovery 已完成；物理跨主机 worker 迁移/QEMU executor、无 reachable seed 的任意 NAT traversal、namespace-managed/Tab5/cross-host companion、跨主机 reattach 和生产调度仍待做 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP + trusted-host companion reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
@@ -62,7 +62,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、worker-local `qemu-unified` 的 HTTP/BLE/pcap companion fence、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
 | `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s 和 active-stop/recovery 均已 PASS；121 轮 readiness 与 accelerator-sampling harness 缺陷已修复 | 补 controller/baseband、物理 PSRAM/cache timing、长时吞吐/并发、其他 teardown 模式和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -93,27 +93,25 @@
 - worker→control network blackhole 已在 process 与真实 worker-local QEMU
   两个 lane 各 `3/3 PASS`：bounded heartbeat、runtime DELETE、OS/QEMU PID
   reap、lease expiry/requeue 和 retry completion 均成立；
-- `worker_partition_fencing` 只关闭 worker-owned QEMU process。它不证明
-  QEMU 内 guest/device-controller 已 quiesce，也不证明 worker 未拥有的外部
-  side effect 已停止。
+- worker-local `qemu-unified` lane 又在三个独立运行中证明 partition 前已有
+  HTTP/BLE/pcap，fence 后 HTTP/BLE companion 终止、BLE PID 回收、pcap
+  summary 完成，fresh retry 重新取得 unified evidence；
+- 这些 lane 不证明 QEMU 内 guest/device-controller 已 quiesce，也不证明
+  worker 未拥有的外部 side effect 已停止。
 
 当前开放缺口：
 
 - 物理跨主机 executor/reattach、迁移期间跨主机幂等与 evidence 收敛；
 - 无 reachable seed 时的任意 NAT traversal；
-- worker-local `qemu-unified` 的网络 companion、BLE peer、pcap 和磁盘
-  side effect 在 partition fence 时随 session 一起停止；
 - namespace-managed/Tab5/cross-host companion、连续外部 evidence 流和
   生产多机调度。
 
 下一项最小交付：
 
-1. 扩展 partition fixture 到 worker-local `qemu-unified`，加入同 session
-   HTTP fixture、BLE peer 和 pcap；断网后要求 worker fence 整个 runtime，
-   回收 QEMU、companion、PID 和 namespace，并禁止旧 attempt 提交 evidence。
-2. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。
-3. 在真实多主机环境验证 executor、reattach、idempotency 和 control-plane
+1. 在真实多主机环境验证 executor、reattach、idempotency 和 control-plane
    故障边界；无法证明 ownership 时继续明确 `interrupted_failed`。
+2. 验证 QEMU 内 guest/controller 内部状态和 worker 未拥有的外部 side effect。
+3. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。
 4. 把 namespace、pcap、session history 和 cleanup 结果绑定到同一个 lease。
 
 验收：
