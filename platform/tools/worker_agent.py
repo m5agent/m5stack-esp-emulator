@@ -62,6 +62,10 @@ class WorkerAgentError(RuntimeError):
         self.transient = transient
 
 
+class WorkerLeaseLostError(WorkerAgentError):
+    """Raised after job ownership loss fences the local runtime."""
+
+
 def log_worker_event(message: str) -> None:
     print(message, flush=True)
 
@@ -664,11 +668,16 @@ class WorkerAgent:
         session_id: str,
         *,
         api: Api | None = None,
+        lease_fence: threading.Event | None = None,
     ) -> dict[str, Any]:
         runtime_api = api or self.api
         deadline = time.time() + self.session_timeout
         latest: dict[str, Any] = {}
         while time.time() < deadline:
+            if lease_fence is not None and lease_fence.is_set():
+                raise WorkerLeaseLostError(
+                    "job lease ownership was lost before session readiness"
+                )
             latest = self._runtime_json(
                 f"/api/v1/sessions/{session_id}",
                 api=runtime_api,
@@ -686,7 +695,12 @@ class WorkerAgent:
                 raise WorkerAgentError(
                     f"session reached terminal state {state}{suffix}"
                 )
-            time.sleep(0.25)
+            if lease_fence is None:
+                time.sleep(0.25)
+            elif lease_fence.wait(0.25):
+                raise WorkerLeaseLostError(
+                    "job lease ownership was lost before session readiness"
+                )
         raise WorkerAgentError("session did not reach running before timeout")
 
     def _collect_evidence(
@@ -696,7 +710,12 @@ class WorkerAgent:
         include: list[str],
         *,
         api: Api | None = None,
+        lease_fence: threading.Event | None = None,
     ) -> tuple[bytes, str, Path]:
+        if lease_fence is not None and lease_fence.is_set():
+            raise WorkerLeaseLostError(
+                "job lease ownership was lost before evidence collection"
+            )
         runtime_api = api or self.api
         query = urlencode({"include": ",".join(include)})
         status, evidence, _content_type = self._runtime_request(
@@ -706,12 +725,21 @@ class WorkerAgent:
         )
         if status != 200 or not evidence.startswith(b"PK\x03\x04"):
             raise WorkerAgentError("evidence endpoint did not return a ZIP")
+        if lease_fence is not None and lease_fence.is_set():
+            raise WorkerLeaseLostError(
+                "job lease ownership was lost during evidence collection"
+            )
         digest = hashlib.sha256(evidence).hexdigest()
         path = self.work_dir / job_id / "evidence.zip"
         atomic_write(path, evidence)
         return evidence, digest, path
 
-    def execute_job(self, job: dict[str, Any]) -> dict[str, Any]:
+    def execute_job(
+        self,
+        job: dict[str, Any],
+        *,
+        lease_fence: threading.Event | None = None,
+    ) -> dict[str, Any]:
         job_id = str(job.get("job_id") or "")
         lease = job.get("lease")
         if not job_id or not isinstance(lease, dict):
@@ -767,6 +795,10 @@ class WorkerAgent:
         state = "FAIL"
         runtime_api = self.runtime_api
         try:
+            if lease_fence is not None and lease_fence.is_set():
+                raise WorkerLeaseLostError(
+                    "job lease ownership was lost before session creation"
+                )
             created = self._runtime_json(
                 "/api/v1/sessions",
                 method="POST",
@@ -775,14 +807,28 @@ class WorkerAgent:
                 api=runtime_api,
             )
             session_id = str(created["session_id"])
-            running = self._wait_session(session_id, api=runtime_api)
+            if lease_fence is not None and lease_fence.is_set():
+                raise WorkerLeaseLostError(
+                    "job lease ownership was lost during session creation"
+                )
+            running = self._wait_session(
+                session_id,
+                api=runtime_api,
+                lease_fence=lease_fence,
+            )
             if evidence_delay:
-                time.sleep(float(evidence_delay))
+                if lease_fence is None:
+                    time.sleep(float(evidence_delay))
+                elif lease_fence.wait(float(evidence_delay)):
+                    raise WorkerLeaseLostError(
+                        "job lease ownership was lost before evidence collection"
+                    )
             evidence, evidence_sha256, evidence_path = self._collect_evidence(
                 job_id,
                 session_id,
                 include,
                 api=runtime_api,
+                lease_fence=lease_fence,
             )
             summary = {
                 "device_id": running.get("device_id"),
@@ -799,6 +845,8 @@ class WorkerAgent:
                 "error_type": type(error).__name__,
                 "error": str(error)[:1000],
             }
+            if isinstance(error, WorkerLeaseLostError):
+                summary["lease_fenced"] = True
             state = "FAIL"
         finally:
             if session_id is not None:
@@ -813,6 +861,9 @@ class WorkerAgent:
                 except Exception as error:
                     summary.setdefault("cleanup_error", str(error)[:1000])
                     state = "FAIL"
+            if lease_fence is not None and lease_fence.is_set():
+                summary["lease_fenced"] = True
+                state = "FAIL"
 
         if evidence_path is not None:
             summary["evidence_path"] = str(evidence_path.relative_to(self.work_dir))
@@ -834,6 +885,7 @@ class WorkerAgent:
         job_id = str(job["job_id"])
         lease_id = str(job["lease"]["lease_id"])
         heartbeat_stop = threading.Event()
+        lease_fence = threading.Event()
         heartbeat_error: list[str] = []
 
         def heartbeat_loop() -> None:
@@ -843,6 +895,7 @@ class WorkerAgent:
                     self.heartbeat_worker([job_id])
                 except Exception as error:
                     heartbeat_error.append(str(error))
+                    lease_fence.set()
                     heartbeat_stop.set()
 
         self.heartbeat_worker([job_id])
@@ -853,14 +906,22 @@ class WorkerAgent:
         )
         heartbeat.start()
         try:
-            result = self.execute_job(job)
+            result = self.execute_job(job, lease_fence=lease_fence)
             if heartbeat_error:
                 result["state"] = "FAIL"
                 result["summary"]["heartbeat_error"] = heartbeat_error[-1]
+            if lease_fence.is_set():
+                result["state"] = "FAIL"
+                result["summary"]["lease_fenced"] = True
             atomic_write(
                 self.work_dir / job_id / "result.json",
                 (json.dumps(result, indent=2) + "\n").encode(),
             )
+            if lease_fence.is_set():
+                raise WorkerLeaseLostError(
+                    "job lease ownership was lost; runtime was stopped and "
+                    "the stale result was not reported"
+                )
             self.report_result(
                 job_id,
                 lease_id,

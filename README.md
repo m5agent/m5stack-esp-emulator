@@ -42,6 +42,11 @@ MicroPython 和其他完整 Flash 固件。
 - Central 与 worker-local runtime/QEMU 已在三个独立 Docker 容器对中跨
   user-defined bridge 完成 durable job、terminal evidence、三工件哈希和
   container/bridge cleanup。该结果验证独立执行容器，不等同于物理跨主机。
+- Job 被 lease expiry/stale/stop/generation change 后重新 claim 时使用新的
+  `lease_id`；旧 lease 的 heartbeat/result 返回 `409 job_lease_mismatch`。
+  WorkerAgent 检测到所有权丢失或控制面恢复超时后，会停止自己可达的
+  worker-local runtime session，并拒绝上报 stale result。断网远端进程、
+  外部网络 side effect 和物理跨主机执行仍未验证。
 - Linux namespace 网络策略支持有界 IPv4/IPv6 CIDR、controlled DNS
   domain suffix 和有界 CNAME chain；域名/CNAME terminal answer 必须落在
   允许的 endpoint 地址/CIDR 内，Host 匹配使用 DNS label boundary，不把

@@ -18,6 +18,7 @@ from worker_agent import (  # noqa: E402
     CredentialReloader,
     WorkerAgent,
     WorkerAgentError,
+    WorkerLeaseLostError,
     atomic_write,
     credential_file_fingerprint,
     initialize_identity,
@@ -241,6 +242,42 @@ class TransientRuntimeCreateApi(FakeRuntimeApi):
                 payload.get("idempotency_key") == self.idempotency_key
             )
             return {"session_id": "b" * 32}
+        return super().json(
+            path,
+            method=method,
+            payload=payload,
+            timeout=timeout,
+        )
+
+
+class FencedHeartbeatApi(FakeApi):
+    def json(self, path, *, method="GET", payload=None, timeout=60):
+        if path == "/api/v1/jobs/claim":
+            self.calls.append((method, path, payload))
+            return {
+                "job": {
+                    "job_id": "job-test",
+                    "lease": {
+                        "lease_id": "lease-test",
+                        "worker_id": payload["worker_id"],
+                        "instance_id": payload["instance_id"],
+                        "generation": payload["generation"],
+                    },
+                    "request": {
+                        "session": {
+                            "device_id": "sticks3",
+                            "runtime": "qemu-unified",
+                        },
+                        "evidence_delay_seconds": 2,
+                    },
+                }
+            }
+        if path == "/api/v1/jobs/job-test/heartbeat":
+            self.calls.append((method, path, payload))
+            raise WorkerAgentError(
+                "job lease ownership changed",
+                status=409,
+            )
         return super().json(
             path,
             method=method,
@@ -568,6 +605,41 @@ class WorkerAgentTests(unittest.TestCase):
         self.assertIn(
             f"/api/v1/sessions/{'a' * 32}?purge=0",
             [call[1] for call in api.calls],
+        )
+
+    def test_lease_loss_stops_runtime_and_does_not_report_stale_result(self):
+        control_api = FencedHeartbeatApi()
+        runtime_api = FakeRuntimeApi()
+        agent = self.agent(
+            control_api,
+            runtime_api=runtime_api,
+            heartbeat_interval=1,
+            control_reconnect_timeout=0,
+        )
+        agent.heartbeat_interval = 0.05
+
+        with self.assertRaisesRegex(
+            WorkerLeaseLostError,
+            "stale result was not reported",
+        ):
+            agent.work_once()
+
+        runtime_paths = [call[1] for call in runtime_api.calls]
+        self.assertIn(f"/api/v1/sessions/{'b' * 32}?purge=0", runtime_paths)
+        self.assertFalse(
+            any(
+                call[1] == "/api/v1/jobs/job-test/result"
+                for call in control_api.calls
+            )
+        )
+        result = json.loads(
+            (self.work_dir / "job-test" / "result.json").read_text()
+        )
+        self.assertEqual(result["state"], "FAIL")
+        self.assertTrue(result["summary"]["lease_fenced"])
+        self.assertIn(
+            "job lease ownership changed",
+            result["summary"]["heartbeat_error"],
         )
 
     def test_credential_files_reload_atomically_with_secret_free_receipt(self):

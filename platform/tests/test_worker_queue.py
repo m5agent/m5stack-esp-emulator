@@ -222,6 +222,50 @@ class WorkerJobQueueTests(unittest.TestCase):
         self.assertEqual(failed["status"], "failed")
         self.assertEqual(failed["failure"]["reason"], "worker_stopped")
 
+    def test_reclaimed_job_fences_the_previous_lease_result(self):
+        job = self.submit(max_attempts=2)
+        first = self.claim(job["job_id"])
+        self.queue.reconcile(
+            [self.worker(stale=True, accepting_leases=False)]
+        )
+        second = self.claim(job["job_id"])
+        self.assertEqual(second["attempts"], 2)
+        self.assertNotEqual(
+            first["lease"]["lease_id"],
+            second["lease"]["lease_id"],
+        )
+
+        with self.assertRaises(WorkerQueueError) as caught:
+            self.queue.result(
+                job["job_id"],
+                {
+                    **self.identity(),
+                    "lease_id": first["lease"]["lease_id"],
+                    "state": "PASS",
+                    "summary": {"stale": True},
+                },
+            )
+        self.assertEqual(caught.exception.code, "job_lease_mismatch")
+        self.assertEqual(caught.exception.status, 409)
+        still_owned = self.queue.get_job(job["job_id"])
+        self.assertEqual(still_owned["status"], "leased")
+        self.assertEqual(
+            still_owned["lease"]["lease_id"],
+            second["lease"]["lease_id"],
+        )
+
+        completed = self.queue.result(
+            job["job_id"],
+            {
+                **self.identity(),
+                "lease_id": second["lease"]["lease_id"],
+                "state": "PASS",
+                "summary": {"attempt": 2},
+            },
+        )
+        self.assertEqual(completed["status"], "completed")
+        self.assertEqual(completed["result"]["summary"]["attempt"], 2)
+
     def test_validation_and_schema_errors(self):
         for payload in (
             {},

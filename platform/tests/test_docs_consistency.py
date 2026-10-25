@@ -2126,6 +2126,45 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("idempotent_replay:", openapi)
         self.assertIn("session_idempotency_conflict", api)
 
+    def test_worker_lease_ownership_fencing_is_reconciled(self):
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        ledger = (DOCS / "validation-ledger.md").read_text()
+        api = (DOCS / "device-service-api.md").read_text()
+        openapi = (DOCS / "device-service.openapi.yaml").read_text()
+        agent = (ROOT / "platform/tools/worker_agent.py").read_text()
+        queue = (ROOT / "platform/tools/worker_queue.py").read_text()
+        agent_tests = (
+            ROOT / "platform/tests/test_worker_agent.py"
+        ).read_text()
+        queue_tests = (
+            ROOT / "platform/tests/test_worker_queue.py"
+        ).read_text()
+        service_tests = (
+            ROOT / "platform/tests/test_device_service.py"
+        ).read_text()
+
+        self.assertIn("class WorkerLeaseLostError", agent)
+        self.assertIn("lease_fence.wait(float(evidence_delay))", agent)
+        self.assertIn("the stale result was not reported", agent)
+        self.assertIn("job lease ownership changed", agent_tests)
+        self.assertIn(
+            "test_reclaimed_job_fences_the_previous_lease_result",
+            queue_tests,
+        )
+        self.assertIn(
+            "test_reclaimed_lease_rejects_the_previous_worker_result",
+            service_tests,
+        )
+        self.assertIn("job_lease_mismatch", queue)
+        for text in (status, backlog, workstreams, ledger, api):
+            self.assertIn("fenc", text.lower())
+        self.assertIn("job_lease_mismatch", api)
+        self.assertIn("job_lease_mismatch", openapi)
+        self.assertIn("断网远端进程", backlog)
+        self.assertIn("NOT RUN", ledger)
+
     def test_runtime_companion_continuity_is_reconciled(self):
         evidence = json.loads(
             (

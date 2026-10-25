@@ -60,7 +60,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。三个独立 Docker 容器对进一步让 central 与 worker-local runtime/QEMU 分属独立容器，terminal job、三哈希 evidence、QEMU reap、container/bridge cleanup 均 PASS。active-token multicast discovery、central control-plane restart、runtime Device Service restart、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已 PASS。下一步补 NAT/跨子网发现、物理跨主机迁移/reattach、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing + worker-local runtime stop 已 PASS。下一步补 NAT/跨子网发现、物理跨主机迁移/reattach、断网远端进程外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` 虚拟 PSRAM/周期联网 `3/3` 和单次 600 秒持续压力 `1/1` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时吞吐/并发、其他 teardown 模式和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -147,8 +147,10 @@
 1. 在现有 HTTPS/mTLS、HMAC executor、`SIGHUP` rotation、activity drain、
    bounded credential overlap、同主机 generation-pointer migration、
    active-token multicast discovery 和 worker-local QEMU 基础上补
-   NAT/跨子网 discovery、跨主机 QEMU job 和外部 side-effect fencing，
-   禁止旧 agent 覆盖新 generation。
+   NAT/跨子网 discovery、跨主机 QEMU job 和断网远端进程的外部 side-effect
+   fencing，禁止旧 agent 覆盖新 generation。Lease-level result fencing 与
+   worker 可达 runtime 的 stop-before-report 已实现；仍不能把网络隔离后的
+   远端 QEMU/companion 视为已停止。
 2. 实现跨 worker 容量调度、持久 evidence 存储、幂等重放和队列审计。
 3. trusted-host companion gate 已关闭；继续补 namespace-managed/Tab5/
    cross-host companion recovery 和连续外部 evidence 流。无法证明

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.31.0` and bounded
+Status: local MVP with unified-device runtime contract `1.32.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -256,6 +256,19 @@ cancel is terminal. These transitions are persisted across service restart.
 The terminal job result stores the originating `lease_id` and worker identity,
 so evidence can be tied back to the exact claim after the lease itself is
 closed.
+
+Lease ownership also fences stale side effects. After expiry, staleness,
+worker stop, generation replacement or operator recovery causes a job to be
+requeued, the next claim receives a new `lease_id`. Heartbeat or result
+requests using the previous lease return `409 job_lease_mismatch` and cannot
+overwrite the new claim. `WorkerAgent` treats a non-transient ownership error,
+or exhausted transient recovery for job heartbeat, as a local fence: it
+interrupts session readiness/evidence waits, stops its worker-local runtime
+session, writes a local `FAIL` result with `lease_fenced=true`, and does not
+report the stale result to the central queue. This fences the queue result and
+the worker-owned process it can still reach. It does not prove remote process
+termination on a physically disconnected host; cross-host external side-effect
+fencing remains open in `NET-04`.
 
 After a job is claimed, `WorkerAgent` retries transient control-plane network
 failures and HTTP 429/5xx for up to `--control-reconnect-timeout` (default 30

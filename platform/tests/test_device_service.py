@@ -5407,8 +5407,11 @@ class DeviceServiceHttpTests(unittest.TestCase):
             "/api/v1/jobs?status=completed&limit=10"
         )
         self.assertEqual(status, 200)
-        self.assertEqual(jobs["counts"]["completed"], 1)
-        self.assertEqual(jobs["jobs"][0]["job_id"], job_id)
+        self.assertGreaterEqual(jobs["counts"]["completed"], 1)
+        self.assertIn(
+            job_id,
+            {job["job_id"] for job in jobs["jobs"]},
+        )
         status, cancel_submit = self.request(
             "/api/v1/jobs",
             method="POST",
@@ -5496,6 +5499,129 @@ class DeviceServiceHttpTests(unittest.TestCase):
             error["error"]["code"],
             "worker_identity_mismatch",
         )
+
+    def test_reclaimed_lease_rejects_the_previous_worker_result(self):
+        worker_id = f"fence-{uuid.uuid4().hex[:12]}"
+        identity = {
+            "worker_id": worker_id,
+            "instance_id": "fence-instance",
+            "generation": 1,
+        }
+        status, _registered = self.request(
+            "/api/v1/workers",
+            method="POST",
+            data=json.dumps(
+                {
+                    **identity,
+                    "stale_after_seconds": 30,
+                    "capabilities": {"lease_fence": True},
+                    "active_lease_ids": [],
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        status, submitted = self.request(
+            "/api/v1/jobs",
+            method="POST",
+            data=json.dumps(
+                {
+                    "label": "lease-fence",
+                    "request": {"device_id": "sticks3"},
+                    "required_capabilities": {"lease_fence": True},
+                    "max_attempts": 2,
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 201)
+        job_id = submitted["job"]["job_id"]
+        status, first = self.request(
+            "/api/v1/jobs/claim",
+            method="POST",
+            data=json.dumps({**identity, "job_id": job_id}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        first_lease_id = first["job"]["lease"]["lease_id"]
+
+        self.assertEqual(
+            self.service.worker_queue.reconcile(
+                [
+                    {
+                        **identity,
+                        "state": "ready",
+                        "stale": True,
+                        "accepting_leases": False,
+                    }
+                ]
+            )["released_jobs"],
+            1,
+        )
+        status, second = self.request(
+            "/api/v1/jobs/claim",
+            method="POST",
+            data=json.dumps({**identity, "job_id": job_id}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        second_lease_id = second["job"]["lease"]["lease_id"]
+        self.assertNotEqual(first_lease_id, second_lease_id)
+
+        stale_result = Request(
+            self.base + f"/api/v1/jobs/{job_id}/result",
+            method="POST",
+            data=json.dumps(
+                {
+                    **identity,
+                    "lease_id": first_lease_id,
+                    "state": "PASS",
+                    "summary": {"stale": True},
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(stale_result, timeout=5)
+        self.assertEqual(caught.exception.code, 409)
+        error = json.loads(caught.exception.read())
+        self.assertEqual(
+            error["error"]["code"],
+            "job_lease_mismatch",
+        )
+        still_leased = self.service.worker_queue.get_job(job_id)
+        self.assertEqual(still_leased["status"], "leased")
+        self.assertEqual(
+            still_leased["lease"]["lease_id"],
+            second_lease_id,
+        )
+
+        status, completed = self.request(
+            f"/api/v1/jobs/{job_id}/result",
+            method="POST",
+            data=json.dumps(
+                {
+                    **identity,
+                    "lease_id": second_lease_id,
+                    "state": "PASS",
+                    "summary": {"attempt": 2},
+                }
+            ).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(completed["job"]["status"], "completed")
+        self.assertEqual(
+            completed["job"]["result"]["lease_id"],
+            second_lease_id,
+        )
+        status, _stopped = self.request(
+            f"/api/v1/workers/{worker_id}/stop",
+            method="POST",
+            data=json.dumps(identity).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        self.assertEqual(status, 200)
 
     def test_storage_stats_and_manual_prune(self):
         status, storage = self.request("/api/v1/storage")

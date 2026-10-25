@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.31.0
+  version: 1.32.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -13,6 +13,12 @@ info:
     job queue stores idempotent requests, capability requirements, worker
     leases, retries and terminal results. It is a pull-based queue and
     supervisor, not an executor or active-process re-attach mechanism.
+    Re-claimed jobs receive a new lease ID; heartbeat or result requests from
+    a superseded lease are rejected with 409 job_lease_mismatch. WorkerAgent
+    treats ownership loss as a local fence, stops its worker-local runtime
+    session, and does not report the stale terminal result. This does not
+    prove termination of a disconnected remote process or physical side
+    effects.
     The worker agent retries transient control-plane failures, re-registers
     idempotently after a control-plane restart and reports the original lease
     while the worker-local runtime remains active.
@@ -2783,6 +2789,10 @@ components:
         - $ref: "#/components/schemas/WorkerJobLeaseRequest"
         - type: object
           required: [state]
+          description: >
+            The request must use the current claim's lease_id. A superseded
+            lease is rejected with 409 job_lease_mismatch and cannot overwrite
+            the newer claim's result.
           properties:
             state:
               type: string

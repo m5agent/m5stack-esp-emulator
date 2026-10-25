@@ -89,9 +89,11 @@
 6. 外部结论使用完整 commit SHA 的 work-record permalink，并标明
    `virtual-device validation` 或 `hardware validation`。
 
-Worker 工作流把 generation、durable lease、credential rotation 和
-generation-pointer migration 视为同一状态机边界；旧 agent 不得覆盖新
-generation 的外部 side effect。
+Worker 工作流把 generation、durable lease、credential rotation、
+generation-pointer migration 和 lease ownership fence 视为同一状态机边界。
+队列以新 `lease_id` 拒绝旧 claim 的 heartbeat/result；WorkerAgent 在所有权
+丢失或恢复超时后停止可达的 worker-local runtime 并拒绝上报 stale result。
+断网远端进程和物理跨主机外部 side effect 仍不能由该单机证明。
 
 `NET-05` 已从 Backlog 关闭：exact IPv4/IPv6 endpoint、双栈
 veth/route/NAT、IPv6 neighbor control 和清理已在 Linux virtual-network

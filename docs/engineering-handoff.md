@@ -71,7 +71,7 @@
 | --- | --- | --- | --- |
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric | `PILOT` | 物理跨主机、NAT/跨子网、任意公网解析 |
-| Worker 与恢复 | durable queue、HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度和外部 side-effect fencing |
+| Worker 与恢复 | durable queue、lease ownership fence、HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度和断网远端进程外部 side-effect fencing |
 | Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、虚拟 PSRAM 压力 | `PILOT` | 物理 cache/PSRAM、bit-exact controller、长时并发 |
 | 通用固件审查 | Manifest/WebBurner、capability/security、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
@@ -182,7 +182,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `NET-04` | 物理跨主机 executor/reattach、NAT/跨子网 discovery、跨主机幂等和 side-effect fencing | 跨容器 PASS 共享一个 Docker daemon，不能替代物理主机 |
+| `NET-04` | 物理跨主机 executor/reattach、NAT/跨子网 discovery、跨主机幂等和断网远端进程 side-effect fencing | lease/re-claim 与 worker-local runtime stop 已 fencing；跨容器 PASS 仍共享一个 Docker daemon，不能替代物理主机 |
 | `CORE2-02` | bit-exact controller/baseband、物理 PSRAM/cache timing、长时并发和其他 teardown | 功能级虚拟证据不能证明物理等价 |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据 |

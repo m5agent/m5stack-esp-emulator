@@ -47,7 +47,7 @@
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。三个独立 Docker 容器对进一步让 central 与 worker-local runtime/QEMU 分属独立容器，terminal job、三哈希 evidence、QEMU reap、container/bridge cleanup 均 PASS。active-token multicast discovery、central control-plane restart、runtime Device Service restart、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已 PASS。下一步补 NAT/跨子网发现、物理跨主机迁移/reattach、namespace-managed/Tab5/cross-host companion 和生产调度 |
+| `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing + worker-local runtime stop 已 PASS。下一步补 NAT/跨子网发现、物理跨主机迁移/reattach、断网远端进程外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` 虚拟 PSRAM/周期联网 `3/3` 和单次 600 秒持续压力 `1/1` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
@@ -65,7 +65,7 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`38` 个 Python 模块，`32118` 行；规模最大的模块如下。
+- `platform/tools`：`38` 个 Python 模块，`32179` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
@@ -78,11 +78,11 @@
 
 - `tests/`：`62` 个可执行 Python 测试文件，分布在 `44` 个目录；`150` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`54` 个 patch 文件。
-- 文档：`198` 个 Markdown 页面，`17411` 行。
+- 文档：`198` 个 Markdown 页面，`17442` 行。
 
 ## 文档与测试
 
-- 平台测试：`429` 项。
+- 平台测试：`433` 项。
 - Docs 新鲜度登记：`33` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 
