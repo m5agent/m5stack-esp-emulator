@@ -70,6 +70,40 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 
 JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名。
 
+## WebBurner 分段完整性
+
+WebBurner `parts[]` 可在原有 `path`/`offset` 之外提供：
+
+- `size`；
+- `sha256`；
+- `sha1`；
+- `md5`；
+- 或把这些字段放入 `integrity` 对象。
+
+导入器会在组合 Flash 前用文件流重新计算每个声明值。以下情况直接拒绝：
+
+- 声明 size 与实际文件大小不一致；
+- digest 长度/字符非法或不匹配；
+- 顶层声明与 `integrity` 中的同一算法值冲突；
+- `integrity` 包含未知字段。
+
+成功时，manifest segment 只记录：
+
+```json
+{
+  "declared_integrity": {
+    "status": "verified",
+    "algorithms": ["size", "sha256", "sha1", "md5"],
+    "weak_digest": true
+  }
+}
+```
+
+SHA-1/MD5 只用于兼容包格式和检测意外损坏，`weak_digest=true` 明确提示其
+不适合作为发布者认证。该检查不验证数字签名、证书、发布者身份、安全启动或
+Flash Encryption 执行。当前 evidence：
+[`webburner-part-integrity.json`](../tests/firmware/evidence-2026-10-25-webburner-part-integrity.json)。
+
 ## 安全证据分层
 
 `security.secure_boot` 和 `security.flash_encryption` 表示当前可取得的最高优先级

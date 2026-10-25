@@ -56,6 +56,15 @@ The real WebBurner result layout is captured in
 it shows sdkconfig capabilities, image observations, scan coverage and warning
 codes separately.
 
+WebBurner `parts[]` may declare `size`, SHA-256, SHA-1, MD5 or an equivalent
+`integrity` object. The importer recomputes each declaration and rejects
+mismatches, malformed digests, conflicting duplicate declarations and unknown
+integrity fields before composition. Successful segments record only the
+verified algorithm names and a weak-digest flag. This detects accidental
+corruption; it is not a publisher signature, source-authenticity proof,
+secure-boot execution or hardware result:
+[`evidence-2026-10-25-webburner-part-integrity.json`](evidence-2026-10-25-webburner-part-integrity.json).
+
 Security-evidence conflicts have a separate static regression:
 [`evidence-2026-10-25-security-evidence-conflicts.json`](evidence-2026-10-25-security-evidence-conflicts.json).
 It covers config/eFuse disagreement, secure-boot mode mismatch and missing key

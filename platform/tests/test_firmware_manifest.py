@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import tempfile
@@ -57,6 +58,12 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertIn("detected", capability_properties)
         self.assertIn("observed", capability_properties)
         self.assertIn("observation", capability_properties)
+        segment_properties = (
+            schema["properties"]["artifact"]["properties"]["segments"]["items"][
+                "properties"
+            ]
+        )
+        self.assertIn("declared_integrity", segment_properties)
 
     def test_license_policy_accepts_allowlisted_declarations(self):
         policy = evaluate_license_policy(
@@ -452,6 +459,18 @@ class FirmwareManifestTests(unittest.TestCase):
                                     {
                                         "path": name,
                                         "offset": offsets[name],
+                                        "size": len(parts[name]),
+                                        "sha256": hashlib.sha256(
+                                            parts[name]
+                                        ).hexdigest(),
+                                        "sha1": hashlib.sha1(
+                                            parts[name],
+                                            usedforsecurity=False,
+                                        ).hexdigest(),
+                                        "md5": hashlib.md5(
+                                            parts[name],
+                                            usedforsecurity=False,
+                                        ).hexdigest(),
                                     }
                                     for name in parts
                                 ],
@@ -477,7 +496,88 @@ class FirmwareManifestTests(unittest.TestCase):
                 self.assertTrue(
                     (root / "out" / segment["file"]).is_file()
                 )
+                self.assertEqual(
+                    segment["declared_integrity"],
+                    {
+                        "status": "verified",
+                        "algorithms": [
+                            "size",
+                            "sha256",
+                            "sha1",
+                            "md5",
+                        ],
+                        "weak_digest": True,
+                    },
+                )
             self.assertEqual(manifest["validation"]["status"], "PASS")
+            self.assertEqual(validate_manifest_structure(manifest), [])
+            tampered = json.loads(json.dumps(manifest))
+            tampered["artifact"]["segments"][0]["declared_integrity"][
+                "status"
+            ] = "unverified"
+            self.assertIn(
+                "declared_integrity is invalid",
+                "\n".join(validate_manifest_structure(tampered)),
+            )
+
+    def test_webburner_part_integrity_mismatch_is_rejected(self):
+        image = build_flash()
+        digest = hashlib.sha256(image).hexdigest()
+        cases = (
+            (
+                "sha256",
+                {"sha256": "0" * 64},
+                "sha256 mismatch",
+            ),
+            (
+                "size",
+                {"size": len(image) + 1},
+                "size mismatch",
+            ),
+            (
+                "invalid",
+                {"sha256": "not-a-digest"},
+                "invalid sha256",
+            ),
+            (
+                "conflict",
+                {
+                    "sha256": digest,
+                    "integrity": {"sha256": "0" * 64},
+                },
+                "conflicting sha256",
+            ),
+        )
+        for label, declared, expected in cases:
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                (root / "firmware.bin").write_bytes(image)
+                part = {
+                    "path": "firmware.bin",
+                    "offset": 0,
+                    **declared,
+                }
+                (root / "manifest.json").write_text(
+                    json.dumps(
+                        {
+                            "name": "Integrity Probe",
+                            "version": "1.0.0",
+                            "builds": [
+                                {
+                                    "chipFamily": "ESP32-S3",
+                                    "parts": [part],
+                                }
+                            ],
+                        }
+                    )
+                )
+                with self.assertRaisesRegex(ManifestError, expected):
+                    import_package(
+                        root,
+                        root / "out",
+                        device_id="sticks3",
+                        flash_size=8 << 20,
+                    )
 
     def test_imports_flasher_args_package(self):
         with tempfile.TemporaryDirectory() as tmp:

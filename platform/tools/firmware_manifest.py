@@ -321,12 +321,16 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
+def file_digest(path: Path, algorithm: str) -> str:
+    digest = hashlib.new(algorithm, usedforsecurity=False)
     with path.open("rb") as source:
         while chunk := source.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    return file_digest(path, "sha256")
 
 
 def canonical_json_sha256(value: Any) -> str:
@@ -622,6 +626,100 @@ def _resolve_package_file(root: Path, value: Any) -> Path:
     return candidate
 
 
+def _web_part_integrity(
+    source: Path,
+    index: int,
+    part: dict,
+) -> dict | None:
+    declared: dict[str, Any] = {}
+    for field in ("size", "sha256", "sha1", "md5"):
+        if field in part:
+            declared[field] = part[field]
+    integrity = part.get("integrity")
+    if integrity is not None:
+        if not isinstance(integrity, dict):
+            raise ManifestError(
+                f"WebBurner part {index} integrity must be an object"
+            )
+        unsupported = sorted(
+            set(integrity) - {"size", "sha256", "sha1", "md5"}
+        )
+        if unsupported:
+            raise ManifestError(
+                f"WebBurner part {index} has unsupported integrity fields: "
+                + ", ".join(unsupported)
+            )
+        for field, value in integrity.items():
+            if field in declared and declared[field] != value:
+                raise ManifestError(
+                    f"WebBurner part {index} has conflicting {field} values"
+                )
+            declared[field] = value
+    if not declared:
+        return None
+
+    verified: list[str] = []
+    if "size" in declared:
+        raw_size = declared["size"]
+        try:
+            expected_size = (
+                raw_size
+                if isinstance(raw_size, int)
+                and not isinstance(raw_size, bool)
+                else int(str(raw_size), 0)
+            )
+        except (TypeError, ValueError) as error:
+            raise ManifestError(
+                f"WebBurner part {index} has invalid size"
+            ) from error
+        if expected_size < 0:
+            raise ManifestError(
+                f"WebBurner part {index} has negative size"
+            )
+        actual_size = source.stat().st_size
+        if actual_size != expected_size:
+            raise ManifestError(
+                f"WebBurner part {index} size mismatch: "
+                f"declared {expected_size}, actual {actual_size}"
+            )
+        verified.append("size")
+
+    for algorithm in ("sha256", "sha1", "md5"):
+        if algorithm not in declared:
+            continue
+        raw_digest = declared[algorithm]
+        if not isinstance(raw_digest, str):
+            raise ManifestError(
+                f"WebBurner part {index} {algorithm} must be a string"
+            )
+        expected_digest = raw_digest.strip().lower()
+        expected_length = hashlib.new(algorithm).digest_size * 2
+        if (
+            len(expected_digest) != expected_length
+            or any(
+                char not in "0123456789abcdef"
+                for char in expected_digest
+            )
+        ):
+            raise ManifestError(
+                f"WebBurner part {index} has invalid {algorithm}"
+            )
+        actual_digest = file_digest(source, algorithm)
+        if actual_digest != expected_digest:
+            raise ManifestError(
+                f"WebBurner part {index} {algorithm} mismatch"
+            )
+        verified.append(algorithm)
+
+    return {
+        "status": "verified",
+        "algorithms": verified,
+        "weak_digest": any(
+            algorithm in {"sha1", "md5"} for algorithm in verified
+        ),
+    }
+
+
 def _segments_from_web_manifest(
     root: Path,
     document: dict,
@@ -661,13 +759,15 @@ def _segments_from_web_manifest(
         if offset < 0:
             raise ManifestError(f"WebBurner part {index} has negative offset")
         source = _resolve_package_file(root, part.get("path"))
-        segments.append(
-            {
-                "offset": offset,
-                "path": source,
-                **resource(source, root=root),
-            }
-        )
+        segment = {
+            "offset": offset,
+            "path": source,
+            **resource(source, root=root),
+        }
+        integrity = _web_part_integrity(source, index, part)
+        if integrity is not None:
+            segment["declared_integrity"] = integrity
+        segments.append(segment)
     return segments, {
         "source_format": "web-manifest",
         "name": name,
@@ -1786,6 +1886,15 @@ def import_package(
                         "size": segment_path.stat().st_size,
                         "sha256": sha256_file(segment_path),
                         "artifact_id": row["sha256"],
+                        **(
+                            {
+                                "declared_integrity": row[
+                                    "declared_integrity"
+                                ],
+                            }
+                            if "declared_integrity" in row
+                            else {}
+                        ),
                     }
                 )
             artifact["segments"] = normalized_segments
@@ -2185,6 +2294,65 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
             or any(char not in "0123456789abcdef" for char in digest)
         ):
             errors.append("manifest.artifact.sha256 is invalid")
+        segments = artifact.get("segments")
+        if segments is not None:
+            if not isinstance(segments, list) or not segments:
+                errors.append(
+                    "manifest.artifact.segments must be a non-empty array"
+                )
+            else:
+                for index, segment in enumerate(segments):
+                    prefix = f"manifest.artifact.segments[{index}]"
+                    if not isinstance(segment, dict):
+                        errors.append(f"{prefix} must be an object")
+                        continue
+                    if (
+                        not isinstance(segment.get("offset"), int)
+                        or segment.get("offset", -1) < 0
+                    ):
+                        errors.append(f"{prefix}.offset is invalid")
+                    if not isinstance(segment.get("file"), str):
+                        errors.append(f"{prefix}.file is required")
+                    if (
+                        not isinstance(segment.get("size"), int)
+                        or segment.get("size", 0) <= 0
+                    ):
+                        errors.append(f"{prefix}.size must be positive")
+                    segment_digest = segment.get("sha256")
+                    if (
+                        not isinstance(segment_digest, str)
+                        or len(segment_digest) != 64
+                        or any(
+                            char not in "0123456789abcdef"
+                            for char in segment_digest
+                        )
+                    ):
+                        errors.append(f"{prefix}.sha256 is invalid")
+                    declared_integrity = segment.get("declared_integrity")
+                    if declared_integrity is None:
+                        continue
+                    if (
+                        not isinstance(declared_integrity, dict)
+                        or set(declared_integrity)
+                        != {"status", "algorithms", "weak_digest"}
+                        or declared_integrity.get("status") != "verified"
+                        or not isinstance(
+                            declared_integrity.get("algorithms"),
+                            list,
+                        )
+                        or not declared_integrity.get("algorithms")
+                        or set(declared_integrity.get("algorithms", []))
+                        - {"size", "sha256", "sha1", "md5"}
+                        or len(set(declared_integrity.get("algorithms", [])))
+                        != len(declared_integrity.get("algorithms", []))
+                        or not isinstance(
+                            declared_integrity.get("weak_digest"),
+                            bool,
+                        )
+                    ):
+                        errors.append(
+                            f"{prefix}.declared_integrity is invalid"
+                        )
     target = manifest.get("target")
     if not isinstance(target, dict):
         errors.append("manifest.target must be an object")

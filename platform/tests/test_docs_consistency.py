@@ -3977,6 +3977,40 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertTrue(all(radio_detection["checks"].values()))
         self.assertIn("CONFIG_BT_CLASSIC_ENABLED", manifest_code)
         self.assertIn("CONFIG_ZB_ENABLED", manifest_code)
+        self.assertIn("_web_part_integrity", manifest_code)
+        manifest_schema = json.loads(
+            (
+                ROOT / "platform/tools/firmware_manifest.schema.json"
+            ).read_text()
+        )
+        self.assertIn(
+            "declared_integrity",
+            manifest_schema["properties"]["artifact"]["properties"]["segments"][
+                "items"
+            ]["properties"],
+        )
+        integrity = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-webburner-part-integrity.json"
+            ).read_text()
+        )
+        self.assertEqual(integrity["status"], "PASS")
+        self.assertTrue(all(integrity["checks"].values()))
+        self.assertEqual(integrity["positive"]["verified_segments"], 3)
+        self.assertEqual(
+            integrity["positive"]["declared_integrity"]["algorithms"],
+            ["size", "sha256", "sha1", "md5"],
+        )
+        self.assertIn(
+            "source authenticity or publisher identity",
+            integrity["not_claimed"],
+        )
+        self.assertIn(
+            "## WebBurner 分段完整性",
+            manifest_doc,
+        )
 
     def test_core2_guest_psram_stress_is_reconciled(self) -> None:
         evidence_path = (

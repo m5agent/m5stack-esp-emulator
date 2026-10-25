@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "kind": "webburner-part-integrity",
+  "date": "2026-10-25",
+  "generated_at": "2026-10-25T01:37:25.465764+00:00",
+  "status": "PASS",
+  "validation": "static-manifest validation",
+  "device_id": "sticks3",
+  "input": {
+    "synthetic_image_bytes": 73728,
+    "synthetic_image_sha256": "32464a772a4fbf184cc7088259fa2d0f83b458fba1b695601579e0347871ce51",
+    "synthetic_image_md5": "47fd57a3baf7f54753f1ffd324ba5207"
+  },
+  "positive": {
+    "status": "PASS",
+    "segments": 3,
+    "verified_segments": 3,
+    "declared_integrity": {
+      "status": "verified",
+      "algorithms": [
+        "size",
+        "sha256",
+        "sha1",
+        "md5"
+      ],
+      "weak_digest": true
+    }
+  },
+  "negative_cases": [
+    {
+      "label": "sha256-mismatch",
+      "status": "REJECTED",
+      "error_type": "ManifestError",
+      "expected_error": "sha256 mismatch",
+      "error_match": true,
+      "error": "WebBurner part 0 sha256 mismatch"
+    },
+    {
+      "label": "size-mismatch",
+      "status": "REJECTED",
+      "error_type": "ManifestError",
+      "expected_error": "size mismatch",
+      "error_match": true,
+      "error": "WebBurner part 0 size mismatch: declared 73729, actual 73728"
+    },
+    {
+      "label": "invalid-sha256",
+      "status": "REJECTED",
+      "error_type": "ManifestError",
+      "expected_error": "invalid sha256",
+      "error_match": true,
+      "error": "WebBurner part 0 has invalid sha256"
+    },
+    {
+      "label": "conflicting-sha256",
+      "status": "REJECTED",
+      "error_type": "ManifestError",
+      "expected_error": "conflicting sha256",
+      "error_match": true,
+      "error": "WebBurner part 0 has conflicting sha256 values"
+    }
+  ],
+  "checks": {
+    "valid_declarations_import": true,
+    "declared_integrity_recorded": true,
+    "sha256_mismatch_rejected": true,
+    "size_mismatch_rejected": true,
+    "invalid_digest_rejected": true,
+    "conflicting_declarations_rejected": true
+  },
+  "not_claimed": [
+    "source authenticity or publisher identity",
+    "cryptographic signature verification",
+    "boot, runtime behavior or network access",
+    "secure boot or Flash Encryption execution",
+    "physical hardware validation"
+  ]
+}
