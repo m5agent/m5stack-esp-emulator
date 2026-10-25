@@ -12,57 +12,34 @@ MicroPython 和其他完整 Flash 固件。
 
 ## 当前状态
 
-- 设备后端覆盖 ESP32-S3、ESP32-C6、ESP32 LX6、ESP32-P4 和独立 ARM64
-  Linux；CardputerZero 不属于 ESP32/UIFlow2 路径。
-- S3/C6/Core2 的规范整机路径是 `qemu-unified`
-  （`runtime=qemu-unified`）：同一 lease、同一 guest 内执行板级外设、
-  WiFi、BLE、网络和 evidence，`qemu-ble` 仅保留兼容。
-  Core2 新调用使用 `profile=core2-native-hci`，GDB
-  `core2-native-vhci` 只用于诊断。
-- Device Service 在 `127.0.0.1:8787` 提供 lease、烧录、串口、画面、输入、
-  QOM、worker job、网络故障、pcap 和 evidence API；普通 Agent 功能测试统一走
-  `/api/v1`。
-- 网络侧已落地受控 DNS/CNAME、有界 IPv4/IPv6 CIDR egress、WPA2-PSK 正误密码、
-  断线重连、双 guest lab fabric、multicast/unicast-seed discovery 和 pcap。
-  这些是虚拟网络数据面验证，不是 RF/PHY 或恶意固件 VM 沙箱。
-- Worker 侧已落地 durable queue、HMAC、HTTPS/mTLS、轮换、重启恢复、
-  control/runtime 分离和跨容器 QEMU。最新真实 namespace 验证中，断网会
-  fence worker-local `qemu-unified` 的 QEMU、HTTP fixture、BLE peer 和
-  pcap writer，并由新 attempt 重启；QEMU 内 guest/device-controller、
-  worker 未拥有的外部 side effect 和物理跨主机仍未验证。
-- Core2 已有 native-HCI 功能验证、3×121 轮重连、两小时 active-BLE 保持、
-  8 MiB PSRAM QOM/upper-bank MMU 和持续 guest 压力证据；物理 PSRAM/cache、
-  bit-exact BT baseband/controller 仍为 `NOT RUN`。两个 native-HCI lease
-  在 30 秒启动错峰后已同时保持 120 秒并各自完成 WiFi、公网、BLE、PSRAM
-  和 evidence。无错峰冷启动在 `0007` valid-queue gate 后继续修复了 HLI
-  对象分配时序：`0008` 在 CPU idle 时预分配真实 guest HCI event/ACL mbuf，
-  CPU 繁忙时直接填充并投递。两批独立 `4×120s`、合计 `8/8` lease PASS，
-  每轮 HLI `45/45`、`hli-errors=0`、无 scheduler reset 或 panic；trace
-  记录的 ACK event 延迟从约 `3.660s` 降至 `0.328s`。并发继续扩展到两批
-  三实例 `3×120s`，合计 `6/6 PASS`；三个 QEMU、BLE peer、HTTP fixture、
-  WiFi/公网/GATT、PSRAM、frame/QOM/pcap/evidence 同时成立。四实例
-  `4×120s` 首批已实际执行但为 `1 PASS / 3 FAIL`：一个 lease 出现
-  `hli-errors=1`，另外两个在 READY 前于 NimBLE
-  `ble_hs_hci_process_ack` 反复 `LoadProhibited`。失败证据保留后，
-  `0009` 把真实 guest event/ACL 备用对象从 `2/2` 扩到 `8/4`，覆盖并发
-  启动的 Command Complete burst；两批独立四实例 `4×120s` 随后各 `4/4
-  PASS`，合计 `8/8`。四个 lease 都以 `8/4` spare depth 结束，HLI
-  `45/45`、36 events/9 ACLs、errors/reset/panic 为 0；其中一个 lease
-  记录过 2 次可恢复的 refill failure。已通过范围现在包括双实例、三实例和
-  四实例 `virtual-device` workload，五实例及更多仍未运行。
-- 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented Flash、
-  WebBurner/M5Burner、文件系统/NVS/SD fixture、静态审查和 capability
-  mismatch；`qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first
-  固件提供最小执行路径。Secure Boot v2 已能做 signature sector、RSA-PSS/
-  ECDSA 数学验证、包内 `SECURE_BOOT_DIGEST` 摘要对照和
-  `secure_version` anti-rollback 对照，但 eFuse summary 仍是自报证据；
-  live trust root、生产 key、运行态 ACL/许可和完整云端业务尚未闭环。
-- 所有 QEMU/esp-emu 结论只标记为 `virtual-device validation`；物理 RF、功耗、
-  声学、光学、机械、电气和真机安全配置必须由同实现路径的硬件证据单独证明。
+- 后端覆盖 ESP32-S3、ESP32-C6、ESP32 LX6、ESP32-P4 和独立 Linux ARM64。
+  S3/C6/Core2 的规范整机路径是 `qemu-unified`
+  （`runtime=qemu-unified`）：同一 lease、同一 guest 内执行板级、WiFi、
+  BLE 和 evidence。Core2 使用
+  `profile=core2-native-hci`；GDB VHCI 仅用于诊断。
+- Device Service 提供 lease、虚拟烧录、串口、frame/input/QOM、worker job、
+  网络故障、pcap 和 evidence；普通 Agent 功能测试统一走 `/api/v1`，并在
+  Live sessions 中保留可观察历史。
+- 网络路径已有 controlled DNS/CNAME、有界 IPv4/IPv6 egress、WPA2 正误
+  密码、断线恢复、双 guest fabric 和 pcap。Worker 路径已有 durable queue、
+  HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、
+  control/runtime 分离、跨容器 QEMU 和 partition fence。
+- Core2 已通过 native-HCI、121 轮重连、长稳、active-stop、8 MiB PSRAM QOM
+  和最多四实例并发 virtual-device 门禁；四实例原始失败保留，修复证据也
+  保留。五实例及更多、物理 PSRAM/cache timing、bit-exact BT controller 和
+  真机仍未完成。
+- 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
+  WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
+  `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件
+  提供最小执行路径。
+  Secure Boot v2 已有镜像数学与包内摘要对照；live trust root、生产 key、
+  运行态 ACL/许可和完整云端业务仍未闭环。
+- 所有 QEMU/esp-emu 结论只标记为 `virtual-device validation`。物理 RF、
+  功耗、声学、光学、机械、电气和真机安全配置必须由同路径硬件证据单独证明。
 
-需要具体计数、设备状态和最新验证边界时，先读
+具体计数、逐次运行和最新边界请先读
 [工程交接总览](docs/engineering-handoff.md)，再读
-[自动项目快照](docs/project-snapshot.md)，再读
+[自动项目快照](docs/project-snapshot.md) 和
 [项目当前状态](docs/project-status.md)；README 不复制会随提交变化的结果。
 按工作流查看工作归属见[工作流总台账](docs/workstreams.md)，代码入口见
 [代码与验证入口地图](docs/code-map.md)，带日期的 evidence 见

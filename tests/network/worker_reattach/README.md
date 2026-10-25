@@ -1,6 +1,6 @@
 # Local QEMU restart re-attach
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This contract slice implements `SVC-01` local control-plane recovery for a
 QEMU process that survives a Device Service restart.
@@ -46,7 +46,8 @@ checks, and stopping the session terminated QEMU.
 
 ## Boundaries
 
-Only the local QEMU/QMP control plane is re-attached. Companion HTTP/BLE
-helpers, evidence-stream continuity, Tab5 and separate network lanes,
-cross-host processes and multi-host scheduling are `NOT RUN`. The result is
+This fixture only re-attaches the local QEMU/QMP control plane. A separate
+runtime-restart fixture now covers trusted-host HTTP/BLE companion continuity;
+namespace-managed and Tab5 companions, continuous evidence streaming,
+cross-host processes and multi-host scheduling remain `NOT RUN`. The result is
 virtual-device infrastructure evidence, not hardware validation.

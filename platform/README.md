@@ -190,7 +190,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `tools/pcap_summary.py` | pcap 元数据和 payload hash 摘要 |
 | `tools/ble_probe.py` | 外部 BLE controller/peer 与 GATT 验证；支持同一 peer process 多轮 disconnect/reconnect |
 | `tools/storage_policy.py` | 历史、Flash 和缓存回收策略 |
-| `tools/project_snapshot.py` | 从 catalog、profile、peripheral、firmware evidence 和 Backlog 生成并校验项目快照 |
+| `tools/project_snapshot.py` | 从 catalog、profile、peripheral、firmware evidence、Backlog 和全量 Markdown 清单生成并校验项目快照；区分权威页与委派文档 |
 | `../tests/network/tls_allowlist/` | 测试 CA、HTTPS Host allowlist、200/403、pcap 断言和 AES/GDMA 回归证据 |
 | `../tests/network/dns_cname_chain/` | Controlled resolver 的 bounded CNAME chain、A/AAAA/CNAME encoding、NXDOMAIN 和非法图拒绝 |
 | `../tests/network/cname_guest_lifecycle/` | 同 guest CNAME→terminal A→HTTP、denied name/port、pcap、namespace cleanup 和三次独立 lease 复现 |

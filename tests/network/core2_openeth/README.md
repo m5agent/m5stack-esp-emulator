@@ -1,6 +1,6 @@
 # Core2 QEMU OpenETH probe
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This fixture proves the classic ESP32 QEMU path can exchange real Ethernet
 frames through the Espressif `open_eth` device, obtain DHCP through libslirp,

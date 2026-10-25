@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import unittest
 from collections import Counter
@@ -40,7 +41,19 @@ def platform_test_count() -> int:
     return suite.countTestCases()
 
 
-def code_inventory() -> dict:
+def document_paths() -> list[Path]:
+    return sorted(
+        path
+        for path in ROOT.rglob("*.md")
+        if not any(
+            part.startswith(".")
+            or part in {"node_modules", "upstream"}
+            for part in path.relative_to(ROOT).parts
+        )
+    )
+
+
+def code_inventory(documents: list[Path]) -> dict:
     tool_files = sorted((ROOT / "platform/tools").glob("*.py"))
     tool_sizes = [
         (path.name, len(path.read_text(errors="replace").splitlines()))
@@ -59,17 +72,9 @@ def code_inventory() -> dict:
     evidence_files = sorted(
         (ROOT / "tests").rglob("evidence-*.json")
     )
-    document_paths = [
-        ROOT / "README.md",
-        ROOT / "AGENTS.md",
-        *sorted((ROOT / "docs").rglob("*.md")),
-        *sorted((ROOT / "tests").rglob("README.md")),
-        *sorted((ROOT / "patches").rglob("README.md")),
-        *sorted((ROOT / "devices").rglob("README*.md")),
-    ]
     document_lines = sum(
         len(path.read_text(errors="replace").splitlines())
-        for path in document_paths
+        for path in documents
     )
     return {
         "tool_modules": len(tool_files),
@@ -85,7 +90,7 @@ def code_inventory() -> dict:
         "evidence_files": len(evidence_files),
         "patch_groups": len(patch_groups),
         "patch_files": len(patch_files),
-        "documented_markdown_files": len(document_paths),
+        "documented_markdown_files": len(documents),
         "documented_markdown_lines": document_lines,
     }
 
@@ -210,6 +215,88 @@ def summarize_documents(
     }
 
 
+def document_date(path: Path) -> str:
+    head = "\n".join(path.read_text(errors="replace").splitlines()[:20])
+    match = re.search(
+        r"(?:Last reviewed|最近核对|日期)[:：]\s*`?(\d{4}-\d{2}-\d{2})",
+        head,
+    )
+    return match.group(1) if match else "unknown"
+
+
+def summarize_document_coverage(
+    paths: list[Path],
+    documents: list[dict[str, str]],
+    source_date: str,
+) -> dict:
+    registered = {row["page"] for row in documents}
+    historical = {
+        row["page"] for row in documents if "历史" in row["role"]
+    }
+    category_counts: Counter[str] = Counter()
+    dated_pages = []
+    older_delegated = []
+    for path in paths:
+        relative = path.relative_to(ROOT).as_posix()
+        if relative in {"README.md", "AGENTS.md", "THIRD_PARTY_NOTICES.md"}:
+            category = "governance"
+        elif relative == "docs/README.md":
+            category = "navigation"
+        elif relative.startswith("docs/") and relative[5:] in registered:
+            category = "authority"
+        elif relative.startswith("docs/"):
+            category = "unregistered_docs"
+        elif relative.startswith("devices/"):
+            category = "device"
+        elif relative.startswith("tests/"):
+            category = "test"
+        elif relative.startswith("patches/"):
+            category = "patch"
+        elif "/vendor/" in relative:
+            category = "vendor"
+        elif relative.startswith("platform/"):
+            category = "platform"
+        elif relative.startswith("examples/"):
+            category = "example"
+        elif relative.startswith("records/"):
+            category = "record"
+        else:
+            category = "other"
+        category_counts[category] += 1
+
+        reviewed = document_date(path)
+        if reviewed != "unknown":
+            dated_pages.append(
+                {
+                    "page": relative,
+                    "category": category,
+                    "reviewed": reviewed,
+                }
+            )
+        if (
+            category not in {"authority", "record"}
+            and relative not in {f"docs/{page}" for page in historical}
+            and reviewed != "unknown"
+            and reviewed < source_date
+        ):
+            older_delegated.append(
+                {
+                    "page": relative,
+                    "category": category,
+                    "reviewed": reviewed,
+                }
+            )
+    return {
+        "total": len(paths),
+        "categories": dict(sorted(category_counts.items())),
+        "dated": len(dated_pages),
+        "older_delegated": sorted(
+            older_delegated,
+            key=lambda row: (row["reviewed"], row["page"]),
+        ),
+    }
+
+
 def peripheral_state(entry: dict) -> str:
     if entry.get("peripheral_status"):
         return entry["peripheral_status"]
@@ -281,6 +368,7 @@ def collect() -> dict:
         for device in profile_devices
     )
     documents = parse_document_rows()
+    all_documents = document_paths()
     return {
         "source_date": source["generated_at"],
         "latest_evidence_date": latest_evidence_date(),
@@ -297,8 +385,13 @@ def collect() -> dict:
         "document_audit": summarize_documents(
             documents, source["generated_at"]
         ),
+        "document_coverage": summarize_document_coverage(
+            all_documents,
+            documents,
+            source["generated_at"],
+        ),
         "platform_tests": platform_test_count(),
-        "code_inventory": code_inventory(),
+        "code_inventory": code_inventory(all_documents),
     }
 
 
@@ -450,6 +543,33 @@ def render_markdown(snapshot: dict) -> str:
         )
         + "。"
     )
+    coverage_labels = {
+        "authority": "权威/专题页",
+        "device": "设备档案",
+        "example": "示例",
+        "governance": "治理/入口",
+        "navigation": "文档导航",
+        "other": "其他",
+        "patch": "补丁说明",
+        "platform": "平台说明",
+        "record": "仓内历史记录",
+        "test": "测试/用例说明",
+        "unregistered_docs": "未登记 docs 页面",
+        "vendor": "第三方来源说明",
+    }
+    lines.append(
+        (
+            f"- 全量文档盘点：`{snapshot['document_coverage']['total']}` 个 "
+            "Markdown 页面；职责分布："
+        )
+        + "，".join(
+            f"{coverage_labels.get(name, name)} `{count}`"
+            for name, count in snapshot["document_coverage"][
+                "categories"
+            ].items()
+        )
+        + "。"
+    )
     older = snapshot["document_audit"]["older_current"]
     if older:
         lines.append(
@@ -462,6 +582,19 @@ def render_markdown(snapshot: dict) -> str:
         )
     else:
         lines.append("- 所有非历史页的最近复核日期均与当前事实日期一致。")
+    older_delegated = snapshot["document_coverage"]["older_delegated"]
+    if older_delegated:
+        lines.append(
+            "- 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）："
+            + "，".join(
+                f"[{row['page']}]({os.path.relpath(ROOT / row['page'], ROOT / 'docs')}) "
+                f"`{row['reviewed']}`"
+                for row in older_delegated
+            )
+            + "。"
+        )
+    else:
+        lines.append("- 没有带显式旧复核日期的委派文档。")
     lines.append(
         "- 代码边界和大型模块的维护建议由"
         "[代码与验证入口地图](code-map.md)维护。"

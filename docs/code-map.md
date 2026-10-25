@@ -111,7 +111,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/peripheral_inventory.py` | 生成设备中心可消费的外设/控制清单 | `serve.py`、设备页 |
 | `platform/tools/runtime_coverage.py` | 检查 simulated 模型到设备级运行证据的映射 | CI |
 | `platform/tools/runtime_interfaces.py` | 从 evidence/case 生成 QOM、输入和文件接口 | 设备中心 |
-| `platform/tools/project_snapshot.py` | 从设备、profile、外设、固件 evidence、Backlog 和文档新鲜度表生成并校验项目快照；标记落后于事实日期的非历史页 | CI、交接、文档维护 |
+| `platform/tools/project_snapshot.py` | 从设备、profile、外设、固件 evidence、Backlog、文档新鲜度表和全量 Markdown 清单生成并校验项目快照；分别标记权威页与委派文档的旧复核日期 | CI、交接、文档维护 |
 | `platform/tools/generate_catalog.py` | 从源 catalog 生成设备 JSON/README | 发布与 CI |
 | `platform/tools/export_bundle.py` | 导出可移植设备/运行时资产包 | 部署 |
 

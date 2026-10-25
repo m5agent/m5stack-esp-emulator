@@ -36,6 +36,31 @@ class CatalogTests(unittest.TestCase):
             self.assertTrue((path / "README.md").is_file(), path)
             self.assertTrue((path / "index.html").is_file(), path)
 
+    def test_device_readmes_link_to_authority_pages_without_copying_runs(self) -> None:
+        for device in self.source["devices"]:
+            group = next(
+                group
+                for group in self.source["groups"]
+                if group["id"] == device["group"]
+            )
+            readme = (
+                ROOT
+                / "devices"
+                / group["path"]
+                / device["id"]
+                / "README.md"
+            ).read_text()
+            for authority in (
+                "docs/project-status.md",
+                "docs/validation-ledger.md",
+                "docs/project-backlog.md",
+                "docs/code-map.md",
+            ):
+                self.assertIn(authority, readme)
+            detail = device["runtime"].get("validation", {}).get("detail")
+            if detail:
+                self.assertNotIn(detail, readme)
+
     def test_generated_device_files_match_source(self) -> None:
         old_root = generate_catalog.ROOT
         old_catalog = generate_catalog.CATALOG

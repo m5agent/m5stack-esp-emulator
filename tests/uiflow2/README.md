@@ -100,7 +100,7 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
 `virtual-device validation`，不是 RF、bit-exact controller 或真机结果。
 新 PSRAM 持续压力镜像使用同一 runner 并追加
 `--require-psram --hold-seconds 120 --attempts 3`；当前证据为
-`core2_native_hci/evidence-2026-10-25-core2-psram-sustained-3x120.json`。
+`core2_native_hci/evidence-2026-10-25-core2-psram-sustained-8m-3x120.json`。
 更长窗口证据为
 `core2_native_hci/evidence-2026-10-25-core2-psram-sustained-1x600.json`。
 历史 extended-run 失败证据仍保留在

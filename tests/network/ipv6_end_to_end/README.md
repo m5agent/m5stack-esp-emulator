@@ -1,6 +1,6 @@
 # UIFlow2 firmware guest IPv6 DNS and HTTP
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This probe replaces the StickS3 UIFlow2 VFS with one application that:
 

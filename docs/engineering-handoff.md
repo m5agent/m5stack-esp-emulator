@@ -44,53 +44,29 @@
 
 ## 最近成果已经并入哪里
 
-以下后期工作已经反映在当前状态、Backlog 和专题页，不再属于“尚未开发”：
+已完成里程碑只保留为依赖摘要，精确轮次、SHA、检查数量和 evidence 路径
+统一在[验证证据台账](validation-ledger.md)维护：
 
-- controlled DNS 的 exact A/AAAA、domain suffix、最多 8 跳 CNAME chain，
-  以及同一 stock guest 的 CNAME→HTTP/denied-name/denied-port 生命周期；
-- 有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT、IPv6 neighbor control
-  和 cleanup；
-- worker control/runtime 双平面、HMAC、HTTPS/mTLS、rotation/drain、
-  authenticated discovery、central/runtime restart continuity、
-  session-create idempotency 和 trusted-host companion continuity；
-- multicast 与 unicast discovery seed；后者在两个 routed/masqueraded
-  subnet 中 `3/3 PASS`，错误/旧 token、rotation 和 cleanup 同轮验证；
-- worker→control network blackhole 的 bounded heartbeat fence；真实
-  namespace 中 runtime session、OS child process、lease expiry/requeue 和
-  retry completion 连续 `3/3 PASS`；worker-local Device Service + StickS3
-  QEMU lane 也 `3/3 PASS`，首轮 QEMU PID 与 attempt 2 QEMU PID 均回收；
-- worker-local `qemu-unified` partition lane 也完成 `3/3 PASS`：断网前
-  同 session 已有 HTTP、BLE PASS 和非空 pcap；fence 后 HTTP/BLE companion
-  终止、BLE PID 回收、pcap summary 完成，attempt 2 重新取得 unified
-  evidence。QEMU 内 guest/controller 内部状态和 worker 未拥有的外部
-  side effect 仍开放；
-- central 与 worker-local runtime/QEMU 在两个独立 Docker 容器中的真实
-  QEMU job、terminal evidence、三工件哈希和 container/bridge cleanup；
-- Core2 `core2-native-hci`、同 guest 120/121 轮重连、active-stop、
-  bounded TCG、QOM 8 MiB PSRAM、upper-bank MMU remap、虚拟 PSRAM 持续压力
-  和长时间 active-BLE 功能保持；两个 lease 在 30 秒启动错峰后完成
-  concurrent `2×120s`，每 session 使用独立 QEMU `guestfwd` HTTP。无错峰
-  路径在 `0007` valid-queue gate 后加入 `0008` guest-object preallocation；
-  两批独立 `4×120s` 合计 `8/8 PASS`，每轮 36 events/9 ACLs 均走 fast
-  path、HLI `45/45`、errors/reset/panic 为 0；并发再扩展到两批三实例
-  `3×120s` 合计 `6/6 PASS`，peer scan 预算和 sweep 下限按真实启动/负载
-  校准；
-- 四实例无错峰首批先得到可复现 `1 PASS / 3 FAIL`：一个 lease 出现
-  `hli-errors=1`/prealloc failure，两个在 READY 前于 NimBLE
-  `ble_hs_hci_process_ack` 反复 `LoadProhibited`。`0009` 随后把真实 guest
-  event/ACL 备用对象从 `2/2` 扩到 `8/4`；两批独立四实例 `4×120s` 各
-  `4/4 PASS`，合计 `8/8`，五实例及更多仍未运行；
-- FirmwareManifest/WebBurner required/optional capability、安全证据冲突、
-  image-signature observation、WebBurner part size/SHA/MD5 复算、SD/NVS
-  fixture、包内 eFuse `SECURE_BOOT_DIGEST` 与签名公钥摘要的
-  match/mismatch 对照、application/eFuse `secure_version` 对照，以及
-  SHA-bound UI/headless/network-first expectation；
-- macOS arm64 可复现 runtime bundle，以及 Generic ESP32-S3
-  `qemu-wifi/generic-observe`、Open/WPA2 正确密码和错误密码对照。
+- 网络：controlled DNS/CNAME、domain suffix、有界 IPv4/IPv6 CIDR egress、
+  TLS Host policy、pcap、WPA2 正确/错误密码、断线与 DHCP renewal 已进入
+  unified/namespace 路径；物理 RF、任意公网解析和恶意固件 VM 隔离仍开放。
+- Worker：durable queue、HMAC、HTTPS/mTLS、rotation、multicast/unicast
+  discovery、control/runtime 分离、restart/reattach、跨容器 QEMU、
+  network-partition fence 和 trusted-host companion recovery 已落地；
+  物理跨主机、迁移、跨主机幂等、namespace-managed/Tab5 companion 仍开放。
+- Core2：`core2-native-hci`、121 轮重连、artifact-bound 长稳、active-stop、
+  QOM 8 MiB PSRAM/upper-bank MMU 和最多四实例并发已有证据。四实例原始失败
+  保留，`0009` 修复后独立复跑通过；五实例及更多、持续吞吐、物理
+  PSRAM/cache timing、bit-exact controller 和真机仍开放。
+- 固件：FirmwareManifest/WebBurner、分段完整性、capability/security、
+  Secure Boot v2 数学与包内摘要对照、文件系统、SD/NVS fixture 和
+  SHA-bound review expectation 已可执行；live eFuse/trust root、生产 key、
+  运行态 ACL/许可、更多厂商与云端业务仍开放。
+- 运行与分发：Device Service、Live sessions、WebBurner、可复现 macOS
+  arm64 runtime bundle 和 generic ESP32-S3 observe 路径可用；服务池、
+  模块拆分、真机同路径和跨主机生产调度仍未完成。
 
-精确轮次、固件 SHA、检查数量和 evidence 路径只在
-[验证证据台账](validation-ledger.md)维护；本页保留能力归类，避免复制会漂移的
-运行数字。
+本页不复制运行流水；当前结论只来自状态页，开放项只来自 Backlog。
 
 ## 成熟度怎么看
 

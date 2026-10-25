@@ -1,6 +1,6 @@
 # StickS3 reconnect probe
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This UIFlow2 VFS replaces only `boot.py`/`main.py` in the validated StickS3
 test image. It performs:

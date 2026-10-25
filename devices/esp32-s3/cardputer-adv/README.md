@@ -27,11 +27,8 @@
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-keyboard-peripherals-wifi-ble-pass` (2026-10-23)
-- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 240x135 显示、TCA8418 键盘、BMI270、ES8311/NS4150B 音频、麦克风、SPI microSD、ST25R3916 NFC、CC1101、WiFi DHCP/HTTP 和 UART1 HCI BLE。
-
-
-
-
+- 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与不可继承边界见 [项目当前状态](../../../docs/project-status.md)、[验证证据台账](../../../docs/validation-ledger.md) 和 [项目 Backlog](../../../docs/project-backlog.md)。
+- 复现入口与 evidence 路径见 [代码与验证入口地图](../../../docs/code-map.md)。
 
 ## 文件
 

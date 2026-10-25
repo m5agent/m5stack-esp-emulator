@@ -64,10 +64,10 @@
 | --- | --- | --- | --- |
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-25` | 产品边界、成熟度、代码阅读顺序、当前工作流、P0 下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-25` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
-| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模和文档新鲜度审计 |
+| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
 | [项目当前状态](project-status.md) | 当前结论 | `2026-10-25` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-25` | 只保留尚未达到验收条件的任务、依赖和验收 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、worker namespace/container-local execution、测试和 evidence 入口 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、worker namespace/container-local execution、测试、evidence 和文档生成入口 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-25` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-25` | `1.33.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled domain suffix/CNAME chain、同 guest CNAME 网络证据和 transport 契约 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
@@ -98,6 +98,25 @@
 
 当前入口出现冲突时先修 `project-status.md`、Backlog、代码地图和契约页；
 历史页只允许补充“被哪一页取代”，不能反向把旧结论写回当前入口。
+
+## 委派文档怎么读
+
+新鲜度台账只登记需要人工维护当前结论的页面。设备档案、测试/用例 README、
+补丁说明、平台目录说明和仓内历史记录属于**委派文档**：它们负责
+局部实现、运行方式和当时证据，不应复制一份新的项目总状态。自动项目快照会
+盘点全部 Markdown 页面，并单列“带显式旧复核日期的委派文档”；进入这类
+页面时，结论顺序始终是：
+
+1. 相邻总索引（`devices/README.md`、`tests/README.md`、
+   `tests/network/README.md`、`patches/README.md`、`platform/README.md`）；
+2. [项目当前状态](project-status.md)；
+3. [项目 Backlog](project-backlog.md)；
+4. 页内引用的 evidence 和代码入口。
+
+委派页面的旧日期表示“最后一次局部复核”，不自动证明今天已经失效；但如果
+它把已完成项写成待办、把 `runtime_model_gap` 写成固件 FAIL，或与权威页
+冲突，就必须修改局部页或明确标为历史。机器生成设备 README 只保留硬件档案、
+验证状态和 blocker，详细运行流水统一放在验证台账和专题页。
 
 ## 入口索引
 

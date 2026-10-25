@@ -28,6 +28,10 @@ python3 tests/network/worker_lifecycle/run_test.py \
 This is local worker lifecycle validation. It does not prove remote worker
 registration, task queueing, active QEMU process re-attach, warm pools,
 multi-host scheduling or physical hardware behavior.
+Those control and execution planes have separate fixtures; in particular,
+[`worker_reattach`](../worker_reattach/README.md) covers local QEMU/QMP
+re-attach and [`worker_runtime_restart`](../worker_runtime_restart/README.md)
+covers runtime-service restart continuity.
 
 The fixture uploads the cached StickS3 reference through the normal
 Artifact/Firmware API so the `qemu-wifi` lane receives an exact padded 8 MiB

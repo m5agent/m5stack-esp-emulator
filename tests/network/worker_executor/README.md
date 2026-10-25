@@ -61,15 +61,20 @@ Retained result:
 ## Boundaries
 
 The control/execution URL split and local-session cleanup are covered by unit
-contracts. A real QEMU process launched from a different host or Linux network
-namespace is still `NOT RUN`; the runtime service also needs a matching QEMU
-binary and local artifact/firmware store.
+contracts. Worker-local QEMU execution in a separate Linux network namespace
+and in a separate Docker container is covered by
+[`worker_cross_netns`](../worker_cross_netns/README.md) and
+[`worker_cross_container`](../worker_cross_container/README.md). Both still
+share one physical host and use a local artifact/firmware store.
 
 The retained QEMU job runs use the same host and service process. HTTPS/mTLS,
 real QEMU and unified StickS3 jobs over mTLS are verified separately by
 `tests/network/worker_tls/`; the historical evidence in this directory
 predates that transport. Certificate rotation and two-worker
 generation-pointer migration are verified in `tests/network/worker_tls/`;
-real cross-host QEMU execution, automatic worker-host discovery, companion
-continuity after service restart, untrusted-firmware isolation, production
-scheduling and physical hardware remain `NOT RUN`.
+multicast and reachable unicast-seed discovery are verified in
+`tests/network/worker_discovery/` and `tests/network/worker_discovery_seed/`;
+trusted-host companion continuity is verified in
+`tests/network/worker_runtime_restart/`. Physical cross-host execution,
+namespace-managed/Tab5 companions, no-seed NAT traversal, untrusted-firmware
+isolation, production scheduling and hardware remain `NOT RUN`.

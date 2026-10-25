@@ -410,6 +410,7 @@ class DocsConsistencyTests(unittest.TestCase):
     def test_project_snapshot_exposes_document_freshness_audit(self) -> None:
         snapshot = project_snapshot.collect()
         audit = snapshot["document_audit"]
+        coverage = snapshot["document_coverage"]
         self.assertEqual(audit["total"], len(snapshot["documents"]))
         self.assertEqual(
             sum(audit["categories"].values()),
@@ -419,9 +420,25 @@ class DocsConsistencyTests(unittest.TestCase):
             audit["current"] + audit["historical"],
             audit["total"],
         )
+        self.assertEqual(
+            coverage["total"],
+            snapshot["code_inventory"]["documented_markdown_files"],
+        )
+        self.assertEqual(
+            sum(coverage["categories"].values()),
+            coverage["total"],
+        )
+        self.assertEqual(
+            coverage["categories"]["authority"],
+            audit["total"],
+        )
+        self.assertEqual(coverage["categories"]["navigation"], 1)
+        self.assertEqual(coverage["older_delegated"], [])
         rendered = (DOCS / "project-snapshot.md").read_text()
         self.assertIn("## 文档与测试", rendered)
         self.assertIn("文档职责分布", rendered)
+        self.assertIn("全量文档盘点", rendered)
+        self.assertIn("没有带显式旧复核日期的委派文档", rendered)
         if audit["older_current"]:
             self.assertIn("复核日期早于当前事实日期的非历史页", rendered)
         else:
@@ -429,6 +446,23 @@ class DocsConsistencyTests(unittest.TestCase):
                 "所有非历史页的最近复核日期均与当前事实日期一致",
                 rendered,
             )
+
+    def test_project_snapshot_ignores_untracked_runtime_docs(self) -> None:
+        paths = {
+            path.relative_to(ROOT).as_posix()
+            for path in project_snapshot.document_paths()
+        }
+        self.assertIn("platform/README.md", paths)
+        self.assertIn(
+            "records/2026-10-22-peripheral-simulation-hardening/README.md",
+            paths,
+        )
+        self.assertNotIn(".pytest_cache/README.md", paths)
+        self.assertNotIn(
+            "platform/tests/node_modules/playwright/README.md",
+            paths,
+        )
+        self.assertNotIn("upstream/esp-emulator/README.md", paths)
 
     def test_project_snapshot_preserves_trailing_inline_code(self) -> None:
         tasks = {
@@ -1548,11 +1582,14 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("上限为 121 并拒绝 122", catalog_source_text)
         self.assertIn("The accepted reconnect range is 1-121", qemu_profiles_text)
         self.assertIn("接受 `1–121` 轮", platform_readme)
-        self.assertIn("上限为 121 并拒绝 122", device_readme)
-        self.assertIn("323536", device_readme)
-        self.assertIn("250880", device_readme)
-        self.assertIn("29 轮", device_readme)
-        self.assertIn("121/121", device_readme)
+        self.assertIn("docs/project-status.md", device_readme)
+        self.assertIn("docs/validation-ledger.md", device_readme)
+        self.assertIn("docs/project-backlog.md", device_readme)
+        self.assertIn("docs/code-map.md", device_readme)
+        self.assertNotIn("323536", device_readme)
+        self.assertNotIn("250880", device_readme)
+        self.assertNotIn("29 轮", device_readme)
+        self.assertNotIn("121/121", device_readme)
         self.assertNotIn("最终两小时限容复测尚未完成", device_readme)
         for stale in (
             "当前参数上限为 120 并拒绝 121",

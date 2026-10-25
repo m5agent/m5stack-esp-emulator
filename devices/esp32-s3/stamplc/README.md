@@ -27,11 +27,8 @@
 reference-ready：真实固件、画面和输入已打通。
 
 - 验证：`display-input-peripherals-wifi-ble-pass` (2026-10-23)
-- 详情：官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 240x135 显示、按键/RGB、继电器/光耦输入、INA226、LM75、RX8130、TWAI CAN、PWR-485、蜂鸣器 PCM、WiFi DHCP/HTTP 以及 UART1 HCI BLE；StamPLC 6/6 外设矩阵通过。
-
-
-
-
+- 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与不可继承边界见 [项目当前状态](../../../docs/project-status.md)、[验证证据台账](../../../docs/validation-ledger.md) 和 [项目 Backlog](../../../docs/project-backlog.md)。
+- 复现入口与 evidence 路径见 [代码与验证入口地图](../../../docs/code-map.md)。
 
 ## 文件
 

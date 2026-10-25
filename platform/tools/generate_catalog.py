@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -63,6 +64,11 @@ def display_text(display: dict | None) -> str:
     )
 
 
+def relative_link(out_dir: Path, target: str, label: str) -> str:
+    relative = os.path.relpath(ROOT / target, out_dir)
+    return f"[{label}]({relative})"
+
+
 def write_device(device: dict, groups: dict[str, dict]) -> dict:
     group = groups[device["group"]]
     out_dir = ROOT / "devices" / group["path"] / device["id"]
@@ -91,6 +97,14 @@ def write_device(device: dict, groups: dict[str, dict]) -> dict:
     if uiflow.get("firmware"):
         fw = uiflow["firmware"]
         firmware_text = f"{fw['version']} / `{fw['firmware_id']}`"
+    status_sections = [
+        validation_readme(device["runtime"], out_dir),
+        device["runtime"].get("reason", "").strip(),
+        blockers_readme(device["runtime"]).strip(),
+    ]
+    status_details = "\n\n".join(
+        section for section in status_sections if section
+    )
     readme = f"""# {device['name']}
 
 - SKU：`{device.get('sku', '未确认')}`
@@ -119,11 +133,7 @@ def write_device(device: dict, groups: dict[str, dict]) -> dict:
 
 {STATUS_LABEL.get(device['runtime']['status'], device['runtime']['status'])}。
 
-{validation_readme(device['runtime'])}
-
-{device['runtime'].get('reason', '')}
-
-{blockers_readme(device['runtime'])}
+{status_details}
 
 ## 文件
 
@@ -161,22 +171,21 @@ def write_device(device: dict, groups: dict[str, dict]) -> dict:
     }
 
 
-def validation_readme(runtime: dict) -> str:
+def validation_readme(runtime: dict, out_dir: Path) -> str:
     validation = runtime.get("validation")
     if not validation:
         return ""
-    text = (
+    return (
         f"- 验证：`{validation.get('status', 'unknown')}` "
         f"({validation.get('date', 'date unknown')})\n"
-        f"- 详情：{validation.get('detail', '')}"
+        "- 本页只保留设备档案、验证状态和当前边界；逐项能力、运行流水与"
+        "不可继承边界见 "
+        f"{relative_link(out_dir, 'docs/project-status.md', '项目当前状态')}、"
+        f"{relative_link(out_dir, 'docs/validation-ledger.md', '验证证据台账')} "
+        f"和 {relative_link(out_dir, 'docs/project-backlog.md', '项目 Backlog')}。\n"
+        "- 复现入口与 evidence 路径见 "
+        f"{relative_link(out_dir, 'docs/code-map.md', '代码与验证入口地图')}。"
     )
-    memory_validation = validation.get("memory_validation")
-    if memory_validation:
-        text += f"\n- 内存验证：{memory_validation}"
-    concurrency_validation = validation.get("concurrency_validation")
-    if concurrency_validation:
-        text += f"\n- 并发验证：{concurrency_validation}"
-    return text
 
 
 def blockers_readme(runtime: dict) -> str:

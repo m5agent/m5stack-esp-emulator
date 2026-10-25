@@ -1,6 +1,6 @@
 # ESP32-C6 UIFlow2 虚拟主机补丁
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 该补丁应用在公开的 Espressif QEMU ESP32-C6 提交
 `febae182e132e4055529be423a818225ebddaa3a` 上，新增：

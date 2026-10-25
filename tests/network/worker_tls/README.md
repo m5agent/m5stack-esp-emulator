@@ -1,6 +1,6 @@
 # Worker HTTPS / mTLS transport
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This fixture starts the real Device Service process with an ephemeral test CA,
 server certificate and client CA, then verifies:
@@ -168,9 +168,10 @@ needs `SIGHUP`; workers reload automatically from the new immutable generation.
 - The new master token applies to subsequent protected requests, including
   requests on an existing keep-alive connection.
 - The two-worker fixture proves automatic file-generation migration and
-  auditable receipts without worker `SIGHUP`. Automatic worker-host discovery,
-  cross-host migration, production secret-manager distribution and final
-  cutover orchestration are not claimed.
+  auditable receipts without worker `SIGHUP`. Worker-host discovery is covered
+  by separate multicast and unicast-seed fixtures. Cross-host migration,
+  production secret-manager distribution and final cutover orchestration are
+  not claimed here.
 
 ## Boundaries
 
@@ -180,11 +181,14 @@ a post-rotation real QEMU job are `PASS`. An active old-token artifact upload
 also completes before reload, and a bounded old/new CA/token overlap is
 followed by a final cutover. A separate two-worker run passes A, A+B and B
 generation migration with secret-free receipts and no worker `SIGHUP`.
-Automatic worker-host discovery, cross-host migration, production
-CA/secret-manager lifecycle, multi-host scheduling, companion continuity and
+Worker discovery is covered separately by authenticated multicast and
+reachable unicast-seed fixtures; that is not arbitrary NAT traversal.
+Cross-host migration, production CA/secret-manager lifecycle, multi-host
+scheduling, namespace-managed/Tab5 companions, no-seed NAT traversal and
 hardware remain `NOT RUN`.
 The real QEMU job proves process/session execution and evidence transfer, not
 an arbitrary firmware's unified application PASS. The retained unified StickS3
 job additionally proves its board/WiFi/BLE markers, network evidence, pcap and
-frame in that same evidence ZIP. Bearer/HMAC is an application authentication
-layer and does not replace mTLS.
+frame in that same evidence ZIP. Trusted-host companion continuity is proven
+by the runtime-restart fixture rather than this TLS boundary. Bearer/HMAC is
+an application authentication layer and does not replace mTLS.

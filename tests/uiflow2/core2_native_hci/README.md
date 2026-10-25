@@ -426,8 +426,8 @@ The replacement artifact-bound two-hour hold passes the functional gate with
 HLI `45/45`, zero errors/queues/dropped packets and unchanged launch assets.
 The final `tb-size=128` rerun binds launch assets and tools, then passes
 `240` host-resource samples with RSS `323536→252992 KiB` and phys footprint
-`250880→188416 KiB`. The next execution gates are 121 cycles, throughput and
-physical cache/PSRAM equivalence.
+`250880→188416 KiB`. The remaining execution gates are throughput, more than
+four concurrent instances and physical cache/PSRAM equivalence.
 The fix is covered by
 `platform/tests/test_ble_probe.py`; failure history remains in
 `evidence-2026-10-24-reconnect2-fail.json`. The first ten-cycle attempt

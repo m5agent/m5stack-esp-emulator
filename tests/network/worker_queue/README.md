@@ -1,6 +1,6 @@
 # Remote worker durable job queue
 
-Last reviewed: `2026-10-24`
+Last reviewed: `2026-10-25`
 
 This contract slice covers `NET-04` job admission and lease supervision. It
 does not launch a QEMU process, execute a claimed request, upload an evidence
@@ -48,6 +48,8 @@ The retained contract result is
 ## Boundaries
 
 Queue state is durable, but a claimed job is not proof that a device session
-or evidence bundle exists. The independent worker executor, evidence
-transfer, active QEMU re-attach and production multi-host scheduling remain
-open. This is not an untrusted-firmware sandbox.
+or evidence bundle exists. This page only covers the queue contract. Separate
+fixtures now cover the independent executor, evidence transfer, local QEMU/QMP
+re-attach, trusted-host companion continuity, network-partition fencing and
+cross-container execution. Physical multi-host scheduling, migration and
+cross-host idempotency remain open. This is not an untrusted-firmware sandbox.
