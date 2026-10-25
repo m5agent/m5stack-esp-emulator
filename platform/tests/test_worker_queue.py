@@ -235,6 +235,19 @@ class WorkerJobQueueTests(unittest.TestCase):
             second["lease"]["lease_id"],
         )
 
+        with self.assertRaises(WorkerQueueError) as stale_heartbeat:
+            self.queue.heartbeat(
+                job["job_id"],
+                {
+                    **self.identity(),
+                    "lease_id": first["lease"]["lease_id"],
+                },
+            )
+        self.assertEqual(
+            stale_heartbeat.exception.code,
+            "job_lease_mismatch",
+        )
+
         with self.assertRaises(WorkerQueueError) as caught:
             self.queue.result(
                 job["job_id"],
