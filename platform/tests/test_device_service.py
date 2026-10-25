@@ -3379,6 +3379,12 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         command, _ = session._hci_probe_command()
         self.assertIn("--post-pass-trigger", command)
+        gatt_timeout_index = command.index("--gatt-request-timeout") + 1
+        self.assertEqual(command[gatt_timeout_index], "30")
+        notification_timeout_index = (
+            command.index("--notification-timeout") + 1
+        )
+        self.assertEqual(command[notification_timeout_index], "30")
         trigger_index = command.index("--post-pass-trigger") + 1
         self.assertEqual(
             command[trigger_index],

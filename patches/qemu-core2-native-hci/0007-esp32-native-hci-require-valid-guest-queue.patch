@@ -1,0 +1,10 @@
+--- a/hw/xtensa/esp32_native_hci.c
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -223,6 +223,7 @@ static void esp32_native_hci_schedule_hli(Esp32NativeHciState *s)
+         !s->meta_queue_pointer_address ||
+         !s->vhci_env_address ||
+         !s->h2c_packets ||
++        !s->hli_valid ||
+         s->hli_scheduled ||
+         s->hli_post_pending ||
+         (!s->hli_c2h && s->hli_test_event == UINT32_MAX) ||

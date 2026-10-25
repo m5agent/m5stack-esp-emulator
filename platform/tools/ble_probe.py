@@ -151,6 +151,7 @@ def install_controller_command_compatibility(
 
 async def observe(args: argparse.Namespace) -> int:
     try:
+        from bumble import gatt_client as bumble_gatt_client
         from bumble import hci
         from bumble.controller import Controller
         from bumble.device import Device, Peer
@@ -161,6 +162,7 @@ async def observe(args: argparse.Namespace) -> int:
         emit("BLE_BUMBLE_ERROR", f"dependency={error}")
         return 2
 
+    bumble_gatt_client.GATT_REQUEST_TIMEOUT = args.gatt_request_timeout
     emu_transport = await open_transport(f"tcp-server:_:{args.port}")
     trace_hci_transport(emu_transport)
     link = LocalLink()
@@ -399,6 +401,7 @@ def main() -> int:
     )
     parser.add_argument("--readback", action="store_true")
     parser.add_argument("--expect-notification-prefix")
+    parser.add_argument("--gatt-request-timeout", type=float, default=10)
     parser.add_argument("--notification-timeout", type=float, default=10)
     parser.add_argument("--timeout", type=float, default=35)
     parser.add_argument("--write-delay", type=float, default=10)
@@ -442,6 +445,8 @@ def main() -> int:
         )
     if args.post_pass_trigger_timeout <= 0:
         parser.error("--post-pass-trigger-timeout must be positive")
+    if args.gatt_request_timeout <= 0:
+        parser.error("--gatt-request-timeout must be positive")
     try:
         return asyncio.run(observe(args))
     except Exception as error:  # noqa: BLE001 - emit actionable peer failure.
