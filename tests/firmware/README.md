@@ -44,6 +44,13 @@ Required/optional capability consistency is covered by
 overlap is rejected, unsupported required capability rejects the manifest, and
 unsupported or unknown optional capabilities remain structured warnings.
 
+Image capability observations are recorded in
+[`evidence-2026-10-25-image-capability-observation.json`](evidence-2026-10-25-image-capability-observation.json).
+The public StickS3 Weather image contains low-confidence WiFi and display
+signatures; required WiFi passes while required camera remains a structured
+StickS3 mismatch. Missing/undeclared observations produce review warnings and
+do not become runtime capability proof.
+
 Security-evidence conflicts have a separate static regression:
 [`evidence-2026-10-25-security-evidence-conflicts.json`](evidence-2026-10-25-security-evidence-conflicts.json).
 It covers config/eFuse disagreement, secure-boot mode mismatch and missing key
@@ -115,10 +122,11 @@ operator-provided; they do not prove that every firmware code path uses the
 declared peripheral.
 
 High-confidence WiFi, Bluetooth and PSRAM build flags from package
-`sdkconfig` are recorded separately as `capabilities.detected`. A target
-profile missing a detected capability receives a warning rather than an
-automatic rejection; strict rejection remains tied to explicit required
-capabilities.
+`sdkconfig` are recorded separately as `capabilities.detected`. When sdkconfig
+is absent, allowlisted image tokens are recorded as low-confidence
+`capabilities.observed`. A target profile missing either detected or observed
+capability receives a warning rather than an automatic rejection; strict
+rejection remains tied to explicit required capabilities.
 
 Radio build flags retain their protocol boundary in
 [`evidence-2026-10-25-radio-capability-detection.json`](evidence-2026-10-25-radio-capability-detection.json):

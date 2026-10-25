@@ -281,7 +281,9 @@ Zigbee 缺口继续由 `RUNTIME-02` 管理，不把“已分类”算成该任�
 CLI、WebBurner 和 `/api/v1/firmware/import` 已统一接受 required/optional
 capability。网页上传不再只能生成空声明；`screen` 等别名会规范化，
 `camera`-on-StickS3 等不匹配在 manifest 阶段返回结构化 409。该声明仍由
-操作者提供，不能由二进制自动证明“代码确实调用了该外设”。
+操作者提供；镜像签名现在可提供低置信度 observed evidence 和
+declared/observed mismatch warning，但不能证明“代码确实在运行态调用了该
+外设”。
 包内 `sdkconfig` 的 WiFi、Bluetooth 和 PSRAM 开关会作为 detected
 capability 保留 flag/source；目标 profile 缺失时只 warning，不会把
 “编译时启用”误当成“运行时使用”。

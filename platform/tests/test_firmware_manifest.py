@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "platform/tests"))
 
 from firmware_manifest import (  # noqa: E402
     ManifestError,
+    detect_image_capabilities,
     evaluate_license_policy,
     import_package,
     load_device_profile,
@@ -52,6 +53,10 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
         self.assertEqual(schema["properties"]["schema_version"]["const"], 1)
         self.assertIn("license_policy", schema["properties"])
+        capability_properties = schema["properties"]["capabilities"]["properties"]
+        self.assertIn("detected", capability_properties)
+        self.assertIn("observed", capability_properties)
+        self.assertIn("observation", capability_properties)
 
     def test_license_policy_accepts_allowlisted_declarations(self):
         policy = evaluate_license_policy(
@@ -695,6 +700,106 @@ class FirmwareManifestTests(unittest.TestCase):
         )
         self.assertFalse(manifest["validation"]["errors"])
         self.assertEqual(validate_manifest_structure(manifest), [])
+
+    def test_image_signatures_are_low_confidence_observations(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            firmware = root / "signatures.bin"
+            image = bytearray(build_flash())
+            image.extend(
+                b"\x00esp_wifi_init\x00OV2640\x00esp_lcd_touch\x00"
+            )
+            firmware.write_bytes(image)
+            observed, observation = detect_image_capabilities(firmware)
+            result = import_package(
+                firmware,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+                required_capabilities=["wifi"],
+            )
+            rejected = import_package(
+                firmware,
+                root / "out-camera",
+                device_id="sticks3",
+                flash_size=8 << 20,
+                required_capabilities=["camera"],
+            )["manifest"]
+        self.assertEqual(
+            observed,
+            [
+                {
+                    "capability": "wifi",
+                    "source": "image-signature",
+                    "confidence": "low",
+                    "signatures": ["esp_wifi_init"],
+                },
+                {
+                    "capability": "camera",
+                    "source": "image-signature",
+                    "confidence": "low",
+                    "signatures": ["ov2640"],
+                },
+                {
+                    "capability": "touch",
+                    "source": "image-signature",
+                    "confidence": "low",
+                    "signatures": ["esp_lcd_touch"],
+                },
+            ],
+        )
+        self.assertEqual(observation["status"], "SCANNED")
+        self.assertEqual(observation["bytes_total"], len(image))
+        self.assertFalse(observation["truncated"])
+        manifest = result["manifest"]
+        self.assertEqual(manifest["validation"]["status"], "PASS")
+        self.assertEqual(
+            manifest["capabilities"]["observed"],
+            observed,
+        )
+        warning_codes = {
+            warning["code"]
+            for warning in manifest["validation"]["warnings"]
+        }
+        self.assertIn("observed_capability_unavailable", warning_codes)
+        self.assertIn("observed_capability_not_declared", warning_codes)
+        self.assertNotIn("required_capability_not_observed", warning_codes)
+        self.assertFalse(manifest["validation"]["errors"])
+        self.assertEqual(validate_manifest_structure(manifest), [])
+        self.assertEqual(rejected["validation"]["status"], "REJECTED")
+        self.assertIn(
+            "unsupported_capability",
+            {error["code"] for error in rejected["validation"]["errors"]},
+        )
+        self.assertNotIn(
+            "required_capability_not_observed",
+            {
+                warning["code"]
+                for warning in rejected["validation"]["warnings"]
+            },
+        )
+
+    def test_required_capability_without_image_signature_is_a_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            firmware = root / "plain.bin"
+            firmware.write_bytes(build_flash())
+            result = import_package(
+                firmware,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+                required_capabilities=["wifi"],
+            )
+        manifest = result["manifest"]
+        self.assertEqual(manifest["validation"]["status"], "PASS")
+        self.assertEqual(manifest["capabilities"]["observed"], [])
+        warning_codes = {
+            warning["code"]
+            for warning in manifest["validation"]["warnings"]
+        }
+        self.assertIn("required_capability_not_observed", warning_codes)
+        self.assertFalse(manifest["validation"]["errors"])
 
     def test_manifest_includes_redacted_review_and_sbom(self):
         with tempfile.TemporaryDirectory() as tmp:

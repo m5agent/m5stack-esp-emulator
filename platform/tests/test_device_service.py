@@ -5454,6 +5454,14 @@ class DeviceServiceHttpTests(unittest.TestCase):
                 "required": ["display", "wifi"],
                 "optional": ["ir"],
                 "detected": [],
+                "observed": [],
+                "observation": {
+                    "status": "SCANNED",
+                    "source": "normalized-flash",
+                    "bytes_total": 8388608,
+                    "bytes_scanned": 8388608,
+                    "truncated": False,
+                },
             },
         )
         mismatch_request = Request(

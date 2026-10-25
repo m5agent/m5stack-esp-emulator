@@ -56,7 +56,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | 代码域 | 模块 | 入口 / 输出 |
 | --- | --- | --- |
 | 服务与生命周期 | `serve.py`、`device_service.py`、`worker_registry.py`、`worker_directory.py`、`worker_queue.py`、`worker_auth.py`、`worker_discovery.py`、`transport_security.py`、`worker_agent.py`、`storage_policy.py` | `/api/v1`、session/evidence、本地 worker lifecycle、远程注册目录、持久任务队列、worker HMAC、HMAC multicast discovery、HTTPS/mTLS、SIGHUP TLS/token rotation、executor、GC |
-| 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`nvs_image.py`、`user_firmware_matrix.py`、`user_firmware_expectations.schema.json` | 公开固件下载、manifest、静态/SBOM/文件系统、NVS/SD fixture、SHA-bound UI/headless/network-first 审查预期和批量运行 |
+| 固件输入与审查 | `fetch_firmware.py`、`firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py`、`nvs_image.py`、`user_firmware_matrix.py`、`user_firmware_expectations.schema.json` | 公开固件下载、manifest、sdkconfig detected / image-signature observed capability、静态/SBOM/文件系统、NVS/SD fixture、SHA-bound UI/headless/network-first 审查预期和批量运行 |
 | 网络策略与取证 | `network_policy.py`、`network_egress.py`、`network_fabric.py`、`network_sandbox.py`、`network_lane.py`、`pcap_summary.py`、`qemu_network_preflight.py` | namespace、nftables、双 guest L2、DNS/TLS、pcap 摘要 |
 | 运行时与设备登记 | `qemu_profiles.py`、`peripheral_catalog.py`、`peripheral_inventory.py`、`runtime_coverage.py`、`runtime_interfaces.py`、`xtensa_elf_symbols.py` | machine/profile、外设契约、coverage、QOM/输入接口、ELF 符号 |
 | BLE/发布工具 | `ble_probe.py`、`hci_stream.py`、`generate_catalog.py`、`export_bundle.py` | 外部 peer、H4 分包、生成的设备目录和可移植资产包 |
@@ -231,7 +231,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/fetch_firmware.py` | 公开 M5Burner 固件查询、校验、下载与缓存 |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 |
 | `platform/tools/firmware_filesystems.py` | LittleFS 挂载、FAT12/16/32 与 SPIFFS 只读解析、文件哈希、敏感路径脱敏和 SPDX 提取 |
-| `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、manifest 和 capability mismatch |
+| `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、manifest、sdkconfig detected、低置信度 image-signature observed 和 capability mismatch |
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
@@ -330,6 +330,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Resumable artifact upload | `tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json`; `DeviceServiceUnitTests.test_streamed_*`; `DeviceServiceHttpTests.test_streamed_artifact_http_upload` | 连续 offset、per-chunk/final hash、失败 append 回滚、resume、abort 和 abandoned staging GC |
 | WebBurner browser intake | `platform/web/firmware.html`; `platform/tests/test_firmware_upload.mjs`; `tests/firmware/evidence-2026-10-24-webburner-ui.json` | 9.44 MiB / 3 chunk、浏览器 SHA256、进度重试、刷新续接、取消清理和 WebBurner ZIP → manifest import |
 | Manifest 公共样本/WebBurner | `firmware_manifest.py`；`test_firmware_manifest.py`；`evidence-2026-10-24-public-manifest-web-conformance.json` | 同一公开固件的 merged 与 WebBurner 输入规范化到同一 artifact hash；`camera`-on-StickS3 结构化拒绝；安全证据分层和 HTTP import PASS |
+| Image capability observation | `tests/firmware/image_capability_observation/run_test.py`；`test_firmware_manifest.py`；`evidence-2026-10-25-image-capability-observation.json` | 无 sdkconfig 的公开 StickS3 Weather 镜像观察到 wifi/display；required wifi PASS，required camera 仍结构化拒绝；observed entry 固定 low-confidence，未声明/未观察只产生 review warning，不冒充运行态能力使用 |
 | Public artifact refresh invariant | `user_firmware_matrix.py:download_candidates`；`test_user_firmware_matrix.py`；`firmware-manifest.md` | 每个 matrix run 重新解析公开版本并 `force=True` 下载；同 firmware/version ID 的缓存不能证明当前 CDN 内容；新 SHA 必须重新执行 Device Service 才能继承功能结论 |
 | SD media fixture | `platform/tools/sd_image.py`；`test_sd_image.py`；Device Service `storage.sd_image_artifact_id` | 纯 Python 生成确定性 FAT32+MBR 或 FAT16 superfloppy raw image；Device Service 拒绝无 SD 模型的设备，校验 512-byte 对齐，复制到 session 后重新哈希并以 writable `if=sd` 挂载 |
 | NVS partition fixture | `platform/tools/nvs_image.py`；`test_nvs_image.py`；Device Service `nvs.image_artifact_id` | 生成与 ESP-IDF generator 逐字节一致的 NVSv2 namespace/string 数据；服务按固件分区表校验 label/offset/size，只覆盖 session Flash 副本并记录 base/effective SHA |

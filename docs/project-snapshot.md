@@ -65,24 +65,24 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`38` 个 Python 模块，`31278` 行；规模最大的模块如下。
+- `platform/tools`：`38` 个 Python 模块，`31539` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
 | `device_service.py` | 9598 |
-| `firmware_manifest.py` | 2214 |
+| `firmware_manifest.py` | 2475 |
 | `user_firmware_matrix.py` | 2069 |
 | `firmware_filesystems.py` | 1469 |
 | `serve.py` | 1385 |
 | `network_fabric.py` | 1375 |
 
-- `tests/`：`57` 个可执行 Python 测试文件，分布在 `39` 个目录；`137` 个 evidence JSON。
+- `tests/`：`58` 个可执行 Python 测试文件，分布在 `40` 个目录；`138` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`54` 个 patch 文件。
-- 文档：`192` 个 Markdown 页面，`16533` 行。
+- 文档：`193` 个 Markdown 页面，`16618` 行。
 
 ## 文档与测试
 
-- 平台测试：`411` 项。
+- 平台测试：`413` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

@@ -736,6 +736,12 @@ When the package includes `sdkconfig`, the manifest also reports
 Detected values are review warnings when the target profile lacks a capability;
 only `required_capabilities` rejects the import. This avoids treating a build
 flag as proof that an application code path actually uses the peripheral.
+When sdkconfig is absent, the normalized image is scanned with an allowlisted
+token set and emits separate `capabilities.observed` entries with
+`source=image-signature` and `confidence=low`. Observed-but-undeclared,
+required-but-not-observed and observed-but-unsupported values are warnings;
+they never weaken a required capability mismatch. The scan records
+`SCANNED`/`TRUNCATED`, total/scanned bytes and cannot prove runtime use.
 
 QEMU memory is rechecked at session creation against the selected profile.
 For example, a manifest requiring more PSRAM than the effective runtime memory

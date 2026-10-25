@@ -41,7 +41,8 @@ MicroPython 和其他完整 Flash 固件。
   丢失后创建第二个 QEMU/session。
 - 固件输入覆盖 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented
   flash、WebBurner/M5Burner 包、文件系统清单、静态审查和 capability
-  mismatch。
+  mismatch。没有 sdkconfig 时，manifest 还会记录低置信度 image-signature
+  observed capability，用于提示声明/镜像偏差；它不是运行态调用证明。
 - Device Service 支持 session-isolated SD 和完整 NVS 分区 fixture；
   `qemu-wifi/profile=generic-observe` 可为非 UIFlow、headless 或
   network-first 的 ESP32-S3 固件提供板级加 WiFi 的最小执行路径；用户固件

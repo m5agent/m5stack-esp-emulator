@@ -208,6 +208,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json",
             "tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json",
             "tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json",
+            "tests/firmware/evidence-2026-10-25-image-capability-observation.json",
+            "tests/firmware/image_capability_observation/README.md",
+            "tests/firmware/image_capability_observation/run_test.py",
             "tests/uiflow2/evidence-2026-10-25-s3-wpa2-regression.json",
             "tests/firmware/openai_nvs_precondition/README.md",
             "tests/firmware/openai_nvs_precondition/run_test.py",
@@ -689,6 +692,39 @@ class DocsConsistencyTests(unittest.TestCase):
                 and sample["review_status"] == "REVIEW_REQUIRED"
                 for sample in refreshed_manifests["samples"]
             )
+        )
+        capability_observation = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-image-capability-observation.json"
+            ).read_text()
+        )
+        self.assertEqual(capability_observation["status"], "PASS")
+        self.assertEqual(
+            capability_observation["normal_import"]["status"],
+            "PASS",
+        )
+        self.assertEqual(
+            capability_observation["mismatch_import"]["status"],
+            "REJECTED",
+        )
+        self.assertIn(
+            "unsupported_capability",
+            capability_observation["mismatch_import"]["issues"]["errors"],
+        )
+        observed_capabilities = {
+            item["capability"]
+            for item in capability_observation["normal_import"]["observed"]
+        }
+        self.assertTrue({"wifi", "display"}.issubset(observed_capabilities))
+        self.assertIn(
+            "capabilities.observed",
+            manifest,
+        )
+        self.assertIn(
+            "observed_capability_not_declared",
+            manifest,
         )
         refreshed_functional = json.loads(
             (

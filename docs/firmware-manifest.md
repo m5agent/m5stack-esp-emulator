@@ -388,6 +388,30 @@ detected entry 带 source 和 flag；若目标 profile 没有该能力，只产�
 commissioning/join 成功。严格门禁仍由 required capability 和运行态数据面
 表达。
 
+没有 `sdkconfig` 时，manifest 还会用白名单 token 扫描规范化完整 Flash 的
+前 `64 MiB`，并写入独立的 `capabilities.observed`。observed entry 固定为
+`source=image-signature`、`confidence=low`，只保留命中的已知 token，不保存
+任意字符串。`capabilities.observation` 记录 `SCANNED`/`TRUNCATED`、总字节数
+和实际扫描字节数。
+
+镜像观察只用于审查提示，不是运行路径证明：
+
+- 观察到设备不支持的能力会产生 `observed_capability_unavailable` warning；
+- 观察到但未出现在 required/optional 的能力会产生
+  `observed_capability_not_declared` warning；
+- required 能力受设备支持、但其可观察 token 未出现时产生
+  `required_capability_not_observed` warning；
+- 这些 warning 不会把 required 的 hard mismatch 降级；设备不支持 required
+  能力仍是结构化 `unsupported_capability`。
+
+当前 token 覆盖 WiFi、BLE、Classic Bluetooth、IEEE 802.15.4、PSRAM、
+camera、display、touch、audio 和 SD。链接库中残留 token、剥离符号或字符串
+压缩都可能造成 false positive/negative，因此 observed 永远不能替代运行态
+数据面。真实公开 StickS3 Weather 样本在无 sdkconfig 时同时观察到 `wifi`
+和 `display`；required `wifi` 为 PASS，required `camera` 在 StickS3 上仍
+被结构化拒绝：
+[`evidence-2026-10-25-image-capability-observation.json`](../tests/firmware/evidence-2026-10-25-image-capability-observation.json)。
+
 如果 manifest 声明了 `target.psram_size`，创建 session 时还会按所选
 runtime/profile 的实际 QEMU memory policy 重新检查。Core2
 `core2-native-hci` 的命令行请求为 `-m 0`，但当前 `m5core2` QOM 实际解析为

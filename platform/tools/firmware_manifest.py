@@ -136,6 +136,94 @@ SDKCONFIG_CAPABILITY_FLAGS = (
     ),
     ("psram", ("CONFIG_SPIRAM", "CONFIG_SPIRAM_BOOT_INIT")),
 )
+IMAGE_CAPABILITY_SIGNATURES = (
+    (
+        "wifi",
+        (
+            "esp_wifi_init",
+            "esp_wifi_connect",
+            "wifi:mode",
+            "wifi:sta",
+        ),
+    ),
+    (
+        "ble",
+        (
+            "ble_hs_",
+            "esp_ble_gap_",
+            "esp_ble_gatts_",
+            "nimble",
+        ),
+    ),
+    (
+        "classic-bluetooth",
+        (
+            "esp_bt_dev_",
+            "esp_bt_gap_",
+            "classic_bt",
+        ),
+    ),
+    (
+        "ieee802154",
+        (
+            "esp_ieee802154",
+            "ieee802154",
+            "zigbee",
+        ),
+    ),
+    (
+        "psram",
+        (
+            "malloc_cap_spiram",
+            "spiram_boot_init",
+        ),
+    ),
+    (
+        "camera",
+        (
+            "esp_camera",
+            "camera_init",
+            "ov2640",
+            "ov3660",
+        ),
+    ),
+    (
+        "display",
+        (
+            "lcd_panel_",
+            "lv_disp_",
+            "m5gfx",
+        ),
+    ),
+    (
+        "touch",
+        (
+            "esp_lcd_touch",
+            "gt911",
+            "ft5x06",
+        ),
+    ),
+    (
+        "audio",
+        (
+            "audio_element",
+            "esp_codec_dev",
+            "i2s_channel_",
+        ),
+    ),
+    (
+        "sd",
+        (
+            "esp_vfs_fat_sdmmc",
+            "sdmmc_host_",
+            "sdmmc_freq",
+        ),
+    ),
+)
+OBSERVABLE_CAPABILITIES = {
+    capability for capability, _ in IMAGE_CAPABILITY_SIGNATURES
+}
+IMAGE_CAPABILITY_SCAN_BYTES = 64 << 20
 EFUSE_SUMMARY_NAMES = (
     "efuse-summary.json",
     "espefuse-summary.json",
@@ -189,6 +277,40 @@ def detect_sdkconfig_capabilities(flags: dict[str, str]) -> list[dict[str, str]]
                 }
             )
     return detected
+
+
+def detect_image_capabilities(
+    path: Path,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    total_bytes = path.stat().st_size
+    with path.open("rb") as source:
+        data = source.read(IMAGE_CAPABILITY_SCAN_BYTES + 1)
+    truncated = len(data) > IMAGE_CAPABILITY_SCAN_BYTES
+    scanned = data[:IMAGE_CAPABILITY_SCAN_BYTES].lower()
+    observed = []
+    for capability, signatures in IMAGE_CAPABILITY_SIGNATURES:
+        matched = [
+            signature
+            for signature in signatures
+            if signature.encode("ascii") in scanned
+        ]
+        if matched:
+            observed.append(
+                {
+                    "capability": capability,
+                    "source": "image-signature",
+                    "confidence": "low",
+                    "signatures": matched,
+                }
+            )
+    observation = {
+        "status": "TRUNCATED" if truncated else "SCANNED",
+        "source": "normalized-flash",
+        "bytes_total": total_bytes,
+        "bytes_scanned": min(total_bytes, IMAGE_CAPABILITY_SCAN_BYTES),
+        "truncated": truncated,
+    }
+    return observed, observation
 
 
 def utc_now() -> str:
@@ -814,6 +936,21 @@ def validate_capabilities(
         )
     required = manifest.get("capabilities", {}).get("required", [])
     optional = manifest.get("capabilities", {}).get("optional", [])
+    required_set = {
+        CAPABILITY_ALIASES.get(
+            str(value).strip().lower(),
+            str(value).strip().lower(),
+        )
+        for value in required
+    }
+    optional_set = {
+        CAPABILITY_ALIASES.get(
+            str(value).strip().lower(),
+            str(value).strip().lower(),
+        )
+        for value in optional
+    }
+    declared_set = required_set | optional_set
     device_capabilities = _device_capability_set(device)
     for requirement in required:
         normalized = CAPABILITY_ALIASES.get(
@@ -898,6 +1035,69 @@ def validate_capabilities(
                     path="capabilities.detected",
                 )
             )
+    observed_set: set[str] = set()
+    for detection in manifest.get("capabilities", {}).get("observed", []):
+        if not isinstance(detection, dict):
+            continue
+        requirement = str(detection.get("capability") or "").strip().lower()
+        normalized = CAPABILITY_ALIASES.get(requirement, requirement)
+        if normalized not in KNOWN_CAPABILITIES:
+            continue
+        observed_set.add(normalized)
+        signatures = [
+            str(signature)
+            for signature in detection.get("signatures", [])
+            if isinstance(signature, str) and signature
+        ][:8]
+        if normalized not in device_capabilities:
+            warnings.append(
+                _code_issues(
+                    "observed_capability_unavailable",
+                    (
+                        f"image contains low-confidence {normalized} "
+                        f"signature(s) ({', '.join(signatures)}), but device "
+                        f"{device.get('id')} "
+                        "profile does not expose it"
+                    ),
+                    requirement=normalized,
+                    available=sorted(device_capabilities),
+                    path="capabilities.observed",
+                )
+            )
+        if normalized not in declared_set:
+            warnings.append(
+                _code_issues(
+                    "observed_capability_not_declared",
+                    (
+                        f"image contains low-confidence {normalized} "
+                        f"signature(s) ({', '.join(signatures)}), but neither "
+                        "required nor optional capabilities name it; this is "
+                        "not runtime proof"
+                    ),
+                    requirement=normalized,
+                    available=sorted(declared_set),
+                    path="capabilities.observed",
+                )
+            )
+    for requirement in sorted(
+        required_set
+        & OBSERVABLE_CAPABILITIES
+        & device_capabilities
+    ):
+        if requirement in observed_set:
+            continue
+        warnings.append(
+            _code_issues(
+                "required_capability_not_observed",
+                (
+                    f"required capability {requirement} is supported by the "
+                    "target, but its low-confidence image signature was not "
+                    "observed; verify the declaration or runtime path"
+                ),
+                requirement=requirement,
+                path="capabilities.required",
+            )
+        )
     return {
         "status": "REJECTED" if errors else "PASS",
         "device_id": device.get("id"),
@@ -1524,6 +1724,9 @@ def import_package(
             else {}
         )
         detected_capabilities = detect_sdkconfig_capabilities(sdkconfig_flags)
+        observed_capabilities, capability_observation = (
+            detect_image_capabilities(destination)
+        )
         copied_resources = {
             key: _copy_resource(
                 row,
@@ -1636,6 +1839,8 @@ def import_package(
                 "required": required_capabilities,
                 "optional": optional_capabilities,
                 "detected": detected_capabilities,
+                "observed": observed_capabilities,
+                "observation": capability_observation,
             },
             "review": review,
             "source_license_scan": source_license_scan,
@@ -1999,7 +2204,13 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
         if not isinstance(capabilities, dict):
             errors.append("manifest.capabilities must be an object")
         else:
-            unknown = set(capabilities) - {"required", "optional", "detected"}
+            unknown = set(capabilities) - {
+                "required",
+                "optional",
+                "detected",
+                "observed",
+                "observation",
+            }
             if unknown:
                 errors.append("manifest.capabilities contains unknown fields")
             for key in ("required", "optional", "detected"):
@@ -2049,6 +2260,56 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
             ):
                 errors.append(
                     "manifest.capabilities.detected entries are invalid"
+                )
+            observations = capabilities.get("observed", [])
+            if isinstance(observations, list) and any(
+                not isinstance(item, dict)
+                or set(item)
+                - {
+                    "capability",
+                    "source",
+                    "confidence",
+                    "signatures",
+                }
+                or not isinstance(item.get("capability"), str)
+                or item.get("source") != "image-signature"
+                or item.get("confidence") != "low"
+                or not isinstance(item.get("signatures"), list)
+                or not item.get("signatures")
+                or len(item.get("signatures", [])) > 8
+                or any(
+                    not isinstance(signature, str)
+                    or not signature
+                    or len(signature) > 64
+                    for signature in item.get("signatures", [])
+                )
+                or len(set(item.get("signatures", [])))
+                != len(item.get("signatures", []))
+                for item in observations
+            ):
+                errors.append(
+                    "manifest.capabilities.observed entries are invalid"
+                )
+            observation = capabilities.get("observation")
+            if observation is not None and (
+                not isinstance(observation, dict)
+                or observation.get("status") not in {
+                    "SCANNED",
+                    "TRUNCATED",
+                }
+                or observation.get("source") != "normalized-flash"
+                or not isinstance(observation.get("bytes_total"), int)
+                or not isinstance(observation.get("bytes_scanned"), int)
+                or observation["bytes_total"] <= 0
+                or not 0
+                < observation["bytes_scanned"]
+                <= observation["bytes_total"]
+                or not isinstance(observation.get("truncated"), bool)
+                or observation.get("truncated")
+                != (observation.get("status") == "TRUNCATED")
+            ):
+                errors.append(
+                    "manifest.capabilities.observation is invalid"
                 )
     provenance = manifest.get("provenance")
     if not isinstance(provenance, dict):
