@@ -200,14 +200,40 @@ The dated evidence and exact artifact hashes are in
 The invalid early image/ELF hashes and stack-overflow correction are retained in
 that evidence file.
 
+## 2026-10-26 equal-deadline follow-up
+
+IRQ-ring sampling then captured the timer ISR writing `CCOMPARE == CCOUNT`
+inside the final equal-cycle window. The old `update_ccompare()` expression
+subtracted in unsigned arithmetic and scheduled `2^32` ticks, deferring the
+next Core2 timer interrupt by roughly 26.8 seconds. On the retained WDT
+samples, the CPU1 deadline never advanced again before the interrupt watchdog
+entered both CPUs.
+
+[`0034-xtensa-ccompare-equal-deadline.patch`](../patches/qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch)
+handles only that equality: it arms the deadline for the next cycle. Every
+other 32-bit delta keeps the previous wraparound behavior. The patch contains
+no IRQ ring, tracing, timeout extension, guest injection or retry logic.
+
+Post-fix controls passed the minimal probe's full first-boot/read gate in four
+artifact-bound batches, with fixed and automatic icount and with tracing on
+and off. Exact counts and hashes are in
+[`evidence-2026-10-26-core2-ccompare-equal-deadline.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-ccompare-equal-deadline.json).
+
+This closes only the minimal probe's timer-starvation reproducer. The same
+public `UIFlow_Core2 v1.15.4` image still emits `TG1WDT_SYS_RESET` and
+`TG0WDT_SYS_RESET`, reports reset CPU `PC=0`, and returns only the same black
+frame. The legacy firmware investigation therefore continues at watchdog
+feed/clear and service-task starvation rather than treating the probe timer
+fix as a universal Core2 boot fix.
+
 ## Next investigation
 
-1. Compare current, portable and explicit accelerator runs with the corrected
-   probe and larger first-boot samples.
-2. Trace `CCOMPARE`, `INTSET`, `INTENABLE`, timer expiry and virtual-time
-   progression around the idle `waiti` failure.
-3. Correlate the minimal post-flash-start WDT with legacy UIFlow flash-cache,
-   cross-core IPC and DPORT traces before changing the model.
+1. Preserve the minimal probe's equal-deadline regression gate and keep the
+   business patch separate from diagnostic ring/trace code.
+2. For the same legacy UIFlow SHA, correlate TG0/TG1 feed/clear, stage0/stage1,
+   `INTSET`, `INTENABLE`, expiry, reset PC `0`, and IDLE/service-task progress.
+3. Determine whether the boot path starves the watchdog service/user tasks or
+   whether flash-cache, cross-core IPC and DPORT ordering prevents a valid feed.
 4. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
    collected.
 

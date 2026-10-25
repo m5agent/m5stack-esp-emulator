@@ -1,6 +1,6 @@
 # QEMU and firmware patch index
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This directory stores replayable patches, not QEMU binaries or the `.work/`
 build tree. Exact base commits, apply order, reverse-check commands and known
@@ -13,7 +13,7 @@ incremental dependencies remain authoritative in each subdirectory README.
 | [`qemu-stopwatch-uiflow2-boot`](qemu-stopwatch-uiflow2-boot/README.md) | Espressif QEMU `da100c909249926b9f4458f18e4f2d216d08f51a` | initial StopWatch/UIFlow2 board boot | historical first board layer |
 | [`qemu-multi-board-uiflow2`](qemu-multi-board-uiflow2/README.md) | after StopWatch boot patch | S3, C6 and Core2 board/display/input entrypoints | applies before peripheral and radio layers |
 | [`qemu-core2-qemu-esptool`](qemu-core2-qemu-esptool/README.md) | Espressif QEMU `da100c9` worktree | configurable Core2 UART RX scale for ROM `esptool --no-stub` | flashing transport only |
-| [`qemu-m5stack-peripherals`](qemu-m5stack-peripherals/README.md) | multi-board and Core2 esptool layers | shared displays, buses, sensors, audio, camera, SD, USB and S3/C6 WiFi data planes | exact incremental order matters; see its README |
+| [`qemu-m5stack-peripherals`](qemu-m5stack-peripherals/README.md) | multi-board and Core2 esptool layers | shared displays, buses, sensors, audio, camera, SD, USB, S3/C6 WiFi data planes and the generic Xtensa equal-deadline timer fix | exact incremental order matters; the legacy Core2 watchdog/black-frame boundary remains open |
 | [`qemu-core2-openmac-wifi`](qemu-core2-openmac-wifi/README.md) | multi-board worktree | classic ESP32 WiFi MAC/DMA/user-net model | functional WiFi, not PHY/RF equivalence |
 | [`qemu-core2-ble-controller`](qemu-core2-ble-controller/README.md) | after OpenMAC WiFi | classic ESP32 BT RAM/control-register bootstrap | controller bootstrap and stock VHCI boundary |
 | [`qemu-core2-native-hci`](qemu-core2-native-hci/README.md) | after Core2 BT bootstrap | H4 transport, HLI event/ACL delivery and no-GDB native HCI | canonical Core2 BLE path; not bit-exact baseband |

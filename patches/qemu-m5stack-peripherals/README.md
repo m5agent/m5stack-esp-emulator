@@ -132,6 +132,8 @@ git apply /path/to/0029-esp32s3-wpa2-psk-data-plane.patch
 git apply /path/to/0030-core2-eight-mib-psram.patch
 git apply /path/to/0031-core2-shared-board-i2c.patch
 git apply /path/to/0032-esp32-timg-wdt-trace.patch
+git apply /path/to/0033-esp32-s32c1i-trace.patch
+git apply /path/to/0034-xtensa-ccompare-equal-deadline.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -213,6 +215,16 @@ a diagnostic only and does not change compare-and-swap semantics. The corrected
 `core2_flash_ipc` probe produced no spinlock-owner assertion across dated
 current/portable runs, so this trace is retained to audit atomic operations
 rather than as evidence of a confirmed CAS defect.
+
+`0034-xtensa-ccompare-equal-deadline.patch` fixes the generic Xtensa timer
+deadline calculation when a guest writes `CCOMPARE == CCOUNT`. The old
+subtraction wrapped that valid equal-cycle window to `2^32` ticks, deferring
+the next interrupt by roughly 26.8 seconds on Core2 and allowing the guest
+tick watchdog to expire. The patch schedules the equal deadline on the next
+cycle while preserving the previous 32-bit wraparound interpretation for all
+other deltas. A business-only control with tracing disabled passed the
+corrected `core2_flash_ipc` first-boot probe repeatedly; this does not close
+the separate legacy-UIFlow TG0/TG1 watchdog and black-frame failure.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

@@ -35,11 +35,13 @@
 - Core2 已具备功能级 native-HCI、WiFi、重连、QOM `8 MiB` PSRAM 模型、
   upper-bank MMU remap 和持续压力证据，但 bit-exact BT controller/baseband、
   物理 PSRAM/cache timing 尚未覆盖；
-- C6 Zigbee/802.15.4、Core2 legacy UIFlow 后初始化 WDT 和 Core2 for AWS
-  ATECC608 仍是明确的 `runtime_model_gap`；Core2 共享 I2C routing 已单独修复。
-  修正后的最小 ESP-IDF 探针可执行 partition reads，但首启动仍可进入
-  interrupt-WDT；失败 PC 位于两核 idle `waiti`，当前调查点是虚拟定时器/
-  中断交付与宿主调度；运行比例和 evidence 只查验证台账；
+- C6 Zigbee/802.15.4、Core2 legacy UIFlow 后初始化 TG0/TG1 WDT 和 Core2
+  for AWS ATECC608 仍是明确的 `runtime_model_gap`；Core2 共享 I2C routing
+  和最小 probe 的 `CCOMPARE == CCOUNT` equal-deadline timer 已分别修复。
+  Timer 修复让 `CORE2_FLASH_IPC_READ_START`/partition-read probe 通过首启动
+  门禁，但 legacy firmware 仍 reset PC `0`、黑帧并以 TG0/TG1 watchdog reset
+  循环；下一步是 watchdog feed/clear 或服务饥饿。运行比例和 evidence 只查
+  验证台账；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
@@ -64,14 +66,15 @@
 - Core2 的两个 I2C controller 已统一下层到一个物理 GPIO21/22 板级 bus，
   原 AXP/RTC 路由错误不再是首个失败点；
 - 剩余 legacy UIFlow 启动问题已从固定外设/固定 PC 收敛到启动期同步路径；
-- 修正后的最小 `core2_flash_ipc` ESP-IDF 探针可以到达 `READ_START` 并执行
-  partition reads，但仍可复现 interrupt-WDT；失败时 CPU0/CPU1 都在 idle
-  `waiti`；
+- 最小 `core2_flash_ipc` probe 在 `READ_START` 后捕获到
+  `CCOMPARE == CCOUNT` 被错误算成 `2^32` ticks；业务补丁只在相等窗口安排
+  下一 cycle，其他回绕语义保持不变，原 interrupt-WDT reproducer 修复后通过
+  首启动门禁；
 - 旧版“flash 前 spinlock owner mismatch”已确认是探针把 4096-byte 局部
   数组放进 4096-byte 任务栈导致的栈溢出，已经撤销，不再作为模型证据；
-- 当前假设转向虚拟 timer/interrupt 交付和宿主调度；legacy UIFlow 的
-  flash-cache disable、跨核 IPC 与 DPORT high-interrupt 仍相关，但因果关系
-  尚未证明；
+- probe timer 修复没有关闭 legacy UIFlow；legacy 仍出现 `TG0/TG1WDT_SYS_RESET`
+  和同一 black frame，当前调查转向 watchdog feed/clear、服务任务饥饿及其与
+  flash-cache disable、跨核 IPC、DPORT high-interrupt 的关系；
 - 文档已拆成当前事实、待办、日期化证据、契约、实现地图和历史页五类，后续
   不应再把这些运行细节复制回总览。
 
@@ -213,7 +216,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 追踪 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，解释最小探针在 `READ_START` 后的 WDT；再验证 legacy UIFlow 路径 | I2C routing 已修复；最小探针可读 flash，但仍有 WDT，legacy 应用帧仍为 black |
+| `RUNTIME-03` | 回到 legacy UIFlow，追踪 `TG0/TG1WDT_SYS_RESET`、reset PC `0`、watchdog feed/clear、IDLE/service task 进度和 flash-cache/IPC/DPORT 交接 | I2C routing 和最小 probe 的 `CCOMPARE == CCOUNT` timer 已修复；legacy TG watchdog 与 black frame 仍 OPEN，probe PASS 不能继承 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

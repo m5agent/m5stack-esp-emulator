@@ -200,7 +200,9 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             ).read_text(),
         )
 
-    def test_core2_flash_ipc_probe_reports_the_wdt_boundary(self) -> None:
+    def test_core2_flash_ipc_probe_reconciles_timer_and_legacy_boundaries(
+        self,
+    ) -> None:
         probe_root = ROOT / "tests/firmware/core2_flash_ipc"
         evidence = json.loads(
             (
@@ -229,6 +231,26 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             "4096-byte CPU1 task stack",
             evidence["historical_correction"]["observation"],
         )
+        equal_deadline = json.loads(
+            (
+                probe_root
+                / "evidence-2026-10-26-core2-ccompare-equal-deadline.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            equal_deadline["status"],
+            "FIXED_FOR_MINIMAL_PROBE_LEGACY_OPEN",
+        )
+        self.assertEqual(equal_deadline["post_fix"]["attempts"], 40)
+        self.assertEqual(equal_deadline["post_fix"]["passed"], 40)
+        self.assertEqual(equal_deadline["post_fix"]["interrupt_wdt"], 0)
+        self.assertFalse(
+            equal_deadline["legacy_uiflow"]["unique_application_frame"]
+        )
+        self.assertEqual(
+            equal_deadline["legacy_uiflow"]["reset_cpu_pc"],
+            "0x0",
+        )
 
         runner_path = probe_root / "run_test.py"
         spec = importlib.util.spec_from_file_location(
@@ -240,6 +262,19 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         module = importlib.util.module_from_spec(spec)
         sys.modules[spec.name] = module
         spec.loader.exec_module(module)
+        module.validate_artifact_hashes(
+            module.EXPECTED_IMAGE_SHA256,
+            module.EXPECTED_ELF_SHA256,
+            expected_image_sha256=module.EXPECTED_IMAGE_SHA256,
+            expected_elf_sha256=module.EXPECTED_ELF_SHA256,
+        )
+        with self.assertRaisesRegex(ValueError, "image SHA256 mismatch"):
+            module.validate_artifact_hashes(
+                "0" * 64,
+                module.EXPECTED_ELF_SHA256,
+                expected_image_sha256=module.EXPECTED_IMAGE_SHA256,
+                expected_elf_sha256=module.EXPECTED_ELF_SHA256,
+            )
         passed = module.classify_serial(
             "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
             "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
@@ -249,6 +284,14 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         )
         self.assertEqual(passed["status"], "PASS")
         self.assertTrue(passed["flash_read_started"])
+        incomplete = module.classify_serial(
+            "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
+            "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "CORE2_FLASH_IPC_READ_START core=1\n"
+            "CORE2_FLASH_IPC_PROGRESS core=1 iteration=50\n"
+        )
+        self.assertEqual(incomplete["status"], "INCOMPLETE")
+        self.assertTrue(incomplete["flash_read_started"])
         spinlock_after_start = module.classify_serial(
             "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
             "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
@@ -283,6 +326,22 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("stack overflow", readme)
         self.assertIn("interrupt-WDT", readme)
         self.assertIn("READ_START", readme)
+        self.assertIn("CCOMPARE == CCOUNT", readme)
+        self.assertIn(".work/core2-flash-ipc-16m-final.bin", readme)
+        self.assertNotIn("--image .work/core2-flash-ipc-16m.bin", readme)
+
+        deadline_patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0034-xtensa-ccompare-equal-deadline.patch"
+        ).read_text()
+        self.assertIn(
+            "uint32_t delta = env->sregs[CCOMPARE + i] - "
+            "env->sregs[CCOUNT];",
+            deadline_patch,
+        )
+        self.assertIn("dcc = delta ? delta : 1;", deadline_patch)
+        self.assertNotIn("M5SW_XTENSA_IRQ", deadline_patch)
 
         for path in (
             DOCS / "project-status.md",
@@ -295,6 +354,16 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             text = path.read_text()
             self.assertIn("interrupt-WDT", text)
             self.assertIn("READ_START", text)
+        for path in (
+            DOCS / "project-status.md",
+            DOCS / "project-backlog.md",
+            DOCS / "runtime-model-gap-register.md",
+            DOCS / "engineering-handoff.md",
+            DOCS / "workstreams.md",
+        ):
+            text = path.read_text()
+            self.assertIn("CCOMPARE", text)
+            self.assertIn("legacy", text.lower())
         for path in (
             ROOT / "README.md",
             DOCS / "project-status.md",
@@ -317,8 +386,9 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             DOCS / "validation-ledger.md",
         ):
             text = path.read_text()
-            self.assertIn("14", text)
-            self.assertIn("6", text)
+            self.assertIn("CCOMPARE == CCOUNT", text)
+            self.assertIn("0034", text)
+        self.assertIn("40/40", (DOCS / "validation-ledger.md").read_text())
         history = (DOCS / "core2-cache-panic-investigation.md").read_text()
         self.assertIn("2026-10-26 update", history)
         self.assertIn("stack overflow", history)

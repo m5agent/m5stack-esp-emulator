@@ -309,12 +309,19 @@ deadlock.
 
 The 2026-10-26 minimal ESP-IDF probe initially produced a misleading spinlock
 assertion because its 4096-byte local read buffer overflowed a 4096-byte task
-stack. After moving the buffer to static RAM and yielding periodically, 20/20
-current/portable first boots reached `CORE2_FLASH_IPC_READ_START`; 14 completed
-all 1000 CPU1 partition reads and six entered interrupt-WDT after at least 250
-reads. No corrected run produced a spinlock owner assertion. The WDT samples
-show both CPUs in idle `waiti`, moving the remaining comparison toward virtual
-timer/interrupt delivery and host scheduling rather than PRID or S32C1I.
+stack. The corrected probe then exposed a generic Xtensa timer bug: a timer ISR
+writing `CCOMPARE == CCOUNT` during the final equal-cycle window was treated as
+a `2^32`-tick delay. The business-only `0034` patch arms that deadline on the
+next cycle while preserving the old interpretation for other deltas. The
+minimal probe's first-boot gate passed in trace-enabled and trace-disabled
+controls, so PRID, S32C1I and the original virtual-time hypothesis are no
+longer the explanation for this reproducer.
+
+This does not close the public legacy firmware. The same image still reports
+`TG1WDT_SYS_RESET` and `TG0WDT_SYS_RESET`, with reset CPU PC `0`, and produces
+only a black frame. The next boundary is therefore the legacy firmware's
+TG0/TG1 watchdog feed/clear or service-starvation path rather than the minimal
+probe's timer deadline.
 
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for

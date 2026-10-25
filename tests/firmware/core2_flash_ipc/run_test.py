@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reproduce the Core2 flash/IPC spinlock ownership diagnostic."""
+"""Exercise the Core2 flash/IPC timer and interrupt-watchdog diagnostic."""
 
 from __future__ import annotations
 
@@ -16,6 +16,12 @@ from typing import Any
 SPINLOCK_ASSERT = (
     "assert failed: spinlock_release spinlock.h:190 "
     "(core_owner_id == lock->owner)"
+)
+EXPECTED_IMAGE_SHA256 = (
+    "c2762e5f34d513e34a47739174fd452567f2f3ec87164a4d421a1a7141c68359"
+)
+EXPECTED_ELF_SHA256 = (
+    "7636c3e5aa182621f9998e12938a2e037adf99689f7d1b7e5c154a7892aaf88b"
 )
 READY_PATTERN = re.compile(
     r"(?m)^CORE2_FLASH_IPC_READY core=([01]) "
@@ -98,6 +104,27 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def validate_artifact_hashes(
+    image_sha256: str,
+    elf_sha256: str,
+    *,
+    expected_image_sha256: str,
+    expected_elf_sha256: str,
+) -> None:
+    for label, actual, expected in (
+        ("image", image_sha256.lower(), expected_image_sha256.lower()),
+        ("ELF", elf_sha256.lower(), expected_elf_sha256.lower()),
+    ):
+        if not re.fullmatch(r"[0-9a-f]{64}", expected):
+            raise ValueError(f"expected {label} SHA256 is not a 64-digit hex digest")
+        if actual != expected:
+            raise ValueError(
+                f"{label} SHA256 mismatch: expected {expected}, got {actual}; "
+                "pass an explicit matching hash only when intentionally "
+                "rebuilding the probe"
+            )
+
+
 def first_boot_serial(serial: str) -> str:
     reboot = re.search(r"(?m)^Rebooting\.\.\.\s*$", serial)
     return serial[: reboot.start()] if reboot else serial
@@ -126,6 +153,8 @@ def classify_serial(serial: str) -> dict[str, Any]:
         status = "REPRODUCED_AFTER_READ_START"
     elif interrupt_wdt:
         status = "INTERRUPT_WDT"
+    elif read_started:
+        status = "INCOMPLETE"
     else:
         status = "OTHER_FAIL"
 
@@ -244,9 +273,19 @@ def main() -> int:
     parser.add_argument("--base-url", default="http://127.0.0.1:8787")
     parser.add_argument("--image", type=Path, required=True)
     parser.add_argument("--elf", type=Path, required=True)
+    parser.add_argument(
+        "--expected-image-sha256",
+        default=EXPECTED_IMAGE_SHA256,
+        help="fail closed unless the probe image has this SHA256",
+    )
+    parser.add_argument(
+        "--expected-elf-sha256",
+        default=EXPECTED_ELF_SHA256,
+        help="fail closed unless the probe ELF has this SHA256",
+    )
     parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--timeout", type=float, default=30)
-    parser.add_argument("--observe-seconds", type=float, default=4)
+    parser.add_argument("--observe-seconds", type=float, default=15)
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     if args.attempts < 1 or args.attempts > 10:
@@ -258,6 +297,16 @@ def main() -> int:
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
     image_sha256 = sha256(args.image)
+    elf_sha256 = sha256(args.elf)
+    try:
+        validate_artifact_hashes(
+            image_sha256,
+            elf_sha256,
+            expected_image_sha256=args.expected_image_sha256,
+            expected_elf_sha256=args.expected_elf_sha256,
+        )
+    except ValueError as error:
+        parser.error(str(error))
     api = Api(args.base_url)
     status, body, _ = api.request(
         "/api/v1/artifacts",
@@ -292,10 +341,13 @@ def main() -> int:
     reproduced = sum(run["status"] == "REPRODUCED" for run in runs)
     passed = sum(run["status"] == "PASS" for run in runs)
     interrupt_wdt = sum(run["status"] == "INTERRUPT_WDT" for run in runs)
+    incomplete = sum(run["status"] == "INCOMPLETE" for run in runs)
     if passed == args.attempts:
         result_status = "PASS"
     elif reproduced == args.attempts:
         result_status = "REPRODUCED"
+    elif incomplete:
+        result_status = "INCOMPLETE"
     else:
         result_status = "MIXED"
     evidence = {
@@ -310,11 +362,15 @@ def main() -> int:
         ),
         "firmware_sha256": image_sha256,
         "firmware_bytes": args.image.stat().st_size,
-        "elf_sha256": sha256(args.elf),
+        "elf_sha256": elf_sha256,
+        "artifact_hash_gate": "PASS",
+        "expected_firmware_sha256": args.expected_image_sha256.lower(),
+        "expected_elf_sha256": args.expected_elf_sha256.lower(),
         "attempts_requested": args.attempts,
         "attempts_passed": passed,
         "attempts_reproduced": reproduced,
         "attempts_interrupt_wdt": interrupt_wdt,
+        "attempts_incomplete": incomplete,
         "runs": runs,
         "expected_success": "CORE2_FLASH_IPC_PASS",
         "failure_markers": [
@@ -333,7 +389,6 @@ def main() -> int:
                 "the fixed probe produced no spinlock owner assertion",
             ],
             "not_proven": [
-                "the interrupt-WDT root cause",
                 "whether the same failure explains legacy UIFlow",
                 "physical hardware behavior",
             ],

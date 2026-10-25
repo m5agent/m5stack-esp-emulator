@@ -31,23 +31,29 @@
 当前阶段仍是 `PILOT`，不是“任意固件、任意设备都能自动审查”的完成态。
 Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 现在共享 `/machine/soc/i2c0/i2c` 并正常 ACK，原 `I2C bus error (19)` 消失。
-同一固件随后进入独立的 interrupt-WDT reset/panic，仍没有非空应用帧，因此
+同一固件随后进入独立的 TG0/TG1 watchdog reset 循环，仍没有非空应用帧，因此
 `RUNTIME-03` 继续作为当前调查入口，但不能再用 PMIC 寄存器或 I2C routing
 解释首个失败点。
 
 TIMG watchdog trace 已证明默认单会话能够持续喂狗，而并发 lease 或显式
 accelerator 对照会在不同 CPU/PC 触发 interrupt-WDT；这些结果已排除了把问题
-归因于单一固定 PC、PMIC 或 RTC 地址的做法。修正后的最小 ESP-IDF 探针不再
-触发 spinlock 断言；首启动可以进入 `CORE2_FLASH_IPC_READ_START` 并完成
-CPU1 `esp_partition_read()`，但其中一部分在 flash 读取已经启动后进入
-interrupt-WDT。失败样本中 CPU0/CPU1 都停在 idle 的
-`esp_cpu_wait_for_intr()`/`waiti` 路径。此前“flash 读取前 spinlock owner
+归因于单一固定 PC、PMIC 或 RTC 地址的做法，但说明 legacy 路径仍与宿主调度
+和启动期同步有关。最小 ESP-IDF 探针又抓到了一个
+独立的 generic Xtensa timer 缺陷：timer ISR 在最后的相等窗口写入
+`CCOMPARE == CCOUNT` 时，旧减法把下一次到期算成 `2^32` ticks，等价于在
+Core2 上延迟约 26.8 秒，足以触发 interrupt-WDT。`0034` 只把相等期限安排到
+下一 cycle，其他 32 位回绕语义保持不变；修复后的
+`CORE2_FLASH_IPC_READ_START` 首启动门禁已在 trace 开/关和固定/auto icount
+对照中通过。此前“flash 读取前 spinlock owner
 mismatch”来自探针把 4096-byte 局部数组放进 4096-byte 任务栈，已经作为
-harness 缺陷撤销。当前工作假设因此回到虚拟定时器/中断交付、宿主调度与
-long-synchronous flash workload 的交互；PRID、S32C1I 或单次 CAS 返回错误
-均没有获得支持。legacy UIFlow 的 flash-cache disable、跨核 IPC 与 DPORT
-high-interrupt 仍是相关路径，但与最小 WDT 的因果关系尚未证实。精确批次、
-通过率、artifact 哈希和符号化结果见
+harness 缺陷撤销。
+
+这个修复没有关闭 legacy UIFlow：同一公开固件仍在初始化后进入
+`TG0WDT_SYS_RESET`/`TG1WDT_SYS_RESET`、reset CPU PC `0` 和黑帧循环。
+因此 `RUNTIME-03` 的 timer-deadline 子问题已经 `FIXED`，但 legacy
+watchdog feed/clear 或服务饥饿路径仍 `OPEN`。legacy UIFlow 的 flash-cache
+disable、跨核 IPC 与 DPORT high-interrupt 仍是相关路径，但与当前 TG0/TG1
+reset 的因果关系尚未证实。精确批次、通过率、artifact 哈希和符号化结果见
 [验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
@@ -58,7 +64,7 @@ high-interrupt 仍是相关路径，但与最小 WDT 的因果关系尚未证实
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus 已修正；修正后的最小探针可完成 CPU1 partition reads，但 flash 活动后仍存在可复现的 interrupt-WDT，失败 PC 位于 idle waiti | 关联 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，定位 flash workload 后中断停摆窗口；再回到 legacy UIFlow 取得同 SHA 非空应用帧 | partition read 可运行不等于长期稳定；spinlock/CAS 已不再得到最小探针支持；WDT 与 legacy 非空帧的因果关系尚未证明 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus 与 `CCOMPARE == CCOUNT` timer deadline 已修复；最小 ESP-IDF 探针首启动门禁通过 | 回到 legacy UIFlow，定位 `TG0/TG1WDT_SYS_RESET`、reset PC `0`、watchdog feed/clear 和服务饥饿路径，取得同 SHA 非空应用帧 | 最小 probe 的 timer 修复不能继承给 legacy UIFlow；flash-cache/IPC/DPORT 与 TG watchdog 的因果关系尚未证明 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -75,7 +81,7 @@ high-interrupt 仍是相关路径，但与最小 WDT 的因果关系尚未证实
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing 已修复；后续 interrupt WDT 和 black frame 未闭环 |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing 与最小 probe timer deadline 已修复；legacy TG0/TG1 watchdog reset、reset PC `0` 和 black frame 未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT 和生产调度未完成 |
@@ -99,7 +105,7 @@ high-interrupt 仍是相关路径，但与最小 WDT 的因果关系尚未证实
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器 | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE | Zigbee/802.15.4 由 `RUNTIME-02` 跟踪 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi/BLE | RGB 未验；Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU | legacy UIFlow 后初始化 WDT/黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、equal-deadline timer fix | legacy UIFlow 后初始化 TG0/TG1 WDT/黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
@@ -110,12 +116,14 @@ high-interrupt 仍是相关路径，但与最小 WDT 的因果关系尚未证实
 
 1. **仿真边界**：QEMU/esp-emu PASS 不等于 RF、功耗、声学、光学、机械、
    电气或真机安全 PASS。
-2. **Core2 启动兼容性**：legacy UIFlow 的共享 I2C routing 已修正，但同一
-   固件仍会在 PMIC/RTC 初始化后进入 interrupt-WDT/黑帧；不能用 I2C ACK、
-   chip-id 成功或 host 假值当作启动 PASS。修正后的最小探针证明 partition
-   read 路径本身可以执行，但首启动仍会在读取过程中触发 interrupt-WDT，
-   两核 PC 位于 idle waiti；虚拟定时器/中断交付是当前调查点，与 legacy WDT
-   的因果关系仍未证实。量化结果只以验证台账和 evidence 为准。
+2. **Core2 启动兼容性**：legacy UIFlow 的共享 I2C routing 已修正，最小
+    probe 暴露的 `CCOMPARE == CCOUNT` timer deadline 也已修复，但同一 legacy
+    固件仍会在 PMIC/RTC 初始化后进入 `TG0/TG1WDT_SYS_RESET`/黑帧，reset CPU
+    PC 为 `0`；不能用 I2C ACK、chip-id 成功、probe timer PASS 或 host 假值
+    当作 legacy 启动 PASS。下一调查点是 watchdog feed/clear 或服务饥饿；
+    它与 flash-cache/IPC/DPORT 的因果关系仍未证实。当前工作假设是 TIMG
+    watchdog feed/clear 或服务任务饥饿与启动期长同步路径交互；量化结果只以
+    验证台账和 evidence 为准。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

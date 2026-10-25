@@ -315,6 +315,10 @@ class DocsIndexContractTests(DocsContractBase):
             ),
             "patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch",
             "patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch",
+            (
+                "patches/qemu-m5stack-peripherals/"
+                "0034-xtensa-ccompare-equal-deadline.patch"
+            ),
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",

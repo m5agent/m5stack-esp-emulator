@@ -31,10 +31,12 @@ MicroPython 和其他完整 Flash 固件。
   物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
 - Core2 legacy UIFlow 的 AXP/RTC/INA 已统一路由到共享 GPIO21/22 物理
   board bus，原 `I2C bus error (19)` 已消失；同一固件随后仍进入
-  interrupt-WDT 并保持黑帧。修正后的最小 ESP-IDF 探针证明 CPU1
-  `esp_partition_read()` 数据面可以执行，同时仍可复现 flash 活动后的
-  interrupt-WDT；失败样本的两核位于 idle `waiti`，因此继续调查虚拟定时器/
-  中断交付与宿主调度。精确轮次、哈希和对照只在
+  TG0/TG1 watchdog reset 循环并保持黑帧。最小 ESP-IDF 探针暴露的另一个
+  Xtensa timer 缺陷已经定位并修复：当 ISR 在最后的相等窗口写入
+  `CCOMPARE == CCOUNT` 时，旧实现把下一次到期错误地推迟了 `2^32` ticks。
+  修复只把相等期限安排到下一 cycle，其他 32 位回绕语义不变；最小探针
+  首启动门禁已通过。它没有修复 legacy UIFlow 的独立 TG0/TG1 路径，后者仍
+  需要继续调查 watchdog feed/clear 或服务饥饿。精确轮次、哈希和对照只在
   [验证证据台账](docs/validation-ledger.md)；`Core2FactoryTest` 修复后尚未
   重跑，`RUNTIME-03` 仍为 `OPEN`。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、

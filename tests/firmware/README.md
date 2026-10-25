@@ -193,20 +193,26 @@ evidence therefore classifies the remaining boundary as timing-sensitive
 pending a guest code-point diagnosis, not as another fixed I2C or PMIC device
 gap.
 
-The later minimal [`core2_flash_ipc`](core2_flash_ipc/) probe reaches
-`CORE2_FLASH_IPC_READ_START` in every dated attempt and can complete 1000
-CPU1-side 4 KiB `esp_partition_read()` calls. Combined current/portable results
-are `14 PASS / 6 interrupt-WDT / 0 spinlock-owner assertion` across 20 first
-boots. WDT samples show both CPUs in the idle `waiti` path after flash reads
-have started.
+The later minimal [`core2_flash_ipc`](core2_flash_ipc/) probe first proved that
+the flash-read data path could execute while an intermittent interrupt-WDT
+remained. IRQ-ring evidence then captured the timer ISR writing
+`CCOMPARE == CCOUNT`; the old unsigned subtraction scheduled `2^32` ticks and
+deferred the next timer interrupt by roughly 26.8 seconds. Patch `0034` arms
+that equal deadline for the next cycle without changing other wraparound
+semantics. After the business-only fix, the probe's first-boot gate passed in
+trace-enabled and trace-disabled controls. Exact counts, hashes and
+accelerator variants are in
+[`evidence-2026-10-26-core2-ccompare-equal-deadline.json`](core2_flash_ipc/evidence-2026-10-26-core2-ccompare-equal-deadline.json).
 
 An earlier probe revision placed a 4096-byte local buffer on a 4096-byte task
 stack; its stack overflow caused the previously reported spinlock assertion.
 That run is explicitly invalidated in
 [`evidence-2026-10-26-core2-flash-ipc-wdt.json`](core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json).
-The corrected evidence supports the flash-read data path and keeps the remaining
-boundary on intermittent virtual timer/interrupt delivery, but it does not prove
-the same trigger for legacy UIFlow.
+The corrected evidence supports the flash-read data path and closes the minimal
+probe's timer-starvation reproduction. It does not close legacy UIFlow:
+`TG0WDT_SYS_RESET`/`TG1WDT_SYS_RESET`, reset CPU PC `0` and a black frame remain
+in the same public firmware path, so watchdog feed/clear or service starvation
+is now the next investigation boundary.
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).

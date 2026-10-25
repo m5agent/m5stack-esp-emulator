@@ -23,7 +23,7 @@
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
-| P0 | Core2 legacy UIFlow 启动 | 共享 I2C/PMIC/RTC 已越过原错误；剩余是调度/虚拟时间敏感的 WDT、reset reason 和非空应用帧 | I2C ACK 不代表应用启动；固定 PC、固定外设或单一 accelerator 均不能解释全部失败 |
+| P0 | Core2 legacy UIFlow 启动 | 共享 I2C 和最小 probe 的 `CCOMPARE == CCOUNT` timer deadline 已修复；剩余是 legacy `TG0/TG1WDT_SYS_RESET`、reset PC `0`、watchdog feed/clear 或服务饥饿路径和非空应用帧 | probe timer PASS 不代表 legacy 应用启动；I2C ACK、单一 PC 或 accelerator 都不能解释剩余失败 |
 | P0 | 网络产品化 | 物理跨主机 worker、跨主机幂等、任意 NAT 和外部 side-effect fence | 单机 namespace/container 不能替代物理多机 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、其他 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | 运行态 ACL/许可、真机安全配置和更多真实业务 | 静态声明、镜像摘要自洽不等于设备 trust/ACL |
@@ -35,8 +35,9 @@
 
 ## 当前执行顺序
 
-1. `RUNTIME-03`：用最小 flash/IPC 探针已记录的首启动边界定位虚拟定时器/
-   中断交付停摆窗口，再回到 legacy UIFlow 的启动期长同步路径与宿主调度交互。
+1. `RUNTIME-03`：最小 flash/IPC 探针的 equal-deadline timer 缺陷已修复并通过
+   首启动门禁；下一步回到 legacy UIFlow，解释 `TG0/TG1WDT_SYS_RESET`、reset
+   PC `0` 和黑帧，重点检查 watchdog feed/clear 与服务任务是否真正运行。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -58,7 +59,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 关联 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，解释修正后探针在 `READ_START` 后的 interrupt-WDT；再验证 legacy UIFlow 的 flash-cache/IPC/DPORT 交接 | 同固件 SHA 渲染非空应用帧并保持运行；current/portable QEMU 对照和 accelerator 证据可重复；保留 UIFlow2 回归证据 |
+| `RUNTIME-03` | 进行中 | 最小 probe 的 `CCOMPARE == CCOUNT` 已修复；下一项是解释 legacy UIFlow 的 `TG0/TG1WDT_SYS_RESET`、reset PC `0`、watchdog feed/clear 和服务饥饿，再验证 flash-cache/IPC/DPORT 交接 | 同固件 SHA 渲染非空应用帧并保持运行；保留 probe timer 对照、legacy watchdog evidence 和 UIFlow2 回归 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -81,27 +82,35 @@
 已满足的前置基线：端口 trace 已证明旧固件在 controller 0 上访问 AXP 和
 RTC；`0031` 将两个 controller 路由到唯一的 GPIO21/22 板级 bus 后，
 `0x34`、`0x51` 和 INA3221 `0x40` 均 ACK，原 `I2C bus error (19)` 消失。
+最小 `core2_flash_ipc` 探针又在 `CORE2_FLASH_IPC_READ_START` 后捕获到
+`CCOMPARE == CCOUNT` 被旧 QEMU 解释为 `2^32` ticks；`0034` 已将相等期限
+安排到下一 cycle，原 interrupt-WDT reproducer 在 trace 开/关和固定/auto
+icount 对照中不再出现。
 完整 trace 和边界见[运行时模型缺口登记](runtime-model-gap-register.md)。
 
 开放范围：
 
-- 复核 `core2_flash_ipc` 探针中“已经进入 `CORE2_FLASH_IPC_READ_START`、可完成
-  partition read，但仍出现 interrupt-WDT”的首启动边界；具体通过率、读取次数
-  和失败轮次只查验证台账与 evidence；
-- 在同一固件/ELF/SHA 下比较 current 与 portable QEMU，并追踪
-  `CCOMPARE`、`INTSET`、`INTENABLE`、timer expiry 和虚拟时间推进；
+- 回到同一 `UIFlow_Core2` SHA，解释 `TG0WDT_SYS_RESET`/
+  `TG1WDT_SYS_RESET`、reset CPU PC `0` 和黑帧之间的先后关系；
+- 追踪 TIMG watchdog feed/clear、timer expiry、`INTSET`、`INTENABLE`、
+  interrupt stage/reset 和两个 CPU 的服务任务进度，区分模型与固件死锁；
 - 增加通用 DPORT/flash-cache 状态 trace，确认 flash-cache pause、cross-core
   call/ack、DPORT high-interrupt 标志和 guest 等待/清标志顺序；
-- 区分 timer/WDT 模型、虚拟时间换算、宿主调度和固件自身死锁，不能把任何
-  单一采样值单独作为根因；保留默认关闭的 S32C1I trace 排除锁问题；
+- 检查 legacy 初始化期间是否真的执行了足够的 watchdog feed/clear，或某个
+  高优先级同步路径使 IDLE/service task 长时间无法运行；
+- 保留默认关闭的 S32C1I、TIMG 和 IRQ trace；不能把旧 probe 的 timer 根因
+  直接复用于 legacy watchdog；
+- 当前工作假设是 legacy TG0/TG1 feed/clear 或服务任务饥饿，与
+  flash-cache/IPC/DPORT 的顺序交互仍需 evidence；
 - 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
 - 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
 
 验收：
 
-- 最小探针先稳定通过首启动门禁，并保留 current/portable/accelerator 对照；
+- 已满足的最小 probe 首启动门禁继续可重放，且业务补丁不包含 trace/ring；
 - 同一 UIFlow 固件 SHA 出现非空应用帧并稳定运行；
-- shared bus、TIMG trace 和 Core2 UIFlow2 外设组回归保持 PASS；
+- legacy TG0/TG1 reset 的触发点有证据，shared bus、TIMG trace 和 Core2
+  UIFlow2 外设组回归保持 PASS；
 - 当前假设获得支持或被否定，且失败 trace、设备未建模部分和固件行为分开记录。
 
 ## P0：网络与 worker
