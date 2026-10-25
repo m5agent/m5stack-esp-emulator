@@ -241,6 +241,33 @@
             "enabled-unspecified"
           ]
         },
+    "secure_boot_image": {
+      "type": "object",
+      "required": [
+        "status",
+        "signature_authenticity",
+        "trust_root",
+        "images"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not-found",
+            "signed-image-observed",
+            "invalid"
+          ]
+        },
+        "signature_authenticity": {
+          "const": "not-verified"
+        },
+        "trust_root": {
+          "const": "not-verified"
+        },
+        "images": {
+          "type": "array"
+        }
+      }
+    },
         "flash_encryption": {
           "enum": [
             "unknown",

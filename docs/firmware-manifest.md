@@ -111,7 +111,8 @@ Flash Encryption 执行。当前 evidence：
 
 | 证据层 | 字段 | 能证明什么 |
 | --- | --- | --- |
-| 镜像 | partition `flags`、app descriptor `secure_version` | 镜像声明、加密分区标记和 anti-rollback version |
+| 镜像布局 | partition `flags`、app descriptor `secure_version` | 镜像声明、加密分区标记和 anti-rollback version |
+| 镜像签名 sector | `security.secure_boot_image` | Secure Boot v2 signature sector 的 magic/version、block CRC、embedded image digest 与镜像内容是否自洽；不证明公钥可信或 boot ROM 实际验签 |
 | sdkconfig | `secure_boot_config`、`flash_encryption_config` | 构建配置原本要求什么，不证明设备实际启用了什么 |
 | eFuse summary | `efuse`、`efuse_summary` | 包提供的一份 `espefuse` 读取结果声称设备状态是什么 |
 | 真机运行态 | 当前 manifest 不包含 | 必须由同设备、同安全配置的独立真机验证提供 |
@@ -147,6 +148,38 @@ QEMU profile 没有建模对应的密钥和启动链。
 - enabled Flash Encryption 没有可读的 XTS AES key purpose。
 
 warning 不会把自报 eFuse 提升为可信真机状态，也不会推断生产 key 合法。
+
+### Secure Boot v2 镜像签名 sector
+
+导入器会从 bootloader 和 application partition 的 4 KiB 对齐边界扫描
+Secure Boot v2 signature sector，不执行签名或启动固件。当前支持识别：
+
+- RSA-PSS / RSA-3072 signature block；
+- ECDSA P-192/P-256/P-384 signature block；
+- 最多 3 个连续 signature block；
+- 每个 block 的 magic、version、CRC32；
+- block 内 image digest 与 signature sector 之前的镜像内容 SHA-256/SHA-384；
+- block 中公钥区域的 SHA-256 指纹。
+
+`security.secure_boot_image.status` 的语义：
+
+| 状态 | 含义 |
+| --- | --- |
+| `signed-image-observed` | 至少一个 block 结构有效，且 image digest 与当前镜像内容一致 |
+| `invalid` | 找到 signature-like sector，但 block CRC 或 image digest 不一致 |
+| `not-found` | 没有找到可解析的 v2 signature sector |
+
+即使状态是 `signed-image-observed`，manifest 仍固定记录
+`signature_authenticity=not-verified` 和 `trust_root=not-verified`。原因是静态
+扫描只用 block 内自带的公钥和摘要检查数据自洽，没有把公钥 digest 与真实
+eFuse 比较，也没有让 boot ROM/bootloader 执行验签。对应 warnings：
+
+- `secure_boot_v2_image_signature_authenticity_unverified`；
+- `secure_boot_v2_image_signature_not_observed`（config/eFuse 声称 v2）；
+- `secure_boot_v2_image_signature_invalid`。
+
+该检查不覆盖 Secure Boot v1、Flash Encryption key、生产 eFuse、密钥吊销、
+secure version anti-rollback 真机状态或启动链执行。
 
 ## 静态审查
 
@@ -553,6 +586,7 @@ SPIFFS 证据：
 ## 边界
 
 - 镜像文件本身不能证明 eFuse/OEM key 状态；
+- signature block 的摘要自洽不证明公钥被设备信任，也不等于 boot ROM 验签；
 - 没有 sdkconfig 且没有可解析 eFuse 证据时，安全启动/Flash Encryption
   只能是 `unknown`；
 - 包内 eFuse summary 是自报证据，必须记录来源哈希，并保持

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import struct
+import zlib
 from pathlib import Path
 
 ESP_IMAGE_MAGIC = 0xE9
@@ -12,6 +13,9 @@ PARTITION_MAGIC = 0x50AA
 PARTITION_MD5_MAGIC = 0xEBEB
 PARTITION_TABLE_OFFSET = 0x8000
 PARTITION_TABLE_SIZE = 0x1000
+SECURE_BOOT_V2_SIGNATURE_MAGIC = 0xE7
+SECURE_BOOT_V2_SIGNATURE_SECTOR_SIZE = 0x1000
+SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE = 1216
 
 CHIP_IDS = {
     0x0000: "esp32",
@@ -35,6 +39,144 @@ def _u16(data: bytes, offset: int) -> int:
 
 def _u32(data: bytes, offset: int) -> int:
     return struct.unpack_from("<I", data, offset)[0]
+
+
+def _align_up(value: int, alignment: int) -> int:
+    return (value + alignment - 1) // alignment * alignment
+
+
+def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
+    start = index * SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE
+    block = data[
+        start : start + SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE
+    ]
+    if len(block) != SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE:
+        return None
+    if block[0] != SECURE_BOOT_V2_SIGNATURE_MAGIC:
+        return None
+    version = block[1]
+    if version not in {0x02, 0x03}:
+        return None
+    expected_crc = _u32(block, 1196)
+    actual_crc = zlib.crc32(block[:1196]) & 0xFFFFFFFF
+    if expected_crc != actual_crc:
+        return None
+    sha_version = block[2] if version == 0x03 else 0
+    digest_length = 48 if version == 0x03 and sha_version == 1 else 32
+    image_digest = block[4 : 4 + digest_length]
+    if version == 0x02:
+        scheme = "rsa-pss-sha256"
+        public_key_digest = hashlib.sha256(block[36:812]).hexdigest()
+        curve_id = None
+    elif sha_version == 1:
+        curve_id = block[52]
+        scheme = (
+            "ecdsa-p384-sha384"
+            if curve_id == 3
+            else f"ecdsa-unknown-curve-{curve_id}-sha384"
+        )
+        public_key_digest = hashlib.sha256(block[52:149]).hexdigest()
+    else:
+        curve_id = block[36]
+        curve_name = {
+            1: "p192",
+            2: "p256",
+            3: "p384",
+        }.get(curve_id, f"unknown-{curve_id}")
+        scheme = f"ecdsa-{curve_name}-sha256"
+        public_key_digest = hashlib.sha256(block[36:101]).hexdigest()
+    return {
+        "index": index,
+        "version": version,
+        "sha_version": sha_version,
+        "curve_id": curve_id,
+        "scheme": scheme,
+        "image_digest_sha256": (
+            hashlib.sha256(image_digest).hexdigest()
+            if len(image_digest) == 32
+            else None
+        ),
+        "image_digest_sha384": (
+            hashlib.sha384(image_digest).hexdigest()
+            if len(image_digest) == 48
+            else None
+        ),
+        "public_key_digest_sha256": public_key_digest,
+        "block_crc32": expected_crc,
+        "_image_digest": image_digest,
+    }
+
+
+def detect_secure_boot_v2_signature(
+    data: bytes,
+    image: dict,
+    *,
+    region_end: int,
+) -> dict:
+    image_start = int(image.get("offset", 0))
+    image_end = int(image.get("image_end", image_start))
+    first_sector = _align_up(
+        image_end,
+        SECURE_BOOT_V2_SIGNATURE_SECTOR_SIZE,
+    )
+    last_sector = min(region_end, len(data))
+    candidate_count = 0
+    for sector_offset in range(
+        first_sector,
+        last_sector - SECURE_BOOT_V2_SIGNATURE_SECTOR_SIZE + 1,
+        SECURE_BOOT_V2_SIGNATURE_SECTOR_SIZE,
+    ):
+        sector = data[
+            sector_offset : sector_offset
+            + SECURE_BOOT_V2_SIGNATURE_SECTOR_SIZE
+        ]
+        if not sector or sector[0] != SECURE_BOOT_V2_SIGNATURE_MAGIC:
+            continue
+        candidate_count += 1
+        blocks = []
+        for index in range(3):
+            block = _secure_boot_v2_block(sector, index)
+            if block is None:
+                break
+            blocks.append(block)
+        if not blocks:
+            continue
+        image_content = data[image_start:sector_offset]
+        digest_matches = []
+        for block in blocks:
+            digest = block.pop("_image_digest")
+            actual = (
+                hashlib.sha384(image_content).digest()
+                if len(digest) == 48
+                else hashlib.sha256(image_content).digest()
+            )
+            digest_matches.append(actual == digest)
+        return {
+            "status": (
+                "image-digest-match"
+                if all(digest_matches)
+                else "image-digest-mismatch"
+            ),
+            "sector_offset": sector_offset,
+            "image_bytes": sector_offset - image_start,
+            "candidate_count": candidate_count,
+            "block_count": len(blocks),
+            "blocks": blocks,
+            "image_digest_match": all(digest_matches),
+            "signature_authenticity": "not-verified",
+            "trust_root": "not-verified",
+        }
+    return {
+        "status": "not-found",
+        "sector_offset": None,
+        "image_bytes": None,
+        "candidate_count": candidate_count,
+        "block_count": 0,
+        "blocks": [],
+        "image_digest_match": False,
+        "signature_authenticity": "not-verified",
+        "trust_root": "not-verified",
+    }
 
 
 def analyze_esp_image(data: bytes, offset: int = 0) -> dict:
@@ -293,6 +435,14 @@ def analyze_firmware(
         )
         image["label"] = partition["label"]
         image["size"] = partition["size"]
+        image["secure_boot_v2_signature"] = detect_secure_boot_v2_signature(
+            data,
+            image,
+            region_end=min(
+                partition["offset"] + partition["size"],
+                len(data),
+            ),
+        )
         result["app_images"].append(image)
         if image["valid"]:
             descriptor = find_app_descriptor(
@@ -303,6 +453,11 @@ def analyze_firmware(
             if descriptor:
                 result["app_descriptor"] = descriptor
     bootloader = result["bootloader"]
+    bootloader["secure_boot_v2_signature"] = detect_secure_boot_v2_signature(
+        data,
+        bootloader,
+        region_end=min(PARTITION_TABLE_OFFSET, len(data)),
+    )
     images = [
         bootloader,
         *[
@@ -324,6 +479,39 @@ def analyze_firmware(
         result["warnings"].append("no app partition image found")
     if result["app_descriptor"] is None:
         result["warnings"].append("ESP app descriptor not found")
+    signature_images = []
+    for image in images:
+        evidence = image.get("secure_boot_v2_signature")
+        if not isinstance(evidence, dict):
+            continue
+        signature_images.append(
+            {
+                "label": (
+                    "bootloader"
+                    if image is bootloader
+                    else str(image.get("label") or "app")
+                ),
+                **evidence,
+            }
+        )
+    if any(
+        row.get("status") == "image-digest-mismatch"
+        for row in signature_images
+    ):
+        signature_status = "invalid"
+    elif any(
+        row.get("status") == "image-digest-match"
+        for row in signature_images
+    ):
+        signature_status = "signed-image-observed"
+    else:
+        signature_status = "not-found"
+    result["secure_boot_v2"] = {
+        "status": signature_status,
+        "signature_authenticity": "not-verified",
+        "trust_root": "not-verified",
+        "images": signature_images,
+    }
     result["valid"] = (
         bootloader.get("valid", False)
         and partition_table["valid"]

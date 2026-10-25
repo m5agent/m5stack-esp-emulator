@@ -1482,6 +1482,15 @@ def _security_metadata(
         flash_encryption = configured_flash_encryption
     return {
         "secure_boot": secure_boot,
+        "secure_boot_image": analysis.get(
+            "secure_boot_v2",
+            {
+                "status": "not-found",
+                "signature_authenticity": "not-verified",
+                "trust_root": "not-verified",
+                "images": [],
+            },
+        ),
         "flash_encryption": flash_encryption,
         "secure_boot_config": configured_secure_boot,
         "flash_encryption_config": configured_flash_encryption,
@@ -2134,6 +2143,49 @@ def import_package(
                         path="security.efuse_summary.key_purposes",
                     )
                 )
+        secure_boot_image = security.get("secure_boot_image") or {}
+        secure_boot_image_status = secure_boot_image.get("status")
+        if secure_boot_image_status == "invalid":
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "secure_boot_v2_image_signature_invalid",
+                    (
+                        "a Secure Boot v2 signature sector was observed but "
+                        "its block CRC or image digest did not validate"
+                    ),
+                    path="security.secure_boot_image",
+                )
+            )
+        elif secure_boot_image_status == "signed-image-observed":
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "secure_boot_v2_image_signature_authenticity_unverified",
+                    (
+                        "signature-sector structure and image digest match, "
+                        "but the embedded public key was not verified against "
+                        "hardware eFuse trust roots"
+                    ),
+                    path="security.secure_boot_image",
+                )
+            )
+        if (
+            security["secure_boot"] == "v2"
+            and secure_boot_image_status not in {
+                "signed-image-observed",
+                "invalid",
+            }
+        ):
+            manifest["validation"]["warnings"].append(
+                _code_issues(
+                    "secure_boot_v2_image_signature_not_observed",
+                    (
+                        "Secure Boot v2 is indicated by config/eFuse evidence "
+                        "but no digest-matching v2 signature sector was parsed "
+                        "from the bootloader or application image"
+                    ),
+                    path="security.secure_boot_image",
+                )
+            )
         if review["status"] == "REVIEW_REQUIRED":
             manifest["validation"]["warnings"].append(
                 _code_issues(
@@ -2367,6 +2419,40 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
     security = manifest.get("security")
     if not isinstance(security, dict):
         errors.append("manifest.security must be an object")
+    else:
+        secure_boot_image = security.get("secure_boot_image")
+        if secure_boot_image is not None:
+            if not isinstance(secure_boot_image, dict):
+                errors.append(
+                    "manifest.security.secure_boot_image must be an object"
+                )
+            else:
+                if secure_boot_image.get("status") not in {
+                    "not-found",
+                    "signed-image-observed",
+                    "invalid",
+                }:
+                    errors.append(
+                        "manifest.security.secure_boot_image.status is invalid"
+                    )
+                if (
+                    secure_boot_image.get("signature_authenticity")
+                    != "not-verified"
+                ):
+                    errors.append(
+                        "manifest.security.secure_boot_image must not claim "
+                        "verified signature authenticity"
+                    )
+                if secure_boot_image.get("trust_root") != "not-verified":
+                    errors.append(
+                        "manifest.security.secure_boot_image must not claim "
+                        "a verified trust root"
+                    )
+                if not isinstance(secure_boot_image.get("images"), list):
+                    errors.append(
+                        "manifest.security.secure_boot_image.images must be "
+                        "an array"
+                    )
     capabilities = manifest.get("capabilities")
     if capabilities is not None:
         if not isinstance(capabilities, dict):

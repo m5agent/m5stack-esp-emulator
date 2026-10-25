@@ -82,6 +82,15 @@ Security-evidence conflicts have a separate static regression:
 It covers config/eFuse disagreement, secure-boot mode mismatch and missing key
 purposes without claiming that a package-supplied eFuse summary is authentic.
 
+Secure Boot v2 image evidence now parses up to three signature blocks at
+4 KiB-aligned bootloader/application boundaries, validates block magic,
+version, CRC32 and the embedded SHA-256/SHA-384 image digest, and records the
+embedded public-key digest. Synthetic RSA-PSS, ECDSA P-256 and ECDSA P-384
+blocks are covered. Authenticity remains `not-verified` because the
+key digest is not compared with a live eFuse read and no ROM/bootloader
+verification executes. This is static image self-consistency, not a hardware
+secure-boot PASS.
+
 The four current public CDN artifacts refreshed on `2026-10-25` are bound in
 [`evidence-2026-10-25-refreshed-public-artifacts-static.json`](evidence-2026-10-25-refreshed-public-artifacts-static.json).
 That checkpoint is `STATIC_PASS / FUNCTIONAL_NOT_RUN`; its functional axis is

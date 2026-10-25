@@ -25,6 +25,7 @@ from firmware_manifest import (  # noqa: E402
 )
 from test_firmware_analysis import (  # noqa: E402
     build_flash,
+    build_flash_with_secure_boot_v2,
     build_flash_with_fat,
     build_flash_with_littlefs,
     build_flash_with_spiffs,
@@ -58,6 +59,10 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertIn("detected", capability_properties)
         self.assertIn("observed", capability_properties)
         self.assertIn("observation", capability_properties)
+        self.assertIn(
+            "secure_boot_image",
+            schema["properties"]["security"]["properties"],
+        )
         segment_properties = (
             schema["properties"]["artifact"]["properties"]["segments"]["items"][
                 "properties"
@@ -408,6 +413,97 @@ class FirmwareManifestTests(unittest.TestCase):
             {
                 row["code"]
                 for row in mode_manifest["validation"]["warnings"]
+            },
+        )
+
+    def test_secure_boot_v2_image_evidence_does_not_claim_trust(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "signed.bin"
+            image.write_bytes(build_flash_with_secure_boot_v2())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            manifest = import_package(
+                image,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+
+        evidence = manifest["security"]["secure_boot_image"]
+        self.assertEqual(evidence["status"], "signed-image-observed")
+        self.assertEqual(evidence["signature_authenticity"], "not-verified")
+        self.assertEqual(evidence["trust_root"], "not-verified")
+        self.assertEqual(
+            {row["label"] for row in evidence["images"]},
+            {"bootloader", "factory"},
+        )
+        warning_codes = {
+            row["code"]
+            for row in manifest["validation"]["warnings"]
+        }
+        self.assertIn(
+            "secure_boot_v2_image_signature_authenticity_unverified",
+            warning_codes,
+        )
+        self.assertNotIn(
+            "secure_boot_v2_image_signature_not_observed",
+            warning_codes,
+        )
+        self.assertEqual(validate_manifest_structure(manifest), [])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = bytearray(build_flash_with_secure_boot_v2())
+            image[0x10500] ^= 0xFF
+            path = root / "tampered.bin"
+            path.write_bytes(image)
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            tampered = import_package(
+                path,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+
+        self.assertEqual(
+            tampered["security"]["secure_boot_image"]["status"],
+            "invalid",
+        )
+        self.assertIn(
+            "secure_boot_v2_image_signature_invalid",
+            {
+                row["code"]
+                for row in tampered["validation"]["warnings"]
+            },
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "unsigned.bin"
+            image.write_bytes(build_flash())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            unsigned = import_package(
+                image,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+
+        self.assertEqual(
+            unsigned["security"]["secure_boot_image"]["status"],
+            "not-found",
+        )
+        self.assertIn(
+            "secure_boot_v2_image_signature_not_observed",
+            {
+                row["code"]
+                for row in unsigned["validation"]["warnings"]
             },
         )
 

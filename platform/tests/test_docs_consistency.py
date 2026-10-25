@@ -262,6 +262,9 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/firmware/evidence-2026-10-24-source-license-scan.json",
             "tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json",
             "tests/firmware/evidence-2026-10-24-efuse-security.json",
+            "tests/firmware/secure_boot_image/README.md",
+            "tests/firmware/secure_boot_image/run_test.py",
+            "tests/firmware/evidence-2026-10-25-secure-boot-image.json",
             "tests/firmware/evidence-2026-10-24-license-policy.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
@@ -4446,6 +4449,117 @@ class DocsConsistencyTests(unittest.TestCase):
             "## WebBurner 分段完整性",
             manifest_doc,
         )
+
+    def test_secure_boot_v2_image_evidence_does_not_overclaim(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-secure-boot-image.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(
+            evidence["validation"],
+            "static secure-boot image validation",
+        )
+        self.assertTrue(evidence["input_assets_unchanged"])
+        self.assertEqual(len(evidence["checks"]), 13)
+        self.assertTrue(all(evidence["checks"].values()))
+        for name, relative in {
+            "runner": (
+                "tests/firmware/secure_boot_image/run_test.py"
+            ),
+            "test_image_builder": (
+                "platform/tests/test_firmware_analysis.py"
+            ),
+            "firmware_analysis": (
+                "platform/tools/firmware_analysis.py"
+            ),
+            "firmware_manifest": (
+                "platform/tools/firmware_manifest.py"
+            ),
+            "manifest_schema": (
+                "platform/tools/firmware_manifest.schema.json"
+            ),
+        }.items():
+            self.assertEqual(
+                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+                evidence["tool_hashes"][name],
+            )
+        signed = evidence["security_images"]["signed"]
+        self.assertEqual(signed["status"], "signed-image-observed")
+        self.assertEqual(
+            signed["signature_authenticity"],
+            "not-verified",
+        )
+        self.assertEqual(signed["trust_root"], "not-verified")
+        self.assertEqual(
+            {
+                row["label"] for row in signed["images"]
+            },
+            {"bootloader", "factory"},
+        )
+        self.assertEqual(
+            evidence["security_images"]["tampered"]["status"],
+            "invalid",
+        )
+        self.assertEqual(
+            evidence["security_images"]["unsigned"]["status"],
+            "not-found",
+        )
+        self.assertEqual(
+            {
+                block["scheme"]
+                for block in evidence["security_images"]["ecdsa_p256"][
+                    "images"
+                ][0]["blocks"]
+            },
+            {"ecdsa-p256-sha256"},
+        )
+        self.assertEqual(
+            {
+                block["scheme"]
+                for block in evidence["security_images"]["ecdsa_p384"][
+                    "images"
+                ][0]["blocks"]
+            },
+            {"ecdsa-p384-sha384"},
+        )
+        self.assertIn(
+            "embedded public key trust against live eFuse",
+            evidence["not_claimed"],
+        )
+
+        manifest = (DOCS / "firmware-manifest.md").read_text()
+        for text in (
+            "Secure Boot v2 signature sector",
+            "secure_boot_v2_image_signature_authenticity_unverified",
+            "secure_boot_v2_image_signature_not_observed",
+            "secure_boot_v2_image_signature_invalid",
+            "signature_authenticity=not-verified",
+            "trust_root=not-verified",
+        ):
+            self.assertIn(text, manifest)
+        schema = json.loads(
+            (
+                ROOT
+                / "platform/tools/firmware_manifest.schema.json"
+            ).read_text()
+        )
+        self.assertIn(
+            "secure_boot_image",
+            schema["properties"]["security"]["properties"],
+        )
+        code = (
+            ROOT / "platform/tools/firmware_manifest.py"
+        ).read_text()
+        for warning in (
+            "secure_boot_v2_image_signature_authenticity_unverified",
+            "secure_boot_v2_image_signature_not_observed",
+            "secure_boot_v2_image_signature_invalid",
+        ):
+            self.assertIn(warning, code)
 
     def test_core2_guest_psram_stress_is_reconciled(self) -> None:
         evidence_path = (

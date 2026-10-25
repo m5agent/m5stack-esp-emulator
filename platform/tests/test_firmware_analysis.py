@@ -8,6 +8,7 @@ import struct
 import sys
 import tempfile
 import unittest
+import zlib
 from itertools import pairwise
 from pathlib import Path
 
@@ -57,6 +58,55 @@ def build_flash() -> bytes:
     md5_entry[16:32] = hashlib.md5(entry).digest()
     image[0x8000:0x8020] = entry
     image[0x8020:0x8040] = md5_entry
+    return bytes(image)
+
+
+def build_secure_boot_v2_sector(
+    image_content: bytes,
+    *,
+    scheme: str = "rsa",
+    curve_id: int = 2,
+) -> bytes:
+    block = bytearray(1216)
+    block[0] = 0xE7
+    if scheme == "rsa":
+        block[1] = 0x02
+        block[4:36] = hashlib.sha256(image_content).digest()
+    elif scheme == "ecdsa":
+        block[1] = 0x03
+        if curve_id == 3:
+            block[2] = 1
+            block[4:52] = hashlib.sha384(image_content).digest()
+            block[52] = curve_id
+        else:
+            block[4:36] = hashlib.sha256(image_content).digest()
+            block[36] = curve_id
+    else:
+        raise ValueError(scheme)
+    struct.pack_into("<I", block, 1196, zlib.crc32(block[:1196]))
+    sector = bytearray(b"\xff" * 4096)
+    sector[: len(block)] = block
+    return bytes(sector)
+
+
+def build_flash_with_secure_boot_v2(
+    *,
+    scheme: str = "rsa",
+    curve_id: int = 2,
+) -> bytes:
+    image = bytearray(build_flash())
+    boot_sector = 0x1000
+    app_sector = 0x11000
+    image[boot_sector : boot_sector + 4096] = build_secure_boot_v2_sector(
+        bytes(image[:boot_sector]),
+        scheme=scheme,
+        curve_id=curve_id,
+    )
+    image[app_sector : app_sector + 4096] = build_secure_boot_v2_sector(
+        bytes(image[0x10000:app_sector]),
+        scheme=scheme,
+        curve_id=curve_id,
+    )
     return bytes(image)
 
 
@@ -636,6 +686,80 @@ class FirmwareAnalysisTests(unittest.TestCase):
         self.assertEqual(result["partition_table"]["partitions"][0]["label"], "factory")
         self.assertEqual(result["app_descriptor"]["version"], "1.2.3")
         self.assertEqual(result["app_descriptor"]["project_name"], "probe")
+
+    def test_detects_secure_boot_v2_signature_structure_and_digest(self):
+        for scheme, curve_id, expected in (
+            ("rsa", 2, "rsa-pss-sha256"),
+            ("ecdsa", 1, "ecdsa-p192-sha256"),
+            ("ecdsa", 2, "ecdsa-p256-sha256"),
+            ("ecdsa", 3, "ecdsa-p384-sha384"),
+        ):
+            with self.subTest(scheme=scheme, curve_id=curve_id):
+                with tempfile.TemporaryDirectory() as tmp:
+                    path = Path(tmp) / "signed.bin"
+                    path.write_bytes(
+                        build_flash_with_secure_boot_v2(
+                            scheme=scheme,
+                            curve_id=curve_id,
+                        )
+                    )
+                    result = analyze_firmware(
+                        path,
+                        expected_chip_id_value=0x0009,
+                    )
+
+                self.assertTrue(result["valid"], result["errors"])
+                evidence = result["secure_boot_v2"]
+                self.assertEqual(
+                    evidence["status"],
+                    "signed-image-observed",
+                )
+                self.assertEqual(
+                    evidence["signature_authenticity"],
+                    "not-verified",
+                )
+                self.assertEqual(
+                    evidence["trust_root"],
+                    "not-verified",
+                )
+                by_label = {
+                    row["label"]: row for row in evidence["images"]
+                }
+                self.assertEqual(
+                    by_label["bootloader"]["sector_offset"],
+                    0x1000,
+                )
+                self.assertEqual(
+                    by_label["factory"]["sector_offset"],
+                    0x11000,
+                )
+                for row in by_label.values():
+                    self.assertEqual(row["block_count"], 1)
+                    self.assertEqual(
+                        row["blocks"][0]["scheme"],
+                        expected,
+                    )
+                    self.assertTrue(row["image_digest_match"])
+                    self.assertEqual(
+                        row["signature_authenticity"],
+                        "not-verified",
+                    )
+
+    def test_secure_boot_v2_digest_mismatch_is_invalid(self):
+        image = bytearray(build_flash_with_secure_boot_v2())
+        image[0x10500] ^= 0xFF
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "tampered.bin"
+            path.write_bytes(image)
+            result = analyze_firmware(path, expected_chip_id_value=0x0009)
+
+        evidence = result["secure_boot_v2"]
+        self.assertEqual(evidence["status"], "invalid")
+        factory = next(
+            row for row in evidence["images"] if row["label"] == "factory"
+        )
+        self.assertEqual(factory["status"], "image-digest-mismatch")
+        self.assertFalse(factory["image_digest_match"])
 
     def test_detects_chip_mismatch(self):
         with tempfile.TemporaryDirectory() as tmp:

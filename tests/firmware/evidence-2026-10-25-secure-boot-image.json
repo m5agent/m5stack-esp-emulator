@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-secure-boot-v2-image-evidence",
+  "date": "2026-10-25",
+  "validation": "static secure-boot image validation",
+  "status": "PASS",
+  "schema_version_tested": 1,
+  "tool_hashes": {
+    "runner": "389d8ca7140bd1a868d459c19644a3d1766286d8c8838bfb60590bb91df4c51b",
+    "test_image_builder": "ac1d73faf1cb52893142d79557f87df88a9772e046567faa810eaa1b13ff7ea9",
+    "firmware_analysis": "a01168a5c837500e1b9939f8134b13da0e3baa5bb1b719e697dc968f335fc457",
+    "firmware_manifest": "4529d5386263cb15ec90fe2e089d71065d3d969c2b7f14850e694a8b82b8a33c",
+    "manifest_schema": "be712ee4e66dff157a69a2fc21f4b0ca7b8d4fbccd3624f8690386bf022fe1fc"
+  },
+  "input_assets_unchanged": true,
+  "checks": {
+    "signed_image_observed": true,
+    "bootloader_digest_match": true,
+    "application_digest_match": true,
+    "public_key_digest_recorded": true,
+    "authenticity_not_verified": true,
+    "tampered_digest_rejected": true,
+    "tampered_warning_recorded": true,
+    "unsigned_image_not_found": true,
+    "ecdsa_p256_observed": true,
+    "ecdsa_p384_observed": true,
+    "missing_signature_warning_recorded": true,
+    "authenticity_warning_recorded": true,
+    "manifest_structure_valid": true
+  },
+  "security_images": {
+    "signed": {
+      "status": "signed-image-observed",
+      "signature_authenticity": "not-verified",
+      "trust_root": "not-verified",
+      "images": [
+        {
+          "label": "bootloader",
+          "status": "image-digest-match",
+          "sector_offset": 4096,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 2,
+              "sha_version": 0,
+              "curve_id": null,
+              "scheme": "rsa-pss-sha256",
+              "image_digest_sha256": "a5e642124f6529e9df0a25b4d2c3c6fdd62c838ae14d254c3b892fa40e868dd6",
+              "image_digest_sha384": null,
+              "public_key_digest_sha256": "508f5ba745944e982367cdbcd6a240acc7f895583df43b519b7d6745f5d86f7b",
+              "block_crc32": 4209472714
+            }
+          ],
+          "image_digest_match": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        },
+        {
+          "label": "factory",
+          "status": "image-digest-match",
+          "sector_offset": 69632,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 2,
+              "sha_version": 0,
+              "curve_id": null,
+              "scheme": "rsa-pss-sha256",
+              "image_digest_sha256": "237a53ea70283962208e8964b9d688f440291de05b5e79f923011ff587317aaf",
+              "image_digest_sha384": null,
+              "public_key_digest_sha256": "508f5ba745944e982367cdbcd6a240acc7f895583df43b519b7d6745f5d86f7b",
+              "block_crc32": 2978779945
+            }
+          ],
+          "image_digest_match": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        }
+      ]
+    },
+    "tampered": {
+      "status": "invalid",
+      "signature_authenticity": "not-verified",
+      "trust_root": "not-verified",
+      "images": [
+        {
+          "label": "bootloader",
+          "status": "image-digest-match",
+          "sector_offset": 4096,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 2,
+              "sha_version": 0,
+              "curve_id": null,
+              "scheme": "rsa-pss-sha256",
+              "image_digest_sha256": "a5e642124f6529e9df0a25b4d2c3c6fdd62c838ae14d254c3b892fa40e868dd6",
+              "image_digest_sha384": null,
+              "public_key_digest_sha256": "508f5ba745944e982367cdbcd6a240acc7f895583df43b519b7d6745f5d86f7b",
+              "block_crc32": 4209472714
+            }
+          ],
+          "image_digest_match": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        },
+        {
+          "label": "factory",
+          "status": "image-digest-mismatch",
+          "sector_offset": 69632,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 2,
+              "sha_version": 0,
+              "curve_id": null,
+              "scheme": "rsa-pss-sha256",
+              "image_digest_sha256": "237a53ea70283962208e8964b9d688f440291de05b5e79f923011ff587317aaf",
+              "image_digest_sha384": null,
+              "public_key_digest_sha256": "508f5ba745944e982367cdbcd6a240acc7f895583df43b519b7d6745f5d86f7b",
+              "block_crc32": 2978779945
+            }
+          ],
+          "image_digest_match": false,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        }
+      ]
+    },
+    "unsigned": {
+      "status": "not-found",
+      "signature_authenticity": "not-verified",
+      "trust_root": "not-verified",
+      "images": [
+        {
+          "label": "bootloader",
+          "status": "not-found",
+          "sector_offset": null,
+          "image_bytes": null,
+          "candidate_count": 0,
+          "block_count": 0,
+          "blocks": [],
+          "image_digest_match": false,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        },
+        {
+          "label": "factory",
+          "status": "not-found",
+          "sector_offset": null,
+          "image_bytes": null,
+          "candidate_count": 0,
+          "block_count": 0,
+          "blocks": [],
+          "image_digest_match": false,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        }
+      ]
+    },
+    "ecdsa_p256": {
+      "status": "signed-image-observed",
+      "signature_authenticity": "not-verified",
+      "trust_root": "not-verified",
+      "images": [
+        {
+          "label": "bootloader",
+          "status": "image-digest-match",
+          "sector_offset": 4096,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 3,
+              "sha_version": 0,
+              "curve_id": 2,
+              "scheme": "ecdsa-p256-sha256",
+              "image_digest_sha256": "a5e642124f6529e9df0a25b4d2c3c6fdd62c838ae14d254c3b892fa40e868dd6",
+              "image_digest_sha384": null,
+              "public_key_digest_sha256": "977c6d24ff2b851777af4dce0615e547112c6c0128a37338b3a1db9d055fff09",
+              "block_crc32": 2573448726
+            }
+          ],
+          "image_digest_match": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        },
+        {
+          "label": "factory",
+          "status": "image-digest-match",
+          "sector_offset": 69632,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 3,
+              "sha_version": 0,
+              "curve_id": 2,
+              "scheme": "ecdsa-p256-sha256",
+              "image_digest_sha256": "237a53ea70283962208e8964b9d688f440291de05b5e79f923011ff587317aaf",
+              "image_digest_sha384": null,
+              "public_key_digest_sha256": "977c6d24ff2b851777af4dce0615e547112c6c0128a37338b3a1db9d055fff09",
+              "block_crc32": 3523760629
+            }
+          ],
+          "image_digest_match": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        }
+      ]
+    },
+    "ecdsa_p384": {
+      "status": "signed-image-observed",
+      "signature_authenticity": "not-verified",
+      "trust_root": "not-verified",
+      "images": [
+        {
+          "label": "bootloader",
+          "status": "image-digest-match",
+          "sector_offset": 4096,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 3,
+              "sha_version": 1,
+              "curve_id": 3,
+              "scheme": "ecdsa-p384-sha384",
+              "image_digest_sha256": null,
+              "image_digest_sha384": "34cc37c742de00cbd975dccc2d9133696e31de47f49c4cd7d2a56c117be805153787b16c05606221cdaf61f5485370d4",
+              "public_key_digest_sha256": "76d62764fa8ecfaf7ba55dcf367be6aa00a7252513a15549fabc148cc584c650",
+              "block_crc32": 3616642597
+            }
+          ],
+          "image_digest_match": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        },
+        {
+          "label": "factory",
+          "status": "image-digest-match",
+          "sector_offset": 69632,
+          "image_bytes": 4096,
+          "candidate_count": 1,
+          "block_count": 1,
+          "blocks": [
+            {
+              "index": 0,
+              "version": 3,
+              "sha_version": 1,
+              "curve_id": 3,
+              "scheme": "ecdsa-p384-sha384",
+              "image_digest_sha256": null,
+              "image_digest_sha384": "536cf81f461825cb1074fccc3ad072392d69abb1feda5d082ec83dd198ba79d4e7a1afa95844af934fe05600723e980e",
+              "public_key_digest_sha256": "76d62764fa8ecfaf7ba55dcf367be6aa00a7252513a15549fabc148cc584c650",
+              "block_crc32": 92514212
+            }
+          ],
+          "image_digest_match": true,
+          "signature_authenticity": "not-verified",
+          "trust_root": "not-verified"
+        }
+      ]
+    }
+  },
+  "not_claimed": [
+    "RSA-PSS or ECDSA signature authenticity",
+    "embedded public key trust against live eFuse",
+    "Secure Boot ROM/bootloader execution",
+    "Secure Boot v1",
+    "Flash Encryption key or runtime state",
+    "physical hardware validation"
+  ]
+}
