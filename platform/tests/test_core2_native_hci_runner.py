@@ -143,6 +143,63 @@ class Core2NativeHciHealthTests(unittest.TestCase):
             runner.native_hci_health_ok(healthy(**{"meta-queue-depth": 1}))
         )
 
+    def test_parses_and_accepts_complete_psram_stress(self) -> None:
+        serial = "\n".join(
+            (
+                "UNIFIED_CORE2_PSRAM_ALLOC 4194304 1048576 1048576",
+                "UNIFIED_CORE2_PSRAM_INIT_PASS",
+                "UNIFIED_CORE2_PSRAM_SWEEP 1",
+                "UNIFIED_CORE2_PSRAM_SWEEP 2",
+                "UNIFIED_CORE2_PSRAM_SWEEP 3",
+                "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+            )
+        )
+        parsed = runner.parse_psram_stress(serial)
+        self.assertTrue(parsed["marker_present"])
+        self.assertEqual(parsed["sweeps"], [1, 2, 3])
+        self.assertTrue(runner.psram_stress_ok(parsed))
+
+    def test_rejects_incomplete_or_failed_psram_stress(self) -> None:
+        incomplete = runner.parse_psram_stress(
+            "\n".join(
+                (
+                    "UNIFIED_CORE2_PSRAM_ALLOC 4194304 1048576 1048576",
+                    "UNIFIED_CORE2_PSRAM_INIT_PASS",
+                    "UNIFIED_CORE2_PSRAM_SWEEP 1",
+                )
+            )
+        )
+        self.assertFalse(runner.psram_stress_ok(incomplete))
+        failed = runner.parse_psram_stress(
+            "\n".join(
+                (
+                    "UNIFIED_CORE2_PSRAM_ALLOC 4194304 1048576 1048576",
+                    "UNIFIED_CORE2_PSRAM_INIT_PASS",
+                    "UNIFIED_CORE2_PSRAM_SWEEP 1",
+                    "UNIFIED_CORE2_PSRAM_SWEEP 2",
+                    "UNIFIED_CORE2_PSRAM_SWEEP 3",
+                    "UNIFIED_CORE2_PSRAM_STRESS_PASS",
+                    "UNIFIED_CORE2_PSRAM_STRESS_ERROR RuntimeError('bad')",
+                )
+            )
+        )
+        self.assertFalse(runner.psram_stress_ok(failed))
+
+    def test_manifest_session_binding_requires_a_real_session(self) -> None:
+        self.assertFalse(runner.manifest_session_binding_ok({}, None))
+        self.assertFalse(
+            runner.manifest_session_binding_ok(
+                {"session": {"session_id": "other"}},
+                "expected",
+            )
+        )
+        self.assertTrue(
+            runner.manifest_session_binding_ok(
+                {"session": {"session_id": "expected"}},
+                "expected",
+            )
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

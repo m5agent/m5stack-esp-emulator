@@ -1,6 +1,8 @@
 """One UIFlow2 Core2 guest exercising board, WiFi and BLE."""
 
 import M5
+import esp32
+import gc
 import network
 import socket
 import time
@@ -11,6 +13,10 @@ SSID = "myssid"
 HTTP_HOST = "10.0.2.2"
 HTTP_PORT = 18089
 BLE_NAME = "M5-CORE2-UNIFIED"
+PSRAM_BUFFER_BYTES = 1 << 20
+PSRAM_CHUNK_BYTES = 4096
+PSRAM_SWEEPS_REQUIRED = 3
+PSRAM_PATTERN = bytes([(index * 37 + 11) & 0xFF for index in range(PSRAM_CHUNK_BYTES)])
 
 state = {
     "audio": "init",
@@ -20,11 +26,15 @@ state = {
     "ina": "init",
     "mic": "init",
     "power": (0, 0, 0),
+    "psram": "init",
     "rtc": "init",
     "touch": "init",
     "wifi": "init",
 }
 log_uart = None
+psram_buffer = None
+psram_sweeps = 0
+psram_next_sweep = 0
 
 
 def emit(*parts):
@@ -45,7 +55,11 @@ def draw():
     display.print("Core2 unified")
     display.setTextSize(1)
     lines = (
-        "WiFi:%s BLE:%s" % (state["wifi"], state["ble"]),
+        "WiFi:%s BLE:%s P:%s" % (
+            state["wifi"],
+            state["ble"],
+            state["psram"],
+        ),
         "HTTP:%s TOUCH:%s" % (state["http"], state["touch"]),
         "PMIC:%d BAT:%dmV" % state["power"],
         "IMU:%s RTC:%s" % (state["imu"], state["rtc"]),
@@ -117,8 +131,101 @@ def probe_public():
         client.close()
 
 
+def psram_heap_snapshot():
+    return [
+        tuple(info)
+        for info in esp32.idf_heap_info(esp32.HEAP_DATA)
+        if len(info) == 4
+    ]
+
+
+def largest_heap_index(heaps):
+    index = None
+    total = 0
+    for candidate, heap in enumerate(heaps):
+        if heap[0] > total:
+            index = candidate
+            total = heap[0]
+    return index, total
+
+
+def fill_psram_buffer():
+    for offset in range(0, len(psram_buffer), PSRAM_CHUNK_BYTES):
+        end = min(offset + PSRAM_CHUNK_BYTES, len(psram_buffer))
+        chunk = PSRAM_PATTERN[: end - offset]
+        psram_buffer[offset:end] = chunk
+        psram_buffer[offset] = offset & 0xFF
+        psram_buffer[offset + 1] = (offset >> 8) & 0xFF
+
+
+def verify_psram_buffer():
+    for offset in range(0, len(psram_buffer), PSRAM_CHUNK_BYTES):
+        end = min(offset + PSRAM_CHUNK_BYTES, len(psram_buffer))
+        expected = PSRAM_PATTERN[2 : end - offset]
+        if psram_buffer[offset + 2 : end] != expected:
+            raise RuntimeError("PSRAM pattern mismatch at %d" % offset)
+        if (
+            psram_buffer[offset] != (offset & 0xFF)
+            or psram_buffer[offset + 1] != ((offset >> 8) & 0xFF)
+        ):
+            raise RuntimeError("PSRAM address tag mismatch at %d" % offset)
+
+
+def probe_psram():
+    global psram_buffer
+    gc.collect()
+    before = psram_heap_snapshot()
+    index, total = largest_heap_index(before)
+    emit("UNIFIED_CORE2_PSRAM_HEAPS_BEFORE", repr(before))
+    if index is None or total < 2 * PSRAM_BUFFER_BYTES:
+        raise RuntimeError("no external heap with at least 2 MiB capacity")
+    psram_buffer = bytearray(PSRAM_BUFFER_BYTES)
+    fill_psram_buffer()
+    verify_psram_buffer()
+    after = psram_heap_snapshot()
+    emit("UNIFIED_CORE2_PSRAM_HEAPS_AFTER", repr(after))
+    if index >= len(after):
+        raise RuntimeError("external heap disappeared after allocation")
+    allocated = before[index][1] - after[index][1]
+    emit(
+        "UNIFIED_CORE2_PSRAM_ALLOC",
+        total,
+        len(psram_buffer),
+        allocated,
+    )
+    if allocated < len(psram_buffer):
+        raise RuntimeError("1 MiB buffer did not reduce the external heap")
+    emit("UNIFIED_CORE2_PSRAM_INIT_PASS")
+
+
+def poll_psram_sweep():
+    global psram_sweeps, psram_next_sweep
+    if (
+        psram_buffer is None
+        or state["psram"] == "fail"
+        or psram_sweeps >= PSRAM_SWEEPS_REQUIRED
+    ):
+        return
+    now = time.ticks_ms()
+    if time.ticks_diff(now, psram_next_sweep) < 0:
+        return
+    try:
+        verify_psram_buffer()
+        psram_sweeps += 1
+        emit("UNIFIED_CORE2_PSRAM_SWEEP", psram_sweeps)
+        if psram_sweeps >= PSRAM_SWEEPS_REQUIRED:
+            state["psram"] = "pass"
+            emit("UNIFIED_CORE2_PSRAM_STRESS_PASS")
+            draw()
+        else:
+            psram_next_sweep = time.ticks_add(now, 2000)
+    except Exception as error:
+        state["psram"] = "fail"
+        emit("UNIFIED_CORE2_PSRAM_STRESS_ERROR", repr(error))
+
+
 def main():
-    global log_uart
+    global log_uart, psram_next_sweep
 
     from machine import I2C, Pin
     from rtc_probe import check_pcf8563
@@ -133,6 +240,13 @@ def main():
     )
     emit("UNIFIED_CORE2_IO_CONFIG_READY")
     time.sleep_ms(1500)
+
+    try:
+        probe_psram()
+        state["psram"] = "alloc"
+    except Exception as error:
+        state["psram"] = "fail"
+        emit("UNIFIED_CORE2_PSRAM_ERROR", repr(error))
 
     try:
         state["power"] = (
@@ -320,9 +434,11 @@ def main():
 
     draw()
     emit("UNIFIED_CORE2_READY")
+    psram_next_sweep = time.ticks_add(time.ticks_ms(), 2000)
     touch_seen = False
     while True:
         M5.update()
+        poll_psram_sweep()
         if state["ble"] == "pass":
             server.poll_readvertise()
         if M5.Touch.getCount() > 0 and not touch_seen:

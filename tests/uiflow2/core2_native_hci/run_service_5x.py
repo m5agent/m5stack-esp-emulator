@@ -28,6 +28,8 @@ from qemu_accel import CORE2_TCG_TB_SIZE_MIB  # noqa: E402
 
 PROFILE = "core2-native-hci"
 READY_MARKER = "UNIFIED_CORE2_READY"
+PSRAM_EXTERNAL_HEAP_MIN_BYTES = 4 << 20
+PSRAM_REQUESTED_BYTES = 1 << 20
 EXPECTED_QEMU_ACCELERATOR = (
     f"tcg,thread=single,tb-size={CORE2_TCG_TB_SIZE_MIB}"
 )
@@ -378,6 +380,85 @@ def native_hci_health_ok(hci_health: dict[str, int]) -> bool:
     )
 
 
+def parse_psram_stress(serial_text: str) -> dict[str, Any]:
+    allocations = [
+        tuple(int(value) for value in match.groups())
+        for match in re.finditer(
+            r"(?m)^UNIFIED_CORE2_PSRAM_ALLOC\s+(\d+)\s+(\d+)\s+(\d+)\s*$",
+            serial_text,
+        )
+    ]
+    sweeps = sorted(
+        int(value)
+        for value in re.findall(
+            r"(?m)^UNIFIED_CORE2_PSRAM_SWEEP\s+(\d+)\s*$",
+            serial_text,
+        )
+    )
+    return {
+        "marker_present": bool(
+            "UNIFIED_CORE2_PSRAM_" in serial_text
+        ),
+        "allocations": allocations,
+        "external_heap_total_bytes": (
+            allocations[0][0] if len(allocations) == 1 else None
+        ),
+        "requested_bytes": (
+            allocations[0][1] if len(allocations) == 1 else None
+        ),
+        "allocated_bytes": (
+            allocations[0][2] if len(allocations) == 1 else None
+        ),
+        "sweeps": sweeps,
+        "init_pass_count": serial_text.count(
+            "UNIFIED_CORE2_PSRAM_INIT_PASS"
+        ),
+        "stress_pass_count": serial_text.count(
+            "UNIFIED_CORE2_PSRAM_STRESS_PASS"
+        ),
+        "error_markers": [
+            marker
+            for marker in (
+                "UNIFIED_CORE2_PSRAM_ERROR",
+                "UNIFIED_CORE2_PSRAM_STRESS_ERROR",
+            )
+            if marker in serial_text
+        ],
+    }
+
+
+def psram_stress_ok(evidence: dict[str, Any]) -> bool:
+    allocations = evidence.get("allocations")
+    sweeps = evidence.get("sweeps")
+    if not isinstance(allocations, list) or not isinstance(sweeps, list):
+        return False
+    if len(allocations) != 1 or len(allocations[0]) != 3:
+        return False
+    total, requested, allocated = allocations[0]
+    return bool(
+        total >= PSRAM_EXTERNAL_HEAP_MIN_BYTES
+        and requested == PSRAM_REQUESTED_BYTES
+        and allocated >= requested
+        and sweeps == [1, 2, 3]
+        and evidence.get("init_pass_count") == 1
+        and evidence.get("stress_pass_count") == 1
+        and not evidence.get("error_markers")
+    )
+
+
+def manifest_session_binding_ok(
+    manifest: dict[str, Any],
+    session_id: str | None,
+) -> bool:
+    if not session_id:
+        return False
+    session = manifest.get("session")
+    return bool(
+        isinstance(session, dict)
+        and session.get("session_id") == session_id
+    )
+
+
 def run_attempt(
     api: Api,
     firmware_id: str,
@@ -386,6 +467,7 @@ def run_attempt(
     timeout: float,
     hold_seconds: float,
     ble_reconnect_cycles: int,
+    require_psram: bool,
 ) -> dict[str, Any]:
     attempt_dir.mkdir(parents=True, exist_ok=True)
     session_id: str | None = None
@@ -663,9 +745,9 @@ def run_attempt(
         ),
         "evidence_zip": evidence_names.issubset(names),
         "pcap_file_in_evidence_zip": len(pcap) > 0,
-        "manifest_session_binding": (
-            manifest.get("session", {}).get("session_id")
-            == session_id
+        "manifest_session_binding": manifest_session_binding_ok(
+            manifest,
+            session_id,
         ),
     }
     if not qom.get("nodes"):
@@ -673,6 +755,9 @@ def run_attempt(
 
     serial_text = serial.decode("utf-8", errors="replace")
     peer_text = peer_log.decode("utf-8", errors="replace")
+    psram = parse_psram_stress(serial_text)
+    if require_psram:
+        checks["psram_guest_stress"] = psram_stress_ok(psram)
     checks["ble_cycle_count"] = (
         peer_text.count("BLE_BUMBLE_CYCLE_PASS")
         >= ble_reconnect_cycles
@@ -693,6 +778,9 @@ def run_attempt(
             "UNIFIED_CORE2_BLE_READY",
             "UNIFIED_CORE2_BLE_RX",
             "UNIFIED_CORE2_BLE_ACK_SENT",
+            "UNIFIED_CORE2_PSRAM_INIT_PASS",
+            "UNIFIED_CORE2_PSRAM_SWEEP",
+            "UNIFIED_CORE2_PSRAM_STRESS_PASS",
         )
         if marker in serial_text
     ]
@@ -763,6 +851,7 @@ def run_attempt(
         "pcap_bytes": len(pcap),
         "hci_transport": str(transport or ""),
         "native_hci_health": hci_health,
+        "psram": psram,
         "network_status": str(network.get("status") or "UNAVAILABLE"),
         "hold_state": hold_state,
         "hold_error": hold_error,
@@ -836,6 +925,14 @@ def main() -> int:
         default=1,
         help="complete GATT/disconnect cycles required from one BLE peer",
     )
+    parser.add_argument(
+        "--require-psram",
+        action="store_true",
+        help=(
+            "require the Core2 guest to allocate a 1 MiB external-memory "
+            "buffer and complete three read/write sweeps"
+        ),
+    )
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     if args.attempts < 1 or args.attempts > 30:
@@ -845,6 +942,8 @@ def main() -> int:
             "--hold-seconds must be from 0 to "
             f"{MAX_BLE_HOLD_SECONDS}"
         )
+    if args.require_psram and args.hold_seconds < 8:
+        parser.error("--require-psram requires --hold-seconds >= 8")
     if (
         args.ble_reconnect_cycles < 1
         or args.ble_reconnect_cycles > MAX_BLE_RECONNECT_CYCLES
@@ -903,6 +1002,7 @@ def main() -> int:
             effective_timeout,
             args.hold_seconds,
             args.ble_reconnect_cycles,
+            args.require_psram,
         )
         runs.append(result)
         if result["status"] != "PASS":
@@ -992,6 +1092,8 @@ def main() -> int:
         "hold_seconds_per_attempt": args.hold_seconds,
         "ble_linger_seconds": max(20, args.hold_seconds + 60),
         "ble_reconnect_cycles": args.ble_reconnect_cycles,
+        "psram_required": args.require_psram,
+        "psram_gate": "NOT RUN",
         "ready_timeout_seconds_requested": args.timeout,
         "ready_timeout_seconds_effective": effective_timeout,
         "first_failure": (
@@ -1032,11 +1134,15 @@ def main() -> int:
             ),
             "not_claimed": [
                 "bit-exact Espressif BT controller/baseband",
+                "physical 8 MiB PSRAM capacity",
+                "physical cache/PSRAM timing",
                 "physical hardware or RF validation",
                 "malware sandboxing",
             ],
         },
     }
+    if args.require_psram:
+        evidence["psram_gate"] = "PASS" if status == "PASS" else "FAIL"
     output = args.out_dir / "evidence.json"
     output.write_text(json.dumps(evidence, indent=2) + "\n")
     print(json.dumps(evidence, indent=2))

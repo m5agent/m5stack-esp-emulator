@@ -165,11 +165,15 @@ def validation_readme(runtime: dict) -> str:
     validation = runtime.get("validation")
     if not validation:
         return ""
-    return (
+    text = (
         f"- 验证：`{validation.get('status', 'unknown')}` "
         f"({validation.get('date', 'date unknown')})\n"
         f"- 详情：{validation.get('detail', '')}"
     )
+    memory_validation = validation.get("memory_validation")
+    if memory_validation:
+        text += f"\n- 内存验证：{memory_validation}"
+    return text
 
 
 def blockers_readme(runtime: dict) -> str:
