@@ -57,6 +57,7 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | 字段 | 作用 |
 | --- | --- |
 | `artifact` | 规范化完整镜像或分段 artifact 的路径、大小、SHA256 |
+| `manifest_id` | 对去除 `created_at`、`manifest_id` 和 `artifact.file` 后的 canonical JSON 计算 SHA256；同一语义内容从不同目录/文件名导入时保持一致，输出文件名本身不作为身份 |
 | `target` | SoC、chip ID、Flash、PSRAM、分区表、应用描述 |
 | `target.filesystems` | LittleFS/FAT/SPIFFS 分区、文件路径/大小/SHA256、敏感路径和许可证声明 |
 | `security` | 安全启动、Flash Encryption、配置态、eFuse 摘要和 secure version 边界 |
@@ -478,14 +479,20 @@ CLI、`POST /api/v1/firmware/import` 和 WebBurner 都接受独立于镜像的
 required/optional capability 声明。服务端会去除首尾空白、转小写、展开
 `screen`/`framebuffer`→`display` 等别名并去重；最多 64 项、每项 64
 字符。未知 capability 保留在 manifest 中并产生
-`unknown_required_capability` / `unknown_optional_capability` warning，
-不会被静默删除。同一 capability 不能同时出现在 required 和 optional，
-否则 importer 与 manifest structure 校验都会拒绝。目标设备缺少 optional
-能力时只产生 `unsupported_optional_capability` warning，固件仍是候选；
-required 不匹配才升级为结构化错误。WebBurner 的两个
+`unknown_required_capability` / `unknown_optional_capability` finding，
+不会被静默删除。未知 **required** capability 无法由当前兼容性检查器证明，
+因此产生结构化 error 并将 manifest/Device Service 导入置为 `REJECTED`；
+未知 optional capability 只产生 warning。同一 capability 不能同时出现在
+required 和 optional，否则 importer 与 manifest structure 校验都会拒绝。
+目标设备缺少 optional 能力时只产生 `unsupported_optional_capability`
+warning，固件仍是候选；required 不匹配才升级为结构化错误。WebBurner 的两个
 输入框分别在导入前发送 `required_capabilities` 和
 `optional_capabilities`；例如在 StickS3 上声明 `camera` 会得到结构化
 `unsupported_firmware_capability`，不会创建空 capability manifest。
+Unknown required/optional 和 merged/WebBurner 等价性由
+[`unknown-required-capability-fail-closed.json`](../tests/firmware/evidence-2026-10-26-unknown-required-capability-fail-closed.json)
+绑定到同一个 public StickS3 SHA；该结果是静态 manifest contract，不是
+runtime capability proof。
 
 包内提供 `sdkconfig` 时，manifest 还会在 `capabilities.detected` 中记录
 高置信构建开关：

@@ -678,9 +678,10 @@ class DocsFirmwareSecurityContractTests(DocsContractBase):
             (
                 ROOT
                 / "tests/firmware/"
-                "evidence-2026-10-25-secure-boot-image.json"
+                "evidence-2026-10-26-secure-boot-image.json"
             ).read_text()
         )
+        self.assertEqual(evidence["date"], "2026-10-26")
         self.assertEqual(evidence["status"], "PASS")
         self.assertEqual(
             evidence["validation"],

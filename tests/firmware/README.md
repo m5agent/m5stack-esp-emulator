@@ -55,6 +55,15 @@ Required/optional capability consistency is covered by
 [`evidence-2026-10-25-capability-required-optional-consistency.json`](evidence-2026-10-25-capability-required-optional-consistency.json):
 overlap is rejected, unsupported required capability rejects the manifest, and
 unsupported or unknown optional capabilities remain structured warnings.
+The later
+[`evidence-2026-10-26-unknown-required-capability-fail-closed.json`](evidence-2026-10-26-unknown-required-capability-fail-closed.json)
+supersedes the earlier unknown-required warning behavior. On the same public
+StickS3 SHA, an unknown required capability returns `REJECTED` and CLI exit
+code `1` for both merged and WebBurner inputs; an unknown optional capability
+remains a warning. The same evidence also imports the same WebBurner content
+from two differently named package roots and requires equal `manifest_id`
+while allowing the output artifact filenames to differ. The probe is
+[`unknown_required_capability/run_test.py`](unknown_required_capability/run_test.py).
 
 Image capability observations are recorded in
 [`evidence-2026-10-25-image-capability-observation.json`](evidence-2026-10-25-image-capability-observation.json).
@@ -95,6 +104,11 @@ live eFuse read or ROM/bootloader verification executes.
 the summary's `SECURE_VERSION` and warns when the image is below the declared
 minimum. Both comparisons remain `not-verified`. This is static image
 self-consistency, not a hardware secure-boot PASS.
+The current tool-hash-bound run after manifest identity/capability changes is
+[`evidence-2026-10-26-secure-boot-image.json`](evidence-2026-10-26-secure-boot-image.json);
+the earlier
+[`evidence-2026-10-25-secure-boot-image.json`](evidence-2026-10-25-secure-boot-image.json)
+remains as a historical checkpoint.
 
 The four current public CDN artifacts refreshed on `2026-10-25` are bound in
 [`evidence-2026-10-25-refreshed-public-artifacts-static.json`](evidence-2026-10-25-refreshed-public-artifacts-static.json).
@@ -157,9 +171,10 @@ scope.
 The API and WebBurner accept explicit required/optional hardware capabilities.
 The same normalization and mismatch contract applies to CLI and HTTP imports:
 aliases are canonicalized, declarations are bounded and a target without a
-required capability returns a structured manifest rejection. Declarations are
-operator-provided; they do not prove that every firmware code path uses the
-declared peripheral.
+required capability returns a structured manifest rejection. An unknown
+required capability also fails closed because the checker cannot establish
+that the target supports it. Declarations are operator-provided; they do not
+prove that every firmware code path uses the declared peripheral.
 
 High-confidence WiFi, Bluetooth and PSRAM build flags from package
 `sdkconfig` are recorded separately as `capabilities.detected`. When sdkconfig

@@ -103,6 +103,16 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/uiflow2/evidence-2026-10-25-core2-0009-device-group.json",
             "tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json",
             "tests/uiflow2/evidence-2026-10-25-core2-qom-boot-device-group.json",
+            (
+                "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-26-core2-concurrent-8x120-"
+                "fixed-icount-pass-a.json"
+            ),
+            (
+                "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-26-core2-concurrent-8x120-"
+                "fixed-icount-pass-b.json"
+            ),
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "tests/uiflow2/core2_native_hci/run_service_teardown.py",
@@ -282,6 +292,7 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/firmware/secure_boot_image/README.md",
             "tests/firmware/secure_boot_image/run_test.py",
             "tests/firmware/evidence-2026-10-25-secure-boot-image.json",
+            "tests/firmware/evidence-2026-10-26-secure-boot-image.json",
             "tests/firmware/evidence-2026-10-24-license-policy.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
@@ -293,8 +304,15 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json",
             "tests/firmware/evidence-2026-10-25-image-capability-observation.json",
             "tests/firmware/evidence-2026-10-25-webburner-capability-display.json",
+            (
+                "tests/firmware/"
+                "evidence-2026-10-26-unknown-required-capability-fail-closed.json"
+            ),
             "tests/firmware/image_capability_observation/README.md",
             "tests/firmware/image_capability_observation/run_test.py",
+            "tests/firmware/unknown_required_capability/README.md",
+            "tests/firmware/unknown_required_capability/run_test.py",
+            "platform/tests/test_unknown_required_capability_evidence.py",
             "tests/uiflow2/evidence-2026-10-25-s3-wpa2-regression.json",
             "tests/firmware/openai_nvs_precondition/README.md",
             "tests/firmware/openai_nvs_precondition/run_test.py",

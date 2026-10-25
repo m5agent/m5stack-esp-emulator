@@ -343,6 +343,21 @@ def canonical_json_sha256(value: Any) -> str:
     return sha256_bytes(data)
 
 
+def manifest_identity_payload(manifest: dict) -> dict:
+    """Return the content identity without output naming or timestamps."""
+    payload = {
+        key: value
+        for key, value in manifest.items()
+        if key not in {"manifest_id", "created_at"}
+    }
+    artifact = payload.get("artifact")
+    if isinstance(artifact, dict):
+        payload["artifact"] = {
+            key: value for key, value in artifact.items() if key != "file"
+        }
+    return payload
+
+
 def normalize_soc(value: Any) -> str | None:
     if not isinstance(value, str) or not value.strip():
         return None
@@ -1058,12 +1073,13 @@ def validate_capabilities(
             str(requirement).strip().lower(),
         )
         if normalized not in KNOWN_CAPABILITIES:
-            warnings.append(
+            errors.append(
                 _code_issues(
                     "unknown_required_capability",
                     (
-                        f"capability {requirement!r} is not recognized by "
-                        "the compatibility checker"
+                        f"firmware requires {requirement!r}, but the "
+                        "compatibility checker does not recognize it; "
+                        "unknown required capabilities fail closed"
                     ),
                     requirement=requirement,
                     path="capabilities.required",
@@ -2484,11 +2500,7 @@ def import_package(
             if capability["status"] == "REJECTED":
                 manifest["validation"]["status"] = "REJECTED"
         manifest["manifest_id"] = canonical_json_sha256(
-            {
-                key: value
-                for key, value in manifest.items()
-                if key not in {"manifest_id", "created_at"}
-            }
+            manifest_identity_payload(manifest)
         )
         manifest_path = output_dir / f"{destination.stem}.manifest.json"
         manifest_path.write_text(

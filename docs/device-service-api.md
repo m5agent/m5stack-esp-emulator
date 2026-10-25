@@ -667,6 +667,11 @@ always publishes a normalized merged-flash artifact to the firmware store and
 preserves the original source format and normalized segment hashes in the
 manifest. `409 unsupported_firmware_capability` includes structured
 `issues[]`; an invalid package returns `400 invalid_firmware_package`.
+An unknown required capability also fails closed through this response because
+the service cannot verify that the target profile supports it. Unknown optional
+capabilities remain warnings. The manifest identity is content-stable across
+different output/package filenames; `artifact.file` is not part of
+`manifest_id`.
 
 The browser page is `/platform/web/firmware.html`. It streams the complete
 SHA256 calculation and 4 MiB chunks, retries transient failures, exposes

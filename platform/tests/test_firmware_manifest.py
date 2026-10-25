@@ -933,6 +933,67 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertNotEqual(first["created_at"], second["created_at"])
         self.assertEqual(first["manifest_id"], second["manifest_id"])
 
+    def test_webburner_manifest_id_ignores_output_filename(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = build_flash()
+            parts = {
+                "bootloader.bin": image[:0x8000],
+                "partition-table.bin": image[0x8000:0x10000],
+                "application.bin": image[0x10000:],
+            }
+            offsets = {
+                "bootloader.bin": 0,
+                "partition-table.bin": 0x8000,
+                "application.bin": 0x10000,
+            }
+            manifests = []
+            for package_name in ("package-a", "package-b"):
+                package = root / package_name
+                package.mkdir()
+                for name, data in parts.items():
+                    (package / name).write_bytes(data)
+                (package / "manifest.json").write_text(
+                    json.dumps(
+                        {
+                            "name": "Identity Probe",
+                            "version": "1.0.0",
+                            "builds": [
+                                {
+                                    "chipFamily": "ESP32-S3",
+                                    "parts": [
+                                        {
+                                            "path": name,
+                                            "offset": offsets[name],
+                                        }
+                                        for name in parts
+                                    ],
+                                }
+                            ],
+                        }
+                    )
+                )
+                manifests.append(
+                    import_package(
+                        package,
+                        root / f"out-{package_name}",
+                        device_id="sticks3",
+                        flash_size=8 << 20,
+                    )["manifest"]
+                )
+        self.assertNotEqual(
+            manifests[0]["artifact"]["file"],
+            manifests[1]["artifact"]["file"],
+        )
+        self.assertEqual(
+            manifests[0]["artifact"]["sha256"],
+            manifests[1]["artifact"]["sha256"],
+        )
+        self.assertEqual(
+            manifests[0]["manifest_id"],
+            manifests[1]["manifest_id"],
+        )
+
     def test_imports_webburner_segmented_package(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1171,11 +1232,32 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertIn(
             "unknown_required_capability",
             {
-                warning["code"]
-                for warning in manifest["validation"]["warnings"]
+                error["code"]
+                for error in manifest["validation"]["errors"]
             },
         )
         self.assertEqual(manifest["validation"]["status"], "REJECTED")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "probe.bin"
+            image.write_bytes(build_flash())
+            unknown_result = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+                required_capabilities=["vendor-private-sensor"],
+            )
+        unknown_manifest = unknown_result["manifest"]
+        self.assertEqual(unknown_manifest["validation"]["status"], "REJECTED")
+        self.assertEqual(
+            [
+                error["code"]
+                for error in unknown_manifest["validation"]["errors"]
+            ],
+            ["unknown_required_capability"],
+        )
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

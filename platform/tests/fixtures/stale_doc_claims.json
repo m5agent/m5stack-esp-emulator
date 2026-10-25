@@ -790,6 +790,16 @@
       "id": "STALE-155",
       "text": "应用初始化超过 TG0 stage-1 deadline",
       "reason": "Current evidence separates normal-WDT reset timing from the WDT-off late loop; the old single-cause wording is retired."
+    },
+    {
+      "id": "STALE-156",
+      "text": "unknown_required_capability / unknown_optional_capability warning",
+      "reason": "Unknown required capabilities now fail closed and reject the manifest; only unknown optional capabilities remain warnings."
+    },
+    {
+      "id": "STALE-157",
+      "text": "manifest_id may vary with package output filename",
+      "reason": "Manifest identity excludes artifact.file; identical semantic content from differently named output directories has the same manifest_id."
     }
   ]
 }

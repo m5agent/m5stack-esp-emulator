@@ -2012,9 +2012,9 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
                 ).read_text()
             )
             for filename in (
-                "evidence-2026-10-25-core2-concurrent-8x120-"
+                "evidence-2026-10-26-core2-concurrent-8x120-"
                 "fixed-icount-pass-a.json",
-                "evidence-2026-10-25-core2-concurrent-8x120-"
+                "evidence-2026-10-26-core2-concurrent-8x120-"
                 "fixed-icount-pass-b.json",
             )
         ]
