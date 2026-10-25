@@ -67,6 +67,7 @@ MicroPython 和其他完整 Flash 固件。
   `virtual-device validation`。
 
 需要具体计数、设备状态和最新验证边界时，先读
+[工程交接总览](docs/engineering-handoff.md)，再读
 [自动项目快照](docs/project-snapshot.md)，再读
 [项目当前状态](docs/project-status.md)；README 不复制会随提交变化的结果。
 按工作流查看工作归属见[工作流总台账](docs/workstreams.md)，代码入口见
@@ -81,6 +82,7 @@ MicroPython 和其他完整 Flash 固件。
 
 关键索引：
 
+- [工程交接总览](docs/engineering-handoff.md)
 - [文档导航与新鲜度规则](docs/README.md)
 - [自动项目快照](docs/project-snapshot.md)
 - [工作流总台账](docs/workstreams.md)

@@ -5,6 +5,8 @@ Last reviewed: `2026-10-25`
 This directory contains runnable regression fixtures and committed evidence.
 It is not the authoritative description of current product capability:
 
+- one-page orientation and code-reading order:
+  [`docs/engineering-handoff.md`](../docs/engineering-handoff.md);
 - current device, profile, model-gap and task counts:
   [`docs/project-snapshot.md`](../docs/project-snapshot.md);
 - current capabilities, risks and validation boundaries:

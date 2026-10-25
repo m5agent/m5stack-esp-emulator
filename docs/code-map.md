@@ -12,6 +12,7 @@
 
 | 问题 | 权威入口 |
 | --- | --- |
+| 一页了解代码阅读顺序、成熟度和下一步 | [工程交接总览](engineering-handoff.md) |
 | 文档应从哪里读、哪些是历史页 | [文档导航与新鲜度规则](README.md) |
 | 当前设备、样本、缺口、Task 和测试规模快照 | [自动项目快照](project-snapshot.md) |
 | 现在到底支持什么 | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、最新测试与 [项目当前状态](project-status.md) |
@@ -403,6 +404,9 @@ evidence stream 仍开放；这些场景不能从 trusted-host PASS 继承。
 
 - 当前能力变更：更新 `README.md`、`docs/project-status.md` 和对应专题页。
 - 计划或缺口变更：只更新 `docs/project-backlog.md` 或专项 backlog。
+- 用户交接、代码阅读顺序或工作流摘要变化：先核对当前状态、Backlog 和代码
+  入口，再更新 `docs/engineering-handoff.md`；不要把动态计数或逐次运行流水
+  复制进去。
 - API 变更：同步 `docs/device-service-api.md`、OpenAPI 和 tests。
 - 设备/外设变更：同步源清单、生成目录、契约、coverage 和矩阵文档。
 - 验证结果：写回测试 evidence 或 `agent-work-logs`，不要只留在会话里。

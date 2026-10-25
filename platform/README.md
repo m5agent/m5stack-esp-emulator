@@ -2,6 +2,9 @@
 
 Last reviewed: `2026-10-25`
 
+一页理解代码阅读顺序、成熟度和下一步，见
+[`docs/engineering-handoff.md`](../docs/engineering-handoff.md)。
+
 共享基础设施，不含具体产品档案。当前能力以
 [`docs/project-status.md`](../docs/project-status.md) 为准，代码和证据入口见
 [`docs/code-map.md`](../docs/code-map.md)，按工作流查看交付和待办见

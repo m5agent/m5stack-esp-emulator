@@ -2,6 +2,11 @@
 
 Date: `2026-10-25`
 
+For the one-page product, code and task overview, start with
+[`engineering-handoff.md`](engineering-handoff.md). This page describes the
+service architecture and lifecycle; mutable counts remain in
+[`project-snapshot.md`](project-snapshot.md).
+
 ## Implementation status
 
 The local v1 API and on-demand process runner are implemented in

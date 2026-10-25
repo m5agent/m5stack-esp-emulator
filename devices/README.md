@@ -1,5 +1,8 @@
 # 设备档案矩阵
 
+一页理解代码阅读顺序、成熟度和下一步，见
+[`docs/engineering-handoff.md`](../docs/engineering-handoff.md)。
+
 项目级能力和最新验证快照见
 [`docs/project-status.md`](../docs/project-status.md)；本页只描述设备登记与
 运行时分类。

@@ -5,7 +5,11 @@
 本矩阵验证的是 QEMU 中的完整控制器/总线路径，而不是在 Python 测试代码里伪造
 API 返回值。当前结果只代表仿真验收，不是实机验收。
 
-## 本轮结果
+代码阅读顺序、整体成熟度和未完成 Task 见
+[工程交接总览](engineering-handoff.md)；本页只维护外设 API 数据面矩阵及其
+固定运行证据。
+
+## 基线全矩阵结果（固定证据）
 
 | 设备 | 闭环能力 | UIFlow2 API | 结果 |
 | --- | --- | --- | --- |
@@ -107,7 +111,11 @@ attempts            1 per case
 retry_used          false for every case
 ```
 
-最新干净全量运行同时包含 S3 QIO read-phase、Core2 BB idle readback、
+下表是 `2026-10-24` 最后一次干净全量矩阵的固定基线，不是每次新增外设
+用例后自动刷新。较新的 unified、network、Core2 长稳和固件审查结果以
+[验证证据台账](validation-ledger.md)及对应用例 evidence 为准。
+
+该次干净全量运行同时包含 S3 QIO read-phase、Core2 BB idle readback、
 deterministic TCG/icount、RTC 虚拟时钟和双 guest WiFi patch `0028`。首轮
 暴露 Cardputer-ADV 键盘的 6 秒启动窗口竞争；定向复现后将等待改为 10 秒，
 输入端等待改为 2 秒，再完成 67/67 用例、274/274 检查全部通过和 Core2
@@ -120,7 +128,7 @@ NanoC6 无显示屏，额外使用 `run_nanoc6_peripherals.py` 验证 RGB、按�
 不计入上述需要截图的 peripheral matrix 统计。上述汇总来自全量矩阵运行；
 失败重试的原始串口日志会作为 `serial.attempt-N.log` 保留。
 
-本轮所有矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
+该次全量矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
 屏幕/帧输出”的闭环。每个 check 的 PASS 状态由本次运行的串口、QOM、PCM、
 RMT、磁盘或帧像素证据生成；没有运行时证据源的用例会被 runner 直接拒绝。
 

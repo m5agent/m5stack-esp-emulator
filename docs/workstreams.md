@@ -5,6 +5,8 @@
 本页只维护工作流归属、稳定代码入口、当前权威状态入口和未完成 Task ID。
 它不复制测试轮数、PASS 计数、固件 SHA 或逐设备结论：
 
+- 一页交接、代码阅读顺序与下一步摘要：
+  [工程交接总览](engineering-handoff.md)。
 - 设备、后端、固件样本和 Task 板自动汇总：
   [项目快照](project-snapshot.md)。
 - 当前能力、风险和证据边界：[项目当前状态](project-status.md)。

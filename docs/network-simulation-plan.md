@@ -7,6 +7,9 @@
 [自动项目快照](project-snapshot.md)、[项目当前状态](project-status.md)和
 [项目 Backlog](project-backlog.md)维护。
 
+第一次进入项目时先读[工程交接总览](engineering-handoff.md)，再按本页理解
+网络数据面和证据边界。
+
 ## 产品路径
 
 完整设备验收使用一个 Device Service lease、一个 QEMU guest 和一份 evidence：

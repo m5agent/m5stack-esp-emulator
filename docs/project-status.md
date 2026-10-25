@@ -8,6 +8,11 @@
 需要按工作流查看交付状态、代码面和下一 Task ID 时，先看
 [工作流总台账](workstreams.md)。
 
+需要一页快速了解代码阅读顺序、成熟度和下一步，先看
+[工程交接总览](engineering-handoff.md)。本页继续作为详细能力结论的权威入口；
+逐次运行轮次、PASS/FAIL 和 evidence 只追加到
+[验证证据台账](validation-ledger.md)，不在这里重复维护历史流水。
+
 ## 一页交接
 
 当前项目已经不是“只能跑 reference 固件”的早期阶段：设备 Service、单 guest

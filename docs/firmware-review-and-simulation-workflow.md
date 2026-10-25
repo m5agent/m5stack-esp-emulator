@@ -4,6 +4,7 @@
 - 日期：2026-10-25
 - 适用对象：UIFlow/UIFlow2、ESP-IDF、Arduino、MicroPython 和自研 ESP32 固件
 - 相关文档：
+  - [工程交接总览](engineering-handoff.md)
   - [项目当前状态](project-status.md)
   - [项目 Backlog](project-backlog.md)
   - [代码与验证入口地图](code-map.md)

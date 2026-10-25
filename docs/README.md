@@ -11,18 +11,20 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
-## 先看这八页
+## 先看这九页
 
-1. [自动项目快照](project-snapshot.md)：从 catalog、profile、evidence 和 Backlog
+1. [工程交接总览](engineering-handoff.md)：用一页理解产品边界、代码阅读顺序、
+   当前工作流和下一步；不复制动态计数。
+2. [自动项目快照](project-snapshot.md)：从 catalog、profile、evidence 和 Backlog
    自动汇总的设备、样本、缺口与 Task 板。
-2. [工作流总台账](workstreams.md)：按工作流串起代码、权威状态入口和 Task ID。
-3. [项目当前状态](project-status.md)：现在能做什么、已经验证什么、仍有什么风险。
-4. [项目 Backlog](project-backlog.md)：尚未完成的工作、优先级、依赖和验收条件。
-5. [代码与验证入口地图](code-map.md)：实现落在哪些模块、测试如何复现、证据在哪里。
-6. [验证证据台账](validation-ledger.md)：按日期保存当时的检查项、结论和 evidence。
-7. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
+3. [工作流总台账](workstreams.md)：按工作流串起代码、权威状态入口和 Task ID。
+4. [项目当前状态](project-status.md)：现在能做什么、已经验证什么、仍有什么风险。
+5. [项目 Backlog](project-backlog.md)：尚未完成的工作、优先级、依赖和验收条件。
+6. [代码与验证入口地图](code-map.md)：实现落在哪些模块、测试如何复现、证据在哪里。
+7. [验证证据台账](validation-ledger.md)：按日期保存当时的检查项、结论和 evidence。
+8. [统一设备运行时契约](unified-device-runtime.md)：Device Service、单 guest、
    board/WiFi/BLE/evidence 的产品验收边界。
-8. [运行时模型缺口登记](runtime-model-gap-register.md)：已知“固件已执行但
+9. [运行时模型缺口登记](runtime-model-gap-register.md)：已知“固件已执行但
    模拟器能力不足”的缺口、证据、边界和关闭条件。
 
 如果页面之间冲突，以当前代码、生成后的 catalog/coverage、最新测试证据和
@@ -60,6 +62,7 @@
 
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
+| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-25` | 产品边界、成熟度、代码阅读顺序、当前工作流、P0 下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-25` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task 和测试规模 |
 | [项目当前状态](project-status.md) | 当前结论 | `2026-10-25` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
@@ -100,6 +103,7 @@
 
 ### 状态、计划与维护
 
+- [工程交接总览](engineering-handoff.md)
 - [自动项目快照](project-snapshot.md)
 - [工作流总台账](workstreams.md)
 - [项目当前状态](project-status.md)

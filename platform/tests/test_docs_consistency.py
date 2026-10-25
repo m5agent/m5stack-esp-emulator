@@ -26,6 +26,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "README.md",
             "AGENTS.md",
             "docs/README.md",
+            "docs/engineering-handoff.md",
             "docs/workstreams.md",
             "docs/project-status.md",
             "docs/project-backlog.md",
@@ -289,6 +290,53 @@ class DocsConsistencyTests(unittest.TestCase):
                 continue
             self.assertIn(relative, linked, relative)
             self.assertIn(relative, freshness_linked, relative)
+
+    def test_engineering_handoff_stays_a_current_navigation_summary(self) -> None:
+        handoff = (DOCS / "engineering-handoff.md").read_text()
+        for heading in (
+            "## 结论",
+            "## 最近成果已经并入哪里",
+            "## 成熟度怎么看",
+            "## 代码怎么读",
+            "## 当前工作流",
+            "## 接下来做什么",
+            "## 文档怎么维护",
+            "## 最小验证集",
+        ):
+            self.assertIn(heading, handoff)
+        for authority in (
+            "[项目当前状态](project-status.md)",
+            "[项目 Backlog](project-backlog.md)",
+            "[自动项目快照](project-snapshot.md)",
+            "[验证证据台账](validation-ledger.md)",
+            "[代码与验证入口地图](code-map.md)",
+        ):
+            self.assertIn(authority, handoff)
+        backlog = (DOCS / "project-backlog.md").read_text()
+        task_ids = set(
+            re.findall(
+                r"^\| `([A-Z][A-Z0-9-]+)` \|",
+                backlog,
+                re.MULTILINE,
+            )
+        )
+        self.assertTrue(task_ids)
+        for task_id in sorted(task_ids):
+            self.assertIn(f"`{task_id}`", handoff)
+        self.assertIn("物理跨主机", handoff)
+        self.assertIn("`NOT RUN`", handoff)
+        self.assertIn("不维护动态数量", handoff)
+        for mutable_count in (
+            r"`\d+`\s*台设备",
+            r"`\d+/\d+`\s*(?:用例|检查|PASS)",
+            r"`\d+`\s*个 evidence",
+            r"平台测试：`\d+`",
+        ):
+            self.assertIsNone(
+                re.search(mutable_count, handoff),
+                f"engineering handoff must link generated counts instead of "
+                f"copying {mutable_count}",
+            )
 
     def test_project_snapshot_is_current(self) -> None:
         snapshot = project_snapshot.collect()
