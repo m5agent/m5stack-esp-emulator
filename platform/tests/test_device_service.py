@@ -1722,6 +1722,82 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertTrue(parsed["policy"]["controlled_resolver"])
 
+    def test_controlled_dns_cname_records_require_bounded_policy(self):
+        request = {
+            "profile": "uiflow2-sticks3-unified",
+            "policy": {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_hosts": [
+                    "api.fixture.test",
+                    "origin.fixture.test",
+                ],
+                "allowed_domains": ["service.fixture.test"],
+            },
+            "cname_records": {
+                "api.fixture.test": "edge.service.fixture.test",
+                "edge.service.fixture.test": "origin.fixture.test",
+            },
+        }
+        passed = {
+            "status": "PASS",
+            "checks": {},
+            "errors": [],
+        }
+        with mock.patch.object(
+            device_service_module,
+            "namespace_capability",
+            return_value=passed,
+        ), mock.patch.object(
+            device_service_module,
+            "egress_capability",
+            return_value=passed,
+        ):
+            parsed = device_service_module.parse_qemu_ble_execution(
+                self.service.specs["sticks3"],
+                request,
+                runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+            )
+        self.assertEqual(
+            parsed["cname_records"],
+            request["cname_records"],
+        )
+        self.assertEqual(
+            parsed["policy"]["allowed_hosts"],
+            ["api.fixture.test", "origin.fixture.test"],
+        )
+
+        invalid_requests = [
+            {
+                **request,
+                "cname_records": {
+                    "escape.other.test": "origin.fixture.test",
+                },
+            },
+            {
+                **request,
+                "cname_records": {
+                    "api.fixture.test": "outside.test",
+                },
+            },
+            {
+                "profile": "uiflow2-sticks3-unified",
+                "cname_records": {
+                    "api.fixture.test": "origin.fixture.test",
+                },
+            },
+        ]
+        for invalid_request in invalid_requests:
+            with self.subTest(cname=invalid_request["cname_records"]):
+                with self.assertRaises(ServiceError) as invalid:
+                    device_service_module.parse_qemu_ble_execution(
+                        self.service.specs["sticks3"],
+                        invalid_request,
+                        runtime=device_service_module.QEMU_UNIFIED_RUNTIME,
+                    )
+                self.assertEqual(invalid.exception.code, "invalid_network")
+
     def test_controlled_domain_policy_requires_a_bound_slirp_endpoint(self):
         external = device_service_module.NetworkPolicy.from_mapping(
             {

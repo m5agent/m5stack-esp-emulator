@@ -48,6 +48,7 @@
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。active-token multicast discovery、central control-plane restart、runtime Device Service restart、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已 PASS。下一步补 NAT/跨子网发现、跨主机迁移/reattach、namespace-managed/Tab5/cross-host companion 和生产调度 |
+| `NET-07` | 待做 | Controlled DNS 已支持受 policy 覆盖、最多 8 跳的 CNAME chain；resolver fixture 已覆盖 A/AAAA chain encoding、CNAME query、NXDOMAIN、cycle/uncontrolled/unauthorized/overlong rejection。下一步让同一 guest 固件跟随 CNAME terminal 并完成 TCP/HTTP |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` 虚拟 PSRAM/周期联网 `3/3` 和单次 600 秒持续压力 `1/1` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 |
@@ -65,24 +66,24 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`38` 个 Python 模块，`31711` 行；规模最大的模块如下。
+- `platform/tools`：`38` 个 Python 模块，`31984` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 9598 |
+| `device_service.py` | 9659 |
 | `firmware_manifest.py` | 2643 |
 | `user_firmware_matrix.py` | 2069 |
+| `network_sandbox.py` | 1538 |
 | `firmware_filesystems.py` | 1469 |
 | `serve.py` | 1385 |
-| `network_fabric.py` | 1375 |
 
-- `tests/`：`59` 个可执行 Python 测试文件，分布在 `41` 个目录；`147` 个 evidence JSON。
+- `tests/`：`60` 个可执行 Python 测试文件，分布在 `42` 个目录；`148` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`54` 个 patch 文件。
-- 文档：`194` 个 Markdown 页面，`16873` 行。
+- 文档：`195` 个 Markdown 页面，`16982` 行。
 
 ## 文档与测试
 
-- 平台测试：`419` 项。
+- 平台测试：`425` 项。
 - Docs 新鲜度登记：`32` 行。
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 

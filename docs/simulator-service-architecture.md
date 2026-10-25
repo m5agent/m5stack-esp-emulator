@@ -77,7 +77,9 @@ Implemented:
   evidence;
 - a controlled namespace-local DNS resolver using a temporary private
   resolver configuration, with exact A/AAAA, label-boundary domain suffix,
-  explicit answer binding, NXDOMAIN and query-log evidence;
+  bounded CNAME chains, explicit answer binding, NXDOMAIN and query-log
+  evidence; the committed CNAME gate is resolver-level until `NET-07`
+  completes the same-guest TCP/HTTP lifecycle;
 - nftables default-drop bounded IPv4/IPv6 address-or-CIDR/protocol/port
   egress with a per-session dual-stack veth/NAT path, IPv6 neighbor control
   and verified cleanup;

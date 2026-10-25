@@ -103,6 +103,12 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/unified_core2/evidence-2026-10-23-native-vhci-service.json",
             "tests/network/tls_allowlist/README.md",
             "tests/network/tls_allowlist/run_test.py",
+            "tests/network/dns_cname_chain/README.md",
+            "tests/network/dns_cname_chain/run_test.py",
+            (
+                "tests/network/dns_cname_chain/"
+                "evidence-2026-10-25-controlled-cname-chain.json"
+            ),
             "tests/network/wrong_password/README.md",
             "tests/network/wrong_password/run_test.py",
             "tests/network/wrong_password/evidence-2026-10-24-wrong-password-pass.json",
@@ -174,8 +180,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/network/worker_cross_netns/evidence-2026-10-25-worker-local-qemu-cross-netns-pass.json",
             "tests/network/worker_reattach/README.md",
             "tests/network/worker_reattach/evidence-2026-10-24-reattach-pass.json",
-            "tests/network/worker_runtime_restart/"
-            "evidence-2026-10-25-runtime-companion-continuity-pass.json",
+            (
+                "tests/network/worker_runtime_restart/"
+                "evidence-2026-10-25-runtime-companion-continuity-pass.json"
+            ),
             "tests/network/tls_allowlist/evidence-2026-10-23-blocked.json",
             "tests/network/tls_allowlist/evidence-2026-10-23-pass.json",
             "tests/network/tls_allowlist/evidence-2026-10-24-linux-namespace-pass.json",
@@ -648,7 +656,6 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn("historical artifacts", matrix)
         self.assertIn("Current public-artifact refresh checkpoint", matrix)
-        self.assertIn("3 PASS / 1 PARTIAL / 0 FAIL", matrix)
         self.assertIn("3 PASS / 1 PARTIAL / 0 FAIL", matrix)
         self.assertIn("runtime_fixture_gap", matrix)
         self.assertIn("fat32-mbr", matrix)
@@ -2122,6 +2129,7 @@ class DocsConsistencyTests(unittest.TestCase):
 
     def test_current_status_snapshot_matches_contract(self) -> None:
         status = (DOCS / "project-status.md").read_text()
+        snapshot = (DOCS / "project-snapshot.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()
         code_map = (DOCS / "code-map.md").read_text()
@@ -2140,16 +2148,14 @@ class DocsConsistencyTests(unittest.TestCase):
             device["backend"] == "esp-emulator-native"
             for device in profiles["devices"]
         )
-        self.assertIn(f"`{device_count}` 台设备", status)
-        self.assertIn(f"`{service_count}` 台设备", status)
-        self.assertEqual(catalog["generated_at"], review_date)
-        self.assertEqual(qemu_count, 12)
-        self.assertIn("`67/67` 用例、`274/274` 检查 PASS", status)
+        self.assertIn(f"设备登记：`{device_count}` 台", snapshot)
         self.assertIn(
-            f"平台套件共 `{self._platform_test_count()}` 项",
-            status,
+            f"Device Service 可创建：`{service_count}` 台",
+            snapshot,
         )
-        self.assertIn("项环境相关测试跳过", status)
+        self.assertIn("[自动项目快照](project-snapshot.md)", status)
+        self.assertEqual(catalog["generated_at"], review_date)
+        self.assertIn("`67/67` 用例、`274/274` 检查 PASS", status)
         self.assertIn("2026-10-24 06:47 +08:00", status)
         self.assertIn("`retry_used=false`", status)
         self.assertIn("`qemu-unified`", (ROOT / "README.md").read_text())
@@ -2201,10 +2207,10 @@ class DocsConsistencyTests(unittest.TestCase):
             (DOCS / "qemu-device-adaptation-matrix.md").read_text(),
         )
         self.assertIn(
-            "controlled DNS A/AAAA 与 label-boundary domain suffix、"
-            "TLS/Host allowlist",
+            "controlled DNS domain suffix 与最多 8 跳的",
             status,
         )
+        self.assertIn("CNAME chain", status)
         self.assertIn("controlled DNS", status)
         self.assertIn("QEMU patch `0028`", status)
         self.assertIn(
@@ -3852,20 +3858,89 @@ class DocsConsistencyTests(unittest.TestCase):
 
     def test_documented_platform_test_count_is_current(self) -> None:
         count = self._platform_test_count()
-        expected = f"`{count}` 项"
-        document = (DOCS / "project-status.md").read_text()
+        expected = f"平台测试：`{count}` 项"
+        snapshot = (DOCS / "project-snapshot.md").read_text()
         self.assertIn(
             expected,
-            document,
-            f"docs/project-status.md must document {count} platform tests",
+            snapshot,
+            f"docs/project-snapshot.md must document {count} platform tests",
         )
-        self.assertIn("跳过", document)
-        for relative in ("README.md", "docs/README.md", "docs/workstreams.md"):
+        status = (DOCS / "project-status.md").read_text()
+        self.assertIn("[自动项目快照](project-snapshot.md)", status)
+        for relative in (
+            "README.md",
+            "docs/README.md",
+            "docs/workstreams.md",
+            "docs/project-status.md",
+        ):
             self.assertNotIn(
-                expected,
+                f"平台套件共 `{count}` 项",
                 (ROOT / relative).read_text(),
-                f"{relative} must link to project-status.md instead of copying {count}",
+                f"{relative} must link to project-snapshot.md instead of "
+                f"copying {count}",
             )
+
+    def test_controlled_dns_cname_chain_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/dns_cname_chain/"
+                "evidence-2026-10-25-controlled-cname-chain.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(
+            evidence["validation"],
+            "resolver-data-plane validation",
+        )
+        self.assertTrue(evidence["checks"])
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(
+            evidence["fixture"]["cname"],
+            [
+                "api.example.test -> edge.example.test",
+                "edge.example.test -> origin.example.test",
+            ],
+        )
+        self.assertTrue(evidence["checks"]["domain_suffix_terminal_resolves"])
+        self.assertEqual(len(evidence["negative_cases"]), 5)
+        self.assertIn(
+            "guest firmware DNS lifecycle",
+            evidence["not_claimed"],
+        )
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        network_plan = (DOCS / "network-simulation-plan.md").read_text()
+        network_index = (ROOT / "tests/network/README.md").read_text()
+        api = (DOCS / "device-service-api.md").read_text()
+        openapi = (DOCS / "device-service.openapi.yaml").read_text()
+        ledger = (DOCS / "validation-ledger.md").read_text()
+        for text in (
+            status,
+            workstreams,
+            code_map,
+            network_plan,
+            network_index,
+            api,
+            openapi,
+        ):
+            self.assertIn("CNAME", text)
+        self.assertIn("`NET-07`", backlog)
+        self.assertIn("同 guest CNAME", backlog)
+        self.assertIn("`NOT RUN`", status)
+        self.assertIn("`NOT RUN` (`NET-07`)", api)
+        self.assertIn("cname_records:", openapi)
+        self.assertIn("dns_cname_chain", network_index)
+        self.assertIn("controlled-cname-chain.json", ledger)
+        sandbox = (ROOT / "platform/tools/network_sandbox.py").read_text()
+        self.assertIn("MAX_CNAME_CHAIN = 8", sandbox)
+        self.assertIn("def resolve_cname", sandbox)
+        self.assertIn("conflicts with a domain suffix answer", sandbox)
+        service = (ROOT / "platform/tools/device_service.py").read_text()
+        self.assertIn("def parse_dns_cname_records", service)
+        self.assertIn("validate_cname_record_bindings", service)
 
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()
@@ -3882,6 +3957,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIsNotNone(markdown_version)
         self.assertIsNotNone(openapi_version)
         self.assertEqual(markdown_version.group(1), openapi_version.group(1))
+        self.assertGreaterEqual(
+            tuple(int(part) for part in openapi_version.group(1).split(".")),
+            (1, 30, 0),
+        )
         self.assertIn("core2-native-hci", openapi)
         self.assertGreaterEqual(openapi.count("core2-native-hci"), 3)
         self.assertIn("core2-native-vhci", openapi)
@@ -3889,6 +3968,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("allowlist", openapi)
         self.assertIn("allowed_hosts", openapi)
         self.assertIn("allowed_domains", openapi)
+        self.assertIn("cname_records:", openapi)
+        self.assertIn("network.cname_records", markdown)
         self.assertIn("allowed_endpoints", openapi)
         self.assertIn("controlled", openapi)
         self.assertIn("at least /16", openapi)

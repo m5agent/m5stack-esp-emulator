@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "kind": "controlled-dns-cname-chain",
+  "date": "2026-10-25",
+  "generated_at": "2026-10-25T01:56:06.032802+00:00",
+  "status": "PASS",
+  "validation": "resolver-data-plane validation",
+  "fixture": {
+    "exact_record": "origin.example.test",
+    "exact_address": "203.0.113.10",
+    "domain_suffix": "service.example.test",
+    "cname": [
+      "api.example.test -> edge.example.test",
+      "edge.example.test -> origin.example.test"
+    ],
+    "suffix_cname": "public.service.example.test -> origin.service.example.test"
+  },
+  "checks": {
+    "a_query_includes_two_cnames_and_address": true,
+    "cname_query_returns_two_links": true,
+    "domain_suffix_terminal_resolves": true,
+    "unknown_name_is_nxdomain": true,
+    "log_records_chain_and_terminal": true,
+    "cycle_rejected": true,
+    "uncontrolled_terminal_rejected": true,
+    "exact_owner_conflict_rejected": true,
+    "suffix_owner_conflict_rejected": true,
+    "unauthorized_alias_rejected": true
+  },
+  "dns_log": [
+    {
+      "name": "api.example.test",
+      "qtype": "1",
+      "decision": "allow",
+      "status": "A",
+      "rule": "exact:origin.example.test",
+      "cname_chain": [
+        {
+          "owner": "api.example.test",
+          "target": "edge.example.test"
+        },
+        {
+          "owner": "edge.example.test",
+          "target": "origin.example.test"
+        }
+      ],
+      "cname_terminal": "origin.example.test"
+    },
+    {
+      "name": "api.example.test",
+      "qtype": "5",
+      "decision": "allow",
+      "status": "CNAME",
+      "rule": "exact:origin.example.test",
+      "cname_chain": [
+        {
+          "owner": "api.example.test",
+          "target": "edge.example.test"
+        },
+        {
+          "owner": "edge.example.test",
+          "target": "origin.example.test"
+        }
+      ],
+      "cname_terminal": "origin.example.test"
+    },
+    {
+      "name": "public.service.example.test",
+      "qtype": "1",
+      "decision": "allow",
+      "status": "A",
+      "rule": "suffix:service.example.test",
+      "cname_chain": [
+        {
+          "owner": "public.service.example.test",
+          "target": "origin.service.example.test"
+        }
+      ],
+      "cname_terminal": "origin.service.example.test"
+    },
+    {
+      "name": "denied.example.test",
+      "qtype": "1",
+      "decision": "deny",
+      "status": "NXDOMAIN",
+      "rule": "none"
+    }
+  ],
+  "negative_cases": [
+    {
+      "label": "cycle",
+      "status": "REJECTED",
+      "error_match": true,
+      "error": "sandbox DNS CNAME cycle detected at a.example.test"
+    },
+    {
+      "label": "uncontrolled-terminal",
+      "status": "REJECTED",
+      "error_match": true,
+      "error": "sandbox DNS CNAME alias.example.test terminates at uncontrolled name outside-zone.test"
+    },
+    {
+      "label": "exact-owner-conflict",
+      "status": "REJECTED",
+      "error_match": true,
+      "error": "sandbox DNS CNAME same.example.test conflicts with an exact A/AAAA record"
+    },
+    {
+      "label": "suffix-owner-conflict",
+      "status": "REJECTED",
+      "error_match": true,
+      "error": "sandbox DNS CNAME same.example.test conflicts with a domain suffix answer"
+    },
+    {
+      "status": "REJECTED",
+      "error_match": true,
+      "error": "sandbox DNS CNAME aliases must be covered by policy.allowed_hosts or policy.allowed_domains: escape.other.test"
+    }
+  ],
+  "not_claimed": [
+    "guest firmware DNS lifecycle",
+    "full Linux namespace isolation",
+    "public DNS or DNSSEC",
+    "DNS rebinding or malicious resolver safety",
+    "physical RF or hardware validation"
+  ]
+}

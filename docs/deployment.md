@@ -17,7 +17,8 @@ QEMU 构建树、ESP-IDF、Python 依赖、ROM/eFuse、参考固件和其他生�
 | 目录/只读 API | 设备目录、`GET /api/v1/devices`、OpenAPI、静态文档 | 仓库源码、Python 3 | `./start.sh` |
 | QEMU 设备会话 | lease、烧录、串口、画面、输入、QOM、外设测试 | 源码、Python 3、完整 `.work/`、参考固件 | 准备运行时后运行 `./start.sh` |
 
-只 clone 仓库属于第一种模式。设备清单仍会返回 14 台设备，但 QEMU 设备的
+只 clone 仓库属于第一种模式。设备目录仍会返回登记设备（当前数量见
+[自动项目快照](project-snapshot.md)），但缺少运行时的 QEMU 设备
 `backend_ready` 和 `creatable` 会是 `false`；创建会话会返回
 `503 backend_not_ready`。
 

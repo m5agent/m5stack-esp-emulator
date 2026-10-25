@@ -20,8 +20,9 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   Service 重启后同 PID/QMP reattach（`cd3adc7`）、`POST /sessions`
   并发/重启幂等（`0e3a913`），以及 trusted-host unified HTTP/BLE
   companion continuity（当前实现与 evidence 见下文）。网络策略还闭合了
-  有界 IPv4/IPv6 CIDR 与显式绑定 controlled domain suffix，并完成
-  Linux namespace 的 22/22 policy checks。
+  有界 IPv4/IPv6 CIDR、显式绑定 controlled domain suffix 与有界 CNAME
+  chain；Linux namespace policy fixture 通过，CNAME resolver 数据面也已
+  通过，但同 guest 跟随 CNAME 后完成 TCP/HTTP 仍待做（`NET-07`）。
 - **当前已闭合的 companion 门禁**：trusted-host unified StickS3 在 runtime
   service SIGKILL 后保持同一 QEMU PID；HTTP fixture 从持久 generation-1
   请求重建为 generation-2，BLE peer 在 PID/start-time/command-SHA 全部匹配后
@@ -30,20 +31,22 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   cleanup。
 - **下一 P0**：`NET-04` 的真实跨主机 executor/reattach、NAT/跨子网 discovery、
   跨主机 idempotency 和生产调度；namespace-managed/Tab5/cross-host
-  companion recovery；`FW-01/02/03` 的运行态 ACL/许可、真机
+  companion recovery；`NET-07` 的同 guest CNAME 网络生命周期；
+  `FW-01/02/03` 的运行态 ACL/许可、真机
   security/key 流程和更多固件族；`RUNTIME-02/03/04` 的 C6 Zigbee、Core2
   legacy I2C 与 ATECC608；以及 `HW-01` 同固件 SHA 真机验证。
 - **不再误列为待办**：Manifest、WebBurner chunk upload、SHA-bound
   UI/headless/network-first expectation、SD/NVS fixture、有界 IPv4/IPv6
-  地址/CIDR、显式绑定 domain suffix、S3 WPA2-PSK pair key、worker
+  地址/CIDR、显式绑定 domain suffix、有界 CNAME resolver data plane、
+  S3 WPA2-PSK pair key、worker
   TLS/mTLS/rotation/drain、同主机
   QEMU/QMP reattach、trusted-host unified companion continuity 和 Core2
   `3×121` reconnect 均已有实现与 evidence；它们剩余的是更窄的边界，不是
   “尚未开发”。
 - **当前仍然失真的旧说法**：把 WebBurner、FAT/SPIFFS、DHCP renewal、
   TLS allowlist、worker rotation、Core2 native-HCI、121-round reconnect 或
-  session idempotency 写成 TODO，均属于过期信息；当前权威状态以本页和
-  自动快照为准。
+  session idempotency 写成 TODO，均属于过期信息；动态数量以自动快照为
+  准，能力结论以本页为准。
 
 设备本地 README、测试 case README 和早期设计页保留当时语境，不应单独用来
 判断今天是否支持某项能力。测试总入口见 [`tests/README.md`](../tests/README.md)，
@@ -51,17 +54,19 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 
 ## 总览
 
-- 本轮事实快照以 `2026-10-25` 当前代码、生成物和证据 JSON 为准。本地
-  平台套件共 `419` 项，`419` 项通过、`0` 项环境相关测试跳过；
-  `runtime_coverage`、`peripheral_catalog` 和 `qemu_profiles` 校验通过。
+- 本轮事实快照以 `2026-10-25` 当前代码、生成物和证据 JSON 为准。平台
+  套件总数、设备/后端/外设/样本数量统一从
+  [自动项目快照](project-snapshot.md)读取；本轮
+  `runtime_coverage`、`peripheral_catalog`、`qemu_profiles` 和项目快照
+  校验通过。
 - 设备、Backlog Task 和固件样本的动态计数已改由
   [`project_snapshot.py`](../platform/tools/project_snapshot.py)从 catalog、
   profile、evidence 和 Backlog 生成到
   [自动项目快照](project-snapshot.md)；README、工作流页、统一运行时契约和
   网络方案不再复制逐轮 PASS 计数。
-- 本轮文档对账把会随提交变化的测试与矩阵计数集中到本页；README、文档
-  导航和工作流台账改为链接。设备 catalog 与 QEMU profile 的验证日期/状态
-  已增加交叉校验，AtomS3R 和 PaperMono 的旧 profile 元数据已修正。
+- 当前状态页不再复制会随提交变化的测试、设备和 profile 数量；README、
+  文档导航、工作流台账和本页统一链接自动快照。设备 catalog 与 QEMU
+  profile 的验证日期/状态仍有交叉校验。
 - WebBurner 浏览器 SHA256/upload client Node 测试 `2/2 PASS`；真实页面对
   `9.44 MiB`、`3` chunk 的 WebBurner ZIP 完成上传、manifest 导入和刷新恢复。
   WebBurner 现在还可在导入前声明 required/optional capabilities；API 与
@@ -87,16 +92,10 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   `config` 数据后，guest 在 Open 与 WPA2-PSK 两种 AP 下都完成关联、DHCP，
   解析 `api.openai.com` 并发起 TCP/443。WPA2 对照完成 M1-M4 和成对密钥
   CCMP RX；错误密码在 M2 MIC 被拒绝、deauthenticate 后重试且无 DHCP。
-- 已登记 `14` 台设备：9 台 ESP32-S3、2 台 ESP32-C6、Core2、Tab5 和
-  CardputerZero。
-- Device Service 可创建 `13` 台设备：12 台 QEMU ESP32 加 Tab5。CardputerZero
-  是独立 Linux ARM64 后端，当前不由 `/api/v1` 管理。
-- `13` 台设备的登记外设已达到 `simulated`；Tab5 仍为 `partial`。
-- S3/C6 已形成 `11` 条设备级 QEMU WiFi 验证路径；Core2 在
-  `M5_CORE2_RADIO_QEMU` 环境门控下增加第 `12` 条设备级路径，并细分为
-  `core2-unified`、`core2-native-hci` 和 legacy `core2-native-vhci`；
-  当前共 `14` 个 unified profile。规范 runtime 为 `qemu-unified`，
-  `qemu-ble` 仅为兼容别名。
+- 设备登记、Device Service 可创建数量、外设完成度和 unified profile
+  数量统一见 [自动项目快照](project-snapshot.md)。CardputerZero 是独立
+  Linux ARM64 后端，当前不由 `/api/v1` 管理；规范 runtime 为
+  `qemu-unified`，`qemu-ble` 仅为兼容别名。
 - 最新完整 UIFlow2 外设矩阵在 `2026-10-24 06:47 +08:00` 完成：
   `67/67` 用例、`274/274` 检查 PASS，包含全部 6 个 Core2 case；每个
   case 都是 `attempts=1`、`retry_used=false`。Core2 使用
@@ -168,10 +167,10 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
   IPv6 link-local，属于固件配置边界。Linux arm64 private namespace 中的
   同一 guest 现已完成 controlled AAAA、IPv6 HTTP、denied-port、pcap、
   namespace cleanup 和 QEMU reap。网络策略现已接受有界 IPv4 `/16+`、
-  IPv6 `/48+` CIDR，并支持 controlled DNS domain suffix；每个 suffix
-  必须显式绑定 answer，answer 必须落在允许 endpoint 地址/CIDR 内。Host
-  匹配只在 DNS label boundary 生效，域名不会授权外部 resolver 返回的任意
-  地址。
+  IPv6 `/48+` CIDR，并支持 controlled DNS domain suffix 与最多 8 跳的
+  CNAME chain；每个 suffix/alias 必须受 policy 覆盖，terminal answer
+  必须落在允许 endpoint 地址/CIDR 内。Host 匹配只在 DNS label boundary
+  生效，域名和 CNAME 都不会授权外部 resolver 返回的任意地址。
 - Core2 `HCI-4` 已通过：规范的
   `runtime=qemu-unified/profile=core2-native-hci` 在五个独立
   Device Service lease 中同时验证 320×240 frame、27 节点 QOM、WiFi
@@ -304,9 +303,9 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 
 | 能力面 | 虚拟设备验证 | 本地服务化 | 真机 | 当前结论 |
 | --- | --- | --- | --- | --- |
-| 板级外设与 UI | 13 台设备达到登记外设的 `simulated`；Tab5 为 `partial` | 13 台可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
-| S3/C6/Core2 单实例无线 | 14 个 unified profile、12 条设备级 radio 路径；S3/C6 整机路径 PASS；S3 `generic-observe` 完成 Open/WPA2-PSK 正确密码 DHCP/DNS/TCP443 和错误密码 M2 拒绝；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、`3×120s` guest PSRAM 持续压力（累计 106 次）和单次 600 秒持续压力（179 次）均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终两小时 host RSS/phys footprint 未增长 | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge；121 轮 readiness 与 accelerator-sampling 缺陷已修复并完成 `3/3` 复现 | `NOT RUN` | 已能验证 WPA2-PSK 成对密钥、首轮、同 guest 120/121 轮重连、限容 host-memory 稳定性和 `4 MiB` 虚拟 PSRAM 持续数据路径；后续补 WPA3/group multicast、物理 `8 MiB` PSRAM/cache timing、RF/PHY、bit-exact BT controller 和真机 |
-| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact A/AAAA resolver 与显式绑定 domain suffix、有界 IPv4/IPv6 地址或 CIDR egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP、Linux namespace 内同 guest controlled AAAA + IPv6 HTTP + denied-port + cleanup PASS；真实 server/worker namespace 的 Bearer+HMAC control plane、worker-local StickS3 QEMU execution、active-token multicast discovery、central control-plane restart、runtime-service restart continuity 和 trusted-host unified HTTP/BLE companion continuity PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；worker 控制面/本地 runtime 双端点已经由单测和双 namespace 真实 QEMU job 验证；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain、previous token/CA 有界重叠和无 worker-SIGHUP 的双 worker generation-pointer 自动迁移 PASS；worker 可在同一 multicast domain 自动发现 control URL，错误/旧 token reject；central/runtime 重启后同 worker/lease/session/evidence 可收敛；真实跨主机 QEMU job、NAT/跨子网 discovery 和 namespace-managed/Tab5/cross-host companion continuity 未完成 | `NOT RUN` | 传输、认证、同主机 QEMU/unified job、worker namespace-local QEMU、可审计批量迁移、同 multicast domain 自动 bootstrap、central/runtime restart continuity、trusted-host companion continuity、有界地址/CIDR 与 domain suffix 策略已具备，尚不是多租户恶意固件 VM、任意公网域名解析器或跨主机调度器 |
+| 板级外设与 UI | 设备外设完成度见自动快照；除 Tab5 为 `partial` 外，已登记设备达到其声明范围 | 已启用设备可通过 Device Service 创建 | `NOT RUN` | 可做功能回归，不等于物理外设通过 |
+| S3/C6/Core2 单实例无线 | unified profile 与 radio 路径数量见自动快照；S3/C6 整机路径 PASS；S3 `generic-observe` 完成 Open/WPA2-PSK 正确密码 DHCP/DNS/TCP443 和错误密码 M2 拒绝；Core2 `core2-native-hci` 的 `HCI-4`、两批 `5×10s`、3 个 `60s`、2 个 `120s`、2 个 active-BLE `600s` hold、3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、`3×120s` guest PSRAM 持续压力（累计 106 次）和单次 600 秒持续压力（179 次）均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终两小时 host RSS/phys footprint 未增长 | `qemu-unified` 可返回 frame/QOM/network/evidence；Core2 不启动 GDB bridge；121 轮 readiness 与 accelerator-sampling 缺陷已修复并完成 `3/3` 复现 | `NOT RUN` | 已能验证 WPA2-PSK 成对密钥、首轮、同 guest 120/121 轮重连、限容 host-memory 稳定性和 `4 MiB` 虚拟 PSRAM 持续数据路径；后续补 WPA3/group multicast、物理 `8 MiB` PSRAM/cache timing、RF/PHY、bit-exact BT controller 和真机 |
+| 网络隔离与取证 | namespace、DNS/TLS allowlist、exact A/AAAA resolver、显式绑定 domain suffix 和 bounded CNAME chain、有界 IPv4/IPv6 地址或 CIDR egress、pcap、断线重连、DHCP renewal、双 guest DHCP/TCP/双侧 pcap、专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP、Linux namespace 内同 guest controlled AAAA + IPv6 HTTP + denied-port + cleanup PASS；真实 server/worker namespace 的 Bearer+HMAC control plane、worker-local StickS3 QEMU execution、active-token multicast discovery、central control-plane restart、runtime-service restart continuity 和 trusted-host unified HTTP/BLE companion continuity PASS | 双设备夹具、本地 worker lifecycle、QEMU/QMP restart re-attach、远程目录、durable lease supervisor、同主机 HTTP executor 和 worker HMAC 已通过契约/真实 job 测试；worker 控制面/本地 runtime 双端点已经由单测和双 namespace 真实 QEMU job 验证；真实 HTTPS/mTLS、客户端证书、QEMU job、unified StickS3 job over mTLS、SIGHUP TLS/token rotation、active-request drain、previous token/CA 有界重叠和无 worker-SIGHUP 的双 worker generation-pointer 自动迁移 PASS；worker 可在同一 multicast domain 自动发现 control URL，错误/旧 token reject；central/runtime 重启后同 worker/lease/session/evidence 可收敛；真实跨主机 QEMU job、NAT/跨子网 discovery、同 guest CNAME 生命周期和 namespace-managed/Tab5/cross-host companion continuity 未完成 | `NOT RUN` | 传输、认证、同主机 QEMU/unified job、worker namespace-local QEMU、可审计批量迁移、同 multicast domain 自动 bootstrap、central/runtime restart continuity、trusted-host companion continuity、有界地址/CIDR、domain suffix 与 CNAME resolver 策略已具备，尚不是多租户恶意固件 VM、任意公网域名解析器或跨主机调度器 |
 | 通用固件审查 | 导入、capability/security preflight、required/optional 重叠拒绝、unsupported optional warning、security evidence 双向冲突 warning、WebBurner 分段 size/SHA-256/SHA-1/MD5 复算、静态审查、LittleFS/FAT/SPIFFS、文件级 `permission_policy`、包内源码 SPDX header、WebBurner 浏览器流式上传/刷新恢复与 capability 来源展示、session-isolated SD/NVS fixture、sdkconfig detected 与 image-signature observed capability、SHA-bound UI/headless/network-first review expectation PASS；7 台设备 21 个公开非基线样本的历史哈希绑定结果为 10 PASS / 11 PARTIAL；矩阵（含 resume）每轮强制刷新公开 BIN，结果键绑定 device/firmware/SHA/SD/NVS/expectation；当前 CDN 四样本用 SD fixture 得到 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 公开 BIN 的 network-first 模式在合成 NVS 下完成 DHCP、`api.openai.com` DNS、TCP/443 和 pcap；Open、正确 WPA2 与错误 WPA2 三组共用同一固件 SHA | 本地 WebBurner 可上传并生成 manifest；生产 key 流程未完成 | `NOT RUN` | Matrix PASS 分别覆盖 frame/input 或显式 runtime/network expectation；OpenAI 后续仍需真实 key/Realtime/音频和云端业务验证。摘要复算不证明发布者签名或来源真实性。运行态 ACL/权限、完整许可和 `RUNTIME-02/03/04` 仍未完成 |
 | 服务生命周期 | 停止/失败历史可恢复；本地 worker heartbeat/drain/resume；PID+start-time+QMP 校验后的 QEMU/QMP re-attach；trusted-host HTTP fixture generation recovery 与 BLE peer adopt；durable queue、HMAC-authenticated HTTP executor、HTTPS/mTLS、`SIGHUP` TLS/token 轮换、active-request drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、active-token multicast discovery、central control-plane/runtime-service restart continuity、session-create idempotency、worker lease 与失联回收；控制面与本地 runtime API 双端点分离 | 无真实跨主机 QEMU executor、NAT/跨子网 discovery、namespace-managed/Tab5/cross-host companion recovery、跨主机 idempotency、warm pool、生产多机调度 | 不适用 | 已有 durable queue、同主机 authenticated executor、TLS/mTLS、drained overlap rotation、可审计批量迁移、local control-plane reattach、trusted-host companion reattach、远程 lease、同 multicast domain 自动 bootstrap、central/runtime restart continuity、session-create idempotency 和控制/执行面分离基础，不是完整云端服务 |
 
@@ -321,7 +320,7 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 
 | 工作 | 已闭合 | 仍开放 |
 | --- | --- | --- |
-| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、WPA2-PSK 正确/错误密码、radio/AP 丢失恢复；controlled DNS A/AAAA 与 label-boundary domain suffix、TLS/Host allowlist；nftables 有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT、IPv6 neighbor control 和清理；专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP 与 Linux namespace 内 controlled AAAA、IPv6 HTTP、denied-port、pcap、cleanup；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；跨 server/worker namespace 的 Bearer+HMAC worker control plane；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup；本地 worker lifecycle、QEMU/QMP reattach、trusted-host unified HTTP/BLE companion continuity、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、active-token multicast discovery、central/runtime restart continuity、session-create idempotency、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、控制/本地 runtime API 分离；GitHub Actions Linux policy CI PASS | WPA3、group-key multicast、真实跨主机 QEMU executor/reattach、NAT/跨子网 discovery、namespace-managed/Tab5/cross-host companion continuity、跨主机 idempotency、生产多机调度、任意公网域名解析器 |
+| 网络观测与隔离 | 单 guest WiFi/DHCP/HTTP、pcap、WPA2-PSK 正确/错误密码、radio/AP 丢失恢复；controlled DNS A/AAAA、label-boundary domain suffix 与 bounded CNAME chain、TLS/Host allowlist；nftables 有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT、IPv6 neighbor control 和清理；专用 UIFlow2 测试构建的同 guest IPv6 TCP/HTTP 与 Linux namespace 内 controlled AAAA、IPv6 HTTP、denied-port、pcap、cleanup；DHCP renewal request/ACK；双 guest DHCP/TCP/双侧 pcap/宿主隔离；跨 server/worker namespace 的 Bearer+HMAC worker control plane；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup；本地 worker lifecycle、QEMU/QMP reattach、trusted-host unified HTTP/BLE companion continuity、远程目录、durable queue/lease supervisor、同主机 HTTP executor、HMAC worker auth、active-token multicast discovery、central/runtime restart continuity、session-create idempotency、HTTPS/mTLS、真实 QEMU job、unified StickS3 job over mTLS、`SIGHUP` TLS/token 轮换、活动请求 drain、previous token/CA 有界重叠与 final cutover、双 worker generation-pointer 自动迁移与回执、控制/本地 runtime API 分离；GitHub Actions Linux policy CI PASS | WPA3、group-key multicast、真实跨主机 QEMU executor/reattach、NAT/跨子网 discovery、同 guest CNAME 生命周期（`NET-07`）、namespace-managed/Tab5/cross-host companion continuity、跨主机 idempotency、生产多机调度、任意公网域名解析器 |
 | Core2 | 确定性 TCG/icount 10/10 首轮、unified WiFi、公网 DNS/HTTP、HCI-offload、stock VHCI、native-HCI `HCI-1` 至 `HCI-4` PASS；两批 `5×10s` `10/10`、3 个 `60s` `3/3`、2 个 `120s` `2/2`；2 个 active-BLE `600s` hold `2/2`；3 个独立 lease 各 20、30、60、120 轮的 same-guest GATT、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` 虚拟 PSRAM 持续压力 `3/3` 和单次 600 秒 PSRAM/周期联网压力 `1/1` 均 PASS；旧未限容 RSS 增长已归因到 TCG buffer，最终 host RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB` | bit-exact controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时并发/吞吐、其他 teardown 模式和真机 |
 | 通用固件 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF 导入、浏览器 chunk 上传/刷新恢复、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、required/optional capability 声明与重叠拒绝、optional mismatch warning、sdkconfig radio/PSRAM detected capability、image-signature observed capability、公开 CDN 每次强制刷新、可回滚 artifact backend、security evidence 双向冲突 warning、capability mismatch、脱敏 URL/凭据/高熵审查、SPDX/CycloneDX SBOM、LittleFS/FAT12/16/32/SPIFFS 文件清单/哈希/敏感路径/SPDX 提取、文件级权限来源、包内源码 SPDX header 和声明级许可 allowlist/denylist；Device Service 支持 session-isolated SD 和分区校验 NVS fixture，矩阵结果键可绑定 fixture、expectation 与 firmware SHA；UI、headless-serial 和 network-first expectation 已可用；7 台设备 21 个公开非基线样本的历史哈希绑定结果为 10 PASS / 11 PARTIAL；当前 CDN 四样本 `3 PASS / 1 PARTIAL / 0 FAIL`；OpenAI NVS、WPA2 正确/错误密码和 network-first pcap 路径绑定同一 BIN SHA；`RUNTIME-01` Flash/PMP 与 `RUNTIME-05` S3 WPA2 已通过虚拟设备验证 | OpenAI 无 UI/云服务完整流程、真实 key/Realtime/音频、书籍内容流程、运行态 ACL/权限、完整许可、法律审批、真机 key/eFuse、更多设备/firmware family；WPA3/group multicast；`RUNTIME-02` Zigbee、`RUNTIME-03` Core2 legacy I2C 和 `RUNTIME-04` ATECC608 仍 `OPEN` |
 
@@ -335,7 +334,8 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 
 ### 虚拟设备与 Device Service
 
-- 通过 `/api/v1` 租用、烧录、启动、停止和恢复 13 台设备的历史会话。
+- 通过 `/api/v1` 租用、烧录、启动、停止和恢复已启用设备的历史会话；
+  当前设备数量见 [自动项目快照](project-snapshot.md)。
 - `GET /api/v1/worker` 查看本地 worker heartbeat/lease；`POST /worker/drain`
   停止接纳新会话，`POST /worker/resume` 恢复接纳。
 - `GET/POST /api/v1/workers` 管理远程 worker 注册目录；后续
@@ -445,6 +445,13 @@ HTTPS/mTLS 和多种重启恢复路径都已有可执行实现。现阶段的主
 - 错误密码负向测试要求认证失败、重试、无 DHCP、无 HTTP 和失败 marker
   全部成立；StickS3 link-fault/reconnect 路径同时要求恢复后 DHCP 和
   `/after` HTTP。
+- Controlled DNS 的 CNAME resolver fixture 已通过两跳 chain、exact 与
+  domain-suffix terminal、A/AAAA response 中 chain+terminal record、独立
+  CNAME query、NXDOMAIN、循环、uncontrolled terminal、越权 alias 和 9 跳
+  拒绝检查：
+  [`controlled CNAME evidence`](../tests/network/dns_cname_chain/evidence-2026-10-25-controlled-cname-chain.json)。
+  这是 resolver-data-plane validation；同 guest 固件解析 CNAME、跟随
+  terminal A/AAAA 并完成 TCP/HTTP 仍为 `NOT RUN`（`NET-07`）。
 - Worker HTTPS/mTLS 真实进程证据：
   [`tls-mtls-pass.json`](../tests/network/worker_tls/evidence-2026-10-24-tls-mtls-pass.json)；
   覆盖 TLS 1.3、服务端证书校验、客户端证书拒绝/通过、Bearer/HMAC 保持、
@@ -625,8 +632,9 @@ CCMP RX 和单播 DHCP 数据路径；WPA3、group-key multicast、天线、距�
    与 guest HTTP 请求。跨主机 QEMU executor/reattach、NAT/跨子网 discovery
    与跨主机迁移、namespace-managed/Tab5/cross-host companion continuity、
    连续外部 evidence 流、生产 secret manager/多机调度和 VM 隔离仍待
-   实现。网络策略现已覆盖有界 CIDR 与显式绑定 domain suffix，但域名
-   answer 仍受 endpoint 限制，不能代替任意公网解析或恶意固件沙箱。
+   实现。网络策略现已覆盖有界 CIDR、显式绑定 domain suffix 与 bounded
+   CNAME chain，但 terminal answer 仍受 endpoint 限制；同 guest CNAME
+   生命周期也未完成。它们不能代替任意公网解析或恶意固件沙箱。
    专用 UIFlow2 测试构建已在同一
    Linux namespace guest 内完成 controlled AAAA、IPv6 HTTP、denied-port、
    pcap 和 cleanup；原厂固件仍默认未启用 IPv6 link-local。

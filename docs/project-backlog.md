@@ -21,7 +21,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络产品化 | 同 multicast domain 的 worker discovery、central control-plane restart、runtime-service restart continuity、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已完成；NAT/跨子网发现、跨主机 worker 迁移/QEMU executor、namespace-managed/Tab5/cross-host companion、跨主机 reattach 和生产调度仍待做 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP + trusted-host companion reattach |
+| P0 | 网络产品化 | controlled DNS CNAME resolver 已完成；同 guest 固件 CNAME 生命周期、NAT/跨子网发现、跨主机 worker 迁移/QEMU executor、namespace-managed/Tab5/cross-host companion、跨主机 reattach 和生产调度仍待做 | resolver fixture；durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP + trusted-host companion reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
@@ -33,22 +33,24 @@
 
 ## 当前执行顺序
 
-1. `NET-04` 跨主机阶段：补真实跨主机 QEMU executor、NAT/跨子网 discovery、
+1. `NET-07`：在已通过的 controlled CNAME resolver 上补同 guest 固件
+   CNAME→terminal A/AAAA→TCP/HTTP 生命周期、pcap 和 cleanup。
+2. `NET-04` 跨主机阶段：补真实跨主机 QEMU executor、NAT/跨子网 discovery、
    跨主机 reattach/idempotency 和外部 side-effect fencing；两个 network
    namespace 的同主机 PASS 不能替代。trusted-host companion continuity 已
    通过；剩余单独处理 namespace-managed/Tab5/cross-host companion。
-2. `FW-03`：当前四样本、Manifest、SHA-bound expectation、SD/NVS fixture、
+3. `FW-03`：当前四样本、Manifest、SHA-bound expectation、SD/NVS fixture、
    OpenAI DHCP/DNS/TCP443/pcap 和正确/错误 WPA2 密码均已完成；下一步是真实
    key/cloud 服务结果并扩更多设备与 firmware family。
-3. `CORE2-02` extended-run：`3×121`、active-BLE `600s` 和 artifact-bound
+4. `CORE2-02` extended-run：`3×121`、active-BLE `600s` 和 artifact-bound
    `7200s` 已完成；下一步只补长时吞吐/并发、其他 teardown 模式、
    bit-exact controller/baseband、物理 `8 MiB` PSRAM/cache timing 和
    真机路径。QOM 可见、guest `4 MiB` PSRAM `3×120s`/600s 持续压力、周期联网和 active-stop
    均已完成，不再列为待办。
-4. `FW-01/02`、`RUNTIME-02/03/04`、`HW-01`：补运行态权限/许可、生产
+5. `FW-01/02`、`RUNTIME-02/03/04`、`HW-01`：补运行态权限/许可、生产
    key/eFuse、C6 Zigbee 决策、Core2 控制器缺口和代表设备同固件 SHA
    的真机验证。
-5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
+6. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
    专项后端和视觉工作，不与当前 P0 混算完成。
 
 ## 可执行任务板
@@ -56,6 +58,7 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。active-token multicast discovery、central control-plane restart、runtime Device Service restart、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已 PASS。下一步补 NAT/跨子网发现、跨主机迁移/reattach、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-07` | 待做 | Controlled DNS 已支持受 policy 覆盖、最多 8 跳的 CNAME chain；resolver fixture 已覆盖 A/AAAA chain encoding、CNAME query、NXDOMAIN、cycle/uncontrolled/unauthorized/overlong rejection。下一步让同一 guest 固件跟随 CNAME terminal 并完成 TCP/HTTP | 单个 `/api/v1` lease 中同时具备 guest CNAME query、terminal A/AAAA、endpoint 约束、TCP/HTTP、pcap 和 cleanup；不能把 resolver-only PASS 写成固件生命周期 PASS |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` 虚拟 PSRAM/周期联网 `3/3` 和单次 600 秒持续压力 `1/1` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时吞吐/并发、其他 teardown 模式和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -72,6 +75,29 @@
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：网络与 worker
+
+### NET-07 同 guest CNAME 网络生命周期
+
+Controlled DNS 当前已支持精确 CNAME alias、最多 8 跳 chain、循环检测、
+terminal 校验、A/AAAA chain encoding 和独立 CNAME response。alias 与
+terminal 都必须落在 `allowed_hosts`/`allowed_domains`/terminal data 的
+policy 内，CNAME 不能替代 endpoint IP/CIDR/端口 egress 规则。
+
+当前缺口只在于执行层：已提交的 evidence 由 resolver fixture 产生，尚未由
+一个真实 guest 固件在同一 Device Service lease 中查询 CNAME、跟随 terminal
+A/AAAA、完成 TCP/HTTP，并将 DNS log、pcap、serial 和 cleanup 绑定起来。
+
+下一项最小交付：使用匹配设备的 UIFlow2 或 ESP-IDF probe，让 guest 请求
+CNAME alias，验证 terminal address、允许 endpoint 上的 TCP/HTTP、拒绝路径
+以及同 lease pcap/cleanup。
+
+验收：
+
+- guest 实际发出 CNAME/A/AAAA query，host resolver log 包含 chain 与 terminal；
+- terminal answer 被 policy 允许，未允许的 alias/terminal/端口 fail-closed；
+- 同一 guest 完成 TCP/HTTP，pcap 和 serial marker 指向同一 session；
+- session stop 后 QEMU、fixture、namespace 和临时配置全部清理；
+- 不得把 resolver-only、host peer 或另一会话的结果拼成 guest PASS。
 
 ### NET-04 远程 worker
 

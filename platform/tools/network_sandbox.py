@@ -370,6 +370,7 @@ def write_isolation_evidence(
                 "controlled_dns": dns.get("mode") == "controlled",
                 "dns_records": dns.get("hosts", {}),
                 "dns_domain_records": dns.get("domain_records", {}),
+                "dns_cname_records": dns.get("cname_records", {}),
                 "cleanup_completed": False,
             },
             indent=2,
@@ -532,6 +533,8 @@ class ControlledHttp:
 
 
 class ControlledDns:
+    MAX_CNAME_CHAIN = 8
+
     def __init__(
         self,
         *,
@@ -540,11 +543,30 @@ class ControlledDns:
         records: dict[str, Any],
         log_path: Path | None,
         domain_records: dict[str, Any] | None = None,
+        cname_records: dict[str, Any] | None = None,
     ):
         self.records = self.normalize_records(records)
         self.domain_records = self.normalize_domain_records(
             domain_records or {}
         )
+        self.cname_records = self.normalize_cname_records(
+            cname_records or {}
+        )
+        for alias in self.cname_records:
+            if alias in self.records:
+                raise SandboxError(
+                    f"sandbox DNS CNAME {alias} conflicts with an exact A/AAAA record"
+                )
+            if alias in self.domain_records:
+                raise SandboxError(
+                    f"sandbox DNS CNAME {alias} conflicts with a domain suffix answer"
+                )
+            _, terminal = self.resolve_cname(alias)
+            if not self.has_record_data(terminal):
+                raise SandboxError(
+                    f"sandbox DNS CNAME {alias} terminates at uncontrolled name "
+                    f"{terminal}"
+                )
         self.requests: list[dict[str, Any]] = []
         self.lock = threading.Lock()
         self.log_path = log_path
@@ -621,6 +643,77 @@ class ControlledDns:
         return normalized
 
     @staticmethod
+    def normalize_cname_records(records: dict[str, Any]) -> dict[str, str]:
+        if not isinstance(records, dict):
+            raise SandboxError(
+                "sandbox DNS cname_records must be a record map"
+            )
+        if len(records) > 64:
+            raise SandboxError(
+                "sandbox DNS cname_records exceeds the 64-entry limit"
+            )
+        normalized: dict[str, str] = {}
+        for raw_alias, raw_target in records.items():
+            if not isinstance(raw_alias, str) or not isinstance(raw_target, str):
+                raise SandboxError(
+                    "sandbox DNS CNAME aliases and targets must be strings"
+                )
+            alias = normalize_domain_suffixes((raw_alias,))[0]
+            target = normalize_domain_suffixes((raw_target,))[0]
+            if alias == target:
+                raise SandboxError(
+                    f"sandbox DNS CNAME {alias} cannot target itself"
+                )
+            if alias in normalized:
+                raise SandboxError(
+                    f"sandbox DNS CNAME {alias} appears more than once"
+                )
+            normalized[alias] = target
+        return normalized
+
+    def has_record_data(self, name: str) -> bool:
+        if name in self.records:
+            return True
+        return any(
+            domain_matches_suffix(name, suffix)
+            for suffix in self.domain_records
+        )
+
+    def resolve_cname(self, name: str) -> tuple[list[tuple[str, str]], str]:
+        chain: list[tuple[str, str]] = []
+        seen: set[str] = set()
+        current = name
+        while current in self.cname_records:
+            if current in seen:
+                raise SandboxError(
+                    f"sandbox DNS CNAME cycle detected at {current}"
+                )
+            if len(chain) >= self.MAX_CNAME_CHAIN:
+                raise SandboxError(
+                    "sandbox DNS CNAME chain exceeds 8 records"
+                )
+            seen.add(current)
+            target = self.cname_records[current]
+            chain.append((current, target))
+            current = target
+        if chain and not self.has_record_data(current):
+            raise SandboxError(
+                f"sandbox DNS CNAME {name} terminates at uncontrolled name "
+                f"{current}"
+            )
+        return chain, current
+
+    @staticmethod
+    def encode_name(name: str) -> bytes:
+        return (
+            b"".join(
+                bytes([len(label)]) + label.encode("ascii")
+                for label in name.rstrip(".").split(".")
+            )
+            + b"\0"
+        )
+
+    @staticmethod
     def parse_question(query: bytes) -> tuple[str, int, int, int] | None:
         if len(query) < 17:
             return None
@@ -653,20 +746,36 @@ class ControlledDns:
         if question is None:
             return b""
         name, qtype, qclass, question_end = question
-        addresses = self.records.get(name)
-        matched_rule = f"exact:{name}" if addresses is not None else "none"
+        cname_chain, terminal = self.resolve_cname(name)
+        addresses = self.records.get(terminal)
+        matched_rule = (
+            f"exact:{terminal}" if addresses is not None else "none"
+        )
         if addresses is None:
             for suffix in sorted(
                 self.domain_records,
                 key=len,
                 reverse=True,
             ):
-                if domain_matches_suffix(name, suffix):
+                if domain_matches_suffix(terminal, suffix):
                     addresses = self.domain_records[suffix]
                     matched_rule = f"suffix:{suffix}"
                     break
         allowed = addresses is not None
-        answer = b""
+        answers: list[bytes] = []
+        if allowed and qclass == 1:
+            for owner, target in cname_chain:
+                target_wire = self.encode_name(target)
+                owner_wire = (
+                    b"\xc0\x0c"
+                    if owner == name
+                    else self.encode_name(owner)
+                )
+                answers.append(
+                    owner_wire
+                    + struct.pack("!HHIH", 5, 1, 60, len(target_wire))
+                    + target_wire
+                )
         address = None
         if allowed and qclass == 1 and qtype in {1, 28}:
             address = next(
@@ -687,18 +796,25 @@ class ControlledDns:
         answer_type = None
         if address is not None:
             record_type = 1 if qtype == 1 else 28
-            answer = (
+            owner_wire = (
                 b"\xc0\x0c"
+                if not cname_chain
+                else self.encode_name(terminal)
+            )
+            answers.append(
+                owner_wire
                 + struct.pack("!HHIH", record_type, 1, 60, len(address.packed))
                 + address.packed
             )
             answer_type = "A" if qtype == 1 else "AAAA"
+        elif cname_chain and qclass == 1 and qtype == 5:
+            answer_type = "CNAME"
         flags = 0x8180 if allowed else 0x8183
         response = (
             query[:2]
-            + struct.pack("!HHHHH", flags, 1, 1 if answer else 0, 0, 0)
+            + struct.pack("!HHHHH", flags, 1, len(answers), 0, 0)
             + query[12:question_end]
-            + answer
+            + b"".join(answers)
         )
         status = (
             answer_type
@@ -712,15 +828,20 @@ class ControlledDns:
             else "NXDOMAIN"
         )
         with self.lock:
-            self.requests.append(
-                {
-                    "name": name,
-                    "qtype": str(qtype),
-                    "decision": "allow" if allowed else "deny",
-                    "status": status,
-                    "rule": matched_rule,
-                }
-            )
+            request = {
+                "name": name,
+                "qtype": str(qtype),
+                "decision": "allow" if allowed else "deny",
+                "status": status,
+                "rule": matched_rule,
+            }
+            if cname_chain:
+                request["cname_chain"] = [
+                    {"owner": owner, "target": target}
+                    for owner, target in cname_chain
+                ]
+                request["cname_terminal"] = terminal
+            self.requests.append(request)
             self.persist()
         return response
 
@@ -886,6 +1007,84 @@ def validate_domain_record_bindings(
     return domain_records
 
 
+def validate_cname_record_bindings(
+    records: dict[str, Any],
+    exact_hosts: tuple[str, ...],
+    allowed_hosts: tuple[str, ...],
+    allowed_domains: tuple[str, ...],
+) -> dict[str, str]:
+    cname_records = ControlledDns.normalize_cname_records(records)
+    unauthorized_aliases = [
+        alias
+        for alias in cname_records
+        if alias not in allowed_hosts
+        and not any(
+            domain_matches_suffix(alias, suffix)
+            for suffix in allowed_domains
+        )
+    ]
+    if unauthorized_aliases:
+        raise SandboxError(
+            "sandbox DNS CNAME aliases must be covered by "
+            "policy.allowed_hosts or policy.allowed_domains: "
+            + ", ".join(unauthorized_aliases)
+        )
+    expected_hosts = set(exact_hosts) | {
+        alias for alias in cname_records if alias in allowed_hosts
+    }
+    if expected_hosts != set(allowed_hosts):
+        raise SandboxError(
+            "sandbox DNS hosts/CNAME aliases must exactly match "
+            "policy.allowed_hosts"
+        )
+    return validate_cname_graph(
+        cname_records,
+        tuple(set(exact_hosts) - set(cname_records)),
+        allowed_domains,
+    )
+
+
+def validate_cname_graph(
+    records: dict[str, Any],
+    exact_hosts: tuple[str, ...],
+    domain_suffixes: tuple[str, ...],
+) -> dict[str, str]:
+    cname_records = ControlledDns.normalize_cname_records(records)
+    for alias in cname_records:
+        if alias in exact_hosts:
+            raise SandboxError(
+                f"sandbox DNS CNAME {alias} conflicts with an exact A/AAAA record"
+            )
+        if alias in domain_suffixes:
+            raise SandboxError(
+                f"sandbox DNS CNAME {alias} conflicts with a domain suffix answer"
+            )
+        seen: set[str] = set()
+        current = alias
+        hops = 0
+        while current in cname_records:
+            if current in seen:
+                raise SandboxError(
+                    f"sandbox DNS CNAME cycle detected at {current}"
+                )
+            if hops >= ControlledDns.MAX_CNAME_CHAIN:
+                raise SandboxError(
+                    "sandbox DNS CNAME chain exceeds 8 records"
+                )
+            seen.add(current)
+            current = cname_records[current]
+            hops += 1
+        if current not in exact_hosts and not any(
+            domain_matches_suffix(current, suffix)
+            for suffix in domain_suffixes
+        ):
+            raise SandboxError(
+                f"sandbox DNS CNAME {alias} terminates at uncontrolled name "
+                f"{current}"
+            )
+    return cname_records
+
+
 def _loopback_ports(config: dict[str, Any]) -> tuple[set[int], set[int]]:
     control = config.get("control", {})
     if not isinstance(control, dict):
@@ -1047,15 +1246,20 @@ def run(
                 raise SandboxError("sandbox DNS config must be an object")
             records = dns_config.get("hosts", {})
             raw_domain_records = dns_config.get("domain_records", {})
+            raw_cname_records = dns_config.get("cname_records", {})
             if not isinstance(records, dict):
                 raise SandboxError("sandbox DNS hosts must be a record map")
             if not isinstance(raw_domain_records, dict):
                 raise SandboxError(
                     "sandbox DNS domain_records must be a record map"
                 )
-            if not records and not raw_domain_records:
+            if not isinstance(raw_cname_records, dict):
                 raise SandboxError(
-                    "sandbox DNS requires hosts or domain_records"
+                    "sandbox DNS cname_records must be a record map"
+                )
+            if not records and not raw_domain_records and not raw_cname_records:
+                raise SandboxError(
+                    "sandbox DNS requires hosts, domain_records or cname_records"
                 )
             normalized_records = ControlledDns.normalize_records(records)
             domain_records = validate_domain_record_bindings(
@@ -1068,11 +1272,18 @@ def run(
                     policy.get("allowed_hosts", []),
                     field="sandbox policy allowed_hosts",
                 ) or ()
-                if set(normalized_records) != set(policy_hosts):
-                    raise SandboxError(
-                        "sandbox DNS hosts must exactly match "
-                        "policy.allowed_hosts"
-                    )
+                policy_domains = normalize_domain_suffixes(
+                    policy.get("allowed_domains", [])
+                )
+            else:
+                policy_hosts = ()
+                policy_domains = ()
+            cname_records = validate_cname_record_bindings(
+                raw_cname_records,
+                tuple(normalized_records),
+                policy_hosts,
+                policy_domains,
+            )
             raw_log = dns_config.get("log")
             dns = ControlledDns(
                 host=str(dns_config.get("host", "127.0.0.1")),
@@ -1080,6 +1291,7 @@ def run(
                 records=normalized_records,
                 log_path=Path(str(raw_log)) if raw_log else None,
                 domain_records=domain_records,
+                cname_records=cname_records,
             )
             dns.start()
 

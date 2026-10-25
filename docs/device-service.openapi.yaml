@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.29.0
+  version: 1.30.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2028,6 +2028,20 @@ components:
             rejects true because esp-emu user networking exposes no pcap path.
             Stopping the session writes network.pcap.json with flow, DNS, DHCP,
             ARP and payload hashes but no raw payloads.
+        cname_records:
+          type: object
+          maxProperties: 64
+          description: >
+            Optional exact-name CNAME aliases for controlled DNS. Requires
+            policy.egress=allowlist and policy.dns=controlled. Every alias
+            must be covered by policy.allowed_hosts or policy.allowed_domains;
+            chains are limited to eight hops and must terminate at an exact
+            allowed host or controlled domain answer. Cycles, uncontrolled
+            targets, aliases outside the policy and CNAME owners that also
+            have exact or domain-suffix address data are rejected.
+          additionalProperties:
+            type: string
+            pattern: "^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
         ble_linger_seconds:
           type: number
           minimum: 0

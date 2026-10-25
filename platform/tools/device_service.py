@@ -76,6 +76,10 @@ from network_policy import (  # noqa: E402
     namespace_capability,
     qemu_user_netdev,
 )
+from network_sandbox import (  # noqa: E402
+    SandboxError,
+    validate_cname_record_bindings,
+)
 from pcap_summary import PcapError, summarize_pcap  # noqa: E402
 from qemu_accel import core2_accel_args  # noqa: E402
 from run_profile_ui_test import (  # noqa: E402
@@ -607,6 +611,43 @@ def parse_network_policy(
     except NetworkPolicyError as error:
         raise ServiceError(
             "invalid_network_policy",
+            str(error),
+            400,
+        ) from error
+
+
+def parse_dns_cname_records(
+    value: Any,
+    policy: NetworkPolicy,
+) -> dict[str, str]:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ServiceError(
+            "invalid_network",
+            "network.cname_records must be an object",
+            400,
+        )
+    if value and (
+        policy.egress != "allowlist"
+        or policy.dns != "controlled"
+    ):
+        raise ServiceError(
+            "invalid_network",
+            "network.cname_records requires egress=allowlist and "
+            "dns=controlled",
+            400,
+        )
+    try:
+        return validate_cname_record_bindings(
+            value,
+            policy.allowed_hosts,
+            policy.allowed_hosts,
+            policy.allowed_domains,
+        )
+    except SandboxError as error:
+        raise ServiceError(
+            "invalid_network",
             str(error),
             400,
         ) from error
@@ -1341,6 +1382,10 @@ def parse_qemu_wifi_execution(
         value.get("policy"),
         implicit_endpoints=implicit_allowlist_endpoints(profile),
     )
+    cname_records = parse_dns_cname_records(
+        value.get("cname_records"),
+        policy,
+    )
     require_allowlist_http_fixture(profile, policy)
     require_network_capabilities(policy)
     capture_pcap = parse_capture_pcap(
@@ -1359,6 +1404,7 @@ def parse_qemu_wifi_execution(
         "attempts": attempts,
         "capture_pcap": capture_pcap,
         "policy": policy.evidence(),
+        "cname_records": cname_records,
     }
 
 
@@ -1493,6 +1539,10 @@ def parse_qemu_ble_execution(
         value.get("policy"),
         implicit_endpoints=implicit_allowlist_endpoints(profile),
     )
+    cname_records = parse_dns_cname_records(
+        value.get("cname_records"),
+        policy,
+    )
     require_allowlist_http_fixture(profile, policy)
     require_network_capabilities(policy)
     capture_pcap = parse_capture_pcap(
@@ -1591,6 +1641,7 @@ def parse_qemu_ble_execution(
         "ble_reconnect_delay_seconds": float(reconnect_delay),
         "ble_post_pass_continuity": post_pass_continuity,
         "policy": policy.evidence(),
+        "cname_records": cname_records,
         "elf_artifact_id": elf_artifact_id,
         "nic": (
             "misc.esp32_wifi"
@@ -5262,9 +5313,18 @@ class DeviceSession:
                     "tcp_ports": control_tcp_ports,
                 }
             if policy.dns == "controlled":
+                cname_records = (
+                    self.network_config.get("cname_records", {})
+                    if isinstance(
+                        self.network_config.get("cname_records", {}),
+                        dict,
+                    )
+                    else {}
+                )
                 dns_hosts = {
                     host: "10.0.2.2"
                     for host in policy.allowed_hosts
+                    if host not in cname_records
                 }
                 dns_domain_records = {
                     domain: ["10.0.2.2"]
@@ -5276,6 +5336,7 @@ class DeviceSession:
                     "port": 53,
                     "hosts": dns_hosts,
                     "domain_records": dns_domain_records,
+                    "cname_records": cname_records,
                     "log": str(self.dns_fixture_log),
                 }
             if http_profile:

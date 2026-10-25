@@ -30,7 +30,7 @@ Device Service lease
 | 模式 | 入口 | 能证明什么 | 不能证明什么 |
 | --- | --- | --- | --- |
 | User-mode lab | QEMU user net + 实例内 HTTP/BLE peer | scan、association、DHCP、DNS、TCP/UDP 和重连逻辑 | 宿主/公网隔离，真实 RF |
-| Controlled DNS/TLS | Linux network + mount namespace、测试 CA、A/AAAA resolver、Host allowlist | 允许/拒绝决策、证书路径、同一 UIFlow2 test-build guest 的 AAAA/HTTP/denied-port 和 pcap 一致 | 任意公网服务、原厂固件默认 IPv6 能力或证书固定 |
+| Controlled DNS/TLS | Linux network + mount namespace、测试 CA、A/AAAA/CNAME resolver、Host allowlist | 允许/拒绝决策、证书路径、同一 UIFlow2 test-build guest 的 AAAA/HTTP/denied-port 和 pcap 一致；独立 CNAME resolver chain | 任意公网服务、原厂固件默认 IPv6 能力、CNAME guest 生命周期或证书固定 |
 | Bounded dual-stack egress | nftables + per-session IPv4/IPv6 veth/NAT | 有界 IPv4/IPv6 地址或 CIDR、协议和端口的允许/拒绝及清理 | 任意宽泛网段、未绑定域名或完整恶意固件沙箱 |
 | Firmware SoftAP | `runtime=network`、AP 密码和 loopback `hostfwd` | 固件自建 provisioning portal | 手机、captive portal OS 或真实 roaming |
 | Multi-device lab fabric | private namespace 内的 QEMU socket L2 switch | 两台 guest 的 DHCP、私有 TCP 和双侧 pcap | TAP primitive、RF、WPA2/WPA3 或生产 worker |
@@ -54,9 +54,14 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   boundary；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；
 - controlled DNS、exact A/AAAA records、domain suffix 的 label-boundary
-  匹配、测试 CA、DNS/TLS allowlist、Host 决策和 pcap 摘要；
+  匹配、最多 8 跳 exact-name CNAME chain、测试 CA、DNS/TLS allowlist、
+  Host 决策和 pcap 摘要；
 - domain suffix 必须显式绑定受控 resolver answer，且 answer 必须落在
   `allowed_endpoints` 的地址/CIDR 内；域名不直接授权外部解析出的任意地址；
+- CNAME alias 和 terminal 都必须受 policy 覆盖；A/AAAA response 返回
+  chain+terminal record，CNAME query 返回 chain；cycle、uncontrolled
+  terminal、越权 alias、与 exact A/AAAA 或 domain-suffix answer 冲突和
+  超过 8 跳均 fail-closed；
 - nftables IPv4/IPv6 地址或 CIDR egress、双栈 veth/NAT、IPv6 neighbor
   discovery control、fail-closed 和清理；IPv4 最宽 `/16`、IPv6 最宽
   `/48`，并拒绝 special-use、IPv4-mapped 和 QEMU SLiRP synthetic CIDR；
@@ -95,7 +100,8 @@ controlled AAAA、allowed IPv6 HTTP、denied-port、pcap、namespace cleanup
 和 QEMU reap。
 
 当前仍未完成的网络产品化项只列在
-[项目 Backlog](project-backlog.md)，重点是 `NET-04` 跨主机 worker/QEMU
+[项目 Backlog](project-backlog.md)，重点是 `NET-07` 同 guest
+CNAME→terminal→TCP/HTTP 生命周期、`NET-04` 跨主机 worker/QEMU
 executor、namespace-managed/Tab5/cross-host companion continuity、连续
 external evidence 流、NAT/跨子网发现和不可信固件 disposable VM。
 `NET-05` 与 `NET-06` 均已完成当前 accepted virtual-device scope。
@@ -114,7 +120,7 @@ external evidence 流、NAT/跨子网发现和不可信固件 disposable VM。
 | DHCP renewal | 不重启 guest 观察到 lease renewal，且地址/HTTP 连续性成立 |
 | Multi-device | 两台 guest 只能通过预期 lab fabric 通信 |
 | Core egress | 允许/拒绝 IP 或 CIDR+protocol+port 可重复，不能被 user-net 旁路 |
-| Domain set | suffix 只在 DNS label boundary 匹配；exact/longest suffix 顺序稳定；每个 answer 都受 IP/CIDR egress 约束 |
+| Domain/CNAME | suffix 只在 DNS label boundary 匹配；exact/longest suffix 顺序稳定；CNAME chain 有界、无 cycle、alias/terminal 受 policy 覆盖并解析到受 IP/CIDR egress 约束的 address |
 | Worker transport | 认证、TLS/mTLS、rotation、drain、replay 防护和 fail-closed 有同次证据 |
 | Evidence | 只保存允许的网络元数据和 payload hash，artifact 可复现 |
 
@@ -149,6 +155,7 @@ external evidence 流、NAT/跨子网发现和不可信固件 disposable VM。
 ## Evidence entries
 
 - [Controlled DNS/TLS](../tests/network/tls_allowlist/README.md)
+- [Controlled DNS CNAME chain](../tests/network/dns_cname_chain/README.md)
 - [Exact dual-stack egress](../tests/network/egress_allowlist/README.md)
 - [DHCP renewal](../tests/network/idf_dhcp_renewal/README.md)
 - [Wrong password](../tests/network/wrong_password/README.md)

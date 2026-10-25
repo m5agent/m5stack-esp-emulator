@@ -191,6 +191,167 @@ class NetworkSandboxTests(unittest.TestCase):
         )
         self.assertEqual(struct.unpack_from("!H", denied, 6)[0], 0)
 
+    def test_controlled_dns_resolves_bounded_cname_chain(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            log = Path(temporary) / "dns-cname.json"
+            dns = network_sandbox.ControlledDns(
+                host="127.0.0.1",
+                port=0,
+                records={"origin.example.test": "203.0.113.10"},
+                domain_records={},
+                cname_records={
+                    "api.example.test": "edge.example.test",
+                    "edge.example.test": "origin.example.test",
+                },
+                log_path=log,
+            )
+            dns.start()
+            try:
+                address = dns.response(dns_query("api.example.test", 1))
+                cname = dns.response(dns_query("api.example.test", 5))
+            finally:
+                dns.close()
+            requests = json.loads(log.read_text())
+        self.assertEqual(struct.unpack_from("!H", address, 6)[0], 3)
+        self.assertEqual(
+            str(ipaddress.ip_address(address[-4:])),
+            "203.0.113.10",
+        )
+        self.assertEqual(struct.unpack_from("!H", cname, 6)[0], 2)
+        self.assertEqual(requests[0]["status"], "A")
+        self.assertEqual(
+            requests[0]["cname_chain"],
+            [
+                {
+                    "owner": "api.example.test",
+                    "target": "edge.example.test",
+                },
+                {
+                    "owner": "edge.example.test",
+                    "target": "origin.example.test",
+                },
+            ],
+        )
+        self.assertEqual(
+            requests[0]["cname_terminal"],
+            "origin.example.test",
+        )
+        self.assertEqual(requests[1]["status"], "CNAME")
+
+    def test_controlled_dns_rejects_invalid_cname_graphs(self):
+        cases = (
+            {
+                "loop.example.test": "loop.example.test",
+            },
+            {
+                "a.example.test": "b.example.test",
+                "b.example.test": "a.example.test",
+            },
+            {
+                "alias.example.test": "outside.test",
+            },
+        )
+        for records in cases:
+            with self.subTest(records=records), self.assertRaises(
+                network_sandbox.SandboxError
+            ):
+                network_sandbox.ControlledDns(
+                    host="127.0.0.1",
+                    port=0,
+                    records={"inside.example.test": "203.0.113.10"},
+                    domain_records={},
+                    cname_records=records,
+                    log_path=None,
+                )
+        with self.assertRaisesRegex(
+            network_sandbox.SandboxError,
+            "conflicts with an exact",
+        ):
+            network_sandbox.ControlledDns(
+                host="127.0.0.1",
+                port=0,
+                records={"same.example.test": "203.0.113.10"},
+                domain_records={},
+                cname_records={"same.example.test": "inside.example.test"},
+                log_path=None,
+            )
+        with self.assertRaisesRegex(
+            network_sandbox.SandboxError,
+            "conflicts with a domain suffix answer",
+        ):
+            network_sandbox.ControlledDns(
+                host="127.0.0.1",
+                port=0,
+                records={},
+                domain_records={"same.example.test": "203.0.113.10"},
+                cname_records={"same.example.test": "inside.example.test"},
+                log_path=None,
+            )
+
+    def test_controlled_dns_cname_chain_limit_is_inclusive(self):
+        aliases = {
+            f"hop{index}.example.test": (
+                f"hop{index + 1}.example.test"
+                if index < 7
+                else "origin.example.test"
+            )
+            for index in range(8)
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            dns = network_sandbox.ControlledDns(
+                host="127.0.0.1",
+                port=0,
+                records={"origin.example.test": "203.0.113.10"},
+                domain_records={},
+                cname_records=aliases,
+                log_path=Path(temporary) / "dns-cname-limit.json",
+            )
+            dns.start()
+            try:
+                response = dns.response(dns_query("hop0.example.test", 1))
+            finally:
+                dns.close()
+        self.assertEqual(struct.unpack_from("!H", response, 6)[0], 9)
+        too_long = {
+            **aliases,
+            "hop8.example.test": "hop0.example.test",
+        }
+        too_long["hop7.example.test"] = "hop8.example.test"
+        with self.assertRaisesRegex(
+            network_sandbox.SandboxError,
+            "exceeds 8 records",
+        ):
+            network_sandbox.ControlledDns(
+                host="127.0.0.1",
+                port=0,
+                records={"origin.example.test": "203.0.113.10"},
+                domain_records={},
+                cname_records=too_long,
+                log_path=None,
+            )
+
+    def test_cname_aliases_must_be_authorized_by_policy(self):
+        cname = network_sandbox.validate_cname_record_bindings(
+            {
+                "alias.allowy.test": "origin.allowy.test",
+                "exact-alias.test": "origin.exact.test",
+            },
+            exact_hosts=("exact-alias.test", "origin.exact.test"),
+            allowed_hosts=("exact-alias.test", "origin.exact.test"),
+            allowed_domains=("allowy.test",),
+        )
+        self.assertEqual(cname["alias.allowy.test"], "origin.allowy.test")
+        with self.assertRaisesRegex(
+            network_sandbox.SandboxError,
+            "must be covered by",
+        ):
+            network_sandbox.validate_cname_record_bindings(
+                {"escape.other.test": "origin.exact.test"},
+                exact_hosts=("origin.exact.test",),
+                allowed_hosts=("origin.exact.test",),
+                allowed_domains=("allowy.test",),
+            )
+
     def test_isolation_evidence_records_domain_set_binding(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "isolation.json"
@@ -217,6 +378,9 @@ class NetworkSandboxTests(unittest.TestCase):
                         "domain_records": {
                             "allowy.test": ["10.0.2.2"],
                         },
+                        "cname_records": {
+                            "alias.allowy.test": "origin.allowy.test",
+                        },
                     },
                 },
             )
@@ -225,6 +389,10 @@ class NetworkSandboxTests(unittest.TestCase):
         self.assertEqual(
             evidence["dns_domain_records"],
             {"allowy.test": ["10.0.2.2"]},
+        )
+        self.assertEqual(
+            evidence["dns_cname_records"],
+            {"alias.allowy.test": "origin.allowy.test"},
         )
 
     def test_domain_records_must_match_policy_and_allowed_endpoint(self):

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-25`.
 
-Status: local MVP with unified-device runtime contract `1.29.0` and bounded
+Status: local MVP with unified-device runtime contract `1.30.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -866,6 +866,19 @@ completed controlled AAAA, allowed IPv6 HTTP, denied-port blocking, pcap,
 namespace cleanup and QEMU reap in one guest lifecycle. That closes `NET-06`
 for the accepted virtual-device scope; it does not claim that every managed
 profile defaults to IPv6 or that stock UIFlow2 enables an IPv6 link-local.
+
+`network.cname_records` is an optional exact-name CNAME map for controlled
+DNS. Every alias must be covered by `allowed_hosts` or `allowed_domains`;
+every chain is limited to eight links and must terminate at a non-alias exact
+host or at a domain suffix with explicit resolver answers. Cycles, aliases
+outside the policy, uncontrolled terminals and CNAME owners that also have
+exact or domain-suffix address data are rejected with `invalid_network`.
+Matching A/AAAA responses include the CNAME chain followed by the terminal
+address record, while a CNAME query returns the chain without inventing an
+address. The resolver test covers A/AAAA CNAME-chain encoding, CNAME-query
+encoding, NXDOMAIN and invalid graphs; a same-guest firmware lifecycle that
+follows a CNAME and completes TCP/HTTP is `NOT RUN` (`NET-07`). CNAME
+resolution never bypasses endpoint IP/CIDR/port egress rules.
 
 The Linux worker must provide root or equivalent `NET_ADMIN`/`SYS_ADMIN`
 capabilities, `nftables`, and `iproute2`. External IPv4 endpoints require

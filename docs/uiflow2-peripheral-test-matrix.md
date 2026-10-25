@@ -642,9 +642,10 @@ CC1101 与 SD、NFC 共用 SPI2，使用 CS `G5`、GDO0 `G15`。官方
 
 ## 设备级调度
 
-`runtime-coverage.json` 的 `device_case_groups` 把 67 个 matrix case 和
-7 个 external probe 分别绑定到 14 台设备，并声明每组覆盖的模拟模型。
-每个 case 必须且只能归属一个设备组。
+`runtime-coverage.json` 的 `device_case_groups` 把当前所有 matrix case 和
+external probe 分别绑定到登记设备，并声明每组覆盖的模拟模型；设备与覆盖
+数量以 [自动项目快照](project-snapshot.md) 和 coverage 校验为准。每个 case
+必须且只能归属一个设备组。
 
 ```bash
 python3 tests/uiflow2/run_peripheral_matrix.py \
