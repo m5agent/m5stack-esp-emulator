@@ -294,8 +294,31 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         ):
             text = path.read_text()
             self.assertIn("interrupt-WDT", text)
-            self.assertIn("14", text)
             self.assertIn("READ_START", text)
+        for path in (
+            ROOT / "README.md",
+            DOCS / "project-status.md",
+            DOCS / "project-backlog.md",
+            DOCS / "engineering-handoff.md",
+            DOCS / "workstreams.md",
+            DOCS / "qemu-device-adaptation-matrix.md",
+            DOCS / "code-map.md",
+        ):
+            text = path.read_text()
+            for volatile_count in (
+                "14 PASS",
+                "14/20",
+                "6/20",
+                "6 次 interrupt-WDT",
+            ):
+                self.assertNotIn(volatile_count, text, path.relative_to(ROOT))
+        for path in (
+            DOCS / "runtime-model-gap-register.md",
+            DOCS / "validation-ledger.md",
+        ):
+            text = path.read_text()
+            self.assertIn("14", text)
+            self.assertIn("6", text)
         history = (DOCS / "core2-cache-panic-investigation.md").read_text()
         self.assertIn("2026-10-26 update", history)
         self.assertIn("stack overflow", history)
@@ -502,7 +525,8 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             "Three independent leases complete 121 reconnect cycles",
             qemu_profiles_text,
         )
-        self.assertIn("接受 `1–121` 轮", platform_readme)
+        self.assertIn("validation-ledger.md", platform_readme)
+        self.assertIn("reconnect", platform_readme)
         self.assertIn("docs/project-status.md", device_readme)
         self.assertIn("docs/validation-ledger.md", device_readme)
         self.assertIn("docs/project-backlog.md", device_readme)
@@ -908,25 +932,13 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("bounded host memory", profile_detail)
         self.assertNotIn("More than sixty", profile_detail)
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
-        self.assertTrue(
-            any(
-                "two independent two-instance no-stagger 4x120s gates pass 8/8"
-                in blocker
-                and "three-instance 3x120s gates pass 6/6" in blocker
-                and "four-instance 4x120s gates pass 8/8" in blocker
-                and "five-instance 30-second-stagger 5x120s" in blocker
-                and "pass 10/10" in blocker
-                and "fixed-icount zero-stagger five-instance 5x120s gates pass 10/10"
-                in blocker
-                and "fixed-icount zero-stagger six-instance 6x120s" in blocker
-                and "pass 12/12" in blocker
-                and "zero-stagger eight-instance 8x120s" in blocker
-                and "pass 16/16" in blocker
-                and "hold/12 sweep-floor calibration" in blocker
-                and "more-than-eight-instance stability" in blocker
-                for blocker in core2_profile["blockers"]
-            )
-        )
+        blocker_text = " ".join(core2_profile["blockers"])
+        self.assertIn("virtual-device concurrency gates", blocker_text)
+        self.assertIn("current service capacity", blocker_text)
+        self.assertIn("more-than-eight-instance stability", blocker_text)
+        self.assertIn("bounded-TCG host-memory", blocker_text)
+        for volatile_count in ("8/8", "6/6", "10/10", "12/12", "16/16"):
+            self.assertNotIn(volatile_count, blocker_text)
         self.assertEqual(active_stop["status"], "PASS")
         self.assertEqual(active_stop["attempts_requested"], 3)
         self.assertEqual(active_stop["attempts_passed"], 3)
@@ -2034,37 +2046,19 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("0008", code_map)
         self.assertIn("0009", code_map)
         self.assertIn("0010", code_map)
-        self.assertIn("no-stagger 4x120s", profiles)
-        self.assertIn("Two independent two-instance no-stagger 4x120s gates", profiles)
-        self.assertIn("three-instance 3x120s gates pass 6/6", profiles)
-        self.assertIn("two independent four-instance 4x120s gates pass 8/8", profiles)
-        self.assertIn("five-instance 30-second-stagger 5x120s", profiles)
-        self.assertIn("pass 10/10", profiles)
-        self.assertIn("fixed-icount zero-stagger six-instance 6x120s", profiles)
-        self.assertIn("pass 12/12", profiles)
-        self.assertIn("zero-stagger eight-instance 8x120s", profiles)
-        self.assertIn("pass 16/16", profiles)
-        self.assertIn(
-            "fixed-icount zero-stagger five-instance 5x120s gates pass 10/10",
-            profiles,
-        )
+        self.assertIn("virtual-device concurrency gates", profiles)
+        self.assertIn("current service capacity", profiles)
         self.assertIn(
             "one batch passed 5/5 and an independent confirmation failed 3/5",
             profiles,
         )
         self.assertIn("more-than-eight-instance stability", profiles)
-        for text in (platform_readme, unified_core2):
+        for text in (unified_core2,):
             self.assertIn("0008", text)
             self.assertIn("0009", text)
-            self.assertIn("8/8", text)
             self.assertIn("shift=5", text)
-        self.assertTrue(
-            "five-instance" in platform_readme.lower()
-            or "五实例" in platform_readme
-        )
-        self.assertIn("四实例", platform_readme)
-        self.assertIn("8×120s", platform_readme)
-        self.assertIn("16/16", platform_readme)
+        self.assertIn("当前服务容量内的并发", platform_readme)
+        self.assertIn("validation-ledger.md", platform_readme)
         self.assertIn("`5x120s`", unified_core2)
         self.assertIn("`6x120s`", unified_core2)
         self.assertIn("`8x120s`", unified_core2)

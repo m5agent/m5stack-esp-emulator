@@ -14,7 +14,7 @@
 | --- | --- | --- | --- |
 | ESP32-S3 | `qemu-esp32s3` | 单 guest 板级、WiFi（含 WPA2-PSK pairwise/unicast）和 HCI BLE | 功能级 MAC/DMA/网络模型，不是 WPA3/group multicast、PHY/RF、功耗或电气模型 |
 | ESP32-C6 | `qemu-esp32c6` | 单 guest 板级、WiFi 和 HCI BLE | Zigbee/802.15.4 由 `RUNTIME-02` 单列 |
-| ESP32 LX6 | `qemu-esp32lx6` | Core2 板级、OpenMAC WiFi、BLE controller boundary、8 MiB PSRAM QOM、DRAM1 MMU upper-bank remap、共享 GPIO21/22 板级 I2C bus、TIMG watchdog trace 与周期联网 | canonical BLE 路径为 `core2-native-hci`，legacy VHCI 仅诊断；legacy UIFlow 已越过原 I2C error。修正后的最小 ESP-IDF 探针 20/20 到达 partition read，合并 current/portable 为 `14 PASS / 6 interrupt-WDT`；失败时两核位于 idle `waiti`，当前调查点是虚拟 timer/interrupt 交付与宿主调度。legacy interrupt-WDT、black frame 仍 OPEN，flash-cache/IPC/DPORT 与最小 WDT 的因果关系尚未证实。大于当前服务容量、持续吞吐、bit-exact controller 和物理 PSRAM/cache timing 不覆盖 |
+| ESP32 LX6 | `qemu-esp32lx6` | Core2 板级、OpenMAC WiFi、BLE controller boundary、8 MiB PSRAM QOM、DRAM1 MMU upper-bank remap、共享 GPIO21/22 板级 I2C bus、TIMG watchdog trace 与周期联网 | canonical BLE 路径为 `core2-native-hci`，legacy VHCI 仅诊断；legacy UIFlow 已越过原 I2C error。修正后的最小 ESP-IDF 探针可以进入 partition read，但仍会出现 interrupt-WDT；失败时两核位于 idle `waiti`，当前调查点是虚拟 timer/interrupt 交付与宿主调度。legacy interrupt-WDT、black frame 仍 OPEN，flash-cache/IPC/DPORT 与最小 WDT 的因果关系尚未证实。大于当前服务容量、持续吞吐、bit-exact controller 和物理 PSRAM/cache timing 不覆盖；精确运行比例只查验证台账 |
 | ESP32-P4 | `esp-emulator-native` | Tab5 烧录、M5GFX framebuffer、touch mailbox 和部分 I2C | 闭源 P4 后端，外设仍为 `partial` |
 | Linux ARM64 | `external-linux-arm64` | CardputerZero 独立 Linux 设备 | 不是 ESP32/UIFlow2 固件目标，也不由当前 `/api/v1` 管理 |
 

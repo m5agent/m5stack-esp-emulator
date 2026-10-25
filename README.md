@@ -31,11 +31,12 @@ MicroPython 和其他完整 Flash 固件。
   物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
 - Core2 legacy UIFlow 的 AXP/RTC/INA 已统一路由到共享 GPIO21/22 物理
   board bus，原 `I2C bus error (19)` 已消失；同一固件随后仍进入
-  interrupt-WDT 并保持黑帧。修正后的最小 ESP-IDF 探针可以在 CPU1 完成
-  `esp_partition_read()`，但当前/portable QEMU 合并样本仍有 6/20 首启动
-  interrupt-WDT；失败时两核都在 idle `waiti`，因此继续调查虚拟定时器/中断
-  交付与宿主调度。`Core2FactoryTest` 修复后尚未重跑，`RUNTIME-03` 仍为
-  `OPEN`。
+  interrupt-WDT 并保持黑帧。修正后的最小 ESP-IDF 探针证明 CPU1
+  `esp_partition_read()` 数据面可以执行，同时仍可复现 flash 活动后的
+  interrupt-WDT；失败样本的两核位于 idle `waiti`，因此继续调查虚拟定时器/
+  中断交付与宿主调度。精确轮次、哈希和对照只在
+  [验证证据台账](docs/validation-ledger.md)；`Core2FactoryTest` 修复后尚未
+  重跑，`RUNTIME-03` 仍为 `OPEN`。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件

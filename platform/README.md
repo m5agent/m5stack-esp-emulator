@@ -87,47 +87,18 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 
 当前边界：
 
-- `core2-native-hci` 已完成 `HCI-1` 至 `HCI-4`。五个独立
-  `/api/v1` lease 同时通过 frame/QOM、WiFi/公网、外部 NUS GATT、pcap 和
-  evidence ZIP，且 `gdb_bridge=false`。`0005` 恢复 guest-call sregs 并把
-  HLI 注入限制在 halted/idle vCPU 后，两批 `5×10s` hold 运行 `10/10`
-  PASS，3 个 `60s` hold `3/3`，2 个 `120s` hold `2/2`，每轮 HLI
-  health 为零错误；另有 2 个 active-BLE `600s` hold `2/2`。同一 guest
-  reconnect 已在 3 个独立 lease 中分别完成
-  20、30、60、120 轮，每轮均有 guest RX/notification；一百二十轮每 lease HLI
-  `3377/3377`、events `2297`、ACLs `1080`。根因是 Bumble 为无响应
-  `0x0c35` 错误返回 Command Status，留下 stale ACK。旧
-  `core2-native-vhci` 仍使用
-  服务托管的 GDB bridge，且 repeated lease 只有 `1/2`，因此只保留为
-  显式诊断/兼容路径。Device Service/Bumble/runner 已接受 `1–121` 轮并有
-  `122` 轮拒绝测试；一百二十轮门禁全部 `3/3 PASS`，无错误或 panic。首次
-  `121` 轮在 29 轮后被固定 `180s` readiness 预算误杀，guest 无 panic；
-  第二次又暴露 reconnect-only accelerator 采样缺失；两处 harness 问题
-  修复后先取得单 lease `121/121 PASS`，随后另外两个独立 lease 也完成
-  `121/121`，三 lease 门禁已关闭。`m5core2` 现提供 QOM 8 MiB PSRAM 和
-  DRAM1 32 KiB MMU 页；普通 heap 仍为 4 MiB，upper 4 MiB 由 3 个独立
-  `esp_himem` lease 完成同窗口物理块切换和读回。`0008` 在 CPU0 idle 时
-  预分配真实 guest HCI event/ACL 对象；两批独立无错峰双实例 `4×120s`
-  合计 `8/8 PASS`，每 lease 36 events/9 ACLs 走 fast path、HLI `45/45`、
-  errors/reset/panic 为 0。并发再扩展到两批三实例 `3×120s`，合计
-  `6/6 PASS`；BLE peer scan 按 session readiness 有界扩展，三实例
-  PSRAM sweep 下限按实际负载校准。四实例首批 `1/4` 暴露启动期 ACK
-  backpressure；`0009` 将真实 guest 备用池扩为 8 event/4 ACL 后，两批
-  四实例 `4×120s` 各 `4/4 PASS`，合计 `8/8`。五实例 30 秒错峰已完成
-  两批 `5×120s`，合计 `10/10`。旧 `shift=auto` 零错峰路径曾出现
-  `5/5 PASS` 与独立 `3/5 FAIL`，trace 将失败窗口定位到 PSRAM 初始化
-  关中断时 HLI delivery 超出 NimBLE ACK 预算；当前默认改为固定
-  `icount shift=5`，并把测试 BLE server 放到 WiFi 和长 PSRAM 压力前。
-  两批独立零错峰 `5×120s` 随后均 `5/5 PASS`，合计 `10/10`，每 lease
-  同时完成 WiFi/公网、外部 GATT、frame、31 节点 QOM、pcap、evidence 和
-  14–15 次 1 MiB PSRAM 全缓冲校验。六实例进一步完成两批
-  `6×120s`，合计 `12/12 PASS`，每 lease 12–13 次 PSRAM 全缓冲校验。
-  八实例在校准 `hold/12` sustained floor 后完成两批 `8×120s`，合计
-  `16/16 PASS`，达到当前服务单设备容量上限。bit-exact Espressif BT
-  baseband/controller、大于八实例、持续吞吐、
-  物理 cache/PSRAM 和真机
-  仍未完成。`tb-size=128` 的 artifact-bound 两小时 soak 已 PASS，host
-  RSS 和 phys footprint 在 240 个采样中均未增长。
+- `core2-native-hci` 是规范产品路径，`core2-native-vhci` 只保留为显式
+  GDB 诊断/兼容路径。当前虚拟设备门禁覆盖 board、WiFi/公网、外部 GATT、
+  reconnect、active-BLE hold、PSRAM、frame/QOM、pcap、evidence、active-stop
+  和当前服务容量内的并发；精确轮次、哈希、资源数值和失败 control 只查
+  [验证证据台账](../docs/validation-ledger.md)与
+  [Core2 native-HCI 专题](../docs/core2-native-hci-backend.md)。
+- `m5core2` 提供 QOM 8 MiB PSRAM 和 DRAM1 32 KiB MMU 页；普通 heap 仍是
+  4 MiB，upper bank 通过 MMU remap 验证。虚拟容量不证明物理 PSRAM/cache
+  timing、持续吞吐或电气行为。
+- bit-exact Espressif BT controller/baseband、大于当前服务容量、active-stop
+  之外的 teardown 和真机仍未完成。bounded-TCG host-memory 结论只覆盖已测试
+  的长稳 workload。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。
 - CardputerZero 不由 `/api/v1` 管理。
 - trusted-host 网络 namespace 不是恶意固件沙箱。本地 worker identity、
@@ -142,7 +113,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   active-token multicast discovery 覆盖同一广播域；跨子网/NAT worker 可从
   HMAC-authenticated unicast discovery seed 获取同一 beacon，两个独立子网、
   IPv4 forwarding、masquerade、rotation 和 cleanup 已在 privileged Linux
-  Docker fixture 中连续 `3/3 PASS`。物理跨主机 QEMU executor/reattach、
+  Docker fixture 中重复通过。物理跨主机 QEMU executor/reattach、
   namespace-managed/Tab5/cross-host companion、连续 evidence 流、生产
   secret manager/多机调度和 VM 隔离仍未完成。
 - controlled DNS 与 TLS/Host allowlist 已在 Linux private namespace 下

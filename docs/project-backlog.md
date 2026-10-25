@@ -35,9 +35,8 @@
 
 ## 当前执行顺序
 
-1. `RUNTIME-03`：用最小 flash/IPC 探针的 `14 PASS / 6 interrupt-WDT`
-   结果定位虚拟定时器/中断交付停摆窗口，再回到 legacy UIFlow 的启动期长
-   同步路径与宿主调度交互。
+1. `RUNTIME-03`：用最小 flash/IPC 探针已记录的首启动边界定位虚拟定时器/
+   中断交付停摆窗口，再回到 legacy UIFlow 的启动期长同步路径与宿主调度交互。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -59,7 +58,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 关联 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，解释修正后探针在 `READ_START` 后的 6/20 interrupt-WDT；再验证 legacy UIFlow 的 flash-cache/IPC/DPORT 交接 | 同固件 SHA 渲染非空应用帧并保持运行；current/portable QEMU 对照和 accelerator 证据可重复；保留 UIFlow2 回归证据 |
+| `RUNTIME-03` | 进行中 | 关联 TIMG/CCOMPARE/INTENABLE/INTSET、虚拟时间和宿主调度，解释修正后探针在 `READ_START` 后的 interrupt-WDT；再验证 legacy UIFlow 的 flash-cache/IPC/DPORT 交接 | 同固件 SHA 渲染非空应用帧并保持运行；current/portable QEMU 对照和 accelerator 证据可重复；保留 UIFlow2 回归证据 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -86,9 +85,9 @@ RTC；`0031` 将两个 controller 路由到唯一的 GPIO21/22 板级 bus 后，
 
 开放范围：
 
-- 关联 `core2_flash_ipc` 探针中 `14 PASS / 6 interrupt-WDT` 的差异：20 次
-  首启动均到达 `CORE2_FLASH_IPC_READ_START`，失败点在至少 250 次 4 KiB
-  partition read 之后，且两核 PC 位于 idle `waiti`；
+- 复核 `core2_flash_ipc` 探针中“已经进入 `CORE2_FLASH_IPC_READ_START`、可完成
+  partition read，但仍出现 interrupt-WDT”的首启动边界；具体通过率、读取次数
+  和失败轮次只查验证台账与 evidence；
 - 在同一固件/ELF/SHA 下比较 current 与 portable QEMU，并追踪
   `CCOMPARE`、`INTSET`、`INTENABLE`、timer expiry 和虚拟时间推进；
 - 增加通用 DPORT/flash-cache 状态 trace，确认 flash-cache pause、cross-core

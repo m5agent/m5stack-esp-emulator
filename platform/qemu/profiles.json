@@ -275,8 +275,8 @@
         "Core2 legacy UIFlow shared I2C routing is fixed; watchdog failures are timing/concurrency-sensitive and explicit thread/icount controls do not fix them; non-empty application frame remains OPEN",
         "physical cache/PSRAM timing equivalence remains NOT RUN",
         "bit-exact ESP32 BT baseband/controller remains NOT RUN",
-        "two independent two-instance no-stagger 4x120s gates pass 8/8, two independent three-instance 3x120s gates pass 6/6, two independent four-instance 4x120s gates pass 8/8, two independent five-instance 30-second-stagger 5x120s gates pass 10/10, two fixed-icount zero-stagger five-instance 5x120s gates pass 10/10, two fixed-icount zero-stagger six-instance 6x120s gates pass 12/12, and two fixed-icount zero-stagger eight-instance 8x120s gates pass 16/16 after hold/12 sweep-floor calibration; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN",
-        "the bounded-TCG host-memory result is validated only for the tested 7200s workload"
+        "virtual-device concurrency gates cover the current service capacity; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN (CORE2-02)",
+        "the bounded-TCG host-memory result is validated only for the tested long-hold workload"
       ],
       "validation": {
         "ack_observability": "Patch 0010 preserves opt-in ACK-state observability. In the historical zero-stagger five-instance diagnostic, the first Reset Complete response-to-HLI timestamp delta was 4.506306s of host trace time, not guest virtual time; at the first ACK check ack=NULL and semaphore count 0.",

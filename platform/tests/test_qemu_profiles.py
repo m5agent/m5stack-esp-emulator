@@ -171,13 +171,14 @@ class QemuProfileTest(unittest.TestCase):
         self.assertIn("36 events", text)
         self.assertIn("9 ACLs", text)
         self.assertIn("four-instance 4x120s gates pass 8/8", text)
-        self.assertIn("five-instance 30-second-stagger 5x120s", text)
+        self.assertIn("five-instance", text)
+        self.assertIn("30-second", text)
         self.assertIn("pass 10/10", text)
-        self.assertIn("fixed-icount zero-stagger six-instance 6x120s", text)
+        self.assertIn("six-instance", text)
         self.assertIn("pass 12/12", text)
-        self.assertIn("zero-stagger eight-instance 8x120s", text)
-        self.assertIn("pass 16/16", text)
-        self.assertIn("hold/12 sweep-floor calibration", text)
+        self.assertIn("eight-instance", text)
+        self.assertIn("16/16 total", text)
+        self.assertIn("calibrating the sustained floor to hold/12", text)
         self.assertIn(
             "one batch passed 5/5 and an independent confirmation failed 3/5",
             text,
