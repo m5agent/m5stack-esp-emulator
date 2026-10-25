@@ -35,10 +35,10 @@
 
 ## 当前执行顺序
 
-1. `RUNTIME-03`：最小 flash/IPC timer、masked WDT interrupt 和 stateful SSI
-   数据面已分别验证；下一步把 flash-op can-start/complete、cross-core reason、
-   batch 字节、guest PC 和 watchdog feed 放到同一虚拟时间轴，降低累计
-  同步吞吐并解释 normal-WDT `TG0/TG1WDT_SYS_RESET`、reset PC `0` 和黑帧。
+1. `RUNTIME-03`：timer、WDT mask、stateful SSI 和统一 handoff timeline 已
+   验证；normal-WDT 两次运行都复现最后 feed 后 `800 ms` timeout。PC 采样
+   把 CPU0 放在 UART RX ISR、CPU1 放在 MicroPython VM，但 UART register
+   trace 在窗口内没有事件；下一步确认 CPU0 为什么未返回 WDT 服务任务。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -60,7 +60,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 以 `0036` stateful SSI 批量面为基线，量化 cross-core handoff、guest 进度与 watchdog feed 的累计吞吐并优化 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT 对照和 UIFlow2 回归保持 PASS |
+| `RUNTIME-03` | 进行中 | 用低扰动 trace 确认 CPU0 在最后 `800 ms` 内停在 UART ISR 区间的原因，并优化累计 handoff 吞吐 | 同固件 SHA 在正常 WDT、真实 Flash 数据面下渲染非空应用帧并保持运行；stateful batch、timer/WDT 对照和 UIFlow2 回归保持 PASS |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -94,7 +94,10 @@ SSI 数据逐字节一致，但绕过控制器数据阶段；旧 REPL 观察在�
 未复现。`0036` 的 QIO/stateful SSI 批量面与原逐字节路径一致，Core2
 UIFlow2 设备组通过，但 normal-WDT legacy 仍复位；关闭 WDT 后也未进入
 setup/REPL。state trace 显示 flash-op flags 与 cross-core reason 反复完成。
-精确计数只查验证台账。上述结果只用于定位。
+`0037` 统一了 cross-core、DPORT/cache、SSI 与 TIMG 的 virtual time/CPU/PC
+trace；两次 normal-WDT 运行都在最后 feed 后 `800 ms` timeout，
+WDT-disabled `sample=1024` 与 trace-off Serial 相同。精确计数只查验证台账。
+上述结果只用于定位。
 完整 trace 和边界见[运行时模型缺口登记](runtime-model-gap-register.md)。
 
 开放范围：
@@ -105,19 +108,25 @@ setup/REPL。state trace 显示 flash-op flags 与 cross-core reason 反复完�
   `blk_pread` 快路径；
 - 追踪 TIMG watchdog feed/clear、timer expiry、`INTSET`、`INTENABLE`、
   interrupt stage/reset 和两个 CPU 的服务任务进度，区分模型与固件死锁；
-- 增加通用 DPORT/flash-cache 状态 trace，确认 flash-cache pause、cross-core
-  call/ack、DPORT high-interrupt 标志和 guest 等待/清标志顺序；
+- 使用 `0037` 统一 timeline 确认最后一次 WDT feed 后 `800 ms` 停滞窗口内
+  flash-cache pause、cross-core call/ack、DPORT high-interrupt 和 guest
+  等待/清标志顺序；
+- 用低扰动的中断/锁诊断确认 CPU0 是否卡在 UART ISR 的临界区或中断门禁；
+  当前 PC 样本指向该区间，但 UART register trace 没有对应事件，不能把
+  “UART storm”写成根因；
 - 对 cross-core IRQ0/IRQ1 的 source CPU、interrupt matrix target、latch/
-  clear 和 CPU 状态做同时间轴关联，量化 WDT 关闭后 handoff 的完成频率；
-- 将 flash-op can-start/complete、cross-core reason、SSI batch、guest PC
-  和 watchdog feed 采样到同一虚拟时间轴，判断累计吞吐瓶颈来自 guest
-  忙等、TCG 调度、cache disable 还是控制器数据面；
-- 检查 legacy 初始化期间是否真的执行了足够的 watchdog feed/clear，或某个
-  高优先级同步路径使 IDLE/service task 长时间无法运行；
+  clear 和 CPU 状态做同时间轴关联，确认最后 800 ms 内是否仍有未完成的
+  handoff；
+- 把最后 `800 ms` 窗口映射到具体固件代码点，判断停滞来自 guest 忙等、
+  TCG 调度、cache disable 还是控制器数据面；
+- 解释 CPU0 在连续 feed 上万次后为何于最后 800 ms 停止 feed/clear，判断
+  是哪个高优先级同步路径使 IDLE/service task 无法运行；
 - 保留默认关闭的 S32C1I、TIMG 和 IRQ trace；不能把旧 probe 的 timer 根因
   直接复用于 legacy watchdog；
 - 当前工作假设是启动扫描产生的大量同步 flash-cache/IPC/DPORT handoff
-  使累计服务进度超过 watchdog 窗口；仍缺少同一虚拟时间轴的直接量化；
+  使累计服务进度超过 watchdog 窗口；统一 timeline 已复现固定 timeout
+  间隔，PC 样本进一步指向 CPU0 的 UART ISR/服务饥饿路径，但尚未定位最后
+  一个服务循环；
 - 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
 - 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
 

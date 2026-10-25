@@ -89,8 +89,11 @@
   后在观察窗口内也没有进入 setup/REPL。先前直接 read 到 REPL 的现象在当前
   重建中未复现，不能再作为稳定里程碑；
 - 直接 state trace 显示 flash-op can-start/complete 和 cross-core reason
-  反复完成。当前工作假设是同步 Flash/cache handoff 的总吞吐不足，下一步
-  需要和 watchdog feed、批次、guest 进度放到同一虚拟时间轴；
+  反复完成。`0037` 已将统一 virtual time/CPU/PC trace 覆盖 cross-core、
+  DPORT/cache、SSI 和 TIMG；两次 normal-WDT 运行都在最后 feed 后固定
+  `800 ms` timeout。1 ms PC 采样保持同样 gap，把 CPU0 放在 UART RX ISR、
+  CPU1 放在 MicroPython VM，但最终窗口没有 UART register event；下一步是
+  确认 CPU0 为何未返回 WDT 服务任务，UART storm 仍是未证实候选；
 - 文档已拆成当前事实、待办、日期化证据、契约、实现地图和历史页五类，后续
   不应再把这些运行细节复制回总览。
 
@@ -232,7 +235,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 以 stateful SSI 批量面为基线，量化 flash-op handoff、guest 进度与 watchdog feed；优化累计同步吞吐 | I2C、timer、WDT mask 和 batch 数据面已有独立 evidence；正常 WDT legacy 仍失败，永久 cross-core 死锁假设已撤销 |
+| `RUNTIME-03` | 用低扰动方法确认 CPU0 在最后 `800 ms` 内停在 UART ISR 区间的原因 | timeline、PC/UART 诊断和固定 timeout 间隔已有 evidence；但 PC 采样会扰动调度，正常 WDT 应用帧仍未闭环 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

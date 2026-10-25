@@ -235,6 +235,19 @@ and physical hardware remain unproven.
 See
 [`evidence-2026-10-26-core2-ssi-transfer-buf.json`](evidence-2026-10-26-core2-ssi-transfer-buf.json).
 
+Patch `0037` adds a unified virtual-time/CPU/PC trace across cross-core, DPORT,
+SSI, UART and TIMG events. Two normal-WDT runs both placed the last TG1 feed
+exactly 800 ms before stage-0 timeout; the final timeout PC changed between
+runs. A 1 ms dual-PC control kept the same gap but reset earlier, sampling CPU0
+inside the UART RX ISR and CPU1 inside the MicroPython VM. The PC sampler is
+intentionally off by default because it changes scheduling; no UART register
+event occurred in that final window, so UART storm remains unproven.
+WDT-disabled `sample=1024` and trace-off produced the same banner-only serial
+hash. The reusable summarizer and evidence are in
+[`core2_handoff_trace/`](core2_handoff_trace/). The unbound local-ELF PC
+symbolization is retained as separate metadata so rerunning the summarizer does
+not silently drop it.
+
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).
 Current overall status and unfinished work must be read from

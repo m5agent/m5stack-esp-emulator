@@ -290,13 +290,61 @@ and without icount, did not reach the full banner within their windows.
 
 The leading hypothesis is therefore aggregate throughput: legacy boot performs
 many synchronous flash operations and cross-core cache handoffs, and the sum
-does not fit inside the watchdog window. The next experiment must place flash
-batch size, handoff count, both guest PCs and watchdog feed/clear on one
-virtual-time axis before changing model behavior.
+does not fit inside the watchdog window. The unified trace added by `0037`
+below establishes that virtual-time axis before any further model change.
 
 See
 [`evidence-2026-10-26-core2-ssi-transfer-buf.json`](../tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json)
 for the equivalence, matrix and control results.
+
+## 2026-10-26 unified handoff timeline
+
+[`0037-esp32-handoff-trace.patch`](../patches/qemu-m5stack-peripherals/0037-esp32-handoff-trace.patch)
+adds a default-off `M5SW_ESP32_HANDOFF_TRACE` channel. Cross-core writes,
+DPORT cache control/sync, SSI transactions and TIMG watchdog events now share
+virtual time, CPU and guest-PC fields. Routine events can be sampled with
+`M5SW_ESP32_HANDOFF_TRACE_SAMPLE`; WDT timeout, interrupt and reset events are
+always retained.
+
+Two independent normal-WDT runs reached the same critical shape:
+
+- TIMG group 1 fed continuously until the final feed, with 12,087 and 12,045
+  tracked feeds in the two sampled runs;
+- exactly `800,000,000 ns` after that last feed, stage 0 timed out on CPU1;
+- roughly `1.6 s` later, stage 1 completed the reset sequence;
+- the timeout PC changed between runs, so the failure is not tied to one guest
+  instruction address.
+
+The trace therefore narrows the problem from "the watchdog never gets fed" to
+"CPU0 stops servicing the feed path for a bounded window at the end of a long
+synchronous sequence". It does not yet identify whether the final blocker is a
+cache disable, an atomic/IPC wait, TCG scheduling, or another guest task.
+
+For the WDT-disabled control, `sample=1024` and trace-off produced the same
+507-byte Serial SHA and the same MicroPython startup banner without setup text
+or `>>>`. The sampled trace ran to about `14.19 s` virtual time with repeated
+CPU1 SSI read, cache-control, cache-sync and cross-core events, then retained
+no timeout or reset. Higher-density tracing perturbs scheduling, so the
+`sample=1024` comparison is the accepted control.
+
+A separate 1 ms dual-PC sampler kept the same 800 ms final feed gap but moved
+the reset earlier. During that window, all 800 samples fell into only six
+CPU0/CPU1 PC pairs:
+
+- CPU0 stayed at `0x400843ac`, `0x400843af` or `0x400843b1`, inside
+  `uart_rx_intr_handler_default`;
+- CPU1 stayed at `0x4008649c` or `0x4008649e`, inside
+  `mp_execute_bytecode`.
+
+The local UIFlow Core2 ELF used for symbolization is not proven byte-identical
+to the public BIN, so this remains a diagnostic mapping. UART `INT_ENA`,
+`INT_CLR` and IRQ-state tracing recorded no UART event inside the final 800 ms.
+The PC result therefore raises an interrupt/service-starvation hypothesis, but
+does not prove a UART storm. The PC sampler itself perturbs scheduling and is
+kept off by default.
+
+See
+[`evidence-2026-10-26-core2-handoff-timeline.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json).
 
 ## Next investigation
 
@@ -305,9 +353,9 @@ for the equivalence, matrix and control results.
 2. Preserve the stateful SSI batch path and its byte-equivalence gate.
 3. For the same legacy UIFlow SHA, correlate TG0/TG1 feed/clear, stage0/stage1,
    `INTSET`, `INTENABLE`, expiry, reset PC `0`, and IDLE/service-task progress.
-4. On one virtual-time axis, measure flash batch bytes, flash-operation
-   can-start/complete transitions, cross-core reasons, interrupt delivery, both
-   CPUs' PCs and watchdog feed/clear.
+4. Use the unified timeline to resolve the final 800 ms feed-to-timeout window:
+   map the last CPU0/CPU1 paths, flash-operation can-start/complete transitions,
+   cross-core reasons and DPORT cache state to concrete guest functions.
 5. Reduce aggregate synchronous handoff cost using controller-level behavior,
    without skipping the guest flash/cache protocol.
 6. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is

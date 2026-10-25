@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "kind": "core2-handoff-trace-summary",
+  "validation": "virtual-device validation",
+  "firmware": {
+    "name": "UIFlow_Core2",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_binary_sha256": "40747bc19aea001866010c7bed4917f39ebb78d17a4a60c4cf1ec0f4c0f8c3b7",
+    "trace_patch_sha256": "4ef1cbaa60373132c5f2e375a5a39c590007b133f1359a7e3e76e22375e7bf5a"
+  },
+  "run_config": {
+    "normal_watchdog": {
+      "sample_interval": 1024,
+      "wall_timeout_seconds": 90.0,
+      "wdt_disabled": false
+    },
+    "wdt_disabled": {
+      "sample_interval": 1024,
+      "wall_timeout_seconds": 120.0,
+      "wdt_disabled": true
+    },
+    "pc_sampling_control": {
+      "sample_interval_ns": 1000000
+    }
+  },
+  "regression": {
+    "core2_group": {
+      "cases_passed": 6,
+      "cases_failed": 0,
+      "checks_passed": 24,
+      "checks_failed": 0,
+      "retry_used": false,
+      "summary_sha256": "96fdc404e5c1bac4ab0afb82d05cadde453b21101fe0997a760eed199c841ed3"
+    },
+    "full_uiflow2_matrix": {
+      "cases_passed": 67,
+      "cases_failed": 0,
+      "checks_passed": 274,
+      "checks_failed": 0,
+      "retry_used": false,
+      "summary_sha256": "c7aed67eabd3b9e2dbea5715e9af9e357ccfa63099a7a1055abfed115818eea1"
+    }
+  },
+  "validation_suite": {
+    "platform_unittest": {
+      "passed": 504,
+      "failed": 0
+    },
+    "docs_contract": {
+      "passed": 41,
+      "failed": 0
+    },
+    "qemu_profile_contract": {
+      "passed": 19,
+      "failed": 0
+    },
+    "node_sha256_upload": "PASS",
+    "worker_credential_migration": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS (E9/F over platform/tools and platform/tests)",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "git_diff_check": "PASS",
+    "patch_clean_base_forward_reverse_check": "PASS"
+  },
+  "normal_watchdog": {
+    "trace": {
+      "stderr": {
+        "bytes": 29870,
+        "sha256": "46b271e7afaf2f825942dc93a54929f6287b8583d60bfa31948e7c76ec66683c"
+      },
+      "trace_event_count": 287,
+      "trace_event_counts": {
+        "crosscore:write": 84,
+        "dport:app-cache-ctrl": 87,
+        "dport:reset": 1,
+        "ssi:receive-data": 18,
+        "ssi:transaction-begin": 18,
+        "ssi:transaction-end": 21,
+        "timg:wdt-arm": 47,
+        "timg:wdt-int-ena": 1,
+        "timg:wdt-int-masked": 1,
+        "timg:wdt-int-raised": 1,
+        "timg:wdt-reset": 2,
+        "timg:wdt-timeout": 3,
+        "timg:wdt-timeout-gap": 3
+      },
+      "first_event_ns": 0,
+      "last_event_ns": 16735626655,
+      "wdt_timeouts": [
+        {
+          "now_ns": 7249439872,
+          "cpu": 1,
+          "pc": "0x40087940",
+          "timer_group": 0,
+          "stage": 0,
+          "mode": 1,
+          "last_feed_ns": 2249439872,
+          "feed_gap_ns": 5000000000,
+          "feed_count": 1
+        },
+        {
+          "now_ns": 15135626655,
+          "cpu": 1,
+          "pc": "0x4008649e",
+          "timer_group": 1,
+          "stage": 0,
+          "mode": 1,
+          "last_feed_ns": 14335626655,
+          "feed_gap_ns": 800000000,
+          "feed_count": 12087
+        },
+        {
+          "now_ns": 16735626655,
+          "cpu": 1,
+          "pc": "0x4008649c",
+          "timer_group": 1,
+          "stage": 1,
+          "mode": 3,
+          "last_feed_ns": 14335626655,
+          "feed_gap_ns": 2400000000,
+          "feed_count": 12087
+        }
+      ],
+      "pc_sample_count": 0,
+      "pc_final_feed_to_timeout_window": {
+        "start_ns": 14335626655,
+        "end_ns": 15135626655,
+        "samples": 0,
+        "cpu_pc_pairs": {},
+        "other_trace_events": {
+          "timg:wdt-int-raised": 1,
+          "timg:wdt-timeout": 1,
+          "timg:wdt-timeout-gap": 1
+        }
+      },
+      "has_post_boot_reset_event": false
+    },
+    "serial": {
+      "bytes": 507,
+      "sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "has_micropython_banner": true,
+      "has_micropython_art": true,
+      "has_repl_prompt": false,
+      "has_wdt_timeout": false,
+      "has_system_reset": false
+    }
+  },
+  "wdt_disabled": {
+    "trace": {
+      "stderr": {
+        "bytes": 28327,
+        "sha256": "1e058245e807da8f9f9f98329a5e9a7321d99dcde9227dbb4b7a2ef26521d728"
+      },
+      "trace_event_count": 268,
+      "trace_event_counts": {
+        "crosscore:write": 85,
+        "dport:app-cache-ctrl": 87,
+        "dport:reset": 1,
+        "ssi:receive-data": 18,
+        "ssi:transaction-begin": 18,
+        "ssi:transaction-end": 21,
+        "timg:wdt-feed": 11,
+        "timg:wdt-int-ena": 1,
+        "timg:wdt-reset": 2,
+        "timg:wdt-timeout-config": 24
+      },
+      "first_event_ns": 0,
+      "last_event_ns": 14289380480,
+      "wdt_timeouts": [],
+      "pc_sample_count": 0,
+      "pc_final_feed_to_timeout_window": null,
+      "has_post_boot_reset_event": false
+    },
+    "serial": {
+      "bytes": 507,
+      "sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "has_micropython_banner": true,
+      "has_micropython_art": true,
+      "has_repl_prompt": false,
+      "has_wdt_timeout": false,
+      "has_system_reset": false
+    },
+    "trace_off_serial": {
+      "bytes": 507,
+      "sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "has_micropython_banner": true,
+      "has_micropython_art": true,
+      "has_repl_prompt": false,
+      "has_wdt_timeout": false,
+      "has_system_reset": false
+    },
+    "serial_matches_trace_off": true
+  },
+  "pc_sampling_control": {
+    "trace": {
+      "stderr": {
+        "bytes": 357910,
+        "sha256": "eca899063c7b2ce4a84cd250a97cfbe6ee1dc3be9cff71b6a4fe086847c38272"
+      },
+      "trace_event_count": 3157,
+      "trace_event_counts": {
+        "cpu:sample": 3150,
+        "dport:reset": 1,
+        "timg:wdt-int-ena": 1,
+        "timg:wdt-int-raised": 1,
+        "timg:wdt-reset": 2,
+        "timg:wdt-timeout": 1,
+        "timg:wdt-timeout-gap": 1
+      },
+      "first_event_ns": 0,
+      "last_event_ns": 3150000030,
+      "wdt_timeouts": [
+        {
+          "now_ns": 3148229406,
+          "cpu": 1,
+          "pc": "0x4008649c",
+          "timer_group": 1,
+          "stage": 0,
+          "mode": 1,
+          "last_feed_ns": 2348229406,
+          "feed_gap_ns": 800000000,
+          "feed_count": 105
+        }
+      ],
+      "pc_sample_count": 3150,
+      "pc_final_feed_to_timeout_window": {
+        "start_ns": 2348229406,
+        "end_ns": 3148229406,
+        "samples": 800,
+        "cpu_pc_pairs": {
+          "0x400843ac:0x4008649c": 143,
+          "0x400843ac:0x4008649e": 139,
+          "0x400843af:0x4008649c": 137,
+          "0x400843af:0x4008649e": 139,
+          "0x400843b1:0x4008649c": 120,
+          "0x400843b1:0x4008649e": 122
+        },
+        "other_trace_events": {
+          "timg:wdt-int-raised": 1,
+          "timg:wdt-timeout": 1,
+          "timg:wdt-timeout-gap": 1
+        }
+      },
+      "has_post_boot_reset_event": false
+    },
+    "serial": {
+      "bytes": 1293,
+      "sha256": "d3f8ad5215caecb54663ea17a2ffd95ebf1cea2c9e77e0526f16ccd48c204635",
+      "has_micropython_banner": false,
+      "has_micropython_art": false,
+      "has_repl_prompt": false,
+      "has_wdt_timeout": true,
+      "has_system_reset": false
+    },
+    "symbolization": {
+      "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+      "artifact_bound_to_public_image": false,
+      "cpu0": {
+        "0x400843ac": "uart_rx_intr_handler_default",
+        "0x400843af": "uart_rx_intr_handler_default",
+        "0x400843b1": "uart_rx_intr_handler_default"
+      },
+      "cpu1": {
+        "0x4008649c": "mp_execute_bytecode",
+        "0x4008649e": "mp_execute_bytecode"
+      },
+      "classification": "The PC-sampled control keeps the same 800 ms feed gap but resets earlier. CPU0 is sampled in the UART RX interrupt handler instruction cluster while CPU1 runs the MicroPython VM. The unified UART register trace records no UART event inside the final 800 ms, so this is a candidate interrupt/service-starvation path, not a proven UART storm."
+    }
+  },
+  "classification": {
+    "normal_wdt": "WDT_FEED_GAP_OBSERVED",
+    "wdt_disabled": "BANNER_ONLY",
+    "pc_sampling_control": "PERTURBED_EARLIER_RESET_SAME_800_MS_GAP"
+  },
+  "normal_watchdog_replicate": {
+    "trace": {
+      "stderr": {
+        "bytes": 29548,
+        "sha256": "167a8ccb128fdbf399b2c3db3f80e0fb20ba248ece77764340a7d0610c1feb44"
+      },
+      "trace_event_count": 284,
+      "trace_event_counts": {
+        "crosscore:write": 83,
+        "dport:app-cache-ctrl": 87,
+        "dport:reset": 1,
+        "ssi:receive-data": 18,
+        "ssi:transaction-begin": 18,
+        "ssi:transaction-end": 21,
+        "timg:wdt-arm": 47,
+        "timg:wdt-int-ena": 1,
+        "timg:wdt-int-masked": 1,
+        "timg:wdt-int-raised": 1,
+        "timg:wdt-reset": 2,
+        "timg:wdt-timeout": 2,
+        "timg:wdt-timeout-gap": 2
+      },
+      "first_event_ns": 0,
+      "last_event_ns": 15099793372,
+      "wdt_timeouts": [
+        {
+          "now_ns": 7253606591,
+          "cpu": 1,
+          "pc": "0x4008794b",
+          "timer_group": 0,
+          "stage": 0,
+          "mode": 1,
+          "last_feed_ns": 2253606560,
+          "feed_gap_ns": 5000000031,
+          "feed_count": 1
+        },
+        {
+          "now_ns": 15099793372,
+          "cpu": 1,
+          "pc": "0x4008649e",
+          "timer_group": 1,
+          "stage": 0,
+          "mode": 1,
+          "last_feed_ns": 14299793372,
+          "feed_gap_ns": 800000000,
+          "feed_count": 12045
+        }
+      ],
+      "pc_sample_count": 0,
+      "pc_final_feed_to_timeout_window": {
+        "start_ns": 14299793372,
+        "end_ns": 15099793372,
+        "samples": 0,
+        "cpu_pc_pairs": {},
+        "other_trace_events": {
+          "timg:wdt-int-raised": 1,
+          "timg:wdt-timeout": 1,
+          "timg:wdt-timeout-gap": 1
+        }
+      },
+      "has_post_boot_reset_event": false
+    },
+    "serial": {
+      "bytes": 1562,
+      "sha256": "d1cb335d52eb8fa89c22e256464540ae5b50ac17d7176df796909aa1be5b9716",
+      "has_micropython_banner": true,
+      "has_micropython_art": true,
+      "has_repl_prompt": false,
+      "has_wdt_timeout": true,
+      "has_system_reset": false
+    }
+  }
+}

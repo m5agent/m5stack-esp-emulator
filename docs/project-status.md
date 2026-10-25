@@ -71,12 +71,25 @@ interrupt-WDT reset 与累计 Flash/cache-handoff 服务进度仍 `OPEN`。
   `s_flash_op_complete` 和 cross-core reason 反复在 0/1 间变化。CPU0
   会多次位于 `spi_flash_op_block_func` 等待路径，CPU1 位于 cache/DPORT
   或任务切换路径，但这不支持“握手永久不完成”的旧判断。
+- `0037` 增加默认关闭的统一 handoff trace，把 virtual time、CPU、guest PC、
+  cross-core、DPORT cache、SSI transaction 和 TIMG WDT 写进同一日志格式。
+  两次 normal-WDT 运行都在 TG1 最后一次 feed 后恰好 `800,000,000 ns`
+  进入 stage-0 timeout，再经过约 `1.6 s` 进入 reset；timeout PC 可变化。
+  WDT-disabled `sample=1024` 与 trace-off 产生相同 Serial SHA，均为
+  启动 banner、无 setup/REPL，说明该采样级别没有改变序列结果。
+- 额外的 1 ms PC 采样对照仍复现固定 800 ms gap，但更早 reset。最终窗口中
+  800 个采样点只出现 CPU0 `uart_rx_intr_handler_default` 的三个 PC 和 CPU1
+  `mp_execute_bytecode` 的两个 PC；UART register trace 在该窗口没有任何新
+  RX 或 `INT_CLR` 事件。该结果指向中断/服务饥饿候选路径，但不足以证明
+  UART storm，且 PC 采样本身会改变调度。
 
 这说明剩余问题更可能是大量同步 Flash 操作、cross-core yield 和
 flash-cache/DPORT handoff 造成的总吞吐不足。当前工作假设是 legacy
 启动扫描所需的工作量超过 watchdog 窗口，而不是单次 handshake 丢失；
-仍需把批次、handoff 次数、guest 进度和 watchdog feed 放到同一虚拟时间轴，
-并判断哪一段可以按控制器语义批量完成。精确批次、通过率、
+统一时间轴已经具备，下一步要解释最后一次 feed 后固定 800 ms 的停滞窗口，
+PC/UART 诊断进一步把 CPU0 指向中断服务饥饿候选，但尚未证明 UART storm。
+后续需要并用低扰动中断/锁 trace 判断哪一段可以按控制器语义批量完成。
+精确批次、通过率、
 artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
@@ -87,7 +100,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask 和 stateful SSI 批量数据面已修复/验证；最小探针和 UIFlow2 外设组 PASS | 将 cross-core handoff、Flash 批次、guest 进度和 watchdog feed 放到同一虚拟时间轴，减少总同步吞吐并取得正常 WDT 下的同 SHA 应用帧 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；永久死锁假设不再成立 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline 和 PC/UART 诊断已验证；固定 feed-to-timeout 800 ms 已复现 | 确认最后 800 ms 内 CPU0 为何停在 UART ISR 路径而未返回 WDT 服务任务，再减少总 handoff 吞吐 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；UART storm 仍未证实 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -104,7 +117,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、最小 probe timer deadline 和 TIMG WDT mask 语义已修复；stateful SSI 批量数据面已验证，但 legacy TG0/TG1 watchdog reset、reset PC `0` 和累计 Flash/cache-handoff 吞吐未闭环；FactoryTest 修复后 `NOT RUN` |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、timer deadline、TIMG WDT mask 和 stateful SSI 已验证；统一 timeline 复现最后 feed 后固定 800 ms timeout，但 legacy reset、reset PC `0` 和该停滞窗口的 guest 根因未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT 和生产调度未完成 |
@@ -146,9 +159,9 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
    `TG0/TG1WDT_SYS_RESET`/黑帧，reset CPU PC 为 `0`。不能用 I2C ACK、
    probe/UIFlow2 PASS、旧 REPL 观察、关闭 WDT、accelerator 或 host 假值
    当作 legacy 启动 PASS。当前证据显示 flash-operation/cross-core flags
-   会反复完成，下一步是量化大量同步 Flash/cache handoff 的累计吞吐，并把
-   controller batch、两核 PC 与 watchdog feed 放到同一虚拟时间轴；量化
-   结果只以验证台账和 evidence 为准。
+   会反复完成；`0037` 已把 controller batch、两核 PC 与 watchdog feed
+   放到同一虚拟时间轴，并复现最后 feed 后固定 800 ms timeout。下一步是
+   定位该窗口内的同步停顿；量化结果只以验证台账和 evidence 为准。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。
@@ -180,7 +193,8 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 - 固件：[FirmwareManifest](firmware-manifest.md) 与
   [固件审查工作流](firmware-review-and-simulation-workflow.md)。
 - Core2 历史诊断：[cache/panic 调查](core2-cache-panic-investigation.md)、
-  [QIO/cross-core evidence](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)。
+  [QIO/cross-core evidence](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)、
+  [handoff timeline evidence](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-handoff-timeline.json)。
 - 文档契约：五个 `platform/tests/test_docs_*_contract.py` 领域模块，以及
   `platform/tests/fixtures/stale_doc_claims.json` 结构化退役说法目录。
 

@@ -527,6 +527,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             self.assertIn("QIO", text, path.relative_to(ROOT))
             self.assertIn("cross-core", text, path.relative_to(ROOT))
             self.assertIn("0036", text, path.relative_to(ROOT))
+            self.assertIn("0037", text, path.relative_to(ROOT))
         for path in (
             ROOT / "README.md",
             DOCS / "qemu-device-adaptation-matrix.md",
@@ -536,6 +537,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             text = path.read_text()
             self.assertIn("QIO", text, path.relative_to(ROOT))
             self.assertIn("cross-core", text, path.relative_to(ROOT))
+            self.assertIn("0037", text, path.relative_to(ROOT))
         history = (DOCS / "core2-cache-panic-investigation.md").read_text()
         self.assertIn("2026-10-26 QIO and cross-core follow-up", history)
         self.assertIn("512 sampled transactions", history)

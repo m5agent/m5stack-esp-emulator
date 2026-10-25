@@ -45,8 +45,14 @@ MicroPython 和其他完整 Flash 固件。
   在观察窗口内也未进入 setup/REPL。先前临时 `blk_pread` 到达 REPL 的
   现象在当前重建中未复现。state trace 显示 Flash can-start/complete 和
   cross-core reason 会反复完成，因此当前首要假设是大量同步
-  Flash/cache-handoff 的累计吞吐不足，而不是永久跨核死锁。下一步是把
-  controller batch、两核 PC、handoff 与 watchdog feed 放到同一虚拟时间轴。
+  Flash/cache-handoff 的累计吞吐不足，而不是永久跨核死锁。`0037` 已把
+  cross-core、DPORT/cache、SSI 与 TIMG WDT 放到同一虚拟时间轴；两次正常
+  WDT 运行都显示最后一次 TG1 feed 后固定 `800 ms` 进入 stage-0 timeout，
+  随后约 `1.6 s` reset。关闭 WDT 时 `sample=1024` 与 trace-off 的串口
+  完全相同，仍只有启动 banner。1 ms PC 采样对照保持同样的 800 ms gap，
+  CPU0 样本落在 UART RX 中断处理器的清中断指令簇，CPU1 在 MicroPython VM；
+  但该窗口没有新的 UART 寄存器事件，因此目前是中断/服务饥饿候选，不是已证
+  UART 根因。下一步是确认 CPU0 为何没有返回 WDT 服务任务。
   精确轮次、哈希和对照只在
   [验证证据台账](docs/validation-ledger.md)；`Core2FactoryTest` 修复后尚未
   重跑，`RUNTIME-03` 仍为 `OPEN`。

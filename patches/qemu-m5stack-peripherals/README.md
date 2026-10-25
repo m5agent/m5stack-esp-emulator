@@ -136,6 +136,7 @@ git apply /path/to/0033-esp32-s32c1i-trace.patch
 git apply /path/to/0034-xtensa-ccompare-equal-deadline.patch
 git apply /path/to/0035-esp32-timg-wdt-int-ena.patch
 git apply /path/to/0036-ssi-transfer-buf.patch
+git apply /path/to/0037-esp32-handoff-trace.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -246,6 +247,21 @@ the original per-byte path; the Core2 UIFlow2 device group and shared-controller
 full matrix passed, but watchdog-disabled legacy firmware still did not reach
 the REPL.
 This is a controller/data-path optimization, not closure of `RUNTIME-03`.
+
+`0037-esp32-handoff-trace.patch` adds a default-off
+`M5SW_ESP32_HANDOFF_TRACE` diagnostic channel shared by cross-core interrupts,
+DPORT cache control/sync, TIMG WDT, UART interrupt state and ESP32 SPI
+transactions. Each line records virtual time, current CPU, guest PC and four
+component-specific values. Routine events support
+`M5SW_ESP32_HANDOFF_TRACE_SAMPLE`; WDT timeout/interrupt/reset events are always
+emitted. `M5SW_ESP32_HANDOFF_PC_SAMPLE_NS=1000000` optionally samples both
+guest PCs, but is off by default because it perturbs scheduling. Two
+normal-WDT runs showed a fixed 800 ms gap between the last TG1 feed and stage-0
+timeout. The PC control kept that gap and sampled CPU0 in the UART RX ISR while
+CPU1 ran MicroPython; UART register tracing found no event in the final
+window, so a UART storm is unproven. WDT-disabled `sample=1024` and trace-off
+produced the same serial output. This patch closes the missing-timeline
+prerequisite, not `RUNTIME-03`.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

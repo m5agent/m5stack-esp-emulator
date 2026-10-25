@@ -65,8 +65,8 @@
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-26` | 产品边界、当前代码盘点、成熟度、代码阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-26` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力、最新验证结论、TIMG WDT-mask、stateful SSI 批量面、Flash/cache-handoff 吞吐边界和已知风险的系统性叙述 |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是累计 Flash/cache-handoff 吞吐、正常 WDT 和同一时间轴证据 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力、最新验证结论、TIMG WDT-mask、stateful SSI、统一 handoff timeline、最后 800 ms 停滞窗口和已知风险的系统性叙述 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是最后 800 ms feed-to-timeout 窗口、正常 WDT 和同 SHA 非空应用帧 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-26` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core 探针、网络/worker 路径、测试、evidence 和文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-26` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-25` | `1.33.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled domain suffix/CNAME chain、同 guest CNAME 网络证据和 transport 契约 |
@@ -80,7 +80,7 @@
 | [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-25` | 外设数据面覆盖、Core2 `0008/0009` 完整与定向回归入口；轮次和 case/check 数量只查验证台账与 evidence |
 | [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-25` | 能力仍以 2026-10-22 定向证据为基线；后来的 S3/C6/Core2 无线工作不继承给 P4 |
 | [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-25` | StopWatch 是唯一参考质量外壳；后续功能验证不代表视觉模型已升级 |
-| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-26` | 保留旧命名和复现、TCG translation-buffer 归因与 UIFlow2 门禁；补充 flash/IPC timer、TIMG WDT-mask、stateful SSI 批量等价、REPL 未复现及 Flash/cache-handoff 吞吐修正。精确计数只查验证台账；临时 bypass、关闭 WDT 和 accelerator 均不构成产品修复 |
+| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-26` | 保留旧命名和复现、TCG translation-buffer 归因与 UIFlow2 门禁；补充 timer/WDT-mask、stateful SSI、统一 handoff timeline、固定 800 ms feed-to-timeout、低扰动 WDT-disabled 对照和 UART/PC 候选路径。精确计数只查验证台账；PC 采样、临时 bypass、关闭 WDT 和 accelerator 均不构成产品修复 |
 | [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
 | [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
 | [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-25` | `.work/` 不随仓库发布；提供已验证 macOS arm64 runtime release，QEMU/namespace 的资产和权限要求 |
