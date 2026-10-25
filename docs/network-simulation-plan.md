@@ -56,6 +56,10 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   session-derived eFuse/NIC MAC 绑定和 unicast DHCP delivery；
 - Core2 OpenMAC WiFi、公网 DNS/HTTP 和 `core2-native-hci` controller
   boundary；
+- Core2 `0008` 在 CPU0 idle 时预分配真实 guest HCI event/ACL 对象，避免
+  ACL FIFO head 把 Command Status/LE Meta 延迟到 NimBLE `2s` ACK 预算之外；
+  两批独立无错峰双实例 `4×120s` 为 `8/8 PASS`，但不外推到更高并发、
+  physical controller/RF 或真机；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；
 - controlled DNS、exact A/AAAA records、domain suffix 的 label-boundary
   匹配、最多 8 跳 exact-name CNAME chain、测试 CA、DNS/TLS allowlist、

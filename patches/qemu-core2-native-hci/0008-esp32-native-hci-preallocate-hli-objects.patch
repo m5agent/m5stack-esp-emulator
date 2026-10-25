@@ -1,0 +1,362 @@
+--- a/hw/xtensa/esp32_native_hci.c
++++ b/hw/xtensa/esp32_native_hci.c
+@@ -41,6 +41,20 @@
+ #define ESP32_NATIVE_HCI_CALLBACK_STEPS 100000
+ #define ESP32_NATIVE_HCI_HLI_POLL_NS 1000000
+ #define ESP32_NATIVE_HCI_EVENT_MAX 256
++/*
++ * 32-bit NimBLE os_mbuf layout used by the matching ESP-IDF v5.5.4 build.
++ * Preallocated guest objects let the HLI path avoid nested guest calls while
++ * CPU0 is executing cache-sensitive controller code.
++ */
++#define ESP32_OS_MBUF_DATA_OFFSET 0
++#define ESP32_OS_MBUF_PKTHDR_LEN_OFFSET 5
++#define ESP32_OS_MBUF_LEN_OFFSET 6
++#define ESP32_OS_MBUF_POOL_OFFSET 8
++#define ESP32_OS_MBUF_NEXT_OFFSET 12
++#define ESP32_OS_MBUF_DATA_BUF_OFFSET 16
++#define ESP32_OS_MBUF_PKTLEN_OFFSET ESP32_OS_MBUF_DATA_BUF_OFFSET
++#define ESP32_OS_MBUF_POOL_DATABUF_LEN_OFFSET 0
++#define ESP32_OS_MBUF_PKTHDR_SIZE 8
+ 
+ #define ESP32_HLI_ELEMENT_SIZE_OFFSET 0
+ #define ESP32_HLI_BEGIN_OFFSET 4
+@@ -227,7 +241,11 @@
+         s->hli_scheduled ||
+         s->hli_post_pending ||
+         (!s->hli_c2h && s->hli_test_event == UINT32_MAX) ||
+-        (s->hli_c2h && !s->rx_queue_count)) {
++        (s->hli_c2h && !s->rx_queue_count &&
++         s->hli_event_prealloc_count >=
++             ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC &&
++         s->hli_acl_prealloc_count >=
++             ESP32_NATIVE_HCI_HLI_ACL_PREALLOC)) {
+         return;
+     }
+     s->hli_scheduled = true;
+@@ -587,6 +605,106 @@
+     return true;
+ }
+ 
++static uint64_t esp32_native_hci_hli_take_prealloc(uint64_t *pool,
++                                                   uint32_t *count)
++{
++    uint64_t address;
++
++    if (!*count) {
++        return 0;
++    }
++    address = pool[*count - 1];
++    pool[*count - 1] = 0;
++    (*count)--;
++    return address;
++}
++
++static bool esp32_native_hci_hli_refill(CPUState *cs,
++                                        Esp32NativeHciState *s,
++                                        uint64_t allocator,
++                                        uint64_t *pool,
++                                        uint32_t *count,
++                                        uint32_t target)
++{
++    uint32_t status;
++    uint32_t steps;
++
++    while (*count < target) {
++        if (!allocator ||
++            !esp32_native_hci_guest_call(
++                cs, allocator, 0, 0, 0, 0, &status, &steps) ||
++            !status) {
++            s->hli_prealloc_failures++;
++            return false;
++        }
++        pool[(*count)++] = status;
++    }
++    return true;
++}
++
++static bool esp32_native_hci_hli_fill_acl_mbuf(
++    CPUState *cs,
++    uint32_t mbuf,
++    const uint8_t *payload,
++    size_t payload_length)
++{
++    uint32_t data;
++    uint32_t pool;
++    uint32_t next;
++    uint16_t databuf_length;
++    uint16_t mbuf_length;
++    uint16_t packet_length;
++    uint16_t available;
++    uint16_t new_length;
++    uint8_t pkthdr_length;
++    uint32_t databuf;
++
++    if (!mbuf ||
++        payload_length > UINT16_MAX ||
++        !esp32_native_hci_read_u32(
++            cs, mbuf + ESP32_OS_MBUF_DATA_OFFSET, &data) ||
++        !esp32_native_hci_read_u32(
++            cs, mbuf + ESP32_OS_MBUF_POOL_OFFSET, &pool) ||
++        !esp32_native_hci_read_u32(
++            cs, mbuf + ESP32_OS_MBUF_NEXT_OFFSET, &next) ||
++        !data || !pool || next ||
++        cpu_memory_rw_debug(
++            cs, mbuf + ESP32_OS_MBUF_PKTHDR_LEN_OFFSET,
++            &pkthdr_length, sizeof(pkthdr_length), false) != 0 ||
++        cpu_memory_rw_debug(
++            cs, mbuf + ESP32_OS_MBUF_LEN_OFFSET,
++            &mbuf_length, sizeof(mbuf_length), false) != 0 ||
++        cpu_memory_rw_debug(
++            cs, mbuf + ESP32_OS_MBUF_PKTLEN_OFFSET,
++            &packet_length, sizeof(packet_length), false) != 0 ||
++        cpu_memory_rw_debug(
++            cs, pool + ESP32_OS_MBUF_POOL_DATABUF_LEN_OFFSET,
++            &databuf_length, sizeof(databuf_length), false) != 0 ||
++        mbuf_length || packet_length ||
++        pkthdr_length < ESP32_OS_MBUF_PKTHDR_SIZE) {
++        return false;
++    }
++    databuf = mbuf + ESP32_OS_MBUF_DATA_BUF_OFFSET;
++    if (data < databuf + pkthdr_length ||
++        data > databuf + databuf_length) {
++        return false;
++    }
++    available = databuf + databuf_length - data;
++    new_length = (uint16_t)payload_length;
++    if (available < payload_length ||
++        cpu_memory_rw_debug(
++            cs, data, (uint8_t *)payload, payload_length, true) != 0 ||
++        cpu_memory_rw_debug(
++            cs, mbuf + ESP32_OS_MBUF_LEN_OFFSET,
++            &new_length, sizeof(new_length), true) != 0 ||
++        cpu_memory_rw_debug(
++            cs, mbuf + ESP32_OS_MBUF_PKTLEN_OFFSET,
++            &new_length, sizeof(new_length), true) != 0) {
++        return false;
++    }
++    return true;
++}
++
+ static uint32_t esp32_native_hci_hli_descriptor(
+     Esp32NativeHciState *s)
+ {
+@@ -620,9 +738,27 @@
+     size_t event_length = 0;
+     size_t payload_length;
+     bool was_empty = false;
++    bool fast_path = false;
++    uint64_t preallocated_address = 0;
+ 
+     s->hli_scheduled = false;
+-    if (!cs->halted) {
++    if (cs->halted) {
++        esp32_native_hci_hli_refill(
++            cs, s, s->hli_event_allocator_address,
++            s->hli_event_prealloc, &s->hli_event_prealloc_count,
++            ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC);
++        esp32_native_hci_hli_refill(
++            cs, s, s->hli_acl_allocator_address,
++            s->hli_acl_prealloc, &s->hli_acl_prealloc_count,
++            ESP32_NATIVE_HCI_HLI_ACL_PREALLOC);
++    }
++    if (s->hli_c2h && s->rx_queue_count) {
++        packet = &s->rx_queue[s->rx_queue_head];
++        fast_path =
++            (packet->data[0] == 0x04 && s->hli_event_prealloc_count) ||
++            (packet->data[0] == 0x02 && s->hli_acl_prealloc_count);
++    }
++    if (!cs->halted && !fast_path) {
+         s->hli_deferred_not_halted++;
+         timer_mod(s->hli_timer,
+                   qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+@@ -644,11 +780,16 @@
+         if (!s->rx_queue_count) {
+             return;
+         }
++        if ((!s->c2h_scratch_address ||
++             !s->hli_descriptor_pool_address) &&
++            !cs->halted) {
++            s->hli_deferred_not_halted++;
++            return;
++        }
+         if (!esp32_native_hci_hli_ensure_scratch(cs, s)) {
+             s->hli_errors++;
+             return;
+         }
+-        packet = &s->rx_queue[s->rx_queue_head];
+         esp32_native_hci_trace_packet(
+             s, "device-to-hli", packet->data, packet->length);
+         payload_length = packet->length - 1;
+@@ -664,14 +805,22 @@
+                 s->hli_errors++;
+                 return;
+             }
+-            if (!esp32_native_hci_guest_call(
+-                    cs, s->hli_event_allocator_address,
+-                    0, 0, 0, 0, &status, &steps) ||
+-                !status) {
+-                s->hli_errors++;
+-                return;
++            if (!s->hli_event_prealloc_count) {
++                if (!esp32_native_hci_guest_call(
++                        cs, s->hli_event_allocator_address,
++                        0, 0, 0, 0, &status, &steps) ||
++                    !status) {
++                    s->hli_errors++;
++                    return;
++                }
++                s->hli_event_buffer_address = status;
++            } else {
++                s->hli_event_buffer_address =
++                    esp32_native_hci_hli_take_prealloc(
++                        s->hli_event_prealloc,
++                        &s->hli_event_prealloc_count);
++                s->hli_fast_path_events++;
+             }
+-            s->hli_event_buffer_address = status;
+             s->hli_event_length = payload_length;
+             if (cpu_memory_rw_debug(
+                     cs, s->hli_event_buffer_address,
+@@ -694,25 +843,41 @@
+                 s->hli_errors++;
+                 return;
+             }
+-            if (!esp32_native_hci_guest_call(
+-                    cs, s->hli_acl_allocator_address,
+-                    0, 0, 0, 0, &status, &steps) ||
+-                !status) {
+-                s->hli_errors++;
+-                return;
+-            }
+-            s->hli_acl_mbuf_address = status;
+-            if (cpu_memory_rw_debug(
+-                    cs, s->c2h_scratch_address,
+-                    packet->data + 1, payload_length, true) != 0 ||
+-                !esp32_native_hci_guest_call(
+-                    cs, s->hli_os_mbuf_append_address,
+-                    (uint32_t)s->hli_acl_mbuf_address,
+-                    (uint32_t)s->c2h_scratch_address,
+-                    (uint32_t)payload_length, 0, &status, &steps) ||
+-                status != 0) {
+-                s->hli_errors++;
+-                return;
++            if (s->hli_acl_prealloc_count) {
++                preallocated_address = s->hli_acl_prealloc[
++                    s->hli_acl_prealloc_count - 1];
++                if (!esp32_native_hci_hli_fill_acl_mbuf(
++                        cs, (uint32_t)preallocated_address,
++                        packet->data + 1, payload_length)) {
++                    s->hli_errors++;
++                    return;
++                }
++                esp32_native_hci_hli_take_prealloc(
++                    s->hli_acl_prealloc,
++                    &s->hli_acl_prealloc_count);
++                s->hli_acl_mbuf_address = preallocated_address;
++                s->hli_fast_path_acls++;
++            } else {
++                if (!esp32_native_hci_guest_call(
++                        cs, s->hli_acl_allocator_address,
++                        0, 0, 0, 0, &status, &steps) ||
++                    !status) {
++                    s->hli_errors++;
++                    return;
++                }
++                s->hli_acl_mbuf_address = status;
++                if (cpu_memory_rw_debug(
++                        cs, s->c2h_scratch_address,
++                        packet->data + 1, payload_length, true) != 0 ||
++                    !esp32_native_hci_guest_call(
++                        cs, s->hli_os_mbuf_append_address,
++                        (uint32_t)s->hli_acl_mbuf_address,
++                        (uint32_t)s->c2h_scratch_address,
++                        (uint32_t)payload_length, 0, &status, &steps) ||
++                    status != 0) {
++                    s->hli_errors++;
++                    return;
++                }
+             }
+             s->hli_acl_buffers++;
+             s->hli_c2h_acls++;
+@@ -1797,6 +1962,15 @@
+         OBJECT(dev), "hli-deferred-not-halted",
+         &s->hli_deferred_not_halted, OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-fast-path-events", &s->hli_fast_path_events,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-fast-path-acls", &s->hli_fast_path_acls,
++        OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
++        OBJECT(dev), "hli-prealloc-failures",
++        &s->hli_prealloc_failures, OBJ_PROP_FLAG_READ);
++    object_property_add_uint64_ptr(
+         OBJECT(dev), "hci-trace-packets", &s->hci_trace_packets,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint64_ptr(
+@@ -1863,6 +2037,12 @@
+         OBJECT(dev), "hli-valid", &s->hli_valid,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-event-prealloc-depth",
++        &s->hli_event_prealloc_count, OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
++        OBJECT(dev), "hli-acl-prealloc-depth",
++        &s->hli_acl_prealloc_count, OBJ_PROP_FLAG_READ);
++    object_property_add_uint32_ptr(
+         OBJECT(dev), "hli-last-event", &s->hli_last_event,
+         OBJ_PROP_FLAG_READ);
+     object_property_add_uint32_ptr(
+@@ -2033,6 +2213,10 @@
+     s->hli_acl_mbuf_address = 0;
+     s->hli_descriptor_pool_address = 0;
+     s->hli_descriptor_cursor = 0;
++    memset(s->hli_event_prealloc, 0, sizeof(s->hli_event_prealloc));
++    memset(s->hli_acl_prealloc, 0, sizeof(s->hli_acl_prealloc));
++    s->hli_event_prealloc_count = 0;
++    s->hli_acl_prealloc_count = 0;
+     s->hli_deferred_not_halted = 0;
+     s->hci_trace_packets = 0;
+     s->api_send_trace_packets = 0;
+--- a/include/hw/xtensa/esp32_native_hci.h
++++ b/include/hw/xtensa/esp32_native_hci.h
+@@ -22,6 +22,8 @@
+ #define ESP32_NATIVE_HCI_PACKET_MAX 2048
+ #define ESP32_NATIVE_HCI_RX_BUFFER_SIZE 8192
+ #define ESP32_NATIVE_HCI_TRACE_SLOTS 19
++#define ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC 2
++#define ESP32_NATIVE_HCI_HLI_ACL_PREALLOC 2
+ 
+ typedef struct Esp32NativeHciPacket {
+     uint16_t length;
+@@ -105,6 +107,10 @@
+     uint64_t hli_last_descriptor_address;
+     uint64_t hli_last_descriptor_argument;
+     uint64_t hli_last_descriptor_callback;
++    uint64_t hli_event_prealloc[
++        ESP32_NATIVE_HCI_HLI_EVENT_PREALLOC];
++    uint64_t hli_acl_prealloc[
++        ESP32_NATIVE_HCI_HLI_ACL_PREALLOC];
+     char *hli_event_data;
+     uint32_t vhci_callback_address;
+     uint32_t vhci_receive_address;
+@@ -144,6 +150,8 @@
+     uint32_t gatts_pool_valid;
+     uint32_t hli_post_end;
+     uint32_t hli_valid;
++    uint32_t hli_event_prealloc_count;
++    uint32_t hli_acl_prealloc_count;
+     bool hli_c2h;
+     bool h2c_length_mapped;
+     bool c2h_scheduled;
+@@ -185,6 +193,9 @@
+     uint64_t tx_zero_writes;
+     uint64_t hli_errors;
+     uint64_t hli_deferred_not_halted;
++    uint64_t hli_fast_path_events;
++    uint64_t hli_fast_path_acls;
++    uint64_t hli_prealloc_failures;
+     uint64_t hci_trace_packets;
+     uint64_t api_send_trace_packets;
+     uint64_t trace_acl_process;

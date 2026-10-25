@@ -31,6 +31,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`; a reconnect-only run completed all functional checks but did not sample the QEMU accelerator because that sampling lived only in the hold loop |
 | `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json`; three independent artifact-bound leases each complete 121 cycles with identical firmware/ELF/QEMU/tool hashes, `tb-size=128`, WiFi/public network, NUS GATT, frame/QOM, pcap, evidence and cleanup. Every lease has HLI 3405/3405, 2316 events, 1089 ACLs and zero queue/error/drop/peer-close/panic |
 | `CORE2-02` active stop/recovery | `3/3 PASS` | `evidence-2026-10-25-core2-active-stop-recovery-3x.json`; three consecutive sessions are deleted while their BLE peer is still in the linger window. Each stop reaches `stopped` with no error, terminates HTTP/BLE companions, reaps both BLE and QEMU PIDs, releases the worker lease, and is followed by a new ready session with the same network/GATT/QOM health |
+| `CORE2-02` no-stagger concurrency | `8/8 PASS` | two independent `4x120s` runs use two simultaneous cold starts per batch. `0008` preallocates real guest event buffers and ACL mbufs, every lease records 36/9 fast-path event/ACLs, HLI `45/45`, zero errors/reset/panic, and trace-bound ACK delivery drops from about 3.660s to 0.328s |
 
 Build the patched QEMU, then run:
 
@@ -254,7 +255,7 @@ committed `2/2 PASS` evidence is
 controls preserve the initial shared-port collision and the no-stagger
 second-guest `ble_hs_hci_process_ack` `LoadProhibited`.
 
-The no-stagger path is tracked separately and is still open:
+The no-stagger path was diagnosed and closed for two concurrent instances:
 
 1. A one-pair run passed `2/2` after extended GATT request and notification
    timeouts were raised to 30 seconds.
@@ -263,10 +264,17 @@ The no-stagger path is tracked separately and is still open:
 3. QEMU patch `0007` now refuses to schedule HLI delivery until the previous
    poll observed a valid guest scheduler/meta queue. With that gate, the
    first four-lease run passed `4/4`.
-4. An independent four-lease confirmation run did not reproduce the HLI
-   counter failure, but its first concurrent batch still had one guest panic
-   at `ble_hs_hci_process_ack` `LoadProhibited`; the runner stopped with
-   aggregate `FAIL` instead of retrying away the failure.
+4. An independent four-lease confirmation still hit
+   `ble_hs_hci_process_ack` `LoadProhibited`. Packet trace showed Bumble
+   returned Command Status in about `4.6ms`, but ACL mbuf allocation blocked
+   HLI delivery for about `3.660s`, beyond the guest's `2s` HCI ACK budget.
+5. QEMU patch `0008` preallocates two real guest event buffers and two ACL
+   mbufs while CPU0 is idle. Busy CPU0 no longer needs nested guest calls to
+   fill those objects.
+6. Two independent final `4x120s` runs pass `4/4` each (`8/8` total).
+   Every lease reports 36 events and 9 ACLs on the fast path, two spare
+   objects of each type, HLI `45/45`, `hli-errors=0`, no scheduler reset and
+   no panic. The measured Command Status delivery delay is about `0.328s`.
 
 Evidence:
 
@@ -274,10 +282,13 @@ Evidence:
 - `evidence-2026-10-25-core2-concurrent-4x120-hli-errors-fail.json`
 - `evidence-2026-10-25-core2-concurrent-4x120-simultaneous-pass.json`
 - `evidence-2026-10-25-core2-concurrent-4x120-simultaneous-confirm-fail.json`
+- `evidence-2026-10-25-core2-concurrent-4x120-prealloc-pass-a.json`
+- `evidence-2026-10-25-core2-concurrent-4x120-prealloc-confirm-pass-b.json`
+- `evidence-2026-10-25-core2-hli-preallocation-latency.json`
 
-The HLI valid-queue gate is a real local improvement, not a counter
-suppression. It does not close simultaneous cold-start stability because the
-independent confirm run still reproduced the guest panic.
+The historical failure is retained. The final scope is two instances, the
+bound stock firmware/ELF/QEMU and the current hook ABI; it does not claim
+higher concurrency, physical controller timing or RF.
 
 `run_service_teardown.py` exercises process-stop ordering rather than another
 hold. It creates a ready Core2 session, captures pre-stop frame/QOM/network/

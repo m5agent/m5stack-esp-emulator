@@ -35,6 +35,11 @@ This patch adds the first QEMU-side slice of `CORE2-01`:
   succeeded. Before this gate, a no-stagger `4x120s` run balanced all
   `45/45` HLI packets but still recorded three invalid scheduling attempts;
   the gate removes the counter errors without suppressing the health signal.
+- `0008` keeps two guest HCI-event buffers and two guest ACL mbufs
+  preallocated while CPU0 is idle. If CPU0 is busy, QEMU fills those real
+  guest objects and queues the inherited HLI descriptor without nesting guest
+  calls. This prevents an ACL FIFO head from delaying a Command Status/LE Meta
+  event beyond NimBLE's two-second command-ack budget.
 
 The optional poller captures guest H2C packets from real VHCI shared memory
 without GDB. `HCI-3a` now delivers a controller event through the firmware's
@@ -64,6 +69,10 @@ Current extended validation for this patch set:
   `hli-errors=0`; an independent confirmation run still hits the original
   no-stagger guest `LoadProhibited` at `ble_hs_hci_process_ack`, so the gate
   is a local HLI scheduling fix rather than a concurrent cold-start closure.
+- with `0008`, two independent no-stagger `4x120s` gates pass `4/4` each
+  (`8/8` total). Every lease records the real fast path for all 36 events
+  and 9 ACLs, two spare objects of each type, `hli-errors=0`, balanced
+  `45/45` delivery and no scheduler reset or panic.
 
 The detailed gate and evidence index remain in
 [`docs/core2-native-hci-backend.md`](../../docs/core2-native-hci-backend.md).
@@ -80,6 +89,7 @@ git apply /path/to/patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.pat
 git apply /path/to/patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-call-sregs.patch
 git apply /path/to/patches/qemu-core2-native-hci/0006-esp32-native-hci-observability.patch
 git apply /path/to/patches/qemu-core2-native-hci/0007-esp32-native-hci-require-valid-guest-queue.patch
+git apply /path/to/patches/qemu-core2-native-hci/0008-esp32-native-hci-preallocate-hli-objects.patch
 ninja -C build qemu-system-xtensa
 python3 tests/uiflow2/core2_native_hci/test_transport.py
 python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \

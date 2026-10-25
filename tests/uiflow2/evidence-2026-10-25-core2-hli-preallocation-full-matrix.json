@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "kind": "uiflow2-full-matrix-after-core2-hli-preallocation",
+  "generated_at": "2026-10-25T15:47:58.693351+08:00",
+  "source_base_commit": "8243850b27fbff420560fcba67c06fae913e83bc",
+  "qemu": {
+    "sha256": "f2bc2b4d5e4a5a8a0a8b3b4cf3ccd36ea2a67f44a57413bc7c575b304e2159e5",
+    "accel": "tcg,thread=single",
+    "icount": "shift=auto,align=off,sleep=off"
+  },
+  "qemu_patch": {
+    "file": "patches/qemu-core2-native-hci/0008-esp32-native-hci-preallocate-hli-objects.patch",
+    "sha256": "c5d92a0d7d64cb7aeeb80f9ca15a2cecb709708e19567ad60637c53a757536b3",
+    "reverse_check": "PASS"
+  },
+  "runner": {
+    "file": "tests/uiflow2/run_peripheral_matrix.py",
+    "sha256": "770db317ffc5b7038f50d2c019c1dd53e2234ca04b84d8efcca1a15722da4a9f"
+  },
+  "peripheral_matrix": {
+    "summary_sha256": "f5029d969e3c8501ec26e3860cd81812b7485f976baada764a4f887565d8732c",
+    "cases": 67,
+    "checks": 274,
+    "pass": 67,
+    "fail": 0,
+    "checks_pass": 274,
+    "attempts_per_case": 1,
+    "retry_used": false
+  },
+  "core2_cases": {
+    "core2-peripherals": {
+      "status": "PASS",
+      "checks": 4,
+      "attempts": 1,
+      "serial_sha256": "b9e9442f0fa5a73c66cded3c6bd30b5a4344d10e65b7b81cebbb9456a932cd46"
+    },
+    "core2-audio": {
+      "status": "PASS",
+      "checks": 4,
+      "attempts": 1,
+      "serial_sha256": "2392150e6f5eda0c4469fbb8577c6a95f9c8dc80c81a646d6907382e87f208d6"
+    },
+    "core2-mic": {
+      "status": "PASS",
+      "checks": 3,
+      "attempts": 1,
+      "serial_sha256": "2392150e6f5eda0c4469fbb8577c6a95f9c8dc80c81a646d6907382e87f208d6"
+    },
+    "core2-power-monitor": {
+      "status": "PASS",
+      "checks": 4,
+      "attempts": 1,
+      "serial_sha256": "cc361d7368434b9f53096f79529bf82a0cad3598b6b2740b3813ebfc4aef419a"
+    },
+    "core2-imu": {
+      "status": "PASS",
+      "checks": 4,
+      "attempts": 1,
+      "serial_sha256": "d753bfde90026c9708ba8966f982f78a12cbda4441149ebd6e4c910d49d7e130"
+    },
+    "core2-axp192": {
+      "status": "PASS",
+      "checks": 5,
+      "attempts": 1,
+      "serial_sha256": "f7476b08cfe39e4f6ed75d2ef4a25efe46e22078cd818b09fd95883ff0052afe"
+    }
+  },
+  "not_claimed": [
+    "physical hardware",
+    "physical cache/PSRAM equivalence",
+    "bit-exact Espressif Bluetooth controller",
+    "RF, power, acoustic or optical equivalence"
+  ]
+}

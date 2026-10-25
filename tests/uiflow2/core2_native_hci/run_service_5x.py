@@ -343,6 +343,11 @@ def native_hci_health(qom: dict[str, Any]) -> dict[str, int]:
         "hci-trace-packets",
         "api-send-trace-packets",
         "hli-deferred-not-halted",
+        "hli-fast-path-events",
+        "hli-fast-path-acls",
+        "hli-event-prealloc-depth",
+        "hli-acl-prealloc-depth",
+        "hli-prealloc-failures",
         "trace-hci-cmd-tx",
         "trace-hs-sched-reset",
         "trace-gap-adv-start",
@@ -382,6 +387,11 @@ def native_hci_health_ok(hci_health: dict[str, int]) -> bool:
         and (
             hci_health.get("hli-c2h-events", 0)
             + hci_health.get("hli-c2h-acls", 0)
+            > 0
+        )
+        and (
+            hci_health.get("hli-fast-path-events", 0)
+            + hci_health.get("hli-fast-path-acls", 0)
             > 0
         )
     )

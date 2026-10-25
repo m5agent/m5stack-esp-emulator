@@ -550,7 +550,11 @@ Important fields:
 - `features.network` is `true` only for a `validated` device-level path.
   `network_profiles` still lists scenarios that can be used for diagnostics on
   an `unverified` or `board-init-blocked` chip; a profile being listed is not a
-  PASS claim. Tab5 and Core2 are `not-supported`.
+  PASS claim. The generic `features.network` flag remains false for Tab5 and
+  Core2 because their usable paths are backend- or environment-gated. For
+  Core2, the explicit `qemu-wifi`, `qemu-unified` and `core2-native-hci`
+  profiles are the current network paths; this flag is not a statement that
+  those profiles are absent.
 - `network_console` reports the generic-firmware console default declared by
   the device matrix, such as `usb-jtag` for C6 UIFlow2.
 - Tab5 `features.qom` is `false`; its touch path uses the GDB mailbox currently
@@ -1153,6 +1157,12 @@ manifest. `HCI-4` passed five independent leases with
 `gdb_bridge=false`; each lease also passed frame, QOM, WiFi DHCP/HTTP,
 public DNS/HTTP and external NUS GATT:
 [`hci4-service-5x.json`](../tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json).
+For two simultaneous cold starts, `0008` keeps two real guest HCI-event
+buffers and two ACL mbufs preallocated while CPU0 is idle. Two independent
+`4×120s` gates pass `8/8`; every lease records 36 events and 9 ACLs on the
+fast path, HLI `45/45`, `hli-errors=0`, no scheduler reset and no panic.
+The observed Command Status receive-to-HLI delay falls from about `3.660s`
+to `0.328s`.
 This remains functional virtual-device evidence, not a bit-exact Espressif BT
 controller/baseband or hardware/RF result. The API/HLI/trace hook offsets are
 pinned to the validated UIFlow2 v2.5.3 build; `elf_artifact_id` must come from
@@ -1169,15 +1179,16 @@ GATT lifecycle:
   "network": {
     "profile": "core2-native-hci",
     "elf_artifact_id": "<matching-xtensa-elf-sha256>",
-    "ble_reconnect_cycles": 120,
+    "ble_reconnect_cycles": 121,
     "ble_reconnect_delay_seconds": 2
   }
 }
 ```
 
-The stock Core2 guest passes thirty cycles in each of three independent leases.
-The former failure was a stale ACK caused by the Bumble compatibility layer returning
-Command Status for the no-response
+The stock Core2 guest passes 121 cycles in each of three independent
+artifact-bound leases. Earlier 20, 30, 60 and 120-cycle gates each passed
+`3/3`. The former failure was a stale ACK caused by the Bumble compatibility
+layer returning Command Status for the no-response
 `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. The fields still
 describe the peer workload and must be verified per firmware/runtime.
 
@@ -1985,10 +1996,13 @@ restart.
   board/frame/QOM, WiFi/public network, pcap and evidence in five independent
   service leases without GDB. Two independent `5×10s` hold batches also pass
   `10/10`; three `60s` holds pass `3/3`, and two `120s` holds pass `2/2`,
-  with zero HLI errors and empty HLI/meta queues. Three independent leases
-  pass each of the 20, 30, 60 and 120 same-guest reconnect gates; all three
-  complete 120 cycles with balanced HLI 3377/3377, 2297 events, 1080 ACLs and
-  connection/L2CAP/GATT pools back at 3/9/3.
+  with zero HLI errors and empty HLI/meta queues. Patch `0008` preallocates
+  real guest HCI-event buffers and ACL mbufs; two independent no-stagger
+  `4×120s` gates pass `8/8`, with 36 events and 9 ACLs per lease on the fast
+  path and zero errors/reset/panic. Three independent leases pass each of the
+  20, 30, 60, 120 and 121 same-guest reconnect gates; the 121-cycle runs
+  balance HLI 3405/3405, deliver 2316 events and 1089 ACLs, and return the
+  connection/L2CAP/GATT pools to 3/9/3.
   `network.ble_linger_seconds` can keep the external GATT peer connected
   beyond its initial exchange; two active-link `600s` holds pass `2/2` with
   `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`. A `7200s`
@@ -2028,8 +2042,8 @@ restart.
   check. The aggregate evidence is
   `evidence-2026-10-25-hci4-reconnect121-3x.json`; it binds identical
   firmware/ELF/QEMU/tool hashes across runs and includes the earlier
-  single-lease evidence. The remaining validation gates are long-run
-  throughput/teardown;
+  single-lease evidence. The remaining validation gates are higher
+  concurrency, long-run throughput and additional teardown modes;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -2063,9 +2077,11 @@ restart.
   (10/10 first attempts), but physical cache/PSRAM equivalence remains
   unverified. `core2-native-hci` passed `HCI-4` in five independent Device
   Service leases with no GDB bridge, and the halt-gated `5×10s`
-  extended-run gate passes two independent batches. Long-run
-  concurrency/throughput, teardown, bit-exact controller/baseband,
-  coexistence and same-firmware hardware validation remain open;
+  extended-run gate passes two independent batches. The `0008` fast path also
+  closes two-instance no-stagger cold start with two independent `8/8`
+  aggregate gates. Higher concurrency, long-run throughput, additional
+  teardown modes, bit-exact controller/baseband, coexistence and
+  same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See
   [`cores3-image-rendering-boundary.md`](cores3-image-rendering-boundary.md);

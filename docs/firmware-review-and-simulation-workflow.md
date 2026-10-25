@@ -493,8 +493,11 @@ Core2 的长 BLE reconnect 也是同一原则：`121` 轮首次运行在 29 轮�
 `180s` readiness 预算缺陷，runner 与 Device Service 已改为按 cycles/delay
 计算共享预算。该失败保留为基础设施/等待预算证据，不能记成 guest 或
 controller 的固件 FAIL；修复后 3 个独立 artifact-bound lease 均为
-`121/121 PASS`，并绑定相同 firmware/ELF/QEMU/工具哈希。后续仍需补长时
-吞吐/teardown、bit-exact controller/baseband、物理 cache/PSRAM 和真机。
+`121/121 PASS`，并绑定相同 firmware/ELF/QEMU/工具哈希。并发路径也已由
+`0008` 关闭当前两实例无错峰冷启动边界：两批独立 `4×120s` 合计
+`8/8 PASS`，每 lease 36 events/9 ACLs 走真实 guest-object fast path。后续仍需
+补更高并发、长时吞吐/teardown、bit-exact controller/baseband、物理
+cache/PSRAM 和真机。
 
 ## 11. 结论
 

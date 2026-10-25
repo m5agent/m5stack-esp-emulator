@@ -11,6 +11,11 @@ API 返回值。当前结果只代表仿真验收，不是实机验收。
 
 ## 基线全矩阵结果（固定证据）
 
+最近一次完整回归是 `2026-10-25 15:47 +08:00`：Core2 `0008` guest HLI
+event/ACL 预分配版本完成 `67/67` case、`274/274` check，全部首轮无重试；
+其中 Core2 六个 case 为 `24/24` check。固定汇总见
+[`core2-hli-preallocation-full-matrix.json`](../tests/uiflow2/evidence-2026-10-25-core2-hli-preallocation-full-matrix.json)。
+
 | 设备 | 闭环能力 | UIFlow2 API | 结果 |
 | --- | --- | --- | --- |
 | StickS3 | BMI270 三轴加速度/角速度 | `Imu.getAccel()` / `getGyro()` | PASS |

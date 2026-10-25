@@ -23,6 +23,9 @@ def healthy(**overrides: int) -> dict[str, int]:
         "hli-errors": 0,
         "hli-c2h-events": 39,
         "hli-c2h-acls": 9,
+        "hli-fast-path-events": 39,
+        "hli-fast-path-acls": 9,
+        "hli-prealloc-failures": 0,
         "hli-queue-depth": 0,
         "meta-queue-depth": 0,
         "dropped-packets": 0,
@@ -141,6 +144,23 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         )
         self.assertFalse(
             runner.native_hci_health_ok(healthy(**{"meta-queue-depth": 1}))
+        )
+
+    def test_requires_guest_object_fast_path(self) -> None:
+        self.assertFalse(
+            runner.native_hci_health_ok(
+                healthy(
+                    **{
+                        "hli-fast-path-events": 0,
+                        "hli-fast-path-acls": 0,
+                    }
+                )
+            )
+        )
+        self.assertTrue(
+            runner.native_hci_health_ok(
+                healthy(**{"hli-fast-path-events": 1})
+            )
         )
 
     def test_reads_eight_mib_machine_capacity_from_qom(self) -> None:

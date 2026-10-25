@@ -162,11 +162,12 @@ class QemuProfileTest(unittest.TestCase):
                 *row["blockers"],
             ]
         )
-        self.assertIn("0007", text)
-        self.assertIn("4/4", text)
+        self.assertIn("0008", text)
+        self.assertIn("8/8", text)
         self.assertIn("hli-errors=0", text)
-        self.assertIn("ble_hs_hci_process_ack LoadProhibited", text)
-        self.assertIn("OPEN", text)
+        self.assertIn("36 events", text)
+        self.assertIn("9 ACLs", text)
+        self.assertIn("NOT RUN", text)
         self.assertNotIn("concurrent cold-start safety and sustained", text)
 
     def test_nesso_visual_validation_is_complete(self):
