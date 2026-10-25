@@ -130,34 +130,31 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
 On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不是承诺“所有 C6
 固件均可运行”。
 
-### RUNTIME-03：Core2 legacy I2C controller/board-bus routing 未闭环
+### RUNTIME-03：Core2 legacy I2C shared bus 已修正，后续 WDT 未闭环
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `OPEN` |
+| 修复进度 | controller-to-physical-bus routing `FIXED`；post-init interrupt WDT `OPEN` |
 | 影响 | Core2 官方 legacy UIFlow 与 FactoryTest 的 PMIC/RTC 初始化交接 |
-| 现象 | AXP 地址探测成功，QEMU trace 读到 chip id `0x4a`；随后 `disable_timer_interrupt()` 的下一事务发往 address `0x51`，`start_rc=1`（无 ACK），并在产生新的 address `0x34` PMIC 事务前返回 `I2C bus error (19)` |
-| 识别依据 | 冻结 qstr 中 `hardware/__init__.py`、`BM8563`、`disable_timer_interrupt` 和 `__read_byte` 相邻；`0x51` 与 PCF8563/BM8563 RTC 地址一致。该组合强烈指向 RTC-candidate 路径，但仍需匹配源码或端口 trace 确认 |
-| A/B 结果 | 默认 AXP2101 和 `M5SW_CORE2_PMIC=axp192` 均在初始化交接阶段失败；AXP192 QOM 节点存在；当前 trace 已排除“首次 chip-id 寄存器响应错误” |
-| 证据 | [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json)、[`core2-axp-i2c-trace.json`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
+| 根因 | AXP `0x34` chip id `0x4a` 读取成功；controller trace 进一步证明旧固件在 `/machine/soc/i2c0/i2c` 上访问 AXP 和 RTC address `0x51`，而旧板模型只把 AXP/INA 挂在 controller 0，把 RTC/touch/IMU 挂在 controller 1。`0x51` 的 `start_rc=1` 由 controller-to-physical-bus routing 拆分直接解释 |
+| 修复 | `0031-core2-shared-board-i2c.patch` 将两个 controller register block 都路由到唯一物理 GPIO21/22 board bus，器件只挂一份 |
+| 修复后 | `0x34` write/read、`0x51` write/read、INA3221 `0x40` 均 ACK；原先的 `I2C bus error (19)` 消失，AXP2101 与 AXP192 变体都能继续进入后续初始化 |
+| 当前阻断 | 固件随后触发独立 interrupt-WDT reset/panic，frame 仍为 black；该失败发生在 RTC/PMIC I2C ACK 之后，不能继续归因于先前 bus routing |
+| 证据 | [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`previous trace`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
 
 关闭条件：
 
-1. 同时在 controller trace 中记录 I2C port id、配置的 SCL/SDA pins、目标
-   QEMU bus 和板级 slave bus，解释为什么 `0x51` 被发到无设备路径；
-2. 取得与 public firmware 匹配的 UIFlow1 source/frozen bytecode，确认
-   AXP/BM8563 类实际使用的 controller、address/read API 和初始化顺序；
-3. 修正板级 controller-to-physical-bus routing 或对应模型，不把同一 PMIC
-   寄存器复制到多条总线来掩盖问题；
-4. 若后续 trace 到达 AXP 设备，再判断是否仍需补 AXP192/AXP2101 寄存器语义；
-5. 同一固件 SHA 在 Device Service 中渲染非空应用帧并保持运行。
+1. 定位 RTC/PMIC 初始化之后触发的 CPU0/CPU1 interrupt WDT，保留 reset
+   reason、PC/backtrace 和前后 trace；
+2. 判断 WDT 来自缺失外设/PMIC 状态机、timer/WDT 模型，还是固件自身；
+3. 同一固件 SHA 在 Device Service 中渲染非空应用帧并保持运行；
+4. 回归现有 UIFlow2 Core2 设备组，确保 shared bus 不破坏 touch/IMU/RTC/
+   audio/mic 路径。
 
-当前调查边界：公开 `M5Stack_MicroPython` 尚未找到匹配该旧 UIFlow1 样本的
-类实现，frozen MPY 提取也尚未成功。已确认 AXP `0x34` probe 和 chip id
-`0x4a` 正常，下一个 `0x51` controller transaction 已无 ACK，而且失败发生
-在下一次 AXP `0x34` 访问之前；因此不能继续用 PMIC 寄存器补丁解释当前首个
-失败点。下一轮需要在不影响活动 soak 的独立 QEMU 构建中记录 port、GPIO mux
-和板级 bus handoff。
+当前调查边界：shared bus 修复已经由现有 UIFlow2 Core2 设备组 `6/6` 验证，
+但旧 UIFlow1 的 non-empty frame 与稳定运行仍为 `FAIL`。WDT 失败不能归因于
+先前 I2C routing，也不能据此声称完整 legacy firmware PASS。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 

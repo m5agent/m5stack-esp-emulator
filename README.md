@@ -31,6 +31,10 @@ MicroPython 和其他完整 Flash 固件。
   修复来自固定虚拟时钟、BLE-first 测试 workload 顺序，以及对实际 QEMU
   `icount` 做门禁，不是伪造 ACK 或放宽 GATT 断言。大于八实例、持续吞吐、
   物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
+- Core2 legacy UIFlow 的 AXP/RTC/INA 已统一路由到共享 GPIO21/22 物理
+  board bus，原 `I2C bus error (19)` 已消失；同一固件随后仍进入
+  interrupt-WDT 并保持黑帧，`Core2FactoryTest` 修复后尚未重跑，因此
+  `RUNTIME-03` 仍为 `OPEN`。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件

@@ -173,12 +173,15 @@ Radio build flags retain their protocol boundary in
 Classic Bluetooth and Zigbee/802.15.4 are detected separately from the
 generic BLE flag, without claiming runtime use.
 
-For the Core2 public-firmware runtime gap, focused I2C tracing distinguishes a
-successful AXP2101 chip-id read from the later legacy controller/board-bus
-routing failure. The next controller transaction targets address `0x51` and
-receives no ACK before another address-0x34 PMIC read occurs. Frozen BM8563
-qstrs and the call stack point to the RTC-candidate path; PMIC register
-semantics are not yet the proven first cause.
+For the Core2 public-firmware runtime gap, the 2026-10-24 trace recorded a
+successful AXP2101 chip-id read followed by an unacknowledged address-`0x51`
+transaction on controller 0. The 2026-10-25 follow-up proved that the old board
+model exposed RTC only on controller 1. Patch `0031` now routes both controller
+register blocks to the single physical GPIO21/22 bus and attaches each slave
+once; AXP, RTC and INA transactions ACK on the same image, the prior I2C error
+is absent, and the existing UIFlow2 Core2 device group passes `6/6`. The same
+legacy image still reaches an independent interrupt-WDT boundary with a black
+frame, so `RUNTIME-03` stays open for that later failure.
 
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).

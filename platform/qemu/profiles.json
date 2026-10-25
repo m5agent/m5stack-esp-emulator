@@ -272,6 +272,7 @@
         "more than eight instances and sustained HCI/GATT throughput"
       ],
       "blockers": [
+        "Core2 legacy UIFlow shared I2C routing is fixed; post-initialization interrupt WDT and non-empty application frame remain OPEN",
         "physical cache/PSRAM timing equivalence remains NOT RUN",
         "bit-exact ESP32 BT baseband/controller remains NOT RUN",
         "two independent two-instance no-stagger 4x120s gates pass 8/8, two independent three-instance 3x120s gates pass 6/6, two independent four-instance 4x120s gates pass 8/8, two independent five-instance 30-second-stagger 5x120s gates pass 10/10, two fixed-icount zero-stagger five-instance 5x120s gates pass 10/10, two fixed-icount zero-stagger six-instance 6x120s gates pass 12/12, and two fixed-icount zero-stagger eight-instance 8x120s gates pass 16/16 after hold/12 sweep-floor calibration; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN",

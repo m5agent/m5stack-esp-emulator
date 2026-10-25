@@ -23,7 +23,7 @@
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |
 | --- | --- | --- | --- |
-| P0 | Core2 legacy I2C | controller port/MMIO、pin、板级 bus 路由和 RTC/PMIC 初始化交接 | 地址可读不代表完整事务链；错误 doubling 设备会掩盖 routing 缺陷 |
+| P0 | Core2 legacy UIFlow 启动 | 共享 I2C/PMIC/RTC 已越过原错误；剩余是后初始化 WDT、reset reason 和非空应用帧 | I2C ACK 不代表应用启动；不能把后续 WDT 继续归因于已修复的 bus routing |
 | P0 | 网络产品化 | 物理跨主机 worker、跨主机幂等、任意 NAT 和外部 side-effect fence | 单机 namespace/container 不能替代物理多机 |
 | P0 | Core2 物理/controller 等价性 | 更大规模、持续吞吐、其他 teardown、bit-exact controller 和物理 PSRAM/cache | 虚拟容量与物理时序不可互换 |
 | P0 | 通用固件安全 | 运行态 ACL/许可、真机安全配置和更多真实业务 | 静态声明、镜像摘要自洽不等于设备 trust/ACL |
@@ -35,7 +35,8 @@
 
 ## 当前执行顺序
 
-1. `RUNTIME-03`：先关闭 Core2 legacy I2C 的首个真实固件启动阻断。
+1. `RUNTIME-03`：Core2 shared board bus 已修正，继续定位 legacy UIFlow
+   初始化后的 interrupt WDT。
 2. `NET-04`：把已验证的单机 worker 边界推进到物理跨主机和完整 side-effect
    ownership。
 3. `CORE2-02`：补更大规模、持续吞吐、其他 teardown 和物理/controller 等价性。
@@ -47,7 +48,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | 同一事务记录 controller port/MMIO、SCL/SDA、目标 QEMU bus 与板级 slave bus；重跑公开 `UIFlow_Core2` 的 AXP2101/AXP192 变体 | 同固件 SHA 渲染非空应用帧并保持运行；RTC/PMIC 交接有端口级证据 |
+| `RUNTIME-03` | 进行中 | shared GPIO21/22 board bus 已修复；定位 AXP/RTC/INA 初始化后的 interrupt WDT | 同固件 SHA 渲染非空应用帧并保持运行；保留 AXP2101/AXP192 和 UIFlow2 回归证据 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence | 跨主机 job 可迁移、重放、接管和清理；ownership 无法确认时 fail closed |
 | `CORE2-02` | 进行中 | 大于八实例、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 | 结果绑定固件/ELF/QEMU/工具哈希；虚拟容量不外推为物理等价 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 | 镜像属性与运行态分开；unknown 不写成 PASS |
@@ -63,28 +64,26 @@
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
-## P0：Core2 legacy I2C
+## P0：Core2 legacy UIFlow 运行时
 
 ### RUNTIME-03
 
-已满足的前置基线只保留为：AXP 地址和 chip id 可读，默认 AXP2101 与
-AXP192 都复现后续 address `0x51` 无 ACK；完整 trace 见
-[运行时模型缺口登记](runtime-model-gap-register.md)。
+已满足的前置基线：端口 trace 已证明旧固件在 controller 0 上访问 AXP 和
+RTC；`0031` 将两个 controller 路由到唯一的 GPIO21/22 板级 bus 后，
+`0x34`、`0x51` 和 INA3221 `0x40` 均 ACK，原 `I2C bus error (19)` 消失。
+完整 trace 和边界见[运行时模型缺口登记](runtime-model-gap-register.md)。
 
 开放范围：
 
-- 在 controller trace 中记录实际 port id、MMIO base、配置的 SCL/SDA pin、
-  GPIO mux、目标 QEMU bus 和板级 slave bus；
-- 确认公开 UIFlow1/frozen bytecode 的 AXP/RTC controller 使用方式和
-  `disable_timer_interrupt()` 初始化顺序；
-- 修正 controller 到物理板级 bus 的路由；不得把同一个 PMIC 复制到多条
-  总线来掩盖错误；
-- 同一 `UIFlow_Core2` SHA 分别使用 AXP2101 和 AXP192 变体重跑。
+- 定位 AXP/RTC/INA 初始化之后触发的 CPU0/CPU1 interrupt-WDT reset；
+- 区分缺失器件状态机、timer/WDT 模型和固件自身死锁；
+- 保持同一 `UIFlow_Core2` SHA 的 AXP2101/AXP192 A/B 对照；
+- 运行 Core2 UIFlow2 外设组，防止 shared bus 回归。
 
 验收：
 
 - 同一固件 SHA 出现非空应用帧并稳定运行；
-- RTC/PMIC 事务能映射到正确的 controller port、pin 和板级 bus；
+- shared bus 和 UIFlow2 `6/6` 回归保持 PASS；
 - 失败 trace、设备未建模部分和固件行为分开记录。
 
 ## P0：网络与 worker

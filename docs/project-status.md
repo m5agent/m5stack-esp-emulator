@@ -29,10 +29,11 @@
   完整度。
 
 当前阶段仍是 `PILOT`，不是“任意固件、任意设备都能自动审查”的完成态。
-最接近真实固件启动的当前阻断是 Core2 legacy I2C：AXP `0x34` 可读，但下一
-条 address `0x51` 的 RTC-candidate 事务无 ACK，随后返回
-`I2C bus error (19)`。因此当前先推进 `RUNTIME-03`，而不是继续用 PMIC
-寄存器补丁绕过启动链。
+Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
+现在共享 `/machine/soc/i2c0/i2c` 并正常 ACK，原 `I2C bus error (19)` 消失。
+同一固件随后进入独立的 interrupt-WDT reset/panic，仍没有非空应用帧，因此
+`RUNTIME-03` 继续作为当前调查入口，但不能再用 PMIC 寄存器或 I2C routing
+解释首个失败点。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
 `hardware validation` 的同固件路径结果才能描述物理 RF、功耗、声学、光学、
@@ -42,7 +43,7 @@
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C | AXP 地址/chip id 可读；AXP2101 与 AXP192 均复现 `0x51` 无 ACK | controller port/MMIO、SCL/SDA、目标 bus 与板级 bus 同日 trace；同 SHA 非空应用帧 | chip-id 可读不代表 RTC/PMIC 初始化完成；不得复制 PMIC 到多条 bus 掩盖路由 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus 已修正，AXP `0x34`、RTC `0x51` 和 INA3221 `0x40` 均 ACK；AXP2101/AXP192 都越过原 `I2C bus error (19)` | 定位 RTC/PMIC 初始化后的 interrupt WDT；同 SHA 非空应用帧并保持运行 | I2C ACK 不代表应用启动；WDT 不能归因于已修复的 bus routing |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -59,7 +60,7 @@
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | `RUNTIME-03` 的 PMIC/RTC 初始化交接未闭环 |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing 已修复；后续 interrupt WDT 和 black frame 未闭环 |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT 和生产调度未完成 |
@@ -83,7 +84,7 @@
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器 | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE | Zigbee/802.15.4 由 `RUNTIME-02` 跟踪 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi/BLE | RGB 未验；Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU | legacy I2C、物理 PSRAM/cache、bit-exact controller 和真机 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU | legacy UIFlow 后初始化 WDT/黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
@@ -94,8 +95,9 @@
 
 1. **仿真边界**：QEMU/esp-emu PASS 不等于 RF、功耗、声学、光学、机械、
    电气或真机安全 PASS。
-2. **Core2 启动兼容性**：legacy I2C routing 未闭环，旧 UIFlow/FactoryTest
-   可能停在 PMIC/RTC 初始化；不能用 chip-id 成功或 host 假值当作启动 PASS。
+2. **Core2 启动兼容性**：legacy UIFlow 的共享 I2C routing 已修正，但同一
+   固件仍会在 PMIC/RTC 初始化后进入 interrupt-WDT/黑帧；不能用 I2C ACK、
+   chip-id 成功或 host 假值当作启动 PASS。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。

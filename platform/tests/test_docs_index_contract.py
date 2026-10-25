@@ -276,6 +276,7 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/firmware/evidence-2026-10-24-filesystem-permission-policy.json",
             "tests/firmware/evidence-2026-10-24-source-license-scan.json",
             "tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json",
+            "tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json",
             "tests/firmware/evidence-2026-10-24-efuse-security.json",
             "tests/firmware/secure_boot_image/README.md",
             "tests/firmware/secure_boot_image/run_test.py",
@@ -311,6 +312,7 @@ class DocsIndexContractTests(DocsContractBase):
                 "patches/qemu-m5stack-peripherals/"
                 "0030-core2-eight-mib-psram.patch"
             ),
+            "patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",

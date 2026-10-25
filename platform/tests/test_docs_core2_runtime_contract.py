@@ -46,6 +46,60 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("controller-to-physical-bus routing", register)
         self.assertIn("address `0x51`", register)
 
+    def test_core2_shared_board_i2c_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-25-core2-shared-board-i2c.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PARTIAL")
+        self.assertEqual(
+            evidence["firmware"]["source_sha256"],
+            "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+        )
+        self.assertEqual(evidence["before_fix"]["rtc_start"]["start_rc"], 1)
+        self.assertTrue(evidence["after_fix"]["i2c_bus_error_present"] is False)
+        self.assertEqual(evidence["after_fix"]["rtc_starts"]["write_ack"], 15)
+        self.assertEqual(evidence["after_fix"]["rtc_starts"]["read_ack"], 4)
+        self.assertEqual(evidence["regression"]["cases_passed"], 6)
+        self.assertEqual(evidence["regression"]["checks_passed"], 24)
+        self.assertFalse(evidence["regression"]["retry_used"])
+        self.assertEqual(evidence["checks"]["legacy_axp_rtc_ack"], "PASS")
+        self.assertEqual(evidence["checks"]["nonempty_application_frame"], "FAIL")
+        self.assertIn("interrupt_wdt_after_peripheral_initialization", json.dumps(evidence))
+
+        patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0031-core2-shared-board-i2c.patch"
+        ).read_text()
+        self.assertIn("[esp32-i2c] transaction controller=%s bus=%s", patch)
+        self.assertIn("esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus0)", patch)
+        self.assertIn("esp32_i2c_set_bus(DEVICE(&s->i2c[1]), bus0)", patch)
+        self.assertIn(
+            "qdev_realize_and_unref(d, (BusState *)bus0, &error_fatal)",
+            patch,
+        )
+
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        register = (DOCS / "runtime-model-gap-register.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        matrix = (DOCS / "user-firmware-simulation-matrix.md").read_text()
+        firmware_readme = (ROOT / "tests/firmware/README.md").read_text()
+        for text in (status, backlog, register, workstreams, matrix):
+            self.assertIn("shared", text.lower())
+            self.assertIn("WDT", text)
+        self.assertIn("后初始化 WDT", workstreams)
+        self.assertIn("0031", matrix)
+        self.assertIn("Core2FactoryTest", matrix)
+        self.assertIn("rerun is `NOT RUN`", matrix)
+        self.assertIn("interrupt-WDT", firmware_readme)
+        self.assertIn("I2C bus error (19)", register)
+        self.assertIn("nonempty_application_frame", evidence["checks"])
+
     def test_core2_reconnect_evidence_is_reconciled(self):
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()

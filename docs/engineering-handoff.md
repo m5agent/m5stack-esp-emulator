@@ -35,8 +35,9 @@
 - Core2 已具备功能级 native-HCI、WiFi、重连、QOM `8 MiB` PSRAM 模型、
   upper-bank MMU remap 和持续压力证据，但 bit-exact BT controller/baseband、
   物理 PSRAM/cache timing 尚未覆盖；
-- C6 Zigbee/802.15.4、Core2 legacy I2C 和 Core2 for AWS ATECC608 仍是
-  明确的 `runtime_model_gap`；
+- C6 Zigbee/802.15.4、Core2 legacy UIFlow 后初始化 WDT 和 Core2 for AWS
+  ATECC608 仍是明确的 `runtime_model_gap`；Core2 共享 I2C routing 已单独修复，
+  不再作为当前首个失败点；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
 - 所有物理 RF、功耗、声学、光学、机械和电气结论仍是 `NOT RUN`；
@@ -52,15 +53,20 @@
   JSON SHA、firmware/ELF/QEMU/tool hashes、PSRAM sweep、HLI/GATT、frame、
   QOM、pcap 和 clean shutdown 字段；旧 `shift=auto` 失败、八实例
   threshold-fail control、prealloc transient 与 `0010` trace 继续保留。
+- Core2 legacy 固件：`0031` 将 ESP32 的两个 I2C controller 路由到唯一
+  GPIO21/22 物理 Core2 board bus，AXP `0x34`、RTC `0x51` 和 INA3221
+  `0x40` 已 ACK，原 `I2C bus error (19)` 消失，UIFlow2 Core2 设备组
+  `6/6` 无 retry 回归 PASS；同一 legacy UIFlow SHA 随后仍触发独立
+  interrupt WDT，应用帧仍为 black，不能据此关闭 `RUNTIME-03`。
 - 文档：README、状态、Backlog、工作流、交接、Device Service、QEMU 适配
   矩阵、Core2 专题、测试 README、设备 catalog 和 profile 已统一使用同一
   口径。当前权威关系仍是 `project-status` 定义能力、`project-backlog`
   定义未完成项、`validation-ledger` 保存日期化证据。原 6400 行
   `test_docs_consistency.py` 已拆成导航、当前状态、Core2、固件安全和
-  网络/worker 五个领域模块，旧路径只保留兼容入口；141 条退役说法已迁到
+  网络/worker 五个领域模块，旧路径只保留兼容入口；144 条退役说法已迁到
   结构化 claim/authority fixture。
-- 待办：当前最小调查入口是 `RUNTIME-03` 的 Core2 legacy I2C
-  controller/board-bus routing；随后继续 `NET-04` 物理跨主机边界和
+- 待办：`RUNTIME-03` 的 Core2 shared board bus 已修正，当前最小调查入口
+  是 legacy UIFlow 初始化后的 interrupt WDT；随后继续 `NET-04` 物理跨主机边界和
   `CORE2-02` 的更大规模/物理等价。`FW-01/02/03`、`RUNTIME-02/04`、
   `HW-01` 仍是独立工作流，完成五/六/八实例门禁不等于整个 goal 完成。
 
@@ -213,7 +219,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 记录 legacy controller port/MMIO、SCL/SDA pin 和板级 bus，重跑公开 `UIFlow_Core2` 与 AXP2101/AXP192 变体 | AXP chip id 可读不代表后续 RTC/PMIC 路径；当前首个失败点是 address `0x51` 无 ACK |
+| `RUNTIME-03` | shared GPIO21/22 board bus 已修复；定位 AXP/RTC/INA 初始化后的 interrupt WDT | I2C `0x34`/`0x51` ACK 已成立，但应用帧仍为 black；WDT 是独立后续失败 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于八实例；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 双/三/四/五/六/八实例均有独立复跑覆盖；八实例 threshold-fail control 与旧 `shift=auto` `0010` trace 保留，当前结论不外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

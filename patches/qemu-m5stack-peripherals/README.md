@@ -130,6 +130,7 @@ git apply /path/to/0027-esp32s3-gdma-external-memory.patch
 git apply /path/to/0028-esp32-wifi-dual-guest-fabric.patch
 git apply /path/to/0029-esp32s3-wpa2-psk-data-plane.patch
 git apply /path/to/0030-core2-eight-mib-psram.patch
+git apply /path/to/0031-core2-shared-board-i2c.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -180,6 +181,17 @@ maps the upper half on demand. The `core2_psram_himem` firmware probe passes
 three independent leases by alternating two distinct upper physical blocks
 through the same virtual window and verifying both after remap. This is not a
 physical PSRAM or cache-timing measurement.
+
+`0031-core2-shared-board-i2c.patch` routes both ESP32 I2C controller register
+blocks to the single physical GPIO21/22 Core2 board bus and attaches AXP,
+RTC, touch and IMU once. Legacy UIFlow performs AXP and BM8563 transactions
+through controller 0, while the previous model exposed RTC only on controller
+1. Port-level trace proves `0x34` and `0x51` now share
+`/machine/soc/i2c0/i2c`; the public UIFlow image advances beyond the prior
+`I2C bus error (19)`. Existing UIFlow2 Core2 peripheral cases pass `6/6`.
+The same firmware still reaches an independent interrupt-WDT boundary and
+does not yet produce a non-empty application frame. This patch does not claim
+physical board timing or complete legacy-firmware compatibility.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

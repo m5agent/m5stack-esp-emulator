@@ -714,6 +714,21 @@
       "id": "STALE-141",
       "text": "尚缺另外两个 lease 复现",
       "reason": "Retired current-entry claim superseded by current status, open-task boundaries, or dated evidence."
+    },
+    {
+      "id": "STALE-142",
+      "text": "legacy I2C controller/board-bus routing",
+      "reason": "Retired current-entry root cause: the shared Core2 I2C routing is fixed; the remaining RUNTIME-03 blocker is a post-initialization WDT and black frame."
+    },
+    {
+      "id": "STALE-143",
+      "text": "legacy I2C routing 未闭环",
+      "reason": "Retired current-entry risk statement superseded by the shared GPIO21/22 Core2 board-bus fix and its dated evidence."
+    },
+    {
+      "id": "STALE-144",
+      "text": "next address-`0x51` RTC-candidate transaction is not acknowledged on the legacy controller path",
+      "reason": "Retired current result; the follow-up trace acknowledges address 0x51 after routing both controllers to the physical board bus."
     }
   ]
 }

@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25",
+  "kind": "core2-shared-board-i2c-diagnosis",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "device_id": "core2",
+  "firmware": {
+    "name": "UIFlow_Core2",
+    "version": "v1.15.4",
+    "firmware_id": "1897200000000002280",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "flash_size": 16777216
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_sha256": "a8070d23866f514e33fd9b09c9223ee757c69b1a0bad48cc2bf8511d05fb5ca7",
+    "trace_environment": {
+      "source": "Device Service process environment",
+      "M5SW_I2C_CTRL_TRACE": "1"
+    },
+    "trace_qemu_stderr_sha256": "579612a6a45254c311469b778a78569ebcd1fc09e3f2dc6772d103c9d75a9c15",
+    "trace_serial_log_sha256": "f1caec16208688022e9f6bd7d02685bbab26871aa7ef36f6ed7326b2c15ad13d",
+    "pmic_variants": [
+      "axp2101",
+      "axp192"
+    ]
+  },
+  "before_fix": {
+    "controller_path": "/machine/soc/i2c0",
+    "bus_path": "/machine/soc/i2c0/i2c",
+    "transaction_count": 123,
+    "axp_start": {
+      "address": "0x34",
+      "read": false,
+      "start_rc": 0
+    },
+    "rtc_start": {
+      "address": "0x51",
+      "read": false,
+      "start_rc": 1
+    },
+    "serial_error": "OSError: I2C bus error (19)",
+    "classification": "RTC attached only to controller 1 while legacy firmware issued address 0x51 on controller 0"
+  },
+  "after_fix": {
+    "controller_path": "/machine/soc/i2c0",
+    "bus_path": "/machine/soc/i2c0/i2c",
+    "transaction_count": 480,
+    "axp_starts": {
+      "write_ack": 60,
+      "read_ack": 25
+    },
+    "rtc_starts": {
+      "write_ack": 15,
+      "read_ack": 4
+    },
+    "ina3221_starts": {
+      "address_0x40_write_ack": 9,
+      "address_0x40_read_ack": 4
+    },
+    "i2c_bus_error_present": false,
+    "next_blocker": {
+      "classification": "interrupt_wdt_after_peripheral_initialization",
+      "serial_markers": [
+        "Guru Meditation Error: Core 1 panic'ed (Interrupt wdt timeout on CPU1)",
+        "TG1WDT_SYS_RESET",
+        "WDT reset info: PRO CPU PC=0x0",
+        "WDT reset info: APP CPU PC=0x0"
+      ],
+      "frame_nonblack": false,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+    },
+    "axp192_variant": {
+      "i2c_bus_error_present": false,
+      "next_blocker": "the same independent interrupt-WDT/reset boundary"
+    }
+  },
+  "regression": {
+    "command": "PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py --device core2",
+    "cases_requested": 6,
+    "cases_passed": 6,
+    "checks_passed": 24,
+    "retry_used": false,
+    "scope": [
+      "display/touch",
+      "RTC",
+      "power key",
+      "AXP192",
+      "INA3221",
+      "IMU",
+      "audio",
+      "microphone"
+    ]
+  },
+  "checks": {
+    "controller_identity_observed": "PASS",
+    "shared_physical_bus_modeled": "PASS",
+    "legacy_axp_rtc_ack": "PASS",
+    "prior_i2c_bus_error_removed": "PASS",
+    "axp192_variant_advances": "PASS",
+    "uiflow2_core2_device_group": "PASS",
+    "nonempty_application_frame": "FAIL",
+    "stable_guest_after_initialization": "FAIL"
+  },
+  "not_claimed": [
+    "physical Core2 I2C timing",
+    "complete legacy UIFlow compatibility",
+    "application UI startup",
+    "physical hardware validation",
+    "the shared-bus fix explains the remaining interrupt-WDT failure"
+  ]
+}

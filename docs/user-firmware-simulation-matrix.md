@@ -273,27 +273,38 @@ images. Combined with the six-device snapshot, current sample coverage is
 seven devices and 21 public non-baseline images: 10 `PASS`, 11 `PARTIAL` and
 zero `FAIL`.
 
-| Firmware | SHA-256 | Current result | Runtime model gap |
+| Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | AXP address/chip-id probe passes; the next address-`0x51` RTC-candidate transaction is not acknowledged on the legacy controller path |
-| `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | AXP discovery succeeds; legacy controller/board-bus routing fails during PMIC/RTC initialization and leaves no frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The 2026-10-24 snapshot stopped at RTC address `0x51`; after the 2026-10-25 shared-bus fix, AXP/RTC/INA transactions ACK and that I2C error is gone, but the same image still enters interrupt-WDT and renders a black frame |
+| `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
-The `UIFlow_Core2` sample was rerun with both default AXP2101 and the narrow
-`M5SW_CORE2_PMIC=axp192` runtime override. Both variants produce the same
-`OSError: I2C bus error (19)` and black frame. Focused I2C tracing later
-confirmed that the AXP2101 chip id `0x4a` is readable. The next controller
-transaction targets address `0x51` with no ACK before another address-`0x34`
-PMIC read occurs. Frozen BM8563 qstrs, the RTC address and the call stack point
-to the legacy controller-to-board-bus routing/handoff path rather than a
-proven PMIC register value mismatch.
+In the 2026-10-24 snapshot, the `UIFlow_Core2` sample was rerun with both the
+default AXP2101 and the narrow `M5SW_CORE2_PMIC=axp192` runtime override. Both
+variants produced `OSError: I2C bus error (19)` and a black frame. Focused I2C
+tracing confirmed that the AXP2101 chip id `0x4a` was readable, while the next
+controller transaction targeted address `0x51` without ACK. The frozen BM8563
+qstrs, RTC address and call stack identified a controller-to-physical-bus split
+rather than a proven PMIC register-value mismatch.
 
-These are tracked as `RUNTIME-03` for Core2 legacy I2C controller/board-bus
-routing and `RUNTIME-04` for the Core2 for AWS ATECC608 secure element. They
-remain `OPEN` until the relevant guest data paths complete.
+The 2026-10-25 follow-up downloaded the same public BIN SHA again and traced
+the controller path. UIFlow issued both AXP and RTC transactions on controller
+0, while the old board model attached RTC to controller 1. The `0031` QEMU
+patch now routes both controller register blocks to the single physical
+GPIO21/22 board bus and attaches each slave once. The rerun records ACK on AXP
+`0x34`, RTC `0x51` and INA3221 `0x40`, removes the prior I2C error, and passes
+the existing UIFlow2 Core2 device group `6/6`. The same legacy image then hits
+an independent interrupt-WDT boundary and still has no non-empty application
+frame.
+
+These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
+post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for
+AWS ATECC608 secure element. They remain `OPEN` until the relevant guest data
+paths complete.
 
 Evidence:
-[`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json).
+[`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json),
+[`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json).
 
 The 90-second run also exposed and fixed a matrix-client timeout: the HTTP
 `/wait` request used 90 seconds while the server was allowed to wait 90 seconds
