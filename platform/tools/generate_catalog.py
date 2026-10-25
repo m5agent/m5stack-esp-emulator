@@ -173,6 +173,9 @@ def validation_readme(runtime: dict) -> str:
     memory_validation = validation.get("memory_validation")
     if memory_validation:
         text += f"\n- 内存验证：{memory_validation}"
+    concurrency_validation = validation.get("concurrency_validation")
+    if concurrency_validation:
+        text += f"\n- 并发验证：{concurrency_validation}"
     return text
 
 

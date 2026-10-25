@@ -269,15 +269,16 @@
       "board_work": [
         "ILI9342 pixel-stream/live-frame polish",
         "physical cache/PSRAM timing equivalence",
-        "concurrent cold-start safety and sustained HCI/GATT throughput"
+        "no-stagger cold-start stability and sustained HCI/GATT throughput"
       ],
       "blockers": [
         "physical cache/PSRAM timing equivalence remains NOT RUN",
         "bit-exact ESP32 BT baseband/controller remains NOT RUN",
-        "30-second-staggered 2x120s concurrency passes; simultaneous cold-start, sustained throughput and teardown modes beyond active-stop remain NOT RUN",
+        "30-second-staggered 2x120s concurrency passes and one no-stagger 4x120s run passes; an independent no-stagger confirmation still reaches ble_hs_hci_process_ack LoadProhibited, so cold-start stability, sustained throughput and teardown modes beyond active-stop remain OPEN",
         "the bounded-TCG host-memory result is validated only for the tested 7200s workload"
       ],
       "validation": {
+        "concurrency_validation": "30-second-staggered 2x120s concurrency passes. A no-stagger 2x120s run passes after extended GATT timeouts are raised to 30 seconds, and a 4x120s run with the 0007 HLI valid-queue gate passes 4/4 with hli-errors=0. An independent 4x120s confirmation still hits the same second-guest ble_hs_hci_process_ack LoadProhibited in its first concurrent batch, so no-stagger cold-start stability and longer sustained throughput remain OPEN.",
         "memory_validation": "The m5core2 machine now exposes a QOM-effective 8 MiB PSRAM device. Normal ESP32 DRAM1 remains a 4 MiB directly mapped heap window; a dedicated ESP-IDF esp_himem probe passed in three independent Device Service leases, mapping two different 32 KiB physical blocks through the same virtual MMU window and verifying both after remap (4,456,448 bytes himem capacity, 262,144-byte reserve). Guest sustained stress remains PASS in three independent 120-second leases (35/35/35 checks, 105 MiB total) and one 600-second lease (179 checks). Physical PSRAM/cache timing remains NOT RUN.",
         "date": "2026-10-25",
         "status": "display-input-peripherals-wifi-ble-pass",

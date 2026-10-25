@@ -252,9 +252,32 @@ The canonical HTTP fixture for `core2-native-hci` now uses a per-session QEMU
 committed `2/2 PASS` evidence is
 `evidence-2026-10-25-core2-concurrent-2x120-stagger30.json`. Two failure
 controls preserve the initial shared-port collision and the no-stagger
-second-guest `ble_hs_hci_process_ack` `LoadProhibited`. Simultaneous cold-start
-concurrency is therefore still open even though the staggered 120-second
-steady-state overlap passes.
+second-guest `ble_hs_hci_process_ack` `LoadProhibited`.
+
+The no-stagger path is tracked separately and is still open:
+
+1. A one-pair run passed `2/2` after extended GATT request and notification
+   timeouts were raised to 30 seconds.
+2. An expanded four-lease run then failed `3/4`: every HCI packet was
+   eventually delivered, but attempt 3 ended with `hli-errors=3`.
+3. QEMU patch `0007` now refuses to schedule HLI delivery until the previous
+   poll observed a valid guest scheduler/meta queue. With that gate, the
+   first four-lease run passed `4/4`.
+4. An independent four-lease confirmation run did not reproduce the HLI
+   counter failure, but its first concurrent batch still had one guest panic
+   at `ble_hs_hci_process_ack` `LoadProhibited`; the runner stopped with
+   aggregate `FAIL` instead of retrying away the failure.
+
+Evidence:
+
+- `evidence-2026-10-25-core2-concurrent-2x120-simultaneous-timeout30-pass.json`
+- `evidence-2026-10-25-core2-concurrent-4x120-hli-errors-fail.json`
+- `evidence-2026-10-25-core2-concurrent-4x120-simultaneous-pass.json`
+- `evidence-2026-10-25-core2-concurrent-4x120-simultaneous-confirm-fail.json`
+
+The HLI valid-queue gate is a real local improvement, not a counter
+suppression. It does not close simultaneous cold-start stability because the
+independent confirm run still reproduced the guest panic.
 
 `run_service_teardown.py` exercises process-stop ordering rather than another
 hold. It creates a ready Core2 session, captures pre-stop frame/QOM/network/

@@ -30,7 +30,7 @@
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
-| P1 | Core2 长稳与物理/controller 等价性 | 继续验证同时冷启动并发、持续吞吐与其他 teardown 模式，以及 bit-exact controller 和物理 PSRAM/cache timing | 3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、30 秒错峰 concurrent `2/2`、QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap stress `3/3` 和单次 600 秒联网压力 `1/1` 已 PASS |
+| P1 | Core2 长稳与物理/controller 等价性 | 继续定位无错峰冷启动的独立复核 guest panic，再补持续吞吐与其他 teardown 模式，以及 bit-exact controller 和物理 PSRAM/cache timing | 3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、30 秒错峰 concurrent `2/2`、无错峰首批 `4/4`、QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap stress `3/3` 和单次 600 秒联网压力 `1/1` 已 PASS；无错峰独立复核仍 FAIL |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
 | P2 | CardputerZero 收口 | 系统、驱动、USB/网络竞态和长期回归 | 独立 Linux ARM64 后端 |
@@ -47,12 +47,13 @@
    OpenAI DHCP/DNS/TCP443/pcap 和正确/错误 WPA2 密码均已完成；下一步是真实
    key/cloud 服务结果并扩更多设备与 firmware family。
 3. `CORE2-02` extended-run：`3×121`、active-BLE `600s`、
-   artifact-bound `7200s` 和 30 秒错峰 concurrent `2/2` 已完成；下一步补
-   同时冷启动并发、持续吞吐、其他 teardown 模式、bit-exact
-   controller/baseband、物理 `8 MiB` PSRAM/cache timing 和真机路径。QOM
-   `8 MiB`、普通 4 MiB heap `3×120s`/600s 持续压力、上 4 MiB
-   `esp_himem` bank switch 3/3、周期联网、active-stop 和 concurrent
-   steady-state 均已完成，不再列为待办。
+   artifact-bound `7200s` 和 30 秒错峰 concurrent `2/2` 已完成。无错峰
+   `0007` 路径首批 `4/4 PASS`，但独立复核首批仍为
+   `1 PASS / 1 LoadProhibited`；先定位该 guest panic，再补持续吞吐、其他
+   teardown 模式、bit-exact controller/baseband、物理 `8 MiB`
+   PSRAM/cache timing 和真机路径。QOM `8 MiB`、普通 4 MiB heap
+   `3×120s`/600s 持续压力、上 4 MiB `esp_himem` bank switch 3/3、
+   周期联网、active-stop 和 concurrent steady-state 不重复列为待办。
 4. `FW-01/02`、`RUNTIME-02/03/04`、`HW-01`：补运行态权限/许可、生产
    key/eFuse、C6 Zigbee 决策、Core2 控制器缺口和代表设备同固件 SHA
    的真机验证。
@@ -64,7 +65,7 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、worker-local `qemu-unified` 的 HTTP/BLE/pcap companion fence、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
-| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery 和 30 秒错峰 concurrent `2×120s` 均已 PASS；per-session QEMU `guestfwd` 解决了共享 HTTP 端口冲突 | 补 controller/baseband、物理 PSRAM/cache timing、无错峰同时冷启动、持续吞吐、其他 teardown 模式和真机 |
+| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 concurrent `2×120s` 和无错峰首批 `4×120s` 均已 PASS；per-session QEMU `guestfwd` 解决了共享 HTTP 端口冲突，30 秒 GATT 超时与 `0007` HLI valid-queue gate 清除了观察到的 `hli-errors` | 先定位无错峰独立复核的 `ble_hs_hci_process_ack` LoadProhibited；再补 controller/baseband、物理 PSRAM/cache timing、持续吞吐、其他 teardown 模式和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | API/WebBurner capability、Manifest、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA、expectation 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储/NVS 与网络 expectation 可重复注入 |
@@ -151,7 +152,11 @@
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
 - bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；
 - 物理板载 `8 MiB` PSRAM 与物理 cache/PSRAM 时序对比；
-- 无错峰同时冷启动、持续吞吐和其他 teardown 模式；
+- 无错峰冷启动稳定性：首批 `4/4` 通过，但同实现独立复核仍有一个 guest
+  在 `ble_hs_hci_process_ack` LoadProhibited；此前 `hli-errors=3` 已由
+  GATT 30 秒超时和 `0007` valid-queue gate 从当前样本中消除，尚不能把
+  该结果外推为长期稳定；
+- 持续吞吐、更高并发和其他 teardown 模式；
 - 同固件路径真机验证。
 
 新调用必须使用 `core2-native-hci`。`core2-native-vhci` 依赖 GDB，只允许
@@ -162,6 +167,8 @@
 - 新目标固件完成 hook/符号校验，并在对应长稳场景中保持 guest RX、
   notification、peer/pcap/evidence 和 HLI health；
 - 物理 PSRAM/cache、controller/baseband 和真机行为分别提供同路径证据；
+- 无错峰冷启动在至少两批独立并发复跑中保持 aggregate `PASS`，且失败样本
+  不得被后续重试成功覆盖；当前只有首批 `4/4 PASS`，独立复核仍 FAIL；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
   次数；
 - 首轮 panic 必须先于 reboot 次生故障被分类和符号化；

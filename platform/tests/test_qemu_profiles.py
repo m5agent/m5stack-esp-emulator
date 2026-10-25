@@ -150,6 +150,25 @@ class QemuProfileTest(unittest.TestCase):
         self.assertEqual(backend["qemu_esptool_chip"], "esp32")
         self.assertNotIn("esp_emu_chip", backend)
 
+    def test_core2_no_stagger_boundary_is_not_overclaimed(self):
+        row = next(
+            row
+            for row in self.registry["devices"]
+            if row["id"] == "core2"
+        )
+        text = " ".join(
+            [
+                row["validation"]["concurrency_validation"],
+                *row["blockers"],
+            ]
+        )
+        self.assertIn("0007", text)
+        self.assertIn("4/4", text)
+        self.assertIn("hli-errors=0", text)
+        self.assertIn("ble_hs_hci_process_ack LoadProhibited", text)
+        self.assertIn("OPEN", text)
+        self.assertNotIn("concurrent cold-start safety and sustained", text)
+
     def test_nesso_visual_validation_is_complete(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "nesso-n1")
         self.assertEqual(

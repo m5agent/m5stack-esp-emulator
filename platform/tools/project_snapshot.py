@@ -115,6 +115,14 @@ def parse_runtime_gaps() -> list[dict[str, str]]:
     return gaps
 
 
+def strip_table_code_fence(cell: str) -> str:
+    """Remove one Markdown code fence only when it wraps the whole cell."""
+    stripped = cell.strip()
+    if len(stripped) >= 2 and stripped[0] == stripped[-1] == "`":
+        return stripped[1:-1]
+    return stripped
+
+
 def parse_backlog_tasks() -> list[dict[str, str]]:
     text = BACKLOG.read_text()
     section = text.split("## 可执行任务板", 1)[1].split("\n## ", 1)[0]
@@ -122,7 +130,10 @@ def parse_backlog_tasks() -> list[dict[str, str]]:
     for line in section.splitlines():
         if not line.startswith("| `"):
             continue
-        cells = [cell.strip().strip("`") for cell in line.strip().strip("|").split("|")]
+        cells = [
+            strip_table_code_fence(cell)
+            for cell in line.strip().strip("|").split("|")
+        ]
         if len(cells) != 4:
             continue
         tasks.append(

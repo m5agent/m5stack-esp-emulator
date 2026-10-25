@@ -413,6 +413,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 rendered,
             )
 
+    def test_project_snapshot_preserves_trailing_inline_code(self) -> None:
+        tasks = {
+            task["id"]: task
+            for task in project_snapshot.parse_backlog_tasks()
+        }
+        self.assertIn("`hli-errors`", tasks["CORE2-02"]["next"])
+
     def test_engineering_handoff_stays_a_current_navigation_summary(self) -> None:
         handoff = (DOCS / "engineering-handoff.md").read_text()
         for heading in (
@@ -1919,7 +1926,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertTrue(
             any(
                 "30-second-staggered 2x120s concurrency passes" in blocker
-                and "simultaneous cold-start" in blocker
+                and "independent no-stagger confirmation" in blocker
+                and "ble_hs_hci_process_ack LoadProhibited" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )
@@ -4832,19 +4840,8 @@ class DocsConsistencyTests(unittest.TestCase):
             len({run["qom_nodes"] for run in concurrent["runs"]}),
             1,
         )
-        for name, relative in {
-            "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",
-            "device_service": "platform/tools/device_service.py",
-            "ble_probe": "platform/tools/ble_probe.py",
-            "network_policy": "platform/tools/network_policy.py",
-            "unified_http_guestfwd": (
-                "platform/tools/unified_http_guestfwd.py"
-            ),
-        }.items():
-            self.assertEqual(
-                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
-                concurrent["tool_hashes"][name],
-            )
+        for digest in concurrent["tool_hashes"].values():
+            self.assertRegex(digest, r"^[0-9a-f]{64}$")
 
         port_failure = json.loads(
             (
@@ -4884,19 +4881,133 @@ class DocsConsistencyTests(unittest.TestCase):
             "0x402630cc",
         )
 
+        timeout_pass = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "2x120-simultaneous-timeout30-pass.json"
+            ).read_text()
+        )
+        self.assertEqual(timeout_pass["status"], "PASS")
+        self.assertEqual(timeout_pass["attempts_passed"], 2)
+        self.assertEqual(timeout_pass["attempts_failed"], 0)
+        self.assertEqual(timeout_pass["stagger_seconds"], 0)
+        self.assertTrue(
+            all(
+                run["native_hci_health"]["hli-errors"] == 0
+                for run in timeout_pass["runs"]
+            )
+        )
+
+        hli_failure = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "4x120-hli-errors-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(hli_failure["status"], "FAIL")
+        self.assertEqual(hli_failure["attempts_completed"], 4)
+        self.assertEqual(hli_failure["attempts_passed"], 3)
+        self.assertEqual(hli_failure["attempts_failed"], 1)
+        failed_hli_run = next(
+            run for run in hli_failure["runs"] if run["status"] == "FAIL"
+        )
+        self.assertEqual(failed_hli_run["attempt"], "attempt-3")
+        self.assertEqual(failed_hli_run["native_hci_health"]["hli-errors"], 3)
+        self.assertEqual(failed_hli_run["native_hci_health"]["hli-posts"], 45)
+        self.assertEqual(
+            failed_hli_run["native_hci_health"]["hli-consumed"], 45
+        )
+        self.assertEqual(failed_hli_run["failure_diagnostics"]["panic_count"], 0)
+        self.assertEqual(failed_hli_run["network_status"], "PASS")
+
+        valid_queue_pass = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "4x120-simultaneous-pass.json"
+            ).read_text()
+        )
+        confirm_failure = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "4x120-simultaneous-confirm-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(valid_queue_pass["status"], "PASS")
+        self.assertEqual(valid_queue_pass["attempts_passed"], 4)
+        self.assertEqual(valid_queue_pass["attempts_failed"], 0)
+        self.assertEqual(valid_queue_pass["stagger_seconds"], 0)
+        for run in valid_queue_pass["runs"]:
+            self.assertEqual(run["native_hci_health"]["hli-errors"], 0)
+            self.assertEqual(run["native_hci_health"]["hli-posts"], 45)
+            self.assertEqual(run["native_hci_health"]["hli-consumed"], 45)
+            self.assertEqual(run["failure_diagnostics"]["panic_count"], 0)
+
+        self.assertEqual(confirm_failure["status"], "FAIL")
+        self.assertEqual(confirm_failure["attempts_completed"], 2)
+        self.assertEqual(confirm_failure["attempts_passed"], 1)
+        self.assertEqual(confirm_failure["attempts_failed"], 1)
+        confirm_run = next(
+            run
+            for run in confirm_failure["runs"]
+            if run["status"] == "FAIL"
+        )
+        self.assertTrue(confirm_run["failure_diagnostics"]["peer_gatt_timeout"])
+        self.assertEqual(
+            confirm_run["failure_diagnostics"]["first_panic"]["pc"],
+            "0x402630cc",
+        )
+        self.assertEqual(
+            valid_queue_pass["qemu_sha256"],
+            confirm_failure["qemu_sha256"],
+        )
+        for name, relative in {
+            "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",
+            "device_service": "platform/tools/device_service.py",
+            "ble_probe": "platform/tools/ble_probe.py",
+            "network_policy": "platform/tools/network_policy.py",
+            "unified_http_guestfwd": (
+                "platform/tools/unified_http_guestfwd.py"
+            ),
+        }.items():
+            current_digest = hashlib.sha256(
+                (ROOT / relative).read_bytes()
+            ).hexdigest()
+            self.assertEqual(
+                valid_queue_pass["tool_hashes"][name],
+                current_digest,
+            )
+            self.assertEqual(
+                confirm_failure["tool_hashes"][name],
+                current_digest,
+            )
+
         backend = (DOCS / "core2-native-hci-backend.md").read_text()
         code_map = (DOCS / "code-map.md").read_text()
         profiles = (
             ROOT / "platform/qemu/profiles.json"
         ).read_text()
+        patch = (
+            ROOT
+            / "patches/qemu-core2-native-hci/"
+            "0007-esp32-native-hci-require-valid-guest-queue.patch"
+        ).read_text()
         for text in (
             "staggered concurrent leases",
+            "simultaneous cold-start failure and partial fix",
             "guestfwd",
             "ble_hs_hci_process_ack",
+            "hli-errors=3",
         ):
             self.assertIn(text, backend)
         self.assertIn("unified_http_guestfwd.py", code_map)
-        self.assertIn("concurrent cold-start safety", profiles)
+        self.assertIn("0007", code_map)
+        self.assertIn("no-stagger cold-start stability", profiles)
+        self.assertIn("independent no-stagger confirmation", profiles)
+        self.assertIn("!s->hli_valid", patch)
         self.assertTrue(
             (ROOT / "platform/tools/unified_http_guestfwd.py").is_file()
         )

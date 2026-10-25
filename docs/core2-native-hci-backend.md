@@ -34,7 +34,8 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`、`run_service_5x.py` | 功能 `121/121` PASS，但 reconnect-only 路径没有 hold loop，QEMU accelerator 未被采样，形成 `bounded_tcg_cache` 假失败；runner 现于 session first running 时直接采样 |
 | `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json` | 3 个独立 artifact-bound lease 均为 `121/121 PASS`，且 firmware/ELF/QEMU/工具哈希一致；每 lease `tb-size=128`、WiFi/公网、NUS GATT、frame/QOM、pcap、evidence 与 cleanup PASS。每 lease HLI `3405/3405`、events 2316、ACLs 1089，队列、错误、dropped、peer-close 和 panic 均为 0 |
 | `CORE2-02` active-stop/recovery | `3/3 PASS` | `run_service_teardown.py --attempts 3`；`evidence-2026-10-25-core2-active-stop-recovery-3x.json` | 三个 session 均在 BLE peer linger 窗口内删除；每次为 `stopped`/无错误，HTTP/BLE companion terminate，BLE/QEMU PID 回收，worker lease 归零，随后新 session 再完成 frame/QOM、DHCP/DNS/HTTP、外部 NUS GATT、pcap 和 evidence。该门禁关闭 active-stop cleanup；不等于 throughput、controller 或物理 cache/PSRAM |
-| `CORE2-02` staggered concurrent leases | `2/2 PASS` | `run_service_5x.py --attempts 2 --concurrency 2 --stagger-seconds 30 --hold-seconds 120 --require-psram`；`evidence-2026-10-25-core2-concurrent-2x120-stagger30.json` | 两个 `qemu-unified/core2-native-hci` session 最大同时数为 2；共享同一固件/ELF/QEMU，分别使用 QEMU `guestfwd` HTTP endpoint。两轮均完成 Wi-Fi、公网 DNS/HTTP、external NUS GATT、30+ 次 `1 MiB` PSRAM sweep、frame/QOM、pcap、bounded TCG、evidence 和 cleanup；frame/QOM 一致，HLI `45/45`，无 panic。无 stagger 的冷启动对照仍在第二个 guest 触发 `ble_hs_hci_process_ack` LoadProhibited，因此 concurrent cold-start safety 仍开放 |
+| `CORE2-02` staggered concurrent leases | `2/2 PASS` | `run_service_5x.py --attempts 2 --concurrency 2 --stagger-seconds 30 --hold-seconds 120 --require-psram`；`evidence-2026-10-25-core2-concurrent-2x120-stagger30.json` | 两个 `qemu-unified/core2-native-hci` session 最大同时数为 2；共享同一固件/ELF/QEMU，分别使用 QEMU `guestfwd` HTTP endpoint。两轮均完成 Wi-Fi、公网 DNS/HTTP、external NUS GATT、30+ 次 `1 MiB` PSRAM sweep、frame/QOM、pcap、bounded TCG、evidence 和 cleanup；frame/QOM 一致，HLI `45/45`，无 panic |
+| `CORE2-02` simultaneous cold-start failure and partial fix | `MIXED / OPEN` | `evidence-2026-10-25-core2-concurrent-2x120-simultaneous-timeout30-pass.json`、`evidence-2026-10-25-core2-concurrent-4x120-hli-errors-fail.json`、`evidence-2026-10-25-core2-concurrent-4x120-simultaneous-pass.json`、`evidence-2026-10-25-core2-concurrent-4x120-simultaneous-confirm-fail.json`；`0007-esp32-native-hci-require-valid-guest-queue.patch` | GATT request/notification timeout `30s` 后首对无错峰 lease `2/2 PASS`；扩展旧实现 `4` 个 lease 为 `3 PASS / 1 FAIL`，失败轮 HLI posts/consumed 仍为 `45/45` 但 `hli-errors=3`。`0007` 只在 valid guest queue 后调度 HLI，首批 `4/4 PASS` 且 errors 为 0；独立复核首批又出现 `1 PASS / 1 LoadProhibited` at `ble_hs_hci_process_ack`，runner 输出 aggregate `FAIL`。因此无效 HLI 调度已修复，但无错峰冷启动稳定性仍开放 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -558,8 +559,12 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
   中完成累计 105 次 `1 MiB` 虚拟 PSRAM 全缓冲校验和周期联网。两个
   `core2-native-hci` lease 在 30 秒启动错峰后，已同时保持 120 秒并各自
   完成 BLE、WiFi、公网、PSRAM 和 evidence；并发稳态不再列为完全未执行。
-  剩余并发项是同时冷启动安全、持续吞吐和更多并发/teardown 模式，另有
-  物理 `8 MiB` 与 cache/PSRAM 等价性。
+  无错峰路径也已有首批 `4/4 PASS`：extended GATT timeout 为 30 秒，`0007`
+  禁止在未观察到有效 guest HLI 队列时安排投递，之前出现的
+  `hli-errors=3` 在当前样本中未再出现。但同实现独立复核首批仍有一个 guest
+  在 `ble_hs_hci_process_ack` LoadProhibited，故无错峰冷启动稳定性仍开放。
+  剩余并发项还包括持续吞吐和更多并发/teardown 模式，另有物理 `8 MiB`
+  与 cache/PSRAM 等价性。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

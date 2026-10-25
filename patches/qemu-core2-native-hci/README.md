@@ -31,6 +31,10 @@ This patch adds the first QEMU-side slice of `CORE2-01`:
   counters, HLI deferred-delivery counters and connection/L2CAP/GATT pool
   counters. Packet tracing is enabled only by
   `M5_CORE2_HCI_PACKET_TRACE=1`.
+- `0007` schedules HLI delivery only after the latest guest-queue observation
+  succeeded. Before this gate, a no-stagger `4x120s` run balanced all
+  `45/45` HLI packets but still recorded three invalid scheduling attempts;
+  the gate removes the counter errors without suppressing the health signal.
 
 The optional poller captures guest H2C packets from real VHCI shared memory
 without GDB. `HCI-3a` now delivers a controller event through the firmware's
@@ -56,6 +60,10 @@ Current extended validation for this patch set:
   bounded-TCG, HLI-health, pcap and cleanup gate;
 - three independent artifact-bound `121`-cycle reconnect leases pass `3/3`
   with identical firmware/ELF/QEMU/tool hashes.
+- one no-stagger `4x120s` concurrent run with `0007` passes `4/4` and records
+  `hli-errors=0`; an independent confirmation run still hits the original
+  no-stagger guest `LoadProhibited` at `ble_hs_hci_process_ack`, so the gate
+  is a local HLI scheduling fix rather than a concurrent cold-start closure.
 
 The detailed gate and evidence index remain in
 [`docs/core2-native-hci-backend.md`](../../docs/core2-native-hci-backend.md).
@@ -71,6 +79,7 @@ git apply /path/to/patches/qemu-core2-native-hci/0003-esp32-native-hci-api-trans
 git apply /path/to/patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch
 git apply /path/to/patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-call-sregs.patch
 git apply /path/to/patches/qemu-core2-native-hci/0006-esp32-native-hci-observability.patch
+git apply /path/to/patches/qemu-core2-native-hci/0007-esp32-native-hci-require-valid-guest-queue.patch
 ninja -C build qemu-system-xtensa
 python3 tests/uiflow2/core2_native_hci/test_transport.py
 python3 tests/uiflow2/core2_native_hci/test_guest_h2c.py \

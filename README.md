@@ -34,7 +34,11 @@ MicroPython 和其他完整 Flash 固件。
   8 MiB PSRAM QOM/upper-bank MMU 和持续 guest 压力证据；物理 PSRAM/cache、
   bit-exact BT baseband/controller 仍为 `NOT RUN`。两个 native-HCI lease
   在 30 秒启动错峰后已同时保持 120 秒并各自完成 WiFi、公网、BLE、PSRAM
-  和 evidence；同时冷启动安全仍为 `OPEN`。
+  和 evidence。无错峰冷启动也已出现一次 `4/4 PASS`：GATT 请求/通知
+  超时扩到 30 秒，QEMU 只在上次观察到有效 guest HLI 队列后投递；但独立
+  复核仍有一次第二个 guest 在同一地址 `ble_hs_hci_process_ack`
+  `LoadProhibited`，因此冷启动稳定性继续保持 `OPEN`，不能被单批 PASS
+  覆盖。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented Flash、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态审查和 capability
   mismatch；`qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first
@@ -309,8 +313,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
   unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、同时冷启动、
-  持续吞吐和真机同路径仍未完成。
+  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、无错峰冷启动
+  稳定性、持续吞吐和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。
