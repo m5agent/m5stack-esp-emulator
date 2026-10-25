@@ -31,7 +31,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`; a reconnect-only run completed all functional checks but did not sample the QEMU accelerator because that sampling lived only in the hold loop |
 | `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json`; three independent artifact-bound leases each complete 121 cycles with identical firmware/ELF/QEMU/tool hashes, `tb-size=128`, WiFi/public network, NUS GATT, frame/QOM, pcap, evidence and cleanup. Every lease has HLI 3405/3405, 2316 events, 1089 ACLs and zero queue/error/drop/peer-close/panic |
 | `CORE2-02` active stop/recovery | `3/3 PASS` | `evidence-2026-10-25-core2-active-stop-recovery-3x.json`; three consecutive sessions are deleted while their BLE peer is still in the linger window. Each stop reaches `stopped` with no error, terminates HTTP/BLE companions, reaps both BLE and QEMU PIDs, releases the worker lease, and is followed by a new ready session with the same network/GATT/QOM health |
-| `CORE2-02` no-stagger concurrency | `8/8 PASS` | two independent `4x120s` runs use two simultaneous cold starts per batch. `0008` preallocates real guest event buffers and ACL mbufs, every lease records 36/9 fast-path event/ACLs, HLI `45/45`, zero errors/reset/panic, and trace-bound ACK delivery drops from about 3.660s to 0.328s |
+| `CORE2-02` no-stagger concurrency | `8/8 + 6/6 PASS` | two independent two-instance `4x120s` runs pass `8/8`; two independent three-instance `3x120s` runs pass `6/6`. `0008` preallocates real guest event buffers and ACL mbufs; every lease records 36/9 fast-path event/ACLs, HLI 45/45 and zero errors/reset/panic. Three-instance startup exposed a fixed 40-second peer scan budget that expired before guest BLE init, then a sweep threshold calibrated only for lower concurrency; peer scan now follows session readiness within 120 seconds and the sustained floor is `hold/5` |
 
 Build the patched QEMU, then run:
 
@@ -275,6 +275,17 @@ The no-stagger path was diagnosed and closed for two concurrent instances:
    Every lease reports 36 events and 9 ACLs on the fast path, two spare
    objects of each type, HLI `45/45`, `hli-errors=0`, no scheduler reset and
    no panic. The measured Command Status delivery delay is about `0.328s`.
+7. Extending each batch to three simultaneous leases initially failed `0/3`:
+   the fixed 40-second BLE peer scan window expired before guest BLE
+   initialization completed in about 55 seconds.
+8. The peer scan window is now derived from the session readiness budget and
+   bounded to `120s`; GATT request and notification timeouts remain separate.
+9. The next three-instance run completed guest/network/GATT/PSRAM work, but
+   two leases produced 29 sweeps against an over-tight 30-sweep floor. The
+   sustained gate now uses a conservative `hold/5` floor while still
+   requiring contiguous sweeps, heartbeats, HTTP and public-network rechecks.
+10. Two independent three-instance `3x120s` runs then passed `3/3` each
+    (`6/6` total).
 
 Evidence:
 
@@ -285,10 +296,16 @@ Evidence:
 - `evidence-2026-10-25-core2-concurrent-4x120-prealloc-pass-a.json`
 - `evidence-2026-10-25-core2-concurrent-4x120-prealloc-confirm-pass-b.json`
 - `evidence-2026-10-25-core2-hli-preallocation-latency.json`
+- `evidence-2026-10-25-core2-concurrent-3x120-peer-timeout-fail.json`
+- `evidence-2026-10-25-core2-concurrent-3x120-scan120-threshold-fail.json`
+- `evidence-2026-10-25-core2-concurrent-3x120-pass-a.json`
+- `evidence-2026-10-25-core2-concurrent-3x120-confirm-pass-b.json`
 
-The historical failure is retained. The final scope is two instances, the
-bound stock firmware/ELF/QEMU and the current hook ABI; it does not claim
-higher concurrency, physical controller timing or RF.
+The historical failure is retained. Two instances pass `8/8`; two independent
+three-instance runs pass `6/6`. The fixed `40s` peer scan budget and the
+three-instance PSRAM sweep calibration failure are also retained. The final
+scope remains the bound stock firmware/ELF/QEMU and current hook ABI; it does
+not claim more than three instances, physical controller timing or RF.
 
 `run_service_teardown.py` exercises process-stop ordering rather than another
 hold. It creates a ready Core2 session, captures pre-stop frame/QOM/network/

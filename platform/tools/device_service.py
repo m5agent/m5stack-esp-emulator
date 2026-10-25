@@ -42,6 +42,7 @@ from ble_runtime_limits import (  # noqa: E402
     MAX_BLE_LINGER_SECONDS,
     MAX_BLE_RECONNECT_CYCLES,
     MAX_BLE_RECONNECT_DELAY_SECONDS,
+    ble_peer_scan_timeout_seconds,
     reconnect_workload_timeout_seconds,
 )
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
@@ -4701,7 +4702,11 @@ class DeviceSession:
             "--notification-timeout",
             "30" if extended_exchange else "10",
             "--timeout",
-            "40" if extended_exchange else "25",
+            (
+                str(int(ble_peer_scan_timeout_seconds(self.ready_timeout)))
+                if extended_exchange
+                else "25"
+            ),
             "--write-delay",
             "2" if extended_exchange else "1",
             "--linger",

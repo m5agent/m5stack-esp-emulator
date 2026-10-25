@@ -109,8 +109,11 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   `esp_himem` lease 完成同窗口物理块切换和读回。`0008` 在 CPU0 idle 时
   预分配真实 guest HCI event/ACL 对象；两批独立无错峰双实例 `4×120s`
   合计 `8/8 PASS`，每 lease 36 events/9 ACLs 走 fast path、HLI `45/45`、
-  errors/reset/panic 为 0。bit-exact Espressif BT baseband/controller、
-  更高并发、持续吞吐、物理 cache/PSRAM 和真机仍未完成；
+  errors/reset/panic 为 0。并发再扩展到两批三实例 `3×120s`，合计
+  `6/6 PASS`；BLE peer scan 按 session readiness 有界扩展，三实例
+  PSRAM sweep 下限按实际负载校准。bit-exact Espressif BT
+  baseband/controller、大于三实例的并发、持续吞吐、物理 cache/PSRAM
+  和真机仍未完成；
   `tb-size=128` 的 artifact-bound 两小时 soak 已 PASS，host RSS 和 phys
   footprint 在 240 个采样中均未增长。
 - Tab5 通过 `esp-emu` 单独接入，外设状态明确为 `partial`。

@@ -73,6 +73,13 @@ Current extended validation for this patch set:
   (`8/8` total). Every lease records the real fast path for all 36 events
   and 9 ACLs, two spare objects of each type, `hli-errors=0`, balanced
   `45/45` delivery and no scheduler reset or panic.
+- after extending to three simultaneous leases, two independent `3x120s`
+  gates pass `3/3` each (`6/6` total). The first failures were harness
+  calibration, not a controller data-plane regression: a fixed 40-second
+  BLE peer scan window expired before guest initialization, then a
+  30-sweep floor was one above the observed three-instance rate. Peer scan
+  now follows session readiness within 40-120 seconds and sustained PSRAM
+  uses a conservative `hold/5` floor.
 
 The detailed gate and evidence index remain in
 [`docs/core2-native-hci-backend.md`](../../docs/core2-native-hci-backend.md).

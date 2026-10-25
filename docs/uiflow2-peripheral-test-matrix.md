@@ -16,6 +16,14 @@ event/ACL 预分配版本完成 `67/67` case、`274/274` check，全部首轮无
 其中 Core2 六个 case 为 `24/24` check。固定汇总见
 [`core2-hli-preallocation-full-matrix.json`](../tests/uiflow2/evidence-2026-10-25-core2-hli-preallocation-full-matrix.json)。
 
+当前重建的 QEMU `b5b2d878…` 又完成 Core2 六例定向回归 `6/6`、`24/24`
+check。此前 `core2-power-monitor` 的默认 post-boot QOM 注入在 8 秒窗口内
+错过固件读取；固定传感器值改为 boot-time 注入后通过。失败分类和扩展等待
+对照见
+[`postboot-injection-fail.json`](../tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json)，
+当前设备组见
+[`qom-boot-device-group.json`](../tests/uiflow2/evidence-2026-10-25-core2-qom-boot-device-group.json)。
+
 | 设备 | 闭环能力 | UIFlow2 API | 结果 |
 | --- | --- | --- | --- |
 | StickS3 | BMI270 三轴加速度/角速度 | `Imu.getAccel()` / `getGyro()` | PASS |

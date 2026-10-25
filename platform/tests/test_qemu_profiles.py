@@ -164,9 +164,12 @@ class QemuProfileTest(unittest.TestCase):
         )
         self.assertIn("0008", text)
         self.assertIn("8/8", text)
+        self.assertIn("6/6", text)
+        self.assertIn("three-instance", text)
         self.assertIn("hli-errors=0", text)
         self.assertIn("36 events", text)
         self.assertIn("9 ACLs", text)
+        self.assertIn("more than three instances", text)
         self.assertIn("NOT RUN", text)
         self.assertNotIn("concurrent cold-start safety and sustained", text)
 

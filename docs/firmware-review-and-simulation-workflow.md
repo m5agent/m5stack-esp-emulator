@@ -495,9 +495,11 @@ Core2 的长 BLE reconnect 也是同一原则：`121` 轮首次运行在 29 轮�
 controller 的固件 FAIL；修复后 3 个独立 artifact-bound lease 均为
 `121/121 PASS`，并绑定相同 firmware/ELF/QEMU/工具哈希。并发路径也已由
 `0008` 关闭当前两实例无错峰冷启动边界：两批独立 `4×120s` 合计
-`8/8 PASS`，每 lease 36 events/9 ACLs 走真实 guest-object fast path。后续仍需
-补更高并发、长时吞吐/teardown、bit-exact controller/baseband、物理
-cache/PSRAM 和真机。
+`8/8 PASS`，每 lease 36 events/9 ACLs 走真实 guest-object fast path。
+随后两批三实例 `3×120s` 合计 `6/6 PASS`；固定 `40s` peer scan 预算在
+冷启动约 55 秒时会先于 guest 广播退出，现改为按 session readiness 推导且
+上限 `120s`。后续仍需补大于三实例的并发、长时吞吐/teardown、bit-exact
+controller/baseband、物理 cache/PSRAM 和真机。
 
 ## 11. 结论
 

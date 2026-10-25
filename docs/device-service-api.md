@@ -1162,7 +1162,10 @@ buffers and two ACL mbufs preallocated while CPU0 is idle. Two independent
 `4×120s` gates pass `8/8`; every lease records 36 events and 9 ACLs on the
 fast path, HLI `45/45`, `hli-errors=0`, no scheduler reset and no panic.
 The observed Command Status receive-to-HLI delay falls from about `3.660s`
-to `0.328s`.
+to `0.328s`. Two additional three-instance `3×120s` gates pass `6/6`.
+For unified profiles, the external BLE peer scan window follows the session
+readiness budget within `40–120s`; the former fixed `40s` window expired
+before guest BLE initialization under three-instance startup load.
 This remains functional virtual-device evidence, not a bit-exact Espressif BT
 controller/baseband or hardware/RF result. The API/HLI/trace hook offsets are
 pinned to the validated UIFlow2 v2.5.3 build; `elf_artifact_id` must come from
@@ -1999,10 +2002,12 @@ restart.
   with zero HLI errors and empty HLI/meta queues. Patch `0008` preallocates
   real guest HCI-event buffers and ACL mbufs; two independent no-stagger
   `4×120s` gates pass `8/8`, with 36 events and 9 ACLs per lease on the fast
-  path and zero errors/reset/panic. Three independent leases pass each of the
-  20, 30, 60, 120 and 121 same-guest reconnect gates; the 121-cycle runs
-  balance HLI 3405/3405, deliver 2316 events and 1089 ACLs, and return the
-  connection/L2CAP/GATT pools to 3/9/3.
+  path and zero errors/reset/panic. Two three-instance `3×120s` gates also
+  pass `6/6`; their peer scan window is derived from session readiness and
+  the sustained PSRAM sweep floor is `hold/5`. Three independent leases pass
+  each of the 20, 30, 60, 120 and 121 same-guest reconnect gates; the
+  121-cycle runs balance HLI 3405/3405, deliver 2316 events and 1089 ACLs,
+  and return the connection/L2CAP/GATT pools to 3/9/3.
   `network.ble_linger_seconds` can keep the external GATT peer connected
   beyond its initial exchange; two active-link `600s` holds pass `2/2` with
   `peer-closed=0`, `tx-queue-depth=0` and `last-error=0`. A `7200s`
@@ -2042,8 +2047,8 @@ restart.
   check. The aggregate evidence is
   `evidence-2026-10-25-hci4-reconnect121-3x.json`; it binds identical
   firmware/ELF/QEMU/tool hashes across runs and includes the earlier
-  single-lease evidence. The remaining validation gates are higher
-  concurrency, long-run throughput and additional teardown modes;
+  single-lease evidence. The remaining validation gates are more than three
+  instances, long-run throughput and additional teardown modes;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -2079,8 +2084,9 @@ restart.
   Service leases with no GDB bridge, and the halt-gated `5×10s`
   extended-run gate passes two independent batches. The `0008` fast path also
   closes two-instance no-stagger cold start with two independent `8/8`
-  aggregate gates. Higher concurrency, long-run throughput, additional
-  teardown modes, bit-exact controller/baseband, coexistence and
+  aggregate gates; two three-instance gates add `6/6`. More than three
+  instances, long-run throughput, additional teardown modes,
+  bit-exact controller/baseband, coexistence and
   same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
   boundary; ordinary opaque drawing is unaffected. See

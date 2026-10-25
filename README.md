@@ -38,8 +38,10 @@ MicroPython 和其他完整 Flash 固件。
   对象分配时序：`0008` 在 CPU idle 时预分配真实 guest HCI event/ACL mbuf，
   CPU 繁忙时直接填充并投递。两批独立 `4×120s`、合计 `8/8` lease PASS，
   每轮 HLI `45/45`、`hli-errors=0`、无 scheduler reset 或 panic；trace
-  记录的 ACK event 延迟从约 `3.660s` 降至 `0.328s`。该结论只覆盖当前
-  Core2 双实例并发 workload。
+  记录的 ACK event 延迟从约 `3.660s` 降至 `0.328s`。并发继续扩展到两批
+  三实例 `3×120s`，合计 `6/6 PASS`；三个 QEMU、BLE peer、HTTP fixture、
+  WiFi/公网/GATT、PSRAM、frame/QOM/pcap/evidence 同时成立。该结论只覆盖
+  当前双实例和三实例 `virtual-device` workload。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented Flash、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态审查和 capability
   mismatch；`qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first
@@ -314,8 +316,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
   unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、更高并发、
-  持续吞吐和真机同路径仍未完成。
+  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、大于三实例的
+  并发、持续吞吐和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

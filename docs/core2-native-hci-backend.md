@@ -37,6 +37,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` staggered concurrent leases | `2/2 PASS` | `run_service_5x.py --attempts 2 --concurrency 2 --stagger-seconds 30 --hold-seconds 120 --require-psram`；`evidence-2026-10-25-core2-concurrent-2x120-stagger30.json` | 两个 `qemu-unified/core2-native-hci` session 最大同时数为 2；共享同一固件/ELF/QEMU，分别使用 QEMU `guestfwd` HTTP endpoint。两轮均完成 Wi-Fi、公网 DNS/HTTP、external NUS GATT、30+ 次 `1 MiB` PSRAM sweep、frame/QOM、pcap、bounded TCG、evidence 和 cleanup；frame/QOM 一致，HLI `45/45`，无 panic |
 | `CORE2-02` simultaneous cold-start history | `FAIL → FIXED` | `evidence-2026-10-25-core2-concurrent-2x120-simultaneous-timeout30-pass.json`、`evidence-2026-10-25-core2-concurrent-4x120-hli-errors-fail.json`、`evidence-2026-10-25-core2-concurrent-4x120-simultaneous-pass.json`、`evidence-2026-10-25-core2-concurrent-4x120-simultaneous-confirm-fail.json`；`0007` | GATT timeout `30s` 后首对 `2/2 PASS`；旧扩展运行 `3/4` 且 `hli-errors=3`。`0007` 清除无效 HLI 调度并使首批 `4/4 PASS`，但同实现复核仍在 `ble_hs_hci_process_ack` 收到过晚 Command Status 后 panic。历史失败与中间 PASS 均保留 |
 | `CORE2-02` simultaneous cold-start preallocation | `PASS` | `evidence-2026-10-25-core2-concurrent-4x120-prealloc-pass-a.json`、`evidence-2026-10-25-core2-concurrent-4x120-prealloc-confirm-pass-b.json`、`evidence-2026-10-25-core2-hli-preallocation-latency.json`；`0008-esp32-native-hci-preallocate-hli-objects.patch` | 两批独立无错峰 `4×120s` 合计 `8/8 PASS`。CPU0 idle 时预分配 2 个真实 guest event buffer 和 2 个 ACL mbuf；繁忙时 QEMU 直接填充 guest 对象，不嵌套 guest call。每轮 36 events/9 ACLs 全部 fast path、HLI `45/45`、errors/reset/panic 为 0；trace Command Status 接收→HLI 从约 `3.660s` 降到 `0.328s`，低于 NimBLE `2s` ACK 预算。只覆盖两实例、指定 firmware/ELF/QEMU |
+| `CORE2-02` three-instance no-stagger gate | `6/6 PASS` | `evidence-2026-10-25-core2-concurrent-3x120-pass-a.json`、`evidence-2026-10-25-core2-concurrent-3x120-confirm-pass-b.json`；失败对照 `...peer-timeout-fail.json`、`...scan120-threshold-fail.json` | 两批独立三实例 `3×120s` 均为 `3/3 PASS`。三个 QEMU、BLE peer 和 per-session HTTP fixture 同时运行；每 lease HLI `45/45`、events 36、ACLs 9、errors/reset/panic 为 0，完成 WiFi/公网/GATT/frame/QOM/pcap/evidence 和 29–30 次 `1 MiB` PSRAM 全缓冲校验。第一轮暴露固定 `40s` peer scan 预算过短；扩展 readiness 后再暴露并发下 sweep 下限 `30` 过紧。最终使用按 session readiness 推导、上限 `120s` 的 peer scan 预算和 `hold/5` 的保守 sweep 下限，没有改 guest 数据面 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -385,6 +386,22 @@ guest call，而目标 CPU0 正执行 cache-sensitive controller code；HLI
 fast path。证据：
 `evidence-2026-10-25-core2-hli-preallocation-latency.json`。
 
+三实例门禁进一步把 harness 生命周期与 guest 数据面拆开。旧 Device
+Service 给扩展 BLE peer 固定 `40s` 扫描窗口，而三个 QEMU 同时冷启动时
+guest 到 BLE 初始化约需 `55s`；peer 先退出，随后 socket 关闭才造成
+`api-h2c-errors` 和 NimBLE HCI timeout。失败证据保留为
+`evidence-2026-10-25-core2-concurrent-3x120-peer-timeout-fail.json`。
+`ble_runtime_limits.py` 现按 session readiness 计算
+`min(120s, max(40s, ready_timeout - 10s))`，并与 GATT operation timeout
+分离。第二轮三实例已全部通过 guest/network/GATT，但两个 lease 在 120 秒
+内完成 29 次而不是旧硬阈值 30 次 sweep；该校准失败保留为
+`evidence-2026-10-25-core2-concurrent-3x120-scan120-threshold-fail.json`。
+最终 sweep 下限按 `hold/5` 设为 24，仍要求连续序列、heartbeat、HTTP 和
+公网 recheck。两批独立三实例 evidence 均为 `3/3 PASS`。其中一个 lease
+记录一次启动期 prealloc allocation failure，但最终恢复 `2/2` spare depth，
+36/9 packet 全部走 fast path 且 HLI `45/45`；该 transient counter 保留为
+诊断，不解释成最终对象缺失。
+
 `HCI-3b` 的最终 5/5 约束：
 
 - 使用合法默认 MTU 内的 probe，当前为 15-byte payload / 17-byte ATT PDU；
@@ -586,13 +603,15 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
   中完成累计 105 次 `1 MiB` 虚拟 PSRAM 全缓冲校验和周期联网。两个
   `core2-native-hci` lease 在 30 秒启动错峰后，已同时保持 120 秒并各自
   完成 BLE、WiFi、公网、PSRAM 和 evidence；并发稳态不再列为完全未执行。
-  无错峰路径也已完成两批独立 `4×120s`，合计 `8/8 PASS`：`0007`
+  无错峰双实例路径也已完成两批独立 `4×120s`，合计 `8/8 PASS`：`0007`
   禁止在未观察到有效 guest HLI 队列时安排投递；`0008` 在 idle 时预分配
   真实 guest event buffer/ACL mbuf，使 CPU0 繁忙时无需嵌套 guest call
   也能把 controller event 和 ACL 放进 firmware HLI queue。trace 中
   Command Status 的接收→HLI 延迟由约 `3.660s` 降至 `0.328s`。剩余并发项
-  是更高实例数、持续吞吐和更多 teardown 模式，另有物理 `8 MiB` 与
-  cache/PSRAM 等价性。
+  已继续推进到两批独立三实例 `3×120s`，合计 `6/6 PASS`；三个 QEMU、
+  peer、HTTP fixture、WiFi/公网/GATT、PSRAM、frame/QOM/pcap/evidence
+  同时成立。后续仍需大于三实例、持续吞吐和更多 teardown 模式，另有物理
+  `8 MiB` 与 cache/PSRAM 等价性。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

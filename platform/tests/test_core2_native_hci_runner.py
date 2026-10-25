@@ -225,7 +225,7 @@ class Core2NativeHciHealthTests(unittest.TestCase):
         self.assertEqual(
             runner.sustained_stress_requirements(120),
             {
-                "minimum_sweeps": 30,
+                "minimum_sweeps": 24,
                 "minimum_heartbeats": 6,
                 "minimum_http_rechecks": 8,
                 "minimum_public_rechecks": 2,

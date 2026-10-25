@@ -95,7 +95,13 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-hli-preallocation-latency.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc-pass-a.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc-confirm-pass-b.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-peer-timeout-fail.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-scan120-threshold-fail.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-pass-a.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-confirm-pass-b.json",
             "tests/uiflow2/evidence-2026-10-25-core2-hli-preallocation-full-matrix.json",
+            "tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json",
+            "tests/uiflow2/evidence-2026-10-25-core2-qom-boot-device-group.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "tests/uiflow2/core2_native_hci/run_service_teardown.py",
@@ -1936,8 +1942,10 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
         self.assertTrue(
             any(
-                "two independent no-stagger 4x120s gates pass 8/8" in blocker
-                and "higher concurrency" in blocker
+                "two independent two-instance no-stagger 4x120s gates pass 8/8"
+                in blocker
+                and "three-instance 3x120s gates pass 6/6" in blocker
+                and "more than three instances" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )
@@ -4361,6 +4369,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("two simultaneous cold starts", markdown)
         self.assertIn("preallocated while CPU0 is idle", markdown)
         self.assertIn("gates pass `8/8`", markdown)
+        self.assertIn("three-instance `3×120s` gates pass `6/6`", markdown)
+        self.assertIn("readiness budget within `40–120s`", markdown)
         self.assertIn("passes 121 cycles", markdown)
         self.assertNotIn(
             "The stock Core2 guest passes thirty cycles",
@@ -5036,9 +5046,161 @@ class DocsConsistencyTests(unittest.TestCase):
             prealloc_runs[0]["qemu_sha256"],
             prealloc_runs[1]["qemu_sha256"],
         )
+        self.assertEqual(
+            prealloc_runs[0]["tool_hashes"],
+            prealloc_runs[1]["tool_hashes"],
+        )
+        for digest in prealloc_runs[0]["tool_hashes"].values():
+            self.assertRegex(digest, r"^[0-9a-f]{64}$")
+
+        peer_timeout_failure = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "3x120-peer-timeout-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(peer_timeout_failure["status"], "FAIL")
+        self.assertEqual(peer_timeout_failure["attempts_requested"], 3)
+        self.assertEqual(peer_timeout_failure["attempts_passed"], 0)
+        self.assertEqual(peer_timeout_failure["attempts_failed"], 3)
+        self.assertEqual(peer_timeout_failure["maximum_concurrent_sessions"], 3)
+        self.assertTrue(
+            all(
+                run["hold_error"]
+                == "external BLE peer did not complete the GATT exchange"
+                for run in peer_timeout_failure["runs"]
+            )
+        )
+
+        threshold_failure = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "3x120-scan120-threshold-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(threshold_failure["status"], "FAIL")
+        self.assertEqual(threshold_failure["attempts_passed"], 1)
+        self.assertEqual(threshold_failure["attempts_failed"], 2)
+        for run in threshold_failure["runs"]:
+            self.assertEqual(
+                run["psram_requirements"]["minimum_sweeps"],
+                30,
+            )
+            if run["status"] == "FAIL":
+                self.assertEqual(len(run["psram"]["sweeps"]), 29)
+                self.assertEqual(run["failure_class"], "check_failed")
+
+        power_monitor_failure = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/"
+                "evidence-2026-10-25-core2-power-monitor-"
+                "postboot-injection-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(power_monitor_failure["status"], "FAIL")
+        self.assertEqual(
+            power_monitor_failure["classification"],
+            "runtime_fixture_timing",
+        )
+        self.assertEqual(
+            power_monitor_failure["boot_injection_control"]["status"],
+            "PASS",
+        )
+
+        qom_boot_group = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/"
+                "evidence-2026-10-25-core2-qom-boot-device-group.json"
+            ).read_text()
+        )
+        self.assertEqual(qom_boot_group["device_group"]["cases"], 6)
+        self.assertEqual(qom_boot_group["device_group"]["pass"], 6)
+        self.assertEqual(qom_boot_group["device_group"]["checks"], 24)
+        self.assertFalse(qom_boot_group["device_group"]["retry_used"])
+        self.assertTrue(
+            all(
+                case["status"] == "PASS"
+                for case in qom_boot_group["cases"].values()
+            )
+        )
+        matrix_runner = (
+            ROOT / "tests/uiflow2/run_peripheral_matrix.py"
+        ).read_text()
+        self.assertIn(
+            '"/machine/ina3221-40", "bus1-mv", "4800"',
+            matrix_runner,
+        )
+
+        three_instance_runs = [
+            json.loads(
+                (
+                    root
+                    / filename
+                ).read_text()
+            )
+            for filename in (
+                "evidence-2026-10-25-core2-concurrent-3x120-pass-a.json",
+                "evidence-2026-10-25-core2-concurrent-"
+                "3x120-confirm-pass-b.json",
+            )
+        ]
+        expected_sweep_counts = ([29, 29, 29], [30, 29, 29])
+        for evidence, sweep_counts in zip(
+            three_instance_runs,
+            expected_sweep_counts,
+            strict=True,
+        ):
+            self.assertEqual(evidence["status"], "PASS")
+            self.assertEqual(evidence["attempts_requested"], 3)
+            self.assertEqual(evidence["attempts_passed"], 3)
+            self.assertEqual(evidence["attempts_failed"], 0)
+            self.assertEqual(evidence["maximum_concurrent_sessions"], 3)
+            self.assertEqual(evidence["stagger_seconds"], 0)
+            self.assertTrue(evidence["input_assets_unchanged_during_run"])
+            self.assertEqual(
+                len({run["frame_sha256"] for run in evidence["runs"]}),
+                1,
+            )
+            for run, sweep_count in zip(
+                evidence["runs"],
+                sweep_counts,
+                strict=True,
+            ):
+                health = run["native_hci_health"]
+                self.assertEqual(run["qom_memory_bytes"], 8 << 20)
+                self.assertEqual(
+                    run["psram_requirements"]["minimum_sweeps"],
+                    24,
+                )
+                self.assertEqual(
+                    len(run["psram"]["sweeps"]),
+                    sweep_count,
+                )
+                self.assertEqual(health["hli-posts"], 45)
+                self.assertEqual(health["hli-consumed"], 45)
+                self.assertEqual(health["hli-errors"], 0)
+                self.assertEqual(health["hli-fast-path-events"], 36)
+                self.assertEqual(health["hli-fast-path-acls"], 9)
+                self.assertEqual(health["hli-event-prealloc-depth"], 2)
+                self.assertEqual(health["hli-acl-prealloc-depth"], 2)
+                self.assertLessEqual(health["hli-prealloc-failures"], 1)
+                self.assertEqual(
+                    run["failure_diagnostics"]["panic_count"],
+                    0,
+                )
+        self.assertEqual(
+            three_instance_runs[0]["tool_hashes"],
+            three_instance_runs[1]["tool_hashes"],
+        )
+
         for name, relative in {
             "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "device_service": "platform/tools/device_service.py",
+            "ble_runtime_limits": "platform/tools/ble_runtime_limits.py",
             "ble_probe": "platform/tools/ble_probe.py",
             "network_policy": "platform/tools/network_policy.py",
             "unified_http_guestfwd": (
@@ -5048,9 +5210,9 @@ class DocsConsistencyTests(unittest.TestCase):
             current_digest = hashlib.sha256(
                 (ROOT / relative).read_bytes()
             ).hexdigest()
-            for prealloc in prealloc_runs:
+            for evidence in three_instance_runs:
                 self.assertEqual(
-                    prealloc["tool_hashes"][name],
+                    evidence["tool_hashes"][name],
                     current_digest,
                 )
 
@@ -5132,7 +5294,8 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("0007", code_map)
         self.assertIn("0008", code_map)
         self.assertIn("no-stagger 4x120s", profiles)
-        self.assertIn("Two independent no-stagger 4x120s gates", profiles)
+        self.assertIn("Two independent two-instance no-stagger 4x120s gates", profiles)
+        self.assertIn("three-instance 3x120s gates pass 6/6", profiles)
         for text in (platform_readme, unified_core2):
             self.assertIn("0008", text)
             self.assertIn("8/8", text)

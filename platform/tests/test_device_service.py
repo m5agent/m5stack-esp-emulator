@@ -3385,6 +3385,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
             command.index("--notification-timeout") + 1
         )
         self.assertEqual(command[notification_timeout_index], "30")
+        scan_timeout_index = command.index("--timeout") + 1
+        self.assertEqual(command[scan_timeout_index], "113")
         trigger_index = command.index("--post-pass-trigger") + 1
         self.assertEqual(
             command[trigger_index],

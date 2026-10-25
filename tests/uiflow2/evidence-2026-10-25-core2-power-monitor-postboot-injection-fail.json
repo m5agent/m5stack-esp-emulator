@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "uiflow2-core2-power-monitor-harness-timing",
+  "date": "2026-10-25",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "case": "core2-power-monitor",
+  "observed_behavior": {
+    "qemu_exit_code": 0,
+    "guest_panic": false,
+    "chip_id": "0x3220",
+    "waiting_bus_raw": 625,
+    "waiting_shunt_raw": 12,
+    "success_marker": false,
+    "screen": "Core2 INA3221 waiting bus=625 shunt=12"
+  },
+  "postboot_injection": {
+    "path": "/machine/ina3221-40",
+    "bus1_mv": 4800,
+    "current1_ma": 240,
+    "default_wait_seconds": 8,
+    "result_at_default_wait": "FAIL",
+    "result_at_20_seconds_control": "PASS"
+  },
+  "boot_injection_control": {
+    "mode": "qom-set-boot",
+    "status": "PASS",
+    "image_sha256": "157eef68d1b004de5089a9d76d8898266026cb6803392d715283cf90f212c59e"
+  },
+  "classification": "runtime_fixture_timing",
+  "corrective_action": "Set fixed physical INA3221 channel values with qom-set-boot before firmware initializes the driver.",
+  "evidence_hashes": {
+    "failure_serial_sha256": "01cd8c110b43ee892677ed28dcbdf046596d06fe3749c360912c154a37e78d7f",
+    "failure_frame_sha256": "90da559c8c39e8eb1fc8dfb586907dd5d807346278f8743d00899f1801ee2bf6",
+    "extended_postboot_control_serial_sha256": "e35de78438a06707bd6387702d4ce3b46111258675d29b5f354f2ea66917cdd7",
+    "extended_postboot_control_frame_sha256": "e87e05f4201ce23ed1e1f8692e05b702589dd2716fdea4c7cb123c6c9a132bd3"
+  },
+  "not_claimed": [
+    "firmware defect",
+    "INA3221 model failure",
+    "physical hardware",
+    "electrical calibration"
+  ]
+}

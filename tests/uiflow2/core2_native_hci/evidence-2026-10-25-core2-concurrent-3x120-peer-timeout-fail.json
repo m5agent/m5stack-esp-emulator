@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-core2-native-hci-service-attempts",
+  "stage": "HCI-4",
+  "gate_result": "FAIL",
+  "status": "FAIL",
+  "validation": "virtual-device validation",
+  "profile": "core2-native-hci",
+  "runtime": "qemu-unified",
+  "service_api": "/api/v1",
+  "firmware": {
+    "sha256": "5ed4fcfad22c50d10d9a1af48bdb8e7b7e125a6fa278d3f8e30e53bd03aa43db",
+    "bytes": 16777216
+  },
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "qemu_sha256": "f2bc2b4d5e4a5a8a0a8b3b4cf3ccd36ea2a67f44a57413bc7c575b304e2159e5",
+  "tool_hashes": {
+    "runner": "2750e223a73a91c07fd42dc3f5296fd4ab8eba5b7161fb191cb4663cb5bfcf81",
+    "device_service": "2201e850a7ccc19a22df6c687b3bd4725b0dfdd5409f5db240d3cc78846f867f",
+    "qemu_accel": "018aebbe1b127b1e34647a62739950e625a6395d504de0344733cb984482cd33",
+    "ble_runtime_limits": "6a2cd0afee89b0a5f4c7bb081882018db8908f0adeb056885740b3ef3cf45a07",
+    "ble_probe": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+    "network_policy": "f231fafa4888150d4a0d8d008ce4ae75fe444dbaf7db6d3b78abe32a3ef4cf9a",
+    "unified_http_guestfwd": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a"
+  },
+  "input_hash_bound_at": "before_first_lease",
+  "input_assets_unchanged_during_run": true,
+  "input_asset_drift": {},
+  "attempts_requested": 3,
+  "attempts_completed": 3,
+  "attempts_passed": 0,
+  "attempts_failed": 3,
+  "concurrency_requested": 3,
+  "maximum_concurrent_sessions": 3,
+  "concurrency_observed": true,
+  "attempt_batches": [
+    [
+      1,
+      2,
+      3
+    ]
+  ],
+  "stagger_seconds": 0.0,
+  "hold_seconds_per_attempt": 120.0,
+  "ble_linger_seconds": 180.0,
+  "ble_reconnect_cycles": 1,
+  "psram_required": true,
+  "psram_gate": "FAIL",
+  "ready_timeout_seconds_requested": 300.0,
+  "ready_timeout_seconds_effective": 300.0,
+  "first_failure": {
+    "attempt": "attempt-1",
+    "failure_phase": "wait_running",
+    "failure_class": "attempt_error",
+    "failure_error": "RuntimeError: session reached failed: external BLE peer did not complete the GATT exchange",
+    "network_status": "PARTIAL",
+    "hold_state": "failed",
+    "failure_diagnostics": {
+      "panic_count": 0,
+      "first_panic": null,
+      "last_panic": null,
+      "observed_serial_markers": [
+        "UNIFIED_CORE2_BOOT",
+        "UNIFIED_CORE2_MAIN",
+        "UNIFIED_CORE2_DISPLAY",
+        "UNIFIED_CORE2_READY",
+        "UNIFIED_CORE2_WIFI_CONNECTED",
+        "UNIFIED_CORE2_HTTP_PASS",
+        "UNIFIED_CORE2_PUBLIC_DNS",
+        "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+        "UNIFIED_CORE2_PSRAM_INIT_PASS"
+      ],
+      "peer_gatt_timeout": false,
+      "session_read_error": null,
+      "cleanup_error": null
+    }
+  },
+  "checks_per_attempt": {
+    "active_ble_link_during_hold": "FAIL",
+    "api_evidence": "FAIL",
+    "ble_cycle_count": "FAIL",
+    "bounded_tcg_cache": "FAIL",
+    "evidence_zip": "FAIL",
+    "external_nus_gatt": "FAIL",
+    "frame_png": "FAIL",
+    "hold_stable": "FAIL",
+    "manifest_session_binding": "PASS",
+    "native_hci_health": "FAIL",
+    "pcap_file_in_evidence_zip": "PASS",
+    "psram_guest_stress": "FAIL",
+    "psram_machine_capacity": "FAIL",
+    "psram_sustained_stress": "FAIL",
+    "public_dns_http": "PASS",
+    "wifi_dhcp_http": "PASS",
+    "hci_transport": "ESP32 native HCI device + HLI to Bumble",
+    "frame_sha256": null,
+    "qom_nodes": 0
+  },
+  "runs": [
+    {
+      "attempt": "attempt-1",
+      "status": "FAIL",
+      "failure_phase": "wait_running",
+      "failure_class": "attempt_error",
+      "failure_error": "RuntimeError: session reached failed: external BLE peer did not complete the GATT exchange",
+      "frame_bytes": 0,
+      "frame_sha256": null,
+      "qom_nodes": 0,
+      "qom_memory_bytes": null,
+      "evidence_bytes": 49838,
+      "serial_sha256": "7d50df08d95ffbdb1097f0dc2ed8d28d7957b4e4695661b86d1871f95540e9ed",
+      "peer_log_sha256": "02d00eb6ede7e068c9def9eabdc7bfcd1da8024bad5c2668a97aae4db3883f60",
+      "pcap_bytes": 6430,
+      "native_hci_health": {},
+      "psram": {
+        "marker_present": true,
+        "allocations": [
+          [
+            4194304,
+            1048576,
+            2228232
+          ]
+        ],
+        "external_heap_total_bytes": 4194304,
+        "requested_bytes": 1048576,
+        "allocated_bytes": 2228232,
+        "sweeps": [],
+        "init_pass_count": 1,
+        "stress_pass_count": 0,
+        "heartbeats": [],
+        "http_recheck_pass_count": 0,
+        "public_recheck_pass_count": 0,
+        "verified_bytes": 0,
+        "error_markers": []
+      },
+      "psram_requirements": {
+        "minimum_sweeps": 30,
+        "minimum_heartbeats": 6,
+        "minimum_http_rechecks": 8,
+        "minimum_public_rechecks": 2
+      },
+      "network_status": "PARTIAL",
+      "hold_state": "failed",
+      "hold_error": "external BLE peer did not complete the GATT exchange",
+      "session_started_epoch": 1792914927.604276,
+      "session_finished_epoch": 1792914990.389017,
+      "qemu_accelerator": null,
+      "hold_resource_samples": {
+        "state_polls": 0,
+        "sample_interval_seconds": 30,
+        "rss_kib_start": null,
+        "rss_kib_min": null,
+        "rss_kib_max": null,
+        "rss_kib_end": null,
+        "rss_kib_delta": null,
+        "rss_kib_samples": [],
+        "phys_footprint_kib_start": null,
+        "phys_footprint_kib_min": null,
+        "phys_footprint_kib_max": null,
+        "phys_footprint_kib_end": null,
+        "phys_footprint_kib_delta": null,
+        "phys_footprint_kib_samples": []
+      },
+      "failure_diagnostics": {
+        "panic_count": 0,
+        "first_panic": null,
+        "last_panic": null,
+        "observed_serial_markers": [
+          "UNIFIED_CORE2_BOOT",
+          "UNIFIED_CORE2_MAIN",
+          "UNIFIED_CORE2_DISPLAY",
+          "UNIFIED_CORE2_READY",
+          "UNIFIED_CORE2_WIFI_CONNECTED",
+          "UNIFIED_CORE2_HTTP_PASS",
+          "UNIFIED_CORE2_PUBLIC_DNS",
+          "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+          "UNIFIED_CORE2_PSRAM_INIT_PASS"
+        ],
+        "peer_gatt_timeout": false,
+        "session_read_error": null,
+        "cleanup_error": null
+      }
+    },
+    {
+      "attempt": "attempt-2",
+      "status": "FAIL",
+      "failure_phase": "wait_running",
+      "failure_class": "attempt_error",
+      "failure_error": "RuntimeError: session reached failed: external BLE peer did not complete the GATT exchange",
+      "frame_bytes": 0,
+      "frame_sha256": null,
+      "qom_nodes": 0,
+      "qom_memory_bytes": null,
+      "evidence_bytes": 49814,
+      "serial_sha256": "d8e8b1c55ca3153fe66a99599fa7f4e60a63c487fd2e495acf41c1212b1296b4",
+      "peer_log_sha256": "51b765c9b637e770c17327e772cd76e977b0e1d503f226f0cc0415c531affd8c",
+      "pcap_bytes": 7132,
+      "native_hci_health": {},
+      "psram": {
+        "marker_present": true,
+        "allocations": [
+          [
+            4194304,
+            1048576,
+            2228232
+          ]
+        ],
+        "external_heap_total_bytes": 4194304,
+        "requested_bytes": 1048576,
+        "allocated_bytes": 2228232,
+        "sweeps": [],
+        "init_pass_count": 1,
+        "stress_pass_count": 0,
+        "heartbeats": [],
+        "http_recheck_pass_count": 0,
+        "public_recheck_pass_count": 0,
+        "verified_bytes": 0,
+        "error_markers": []
+      },
+      "psram_requirements": {
+        "minimum_sweeps": 30,
+        "minimum_heartbeats": 6,
+        "minimum_http_rechecks": 8,
+        "minimum_public_rechecks": 2
+      },
+      "network_status": "PARTIAL",
+      "hold_state": "failed",
+      "hold_error": "external BLE peer did not complete the GATT exchange",
+      "session_started_epoch": 1792914927.605303,
+      "session_finished_epoch": 1792914991.071122,
+      "qemu_accelerator": null,
+      "hold_resource_samples": {
+        "state_polls": 0,
+        "sample_interval_seconds": 30,
+        "rss_kib_start": null,
+        "rss_kib_min": null,
+        "rss_kib_max": null,
+        "rss_kib_end": null,
+        "rss_kib_delta": null,
+        "rss_kib_samples": [],
+        "phys_footprint_kib_start": null,
+        "phys_footprint_kib_min": null,
+        "phys_footprint_kib_max": null,
+        "phys_footprint_kib_end": null,
+        "phys_footprint_kib_delta": null,
+        "phys_footprint_kib_samples": []
+      },
+      "failure_diagnostics": {
+        "panic_count": 0,
+        "first_panic": null,
+        "last_panic": null,
+        "observed_serial_markers": [
+          "UNIFIED_CORE2_BOOT",
+          "UNIFIED_CORE2_MAIN",
+          "UNIFIED_CORE2_DISPLAY",
+          "UNIFIED_CORE2_READY",
+          "UNIFIED_CORE2_WIFI_CONNECTED",
+          "UNIFIED_CORE2_HTTP_PASS",
+          "UNIFIED_CORE2_PUBLIC_DNS",
+          "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+          "UNIFIED_CORE2_PSRAM_INIT_PASS"
+        ],
+        "peer_gatt_timeout": false,
+        "session_read_error": null,
+        "cleanup_error": null
+      }
+    },
+    {
+      "attempt": "attempt-3",
+      "status": "FAIL",
+      "failure_phase": "wait_running",
+      "failure_class": "attempt_error",
+      "failure_error": "RuntimeError: session reached failed: external BLE peer did not complete the GATT exchange",
+      "frame_bytes": 0,
+      "frame_sha256": null,
+      "qom_nodes": 0,
+      "qom_memory_bytes": null,
+      "evidence_bytes": 43827,
+      "serial_sha256": "66cfef68afce5b90e9c6d6d52518fb5393b8f9d761c41a101fb11bb930b7a65c",
+      "peer_log_sha256": "49e7b29462fd7357f01ec0f0e02ca89712d5884194367defbaabb18747890615",
+      "pcap_bytes": 6284,
+      "native_hci_health": {},
+      "psram": {
+        "marker_present": true,
+        "allocations": [
+          [
+            4194304,
+            1048576,
+            2228232
+          ]
+        ],
+        "external_heap_total_bytes": 4194304,
+        "requested_bytes": 1048576,
+        "allocated_bytes": 2228232,
+        "sweeps": [],
+        "init_pass_count": 1,
+        "stress_pass_count": 0,
+        "heartbeats": [],
+        "http_recheck_pass_count": 0,
+        "public_recheck_pass_count": 0,
+        "verified_bytes": 0,
+        "error_markers": []
+      },
+      "psram_requirements": {
+        "minimum_sweeps": 30,
+        "minimum_heartbeats": 6,
+        "minimum_http_rechecks": 8,
+        "minimum_public_rechecks": 2
+      },
+      "network_status": "PARTIAL",
+      "hold_state": "failed",
+      "hold_error": "external BLE peer did not complete the GATT exchange",
+      "session_started_epoch": 1792914927.607429,
+      "session_finished_epoch": 1792914990.7433548,
+      "qemu_accelerator": null,
+      "hold_resource_samples": {
+        "state_polls": 0,
+        "sample_interval_seconds": 30,
+        "rss_kib_start": null,
+        "rss_kib_min": null,
+        "rss_kib_max": null,
+        "rss_kib_end": null,
+        "rss_kib_delta": null,
+        "rss_kib_samples": [],
+        "phys_footprint_kib_start": null,
+        "phys_footprint_kib_min": null,
+        "phys_footprint_kib_max": null,
+        "phys_footprint_kib_end": null,
+        "phys_footprint_kib_delta": null,
+        "phys_footprint_kib_samples": []
+      },
+      "failure_diagnostics": {
+        "panic_count": 0,
+        "first_panic": null,
+        "last_panic": null,
+        "observed_serial_markers": [
+          "UNIFIED_CORE2_BOOT",
+          "UNIFIED_CORE2_MAIN",
+          "UNIFIED_CORE2_DISPLAY",
+          "UNIFIED_CORE2_READY",
+          "UNIFIED_CORE2_WIFI_CONNECTED",
+          "UNIFIED_CORE2_HTTP_PASS",
+          "UNIFIED_CORE2_PUBLIC_DNS",
+          "UNIFIED_CORE2_PUBLIC_HTTP_PASS",
+          "UNIFIED_CORE2_PSRAM_INIT_PASS"
+        ],
+        "peer_gatt_timeout": false,
+        "session_read_error": null,
+        "cleanup_error": null
+      }
+    }
+  ],
+  "boundary": {
+    "isolation": "trusted-host",
+    "gdb_bridge": false,
+    "session_reuse": "up to 3 independent leases and QEMU processes with concurrency 3",
+    "pcap": "captured in each evidence ZIP; packet summaries are finalized during stop/retention handling",
+    "not_claimed": [
+      "bit-exact Espressif BT controller/baseband",
+      "physical 8 MiB PSRAM capacity",
+      "physical cache/PSRAM timing",
+      "physical hardware or RF validation",
+      "malware sandboxing"
+    ]
+  }
+}

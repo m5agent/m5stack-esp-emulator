@@ -1889,7 +1889,7 @@ CASES = [
         "expected_size": "320x240",
         "wait": "8",
         "inputs": ["touch:160,183"],
-        "qom": [
+        "qom_set_boot": [
             ("/machine/ina3221-40", "bus1-mv", "4800"),
             ("/machine/ina3221-40", "current1-ma", "240"),
         ],
