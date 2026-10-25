@@ -272,7 +272,7 @@
         "more than eight instances and sustained HCI/GATT throughput"
       ],
       "blockers": [
-        "Core2 legacy UIFlow shared I2C routing and the minimal-probe CCOMPARE == CCOUNT timer deadline are fixed; legacy firmware still enters TG0/TG1 watchdog resets with reset PC 0 and a black frame, so watchdog feed/clear or service starvation remains OPEN",
+        "Core2 legacy UIFlow shared I2C, equal-deadline timer and TIMG WDT-mask semantics are fixed; legacy firmware still enters TG0/TG1 watchdog resets with reset PC 0 and a black frame. Temporary QIO bulk-read and watchdog-disable diagnostics are not product fixes; efficient SSI/m25p80 transfer and cross-core/DPORT handoff remain OPEN",
         "physical cache/PSRAM timing equivalence remains NOT RUN",
         "bit-exact ESP32 BT baseband/controller remains NOT RUN",
         "virtual-device concurrency gates cover the current service capacity; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN (CORE2-02)",

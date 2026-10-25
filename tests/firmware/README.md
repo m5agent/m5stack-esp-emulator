@@ -214,6 +214,19 @@ probe's timer-starvation reproduction. It does not close legacy UIFlow:
 in the same public firmware path, so watchdog feed/clear or service starvation
 is now the next investigation boundary.
 
+The subsequent diagnostics are recorded in
+[`evidence-2026-10-26-core2-qio-crosscore-diagnostic.json`](evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)
+as `DIAGNOSTIC_ONLY`. Patch `0035` fixes a verified TIMG mask-semantics bug
+where a raw WDT status raised the level IRQ while `INT_ENA.WDT` was clear; the
+same legacy image still reset after that fix. A temporary QIO direct-read path
+matched the SSI byte stream for every sampled transaction and advanced a
+diagnostic run to the MicroPython banner, but it bypassed the SSI/m25p80 phase
+machine and must not become a product path. Disabling WDT reset then showed a
+cross-core stall: CPU0 was in the flash-operation wait, CPU1 was in the
+DPORT/cache handoff, and cross-core IRQ traffic continued. Normal-WDT,
+controller-level QIO transfer, completed handshake, non-empty application frame
+and physical hardware all remain unproven.
+
 Known emulator capability gaps are maintained in
 [the runtime model-gap register](../../docs/runtime-model-gap-register.md).
 Current overall status and unfinished work must be read from

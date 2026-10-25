@@ -394,6 +394,86 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("stack overflow", history)
         self.assertIn("idle", history)
 
+    def test_core2_qio_wdt_mask_and_crosscore_boundaries_are_explicit(
+        self,
+    ) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-26-core2-qio-crosscore-diagnostic.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "DIAGNOSTIC_ONLY")
+        self.assertFalse(evidence["runtime"]["artifact_bound"])
+        qio = evidence["qio_bulk_read_diagnostic"]
+        self.assertEqual(qio["sample_transactions"], 512)
+        self.assertEqual(qio["mismatch_count"], 0)
+        self.assertIn(
+            "MICROPYTHON",
+            " ".join(
+                marker.upper()
+                for marker in qio["temporary_path_result"]["serial_markers"]
+            ),
+        )
+        mask = evidence["wdt_int_ena_semantics"]
+        self.assertEqual(mask["observed_register_state"]["INT_ENA"], "0x00000000")
+        self.assertEqual(mask["observed_register_state"]["INT_RAW"], "0x00000004")
+        self.assertIn("not the root cause", mask["classification"])
+        crosscore = evidence["crosscore_stall_diagnostic"]
+        self.assertEqual(crosscore["cpu0_wait_address"], "0x3ffc7ec8")
+        self.assertIn("spi_flash_op_block_func", crosscore["symbol_hint"])
+        self.assertIn(
+            "DPORT safe-read",
+            crosscore["symbol_hint"],
+        )
+
+        patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0035-esp32-timg-wdt-int-ena.patch"
+        ).read_text()
+        self.assertIn("if (s->int_ena & mask) {", patch)
+        self.assertIn(
+            "-            if (true) { /* should be checking "
+            "s->int_ena & mask",
+            patch,
+        )
+        self.assertIn(
+            "+            if (s->int_ena & mask) {",
+            patch,
+        )
+        patches_readme = (
+            ROOT / "patches/qemu-m5stack-peripherals/README.md"
+        ).read_text()
+        self.assertIn("0035-esp32-timg-wdt-int-ena.patch", patches_readme)
+        self.assertIn("INT_RAW & INT_ENA", patches_readme)
+
+        for path in (
+            DOCS / "project-status.md",
+            DOCS / "project-backlog.md",
+            DOCS / "runtime-model-gap-register.md",
+            DOCS / "engineering-handoff.md",
+            DOCS / "workstreams.md",
+            DOCS / "validation-ledger.md",
+        ):
+            text = path.read_text()
+            self.assertIn("0035", text, path.relative_to(ROOT))
+            self.assertIn("QIO", text, path.relative_to(ROOT))
+            self.assertIn("cross-core", text, path.relative_to(ROOT))
+        for path in (
+            ROOT / "README.md",
+            DOCS / "qemu-device-adaptation-matrix.md",
+            DOCS / "user-firmware-simulation-matrix.md",
+            DOCS / "code-map.md",
+        ):
+            text = path.read_text()
+            self.assertIn("QIO", text, path.relative_to(ROOT))
+            self.assertIn("cross-core", text, path.relative_to(ROOT))
+        history = (DOCS / "core2-cache-panic-investigation.md").read_text()
+        self.assertIn("2026-10-26 QIO and cross-core follow-up", history)
+        self.assertIn("512 sampled transactions", history)
+
     def test_core2_reconnect_evidence_is_reconciled(self):
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()

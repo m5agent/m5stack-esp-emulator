@@ -319,6 +319,11 @@ class DocsIndexContractTests(DocsContractBase):
                 "patches/qemu-m5stack-peripherals/"
                 "0034-xtensa-ccompare-equal-deadline.patch"
             ),
+            "patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch",
+            (
+                "tests/firmware/"
+                "evidence-2026-10-26-core2-qio-crosscore-diagnostic.json"
+            ),
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",

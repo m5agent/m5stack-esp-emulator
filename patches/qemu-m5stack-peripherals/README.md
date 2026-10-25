@@ -134,6 +134,7 @@ git apply /path/to/0031-core2-shared-board-i2c.patch
 git apply /path/to/0032-esp32-timg-wdt-trace.patch
 git apply /path/to/0033-esp32-s32c1i-trace.patch
 git apply /path/to/0034-xtensa-ccompare-equal-deadline.patch
+git apply /path/to/0035-esp32-timg-wdt-int-ena.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -225,6 +226,14 @@ cycle while preserving the previous 32-bit wraparound interpretation for all
 other deltas. A business-only control with tracing disabled passed the
 corrected `core2_flash_ipc` first-boot probe repeatedly; this does not close
 the separate legacy-UIFlow TG0/TG1 watchdog and black-frame failure.
+
+`0035-esp32-timg-wdt-int-ena.patch` corrects TIMG WDT level-interrupt masking.
+The model previously raised the WDT line whenever `INT_RAW.WDT` became set,
+even when `INT_ENA.WDT` was clear. The patch preserves raw status and the stage
+timer but drives the level only from `INT_RAW & INT_ENA`. The trace observed
+`INT_ENA=0`, `INT_RAW=4`, masked status `0`; two Device Service controls still
+reached `TG0WDT_SYS_RESET` after the fix. This patch is a model-semantics fix,
+not closure of the legacy UIFlow QIO/cross-core/flash-cache path.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

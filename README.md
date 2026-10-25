@@ -36,7 +36,14 @@ MicroPython 和其他完整 Flash 固件。
   `CCOMPARE == CCOUNT` 时，旧实现把下一次到期错误地推迟了 `2^32` ticks。
   修复只把相等期限安排到下一 cycle，其他 32 位回绕语义不变；最小探针
   首启动门禁已通过。它没有修复 legacy UIFlow 的独立 TG0/TG1 路径，后者仍
-  需要继续调查 watchdog feed/clear 或服务饥饿。精确轮次、哈希和对照只在
+  需要继续调查 watchdog feed/clear、flash QIO 转发、跨核握手和 DPORT
+  flash-cache 交接。当前工作假设是 cross-core/DPORT 交接与 QIO 长同步
+  路径共同影响服务进度。诊断还确认了一个独立的 TIMG 模型错误：当
+  `INT_ENA.WDT=0` 时模型仍会抬高 WDT level IRQ；`0035` 已按
+  `INT_RAW & INT_ENA` 修正，但同一 legacy 固件在修复后仍复位。临时
+  `blk_pread` 快路径虽然让固件走到了 MicroPython REPL，而且抽样字节与
+  SSI 一致，但它绕过控制器数据阶段，只用于定位，不是产品修复。精确轮次、
+  哈希和对照只在
   [验证证据台账](docs/validation-ledger.md)；`Core2FactoryTest` 修复后尚未
   重跑，`RUNTIME-03` 仍为 `OPEN`。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、

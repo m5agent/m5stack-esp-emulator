@@ -51,10 +51,28 @@ harness 缺陷撤销。
 这个修复没有关闭 legacy UIFlow：同一公开固件仍在初始化后进入
 `TG0WDT_SYS_RESET`/`TG1WDT_SYS_RESET`、reset CPU PC `0` 和黑帧循环。
 因此 `RUNTIME-03` 的 timer-deadline 子问题已经 `FIXED`，但 legacy
-watchdog feed/clear 或服务饥饿路径仍 `OPEN`。legacy UIFlow 的 flash-cache
-disable、跨核 IPC 与 DPORT high-interrupt 仍是相关路径，但与当前 TG0/TG1
-reset 的因果关系尚未证实。精确批次、通过率、artifact 哈希和符号化结果见
-[验证证据台账](validation-ledger.md)。
+watchdog feed/clear 或服务饥饿路径仍 `OPEN`。
+
+继续对照后又确认两个独立模型事实：
+
+- TIMG 旧模型在 `INT_ENA.WDT=0` 时仍抬高 WDT level IRQ，与
+  `INT_RAW & INT_ENA` 的 masked-status 语义不符；`0035` 只修正该寄存器
+  语义。修复后同一 legacy 固件仍进入 `TG0WDT_SYS_RESET` 和 reset PC
+  `0`，所以它不能关闭 `RUNTIME-03`；
+- legacy 启动期的 QIO Flash 扫描是明显的逐字节 SSI 成本热点。临时
+  `blk_pread` 诊断路径在抽样 cache line 上与后续 SSI 数据流逐字节一致，
+  并让串口走到 `Performing initial setup`、MicroPython 版本和 `>>>`；
+  但该路径绕过 SSI 数据阶段，不是可提交实现。关闭 watchdog reset 后，
+  两核仍停在 flash-cache 跨核握手，CPU0 位于
+  `spi_flash_op_block_func` 等待路径，CPU1 位于 DPORT safe-read /
+  flash-cache 交接路径，同时 cross-core IRQ 持续翻转。
+
+这说明剩余问题至少包含“高效且保持控制器状态机的 Flash 数据面”和
+“cross-core/DPORT 交接未完成”两个候选模型边界；它们与 legacy TG WDT
+的精确因果顺序仍需 controller-level trace 证明。当前工作假设是
+flash-cache/IPC/DPORT 交接与启动期长同步路径共同影响 watchdog feed，
+但仍需证明二者是先后因果而非并行症状。精确批次、通过率、
+artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
 所有仓库结果默认是 `virtual-device validation`。只有明确标注
 `hardware validation` 的同固件路径结果才能描述物理 RF、功耗、声学、光学、
@@ -64,7 +82,7 @@ reset 的因果关系尚未证实。精确批次、通过率、artifact 哈希�
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus 与 `CCOMPARE == CCOUNT` timer deadline 已修复；最小 ESP-IDF 探针首启动门禁通过 | 回到 legacy UIFlow，定位 `TG0/TG1WDT_SYS_RESET`、reset PC `0`、watchdog feed/clear 和服务饥饿路径，取得同 SHA 非空应用帧 | 最小 probe 的 timer 修复不能继承给 legacy UIFlow；flash-cache/IPC/DPORT 与 TG watchdog 的因果关系尚未证明 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared GPIO21/22 board bus、`CCOMPARE == CCOUNT` timer deadline 和 TIMG `INT_ENA.WDT` mask 语义已修复；最小 ESP-IDF 探针首启动门禁通过 | 实现不绕过 SSI 状态机的高效 QIO 数据面，并追踪 cross-core IRQ、flash-cache pause/ack 与 DPORT 交接，取得同 SHA 非空应用帧 | 临时 `blk_pread`、关闭 WDT、probe timer PASS 或单次 REPL marker 都不能继承为 legacy UIFlow PASS；cross-core 卡住的根因尚未证明 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -81,7 +99,7 @@ reset 的因果关系尚未证实。精确批次、通过率、artifact 哈希�
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing 与最小 probe timer deadline 已修复；legacy TG0/TG1 watchdog reset、reset PC `0` 和 black frame 未闭环；FactoryTest 修复后 `NOT RUN` |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、最小 probe timer deadline 和 TIMG WDT mask 语义已修复；legacy TG0/TG1 watchdog reset、reset PC `0`、QIO/SSI 性能与 cross-core 停滞未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT 和生产调度未完成 |
@@ -117,13 +135,14 @@ reset 的因果关系尚未证实。精确批次、通过率、artifact 哈希�
 1. **仿真边界**：QEMU/esp-emu PASS 不等于 RF、功耗、声学、光学、机械、
    电气或真机安全 PASS。
 2. **Core2 启动兼容性**：legacy UIFlow 的共享 I2C routing 已修正，最小
-    probe 暴露的 `CCOMPARE == CCOUNT` timer deadline 也已修复，但同一 legacy
-    固件仍会在 PMIC/RTC 初始化后进入 `TG0/TG1WDT_SYS_RESET`/黑帧，reset CPU
-    PC 为 `0`；不能用 I2C ACK、chip-id 成功、probe timer PASS 或 host 假值
-    当作 legacy 启动 PASS。下一调查点是 watchdog feed/clear 或服务饥饿；
-    它与 flash-cache/IPC/DPORT 的因果关系仍未证实。当前工作假设是 TIMG
-    watchdog feed/clear 或服务任务饥饿与启动期长同步路径交互；量化结果只以
-    验证台账和 evidence 为准。
+   probe 暴露的 `CCOMPARE == CCOUNT` timer deadline，以及 `0035` 的
+   masked WDT interrupt 语义也已修复，但同一 legacy 固件仍会在 PMIC/RTC
+   初始化后进入 `TG0/TG1WDT_SYS_RESET`/黑帧，reset CPU PC 为 `0`；不能用
+   I2C ACK、chip-id 成功、probe timer PASS、单次 REPL marker 或 host 假值
+   当作 legacy 启动 PASS。QIO 快路径样本证明底层字节一致，但绕过 SSI 数据
+   阶段；关闭 WDT 后 cross-core IRQ 仍持续且 flash-cache 握手不完成。
+   下一调查点因此同时包含控制器级 QIO 转发与 cross-core/DPORT 交接顺序；
+   量化结果只以验证台账和 evidence 为准。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。
@@ -154,6 +173,8 @@ reset 的因果关系尚未证实。精确批次、通过率、artifact 哈希�
   [网络诊断 lane](network-lane.md)。
 - 固件：[FirmwareManifest](firmware-manifest.md) 与
   [固件审查工作流](firmware-review-and-simulation-workflow.md)。
+- Core2 历史诊断：[cache/panic 调查](core2-cache-panic-investigation.md)、
+  [QIO/cross-core evidence](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)。
 - 文档契约：五个 `platform/tests/test_docs_*_contract.py` 领域模块，以及
   `platform/tests/fixtures/stale_doc_claims.json` 结构化退役说法目录。
 

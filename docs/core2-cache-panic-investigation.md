@@ -226,15 +226,55 @@ frame. The legacy firmware investigation therefore continues at watchdog
 feed/clear and service-task starvation rather than treating the probe timer
 fix as a universal Core2 boot fix.
 
+## 2026-10-26 QIO and cross-core follow-up
+
+The legacy startup trace then exposed two additional model facts.
+
+First, the TIMG model raised the WDT level line even when
+`INT_ENA.WDT` was clear. The observed state was
+`INT_ENA=0x00000000`, `INT_RAW=0x00000004` and masked status `0`.
+[`0035-esp32-timg-wdt-int-ena.patch`](../patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch)
+now raises the level only when the enable bit is set while preserving raw
+status and stage-timer behavior. Two Device Service controls still reached
+`TG0WDT_SYS_RESET` with reset PC zero after the mask fix, so this is a
+register-semantics correction rather than the `RUNTIME-03` root cause.
+
+Second, CPU1 spent a large part of early boot in QIO Flash reads while
+scanning the VFS. The old path forwarded each byte through `ssi_transfer`.
+A temporary opt-in shortcut used the same m25p80 `BlockBackend` and compared
+direct reads with the following SSI stream. Across 512 sampled transactions
+of 64 bytes, every byte matched. The shortcut advanced the temporary run to
+the MicroPython setup text and `>>>`, but it bypasses the SSI command, dummy
+and data phases. It therefore is not a product implementation; the product
+path must add controller-level efficiency without inventing data in the
+guest.
+
+Disabling watchdog reset only moved the failure. The run remained at the UI
+banner while cross-core IRQ0/IRQ1 continued to toggle. CPU0 remained in
+`spi_flash_op_block_func` waiting at `0x3ffc7ec8`; CPU1 remained in the
+DPORT safe-read / flash-cache handoff path. This makes the flash operation
+block, cross-core acknowledgement, interrupt-matrix routing and DPORT
+handoff ordering the next evidence target. It does not yet prove that this
+stall is the first cause of the normal-WDT reset.
+
+The summarized logs, byte comparison and boundaries are in
+[`evidence-2026-10-26-core2-qio-crosscore-diagnostic.json`](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json).
+That evidence is explicitly `DIAGNOSTIC_ONLY`; it is not artifact-bound to a
+product runtime, and the dirty QEMU worktree remains local.
+
 ## Next investigation
 
 1. Preserve the minimal probe's equal-deadline regression gate and keep the
    business patch separate from diagnostic ring/trace code.
-2. For the same legacy UIFlow SHA, correlate TG0/TG1 feed/clear, stage0/stage1,
+2. Implement efficient controller-level QIO transfer while preserving the
+   m25p80 command state machine.
+3. For the same legacy UIFlow SHA, correlate TG0/TG1 feed/clear, stage0/stage1,
    `INTSET`, `INTENABLE`, expiry, reset PC `0`, and IDLE/service-task progress.
-3. Determine whether the boot path starves the watchdog service/user tasks or
+4. Correlate cross-core source CPU, interrupt-matrix target, latch/clear,
+   flash-cache pause/ack and DPORT state with both CPUs' PCs.
+5. Determine whether the boot path starves the watchdog service/user tasks or
    whether flash-cache, cross-core IPC and DPORT ordering prevents a valid feed.
-4. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
+6. Keep physical cache/PSRAM timing as `NOT RUN` until real Core2 evidence is
    collected.
 
 ## Reproduction

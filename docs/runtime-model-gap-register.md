@@ -130,42 +130,54 @@ fault，因此当前样本状态是 `PARTIAL/fatal_after_application_frame`，�
 On/Off PASS。若两者都无法取得，该项目保持显式不支持，而不是承诺“所有 C6
 固件均可运行”。
 
-### RUNTIME-03：Core2 I2C 与 probe timer 已修复，legacy TG WDT 未闭环
+### RUNTIME-03：Core2 I2C/timer/WDT-mask 已修复，legacy Flash/cross-core 未闭环
 
 | 字段 | 当前值 |
 | --- | --- |
 | 状态 | `OPEN` |
-| 修复进度 | controller-to-physical-bus routing `FIXED`；minimal probe 的 `CCOMPARE == CCOUNT` equal-deadline `FIXED`；legacy `TG0/TG1` watchdog/black-frame `OPEN` |
+| 修复进度 | controller-to-physical-bus routing `FIXED`；minimal probe 的 `CCOMPARE == CCOUNT` equal-deadline `FIXED`；TIMG WDT level IRQ 的 `INT_ENA` mask `FIXED`；legacy QIO/flash-cache/cross-core 与 `TG0/TG1` watchdog/black-frame `OPEN` |
 | 影响 | Core2 官方 legacy UIFlow、FactoryTest，以及 long-synchronous flash/partition-read workload |
 | I2C 根因 | AXP `0x34` chip id `0x4a` 读取成功；controller trace 进一步证明旧固件在 `/machine/soc/i2c0/i2c` 上访问 AXP 和 RTC address `0x51`，而旧板模型只把 AXP/INA 挂在 controller 0，把 RTC/touch/IMU 挂在 controller 1。`0x51` 的 `start_rc=1` 由 controller-to-physical-bus routing 拆分直接解释 |
 | I2C 修复 | `0031-core2-shared-board-i2c.patch` 将两个 controller register block 都路由到唯一物理 GPIO21/22 board bus，器件只挂一份 |
 | Timer 根因 | 最小探针在 `CORE2_FLASH_IPC_READ_START` 后捕获到 timer ISR 写入 `CCOMPARE == CCOUNT`。旧 QEMU 用无符号减法把它解释成 `2^32` ticks；Core2 下一次 timer 中断因此被推迟约 26.8 秒，超过 interrupt-WDT 窗口，随后两个 CPU 都停在 idle |
 | Timer 修复 | `0034-xtensa-ccompare-equal-deadline.patch` 只把相等期限安排到下一 CPU cycle；其他 delta 仍保留原 32 位回绕语义，不增加 catch-up、trace 或 timeout 放宽 |
+| WDT mask 根因 | `0032` trace 捕获到 `INT_ENA=0x00000000`、`INT_RAW=0x00000004`、masked status `0x00000000` 时，旧模型仍抬高 WDT level IRQ。WDT raw status 本身不是 interrupt request，level line 只应由 `INT_RAW & INT_ENA` 驱动 |
+| WDT mask 修复 | `0035-esp32-timg-wdt-int-ena.patch` 只在 `INT_ENA.WDT` 置位时抬高 level IRQ，保留 raw status 和 WDT stage timer 行为；同一 legacy SHA 修复后仍出现 `TG0WDT_SYS_RESET` 和 reset PC `0`，因此它不是 `RUNTIME-03` 根因修复 |
+| QIO 诊断 | legacy 启动期通过大量 QIO 事务扫描 VFS，逐字节 `ssi_transfer` 是明显宿主成本。临时 `blk_pread` 快路径从同一 m25p80 BlockBackend 读取，抽样 cache line 与随后 SSI 字节流一致，并把串口推进到 MicroPython REPL；该路径绕过 SSI 命令/dummy/data 状态机，只能作诊断 |
+| cross-core 诊断 | 关闭 WDT reset 只移除症状；CPU0 停在 `spi_flash_op_block_func` 等待路径，CPU1 位于 DPORT safe-read / flash-cache 交接路径，cross-core IRQ0/IRQ1 持续翻转，握手完成条件仍未观察到 |
 | 修复后 | `0x34`、`0x51`、INA3221 `0x40` 均 ACK，原 `I2C bus error (19)` 消失；最小 probe 在 trace 开/关和 `shift=5`/`auto` 对照中通过首启动门禁，进入 `CORE2_FLASH_IPC_PASS` |
-| 当前阻断 | legacy `UIFlow_Core2 v1.15.4` 仍出现 `TG1WDT_SYS_RESET` 与 `TG0WDT_SYS_RESET`，bootloader 报告 reset CPU PC `0`，17 个采样帧全为同一黑帧。该失败与已修复的 equal-deadline probe 不同，下一步是 watchdog feed/clear 与 guest 服务任务进度 |
-| 当前判断 | TIMG trace 已排除单一固定外设和固定 firmware PC；legacy watchdog failure 仍表现为 timing-sensitive。equal-deadline 修复解释了最小 probe 的 interrupt-WDT，但不能外推到 legacy TG reset。当前工作假设转向 legacy watchdog 是否获得有效 feed、清中断/stage 顺序，或某个同步启动路径是否长期饿死 IDLE/service task。S32C1I、PRID 和单条 CAS 没有获得错误证据；旧 `spinlock_release()` mismatch 已确认由探针任务栈溢出造成并撤销 |
-| 证据 | [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json)、[`core2-flash-ipc-wdt.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json)、[`equal-deadline evidence`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-ccompare-equal-deadline.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`0032 trace patch`](../patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch)、[`0034 timer patch`](../patches/qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch)、[`previous trace`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
+| 当前阻断 | legacy `UIFlow_Core2 v1.15.4` 仍出现 `TG1WDT_SYS_RESET` 与 `TG0WDT_SYS_RESET`，bootloader 报告 reset CPU PC `0`，只有同一黑帧。临时 QIO 快路径和关闭 WDT 都不能形成产品 PASS；后者还暴露 cross-core/DPORT 交接未完成 |
+| 当前判断 | TIMG trace 已排除单一固定外设和固定 firmware PC；legacy watchdog failure 仍表现为 timing-sensitive。equal-deadline 与 WDT mask 分别解释两个模型错误，但不能外推到 legacy Flash/cross-core 路径。当前工作假设是 QIO 转发成本、flash-cache disable、cross-core call/ack 和 DPORT high-interrupt 顺序共同使服务路径无法完成；具体因果关系仍需 controller-level evidence。S32C1I、PRID 和单条 CAS 没有获得错误证据；旧 `spinlock_release()` mismatch 已确认由探针任务栈溢出造成并撤销 |
+| 证据 | [`core2-qio-crosscore-diagnostic.json`](../tests/firmware/evidence-2026-10-26-core2-qio-crosscore-diagnostic.json)、[`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json)、[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json)、[`core2-flash-ipc-wdt.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json)、[`equal-deadline evidence`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-ccompare-equal-deadline.json)、[`0031 patch`](../patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch)、[`0032 trace patch`](../patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch)、[`0034 timer patch`](../patches/qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch)、[`0035 WDT mask patch`](../patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch)、[`previous trace`](../tests/firmware/evidence-2026-10-24-core2-axp-i2c-trace.json) |
 
 关闭条件：
 
 1. 保持 `0034` 的最小 probe 门禁可重放，业务补丁不得夹带 IRQ ring/trace；
-2. 对同一 legacy firmware SHA 记录 TG0/TG1 watchdog feed/clear、stage0/
+2. 保持 `0035` 的 `INT_RAW & INT_ENA` level 语义，并证明 raw status 仍可读；
+3. 在 ESP32 SPI controller 与 m25p80 状态机内实现高效 QIO 数据转发，
+   保留 command/dummy/data phase；`M5SW_ESP32_SPI_BULK_READ` 只可诊断；
+4. 对同一 legacy firmware SHA 记录 TG0/TG1 watchdog feed/clear、stage0/
    stage1、`INTSET`、`INTENABLE`、timer expiry、IDLE/service task 进度和
    reset 前最后一个有效 PC；
-3. 增加与具体固件地址解耦的 flash-cache pause、cross-core call/ack、
-   DPORT high-interrupt 和 guest 清标志顺序 trace；
-4. 判断 legacy 失败发生在 WDT feed/clear、服务任务饥饿、timer/interrupt
+5. 增加与具体固件地址解耦的 flash-cache pause、cross-core call/ack、
+   DPORT high-interrupt 和 guest 清标志顺序 trace，并关联 source CPU、
+   interrupt matrix target、latch/clear 和等待 CPU；
+6. 判断 legacy 失败发生在 WDT feed/clear、服务任务饥饿、QIO/interrupt
    模型、flash-cache disable、IPC acknowledgement、DPORT 交接还是固件自身；
-5. 同一 legacy 固件 SHA 在 Device Service 中渲染非空应用帧并保持运行；
-6. 回归现有 UIFlow2 Core2 设备组，确保 shared bus 不破坏 touch/IMU/RTC/
+7. 同一 legacy 固件 SHA 在正常 WDT、真实 SSI/m25p80 数据面下渲染非空
+   应用帧并保持运行，不得依赖 WDT 关闭、bulk bypass 或 retry；
+8. 回归现有 UIFlow2 Core2 设备组，确保 shared bus 不破坏 touch/IMU/RTC/
    audio/mic 路径。
 
 当前调查边界：shared bus 修复已经由现有 UIFlow2 Core2 设备组 `6/6` 验证；
 equal-deadline timer 修复已经由最小 probe 的 trace 开/关和 accelerator 对照
-验证。但旧 UIFlow1 的 `TG0/TG1WDT_SYS_RESET`、reset PC `0`、non-empty frame
-与稳定运行仍为 `FAIL`。最小 probe 的 timer PASS 不能归因或关闭 legacy
-watchdog。此前 spinlock owner mismatch 已由探针栈溢出纠正，不能继续作为当前
-模型缺口证据。`Core2FactoryTest` 修复后仍未重跑。
+验证；WDT mask 修复已由显式 `INT_ENA=0/INT_RAW=4/masked status=0` trace
+证明，但修复后 legacy 仍复位。QIO bulk-read 与 cross-core 诊断只证明成本
+热点、字节一致性和卡住位置，不证明根因。但旧 UIFlow1 的
+`TG0/TG1WDT_SYS_RESET`、reset PC `0`、non-empty frame 与稳定运行仍为
+`FAIL`。最小 probe 的 timer PASS 不能归因或关闭 legacy watchdog。此前
+spinlock owner mismatch 已由探针栈溢出纠正，不能继续作为当前模型缺口证据。
+`Core2FactoryTest` 修复后仍未重跑。
 
 ### RUNTIME-04：Core2 for AWS ATECC608 未建模
 
