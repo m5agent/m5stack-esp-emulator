@@ -323,9 +323,10 @@ functional PASS.
   `m5core2` machine resolves to a 4 MiB QOM memory with `has_psram=true`.
   The unified guest now also allocates a 1 MiB bytearray from that heap and
   completes 35, 35 and 36 full readback sweeps in three independent
-  120-second leases while repeating controlled and public HTTP checks. This
-  proves the virtual guest data path over time, not the board's physical
-  8 MiB or cache timing. Radio/unified runs now use deterministic
+  120-second leases, plus 179 sweeps in one 600-second lease, while repeating
+  controlled and public HTTP checks. This proves the virtual guest data path
+  over time, not the board's physical 8 MiB or cache timing. Radio/unified
+  runs now use deterministic
   TCG/icount scheduling and passed 10/10 independent first attempts; the
   reproduced failure was interrupt-WDT/timer starvation, not a proven cache
   fault.

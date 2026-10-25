@@ -80,7 +80,9 @@ python3 tests/uiflow2/core2_native_hci/run_service_5x.py \
 Three independent 120-second leases from the same firmware passed with a
 4 MiB effective external heap, a 1 MiB guest allocation, 35/35/36 sweeps
 (106 full-buffer checks), 30 controlled HTTP rechecks, 10 public rechecks and
-all board/network/BLE/frame/QOM/pcap checks. This is sustained virtual PSRAM
+all board/network/BLE/frame/QOM/pcap checks. A separate 600-second lease
+completed 179 sweeps, 51 controlled HTTP rechecks and 18 public rechecks with
+active BLE, bounded TCG, frame/QOM, pcap and cleanup still passing. This is sustained virtual PSRAM
 data-path validation; the board's physical 8 MiB capacity, cache/PSRAM timing
 and hardware remain `NOT RUN`.
 

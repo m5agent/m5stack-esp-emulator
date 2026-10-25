@@ -4074,6 +4074,35 @@ class DocsConsistencyTests(unittest.TestCase):
                 {"discover": 1, "offer": 1, "request": 1, "ack": 1},
             )
             self.assertIn("example.com.", attempt["dns_queries"])
+        soak600 = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-core2-psram-sustained-1x600.json"
+            ).read_text()
+        )
+        self.assertEqual(soak600["status"], "PASS")
+        self.assertEqual(soak600["attempts_completed"], 1)
+        self.assertEqual(soak600["hold_seconds_per_attempt"], 600)
+        self.assertEqual(soak600["psram_gate"], "PASS")
+        soak_run = soak600["runs"][0]
+        self.assertEqual(len(soak_run["psram"]["sweeps"]), 179)
+        self.assertEqual(soak_run["psram"]["verified_bytes"], 179 * (1 << 20))
+        self.assertEqual(soak_run["psram"]["http_recheck_pass_count"], 51)
+        self.assertEqual(soak_run["psram"]["public_recheck_pass_count"], 18)
+        self.assertEqual(soak_run["pcap_bytes"], 97_951)
+        self.assertEqual(soak600["checks_per_attempt"]["psram_sustained_stress"], "PASS")
+        soak_pcap = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-core2-psram-sustained-1x600-pcap-summary.json"
+            ).read_text()
+        )
+        self.assertEqual(soak_pcap["status"], "PASS")
+        self.assertEqual(soak_pcap["packets"], 912)
+        self.assertEqual(soak_pcap["flows"], 208)
+        self.assertIn("example.com.", soak_pcap["dns_queries"])
 
         runner = (
             ROOT / "tests/uiflow2/core2_native_hci/run_service_5x.py"
@@ -4138,6 +4167,10 @@ class DocsConsistencyTests(unittest.TestCase):
             backend,
         )
         self.assertIn(
+            "core2-psram-sustained-1x600.json",
+            backend,
+        )
+        self.assertIn(
             "memory_validation",
             json.dumps(source_core2["runtime"]["validation"]),
         )
@@ -4151,6 +4184,14 @@ class DocsConsistencyTests(unittest.TestCase):
         )
         self.assertIn(
             "120-second",
+            profile_core2["validation"]["memory_validation"],
+        )
+        self.assertIn(
+            "600-second",
+            source_core2["runtime"]["validation"]["memory_validation"],
+        )
+        self.assertIn(
+            "600-second",
             profile_core2["validation"]["memory_validation"],
         )
 

@@ -68,7 +68,7 @@
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-25` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-25` | `1.29.0`；API、对象、状态机、错误码、有界地址/CIDR、controlled domain suffix 和 transport 契约 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、legacy GDB 对照、artifact-bound 两小时功能门禁、TCG 内存归因、三 lease 121 轮、active-stop/recovery `3/3` 和 guest PSRAM `3×120s`/累计 106 次全缓冲校验 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、legacy GDB 对照、artifact-bound 两小时功能门禁、TCG 内存归因、三 lease 121 轮、active-stop/recovery `3/3`、guest PSRAM `3×120s` 和单次 600 秒持续压力 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、安全检查、文件系统、许可策略、sdkconfig detected / image observed capability、WebBurner 来源展示和 evidence 分层 |
 | [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-25` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍明确为未覆盖边界 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-25` | 网络模式、有界 dual-stack CIDR egress、显式绑定 domain suffix、同 guest AAAA/HTTP/denied-port/cleanup、trusted-host companion continuity、安全边界和证据要求 |

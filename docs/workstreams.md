@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | 设备与统一运行时 | QEMU unified 单 guest 板级 + WiFi + BLE + evidence；设备覆盖与 Tab5 边界见当前状态和自动快照 | 长稳和设备级新固件回归 | 代表设备的同路径真机验证与剩余模型缺口 |
 | 网络与取证 | namespace、pcap、双 guest fabric、跨 server/worker namespace 的 Bearer+HMAC control plane、active-token multicast worker discovery、central/runtime restart 后同 lease/session/evidence continuity、session-create idempotency、trusted-host unified HTTP/BLE companion continuity、controlled DNS A/AAAA 与显式绑定 domain suffix、TLS、有界 IPv4/IPv6 地址/CIDR egress、双栈 veth/NAT 与清理、同 guest IPv6 TCP/HTTP + controlled AAAA + denied-port + cleanup、worker queue/auth/TLS/reauth、worker 控制面与本地 runtime API 分离、worker-local QEMU 与 worker namespace 内真实 StickS3 QEMU/artifact/evidence、generic ESP32-S3 `qemu-wifi` observe、S3 WPA2-PSK 正确/错误密码 | `NET-04` 真实跨主机 QEMU executor、NAT/跨子网 discovery、namespace-managed/Tab5/cross-host companion、连续 evidence 流、跨主机 idempotency；WPA3/group multicast | 跨主机 job 可迁移、可重放、可清理；不可信固件进入 disposable VM |
-| Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；同 guest 多轮重连、active-BLE、active-stop/recovery、bounded-TCG 和 `3×120s` 虚拟 PSRAM/周期联网持续压力已闭合 | 长时并发/吞吐和其余 teardown 模式；bit-exact controller/baseband 与物理 `8 MiB` PSRAM/cache timing | controller/物理边界和同固件路径真机验证 |
+| Core2 | 无 GDB 的 `core2-native-hci`，WiFi/公网/GATT/frame/QOM/pcap 同 lease；同 guest 多轮重连、active-BLE、active-stop/recovery、bounded-TCG、`3×120s` 和单次 600 秒虚拟 PSRAM/周期联网持续压力已闭合 | 长时并发/吞吐和其余 teardown 模式；bit-exact controller/baseband 与物理 `8 MiB` PSRAM/cache timing | controller/物理边界和同固件路径真机验证 |
 | 通用固件审查 | manifest、API/WebBurner required/optional capability、sdkconfig detected 与 image-signature observed capability、security preflight、静态/SBOM、LittleFS/FAT/SPIFFS、WebBurner 流式上传、公开 BIN 强制刷新、session-isolated SD/NVS fixture、SHA-bound UI/headless/network-first expectation；OpenAI NVS、Open/WPA2 正确密码与错误密码、network-first DHCP/DNS/TCP/pcap 对照 | 真实 key/cloud 结果；`FW-01/02/03`；`RUNTIME-02/03/04` | 每轮绑定实际 BIN/expectation/fixture SHA、分层区分 firmware/model/fixture 结果、更多固件族、运行态权限/许可闭环和同 SHA 真机安全流程 |
 | Device Service 生命周期 | durable queue、worker HMAC、HTTPS/mTLS、rotation/drain、同主机 QEMU/QMP 与 trusted-host companion reattach | `SVC-01/02/03` 与 `NET-04` | 跨主机/namespace-managed/Tab5 companion、warm pool、容量和大型编排模块拆分 |
 
@@ -38,7 +38,7 @@
 3. `CORE2-02`：补长时吞吐/并发与其他 teardown 模式、bit-exact
    controller/baseband 和
    物理 `8 MiB` PSRAM/cache timing；已完成的重连、TCG、guest PSRAM
-   `3×120s` 持续压力与 active-stop 门禁不重复列为待办。
+   `3×120s`/600s 持续压力与 active-stop 门禁不重复列为待办。
 4. `RUNTIME-03`：先补 Core2 legacy I2C 的 port/pin/bus trace，再验证
    BM8563 RTC 路径；`RUNTIME-04` 独立补 ATECC608 fixture；
    `RUNTIME-02` 补 C6 802.15.4 commissioning 或保持显式不支持。
