@@ -8,7 +8,7 @@
   "attempts_completed": 3,
   "attempts_passed": 3,
   "tool_hashes": {
-    "runner": "020a9215db5e97fe2156e7674f49416ade230dbbaf304cf3bc00ba5e6a0b4d10",
+    "runner": "6672b3a1924d9133fcdcfefaadc19a66770587f75d1e184d38ce6868631ac3eb",
     "runtime_fixture": "22d9aadac063caf22b5d40777860cb9345ba846eff00aa0a2a4cd1ba33df9592",
     "worker_agent": "bf250820f879ce232df2d8df95827908cd4a6ebe7335c257129d022e6bf102cb",
     "device_service": "6f9b526e936941ebeb2a05acb3442f619f296d4bba5479a9ef98be7839363662",
@@ -37,8 +37,8 @@
   },
   "runs": [
     {
-      "evidence_sha256": "605e0d1d1804e5cdfabc2a89341582203249d8c7f911b7f0a22e3a12c5385031",
-      "job_id_sha256": "ce338dd886c6e6be543e9e7eae838d0904f50022dd801d909e8ea57cb95970f6",
+      "evidence_sha256": "17a054f9fee628b16ee80a8f590c3e1aa58dcf633438675b4bd12e5d12111520",
+      "job_id_sha256": "e79208b5a2dca29dfe4ccb89010d7206fd2b27a182d9f1fb7d306c8edd3b1cee",
       "attempts": 2,
       "result_state": "PASS",
       "first_worker_returncode": 1,
@@ -50,11 +50,12 @@
         "service_exit": true,
         "runtime_exit": true,
         "namespaces": []
-      }
+      },
+      "runtime_kind": "fake-process"
     },
     {
-      "evidence_sha256": "2d3e8256890dc971f1deb05a82df1b3d5c44f593e4dd0a88aba7e438e282201c",
-      "job_id_sha256": "0c8746c22e3585832d1ca5de4124070c9e3b0189d13dc16cde1f0b7e6bf6f8b2",
+      "evidence_sha256": "330ba634bcf9950d12b7f017d5e2ef5b572b5e66c4665c1d10c39fb50df9ffe6",
+      "job_id_sha256": "fa4f57ebeb5c1c80b9d1a0b197bfc6cd7f7cc9f50885c3f24ceaa04b19255de4",
       "attempts": 2,
       "result_state": "PASS",
       "first_worker_returncode": 1,
@@ -66,11 +67,12 @@
         "service_exit": true,
         "runtime_exit": true,
         "namespaces": []
-      }
+      },
+      "runtime_kind": "fake-process"
     },
     {
-      "evidence_sha256": "5746c1f71fff8d499f8ba9894eddacfc2d1adbc493144f2eeb5eb9d759ceb310",
-      "job_id_sha256": "2a27e4857947e923874400bf048e18cece7a56d0c9277fd6c45eb3a2eb4b19e4",
+      "evidence_sha256": "20baae40ab701abd251dedd669c5d5b6eb97d526bcf24ed708dbaa61a487f75f",
+      "job_id_sha256": "2658e1c71e8c929e80df38ae223d99ea7634f0c69f985e3ea59292e4342294f7",
       "attempts": 2,
       "result_state": "PASS",
       "first_worker_returncode": 1,
@@ -82,7 +84,8 @@
         "service_exit": true,
         "runtime_exit": true,
         "namespaces": []
-      }
+      },
+      "runtime_kind": "fake-process"
     }
   ],
   "not_claimed": [

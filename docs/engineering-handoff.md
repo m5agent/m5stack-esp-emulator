@@ -57,7 +57,8 @@
   subnet 中 `3/3 PASS`，错误/旧 token、rotation 和 cleanup 同轮验证；
 - worker→control network blackhole 的 bounded heartbeat fence；真实
   namespace 中 runtime session、OS child process、lease expiry/requeue 和
-  retry completion 连续 `3/3 PASS`；
+  retry completion 连续 `3/3 PASS`；worker-local Device Service + StickS3
+  QEMU lane 也 `3/3 PASS`，首轮 QEMU PID 与 attempt 2 QEMU PID 均回收；
 - central 与 worker-local runtime/QEMU 在两个独立 Docker 容器中的真实
   QEMU job、terminal evidence、三工件哈希和 container/bridge cleanup；
 - Core2 `core2-native-hci`、同 guest 120/121 轮重连、active-stop、
@@ -79,7 +80,7 @@
 | --- | --- | --- | --- |
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
-| Worker 与恢复 | durable queue、409/network-partition fence、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU/device-specific 和 worker 未拥有的外部 side effect |
+| Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
 | Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力 | `PILOT` | 物理 PSRAM/cache timing、bit-exact controller、长时并发 |
 | 通用固件审查 | Manifest/WebBurner、capability/security、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
@@ -192,7 +193,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU/device-specific 和 worker 未拥有的外部 side-effect fencing | 409 与 network partition 都已 fence worker-owned runtime process；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
+| `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing | 409 与 network partition 都已 fence worker-owned OS/QEMU process；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | bit-exact controller/baseband、物理 PSRAM/cache timing、长时并发和其他 teardown | 功能级虚拟证据不能证明物理等价 |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据 |
@@ -208,7 +209,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |
 | `CZ-01` | CardputerZero 完整系统、驱动和长期回归 | 独立 Linux 后端不能继承 ESP32 结论 |
 
-如果跨主机环境暂时不可用，先扩展 QEMU/device-specific side-effect fencing、
+如果跨主机环境暂时不可用，先扩展 QEMU 内 guest/device-controller side-effect fencing、
 worker 未拥有外部 side effect 的 ownership 契约或跨主机
 idempotency/recovery，不应把单机 namespace/subnet 结果改写成跨主机完成。
 

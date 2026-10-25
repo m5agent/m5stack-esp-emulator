@@ -148,6 +148,10 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-25-partition-fencing-3x.json"
             ),
             (
+                "tests/network/worker_partition_fencing/"
+                "evidence-2026-10-25-partition-fencing-qemu-3x.json"
+            ),
+            (
                 "tests/uiflow2/core2_native_hci/"
                 "evidence-2026-10-25-core2-psram-sustained-8m-3x120.json"
             ),
@@ -2207,7 +2211,7 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("job_lease_mismatch", api)
         self.assertIn("job_lease_mismatch", openapi)
         self.assertIn(
-            "network blackhole 后 runtime process stop/reap",
+            "network blackhole 后 OS process 与真实 QEMU PID stop/reap",
             backlog,
         )
         self.assertIn("NOT RUN", ledger)
@@ -4903,6 +4907,39 @@ class DocsConsistencyTests(unittest.TestCase):
             self.assertTrue(run["retry_side_effect_reaped"])
             self.assertEqual(run["cleanup"]["namespaces"], [])
 
+        qemu_evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_partition_fencing/"
+                "evidence-2026-10-25-partition-fencing-qemu-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(qemu_evidence["status"], "PASS")
+        self.assertEqual(qemu_evidence["attempts_passed"], 3)
+        self.assertEqual(len(qemu_evidence["checks_per_attempt"]), 18)
+        self.assertEqual(
+            qemu_evidence["checks_per_attempt"]["qemu_started"],
+            "PASS",
+        )
+        self.assertEqual(
+            qemu_evidence["tool_hashes"]["qemu"],
+            "f024f034d20bd5b8e2c224ce69deed70984b0514f8a310d221b388b74c179ecb",
+        )
+        self.assertEqual(
+            qemu_evidence["tool_hashes"]["firmware"],
+            "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+        )
+        self.assertTrue(qemu_evidence["input_assets_unchanged"])
+        self.assertEqual(len(qemu_evidence["runs"]), 3)
+        for run in qemu_evidence["runs"]:
+            self.assertEqual(run["runtime_kind"], "qemu")
+            self.assertEqual(run["attempts"], 2)
+            self.assertEqual(run["result_state"], "PASS")
+            self.assertNotEqual(run["first_worker_returncode"], 0)
+            self.assertEqual(run["retry_worker_returncode"], 0)
+            self.assertTrue(run["first_side_effect_reaped"])
+            self.assertTrue(run["retry_side_effect_reaped"])
+
         worker_agent = (
             ROOT / "platform/tools/worker_agent.py"
         ).read_text()
@@ -4911,6 +4948,9 @@ class DocsConsistencyTests(unittest.TestCase):
         ).read_text()
         unit_test = (
             ROOT / "platform/tests/test_worker_agent.py"
+        ).read_text()
+        partition_runner = (
+            ROOT / "tests/network/worker_partition_fencing/run_test.py"
         ).read_text()
         self.assertIn(
             "operation: Callable[[float], Any]",
@@ -4925,6 +4965,13 @@ class DocsConsistencyTests(unittest.TestCase):
             "test_transient_network_loss_is_time_bounded_and_fences_runtime",
             unit_test,
         )
+        for fragment in (
+            'parser.add_argument("--qemu"',
+            "upload_firmware(",
+            "wait_qemu_started(",
+            "wait_qemu_stopped(",
+        ):
+            self.assertIn(fragment, partition_runner)
 
         status = (DOCS / "project-status.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
@@ -4953,6 +5000,11 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn(
             "worker_partition_fencing/evidence-"
             "2026-10-25-partition-fencing-3x.json",
+            ledger,
+        )
+        self.assertIn(
+            "worker_partition_fencing/evidence-"
+            "2026-10-25-partition-fencing-qemu-3x.json",
             ledger,
         )
 

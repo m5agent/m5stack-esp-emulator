@@ -27,12 +27,32 @@ sudo env \
   --out-dir /tmp/m5-worker-partition-fencing
 ```
 
-The runtime fixture is intentionally not QEMU. This test proves the
-control-plane fencing protocol and a real OS-process side effect, not QEMU
-placement, physical cross-host execution, RF or hardware.
+The default runtime fixture is a lightweight authenticated HTTP session with a
+real OS child process, suitable for CI. The optional QEMU lane runs a real
+worker-local Device Service and StickS3 QEMU:
+
+```bash
+sudo env \
+  "PATH=$PATH" \
+  "PYTHONPATH=$PWD/platform/tools" \
+  python3 tests/network/worker_partition_fencing/run_test.py \
+  --qemu \
+  --qemu-path /path/to/linux/qemu-system-xtensa \
+  --firmware /path/to/sticks3-full.bin \
+  --out-dir /tmp/m5-worker-partition-qemu
+```
+
+Both lanes prove control-plane fencing and process cleanup. The QEMU lane
+additionally proves that the worker-local QEMU PID is reaped after the
+blackhole and that attempt 2 can boot a fresh QEMU and complete the job.
 
 Committed evidence:
 [`evidence-2026-10-25-partition-fencing-3x.json`](evidence-2026-10-25-partition-fencing-3x.json).
 Three independent runs pass `18/18` checks; each first worker fences and reaps
 its side effect, the lease expires and is requeued, and attempt 2 completes
 `PASS`.
+
+The QEMU lane also has three independent runs:
+[`evidence-2026-10-25-partition-fencing-qemu-3x.json`](evidence-2026-10-25-partition-fencing-qemu-3x.json).
+It does not prove physical hardware or side effects outside the worker-owned
+QEMU process.

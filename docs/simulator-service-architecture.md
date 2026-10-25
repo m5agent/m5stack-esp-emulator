@@ -40,8 +40,8 @@ Implemented:
 - HMAC-authenticated unicast discovery seed for cross-subnet/NAT workers,
   validated through two isolated subnets, IPv4 forwarding and masquerade;
 - bounded network-partition lease fencing that stops a worker-reachable
-  runtime process, suppresses stale results and lets a new lease complete
-  after expiry/requeue;
+  runtime, reaps both an OS child process and a real worker-local QEMU PID,
+  suppresses stale results and lets a new lease complete after expiry/requeue;
 - a same-host HTTP-only executor that claims a job, runs a real StickS3 QEMU
   session, downloads an evidence ZIP/SHA256, stops with `purge=0` and reports
   the terminal result;
@@ -346,8 +346,9 @@ When a worker-to-control blackhole makes ownership unconfirmable, each request
 is bounded by the remaining recovery budget. The worker stops its reachable
 runtime session, reaps an OS-process side effect and suppresses the stale
 result; after lease expiry and network restoration, a new worker claim can
-complete the job. QEMU/device-specific and externally owned network effects
-remain separate boundaries.
+complete the job. The QEMU lane runs the real worker-local Device Service and
+StickS3 image, so QEMU process termination is included; guest/device-controller
+effects and externally owned network effects remain separate boundaries.
 Session creation uses a persisted idempotency key; WorkerAgent
 derives it from job and lease so response-loss retries return the original
 session. Cross-host QEMU execution, arbitrary NAT traversal without a

@@ -347,8 +347,11 @@ reachable runtime session, reaps a process side effect and suppresses the
 stale result instead of waiting for a full default HTTP timeout. The central
 job lease then expires and is requeued after `M5_JOB_LEASE_SECONDS`; a new
 worker attempt can complete the job after connectivity returns. The committed
-Linux fixture covers this for an authenticated OS-process runtime, not for
-QEMU/device-specific or externally owned network side effects.
+Linux fixtures cover both an authenticated OS-process runtime and a real
+worker-local Device Service plus StickS3 QEMU process. The QEMU lane proves
+the old QEMU PID is reaped and attempt 2 boots a new instance; guest/device
+controller effects and externally owned network side effects remain separate
+boundaries.
 
 `worker_agent.py --advertise-endpoint` stores an externally reachable HTTP(S)
 worker endpoint in the registration record. The worker directory rejects

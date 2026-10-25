@@ -432,6 +432,131 @@ def run_worker(
     )
 
 
+def upload_firmware(
+    namespace: str,
+    service_url: str,
+    token_file: Path,
+    image: Path,
+) -> str:
+    script = """
+import json
+import pathlib
+import sys
+import urllib.request
+base_url, token_path, image_path = sys.argv[1:4]
+token = pathlib.Path(token_path).read_text().strip()
+headers = {"Authorization": "Bearer " + token}
+data = pathlib.Path(image_path).read_bytes()
+request = urllib.request.Request(
+    base_url + "/api/v1/artifacts",
+    data=data,
+    method="POST",
+    headers={
+        **headers,
+        "Content-Type": "application/octet-stream",
+        "X-Artifact-Name": "partition-fence.bin",
+    },
+)
+with urllib.request.urlopen(request, timeout=30) as response:
+    artifact = json.loads(response.read())
+payload = json.dumps({
+    "device_id": "sticks3",
+    "kind": "merged",
+    "artifact_id": artifact["artifact_id"],
+}).encode()
+request = urllib.request.Request(
+    base_url + "/api/v1/firmware",
+    data=payload,
+    method="POST",
+    headers={**headers, "Content-Type": "application/json"},
+)
+with urllib.request.urlopen(request, timeout=30) as response:
+    firmware = json.loads(response.read())
+print(firmware["firmware_id"])
+"""
+    result = command(
+        [
+            "ip",
+            "netns",
+            "exec",
+            namespace,
+            sys.executable,
+            "-c",
+            script,
+            service_url,
+            str(token_file),
+            str(image),
+        ],
+        timeout=90,
+    )
+    if result.returncode != 0:
+        raise FixtureError(
+            f"firmware upload failed: {result.stderr.strip()[-2000:]}"
+        )
+    return result.stdout.strip()
+
+
+def qemu_session(
+    service_url: str,
+    token_file: Path,
+    *,
+    session_id: str | None = None,
+) -> dict[str, Any]:
+    path = "/api/v1/sessions"
+    if session_id is not None:
+        path += f"/{session_id}"
+    response = api_json(
+        WORKER_NS,
+        service_url + path,
+        token_file,
+    )
+    if session_id is not None:
+        return response
+    sessions = response.get("sessions")
+    return sessions[0] if isinstance(sessions, list) and sessions else {}
+
+
+def wait_qemu_started(
+    service_url: str,
+    token_file: Path,
+    *,
+    timeout: float,
+) -> dict[str, Any]:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        session = qemu_session(service_url, token_file)
+        if (
+            session.get("state") == "running"
+            and isinstance(session.get("pid"), int)
+        ):
+            return session
+        time.sleep(0.1)
+    raise FixtureError("worker-local QEMU session did not become running")
+
+
+def wait_qemu_stopped(
+    service_url: str,
+    token_file: Path,
+    session_id: str,
+    pid: int,
+    *,
+    timeout: float,
+) -> dict[str, Any]:
+    deadline = time.monotonic() + timeout
+    latest: dict[str, Any] = {}
+    while time.monotonic() < deadline:
+        latest = qemu_session(
+            service_url,
+            token_file,
+            session_id=session_id,
+        )
+        if latest.get("state") == "stopped" and not pid_alive(pid):
+            latest["side_effect_reaped"] = True
+            return latest
+        time.sleep(0.1)
+    raise FixtureError(f"worker-local QEMU session did not stop: {latest}")
+
+
 def main() -> int:
     if sys.platform != "linux":
         raise SystemExit("worker partition fencing fixture requires Linux")
@@ -439,7 +564,25 @@ def main() -> int:
     os.environ["no_proxy"] = "*"
     parser = argparse.ArgumentParser()
     parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument("--qemu", action="store_true")
+    parser.add_argument("--qemu-path", type=Path)
+    parser.add_argument("--firmware", type=Path)
     args = parser.parse_args()
+    if args.qemu and (
+        args.qemu_path is None or args.firmware is None
+    ):
+        parser.error("--qemu requires --qemu-path and --firmware")
+    if not args.qemu and (
+        args.qemu_path is not None or args.firmware is not None
+    ):
+        parser.error("--qemu-path/--firmware require --qemu")
+    qemu_path = args.qemu_path.resolve() if args.qemu_path else None
+    firmware = args.firmware.resolve() if args.firmware else None
+    if qemu_path is not None and not qemu_path.is_file():
+        parser.error("--qemu-path does not exist")
+    if firmware is not None and not firmware.is_file():
+        parser.error("--firmware does not exist")
+    runtime_kind = "qemu" if args.qemu else "fake-process"
     args.out_dir.mkdir(parents=True, exist_ok=True)
     logs_dir = args.out_dir / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
@@ -454,6 +597,8 @@ def main() -> int:
     runtime_state = args.out_dir / "runtime-state.json"
     service_state = args.out_dir / "service-state"
     service_state.mkdir()
+    runtime_state_dir = args.out_dir / "runtime-service-state"
+    runtime_state_dir.mkdir()
     worker_first_dir = args.out_dir / "worker-first"
     worker_second_dir = args.out_dir / "worker-second"
     tool_paths = {
@@ -463,12 +608,18 @@ def main() -> int:
         "device_service": ROOT / "platform/tools/device_service.py",
         "serve": SERVICE,
     }
+    if qemu_path is not None and firmware is not None:
+        tool_paths["qemu"] = qemu_path
+        tool_paths["firmware"] = firmware
     hashes_before = {
         name: sha256_file(path)
         for name, path in tool_paths.items()
     }
     environment = os.environ.copy()
     environment["M5_JOB_LEASE_SECONDS"] = str(JOB_LEASE_SECONDS)
+    if qemu_path is not None:
+        environment["M5_QEMU_XTENSA"] = str(qemu_path)
+        environment["M5_SERVICE_FLASH_MODE"] = "host-image"
 
     fixture = NamespaceFixture()
     service: subprocess.Popen[str] | None = None
@@ -509,28 +660,65 @@ def main() -> int:
             service_url + "/api/health",
             service,
         )
-        runtime = subprocess.Popen(
-            [
-                "ip",
-                "netns",
-                "exec",
-                WORKER_NS,
-                sys.executable,
-                "-u",
-                str(RUNTIME),
-                "--port",
-                str(runtime_port),
-                "--token-file",
-                str(token_file),
-                "--state-file",
-                str(runtime_state),
-            ],
-            cwd=ROOT,
-            text=True,
-            stdout=runtime_log,
-            stderr=subprocess.STDOUT,
-        )
+        if args.qemu:
+            runtime = subprocess.Popen(
+                [
+                    "ip",
+                    "netns",
+                    "exec",
+                    WORKER_NS,
+                    sys.executable,
+                    "-u",
+                    str(SERVICE),
+                    str(runtime_port),
+                    "--bind",
+                    "127.0.0.1",
+                    "--state-dir",
+                    str(runtime_state_dir),
+                    "--api-token-file",
+                    str(token_file),
+                    "--worker-id",
+                    "partition-runtime",
+                ],
+                cwd=ROOT,
+                env=environment,
+                text=True,
+                stdout=runtime_log,
+                stderr=subprocess.STDOUT,
+            )
+        else:
+            runtime = subprocess.Popen(
+                [
+                    "ip",
+                    "netns",
+                    "exec",
+                    WORKER_NS,
+                    sys.executable,
+                    "-u",
+                    str(RUNTIME),
+                    "--port",
+                    str(runtime_port),
+                    "--token-file",
+                    str(token_file),
+                    "--state-file",
+                    str(runtime_state),
+                ],
+                cwd=ROOT,
+                text=True,
+                stdout=runtime_log,
+                stderr=subprocess.STDOUT,
+            )
         wait_http(WORKER_NS, runtime_url + "/api/health", runtime)
+        firmware_id = (
+            upload_firmware(
+                WORKER_NS,
+                runtime_url,
+                token_file,
+                firmware,
+            )
+            if args.qemu and firmware is not None
+            else None
+        )
 
         submitted = api_json(
             SERVER_NS,
@@ -546,6 +734,11 @@ def main() -> int:
                     "session": {
                         "device_id": "sticks3",
                         "runtime": "qemu",
+                        **(
+                            {"firmware_id": firmware_id}
+                            if firmware_id is not None
+                            else {}
+                        ),
                     },
                     "evidence_include": ["manifest", "serial"],
                     "evidence_delay_seconds": EVIDENCE_DELAY_SECONDS,
@@ -568,15 +761,23 @@ def main() -> int:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
-        first_session = wait_runtime_session(
-            runtime_state,
-            lambda row: (
-                row.get("state") == "running"
-                and isinstance(row.get("side_effect_pid"), int)
-            ),
-            timeout=5,
-        )
-        first_pid = int(first_session["side_effect_pid"])
+        if args.qemu:
+            first_session = wait_qemu_started(
+                runtime_url,
+                token_file,
+                timeout=30,
+            )
+            first_pid = int(first_session["pid"])
+        else:
+            first_session = wait_runtime_session(
+                runtime_state,
+                lambda row: (
+                    row.get("state") == "running"
+                    and isinstance(row.get("side_effect_pid"), int)
+                ),
+                timeout=5,
+            )
+            first_pid = int(first_session["side_effect_pid"])
         pid_before = pid_alive(first_pid)
         partition_network(control_port)
 
@@ -596,15 +797,24 @@ def main() -> int:
             else {}
         )
         first_summary = first_result.get("summary", {})
-        fenced_session = wait_runtime_session(
-            runtime_state,
-            lambda row: (
-                row.get("session_id") == first_session["session_id"]
-                and row.get("state") == "stopped"
-                and row.get("side_effect_reaped") is True
-            ),
-            timeout=10,
-        )
+        if args.qemu:
+            fenced_session = wait_qemu_stopped(
+                runtime_url,
+                token_file,
+                str(first_session["session_id"]),
+                first_pid,
+                timeout=20,
+            )
+        else:
+            fenced_session = wait_runtime_session(
+                runtime_state,
+                lambda row: (
+                    row.get("session_id") == first_session["session_id"]
+                    and row.get("state") == "stopped"
+                    and row.get("side_effect_reaped") is True
+                ),
+                timeout=10,
+            )
         pid_after = pid_alive(first_pid)
 
         leased = api_json(
@@ -639,19 +849,35 @@ def main() -> int:
             lambda job: job.get("status") == "completed",
             timeout=20,
         )
-        final_state = read_runtime_state(runtime_state)
-        final_sessions = list(
-            final_state.get("sessions", {}).values()
-        )
-        second_session = next(
-            (
-                row
-                for row in final_sessions
-                if row.get("session_id") != first_session["session_id"]
-            ),
-            {},
-        )
-        second_pid = int(second_session.get("side_effect_pid") or 0)
+        if args.qemu:
+            qemu_sessions = api_json(
+                WORKER_NS,
+                runtime_url + "/api/v1/sessions",
+                token_file,
+            ).get("sessions", [])
+            second_session = next(
+                (
+                    row
+                    for row in qemu_sessions
+                    if row.get("session_id") != first_session["session_id"]
+                ),
+                {},
+            )
+            second_pid = int(second_session.get("pid") or 0)
+        else:
+            final_state = read_runtime_state(runtime_state)
+            final_sessions = list(
+                final_state.get("sessions", {}).values()
+            )
+            second_session = next(
+                (
+                    row
+                    for row in final_sessions
+                    if row.get("session_id") != first_session["session_id"]
+                ),
+                {},
+            )
+            second_pid = int(second_session.get("side_effect_pid") or 0)
         input_assets_unchanged = {
             name: sha256_file(path)
             for name, path in tool_paths.items()
@@ -710,7 +936,6 @@ def main() -> int:
             ),
             "retry_runtime_stopped": (
                 second_session.get("state") == "stopped"
-                and second_session.get("side_effect_reaped") is True
             ),
             "retry_side_effect_reaped": (
                 second_pid > 0 and not pid_alive(second_pid)
@@ -726,15 +951,26 @@ def main() -> int:
                 namespace not in namespaces_after
                 for namespace in (SERVER_NS, WORKER_NS)
             ),
-            "no_qemu_started": True,
         }
+        if args.qemu:
+            checks["qemu_started"] = pid_before
+        else:
+            checks["no_qemu_started"] = True
         evidence = {
             "schema_version": 1,
             "kind": "m5stack-worker-network-partition-fencing",
             "date": "2026-10-25",
             "validation": "virtual control-plane validation",
             "status": "PASS" if all(checks.values()) else "FAIL",
-            "base_commit": "667c3564208fcb69df7afea68091d6d3e34d3eb4",
+            "base_commit": "fa902c2c3f67b560d4d7d64b8b1df302b4fa1067",
+            "runtime": {
+                "kind": runtime_kind,
+                "side_effect": (
+                    "worker-local QEMU process"
+                    if args.qemu
+                    else "worker-local OS child process"
+                ),
+            },
             "tool_hashes": hashes_before,
             "input_assets_unchanged": input_assets_unchanged,
             "job": {
@@ -773,7 +1009,11 @@ def main() -> int:
                 "namespaces": namespaces_after.strip().splitlines(),
             },
             "not_claimed": [
-                "QEMU side-effect fencing",
+                *(
+                    []
+                    if args.qemu
+                    else ["QEMU side-effect fencing"]
+                ),
                 "physical cross-host execution",
                 "external network side effects not owned by the worker",
                 "production scheduler",

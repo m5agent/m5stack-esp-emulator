@@ -97,7 +97,9 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   namespace fixture 在 local runtime session 与 child process 已创建后
   drop control traffic，worker fence、DELETE runtime、reap process、拒绝
   stale result；5 秒 lease expiry 后 job re-queue，网络恢复后第二个 worker
-  以新 attempt 完成 PASS，连续 `3/3`；
+  以新 attempt 完成 PASS，连续 `3/3`。同一 runner 另有真实 worker-local
+  Device Service + StickS3 QEMU lane：首轮 QEMU PID 被 reap，attempt 2
+  启动新 QEMU 并完成 PASS，亦为 `3/3`；
 - 已获得具体 runtime session ID 后，worker 对 runtime status/evidence/stop
   做有界 transient retry；runtime Device Service 同 state 重启后按
   PID start-time、QMP ownership 和 running 状态重新接管同一 QEMU；

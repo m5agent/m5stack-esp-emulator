@@ -52,9 +52,10 @@ MicroPython 和其他完整 Flash 固件。
   WorkerAgent 检测到所有权丢失或控制面恢复超时后，会停止自己可达的
   worker-local runtime session，并拒绝上报 stale result。worker→central
   网络 blackhole 已有 `3/3` 真实 namespace fence：bounded heartbeat、
-  runtime DELETE、OS process reap、lease expiry/requeue 和 retry PASS。
-  QEMU/device-specific side effect、未被 worker 拥有的外部网络 side effect
-  和物理跨主机执行仍未验证。
+  runtime DELETE、OS process reap、lease expiry/requeue 和 retry PASS；
+  worker-local Device Service + StickS3 QEMU lane 也完成 `3/3`，首轮
+  QEMU PID 被 reap、attempt 2 重新启动并 PASS。QEMU 内 guest/device side
+  effect、未被 worker 拥有的外部网络 side effect 和物理跨主机执行仍未验证。
 - Linux namespace 网络策略支持有界 IPv4/IPv6 CIDR、controlled DNS
   domain suffix 和有界 CNAME chain；域名/CNAME terminal answer 必须落在
   允许的 endpoint 地址/CIDR 内，Host 匹配使用 DNS label boundary，不把

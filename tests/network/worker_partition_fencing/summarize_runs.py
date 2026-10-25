@@ -54,6 +54,7 @@ def main() -> int:
         job = document["job"]
         first = document["first_worker"]
         retry = document["retry_worker"]
+        checks = document["checks"]
         if (
             job.get("attempts") != 2
             or job.get("status") != "completed"
@@ -62,9 +63,9 @@ def main() -> int:
             or not first.get("result", {}).get("summary", {}).get(
                 "lease_fenced"
             )
-            or not first.get("session", {}).get("side_effect_reaped")
             or retry.get("returncode") != 0
-            or not retry.get("session", {}).get("side_effect_reaped")
+            or checks.get("runtime_side_effect_reaped") is not True
+            or checks.get("retry_side_effect_reaped") is not True
         ):
             raise SystemExit(f"{evidence_path} does not prove fencing")
         runs.append(
@@ -75,11 +76,24 @@ def main() -> int:
                 "result_state": job["result"]["state"],
                 "first_worker_returncode": first["returncode"],
                 "first_worker_lease_fenced": True,
-                "first_side_effect_reaped": True,
+                "first_side_effect_reaped": checks[
+                    "runtime_side_effect_reaped"
+                ],
                 "retry_worker_returncode": retry["returncode"],
-                "retry_side_effect_reaped": True,
+                "retry_side_effect_reaped": checks[
+                    "retry_side_effect_reaped"
+                ],
                 "cleanup": document["cleanup"],
+                "runtime_kind": document["runtime"]["kind"],
             }
+        )
+    not_claimed = list(documents[0][1]["not_claimed"])
+    if all(
+        document["runtime"]["kind"] == "qemu"
+        for _, document in documents
+    ):
+        not_claimed.append(
+            "QEMU guest/device/controller-internal side effects"
         )
     output = {
         "schema_version": 1,
@@ -97,7 +111,7 @@ def main() -> int:
             for name in sorted(expected_checks)
         },
         "runs": runs,
-        "not_claimed": documents[0][1]["not_claimed"],
+        "not_claimed": not_claimed,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(output, indent=2) + "\n")

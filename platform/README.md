@@ -188,7 +188,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/cname_guest_lifecycle/` | 同 guest CNAME→terminal A→HTTP、denied name/port、pcap、namespace cleanup 和三次独立 lease 复现 |
 | `../tests/network/egress_allowlist/` | 精确 IP/端口、拒绝端口/拒绝 IP、veth/NAT 和清理验证 |
 | `../tests/network/worker_discovery_seed/` | 两个独立子网、NAT、unicast seed、错误/旧 token、rotation 和清理验证 |
-| `../tests/network/worker_partition_fencing/` | worker→control 断网、bounded heartbeat failure、runtime/process stop、lease expiry/requeue 和 retry 完成 |
+| `../tests/network/worker_partition_fencing/` | worker→control 断网、bounded heartbeat failure、OS process/真实 QEMU PID reap、lease expiry/requeue 和 retry 完成 |
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
 | `../tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain/resume、进程组清理和下一代 abandoned lease 分类 |
