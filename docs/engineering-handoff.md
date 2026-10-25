@@ -75,6 +75,10 @@
   path、HLI `45/45`、errors/reset/panic 为 0；并发再扩展到两批三实例
   `3×120s` 合计 `6/6 PASS`，peer scan 预算和 sweep 下限按真实启动/负载
   校准；
+- 四实例无错峰 `4×120s` 已实际执行并得到 `1 PASS / 3 FAIL`，所以“大于三
+  实例”已是可复现开放缺口，不再属于 `NOT RUN`：一个 lease 功能面完成但
+  `hli-errors=1`、`hli-prealloc-failures=2`；另外两个在 READY 前于
+  NimBLE `ble_hs_hci_process_ack` 反复 `LoadProhibited`；
 - FirmwareManifest/WebBurner required/optional capability、安全证据冲突、
   image-signature observation、WebBurner part size/SHA/MD5 复算、SD/NVS
   fixture、包内 eFuse `SECURE_BOOT_DIGEST` 与签名公钥摘要的
@@ -94,7 +98,7 @@
 | 设备与统一运行时 | `runtime=qemu-unified` 单 guest 返回板级、WiFi、BLE 和 evidence | `PILOT` | 真机、RF 和未建模控制器 |
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
 | Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
-| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力、错峰、双实例和三实例无错峰并发 | `PILOT` | 物理 PSRAM/cache timing、bit-exact controller、大于三实例的并发、持续吞吐 |
+| Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG、8 MiB PSRAM MMU、虚拟 PSRAM 压力、错峰、双实例和三实例无错峰并发 | `PILOT` | 四实例首批 `1/4 PASS` 尚未关闭；物理 PSRAM/cache timing、bit-exact controller、持续吞吐 |
 | 通用固件审查 | Manifest/WebBurner、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
 | CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |
@@ -138,7 +142,8 @@ devices/catalog.source.json
 - `device_service.py` 同时承担存储、runtime、证据和 session 状态机，拆分由
   `SVC-03` 跟踪；
 - `test_device_service.py` 和 `test_docs_consistency.py` 体量较大，应在保持
-  API/evidence 契约的前提下按领域拆测试；
+  API/evidence 契约的前提下按领域拆测试；文档契约的具体迁移由 `DOC-01`
+  跟踪；
 - 当前仓库没有从空目录重建全部运行时的 bootstrap；macOS arm64 有可复现
   release 包，其他主机仍需匹配 commit/架构的 runtime 资产；
 - Tab5 的闭源 `esp-emu` 后端必须视为单独边界，不能把 QEMU S3/C6/LX6 的
@@ -207,7 +212,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
-| `CORE2-02` | bit-exact controller/baseband、物理 PSRAM/cache timing、大于三实例的并发、持续吞吐和其他 teardown | 功能级虚拟证据不能证明物理等价；无错峰双实例和三实例已分别由两批独立复跑覆盖，但更大规模并发和物理边界仍开放 |
+| `CORE2-02` | 四实例/更多实例的 HCI 稳定性、bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和其他 teardown | 双实例和三实例已分别由两批独立复跑覆盖；四实例首批 `1 PASS / 3 FAIL`，其中两个在 `ble_hs_hci_process_ack` panic、一个出现 HLI error，因此更大规模并发和物理边界仍开放 |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |
 | `FW-02` | 真机 secure boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key 流程 | 包内 sdkconfig/eFuse summary 只是自报证据；摘要 match 或 version satisfied 不等于运行时已执行 |
 | `FW-03` | 真实 key/cloud 业务与更多设备/固件族 | 当前样本和 network-first 覆盖不等于任意固件 |
@@ -217,6 +222,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 | `SVC-01` | namespace-managed/Tab5/cross-host companion、跨主机 idempotency 和连续 evidence 流 | trusted-host 和单机 restart PASS 不能继承 |
 | `SVC-02` | warm pool、配额、对象存储、审计和容量观测 | 当前仍是 cold/on-demand 本地服务 |
 | `SVC-03` | 拆分 service 的存储、runtime、evidence 和 session 状态机 | 维护边界仍集中在少数大文件 |
+| `DOC-01` | 拆分近 6000 行文档契约测试并结构化 stale-claim 规则 | 当前每个新证据/旧说法都追加到单一测试文件，review 和冲突定位成本高 |
 | `HW-01` | 代表设备同固件 SHA 真机验证 | 仓库目前没有 hardware validation 结果 |
 | `TAB5-01` | 可扩展/可重建 P4 backend | 闭源后端缺少多个必需端点和数据面 |
 | `UI-01` | 逐设备高保真外壳、hitbox 和视觉阈值 | 除 StopWatch 外仍是近似外壳 |

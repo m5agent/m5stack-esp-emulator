@@ -40,7 +40,10 @@ MicroPython 和其他完整 Flash 固件。
   每轮 HLI `45/45`、`hli-errors=0`、无 scheduler reset 或 panic；trace
   记录的 ACK event 延迟从约 `3.660s` 降至 `0.328s`。并发继续扩展到两批
   三实例 `3×120s`，合计 `6/6 PASS`；三个 QEMU、BLE peer、HTTP fixture、
-  WiFi/公网/GATT、PSRAM、frame/QOM/pcap/evidence 同时成立。该结论只覆盖
+  WiFi/公网/GATT、PSRAM、frame/QOM/pcap/evidence 同时成立。四实例
+  `4×120s` 首批已实际执行但为 `1 PASS / 3 FAIL`：一个 lease 出现
+  `hli-errors=1`，另外两个在 READY 前于 NimBLE
+  `ble_hs_hci_process_ack` 反复 `LoadProhibited`。因此已通过范围仍只覆盖
   当前双实例和三实例 `virtual-device` workload。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented Flash、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态审查和 capability
@@ -317,7 +320,7 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   unified guest 还在 `3×120s` 中完成 105 次、在单次 600 秒中完成 179 次
   `1 MiB` 虚拟 PSRAM 全缓冲校验，并保持周期网络访问，
   bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、大于三实例的
-  并发、持续吞吐和真机同路径仍未完成。
+  并发（四实例首批已失败）、持续吞吐和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

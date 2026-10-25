@@ -99,6 +99,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-scan120-threshold-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-pass-a.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-3x120-confirm-pass-b.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-concurrent-4x120-prealloc-4way-fail.json",
             "tests/uiflow2/evidence-2026-10-25-core2-hli-preallocation-full-matrix.json",
             "tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json",
             "tests/uiflow2/evidence-2026-10-25-core2-qom-boot-device-group.json",
@@ -1945,7 +1946,8 @@ class DocsConsistencyTests(unittest.TestCase):
                 "two independent two-instance no-stagger 4x120s gates pass 8/8"
                 in blocker
                 and "three-instance 3x120s gates pass 6/6" in blocker
-                and "more than three instances" in blocker
+                and "four-instance 4x120s batch" in blocker
+                and "fails 1/4" in blocker
                 for blocker in core2_profile["blockers"]
             )
         )
@@ -5196,6 +5198,50 @@ class DocsConsistencyTests(unittest.TestCase):
             three_instance_runs[0]["tool_hashes"],
             three_instance_runs[1]["tool_hashes"],
         )
+
+        four_instance_failure = json.loads(
+            (
+                root
+                / "evidence-2026-10-25-core2-concurrent-"
+                "4x120-prealloc-4way-fail.json"
+            ).read_text()
+        )
+        self.assertEqual(four_instance_failure["status"], "FAIL")
+        self.assertEqual(four_instance_failure["attempts_requested"], 4)
+        self.assertEqual(four_instance_failure["attempts_completed"], 4)
+        self.assertEqual(four_instance_failure["attempts_passed"], 1)
+        self.assertEqual(four_instance_failure["attempts_failed"], 3)
+        self.assertEqual(four_instance_failure["maximum_concurrent_sessions"], 4)
+        self.assertTrue(four_instance_failure["concurrency_observed"])
+        self.assertEqual(four_instance_failure["stagger_seconds"], 0)
+        failed_runs = {
+            run["attempt"]: run
+            for run in four_instance_failure["runs"]
+            if run["status"] == "FAIL"
+        }
+        self.assertEqual(set(failed_runs), {"attempt-2", "attempt-3", "attempt-4"})
+        self.assertEqual(
+            failed_runs["attempt-2"]["native_hci_health"]["hli-errors"],
+            1,
+        )
+        self.assertEqual(
+            failed_runs["attempt-2"]["native_hci_health"][
+                "hli-prealloc-failures"
+            ],
+            2,
+        )
+        for attempt in ("attempt-3", "attempt-4"):
+            run = failed_runs[attempt]
+            self.assertEqual(run["failure_class"], "panic_load_prohibited")
+            self.assertGreater(run["failure_diagnostics"]["panic_count"], 0)
+            self.assertEqual(
+                run["failure_diagnostics"]["first_panic"]["pc"],
+                "0x402630cc",
+            )
+            self.assertEqual(
+                run["failure_diagnostics"]["last_panic"]["pc"],
+                "0x00000000",
+            )
 
         for name, relative in {
             "runner": "tests/uiflow2/core2_native_hci/run_service_5x.py",

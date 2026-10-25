@@ -353,8 +353,14 @@ functional PASS.
   attributed the growth to the unbounded TCG translation buffer. A
   `tb-size=128` 120-second run is stable; the final artifact-bound two-hour
   rerun also passes with RSS `323536→252992 KiB` and phys footprint
-  `250880→188416 KiB`. Three independent
-  stock-firmware leases complete 20, 30, 60 and 120 same-guest reconnect gates.
-  Bit-exact Espressif BT controller behavior, physical cache/PSRAM
-  equivalence and hardware validation remain `NOT RUN`; three independent
-  artifact-bound 121-cycle reconnect leases pass.
+  `250880→188416 KiB`. Three independent stock-firmware leases complete 20,
+  30, 60, 120 and 121 same-guest reconnect cycles; the 121-cycle runs each
+  deliver HLI `3405/3405`, 2316 events and 1089 ACLs with zero health errors.
+  `0008` then closes two-instance and three-instance no-stagger concurrency in
+  two independent batches each (`8/8` and `6/6`). The first four-instance
+  `4×120s` batch reaches concurrency 4 but is `1 PASS / 3 FAIL`: one session
+  completes the visible workload with `hli-errors=1` and two preallocation
+  failures, while two sessions panic before READY in NimBLE
+  `ble_hs_hci_process_ack` at `0x402630cc`. Bit-exact Espressif BT controller
+  behavior, four-or-more-instance stability, physical cache/PSRAM equivalence
+  and hardware validation remain open or `NOT RUN`.

@@ -29,7 +29,7 @@
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
-| P0 | Core2 长稳与物理/controller 等价性 | 补大于三实例的并发、持续吞吐与其他 teardown 模式，以及 bit-exact controller 和物理 PSRAM/cache timing | 3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、30 秒错峰 `2/2`、两批双实例无错峰 `8/8`、两批三实例无错峰 `6/6`、QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap stress `3/3` 和单次 600 秒联网压力 `1/1` 已 PASS |
+| P0 | Core2 长稳与物理/controller 等价性 | 修复四实例首批 `1 PASS / 3 FAIL` 的 NimBLE ACK/HLI 稳定性，再补更多实例、持续吞吐与其他 teardown 模式，以及 bit-exact controller 和物理 PSRAM/cache timing | 3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、30 秒错峰 `2/2`、两批双实例无错峰 `8/8`、两批三实例无错峰 `6/6`、QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap stress `3/3` 和单次 600 秒联网压力 `1/1` 已 PASS；四实例 `4×120s` 已 FAIL，保留为开放项 |
 | P1 | 服务池与调度 | warm pool、配额、对象存储、审计、多机容量 | supervisor、监控、隔离 |
 | P1 | Tab5 P4 后端 | 关闭 CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 | 可重建或可扩展 P4 backend |
 | P1 | 设备视觉保真 | 逐设备结构、材质、hitbox 和视觉回归 | 官方尺寸/参考图 |
@@ -46,18 +46,21 @@
 2. `CORE2-02` extended-run：`3×121`、active-BLE `600s`、
    artifact-bound `7200s`、30 秒错峰 `2/2` 和两批独立无错峰
   `4×120s`（`8/8`）以及两批三实例 `3×120s`（`6/6`）已完成。下一步补
-  大于三实例的并发、持续吞吐、其他 teardown
-   模式、bit-exact controller/baseband、物理 `8 MiB` PSRAM/cache timing
-   和真机路径。QOM `8 MiB`、普通 4 MiB heap `3×120s`/600s 持续压力、
-   上 4 MiB `esp_himem` bank switch 3/3、周期联网、active-stop 和双实例
-   concurrent steady-state 不重复列为待办。
+  四实例及更多实例的 HCI 稳定性、持续吞吐、其他 teardown、bit-exact
+  controller/baseband、物理 `8 MiB` PSRAM/cache timing 和真机路径。四实例
+  首批 `4×120s` 已得到 `1 PASS / 3 FAIL`：一个 lease 功能面完成后仍出现
+  `hli-errors=1`/prealloc failure 2，两个在 NimBLE
+  `ble_hs_hci_process_ack` 的 `0x402630cc` 处 panic。QOM `8 MiB`、普通
+  4 MiB heap `3×120s`/600s 持续压力、上 4 MiB `esp_himem` bank switch
+  3/3、周期联网、active-stop 和最多三实例 concurrent steady-state 不重复
+  列为待办。
 3. `FW-03`：当前四样本、Manifest、SHA-bound expectation、SD/NVS fixture、
    OpenAI DHCP/DNS/TCP443/pcap 和正确/错误 WPA2 密码均已完成；下一步是真实
    key/cloud 服务结果并扩更多设备与 firmware family。
 4. `FW-01/02`、`RUNTIME-02/03/04`、`HW-01`：补运行态权限/许可、生产
    key/eFuse、C6 Zigbee 决策、Core2 控制器缺口和代表设备同固件 SHA
    的真机验证。
-5. `SVC-02`、`SVC-03`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
+5. `SVC-02`、`SVC-03`、`DOC-01`、`TAB5-01`、`UI-01`、`CZ-01`：服务池、模块拆分、
    专项后端和视觉工作，不与当前 P0 混算完成。
 
 ## 可执行任务板
@@ -65,7 +68,7 @@
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
 | `NET-04` | 进行中 | 真实 server/worker network namespace、worker-local StickS3 QEMU、三个独立 Docker 容器对、active-token multicast discovery、cross-subnet/NAT unicast seed discovery、network blackhole 后 OS process 与真实 QEMU PID stop/reap + lease expiry/requeue/retry、worker-local `qemu-unified` 的 HTTP/BLE/pcap companion fence、central/runtime restart continuity、session-create idempotency、trusted-host companion continuity，以及 re-claim 后旧 lease result `409` fencing 已 PASS。下一步补物理跨主机迁移/reattach、无 reachable seed 的任意 NAT traversal、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side-effect fencing、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；lease ownership fail-closed；活动实例不产生假 running |
-| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 `2×120s`、两批双实例无错峰 `8/8` 和两批三实例无错峰 `6/6` 均已 PASS；`0008` 为真实 guest HCI event/ACL 对象建立预分配 fast path，全部 lease fast events 36、fast ACLs 9、`hli-errors=0`，三实例 peer scan 预算按 session readiness 有界扩展 | 再补大于三实例的并发、持续吞吐、其他 teardown、controller/baseband、物理 PSRAM/cache timing 和真机 |
+| `CORE2-02` | 进行中 | QOM 8 MiB、upper-bank `esp_himem` `3/3`、`3×120s` heap/周期联网 `3/3`、单次 600 秒压力、121 轮三 lease、最终 `tb-size=128` 7200s、active-stop/recovery、30 秒错峰 `2×120s`、两批双实例无错峰 `8/8` 和两批三实例无错峰 `6/6` 均已 PASS；`0008` 为真实 guest HCI event/ACL 对象建立预分配 fast path，全部 lease fast events 36、fast ACLs 9、`hli-errors=0`。四实例首批 `4×120s` 为 `1 PASS / 3 FAIL`：一个 HLI error/prealloc failure，两个 NimBLE ACK panic | 修复四实例失败并取得两批独立 aggregate PASS；再补更多实例、持续吞吐、其他 teardown、controller/baseband、物理 PSRAM/cache timing 和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
 | `FW-03` | 进行中 | API/WebBurner capability、Manifest、WebBurner 分段 size/SHA-256/SHA-1/MD5 完整性、矩阵 SHA、SD/NVS fixture 和 SHA-bound `ui-interactive`/`headless-serial`/`network-first` expectation 已完成；当前 AtomS3R/PaperMono 四样本为 `3 PASS / 1 PARTIAL / 0 FAIL`。OpenAI 在同一 BIN + NVS fixture 上通过 network-first 的 DHCP/DNS/TCP443/pcap；Open/WPA2 正确与错误密码也已确认。下一步补真实 key/云端服务结果，再扩更多设备与 firmware family | 每样本分层记录导入、capability、boot、输入和功能；同 ID/version 但 SHA、expectation 或 fixture 变化的旧结果不得复用；`runtime_fixture_gap`/`runtime_model_gap` 不得混作固件 FAIL；SD/存储/NVS 与网络 expectation 可重复注入 |
@@ -75,6 +78,7 @@
 | `SVC-01` | 进行中 | central control-plane、runtime-service restart continuity、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已完成；namespace-managed/Tab5/cross-host companion、跨主机 idempotency、无 reachable seed 的任意 NAT traversal 与跨主机 reattach 仍待做 | 服务重启可接管或明确失败，不产生假 running |
 | `SVC-02` | 待做 | warm pool、队列、配额、对象存储和审计 | latency/CPU/RSS/queue/GC 可观测，租户状态隔离 |
 | `SVC-03` | 待做 | 拆分 `device_service.py` 的存储、runtime、evidence 和 session 状态机 | 对外 API/evidence 不回归；模块边界有契约测试 |
+| `DOC-01` | 待做 | 将接近 6000 行的 `test_docs_consistency.py` 按文档索引、权威状态/Backlog、Core2、网络/worker、固件安全等领域拆分；把手写 stale-claim 断言收敛为结构化 claim/evidence 清单 | 相对链接、API 版本、生成物、当前/历史文档边界和证据冲突仍全覆盖；拆分前后同一提交全套测试通过 |
 | `HW-01` | 待做 | 代表设备同固件 SHA 的真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123、IP2326 有执行路径 |
 | `UI-01` | 待做 | 逐设备高保真外壳、hitbox 和截图阈值 | 每台设备独立结构证据和视觉回归 |
@@ -152,8 +156,9 @@
   其他 Core2 固件需要新的符号/偏移校验，不能按 SoC 继承 PASS；
 - bit-exact Espressif BT controller/baseband，而不是 VHCI 边界替换；
 - 物理板载 `8 MiB` PSRAM 与物理 cache/PSRAM 时序对比；
-- 大于三实例的并发、持续吞吐和其他 teardown 模式；当前双实例 `8/8`
-  和三实例 `6/6` 只覆盖对应实例数、指定固件和 QEMU hook build；
+- 四实例及更多实例的 HCI 稳定性、持续吞吐和其他 teardown 模式；当前
+  双实例 `8/8` 和三实例 `6/6` 只覆盖对应实例数、指定固件和 QEMU hook
+  build，四实例首批已 `1 PASS / 3 FAIL`；
 - 同固件路径真机验证。
 
 新调用必须使用 `core2-native-hci`。`core2-native-vhci` 依赖 GDB，只允许
@@ -164,8 +169,9 @@
 - 新目标固件完成 hook/符号校验，并在对应长稳场景中保持 guest RX、
   notification、peer/pcap/evidence 和 HLI health；
 - 物理 PSRAM/cache、controller/baseband 和真机行为分别提供同路径证据；
-- 大于三实例的并发在独立 artifact-bound 复跑中保持 aggregate `PASS`；
-  双实例和三实例无错峰门禁已分别由两批独立复跑覆盖；
+- 四实例及更多实例在独立 artifact-bound 复跑中保持 aggregate `PASS`；
+  四实例失败必须作为首个失败保留并由修复证据关闭；双实例和三实例无错峰
+  门禁已分别由两批独立复跑覆盖；
 - runner 在失败时必须输出 aggregate `FAIL`，不能丢 traceback 或只保留成功
   次数；
 - 首轮 panic 必须先于 reboot 次生故障被分类和符号化；
@@ -349,6 +355,15 @@ runtime、证据和 HTTP 边界。拆分必须按以下顺序：
 5. 最后收敛 HTTP/orchestration facade。
 
 验收：平台测试、目标 unified lease、停止后历史恢复和 evidence 字段兼容。
+
+### DOC-01 文档契约拆分
+
+`platform/tests/test_docs_consistency.py` 已接近 6000 行，继续把每个新
+evidence 和旧说法都追加到单一文件会让冲突定位和 review 成本持续上升。拆分
+必须保留相对链接、文档索引、API 版本、生成快照和当前/历史页边界检查；按
+领域建立测试模块，并优先把重复的手写 stale-claim 断言收敛成“权威页面、
+claim ID、允许文本、evidence 路径”的数据表。验收是拆分前后同一提交的全套
+文档契约测试均通过，新增当前事实页能自动进入索引/日期/权威状态检查。
 
 ## P1：专项
 

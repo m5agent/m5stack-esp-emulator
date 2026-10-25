@@ -1163,6 +1163,9 @@ buffers and two ACL mbufs preallocated while CPU0 is idle. Two independent
 fast path, HLI `45/45`, `hli-errors=0`, no scheduler reset and no panic.
 The observed Command Status receive-to-HLI delay falls from about `3.660s`
 to `0.328s`. Two additional three-instance `3×120s` gates pass `6/6`.
+The first four-instance `4×120s` batch is explicitly `1 PASS / 3 FAIL`: one
+lease reports `hli-errors=1` and `hli-prealloc-failures=2`, while two leases
+panic before READY in NimBLE `ble_hs_hci_process_ack` at `0x402630cc`.
 For unified profiles, the external BLE peer scan window follows the session
 readiness budget within `40–120s`; the former fixed `40s` window expired
 before guest BLE initialization under three-instance startup load.
@@ -2004,7 +2007,9 @@ restart.
   `4×120s` gates pass `8/8`, with 36 events and 9 ACLs per lease on the fast
   path and zero errors/reset/panic. Two three-instance `3×120s` gates also
   pass `6/6`; their peer scan window is derived from session readiness and
-  the sustained PSRAM sweep floor is `hold/5`. Three independent leases pass
+  the sustained PSRAM sweep floor is `hold/5`. The first four-instance
+  `4×120s` batch is `1 PASS / 3 FAIL` in NimBLE ACK/HLI handling, so scale-out
+  remains open. Three independent leases pass
   each of the 20, 30, 60, 120 and 121 same-guest reconnect gates; the
   121-cycle runs balance HLI 3405/3405, deliver 2316 events and 1089 ACLs,
   and return the connection/L2CAP/GATT pools to 3/9/3.
@@ -2047,8 +2052,9 @@ restart.
   check. The aggregate evidence is
   `evidence-2026-10-25-hci4-reconnect121-3x.json`; it binds identical
   firmware/ELF/QEMU/tool hashes across runs and includes the earlier
-  single-lease evidence. The remaining validation gates are more than three
-  instances, long-run throughput and additional teardown modes;
+  single-lease evidence. The first four-instance `4x120s` batch fails `1/4`
+  in NimBLE ACK/HLI handling, so the remaining validation gates are four or
+  more instances, long-run throughput and additional teardown modes;
   `core2-native-vhci` remains a GDB diagnostic/compatibility profile whose
   repeated-lease result was `1/2`; neither profile is a bit-exact BT
   controller model;
@@ -2084,8 +2090,9 @@ restart.
   Service leases with no GDB bridge, and the halt-gated `5×10s`
   extended-run gate passes two independent batches. The `0008` fast path also
   closes two-instance no-stagger cold start with two independent `8/8`
-  aggregate gates; two three-instance gates add `6/6`. More than three
-  instances, long-run throughput, additional teardown modes,
+  aggregate gates; two three-instance gates add `6/6`. The first four-instance
+  batch fails `1/4`, so more than three instances remain open; long-run
+  throughput, additional teardown modes,
   bit-exact controller/baseband, coexistence and
   same-firmware hardware validation remain open;
 - CoreS3 UIFlow startup palette/alpha PNG images have a known striped-rendering
