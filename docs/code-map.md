@@ -125,6 +125,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/uiflow2/run_peripheral_matrix.py` | 控制器/总线/驱动/API 外设数据面 | 外设改动、里程碑全矩阵 |
 | `tests/uiflow2/unified_*/` | 单 guest board + WiFi + BLE 设备切片 | unified profile 或共享 radio 改动 |
 | `tests/uiflow2/core2_native_hci/run_service_5x.py` | 在首个 lease 前冻结 firmware/ELF/QEMU 哈希，通过真实 Device Service API 连续租用 `core2-native-hci`，支持 `--hold-seconds` 与 `--ble-reconnect-cycles`，低频采样 host RSS，校验 HLI health 和运行期间资产未变化，失败时保留 partial evidence 并汇总 aggregate FAIL | Core2 native-HCI、extended-run/soak/reconnect、Device Service profile 或 ELF hook 改动 |
+| `tests/uiflow2/core2_native_hci/run_service_teardown.py` | 在 BLE/HTTP companion 仍活跃时 DELETE session，验证 stopped、无错误、companion terminate、QEMU/BLE PID reap、worker lease release，并连续创建下一 session 验证恢复 | Core2 stop/teardown、companion cleanup、worker lease lifecycle 改动 |
 | `tests/network/` | namespace、DNS/TLS、精确 egress、DHCP renewal、radio/AP 重连、双 guest lab fabric 和 worker-local QEMU | 网络策略/运行时改动 |
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS 证据 | manifest/filesystem/NVS 改动 |

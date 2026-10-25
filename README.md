@@ -299,8 +299,10 @@ PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py \
   增长已归因到未限容 TCG translation buffer；统一改用 `tb-size=128` 后的
   最终两小时复测也 PASS，RSS `323536→252992 KiB`、phys footprint
   `250880→188416 KiB`。3 个独立 lease 的 121 轮 reconnect 复现也已 PASS；
-  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM 和真机同路径
-  仍未完成。
+  active-stop/recovery 又在 3 个连续 session 中验证了 BLE/HTTP companion、
+  QEMU PID、worker lease 和后续新 session 的完整清理/恢复；
+  bit-exact ESP32 BT baseband/controller、物理 cache/PSRAM、长时并发/吞吐
+  和真机同路径仍未完成。
 - `runtime=network` 的 SoftAP/hostfwd 是 provisioning 诊断路径，不是恶意
   固件沙箱。
 - Tab5 外设不完整，但烧录、启动、串口、1280×720 画面和触摸可用。

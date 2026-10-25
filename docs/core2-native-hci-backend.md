@@ -30,6 +30,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` 121-cycle readiness budget | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`、`ble_runtime_limits.py` | 首次运行完成 29 轮并开始第 30 轮后，被固定 `180s` readiness 预算误杀；guest 无 panic。runner 和 Device Service 改为共享 workload-aware 预算，`121` 轮/`2s` 延迟为 `1028s` |
 | `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`、`run_service_5x.py` | 功能 `121/121` PASS，但 reconnect-only 路径没有 hold loop，QEMU accelerator 未被采样，形成 `bounded_tcg_cache` 假失败；runner 现于 session first running 时直接采样 |
 | `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json` | 3 个独立 artifact-bound lease 均为 `121/121 PASS`，且 firmware/ELF/QEMU/工具哈希一致；每 lease `tb-size=128`、WiFi/公网、NUS GATT、frame/QOM、pcap、evidence 与 cleanup PASS。每 lease HLI `3405/3405`、events 2316、ACLs 1089，队列、错误、dropped、peer-close 和 panic 均为 0 |
+| `CORE2-02` active-stop/recovery | `3/3 PASS` | `run_service_teardown.py --attempts 3`；`evidence-2026-10-25-core2-active-stop-recovery-3x.json` | 三个 session 均在 BLE peer linger 窗口内删除；每次为 `stopped`/无错误，HTTP/BLE companion terminate，BLE/QEMU PID 回收，worker lease 归零，随后新 session 再完成 frame/QOM、DHCP/DNS/HTTP、外部 NUS GATT、pcap 和 evidence。该门禁关闭 active-stop cleanup；不等于 throughput、controller 或物理 cache/PSRAM |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和
 send-available 的窄路径；`HCI-3b` 则改用 guest-visible HLI IRQ/queue，
@@ -547,8 +548,10 @@ Device Service repeated lease；`CORE2-02` 的短时 extended-run 和 20、30、
   计划，不能由当前 `5×10s` / `3×60s` / `2×120s` 重复门禁推导；当前
   PASS 覆盖 halt-gated guest 注入、artifact-bound 两小时 active-BLE
   WiFi/公网/GATT 功能保持、限容 host-memory 和 20、30、60、120 轮
-  reconnect；三 lease 121 轮已完成 `3/3`，物理 cache/PSRAM 等价性仍需
-  独立验证。
+  reconnect；三 lease 121 轮已完成 `3/3`，active-stop/recovery 也已
+  `3/3 PASS`：在 peer 仍处于 linger 时结束 session，companion、PID 和
+  worker lease 全部清理，并连续启动新 session。剩余长稳项只保留吞吐/
+  并发和物理 cache/PSRAM 等价性。
 
 若 classic ESP32 VHCI shared-memory 的 controller-to-host queue 无法从现有
 firmware/ELF 和 QEMU 状态建立可验证语义，`HCI-4` 会升级为架构 blocker，

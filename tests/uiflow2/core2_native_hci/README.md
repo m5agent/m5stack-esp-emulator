@@ -27,6 +27,7 @@ bit-exact Bluetooth controller/baseband or physical RF model.
 | `CORE2-02` 121-cycle readiness budget | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`; the first run completed 29 cycles and started cycle 30 before a fixed 180-second budget stopped a healthy session. The runner and Device Service now share `reconnect_workload_timeout_seconds()` |
 | `CORE2-02` reconnect accelerator sampling | `FIXED` | `evidence-2026-10-25-hci4-reconnect121-accelerator-sampling-fail-1x.json`; a reconnect-only run completed all functional checks but did not sample the QEMU accelerator because that sampling lived only in the hold loop |
 | `CORE2-02` 121-cycle three-lease gate | `3/3 PASS` | `evidence-2026-10-25-hci4-reconnect121-3x.json`; three independent artifact-bound leases each complete 121 cycles with identical firmware/ELF/QEMU/tool hashes, `tb-size=128`, WiFi/public network, NUS GATT, frame/QOM, pcap, evidence and cleanup. Every lease has HLI 3405/3405, 2316 events, 1089 ACLs and zero queue/error/drop/peer-close/panic |
+| `CORE2-02` active stop/recovery | `3/3 PASS` | `evidence-2026-10-25-core2-active-stop-recovery-3x.json`; three consecutive sessions are deleted while their BLE peer is still in the linger window. Each stop reaches `stopped` with no error, terminates HTTP/BLE companions, reaps both BLE and QEMU PIDs, releases the worker lease, and is followed by a new ready session with the same network/GATT/QOM health |
 
 Build the patched QEMU, then run:
 
@@ -226,6 +227,27 @@ The committed evidence is
 under trusted-host isolation. It is not bit-exact controller, RF, malware
 sandbox or physical-hardware validation. The legacy `core2-native-vhci`
 profile remains available for diagnosis but is not the canonical path.
+
+`run_service_teardown.py` exercises process-stop ordering rather than another
+hold. It creates a ready Core2 session, captures pre-stop frame/QOM/network/
+peer/pcap evidence while the BLE peer is still active, deletes the session,
+and verifies state, companion termination, PID reaping and worker-lease
+release. The next attempt must create a new QEMU session successfully:
+
+```bash
+python3 run_service_teardown.py \
+  --image /path/to/unified-core2.bin \
+  --elf /path/to/matching/micropython.elf \
+  --qemu /path/to/qemu-system-xtensa \
+  --attempts 3 \
+  --linger-seconds 120 \
+  --out-dir /tmp/m5-core2-active-stop-recovery
+```
+
+The committed `3/3` evidence is
+`evidence-2026-10-25-core2-active-stop-recovery-3x.json`. This closes the
+active-stop companion/QEMU cleanup gate; it does not establish controller,
+physical cache/PSRAM, throughput, cross-host or hardware equivalence.
 
 `--hold-seconds` keeps each lease running after network evidence and checks
 session stability during the hold. The failed attempt is retained even when

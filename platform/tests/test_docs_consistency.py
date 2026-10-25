@@ -89,8 +89,10 @@ class DocsConsistencyTests(unittest.TestCase):
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect120-3x.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-reconnect10-timeout-fail.json",
             "tests/uiflow2/core2_native_hci/evidence-2026-10-24-oversize-att-mtu.json",
+            "tests/uiflow2/core2_native_hci/evidence-2026-10-25-core2-active-stop-recovery-3x.json",
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
+            "tests/uiflow2/core2_native_hci/run_service_teardown.py",
             "patches/qemu-core2-native-hci/0003-esp32-native-hci-api-transaction.patch",
             "patches/qemu-core2-native-hci/0004-xtensa-ccount-tb-yield.patch",
             "patches/qemu-core2-native-hci/0005-esp32-native-hci-guest-call-sregs.patch",
@@ -1175,6 +1177,13 @@ class DocsConsistencyTests(unittest.TestCase):
                 "evidence-2026-10-25-hci4-reconnect121-3x.json"
             ).read_text()
         )
+        active_stop = json.loads(
+            (
+                ROOT
+                / "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-25-core2-active-stop-recovery-3x.json"
+            ).read_text()
+        )
 
         self.assertIn("3/3 PASS", status)
         self.assertIn("20/30/60/120", project_snapshot)
@@ -1642,9 +1651,33 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
         self.assertTrue(
             any(
-                "three independent artifact-bound 121-cycle" in blocker
+                "long-run concurrency/throughput" in blocker
                 for blocker in core2_profile["blockers"]
             )
+        )
+        self.assertEqual(active_stop["status"], "PASS")
+        self.assertEqual(active_stop["attempts_requested"], 3)
+        self.assertEqual(active_stop["attempts_passed"], 3)
+        self.assertTrue(
+            all(run["status"] == "PASS" for run in active_stop["runs"])
+        )
+        self.assertTrue(
+            all(
+                run["checks"]["pre_stop_ble_companion_running"]
+                and run["checks"]["stop_ble_companion_terminated"]
+                and run["checks"]["qemu_process_reaped"]
+                and run["checks"]["ble_peer_process_reaped"]
+                and run["checks"]["worker_lease_released"]
+                for run in active_stop["runs"]
+            )
+        )
+        self.assertIn(
+            "run_service_teardown.py",
+            (ROOT / "tests/uiflow2/core2_native_hci/README.md").read_text(),
+        )
+        self.assertIn(
+            "active-stop/recovery",
+            (DOCS / "core2-native-hci-backend.md").read_text(),
         )
 
         core2_generated = next(
