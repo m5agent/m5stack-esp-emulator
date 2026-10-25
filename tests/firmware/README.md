@@ -86,7 +86,9 @@ Secure Boot v2 image evidence now parses up to three signature blocks at
 4 KiB-aligned bootloader/application boundaries, validates block magic,
 version, CRC32 and the embedded SHA-256/SHA-384 image digest, and records the
 embedded public-key digest. Synthetic RSA-PSS, ECDSA P-256 and ECDSA P-384
-blocks are covered. Authenticity remains `not-verified` because the
+blocks are covered. RSA-PSS signature mathematics are verified against the
+block-embedded RSA modulus/exponent; ECDSA mathematics remain
+`not-implemented`. Authenticity remains `not-verified` because the
 key digest is not compared with a live eFuse read and no ROM/bootloader
 verification executes. This is static image self-consistency, not a hardware
 secure-boot PASS.

@@ -4464,7 +4464,7 @@ class DocsConsistencyTests(unittest.TestCase):
             "static secure-boot image validation",
         )
         self.assertTrue(evidence["input_assets_unchanged"])
-        self.assertEqual(len(evidence["checks"]), 13)
+        self.assertEqual(len(evidence["checks"]), 16)
         self.assertTrue(all(evidence["checks"].values()))
         for name, relative in {
             "runner": (
@@ -4508,6 +4508,15 @@ class DocsConsistencyTests(unittest.TestCase):
             evidence["security_images"]["unsigned"]["status"],
             "not-found",
         )
+        self.assertTrue(
+            all(
+                block["signature_math"] == "valid"
+                for image in evidence["security_images"]["signed"][
+                    "images"
+                ]
+                for block in image["blocks"]
+            )
+        )
         self.assertEqual(
             {
                 block["scheme"]
@@ -4525,6 +4534,10 @@ class DocsConsistencyTests(unittest.TestCase):
                 ][0]["blocks"]
             },
             {"ecdsa-p384-sha384"},
+        )
+        self.assertEqual(
+            evidence["security_images"]["bad_signature"]["status"],
+            "invalid",
         )
         self.assertIn(
             "embedded public key trust against live eFuse",

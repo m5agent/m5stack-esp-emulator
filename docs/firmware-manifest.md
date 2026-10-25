@@ -160,26 +160,33 @@ Secure Boot v2 signature sector，不执行签名或启动固件。当前支持�
 - 每个 block 的 magic、version、CRC32；
 - block 内 image digest 与 signature sector 之前的镜像内容 SHA-256/SHA-384；
 - block 中公钥区域的 SHA-256 指纹。
+- RSA-PSS/SHA-256 签名数学验证，包括 MGF1、PSS 编码、salt 和 signed
+  image digest。
 
 `security.secure_boot_image.status` 的语义：
 
 | 状态 | 含义 |
 | --- | --- |
-| `signed-image-observed` | 至少一个 block 结构有效，且 image digest 与当前镜像内容一致 |
-| `invalid` | 找到 signature-like sector，但 block CRC 或 image digest 不一致 |
+| `signed-image-observed` | 至少一个 block 结构有效，image digest 与当前镜像内容一致；受支持的 RSA-PSS block 同时通过数学验签 |
+| `invalid` | 找到 signature-like sector，但 block CRC、image digest 或 RSA-PSS 数学签名不一致 |
 | `not-found` | 没有找到可解析的 v2 signature sector |
+
+每个 block 记录 `signature_math=valid/invalid/not-implemented`。RSA-PSS 使用
+block 内 modulus/exponent 对 signed image digest 验签；ECDSA 目前只做格式和
+摘要检查，`signature_math=not-implemented`。
 
 即使状态是 `signed-image-observed`，manifest 仍固定记录
 `signature_authenticity=not-verified` 和 `trust_root=not-verified`。原因是静态
-扫描只用 block 内自带的公钥和摘要检查数据自洽，没有把公钥 digest 与真实
-eFuse 比较，也没有让 boot ROM/bootloader 执行验签。对应 warnings：
+扫描只用 block 内自带的公钥检查签名数学和摘要自洽，没有把公钥 digest 与
+真实 eFuse 比较，也没有让 boot ROM/bootloader 执行验签。对应 warnings：
 
 - `secure_boot_v2_image_signature_authenticity_unverified`；
+- `secure_boot_v2_image_signature_math_not_verified`（ECDSA）；
 - `secure_boot_v2_image_signature_not_observed`（config/eFuse 声称 v2）；
 - `secure_boot_v2_image_signature_invalid`。
 
-该检查不覆盖 Secure Boot v1、Flash Encryption key、生产 eFuse、密钥吊销、
-secure version anti-rollback 真机状态或启动链执行。
+该检查不覆盖 ECDSA 数学验签、Secure Boot v1、Flash Encryption key、生产
+eFuse、密钥吊销、secure version anti-rollback 真机状态或启动链执行。
 
 ## 静态审查
 

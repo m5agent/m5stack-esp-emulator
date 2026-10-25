@@ -191,8 +191,9 @@ allowlist/denylist 决策，且未配置 allowlist、无声明和未知表达式
 
 当前缺口：包内 sdkconfig、分区 flag、脱敏 eFuse summary、capability
 preflight，以及 Secure Boot v2 signature sector 的 block CRC/image digest
-扫描已有；embedded public key authenticity/eFuse trust root、Secure Boot v1、
-Flash Encryption key、真机 secure boot/eFuse 和生产 key 状态尚未闭环。
+和 RSA-PSS 数学验证已有；ECDSA 数学验证、embedded public key
+authenticity/eFuse trust root、Secure Boot v1、Flash Encryption key、真机
+secure boot/eFuse 和生产 key 状态尚未闭环。
 
 验收：明确区分镜像声明、运行态和真机验证；测试/生产 key 不进入仓库或公开
 日志；无权威输入时保持 `unknown`。

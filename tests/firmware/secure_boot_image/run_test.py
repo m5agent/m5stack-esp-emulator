@@ -7,6 +7,8 @@ import hashlib
 import json
 import sys
 import tempfile
+import struct
+import zlib
 from pathlib import Path
 from typing import Any
 
@@ -93,6 +95,26 @@ def main() -> int:
             root,
             "tampered",
         )
+        bad_signature_bytes = bytearray(
+            build_flash_with_secure_boot_v2()
+        )
+        bad_sector = 0x11000
+        bad_signature_bytes[bad_sector + 900] ^= 0x01
+        struct.pack_into(
+            "<I",
+            bad_signature_bytes,
+            bad_sector + 1196,
+            zlib.crc32(
+                bad_signature_bytes[
+                    bad_sector : bad_sector + 1196
+                ]
+            ),
+        )
+        bad_signature = import_case(
+            bytes(bad_signature_bytes),
+            root,
+            "bad-signature",
+        )
         unsigned = import_case(
             build_flash(),
             root,
@@ -118,6 +140,9 @@ def main() -> int:
     signed_image = signed["security"]["secure_boot_image"]
     tampered_image = tampered["security"]["secure_boot_image"]
     unsigned_image = unsigned["security"]["secure_boot_image"]
+    bad_signature_image = bad_signature["security"][
+        "secure_boot_image"
+    ]
     ecdsa_p256_image = ecdsa_p256["security"]["secure_boot_image"]
     ecdsa_p384_image = ecdsa_p384["security"]["secure_boot_image"]
     signed_by_label = {
@@ -144,6 +169,12 @@ def main() -> int:
                 block.get("public_key_digest_sha256"), str
             )
             and len(block["public_key_digest_sha256"]) == 64
+            for image in signed_image["images"]
+            for block in image.get("blocks", [])
+        ),
+        "rsa_signature_math_valid": all(
+            block.get("signature_math") == "valid"
+            and block.get("signature_math_valid") is True
             for image in signed_image["images"]
             for block in image.get("blocks", [])
         ),
@@ -180,6 +211,22 @@ def main() -> int:
                 for block in image.get("blocks", [])
             )
         ),
+        "ecdsa_math_not_implemented": all(
+            block.get("signature_math") == "not-implemented"
+            and block.get("signature_math_valid") is None
+            for image in (
+                ecdsa_p256_image["images"]
+                + ecdsa_p384_image["images"]
+            )
+            for block in image.get("blocks", [])
+        ),
+        "bad_signature_math_rejected": (
+            bad_signature_image.get("status") == "invalid"
+            and any(
+                image.get("status") == "signature-math-mismatch"
+                for image in bad_signature_image["images"]
+            )
+        ),
         "missing_signature_warning_recorded": (
             "secure_boot_v2_image_signature_not_observed"
             in warning_codes(unsigned)
@@ -212,9 +259,11 @@ def main() -> int:
             "unsigned": unsigned_image,
             "ecdsa_p256": ecdsa_p256_image,
             "ecdsa_p384": ecdsa_p384_image,
+            "bad_signature": bad_signature_image,
         },
         "not_claimed": [
-            "RSA-PSS or ECDSA signature authenticity",
+            "embedded public key authenticity",
+            "ECDSA signature mathematical verification",
             "embedded public key trust against live eFuse",
             "Secure Boot ROM/bootloader execution",
             "Secure Boot v1",

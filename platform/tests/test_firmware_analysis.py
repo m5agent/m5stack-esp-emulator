@@ -22,6 +22,14 @@ from firmware_analysis import (
 )
 from firmware_filesystems import SPIFFS_CONFIGS, inventory_data_partition
 
+RSA3072_TEST_VECTOR = json.loads(
+    (
+        ROOT
+        / "platform/tests/fixtures/"
+        "secure_boot_rsa3072_test_vector.json"
+    ).read_text()
+)
+
 
 def build_image(chip_id: int = 0x0009, descriptor: bool = True) -> bytes:
     segment = bytearray()
@@ -71,7 +79,18 @@ def build_secure_boot_v2_sector(
     block[0] = 0xE7
     if scheme == "rsa":
         block[1] = 0x02
-        block[4:36] = hashlib.sha256(image_content).digest()
+        digest = hashlib.sha256(image_content).digest()
+        signature = bytes.fromhex(
+            RSA3072_TEST_VECTOR["signatures"][digest.hex()]
+        )
+        block[4:36] = digest
+        block[36:420] = bytes.fromhex(
+            RSA3072_TEST_VECTOR["public_key"]["n_little_endian"]
+        )
+        block[420:424] = bytes.fromhex(
+            RSA3072_TEST_VECTOR["public_key"]["e_little_endian"]
+        )
+        block[812:1196] = signature[::-1]
     elif scheme == "ecdsa":
         block[1] = 0x03
         if curve_id == 3:
@@ -739,7 +758,15 @@ class FirmwareAnalysisTests(unittest.TestCase):
                         row["blocks"][0]["scheme"],
                         expected,
                     )
+                    self.assertEqual(
+                        row["blocks"][0]["signature_math"],
+                        "valid" if scheme == "rsa" else "not-implemented",
+                    )
                     self.assertTrue(row["image_digest_match"])
+                    self.assertEqual(
+                        row["signature_math_verified"],
+                        scheme == "rsa",
+                    )
                     self.assertEqual(
                         row["signature_authenticity"],
                         "not-verified",
@@ -760,6 +787,34 @@ class FirmwareAnalysisTests(unittest.TestCase):
         )
         self.assertEqual(factory["status"], "image-digest-mismatch")
         self.assertFalse(factory["image_digest_match"])
+
+    def test_secure_boot_v2_rsa_signature_math_mismatch_is_invalid(self):
+        image = bytearray(build_flash_with_secure_boot_v2())
+        sector_offset = 0x11000
+        image[sector_offset + 900] ^= 0x01
+        struct.pack_into(
+            "<I",
+            image,
+            sector_offset + 1196,
+            zlib.crc32(image[sector_offset : sector_offset + 1196]),
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "bad-signature.bin"
+            path.write_bytes(image)
+            result = analyze_firmware(path, expected_chip_id_value=0x0009)
+
+        evidence = result["secure_boot_v2"]
+        self.assertEqual(evidence["status"], "invalid")
+        factory = next(
+            row for row in evidence["images"] if row["label"] == "factory"
+        )
+        self.assertEqual(factory["status"], "signature-math-mismatch")
+        self.assertTrue(factory["image_digest_match"])
+        self.assertFalse(factory["signature_math_verified"])
+        self.assertEqual(
+            factory["blocks"][0]["signature_math"],
+            "invalid",
+        )
 
     def test_detects_chip_mismatch(self):
         with tempfile.TemporaryDirectory() as tmp:

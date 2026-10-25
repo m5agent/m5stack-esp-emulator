@@ -2151,7 +2151,8 @@ def import_package(
                     "secure_boot_v2_image_signature_invalid",
                     (
                         "a Secure Boot v2 signature sector was observed but "
-                        "its block CRC or image digest did not validate"
+                        "its block CRC, image digest or supported RSA-PSS "
+                        "signature did not validate"
                     ),
                     path="security.secure_boot_image",
                 )
@@ -2168,6 +2169,24 @@ def import_package(
                     path="security.secure_boot_image",
                 )
             )
+            if any(
+                block.get("signature_math") == "not-implemented"
+                for image in secure_boot_image.get("images", [])
+                if isinstance(image, dict)
+                for block in image.get("blocks", [])
+                if isinstance(block, dict)
+            ):
+                manifest["validation"]["warnings"].append(
+                    _code_issues(
+                        "secure_boot_v2_image_signature_math_not_verified",
+                        (
+                            "one or more ECDSA signature blocks were parsed "
+                            "but mathematical signature verification is not "
+                            "implemented"
+                        ),
+                        path="security.secure_boot_image",
+                    )
+                )
         if (
             security["secure_boot"] == "v2"
             and secure_boot_image_status not in {
@@ -2453,6 +2472,36 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
                         "manifest.security.secure_boot_image.images must be "
                         "an array"
                     )
+                else:
+                    for image in secure_boot_image["images"]:
+                        if not isinstance(image, dict):
+                            errors.append(
+                                "manifest.security.secure_boot_image.images "
+                                "must contain objects"
+                            )
+                            continue
+                        for block in image.get("blocks", []):
+                            if (
+                                not isinstance(block, dict)
+                                or block.get("signature_math")
+                                not in {
+                                    "valid",
+                                    "invalid",
+                                    "not-implemented",
+                                }
+                                or not (
+                                    isinstance(
+                                        block.get("signature_math_valid"),
+                                        bool,
+                                    )
+                                    or block.get("signature_math_valid") is None
+                                )
+                            ):
+                                errors.append(
+                                    "manifest.security.secure_boot_image "
+                                    "signature_math is invalid"
+                                )
+                                break
     capabilities = manifest.get("capabilities")
     if capabilities is not None:
         if not isinstance(capabilities, dict):

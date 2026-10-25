@@ -439,6 +439,14 @@ class FirmwareManifestTests(unittest.TestCase):
             {row["label"] for row in evidence["images"]},
             {"bootloader", "factory"},
         )
+        self.assertTrue(
+            all(
+                block["signature_math"] == "valid"
+                and block["signature_math_valid"] is True
+                for image in evidence["images"]
+                for block in image["blocks"]
+            )
+        )
         warning_codes = {
             row["code"]
             for row in manifest["validation"]["warnings"]

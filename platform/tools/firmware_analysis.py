@@ -45,6 +45,80 @@ def _align_up(value: int, alignment: int) -> int:
     return (value + alignment - 1) // alignment * alignment
 
 
+def _mgf1_sha256(seed: bytes, length: int) -> bytes:
+    output = bytearray()
+    counter = 0
+    while len(output) < length:
+        output.extend(
+            hashlib.sha256(
+                seed + counter.to_bytes(4, "big")
+            ).digest()
+        )
+        counter += 1
+    return bytes(output[:length])
+
+
+def _verify_rsa_pss_sha256(
+    message_hash: bytes,
+    signature: bytes,
+    modulus: int,
+    exponent: int,
+) -> bool:
+    if (
+        len(message_hash) != 32
+        or len(signature) != 384
+        or modulus <= 0
+        or exponent <= 1
+    ):
+        return False
+    signature_value = int.from_bytes(signature, "big")
+    if signature_value >= modulus:
+        return False
+    encoded = pow(signature_value, exponent, modulus).to_bytes(
+        modulus.bit_length() // 8,
+        "big",
+    )
+    em_bits = modulus.bit_length() - 1
+    em_len = (em_bits + 7) // 8
+    if len(encoded) > em_len:
+        encoded = encoded[-em_len:]
+    elif len(encoded) < em_len:
+        encoded = encoded.rjust(em_len, b"\x00")
+    hash_length = 32
+    salt_length = 32
+    if len(encoded) < hash_length + salt_length + 2:
+        return False
+    if encoded[-1] != 0xBC:
+        return False
+    masked_db = encoded[: em_len - hash_length - 1]
+    encoded_hash = encoded[em_len - hash_length - 1 : -1]
+    unused_bits = 8 * em_len - em_bits
+    if unused_bits and masked_db[0] >> (8 - unused_bits):
+        return False
+    db = bytearray(
+        left ^ right
+        for left, right in zip(
+            masked_db,
+            _mgf1_sha256(encoded_hash, len(masked_db)),
+            strict=True,
+        )
+    )
+    if unused_bits:
+        db[0] &= 0xFF >> unused_bits
+    separator = len(db) - salt_length - 1
+    if separator < 0 or db[separator] != 0x01:
+        return False
+    if any(byte != 0 for byte in db[:separator]):
+        return False
+    salt = bytes(db[separator + 1 :])
+    if len(salt) != salt_length:
+        return False
+    expected_hash = hashlib.sha256(
+        b"\x00" * 8 + message_hash + salt
+    ).digest()
+    return expected_hash == encoded_hash
+
+
 def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
     start = index * SECURE_BOOT_V2_SIGNATURE_BLOCK_SIZE
     block = data[
@@ -68,6 +142,15 @@ def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
         scheme = "rsa-pss-sha256"
         public_key_digest = hashlib.sha256(block[36:812]).hexdigest()
         curve_id = None
+        modulus = int.from_bytes(block[36:420], "little")
+        exponent = int.from_bytes(block[420:424], "little")
+        signature_math_valid = _verify_rsa_pss_sha256(
+            image_digest,
+            block[812:1196][::-1],
+            modulus,
+            exponent,
+        )
+        signature_math = "valid" if signature_math_valid else "invalid"
     elif sha_version == 1:
         curve_id = block[52]
         scheme = (
@@ -76,6 +159,8 @@ def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
             else f"ecdsa-unknown-curve-{curve_id}-sha384"
         )
         public_key_digest = hashlib.sha256(block[52:149]).hexdigest()
+        signature_math_valid = None
+        signature_math = "not-implemented"
     else:
         curve_id = block[36]
         curve_name = {
@@ -85,6 +170,8 @@ def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
         }.get(curve_id, f"unknown-{curve_id}")
         scheme = f"ecdsa-{curve_name}-sha256"
         public_key_digest = hashlib.sha256(block[36:101]).hexdigest()
+        signature_math_valid = None
+        signature_math = "not-implemented"
     return {
         "index": index,
         "version": version,
@@ -102,6 +189,8 @@ def _secure_boot_v2_block(data: bytes, index: int) -> dict | None:
             else None
         ),
         "public_key_digest_sha256": public_key_digest,
+        "signature_math": signature_math,
+        "signature_math_valid": signature_math_valid,
         "block_crc32": expected_crc,
         "_image_digest": image_digest,
     }
@@ -151,18 +240,27 @@ def detect_secure_boot_v2_signature(
                 else hashlib.sha256(image_content).digest()
             )
             digest_matches.append(actual == digest)
+        signature_math_valid = [
+            block.get("signature_math_valid") for block in blocks
+        ]
+        if not all(digest_matches):
+            signature_status = "image-digest-mismatch"
+        elif any(value is False for value in signature_math_valid):
+            signature_status = "signature-math-mismatch"
+        else:
+            signature_status = "image-digest-match"
         return {
-            "status": (
-                "image-digest-match"
-                if all(digest_matches)
-                else "image-digest-mismatch"
-            ),
+            "status": signature_status,
             "sector_offset": sector_offset,
             "image_bytes": sector_offset - image_start,
             "candidate_count": candidate_count,
             "block_count": len(blocks),
             "blocks": blocks,
             "image_digest_match": all(digest_matches),
+            "signature_math_verified": (
+                all(value is True for value in signature_math_valid)
+                and bool(signature_math_valid)
+            ),
             "signature_authenticity": "not-verified",
             "trust_root": "not-verified",
         }
@@ -174,6 +272,7 @@ def detect_secure_boot_v2_signature(
         "block_count": 0,
         "blocks": [],
         "image_digest_match": False,
+        "signature_math_verified": False,
         "signature_authenticity": "not-verified",
         "trust_root": "not-verified",
     }
@@ -495,7 +594,11 @@ def analyze_firmware(
             }
         )
     if any(
-        row.get("status") == "image-digest-mismatch"
+        row.get("status")
+        in {
+            "image-digest-mismatch",
+            "signature-math-mismatch",
+        }
         for row in signature_images
     ):
         signature_status = "invalid"
