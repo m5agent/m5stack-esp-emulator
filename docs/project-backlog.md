@@ -21,7 +21,7 @@
 
 | 优先级 | 工作流 | 完成标准 | 主要依赖 / 风险 |
 | --- | --- | --- | --- |
-| P0 | 网络产品化 | controlled DNS CNAME resolver 与同 guest CNAME→HTTP 生命周期已完成；NAT/跨子网发现、跨主机 worker 迁移/QEMU executor、namespace-managed/Tab5/cross-host companion、跨主机 reattach 和生产调度仍待做 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP + trusted-host companion reattach |
+| P0 | 网络产品化 | controlled DNS CNAME resolver、同 guest CNAME→HTTP 生命周期和跨 Docker 容器 worker-local QEMU 已完成；NAT/跨子网发现、物理跨主机 worker 迁移/QEMU executor、namespace-managed/Tab5/cross-host companion、跨主机 reattach 和生产调度仍待做 | durable queue/lease supervisor；HTTPS/mTLS；SIGHUP rotation + request drain + bounded credential overlap；同主机 generation-pointer migration + receipts；同主机 authenticated executor；本地 QEMU/QMP + trusted-host companion reattach |
 | P0 | 通用固件安全 | 权限/许可、安全启动/Flash Encryption/key 流程、跨厂商回归 | 多格式镜像；真机安全配置 |
 | P0 | 运行时模型缺口 | C6 Zigbee commissioning；Core2 legacy I2C controller/board-bus routing；Core2 for AWS ATECC608 | 802.15.4 ACK/controller；controller port/pin 到板级 bus；安全元件 fixture |
 | P0 | 真机同路径验证 | 代表设备使用同固件 SHA 和同测试计划通过 | 物理设备、测试槽、证据采集 |
@@ -33,7 +33,8 @@
 
 ## 当前执行顺序
 
-1. `NET-04` 跨主机阶段：补真实跨主机 QEMU executor、NAT/跨子网 discovery、
+1. `NET-04` 跨主机阶段：cross-container QEMU/evidence 已完成；补物理跨主机
+   QEMU executor、NAT/跨子网 discovery、
    跨主机 reattach/idempotency 和外部 side-effect fencing；两个 network
    namespace 的同主机 PASS 不能替代。trusted-host companion continuity 已
    通过；剩余单独处理 namespace-managed/Tab5/cross-host companion。
@@ -55,7 +56,7 @@
 
 | ID | 状态 | 下一项最小交付 | 验收 |
 | --- | --- | --- | --- |
-| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。active-token multicast discovery、central control-plane restart、runtime Device Service restart、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已 PASS。下一步补 NAT/跨子网发现、跨主机迁移/reattach、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
+| `NET-04` | 进行中 | 真实 server/worker network namespace 已通过 Bearer+HMAC 注册、submit/claim、worker/job heartbeat、result 和 cleanup；worker-local StickS3 QEMU、artifact/firmware、evidence、terminal result、QEMU reap 和 namespace cleanup 也已 PASS。三个独立 Docker 容器对进一步让 central 与 worker-local runtime/QEMU 分属独立容器，terminal job、三哈希 evidence、QEMU reap、container/bridge cleanup 均 PASS。active-token multicast discovery、central control-plane restart、runtime Device Service restart、session-create idempotency 和 trusted-host unified HTTP/BLE companion continuity 已 PASS。下一步补 NAT/跨子网发现、物理跨主机迁移/reattach、namespace-managed/Tab5/cross-host companion 和生产调度 | worker 重启后跨主机 job/evidence 可收敛；rotation 已完成；控制面不创建 session，执行面拥有 QEMU/evidence/cleanup；receipts 可审计；namespace 失败 fail-closed；活动实例不产生假 running |
 | `CORE2-02` | 进行中 | 3 个独立 lease 各 20/30/60/120 轮、`5×10s`、`3×60s`、`2×120s`、active-BLE `600s`、3 个独立 121 轮 lease、最终 `tb-size=128` artifact-bound `7200s`、active-stop/recovery `3/3`、`3×120s` 虚拟 PSRAM/周期联网 `3/3` 和单次 600 秒持续压力 `1/1` 均已 PASS；121 轮 readiness 与 accelerator-sampling 两个 harness 缺陷均已修复 | 补 controller/baseband、物理 `8 MiB` PSRAM/cache timing、长时吞吐/并发、其他 teardown 模式和真机 |
 | `FW-01` | 进行中 | 运行时权限、完整源码级许可扫描与法律审批 | 文件清单可追踪；声明策略、资源权限和最终许可结论可审计且不混算 |
 | `FW-02` | 进行中 | 真机 secure boot、Flash Encryption、eFuse 和生产 key 流程 | 支持矩阵与拒绝路径明确，敏感 key 不入库 |
@@ -98,7 +99,12 @@
   namespace 内独立 Device Service 创建真实 StickS3 QEMU session，绑定
   source/normalized firmware 与 QEMU SHA，取得 serial/frame/QOM evidence
   并完成 central job result；QEMU 和 namespace 均回收。这仍是一台主机上的
-  两个 namespace，不代表物理跨主机。Device Service 现在广播 active-token
+  两个 namespace，不代表物理跨主机。进一步增加的
+  `worker_cross_container` fixture 让 central 与 worker-local runtime/QEMU
+  分属两个独立 Docker 容器和 user-defined bridge；三个独立容器对均完成
+  terminal job、source/normalized/QEMU hash、manifest/serial evidence、
+  QEMU reap 和 container/bridge cleanup。这仍共享一个 Docker daemon，
+  不代表物理主机、进程迁移或 companion continuity。Device Service 现在广播 active-token
   HMAC 签名的 IPv4 multicast beacon，真实 `WorkerAgent` 可自动发现 control
   URL 并注册；错误 token、SIGHUP 前旧 token 均被拒绝，新 token 可重新发现。
   这仍只覆盖同一 multicast domain；NAT/跨子网、物理跨主机 QEMU job、

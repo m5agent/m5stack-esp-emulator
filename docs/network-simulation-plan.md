@@ -34,6 +34,7 @@ Device Service lease
 | Bounded dual-stack egress | nftables + per-session IPv4/IPv6 veth/NAT | 有界 IPv4/IPv6 地址或 CIDR、协议和端口的允许/拒绝及清理 | 任意宽泛网段、未绑定域名或完整恶意固件沙箱 |
 | Firmware SoftAP | `runtime=network`、AP 密码和 loopback `hostfwd` | 固件自建 provisioning portal | 手机、captive portal OS 或真实 roaming |
 | Multi-device lab fabric | private namespace 内的 QEMU socket L2 switch | 两台 guest 的 DHCP、私有 TCP 和双侧 pcap | TAP primitive、RF、WPA2/WPA3 或生产 worker |
+| Cross-container worker | 两个独立 Docker 容器 + user-defined bridge | central queue/directory 跨容器控制，worker 容器内 runtime Device Service 执行真实 QEMU 并返回 evidence | 物理跨主机、NAT/跨子网发现、迁移或 companion continuity |
 | CardputerZero Ethernet | 独立 Linux ARM64 后端 | SR9900A/r8152 Ethernet frame 数据面 | WiFi 或 ESP32/UIFlow2 网络 |
 
 S3/C6 的 QEMU 模型覆盖 guest 可见的 MAC、DMA descriptor、interrupt 和
@@ -94,6 +95,10 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - 两个 veth 连接 network namespace 中的 Bearer+HMAC worker control plane，
   以及 worker namespace 内独立 Device Service 执行真实 StickS3 QEMU、
   artifact/firmware、evidence、terminal result 和 cleanup；
+- 三个独立双容器复现中，central 容器和 worker 容器通过 user-defined Docker
+  bridge 通信；worker 容器内 runtime 创建真实 QEMU session，绑定
+  source/normalized firmware、QEMU 和 evidence hash，并清理 QEMU、容器和
+  bridge；
 - 本地 QEMU/QMP control-plane restart re-attach。
 
 cleanup probe 会读取 sandbox 实际生成的 `isolation.json`，只有
@@ -103,7 +108,7 @@ controlled AAAA、allowed IPv6 HTTP、denied-port、pcap、namespace cleanup
 和 QEMU reap。
 
 当前仍未完成的网络产品化项只列在
-[项目 Backlog](project-backlog.md)，重点是 `NET-04` 跨主机 worker/QEMU
+[项目 Backlog](project-backlog.md)，重点是 `NET-04` 物理跨主机 worker/QEMU
 executor、namespace-managed/Tab5/cross-host companion continuity、连续
 external evidence 流、NAT/跨子网发现和不可信固件 disposable VM。
 `NET-05` 与 `NET-06` 均已完成当前 accepted virtual-device scope。
@@ -171,6 +176,7 @@ external evidence 流、NAT/跨子网发现和不可信固件 disposable VM。
 - [Worker runtime-service restart continuity](../tests/network/worker_runtime_restart/README.md)
 - [Idempotent session creation](../tests/network/session_idempotency/README.md)
 - [Worker cross-network-namespace control and QEMU execution](../tests/network/worker_cross_netns/README.md)
+- [Worker QEMU across Docker containers](../tests/network/worker_cross_container/README.md)
 - [Worker QEMU/QMP reattach](../tests/network/worker_reattach/README.md)
 - [Core2 native-HCI backend](core2-native-hci-backend.md)
 - [Unified runtime contract](unified-device-runtime.md)

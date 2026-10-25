@@ -64,7 +64,7 @@
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task 和测试规模 |
 | [项目当前状态](project-status.md) | 当前结论 | `2026-10-25` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-25` | 只保留尚未达到验收条件的任务、依赖和验收 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、runtime priority、CIDR/domain-set/CNAME、worker-local QEMU、测试和 evidence 入口 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-25` | 当前源码、runtime priority、CIDR/domain-set/CNAME、worker namespace/container-local QEMU、测试和 evidence 入口 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-25` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-25` | `1.31.0`；API、对象、状态机、错误码、有界地址/CIDR、controlled domain suffix/CNAME chain、同 guest CNAME 网络证据和 transport 契约 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
@@ -158,6 +158,7 @@
 - [Idempotent session creation](../tests/network/session_idempotency/README.md)
 - [本地 QEMU PID/QMP restart re-attach](../tests/network/worker_reattach/README.md)
 - [Cross-network-namespace worker control plane](../tests/network/worker_cross_netns/README.md)
+- [Cross-container worker QEMU execution](../tests/network/worker_cross_container/README.md)
 - [Core2 stock VHCI BLE](../tests/uiflow2/core2_native_vhci/README.md)
 - [Core2 native HCI backend](core2-native-hci-backend.md)
 

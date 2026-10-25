@@ -118,6 +118,14 @@ class DocsConsistencyTests(unittest.TestCase):
                 "tests/network/cname_guest_lifecycle/"
                 "evidence-2026-10-25-cname-guest-lifecycle-3x.json"
             ),
+            "tests/network/worker_cross_container/Dockerfile",
+            "tests/network/worker_cross_container/README.md",
+            "tests/network/worker_cross_container/run_test.py",
+            "tests/network/worker_cross_container/summarize_runs.py",
+            (
+                "tests/network/worker_cross_container/"
+                "evidence-2026-10-25-cross-container-qemu-3x.json"
+            ),
             "tests/network/wrong_password/README.md",
             "tests/network/wrong_password/run_test.py",
             "tests/network/wrong_password/evidence-2026-10-24-wrong-password-pass.json",
@@ -4010,6 +4018,79 @@ class DocsConsistencyTests(unittest.TestCase):
         self.assertIn("network/dns-requests.json", service)
         self.assertIn("network/http-fixture.json", service)
         self.assertIn("network/isolation.json", service)
+
+    def test_cross_container_worker_qemu_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/network/worker_cross_container/"
+                "evidence-2026-10-25-cross-container-qemu-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(
+            evidence["validation"],
+            "virtual-device validation",
+        )
+        self.assertEqual(evidence["environment"]["lease_count"], 3)
+        self.assertTrue(evidence["checks"])
+        self.assertTrue(all(evidence["checks"].values()))
+        self.assertEqual(len(evidence["runs"]), 3)
+        self.assertIn(
+            "not-physical-hosts",
+            evidence["scope"],
+        )
+        self.assertEqual(
+            {
+                failure["stage"]
+                for failure in evidence["diagnostic_failures"]
+            },
+            {
+                "central_service_unreachable_from_worker_container",
+                "host_absolute_qemu_path_used_inside_container",
+            },
+        )
+        self.assertIn(
+            "physically separate hosts",
+            evidence["not_claimed"],
+        )
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        network_plan = (DOCS / "network-simulation-plan.md").read_text()
+        network_index = (ROOT / "tests/network/README.md").read_text()
+        ledger = (DOCS / "validation-ledger.md").read_text()
+        for text in (
+            status,
+            backlog,
+            workstreams,
+            code_map,
+            network_plan,
+            network_index,
+        ):
+            self.assertIn("container", text.lower())
+        self.assertIn("物理跨主机", status)
+        self.assertIn("物理跨主机", backlog)
+        self.assertIn("物理跨主机", workstreams)
+        self.assertIn("`NET-04`", backlog)
+        self.assertIn("worker_cross_container", network_index)
+        self.assertIn("cross-container-qemu-3x.json", ledger)
+        runner = (
+            ROOT / "tests/network/worker_cross_container/run_test.py"
+        ).read_text()
+        self.assertIn('"network", "create"', runner)
+        self.assertIn('"docker", "start", "-a"', runner)
+        self.assertIn('"/workspace/" + inside_workspace', runner)
+        self.assertIn('"HTTP_PROXY="', runner)
+        dockerfile = (
+            ROOT / "tests/network/worker_cross_container/Dockerfile"
+        ).read_text()
+        self.assertIn(
+            "FROM ubuntu:25.04@sha256:",
+            dockerfile,
+        )
+        self.assertIn("libcapstone5", dockerfile)
 
     def test_api_versions_match(self) -> None:
         markdown = (DOCS / "device-service-api.md").read_text()

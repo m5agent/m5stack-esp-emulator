@@ -58,6 +58,9 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
   central control service 负责 claim/heartbeat/result，worker namespace 内
   独立 Device Service 负责 artifact/firmware、QEMU、serial/frame/QOM
   evidence 和 cleanup；
+- 三个独立 Docker 容器对中，central 与 worker-local runtime/QEMU 通过
+  user-defined bridge 完成真实 job/evidence、三工件哈希和 QEMU/container/
+  bridge cleanup；仍共享 one Docker daemon，不是物理跨主机；
 - worker-only mutation 的 HMAC 请求签名、时间戳、nonce replay cache 和
   path/body identity binding；
 - HTTPS TLS 1.2+、服务端证书校验、可选 client CA 强制 mTLS，以及
@@ -177,6 +180,7 @@ QEMU S3/C6 和 Core2 的单个 `qemu-unified` lease 可以同时提供板级外�
 | `../tests/network/idf_dhcp_renewal/` | ESP-IDF 主动 renew、DORA/renew transaction、lease 与 HTTP 联合验证 |
 | `../tests/network/lab_fabric/` | 两台 StickS3 QEMU guest 的 DHCP、guest TCP、双侧 pcap、宿主隔离和 host TAP/bridge primitive |
 | `../tests/network/worker_lifecycle/` | 真实 StickS3 QEMU lease 的 heartbeat、drain/resume、进程组清理和下一代 abandoned lease 分类 |
+| `../tests/network/worker_cross_container/` | 两个独立 Docker 容器、user-defined bridge、central queue/directory、worker-local runtime/QEMU、terminal evidence 和 container/network cleanup |
 | `../tests/network/worker_tls/` | 真实 HTTPS/mTLS 进程、证书/客户端证书拒绝/通过、Bearer + worker HMAC、SIGHUP rotation + active-request drain + bounded overlap/final cutover、真实 QEMU job 和 unified StickS3 job over mTLS |
 
 ## 目录服务 API

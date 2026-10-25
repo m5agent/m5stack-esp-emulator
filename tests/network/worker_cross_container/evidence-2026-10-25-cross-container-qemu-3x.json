@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-worker-qemu-cross-container",
+  "date": "2026-10-25",
+  "generated_at": "2026-10-25T02:30:45.340690+00:00",
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "scope": "three-independent-cross-container-runs-one-docker-daemon-not-physical-hosts",
+  "environment": {
+    "host_os": "darwin",
+    "docker_os": "linux",
+    "docker_arch": "aarch64",
+    "docker_version": "29.8.0",
+    "image": "m5-emulator-cross-container:latest",
+    "lease_count": 3
+  },
+  "artifacts": {
+    "firmware_source_sha256": "53170651ccabc8fb16b5cf993d348693c12bcc643a6f0c60bf7a479d8a456c73",
+    "firmware_normalized_sha256": "53170651ccabc8fb16b5cf993d348693c12bcc643a6f0c60bf7a479d8a456c73",
+    "qemu_sha256": "f024f034d20bd5b8e2c224ce69deed70984b0514f8a310d221b388b74c179ecb",
+    "runner_sha256": "2c3842051d62ac946c1e4f0d05ab3ed9025b93eafcc0de1263d30fecfe56832e",
+    "worker_fixture_sha256": "119d6407469ce602cc9016debef08a7bb18790db4823ae3c9bc0cd9be219697b",
+    "device_service_sha256": "38f84f5c156231f2435fc9b0a892cd06e5b6f8bf2717e626a576de959470d728",
+    "worker_agent_sha256": "dad3d8f0ab07db5f8c538c88954654db5010d49053e78f5b6a3d6b2e42ba86ac",
+    "dockerfile_sha256": "65c6055a2cce78bba2ddbf92a30e35c1a20dc57880d2748d4ad5b98c94827806",
+    "summarizer": "fce700ab4b7587833d338776acd10a75cfed7862637bbb082bd2c45984bc7622"
+  },
+  "checks": {
+    "worker_exit_zero": true,
+    "central_api_reachable_over_container_network": true,
+    "worker_registered": true,
+    "job_terminal_completed": true,
+    "worker_result_pass": true,
+    "worker_local_execution": true,
+    "qemu_started": true,
+    "device_session_created": true,
+    "evidence_manifest": true,
+    "evidence_serial": true,
+    "source_firmware_hash": true,
+    "normalized_firmware_hash": true,
+    "qemu_hash": true,
+    "qemu_reaped": true,
+    "central_worker_directory_readback": true,
+    "token_absent_from_logs": true,
+    "container_interfaces_independent": true,
+    "central_container_cleaned": true,
+    "worker_container_cleaned": true,
+    "network_cleaned": true,
+    "no_docker_host_network": true
+  },
+  "runs": [
+    {
+      "label": "worker-cross-container-9",
+      "status": "PASS",
+      "duration_seconds": 11.708,
+      "image_id_sha256": "687d88ea96af05ff6c51102cc7e23d994f7487738a15bdbb0582bf3e9875333e",
+      "network_id_sha256": "43ad7106b4cc780765859e4eb9a901ea8cd8660ad6ee98b6887a419f83271d7e",
+      "central_container_sha256": "de4ef316b595d13f2db48ab9e19b6cea05a608dff2a1cef6a57c64068e603925",
+      "worker_container_sha256": "8bb24f21daca44a446ce749dde66e2d01953d81da1bf44843aacc9225aed0992",
+      "worker_result_sha256": "76db59eb86fad302cecca0f0b28398be5c3a9b911b46750744f6ab285e15aaf6",
+      "evidence_names": [
+        "serial.log",
+        "serial1.log",
+        "qemu.stdout",
+        "qemu.stderr",
+        "qom/snapshot.json",
+        "manifest.json"
+      ]
+    },
+    {
+      "label": "worker-cross-container-10",
+      "status": "PASS",
+      "duration_seconds": 11.68,
+      "image_id_sha256": "687d88ea96af05ff6c51102cc7e23d994f7487738a15bdbb0582bf3e9875333e",
+      "network_id_sha256": "29464751fc67404934b660e28ba1e4fb91f0e274019a994f2055d6bb3037892c",
+      "central_container_sha256": "3db26d65b55700626d460d60364628ef14be244b2ec2932a2c5381189077b933",
+      "worker_container_sha256": "fdb7c9c9b1639213d9b39de4ea975cce5053f506a59baf6e8fac866a13febc07",
+      "worker_result_sha256": "ae86577f2555a1c22cc539984509c497e1a013f1f0d6031c89c34f294d2f780d",
+      "evidence_names": [
+        "serial.log",
+        "serial1.log",
+        "qemu.stdout",
+        "qemu.stderr",
+        "qom/snapshot.json",
+        "manifest.json"
+      ]
+    },
+    {
+      "label": "worker-cross-container-11",
+      "status": "PASS",
+      "duration_seconds": 11.589,
+      "image_id_sha256": "687d88ea96af05ff6c51102cc7e23d994f7487738a15bdbb0582bf3e9875333e",
+      "network_id_sha256": "aafe3bd3b386ad49853335237144480a2faeba455d5e0eccb8132e8915dcbfcc",
+      "central_container_sha256": "31613ab69dfbb18d3f1e1b1f0afc26d64e6fe2af54253aa4a8132d33d80634f1",
+      "worker_container_sha256": "91d8031b4b59ee7e2ae63216a4be9c1048ca25ed88e0d1ee60778c0bf245614b",
+      "worker_result_sha256": "f4727cd0be8cc110e74736204f7131b62ebc6574fa953808317438a6c504dcbc",
+      "evidence_names": [
+        "serial.log",
+        "serial1.log",
+        "qemu.stdout",
+        "qemu.stderr",
+        "qom/snapshot.json",
+        "manifest.json"
+      ]
+    }
+  ],
+  "diagnostic_failures": [
+    {
+      "label": "worker-cross-container",
+      "status": "FAIL",
+      "stage": "central_service_unreachable_from_worker_container",
+      "central_reachable": false,
+      "worker_local_execution": false,
+      "qemu_started": false,
+      "classification": "cross-container harness/runtime-asset failure before a passing guest path"
+    },
+    {
+      "label": "worker-cross-container-2",
+      "status": "FAIL",
+      "stage": "host_absolute_qemu_path_used_inside_container",
+      "central_reachable": true,
+      "worker_local_execution": true,
+      "qemu_started": false,
+      "classification": "cross-container harness/runtime-asset failure before a passing guest path"
+    }
+  ],
+  "not_claimed": [
+    "physically separate hosts",
+    "cross-host process migration or re-attach",
+    "NAT or cross-subnet discovery",
+    "companion HTTP/BLE continuity",
+    "production multi-host scheduling",
+    "physical RF or hardware validation"
+  ]
+}
