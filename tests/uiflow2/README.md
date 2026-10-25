@@ -32,7 +32,16 @@ python3 tests/uiflow2/run_device_matrix.py --device tab5
 矩阵直接读取该像素。墨水屏只做局部状态刷新，避免把 Spectra 6 长时间卡在
 未完成的整帧写入。
 
-Core2 stock internal-controller BLE：
+## Core2 wireless entry points
+
+Core2 的规范产品入口是 `core2_native_hci/` 和
+`profile=core2-native-hci`。完整阶段表、当前门禁和失败历史只维护在
+[`core2_native_hci/README.md`](core2_native_hci/README.md)与
+[`docs/core2-native-hci-backend.md`](../../docs/core2-native-hci-backend.md)。
+
+### Legacy GDB diagnostic
+
+以下 stock internal-controller BLE 路径仅用于 legacy/GDB 对照：
 
 ```bash
 PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_vhci/run_test.py \
@@ -41,8 +50,8 @@ PYTHONPATH=.work/py python3 tests/uiflow2/core2_native_vhci/run_test.py \
 ```
 
 该 runner 不重建 HCI-UART 固件，而是在 QEMU GDB 中拦截固件自己的
-`esp_vhci_host_*` H2C/C2H，接 Bumble controller/peer。当前 milestone 为
-外部 NUS GATT 5/5 PASS；该 GDB 路线只用于 legacy/diagnostic 对照。
+`esp_vhci_host_*` H2C/C2H，接 Bumble controller/peer。该 GDB 路线只用于
+legacy/diagnostic 对照，不维护当前产品门禁。
 bit-exact Espressif BT baseband/controller 仍 `NOT RUN`。
 
 历史诊断选项：同一 guest 的 board/WiFi/公网与 debugger-mediated
@@ -77,8 +86,8 @@ Device Service 的 GDB 诊断桥在历史 repeated-lease 检查中出现过 C2H 
 | `CORE2-02` extended run | `PASS` | caller-saved Xtensa sregs 恢复 + halted/idle-only HLI 注入后，两批 `5×10s` 为 `10/10`，3 个 `60s` 为 `3/3`，2 个 `120s` 为 `2/2`；每轮 `hli-errors=0` |
 | `CORE2-02` active-BLE 600s hold | `PASS` | 2 个独立 lease `2/2`；`ble_linger_seconds=660`，600 秒结束时 peer 仍连接，HLI `45/45`、队列和错误为 0 |
 | `CORE2-02` bounded 7200s hold | `PASS` | artifact-bound 单 lease 使用 `tcg,thread=single,tb-size=128`，frame/QOM、WiFi/公网、active NUS GATT、pcap、HLI 和 cleanup 全部通过；240 个 host-resource 采样无持续增长 |
-| `CORE2-02` same-guest reconnect | `PASS` | stock 固件在 3 个独立 lease 中分别完成 20、30、60、120 轮 scan/connect/NUS GATT/disconnect；120 轮每 lease HLI `3377/3377`、events `2297`、ACLs `1080`，HLI/TX queue、dropped 和 panic 为 0，连接池回到 `3/9/3`。根因是 Bumble 对无响应 `0x0c35` 返回非法 Command Status |
-| `CORE2-02` 121-cycle reconnect | `3/3 PASS` | 修复 readiness budget 和 reconnect-only accelerator-sampling 两个 harness 缺陷后，3 个 artifact-bound lease 均为 `121/121`；同 firmware/ELF/QEMU/工具哈希，每 lease HLI `3405/3405`、events 2316、ACLs 1089，队列/错误/dropped/peer-close/panic 为 0 |
+| `CORE2-02` same-guest reconnect | `PASS` | 当前契约门禁是 `1–121` 轮、`122` 拒绝；验收 evidence 和 2/5/10/20/30/60/120 轮历史 progression 见 [`core2_native_hci/README.md`](core2_native_hci/README.md)。历史 stale ACK 根因是 Bumble 对无响应 `0x0c35` 返回非法 Command Status |
+| `CORE2-02` 121-cycle reconnect | `3/3 PASS` | 修复 readiness budget 和 reconnect-only accelerator-sampling 两个 harness 缺陷后，3 个 artifact-bound lease 均完成最大 reconnect 门禁；精确 HLI/event/ACL、哈希和失败 control 只在验证台账 |
 | `CORE2-02` no-stagger concurrency | `双实例 8/8 + 三实例 6/6 + 四实例 8/8 PASS` | 双实例两批 `4×120s`、三实例两批 `3×120s`；`0008` 预分配真实 guest event/ACL 对象，所有 lease 36 events/9 ACLs 走 fast path、HLI `45/45`、errors/reset/panic 为 0。三实例首轮暴露固定 `40s` peer scan 预算过短，后续按 session readiness 有界扩展到 `≤120s`；PSRAM sweep 下限按 `hold/5` 校准。四实例首批先 `1/4`，`0009` 扩到 8 event/4 ACL 后两批各 `4/4 PASS`；物理 controller 仍开放 |
 | `CORE2-02` five-instance concurrency | `错峰 10/10 + 固定 icount 零错峰 10/10 PASS` | 两批 30 秒错峰 `5×120s` 均 `5/5`；默认 `icount shift=5` 和 BLE-first harness 下，两批独立零错峰 `5×120s` 也均 `5/5`，合计 `10/10`，真实最大并发 5。每 lease HLI `45/45`、36 events/9 ACLs、14–15 次 PSRAM 全缓冲校验，WiFi/公网/GATT/frame/31 节点 QOM/pcap/evidence 全 PASS |
 | `CORE2-02` six-instance concurrency | `固定 icount 零错峰 12/12 PASS` | 两批独立 `6×120s` 均 `6/6`，真实最大并发 6。每 lease 完成 12–13 次 PSRAM 全缓冲校验、WiFi/公网/GATT/frame/31 节点 QOM/pcap/evidence，HLI `45/45`、36 events/9 ACLs；batch B 保留一次可恢复 prealloc transient。更高并发见下一行 |
@@ -129,28 +138,13 @@ active-BLE 模式再把 `network.ble_linger_seconds` 设为 hold+60 秒，2 个
 `core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold120-2x.json`。
 600 秒证据：
 `core2_native_hci/evidence-2026-10-24-hci4-active-ble-hold600-2x.json`。
-同一 guest 的 disconnect/reconnect 已从失败修正为 PASS。当前矩阵是
-3 个独立 lease 分别完成 20、30、60、120 轮连接生命周期；120 轮证据为
-`core2_native_hci/evidence-2026-10-24-hci4-reconnect120-3x.json`，每 lease
-HLI `3377/3377`、events `2297`、ACLs `1080`，连接池回到 `3/9/3`。历史
-`NimBLE: HCI process ack returned 12` 由 Bumble 对无响应
-`HCI_Host_Number_of_Completed_Packets (0x0c35)` 非法返回 Command Status
-引起；下一命令消费 stale ACK 后触发 reset。20/30 轮和更早的 2/5/10 轮
-证据保留在 `core2_native_hci/`，失败证据不会被后续 PASS 覆盖。
-这关闭了本轮 two-minute extended-run 失败门禁；单独的单 lease artifact-bound
-`tb-size=128` 两小时运行也已 PASS，RSS 和 phys footprint 未增长。它仍不是
-物理 cache/PSRAM、RF 或 bit-exact controller PASS。Device
-Service/Bumble/runner 共享 `1–121` 范围，并有 `122` 轮拒绝测试。
-较早的十轮运行曾被 Device Service 的旧 30 秒等待硬上限误杀，失败证据保留在
-`evidence-2026-10-24-hci4-reconnect10-timeout-fail.json`。
-首次 121 轮运行又在 29 轮后暴露固定 180 秒预算不足；guest 无 panic，
-runner/Device Service 已改用同一 workload-aware 预算，失败证据保留在
-`evidence-2026-10-25-hci4-reconnect121-readiness-timeout-1x.json`。
-随后 reconnect-only 路径又暴露 accelerator 只在 hold loop 内采样的假失败；
-修复后 3 个独立 artifact-bound lease 均完成 `121/121`，聚合证据为
-`core2_native_hci/evidence-2026-10-25-hci4-reconnect121-3x.json`，并绑定
-相同 firmware/ELF/QEMU/工具哈希。物理 cache/PSRAM、RF、吞吐/teardown 和
-bit-exact controller 边界仍未关闭。
+同一 guest 的 disconnect/reconnect 已从失败修正为 PASS。当前最大契约门禁
+是 121 轮，122 轮拒绝；3 个 artifact-bound lease、readiness budget、
+accelerator sampling、历史 stale ACK 和 2/5/10/20/30/60/120 轮 progression
+只查 [`core2_native_hci/README.md`](core2_native_hci/README.md)和
+[验证证据台账](../../docs/validation-ledger.md)。这关闭了当前 reconnect
+门禁，但没有关闭物理 cache/PSRAM、RF、持续吞吐、其他 teardown 或
+bit-exact controller。
 
 ```bash
 python3 tests/uiflow2/core2_native_hci/test_transport.py
@@ -178,9 +172,10 @@ Core2 peripheral 和 device matrix 现在都显式使用
 `M5_CORE2_ICOUNT_SHIFT=auto` 或 `0-10` 才切换到诊断参数；concurrency
 门禁要求固定 `shift=5` 并在 evidence 中记录实际进程命令行。matrices
 不再配置自动重试；若 case 声明 `retries`，runner 默认拒绝运行，只有显式
-`--allow-retries` 才执行诊断重试。2026-10-24 06:47 的完整矩阵为
-`67/67`、`274/274`，全部 `attempts=1`；该轮包含双 guest WiFi patch
-`0028`，并把 Cardputer-ADV 键盘用例的启动/输入端等待调整为 10/2 秒。
+`--allow-retries` 才执行诊断重试。最后一次 clean full、定向回归、attempts
+和 summary SHA 只查[验证证据台账](../../docs/validation-ledger.md)；当前
+完整基线由 `0036` stateful SSI 重建后的共享控制器回归定义，`0038` 是
+exact-time 诊断加 Core2 定向回归，不冒充完整矩阵。
 当前统一运行时入口是 `runtime=qemu-unified`；`qemu-wifi` 和 `qemu-ble`
 只用于兼容 profile 或单选无线诊断，不应作为新调用的默认路径。
 

@@ -29,38 +29,16 @@ MicroPython 和其他完整 Flash 固件。
   不以轮次或某一批 PASS 表示；精确结果、失败 control 和运行参数只查
   [验证证据台账](docs/validation-ledger.md)。大于当前容量、持续吞吐、
   物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
-- Core2 legacy UIFlow 的 AXP/RTC/INA 已统一路由到共享 GPIO21/22 物理
-  board bus，原 `I2C bus error (19)` 已消失；同一固件随后仍进入
-  TG0/TG1 watchdog reset 循环并保持黑帧。最小 ESP-IDF 探针暴露的另一个
-  Xtensa timer 缺陷已经定位并修复：当 ISR 在最后的相等窗口写入
-  `CCOMPARE == CCOUNT` 时，旧实现把下一次到期错误地推迟了 `2^32` ticks。
-  修复只把相等期限安排到下一 cycle，其他 32 位回绕语义不变；最小探针
-  首启动门禁已通过。它没有修复 legacy UIFlow 的独立 TG0/TG1 路径；诊断
-  又确认了 TIMG 在 `INT_ENA.WDT=0` 时仍抬高 WDT level IRQ，`0035` 已按
-  `INT_RAW & INT_ENA` 修正，但同一 legacy 固件修复后仍复位。`0036`
-  进一步新增保留 m25p80 命令、地址、dummy、CS 和地址回绕语义的 QIO
-  stateful SSI 批量数据面；批量字节等价、Core2 UIFlow2 设备组和共享控制器
-  完整矩阵已验证，统计只在验证台账。正常 WDT 下 legacy 仍出现
-  interrupt-WDT/reset，关闭 WDT 后
-  在观察窗口内也未进入 setup/REPL。先前临时 `blk_pread` 到达 REPL 的
-  现象在当前重建中未复现。state trace 显示 Flash can-start/complete 和
-  cross-core reason 会反复完成，因此当前首要假设是大量同步
-  Flash/cache-handoff 的累计吞吐不足，而不是永久跨核死锁。`0037` 已把
-  cross-core、DPORT/cache、SSI 与 TIMG WDT 放到同一虚拟时间轴；两次正常
-  WDT 运行都显示最后一次 TG1 feed 后固定 `800 ms` 进入 stage-0 timeout，
-  随后约 `1.6 s` reset。关闭 WDT 时 `sample=1024` 与 trace-off 的串口
-  完全相同，仍只有启动 banner。后续 BIN/ELF 字节审计又否定了此前把 PC
-  样本映射到 UART ISR/MicroPython VM 的结论：本地 UIFlow2 v2.5.3 ELF
-  与 public UIFlow_Core2 v1.15.4 BIN 在 CPU0 的三个采样地址上字节均不一致。
-  BIN 自身在该区域表现为 cross-core Flash/cache-disable handoff 控制流，
-  但精确函数仍缺 matching ELF/MAP。`0038` 新增的精确 virtual-time `SIGSTOP`
-  对照又显示：14.800 s 的早窗口没有固定 PC；15.301 s 的晚窗口稳定落在
-  CPU0 `0x40087980` / CPU1 `0x40084484`，与旧 IDF
-  `spi_flash_op_block_func`/cache handshake 源码形态一致。下一步是该
-  handoff 区间内的 cache restore 和返回值，而不是 UART。
-  精确轮次、哈希和对照只在
-  [验证证据台账](docs/validation-ledger.md)；`Core2FactoryTest` 修复后尚未
-  重跑，`RUNTIME-03` 仍为 `OPEN`。
+- Core2 legacy UIFlow 仍为 `PARTIAL`。共享板级 I2C、`CCOMPARE == CCOUNT`
+  equal-deadline timer、TIMG WDT mask 和保留 m25p80 状态的 QIO/stateful
+  SSI 批量数据面已修复/验证，但同一 public firmware 仍会 watchdog reset，
+  且没有同 SHA 非空应用帧。`0037` 统一时间轴和 `0038` exact-time pause
+  已把最后窗口收敛到 cross-core Flash/cache/DPORT handoff；BIN/ELF 字节
+  审计拒绝了旧 UART/VM 符号映射，
+  也没有证据支持永久跨核死锁。具体未返回操作、matching ELF/MAP、
+  `Core2FactoryTest` 重跑和 `RUNTIME-03` 关闭条件以
+  [项目当前状态](docs/project-status.md)与
+  [验证证据台账](docs/validation-ledger.md)为准。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件

@@ -1,6 +1,6 @@
 # Worker HTTPS / mTLS transport
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This fixture starts the real Device Service process with an ephemeral test CA,
 server certificate and client CA, then verifies:

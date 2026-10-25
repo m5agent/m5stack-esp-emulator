@@ -1,6 +1,6 @@
 # Simulator host service architecture
 
-Date: `2026-10-25`
+Date: `2026-10-26`
 
 For the one-page product, code and task overview, start with
 [`engineering-handoff.md`](engineering-handoff.md). This page describes the

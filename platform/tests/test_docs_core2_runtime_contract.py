@@ -381,6 +381,18 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
                 "6 次 interrupt-WDT",
             ):
                 self.assertNotIn(volatile_count, text, path.relative_to(ROOT))
+        readme = (ROOT / "README.md").read_text()
+        for diagnostic_detail in (
+            "14.800033",
+            "15.301447",
+            "0x40087980",
+            "0x40084484",
+        ):
+            self.assertNotIn(
+                diagnostic_detail,
+                readme,
+                "README must route exact-time diagnostics to status/ledger",
+            )
         for path in (
             DOCS / "runtime-model-gap-register.md",
             DOCS / "validation-ledger.md",
@@ -552,6 +564,12 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             DOCS / "qemu-device-adaptation-matrix.md"
         ).read_text()
         core2_backend = (DOCS / "core2-native-hci-backend.md").read_text()
+        core2_runner_readme = (
+            ROOT / "tests/uiflow2/core2_native_hci/README.md"
+        ).read_text()
+        peripheral_matrix = (
+            DOCS / "uiflow2-peripheral-test-matrix.md"
+        ).read_text()
         runtime_contract = (DOCS / "unified-device-runtime.md").read_text()
         project_snapshot = (DOCS / "project-snapshot.md").read_text()
         catalog_source_text = (
@@ -677,6 +695,24 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("3/3 PASS", ledger)
         self.assertIn("Core2", project_snapshot)
         self.assertIn("physical cache/PSRAM", project_snapshot)
+        self.assertIn("The contract range is 1-121", core2_runner_readme)
+        self.assertIn(
+            "more than\neight zero-stagger instances",
+            core2_runner_readme,
+        )
+        self.assertNotIn(
+            "more than\nfive zero-stagger instances",
+            core2_runner_readme,
+        )
+        self.assertIn(
+            "当前完整矩阵基线由 `0036`",
+            peripheral_matrix,
+        )
+        self.assertIn("`0038` exact-time handoff pause", peripheral_matrix)
+        self.assertNotIn(
+            "last full run       2026-10-24",
+            peripheral_matrix,
+        )
         self.assertIn("one Device Service lease", runtime_contract)
         self.assertIn("one guest instance", runtime_contract)
         self.assertIn("Core2 三 lease 121 轮", ledger)

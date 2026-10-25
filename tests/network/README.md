@@ -1,6 +1,6 @@
 # Network and worker test index
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 These fixtures cover virtual radio data planes, Linux network policy, pcap,
 multi-guest fabric and the distributed worker control/runtime planes. Current

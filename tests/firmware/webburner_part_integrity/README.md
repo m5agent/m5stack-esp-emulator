@@ -1,6 +1,6 @@
 # WebBurner part integrity
 
-Last reviewed: `2026-10-25`.
+Last reviewed: `2026-10-26`.
 
 This fixture checks optional integrity declarations on WebBurner `parts[]`:
 

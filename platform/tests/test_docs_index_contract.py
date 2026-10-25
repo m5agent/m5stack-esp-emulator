@@ -470,12 +470,28 @@ class DocsIndexContractTests(DocsContractBase):
             audit["total"],
         )
         self.assertEqual(coverage["categories"]["navigation"], 1)
-        self.assertEqual(coverage["older_delegated"], [])
-        rendered = (DOCS / "project-snapshot.md").read_text()
+        self.assertEqual(
+            coverage["older_delegated"],
+            sorted(
+                coverage["older_delegated"],
+                key=lambda row: (row["reviewed"], row["page"]),
+            ),
+        )
+        for row in coverage["older_delegated"]:
+            self.assertLess(row["reviewed"], snapshot["fact_date"])
+            self.assertNotIn(
+                row["category"],
+                {"authority", "record"},
+                "authority pages are tracked by older_current instead",
+            )
+        rendered = project_snapshot.render_markdown(snapshot)
         self.assertIn("## 文档与测试", rendered)
         self.assertIn("文档职责分布", rendered)
         self.assertIn("全量文档盘点", rendered)
-        self.assertIn("没有带显式旧复核日期的委派文档", rendered)
+        if coverage["older_delegated"]:
+            self.assertIn("带显式旧复核日期的委派文档", rendered)
+        else:
+            self.assertIn("没有带显式旧复核日期的委派文档", rendered)
         if audit["older_current"]:
             self.assertIn("复核日期早于当前事实日期的非历史页", rendered)
         else:
@@ -483,6 +499,57 @@ class DocsIndexContractTests(DocsContractBase):
                 "所有非历史页的最近复核日期均与当前事实日期一致",
                 rendered,
             )
+
+    def test_project_snapshot_separates_catalog_and_fact_dates(self) -> None:
+        snapshot = project_snapshot.collect()
+        self.assertRegex(snapshot["catalog_date"], r"^\d{4}-\d{2}-\d{2}$")
+        self.assertRegex(snapshot["fact_date"], r"^\d{4}-\d{2}-\d{2}$")
+        self.assertGreaterEqual(
+            snapshot["fact_date"],
+            snapshot["latest_evidence_date"],
+            "the project fact date must cover the newest committed evidence",
+        )
+        self.assertGreaterEqual(
+            snapshot["fact_date"],
+            snapshot["catalog_date"],
+            "the project fact date must cover the device catalog",
+        )
+        for relative in (
+            "docs/README.md",
+            "docs/project-status.md",
+            "docs/project-backlog.md",
+            "docs/validation-ledger.md",
+            "docs/engineering-handoff.md",
+        ):
+            reviewed = project_snapshot.document_date(ROOT / relative)
+            self.assertLessEqual(
+                reviewed,
+                snapshot["fact_date"],
+                f"{relative} is dated after the generated project fact date",
+            )
+        rendered = project_snapshot.render_markdown(snapshot)
+        self.assertIn(
+            f"设备目录日期：`{snapshot['catalog_date']}`",
+            rendered,
+        )
+        self.assertIn(
+            f"当前事实复核：`{snapshot['fact_date']}`",
+            rendered,
+        )
+
+    def test_project_snapshot_line_count_is_not_self_referential(self) -> None:
+        snapshot = project_snapshot.collect()
+        excluded = snapshot["code_inventory"]["documented_markdown_lines_exclude"]
+        self.assertEqual(excluded, ["docs/project-snapshot.md"])
+        expected_lines = sum(
+            len(path.read_text(errors="replace").splitlines())
+            for path in project_snapshot.document_paths()
+            if path != DOCS / "project-snapshot.md"
+        )
+        self.assertEqual(
+            snapshot["code_inventory"]["documented_markdown_lines"],
+            expected_lines,
+        )
 
     def test_project_snapshot_ignores_untracked_runtime_docs(self) -> None:
         paths = {

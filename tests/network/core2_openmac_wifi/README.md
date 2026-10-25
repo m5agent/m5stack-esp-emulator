@@ -1,6 +1,6 @@
 # Core2 OpenMAC WiFi scan probe
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This optional regression exercises the ESP32 classic WiFi MAC and user-net path added by
 `patches/qemu-core2-openmac-wifi/`.

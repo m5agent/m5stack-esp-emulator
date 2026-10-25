@@ -1,6 +1,6 @@
 # StickS3 peripheral probe
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 Exercises the official UIFlow2 APIs for:
 

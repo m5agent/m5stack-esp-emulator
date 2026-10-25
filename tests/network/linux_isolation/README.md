@@ -1,6 +1,6 @@
 # Linux network-namespace guest test
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This test runs the validated StickS3 UIFlow2 image through
 `platform/tools/network_sandbox.py`. The QEMU guest and controlled HTTP server

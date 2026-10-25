@@ -1,6 +1,6 @@
 # QEMU classic ESP32 native HCI transport
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This patch adds the first QEMU-side slice of `CORE2-01`:
 

@@ -1,6 +1,6 @@
 # Firmware guest CNAME lifecycle
 
-Last reviewed: `2026-10-25`.
+Last reviewed: `2026-10-26`.
 
 Status: `PASS` in three independent Device Service leases for the closed
 `NET-07` gate.

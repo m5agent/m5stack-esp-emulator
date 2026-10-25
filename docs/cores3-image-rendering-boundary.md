@@ -4,7 +4,7 @@ Status: `OPEN`
 
 Date: `2026-10-22`
 
-Last reviewed: `2026-10-25`; the boundary remains `OPEN`. This page is a
+Last reviewed: `2026-10-26`; the boundary remains `OPEN`. This page is a
 core-image rendering investigation and does not inherit the later S3/C6/
 Core2 network or BLE results.
 

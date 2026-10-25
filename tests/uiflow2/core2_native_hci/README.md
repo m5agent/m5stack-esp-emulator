@@ -1,6 +1,6 @@
 # Core2 native HCI transport
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This directory validates the QEMU-side `CORE2-01` data plane from the
 `esp32-native-hci` H4 chardev through the stock firmware HLI/API boundary to
@@ -429,14 +429,11 @@ the Bumble compatibility layer incorrectly returned Command Status for the
 no-response `HCI_Host_Number_of_Completed_Packets (0x0c35)` command. Its stale
 ACK was consumed by the next `LE Set Advertising Data` command and produced
 `BLE_HS_ECONTROLLER (12)`. The earlier ten-cycle evidence is
-`evidence-2026-10-24-hci4-reconnect10-3x.json`; the current twenty-cycle
-evidence is `evidence-2026-10-24-hci4-reconnect20-3x.json`, and the
-thirty-cycle evidence is
-`evidence-2026-10-24-hci4-reconnect30-3x.json`; the sixty-cycle evidence is
-`evidence-2026-10-24-hci4-reconnect60-3x.json`; the 120-cycle evidence is
-`evidence-2026-10-24-hci4-reconnect120-3x.json`. The contract range is now
-1-121 cycles and 122 is rejected; three independent leases at 120 cycles each
-pass. The first 121-cycle attempt stopped after 29 completed cycles because
+`evidence-2026-10-24-hci4-reconnect10-3x.json`. The 20/30/60/120-cycle
+records are retained as progression evidence and are not the current maximum
+gate. The contract range is 1-121 cycles and 122 is rejected; three
+artifact-bound leases at 121 cycles each pass. The first 121-cycle attempt
+stopped after 29 completed cycles because
 the runner and service still shared a fixed 180-second readiness budget; the
 guest had no panic and cycle 30 had started. They now use the same
 workload-aware timeout. A later reconnect-only run exposed accelerator sampling
@@ -447,7 +444,7 @@ HLI `45/45`, zero errors/queues/dropped packets and unchanged launch assets.
 The final `tb-size=128` rerun binds launch assets and tools, then passes
 `240` host-resource samples with RSS `323536→252992 KiB` and phys footprint
 `250880→188416 KiB`. The remaining execution gates are throughput, more than
-five zero-stagger instances, teardown beyond active-stop and physical
+eight zero-stagger instances, teardown beyond active-stop and physical
 cache/PSRAM equivalence.
 The fix is covered by
 `platform/tests/test_ble_probe.py`; failure history remains in

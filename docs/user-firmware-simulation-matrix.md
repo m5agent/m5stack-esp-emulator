@@ -1,6 +1,6 @@
 # User firmware simulation matrix
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 `platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
 M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
