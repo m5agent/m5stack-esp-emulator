@@ -76,6 +76,8 @@ class UnitPanel {
     Object.assign(this, {container, session, shell, api, bindingsByUnit});
     this.disposed = false;
     this.generation = 0;
+    this.sessionEpoch = 0;
+    this.inputEpoch = 0;
     this.queues = new Map();
     this.pending = new Map();
     this.revision = 0;
@@ -92,15 +94,21 @@ class UnitPanel {
     window.addEventListener('blur', this.release);
   }
 
+  currentSession(sessionId, epoch) {
+    return !this.disposed && sessionId === this.session.session_id && epoch === this.sessionEpoch;
+  }
+
   async init() {
     if (!(this.session.units || []).length) return this;
     const observedSessionId = this.session.session_id;
+    const sessionEpoch = this.sessionEpoch;
+    const inputEpoch = this.inputEpoch;
     try {
       const [state, inventory] = await Promise.allSettled([
         this.api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/units`),
         this.api(`/api/v1/units?device_id=${encodeURIComponent(this.session.device_id)}`),
       ]);
-      if (this.disposed) return this;
+      if (!this.currentSession(observedSessionId, sessionEpoch) || inputEpoch !== this.inputEpoch || state.status === 'fulfilled' && state.value.session_id !== undefined && state.value.session_id !== observedSessionId) return this;
       this.inventory = inventory.status === 'fulfilled' ? inventory.value : {units: [], hosts: []};
       // Session snapshots own the schema. Live inventory is only a legacy
       // fallback and must never replace a captured session's input contract.
@@ -109,12 +117,12 @@ class UnitPanel {
       this.frozenDefinitions = Array.isArray(payload?.definitions);
       this.definitions = new Map(definitions.map(unit => [unit.id, unit]));
       this.render();
-      if (payload) this.apply(payload, observedSessionId);
+      if (payload) this.apply(payload, observedSessionId, sessionEpoch);
       else for (const id of this.cards.keys()) this.note(id, `状态请求失败：${state.reason?.message || '模型状态不可用'}`);
       await this.setShell(this.shell);
       this.schedule();
     } catch (error) {
-      if (!this.disposed) this.container.textContent = `Unit 状态不可用：${error.message}`;
+      if (this.currentSession(observedSessionId, sessionEpoch)) this.container.textContent = `Unit 状态不可用：${error.message}`;
     }
     return this;
   }
@@ -171,18 +179,39 @@ class UnitPanel {
 
   updateSession(session) {
     const wasActive = ACTIVE.has(this.session.state);
-    if (session.session_id !== this.session.session_id) {
+    const changed = session.session_id !== this.session.session_id;
+    if (changed) {
+      // Release ownership while sends still capture the original session.
+      this.releaseHeld();
+      this.sessionEpoch += 1;
+      this.inputEpoch += 1;
+      this.generation += 1;
+      const previous = [...this.mounted.values(), ...this.attaching.values()];
+      this.mounted.clear();
+      this.attaching.clear();
+      previous.sort((a, b) => b.port.length - a.port.length).forEach(item => this.safeDetach(item));
+      this.remountOnObservation = true;
+      this.refreshing = null;
+      this.pending.clear();
+      this.queues.clear();
+      this.pressSources.clear();
+      this.releaseIntents.clear();
+      this.states.clear();
+      this.stateSource = 'unavailable';
+      this.frozenDefinitions = false;
+      this.definitions = new Map((this.inventory?.units || []).map(unit => [unit.id, unit]));
       this.audioPayload = null;
       this.audioDefinitions.clear();
       this.audioDefinitionSessionId = null;
     }
     this.session = session;
+    if (changed) this.render();
     this.observeAudio(this.audioPayload);
     if (!ACTIVE.has(session.state)) {
       clearTimeout(this.timer);
       this.releaseHeld();
       this.releaseIntents.clear();
-    } else if (!wasActive) {
+    } else if (changed || !wasActive) {
       this.schedule();
     }
     this.enableControls();
@@ -339,23 +368,33 @@ class UnitPanel {
   }
 
   send(id, values, releaseIntent = null) {
-    if (this.session.state !== 'running') return Promise.resolve();
+    if (this.disposed || this.session.state !== 'running') return Promise.resolve();
     const revision = ++this.revision;
     const observedSessionId = this.session.session_id;
+    const sessionEpoch = this.sessionEpoch;
+    this.inputEpoch += 1;
     const pending = this.pending.get(id) || new Map();
     for (const [field, value] of Object.entries(values)) pending.set(field, {revision, value: copy(value)});
     this.pending.set(id, pending);
     const previous = this.queues.get(id) || Promise.resolve();
-    const next = previous.catch(() => {}).then(() => this.api(
-      `/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/unit-input`,
-      {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})},
-    )).then(payload => {
-      if (!this.disposed) this.apply(payload, observedSessionId);
-      if (releaseIntent && this.releaseIntents.get(releaseIntent.key) === releaseIntent) releaseIntent.uncertain = !this.confirmRelease(releaseIntent);
+    const next = previous.catch(() => {}).then(async () => {
+      // Necessary releases may outlive the panel. They only target the session
+      // that owned the hold; ordinary queued inputs cannot cross its boundary.
+      if (!this.currentSession(observedSessionId, sessionEpoch) && !releaseIntent) return;
+      const payload = await this.api(
+        `/api/v1/sessions/${encodeURIComponent(observedSessionId)}/unit-input`,
+        {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})},
+      );
+      if (this.currentSession(observedSessionId, sessionEpoch)) this.inputEpoch += 1;
+      const applied = revision === this.revision && this.apply(payload, observedSessionId, sessionEpoch);
+      if (this.currentSession(observedSessionId, sessionEpoch) && releaseIntent && this.releaseIntents.get(releaseIntent.key) === releaseIntent) releaseIntent.uncertain = !applied || !this.confirmRelease(releaseIntent);
     }).catch(error => {
+      if (!this.currentSession(observedSessionId, sessionEpoch)) return;
+      this.inputEpoch += 1;
       if (releaseIntent && this.releaseIntents.get(releaseIntent.key) === releaseIntent) releaseIntent.uncertain = true;
-      if (!this.disposed) this.note(id, `输入未确认：${error.message}`);
+      this.note(id, `输入未确认：${error.message}`);
     }).finally(() => {
+      if (this.currentSession(observedSessionId, sessionEpoch)) this.inputEpoch += 1;
       for (const field of Object.keys(values)) if (pending.get(field)?.revision === revision) pending.delete(field);
     });
     this.queues.set(id, next);
@@ -379,6 +418,7 @@ class UnitPanel {
   recoverReleases(intents) {
     if (this.disposed || this.session.state !== 'running') return;
     const observedSessionId = this.session.session_id;
+    const sessionEpoch = this.sessionEpoch;
     const byId = new Map();
     for (const intent of intents) {
       if (this.releaseIntents.get(intent.key) !== intent || !intent.uncertain || this.pressSources.has(intent.key) || this.confirmRelease(intent)) continue;
@@ -390,9 +430,11 @@ class UnitPanel {
       byId.get(intent.id).push(intent);
     }
     for (const [id, releases] of byId) {
+      const revision = ++this.revision;
+      this.inputEpoch += 1;
       const previous = this.queues.get(id) || Promise.resolve();
       const next = previous.catch(() => {}).then(async () => {
-        if (this.disposed || this.session.state !== 'running') return;
+        if (!this.currentSession(observedSessionId, sessionEpoch) || this.session.state !== 'running') return;
         const active = releases.filter(intent => this.releaseIntents.get(intent.key) === intent && !this.pressSources.has(intent.key) && this.releaseValue(intent) === true);
         const values = {};
         for (const intent of active) {
@@ -405,11 +447,11 @@ class UnitPanel {
         }
         if (!Object.keys(values).length) return;
         for (const intent of active) intent.retried = true;
-        const payload = await this.api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/unit-input`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})});
-        if (this.disposed) return;
-        this.apply(payload, observedSessionId);
-        for (const intent of active) this.confirmRelease(intent);
-      }).catch(error => { if (!this.disposed) this.note(id, `松开补偿未确认：${error.message}`); }).finally(() => {
+        const payload = await this.api(`/api/v1/sessions/${encodeURIComponent(observedSessionId)}/unit-input`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})});
+        if (this.currentSession(observedSessionId, sessionEpoch)) this.inputEpoch += 1;
+        if (revision === this.revision && this.apply(payload, observedSessionId, sessionEpoch)) for (const intent of active) this.confirmRelease(intent);
+      }).catch(error => { if (this.currentSession(observedSessionId, sessionEpoch)) this.note(id, `松开补偿未确认：${error.message}`); }).finally(() => {
+        if (this.currentSession(observedSessionId, sessionEpoch)) this.inputEpoch += 1;
         for (const intent of releases) intent.queued = false;
       });
       this.queues.set(id, next);
@@ -511,7 +553,8 @@ class UnitPanel {
     }
   }
 
-  apply(payload, observedSessionId = this.session.session_id) {
+  apply(payload, observedSessionId = this.session.session_id, sessionEpoch = this.sessionEpoch) {
+    if (!this.currentSession(observedSessionId, sessionEpoch) || payload.session_id !== undefined && payload.session_id !== observedSessionId) return false;
     this.stateSource = payload.source || 'unavailable';
     if (Array.isArray(payload.definitions) && !this.frozenDefinitions) {
       this.releaseHeld();
@@ -545,6 +588,11 @@ class UnitPanel {
       this.observeAudio(payload, observedSessionId);
     }
     this.enableControls();
+    if (this.remountOnObservation) {
+      this.remountOnObservation = false;
+      void this.setShell(this.shell);
+    }
+    return true;
   }
 
   schedule() {
@@ -555,21 +603,20 @@ class UnitPanel {
   async refresh() {
     clearTimeout(this.timer);
     if (this.disposed || this.refreshing || !(this.session.units || []).length) return;
-    this.refreshing = true;
     const observedSessionId = this.session.session_id;
+    const sessionEpoch = this.sessionEpoch;
+    const inputEpoch = this.inputEpoch;
+    const request = this.refreshing = {};
+    const current = () => this.currentSession(observedSessionId, sessionEpoch) && inputEpoch === this.inputEpoch;
     // Only a GET started after uncertainty can confirm/retry that release.
     const recoverable = [...this.releaseIntents.values()].filter(intent => intent.uncertain);
     try {
-      const payload = await this.api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/units`);
-      if (!this.disposed) {
-        this.apply(payload, observedSessionId);
-        this.recoverReleases(recoverable);
-      }
+      const payload = await this.api(`/api/v1/sessions/${encodeURIComponent(observedSessionId)}/units`);
+      if (current() && this.apply(payload, observedSessionId, sessionEpoch)) this.recoverReleases(recoverable);
     } catch (error) {
-      if (observedSessionId === this.session.session_id) {
-        this.audioPayload = null;
-        this.observeAudio(null, observedSessionId);
-      }
+      if (!current()) return;
+      this.audioPayload = null;
+      this.observeAudio(null, observedSessionId);
       for (const [id, unit] of this.states) {
         const unavailable = {...unit, available: false, errors: {...unit.errors, transport: error.message}};
         this.states.set(id, unavailable);
@@ -578,8 +625,10 @@ class UnitPanel {
       }
       this.enableControls();
     } finally {
-      this.refreshing = false;
-      this.schedule();
+      if (this.refreshing === request) {
+        this.refreshing = null;
+        this.schedule();
+      }
     }
   }
 

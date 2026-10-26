@@ -294,6 +294,218 @@ try {
   await page.waitForTimeout(30);
   assert.deepEqual(await page.evaluate(() => window.rejections), [], 'sync and async disposed-renderer errors are contained');
 
+  // Each deferred API response is explicitly released; no timing sleeps choose
+  // the race ordering. Snapshots are captured before the GET's response gate.
+  await page.evaluate(async inventory => {
+    const {createUnitPanel} = await import('/platform/web/unit-panel.js');
+    window.fixtureInventory = inventory;
+    window.makeRaceScenario = async () => {
+      window.panel?.dispose();
+      const attachment = {id: 'race-button', unit_id: 'button', port_id: 'port-a', visual_port: 'grove'};
+      const r = {calls: [], observations: [], gates: {GET: [], POST: []}, values: new Map([['race-a', false], ['race-b', false]])};
+      r.session = session_id => ({session_id, device_id: 'cores3', state: 'running', units: [attachment]});
+      r.payload = session_id => ({session_id, source: 'live', definitions: inventory.units, units: [{...attachment, available: true, errors: {}, properties: {pressed: r.values.get(session_id)}}]});
+      r.gate = method => {
+        let resolve, reject, start;
+        const gate = {promise: new Promise((yes, no) => { resolve = yes; reject = no; }), started: new Promise(yes => { start = yes; }), resolve: () => resolve(), reject: () => reject(new Error('deferred old request')), start: () => start()};
+        r.gates[method].push(gate);
+        return gate;
+      };
+      const api = async (path, options = {}) => {
+        if (path.startsWith('/api/v1/units')) return inventory;
+        const sid = decodeURIComponent(path.split('/')[4]);
+        const method = options.method || 'GET';
+        const body = options.body ? JSON.parse(options.body) : null;
+        r.calls.push({sid, method, body});
+        const snapshot = r.payload(sid);
+        const gate = r.gates[method].shift();
+        if (gate) { gate.start(); await gate.promise; }
+        if (method === 'POST') {
+          r.values.set(sid, body.values.pressed);
+          return r.payload(sid);
+        }
+        return snapshot;
+      };
+      const shell = {async attachUnit() { return {}; }, detachUnit() {}, applyVisualState() {}, updateUnitAnnotation(unit) { r.observations.push(structuredClone(unit)); }};
+      r.panel = window.panel = await createUnitPanel(document.querySelector('#panel'), {session: r.session('race-a'), shell, api});
+      clearTimeout(r.panel.timer);
+      r.drain = async () => { await Promise.all(r.panel.queues.values()); clearTimeout(r.panel.timer); };
+      r.read = () => ({state: structuredClone(r.panel.states.get('race-button')), text: document.querySelector('[data-unit-values]')?.textContent, note: document.querySelector('[data-unit-note]')?.textContent, observed: r.observations.at(-1)?.properties.pressed});
+      window.race = r;
+    };
+  }, inventory);
+  for (const startedDuringPost of [false, true]) {
+    await page.evaluate(async startedDuringPost => {
+      await window.makeRaceScenario();
+      const r = window.race;
+      let post, postGate;
+      if (startedDuringPost) {
+        postGate = r.gate('POST');
+        post = r.panel.send('race-button', {pressed: true});
+        await postGate.started;
+      }
+      const getGate = r.gate('GET');
+      const get = r.panel.refresh();
+      await getGate.started;
+      if (postGate) postGate.resolve();
+      else post = r.panel.send('race-button', {pressed: true});
+      await post;
+      r.beforeLateGet = r.read();
+      getGate.resolve();
+      await get;
+      clearTimeout(r.panel.timer);
+    }, startedDuringPost);
+    assert.equal(await page.evaluate(() => window.race.beforeLateGet.state.properties.pressed), true, 'POST response must provide the actual controller observation');
+    const result = await page.evaluate(() => window.race.read());
+    assert.equal(result.state.properties.pressed, true, `late GET started ${startedDuringPost ? 'during' : 'before'} POST must not roll controller readback back`);
+    assert.equal(result.observed, true, 'shell annotations retain the confirmed observation');
+    assert.ok(result.text.includes('true'), 'DOM retains the confirmed observation');
+  }
+  for (const ending of ['success', 'error', 'same-id-reused', 'init', 'init-during-input']) {
+    await page.evaluate(async ending => {
+      await window.makeRaceScenario();
+      const r = window.race, gate = r.gate('GET');
+      const old = ending.startsWith('init') ? r.panel.init() : r.panel.refresh();
+      await gate.started;
+      if (ending !== 'init-during-input') r.panel.updateSession(r.session('race-b'));
+      if (ending === 'same-id-reused') r.panel.updateSession(r.session('race-a'));
+      r.values.set(r.panel.session.session_id, true);
+      if (ending === 'init-during-input') await r.panel.send('race-button', {pressed: true});
+      else await r.panel.refresh();
+      r.newSessionSnapshot = r.read();
+      if (ending === 'error') gate.reject(); else gate.resolve();
+      await old;
+      clearTimeout(r.panel.timer);
+    }, ending);
+    const result = await page.evaluate(() => window.race.read());
+    assert.equal(result.state.properties.pressed, true, `${ending}: old session response must not change the current observation`);
+    assert.equal(result.state.available, true, `${ending}: old failure must not disable current controls`);
+    assert.deepEqual(result, await page.evaluate(() => window.race.newSessionSnapshot), `${ending}: old request must not alter states, DOM, notes or annotations`);
+  }
+  await page.evaluate(async () => {
+    await window.makeRaceScenario();
+    const r = window.race, gate = r.gate('POST');
+    const inFlight = r.panel.send('race-button', {pressed: true});
+    await gate.started;
+    const queued = r.panel.send('race-button', {pressed: false});
+    r.panel.updateSession(r.session('race-b'));
+    await r.panel.refresh();
+    await r.panel.send('race-button', {pressed: true});
+    r.newSessionSnapshot = r.read();
+    gate.resolve();
+    await Promise.all([inFlight, queued]);
+    clearTimeout(r.panel.timer);
+  });
+  assert.deepEqual(await page.evaluate(() => window.race.calls.filter(call => call.method === 'POST').map(call => ({sid: call.sid, pressed: call.body.values.pressed}))), [{sid: 'race-a', pressed: true}, {sid: 'race-b', pressed: true}], 'ordinary queued input is discarded when its session is replaced');
+  assert.deepEqual(await page.evaluate(() => window.race.read()), await page.evaluate(() => window.race.newSessionSnapshot), 'old in-flight POST cannot replace new session readback');
+  await page.evaluate(async () => {
+    await window.makeRaceScenario();
+    const r = window.race;
+    r.panel.setPressed('race-button', 'fixture', true);
+    await r.drain();
+    const gate = r.gate('POST');
+    const inFlight = r.panel.send('race-button', {pressed: true});
+    await gate.started;
+    const send = r.panel.send.bind(r.panel);
+    r.panel.send = (...args) => {
+      const promise = send(...args);
+      if (args[2]) r.originalRelease = promise;
+      return promise;
+    };
+    r.panel.updateSession(r.session('race-b'));
+    await r.panel.refresh();
+    await r.panel.send('race-button', {pressed: true});
+    r.newSessionSnapshot = r.read();
+    gate.resolve();
+    await Promise.all([inFlight, r.originalRelease]);
+    clearTimeout(r.panel.timer);
+  });
+  assert.deepEqual(await page.evaluate(() => window.race.calls.filter(call => call.method === 'POST').map(call => ({sid: call.sid, pressed: call.body.values.pressed}))), [{sid: 'race-a', pressed: true}, {sid: 'race-a', pressed: true}, {sid: 'race-b', pressed: true}, {sid: 'race-a', pressed: false}], 'session replacement preserves the necessary release at the original sid');
+  assert.equal(await page.evaluate(() => window.race.values.get('race-a')), false);
+  assert.equal(await page.evaluate(() => window.race.values.get('race-b')), true);
+  assert.deepEqual(await page.evaluate(() => window.race.read()), await page.evaluate(() => window.race.newSessionSnapshot), 'original-session release cannot overwrite replacement-session readback');
+  await page.evaluate(async () => {
+    await window.makeRaceScenario();
+    const r = window.race;
+    r.panel.setPressed('race-button', 'fixture', true);
+    await r.drain();
+    const failure = r.gate('POST');
+    r.panel.setPressed('race-button', 'fixture', false);
+    await failure.started;
+    failure.reject();
+    await r.drain();
+    let unblock;
+    const blocker = new Promise(resolve => { unblock = resolve; });
+    r.panel.queues.set('race-button', blocker);
+    await r.panel.refresh();
+    const recovery = r.panel.queues.get('race-button');
+    r.panel.updateSession(r.session('race-b'));
+    await r.panel.refresh();
+    unblock();
+    await recovery;
+    clearTimeout(r.panel.timer);
+  });
+  assert.equal(await page.evaluate(() => window.race.calls.filter(call => call.method === 'POST').length), 2, 'queued release recovery cannot dispatch into a replacement session');
+  assert.equal(await page.evaluate(() => window.race.read().state.properties.pressed), false);
+  await page.evaluate(async () => {
+    await window.makeRaceScenario();
+    const r = window.race;
+    r.panel.setPressed('race-button', 'fixture', true);
+    await r.drain();
+    const gate = r.gate('POST');
+    const inFlight = r.panel.send('race-button', {pressed: true});
+    await gate.started;
+    const queued = r.panel.send('race-button', {pressed: true});
+    r.panel.dispose();
+    const release = r.panel.queues.get('race-button');
+    r.disposedState = structuredClone(r.panel.states.get('race-button'));
+    gate.resolve();
+    await Promise.all([inFlight, queued, release]);
+  });
+  assert.deepEqual(await page.evaluate(() => window.race.calls.filter(call => call.method === 'POST').map(call => ({sid: call.sid, pressed: call.body.values.pressed}))), [{sid: 'race-a', pressed: true}, {sid: 'race-a', pressed: true}, {sid: 'race-a', pressed: false}], 'dispose cancels ordinary queued inputs and preserves the necessary original-session release');
+  assert.equal(await page.evaluate(() => window.race.values.get('race-a')), false, 'dispose release reaches its original controller fixture');
+  assert.equal(await page.locator('#panel').textContent(), '', 'late responses cannot repopulate a disposed panel');
+  assert.deepEqual(await page.evaluate(() => window.race.panel.states.get('race-button')), await page.evaluate(() => window.race.disposedState), 'late dispose release response cannot mutate disposed state');
+
+  await page.evaluate(async () => {
+    await window.makeRaceScenario();
+    const r = window.race;
+    r.originalSnapshot = r.read();
+    r.mismatchedApplied = r.panel.apply({...r.payload('race-b'), source: 'persisted'});
+  });
+  assert.equal(await page.evaluate(() => window.race.mismatchedApplied), false, 'payload session id must match even when the caller omits an observed id');
+  assert.deepEqual(await page.evaluate(() => window.race.read()), await page.evaluate(() => window.race.originalSnapshot), 'mismatched payload cannot change state, source, DOM or annotation');
+  for (const delayedOld of [false, true]) {
+    await page.evaluate(async delayedOld => {
+      await window.makeRaceScenario();
+      const r = window.race;
+      r.mounts = []; r.detaches = [];
+      let finishOld;
+      const shell = {
+        attachUnit(unit, {port}) {
+          r.mounts.push({unit, port});
+          if (delayedOld && r.mounts.length === 1) return new Promise(resolve => { finishOld = resolve; });
+          return Promise.resolve({});
+        },
+        detachUnit(port) { r.detaches.push(port); }, applyVisualState() {},
+      };
+      const pending = r.panel.setShell(shell);
+      if (delayedOld) await Promise.resolve(); else await pending;
+      const attachment = {...r.session('race-b').units[0], unit_id: 'key'};
+      r.panel.updateSession({...r.session('race-b'), units: [attachment]});
+      r.panel.apply({session_id: 'race-b', source: 'live', definitions: window.fixtureInventory.units, units: [{...attachment, available: true, errors: {}, properties: {pressed: false, 'led-rgb': 0}}]});
+      await Promise.resolve();
+      if (finishOld) finishOld({});
+      await pending;
+      clearTimeout(r.panel.timer);
+    }, delayedOld);
+    assert.deepEqual(await page.evaluate(() => window.race.mounts), [{unit: 'button', port: 'grove'}, {unit: 'key', port: 'grove'}], 'same id and port remount the new session Unit model');
+    assert.deepEqual(await page.evaluate(() => window.race.detaches), ['grove'], 'old pending attachment is detached before its replacement starts');
+    assert.equal(await page.evaluate(() => window.race.panel.mounted.get('race-button')?.generation), await page.evaluate(() => window.race.panel.generation), 'late old same-shell attachment cannot reclaim the new port');
+    assert.equal(await page.evaluate(() => window.race.panel.attaching.size), 0);
+    await page.evaluate(() => window.race.panel.dispose());
+  }
+
   await page.evaluate(async () => {
     window.picker.dispose();
     const {createUnitPicker} = await import('/platform/web/unit-panel.js');
@@ -325,8 +537,12 @@ try {
   await page.evaluate(() => { window.panel.dispose(); window.picker.dispose(); });
   assert.deepEqual(errors, []);
   const source_sha256 = Object.fromEntries(await Promise.all(['platform/web/unit-panel.js', 'platform/web/unit-panel.css', 'platform/web/unit-visual-mappings.js', 'platform/tests/test_unit_panel.mjs', 'platform/units/catalog.json', 'platform/units/runtime-profiles.json'].map(async path => [path, createHash('sha256').update(await readFile(resolve(root, path))).digest('hex')])));
-  await writeFile(`${output}/report.json`, JSON.stringify({category: 'browser-bridge-contract', status: 'PASS', captured_at: new Date().toISOString(), browser_version: browser.version(), source_sha256, checks: ['controller-readback-over-initial', 'multi-source-press-release', 'readback-animation-command', 'explicit-planned-picker', 'blur-release', 'terminal-controls-disabled', 'dispose-polling', 'frozen-session-schema-over-live-catalog', 'all-27-schema-forms', 'cardkb-50-and-encoder8-8-controls', 'pending-multikey-array-preservation', 'stale-readback-preserves-held-channels', 'observed-rgb-swatches-electrical-order', 'fan-terminal-and-transport-fail-closed', 'array-schema-validation', 'nested-hub-parent-first-input-routing', 'null-shell-release', 'async-attach-cancel', 'disposed-shell-sync-and-async-errors', 'hub-three-i2c-picker', 'responsive-1440-1024-768-390', 'cardkb-full-key-names-nowrap-no-text-overflow-all-viewports'], firmware_execution: 'NOT RUN', errors}, null, 2) + '\n');
+  await writeFile(`${output}/report.json`, JSON.stringify({category: 'browser-bridge-contract', status: 'PASS', captured_at: new Date().toISOString(), browser_version: browser.version(), source_sha256, checks: ['controller-readback-over-initial', 'multi-source-press-release', 'readback-animation-command', 'explicit-planned-picker', 'blur-release', 'terminal-controls-disabled', 'dispose-polling', 'frozen-session-schema-over-live-catalog', 'all-27-schema-forms', 'cardkb-50-and-encoder8-8-controls', 'pending-multikey-array-preservation', 'stale-readback-preserves-held-channels', 'get-before-post-late-snapshot-rejected', 'get-during-post-late-snapshot-rejected', 'old-session-get-success-and-error-fenced', 'payload-session-id-before-state-writes', 'reused-session-id-epoch-fenced', 'old-session-init-fenced', 'same-session-init-input-epoch-fenced', 'replacement-session-original-release-preserved', 'replacement-session-model-remount-and-old-async-attach-fenced', 'old-session-post-and-queued-input-fenced', 'queued-release-recovery-session-fenced', 'dispose-original-session-release-without-late-state-writes', 'observed-rgb-swatches-electrical-order', 'fan-terminal-and-transport-fail-closed', 'array-schema-validation', 'nested-hub-parent-first-input-routing', 'null-shell-release', 'async-attach-cancel', 'disposed-shell-sync-and-async-errors', 'hub-three-i2c-picker', 'responsive-1440-1024-768-390', 'cardkb-full-key-names-nowrap-no-text-overflow-all-viewports'], firmware_execution: 'NOT RUN', errors}, null, 2) + '\n');
   console.log('UNIT_PANEL_BROWSER_OK');
+} catch (error) {
+  const source_sha256 = Object.fromEntries(await Promise.all(['platform/web/unit-panel.js', 'platform/tests/test_unit_panel.mjs'].map(async path => [path, createHash('sha256').update(await readFile(resolve(root, path))).digest('hex')])));
+  await writeFile(`${output}/report.json`, JSON.stringify({category: 'browser-bridge-contract', status: 'FAIL', captured_at: new Date().toISOString(), browser_version: browser.version(), source_sha256, firmware_execution: 'NOT RUN', error: error.stack, errors}, null, 2) + '\n');
+  throw error;
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));

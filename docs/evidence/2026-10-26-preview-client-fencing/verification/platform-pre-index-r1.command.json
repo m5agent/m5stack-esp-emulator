@@ -1,0 +1,37 @@
+{
+  "command": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "platform/tests",
+    "-p",
+    "test_*.py"
+  ],
+  "environment": {
+    "M5_PYTHON_DEPS": ".work/py312",
+    "PYTHONPATH": "platform/tools:platform/tests:tests/units:.work/py312"
+  },
+  "started_at": "2026-10-26T08:26:00.611324+00:00",
+  "source_sha256_before": {
+    "platform/tools/device_service.py": "f3099a49187f5839598f7d48d2120d938be48b96f038a42201b8310ffad47323",
+    "platform/tools/network_lane.py": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+    "platform/web/unit-panel.js": "cd0590b63b95dd4e93e6e66ea2fac4a4e428945c7d7fc2f8136a99b0a472c84f",
+    "platform/tests/test_unit_panel.mjs": "443a1e2d8e6003a8f5e43dd67f3b085975eedd02bcba25fa10bdbfd1f942a71e",
+    "docs/plans/2026-10-26-aiflow-live-preview-api.md": "78cc3e0f4ac65ae87c5f5e96ac41a810c87acb42a64c70ef4ed3a8290461855c",
+    "docs/project-snapshot.md": "631ae2e14b75965fce6c3752311192b90278816920d972e4c517c0e978ae689e"
+  },
+  "exit_code": 1,
+  "elapsed_seconds": 86.44988779188134,
+  "ended_at": "2026-10-26T08:27:27.061570+00:00",
+  "source_sha256_after": {
+    "platform/tools/device_service.py": "f3099a49187f5839598f7d48d2120d938be48b96f038a42201b8310ffad47323",
+    "platform/tools/network_lane.py": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+    "platform/web/unit-panel.js": "cd0590b63b95dd4e93e6e66ea2fac4a4e428945c7d7fc2f8136a99b0a472c84f",
+    "platform/tests/test_unit_panel.mjs": "443a1e2d8e6003a8f5e43dd67f3b085975eedd02bcba25fa10bdbfd1f942a71e",
+    "docs/plans/2026-10-26-aiflow-live-preview-api.md": "78cc3e0f4ac65ae87c5f5e96ac41a810c87acb42a64c70ef4ed3a8290461855c",
+    "docs/project-snapshot.md": "702283b15dcc32be5ba054b1b6db98e99f6dd2813d9d9251f3c50274c3dffb06"
+  }
+}

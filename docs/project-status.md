@@ -19,6 +19,9 @@ source会话创建到探针READY中位约17秒，非首帧/SLA。启动取消现
 同场景执行不继承宿主回归。持久guest代码部署和拟定Preview/Revision/Run/实时
 分发仍未实现，门禁见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)，
 本块证据见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。
+Unit客户端另已修复旧请求/队列及装配跨session污染，离线browser回归与旧源码
+负控见[响应隔离](evidence/2026-10-26-preview-client-fencing/README.md)；不建立多客户端
+server快照全序。首版方案细化为完整代码保存后新guest预览，尚无新增预览接口。
 
 项目已经不是单固件 PoC，而是可执行的多设备 virtual-device 平台：
 

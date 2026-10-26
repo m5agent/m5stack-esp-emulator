@@ -1,0 +1,14 @@
+from pathlib import Path
+import os,subprocess,json,time,hashlib,sys
+root=Path.cwd();case=sys.argv[1];command=sys.argv[2:];out=root/'.work/unit-panel-fence-20261026'/case;out.mkdir(parents=True,exist_ok=True)
+keys={'panel':'M5_UNIT_PANEL_OUT','audio':'M5_UNIT_AUDIO_OUT','bridge':'M5_UNIT_WEB_BRIDGE_TEST_OUT'}
+env=dict(os.environ)
+for kind,key in keys.items():
+ if case.startswith(kind):env[key]=str(out)
+paths=['platform/web/unit-panel.js','platform/tests/test_unit_panel.mjs']
+hashes=lambda:{p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
+meta={'command':command,'cwd':str(root),'environment':{key:env[key] for key in keys.values() if key in env},'started_at':time.strftime('%Y-%m-%dT%H:%M:%S%z'),'source_sha256_before':hashes()}
+with (out/'stdout.log').open('w') as stdout,(out/'stderr.log').open('w') as stderr:result=subprocess.run(command,env=env,stdout=stdout,stderr=stderr)
+meta.update(exit_code=result.returncode,ended_at=time.strftime('%Y-%m-%dT%H:%M:%S%z'),source_sha256_after=hashes());(out/'command.json').write_text(json.dumps(meta,indent=2)+'\n')
+print(json.dumps(meta));print((out/'stdout.log').read_text());print((out/'stderr.log').read_text())
+raise SystemExit(result.returncode)

@@ -1,0 +1,45 @@
+{
+  "checks": [
+    {
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/runtime_coverage.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "RUNTIME_COVERAGE_OK\n"
+    },
+    {
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/peripheral_catalog.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "PERIPHERAL_CATALOG_OK\n"
+    },
+    {
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/qemu_profiles.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "QEMU_PROFILES_OK\n"
+    },
+    {
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/project_snapshot.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "PROJECT_SNAPSHOT_OK\n"
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/opt/homebrew/bin/node",
+    "platform/tests/test_unit_panel.mjs"
+  ],
+  "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-panel-fence-20261026/old-product-control",
+  "environment": {
+    "M5_UNIT_PANEL_OUT": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-panel-fence-20261026/negative-final-r3"
+  },
+  "expected_exit_code": 1,
+  "expected_failure": "late GET started before POST must not roll controller readback back",
+  "started_at": "2026-10-26T16:23:34+0800",
+  "source_sha256_before": {
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/tests/test_unit_panel.mjs": "443a1e2d8e6003a8f5e43dd67f3b085975eedd02bcba25fa10bdbfd1f942a71e"
+  },
+  "exit_code": 1,
+  "ended_at": "2026-10-26T16:23:39+0800",
+  "source_sha256_after": {
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/tests/test_unit_panel.mjs": "443a1e2d8e6003a8f5e43dd67f3b085975eedd02bcba25fa10bdbfd1f942a71e"
+  }
+}

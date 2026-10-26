@@ -68,6 +68,7 @@ eFuse 或生产 key。
 新session预览，不能承诺同guest热部署或低秒级SLA；量化证据、拟定契约及验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
 checkpoint/artifact snapshot/virtual target也需衔接；尚未实现新接口或变更部署。
+本客户端旧请求/队列与装配隔离已补齐，服务端run身份与多客户端控制权仍待实现。
 三主机HUB数字token换行按`UNIT-HOST-23`单独改善，保留既有controller PASS。
 
 `UNIT-01` 已具备 CoreS3 27种选定场景与三主机各11种

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "client/browser contract and API design refinement",
+  "base_commit": "99e3e22c21dda89f613e79bfc8a45613878900a7",
+  "source_sha256": {
+    "platform/web/unit-panel.js": "cd0590b63b95dd4e93e6e66ea2fac4a4e428945c7d7fc2f8136a99b0a472c84f",
+    "platform/tests/test_unit_panel.mjs": "443a1e2d8e6003a8f5e43dd67f3b085975eedd02bcba25fa10bdbfd1f942a71e"
+  },
+  "platform_tests": {
+    "passed": 709,
+    "skipped": 0,
+    "elapsed_seconds": 82.069,
+    "receipt": "verification/platform-final-r2.command.json",
+    "source_hashes_unchanged": true
+  },
+  "generated_checks": {
+    "passed": 4,
+    "receipt": "verification/generated-final.json"
+  },
+  "browser_contract": {
+    "passed_checks": 34,
+    "browser_version": "156.0.8078.48",
+    "receipt": "browser/panel/report.json"
+  },
+  "negative_control": {
+    "expected_failure_observed": true,
+    "same_new_test_bytes": true,
+    "prior_product_matches_baseline": true,
+    "receipt": "browser/negative/report.json"
+  },
+  "additional_contracts": {
+    "annotation_cases": 17,
+    "audio_unit_assertions": 113,
+    "audio_browser_checks": 15,
+    "bridge_post_requests": 31,
+    "bridge_trusted_events": 12
+  },
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "controller_changes": false,
+  "not_implemented": [
+    "Preview/Revision/Run endpoints",
+    "SSE preview events",
+    "shared frame producer",
+    "fast source Flash preparation",
+    "same-guest code update",
+    "multi-client controller snapshot ordering"
+  ],
+  "aiflow_consumer_receipt": "aiflow-consumer-readonly.json",
+  "external_work_logs": "SKIPPED_BY_USER",
+  "root_visual_inspection": {
+    "file": "browser/panel/viewport-390.png",
+    "view_image_used": true,
+    "observation": "Visible fixture controls and values within screenshot width; no firmware/display execution inferred."
+  },
+  "archive_transport": {
+    "compressed_member": "browser/bridge/bridge-fixture/web-report.zip!web-report.json",
+    "source_bytes_preserved": true
+  }
+}

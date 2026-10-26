@@ -2,9 +2,11 @@
 
 日期：2026-10-26。归属 `UNIT-01`，模块边界与 `SVC-03` 协同。
 状态：**评估完成，以下新接口与性能目标尚未实现/验收**。
-生命周期修复已进入实现与验证，本轮结果见
+生命周期修复已提交并完成限定验证，结果见
 [取消与 Unit 回归](../evidence/2026-10-26-session-cancellation-f309/README.md)；
 以下评估表描述固定旧基线，新 Preview/Revision/Run 接口仍未实现。
+2026-10-26 补充核对 `99e3e22c`：生命周期修复已提交；本块结束后重新 fetch/merge
+`origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6`，结果为 Already up to date。
 执行优先级只维护在[项目Backlog](../project-backlog.md)，本页定义本任务的方案与门禁。
 
 ## 结论与当前证据
@@ -18,6 +20,12 @@
 发生推进，受影响gateway及行引用已重新核对。没有变更API行为或AIFlow SDK，
 没有部署。完整源码证据、host生命周期复现与计时来源见
 [审查归档](../evidence/2026-10-26-aiflow-preview-api-audit/README.md)。
+
+随后只读复核 AIFlow `947d182b` 及当时有并行未提交修改的工作树：新增设备数据
+ingest/snapshot/SSE，可复用其订阅展示模式；它仍不是程序 checkpoint 或虚拟执行
+target。`file_ready` 仍在 runner 返回后、task_completed 之前发送，下载读取当前
+workspace；相关十文件前后哈希稳定。本观察不代表部署版本，详细收据见
+[本块前端回归](../evidence/2026-10-26-preview-client-fencing/README.md)；没有读取运行配置或变更 AIFlow。
 
 | 需求 | 当前实现 | 对实时编程的影响 |
 | --- | --- | --- |
@@ -73,6 +81,7 @@ flowchart LR
 | `GET /api/v1/previews/{id}/events` | SSE状态/日志/Unit变化/frame_available，支持游标恢复与缺口resync |
 | `GET /api/v1/previews/{id}/frame` | 返回生产者缓存的最新帧；ETag/304、frame_seq、run_id、revision_id、captured_at |
 | `POST /api/v1/previews/{id}/input` | 转发真实guest/Unit输入，校验expected_run_id及控制权，拒绝过期操作 |
+| `POST /api/v1/previews/{id}/renew` | 认证 owner 显式续租，受服务端最大租期/配额限制，响应新的 expires_at |
 | `POST /api/v1/previews/{id}/close` | 停止接收新运行并有界取消当前事务，保留运行/evidence历史；回收未完成时返回closing |
 
 建议第一版保留REST控制与SSE事件。SSE只发帧序号/URL/摘要，图片走条件GET；
@@ -85,6 +94,38 @@ flowchart LR
 底层session lease，显式关闭、owner lease到期或idle回收走相同取消路径；只读
 SSE/帧订阅不自动无限续租。具体租期、续租及保留配额在实施契约中明确，浏览器
 断开不等于立即删除历史，也不能让遗留guest永久占用资源。
+
+## 首版实施边界与接口细则
+
+第一版交付定义为**完整代码保存后预览**：一次完整 checkpoint 对应一个不可变
+Revision，以新 guest 执行；可连续提交、取消和交互。逐 token 执行、运行中 Unit
+hotplug、同 guest 热部署及任意二进制资源不纳入首版已支持范围。Revision 显式
+声明 `source_kind=uiflow2-python`；只接收当前 composer 验证过的完整 `.py` 集合，
+不支持的资源类型返回明确错误。接口返回 `execution_mode=new-session` 和实际
+能力，不让调用者根据资源名推断热部署能力。后续 asset blob/manifest 保持独立
+扩展点。
+
+首版应把预览编排放在独立模块，通过 DeviceService 现有方法管理执行；保持
+`/sessions`、固件元数据、source pin、历史恢复与 evidence 契约兼容。先完成下列
+身份与状态规则，再引入缓存采样/事件分发；不要在这一步整体拆写 runtime。
+
+| 边界 | 必须确定的行为 |
+| --- | --- |
+| Revision 与固件 | Revision 以完整规范化 source/asset manifest、entrypoint、source_kind 及声明的兼容性生成独立 ID。Run 另行冻结 base SHA、设备/profile、版本化装配、初始 fixture 及构建 provenance；build/cache key 包含这些实际构建输入和工具链。固件 image SHA 只作为产物引用。当前 `FirmwareStore.create()` 会重写同 image SHA 的 metadata，不能直接充当不可变 Revision 数据库。现 source-pin mismatch 的 409 继续保留，禁止在失败后移除 pin 重试 |
+| 提交与幂等 | `expected_generation` 对服务器 generation 做原子比较；客户端 generation 仅作关联。Run、generation 与幂等映射在同一 preview 事务中持久化后才返回 202。按 preview、认证 owner 和 Idempotency-Key 保存请求指纹与原 run 响应；相同 key/同指纹的重试先返回原 run，不因 generation 已前进而另起执行或提升 desired；同 key/不同内容返回 409 |
+| 连续提交 | 每 preview 只保留一个待执行目标。新目标使旧启动失效，先取消旧 Run；旧 session 仍 stopping 时继续占容量，新目标处于等待清理状态，不为抢首帧提前释放租约或超额启动。desired Run 与正在退出的 active Run 分列 |
+| 输入与切换 | 输入必须携带 `expected_run_id`；验证与取得该 Run 的输入执行权属于同一 admission 事务。切换后排队的旧输入返回 409，不能在检查后改向新 guest；耗时 QMP 不占全局 service 锁。切换释放 momentary 输入，保留 fixture 另作显式配置 |
+| 帧身份 | `frame_available` 指向 Run/帧序号确定的 URL，例如 `/previews/{id}/runs/{run_id}/frames/{frame_seq}.png`。latest 快捷入口需 expected_run_id，并返回 run/revision/seq；ETag 同时包含身份与内容 SHA，不能只对像素哈希做 304。已淘汰帧返回 410，禁止悄悄返回另一个 Run 的最新帧 |
+| 事件恢复 | event ID 包含 stream epoch 与单调 seq；有界 replay，Last-Event-ID 过期、epoch 变化或游标无效时发明确 resync。权威 GET 在同一 hub 锁内取得状态及游标，再从该 cursor 订阅，避免 GET 与订阅间漏事件。帧通知可合并，生命周期与日志缺口需可识别；不能用空列表表示断线后的完整历史 |
+| 服务重启 | 持久化 preview 配置、Revision、run/session 绑定、generation 和幂等记录。冻结底层 session 请求，并用稳定 Run 派生的 session idempotency key 恢复创建中断窗口；重启先经 DeviceService ownership 校验接管或标 interrupted，不自动重跑未知执行。事件 epoch 更新，浏览器清掉旧缓存并 resync |
+| 资源归属 | preview 的 control/renew/close 走认证 owner 范围，持久化绝对 expires_at；租期、空闲回收、最大待处理源码量、Run/帧/日志保留均有配置上限并在创建响应中公开。只读 GET/SSE 不续租，过期取消和显式 close 复用同一清理路径；不存在租约的 preview 不后台无限重建 guest |
+| 引用与回收 | queued、active、cancelling 及保留 Run 都 pin 对应 Revision、源码 CAS、base 与派生固件。现固件 prune 仅按 session 引用保留，新增 Revision 时必须扩展根集合；过期幂等记录保留 tombstone 或明确返回已过期，不让一次旧请求在 GC 后被当成新执行 |
+
+客户端也需要独立 fence：请求发出时固定 session/run、输入 epoch 和请求顺序，
+在 `json()`/`blob()`/图片 decode 完成后重新检查，再更新 DOM、模型、声音或错误
+状态。服务端携带标签不能替代这个检查；AbortController 也不能代替结果校验。
+Unit GET 在输入 POST 之前发出、却在 POST 确认之后到达时，旧全量快照应丢弃，
+由下一次真实读回恢复，不能用本地输入值补成控制器输出。
 
 ## 版本、取消和状态规则
 
@@ -99,6 +140,9 @@ SSE/帧订阅不自动无限续租。具体租期、续租及保留配额在实�
   停止只回收该Run拥有的进程、Flash和companion，重复取消幂等，普通错误仍failed。
 - 新旧run所有帧/日志/Unit事件都有run/revision/seq；前端丢弃旧版本到达的结果。
   ready marker必须属于本run的新串口窗口，不能重复消费历史READY。
+- runtime 存活、application ready、首帧和首个应用效果帧分列；没有本 Run 的
+  应用 readiness 条件时保持 unknown，不把 boot logo 或进程 running 算成代码
+  已显示。性能基准使用已知探针的明确 UI 标记，不能从任意非空帧推断。
 - 逻辑preview可以保留温度等用户fixture配置；按键等momentary输入在run转换时
   释放。输出状态始终来自当前guest控制器，不从旧run/Python变量伪造。
 - 同run标记不等于帧/串口/Unit原子采样；每频道保留实际captured_at。slow client
@@ -146,6 +190,10 @@ security/source SHA校验，和串口烧录验证类别分开。不要全局改�
 原子写入完整文件/资源→guest实际读回→执行→本run READY。VM/模块/定时器/IRQ
 清理与状态保留规则明确；native阻塞/IRQ关闭等无法中断时有界降级到新guest。
 不直接修改运行中的Flash，不在host执行caller Python。
+
+独立 WASM 页的 `window.m5emu.execPython` 不能作为 Device Service 已具备传输的
+依据；其延迟 UART 回调还缺 worker/epoch fence，静态风险记为 `UNIT-HOST-26`，
+现场复现与修复另验。
 
 预热限明确owner/profile，复用或snapshot必须另验Flash/eFuse/控制器/Unit状态
 恢复；当前不存在已证明的通用savevm/跨租户池语义。建议以低秒级可感知反馈为

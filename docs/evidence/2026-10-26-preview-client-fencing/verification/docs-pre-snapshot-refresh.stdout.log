@@ -1,0 +1,14 @@
+.................................F.............
+======================================================================
+FAIL: test_project_snapshot_is_current (test_docs_index_contract.DocsIndexContractTests.test_project_snapshot_is_current)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_docs_index_contract.py", line 643, in test_project_snapshot_is_current
+    self.assertEqual(
+AssertionError: '<!--[8787 chars]外共 `29029` 行。\n\n## 文档与测试\n\n- 平台测试：`709` 项。\n[836 chars])。\n' != '<!--[8787 chars]外共 `28990` 行。\n\n## 文档与测试\n\n- 平台测试：`709` 项。\n[836 chars])。\n'
+Diff is 9935 characters long. Set self.maxDiff to None to see it. : docs/project-snapshot.md is stale; run `python3 platform/tools/project_snapshot.py --write`
+
+----------------------------------------------------------------------
+Ran 47 tests in 10.549s
+
+FAILED (failures=1)

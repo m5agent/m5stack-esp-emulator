@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "kind": "aiflow-preview-current-consumer-readonly-review",
+  "observation_date": "2026-10-26",
+  "receipt_generated_at": "2026-10-26T08:21:42.966479+00:00",
+  "capture_mode": "assembled_from_previously_observed_tool_outputs; not a new source read",
+  "source_repository": "/Users/yunyu/Desktop/git/aiflow-sdk",
+  "head_before": "947d182bbe9e5f7615596dd08f392756698c83ec",
+  "head_after": "947d182bbe9e5f7615596dd08f392756698c83ec",
+  "prior_review_head": "b49940608b12d8d60645efe6f319a2314316c696",
+  "committed_delta_scope_observed": {
+    "command_scope": "git diff prior_review_head..HEAD -- *.py *.md",
+    "files": [
+      "aiflow_server/gateway.py"
+    ],
+    "meaning": "Only committed delta in inspected source/doc scope: a 20 ms SSE wakeup coalescing delay before reading persisted task events. No checkpoint or target implementation was added by that committed delta."
+  },
+  "files": [
+    {
+      "path": "aiflow_server/agent.py",
+      "sha256_before": "004b1024f168f9699db9078dd72d5acaa053b698e719497abeb272e1b3302c4a",
+      "sha256_after": "004b1024f168f9699db9078dd72d5acaa053b698e719497abeb272e1b3302c4a",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "aiflow_server/app.py",
+      "sha256_before": "8ea4759efcb435c2ff8e9ac117771e6aeae8b8add831dc1e5d8bcbe7609f4d29",
+      "sha256_after": "8ea4759efcb435c2ff8e9ac117771e6aeae8b8add831dc1e5d8bcbe7609f4d29",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "aiflow_server/device_push.py",
+      "sha256_before": "a15f3836cbb2398d3592c06c3562036ae7a7e386d7a88a720e2dc1b0935be0f2",
+      "sha256_after": "a15f3836cbb2398d3592c06c3562036ae7a7e386d7a88a720e2dc1b0935be0f2",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "aiflow_server/gateway.py",
+      "sha256_before": "76f0f0ef779eff47802cd1d376b4eca4ec6acb588f68b54021b449a47234d8ea",
+      "sha256_after": "76f0f0ef779eff47802cd1d376b4eca4ec6acb588f68b54021b449a47234d8ea",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "aiflow_server/storage.py",
+      "sha256_before": "16d1423d2f96fd79f289ffb0e4c7698ffba8115704ce2081cd34c3df96ecb37f",
+      "sha256_after": "16d1423d2f96fd79f289ffb0e4c7698ffba8115704ce2081cd34c3df96ecb37f",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "sha256_before": "cf0d5a8e956a3db19dcde5659fee7a9d011ca0a58c7c53e281047d074e95555f",
+      "sha256_after": "cf0d5a8e956a3db19dcde5659fee7a9d011ca0a58c7c53e281047d074e95555f",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "aiflow_server/schemas.py",
+      "sha256_before": "0a48bfab0b216f53ac167d75cfd244d4bf0446a582f70aee4e064dbef1539335",
+      "sha256_after": "0a48bfab0b216f53ac167d75cfd244d4bf0446a582f70aee4e064dbef1539335",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "aiflow_server/workspaces.py",
+      "sha256_before": "2e4a7583161d8b0b147965974dd2bb856162c9cb381f4398ea2ec4b20a6aa712",
+      "sha256_after": "2e4a7583161d8b0b147965974dd2bb856162c9cb381f4398ea2ec4b20a6aa712",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "docs/API_V3.md",
+      "sha256_before": "761b45cf3ec1b9954faa7ee00998993f34dd4e4533fe2521c62a6ceb5ac00147",
+      "sha256_after": "761b45cf3ec1b9954faa7ee00998993f34dd4e4533fe2521c62a6ceb5ac00147",
+      "stable_between_observed_hash_passes": true
+    },
+    {
+      "path": "README.md",
+      "sha256_before": "e278fe07f91e813a7d6b042211699f72a477f6b7ce08d04c58c1540629673ac3",
+      "sha256_after": "e278fe07f91e813a7d6b042211699f72a477f6b7ce08d04c58c1540629673ac3",
+      "stable_between_observed_hash_passes": true
+    }
+  ],
+  "dirty_worktree_observation": {
+    "dirty": true,
+    "scope": "git status --short -- '*.py' '*.md' '*.js' '*.ts'",
+    "modified_unstaged_paths": [
+      "README.md",
+      "aiflow_server/agent.py",
+      "aiflow_server/app.py",
+      "aiflow_server/config.py",
+      "aiflow_server/device_push.py",
+      "aiflow_server/gateway.py",
+      "aiflow_server/storage.py",
+      "docs/API_V3.md"
+    ],
+    "untracked_paths": [
+      "aiflow_server/datastore.py",
+      "aiflow_server/device_data.py",
+      "aiflow_server/qr.py",
+      "docs/DATA-PUBLIC_API_REFERENCE.md",
+      "docs/plans/2026-10-26-device-data-dashboard.md",
+      "skills/aiflow-data-collect/SKILL.md",
+      "skills/aiflow-data-collect/assets/aiflow_data.py",
+      "tests/test_datastore_client.py",
+      "tests/test_device_data.py",
+      "tests/test_device_data_e2e.py",
+      "tests/test_device_data_routes.py",
+      "tests/test_device_runtime.py",
+      "tests/test_qr.py"
+    ],
+    "status_observed_once": true,
+    "atomic_snapshot": false,
+    "caveat": "Concurrent unpublished work existed. The ten reviewed files had identical before/after hashes during this observation window. This does not establish that all files were frozen, that no intermediate write occurred, or that this worktree matches any deployed service."
+  },
+  "conclusions": [
+    {
+      "finding": "file_ready is emitted after the runner returns, before the task becomes completed; no mid-run complete code checkpoint was found in the reviewed path.",
+      "source_locations": [
+        "aiflow_server/tasks.py:919-939",
+        "aiflow_server/tasks.py:962-974",
+        "aiflow_server/tasks.py:977-998"
+      ]
+    },
+    {
+      "finding": "Generated file download reads the current context workspace. File listings contain path, size and modified_at, rather than an immutable multi-file revision/hash manifest.",
+      "source_locations": [
+        "aiflow_server/app.py:1022-1034",
+        "aiflow_server/workspaces.py:418-434"
+      ]
+    },
+    {
+      "finding": "The reviewed deployment schema still exposes none/server/agent and direct-run by code_path. No virtual preview execution target or immutable code Revision endpoint was found in the reviewed source/API document scope.",
+      "source_locations": [
+        "aiflow_server/schemas.py:127-141",
+        "aiflow_server/device_push.py:91-118",
+        "aiflow_server/tasks.py:977-989"
+      ]
+    },
+    {
+      "finding": "Context creation still requires device_id and client_id. If AI quota is enabled, accepting a coding task requires a MAC even when deploy_mode is none. This is a source-level conditional; live configuration and physical pairing were not checked.",
+      "source_locations": [
+        "aiflow_server/schemas.py:12-48",
+        "aiflow_server/schemas.py:52-62",
+        "aiflow_server/app.py:597-603"
+      ]
+    }
+  ],
+  "device_data_reuse_and_separation": {
+    "observed_new_capability": "The dirty worktree contains device-data ingest, current data snapshot, and an ingest-notified dashboard SSE stream. It is incorrect to describe this worktree as lacking all realtime channels.",
+    "source_locations": [
+      "aiflow_server/app.py:1087-1099",
+      "aiflow_server/gateway.py:650-704",
+      "docs/API_V3.md:619-647"
+    ],
+    "reusable_for_preview": [
+      "Frontend snapshot subscription and display patterns, including an ingest-notified SSE wakeup and idle keepalive.",
+      "Owner-controlled share/revocation and dashboard presentation patterns can inform a preview adapter, subject to preview-specific authorization and runtime identity."
+    ],
+    "must_remain_separate": [
+      "A reported sensor/channel value is not evidence that a specified virtual guest/controller or firmware consumed an input.",
+      "The data public_id/share identifies a dashboard capability; device_id/context_id identify existing AIFlow ownership resources. Neither substitutes for preview_id, run_id, revision_id, firmware/source SHA, or frozen Unit assembly/contract hashes.",
+      "Data channel version or sample seq is not a run generation or code revision. Every virtual preview event/frame/input must carry its actual run/revision identity, channel sequence/captured_at and trusted owner/control epoch.",
+      "Device-data SSE snapshot is mutable telemetry, not an immutable multi-file code checkpoint. It must not be relabeled as a ProgramRevision or inherit a previous run/source validation result.",
+      "Keep existing device reporting credentials and public share capabilities out of emulator source snapshots, global control-token exposure, evidence and browser source. Any future telemetry-to-preview binding must be explicit and owned by the same authorized run."
+    ]
+  },
+  "scope_and_safety": {
+    "aiflow_files_modified": false,
+    "runtime_requests_made": false,
+    "tests_or_model_tasks_executed": false,
+    "deployment_performed": false,
+    "credential_files_read": false,
+    "excluded": [
+      ".env and runtime environment files",
+      "server_config.json",
+      "real credentials",
+      "deployment local notes",
+      "live quota/configuration values"
+    ],
+    "evidence_level": "readonly source/doc observation; no new runtime or hardware PASS"
+  }
+}
