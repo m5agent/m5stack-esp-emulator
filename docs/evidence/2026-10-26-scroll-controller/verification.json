@@ -50,5 +50,10 @@
     "failed": 0,
     "report": "verification/docs-final.txt"
   },
-  "staged_whitespace": "PASS; exact upstream/log whitespace exceptions preserve raw bytes"
+  "staged_whitespace": "PASS; exact upstream/log whitespace exceptions preserve raw bytes",
+  "post_integration_docs": {
+    "passed": 20,
+    "report": "verification/docs-post-integration.txt"
+  },
+  "integration": "integration.json"
 }

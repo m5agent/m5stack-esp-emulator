@@ -236,3 +236,5 @@ vendor与HTTP/guest闭环。宿主C与浏览器fixture不能替代guest证据。
 source与guest counter分开，后者写入/reset不能假称物理轴运动。物理角度、
 STM32 bootloader、配置Flash持久化和QEMU地址0的unicast均保持具体模型缺口。
 新增catalog/profile已准入implemented候选，model_completeness仍partial；implemented只说明可执行，不能替代逐主机证据。RGB当前是quiescent/latest-value子集，STM32多槽队列、burst/跨槽partial与LED调度未实现。只按本块证据关闭normal-operation范围，不以此关闭完整Scroll、其它Unit或整个goal。
+
+Scroll限定控制器块已提交`29c0dc85`；随后再次fetch/merge origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6，结果Already up to date、工作树干净。[同步收据](../evidence/2026-10-26-scroll-controller/integration.json)与本块证据保留。总UNIT-01仍进行中，执行顺序以Backlog为准。
