@@ -1,9 +1,70 @@
-# 外部 Agent：UIFlow 源码到 Unit 会话
+# 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-26`。API 契约：`1.35.0`。
+日期：`2026-10-26`。API 契约：`1.36.0`。
 
-本页给出 Python 源码 → 派生 UIFlow2 固件 → 可见 Device Service session →
-Unit 输入/guest 读取/画面 → evidence 的最短流程。CoreS3 已有选定的
+实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
+串口及 Unit 状态”的路径。每次改源码调用 `/sessions/{id}/program`，不重刷
+固件、不重启虚拟设备。下方原 composer 流程用于首次初始化、完整文件准备和
+兼容执行；连续编辑不再重复走这条路径。
+
+## 同一设备实时运行程序
+
+创建 session 时指定 `program_transport="uart-repl"`。目前只准入 `runtime=qemu`
+和 CoreS3、AtomS3R、StickS3、StopWatch 的 reference/composed UIFlow2 固件；
+实际 guest 验证范围需按主机单独确认。该选项建立双向 UART 传输，不自动改造
+guest 的 REPL 路由。AtomS3R 首次准备时使用如下 `boot.py`，配一个 `pass` 的
+`main.py` 经下方 composer 初始化一次，再创建带 Unit 装配的 session：
+
+```python
+from machine import UART
+import os
+_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)
+os.dupterm(_repl_uart, 0)
+_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)
+_uiflow_run_main = False
+print("M5EMU_UART_REPL_READY")
+```
+
+该初始化已按本仓 AtomS3R reference 路径设计。已有原生 UART REPL 的固件不应
+重复安装动态 UART IRQ；其他主机不得直接继承这段路由的验证结论。首次准备
+使用原有固件 source pin。之后提交完整单文件源码：
+
+```http
+POST /api/v1/sessions/SESSION_ID/program
+Content-Type: application/json
+
+{"source":"print('hello from the same guest')\n","expected_execution_id":null,"timeout_seconds":10}
+```
+
+读取 `GET /api/v1/sessions/SESSION_ID/program`，下一次提交把
+`expected_execution_id` 换成返回的 `program.execution_id`。过期身份或并发传输
+返回 409；超时返回明确错误，不自动重新刷机或替换 guest。源码最多 65536
+UTF-8 字节，超时配置 1–30 秒；当前接口只执行单文件 `.py` 源码，由 guest
+MicroPython 编译。多文件同步、二进制 `.mpy` 上传和保存开机程序需要另行实现。
+
+每次尝试保存独立 `execution_id`、不可变 `revision_id`、源码 SHA、固件 SHA、
+PID、串口窗口与执行状态，停止前 evidence ZIP 包含执行记录和 revision 源码。
+START 只代表 guest 进入执行；以应用自己的 READY、实际帧和 Unit 读回确认效果。
+`execution_mode=same-guest-uart-repl`、`cleanup_mode=interrupt-only` 表示用
+Ctrl-C 中断并通过 raw REPL 执行，不保证清空 native 模块、定时器、IRQ 或线程。
+遇到不可中断的 native 调用，调用者应按错误显式停止/重建会话。
+
+Unit 仍在创建 session 时接线；运行期间通过现有 `unit-input`、`units`、
+`serial`、`frame.png` 观察同一 guest 的控制器与应用效果。当前尚无运行中热插拔、
+Preview 编排、SSE 或共享帧生产者，也没有 AIFlow 前后端接入的验收结论。
+可复现的 AtomS3R 同 guest/PIR/屏幕/程序异常恢复探针见
+[`run_live_program.py`](../tests/units/run_live_program.py)，以 Device Service
+创建可见 session，停止前取证，停止后保留历史。
+本次仅 AtomS3R 的同 guest/PIR 实际结果见
+[实时程序证据](evidence/2026-10-26-uiflow-live-program/README.md)，其它主机不继承。
+每 session 最多保留 256 次 execution；当前服务级 revision 存储上限 256，额度
+耗尽返回明确错误，不自动删除历史或重跑未知提交。服务重连期间可能丢失串口输出，
+原活跃程序保持 unknown，不能仅根据旧 START 恢复 running。
+
+## 首次初始化与兼容固件流程
+
+以下给出 Python 源码 → 派生 UIFlow2 固件 → 可见 Device Service session →
+Unit 输入/guest 读取/画面 → evidence 的原有完整流程。CoreS3 已有选定的
 27 种 Unit 源码场景：25 种原驱动、IR/Buzzer 两种显式 custom 驱动。
 下方给出可直接重放的源码 JSON；它们来自多批独立会话，不是原版 27 项
 单次全绿运行。下面逐字 Button 与 HUB + ENV III + NCIR 示例也已独立运行。

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.35.0
+  version: 1.36.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -43,6 +43,61 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /sessions/{session_id}/program:
+    get:
+      summary: Observe the latest same-guest MicroPython execution
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Latest execution identity and observed state; null program before first submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramStatus"
+        "404":
+          $ref: "#/components/responses/Error"
+    post:
+      summary: Interrupt and run source in the existing UIFlow2 guest without flashing or resetting
+      description: >
+        Requires a running session created with program_transport=uart-repl
+        and a guest UART REPL route installed at boot. Only complete single-file
+        main.py source is accepted, up to 65536 UTF-8 bytes. expected_execution_id
+        must equal the latest execution ID, or null for the first submission.
+        The console has one transfer owner; conflicting submissions return 409.
+        Waits for bounded guest acknowledgement, not arbitrary application
+        readiness. Each attempt retains an immutable source revision and execution
+        record. Interrupt-only cleanup does not clear native modules, timers,
+        callbacks or threads. No automatic reset, reflash or guest replacement
+        occurs on failure. The same firmware hash and guest process remain bound
+        to the session. This trusted-local interface does not add tenant isolation.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunProgramRequest"
+      responses:
+        "200":
+          description: Guest execution marker observed; program state can be running, completed or failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramStatus"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+        "504":
+          $ref: "#/components/responses/Error"
   /units:
     get:
       summary: List Unit protocols, runtime support and confirmed host wiring
@@ -2205,6 +2260,43 @@ components:
         duplicate I2C addresses and unmodeled GPIO bus contention are rejected.
         Parallel HUB leaves currently require I2C. Power-current limits and
         physical electrical behavior are not established by this topology.
+    RunProgramRequest:
+      type: object
+      additionalProperties: false
+      required: [source, expected_execution_id]
+      properties:
+        source:
+          type: string
+          description: Complete main.py source, limited to 65536 UTF-8 bytes
+        expected_execution_id:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{32}$"
+          description: Latest execution ID, or null before the first submission
+        timeout_seconds:
+          type: number
+          minimum: 1
+          maximum: 30
+          default: 10
+    ProgramStatus:
+      type: object
+      required: [session_id, program_transport, program, history_error]
+      properties:
+        session_id:
+          type: string
+        program_transport:
+          type: [string, "null"]
+        history_error:
+          type: [string, "null"]
+        program:
+          type: [object, "null"]
+          description: >
+            Execution ID, immutable revision/source hashes, firmware hash, PID,
+            serial window, state and actual transfer/cleanup mode. State running
+            means the guest START marker was observed; application readiness,
+            frame and Unit effects require their own observations. At most 256
+            execution records per session and 256 source revisions per service
+            are accepted by this first implementation.
+          additionalProperties: true
     CreateSessionRequest:
       type: object
       required: [device_id]
@@ -2227,6 +2319,15 @@ components:
         firmware_id:
           type: string
           description: Omit to use the cached reference UIFlow2 image.
+        program_transport:
+          type: string
+          enum: [uart-repl]
+          description: >
+            Opt into a bidirectional guest UART console. Admitted only for runtime
+            qemu on cores3, atoms3r, sticks3 or stopwatch using reference or
+            composed UIFlow2 firmware. This setting does not install a guest REPL
+            route; an appropriate boot.py/native UART REPL remains required.
+            Actual same-guest firmware execution must be verified per profile.
         uiflow_source_sha256:
           type: string
           pattern: "^[0-9a-f]{64}$"

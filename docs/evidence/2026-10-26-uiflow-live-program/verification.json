@@ -1,0 +1,28 @@
+{
+  "validated_at": "2026-10-26T09:26:16.849603+00:00",
+  "platform_tests": {
+    "status": "PASS",
+    "count": 811,
+    "command": "PYTHONPATH=platform/tools:.work/py312 /opt/miniconda3/bin/python3.12 -m unittest discover -s platform/tests -p test_*.py",
+    "log_sha256": "fc0b2aca0b39df18304e5edb2ce3dd8ee70f2fcde36cedd1dbb0d5d525eed0c4"
+  },
+  "validators": {
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "openapi_yaml_parse": "PASS",
+    "utf8": "PASS",
+    "diff_check": "PASS",
+    "credential_pattern_scan": "PASS"
+  },
+  "full_peripheral_matrix": "NOT RUN: host UART/API-only change, no QEMU controllers changed",
+  "hardware": "NOT RUN",
+  "service_health": true,
+  "active_sessions": 0,
+  "available_sessions": 12,
+  "sync": {
+    "origin_main": "f2061759897955e6017d4aa2a41bd5ba962c35b6",
+    "merge": "Already up to date"
+  }
+}

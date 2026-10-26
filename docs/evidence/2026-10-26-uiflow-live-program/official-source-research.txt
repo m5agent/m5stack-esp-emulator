@@ -1,0 +1,133 @@
+# Same-guest UIFlow2 live execution: source research receipt
+
+Research date: 2026-10-26. This is official-source evidence only. No Device
+Service call, QEMU run, physical hardware access or public UIFlow websocket
+connection was performed by this research task. Production files were not
+modified. The candidate bootstrap has not been guest-validated.
+
+## Pinned authorities
+
+- M5Stack `uiflow-micropython`:
+  `3a86d8f611b3639cca755a933e01a5a829771ef1`.
+- Its `.gitmodules` and fixed tree identify the official MicroPython repository
+  and submodule `78ff170de9e32c79db6e64d3e33d2bd60002bdcd`.
+- `source-manifest.json` contains fixed official URLs, HTTP results, file hashes
+  and, for M5Stack files, Git blob verification against the already saved tree.
+  MicroPython files were downloaded from that exact official commit and SHA256
+  recorded; their Git blobs were not independently compared against a full tree.
+- This is not proof that any prebuilt firmware binary equals these sources.
+  Check capabilities and the exact firmware hash in the actual guest.
+
+## What enables same-guest execution
+
+M5Stack `m5stack/main.c:175-200` executes `_boot.py`, then `boot.py`, optionally
+`main.py`, then repeatedly calls standard friendly/raw REPL. The custom
+`_uiflow_run_main` global (`96-103`, `182`) can suppress automatic `main.py`
+execution after a bootstrap. Frozen `_boot.py:25-46` mounts `/system` and
+`/flash` and changes to `/flash`.
+
+Native-UART and dynamic-UART profiles must be distinguished:
+
+- AtomS3 explicitly defines `MICROPY_HW_ENABLE_UART_REPL=1` in its
+  `mpconfigboard.h:13`. `uart.c:56-81,103-120` already installs a UART RX
+  interrupt that places input in `stdin_ringbuf` and schedules KeyboardInterrupt.
+  Use that native REPL directly. Do not install the dynamic UART bootstrap.
+- AtomS3R comments out the explicit UART REPL define. The default in
+  `ports/esp32/uart.h:32-43` is enabled only when both USB CDC and USB Serial/JTAG
+  are disabled; default UART ID is 0 at 115200. ESP32-S3's USB configuration
+  therefore matters. An absent explicit define alone does not prove the
+  effective binary build setting.
+- `machine_uart.c:100-108,626-666` rejects `.irq()` on a native REPL-owned UART
+  with `ValueError("REPL UART does not support IRQs")`. On a non-native-REPL
+  UART, UART0 is a valid instance and can install the ESP-IDF UART driver and
+  RX event queue (`258-360`, `489-522`).
+
+`candidate-boot.py` is the shortest source-supported dynamic-UART candidate.
+It uses `machine.UART`, `os.dupterm` and UART RX IRQ notification. The pinned
+API is in `os`, not `sys`. `timeout=0` and `timeout_char=0` make stream reads
+nonblocking (`machine_uart.c:670-703`). UART0 pins are inherited rather than
+invented; the profile must expose the matching UART/controller path. The
+candidate must not be used for a profile that reserves UART0 for another role.
+
+Why the RX callback is required:
+
+- `mpconfigport.h:112-113` enables dupterm and dupterm_notify.
+- `mphalport.c:129-142` consumes `stdin_ringbuf`; it does not directly poll a
+  dupterm UART stream for input.
+- `extmod/modos.c:134-145` makes `os.dupterm_notify` read available dupterm bytes
+  into that ring buffer.
+- `machine_uart.c:140-171,626-666` receives UART_DATA events and schedules the
+  callback; `shared/runtime/mpirq.c:98-101` schedules soft IRQ handlers.
+- `extmod/os_dupterm.c:150-161` detects the active interrupt byte and schedules
+  KeyboardInterrupt. The official `docs/library/os.rst:135-158` documents this
+  UART/dupterm/IRQ pattern. Its sample uses a `machine.UART` qualifier without
+  importing `machine`; our candidate uses the already imported `UART` class.
+
+## Host protocol without restarting the guest
+
+The fixed official host implementation is `tools/pyboard.py:380-420` with
+`enter_raw_repl(soft_reset=False)` semantics:
+
+1. Send `\r\x03` to interrupt the running program. Collect/drain its output
+   without losing the session evidence cursor. Wait for the program to return
+   or establish a bounded interruption timeout; do not assume immediate stop.
+2. Send `\r\x01`. Wait for `raw REPL; CTRL-B to exit\r\n>`.
+3. Send nonempty source, then `\x04`. A raw REPL command emits `OK` before
+   execution. A nonempty command does not soft reset the interpreter.
+4. Finite commands finish with stdout EOF `\x04`, stderr EOF `\x04`, then
+   `>`; uncaught exceptions are between those EOFs. An infinite user loop does
+   not emit completion EOFs until interrupted. A program-specific READY marker
+   and actual state/output are separate from the transport-level `OK`.
+5. Repeat from step 1 for a new revision in this same guest. Optionally use
+   Ctrl-B to return to friendly REPL. Do not send an empty Ctrl-D: it explicitly
+   exits REPL to the soft-reset path.
+
+The firmware implementation proving those distinctions is
+`shared/runtime/pyexec.c:550-614` (raw control characters), `127-149,187-191,224`
+(interrupt enable and stdout/stderr EOF), and `659-679` (friendly Ctrl-A/C/D).
+Raw mode temporarily suppresses ESP log output in M5Stack `main.c:189-197`.
+
+Transport flow control is required: `stdin_ringbuf` is only 260 bytes
+(`mphalport.c:57-58`) and `dupterm_notify` does not check the return from
+`ringbuf_put`. The official plain-raw fallback sends 256-byte chunks separated
+by 10ms (`pyboard.py:505-516`). QEMU virtual timing still needs guest evidence;
+prefer negotiated raw-paste flow control (`pyboard.py:488-503`) or conservative
+chunks/acknowledged file-transfer commands. A single large serial write can
+silently overflow the guest ring buffer.
+
+Send Ctrl-C and Ctrl-A in distinct stages. `mp_os_dupterm_rx_chr()` returns -2
+when it consumes the interrupt byte; `dupterm_notify` stops that drain when it
+sees a negative result, so control bytes after Ctrl-C can await another event.
+
+## UIFlow network realtime path and slot interaction
+
+M5Stack `m5stack/components/webrepl/webrepl.c:27,299-334` implements a websocket
+client and `clientMessage` JSON input. `181-215` maps newline and Ctrl-C and
+moves input into `stdin_ringbuf`; `401-421` sends terminal output. This is real
+source evidence, not a guessed MQTT execution path. No public service access
+was attempted.
+
+`webrepl_install_dupterm_if_needed():557-571` only installs its stream when
+slot 0 is empty. It does not overwrite an occupied UART slot. The explicit
+`os.dupterm(uart,0)` replaces any stream that already occupied slot 0. Record
+that choice if the product later supports both transports; the pinned ESP32
+build only declares one dupterm slot.
+
+## Acceptance and real boundaries
+
+Source support is sufficient to implement a guest test, not to mark PASS.
+The parent integration must prove within one visible Device Service session:
+firmware/profile hash, one guest process identity, bootstrap marker, two
+program revision IDs with distinct source hashes, raw transport acknowledgments,
+real program output, Unit state/control, bounded Ctrl-C, and retained serial /
+frame / state evidence. Preserve the immutable revisions as provenance while
+uploading their source to the same guest.
+
+No implicit reset means old Python globals, loaded modules, tasks, callbacks
+and peripheral state can survive unless the program/loader explicitly cleans
+them up. Module cache invalidation and resource ownership need a clear loader
+policy. Standard KeyboardInterrupt can be caught by user code; a long native
+call or disabled interrupts may not yield promptly. User code can also
+reconfigure/deinit UART0 or replace the dupterm stream/IRQ. Such failures need
+bounded reporting/recovery; do not report them as successful live execution
+or silently replace the guest and call it same-guest PASS.

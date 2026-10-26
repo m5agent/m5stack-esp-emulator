@@ -468,6 +468,11 @@ class Handler(SimpleHTTPRequestHandler):
             ):
                 response = service.get_session(parts[1]).unit_state()
             elif (
+                method == "GET" and len(parts) == 3
+                and parts[0] == "sessions" and parts[2] == "program"
+            ):
+                response = service.get_session(parts[1]).program_status()
+            elif (
                 method == "GET"
                 and len(parts) == 3
                 and parts[0] == "sessions"
@@ -831,6 +836,8 @@ class Handler(SimpleHTTPRequestHandler):
                 payload = self._read_json(required=False)
                 if action == "input":
                     response = session.inject(payload)
+                elif action == "program":
+                    response = session.run_program(payload)
                 elif action == "unit-input":
                     response = session.unit_input(payload)
                 elif action == "qom":

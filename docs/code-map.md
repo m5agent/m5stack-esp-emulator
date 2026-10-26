@@ -78,6 +78,9 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | --- | --- | --- |
 | `platform/tools/serve.py` | HTTP/静态页面入口和 `/api/v1` 路由 | `./start.sh`、浏览器、Agent |
 | `platform/tools/device_service.py` | lease、会话、运行时、证据和生命周期主编排 | `serve.py`、测试、固件矩阵 |
+| `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
+| `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
+| `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
 | `platform/tools/unit_runtime.py` | 外接 Unit 目录、物理口准入、输入范围与同 guest QOM 读回；不在 Python 执行芯片协议 | Device Service、Unit panel、契约检查 |
 | `platform/tools/unit_adc_fixture.py` | 绑定已知应用字节的合成 S3 ADC eFuse 校准与独立数值 oracle；不访问物理硬件 | Angle/Light 测试、会话 eFuse fixture 与证据 |
 | `platform/tools/sync_visual_models.py` | 从固定公开模型 commit 显式导入运行源码、许可、Three.js 依赖与 hash 清单 | 外壳更新、来源复核 |

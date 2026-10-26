@@ -1,24 +1,37 @@
 # AIFlow 实时编程与预览 API：评估与实施计划
 
 日期：2026-10-26。归属 `UNIT-01`，模块边界与 `SVC-03` 协同。
-状态：**评估完成，以下新接口与性能目标尚未实现/验收**。
+状态：**已新增并验证 AtomS3R 的 UIFlow 同 guest 程序下发；Preview 编排、SSE、
+共享帧生产者缓存及性能目标尚未实现/验收**。
 生命周期修复已提交并完成限定验证，结果见
 [取消与 Unit 回归](../evidence/2026-10-26-session-cancellation-f309/README.md)；
-以下评估表描述固定旧基线，新 Preview/Revision/Run 接口仍未实现。
+该结果与下述同 guest 程序执行属于不同验证范围。
 2026-10-26 补充核对 `99e3e22c`：生命周期修复已提交；本块结束后重新 fetch/merge
 `origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6`，结果为 Already up to date。
 执行优先级只维护在[项目Backlog](../project-backlog.md)，本页定义本任务的方案与门禁。
 
 ## 结论与当前证据
 
-现API能支撑完整源码生成后的启动、交互和预览。要支撑AIFlow连续改代码、快速
-反馈，应增加逻辑预览会话、不可变程序版本、可靠取消和统一实时分发，并缩短
-每次准备Flash/启动的路径。现有真实guest、总线控制器、Unit数据面、source CAS、
-不可变固件与Device Service lease/evidence继续复用。
+UIFlow 连续改代码的当前主路径是：首次准备并启动具备 UART REPL 路由的 session，
+随后通过 `POST /api/v1/sessions/{id}/program` 在同一 guest 的 MicroPython VM 中
+下发、编译和执行完整源码 checkpoint，通过对应 GET 查询执行状态。每次源码
+更新不再要求重组 Flash 或创建新 guest。原 `/firmware/uiflow` composer 与新
+session 路径保留为初始化、兼容运行及显式重建入口。
 
-本次只读评估仿真器 `0a6a9a2`，及AIFlow SDK最终 `b4994060`；后者审查期间HEAD
-发生推进，受影响gateway及行引用已重新核对。没有变更API行为或AIFlow SDK，
-没有部署。完整源码证据、host生命周期复现与计时来源见
+现有真实 guest、总线控制器、Unit 数据面、固件身份与 Device Service lease/evidence
+继续复用；每次程序执行另有 `execution_id`、`revision_id` 和源码哈希。逻辑
+Preview/Run 编排、统一实时事件与共享帧缓存仍待实现，不能从同 guest 接口的
+存在推断 AIFlow 已接入这些能力。
+
+当前实际 guest 验证仅覆盖 **AtomS3R**。CoreS3、StickS3、StopWatch 虽在代码准入
+范围内，不能继承该验证结论；同 guest 虚拟执行也不代表物理硬件验证。
+最终证据见[同 guest 实时程序验证](../evidence/2026-10-26-uiflow-live-program/README.md)：
+同一 guest 连续五次程序、PIR 新鲜串口读回、不同应用帧、语法错误恢复和停止前
+ZIP；固定固件/运行时/source SHA。提交确认时间只是单机小样本，不代表首帧或 SLA。
+
+早期只读评估使用仿真器 `0a6a9a2`，及AIFlow SDK最终 `b4994060`；后者审查期间
+HEAD 发生推进，受影响 gateway 及行引用已重新核对。该次评估没有变更 API 行为
+或 AIFlow SDK，没有部署。其完整源码证据、host 生命周期复现与计时来源见
 [审查归档](../evidence/2026-10-26-aiflow-preview-api-audit/README.md)。
 
 随后只读复核 AIFlow `947d182b` 及当时有并行未提交修改的工作树：新增设备数据
@@ -27,18 +40,22 @@ target。`file_ready` 仍在 runner 返回后、task_completed 之前发送，�
 workspace；相关十文件前后哈希稳定。本观察不代表部署版本，详细收据见
 [本块前端回归](../evidence/2026-10-26-preview-client-fencing/README.md)；没有读取运行配置或变更 AIFlow。
 
+下表描述当前仿真器实现；AIFlow 侧两行沿用上述日期的只读观察，不代表其部署状态。
+
 | 需求 | 当前实现 | 对实时编程的影响 |
 | --- | --- | --- |
-| 源码运行 | `/firmware/uiflow`把完整`.py`集合写入已知reference的LittleFS，再以source pin创建新session | 适合可复现运行；没有向同一guest上传/切换程序的接口 |
-| 更新/取消 | session绑定固定固件；reset重启现有镜像，后台provision没有取消fence | 连续编辑缺少latest-wins；已复现stop之后后台仍launch/恢复running |
+| 源码运行 | opt-in session 的 `/program` 通过实际 UART raw REPL 在同一 guest 中编译执行单个完整源码 checkpoint | 当前主路径；以 execution/revision 身份关联观测，仍需逐主机实际验证 |
+| 初始化与兼容 | `/firmware/uiflow`把完整`.py`集合写入已知reference的LittleFS，再以source pin创建新session | 用于首次 UART 路由准备、完整文件初始化与兼容运行；不是每次编辑的必经路径 |
+| 更新/取消 | `/program` 使用 `expected_execution_id` 和单个传输 owner；session 生命周期已有取消 fence | 可拒绝过期/并发提交；旧程序中断需 raw REPL 同步确认，尚无 Preview latest-wins 编排 |
 | 主机/Unit交互 | input、unit-input、QOM、真实帧/串口/设备态；Unit装配在创建时固定 | 能复用；运行中hotplug未实现，新装配需新执行实例 |
 | 实时画面 | 页面目标125ms轮询，服务每请求QMP screendump→PPM→PNG，跨session await-all | 不是保证8FPS的帧流；多个观察者会重复采集/编码，慢请求影响刷新 |
 | 实时状态/日志 | events为JSON读取，串口/设备态/Unit各自轮询 | 缺订阅、背压、断线游标和统一run/revision标签；现串口按offset返回但读全日志 |
-| 资源文件 | source入口只接受`.py`文本，整体JSON受1MiB限制 | AIFlow生成图片/字体/音频等需额外受控asset manifest，不能当`.py`上传 |
+| 资源文件 | `/program` 只接受至多64KiB的UTF-8源码；composer 接收`.py`集合，整体JSON受1MiB限制 | 当前同 guest 路径不写入多文件或二进制资源；图片/字体/音频另需受控 asset manifest 与真实传输 |
 | AIFlow消费者 | 有SSE/sequence恢复；file_ready在runner完成后整批发，下载读当前workspace | 可做任务结束后预览；持续预览还需中途checkpoint和不可变多文件快照 |
 | AIFlow目标 | direct-run/server部署接物理DevicePusher；当前身份/部分配额依赖物理设备 | 虚拟预览需独立执行目标，不能误用物理push或伪造真机MAC |
 
-24个已完成的三主机source IO会话，其原ZIP timeline给出：
+以下为**旧 composer/新 session 路径**的历史计时；24个已完成的三主机 source IO
+会话，其原 ZIP timeline 给出：
 
 | 主机，每款8例 | 创建→探针READY中位数 | 观察范围 |
 | --- | ---: | ---: |
@@ -48,15 +65,54 @@ workspace；相关十文件前后哈希稳定。本观察不代表部署版本�
 
 全部24例创建→READY中位16.98秒；创建→booting为12.07–18.82秒，booting→running
 为1.98–2.84秒，transport均为`esp-emu-esptool`。这说明该批主要成本是Flash准备，
-与guest启动应分别优化。它包含具体探针初始化，**不是首帧、AIFlow全链路或SLA**。
-同程序SHA缓存不能解决每次源码内容变化后的冷准备成本。
+与 guest 启动应分别观察。它包含具体探针初始化，**不是当前同 guest 下发耗时、
+首帧、AIFlow全链路或SLA**，不能用于推算新路径的提速比例。同程序 SHA 缓存也
+不能解决旧路径每次源码内容变化后的冷准备成本。
 
-## 建议的资源与调用关系
+## 当前同 guest 接口与使用边界
+
+创建 session 时显式指定 `program_transport="uart-repl"`。当前代码只准入
+`runtime="qemu"` 的 CoreS3、AtomS3R、StickS3、StopWatch UIFlow2 reference 或
+已绑定 source pin 的 UIFlow composer 固件；普通 session 的 file-backed 串口行为
+保持原样。准入名单与逐设备验证结果分开维护。
+
+首次初始化必须让 guest 的 `boot.py` 安装适配该固件的 UART REPL 路由，例如
+UART0、`os.dupterm` 及相应 RX IRQ 通知，并避免启动菜单占据执行路径；已有原生
+UART REPL 的固件需使用其实际路由。`program_transport` 只配置宿主传输，不能
+替代 guest 端路由，也不意味着任意 stock reference 已可接收代码。具体调用说明
+见 [Unit Agent API](../unit-agent-api.md)。
+
+| 当前接口 | 行为 |
+| --- | --- |
+| `POST /api/v1/sessions/{id}/program` | 接收 `source`、`expected_execution_id` 和可选 `timeout_seconds`，经同一 guest 的 UART raw REPL 编译执行；成功返回当前程序状态 |
+| `GET /api/v1/sessions/{id}/program` | 返回 session 的程序传输、当前 execution/revision 身份及观测状态；不是 SSE 订阅 |
+
+`source` 必须是有效 UTF-8 字符串，编码后至多 65536 字节；接口不是多文件上传
+或固件刷写。首次执行的 `expected_execution_id` 为 `null`，后续使用查询得到的
+当前执行 ID；过期 ID 和并发传输返回 409。`timeout_seconds` 为 1–30 秒，默认
+10 秒，约束传输和执行确认等待，不是用户程序的最长运行时间。两个接口继承
+现有 Bearer 授权规则。
+
+执行记录声明 `execution_mode="same-guest-uart-repl"` 和
+`cleanup_mode="interrupt-only"`。START 表示 guest 已完成编译并进入执行，DONE
+或 ERROR 反映包装执行的结束；START 不代表应用 READY、画面完成或功能通过。
+确认超时保留 `unknown` 和执行 ID，调用方应查询后续状态，不能把超时当成代码
+未执行而盲目重试。停止与替换的记录也必须区分中断请求和实际同步确认。
+
+该路径不重启 VM、不重组 Flash，也不把源码写回 guest 文件系统。新 globals
+字典不代表完整清场：native 模块、已导入模块、timer、IRQ、其它 thread 和外设
+状态都可能继续存在。新 checkpoint 引用的其它文件仍来自初始化时的文件系统；
+不能把单源码执行称为原子多文件热部署。无法中断或路由失效时应保留明确失败/
+未确认状态，由调用方显式选择兼容的新 session 路径，不能暗中切换执行实例。
+
+## 后续 Preview 资源与调用关系（未实现）
 
 `Preview`是AIFlow项目的稳定逻辑资源；`ProgramRevision`是完整不可变文件/资源
-快照；`Run`绑定一次确定的源码、装配与实际Device Service执行实例。首版Run
-可以创建新guest；未来通过已验证的传输在同guest重新执行时，也生成新Run，保留
-真实的执行方式和来源。现有session的固件/evidence身份不被静默覆盖。
+快照；`Run`绑定一次确定的源码、装配与实际 Device Service 执行实例。这是后续
+编排模型：同 guest 执行应复用当前 `/program` 主路径，每次执行仍保留独立身份；
+新 guest 是初始化、兼容或配置变化时的另一执行方式。当前内部已有源码 Revision
+存储与 session 程序记录，不能将其等同于已实现 Preview/Run HTTP 资源。现有
+session 的固件/evidence 身份不被静默覆盖。
 
 ```mermaid
 flowchart LR
@@ -69,7 +125,8 @@ flowchart LR
   W -->|输入附带run_id| P
 ```
 
-以下仅为拟定契约，不能按现有API调用：
+以下仅为后续拟定契约，不能按现有 API 调用；其中独立 Revision HTTP 入口及
+asset/CAS 扩展也不由当前单源码接口提供：
 
 | 拟定接口 | 责任 |
 | --- | --- |
@@ -84,30 +141,30 @@ flowchart LR
 | `POST /api/v1/previews/{id}/renew` | 认证 owner 显式续租，受服务端最大租期/配额限制，响应新的 expires_at |
 | `POST /api/v1/previews/{id}/close` | 停止接收新运行并有界取消当前事务，保留运行/evidence历史；回收未完成时返回closing |
 
-建议第一版保留REST控制与SSE事件。SSE只发帧序号/URL/摘要，图片走条件GET；
-后台每guest只采一次、按订阅者复用。需要更高帧率/摄像头时再基于实测增加二进制
+后续预览层计划保留 REST 控制并增加 SSE 事件。SSE 只发帧序号/URL/摘要，图片
+走条件 GET；后台每guest只采一次、按订阅者复用。需要更高帧率/摄像头时再基于实测增加二进制
 帧通道，不能把PNG塞成无界base64 SSE。现有 `/sessions`、source pin和evidence
 接口保持兼容，新预览层单独编排，避免一次拆写整个DeviceService。
 
-首版更换设备、runtime/profile或Unit接线时创建新preview和执行实例，前端可在
+后续更换设备、runtime/profile或Unit接线时创建新preview和执行实例，前端可在
 同一项目预览窗口切换资源；不把配置更新称为运行中hotplug。preview协调器拥有
 底层session lease，显式关闭、owner lease到期或idle回收走相同取消路径；只读
 SSE/帧订阅不自动无限续租。具体租期、续租及保留配额在实施契约中明确，浏览器
 断开不等于立即删除历史，也不能让遗留guest永久占用资源。
 
-## 首版实施边界与接口细则
+## 当前交付与后续 Preview 层接口细则
 
-第一版交付定义为**完整代码保存后预览**：一次完整 checkpoint 对应一个不可变
-Revision，以新 guest 执行；可连续提交、取消和交互。逐 token 执行、运行中 Unit
-hotplug、同 guest 热部署及任意二进制资源不纳入首版已支持范围。Revision 显式
-声明 `source_kind=uiflow2-python`；只接收当前 composer 验证过的完整 `.py` 集合，
-不支持的资源类型返回明确错误。接口返回 `execution_mode=new-session` 和实际
-能力，不让调用者根据资源名推断热部署能力。后续 asset blob/manifest 保持独立
-扩展点。
+当前交付定义为**完整源码 checkpoint 保存后，在已初始化的同一 guest 中执行**。
+早期评估中“首版每次创建新 guest、同 guest 执行留待以后”的方案已由当前主路径
+替代，不再作为实施要求。当前 Revision 使用 `source_kind=uiflow2-python`，
+`/program` 冻结本次 `main.py` 源码；composer 仍用于完整 `.py` 集合初始化。
+逐 token 执行、运行中 Unit hotplug、完整 VM 清理及任意二进制资源不在已支持范围。
+后续 asset blob/manifest 保持独立扩展点。
 
-首版应把预览编排放在独立模块，通过 DeviceService 现有方法管理执行；保持
+后续 Preview 编排应放在独立模块，通过 DeviceService 现有方法管理执行；保持
 `/sessions`、固件元数据、source pin、历史恢复与 evidence 契约兼容。先完成下列
-身份与状态规则，再引入缓存采样/事件分发；不要在这一步整体拆写 runtime。
+计划中的身份与状态规则，再引入缓存采样/事件分发；不要把这些未来字段写成
+当前 `/program` 接口承诺，也不要在这一步整体拆写 runtime。
 
 | 边界 | 必须确定的行为 |
 | --- | --- |
@@ -127,7 +184,7 @@ hotplug、同 guest 热部署及任意二进制资源不纳入首版已支持范
 Unit GET 在输入 POST 之前发出、却在 POST 确认之后到达时，旧全量快照应丢弃，
 由下一次真实读回恢复，不能用本地输入值补成控制器输出。
 
-## 版本、取消和状态规则
+## 后续 Preview 层的版本、取消和状态规则
 
 - AIFlow的`task_id/task_seq`与运行的`run_id/preview_seq`分别维护，使用generation
   与revision关联。只有完整文件快照触发执行；assistant delta、截断/脱敏tool参数
@@ -152,9 +209,9 @@ Unit GET 在输入 POST 之前发出、却在 POST 确认之后到达时，旧�
 
 ## 分阶段实施与验收
 
-### 先修生命周期正确性
+### 已完成的生命周期修复与独立门禁
 
-已确定性复现：prepare_flash被Event阻塞时stop先返回stopped；释放后实际
+早期已确定性复现：prepare_flash被Event阻塞时stop先返回stopped；释放后实际
 _provision继续调用一次mock launch，变running且重新创建Flash。测试只mock
 host调度/资源，不执行QEMU/guest/API，不提供外设测量。
 
@@ -163,33 +220,40 @@ host调度/资源，不执行QEMU/guest/API，不提供外设测量。
 network子类分别列覆盖，不能用一个分支通过代表全后端。验收包括重复stop、
 失败回收、lease归零、取消后零新进程/可变Flash；超时不得提前承诺stopped。
 
-本块已增加各会话生命周期事务、单调取消、停止意图版本与自动收尾，Tab5 reset、
+此前已增加各会话生命周期事务、单调取消、停止意图版本与自动收尾，Tab5 reset、
 Network runner child 收据、重附着 identity、draining/在途 janitor 均纳入同一
 资源所有权边界。真实 8787 AtomS3R 源码准备取消与随后新 guest 的 PIR 交互已
 通过；其它后端同场景实际执行与低延迟基准不继承宿主 mock 回归。
 
-### 先形成可用的保存后预览
+### 当前主路径：同 guest 保存后执行
 
-复用原source-CAS/新session作为第一执行adapter，加稳定Preview/Run、generation
-和单飞取消。AIFlow首批可用`deploy_mode=none`在成功且文件完整后触发预览；
-其当前物理身份约束仍须如实处理，不能宣称已经支持纯虚拟用户。
+当前通过独立 `guest_console.py` 原始字节传输与 `uiflow_runtime.py` raw REPL
+执行适配，接到 Device Service 的 GET/POST `/program`。同一 session 内以执行
+ID 防过期替换、单个传输 owner 防并发交错，观测和持久化仍归该 session。
+AIFlow 消费端接入、稳定 Preview/Run 与 latest-wins 编排另做；其物理身份约束
+仍须如实处理，不能宣称已经支持纯虚拟用户。
 
 已有`M5_SERVICE_FLASH_MODE=host-image`与radio complete-image入口可研究为快速
 准备路径：仅对已验证的完整UIFlow source image显式准入，保留chip/partition/
 security/source SHA校验，和串口烧录验证类别分开。不要全局改变任意固件的验证
 策略。本次尚未测量该模式，不能用静态路径推断优化后的实际秒数。
 
-为多订阅者增加每guest FrameProducer和EventHub、缓存帧/ETag、请求超时与可见性
-节流；控制输入不被慢客户端采集占用。验收实测完整编辑→第一张新版本帧、输入
+下一阶段为多订阅者增加每guest FrameProducer和EventHub、缓存帧/ETag、请求超时
+与可见性节流；控制输入不被慢客户端采集占用。验收实测完整编辑→第一张新版本帧、输入
 →guest→反馈、丢弃旧帧、断线恢复、慢消费者内存、同设备多客户端与并发容量。
 
-### 再做同guest快速重跑
+### 同 guest 路径的剩余验收与状态清理
 
-需新增实际双向guest传输。当前UART主要file-backed输出且serial API只读，
-不能直接当作现成raw REPL。对固定已知UIFlow2 reference验证：中断旧程序→
-原子写入完整文件/资源→guest实际读回→执行→本run READY。VM/模块/定时器/IRQ
-清理与状态保留规则明确；native阻塞/IRQ关闭等无法中断时有界降级到新guest。
-不直接修改运行中的Flash，不在host执行caller Python。
+实际双向 guest UART 传输与程序执行接口已新增；普通 session 的串口 API 仍为
+只读日志，不能直接把任意 file-backed session 当成 raw REPL。当前主路径是
+中断旧程序→确认 raw REPL→流控传输源码→guest 编译/执行标记；不是原子写入
+完整文件或资源。应用 READY、同 guest 程序替换、真实主机/Unit 反馈与保留证据
+还需绑定各自主机和源码验证，当前仅有 AtomS3R 实际 guest 范围，最终证据待补。
+
+完整 VM/native 模块、timer、IRQ、thread 清理尚无通用保证；native 阻塞、IRQ
+关闭或 caller 改写 UART/dupterm 时，不能承诺可靠中断或自动恢复。显式重建
+guest 与在原 guest 中继续执行必须分别记载，不能拼接为同一执行成功。不直接
+修改运行中的 Flash，不在 host 执行 caller Python。
 
 独立 WASM 页的 `window.m5emu.execPython` 不能作为 Device Service 已具备传输的
 依据；其延迟 UART 回调还缺 worker/epoch fence，静态风险记为 `UNIT-HOST-26`，

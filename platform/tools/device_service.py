@@ -48,6 +48,8 @@ from ble_runtime_limits import (  # noqa: E402
 )
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
+from program_revisions import ProgramRevisionStore, RevisionError  # noqa: E402
+from uiflow_runtime import ExecutionStateScanner, UIFlowRuntimeError, run_source  # noqa: E402
 from firmware_analysis import (  # noqa: E402
     analyze_esp_image,
     analyze_firmware,
@@ -2936,6 +2938,7 @@ class DeviceSession:
         companions: dict | None = None,
         persist: bool = True,
         firmware_provenance: dict | None = None,
+        program_transport: str | None = None,
     ):
         self.service = service
         self.id = session_id
@@ -2956,6 +2959,10 @@ class DeviceSession:
             if self.units and not restored else None
         )
         self.runtime = runtime
+        self.program_transport = program_transport
+        self._console = None
+        self._program_lock = threading.Lock()
+        self._program = None
         self.network_config = dict(network_config or {})
         self.storage_config = dict(storage_config or {})
         self.storage_info = (
@@ -2989,6 +2996,28 @@ class DeviceSession:
         self.dir.mkdir(parents=True, exist_ok=True)
         self.serial0 = self.dir / "serial.log"
         self.serial1 = self.dir / "serial1.log"
+        self.console_path = Path("/tmp") / f"m5-console-{session_id}.sock"
+        self.program_path = self.dir / "program.json"
+        self._program_restore_error = None
+        if restored and program_transport and self.program_path.is_file():
+            try:
+                program = json.loads(self.program_path.read_text())
+                if not isinstance(program, dict) or any(
+                    not isinstance(program.get(field), str)
+                    or len(program[field]) != size
+                    or any(char not in "0123456789abcdef" for char in program[field])
+                    for field, size in (("execution_id", 32), ("revision_id", 64))
+                ) or program.get("state") not in (
+                    "submitting", "running", "completed", "failed", "unknown",
+                    "interrupt-requested", "interrupted", "cancelled",
+                ) or type(program.get("serial_offset")) is not int or program["serial_offset"] < 0:
+                    raise ValueError("invalid program identity")
+                if program["state"] in {"running", "submitting", "unknown", "interrupt-requested"}:
+                    program.update(state="unknown", output_gap_possible=True,
+                                   error={"code": "program_output_gap"})
+                self._program = program
+            except (OSError, UnicodeError, ValueError):
+                self._program_restore_error = "program history could not be verified"
         self.last_frame_path = self.dir / "last-frame.png"
         self.last_frame_meta_path = self.dir / "last-frame.json"
         self.device_state_path = self.dir / "device-state.json"
@@ -3124,6 +3153,7 @@ class DeviceSession:
             "firmware_sha256": self.firmware_sha,
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
+            **({"program_transport": self.program_transport} if self.program_transport else {}),
             **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
             "runtime_env": dict(self.runtime_env),
             "units": self.units,
@@ -3500,6 +3530,17 @@ class DeviceSession:
                     409,
                 )
             qemu_running = True
+            if self.program_transport == "uart-repl":
+                from guest_console import GuestConsole
+
+                self._console = GuestConsole(self.console_path, self.serial0)
+                self._console.connect(timeout=5, cancelled=self._stop_event.is_set)
+                with self._lock:
+                    if self._program and self._program["state"] in {"running", "submitting", "unknown"}:
+                        self._program.update(state="unknown", output_gap_possible=True,
+                                             error={"code": "program_output_gap"})
+                        self._persist_program()
+                self._record_event("program_console_reattached", output_gap_possible=True)
             companion_recovery = self._recover_companions()
             if self._worker_lease_active:
                 self.service.worker.reserve_lease(
@@ -3628,6 +3669,8 @@ class DeviceSession:
                     self.source_artifacts[0] if self.source_artifacts else None
                 ),
                 "source_artifacts": list(self.source_artifacts),
+                **({"program_transport": self.program_transport,
+                    "program": self._program} if self.program_transport else {}),
                 **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
                 "runtime_env": dict(self.runtime_env),
                 "runtime": self.runtime,
@@ -5566,7 +5609,16 @@ class DeviceSession:
                 ]
             )
         else:
-            command.extend(["-serial", f"file:{self.serial0}"])
+            if self.program_transport == "uart-repl":
+                # Start paused: the unique reader must own the socket before
+                # any guest UART output, including the initial REPL banner.
+                command.extend([
+                    "-S", "-chardev",
+                    f"socket,id=program-console,path={self.console_path},server=on,wait=off",
+                    "-serial", "chardev:program-console",
+                ])
+            else:
+                command.extend(["-serial", f"file:{self.serial0}"])
             if hci_gatt and not native_bt:
                 assert self.hci_port is not None
                 if profile == STACKCHAN_UNIFIED_PROFILE:
@@ -5839,6 +5891,14 @@ class DeviceSession:
                     504,
                 ) from error
             self._qmp.sock.settimeout(QMP_COMMAND_TIMEOUT)
+        if self.program_transport == "uart-repl":
+            from guest_console import GuestConsole
+
+            self._console = GuestConsole(self.console_path, self.serial0)
+            self._console.connect(timeout=5, cancelled=self._stop_event.is_set)
+            self._check_cancelled()
+            self._qmp_call("cont")
+            self._record_event("program_console_connected", transport="uart-repl")
         self._verify_units_runtime()
         if profile == NANOC6_HCI_BLE_PROFILE:
             self._exercise_nanoc6_button()
@@ -6105,6 +6165,147 @@ class DeviceSession:
             "data": chunk.decode("utf-8", errors="replace"),
             "bytes": len(chunk),
         }
+
+    def _persist_program(self) -> None:
+        if self._stop_purge:
+            return
+        atomic_write_json(self.program_path, self._program)
+        atomic_write_json(self.dir / "programs" / f"{self._program['execution_id']}.json", self._program)
+
+    def program_status(self) -> dict:
+        from guest_console import GuestConsoleError
+
+        with self._lock:
+            program = getattr(self, "_program", None)
+            if program is not None and program["state"] in {"running", "submitting", "unknown"}:
+                console = getattr(self, "_console", None)
+                if self.state != "running" or console is None:
+                    program.update(state="unknown", error={"code": "program_runtime_unverified"})
+                    self._persist_program()
+                else:
+                    scanner = getattr(self, "_program_scanner", None)
+                    if scanner is None or scanner.execution_id != program["execution_id"]:
+                        scanner = ExecutionStateScanner(program["execution_id"], program.get("serial_offset", 0))
+                        self._program_scanner = scanner
+                    try:
+                        state = scanner.scan(console)
+                        if state == "running" and program.get("output_gap_possible"):
+                            state = "unknown"
+                        if state not in {"completed", "failed"}:
+                            console.check_alive()
+                    except GuestConsoleError as error:
+                        state = None
+                        program.update(state="unknown", observed_at=iso_now(),
+                                       error={"code": error.code, "message": error.message})
+                        self._persist_program()
+                    if state and state != program["state"]:
+                        program.update(state=state, observed_at=iso_now())
+                        program.pop("error", None)
+                        self._persist_program()
+            return {"session_id": self.id, "program_transport": self.program_transport,
+                    "program": json.loads(json.dumps(program)),
+                    "history_error": self._program_restore_error}
+
+    def run_program(self, payload: dict) -> dict:
+        """Run one source checkpoint in the existing MicroPython VM over UART."""
+        from guest_console import GuestConsoleError
+
+        if not isinstance(payload, dict) or set(payload) - {"source", "expected_execution_id", "timeout_seconds"}:
+            raise ServiceError("invalid_program", "source, expected_execution_id and optional timeout_seconds are accepted", 400)
+        if "expected_execution_id" not in payload or not isinstance(payload.get("source"), str):
+            raise ServiceError("invalid_program", "source and expected_execution_id (null for the first run) are required", 400)
+        source = payload["source"]
+        try:
+            source_size = len(source.encode("utf-8"))
+        except UnicodeEncodeError as error:
+            raise ServiceError("invalid_program", "source must be valid UTF-8", 400) from error
+        if source_size > 65536:
+            raise ServiceError("program_too_large", "live source execution is limited to 64 KiB", 413)
+        timeout = payload.get("timeout_seconds", 10)
+        if type(timeout) not in {int, float} or not 1 <= timeout <= 30:
+            raise ServiceError("invalid_program", "timeout_seconds must be between 1 and 30", 400)
+        if not self._program_lock.acquire(blocking=False):
+            raise ServiceError("program_busy", "a program transfer already owns this console", 409)
+        try:
+            if self._stop_event.is_set():
+                raise ServiceError("program_cancelled", "session is stopping or stopped", 409)
+            if self.state != "running" or self.program_transport != "uart-repl" or self._console is None:
+                raise ServiceError("program_transport_unavailable", "a running uart-repl session is required", 409)
+            if self._program_restore_error:
+                raise ServiceError("program_history_unavailable", self._program_restore_error, 409)
+            current_id = self._program["execution_id"] if self._program else None
+            if payload["expected_execution_id"] != current_id:
+                raise ServiceError("program_generation_conflict", "expected_execution_id is stale", 409)
+            try:
+                revision = self.service.program_revisions.create({"files": {"main.py": source}})
+            except RevisionError as error:
+                raise ServiceError(error.code, error.message, error.status) from error
+            if len(list((self.dir / "programs").glob("*.json"))) >= 256:
+                raise ServiceError("program_quota_exceeded", "this session retains at most 256 executions", 429)
+            execution_id = uuid.uuid4().hex
+            with self._lock:
+                # Revision storage may block while stop closes the transport.
+                # Re-admit after that work and retain the exact console owner.
+                if self._stop_event.is_set():
+                    raise ServiceError("program_cancelled", "session is stopping or stopped", 409)
+                console = self._console
+                if self.state != "running" or console is None:
+                    raise ServiceError("program_transport_unavailable", "a running uart-repl session is required", 409)
+                previous = self._program
+                if self._program and self._program["state"] in {"running", "unknown"}:
+                    self._program.update(state="interrupt-requested", interruption_confirmed=False)
+                    self._persist_program()
+                self._program = {
+                    "execution_id": execution_id, "revision_id": revision["revision_id"],
+                    "source_sha256": revision["source_sha256"], "source_bytes": len(source.encode("utf-8")),
+                    "state": "submitting", "submitted_at": iso_now(),
+                    "firmware_sha256": self.firmware_sha, "pid": self.pid,
+                    "execution_mode": "same-guest-uart-repl", "cleanup_mode": "interrupt-only",
+                    "serial_offset": console.offset(),
+                }
+                self._persist_program()
+                self._record_event("program_submitted", **self._program)
+
+            def synchronized():
+                if self._stop_event.is_set():
+                    raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+                if previous and previous["state"] == "interrupt-requested":
+                    with self._lock:
+                        if self._stop_event.is_set():
+                            raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+                        previous.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now())
+                        atomic_write_json(self.dir / "programs" / f"{previous['execution_id']}.json", previous)
+
+            try:
+                result = run_source(console, source, execution_id,
+                                    timeout=float(timeout), cancelled=self._stop_event.is_set,
+                                    on_synchronized=synchronized)
+            except (GuestConsoleError, UIFlowRuntimeError) as error:
+                with self._lock:
+                    if self._stop_purge:
+                        raise ServiceError("program_cancelled", "session was purged", 409,
+                                           execution_id=execution_id) from error
+                    if previous and previous["state"] == "interrupt-requested":
+                        previous.update(state="unknown", interruption_confirmed=False)
+                        atomic_write_json(self.dir / "programs" / f"{previous['execution_id']}.json", previous)
+                    self._program.update(state="cancelled" if self._stop_event.is_set() else "unknown",
+                                         error={"code": error.code, "message": error.message})
+                    self._persist_program()
+                    self._record_event("program_unconfirmed", execution_id=execution_id, code=error.code)
+                raise ServiceError(error.code, error.message, 409 if self._stop_event.is_set() else 504,
+                                   execution_id=execution_id) from error
+            with self._lock:
+                if self._stop_purge:
+                    raise ServiceError("program_cancelled", "session was purged", 409,
+                                       execution_id=execution_id)
+                if self._stop_event.is_set():
+                    result["state"] = "cancelled"
+                self._program.update(result, observed_at=iso_now())
+                self._persist_program()
+                self._record_event("program_observed", execution_id=execution_id, program_state=result["state"])
+            return self.program_status()
+        finally:
+            self._program_lock.release()
 
     def frame_metrics(
         self, *, analyze: bool = True, force_persist: bool = False
@@ -6809,6 +7010,20 @@ class DeviceSession:
             files["firmware/uiflow-source.json"] = json.dumps(
                 self.firmware_provenance, ensure_ascii=False, indent=2,
             ).encode("utf-8")
+        if self.program_transport:
+            for record_path in sorted((self.dir / "programs").glob("*.json")):
+                raw = record_path.read_bytes()
+                files[f"programs/{record_path.name}"] = raw
+                revision_id = json.loads(raw)["revision_id"]
+                try:
+                    source = self.service.program_revisions.source(revision_id)
+                    metadata = self.service.program_revisions.get(revision_id)
+                except RevisionError as error:
+                    raise ServiceError(error.code, error.message, error.status) from error
+                files[f"programs/{revision_id}/source.json"] = json.dumps(
+                    source, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+                ).encode("utf-8")
+                files[f"programs/{revision_id}/revision.json"] = json.dumps(metadata).encode("utf-8")
         if self.units:
             manifest["units"] = self.unit_state()
             if manifest["units"].get("contract_status") == "frozen":
@@ -7022,9 +7237,21 @@ class DeviceSession:
 
     def reset(self) -> dict:
         self._check_cancelled()
-        with self._lock:
-            self._qmp_call("system_reset")
-            self._record_event("reset")
+        owns_program = False
+        if self.program_transport:
+            owns_program = self._program_lock.acquire(blocking=False)
+            if not owns_program:
+                raise ServiceError("program_busy", "a program transfer owns the console", 409)
+        try:
+            with self._lock:
+                self._qmp_call("system_reset")
+                if self.program_transport and self._program:
+                    self._program.update(state="interrupted", interrupted_at=iso_now())
+                    self._persist_program()
+                self._record_event("reset")
+        finally:
+            if owns_program:
+                self._program_lock.release()
         return {"session_id": self.id, "state": self.state, "reset": True}
 
     def renew(self, ttl_seconds: int) -> dict:
@@ -7176,6 +7403,14 @@ class DeviceSession:
             self.pid = None
         self._close_http_fixture()
         self._terminate_hci_probe()
+        console = getattr(self, "_console", None)
+        if console is not None:
+            console.close()
+            self._console = None
+            with self._lock:
+                if self._program and self._program["state"] in {"running", "submitting", "unknown"}:
+                    self._program.update(state="interrupted", interrupted_at=iso_now())
+                    self._persist_program()
         if self._qmp is not None:
             try:
                 self._qmp.close()
@@ -7183,6 +7418,8 @@ class DeviceSession:
                 pass
             self._qmp = None
         if not self._process_identity_matches():
+            if getattr(self, "program_transport", None):
+                self.console_path.unlink(missing_ok=True)
             try:
                 self.qmp_path.unlink()
             except FileNotFoundError:
@@ -7993,6 +8230,7 @@ class DeviceService:
         self.firmware = FirmwareStore(
             self.state_dir / "firmware", self.artifacts, self.specs
         )
+        self.program_revisions = ProgramRevisionStore(self.state_dir / "program-revisions")
         self.max_sessions = max(1, int(max_sessions))
         self.max_per_device = max(1, int(max_per_device))
         self.default_ttl = max(30, int(default_ttl))
@@ -8387,6 +8625,7 @@ class DeviceService:
                 firmware_path=record_path.parent / "firmware.bin",
                 firmware_sha=str(record.get("firmware_sha256") or ""),
                 firmware_source=str(record.get("firmware_source") or "unknown"),
+                program_transport=record.get("program_transport"),
                 source_artifacts=[
                     artifact
                     for artifact in source_artifacts
@@ -8885,6 +9124,9 @@ class DeviceService:
     def create_session(self, payload: dict) -> dict:
         if self._stop.is_set():
             raise ServiceError("service_stopping", "device service is shutting down", 503)
+        program_transport = payload.get("program_transport")
+        if program_transport not in (None, "uart-repl"):
+            raise ServiceError("unsupported_program_transport", "program_transport must be uart-repl", 400)
         device_id = payload.get("device_id")
         if not isinstance(device_id, str):
             raise ServiceError("invalid_request", "device_id is required", 400)
@@ -9004,6 +9246,11 @@ class DeviceService:
                 )
 
         runtime = payload.get("runtime", "qemu")
+        if program_transport and (
+            runtime != "qemu" or device_id not in {"cores3", "atoms3r", "sticks3", "stopwatch"}
+            or source == "uploaded" and not is_uiflow_source
+        ):
+            raise ServiceError("unsupported_program_transport", "UART REPL requires an admitted UIFlow2 QEMU source/reference session", 409)
         if runtime not in QEMU_SESSION_RUNTIMES:
             raise ServiceError(
                 "unsupported_runtime",
@@ -9271,6 +9518,7 @@ class DeviceService:
                     firmware_path=firmware_path,
                     firmware_sha=firmware_sha,
                     firmware_source=source,
+                    program_transport=program_transport,
                     source_artifacts=source_artifacts,
                     firmware_provenance=(firmware_source if firmware_source.get("kind") == "uiflow" else None)
                     if source == "uploaded" else None,

@@ -138,7 +138,8 @@
 | [三主机 Unit 源码 API](evidence/2026-10-26-unit-source-hosts-29d8/README.md) | 历史证据 | `2026-10-26` | 提交并同步主线后全新准备；AtomS3R、StickS3、StopWatch 各 Button/Relay/ENV III，同 guest 原 host probe、内部总线隔离、真实 Web/源码 pin/取证与清理，其它 Unit 不继承 |
 | [PWM 初始化路由与完整回归](evidence/2026-10-26-unit-pwm-route-d1ba/README.md) | 历史证据 | `2026-10-26` | 同固件无后续setter的八窗A/B、独立冷构建/八patch重放；新单次完整矩阵67/67、274/274与652平台测试通过，不外推60秒soak/完整PWM/硬件，取证限制单列 |
 | [三主机八种 Unit 源码IO](evidence/2026-10-26-unit-source-host-io-d1ba/README.md) | 历史证据 | `2026-10-26` | 新增24源码组合，Fan3在同步前、其余21在同步后；GPIO/RMT/LEDC/UART/HUB多leaf及原host oracle、真实Web/source/PID/取证清理，两准确HEAD与精确源码omission分列，不转授其它组合/硬件 |
-| [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-26` | 当前能力/24真实会话时延/取消竞态与Preview-Revision-Run方案，拟定接口尚未实现；继承Unit/服务Backlog |
+| [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-26` | UIFlow同guest程序接口与旧路径时延；Preview/Run、SSE和共享帧缓存仍是方案，继承Unit/服务Backlog |
+| [UIFlow同guest实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md) | 历史证据 | `2026-10-26` | AtomS3R同固件/VM程序替换、PIR原驱动、应用帧与语法错误恢复；其它主机、AIFlow接入和硬件不继承 |
 | [AIFlow实时预览API审查证据](evidence/2026-10-26-aiflow-preview-api-audit/README.md) | 历史证据 | `2026-10-26` | 两仓固定源码与调用链、24原ZIP timeline分析、确定性host取消竞态；非AIFlow端到端/首帧/性能SLA或新接口PASS |
 | [会话取消与 Unit 回归](evidence/2026-10-26-session-cancellation-f309/README.md) | 历史证据 | `2026-10-26` | 生命周期/停止意图/Network child收据与draining所有权，宿主隔离回归和真实AtomS3R源码取消/PIR新guest交互；其它后端实际执行、预览接口与硬件不继承 |
 | [预览细则与客户端响应隔离](evidence/2026-10-26-preview-client-fencing/README.md) | 历史证据 | `2026-10-26` | session/input epoch、旧队列/装配隔离和确定性旧源码负控；browser fixture与当前AIFlow消费者只读收据，无新guest、预览接口或硬件PASS |

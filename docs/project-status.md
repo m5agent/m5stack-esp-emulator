@@ -12,16 +12,21 @@
 
 ## 一页结论
 
-AIFlow实时编程场景可复用完整源码后的新session交互预览。旧基线24个具体
-source会话创建到探针READY中位约17秒，非首帧/SLA。启动取消现已增加生命周期
-事务、pending确认与自动收尾、停止意图版本、Network child收据及draining所有权
-门禁；真实AtomS3R冷准备取消与随后新guest的PIR双向交互通过，其它后端实际
-同场景执行不继承宿主回归。持久guest代码部署和拟定Preview/Revision/Run/实时
-分发仍未实现，门禁见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)，
-本块证据见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。
-Unit客户端另已修复旧请求/队列及装配跨session污染，离线browser回归与旧源码
+UIFlow 实时编程已增加同 guest `/program` 入口：首次准备 UART REPL 后，后续
+源码更新在原 MicroPython VM 中传输、编译和运行，不重复刷固件或启动新 guest。
+AtomS3R 已完成初始化固件保持不变/同 PID 的程序替换、PIR 原驱动读回、不同应用帧及语法错误
+后恢复；保留独立 execution/revision、源码与停止前 evidence。其它准入主机、
+多文件/资源与二进制 `.mpy`、保存开机程序仍需分别实现或验证。interrupt-only
+不保证清空 native 模块、定时器、IRQ 或线程；断流/重连缺口保持 unknown。
+入口与证据见[源码 API 指南](unit-agent-api.md)及[实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md)。
+启动取消已有生命周期事务、pending确认与自动收尾、停止意图版本、Network
+child 收据及 draining 所有权门禁；其它后端实际同场景执行不继承宿主回归。
+拟定 Preview 编排、实时分发与共享帧缓存仍未实现，门禁见
+[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)，取消证据见
+[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。Unit客户端另已修复旧请求/队列及装配跨session污染，离线browser回归与旧源码
 负控见[响应隔离](evidence/2026-10-26-preview-client-fencing/README.md)；不建立多客户端
-server快照全序。首版方案细化为完整代码保存后新guest预览，尚无新增预览接口。
+server快照全序。程序执行 API 可供 Agent 调用；AIFlow 完整 checkpoint 与虚拟
+执行目标的实际集成尚未验收。
 
 项目已经不是单固件 PoC，而是可执行的多设备 virtual-device 平台：
 

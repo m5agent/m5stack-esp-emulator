@@ -1,0 +1,789 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-26T09:21:14.317749+00:00",
+  "session": {
+    "session_id": "e586758b5d0e4934bb3bb8789da0a487",
+    "device_id": "atoms3r",
+    "state": "running",
+    "pid": 18464,
+    "firmware_id": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+    "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+    "firmware_source": "uploaded",
+    "artifact_sha256": "1e44cb415c602e5d0af1efbfaeeb39f84a10cbc0c80f2bbd8aac146ee20b868a",
+    "source_artifacts": [
+      "1e44cb415c602e5d0af1efbfaeeb39f84a10cbc0c80f2bbd8aac146ee20b868a"
+    ],
+    "program_transport": "uart-repl",
+    "program": {
+      "execution_id": "b6c7a6e3a60d45cc901583740d7d409b",
+      "revision_id": "361a5993abe461dc1613b1add490d2b4191603ab5fb41411c3fcaa2f2d51bfb2",
+      "source_sha256": "190b683c3bf12f201f312b53732b1584d9ffbe712908c25a7852082af777c976",
+      "source_bytes": 98,
+      "state": "completed",
+      "submitted_at": "2026-10-26T09:21:14.108432+00:00",
+      "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+      "pid": 18464,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 1640,
+      "next_offset": 1700,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T09:21:14.314147+00:00"
+    },
+    "firmware_provenance": {
+      "kind": "uiflow",
+      "artifact_id": "1e44cb415c602e5d0af1efbfaeeb39f84a10cbc0c80f2bbd8aac146ee20b868a",
+      "metadata": {
+        "schema_version": 1,
+        "kind": "uiflow2-source-composition",
+        "status": "COMPOSED_NOT_EXECUTED",
+        "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+        "entrypoint": "main.py",
+        "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+        "base_size": 8384512,
+        "flash_size": 8388608,
+        "source_sha256": "1e44cb415c602e5d0af1efbfaeeb39f84a10cbc0c80f2bbd8aac146ee20b868a",
+        "effective_source_sha256": "1e44cb415c602e5d0af1efbfaeeb39f84a10cbc0c80f2bbd8aac146ee20b868a",
+        "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+        "files": [
+          {
+            "path": "boot.py",
+            "size": 245,
+            "sha256": "46d165bbc4cbac163225c7ebada8c119deb61f98216c335692bc62e32ef55889",
+            "origin": "caller"
+          },
+          {
+            "path": "main.py",
+            "size": 5,
+            "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+            "origin": "caller"
+          }
+        ],
+        "caller_file_count": 2,
+        "caller_source_bytes": 250,
+        "generated_files": [],
+        "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+        "vfs": {
+          "label": "vfs",
+          "type": 1,
+          "subtype": 129,
+          "flags": 0,
+          "offset": 6557696,
+          "size": 1826816,
+          "partition_table_offset": 32768,
+          "source": "actual-base-partition-table",
+          "filesystem": "LittleFS",
+          "base_sha256": "168e3d1550af5b64b23fc075bdaa5ab521ff755c721966194b47bd939e9cea68",
+          "derived_sha256": "7ef4020774943fd2507e7cbaa173cf14350253d30f1fb3a76f6883db97a83c97",
+          "base_disk_version": 131072,
+          "derived_disk_version": 131073
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "toolchain": {
+          "builder": "uiflow_source/1",
+          "python": "3.12.8",
+          "python_abi": "cpython-312",
+          "littlefs_python": "0.19.0",
+          "littlefs_library": "(2, 11)",
+          "littlefs_disk": "(2, 1)",
+          "config": {
+            "block_size": 4096,
+            "read_size": 128,
+            "prog_size": 32,
+            "lookahead_size": 128,
+            "block_cycles": 100
+          }
+        }
+      }
+    },
+    "runtime_env": {},
+    "runtime": "qemu",
+    "runtime_memory": {
+      "requested_psram_mib": null,
+      "cli_requested_psram_mib": null,
+      "effective_psram_mib": null,
+      "effective_source": "qemu-cli-request",
+      "policy": "not-configured",
+      "claim": "qemu-memory-configuration-only",
+      "physical_cache_psram_timing": "NOT RUN"
+    },
+    "network": null,
+    "storage": null,
+    "units": [
+      {
+        "id": "pir1",
+        "unit_id": "pir",
+        "port_id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {}
+      }
+    ],
+    "nvs": null,
+    "flash": {
+      "transport": "cache",
+      "verified": true,
+      "flash_size": 8388608,
+      "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+      "session_isolated_copy": true
+    },
+    "flash_retained": true,
+    "serial_bytes": 1772,
+    "created_at": "2026-10-26T09:21:08.698088+00:00",
+    "expires_at": "2026-10-26T09:26:08.698090+00:00",
+    "error": null,
+    "display": {
+      "driver": "ST7735 / GC9107",
+      "width": 128,
+      "height": 128,
+      "shape": "rect",
+      "touch": false
+    },
+    "display_available": true,
+    "last_frame_available": true,
+    "last_frame_captured_at": "2026-10-26T09:21:13.528930+00:00",
+    "device_state_supported": true,
+    "last_device_state_available": false,
+    "last_device_state_at": null,
+    "completed_at": null,
+    "event_count": 22,
+    "restored": false,
+    "interrupted": false,
+    "reattached_process": false,
+    "recovery_scope": null,
+    "companions": {
+      "http_fixture": {
+        "required": false
+      },
+      "ble_probe": {
+        "required": false
+      }
+    },
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 17,
+      "lease_active": true
+    }
+  },
+  "device": {
+    "device_id": "atoms3r",
+    "name": "AtomS3R",
+    "group": "esp32-s3",
+    "soc": "ESP32-S3-PICO-1-N8R8",
+    "sku": "C126",
+    "device_codes": [
+      "1897200000000001772"
+    ],
+    "supported": true,
+    "creatable": true,
+    "backend_ready": true,
+    "missing_runtime_files": [],
+    "reference_available": true,
+    "backend": "qemu-esp32s3",
+    "machine": "m5atoms3r",
+    "flash_size": 8388608,
+    "display": {
+      "driver": "ST7735 / GC9107",
+      "width": 128,
+      "height": 128,
+      "shape": "rect",
+      "touch": false
+    },
+    "peripheral_status": "simulated",
+    "warnings": [],
+    "firmware_families": [
+      "uiflow2",
+      "generic-flash"
+    ],
+    "coverage": {
+      "peripheral_status": "simulated",
+      "complete": true
+    },
+    "features": {
+      "flash": true,
+      "serial": true,
+      "screenshot": true,
+      "input": true,
+      "qom": true,
+      "device_state": true,
+      "storage": false,
+      "network": true,
+      "network_capture": true
+    },
+    "network_profiles": [
+      "uiflow2-atoms3r-unified",
+      "esp-idf-coex",
+      "esp-idf-http",
+      "esp-idf-smoke",
+      "esp-idf-wrong-password",
+      "generic-observe",
+      "idf-dns-udp"
+    ],
+    "network_console": "auto",
+    "network_status": "validated",
+    "reason": null
+  },
+  "timeline": [
+    {
+      "at": "2026-10-26T09:21:08.698167+00:00",
+      "event": "created",
+      "device_id": "atoms3r",
+      "firmware_id": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6"
+    },
+    {
+      "at": "2026-10-26T09:21:08.698698+00:00",
+      "event": "worker_lease_reserved",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 17
+    },
+    {
+      "at": "2026-10-26T09:21:08.698871+00:00",
+      "event": "state",
+      "from": "provisioning",
+      "to": "flashing"
+    },
+    {
+      "at": "2026-10-26T09:21:08.702351+00:00",
+      "event": "flash_prepared",
+      "transport": "cache",
+      "verified": true,
+      "flash_size": 8388608,
+      "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+      "session_isolated_copy": true
+    },
+    {
+      "at": "2026-10-26T09:21:08.702911+00:00",
+      "event": "state",
+      "from": "flashing",
+      "to": "booting"
+    },
+    {
+      "at": "2026-10-26T09:21:08.818850+00:00",
+      "event": "program_console_connected",
+      "transport": "uart-repl"
+    },
+    {
+      "at": "2026-10-26T09:21:10.795965+00:00",
+      "event": "serial_marker",
+      "marker": "M5EMU_UART_REPL_READY"
+    },
+    {
+      "at": "2026-10-26T09:21:10.796335+00:00",
+      "event": "state",
+      "from": "booting",
+      "to": "running"
+    },
+    {
+      "at": "2026-10-26T09:21:10.837356+00:00",
+      "event": "unit_input",
+      "unit_id": "pir1",
+      "values": {
+        "motion": false
+      }
+    },
+    {
+      "at": "2026-10-26T09:21:10.842376+00:00",
+      "event": "program_submitted",
+      "execution_id": "02077d1a44464fef87025cfd417a0720",
+      "revision_id": "d9ed9000971f0a43a9a3ae562f2e0e4f46d6d26214d6dea9efdef6970ae78ffa",
+      "source_sha256": "77c7143887afb392f1ceeb90026ba98031cd1f0fcd8c54977f37dbaf79013f93",
+      "source_bytes": 98,
+      "state": "submitting",
+      "submitted_at": "2026-10-26T09:21:10.842074+00:00",
+      "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+      "pid": 18464,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 453
+    },
+    {
+      "at": "2026-10-26T09:21:11.054744+00:00",
+      "event": "program_observed",
+      "execution_id": "02077d1a44464fef87025cfd417a0720",
+      "program_state": "running"
+    },
+    {
+      "at": "2026-10-26T09:21:11.058173+00:00",
+      "event": "program_submitted",
+      "execution_id": "22d284e083ed45428b36ed436c0824fd",
+      "revision_id": "1f03cea4f8055954827e2e6991e15f15eb9d8bfd7c685f53fc8aef38b8ff99b5",
+      "source_sha256": "97e6b5d34f6f1d21cbae68e1d32d1c80d6efda500d38f2b35ff41adfe93b296c",
+      "source_bytes": 725,
+      "state": "submitting",
+      "submitted_at": "2026-10-26T09:21:11.057867+00:00",
+      "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+      "pid": 18464,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 634
+    },
+    {
+      "at": "2026-10-26T09:21:11.374747+00:00",
+      "event": "program_observed",
+      "execution_id": "22d284e083ed45428b36ed436c0824fd",
+      "program_state": "running"
+    },
+    {
+      "at": "2026-10-26T09:21:11.435041+00:00",
+      "event": "unit_input",
+      "unit_id": "pir1",
+      "values": {
+        "motion": true
+      }
+    },
+    {
+      "at": "2026-10-26T09:21:11.500730+00:00",
+      "event": "unit_input",
+      "unit_id": "pir1",
+      "values": {
+        "motion": false
+      }
+    },
+    {
+      "at": "2026-10-26T09:21:13.467331+00:00",
+      "event": "unit_input",
+      "unit_id": "pir1",
+      "values": {
+        "motion": true
+      }
+    },
+    {
+      "at": "2026-10-26T09:21:13.531660+00:00",
+      "event": "program_submitted",
+      "execution_id": "84f37322a6cc4735a3057ed1bb0a7a63",
+      "revision_id": "de8573fba8a040f0a17c229b04034cf4f9939b26451208e7fdd462f713329de2",
+      "source_sha256": "9b788f0af67d0f8e1b753d6d7fe46f4b1503df0666b290b41a45d14e113a5d6a",
+      "source_bytes": 722,
+      "state": "submitting",
+      "submitted_at": "2026-10-26T09:21:13.531297+00:00",
+      "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+      "pid": 18464,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 798
+    },
+    {
+      "at": "2026-10-26T09:21:13.856539+00:00",
+      "event": "program_observed",
+      "execution_id": "84f37322a6cc4735a3057ed1bb0a7a63",
+      "program_state": "running"
+    },
+    {
+      "at": "2026-10-26T09:21:13.919029+00:00",
+      "event": "program_submitted",
+      "execution_id": "84388bd917be452397f4c32279afc7d0",
+      "revision_id": "ee6d99b65e348c103d6778bd3190b53180c45507d77744c6c6cea65514d338cf",
+      "source_sha256": "4803f262333502d83e1bed493d5e97cafb0d615e19b67a3b20548cb06c9b6299",
+      "source_bytes": 13,
+      "state": "submitting",
+      "submitted_at": "2026-10-26T09:21:13.918702+00:00",
+      "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+      "pid": 18464,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 1141
+    },
+    {
+      "at": "2026-10-26T09:21:14.106215+00:00",
+      "event": "program_observed",
+      "execution_id": "84388bd917be452397f4c32279afc7d0",
+      "program_state": "failed"
+    },
+    {
+      "at": "2026-10-26T09:21:14.108714+00:00",
+      "event": "program_submitted",
+      "execution_id": "b6c7a6e3a60d45cc901583740d7d409b",
+      "revision_id": "361a5993abe461dc1613b1add490d2b4191603ab5fb41411c3fcaa2f2d51bfb2",
+      "source_sha256": "190b683c3bf12f201f312b53732b1584d9ffbe712908c25a7852082af777c976",
+      "source_bytes": 98,
+      "state": "submitting",
+      "submitted_at": "2026-10-26T09:21:14.108432+00:00",
+      "firmware_sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+      "pid": 18464,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 1613
+    },
+    {
+      "at": "2026-10-26T09:21:14.313903+00:00",
+      "event": "program_observed",
+      "execution_id": "b6c7a6e3a60d45cc901583740d7d409b",
+      "program_state": "running"
+    }
+  ],
+  "included": [
+    "frames",
+    "logs",
+    "manifest",
+    "qom",
+    "serial"
+  ],
+  "files": {
+    "firmware/uiflow-source.json": {
+      "size": 2479,
+      "sha256": "f66ecfe280b5d1a2432bf7b3fa91e2488dd49cdd7d947b587102d0791d2aca79"
+    },
+    "programs/02077d1a44464fef87025cfd417a0720.json": {
+      "size": 669,
+      "sha256": "0e383ea03b2cfe516e2043cd467cd3c6fe2ea507b5d7ed23126e8687f821e8ba"
+    },
+    "programs/d9ed9000971f0a43a9a3ae562f2e0e4f46d6d26214d6dea9efdef6970ae78ffa/source.json": {
+      "size": 148,
+      "sha256": "525509aae0ea62dea0f9fd381f422da604d0c456f61883f69ddb925f8dee0cdc"
+    },
+    "programs/d9ed9000971f0a43a9a3ae562f2e0e4f46d6d26214d6dea9efdef6970ae78ffa/revision.json": {
+      "size": 424,
+      "sha256": "6e2e5006508793e6b0104d5832444e12bc5a7f5aa56537e0c80db4bea124d5d8"
+    },
+    "programs/22d284e083ed45428b36ed436c0824fd.json": {
+      "size": 762,
+      "sha256": "5d0f375d1d5759b83f88787311eba7811fbe6fbb42fc8ef190d8eca280c1d5f2"
+    },
+    "programs/1f03cea4f8055954827e2e6991e15f15eb9d8bfd7c685f53fc8aef38b8ff99b5/source.json": {
+      "size": 809,
+      "sha256": "cf617ee5b817e8bedf00f966ad98cc369300892724584b929368c0f97816c5d9"
+    },
+    "programs/1f03cea4f8055954827e2e6991e15f15eb9d8bfd7c685f53fc8aef38b8ff99b5/revision.json": {
+      "size": 426,
+      "sha256": "6c2bbdd63a1dc0e48674925828edfb5bfb8aff150ea513a522a565be7f4f8dfd"
+    },
+    "programs/84388bd917be452397f4c32279afc7d0.json": {
+      "size": 668,
+      "sha256": "6436ff1add4880a7e4eebd840b9c63d91d36eb491257c025627eea2770f5cb75"
+    },
+    "programs/ee6d99b65e348c103d6778bd3190b53180c45507d77744c6c6cea65514d338cf/source.json": {
+      "size": 61,
+      "sha256": "9b67094d5799a85296a7113a1e145f931b23a26dbafa3c7f56cc9ee3565e9420"
+    },
+    "programs/ee6d99b65e348c103d6778bd3190b53180c45507d77744c6c6cea65514d338cf/revision.json": {
+      "size": 424,
+      "sha256": "befe43ba3554c4f265c3771a4321a766ff0a9e35c5b5c941848fe43fc17a2538"
+    },
+    "programs/84f37322a6cc4735a3057ed1bb0a7a63.json": {
+      "size": 764,
+      "sha256": "f1a3f87acdbae91c061b2208d48142b30276e518eecb8983ba5284e1c51e9ecb"
+    },
+    "programs/de8573fba8a040f0a17c229b04034cf4f9939b26451208e7fdd462f713329de2/source.json": {
+      "size": 806,
+      "sha256": "59d99fd2ca89a4a846254501a1b241181f4d1e79d7588b9c1ddf9589d1e24ada"
+    },
+    "programs/de8573fba8a040f0a17c229b04034cf4f9939b26451208e7fdd462f713329de2/revision.json": {
+      "size": 426,
+      "sha256": "8ae39a4272b5747a2a74a78d30f5e408375c8a609088512bf17a22495c213982"
+    },
+    "programs/b6c7a6e3a60d45cc901583740d7d409b.json": {
+      "size": 671,
+      "sha256": "16ae5774a023d7de35ca23211394da56dea47c88075c43ca1fc55b7863e8d8eb"
+    },
+    "programs/361a5993abe461dc1613b1add490d2b4191603ab5fb41411c3fcaa2f2d51bfb2/source.json": {
+      "size": 148,
+      "sha256": "919b0e01b7c140c4d1b569d054407b87af13de68916361969cabc4dd64ab0f2f"
+    },
+    "programs/361a5993abe461dc1613b1add490d2b4191603ab5fb41411c3fcaa2f2d51bfb2/revision.json": {
+      "size": 424,
+      "sha256": "e3c03e9857167f4e0cc32197df25a4ff4f80b878d142995878c93b2d6f03afe8"
+    },
+    "units/contract.json": {
+      "size": 7986,
+      "sha256": "9094cf3a8bf261afc65622ae31a3922acdf5607d17ae220ccc101b4bdb210f29"
+    },
+    "units/runtime.json": {
+      "size": 248,
+      "sha256": "6f8aebbfcd909de949eec13fc72fdd49db501fafdbf2f4496df1bb05773e244e"
+    },
+    "units/state.json": {
+      "size": 8901,
+      "sha256": "c03aaee00c818cde822b8291c8d13b013e9791b2c74ee74adc772d83dfb71fce"
+    },
+    "serial.log": {
+      "size": 1772,
+      "sha256": "ea469e0888eebaf0608eb5434caedfb53c41fb564189557d521960c0aedce282"
+    },
+    "serial1.log": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qemu.stdout": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qemu.stderr": {
+      "size": 24,
+      "sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483"
+    },
+    "frames/current.png": {
+      "size": 693,
+      "sha256": "ad0262a61902d2d0dd49e58730f7ef0ccf2d2103ee685df63e5c7c4a8c84abf0"
+    },
+    "qom/snapshot.json": {
+      "size": 67364,
+      "sha256": "e64f34de8bf27a11ca7a595356fd4c586caed0bfe42be5ddaf47e1b7fc6941de"
+    }
+  },
+  "units": {
+    "session_id": "e586758b5d0e4934bb3bb8789da0a487",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-26T09:21:14.319353+00:00",
+    "units": [
+      {
+        "id": "pir1",
+        "unit_id": "pir",
+        "port_id": "custom",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "motion": true,
+          "input-level": true,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 4,
+          "output-transitions": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "pir",
+        "name": "PIR",
+        "sku": "U004",
+        "visual_asset": {
+          "entry": "src/units/pir/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "AS312",
+            "status": "officially-documented"
+          },
+          {
+            "part": "HT7533",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "NC",
+              "direction": "none"
+            },
+            "white": {
+              "signal": "motion",
+              "direction": "unit-to-host",
+              "active_level": 1
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+          "registers": [],
+          "gaps": [
+            "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          ]
+        },
+        "inputs": {
+          "motion": {
+            "type": "boolean",
+            "label": "检测到移动",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "inputs": {
+            "motion": {
+              "property": "motion"
+            }
+          },
+          "state": {
+            "motion": {
+              "property": "motion"
+            },
+            "input-level": {
+              "property": "input-level"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+            "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+            "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 8,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "NOT RUN",
+              "device_id": "atoms3r",
+              "unit_id": "pir",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "sticks3": {
+              "status": "NOT RUN",
+              "device_id": "sticks3",
+              "unit_id": "pir",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "stopwatch": {
+              "status": "NOT RUN",
+              "device_id": "stopwatch",
+              "unit_id": "pir",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            }
+          }
+        },
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+    },
+    "contract_status": "frozen"
+  },
+  "frame": {
+    "width": 128,
+    "height": 128,
+    "png_bytes": 693,
+    "source": "live",
+    "nonblack_pixels": 15884,
+    "unique_colors": 15
+  },
+  "qom": {
+    "snapshot_id": "be01b3656dfa43fba55add77cb376e9e",
+    "path": "/machine",
+    "depth": 2,
+    "created_at": "2026-10-26T09:21:14.324897+00:00"
+  },
+  "flash": {
+    "size": 8388608,
+    "sha256": "f9880647d39c65b8619c55981a6ef9e271ea6f4a198ca68c506f360efc4ba9c6",
+    "retained": true
+  }
+}
