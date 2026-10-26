@@ -2,12 +2,12 @@
   "schema_version": 1,
   "status": "PASS",
   "algorithm": "SHA-256",
-  "scope": "All regular files in this evidence directory except this manifest itself; metadata paths may be explicitly redacted in child indices.",
+  "scope": "All regular files in this evidence directory except this manifest itself, including integration receipt. Metadata path redactions are explicit in child indices.",
   "files": [
     {
       "path": "README.md",
-      "bytes": 2519,
-      "sha256": "4bcdf3e654392a6a6481bd5d0a0962951a242570b81f7635467a718a0de4e4bd"
+      "bytes": 2617,
+      "sha256": "f802fef1febff2fa4c03b06e830046cbf4ea508da442597ae9f6984e145d5bc9"
     },
     {
       "path": "acceptance.json",
@@ -14890,9 +14890,14 @@
       "sha256": "8edc54fb4e6f7b6e15433042f557aa6b996b9b82deac7b83d02bcf945ac023dd"
     },
     {
+      "path": "integration.json",
+      "bytes": 1795,
+      "sha256": "00271ca47ad8af7c9da53609c4681adb633800c7fc28e62499269c8a664813b7"
+    },
+    {
       "path": "privacy-final.json",
       "bytes": 376,
-      "sha256": "6e68f82783b67d1b7dcd979160a29b1b2bb2568fbfa1ec91ed39c0dafd6b295f"
+      "sha256": "6b9c8f337d170cd9946a87cb3126137f4a2d285688477d9ffa159dbd4f7c4ae6"
     },
     {
       "path": "research/index.json",
@@ -15440,7 +15445,7 @@
       "sha256": "6059a332a0c9b00802c329328a3dc32ef23fdc571b1fa30508b2eb8407659674"
     }
   ],
-  "files_count": 3075,
-  "total_bytes": 23721251,
-  "markdown_local_links_checked": 9
+  "files_count": 3076,
+  "total_bytes": 23723144,
+  "markdown_local_links_checked": 10
 }

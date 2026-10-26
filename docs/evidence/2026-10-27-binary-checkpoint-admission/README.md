@@ -33,4 +33,5 @@ AW3641E全16编码，保留官方原驱动、datasheet页面和accepted反馈。
 Unit功能准入；未定义的锁存/超时起点/动态模式切换不能伪称芯片事实。
 
 [归档清单](artifact-manifest.json)和[隐私检查](privacy-final.json)用于完整性核对。
+[主线同步](integration.json)记录实现提交、fetch/merge与源码/idle核对，未push。
 整体UNIT-01/AIFlow、二进制执行、其它Unit与真机同路径仍继续开放。
