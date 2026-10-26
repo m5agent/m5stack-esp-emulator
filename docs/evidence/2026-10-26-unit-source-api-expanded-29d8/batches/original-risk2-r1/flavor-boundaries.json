@@ -1,0 +1,29 @@
+{
+  "original": {
+    "default_cases": [
+      "pir",
+      "dual-button",
+      "limit",
+      "key",
+      "angle",
+      "light",
+      "fan",
+      "rs485",
+      "hub"
+    ],
+    "known_guest_gap_controls": [
+      "buzzer",
+      "ir"
+    ],
+    "automatic_driver_changes": false,
+    "automatic_original_pass": false
+  },
+  "custom": {
+    "status": "NOT PREPARED IN DEFAULT FREEZE",
+    "requires": "Separate explicitly selected IR callback-root or Buzzer callback-arity guest-copy patch, exact patch/original/derived hashes and unchanged original assertions. No automatic patch is allowed.",
+    "patches": [
+      "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch",
+      "patches/uiflow2-unit-buzzer/0001-accept-soft-timer-callback.patch"
+    ]
+  }
+}

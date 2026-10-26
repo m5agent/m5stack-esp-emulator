@@ -1,0 +1,157 @@
+[
+  {
+    "at": "2026-10-26T04:02:48.584827+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "95f69a61881dae57ae941946e005d3ee16c3337cf9b1109bf374e62c549f5899",
+    "input_event": null,
+    "phase": "startup"
+  },
+  {
+    "at": "2026-10-26T04:02:48.585018+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "IO_PROBE_READY rs485",
+    "offset": 0,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "95f69a61881dae57ae941946e005d3ee16c3337cf9b1109bf374e62c549f5899",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:02:48.864394+00:00",
+    "event_id": 2,
+    "kind": "state",
+    "file": "observations/00002-state.json",
+    "phase": "IO_PROBE_READY rs485",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:02:49.370806+00:00",
+    "event_id": 3,
+    "kind": "state",
+    "file": "observations/00003-state.json",
+    "phase": "IO_PROBE_READY rs485",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:02:49.372929+00:00",
+    "event_id": 4,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "rx-hex": "78787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878"
+    },
+    "via_ui": false,
+    "before_cursor": {
+      "session_id": "272a8f85f3134087a473bda7a80650fd",
+      "offset": 0,
+      "next_offset": 422,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (839) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START rs485\r\nIO_RS485_TX 16 67756573742d746f2d70656572007fff\r\nIO_PROBE_READY rs485\r\nIO_RS485_HEARTBEAT\r\n",
+      "bytes": 422
+    },
+    "accepted": false,
+    "error": "POST sessions/272a8f85f3134087a473bda7a80650fd/unit-input: HTTP 409 {\"error\": {\"code\": \"unit_input_rejected\", \"message\": \"QMP qom-set failed: Unit RX exceeds the UART FIFO's current free capacity\"}}"
+  },
+  {
+    "at": "2026-10-26T04:02:49.878694+00:00",
+    "event_id": 5,
+    "kind": "state",
+    "file": "observations/00005-state.json",
+    "phase": "IO_PROBE_READY rs485",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:02:49.880529+00:00",
+    "event_id": 6,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "rx-hex": "706565722d746f2d6775657374007fff"
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "272a8f85f3134087a473bda7a80650fd",
+      "offset": 0,
+      "next_offset": 422,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (839) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START rs485\r\nIO_RS485_TX 16 67756573742d746f2d70656572007fff\r\nIO_PROBE_READY rs485\r\nIO_RS485_HEARTBEAT\r\n",
+      "bytes": 422
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:02:49.985674+00:00",
+    "event_id": 7,
+    "kind": "wait-success",
+    "offset": 422,
+    "serial_file": "observations/00007-serial.txt",
+    "serial_sha256": "295a22d32ef4573bea1dc86199054be5160282d8d7924e525382fffd9ddc0175",
+    "input_event": 6,
+    "phase": "IO_PROBE_READY rs485"
+  },
+  {
+    "at": "2026-10-26T04:02:49.985885+00:00",
+    "event_id": 8,
+    "kind": "marker",
+    "marker": "IO_RS485_RX 706565722d746f2d6775657374007fff",
+    "offset": 422,
+    "serial_file": "observations/00008-marker.txt",
+    "serial_sha256": "295a22d32ef4573bea1dc86199054be5160282d8d7924e525382fffd9ddc0175",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:02:49.990841+00:00",
+    "event_id": 9,
+    "kind": "wait-success",
+    "offset": 422,
+    "serial_file": "observations/00009-serial.txt",
+    "serial_sha256": "295a22d32ef4573bea1dc86199054be5160282d8d7924e525382fffd9ddc0175",
+    "input_event": 6,
+    "phase": "IO_RS485_RX 706565722d746f2d6775657374007fff"
+  },
+  {
+    "at": "2026-10-26T04:02:49.991061+00:00",
+    "event_id": 10,
+    "kind": "marker",
+    "marker": "IO_RS485_ECHO 21 6563686f3a706565722d746f2d6775657374007fff",
+    "offset": 422,
+    "serial_file": "observations/00010-marker.txt",
+    "serial_sha256": "295a22d32ef4573bea1dc86199054be5160282d8d7924e525382fffd9ddc0175",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:02:50.382632+00:00",
+    "event_id": 11,
+    "kind": "state",
+    "file": "observations/00011-state.json",
+    "phase": "IO_RS485_ECHO 21 6563686f3a706565722d746f2d6775657374007fff",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:02:50.887712+00:00",
+    "event_id": 12,
+    "kind": "state",
+    "file": "observations/00012-state.json",
+    "phase": "IO_RS485_ECHO 21 6563686f3a706565722d746f2d6775657374007fff",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:02:51.394544+00:00",
+    "event_id": 13,
+    "kind": "state",
+    "file": "observations/00013-state.json",
+    "phase": "IO_RS485_ECHO 21 6563686f3a706565722d746f2d6775657374007fff",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:02:51.400187+00:00",
+    "event_id": 14,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00014-serial.txt",
+    "serial_sha256": "295a22d32ef4573bea1dc86199054be5160282d8d7924e525382fffd9ddc0175",
+    "input_event": 6,
+    "phase": "IO_RS485_ECHO 21 6563686f3a706565722d746f2d6775657374007fff"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "custom_only": true,
+  "cases": {
+    "ir": "custom-guest-ir-callback-root-patch",
+    "buzzer": "custom-guest-buzzer-callback-arity-patch"
+  },
+  "automatic_original_pass": false,
+  "original_drivers_modified": false,
+  "original_driver_evidence": "separate original runner and retained FAIL/REVIEW_REQUIRED results",
+  "scope": "Caller copies only; firmware frozen/native modules, controller, QEMU and original assertions unchanged."
+}

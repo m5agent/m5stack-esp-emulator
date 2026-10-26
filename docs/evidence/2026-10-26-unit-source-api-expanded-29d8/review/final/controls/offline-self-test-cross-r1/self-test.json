@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "scope": "pure offline source request preparation/check only; no guest/runtime/hardware claim",
+  "cases": [
+    "joystick-v11",
+    "8encoder",
+    "cardkb",
+    "rfid2"
+  ],
+  "guard_probes_blocked": [
+    "SOCKET",
+    "HTTP",
+    "PROCESS",
+    "BIN_WRITE"
+  ],
+  "unexpected_api_process_bin_calls": [],
+  "source_drift_negative": "REJECTED",
+  "original_assertion_parity": {
+    "source": "tests/units/run_control_cases.py",
+    "source_sha256": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+    "original_block_sha256": "4800da227f4a4878ee60ac7777c2f4f5ffd28d6f0483204404d77f0e0e7b5a78",
+    "ast_exact_match": true,
+    "assertion_count": 13
+  },
+  "preparation": {
+    "status": "PREPARED_NO_API_OR_RUNTIME",
+    "cases": [
+      "joystick-v11",
+      "8encoder",
+      "cardkb",
+      "rfid2"
+    ],
+    "case_count": 4,
+    "binary_build_or_upload": false,
+    "guest_execution": false,
+    "original_assertions": {
+      "source": "tests/units/run_control_cases.py",
+      "source_sha256": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+      "original_block_sha256": "4800da227f4a4878ee60ac7777c2f4f5ffd28d6f0483204404d77f0e0e7b5a78",
+      "ast_exact_match": true,
+      "assertion_count": 13
+    },
+    "http_json_bytes": {
+      "joystick-v11": 13820,
+      "8encoder": 27060,
+      "cardkb": 33105,
+      "rfid2": 72482
+    }
+  }
+}

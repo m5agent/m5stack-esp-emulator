@@ -1,0 +1,192 @@
+[
+  {
+    "at": "2026-10-26T03:59:27.831073+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "708d29b92a0fae58af8d04a723274aae3e3e9a32be4364d59edf73b9cfaaefd6",
+    "input_event": null,
+    "phase": "startup"
+  },
+  {
+    "at": "2026-10-26T03:59:27.831300+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "IO_PROBE_READY dual-button",
+    "offset": 0,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "708d29b92a0fae58af8d04a723274aae3e3e9a32be4364d59edf73b9cfaaefd6",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T03:59:27.852600+00:00",
+    "event_id": 2,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "blue-pressed": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "49fddfa0764e491db4b17b9eb92e88bf",
+      "offset": 0,
+      "next_offset": 382,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (851) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START dual-button\r\nIO_PROBE_READY dual-button\r\nIO_DUAL 1 1 0 0\r\n",
+      "bytes": 382
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:59:28.984895+00:00",
+    "event_id": 3,
+    "kind": "wait-success",
+    "offset": 382,
+    "serial_file": "observations/00003-serial.txt",
+    "serial_sha256": "d1653ae14deb36babab0e08871af886a7ce52b6a4a30581221f44b1b154f34ce",
+    "input_event": 2,
+    "phase": "IO_PROBE_READY dual-button"
+  },
+  {
+    "at": "2026-10-26T03:59:29.192418+00:00",
+    "event_id": 4,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "blue-pressed": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "49fddfa0764e491db4b17b9eb92e88bf",
+      "offset": 0,
+      "next_offset": 399,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (851) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START dual-button\r\nIO_PROBE_READY dual-button\r\nIO_DUAL 1 1 0 0\r\nIO_DUAL 0 1 0 0\r\n",
+      "bytes": 399
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:59:29.622861+00:00",
+    "event_id": 5,
+    "kind": "wait-success",
+    "offset": 399,
+    "serial_file": "observations/00005-serial.txt",
+    "serial_sha256": "a270700c03e911aca6b934070664014b43c8add94fee0668eb7e272d46364b02",
+    "input_event": 4,
+    "phase": "IO_PROBE_READY dual-button"
+  },
+  {
+    "at": "2026-10-26T03:59:30.040513+00:00",
+    "event_id": 6,
+    "kind": "wait-success",
+    "offset": 399,
+    "serial_file": "observations/00006-serial.txt",
+    "serial_sha256": "6e14b7843bf96c169d1863fade26ffd68fc0ad4f54b2702a403feb2371c7b707",
+    "input_event": 4,
+    "phase": "IO_PROBE_READY dual-button"
+  },
+  {
+    "at": "2026-10-26T03:59:30.040977+00:00",
+    "event_id": 7,
+    "kind": "marker",
+    "marker": "IO_DUAL_CLICK 1 0",
+    "offset": 399,
+    "serial_file": "observations/00007-marker.txt",
+    "serial_sha256": "6e14b7843bf96c169d1863fade26ffd68fc0ad4f54b2702a403feb2371c7b707",
+    "input_event": 4
+  },
+  {
+    "at": "2026-10-26T03:59:30.042695+00:00",
+    "event_id": 8,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "red-pressed": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "49fddfa0764e491db4b17b9eb92e88bf",
+      "offset": 0,
+      "next_offset": 452,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (851) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START dual-button\r\nIO_PROBE_READY dual-button\r\nIO_DUAL 1 1 0 0\r\nIO_DUAL 0 1 0 0\r\nIO_DUAL 1 1 0 0\r\nIO_DUAL_CLICK 1 0\r\nIO_DUAL 1 1 1 0\r\n",
+      "bytes": 452
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:59:30.272593+00:00",
+    "event_id": 9,
+    "kind": "wait-success",
+    "offset": 452,
+    "serial_file": "observations/00009-serial.txt",
+    "serial_sha256": "c550f596ecab46a62d4795d929265c70341f49e074dcd3255dfd0d910238d34e",
+    "input_event": 8,
+    "phase": "IO_DUAL_CLICK 1 0"
+  },
+  {
+    "at": "2026-10-26T03:59:30.479966+00:00",
+    "event_id": 10,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "red-pressed": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "49fddfa0764e491db4b17b9eb92e88bf",
+      "offset": 0,
+      "next_offset": 469,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (851) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START dual-button\r\nIO_PROBE_READY dual-button\r\nIO_DUAL 1 1 0 0\r\nIO_DUAL 0 1 0 0\r\nIO_DUAL 1 1 0 0\r\nIO_DUAL_CLICK 1 0\r\nIO_DUAL 1 1 1 0\r\nIO_DUAL 1 0 1 0\r\n",
+      "bytes": 469
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:59:30.800506+00:00",
+    "event_id": 11,
+    "kind": "wait-success",
+    "offset": 469,
+    "serial_file": "observations/00011-serial.txt",
+    "serial_sha256": "a69fc6710918d44258822f2736d785ef79f2a55fe3afea4c745b340d5b2cb7bf",
+    "input_event": 10,
+    "phase": "IO_DUAL_CLICK 1 0"
+  },
+  {
+    "at": "2026-10-26T03:59:31.217257+00:00",
+    "event_id": 12,
+    "kind": "wait-success",
+    "offset": 469,
+    "serial_file": "observations/00012-serial.txt",
+    "serial_sha256": "29eb0a7ea8fc1ff302223c02392b27f5b26b45a131694146783f14a7841b3667",
+    "input_event": 10,
+    "phase": "IO_DUAL_CLICK 1 0"
+  },
+  {
+    "at": "2026-10-26T03:59:31.217496+00:00",
+    "event_id": 13,
+    "kind": "marker",
+    "marker": "IO_DUAL_CLICK 1 1",
+    "offset": 469,
+    "serial_file": "observations/00013-marker.txt",
+    "serial_sha256": "29eb0a7ea8fc1ff302223c02392b27f5b26b45a131694146783f14a7841b3667",
+    "input_event": 10
+  },
+  {
+    "at": "2026-10-26T03:59:31.687550+00:00",
+    "event_id": 14,
+    "kind": "state",
+    "file": "observations/00014-state.json",
+    "phase": "IO_DUAL_CLICK 1 1",
+    "input_event": 10
+  },
+  {
+    "at": "2026-10-26T03:59:31.692562+00:00",
+    "event_id": 15,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00015-serial.txt",
+    "serial_sha256": "29eb0a7ea8fc1ff302223c02392b27f5b26b45a131694146783f14a7841b3667",
+    "input_event": 10,
+    "phase": "IO_DUAL_CLICK 1 1"
+  }
+]

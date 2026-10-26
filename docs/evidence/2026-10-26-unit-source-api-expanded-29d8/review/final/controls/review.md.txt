@@ -1,0 +1,40 @@
+# CoreS3 controls source-API harness 独立复核
+
+日期：2026-10-26。范围为 Joystick v1.1、8Encoder、CardKB、RFID2 的当前源码 API harness、contract.json 和 README。只读准备源；没有服务/API/browser/guest/QEMU/hardware 执行。合成文本仅验证 checker，不是运行证据。
+
+## 发现：RFID 跨 UID 借用负控，已在执行前修复
+
+P2：V1 `replay_controls()` 对每个 UID 使用从当前 offset 到最终 serial 的无界后缀，因此前 UID 缺失 BAD_CRC/BAD_KEY/SECTOR_DENIED/BLOCK/HALT/ANTENNA 时，可以借第三个 UID 的标记通过。已向 root 和 owner 及时报告。
+
+独立最小反例位于 `rfid_window_repro.py`：前两个 UID 只有 UID marker，六项负控只放在第三个 UID；V1 仍 accepted=true。V2 将窗口上界固定到下一步输入的 `serial_offset`，第三 UID 截止 removal 输入；同样反例现 rejected，完整三相位正例仍 accepted。`baseline-rfid-window.json` 和 `current-rfid-window.json` 保留两个原始结果。Owner 另有逐一删六项负控、缺 UID、反序的回归检查。
+
+审过的最终 V2 harness SHA：`c8b94c78cecce9eadd1be92a626014f903d92ea5d763dfc0621174baf30eceee`；contract.json SHA：`ede5b7c47a6ca48edd4bf228ccf0e440ab48ca8a47eab47cbaab42654c7bef2a`。本次未修改 owner 的任何文件。
+
+## 原始控制协议完整性
+
+独立从仓库 `run_control_cases.py` 的 run_case AST 提取完整控制块：从 Joystick 分支一直到 framebuffer 捕获前的公共 live/counter/LED/address 断言。与新 harness 的 `original_control_protocol()` 对应节点逐个 AST dump 完全一致，共 13 条原 assert；含当前批次未选择的原 Encoder 分支，未因选择子集而删块。不是仅采用 harness 自报的 ast_exact_match。
+
+- Joystick 保留两组三 raw-byte 输入与 fresh guest marker。
+- 8Encoder 保留八个 signed int32、INT32_MAX/MIN、八个 pressed、switch-on、guest register write/reset、地址 0x42 与全部九组三字节 RGB 的原断言；独立 replay 还要求新窗口内完整向量与 INC 八个有界整数。
+- CardKB 原 block 仍遍历全部 47 个非 modifier 物理键，依次覆盖 normal/shift/sym/fn，三种 one-shot，三种真实 200ms 双击锁定、QOM 2/4/6 及 unlock→0，并最终精确比较整个 guest byte stream。独立从官方 fixture 重建：四表非零输出分别 47/47/39/47，加 6 个 one-shot 输出和 1 个 legacy byte，合计 187；与 harness oracle 完全一致。原样为每个物理键调用 tap，零输出键也没有被从控制块删除。
+- RFID 原四/七/十 byte UID cascade、CRC、key/sector/block/halt/antenna 与移除流程保持；V2 checker 进一步把每 UID 的有序正负控锁在本次输入到下次输入之间。
+
+## 显示与 driver 边界
+
+对四例生成源码反向应用三处显式显示替换，恢复后的 main.py 与仓库 controls_probe/main.py 原字节完全相同。三处仅是显示 helper import、初始化文字布局和读数绘制；guest driver 初始化、总线、控制流和断言均未改。`host_control_layout.py` 与原文件相同；生成的 CoreS3 profile 声明 320×240、rotation 1、Montserrat12、scale1、实际 fontHeight15、textWidth 和全矩形边界检查。布局不合适时会 fail closed；离线准备不能证明 native display PASS。
+
+四例所有 manifest 声明的 official driver 与 MIT 许可证逐字一致，未将其他主机 PASS 继承为 CoreS3。实际默认 Client 的序列化请求体均另算过，远低于 1 MiB；原 source/path/file 限制仍生效。
+
+## API、Web、证据与清理
+
+与上个已接受源码 API 批次比较 AST，HTTPRecorder、source_provenance、input_negative/source_negatives、pid_gone、PNG 校验、实际 DOM/HTTP 比对及 ZIP 校验均未改。`review.json` 保存逐函数结果。真实执行使用原 Client/WebUIBridge，source-only guard 不改写上传，只拒绝 artifact/merged firmware 路径；正常提交是 `/firmware/uiflow` 后带 exact image/source pin 的 `/sessions`。
+
+已有 source-pin missing/wrong 负控在 start 前执行，检查 active=0；ZIP 检查 same image/source/PID/worker generation、冻结 Unit 契约、serial/frame，且先取 ZIP 后 DELETE purge=0。finally 保留失败和清理错误，核 retained frame/metadata、Flash=false、同 owned PID gone 和 health active=0。独立 replay 重新计算控制向量/187-byte stream/分窗口 RFID、DOM 文本与真实 HTTP response、ZIP 成员哈希和 source pin；不只读 result.checks 布尔。
+
+注意这是代码与离线准备审核；实际 g11/29d8 direct PID、guest marker、每个控制器、帧、实际 DOM 和 cleanup 仍由 root 实跑提供，不能把静态 review 当作同路径 functional 或硬件 PASS。
+
+## 离线复核
+
+调用 owner 的纯 `offline_self_test()`，输出只写本 review 目录的新 `offline-self-test-cross-r1/`：四例准备/检查 PASS，socket/HTTP/process/BIN 四种 guard probe 均先被 mock 拒绝，随后准备/检查意外调用为零；修改 guest source 的 drift 负例被拒绝并恢复。独立 AST、source CAS、driver/license 与显示反向恢复检查通过。审查期间 harness SHA 保持不变。
+
+当前没有尚未解决的阻断项。RFID V1 不能用于声称逐窗口负控通过，执行应使用上面的 V2 SHA；物理硬件、完整 shared runtime 矩阵及其他 Unit/主机范围保持原边界。

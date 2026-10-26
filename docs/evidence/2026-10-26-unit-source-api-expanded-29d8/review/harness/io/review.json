@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-10-26T04:01:38.547610+00:00",
+  "result": "NO_ACTIONABLE_FINDINGS",
+  "findings": [],
+  "scope": [
+    "run_expanded_io.py",
+    "source_api_common.py",
+    "original Observations/validate_io/validate_evidence/attachments/buzzer_timer_window",
+    "io_probe/io_program.py and driver-byte manifests",
+    "ADC reference application binding and read_uv oracle",
+    "Web bridge and source-pin/evidence/cleanup paths"
+  ],
+  "harness_sha256": "e63edab96163509cc698a2e5e49c7c46ab15188050f2a6be973ee908b4b2e8b5",
+  "common_sha256": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1",
+  "independent_offline_prepare": {
+    "status": "PASS",
+    "output": ".work/unit-source-io-expanded-20261026/independent-readonly-review-r1",
+    "cases": [
+      "pir",
+      "dual-button",
+      "limit",
+      "key",
+      "angle",
+      "light",
+      "fan",
+      "rs485",
+      "hub"
+    ],
+    "source_files_per_case": {
+      "pir": 18,
+      "dual-button": 18,
+      "limit": 18,
+      "key": 18,
+      "angle": 18,
+      "light": 18,
+      "fan": 18,
+      "rs485": 18,
+      "hub": 18
+    },
+    "unexpected_http_process_builder_prepare_calls": [],
+    "request_sizes": {
+      "pir": 26581,
+      "dual-button": 26589,
+      "limit": 26583,
+      "key": 26581,
+      "angle": 26583,
+      "light": 26583,
+      "fan": 26581,
+      "rs485": 26583,
+      "hub": 26581
+    }
+  },
+  "original_function_sha256": {
+    "attachments": "6eb3d027b7be8274af055026e7a82201e54033fd80cd70bfdf9cd546bf15a187",
+    "buzzer_timer_window": "238309af4c49611f50eac74b7c9697ac2befe03e20c9638fddf59ec266ca0940",
+    "Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd",
+    "validate_io": "fb252778935d9aad138096709235e159de57ed2d42f9402ee05a1ea62a09e56e",
+    "validate_evidence": "a3026d8b3b5dc7a218b9c522583bed5e3800bcce5a1dd733e2c13537f9ea197b"
+  },
+  "adc_offline_binding": {
+    "reference_base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "application_binding": {
+      "reference_file": "platform/.cache/firmware/cores3/uiflow2.bin",
+      "reference_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "version": "V2.5.3",
+      "idf_version": "v5.5.5-dirty",
+      "app_elf_sha256": "65a206af9eb1cbcba2bb24278cd112ad5a68167d536a817ea1d2e62da11d1977",
+      "application_offset": 65536,
+      "application_segment_bytes": 10018400,
+      "application_segment_sha256": "c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f",
+      "meaning": "SHA-256 over actual ESP image headers and segment bytes; excludes mutable VFS/NVS. app descriptor metadata alone is not the admission gate. The public IDF tag is the reference; private dirty changes are not assumed verified."
+    },
+    "fixture_sha256": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d",
+    "angle_vectors": {
+      "0": {
+        "input_mv": 0,
+        "raw_12bit": 0,
+        "read_u16": 0,
+        "read_uv": 0,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      },
+      "1250": {
+        "input_mv": 1250,
+        "raw_12bit": 1651,
+        "read_u16": 26422,
+        "read_uv": 1232000,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      },
+      "2500": {
+        "input_mv": 2500,
+        "raw_12bit": 3302,
+        "read_u16": 52844,
+        "read_uv": 2427000,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      }
+    },
+    "light_vectors": {
+      "310": {
+        "input_mv": 310,
+        "raw_12bit": 410,
+        "read_u16": 6561,
+        "read_uv": 319000,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      },
+      "1550": {
+        "input_mv": 1550,
+        "raw_12bit": 2048,
+        "read_u16": 32776,
+        "read_uv": 1523000,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      },
+      "3100": {
+        "input_mv": 3100,
+        "raw_12bit": 4095,
+        "read_u16": 65535,
+        "read_uv": 2912000,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      }
+    }
+  },
+  "review_evidence": [
+    "Observed subclass directly invokes super().wait/marker/state/input/qom and the original runtime validate_io plus original validate_evidence functions; there is no replacement controller response or host-computed guest value.",
+    "Fresh cursor gating is per last accepted input, not per wait. Once serial has grown beyond that input baseline, subsequent property checks or marker reads may succeed without requiring another UART increment. This does not add a spurious per-property UART requirement.",
+    "Every accepted injection in the nine default original cases is followed by a serial predicate. Same-state first Angle zero is legal: the original guest emits a periodic 1500ms reading even when value stays unchanged, within the unchanged 60s timeout.",
+    "PIR IRQ disable/rearm and no-callback interval, dual-button raw/click state machines, LIMIT alias/edge counter/reset, and Key native RMT colors remain in original validate_io.",
+    "Angle includes unchanged exact read_u16/read_uv and monotonic calibrated-voltage assertions. CoreS3 reference application bytes match the fixture binding offline; the actual session ZIP must still prove its applied virtual calibration receipt.",
+    "RS485 retains original UART1 binary RX/TX/echo and FIFO rejection through direct API, with rejected FIFO writes distinct from accepted Web-driven inputs and UART0 log path.",
+    "HUB topology is the original passive HUB plus ENV III, NCIR and TVOC. It retains original three independent child inputs, combined-vector checks and per-leaf transaction/byte/input counters.",
+    "Source composition uses transparent caller Python bytes, pinned base SHA and canonical source CAS. Source sessions send uiflow_source_sha256; original driver source bytes are checked and never patched automatically.",
+    "Online evidence requires real browser DOM/readback HTTP, direct QEMU executable SHA and worker lease/generation, ZIP before stop, history/frame retention, Flash release, owned PID exit and idle health. All created sessions enter evidence/stop finally blocks.",
+    "Original IR/Buzzer known-gap controls are excluded from defaults and cannot automatically become PASS; unprepared custom flavor fails closed."
+  ],
+  "limitations": [
+    "No 8787 API, guest, QEMU or browser execution performed. No functional, controller, physical-device or audio PASS is asserted.",
+    "The review checked preparation and original function identity plus code paths, not timing stress or live event ordering.",
+    "Offline source request preparation is independently verified; live assertions and evidence replay remain root-owned.",
+    "Native PNG nonblank checks do not prove readable text, physical signals, bit-exact silicon behavior or an untrusted-firmware sandbox."
+  ]
+}

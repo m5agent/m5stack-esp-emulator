@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "service": "m5stack-device-service",
+  "api_version": "v1",
+  "capacity": {
+    "max_sessions": 12,
+    "active_sessions": 0,
+    "available_sessions": 12,
+    "max_per_device": 8,
+    "by_device": {},
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "instance_id": "8390592fc2094894bae826e54d2c6e2c",
+      "generation": 11,
+      "state": "ready",
+      "pid": 75508,
+      "started_at": "2026-10-26T03:02:34.858389+00:00",
+      "heartbeat_at": "2026-10-26T03:55:24.163321+00:00",
+      "heartbeat_age_seconds": 0.238,
+      "stale": false,
+      "accepting_leases": true,
+      "active_lease_count": 0,
+      "active_lease_ids": [],
+      "drained_at": null
+    },
+    "modes": {
+      "network": "enabled-separate-lane",
+      "qemu-wifi": "enabled-s3",
+      "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+      "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+      "tab5": "enabled-partial",
+      "flash": "prepared-cache + exact artifact"
+    }
+  }
+}

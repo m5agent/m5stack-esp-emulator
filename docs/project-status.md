@@ -277,8 +277,33 @@ I2C 读写和同 guest 的屏幕反馈。合计覆盖七种 Unit 的源码 API �
 预检）停止前取 ZIP、保留历史、PID 退出并释放 Flash。其余三主机只有源码
 打包离线检查，不能继承 CoreS3 的此次运行 PASS。调用方式见
 [外部 Agent 指南](unit-agent-api.md)，精确 SHA/输入/原始证据见
-[本轮归档](evidence/2026-10-26-unit-source-api-29d8/README.md)。原 Buzzer/IR、
-PWM 初始化与完整矩阵 66/67 等缺口不因该接口子批次关闭。
+[本轮归档](evidence/2026-10-26-unit-source-api-29d8/README.md)。
+
+随后 gen11/29d8 的 CoreS3 源码 API 扩展批共二十五个独立会话：七传感器、
+九 IO、四控制类和两种显式 custom 共 22 个功能 PASS；Thermal
+missing-fixture 另有一个负控 PASS，不与使用 raw fixture 的功能例混计。
+结合首批，选定源码场景覆盖 27 种 Unit（25 种原驱动、IR/Buzzer 两种
+custom），不是单次原版 27 项全绿。四控制例保持原驱动和控制断言，使用
+`controls-probe-cores3-native-display-v1` 的可逆 display-only 调整，显示
+可读性只覆盖捕获帧。Fan 三阶段控制器功能通过，动画仅证明 100% duty
+观测段；Heart 只证明 raw IR/red/FIFO，不证明 BPM/SpO2。源码请求、初始
+fixture 与附件拓扑已冻结在仓内，可经指南使用新 compose 响应重放。
+
+同批原 IR 为 `REVIEW_REQUIRED / protocol_status=PASS`，独审结论
+`OBSERVED_PROTOCOL_PASS_RISK_OPEN`；本次四个新鲜输入窗口通过，历史 GC
+风险继续 OPEN。原 Buzzer 自然 timer-zero FAIL；旧 harness 对输出类误要求
+输入 POST 的附加 `browser_error` 单列，不能描述为产品浏览器故障，手动
+OFF 的零也不能补自然停止 PASS。两种 custom 均有独立 source pin、同 guest
+controller/真实 Web、直接 PID、停止前 ZIP 和停止后的清理证据；不会把原
+驱动失败改写为通过。2026-10-26 固定上游
+`m5stack/uiflow-micropython@3a86d8f611b3639cca755a933e01a5a829771ef1`
+的相关 wrapper/native 文件仍保留已识别的 callback 参数/保活模式；该源码
+查证不等于所有 port 或最新发行固件均失败。
+见[扩展批次与精确范围](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)
+和[27 种可复用源码请求](unit-agent-api.md#已验证的-27-种源码场景)。本轮源码
+API 实际运行仍仅 CoreS3，其余三主机只有离线 compose。PWM 初始化 QOM route、
+完整周期语义、共享 runtime 最新完整矩阵及真机等门禁仍 OPEN；精确计数见
+验证台账，Core2 IMU 单例复测不拼成全量 PASS。
 
 CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展开与真实端口
 线缆布置。ENV III/ToF/Color 四档场景、手机 Button 输入/聚焦和失败回滚共

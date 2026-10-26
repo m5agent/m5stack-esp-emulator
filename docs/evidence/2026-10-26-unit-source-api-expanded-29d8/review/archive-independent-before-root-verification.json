@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "result": "PASS",
+  "scope": "offline/static; no API/guest/network/assembly/checker execution; archive not edited",
+  "archive_files": 14379,
+  "archive_bytes": 174191927,
+  "copy_provenance_files": 14370,
+  "transported_markdown": 26,
+  "private_sources_scanned": 22,
+  "private_identifiers_or_endpoints_checked": 3,
+  "disk_images_decoded": 239,
+  "zip_files": 50,
+  "zip_members_crc_read": 554,
+  "zip_images_decoded": 50,
+  "native_or_firmware_files": 0,
+  "private_identifier_hits": 0,
+  "credential_pattern_hits": 0,
+  "symlinks": 0,
+  "combined_counts_from_frozen_archive_results": {
+    "total_sessions": 33,
+    "functional_pass_sessions": 30,
+    "negative_control_pass_sessions": 1,
+    "review_sessions": 1,
+    "failed_sessions": 1
+  },
+  "nested_manifests": [
+    {
+      "path": "SHA256SUMS",
+      "counts": {
+        "PASS": 14378
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "batches/controls-v2-r1/SHA256SUMS",
+      "counts": {
+        "PASS": 4042
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "batches/custom2-r1/SHA256SUMS",
+      "counts": {
+        "PASS": 1129
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "batches/io-default9-r1/SHA256SUMS",
+      "counts": {
+        "PASS": 3872
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "batches/original-risk2-r1/SHA256SUMS",
+      "counts": {
+        "PASS": 1074
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "batches/sensors-r1/SHA256SUMS",
+      "counts": {
+        "PASS": 2918
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "batches/thermal-negative-r1/SHA256SUMS",
+      "counts": {
+        "PASS": 337
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "harness/custom/HARNESS_SHA256SUMS",
+      "counts": {
+        "PASS": 6
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "harness/io/HARNESS_SHA256SUMS",
+      "counts": {
+        "PASS": 5
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "research/led-placement/SHA256SUMS",
+      "counts": {
+        "PASS": 80
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "research/upstream/SHA256SUMS",
+      "counts": {
+        "PASS": 27,
+        "EXPLICITLY_EXCLUDED": 4
+      },
+      "nonpassing": [
+        {
+          "path": "mcp-buzzer-exact.json",
+          "status": "EXPLICITLY_EXCLUDED"
+        },
+        {
+          "path": "mcp-buzzer.json",
+          "status": "EXPLICITLY_EXCLUDED"
+        },
+        {
+          "path": "mcp-ir-exact.json",
+          "status": "EXPLICITLY_EXCLUDED"
+        },
+        {
+          "path": "mcp-ir.json",
+          "status": "EXPLICITLY_EXCLUDED"
+        }
+      ]
+    },
+    {
+      "path": "review/final/controls/offline-self-test-cross-r1/SHA256SUMS",
+      "counts": {
+        "PASS": 78
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "review/final/controls-live/SHA256SUMS",
+      "counts": {
+        "PASS": 126
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "review/final/custom/SHA256SUMS",
+      "counts": {
+        "PASS": 12
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "review/final/io-live/SHA256SUMS",
+      "counts": {
+        "PASS": 4
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "review/final/original-risk/SHA256SUMS",
+      "counts": {
+        "PASS": 5
+      },
+      "nonpassing": []
+    },
+    {
+      "path": "review/harness/controls/offline-self-test-cross-r1/SHA256SUMS",
+      "counts": {
+        "PASS": 78
+      },
+      "nonpassing": []
+    }
+  ],
+  "uncovered_files": [],
+  "errors": [],
+  "notes": [],
+  "script_sha256": "58e405740d43b55f395cd085e832e4308924fe43ccd359940b121c2738a48ccd",
+  "archive_entrypoint_sha256": "8353bf58dac834a09be635500c069f0e4982d66e3be167c1df2fcefb0b6850a3",
+  "static_findings_resolved": [
+    {
+      "finding": "prior sensors/io reviewer artifacts were not registered/copied by fresh assembly",
+      "resolution": "explicitly copied all 213 artifacts; no uncovered source files remain"
+    },
+    {
+      "finding": "count audit required original .work result files",
+      "resolution": "author audit resolves both archives first; independent count recomputation used only frozen archive results"
+    }
+  ],
+  "nested_checksum_scope": {
+    "top_level_inventory_verified": 14378,
+    "original_nested_checksums_verified": 13793,
+    "explicit_private_MCP_checksum_exclusions": 4,
+    "unexplained_missing": 0
+  },
+  "owner_audit_sha256": "7ba25d74cba0ca3d84752fa2d5e8cef79213e50d76fffcf6f0ba6a930c59b2f8",
+  "owner_root_checksums_sha256": "076d024314bad50cc04b645d3b602599537c3ebfc0ae541c4b963b486d14e648"
+}

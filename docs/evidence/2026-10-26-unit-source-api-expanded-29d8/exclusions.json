@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "policy": [
+    "no firmware/ROM/BIN/ELF/native executable/cache",
+    "no private MCP/client/request/feedback raw metadata",
+    "LED research public root only",
+    "no original byte cleanup/redaction; omit whole private inputs instead"
+  ],
+  "excluded": [
+    {
+      "source": ".work/unit-led-placement-research-20261026/internal/",
+      "archive_path": "research/led-placement/internal/",
+      "reason": "PRIVATE: raw MCP requests, clients, request/feedback identifiers and unrelated screenshots omitted as one entire subtree"
+    },
+    {
+      "source": ".work/unit-driver-upstream-research-20261026/commit.json",
+      "archive_path": "research/upstream/commit.json",
+      "reason": "private raw metadata or unnecessary full API metadata; public source/summary retained",
+      "sha256": "b0acd155690da2703406b0ecf291e77c8ca93e0f80bfaf2556d5a72799e6deac",
+      "size": 4523
+    },
+    {
+      "source": ".work/unit-driver-upstream-research-20261026/mcp-buzzer-exact.json",
+      "archive_path": "research/upstream/mcp-buzzer-exact.json",
+      "reason": "private raw metadata or unnecessary full API metadata; public source/summary retained",
+      "sha256": "7857e202274cb43c57de43ac8861e593cf08d419385333b0afb26314e0fa5c4e",
+      "size": 23650
+    },
+    {
+      "source": ".work/unit-driver-upstream-research-20261026/mcp-buzzer.json",
+      "archive_path": "research/upstream/mcp-buzzer.json",
+      "reason": "private raw metadata or unnecessary full API metadata; public source/summary retained",
+      "sha256": "bcae28c0839aeeab98507e5f4ccd943e448c2e6edd71a422aee83b4e1b3dbb19",
+      "size": 61414
+    },
+    {
+      "source": ".work/unit-driver-upstream-research-20261026/mcp-ir-exact.json",
+      "archive_path": "research/upstream/mcp-ir-exact.json",
+      "reason": "private raw metadata or unnecessary full API metadata; public source/summary retained",
+      "sha256": "1d2a303992594eed2940c4ac0618f0f66c18d08bfb58c4d6dcbab29a4976225f",
+      "size": 42034
+    },
+    {
+      "source": ".work/unit-driver-upstream-research-20261026/mcp-ir.json",
+      "archive_path": "research/upstream/mcp-ir.json",
+      "reason": "private raw metadata or unnecessary full API metadata; public source/summary retained",
+      "sha256": "106342ce67d0de1e348f6858993badbe6025362ce6f492f1cc75357fa823fbaa",
+      "size": 58331
+    },
+    {
+      "source": ".work/unit-pwm-route-diagnostic-20261026/diagnostic",
+      "archive_path": "host-pwm-route/diagnostic",
+      "reason": "native compiled diagnostic executable omitted; source and historical receipt retained; no compilation performed",
+      "sha256": "541d23ed9748bffc9348d6605a488c45784e51d686e48ed137ae2f6edfa4da7b",
+      "size": 50632
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "api_calls": 0,
+  "process_launches": 0,
+  "binary_build_or_upload": false,
+  "hardware": "NOT RUN",
+  "expected_worker_generation": 11,
+  "files": {
+    "run_source_sensor_acceptance.py": "aadf14bfaeea7a23b62e173db36b72ec01ff26dc3d619a12dbd9d6836b41bbbf",
+    "source_api_common.py": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1",
+    "sensor_contract.py": "4fe3b09fe1a7cbe5b9efb7d56d61d1f509e6953fcf2e4c50362c2362d147301f",
+    "contract-origin.json": "33182952134dc796dbd7e3fff1add38b7256a4e27eea7ef33ce6fd7a3c784f20",
+    "README.md": "9c7a566c9e7c2ee1a28a9b55a8020f38b4fc794fe80301278f3d5d6aeafefa4c"
+  },
+  "cases": [
+    {
+      "case": "color",
+      "files": 15,
+      "http_json_body_bytes": 115292,
+      "changed_input_count": 2,
+      "negative_check_count": 4,
+      "source_cas_sha256": "46c93c2ced6d6e806047c4ed66663318d35099447ff8a44ff526df1bba0fe80b"
+    },
+    {
+      "case": "tof",
+      "files": 15,
+      "http_json_body_bytes": 115290,
+      "changed_input_count": 2,
+      "negative_check_count": 7,
+      "source_cas_sha256": "4a5f6f9cec93e88ea1547a2daa10ea5a70fe73952f034b273a5767f52e4b0166"
+    },
+    {
+      "case": "ncir",
+      "files": 15,
+      "http_json_body_bytes": 115291,
+      "changed_input_count": 2,
+      "negative_check_count": 3,
+      "source_cas_sha256": "661f828b5a07cd38d7b8d9ae2c018b97108e35e67912ae77bf62f4e0e8f9851c"
+    },
+    {
+      "case": "heart",
+      "files": 15,
+      "http_json_body_bytes": 115292,
+      "changed_input_count": 2,
+      "negative_check_count": 7,
+      "source_cas_sha256": "362dad5bd3253018a2c9e61e17b4e73c050b1b3a85b8a552f504b47442f1f38c"
+    },
+    {
+      "case": "tvoc",
+      "files": 15,
+      "http_json_body_bytes": 115291,
+      "changed_input_count": 2,
+      "negative_check_count": 7,
+      "source_cas_sha256": "cdc183820a3baa693d8b4ced598359e1fe8166c46ea38d1931f27e94c6e9fe5b"
+    },
+    {
+      "case": "ultrasonic-i2c",
+      "files": 15,
+      "http_json_body_bytes": 115301,
+      "changed_input_count": 2,
+      "negative_check_count": 3,
+      "source_cas_sha256": "7a661e03812074454d6aa7953615b162694c106ebaf152aa09b0ba692dc2f098"
+    },
+    {
+      "case": "thermal",
+      "files": 15,
+      "http_json_body_bytes": 115294,
+      "changed_input_count": 1,
+      "negative_check_count": 6,
+      "source_cas_sha256": "9f419c452d878656388f3f0fa729ff1165a86562f5cbfa05867185ab1db0c8f4"
+    }
+  ]
+}

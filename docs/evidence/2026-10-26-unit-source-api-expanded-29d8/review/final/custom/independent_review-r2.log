@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-10-26T04:23:03.417735+00:00",
+  "status": "PASS_CUSTOM_ONLY",
+  "findings": [],
+  "scope": "Independent offline replay of actual custom2 source/HTTP/guest/RMT-LEDC/browser/ZIP/cleanup bytes",
+  "run": ".work/unit-source-custom-io-20261026/live-custom2-r1",
+  "executed_harness_sha256": "6c756f17928399b29781c783d58d8934176297398c6e6b921f53033f056e4ec5",
+  "cases": [
+    {
+      "session_id": "2808eddd2c36437bb636fafc439e4a41",
+      "firmware_sha256": "9ce1293a98325f3761e0020eb14e35131f960dbd6f8409d6f3ad670ab3b02a72",
+      "source_cas_sha256": "4851d70cb840e40dfecb8b2f6b403d4287df6a3e40330975e7568169450cb1bf",
+      "driver_validation": "custom-only",
+      "original_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "derived_driver_sha256": "01d7fda4a59287c25a9a8dac398637898f08cce75579af296c1b0b1a714c6151",
+      "patch_sha256": "c86d272991a7e18a7cbeab966bb63dba8ba0ec261c51392e526cc480d637f9f8",
+      "independent_patch_forward_reverse": "PASS",
+      "other_source_file_count_unchanged": 16,
+      "raw_http_responses": 177,
+      "zip_http_index": 172,
+      "stop_http_index": 173,
+      "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "owned_pid": 6660,
+      "recorded_pid_exit": true,
+      "flash_retained": false,
+      "cleanup_active_sessions": 0,
+      "browser_running_snapshots": 9,
+      "browser_posts": 4,
+      "protocol": {
+        "status": "PASS",
+        "forced_normal_gc_before_first_rx": true,
+        "bounded_input_serial_windows": [
+          {
+            "input_event": 9,
+            "cursor_bytes": 448,
+            "suffix_bytes": 151,
+            "sha256": "c3034a07de9877c66105ba35032e2dff49154bbdec802c3c85fad3e8d22dac9c"
+          },
+          {
+            "input_event": 15,
+            "cursor_bytes": 599,
+            "suffix_bytes": 106,
+            "sha256": "9d5af0dfdbd41f9fb2816ea721143ad1527e9c42c3ede9ff41a4e6c7e0e15657"
+          },
+          {
+            "input_event": 18,
+            "cursor_bytes": 705,
+            "suffix_bytes": 74,
+            "sha256": "ca669dc88125e1d874bb6e8cb467cdb7bfa9501e05ec782a08104ba102ce4415"
+          },
+          {
+            "input_event": 21,
+            "cursor_bytes": 779,
+            "suffix_bytes": 74,
+            "sha256": "362ca47f26f63cc696050122687634e8341335502ad759e1163ac999b191e0e9"
+          }
+        ],
+        "real_browser_input_posts": 4,
+        "raw16_state_event": 8,
+        "native_packed_state_event": 14,
+        "bad_leader_consumed_state_event": 16,
+        "malformed_window_rx_callbacks": 0,
+        "malformed_window_heartbeat1_count": 2,
+        "repeat_preserves_address_command": true,
+        "receiver_rearmed": true,
+        "final_rmt_counters": {
+          "input-events": 4,
+          "output-transitions": 2
+        }
+      }
+    },
+    {
+      "session_id": "d208f7bdb00a44f390664221e24b7c05",
+      "firmware_sha256": "bdeb3f7397ecf2cdd42adeda0334256a66e54bb22024bd4e260effaf19b2aa40",
+      "source_cas_sha256": "4e2395b6c8dc1447964bf1156ecea24e0fe7939cf2a8832a7a77d4c813a4a85c",
+      "driver_validation": "custom-only",
+      "original_driver_sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "derived_driver_sha256": "330f8bad7d3b0176d02efe132a0ace203ce6d742395de274f21e42d623e9fe8c",
+      "patch_sha256": "9f22247a2fe74d3c587c2ca4ada7c7519087c0bfbea4a1b6811c2c96450616bd",
+      "independent_patch_forward_reverse": "PASS",
+      "other_source_file_count_unchanged": 16,
+      "raw_http_responses": 282,
+      "zip_http_index": 277,
+      "stop_http_index": 278,
+      "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "owned_pid": 6877,
+      "recorded_pid_exit": true,
+      "flash_retained": false,
+      "cleanup_active_sessions": 0,
+      "browser_running_snapshots": 12,
+      "browser_posts": 0,
+      "protocol": {
+        "before_http_index": 251,
+        "qom_http_index": 252,
+        "after_http_index": 253,
+        "before_at": "2026-10-26T04:16:38.290329+00:00",
+        "qom_at": "2026-10-26T04:16:38.739166+00:00",
+        "after_at": "2026-10-26T04:16:38.745481+00:00",
+        "serial_offset_derived_from_anchor": 440,
+        "before_serial_sha256": "f1c7958f2ddf0140307f5ce4b37c5d3ce2c23de5336b4c5e5ac8c4683bb76953",
+        "after_serial_sha256": "f1c7958f2ddf0140307f5ce4b37c5d3ce2c23de5336b4c5e5ac8c4683bb76953",
+        "actual_zero_qom": {
+          "frequency-hz": 2000,
+          "duty-pct": 0,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 12
+        },
+        "earlier_active_qom_http_index": 249,
+        "earlier_active_qom": {
+          "frequency-hz": 2000,
+          "duty-pct": 49.98779296875,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 11
+        },
+        "status": "PASS",
+        "first_timer_done_http_index": 261,
+        "host_input_posts": 0,
+        "source_once_duration_ms": 2000,
+        "source_timer_done_wait_ms": 3000,
+        "manual_final_zero_is_separate": true
+      }
+    }
+  ],
+  "original_driver_pass_claimed": false,
+  "hardware_validation": "NOT RUN",
+  "device_service_contacted_by_reviewer": false,
+  "limits": [
+    "Only the two exact custom source declarations and derived firmware SHAs were accepted.",
+    "The recorded direct PID/executable proof was captured during root live execution; exited processes cannot be rehashed by this offline review.",
+    "Web/frame and controller evidence is virtual-device evidence; physical optical/acoustic/electrical or RF behavior is outside scope."
+  ]
+}

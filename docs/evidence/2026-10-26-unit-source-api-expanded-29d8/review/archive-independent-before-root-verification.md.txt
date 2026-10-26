@@ -1,0 +1,11 @@
+# Expanded archive independent offline review
+
+Result: PASS for this frozen archive. No API, guest, network, assembly or archived checker was executed; original/archive bytes were not edited.
+
+- All 14,370 copied artifacts match their original source bytes, recorded SHA256 and sizes. The 26 Markdown transports retain bytes exactly. The 14,378-entry top-level checksum inventory verifies.
+- Original nested manifests verify 13,793 entries; four preserved MCP raw-response references match exact SHA-bound exclusions. No unexplained missing entry remains.
+- Fifty ZIP payload copies represent 25 unique session ZIPs; all 554 members were fully read with CRC validation, safe relative paths, no symlink/member duplication, and no native/firmware payload. All 239 disk/raw images plus 50 ZIP images fully decode.
+- Excluded private sources yielded three concrete identifier/endpoint strings; none appears in public payloads. Credential-pattern scan has zero hits. No symlinks or firmware/native executable files are present. This check covers this exact archive, not arbitrary future input safety.
+- Combined source-result identities were independently resolved from the two frozen archive trees, without .work inputs: 33 sessions, 30 functional PASS, one negative PASS, one REVIEW_REQUIRED and one FAIL. Original IR risk and Buzzer failure remain visible.
+
+Two static findings were fixed by the owner before freeze: 213 prior reviewer artifacts missing from fresh-assembly provenance, and count-audit dependence on original .work result paths. An earlier audit attempt was aborted during the owner's Markdown rename; no result was inferred. Final audit completed with an unchanged file inventory.

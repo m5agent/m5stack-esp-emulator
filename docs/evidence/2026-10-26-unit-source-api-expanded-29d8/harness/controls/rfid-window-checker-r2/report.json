@@ -1,0 +1,97 @@
+{
+  "status": "PASS",
+  "category": "SYNTHETIC_OFFLINE_CHECKER_REGRESSION",
+  "guest_executed": false,
+  "device_service_contacted": false,
+  "client_instantiated": false,
+  "binary_built": false,
+  "old_harness_sha256": "6fb282e9202a0e387b75aa28fc82fd485e1facbc557f3fd03a7273e788dbde19",
+  "new_harness_sha256": "c8b94c78cecce9eadd1be92a626014f903d92ea5d763dfc0621174baf30eceee",
+  "tests": [
+    {
+      "case": "complete-three-uid-phases",
+      "old": "ACCEPTED",
+      "new": "ACCEPTED"
+    },
+    {
+      "case": "middle-missing-0",
+      "missing_marker": "CONTROL_RFID_BAD_CRC 1",
+      "old": {
+        "accepted": true
+      },
+      "new": {
+        "accepted": false,
+        "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_BAD_CRC 1"
+      }
+    },
+    {
+      "case": "middle-missing-1",
+      "missing_marker": "CONTROL_RFID_BAD_KEY 1",
+      "old": {
+        "accepted": true
+      },
+      "new": {
+        "accepted": false,
+        "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_BAD_KEY 1"
+      }
+    },
+    {
+      "case": "middle-missing-2",
+      "missing_marker": "CONTROL_RFID_SECTOR_DENIED 1",
+      "old": {
+        "accepted": true
+      },
+      "new": {
+        "accepted": false,
+        "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_SECTOR_DENIED 1"
+      }
+    },
+    {
+      "case": "middle-missing-3",
+      "missing_marker": "CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40",
+      "old": {
+        "accepted": true
+      },
+      "new": {
+        "accepted": false,
+        "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40"
+      }
+    },
+    {
+      "case": "middle-missing-4",
+      "missing_marker": "CONTROL_RFID_HALT_DENIED 1",
+      "old": {
+        "accepted": true
+      },
+      "new": {
+        "accepted": false,
+        "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_HALT_DENIED 1"
+      }
+    },
+    {
+      "case": "middle-missing-5",
+      "missing_marker": "CONTROL_RFID_ANTENNA_OFF 1",
+      "old": {
+        "accepted": true
+      },
+      "new": {
+        "accepted": false,
+        "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_ANTENNA_OFF 1"
+      }
+    },
+    {
+      "case": "middle-uid-marker-missing",
+      "new": {
+        "accepted": false,
+        "error": "fresh RFID UID absent: 04010203040506"
+      }
+    },
+    {
+      "case": "middle-negatives-reordered",
+      "new": {
+        "accepted": false,
+        "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_SECTOR_DENIED 1"
+      }
+    }
+  ]
+}

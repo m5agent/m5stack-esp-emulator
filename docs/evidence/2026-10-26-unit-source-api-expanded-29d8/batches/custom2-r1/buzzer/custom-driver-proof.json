@@ -1,0 +1,16 @@
+{
+  "path": "patches/uiflow2-unit-buzzer/0001-accept-soft-timer-callback.patch",
+  "patch_sha256": "9f22247a2fe74d3c587c2ca4ada7c7519087c0bfbea4a1b6811c2c96450616bd",
+  "driver_path": "io_drivers/buzzer.py",
+  "original_driver_sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+  "patched_driver_sha256": "330f8bad7d3b0176d02efe132a0ace203ce6d742395de274f21e42d623e9fe8c",
+  "original_driver_unchanged": true,
+  "scope": "Explicit generated-copy custom wrapper; frozen firmware, native module and QEMU unchanged.",
+  "native_module_modified": false,
+  "frozen_modules_modified": false,
+  "controller_modified": false,
+  "reverse_patch_sha256": "0eeaaa203ae4e152d1251ce67c532fbe926c993a74098c0348822cc6ae44cd1b",
+  "restored_driver_sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+  "reversible_byte_exact": true,
+  "helper": "prepare_host_io.custom_driver + strict_patch (pure, no builder/process)"
+}

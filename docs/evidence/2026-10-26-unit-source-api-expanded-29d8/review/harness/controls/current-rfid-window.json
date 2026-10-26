@@ -1,0 +1,39 @@
+{
+  "harness_sha256": "c8b94c78cecce9eadd1be92a626014f903d92ea5d763dfc0621174baf30eceee",
+  "synthetic_checker_only": true,
+  "api_calls": 0,
+  "guest_execution": false,
+  "outcomes": {
+    "healthy": {
+      "accepted": true,
+      "replay": {
+        "status": "PASS",
+        "unit_id": "rfid2",
+        "required_markers": [
+          "CONTROL_PROBE_READY rfid2",
+          "SOURCE_CONTROL_GEOMETRY 320 240 1",
+          "SOURCE_CONTROL_LAYOUT 6 6 308 24 16 3 72 1",
+          "CONTROL_RFID_CRC_VECTOR 1 05bf",
+          "CONTROL_RFID_UID 04010203",
+          "CONTROL_RFID_BAD_CRC 1",
+          "CONTROL_RFID_BAD_KEY 1",
+          "CONTROL_RFID_SECTOR_DENIED 1",
+          "CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40",
+          "CONTROL_RFID_HALT_DENIED 1",
+          "CONTROL_RFID_ANTENNA_OFF 1",
+          "CONTROL_RFID_UID 04010203040506",
+          "CONTROL_RFID_UID 04010203040506070809",
+          "CONTROL_RFID_NO_CARD"
+        ],
+        "serial_bytes": 852,
+        "fresh_ui_input_steps": 4,
+        "display_flavor": "controls-probe-cores3-native-display-v1",
+        "physical_hardware": "NOT RUN"
+      }
+    },
+    "missing-first-two-negatives": {
+      "accepted": false,
+      "error": "RuntimeError: RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_BAD_CRC 1"
+    }
+  }
+}

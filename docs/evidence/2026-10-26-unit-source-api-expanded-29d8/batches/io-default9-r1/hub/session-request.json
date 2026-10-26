@@ -1,0 +1,47 @@
+{
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "firmware_id": "9151cc05a3e67d43329500edcdd17ad238b1b6c660079e79ca5ba68033573064",
+  "uiflow_source_sha256": "d291585f1e556d9f51100c2f108952f5a5e22a1734e5e440adad803787082771",
+  "ttl_seconds": 900,
+  "ready_marker": "IO_PROBE_READY",
+  "ready_timeout_seconds": 180,
+  "units": [
+    {
+      "id": "hub1",
+      "unit_id": "hub",
+      "port_id": "port-a"
+    },
+    {
+      "id": "env",
+      "unit_id": "env-iii",
+      "parent_id": "hub1",
+      "port_id": "grove-1",
+      "initial": {
+        "temperature-c": 25,
+        "humidity-pct": 50,
+        "pressure-pa": 101325
+      }
+    },
+    {
+      "id": "ncir",
+      "unit_id": "ncir",
+      "parent_id": "hub1",
+      "port_id": "grove-2",
+      "initial": {
+        "ambient-c": 25,
+        "object-c": 32
+      }
+    },
+    {
+      "id": "tvoc",
+      "unit_id": "tvoc",
+      "parent_id": "hub1",
+      "port_id": "grove-3",
+      "initial": {
+        "eco2-ppm": 800,
+        "tvoc-ppb": 40
+      }
+    }
+  ]
+}

@@ -1,0 +1,762 @@
+{
+  "case": "heart",
+  "unit_id": "heart",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "expected_worker_generation": 11,
+  "source_cas_sha256": "362dad5bd3253018a2c9e61e17b4e73c050b1b3a85b8a552f504b47442f1f38c",
+  "source_files": {
+    "boot.py": {
+      "size": 24,
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+    },
+    "main.py": {
+      "size": 246,
+      "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+    },
+    "probe_config.py": {
+      "size": 76,
+      "sha256": "886aa1ce729f5bf9ef8d6f974c69182aecfe1c51a56fe72262095194e88ba90e"
+    },
+    "probe_logging.py": {
+      "size": 338,
+      "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+    },
+    "sensor_drivers/__init__.py": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "sensor_drivers/heart.py": {
+      "size": 8964,
+      "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+    },
+    "sensor_drivers/mlx90614.py": {
+      "size": 1707,
+      "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+    },
+    "sensor_drivers/mlx90640.py": {
+      "size": 27980,
+      "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+    },
+    "sensor_drivers/pahub.py": {
+      "size": 3648,
+      "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+    },
+    "sensor_drivers/sgp30.py": {
+      "size": 11799,
+      "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+    },
+    "sensor_drivers/tcs3472.py": {
+      "size": 16886,
+      "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+    },
+    "sensor_drivers/ultrasonic_i2c.py": {
+      "size": 1024,
+      "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+    },
+    "sensor_drivers/unit_helper.py": {
+      "size": 129,
+      "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+    },
+    "sensor_drivers/vl53l0x.py": {
+      "size": 28248,
+      "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+    },
+    "sensor_probe.py": {
+      "size": 9139,
+      "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+    }
+  },
+  "http_json_body_bytes": 115292,
+  "ready_marker": "SENSOR_PROBE_READY heart",
+  "negative_checks": [
+    "heart_reset_self_clear",
+    "heart_fifo_initially_empty",
+    "heart_fifo_overflow",
+    "heart_fifo_four_byte_advance",
+    "heart_fifo_sample_order",
+    "heart_reset_clears_fifo",
+    "heart_shutdown_stops_sampling"
+  ],
+  "required_markers": [
+    "SENSOR_PROBE_READY heart",
+    "SENSOR_CHECK heart_reset_self_clear PASS",
+    "SENSOR_CHECK heart_fifo_initially_empty PASS",
+    "SENSOR_CHECK heart_fifo_overflow PASS",
+    "SENSOR_CHECK heart_fifo_four_byte_advance PASS",
+    "SENSOR_CHECK heart_fifo_sample_order PASS",
+    "SENSOR_CHECK heart_reset_clears_fifo PASS",
+    "SENSOR_CHECK heart_shutdown_stops_sampling PASS"
+  ],
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "heart",
+      "port_id": "port-a",
+      "initial": {
+        "ir-sample": 40000,
+        "red-sample": 35000
+      }
+    }
+  ],
+  "changes": [
+    {
+      "ir-sample": 41000,
+      "red-sample": 36000
+    },
+    {
+      "ir-sample": 12000,
+      "red-sample": 9000
+    }
+  ],
+  "expected_size": [
+    320,
+    240
+  ],
+  "started_at": "2026-10-26T03:55:24.405010+00:00",
+  "checks": {
+    "original_negative_markers_and_initial_reading": true,
+    "fresh_changes_real_i2c_samples_and_crc": true,
+    "native_png": true,
+    "zip_before_stop_source_guest_binding": true,
+    "history_pid_flash_and_idle": true,
+    "real_product_dom_and_http_match": true
+  },
+  "steps": [
+    {
+      "phase": 1,
+      "values": {
+        "ir-sample": 41000,
+        "red-sample": 36000
+      },
+      "initial_cursor": 848,
+      "final_cursor": 873,
+      "fresh_serial_sha256": "6eb9df60391041a3e5deed3aadcfbaf080a5949ccd68bb7f902d6b77a45fbcf4",
+      "reading": true,
+      "state_file": "01/after-units.json",
+      "directory": "steps/01"
+    },
+    {
+      "phase": 2,
+      "values": {
+        "ir-sample": 12000,
+        "red-sample": 9000
+      },
+      "initial_cursor": 957,
+      "final_cursor": 1005,
+      "fresh_serial_sha256": "edbccf8335d457e18fcd5bb5c82a80dcd894a460e1794e8c67739b867319c9a8",
+      "reading": true,
+      "state_file": "02/after-units.json",
+      "directory": "steps/02"
+    }
+  ],
+  "injections": [
+    {
+      "sequence": 1,
+      "values": {
+        "ir-sample": 41000,
+        "red-sample": 36000
+      },
+      "guest_observed": true
+    },
+    {
+      "sequence": 2,
+      "values": {
+        "ir-sample": 12000,
+        "red-sample": 9000
+      },
+      "guest_observed": true
+    }
+  ],
+  "hardware_validation": "NOT RUN",
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "362dad5bd3253018a2c9e61e17b4e73c050b1b3a85b8a552f504b47442f1f38c",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_size": 16121856,
+      "flash_size": 16777216,
+      "source_sha256": "362dad5bd3253018a2c9e61e17b4e73c050b1b3a85b8a552f504b47442f1f38c",
+      "effective_source_sha256": "362dad5bd3253018a2c9e61e17b4e73c050b1b3a85b8a552f504b47442f1f38c",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_config.py",
+          "size": 76,
+          "sha256": "886aa1ce729f5bf9ef8d6f974c69182aecfe1c51a56fe72262095194e88ba90e",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_logging.py",
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/__init__.py",
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/heart.py",
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/mlx90614.py",
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/mlx90640.py",
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/pahub.py",
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/sgp30.py",
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/tcs3472.py",
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/ultrasonic_i2c.py",
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/unit_helper.py",
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/vl53l0x.py",
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_probe.py",
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 15,
+      "caller_source_bytes": 110208,
+      "generated_files": [],
+      "firmware_sha256": "e945d807cc26d19ea22f1009e1cf17fe254bfe53d60a7d8d5b6a655aac43c141",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 11141120,
+        "size": 4980736,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+        "derived_sha256": "a3931aeecf5e2fb6252e3bb40c72250d9a1ad1ccb3d3bbc27a7f65436b9b786b",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "firmware_sha256": "e945d807cc26d19ea22f1009e1cf17fe254bfe53d60a7d8d5b6a655aac43c141",
+  "firmware_id": "e945d807cc26d19ea22f1009e1cf17fe254bfe53d60a7d8d5b6a655aac43c141",
+  "session_id": "47c3e38d960a4953968032686631a1bb",
+  "runtime_provenance": {
+    "session_id": "47c3e38d960a4953968032686631a1bb",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 99409,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 11,
+    "firmware_sha256": "e945d807cc26d19ea22f1009e1cf17fe254bfe53d60a7d8d5b6a655aac43c141",
+    "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+  },
+  "initial_reading": true,
+  "unit_state": {
+    "session_id": "47c3e38d960a4953968032686631a1bb",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-26T03:55:55.691486+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "heart",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {
+          "ir-sample": 40000,
+          "red-sample": 35000
+        },
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "ir-sample": 12000,
+          "red-sample": 9000,
+          "transactions": 945,
+          "read-bytes": 1793,
+          "written-bytes": 487,
+          "input-events": 6,
+          "output-transitions": 0,
+          "samples-generated": 289,
+          "crc-errors": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "heart",
+        "name": "Heart Rate",
+        "sku": "U029",
+        "visual_asset": {
+          "entry": "src/units/heart/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/heart",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "MAX30100",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "i2c",
+          "connector": "HY2.0-4P",
+          "address_7bit": [
+            87
+          ],
+          "pins": {
+            "yellow": {
+              "signal": "SDA",
+              "direction": "bidirectional"
+            },
+            "white": {
+              "signal": "SCL",
+              "direction": "bidirectional"
+            },
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+          "registers": [
+            {
+              "interrupt_status": "0x00",
+              "interrupt_enable": "0x01",
+              "fifo_write": "0x02",
+              "fifo_overflow": "0x03",
+              "fifo_read": "0x04",
+              "fifo_data": "0x05",
+              "mode": "0x06",
+              "spo2_config": "0x07",
+              "led_config": "0x09",
+              "temperature": "0x16/0x17",
+              "revision": "0xFE",
+              "part_id": "0xFF",
+              "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+            }
+          ],
+          "gaps": [
+            "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+            "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+          ]
+        },
+        "inputs": {
+          "ir-sample": {
+            "type": "integer",
+            "label": "红外样本",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "raw16",
+            "minimum": 0,
+            "maximum": 65535,
+            "readOnly": false
+          },
+          "red-sample": {
+            "type": "integer",
+            "label": "红光样本",
+            "default": 0,
+            "default_source": "synthetic-test-fixture",
+            "unit": "raw16",
+            "minimum": 0,
+            "maximum": 65535,
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/heart",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+            "checked_at": "2026-10-26",
+            "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+            "claims": [
+              "MAX30100 native driver and FIFO/register behavior"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+            "checked_at": "2026-10-26",
+            "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+            "claims": [
+              "MAX30100 native driver and FIFO/register behavior"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+            "checked_at": "2026-10-26",
+            "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+            "claims": [
+              "MAX30100 native driver and FIFO/register behavior"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation. Intermittent zero raw samples remain OPEN (UNIT-HOST-19); no BPM or SpO2 validation is claimed.",
+          "inputs": {
+            "ir-sample": {
+              "property": "ir-sample"
+            },
+            "red-sample": {
+              "property": "red-sample"
+            }
+          },
+          "state": {
+            "ir-sample": {
+              "property": "ir-sample"
+            },
+            "red-sample": {
+              "property": "red-sample"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "samples-generated": {
+              "property": "samples-generated",
+              "path": "/chip"
+            },
+            "crc-errors": {
+              "property": "crc-errors",
+              "path": "/chip"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/report.json",
+            "report_sha256": "6529f012a4b59b16d32b09d2e8126cbeb80bc0a8020304918975b1f7d495560f",
+            "evidence_sha256": "69dce7487e18d126df94fc7b3a0b5195c82f9d957849e2beff2d486be7381046",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 7,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "PASS",
+              "device_id": "atoms3r",
+              "unit_id": "heart",
+              "runtime": "qemu",
+              "session_id": "2a144b995ca94deabfe1142fbd54648a",
+              "firmware_sha256": "0ccaf22cc877898eba3961029ff8cbbb6c2e55634a8ba5b24c6d7da01aee7cd7",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "0c38ab1e45a6fb2a3dcaeba4887147398e26afa3318152a19ea9205f334467c6",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/heart/report.json",
+              "report_sha256": "7dd264246bf818e6d1012793ca496cb8cd9ccdfae3a219a6ef3390c8ca93ce8e",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/heart/normalization-receipt.json",
+              "normalization_receipt_sha256": "20584df34a0bac9b4711d7c006dbac46c8a539e22d24eab4b4c65d7d83b048f8",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+              "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+            },
+            "sticks3": {
+              "status": "PASS",
+              "device_id": "sticks3",
+              "unit_id": "heart",
+              "runtime": "qemu",
+              "session_id": "5e26bd2d3817441c909f42aebc0a0f79",
+              "firmware_sha256": "b87b5abc3577fdecfb3c222a02fc50d9173d79611af312e10024c0e216330099",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "92b0961ba8a041406f580094e3a47f7e32118cb9f19af2833b73ab041e5e07a6",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/report.json",
+              "report_sha256": "9ae36472c56c514644809add94d6e049f410c01877cebe681b1ff094e5ef2415",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/normalization-receipt.json",
+              "normalization_receipt_sha256": "d212d3269812329508ea9bd194862dd8950a0b6098bab4432e52bfecfed83363",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+              "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+            },
+            "stopwatch": {
+              "status": "PASS",
+              "device_id": "stopwatch",
+              "unit_id": "heart",
+              "runtime": "qemu",
+              "session_id": "3065da80a06f4425aa684da2d8eb3d1a",
+              "firmware_sha256": "2bbacb5879ebd36d6bc97171b88108bcc8c988b90f2c676b9a8dd6c63ffa942b",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "e489ef7df3e0e10fb3ed769f34f11817fe55bf687d227fe762c54233045f501a",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/report.json",
+              "report_sha256": "d4d5449d1fab8b6e6039f8950c76047db3b942f5419522b6e9610d4d822e4939",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/normalization-receipt.json",
+              "normalization_receipt_sha256": "1d20d7bc123a9ef7e5f2ee8be37da3c909a3f51d8987e38e590b83a84cfb7d32",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+              "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+            }
+          }
+        },
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation. Intermittent zero raw samples remain OPEN (UNIT-HOST-19); no BPM or SpO2 validation is claimed.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+    },
+    "contract_status": "frozen"
+  },
+  "controller_counters": {
+    "transactions": 947,
+    "read-bytes": 1801,
+    "written-bytes": 490,
+    "samples-generated": 291,
+    "crc-errors": 0
+  },
+  "evidence_sha256": "5ed2d8307b128a29a80c5f1f724859b693f9052b162078b54fdcf4033ac912ac",
+  "evidence_summary": {
+    "files": [
+      "firmware/uiflow-source.json",
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "png_bytes": 1817,
+      "source": "live",
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    },
+    "session_id": "47c3e38d960a4953968032686631a1bb"
+  },
+  "cleanup": {
+    "owned_pid": 99409,
+    "pid_gone": true,
+    "flash_retained": false,
+    "health_active_sessions": 0
+  },
+  "browser": {
+    "snapshots": 7,
+    "posts": 4,
+    "actions": 4
+  },
+  "finished_at": "2026-10-26T03:55:56.882531+00:00"
+}

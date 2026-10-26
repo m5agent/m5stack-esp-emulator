@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "unit_id": "ir",
+      "session_id": "2808eddd2c36437bb636fafc439e4a41",
+      "status": "PASS",
+      "firmware_flavor": "custom-guest-ir-callback-root-patch",
+      "driver_validation": "custom-only",
+      "trace": {
+        "events": 26,
+        "accepted_inputs": 4,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "ir",
+        "accepted_inputs": 4,
+        "forced_normal_gc": true,
+        "raw16_wrapper_and_native_packed_tx_separate": true
+      }
+    },
+    {
+      "unit_id": "buzzer",
+      "session_id": "d208f7bdb00a44f390664221e24b7c05",
+      "status": "PASS",
+      "firmware_flavor": "custom-guest-buzzer-callback-arity-patch",
+      "driver_validation": "custom-only",
+      "trace": {
+        "events": 26,
+        "accepted_inputs": 0,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "buzzer",
+        "accepted_inputs": 0,
+        "natural_timer_zero": {
+          "status": "PASS",
+          "before_http_index": 240,
+          "qom_http_index": 252,
+          "after_http_index": 253,
+          "frequency_hz": 2000,
+          "duty_pct": 0,
+          "before_timer_done_and_manual_output": true
+        },
+        "output_transitions": 14
+      }
+    }
+  ],
+  "scope": "Explicit custom IR/Buzzer caller copies only; original IO assertions + source API/PID/browser/QOM/ZIP/cleanup; original-driver and hardware PASS NOT CLAIMED"
+}

@@ -1,0 +1,20 @@
+{
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "firmware_id": "b352dc9d169e48e247c23d4c524e05c017a34d47da60d08ef0cab4753ab65f2d",
+  "uiflow_source_sha256": "661f828b5a07cd38d7b8d9ae2c018b97108e35e67912ae77bf62f4e0e8f9851c",
+  "ttl_seconds": 900,
+  "ready_marker": "SENSOR_PROBE_READY ncir",
+  "ready_timeout_seconds": 240,
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "ncir",
+      "port_id": "port-a",
+      "initial": {
+        "ambient-c": 25,
+        "object-c": 32
+      }
+    }
+  ]
+}

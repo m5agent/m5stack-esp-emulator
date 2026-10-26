@@ -1,0 +1,141 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "unit_id": "pir",
+      "session_id": "bd2fb8014ea649be97912beb6195cfe5",
+      "status": "PASS",
+      "trace": {
+        "events": 25,
+        "accepted_inputs": 6,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "pir",
+        "accepted_inputs": 6
+      }
+    },
+    {
+      "unit_id": "dual-button",
+      "session_id": "49fddfa0764e491db4b17b9eb92e88bf",
+      "status": "PASS",
+      "trace": {
+        "events": 16,
+        "accepted_inputs": 4,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "dual-button",
+        "accepted_inputs": 4
+      }
+    },
+    {
+      "unit_id": "limit",
+      "session_id": "bc2701a1b36d426e85735dab681cb151",
+      "status": "PASS",
+      "trace": {
+        "events": 20,
+        "accepted_inputs": 4,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "limit",
+        "accepted_inputs": 4
+      }
+    },
+    {
+      "unit_id": "key",
+      "session_id": "ad52742c7f834ee8a5396e6373032e7e",
+      "status": "PASS",
+      "trace": {
+        "events": 13,
+        "accepted_inputs": 2,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "key",
+        "accepted_inputs": 2
+      }
+    },
+    {
+      "unit_id": "angle",
+      "session_id": "74f9cf8cb7b4432a812afffbe59718af",
+      "status": "PASS",
+      "trace": {
+        "events": 11,
+        "accepted_inputs": 3,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "angle",
+        "accepted_inputs": 3
+      }
+    },
+    {
+      "unit_id": "light",
+      "session_id": "34c790b0f7d44a9f876e98437d2fb092",
+      "status": "PASS",
+      "trace": {
+        "events": 11,
+        "accepted_inputs": 3,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "light",
+        "accepted_inputs": 3
+      }
+    },
+    {
+      "unit_id": "fan",
+      "session_id": "c42b17795d594c9091e66009a5b52e1e",
+      "status": "PASS",
+      "trace": {
+        "events": 14,
+        "accepted_inputs": 0,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "fan",
+        "accepted_inputs": 0
+      }
+    },
+    {
+      "unit_id": "rs485",
+      "session_id": "272a8f85f3134087a473bda7a80650fd",
+      "status": "PASS",
+      "trace": {
+        "events": 15,
+        "accepted_inputs": 1,
+        "rejected_inputs": 1
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "rs485",
+        "accepted_inputs": 1
+      }
+    },
+    {
+      "unit_id": "hub",
+      "session_id": "1b719fba3e5f4eae8faf06e625b8b8c1",
+      "status": "PASS",
+      "trace": {
+        "events": 16,
+        "accepted_inputs": 3,
+        "rejected_inputs": 0
+      },
+      "semantic": {
+        "status": "PASS",
+        "unit_id": "hub",
+        "accepted_inputs": 3
+      }
+    }
+  ],
+  "scope": "Original IO predicates + source API/PID/browser/QOM/evidence/cleanup; hardware NOT RUN"
+}

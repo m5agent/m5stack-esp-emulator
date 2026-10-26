@@ -1,0 +1,390 @@
+{
+  "session_id": "55da4d11a5484e8eba99ecd07a7b1e9b",
+  "state": "running",
+  "source": "live",
+  "captured_at": "2026-10-26T03:54:19.234020+00:00",
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "color",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "clear-raw": 55000,
+        "red-raw": 12000,
+        "green-raw": 8000,
+        "blue-raw": 4000
+      },
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "clear-raw": 53000,
+        "red-raw": 21000,
+        "green-raw": 12000,
+        "blue-raw": 6000,
+        "transactions": 222,
+        "read-bytes": 184,
+        "written-bytes": 119,
+        "input-events": 12,
+        "output-transitions": 0,
+        "samples-generated": 14,
+        "crc-errors": 0
+      },
+      "errors": {}
+    }
+  ],
+  "definitions": [
+    {
+      "id": "color",
+      "name": "Color",
+      "sku": "U009",
+      "visual_asset": {
+        "entry": "src/units/color/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/color",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "TCS3472 family (schematic TCS34725FN)",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          41
+        ],
+        "pins": {
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          },
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "I2C register command bit 0x80; enable/power, integration time and gain precede little-endian 16-bit clear/red/green/blue readings. Raw channel values are the injection contract; lux or color-temperature conversion is performed by the guest driver.",
+        "registers": [
+          {
+            "command_bit": "0x80",
+            "enable": "0x00",
+            "integration_time": "0x01",
+            "gain": "0x0F",
+            "identity": "0x12; driver accepts 0x4D/0x44/0x10",
+            "status": "0x13",
+            "channels": "C=0x14,R=0x16,G=0x18,B=0x1A; little-endian 16-bit"
+          }
+        ],
+        "gaps": []
+      },
+      "inputs": {
+        "clear-raw": {
+          "type": "integer",
+          "label": "透明通道",
+          "default": 1000,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        },
+        "red-raw": {
+          "type": "integer",
+          "label": "红通道",
+          "default": 400,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        },
+        "green-raw": {
+          "type": "integer",
+          "label": "绿通道",
+          "default": 300,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        },
+        "blue-raw": {
+          "type": "integer",
+          "label": "蓝通道",
+          "default": 200,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/color",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/color.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "89d9e703e6bc3ae551471ff4e50d6dbf548b17c0fb46e7b5e5f316050fbe61e5"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/tcs3472.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/TCS3472_en.pdf",
+          "checked_at": "2026-10-26",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/707/U009-UNIT_COLOR-SCHE.pdf",
+          "checked_at": "2026-10-26",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+        "inputs": {
+          "clear-raw": {
+            "property": "clear-raw"
+          },
+          "red-raw": {
+            "property": "red-raw"
+          },
+          "green-raw": {
+            "property": "green-raw"
+          },
+          "blue-raw": {
+            "property": "blue-raw"
+          }
+        },
+        "state": {
+          "clear-raw": {
+            "property": "clear-raw"
+          },
+          "red-raw": {
+            "property": "red-raw"
+          },
+          "green-raw": {
+            "property": "green-raw"
+          },
+          "blue-raw": {
+            "property": "blue-raw"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          },
+          "samples-generated": {
+            "property": "samples-generated",
+            "path": "/chip"
+          },
+          "crc-errors": {
+            "property": "crc-errors",
+            "path": "/chip"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "1d3e045a9ffa3eef5aac537c354329be3549d88ee92cac6092d0ca3739f46c82",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/color/report.json",
+          "report_sha256": "5185ff4642e9cb4443a4576e58206a5b52b10573bba79895d12b381a33c7cd9a",
+          "evidence_sha256": "94e67034f75420299f7004c8dae3d82d9e3773f350ca86b28bc6b366301ff4ab",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 7,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "PASS",
+            "device_id": "atoms3r",
+            "unit_id": "color",
+            "runtime": "qemu",
+            "session_id": "0b56216ae1f1440ab8f554066c08e934",
+            "firmware_sha256": "dc3b146f119138c797b4f3da01945b8ab652f925783bb77dc956abc52468f729",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "19799835cd84cddb3e9518b9c20459ae3b4cb45bb161b89266ab18126c805d4f",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/color/report.json",
+            "report_sha256": "28e99c9e81e80237b862efd1d3beb18033b99fb04ce89c5eb9822484d5ad8fe2",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/color/normalization-receipt.json",
+            "normalization_receipt_sha256": "bd32cb5524c074f53dcf48c9fec6baf6405272cc87b877e77075e4f164fa9cdc",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+            "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+          },
+          "sticks3": {
+            "status": "PASS",
+            "device_id": "sticks3",
+            "unit_id": "color",
+            "runtime": "qemu",
+            "session_id": "909a83ebceaf48c8a898c537436a6c73",
+            "firmware_sha256": "2ba889c3b0b89daee22c38cd7626a3e7080330569d24251f11364e5ec3997c78",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "64f3c7327d043a1575242866c6984e98338e3e1cdd1d0fac481ff175f34c323d",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/color/report.json",
+            "report_sha256": "1f4dfdb88f9cdf0bb5a0951a8b6412c079316a7ed557f4a087f29329e147e401",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/color/normalization-receipt.json",
+            "normalization_receipt_sha256": "6037e602425b9efc2e5d69bbf275ecf76b9c6b0168b6168e03f8f7c414dd0cee",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+            "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+          },
+          "stopwatch": {
+            "status": "PASS",
+            "device_id": "stopwatch",
+            "unit_id": "color",
+            "runtime": "qemu",
+            "session_id": "68fc639e0623474b8a9d7b87831ed9fb",
+            "firmware_sha256": "9edcdd679c3f7ef7249d97265cf5e897a42372888dc5b089aa999714a3fd7fd1",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "2ebdedb8f19718ec46cf55609262b18c76e3f1ed16c930bbfe58ff07efc808d1",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/color/report.json",
+            "report_sha256": "a764a10211a2eb12b8e8848002feef37a29e7f5580b38b40f7c1878c3a0731a5",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/color/normalization-receipt.json",
+            "normalization_receipt_sha256": "07bef5ffc94eb1a68bafaff162d87615f5b76e467453853ee8557802d162805c",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+            "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+          }
+        }
+      },
+      "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+      }
+    }
+  ],
+  "contract_hashes": {
+    "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+  },
+  "contract_status": "frozen"
+}

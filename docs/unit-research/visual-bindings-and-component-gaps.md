@@ -19,8 +19,8 @@ paths, kinds and metadata for every loaded Unit.
 | --- | --- | --- |
 | Joystick v1.1 U024-C / button raw | Official `JoystickUnit.get_button_status()` returns `bool(buffer[2])`. Product protocol returns byte 2 as BTN STATUS, 0/1. The v1.1 schematic labels ADIN0/1/2, not the switch's active state. | Neither reviewed v1.1 product text nor API text explicitly assigns 0/1 to physical pressed/released. A Joystick2 result explicitly says True means pressed, but that is a different SKU/protocol and is excluded. |
 | Joystick / X and Y | Driver's raw bytes and centered values are confirmed. The model has `tilt-x`/`tilt-y` joints with viewer-only ±20° ranges. | Raw axis to geometric rotation axis, sign, mechanical range and calibrated angle remain unconfirmed. |
-| RGB U003 / LED array | [Official schematic](https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf) gives DI → LED3 → LED2 → LED1. The visual model places `led0/1/2` at X = -6.5/0/6.5 mm. | No reviewed PCB placement/refdes evidence connects those electrical devices to the three visual positions. A numerical array index alone does not close it. |
-| Encoder U135 / LED array | The official protocol's index 0 sets both LEDs; index 1/2 sets a single LED. Official schematic search confirms PA0 → LED1 → LED2. The model has `led0/1` at left/right. | LED1/LED2 to the two model locations needs PCB placement/refdes evidence. |
+| RGB U003 / LED array | [Official schematic](https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf) confirms the LED3 → LED2 → LED1 cascade. The frozen visual model places `led0/1/2` at X = -6.5/0/6.5 mm. | The 2026-10-26 official-source follow-up still has no oriented PCB placement/refdes evidence connecting LED1/2/3 to the three visual positions. All electrical-to-visual mappings remain `OPEN`/`null`; schematic symbol positions and numerical array IDs do not close them. |
+| Encoder U135 / LED array | The official protocol's index 0 sets both LEDs; index 1/2 sets a single LED. Official schematic confirms PA0 → LED1 → LED2. The official bare-PCB photo shows two LEDs beside Grove, without readable LED1/LED2 refdes. | LED1/LED2 and protocol index 1/2 to either physical side or model `led0/1` remain `OPEN`/`null`. The photo's qualitative placement observation does not establish electrical left/right order. |
 | 8Encoder U153 / nine RGBs | [Official schematic](https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/607/SCH_UNIT_8Encoder_V1.01.pdf) confirms PB0 → U1 → … → U9. Official MCP explicitly records physical_mapping as unspecified. Vendor `rgb-1`…`rgb-9` metadata says physical locations are not schematic chain order. | U1…U9 to eight channel light pipes and the switch pipe remains unconfirmed. |
 | 8Encoder / slide switch | Official driver returns bool(register 0x60); schematic shows SW_K9 with R11 10K pull-up and SW9 to ground. The model has stable detents 0/1 along X. | Schematic search explicitly records position_truth_table as unspecified. Left/right detent to high/low or logical on/off cannot be inferred from the symbol. |
 | Encoder / counters | Real guest signed counter reads, resets and LED writes are validated separately. | Counts per physical revolution, direction and zero offset remain uncalibrated. |
@@ -28,6 +28,28 @@ paths, kinds and metadata for every loaded Unit.
 Explicit evidence-bearing bindings can enable these geometric conversions.
 No such defaults are installed. Numeric sliders and raw fields remain usable
 through the real controller path while these mechanical bindings are open.
+
+The 2026-10-26 U003/U135 documentary follow-up is preserved in the
+[expanded source-API archive](../evidence/2026-10-26-unit-source-api-expanded-29d8/README.md):
+[research report](../evidence/2026-10-26-unit-source-api-expanded-29d8/research/led-placement/report.md.txt),
+[structured conclusions](../evidence/2026-10-26-unit-source-api-expanded-29d8/research/led-placement/findings.json)
+and [public source index](../evidence/2026-10-26-unit-source-api-expanded-29d8/research/led-placement/source-index.json).
+It inspected 32 public official sources and passed 152 offline artifact,
+hash, redaction and unresolved-mapping checks; these are documentary checks,
+not new guest or hardware tests. The inspected M5_Hardware SKU directories
+contain only one structural STL each. Product photos, drawings and the
+reviewed driver/firmware repositories supply no readable, oriented LED
+refdes-to-placement evidence. Missing-documentation feedback for both SKUs
+was accepted through the official MCP under the `m5stack-assistant` workflow;
+that acknowledgement supplies no mapping and closes no gap.
+
+For the U135 photo comparison, the Unit-local view is from +Z with +Y upward
+and the main Grove downward. The official `encoder_03.webp` places both LED
+packages beside Grove at the connector end. The unchanged frozen source
+places `led0/1` at `[-7.5,7,5.9]` / `[7.5,7,5.9]`, on the knob's Y=+7 row,
+while main Grove is `[0,-15.65,0]`. This is a qualitative follow-up clue,
+not a measured correction, board-revision match or LED1/LED2 identification.
+No vendor, adapter, geometry or current functional conclusion changed.
 
 ## Feedback implemented without guessing physical placement
 
@@ -74,7 +96,15 @@ observed drive level; contact motion still needs its own electromechanical
 model. Buzzer now has a user-enabled, band-limited PWM audition driven by live
 guest-QOM frequency/duty; a separately hashed custom diagnostic firmware has
 actual browser evidence. Short polling-window pulses, physical acoustics and
-initial GPIO-route/QOM refresh remain explicit boundaries. Geometric binding coverage above is unchanged;
+initial GPIO-route/QOM refresh remain explicit boundaries. A separate
+[offline actual-C ordering diagnostic](../evidence/2026-10-26-unit-source-api-expanded-29d8/host-pwm-route/receipt.json)
+reads 0 Hz immediately after the GPIO route write, then 2000 Hz after replaying
+the identical LEDC observer call, with duty remaining zero. This reproduces
+the stale endpoint ordering in extracted host C fragments; it is neither a
+guest MMIO trace nor a runtime repair. The existing
+[`UNIT-HOST-20`](../unit-integration-host-issues.md) stays `OPEN`, and the
+original initialization path still needs a separate same-firmware runtime
+check after any model change. Geometric binding coverage above is unchanged;
 readout coverage and actual guest evidence are separate validation layers.
 
 The scoped CoreS3 direct-HUB layout now separates full-size ENV III/ToF/Color

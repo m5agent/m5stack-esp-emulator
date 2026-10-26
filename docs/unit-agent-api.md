@@ -3,11 +3,11 @@
 日期：`2026-10-26`。API 契约：`1.35.0`。
 
 本页给出 Python 源码 → 派生 UIFlow2 固件 → 可见 Device Service session →
-Unit 输入/guest 读取/画面 → evidence 的最短流程。下面逐字源码已在两个独立
-CoreS3 可见 session 实际通过：Button，以及 HUB + ENV III + NCIR。另有
-Button/Relay/ENV III/RGB/Encoder 五例源码 API 批次通过；范围与原始输入见
-[本轮证据](evidence/2026-10-26-unit-source-api-29d8/README.md)。这不继承为
-其它主机或任意代码的 PASS。当前能力、未完成
+Unit 输入/guest 读取/画面 → evidence 的最短流程。CoreS3 已有选定的
+27 种 Unit 源码场景：25 种原驱动、IR/Buzzer 两种显式 custom 驱动。
+下方给出可直接重放的源码 JSON；它们来自多批独立会话，不是原版 27 项
+单次全绿运行。下面逐字 Button 与 HUB + ENV III + NCIR 示例也已独立运行。
+这不继承为其它主机或任意代码的 PASS。当前能力、未完成
 门禁和日期化结果分别见[项目当前状态](project-status.md)、
 [项目 Backlog](project-backlog.md)、[验证台账](validation-ledger.md)。
 完整对象、错误码和安全约束见[API](device-service-api.md)与
@@ -312,9 +312,105 @@ while True:
 占用同一个 slot 或未建模的并联 GPIO drive 均应拒绝。不要把 Button 和这些
 I2C leaf 并接到同一被动 HUB。
 
+## 已验证的 27 种源码场景
+
+以下每个链接都是仓内冻结的 `source-request.json`，包含 caller Python 文件，
+可提交到 `POST /firmware/uiflow`。同目录 `prepared.json` 保存主机、
+`ready_marker`、`attachments` 和初始 fixture。附件必须整体保留：例如 Thermal
+依赖明确的 raw fixture，不能删掉 `initial` 后把该场景仍称为功能验收。
+旧 `session-request.json` 的 `firmware_id` 只属于历史执行；重放必须使用
+**本次 compose 响应**的 `firmware_id` 与 source pin。
+
+| Unit / 场景 | 冻结源码请求 | 本次选定路径 |
+| --- | --- | --- |
+| Button | [JSON](evidence/2026-10-26-unit-source-api-29d8/batches/five-r1/button/source-request.json) | 原驱动 |
+| Relay | [JSON](evidence/2026-10-26-unit-source-api-29d8/batches/five-r1/relay/source-request.json) | 原驱动 |
+| ENV III | [JSON](evidence/2026-10-26-unit-source-api-29d8/batches/five-r1/env-iii/source-request.json) | 原驱动 |
+| RGB | [JSON](evidence/2026-10-26-unit-source-api-29d8/batches/five-r1/rgb/source-request.json) | 原驱动；含短帧负控 |
+| Encoder | [JSON](evidence/2026-10-26-unit-source-api-29d8/batches/five-r1/encoder/source-request.json) | 原驱动 |
+| Color | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/sensors-r1/color/source-request.json) | 原驱动 |
+| ToF | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/sensors-r1/tof/source-request.json) | 原驱动 |
+| NCIR | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/sensors-r1/ncir/source-request.json) | 原驱动 |
+| Heart | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/sensors-r1/heart/source-request.json) | 原驱动；raw IR/red/FIFO |
+| TVOC | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/sensors-r1/tvoc/source-request.json) | 原驱动 |
+| Ultrasonic-I2C | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/sensors-r1/ultrasonic-i2c/source-request.json) | 原驱动 |
+| Thermal | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/sensors-r1/thermal/source-request.json) | 原驱动；显式 raw fixture |
+| PIR | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/pir/source-request.json) | 原驱动 |
+| Dual Button | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/dual-button/source-request.json) | 原驱动 |
+| LIMIT | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/limit/source-request.json) | 原驱动 |
+| Key | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/key/source-request.json) | 原驱动 |
+| Angle | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/angle/source-request.json) | 原驱动 |
+| Light | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/light/source-request.json) | 原驱动 |
+| Fan | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/fan/source-request.json) | 原驱动；三阶段控制器，动画限 100% duty 观测段 |
+| RS485 | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/rs485/source-request.json) | 原驱动 |
+| HUB + ENV III + NCIR + TVOC | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/io-default9-r1/hub/source-request.json) | 被动 HUB、三个独立 I2C leaf |
+| Joystick v1.1 | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/controls-v2-r1/joystick-v11/source-request.json) | 原驱动；display-only 调整 |
+| 8Encoder | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/controls-v2-r1/8encoder/source-request.json) | 原驱动；display-only 调整 |
+| CardKB | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/controls-v2-r1/cardkb/source-request.json) | 原驱动；display-only 调整 |
+| RFID2 | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/controls-v2-r1/rfid2/source-request.json) | 原驱动；display-only 调整 |
+| IR | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/custom2-r1/ir/source-request.json) | 显式 custom callback-root |
+| Buzzer | [JSON](evidence/2026-10-26-unit-source-api-expanded-29d8/batches/custom2-r1/buzzer/source-request.json) | 显式 custom callback-arity |
+
+例如，在仓库中选 Color 场景，沿用第 1 步的环境变量和输出目录：
+
+```bash
+M5_REPO_ROOT=$(git rev-parse --show-toplevel)
+M5_CASE_DIR="$M5_REPO_ROOT/docs/evidence/2026-10-26-unit-source-api-expanded-29d8/batches/sensors-r1/color"
+curl -fsS -X POST "$M5_API/firmware/uiflow" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$M5_CASE_DIR/source-request.json" \
+  -o "$M5_AGENT_DIR/firmware.json"
+python3 - "$M5_CASE_DIR" "$M5_AGENT_DIR" <<'PY'
+import json
+from pathlib import Path
+import sys
+case, output = map(Path, sys.argv[1:])
+prepared = json.loads((case / "prepared.json").read_text(encoding="utf-8"))
+firmware = json.loads((output / "firmware.json").read_text(encoding="utf-8"))
+source = firmware["source"]
+assert firmware["kind"] == source["kind"] == "uiflow"
+assert source["artifact_id"] == source["metadata"]["source_sha256"]
+assert source["metadata"]["source_sha256"] == prepared["source_cas_sha256"]
+request = {
+    "device_id": prepared["device_id"], "runtime": prepared["runtime"],
+    "firmware_id": firmware["firmware_id"],
+    "uiflow_source_sha256": source["metadata"]["source_sha256"],
+    "ready_marker": prepared["ready_marker"], "ready_timeout_seconds": 150,
+    "ttl_seconds": 900, "units": prepared["attachments"],
+}
+(output / "session-request.json").write_text(json.dumps(request), encoding="utf-8")
+PY
+curl -fsS -X POST "$M5_API/sessions" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$M5_AGENT_DIR/session-request.json" \
+  -o "$M5_AGENT_DIR/session-created.json"
+```
+
+随后按第 3–5 步从新响应读取 session ID、等待该场景的 ready marker，观察
+Live sessions，使用 `/units` 声明的输入并核对新串口、控制器与实际帧，停止前
+取 ZIP。冻结请求固定 reference SHA；若服务 reference 已变，应重新审查与
+验证场景，不能去掉身份检查后沿用旧 PASS。附件/源码成功重放只是新一次
+执行的起点，完整验收还需重复各场景的输入、负控与输出断言。
+
 ## 结果边界
 
 本页示例的 ready、输入、帧和 ZIP 必须来自新源码构建的同一个 guest。源码
-打包/读回成功不会自动成为四主机 functional PASS，也不关闭原 Buzzer/IR
-驱动、PWM 初始化或共享 runtime 的完整回归门禁。硬件验证为 **NOT RUN**；
-虚拟控制器输入、数值、显示不证明物理电气、温度、红外、声学或 RF 行为。
+打包/读回成功不会自动成为四主机 functional PASS。上述选定场景合并首轮
+八个会话与本轮二十五个会话的证据；新轮有 22 个功能 PASS、一个 Thermal
+missing-fixture 负控 PASS、原 IR 的待审观察和原 Buzzer FAIL。具体分层见
+[首批](evidence/2026-10-26-unit-source-api-29d8/README.md)与
+[扩展批次](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)。
+
+- 实际源码 API 执行仅 CoreS3；AtomS3R/StickS3/StopWatch 本轮仅离线 compose。
+  控制四例使用 `controls-probe-cores3-native-display-v1`，原驱动和控制断言
+  不改，只做可逆的 display-only 调整；显示可读性限实际捕获帧。Heart 不证明
+  BPM/SpO2，Fan 动画不外推其它 duty、比例或物理转速。
+- 原 IR 本轮为 `REVIEW_REQUIRED / protocol_status=PASS`，独审结论
+  `OBSERVED_PROTOCOL_PASS_RISK_OPEN`，历史 GC 风险仍 OPEN；原 Buzzer
+  自然 timer-zero FAIL，手动 OFF 后的零不补自然停止 PASS。旧 IO harness
+  对输出类 Buzzer 误要求输入 POST，附加 `browser_error` 属 harness 误分类，
+  不代表产品浏览器故障。两种 custom 场景单列，不升级原驱动结论。
+- PWM 初始化 QOM route、完整周期语义和共享 runtime 全量门禁仍 OPEN。
+  最新完整矩阵仍为 66/67 case、270/274 check，Core2 IMU 单例复测不拼为
+  全量 PASS。硬件验证为 **NOT RUN**；虚拟数值与显示不证明物理电气、温度、
+  红外、声学或 RF 行为。

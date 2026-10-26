@@ -1,0 +1,215 @@
+{
+  "status": "PASS",
+  "scope": "terminal controls4 actual recorded evidence independently recomputed; no API/process/guest execution; hardware NOT RUN",
+  "harness_sha256": "c8b94c78cecce9eadd1be92a626014f903d92ea5d763dfc0621174baf30eceee",
+  "original_assertion_parity": {
+    "source": "tests/units/run_control_cases.py",
+    "source_sha256": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+    "original_block_sha256": "4800da227f4a4878ee60ac7777c2f4f5ffd28d6f0483204404d77f0e0e7b5a78",
+    "ast_exact_match": true,
+    "assertion_count": 13
+  },
+  "guarded_api_process_calls": 0,
+  "cases": {
+    "joystick-v11": {
+      "source_cas_sha256": "519bacf9837af4da73d41265f3d28c393595d446c8f80790bba505f480feb0ec",
+      "source_files": 8,
+      "official_driver_proofs": 2,
+      "display_only_reverse_bytes_verified": true,
+      "raw_http_events": 96,
+      "raw_serial_ranges_bound_to_zip": 34,
+      "actual_steps": 2,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "cleanup_history_flash_idle_raw_http": true,
+      "i2c_counters": {
+        "transactions": 146,
+        "read-bytes": 216,
+        "written-bytes": 72,
+        "input-events": 6
+      }
+    },
+    "8encoder": {
+      "source_cas_sha256": "bdd2d1bf59f19543f92910bfa6750829d8b69d9384df4c95f68300f102aa2ffd",
+      "source_files": 9,
+      "official_driver_proofs": 3,
+      "display_only_reverse_bytes_verified": true,
+      "raw_http_events": 112,
+      "raw_serial_ranges_bound_to_zip": 43,
+      "actual_steps": 1,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "cleanup_history_flash_idle_raw_http": true,
+      "i2c_counters": {
+        "transactions": 1121,
+        "read-bytes": 1615,
+        "written-bytes": 598,
+        "input-events": 6
+      },
+      "guest_register_set_reset": true,
+      "all_nine_led_register_triplets": [
+        66051,
+        132102,
+        198153,
+        264204,
+        330255,
+        396306,
+        462357,
+        528408,
+        1648953
+      ],
+      "guest_address": 66,
+      "increments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "cardkb": {
+      "source_cas_sha256": "423766c6a9069d3e30f62b5b5cd0f6b2bf6f3285ac6045773faf16a4580a7978",
+      "source_files": 7,
+      "official_driver_proofs": 1,
+      "display_only_reverse_bytes_verified": true,
+      "raw_http_events": 1270,
+      "raw_serial_ranges_bound_to_zip": 619,
+      "actual_steps": 401,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "cleanup_history_flash_idle_raw_http": true,
+      "i2c_counters": {
+        "transactions": 28159,
+        "read-bytes": 28156,
+        "written-bytes": 1,
+        "input-events": 413
+      },
+      "cardkb_stream_count": 187,
+      "independent_stream_sha256": "a3cecf86f94ad50f360557923c8ca181edc9d1266ecdc1358698befe53e9fccf",
+      "stream_piece_lengths": {
+        "normal": 47,
+        "one_shots": 6,
+        "shift": 47,
+        "sym": 39,
+        "fn": 47,
+        "legacy": 1
+      },
+      "exact_matrix_and_legacy_browser_posts": 413,
+      "exact_recorded_input_steps": 401,
+      "double_locks": [
+        {
+          "modifier": "key-shift",
+          "post_start": 112,
+          "locked_mode": 2,
+          "raw_post_modes": [
+            1,
+            1,
+            2,
+            2
+          ],
+          "down_to_down_ms": 91.0,
+          "unlock_post": 211,
+          "unlock_mode": 0
+        },
+        {
+          "modifier": "key-sym",
+          "post_start": 212,
+          "locked_mode": 4,
+          "raw_post_modes": [
+            3,
+            3,
+            4,
+            4
+          ],
+          "down_to_down_ms": 79.0,
+          "unlock_post": 311,
+          "unlock_mode": 0
+        },
+        {
+          "modifier": "key-fn",
+          "post_start": 312,
+          "locked_mode": 6,
+          "raw_post_modes": [
+            5,
+            5,
+            6,
+            6
+          ],
+          "down_to_down_ms": 32.0,
+          "unlock_post": 411,
+          "unlock_mode": 0
+        }
+      ]
+    },
+    "rfid2": {
+      "source_cas_sha256": "ac77727fa4f72972944a4e196c37d73603e719df900b279b89f8f960d75d9089",
+      "source_files": 10,
+      "official_driver_proofs": 4,
+      "display_only_reverse_bytes_verified": true,
+      "raw_http_events": 134,
+      "raw_serial_ranges_bound_to_zip": 54,
+      "actual_steps": 4,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "cleanup_history_flash_idle_raw_http": true,
+      "i2c_counters": {
+        "transactions": 3073,
+        "read-bytes": 787,
+        "written-bytes": 2920,
+        "input-events": 4
+      },
+      "closed_fresh_uid_phases": [
+        {
+          "uid_bytes": 4,
+          "start": 600,
+          "end_exclusive": 847,
+          "ordered_marker_offsets": {
+            "CONTROL_RFID_UID 04010203": 600,
+            "CONTROL_RFID_BAD_CRC 1": 627,
+            "CONTROL_RFID_BAD_KEY 1": 651,
+            "CONTROL_RFID_SECTOR_DENIED 1": 675,
+            "CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40": 705,
+            "CONTROL_RFID_HALT_DENIED 1": 764,
+            "CONTROL_RFID_ANTENNA_OFF 1": 792
+          }
+        },
+        {
+          "uid_bytes": 7,
+          "start": 847,
+          "end_exclusive": 1106,
+          "ordered_marker_offsets": {
+            "CONTROL_RFID_UID 04010203040506": 847,
+            "CONTROL_RFID_BAD_CRC 1": 880,
+            "CONTROL_RFID_BAD_KEY 1": 904,
+            "CONTROL_RFID_SECTOR_DENIED 1": 928,
+            "CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40": 958,
+            "CONTROL_RFID_HALT_DENIED 1": 1017,
+            "CONTROL_RFID_ANTENNA_OFF 1": 1045
+          }
+        },
+        {
+          "uid_bytes": 10,
+          "start": 1106,
+          "end_exclusive": 1377,
+          "ordered_marker_offsets": {
+            "CONTROL_RFID_UID 04010203040506070809": 1106,
+            "CONTROL_RFID_BAD_CRC 1": 1145,
+            "CONTROL_RFID_BAD_KEY 1": 1169,
+            "CONTROL_RFID_SECTOR_DENIED 1": 1193,
+            "CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40": 1223,
+            "CONTROL_RFID_HALT_DENIED 1": 1282,
+            "CONTROL_RFID_ANTENNA_OFF 1": 1310
+          }
+        }
+      ]
+    }
+  },
+  "pid_limit": "Replay validates directly proven owned PID and execution-time termination record plus backed stop/history/idle; no new OS PID observation."
+}

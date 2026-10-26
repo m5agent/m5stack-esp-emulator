@@ -1,0 +1,180 @@
+{
+  "status": "PASS_AFTER_RFID_WINDOW_FIX",
+  "review_category": "static-and-pure-offline-only",
+  "api_calls": 0,
+  "guest_execution": false,
+  "hardware": "NOT RUN",
+  "harness_sha256": "c8b94c78cecce9eadd1be92a626014f903d92ea5d763dfc0621174baf30eceee",
+  "source_unchanged_during_review": true,
+  "original_runner_sha256": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+  "entire_original_control_block_ast_equal": true,
+  "original_assert_count": 13,
+  "display_replacements": 3,
+  "cases": [
+    {
+      "case": "joystick-v11",
+      "source_cas_sha256": "519bacf9837af4da73d41265f3d28c393595d446c8f80790bba505f480feb0ec",
+      "files": 8,
+      "actual_Client_json_body_bytes": 13840,
+      "display_contract": {
+        "device_id": "cores3",
+        "native": [
+          320,
+          240
+        ],
+        "rotation": 1,
+        "font": "Montserrat12",
+        "scale": 1.0,
+        "font_height": 15,
+        "x": 6,
+        "y": 6,
+        "width": 308,
+        "body_y": 24,
+        "line_height": 16,
+        "body_rows": 3,
+        "bottom": 72,
+        "headers": 1,
+        "flavor": "controls-probe-cores3-native-display-v1",
+        "evidence": "guest fontHeight/textWidth and native geometry checks required; preparation is not display PASS"
+      },
+      "display_exact_reverse": "PASS",
+      "official_driver_and_license_bytes": "PASS"
+    },
+    {
+      "case": "8encoder",
+      "source_cas_sha256": "bdd2d1bf59f19543f92910bfa6750829d8b69d9384df4c95f68300f102aa2ffd",
+      "files": 9,
+      "actual_Client_json_body_bytes": 27082,
+      "display_contract": {
+        "device_id": "cores3",
+        "native": [
+          320,
+          240
+        ],
+        "rotation": 1,
+        "font": "Montserrat12",
+        "scale": 1.0,
+        "font_height": 15,
+        "x": 6,
+        "y": 6,
+        "width": 308,
+        "body_y": 24,
+        "line_height": 16,
+        "body_rows": 10,
+        "bottom": 184,
+        "headers": 1,
+        "flavor": "controls-probe-cores3-native-display-v1",
+        "evidence": "guest fontHeight/textWidth and native geometry checks required; preparation is not display PASS"
+      },
+      "display_exact_reverse": "PASS",
+      "official_driver_and_license_bytes": "PASS"
+    },
+    {
+      "case": "cardkb",
+      "source_cas_sha256": "423766c6a9069d3e30f62b5b5cd0f6b2bf6f3285ac6045773faf16a4580a7978",
+      "files": 7,
+      "actual_Client_json_body_bytes": 33123,
+      "display_contract": {
+        "device_id": "cores3",
+        "native": [
+          320,
+          240
+        ],
+        "rotation": 1,
+        "font": "Montserrat12",
+        "scale": 1.0,
+        "font_height": 15,
+        "x": 6,
+        "y": 6,
+        "width": 308,
+        "body_y": 24,
+        "line_height": 16,
+        "body_rows": 1,
+        "bottom": 40,
+        "headers": 1,
+        "flavor": "controls-probe-cores3-native-display-v1",
+        "evidence": "guest fontHeight/textWidth and native geometry checks required; preparation is not display PASS"
+      },
+      "display_exact_reverse": "PASS",
+      "official_driver_and_license_bytes": "PASS"
+    },
+    {
+      "case": "rfid2",
+      "source_cas_sha256": "ac77727fa4f72972944a4e196c37d73603e719df900b279b89f8f960d75d9089",
+      "files": 10,
+      "actual_Client_json_body_bytes": 72506,
+      "display_contract": {
+        "device_id": "cores3",
+        "native": [
+          320,
+          240
+        ],
+        "rotation": 1,
+        "font": "Montserrat12",
+        "scale": 1.0,
+        "font_height": 15,
+        "x": 6,
+        "y": 6,
+        "width": 308,
+        "body_y": 24,
+        "line_height": 16,
+        "body_rows": 3,
+        "bottom": 72,
+        "headers": 1,
+        "flavor": "controls-probe-cores3-native-display-v1",
+        "evidence": "guest fontHeight/textWidth and native geometry checks required; preparation is not display PASS"
+      },
+      "display_exact_reverse": "PASS",
+      "official_driver_and_license_bytes": "PASS"
+    }
+  ],
+  "cardkb": {
+    "physical_nonmodifier_keys": 47,
+    "modifier_keys": 3,
+    "nonzero_codes_by_table": {
+      "normal": 47,
+      "shift": 47,
+      "sym": 39,
+      "fn": 47
+    },
+    "one_shot_codes": 6,
+    "legacy_codes": 1,
+    "expected_stream_length": 187,
+    "expected_stream_sha256": "a1c9e2b3eca7e870b9312a96b18add4dea66df254bd052b42fec7b334625ce73"
+  },
+  "self_test": {
+    "status": "PASS",
+    "guard_probes_blocked": [
+      "SOCKET",
+      "HTTP",
+      "PROCESS",
+      "BIN_WRITE"
+    ],
+    "unexpected_api_process_bin_calls": [],
+    "source_drift_negative": "REJECTED"
+  },
+  "rfid_regression_receipts": [
+    "baseline-rfid-window.json",
+    "current-rfid-window.json"
+  ],
+  "previous_accepted_batch_observer_ast_unchanged": {
+    "HTTPRecorder": true,
+    "source_provenance": true,
+    "input_negative": true,
+    "source_negatives": true,
+    "pid_gone": true,
+    "frame_valid": true,
+    "check_browser": true,
+    "validate_zip": true
+  },
+  "contract_json_sha256": "ede5b7c47a6ca48edd4bf228ccf0e440ab48ca8a47eab47cbaab42654c7bef2a",
+  "rfid_window_finding": {
+    "priority": "P2",
+    "status": "FIXED_BEFORE_EXECUTION",
+    "v1": "6fb282e9202a0e387b75aa28fc82fd485e1facbc557f3fd03a7273e788dbde19",
+    "v2": "c8b94c78cecce9eadd1be92a626014f903d92ea5d763dfc0621174baf30eceee",
+    "old_accepts_cross_uid_negative_borrow": true,
+    "new_rejects_same_counterexample": true,
+    "new_accepts_full_three_windows": true
+  }
+}

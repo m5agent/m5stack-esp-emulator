@@ -1,0 +1,372 @@
+{
+  "session_id": "47c3e38d960a4953968032686631a1bb",
+  "state": "running",
+  "source": "live",
+  "captured_at": "2026-10-26T03:55:53.673373+00:00",
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "heart",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "ir-sample": 40000,
+        "red-sample": 35000
+      },
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "ir-sample": 40000,
+        "red-sample": 35000,
+        "transactions": 295,
+        "read-bytes": 493,
+        "written-bytes": 162,
+        "input-events": 2,
+        "output-transitions": 0,
+        "samples-generated": 87,
+        "crc-errors": 0
+      },
+      "errors": {}
+    }
+  ],
+  "definitions": [
+    {
+      "id": "heart",
+      "name": "Heart Rate",
+      "sku": "U029",
+      "visual_asset": {
+        "entry": "src/units/heart/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/heart",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "MAX30100",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          87
+        ],
+        "pins": {
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          },
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "The official Python wrapper delegates sensor mode/current/sample-rate and update processing to cdriver.MAX30100; the external model must provide optical raw sample FIFO and register behavior. Heart rate and SpO2 are guest algorithms, not direct host-faked sensor registers.",
+        "registers": [
+          {
+            "interrupt_status": "0x00",
+            "interrupt_enable": "0x01",
+            "fifo_write": "0x02",
+            "fifo_overflow": "0x03",
+            "fifo_read": "0x04",
+            "fifo_data": "0x05",
+            "mode": "0x06",
+            "spo2_config": "0x07",
+            "led_config": "0x09",
+            "temperature": "0x16/0x17",
+            "revision": "0xFE",
+            "part_id": "0xFF",
+            "fifo_encoding": "read FIFO 0x05, four bytes IR_MSB,IR_LSB,RED_MSB,RED_LSB as confirmed by max30100_read_fifo()"
+          }
+        ],
+        "gaps": [
+          "FIFO timing, overflow, read-pointer and interrupt behavior still need execution coverage; raw sample byte format has been confirmed in max30100.c.",
+          "Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+        ]
+      },
+      "inputs": {
+        "ir-sample": {
+          "type": "integer",
+          "label": "红外样本",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        },
+        "red-sample": {
+          "type": "integer",
+          "label": "红光样本",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/heart",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/heart.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+          "checked_at": "2026-10-26",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/registers.h",
+          "checked_at": "2026-10-26",
+          "sha256": "80e55b7f273feb633dbc3126c0f5895493c3d4a797816a00fa1c37b6202a8d0d",
+          "claims": [
+            "MAX30100 native driver and FIFO/register behavior"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/driver_max30100.c",
+          "checked_at": "2026-10-26",
+          "sha256": "1e5b009fb313811ac8d59e7d127f98c06e2a7e907f448e26802d71f26e061c1c",
+          "claims": [
+            "MAX30100 native driver and FIFO/register behavior"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/cmodules/cdriver/max30100/max30100.c",
+          "checked_at": "2026-10-26",
+          "sha256": "eed901c774a04b09cbd9738308d2b0c6b502a66e267ba0880e16efdea64dddc1",
+          "claims": [
+            "MAX30100 native driver and FIFO/register behavior"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation. Intermittent zero raw samples remain OPEN (UNIT-HOST-19); no BPM or SpO2 validation is claimed.",
+        "inputs": {
+          "ir-sample": {
+            "property": "ir-sample"
+          },
+          "red-sample": {
+            "property": "red-sample"
+          }
+        },
+        "state": {
+          "ir-sample": {
+            "property": "ir-sample"
+          },
+          "red-sample": {
+            "property": "red-sample"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          },
+          "samples-generated": {
+            "property": "samples-generated",
+            "path": "/chip"
+          },
+          "crc-errors": {
+            "property": "crc-errors",
+            "path": "/chip"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "630297ec055bc213de5483bc2ce6e6b5ae1192bd1ea5c96e4d472eafeb372612",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/heart/report.json",
+          "report_sha256": "6529f012a4b59b16d32b09d2e8126cbeb80bc0a8020304918975b1f7d495560f",
+          "evidence_sha256": "69dce7487e18d126df94fc7b3a0b5195c82f9d957849e2beff2d486be7381046",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 7,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "PASS",
+            "device_id": "atoms3r",
+            "unit_id": "heart",
+            "runtime": "qemu",
+            "session_id": "2a144b995ca94deabfe1142fbd54648a",
+            "firmware_sha256": "0ccaf22cc877898eba3961029ff8cbbb6c2e55634a8ba5b24c6d7da01aee7cd7",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "0c38ab1e45a6fb2a3dcaeba4887147398e26afa3318152a19ea9205f334467c6",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/heart/report.json",
+            "report_sha256": "7dd264246bf818e6d1012793ca496cb8cd9ccdfae3a219a6ef3390c8ca93ce8e",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/heart/normalization-receipt.json",
+            "normalization_receipt_sha256": "20584df34a0bac9b4711d7c006dbac46c8a539e22d24eab4b4c65d7d83b048f8",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+            "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+          },
+          "sticks3": {
+            "status": "PASS",
+            "device_id": "sticks3",
+            "unit_id": "heart",
+            "runtime": "qemu",
+            "session_id": "5e26bd2d3817441c909f42aebc0a0f79",
+            "firmware_sha256": "b87b5abc3577fdecfb3c222a02fc50d9173d79611af312e10024c0e216330099",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "92b0961ba8a041406f580094e3a47f7e32118cb9f19af2833b73ab041e5e07a6",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/report.json",
+            "report_sha256": "9ae36472c56c514644809add94d6e049f410c01877cebe681b1ff094e5ef2415",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/heart/normalization-receipt.json",
+            "normalization_receipt_sha256": "d212d3269812329508ea9bd194862dd8950a0b6098bab4432e52bfecfed83363",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+            "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+          },
+          "stopwatch": {
+            "status": "PASS",
+            "device_id": "stopwatch",
+            "unit_id": "heart",
+            "runtime": "qemu",
+            "session_id": "3065da80a06f4425aa684da2d8eb3d1a",
+            "firmware_sha256": "2bbacb5879ebd36d6bc97171b88108bcc8c988b90f2c676b9a8dd6c63ffa942b",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "e489ef7df3e0e10fb3ed769f34f11817fe55bf687d227fe762c54233045f501a",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/report.json",
+            "report_sha256": "d4d5449d1fab8b6e6039f8950c76047db3b942f5419522b6e9610d4d822e4939",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/heart/normalization-receipt.json",
+            "normalization_receipt_sha256": "1d20d7bc123a9ef7e5f2ee8be37da3c909a3f51d8987e38e590b83a84cfb7d32",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+            "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+          }
+        }
+      },
+      "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation. Intermittent zero raw samples remain OPEN (UNIT-HOST-19); no BPM or SpO2 validation is claimed.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: C driver FIFO timing, overflow, read-pointer and interrupt behavior must be verified before implementation.; Raw optical fixtures do not establish biological, clinical or physical optical accuracy."
+      }
+    }
+  ],
+  "contract_hashes": {
+    "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+  },
+  "contract_status": "frozen"
+}

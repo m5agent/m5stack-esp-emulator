@@ -1,0 +1,477 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "independent-count-and-unit-set-recalculation",
+  "total_sessions": 33,
+  "functional_pass_sessions": 30,
+  "negative_control_pass_sessions": 1,
+  "review_sessions": 1,
+  "failed_sessions": 1,
+  "covered_selected_scenarios": [
+    "8encoder",
+    "angle",
+    "button",
+    "buzzer",
+    "cardkb",
+    "color",
+    "dual-button",
+    "encoder",
+    "env-iii",
+    "fan",
+    "heart",
+    "hub",
+    "ir",
+    "joystick-v11",
+    "key",
+    "light",
+    "limit",
+    "ncir",
+    "pir",
+    "relay",
+    "rfid2",
+    "rgb",
+    "rs485",
+    "thermal",
+    "tof",
+    "tvoc",
+    "ultrasonic-i2c"
+  ],
+  "custom_types": [
+    "buzzer",
+    "ir"
+  ],
+  "original_types": [
+    "8encoder",
+    "angle",
+    "button",
+    "cardkb",
+    "color",
+    "dual-button",
+    "encoder",
+    "env-iii",
+    "fan",
+    "heart",
+    "hub",
+    "joystick-v11",
+    "key",
+    "light",
+    "limit",
+    "ncir",
+    "pir",
+    "relay",
+    "rfid2",
+    "rgb",
+    "rs485",
+    "thermal",
+    "tof",
+    "tvoc",
+    "ultrasonic-i2c"
+  ],
+  "missing_catalog_types": [],
+  "excess_types": [],
+  "hardware": "NOT RUN",
+  "basis": "PASS labels only, no new execution or promotion; original IR REVIEW/protocol PASS kept; original Buzzer FAIL kept",
+  "rows": [
+    {
+      "result": ".work/unit-agent-api-live-20261026/live-button-r1/button/result.json",
+      "sha256": "5531e0180218b4e51bc7af308580b6491b1e5580e9d85c15374cb2339d750c86",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "button"
+      ],
+      "session_id": "ddf890eceab84ec29c02e1be57eb95b7"
+    },
+    {
+      "result": ".work/unit-agent-api-live-20261026/live-five-r1/button/result.json",
+      "sha256": "b118eccbb741451c67b0bdb70a72595caad1fd96a3ab6a0cadec0a7050805691",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "button"
+      ],
+      "session_id": "206924532c08436c8b5f739a1f4b22ec"
+    },
+    {
+      "result": ".work/unit-agent-api-live-20261026/live-five-r1/encoder/result.json",
+      "sha256": "d93e28cdef397875d03a96531fe051c157e49a2058cb331711b47035303a4f08",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "encoder"
+      ],
+      "session_id": "4a74c9c61a6544b59ddbe0645bd85da7"
+    },
+    {
+      "result": ".work/unit-agent-api-live-20261026/live-five-r1/env-iii/result.json",
+      "sha256": "d20b96e04afd934d025a64ff6ddb6e87c9132a6821f669b138a1a09b7bbcdf5d",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "env-iii"
+      ],
+      "session_id": "8f1254ae215e4c41a033259df2b191d1"
+    },
+    {
+      "result": ".work/unit-agent-api-live-20261026/live-five-r1/relay/result.json",
+      "sha256": "2fdd1e6b0bd00989058c04dfc8f6eb62b0d0d9f67fc5364a38947c7245399d71",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "relay"
+      ],
+      "session_id": "912e127d5d754270b04de3dbe853cce9"
+    },
+    {
+      "result": ".work/unit-agent-api-live-20261026/live-five-r1/rgb/result.json",
+      "sha256": "4b2913961acc10b43585ef566343fd4f650048d973d313c120c57877e7eee370",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "rgb"
+      ],
+      "session_id": "56d9f029d781401c9bc000c24bf45922"
+    },
+    {
+      "result": ".work/unit-guide-live-20261026/live-r1/button/result.json",
+      "sha256": "7007030eff1dace7bcd81caaadfc0a90439434d1f3390bcf80851d02cdd517f0",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "button"
+      ],
+      "session_id": "dd0879e0cb5c42b8a3c79d94011fb55c"
+    },
+    {
+      "result": ".work/unit-guide-live-20261026/live-r1/hub-env-ncir/result.json",
+      "sha256": "caa2872c675b462a6c5210e9d99a29ad020332c5788e09d1fb37e6056bfaffd1",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "env-iii",
+        "hub",
+        "ncir"
+      ],
+      "session_id": "542bd4b899df4e1ea09e2d9ed8fe5597"
+    },
+    {
+      "result": ".work/unit-source-sensors-expanded-20261026/live-r1/color/result.json",
+      "sha256": "20b142c0d6ff347fb7ebd07b32e683ec9fb71276d2202c27af3301bccf903482",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "color"
+      ],
+      "session_id": "55da4d11a5484e8eba99ecd07a7b1e9b"
+    },
+    {
+      "result": ".work/unit-source-sensors-expanded-20261026/live-r1/heart/result.json",
+      "sha256": "9f35947579ef400502173faa82da2706db70ce9bbd649f4aea0d1c957c87a1b6",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "heart"
+      ],
+      "session_id": "47c3e38d960a4953968032686631a1bb"
+    },
+    {
+      "result": ".work/unit-source-sensors-expanded-20261026/live-r1/ncir/result.json",
+      "sha256": "727108543483c9927740e98cf7c4b723b26aefb52bc37626b7687a22595b2bcf",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "ncir"
+      ],
+      "session_id": "02f91798b9d54c72abcb021327a87700"
+    },
+    {
+      "result": ".work/unit-source-sensors-expanded-20261026/live-r1/thermal/result.json",
+      "sha256": "d906e4bc6a948287d09d1fd32abda941b80281cefe362a85fb4a129eba605409",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "thermal"
+      ],
+      "session_id": "5ef192cbc8494897aee9aa0638aced9b"
+    },
+    {
+      "result": ".work/unit-source-sensors-expanded-20261026/live-r1/tof/result.json",
+      "sha256": "aa3c504b933cb19f6352f688a7fd2b8db5b19a0e320987848381bafe64e3414d",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "tof"
+      ],
+      "session_id": "9f13683aa8ee4d3cb20f9f2680eed2b6"
+    },
+    {
+      "result": ".work/unit-source-sensors-expanded-20261026/live-r1/tvoc/result.json",
+      "sha256": "de86d71c9313d19add7a5f7d048d6ad0d0d3aada98fd5fcc7a145aa3fd699c1e",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "tvoc"
+      ],
+      "session_id": "2dbcaaedfca04db4aae24866935c9dcc"
+    },
+    {
+      "result": ".work/unit-source-sensors-expanded-20261026/live-r1/ultrasonic-i2c/result.json",
+      "sha256": "29592b52cb28b6d1919be81f3d479f2074a65fed5e13e5cf8328c4edc185ff5c",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "ultrasonic-i2c"
+      ],
+      "session_id": "c0bf6a05f36740ccbce82d61dc6f6b4d"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/angle/result.json",
+      "sha256": "9ee9cf7977312b7acb0dc600a24b8b6b03eb6e015fda55410243955e74f4c853",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "angle"
+      ],
+      "session_id": "74f9cf8cb7b4432a812afffbe59718af"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/dual-button/result.json",
+      "sha256": "6c080ad0d8ca286185d58b731e81a7875bd97197d2187808059bb19af713a576",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "dual-button"
+      ],
+      "session_id": "49fddfa0764e491db4b17b9eb92e88bf"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/fan/result.json",
+      "sha256": "2d5c66d5569e870e138da3709a7b5461ff4d5fc502a4ef2fc199955d87b5dcdd",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "fan"
+      ],
+      "session_id": "c42b17795d594c9091e66009a5b52e1e"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/hub/result.json",
+      "sha256": "d84589e240a105bf2262ed34cf0c6b70c271001f97c798f4e17cff25e3344ff2",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "env-iii",
+        "hub",
+        "ncir",
+        "tvoc"
+      ],
+      "session_id": "1b719fba3e5f4eae8faf06e625b8b8c1"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/key/result.json",
+      "sha256": "273b891eb69bdc8063d340a35a2b17792a2ccf47a1d2fef747ece7029ca8625f",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "key"
+      ],
+      "session_id": "ad52742c7f834ee8a5396e6373032e7e"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/light/result.json",
+      "sha256": "6dee545bb07089cfa75df3c3d750d2be8856558f0628e885285305ca25dd9024",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "light"
+      ],
+      "session_id": "34c790b0f7d44a9f876e98437d2fb092"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/limit/result.json",
+      "sha256": "e5f9f4b5390ba3f773d0c53f4eca284446c68c703d54109184f0350b043d374f",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "limit"
+      ],
+      "session_id": "bc2701a1b36d426e85735dab681cb151"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/pir/result.json",
+      "sha256": "34028dda195ee111867a9a8776e5a324928b8e0cc028a3aaeb1ade10e7dfa04a",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "pir"
+      ],
+      "session_id": "bd2fb8014ea649be97912beb6195cfe5"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-default9-r1/rs485/result.json",
+      "sha256": "d05db026bf86c7e3e9971ee9e0c0c074dcf58cef6c0ad27c58366e8ec4b0b4e1",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "rs485"
+      ],
+      "session_id": "272a8f85f3134087a473bda7a80650fd"
+    },
+    {
+      "result": ".work/unit-source-controls-expanded-20261026/live-v2-r1/8encoder/result.json",
+      "sha256": "5fa479ff4953ad806f6d94dad79e097621d3db55aa92f376c4e1ce4a152ff233",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "8encoder"
+      ],
+      "session_id": "29275229684844cf9f28b09191d212c1"
+    },
+    {
+      "result": ".work/unit-source-controls-expanded-20261026/live-v2-r1/cardkb/result.json",
+      "sha256": "35c8bafec1d18a78247ac37939304ecc0ee5f84ef6c41110c160958159b56f55",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "cardkb"
+      ],
+      "session_id": "3ff9324b78a64551a0e4f2374d0ea01c"
+    },
+    {
+      "result": ".work/unit-source-controls-expanded-20261026/live-v2-r1/joystick-v11/result.json",
+      "sha256": "e9208ac61e1c985898eb352c1a5e1b4cb0bb49c5d8fd4afa766f69990bc72d73",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "joystick-v11"
+      ],
+      "session_id": "25aad25d4b6a45ec8d9d9739ae8bf8b3"
+    },
+    {
+      "result": ".work/unit-source-controls-expanded-20261026/live-v2-r1/rfid2/result.json",
+      "sha256": "77209ce0082698f2e043faf534916f04ec6c81f39a58c14e4a3e50da0c7e1384",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "rfid2"
+      ],
+      "session_id": "3a37b355cb104344a5bbd20fb4b0b275"
+    },
+    {
+      "result": ".work/unit-source-custom-io-20261026/live-custom2-r1/buzzer/result.json",
+      "sha256": "40f9ebc87ed7e32b83b2cbcfd25d36f3087778dc5362a58e27dafd997859266f",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": true,
+      "units": [
+        "buzzer"
+      ],
+      "session_id": "d208f7bdb00a44f390664221e24b7c05"
+    },
+    {
+      "result": ".work/unit-source-custom-io-20261026/live-custom2-r1/ir/result.json",
+      "sha256": "9cff3b996ede9097177c34f37b03eb234b468c10d78a8042d724e39fb3dc1e15",
+      "status": "PASS",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": true,
+      "units": [
+        "ir"
+      ],
+      "session_id": "2808eddd2c36437bb636fafc439e4a41"
+    },
+    {
+      "result": ".work/unit-source-sensors-expanded-20261026/live-thermal-negative-r1/thermal-missing-fixture/result.json",
+      "sha256": "fa95eeb27ee0bfd1dcacbca849f4870175514da8080e18132a67c8f2389d5ab8",
+      "status": "PASS",
+      "protocol_status": null,
+      "negative_runtime_control": true,
+      "custom_caller_driver": false,
+      "units": [
+        "thermal"
+      ],
+      "session_id": "95592d87e71f46cc8ee5e0d394193380"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-original-risk-r1/buzzer/result.json",
+      "sha256": "0dbe2a99b3ed127d632957088490d29ccc9eac7fed4f456e8bec601de67e04af",
+      "status": "FAIL",
+      "protocol_status": "FAIL",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "buzzer"
+      ],
+      "session_id": "0ea727bb4ba2460b8fed5667a71e8c65"
+    },
+    {
+      "result": ".work/unit-source-io-expanded-20261026/live-original-risk-r1/ir/result.json",
+      "sha256": "ad81d1f39f2499e3c22b9d01833a80fadf885542580fbee899d2713c6e38d080",
+      "status": "REVIEW_REQUIRED",
+      "protocol_status": "PASS",
+      "negative_runtime_control": false,
+      "custom_caller_driver": false,
+      "units": [
+        "ir"
+      ],
+      "session_id": "900d5d6cad45477bb585005df7bf00c9"
+    }
+  ]
+}

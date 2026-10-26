@@ -1,0 +1,619 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-26T04:18:05.563129+00:00",
+  "status": "PASS",
+  "source_count": 32,
+  "frozen_file_count": 11,
+  "check_count": 152,
+  "checks": [
+    {
+      "name": "public_source_host:docs-encoder.html",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:docs-encoder.html",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:docs-encoder.html",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:docs-rgb.html",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:docs-rgb.html",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:docs-rgb.html",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder-firmware-01.jpg",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder-firmware-01.jpg",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder-firmware-01.jpg",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder-mcu-readme.md",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder-mcu-readme.md",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder-mcu-readme.md",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder-official.stl",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder-official.stl",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder-official.stl",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder-schematic.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder-schematic.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder-schematic.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder-size.png",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder-size.png",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder-size.png",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder_01.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder_01.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder_01.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder_02.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder_02.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder_02.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder_03.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder_03.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder_03.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder_05.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder_05.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder_05.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:encoder_06.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:encoder_06.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:encoder_06.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-encoder-contents.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-encoder-contents.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-encoder-contents.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-encoder-driver-tree.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-encoder-driver-tree.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-encoder-driver-tree.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-encoder-firmware-repo.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-encoder-firmware-repo.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-encoder-firmware-repo.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-encoder-mcu-contents.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-encoder-mcu-contents.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-encoder-mcu-contents.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-encoder-mcu-docs-tree.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-encoder-mcu-docs-tree.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-encoder-mcu-docs-tree.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-encoder-structures.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-encoder-structures.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-encoder-structures.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-rgb-contents.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-rgb-contents.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-rgb-contents.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-rgb-driver-tree.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-rgb-driver-tree.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-rgb-driver-tree.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-rgb-structures.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-rgb-structures.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-rgb-structures.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-search-encoder.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-search-encoder.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-search-encoder.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:github-search-rgb.json",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:github-search-rgb.json",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:github-search-rgb.json",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb-driver-unit.hpp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb-driver-unit.hpp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb-driver-unit.hpp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb-official.stl",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb-official.stl",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb-official.stl",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb-schematic.png",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb-schematic.png",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb-schematic.png",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb-size.png",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb-size.png",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb-size.png",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb_01.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb_01.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb_01.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb_02.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb_02.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb_02.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb_03.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb_03.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb_03.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb_05.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb_05.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb_05.webp",
+      "passed": true
+    },
+    {
+      "name": "public_source_host:rgb_06.webp",
+      "passed": true
+    },
+    {
+      "name": "source_fetch_and_hash:rgb_06.webp",
+      "passed": true
+    },
+    {
+      "name": "source_receipt_matches_index:rgb_06.webp",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/units/rgb/index.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/units/rgb/dimensions.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/units/rgb/geometry-data.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/units/encoder/index.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/units/encoder/dimensions.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/units/encoder/geometry-data.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/units/shared/CADUnit.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/modeling/parts.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/modeling/cad.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/core/Component.js",
+      "passed": true
+    },
+    {
+      "name": "frozen_vendor_hash:platform/web/vendor/m5stack-models/src/modeling/grove-cable.js",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:rgb_01.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:rgb_02.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:rgb_03.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:rgb_05.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:rgb_06.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:rgb-official.stl",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:encoder_01.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:encoder_02.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:encoder_03.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:encoder_05.webp",
+      "passed": true
+    },
+    {
+      "name": "public_asset_matches_freeze:encoder-official.stl",
+      "passed": true
+    },
+    {
+      "name": "both_mappings_open",
+      "passed": true
+    },
+    {
+      "name": "rgb_physical_mapping_stays_empty",
+      "passed": true
+    },
+    {
+      "name": "encoder_protocol_mapping_stays_empty",
+      "passed": true
+    },
+    {
+      "name": "encoder_refdes_side_stays_empty",
+      "passed": true
+    },
+    {
+      "name": "no_runtime_claim",
+      "passed": true
+    },
+    {
+      "name": "official_feedback_accepted:rgb",
+      "passed": true
+    },
+    {
+      "name": "official_feedback_accepted:encoder",
+      "passed": true
+    },
+    {
+      "name": "authored_public_output_redaction:report.md",
+      "passed": true
+    },
+    {
+      "name": "authored_public_output_redaction:findings.json",
+      "passed": true
+    },
+    {
+      "name": "authored_public_output_redaction:source-index.json",
+      "passed": true
+    },
+    {
+      "name": "authored_public_output_redaction:frozen-model-audit.json",
+      "passed": true
+    },
+    {
+      "name": "authored_public_output_redaction:frozen-source-asset-comparison.json",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:frozen-model-audit.json",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:rgb-schematic.png",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:rgb_01.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:rgb_02.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:rgb_03.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:rgb_05.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:rgb_06.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:rgb-size.png",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder-schematic.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder_03.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder_03.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder_01.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder_02.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder_05.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder_06.webp",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder-size.png",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:encoder-firmware-01.jpg",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:findings.json",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:source-index.json",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:frozen-model-audit.json",
+      "passed": true
+    },
+    {
+      "name": "report_local_link:frozen-source-asset-comparison.json",
+      "passed": true
+    },
+    {
+      "name": "root_text_files_valid_utf8",
+      "passed": true
+    }
+  ],
+  "scope": "Offline artifact integrity, redaction and unresolved-mapping checks only; no API/runtime/hardware execution."
+}

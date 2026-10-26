@@ -1,0 +1,37 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0xcf8
+load:0x403c8700,len:0xb34
+load:0x403cb700,len:0x2d18
+entry 0x403c8890
+E (934) i2c.master: this port has not been initialized, please initialize it first
+SENSOR_PROBE_START heart
+E (1379) i2c.master: this port has not been initialized, please initialize it first
+SENSOR_CHECK heart_reset_self_clear PASS
+SENSOR_CHECK heart_fifo_initially_empty PASS
+SENSOR_CHECK heart_fifo_overflow PASS
+SENSOR_CHECK heart_fifo_four_byte_advance PASS
+SENSOR_CHECK heart_fifo_sample_order PASS
+SENSOR_CHECK heart_reset_clears_fifo PASS
+SENSOR_CHECK heart_shutdown_stops_sampling PASS
+SENSOR_PROBE_READY heart
+SENSOR_HEART 0 0
+SENSOR_HEART 0 0
+SENSOR_HEART 0 0
+SENSOR_HEART 40000 35000
+SENSOR_HEART 40000 35000
+SENSOR_HEART 41000 36000
+SENSOR_HEART 41000 36000
+SENSOR_HEART 0 0
+SENSOR_HEART 0 0
+SENSOR_HEART 41000 36000
+SENSOR_HEART 12000 9000
+SENSOR_HEART 12000 9000
+SENSOR_HEART 0 0
+SENSOR_HEART 12000 9000
+SENSOR_HEART 12000 9000
+SENSOR_HEART 12000 9000
+SENSOR_HEART 12000 9000

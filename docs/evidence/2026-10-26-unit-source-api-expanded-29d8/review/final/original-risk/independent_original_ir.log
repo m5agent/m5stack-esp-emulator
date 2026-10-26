@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-10-26T04:25:28.670343+00:00",
+  "status": "OBSERVED_PROTOCOL_PASS_RISK_OPEN",
+  "findings": [],
+  "scope": "Independent offline replay of exact original IR source/HTTP/guest/RMT/browser/ZIP/cleanup bytes; historical GC lifetime risk remains OPEN",
+  "run": ".work/unit-source-io-expanded-20261026/live-original-risk-r1",
+  "executed_harness_sha256": "e63edab96163509cc698a2e5e49c7c46ab15188050f2a6be973ee908b4b2e8b5",
+  "cases": [
+    {
+      "session_id": "900d5d6cad45477bb585005df7bf00c9",
+      "firmware_sha256": "a791903ced531a98a4489fa7a7281a084d2ca9c3091d8364fa87e37577deff31",
+      "source_cas_sha256": "42a4a5e7971910a48f644415a6483702ae508c7fddf55661f86b0be40acdf76e",
+      "driver_validation": "original-driver-observed-protocol-only-risk-open",
+      "original_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "original_caller_files_byte_exact": 17,
+      "original_vs_custom_only_driver_patch_and_flag_differ": true,
+      "raw_http_responses": 181,
+      "zip_http_index": 176,
+      "stop_http_index": 177,
+      "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "owned_pid": 7259,
+      "recorded_pid_exit": true,
+      "flash_retained": false,
+      "cleanup_active_sessions": 0,
+      "browser_running_snapshots": 9,
+      "browser_posts": 4,
+      "protocol": {
+        "status": "PASS",
+        "forced_normal_gc_before_first_rx": true,
+        "bounded_input_serial_windows": [
+          {
+            "input_event": 9,
+            "cursor_bytes": 448,
+            "suffix_bytes": 106,
+            "sha256": "4a6a2bb8d7b9843e2565e36c058c381ccdd4f4ec79aa6c2152984fcc025c8a15"
+          },
+          {
+            "input_event": 15,
+            "cursor_bytes": 554,
+            "suffix_bytes": 106,
+            "sha256": "9d5af0dfdbd41f9fb2816ea721143ad1527e9c42c3ede9ff41a4e6c7e0e15657"
+          },
+          {
+            "input_event": 18,
+            "cursor_bytes": 660,
+            "suffix_bytes": 74,
+            "sha256": "ca669dc88125e1d874bb6e8cb467cdb7bfa9501e05ec782a08104ba102ce4415"
+          },
+          {
+            "input_event": 21,
+            "cursor_bytes": 734,
+            "suffix_bytes": 74,
+            "sha256": "362ca47f26f63cc696050122687634e8341335502ad759e1163ac999b191e0e9"
+          }
+        ],
+        "real_browser_input_posts": 4,
+        "raw16_state_event": 8,
+        "native_packed_state_event": 14,
+        "bad_leader_consumed_state_event": 16,
+        "malformed_window_rx_callbacks": 0,
+        "malformed_window_heartbeat1_count": 2,
+        "repeat_preserves_address_command": true,
+        "receiver_rearmed": true,
+        "final_rmt_counters": {
+          "input-events": 4,
+          "output-transitions": 2
+        }
+      }
+    }
+  ],
+  "original_driver_pass_claimed": false,
+  "hardware_validation": "NOT RUN",
+  "device_service_contacted_by_reviewer": false,
+  "limits": [
+    "This exact original IR firmware/session observed the required protocol behavior once; it is not a stable original-driver or family-wide PASS. Historical original GC failures remain unchanged and OPEN.",
+    "The recorded direct PID/executable proof was captured during root live execution; exited processes cannot be rehashed by this offline review.",
+    "The official original wrapper/native callback remains unrooted in the inspected source pattern. One normal gc.collect run can retain objects conservatively and does not prove lifetime safety across allocation pressure, repeated GC, timing or firmware variants.",
+    "Web/frame and controller evidence is virtual-device evidence; physical optical/acoustic/electrical or RF behavior is outside scope."
+  ]
+}

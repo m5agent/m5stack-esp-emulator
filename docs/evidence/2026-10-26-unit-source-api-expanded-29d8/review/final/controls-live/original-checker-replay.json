@@ -1,0 +1,53 @@
+{
+  "preparation": {
+    "status": "PREPARED_NO_API_OR_RUNTIME",
+    "cases": [
+      "joystick-v11",
+      "8encoder",
+      "cardkb",
+      "rfid2"
+    ],
+    "case_count": 4,
+    "binary_build_or_upload": false,
+    "guest_execution": false,
+    "original_assertions": {
+      "source": "tests/units/run_control_cases.py",
+      "source_sha256": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+      "original_block_sha256": "4800da227f4a4878ee60ac7777c2f4f5ffd28d6f0483204404d77f0e0e7b5a78",
+      "ast_exact_match": true,
+      "assertion_count": 13
+    },
+    "http_json_bytes": {
+      "joystick-v11": 13820,
+      "8encoder": 27060,
+      "cardkb": 33105,
+      "rfid2": 72482
+    }
+  },
+  "recorded_live": {
+    "status": "PASS",
+    "cases": [
+      {
+        "unit_id": "joystick-v11",
+        "session_id": "25aad25d4b6a45ec8d9d9739ae8bf8b3",
+        "status": "PASS"
+      },
+      {
+        "unit_id": "8encoder",
+        "session_id": "29275229684844cf9f28b09191d212c1",
+        "status": "PASS"
+      },
+      {
+        "unit_id": "cardkb",
+        "session_id": "3ff9324b78a64551a0e4f2374d0ea01c",
+        "status": "PASS"
+      },
+      {
+        "unit_id": "rfid2",
+        "session_id": "3a37b355cb104344a5bbd20fb4b0b275",
+        "status": "PASS"
+      }
+    ],
+    "scope": "source API + same-session guest/QOM/browser/evidence/cleanup; hardware NOT RUN"
+  }
+}

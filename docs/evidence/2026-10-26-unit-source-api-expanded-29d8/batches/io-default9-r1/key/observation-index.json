@@ -1,0 +1,140 @@
+[
+  {
+    "at": "2026-10-26T04:00:34.217238+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "7459b5af990aa3cbcb37de707f078bf561eeef087a1e07235a215e5f21f26a9b",
+    "input_event": null,
+    "phase": "startup"
+  },
+  {
+    "at": "2026-10-26T04:00:34.217413+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "IO_PROBE_READY key",
+    "offset": 0,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "7459b5af990aa3cbcb37de707f078bf561eeef087a1e07235a215e5f21f26a9b",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:00:34.237471+00:00",
+    "event_id": 2,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "pressed": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "ad52742c7f834ee8a5396e6373032e7e",
+      "offset": 0,
+      "next_offset": 363,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (829) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START key\r\nIO_PROBE_READY key\r\nIO_KEY_RAW 1\r\n",
+      "bytes": 363
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:00:35.385347+00:00",
+    "event_id": 3,
+    "kind": "wait-success",
+    "offset": 363,
+    "serial_file": "observations/00003-serial.txt",
+    "serial_sha256": "4c1ea491351c13cb26c95d3be33f938159078fa2fa50f0e1e0876b8365aadfdf",
+    "input_event": 2,
+    "phase": "IO_PROBE_READY key"
+  },
+  {
+    "at": "2026-10-26T04:00:35.385884+00:00",
+    "event_id": 4,
+    "kind": "marker",
+    "marker": "IO_KEY_RAW 0",
+    "offset": 363,
+    "serial_file": "observations/00004-marker.txt",
+    "serial_sha256": "4c1ea491351c13cb26c95d3be33f938159078fa2fa50f0e1e0876b8365aadfdf",
+    "input_event": 2
+  },
+  {
+    "at": "2026-10-26T04:00:35.614355+00:00",
+    "event_id": 5,
+    "kind": "state",
+    "file": "observations/00005-state.json",
+    "phase": "IO_KEY_RAW 0",
+    "input_event": 2
+  },
+  {
+    "at": "2026-10-26T04:00:35.616262+00:00",
+    "event_id": 6,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "pressed": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "ad52742c7f834ee8a5396e6373032e7e",
+      "offset": 0,
+      "next_offset": 377,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (829) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START key\r\nIO_PROBE_READY key\r\nIO_KEY_RAW 1\r\nIO_KEY_RAW 0\r\n",
+      "bytes": 377
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:00:36.021353+00:00",
+    "event_id": 7,
+    "kind": "wait-success",
+    "offset": 377,
+    "serial_file": "observations/00007-serial.txt",
+    "serial_sha256": "24de5712f2b66fa5ce6b920968366a26fdfc555394f085fcbfba9f8f42664928",
+    "input_event": 6,
+    "phase": "IO_KEY_RAW 0"
+  },
+  {
+    "at": "2026-10-26T04:00:36.021851+00:00",
+    "event_id": 8,
+    "kind": "marker",
+    "marker": "IO_KEY_RAW 1",
+    "offset": 377,
+    "serial_file": "observations/00008-marker.txt",
+    "serial_sha256": "24de5712f2b66fa5ce6b920968366a26fdfc555394f085fcbfba9f8f42664928",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:00:36.119070+00:00",
+    "event_id": 9,
+    "kind": "state",
+    "file": "observations/00009-state.json",
+    "phase": "IO_KEY_RAW 1",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:00:36.627814+00:00",
+    "event_id": 10,
+    "kind": "state",
+    "file": "observations/00010-state.json",
+    "phase": "IO_KEY_RAW 1",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:00:37.135091+00:00",
+    "event_id": 11,
+    "kind": "state",
+    "file": "observations/00011-state.json",
+    "phase": "IO_KEY_RAW 1",
+    "input_event": 6
+  },
+  {
+    "at": "2026-10-26T04:00:37.140821+00:00",
+    "event_id": 12,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00012-serial.txt",
+    "serial_sha256": "24de5712f2b66fa5ce6b920968366a26fdfc555394f085fcbfba9f8f42664928",
+    "input_event": 6,
+    "phase": "IO_KEY_RAW 1"
+  }
+]

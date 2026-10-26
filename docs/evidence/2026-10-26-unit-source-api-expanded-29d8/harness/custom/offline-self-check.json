@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "custom_cases": [
+    "ir",
+    "buzzer"
+  ],
+  "api_calls": 0,
+  "process_calls": 0,
+  "builder_calls": 0,
+  "binary_files_written": 0,
+  "legacy_prepare_calls": 0,
+  "guest_execution": false,
+  "hardware": "NOT RUN",
+  "original_drivers_and_io9_unchanged": true,
+  "negative_checks": [
+    "ir original-flavor relabel",
+    "ir original-driver bool relabel",
+    "ir missing explicit patch flag",
+    "ir original bytes in custom payload",
+    "ir zero-fuzz context",
+    "buzzer original-flavor relabel",
+    "buzzer original-driver bool relabel",
+    "buzzer missing explicit patch flag",
+    "buzzer original bytes in custom payload",
+    "buzzer zero-fuzz context",
+    "binary intake artifacts",
+    "binary intake firmware",
+    "binary intake firmware/import",
+    "binary intake artifact-uploads",
+    "binary intake artifact-uploads/x/chunks",
+    "original natural-zero manual-off",
+    "original natural-zero timer-done",
+    "original natural-zero still-active",
+    "original natural-zero wrong-frequency",
+    "pure timer parser missing QOM",
+    "pure timer parser QOM outside serial bracket",
+    "pure timer parser active QOM"
+  ],
+  "source_cas_sha256": {
+    "ir": "4851d70cb840e40dfecb8b2f6b403d4287df6a3e40330975e7568169450cb1bf",
+    "buzzer": "4e2395b6c8dc1447964bf1156ecea24e0fe7939cf2a8832a7a77d4c813a4a85c"
+  },
+  "driver_flavors": {
+    "ir": "custom-guest-ir-callback-root-patch",
+    "buzzer": "custom-guest-buzzer-callback-arity-patch"
+  }
+}

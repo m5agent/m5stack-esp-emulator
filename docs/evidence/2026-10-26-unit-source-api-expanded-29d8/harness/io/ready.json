@@ -1,0 +1,75 @@
+{
+  "status": "READY_DEFAULT9_NOT_EXECUTED",
+  "harness_sha256": "e63edab96163509cc698a2e5e49c7c46ab15188050f2a6be973ee908b4b2e8b5",
+  "common_sha256": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1",
+  "default_cases": [
+    "pir",
+    "dual-button",
+    "limit",
+    "key",
+    "angle",
+    "light",
+    "fan",
+    "rs485",
+    "hub"
+  ],
+  "known_gap_original_controls": [
+    "buzzer",
+    "ir"
+  ],
+  "custom_flavors": "NOT PREPARED; no automatic patch",
+  "offline_self_check": {
+    "status": "PASS",
+    "harness_sha256": "e63edab96163509cc698a2e5e49c7c46ab15188050f2a6be973ee908b4b2e8b5",
+    "context_commit": "5cf58191af2938ecd86f991455b47145872fb08e",
+    "http_calls": 0,
+    "process_calls": 0,
+    "binary_builder_calls": 0,
+    "legacy_prepare_calls": 0,
+    "default_cases": [
+      "pir",
+      "dual-button",
+      "limit",
+      "key",
+      "angle",
+      "light",
+      "fan",
+      "rs485",
+      "hub"
+    ],
+    "official_driver_count": 12,
+    "source_file_count_by_case": {
+      "pir": 18,
+      "dual-button": 18,
+      "limit": 18,
+      "key": 18,
+      "angle": 18,
+      "light": 18,
+      "fan": 18,
+      "rs485": 18,
+      "hub": 18
+    },
+    "source_cas_sha256": {
+      "pir": "132f9b351d72e98ccd27c619f3a3e12481f4e357dc8a1885a6ad21267d014d7e",
+      "dual-button": "d261e09105de1bf497cdf1d443537022ff837f95f81f1bcc8938f732d441e62b",
+      "limit": "2a727697b5465fbf2241068807c8276f852b2bafe2151768c36d5086a7e5b57a",
+      "key": "876cff2fd316d1e7ed08d6e66bbb348be4f193c92c520a42f0474fc5bd09634f",
+      "angle": "9e63b4e10edc1f9fccc2c1c4c81734aafb814b1b1ffbd22244bf0bda00a76902",
+      "light": "4800001be63faba0f74e8b84600e16f9da17c59e065f9489dc78abe0f05edeb1",
+      "fan": "7107bd7956d8012379c623a1d6f3c393f0a5e9f966d99c05da7c918e4bb5cb79",
+      "rs485": "57dd24c387e9a727e625783d0e5357e499367819bf9e4e63fefb6f8efb07a342",
+      "hub": "d291585f1e556d9f51100c2f108952f5a5e22a1734e5e440adad803787082771"
+    },
+    "original_function_sha256": {
+      "attachments": "6eb3d027b7be8274af055026e7a82201e54033fd80cd70bfdf9cd546bf15a187",
+      "buzzer_timer_window": "238309af4c49611f50eac74b7c9697ac2befe03e20c9638fddf59ec266ca0940",
+      "Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd",
+      "validate_io": "fb252778935d9aad138096709235e159de57ed2d42f9402ee05a1ea62a09e56e",
+      "validate_evidence": "a3026d8b3b5dc7a218b9c522583bed5e3800bcce5a1dd733e2c13537f9ea197b"
+    },
+    "guest_sources_byte_exact": true,
+    "configs_equal_original_prepare": true,
+    "hub_topology_equal_original": true
+  },
+  "command": "M5_UNIT_WEB_BRIDGE=1 M5_PYTHON_DEPS=.work/py312 PYTHONPATH=.work/py312 /opt/miniconda3/bin/python3.12 -B .work/unit-source-io-expanded-20261026/run_expanded_io.py --execute --out-dir .work/unit-source-io-expanded-20261026/live-default9-r1"
+}

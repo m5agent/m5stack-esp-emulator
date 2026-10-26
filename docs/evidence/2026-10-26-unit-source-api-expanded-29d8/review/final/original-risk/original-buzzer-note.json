@@ -1,0 +1,72 @@
+{
+  "scope": "Read-only contextual note; original result is not changed",
+  "original_buzzer_status": "FAIL",
+  "primary_observed_failure": "RuntimeError: natural Buzzer timer zero not observed before TIMER_DONE/manual output",
+  "actual_2000hz_http_qom_samples": [
+    {
+      "http_index": 247,
+      "at": "2026-10-26T04:19:09.479939+00:00",
+      "duty_pct": 49.98779296875,
+      "output_transitions": 11
+    },
+    {
+      "http_index": 249,
+      "at": "2026-10-26T04:19:09.985393+00:00",
+      "duty_pct": 49.98779296875,
+      "output_transitions": 11
+    },
+    {
+      "http_index": 252,
+      "at": "2026-10-26T04:19:10.492127+00:00",
+      "duty_pct": 49.98779296875,
+      "output_transitions": 11
+    },
+    {
+      "http_index": 255,
+      "at": "2026-10-26T04:19:10.996433+00:00",
+      "duty_pct": 49.98779296875,
+      "output_transitions": 11
+    },
+    {
+      "http_index": 258,
+      "at": "2026-10-26T04:19:11.504368+00:00",
+      "duty_pct": 49.98779296875,
+      "output_transitions": 11
+    },
+    {
+      "http_index": 261,
+      "at": "2026-10-26T04:19:12.015367+00:00",
+      "duty_pct": 49.98779296875,
+      "output_transitions": 11
+    },
+    {
+      "http_index": 264,
+      "at": "2026-10-26T04:19:12.523036+00:00",
+      "duty_pct": 24.98779296875,
+      "output_transitions": 12
+    }
+  ],
+  "natural_timer_zero_captured": false,
+  "later_zip_qom_after_manual_off": {
+    "frequency-hz": 2000,
+    "duty-pct": 0,
+    "transactions": 0,
+    "read-bytes": 0,
+    "written-bytes": 0,
+    "input-events": 0,
+    "output-transitions": 13
+  },
+  "zip_serial_contains_timer_done_and_manual_off": true,
+  "final_zero_cannot_satisfy_natural_timer_gate": true,
+  "extra_harness_browser_misclassification": {
+    "message": "input IO case has no actual UI action/POST",
+    "cause": "run_expanded_io.browser_check requires actions/posts for every non-fan case, but Buzzer is an output-only probe.",
+    "browser_product_errors": [],
+    "browser_input_posts": 0,
+    "running_dom_snapshots": 10,
+    "dom_http_matching": true,
+    "interpretation": "This extra checker error is not evidence of a browser product defect; it does not remove or mask the independent natural-timer-zero failure."
+  },
+  "historical_evidence_unchanged": true,
+  "device_service_contacted": false
+}

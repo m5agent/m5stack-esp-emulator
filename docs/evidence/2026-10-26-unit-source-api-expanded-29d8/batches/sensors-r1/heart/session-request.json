@@ -1,0 +1,20 @@
+{
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "firmware_id": "e945d807cc26d19ea22f1009e1cf17fe254bfe53d60a7d8d5b6a655aac43c141",
+  "uiflow_source_sha256": "362dad5bd3253018a2c9e61e17b4e73c050b1b3a85b8a552f504b47442f1f38c",
+  "ttl_seconds": 900,
+  "ready_marker": "SENSOR_PROBE_READY heart",
+  "ready_timeout_seconds": 240,
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "heart",
+      "port_id": "port-a",
+      "initial": {
+        "ir-sample": 40000,
+        "red-sample": 35000
+      }
+    }
+  ]
+}

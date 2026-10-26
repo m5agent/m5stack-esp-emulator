@@ -1,0 +1,182 @@
+[
+  {
+    "at": "2026-10-26T04:18:57.166038+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "9b0782a4acca14d3f1efc8f89777951de7ba60aa761f54cb3104e8f02928191c",
+    "input_event": null,
+    "phase": "startup"
+  },
+  {
+    "at": "2026-10-26T04:18:57.166199+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "IO_PROBE_READY buzzer",
+    "offset": 0,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "9b0782a4acca14d3f1efc8f89777951de7ba60aa761f54cb3104e8f02928191c",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:18:57.189692+00:00",
+    "event_id": 2,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00002-serial.txt",
+    "serial_sha256": "9b0782a4acca14d3f1efc8f89777951de7ba60aa761f54cb3104e8f02928191c",
+    "input_event": null,
+    "phase": "IO_PROBE_READY buzzer"
+  },
+  {
+    "at": "2026-10-26T04:18:57.189986+00:00",
+    "event_id": 3,
+    "kind": "marker",
+    "marker": "IO_BUZZER 0 1200 0",
+    "offset": 0,
+    "serial_file": "observations/00003-marker.txt",
+    "serial_sha256": "9b0782a4acca14d3f1efc8f89777951de7ba60aa761f54cb3104e8f02928191c",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:18:57.300956+00:00",
+    "event_id": 4,
+    "kind": "state",
+    "file": "observations/00004-state.json",
+    "phase": "IO_BUZZER 0 1200 0",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:01.080962+00:00",
+    "event_id": 5,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00005-serial.txt",
+    "serial_sha256": "c3eff2668a0b8b086657a413322e849484baf3ab1229c3ddbb6a57da78baaec3",
+    "input_event": null,
+    "phase": "IO_BUZZER 0 1200 0"
+  },
+  {
+    "at": "2026-10-26T04:19:01.081132+00:00",
+    "event_id": 6,
+    "kind": "marker",
+    "marker": "IO_BUZZER 1 2400 25",
+    "offset": 0,
+    "serial_file": "observations/00006-marker.txt",
+    "serial_sha256": "c3eff2668a0b8b086657a413322e849484baf3ab1229c3ddbb6a57da78baaec3",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:01.367104+00:00",
+    "event_id": 7,
+    "kind": "state",
+    "file": "observations/00007-state.json",
+    "phase": "IO_BUZZER 1 2400 25",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:05.175361+00:00",
+    "event_id": 8,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00008-serial.txt",
+    "serial_sha256": "e52453debf2a54cf1715fe0cdfad29a684fa99157eb74b29a5cfbc87c6102c33",
+    "input_event": null,
+    "phase": "IO_BUZZER 1 2400 25"
+  },
+  {
+    "at": "2026-10-26T04:19:05.175535+00:00",
+    "event_id": 9,
+    "kind": "marker",
+    "marker": "IO_BUZZER 2 3600 75",
+    "offset": 0,
+    "serial_file": "observations/00009-marker.txt",
+    "serial_sha256": "e52453debf2a54cf1715fe0cdfad29a684fa99157eb74b29a5cfbc87c6102c33",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:05.423596+00:00",
+    "event_id": 10,
+    "kind": "state",
+    "file": "observations/00010-state.json",
+    "phase": "IO_BUZZER 2 3600 75",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:09.221822+00:00",
+    "event_id": 11,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00011-serial.txt",
+    "serial_sha256": "2fc5ef722bb34910fd06479dc34f94bf9ae4cb23abb03eb9da7c27c5296c82eb",
+    "input_event": null,
+    "phase": "IO_BUZZER 2 3600 75"
+  },
+  {
+    "at": "2026-10-26T04:19:09.222093+00:00",
+    "event_id": 12,
+    "kind": "marker",
+    "marker": "IO_BUZZER_ONCE 2000 50",
+    "offset": 0,
+    "serial_file": "observations/00012-marker.txt",
+    "serial_sha256": "2fc5ef722bb34910fd06479dc34f94bf9ae4cb23abb03eb9da7c27c5296c82eb",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:09.486214+00:00",
+    "event_id": 13,
+    "kind": "state",
+    "file": "observations/00013-state.json",
+    "phase": "IO_BUZZER_ONCE 2000 50",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:09.991007+00:00",
+    "event_id": 14,
+    "kind": "state",
+    "file": "observations/00014-state.json",
+    "phase": "IO_BUZZER_ONCE 2000 50",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:10.497690+00:00",
+    "event_id": 15,
+    "kind": "state",
+    "file": "observations/00015-state.json",
+    "phase": "IO_BUZZER_ONCE 2000 50",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:11.002023+00:00",
+    "event_id": 16,
+    "kind": "state",
+    "file": "observations/00016-state.json",
+    "phase": "IO_BUZZER_ONCE 2000 50",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:11.509461+00:00",
+    "event_id": 17,
+    "kind": "state",
+    "file": "observations/00017-state.json",
+    "phase": "IO_BUZZER_ONCE 2000 50",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:12.020669+00:00",
+    "event_id": 18,
+    "kind": "state",
+    "file": "observations/00018-state.json",
+    "phase": "IO_BUZZER_ONCE 2000 50",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:19:12.528381+00:00",
+    "event_id": 19,
+    "kind": "state",
+    "file": "observations/00019-state.json",
+    "phase": "IO_BUZZER_ONCE 2000 50",
+    "input_event": null
+  }
+]

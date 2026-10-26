@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "unit_id": "rs485",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "port_id": "port-a",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "rs485",
+      "port_id": "port-a"
+    }
+  ],
+  "expected_size": [
+    320,
+    240
+  ],
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "source_cas_sha256": "57dd24c387e9a727e625783d0e5357e499367819bf9e4e63fefb6f8efb07a342",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "io_drivers/angle.py": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+    "io_drivers/button.py": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+    "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "io_drivers/dual_button.py": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+    "io_drivers/fan.py": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+    "io_drivers/ir.py": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+    "io_drivers/key.py": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+    "io_drivers/light.py": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+    "io_drivers/limit.py": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+    "io_drivers/pir.py": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+    "io_drivers/rgb.py": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+    "io_drivers/rs485.py": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+    "io_program.py": "5ae65d7ba7d23321ca089a292a146c12b62e33700a5a828f7231d185f6e2adb9",
+    "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+    "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4",
+    "probe_config.py": "ee6dcbd6e925a9dab016ed262e99ff4e8d2bf98a263926b36ff64ee63238ebfc"
+  },
+  "official_drivers": {
+    "pir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "limit.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/limit.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "dual_button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/dual_button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "angle.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/angle.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "light.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/light.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "fan.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/fan.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "buzzer.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rgb.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rgb.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "key.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/key.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "ir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rs485.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rs485.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    }
+  },
+  "original_function_sha256": {
+    "attachments": "6eb3d027b7be8274af055026e7a82201e54033fd80cd70bfdf9cd546bf15a187",
+    "buzzer_timer_window": "238309af4c49611f50eac74b7c9697ac2befe03e20c9638fddf59ec266ca0940",
+    "Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd",
+    "validate_io": "fb252778935d9aad138096709235e159de57ed2d42f9402ee05a1ea62a09e56e",
+    "validate_evidence": "a3026d8b3b5dc7a218b9c522583bed5e3800bcce5a1dd733e2c13537f9ea197b"
+  },
+  "original_runner_sha256": "6a837b03fa4cae6bf8072566c1d30b32cc5aeaf89cd8fa5ae7d9ecab84da5c1c",
+  "ready_marker": "IO_PROBE_READY rs485",
+  "firmware_flavor": "reference-app-with-original-unit-drivers",
+  "source_intake": "uiflow-source-api",
+  "source_context_commit": "5cf58191af2938ecd86f991455b47145872fb08e",
+  "custom_driver_modification": false,
+  "known_original_guest_gap": false,
+  "status": "PREPARED_NO_API_OR_RUNTIME"
+}

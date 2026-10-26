@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-expanded-cross-review-20261026/custom/independent_review.py", line 149, in <module>
+    data=common_case(case);specific=ir_audit(data) if case=='ir' else buzzer_audit(data);reviews.append({**data['summary'],'protocol':specific})
+         ^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-expanded-cross-review-20261026/custom/independent_review.py", line 41, in common_case
+    need(any(e['method']=='POST' and e['path']=='/api/v1/sessions' and e['status']==201 and v.get('session_id')==sid and load(directory/'http'/e['request_file'])==session_request for _,e,v,_ in values if isinstance(v,dict)),'session source-pin POST lacks raw backing')
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-expanded-cross-review-20261026/custom/independent_review.py", line 8, in need
+    if not x:raise RuntimeError(message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: session source-pin POST lacks raw backing

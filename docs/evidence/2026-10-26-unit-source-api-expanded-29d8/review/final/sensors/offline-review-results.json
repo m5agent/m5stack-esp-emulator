@@ -1,0 +1,76 @@
+{
+  "self_check": {
+    "status": "PASS",
+    "prepared_cases": [
+      "color",
+      "tof",
+      "ncir",
+      "heart",
+      "tvoc",
+      "ultrasonic-i2c",
+      "thermal",
+      "thermal-missing-fixture"
+    ],
+    "original_contract_value_checks": 62,
+    "deny_api_process_bin": true,
+    "api_or_process_calls": 0,
+    "binary_files_written": 0,
+    "guest_execution": false,
+    "hardware": "NOT RUN"
+  },
+  "recorded_sensor7_replay": {
+    "status": "PASS",
+    "cases": [
+      {
+        "case": "color",
+        "session_id": "55da4d11a5484e8eba99ecd07a7b1e9b",
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "initial_and_changes_replayed": 3
+      },
+      {
+        "case": "tof",
+        "session_id": "9f13683aa8ee4d3cb20f9f2680eed2b6",
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "initial_and_changes_replayed": 3
+      },
+      {
+        "case": "ncir",
+        "session_id": "02f91798b9d54c72abcb021327a87700",
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "initial_and_changes_replayed": 3
+      },
+      {
+        "case": "heart",
+        "session_id": "47c3e38d960a4953968032686631a1bb",
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "initial_and_changes_replayed": 3
+      },
+      {
+        "case": "tvoc",
+        "session_id": "2dbcaaedfca04db4aae24866935c9dcc",
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "initial_and_changes_replayed": 3
+      },
+      {
+        "case": "ultrasonic-i2c",
+        "session_id": "c0bf6a05f36740ccbce82d61dc6f6b4d",
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "initial_and_changes_replayed": 3
+      },
+      {
+        "case": "thermal",
+        "session_id": "5ef192cbc8494897aee9aa0638aced9b",
+        "status": "PASS",
+        "validation": "virtual-device validation",
+        "initial_and_changes_replayed": 2
+      }
+    ],
+    "scope": "recorded CoreS3 source API + guest/I2C/Web/ZIP/cleanup only; hardware NOT RUN"
+  }
+}

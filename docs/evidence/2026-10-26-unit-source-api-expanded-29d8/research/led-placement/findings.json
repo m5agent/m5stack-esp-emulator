@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "status": "RESEARCH_COMPLETE_WITH_OPEN_EVIDENCE_GAPS",
+  "scope": [
+    "Unit RGB U003",
+    "Unit Encoder U135"
+  ],
+  "mutations": {
+    "product_source_modified": false,
+    "vendor_source_modified": false,
+    "adapter_modified": false,
+    "frozen_harness_modified": false,
+    "device_service_calls": 0,
+    "runtime_or_qemu_started": false,
+    "output_scope": ".work/unit-led-placement-research-20261026/"
+  },
+  "evidence_level": "Official-source documentary research only; no virtual-device run or hardware measurement",
+  "model_freeze": {
+    "source_commit": "48ab992f5ff63c1a91296051e1afcb5959877903",
+    "audit": "frozen-model-audit.json"
+  },
+  "products": {
+    "rgb": {
+      "sku": "U003",
+      "mapping_status": "OPEN",
+      "electrical_cascade_order": [
+        "LED3",
+        "LED2",
+        "LED1"
+      ],
+      "electrical_source": "rgb-schematic.png",
+      "electrical_scope": "Cascade adjacency only; no new connector-net or physical-placement conclusion",
+      "visual_components": {
+        "led0": [
+          -6.5,
+          2.7,
+          4.03
+        ],
+        "led1": [
+          0,
+          2.7,
+          4.03
+        ],
+        "led2": [
+          6.5,
+          2.7,
+          4.03
+        ]
+      },
+      "main_grove": [
+        0,
+        -15.65,
+        0
+      ],
+      "out_grove": [
+        0,
+        15.65,
+        0
+      ],
+      "electrical_chain_position_to_visual_id": {
+        "first_LED3": null,
+        "second_LED2": null,
+        "third_LED1": null
+      },
+      "confirmed_observation": "Official assembled-product photos and drawing show three front light apertures; no inspected source shows readable LED1/2/3 placed on an oriented PCB.",
+      "inspected_product_photos": [
+        "rgb_01.webp",
+        "rgb_02.webp",
+        "rgb_03.webp",
+        "rgb_05.webp",
+        "rgb_06.webp"
+      ],
+      "hardware_repository_inventory": [
+        "Products/U003_Unit_RGB/Structures/Unit_RGB.stl"
+      ],
+      "blocker": "No reviewed assembly drawing, PCB/Gerber silkscreen, or oriented front/back photo connects LED1/2/3 to physical left/center/right.",
+      "feedback": {
+        "submitted": true,
+        "topic": "Missing PCB refdes-to-physical-position evidence",
+        "result": "Accepted for official human review; no mapping supplied by this acknowledgement"
+      }
+    },
+    "encoder": {
+      "sku": "U135",
+      "mapping_status": "OPEN",
+      "electrical_cascade_order": [
+        "U2.PA0",
+        "LED1",
+        "LED2"
+      ],
+      "electrical_source": "encoder-schematic.webp",
+      "visual_components": {
+        "led0": [
+          -7.5,
+          7,
+          5.9
+        ],
+        "led1": [
+          7.5,
+          7,
+          5.9
+        ]
+      },
+      "main_grove": [
+        0,
+        -15.65,
+        0
+      ],
+      "knob_press": [
+        0,
+        7,
+        6
+      ],
+      "knob_axis": [
+        0,
+        0,
+        1
+      ],
+      "protocol_index_to_visual_id": {
+        "1": null,
+        "2": null
+      },
+      "refdes_to_physical_side": {
+        "LED1": null,
+        "LED2": null
+      },
+      "confirmed_observation": "Official U135 bare-PCB photo shows the two LED packages flanking the main Grove at the connector end. LED1/LED2 reference designators are not readable.",
+      "photo_orientation": {
+        "file": "encoder_03.webp",
+        "size_pixels": [
+          800,
+          800
+        ],
+        "view": "encoder shaft/component side, Grove downward",
+        "approximate_pixel_landmarks_for_navigation_only": {
+          "knob_center": [
+            398,
+            290
+          ],
+          "grove_center": [
+            397,
+            576
+          ],
+          "left_visible_led": [
+            291,
+            552
+          ],
+          "right_visible_led": [
+            500,
+            553
+          ]
+        },
+        "interpretation_limit": "Pixel landmarks are navigation aids, not dimensions, metrology, refdes identification, or hardware validation; PCB revision not legible."
+      },
+      "qualitative_model_observation": {
+        "status": "DOCUMENTED_FOR_FOLLOW_UP_ONLY",
+        "official_photo": "encoder_03.webp",
+        "frozen_source": "platform/web/vendor/m5stack-models/src/units/encoder/index.js:10",
+        "photo_relation": "Both LEDs at Grove flanks, on the connector side of the mounting-hole waist; rotary shaft is at the opposite end.",
+        "frozen_model_relation": "Both LED centers at Y=+7, the same Y row as the knob; main Grove center at Y=-15.65.",
+        "conclusion_limit": "A qualitative location discrepancy in these frozen source coordinates versus the documented U135 photo; no physical left/right electrical index inference, no exact corrected XYZ, and no geometry/current functionality conclusion changed."
+      },
+      "inspected_product_photos": [
+        "encoder_01.webp",
+        "encoder_02.webp",
+        "encoder_03.webp",
+        "encoder_05.webp",
+        "encoder_06.webp"
+      ],
+      "supporting_back_photo": "encoder-firmware-01.jpg",
+      "hardware_repository_inventory": [
+        "Products/U135_Unit_Encoder/Structures/Unit_Encoder.stl"
+      ],
+      "blocker": "No reviewed oriented PCB source labels the two visible LEDs as LED1 versus LED2; schematic symbol left/right is not placement evidence.",
+      "feedback": {
+        "submitted": true,
+        "topic": "Missing PCB refdes-to-physical-position evidence",
+        "result": "Accepted for official human review; no mapping supplied by this acknowledgement"
+      }
+    }
+  },
+  "next_evidence_needed": [
+    "Obtain SKU- and PCB-revision-bound assembly placement drawing or top/bottom Gerber silkscreen with readable LED reference designators and Grove orientation.",
+    "Alternatively obtain original front/back photographs with readable reference designators, the same board orientation, and the actual board revision.",
+    "Only after independent review fill index-to-visual mapping; document any purely mechanical location correction separately from electrical-order calibration.",
+    "Keep current electrical-order swatches until the physical mapping gate is met. Do not infer mappings from schematic symbol order, visual id numbers, wire routing, or another SKU."
+  ]
+}

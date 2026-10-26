@@ -1,0 +1,16 @@
+{
+  "path": "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch",
+  "patch_sha256": "c86d272991a7e18a7cbeab966bb63dba8ba0ec261c51392e526cc480d637f9f8",
+  "driver_path": "io_drivers/ir.py",
+  "original_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+  "patched_driver_sha256": "01d7fda4a59287c25a9a8dac398637898f08cce75579af296c1b0b1a714c6151",
+  "original_driver_unchanged": true,
+  "scope": "Explicit generated-copy custom wrapper; frozen firmware, native module and QEMU unchanged.",
+  "native_module_modified": false,
+  "frozen_modules_modified": false,
+  "controller_modified": false,
+  "reverse_patch_sha256": "9201f13e4e8a84baaaf06a8f419acc34e52cafe483722f5d9c2f367929b65fa9",
+  "restored_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+  "reversible_byte_exact": true,
+  "helper": "prepare_host_io.custom_driver + strict_patch (pure, no builder/process)"
+}

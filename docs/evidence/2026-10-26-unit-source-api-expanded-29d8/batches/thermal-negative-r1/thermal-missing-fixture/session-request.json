@@ -1,0 +1,17 @@
+{
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "firmware_id": "1607d317bdcfdcc97e1ff69a4fd1eec48440ed11914bc35be6619f5d78a93d91",
+  "uiflow_source_sha256": "86cc81b6f2fb6891b6ddd4fe0c587e68d9d0ac93fd8650aeb50771e3bf0acf8b",
+  "ttl_seconds": 900,
+  "ready_marker": "SENSOR_PROBE_READY thermal",
+  "ready_timeout_seconds": 240,
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "thermal",
+      "port_id": "port-a",
+      "initial": {}
+    }
+  ]
+}

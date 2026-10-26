@@ -1,0 +1,13 @@
+# Sensor source acceptance independent review
+
+No confirmed actionable defect was found in this review. The reviewed harness and contracts were not modified; no service, browser, QEMU or firmware build was started.
+
+- Original CASES, reading_matches, thermal_reading and validate_evidence fragments were verified byte for byte against the frozen repository runner.
+- Pure offline self-check passed for eight preparations, with 62 original-value/finite/arity/Thermal negative checks; API/process calls and firmware BIN writes were zero.
+- The terminal sensor7 live-r1 batch was replayed read-only: six ordinary sensors each retained initial plus two independent fresh-cursor changes; Thermal retained its original two-stage raw-frame path.
+- Independent deletion of every required readiness/negative marker was rejected. Thermal guest code calls the real driver get_frame, counts all 768 finite pixels, and prints the nine required sample indices.
+- Replay verified source JSON CAS and source pin, actual HTTP source/session requests and responses, original serial byte ranges against ZIP, real DOM/Web POST values, frozen Unit registries, QOM counters, runtime PID/executable SHA/worker generation, evidence before purge=0 stop, retained history/frame, released Flash and idle worker/service.
+
+Limitations: thermal-missing-fixture is a separate explicit negative control and is intentionally excluded from default all; this review prepared and checked it offline but did not execute it. PID termination is observed during execution using kill(0) against the directly proven owned PID; offline replay verifies its recorded PID/result and backed stop/history/idle responses, not a new OS observation. This is virtual-device evidence; hardware was NOT RUN.
+
+Artifacts: reviewed-file-sha256.json, offline-review-results.json, independent-contract-checks.json and offline-self-check/.

@@ -1,0 +1,695 @@
+{
+  "schema_version": 1,
+  "unit_id": "angle",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "port_id": "port-a",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "angle",
+      "port_id": "port-a"
+    }
+  ],
+  "expected_size": [
+    320,
+    240
+  ],
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "source_cas_sha256": "9e63b4e10edc1f9fccc2c1c4c81734aafb814b1b1ffbd22244bf0bda00a76902",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "io_drivers/angle.py": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+    "io_drivers/button.py": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+    "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "io_drivers/dual_button.py": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+    "io_drivers/fan.py": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+    "io_drivers/ir.py": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+    "io_drivers/key.py": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+    "io_drivers/light.py": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+    "io_drivers/limit.py": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+    "io_drivers/pir.py": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+    "io_drivers/rgb.py": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+    "io_drivers/rs485.py": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+    "io_program.py": "5ae65d7ba7d23321ca089a292a146c12b62e33700a5a828f7231d185f6e2adb9",
+    "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+    "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4",
+    "probe_config.py": "b26ba09ed6483a9f2bb8b723e717c4e8400cd35a2cbc59dd1ecb378ba71bd56d"
+  },
+  "official_drivers": {
+    "pir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "limit.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/limit.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "dual_button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/dual_button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "angle.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/angle.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "light.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/light.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "fan.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/fan.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "buzzer.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rgb.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rgb.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "key.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/key.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "ir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rs485.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rs485.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    }
+  },
+  "original_function_sha256": {
+    "attachments": "6eb3d027b7be8274af055026e7a82201e54033fd80cd70bfdf9cd546bf15a187",
+    "buzzer_timer_window": "238309af4c49611f50eac74b7c9697ac2befe03e20c9638fddf59ec266ca0940",
+    "Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd",
+    "validate_io": "fb252778935d9aad138096709235e159de57ed2d42f9402ee05a1ea62a09e56e",
+    "validate_evidence": "a3026d8b3b5dc7a218b9c522583bed5e3800bcce5a1dd733e2c13537f9ea197b"
+  },
+  "original_runner_sha256": "6a837b03fa4cae6bf8072566c1d30b32cc5aeaf89cd8fa5ae7d9ecab84da5c1c",
+  "ready_marker": "IO_PROBE_READY angle",
+  "firmware_flavor": "reference-app-with-original-unit-drivers",
+  "source_intake": "uiflow-source-api",
+  "source_context_commit": "5cf58191af2938ecd86f991455b47145872fb08e",
+  "custom_driver_modification": false,
+  "known_original_guest_gap": false,
+  "status": "PASS",
+  "case_directory": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-source-io-expanded-20261026/live-default9-r1/angle",
+  "tooling_source_sha256": {
+    "tests/units/run_io_cases.py": "6a837b03fa4cae6bf8072566c1d30b32cc5aeaf89cd8fa5ae7d9ecab84da5c1c",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+    "tests/units/run_control_cases.py": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+    "tests/units/run_sensor_cases.py": "709abf86059580155753d237c9e2abdb8a0b79737fac878b705319b4b3685fc2",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "platform/tests/unit_web_bridge.mjs": "2cf7a92aabbfc0af21f0d5278f4b74a898eba44676b83195fec78612675650e0",
+    "platform/tools/unit_runtime.py": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+    "platform/tools/unit_adc_fixture.py": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+    "platform/tools/device_service.py": "093e4738efa6b505b1505e5b635249b9ac992583ff587791e16011d29f3b80a8",
+    "platform/tools/serve.py": "0eb620ca8fe8eabbea10929ae543fb68cff838b8f2825c2bcf2669fe8d0fcd46",
+    "platform/tools/uiflow_source.py": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+    "platform/units/catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "platform/units/runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a",
+    "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "platform/units/fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d",
+    "platform/web/sessions.js": "888c4e5e092f891b0d31bd6527bca5c0e7a10e0f07aa44863392ba1cf0607a52",
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "tests/units/io_probe/io_drivers/source-manifest.json": "9dec61dc22cdb00b7794731f38291021fa824aaabff74019a8c04cbc4aecfcf1",
+    "HARNESS/run_expanded_io.py": "e63edab96163509cc698a2e5e49c7c46ab15188050f2a6be973ee908b4b2e8b5",
+    "HARNESS/source_api_common.py": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1"
+  },
+  "checks": {
+    "source_api_caller_bytes_cas_base_and_firmware": true,
+    "original_driver_ready_and_runtime_verified": true,
+    "unchanged_idf_curve_fitting_exact_uv_and_monotonic_voltage": true,
+    "selected_white_adc_ideal_12bit_transfer": true,
+    "original_validate_io_completed_without_reduction": true,
+    "zip_before_stop_original_evidence_and_source_binding": true,
+    "history_pid_exit_flash_released_health_idle": true,
+    "real_product_dom_and_http_match": true
+  },
+  "injections": [
+    {
+      "id": "external1",
+      "values": {
+        "voltage-mv": 0
+      },
+      "expected_ideal_input": {
+        "input_mv": 0,
+        "raw_12bit": 0,
+        "read_u16": 0,
+        "read_uv": 0,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      },
+      "guest_reading": [
+        0,
+        0.0,
+        0
+      ]
+    },
+    {
+      "id": "external1",
+      "values": {
+        "voltage-mv": 1250
+      },
+      "expected_ideal_input": {
+        "input_mv": 1250,
+        "raw_12bit": 1651,
+        "read_u16": 26422,
+        "read_uv": 1232000,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      },
+      "guest_reading": [
+        26422,
+        1.232,
+        1232000
+      ]
+    },
+    {
+      "id": "external1",
+      "values": {
+        "voltage-mv": 2500
+      },
+      "expected_ideal_input": {
+        "input_mv": 2500,
+        "raw_12bit": 3302,
+        "read_u16": 52844,
+        "read_uv": 2427000,
+        "scope": "synthetic QEMU SAR plus unchanged IDF curve-fitting reference, not hardware accuracy"
+      },
+      "guest_reading": [
+        52844,
+        2.427,
+        2427000
+      ]
+    }
+  ],
+  "required_markers": [
+    "IO_PROBE_READY angle"
+  ],
+  "started_at": "2026-10-26T04:00:38.728737+00:00",
+  "hardware_validation": "NOT RUN",
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "9e63b4e10edc1f9fccc2c1c4c81734aafb814b1b1ffbd22244bf0bda00a76902",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_size": 16121856,
+      "flash_size": 16777216,
+      "source_sha256": "9e63b4e10edc1f9fccc2c1c4c81734aafb814b1b1ffbd22244bf0bda00a76902",
+      "effective_source_sha256": "9e63b4e10edc1f9fccc2c1c4c81734aafb814b1b1ffbd22244bf0bda00a76902",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/__init__.py",
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/angle.py",
+          "size": 382,
+          "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/button.py",
+          "size": 134,
+          "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/buzzer.py",
+          "size": 227,
+          "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/dual_button.py",
+          "size": 2288,
+          "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/fan.py",
+          "size": 559,
+          "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/ir.py",
+          "size": 3178,
+          "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/key.py",
+          "size": 2703,
+          "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/light.py",
+          "size": 548,
+          "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/limit.py",
+          "size": 2207,
+          "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/pir.py",
+          "size": 1104,
+          "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/rgb.py",
+          "size": 238,
+          "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/rs485.py",
+          "size": 1549,
+          "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+          "origin": "caller"
+        },
+        {
+          "path": "io_program.py",
+          "size": 9368,
+          "sha256": "5ae65d7ba7d23321ca089a292a146c12b62e33700a5a828f7231d185f6e2adb9",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 247,
+          "sha256": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_config.py",
+          "size": 67,
+          "sha256": "b26ba09ed6483a9f2bb8b723e717c4e8400cd35a2cbc59dd1ecb378ba71bd56d",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_logging.py",
+          "size": 162,
+          "sha256": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 18,
+      "caller_source_bytes": 24985,
+      "generated_files": [],
+      "firmware_sha256": "cd9f946a2a41f1f8f44ffb7cf340fbf29f25ec4bea08d9163866f82b45c8fdf6",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 11141120,
+        "size": 4980736,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+        "derived_sha256": "dbacd29f184f9b0bc817daadac240997969812cd01424c4343f25f6b50e73674",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "firmware_sha256": "cd9f946a2a41f1f8f44ffb7cf340fbf29f25ec4bea08d9163866f82b45c8fdf6",
+  "firmware_id": "cd9f946a2a41f1f8f44ffb7cf340fbf29f25ec4bea08d9163866f82b45c8fdf6",
+  "session_id": "74f9cf8cb7b4432a812afffbe59718af",
+  "runtime_provenance": {
+    "session_id": "74f9cf8cb7b4432a812afffbe59718af",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 3225,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 11,
+    "firmware_sha256": "cd9f946a2a41f1f8f44ffb7cf340fbf29f25ec4bea08d9163866f82b45c8fdf6",
+    "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+  },
+  "adc_fixture_sha256": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d",
+  "adc_oracle_sha256": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+  "unit_state": {
+    "session_id": "74f9cf8cb7b4432a812afffbe59718af",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-26T04:01:08.449034+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "angle",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "voltage-mv": 2500,
+          "adc-samples": 4699,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 3,
+          "output-transitions": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "angle",
+        "name": "Angle",
+        "sku": "U005",
+        "visual_asset": {
+          "entry": "src/units/angle/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/angle",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "10k ohm potentiometer",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "adc",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "NC",
+              "direction": "none"
+            },
+            "white": {
+              "signal": "analog output",
+              "direction": "unit-to-host"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "White wire analog output is specified as 0..2500mV. Official AngleUnit uses the host ADC with 11dB attenuation; read_u16 is host ADC scaling rather than an I2C value.",
+          "registers": [],
+          "gaps": [
+            "Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+          ]
+        },
+        "inputs": {
+          "voltage-mv": {
+            "type": "number",
+            "label": "旋钮输出电压",
+            "default": 1250,
+            "default_source": "synthetic-test-fixture",
+            "unit": "mV",
+            "minimum": 0,
+            "maximum": 2500,
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/angle",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/angle.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd"
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "inputs": {
+            "voltage-mv": {
+              "property": "voltage-mv"
+            }
+          },
+          "state": {
+            "voltage-mv": {
+              "property": "voltage-mv"
+            },
+            "adc-samples": {
+              "property": "adc-samples"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "0f5698216b15f8b492a660f2378e4474c6c7b374494b7016b27939aa9725e286",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/angle/report.json",
+            "report_sha256": "032536a141000e72ac532df106f7c85b3f29f5e91e36fc9b0dda0132c2acc2e9",
+            "evidence_sha256": "7aefc5af1e2a5a3e04b7c5ad22c5ddef34f7fd1fb49f8766dab282f3dadd9012",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 8,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "NOT RUN",
+              "device_id": "atoms3r",
+              "unit_id": "angle",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Exact reference app ADC fixture/calibration and controller-unit oracle required before execution."
+            },
+            "sticks3": {
+              "status": "NOT RUN",
+              "device_id": "sticks3",
+              "unit_id": "angle",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Exact reference app ADC fixture/calibration and controller-unit oracle required before execution."
+            },
+            "stopwatch": {
+              "status": "NOT RUN",
+              "device_id": "stopwatch",
+              "unit_id": "angle",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Exact reference app ADC fixture/calibration and controller-unit oracle required before execution."
+            }
+          }
+        },
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Mechanical angle-to-voltage transfer and SoC-specific ADC conversion/attenuation need a controller model."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a",
+      "fixtures/esp32s3-adc-calibration.json": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d"
+    },
+    "contract_status": "frozen"
+  },
+  "evidence_sha256": "e4019d00b75ae64eb096e2edf20b2b813f8c723b1b6b9f1ae7c25ddf581e984f",
+  "evidence_summary": {
+    "original": {
+      "files": [
+        "firmware/uiflow-source.json",
+        "frames/current.png",
+        "manifest.json",
+        "qemu.stderr",
+        "qemu.stdout",
+        "qom/snapshot.json",
+        "serial.log",
+        "serial1.log",
+        "units/adc-calibration.json",
+        "units/contract.json",
+        "units/runtime.json",
+        "units/state.json"
+      ],
+      "session_id": "74f9cf8cb7b4432a812afffbe59718af",
+      "frame_sha256": "0d6372271f362c0e375862a63a139b2e210f262f1345aad36c30f177710b77ee"
+    },
+    "source_cas_sha256": "9e63b4e10edc1f9fccc2c1c4c81734aafb814b1b1ffbd22244bf0bda00a76902",
+    "pid": 3225
+  },
+  "cleanup": {
+    "pid": 3225,
+    "pid_gone": true,
+    "flash_retained": false,
+    "health_active_sessions": 0
+  },
+  "browser": {
+    "running_snapshots": 7,
+    "real_posts": 3,
+    "actions": 3
+  },
+  "protocol_status": "PASS",
+  "original_risk_boundary": null,
+  "finished_at": "2026-10-26T04:01:10.111695+00:00"
+}

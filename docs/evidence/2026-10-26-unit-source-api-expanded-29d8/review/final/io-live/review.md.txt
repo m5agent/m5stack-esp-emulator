@@ -1,0 +1,55 @@
+# IO default-nine：独立实际文件复核
+
+日期：2026-10-26。结论：**NO_ACTIONABLE_FINDINGS，九例已记录的原断言执行与证据可复核为 PASS。**
+
+输入仅为已终态的 `.work/unit-source-io-expanded-20261026/live-default9-r1`。本 agent 未调用 8787、未创建 session、未启动或停止 QEMU、未修改产品/文档/harness/原始 evidence；不审阅仍运行的 IR/Buzzer risk 目录。
+
+原 runner 的 `--check` 纯离线复核通过，输出 [runner-check.json](runner-check.json)。独立 [audit.py](audit.py) 不导入该 checker，重新读取原始 serial、QOM-backed `/units` 响应、实际 Web DOM/HTTP、ZIP 和冻结源码，结果见 [review.json](review.json)。3872 个原始 bundle 摘要条目全部匹配；原 `Observations/validate_io/validate_evidence/attachments/buzzer_timer_window` 的 AST 源摘要与冻结版本一致，live harness 直接调用原断言。caller 的 18 个 Python 文件逐例与原 probe/config 对照，12 份官方 driver 与 MIT 原字节一致。
+
+## 原始 UART / QOM 复算
+
+所有正输入均用实际 HTTP 串口 cursor 作为起点，以属于该输入的成功 wait 文件为终点，校验 UART 新增长度；终点不越过下一输入的 cursor，避免借后续状态过关。每份 observation 的 serial/state 均能在该例原始 HTTP response bytes 中找到，未用 result 的 `checks=true` 代替语义。
+
+| 用例 | 原始证据复算 | 实际 Web POST / running DOM 快照 |
+| --- | --- | --- |
+| PIR | 六次 True/False，回调计数 `1/1→2/2`；禁用至 rearm 窗口无 callback | 6 / 9 |
+| Dual Button | raw `(0,1)→(1,1)→(1,0)→(1,1)`；click `(1,0)→(1,1)` | 4 / 7 |
+| LIMIT | alias=1；raw/count `(0,0),(1,1),(0,2),(1,3)`；reset=0 | 4 / 7 |
+| Key | raw `0→1`，QOM RGB `123456→2468AC`；9 帧；原始 QOM RMT 216 symbols、9 completions、9 threshold、0 errors | 2 / 8 |
+| Angle | 输入 0/1250/2500mV；guest read_u16 `0/26422/52844`，read_uv `0/1232000/2427000`，电压输出严格递增；4699 SAR samples | 3 / 7 |
+| Light | 输入 310/1550/3100mV；guest raw `6561/32776/65535`，独立 digital `0/1/0`；1857 SAR samples | 5 / 7 |
+| Fan | 原三段 QOM `1000Hz/0%`、`1000Hz/29.39453125%`、`1499.7000599880023Hz/100%`；6 output transitions。原 driver setting=25 对应约29.39% PWM | 0 / 6 |
+| RS485 | 256-byte 注入实际 HTTP409/FIFO；前后完整 Unit 状态与 read counter 均未变；新 UART0 marker 确认 ANY=16、binary RX16、echo21；QOM read16/write37，ZIP `serial1.log` 恰为原 TX16+echo21 | 1 / 7 |
+| HUB | 同 guest scan `68 88 90 112`；ENV→NCIR→TVOC 独立输入后，每段 7-value UART 向量保持其他 leaf 的先前值；三个 leaf 独立 I2C 计数均非零；passive HUB 自身计数全零 | 7 / 9 |
+
+Light 的两个字段和 HUB 的多字段通过独立产品控件产生多次 POST，不能把 POST 数与高级输入向量数等同；same-state `already-equal-noop` 也与实际变更 POST 分开。Light guest 不输出 read_uv，JSON 中其 read_uv 数字明确只是 oracle 期望，未称实测。
+
+ADC 复核重新对实际 reference base 文件计算全镜像 SHA `1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264`，并按 fixture 指定 offset=65536、length=10018400 重算应用段 SHA `c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f`。fixture SHA 为 `c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d`。两例 ZIP 的 applied receipt 绑定同一 fixture/application，hardware=false、identity/security changed=false。ADC 数值用冻结系数和独立整数算术重算，未调用产品 oracle 函数。
+
+每个 running DOM cell 的文本/RGB 都重新与浏览器实际捕获的 HTTP response properties 比对；更改输入具备产品控件 action 与真实 POST。源码快照证明使用真实浏览器传输，没有离线伪造 Client。
+
+## 运行身份、ZIP 与清理
+
+九例 direct-PID receipt 一致绑定 runtime SHA `29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d`、`qemu-system-xtensa` 和 worker generation 11。分别核对 ready/running/before-evidence 原始 GET 与 ZIP 中同一个 PID、firmware SHA、worker identity 和 lease。
+
+source CAS、每个 caller 文件 hash、`uiflow_source_sha256` 启动 pin、compose 返回 provenance 与 ZIP `firmware/uiflow-source.json` 逐一相等；无 binary-upload 请求。每个 ZIP 的所有成员 bytes/size/SHA、CRC、无重名成员、manifest 索引、source/attachment identity 和原 guest marker 均重新核对。原始 HTTP 记录证明 ZIP GET 先于 `DELETE ?purge=0`。其后 retained history 为 stopped、Flash=false、lease inactive、last frame=true，history PNG 确在 stop 后取得；保存的 cleanup health 均 active=0。当前 frame、history frame 与 ZIP frame 均为非单色原生 320×240 PNG。
+
+这是历史执行文件复核，当前没有重复请求 health；PID executable hash 与 PID exit 的历史系统调用依赖已保存的 live sampler receipt 及冻结实现，无法在结束后重采样原进程。派生固件 BIN 不在本 review bundle 内，ADC 的派生镜像应用绑定依据 applied receipt 与 compose 的 outside-VFS unchanged/readback receipt；已独立重算的是实际 reference application bytes。通用 depth=2 QOM 根快照显示 truncated，不能称完整 controller dump；逐 Unit 数据来自原始 `/units` 的 guest-qom 数据和 observation，而非推定未保存的控制器状态。
+
+## Fan rotor 的严格证据范围
+
+`web-report.json` 的现有 component snapshots：
+
+| UTC | Session | 实际 duty | rotor angle |
+| --- | --- | --- | --- |
+| 04:02:09.762 | booting | 0% | 0° |
+| 04:02:13.306 | running | 29.39453125% | 6.012° |
+| 04:02:17.370 | running | 100% | 293.994° |
+| 04:02:17.876 | running | 100% | 29.988° |
+| 04:02:18.383 | running | 100% | 122.994° |
+| 04:02:18.890 | running | 100% | 218.970° |
+| 04:02:19.902 | running | 100% | 338.958° |
+
+因此，可以确认 **100% 正 duty 的 2.532 秒采样段内 rotor 角度多次变化，图形活动存在**。0% 只有单个 booting 点，约29.39% 只有单个 running 点，不能声称所有阶段连续动画、0 duty 停止时间序列或低 duty 持续运动均已验证。component 的 `rpm` 始终为0；adapter 使用固定图形活动角度，既不是轴转速观测，也不能从 modulo 360 的离散角差推真实速度、整圈数或物理转动。
+
+本复核不扩展 IR/Buzzer、可读 UI、完整共享回归、硬件、电气、光学或电机速度结论。

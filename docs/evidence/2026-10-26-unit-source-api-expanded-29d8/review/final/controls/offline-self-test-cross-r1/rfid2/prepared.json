@@ -1,0 +1,105 @@
+{
+  "unit_id": "rfid2",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "source_cas_sha256": "ac77727fa4f72972944a4e196c37d73603e719df900b279b89f8f960d75d9089",
+  "files": {
+    "boot.py": {
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "size": 24
+    },
+    "control_drivers/__init__.py": {
+      "sha256": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+      "size": 65
+    },
+    "control_drivers/mfrc522/__init__.py": {
+      "sha256": "6462fa8be5d2d192bfdc428701dd619b719299daa1e4a82b16164a7099280974",
+      "size": 48607
+    },
+    "control_drivers/mfrc522/cmd.py": {
+      "sha256": "10f1970913fda99ada4ac3ca08725a4fa5e64b25ae554936da29ac2bd3120bac",
+      "size": 3419
+    },
+    "control_drivers/mfrc522/firmware.py": {
+      "sha256": "1a08760b07e2d0d2f955560b1a9902415a7fe3ad56c4cb8f6cf02acb5d0dee52",
+      "size": 2026
+    },
+    "control_drivers/mfrc522/reg.py": {
+      "sha256": "04cf1608635abef89423e7120e9e3b3bac8b49473267da5a4b0a133317b9a436",
+      "size": 3830
+    },
+    "host_control_layout.py": {
+      "sha256": "99ee92efdcd2beeb13b849f70b11cec47f8c0713479ce1d079f3f253d5e61464",
+      "size": 3397
+    },
+    "main.py": {
+      "sha256": "cc8ff69c8ae5a97cbbf1fb9faad7ddc5dedca2cb2fcb527f8ddb80ea39fa7f39",
+      "size": 6320
+    },
+    "probe_config.py": {
+      "sha256": "55f5fa37b2b4a04d38949a70697fdb9354795565b7f14c0a2c67bec4ca6cb988",
+      "size": 36
+    },
+    "probe_display.py": {
+      "sha256": "10ecfdb3521b654a025a80087925f826e0819dc2d3f14e2458d646a60d81d7ef",
+      "size": 1629
+    }
+  },
+  "port": {
+    "id": "port-a",
+    "label": "PORT.A",
+    "visual_port": "grove",
+    "connector": "HY2.0-4P",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    },
+    "power": {
+      "nominal_v": 5,
+      "control": "unknown"
+    },
+    "wiring_status": "confirmed",
+    "physical_presence": "main-device",
+    "evidence": [
+      {
+        "url": "https://docs.m5stack.com/en/core/CoreS3",
+        "checked_at": "2026-10-26",
+        "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+      }
+    ],
+    "limitations": []
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "rfid2",
+      "port_id": "port-a"
+    }
+  ],
+  "ready_marker": "CONTROL_PROBE_READY rfid2",
+  "flavor": "controls-probe-cores3-native-display-v1",
+  "display_contract": {
+    "device_id": "cores3",
+    "native": [
+      320,
+      240
+    ],
+    "rotation": 1,
+    "font": "Montserrat12",
+    "scale": 1.0,
+    "font_height": 15,
+    "x": 6,
+    "y": 6,
+    "width": 308,
+    "body_y": 24,
+    "line_height": 16,
+    "body_rows": 3,
+    "bottom": 72,
+    "headers": 1,
+    "flavor": "controls-probe-cores3-native-display-v1",
+    "evidence": "guest fontHeight/textWidth and native geometry checks required; preparation is not display PASS"
+  },
+  "status": "PREPARED_NO_API_OR_RUNTIME"
+}

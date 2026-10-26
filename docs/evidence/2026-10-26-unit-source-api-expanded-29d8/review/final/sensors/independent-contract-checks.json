@@ -1,0 +1,252 @@
+{
+  "origin_verified": {
+    "repository_path": "tests/units/run_sensor_cases.py",
+    "sha256": "709abf86059580155753d237c9e2abdb8a0b79737fac878b705319b4b3685fc2",
+    "fragments": {
+      "CASES": {
+        "start_line": 33,
+        "end_line": 79,
+        "sha256": "477d49e7d4f9e30da5615939478d3c9ca3138dcea26e2136e314baaf989247f4"
+      },
+      "reading_matches": {
+        "start_line": 102,
+        "end_line": 120,
+        "sha256": "e1327d9d2a19bc17e8236a2edc5c22a221c810c80c41397562ef88141b8f54a6"
+      },
+      "thermal_reading": {
+        "start_line": 123,
+        "end_line": 152,
+        "sha256": "23480b0bd915c9cacc5ca0bf1b7552689956229dc0b0c44f54e2b7f49c98d0df"
+      },
+      "validate_evidence": {
+        "start_line": 155,
+        "end_line": 205,
+        "sha256": "c33ec51505a3d03704608d6fcca7e4872c493047420a65dff0c2465d3c14f40f"
+      }
+    }
+  },
+  "negative_marker_deletion_checks": [
+    {
+      "case": "color",
+      "removed_marker": "SENSOR_PROBE_READY color",
+      "rejected": true
+    },
+    {
+      "case": "color",
+      "removed_marker": "SENSOR_CHECK color_command_bit_required PASS",
+      "rejected": true
+    },
+    {
+      "case": "color",
+      "removed_marker": "SENSOR_CHECK color_identity_read_only PASS",
+      "rejected": true
+    },
+    {
+      "case": "color",
+      "removed_marker": "SENSOR_CHECK color_integration_not_ready PASS",
+      "rejected": true
+    },
+    {
+      "case": "color",
+      "removed_marker": "SENSOR_CHECK color_adc_saturation PASS",
+      "rejected": true
+    },
+    {
+      "case": "tof",
+      "removed_marker": "SENSOR_PROBE_READY tof",
+      "rejected": true
+    },
+    {
+      "case": "tof",
+      "removed_marker": "SENSOR_CHECK tof_reset_identity_absent PASS",
+      "rejected": true
+    },
+    {
+      "case": "tof",
+      "removed_marker": "SENSOR_CHECK tof_reset_identity_restored PASS",
+      "rejected": true
+    },
+    {
+      "case": "tof",
+      "removed_marker": "SENSOR_CHECK tof_conversion_not_ready PASS",
+      "rejected": true
+    },
+    {
+      "case": "tof",
+      "removed_marker": "SENSOR_CHECK tof_conversion_ready PASS",
+      "rejected": true
+    },
+    {
+      "case": "tof",
+      "removed_marker": "SENSOR_CHECK tof_interrupt_clear PASS",
+      "rejected": true
+    },
+    {
+      "case": "tof",
+      "removed_marker": "SENSOR_CHECK tof_old_address_nack PASS",
+      "rejected": true
+    },
+    {
+      "case": "tof",
+      "removed_marker": "SENSOR_CHECK tof_new_address_identity PASS",
+      "rejected": true
+    },
+    {
+      "case": "ncir",
+      "removed_marker": "SENSOR_PROBE_READY ncir",
+      "rejected": true
+    },
+    {
+      "case": "ncir",
+      "removed_marker": "SENSOR_CHECK ncir_eeprom_write_nack PASS",
+      "rejected": true
+    },
+    {
+      "case": "ncir",
+      "removed_marker": "SENSOR_CHECK ncir_pec_6 PASS",
+      "rejected": true
+    },
+    {
+      "case": "ncir",
+      "removed_marker": "SENSOR_CHECK ncir_pec_7 PASS",
+      "rejected": true
+    },
+    {
+      "case": "heart",
+      "removed_marker": "SENSOR_PROBE_READY heart",
+      "rejected": true
+    },
+    {
+      "case": "heart",
+      "removed_marker": "SENSOR_CHECK heart_reset_self_clear PASS",
+      "rejected": true
+    },
+    {
+      "case": "heart",
+      "removed_marker": "SENSOR_CHECK heart_fifo_initially_empty PASS",
+      "rejected": true
+    },
+    {
+      "case": "heart",
+      "removed_marker": "SENSOR_CHECK heart_fifo_overflow PASS",
+      "rejected": true
+    },
+    {
+      "case": "heart",
+      "removed_marker": "SENSOR_CHECK heart_fifo_four_byte_advance PASS",
+      "rejected": true
+    },
+    {
+      "case": "heart",
+      "removed_marker": "SENSOR_CHECK heart_fifo_sample_order PASS",
+      "rejected": true
+    },
+    {
+      "case": "heart",
+      "removed_marker": "SENSOR_CHECK heart_reset_clears_fifo PASS",
+      "rejected": true
+    },
+    {
+      "case": "heart",
+      "removed_marker": "SENSOR_CHECK heart_shutdown_stops_sampling PASS",
+      "rejected": true
+    },
+    {
+      "case": "tvoc",
+      "removed_marker": "SENSOR_PROBE_READY tvoc",
+      "rejected": true
+    },
+    {
+      "case": "tvoc",
+      "removed_marker": "SENSOR_CHECK tvoc_iaq_before_init_nack PASS",
+      "rejected": true
+    },
+    {
+      "case": "tvoc",
+      "removed_marker": "SENSOR_CHECK tvoc_initialization_fixed_output PASS",
+      "rejected": true
+    },
+    {
+      "case": "tvoc",
+      "removed_marker": "SENSOR_CHECK tvoc_busy_read_nack PASS",
+      "rejected": true
+    },
+    {
+      "case": "tvoc",
+      "removed_marker": "SENSOR_CHECK tvoc_response_crc PASS",
+      "rejected": true
+    },
+    {
+      "case": "tvoc",
+      "removed_marker": "SENSOR_CHECK tvoc_response_consumed PASS",
+      "rejected": true
+    },
+    {
+      "case": "tvoc",
+      "removed_marker": "SENSOR_CHECK tvoc_bad_argument_crc_nack PASS",
+      "rejected": true
+    },
+    {
+      "case": "tvoc",
+      "removed_marker": "SENSOR_CHECK tvoc_unknown_command_nack PASS",
+      "rejected": true
+    },
+    {
+      "case": "ultrasonic-i2c",
+      "removed_marker": "SENSOR_PROBE_READY ultrasonic-i2c",
+      "rejected": true
+    },
+    {
+      "case": "ultrasonic-i2c",
+      "removed_marker": "SENSOR_CHECK ultrasonic_unknown_command_nack PASS",
+      "rejected": true
+    },
+    {
+      "case": "ultrasonic-i2c",
+      "removed_marker": "SENSOR_CHECK ultrasonic_conversion_not_ready PASS",
+      "rejected": true
+    },
+    {
+      "case": "ultrasonic-i2c",
+      "removed_marker": "SENSOR_CHECK ultrasonic_uint24_units PASS",
+      "rejected": true
+    },
+    {
+      "case": "thermal",
+      "removed_marker": "SENSOR_PROBE_READY thermal",
+      "rejected": true
+    },
+    {
+      "case": "thermal",
+      "removed_marker": "SENSOR_CHECK thermal_eeprom_write_nack PASS",
+      "rejected": true
+    },
+    {
+      "case": "thermal",
+      "removed_marker": "SENSOR_CHECK thermal_control_readback PASS",
+      "rejected": true
+    },
+    {
+      "case": "thermal",
+      "removed_marker": "SENSOR_CHECK thermal_conversion_not_ready PASS",
+      "rejected": true
+    },
+    {
+      "case": "thermal",
+      "removed_marker": "SENSOR_CHECK thermal_subpage_progression PASS",
+      "rejected": true
+    },
+    {
+      "case": "thermal",
+      "removed_marker": "SENSOR_CHECK thermal_fixture_control_restored PASS",
+      "rejected": true
+    },
+    {
+      "case": "thermal",
+      "removed_marker": "SENSOR_CHECK thermal_768_finite PASS",
+      "rejected": true
+    }
+  ],
+  "guest_thermal_768_finite_and_nine_points": true,
+  "missing_fixture_explicit_and_default_excluded": true
+}

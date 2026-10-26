@@ -1,0 +1,725 @@
+{
+  "case": "ncir",
+  "unit_id": "ncir",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "expected_worker_generation": 11,
+  "source_cas_sha256": "661f828b5a07cd38d7b8d9ae2c018b97108e35e67912ae77bf62f4e0e8f9851c",
+  "source_files": {
+    "boot.py": {
+      "size": 24,
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+    },
+    "main.py": {
+      "size": 246,
+      "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+    },
+    "probe_config.py": {
+      "size": 75,
+      "sha256": "469bfbaa0ddc6e7735ab81270d718d7c019d22bd27767075966fb42eb56f814d"
+    },
+    "probe_logging.py": {
+      "size": 338,
+      "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+    },
+    "sensor_drivers/__init__.py": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "sensor_drivers/heart.py": {
+      "size": 8964,
+      "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+    },
+    "sensor_drivers/mlx90614.py": {
+      "size": 1707,
+      "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+    },
+    "sensor_drivers/mlx90640.py": {
+      "size": 27980,
+      "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+    },
+    "sensor_drivers/pahub.py": {
+      "size": 3648,
+      "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+    },
+    "sensor_drivers/sgp30.py": {
+      "size": 11799,
+      "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+    },
+    "sensor_drivers/tcs3472.py": {
+      "size": 16886,
+      "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+    },
+    "sensor_drivers/ultrasonic_i2c.py": {
+      "size": 1024,
+      "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+    },
+    "sensor_drivers/unit_helper.py": {
+      "size": 129,
+      "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+    },
+    "sensor_drivers/vl53l0x.py": {
+      "size": 28248,
+      "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+    },
+    "sensor_probe.py": {
+      "size": 9139,
+      "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+    }
+  },
+  "http_json_body_bytes": 115291,
+  "ready_marker": "SENSOR_PROBE_READY ncir",
+  "negative_checks": [
+    "ncir_eeprom_write_nack",
+    "ncir_pec_6",
+    "ncir_pec_7"
+  ],
+  "required_markers": [
+    "SENSOR_PROBE_READY ncir",
+    "SENSOR_CHECK ncir_eeprom_write_nack PASS",
+    "SENSOR_CHECK ncir_pec_6 PASS",
+    "SENSOR_CHECK ncir_pec_7 PASS"
+  ],
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "ncir",
+      "port_id": "port-a",
+      "initial": {
+        "ambient-c": 25,
+        "object-c": 32
+      }
+    }
+  ],
+  "changes": [
+    {
+      "ambient-c": 17.3,
+      "object-c": 37.1
+    },
+    {
+      "ambient-c": 31.5,
+      "object-c": 53.2
+    }
+  ],
+  "expected_size": [
+    320,
+    240
+  ],
+  "started_at": "2026-10-26T03:54:52.597448+00:00",
+  "checks": {
+    "original_negative_markers_and_initial_reading": true,
+    "fresh_changes_real_i2c_samples_and_crc": true,
+    "native_png": true,
+    "zip_before_stop_source_guest_binding": true,
+    "history_pid_flash_and_idle": true,
+    "real_product_dom_and_http_match": true
+  },
+  "steps": [
+    {
+      "phase": 1,
+      "values": {
+        "ambient-c": 17.3,
+        "object-c": 37.1
+      },
+      "initial_cursor": 625,
+      "final_cursor": 737,
+      "fresh_serial_sha256": "0fffc111a4f48d5d21c008d6311a6e948eb1e59847b64e2b0a8b8b933c371ef2",
+      "reading": true,
+      "state_file": "01/after-units.json",
+      "directory": "steps/01"
+    },
+    {
+      "phase": 2,
+      "values": {
+        "ambient-c": 31.5,
+        "object-c": 53.2
+      },
+      "initial_cursor": 849,
+      "final_cursor": 905,
+      "fresh_serial_sha256": "597ce00498f14a3f5e39a0bc6a9794a4b5b1ee8fc6b7f74e9271a227e09dfe96",
+      "reading": true,
+      "state_file": "02/after-units.json",
+      "directory": "steps/02"
+    }
+  ],
+  "injections": [
+    {
+      "sequence": 1,
+      "values": {
+        "ambient-c": 17.3,
+        "object-c": 37.1
+      },
+      "guest_observed": true
+    },
+    {
+      "sequence": 2,
+      "values": {
+        "ambient-c": 31.5,
+        "object-c": 53.2
+      },
+      "guest_observed": true
+    }
+  ],
+  "hardware_validation": "NOT RUN",
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "661f828b5a07cd38d7b8d9ae2c018b97108e35e67912ae77bf62f4e0e8f9851c",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_size": 16121856,
+      "flash_size": 16777216,
+      "source_sha256": "661f828b5a07cd38d7b8d9ae2c018b97108e35e67912ae77bf62f4e0e8f9851c",
+      "effective_source_sha256": "661f828b5a07cd38d7b8d9ae2c018b97108e35e67912ae77bf62f4e0e8f9851c",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_config.py",
+          "size": 75,
+          "sha256": "469bfbaa0ddc6e7735ab81270d718d7c019d22bd27767075966fb42eb56f814d",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_logging.py",
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/__init__.py",
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/heart.py",
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/mlx90614.py",
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/mlx90640.py",
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/pahub.py",
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/sgp30.py",
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/tcs3472.py",
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/ultrasonic_i2c.py",
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/unit_helper.py",
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/vl53l0x.py",
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_probe.py",
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 15,
+      "caller_source_bytes": 110207,
+      "generated_files": [],
+      "firmware_sha256": "b352dc9d169e48e247c23d4c524e05c017a34d47da60d08ef0cab4753ab65f2d",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 11141120,
+        "size": 4980736,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+        "derived_sha256": "a7d64608051d00098646e7eca6805887f9b4a66aaf46e8ba9f7dfb5cd9dd4f56",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "firmware_sha256": "b352dc9d169e48e247c23d4c524e05c017a34d47da60d08ef0cab4753ab65f2d",
+  "firmware_id": "b352dc9d169e48e247c23d4c524e05c017a34d47da60d08ef0cab4753ab65f2d",
+  "session_id": "02f91798b9d54c72abcb021327a87700",
+  "runtime_provenance": {
+    "session_id": "02f91798b9d54c72abcb021327a87700",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 99075,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 11,
+    "firmware_sha256": "b352dc9d169e48e247c23d4c524e05c017a34d47da60d08ef0cab4753ab65f2d",
+    "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+  },
+  "initial_reading": true,
+  "unit_state": {
+    "session_id": "02f91798b9d54c72abcb021327a87700",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-26T03:55:23.276024+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "ncir",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {
+          "ambient-c": 25,
+          "object-c": 32
+        },
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "ambient-c": 31.5,
+          "object-c": 53.2,
+          "transactions": 81,
+          "read-bytes": 82,
+          "written-bytes": 42,
+          "input-events": 4,
+          "output-transitions": 0,
+          "samples-generated": 19,
+          "crc-errors": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "ncir",
+        "name": "NCIR",
+        "sku": "U028",
+        "visual_asset": {
+          "entry": "src/units/ncir/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "MLX90614ESF-BAA",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "i2c",
+          "connector": "HY2.0-4P",
+          "address_7bit": [
+            90
+          ],
+          "pins": {
+            "yellow": {
+              "signal": "SDA",
+              "direction": "bidirectional"
+            },
+            "white": {
+              "signal": "SCL",
+              "direction": "bidirectional"
+            },
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+          "registers": [
+            {
+              "ambient": "0x06",
+              "object": "0x07",
+              "encoding": "little-endian uint16 Kelvin in 0.02K units"
+            }
+          ],
+          "gaps": [
+            "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+          ]
+        },
+        "inputs": {
+          "ambient-c": {
+            "type": "number",
+            "label": "环境温度",
+            "default": 25,
+            "default_source": "synthetic-test-fixture",
+            "unit": "degC",
+            "minimum": -40,
+            "maximum": 125,
+            "readOnly": false
+          },
+          "object-c": {
+            "type": "number",
+            "label": "目标温度",
+            "default": 32,
+            "default_source": "synthetic-test-fixture",
+            "unit": "degC",
+            "minimum": -70,
+            "maximum": 380,
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/ncir",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+          "inputs": {
+            "ambient-c": {
+              "property": "ambient-c"
+            },
+            "object-c": {
+              "property": "object-c"
+            }
+          },
+          "state": {
+            "ambient-c": {
+              "property": "ambient-c"
+            },
+            "object-c": {
+              "property": "object-c"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "samples-generated": {
+              "property": "samples-generated",
+              "path": "/chip"
+            },
+            "crc-errors": {
+              "property": "crc-errors",
+              "path": "/chip"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/report.json",
+            "report_sha256": "bf259fb031c310b3cf238cae126b892b5424640e75271e9c5ded6556230f3f4a",
+            "evidence_sha256": "bf23aa8205c1049c5488bb2d9edf8054eb7d7e3c517bcee332a0b504c0aa7be0",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 7,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "PASS",
+              "device_id": "atoms3r",
+              "unit_id": "ncir",
+              "runtime": "qemu",
+              "session_id": "1efaf7cfd4f445fcaf989ea0e4a0207c",
+              "firmware_sha256": "a872618cdca070c9439268d19c64d4e804bb8c6c65b03aa721404e608ef5f322",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "53580d6f29cbe45b85ba10336f3938409d1d66ce2cda30fcabc36b905b37ef5a",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/ncir/report.json",
+              "report_sha256": "45943e044e1159d41d008e80abcc5bbf94a7d3f368844288258654606529c9fd",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/ncir/normalization-receipt.json",
+              "normalization_receipt_sha256": "20ca0f0ec4a439cea86da9270242932f0e69741bb3ac7484f3b151f26de6321b",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+              "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+            },
+            "sticks3": {
+              "status": "PASS",
+              "device_id": "sticks3",
+              "unit_id": "ncir",
+              "runtime": "qemu",
+              "session_id": "2ac756f7b9294538a51fecca7e6bf12d",
+              "firmware_sha256": "949612ea1a843cbad1a9c852dab53308268153893d3e3cf53afbe88893d6c4ba",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "5c2b820c03664a5cb91be2cf9a519b6aec02d578ec9473d65f5474545908f278",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/report.json",
+              "report_sha256": "6fd032458d4fc0a5597a94767ad8f723d72937d706b129d2cfe97a1502db2770",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/normalization-receipt.json",
+              "normalization_receipt_sha256": "ebf6fe4b847a161f920bf597c73b524e3220b5e4dec2245463f8ffb72da8eab7",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+              "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+            },
+            "stopwatch": {
+              "status": "PASS",
+              "device_id": "stopwatch",
+              "unit_id": "ncir",
+              "runtime": "qemu",
+              "session_id": "86b54e3a34204535a73183929c2684f2",
+              "firmware_sha256": "4740a5647e1178d874ff7e1260fa2f8ad9e6f940237ccbde30066bde58eca2bc",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "9271677c2107a90d1fd518024eb2230952e1f172f37d408a6cd1280fdf7f2325",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/report.json",
+              "report_sha256": "f5dbd80348cbbdba86366351e096db8bd44b828d29fabdcc3fa782a17c29c1a3",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/normalization-receipt.json",
+              "normalization_receipt_sha256": "cfcc77dd37c53e9831c0764f58792acb47e5dafd43490163ea6146d5a0e0939e",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+              "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+            }
+          }
+        },
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+    },
+    "contract_status": "frozen"
+  },
+  "controller_counters": {
+    "transactions": 81,
+    "read-bytes": 82,
+    "written-bytes": 42,
+    "samples-generated": 19,
+    "crc-errors": 0
+  },
+  "evidence_sha256": "1ac0914764e85c29f35ae28f98473afa72772e4099d3b509967455b30565cc6c",
+  "evidence_summary": {
+    "files": [
+      "firmware/uiflow-source.json",
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "png_bytes": 2042,
+      "source": "live",
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    },
+    "session_id": "02f91798b9d54c72abcb021327a87700"
+  },
+  "cleanup": {
+    "owned_pid": 99075,
+    "pid_gone": true,
+    "flash_retained": false,
+    "health_active_sessions": 0
+  },
+  "browser": {
+    "snapshots": 6,
+    "posts": 4,
+    "actions": 4
+  },
+  "finished_at": "2026-10-26T03:55:24.402894+00:00"
+}

@@ -1,0 +1,703 @@
+{
+  "case": "tof",
+  "unit_id": "tof",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "expected_worker_generation": 11,
+  "source_cas_sha256": "4a5f6f9cec93e88ea1547a2daa10ea5a70fe73952f034b273a5767f52e4b0166",
+  "source_files": {
+    "boot.py": {
+      "size": 24,
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+    },
+    "main.py": {
+      "size": 246,
+      "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+    },
+    "probe_config.py": {
+      "size": 74,
+      "sha256": "7f67f041a7d3404b556ed49d03f296f37ebdfeab5c4c97f205e44eaa1f7999c0"
+    },
+    "probe_logging.py": {
+      "size": 338,
+      "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+    },
+    "sensor_drivers/__init__.py": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "sensor_drivers/heart.py": {
+      "size": 8964,
+      "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+    },
+    "sensor_drivers/mlx90614.py": {
+      "size": 1707,
+      "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+    },
+    "sensor_drivers/mlx90640.py": {
+      "size": 27980,
+      "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+    },
+    "sensor_drivers/pahub.py": {
+      "size": 3648,
+      "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+    },
+    "sensor_drivers/sgp30.py": {
+      "size": 11799,
+      "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+    },
+    "sensor_drivers/tcs3472.py": {
+      "size": 16886,
+      "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+    },
+    "sensor_drivers/ultrasonic_i2c.py": {
+      "size": 1024,
+      "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+    },
+    "sensor_drivers/unit_helper.py": {
+      "size": 129,
+      "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+    },
+    "sensor_drivers/vl53l0x.py": {
+      "size": 28248,
+      "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+    },
+    "sensor_probe.py": {
+      "size": 9139,
+      "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+    }
+  },
+  "http_json_body_bytes": 115290,
+  "ready_marker": "SENSOR_PROBE_READY tof",
+  "negative_checks": [
+    "tof_reset_identity_absent",
+    "tof_reset_identity_restored",
+    "tof_conversion_not_ready",
+    "tof_conversion_ready",
+    "tof_interrupt_clear",
+    "tof_old_address_nack",
+    "tof_new_address_identity"
+  ],
+  "required_markers": [
+    "SENSOR_PROBE_READY tof",
+    "SENSOR_CHECK tof_reset_identity_absent PASS",
+    "SENSOR_CHECK tof_reset_identity_restored PASS",
+    "SENSOR_CHECK tof_conversion_not_ready PASS",
+    "SENSOR_CHECK tof_conversion_ready PASS",
+    "SENSOR_CHECK tof_interrupt_clear PASS",
+    "SENSOR_CHECK tof_old_address_nack PASS",
+    "SENSOR_CHECK tof_new_address_identity PASS"
+  ],
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "tof",
+      "port_id": "port-a",
+      "initial": {
+        "distance-mm": 1000
+      }
+    }
+  ],
+  "changes": [
+    {
+      "distance-mm": 321
+    },
+    {
+      "distance-mm": 1456
+    }
+  ],
+  "expected_size": [
+    320,
+    240
+  ],
+  "started_at": "2026-10-26T03:54:20.830211+00:00",
+  "checks": {
+    "original_negative_markers_and_initial_reading": true,
+    "fresh_changes_real_i2c_samples_and_crc": true,
+    "native_png": true,
+    "zip_before_stop_source_guest_binding": true,
+    "history_pid_flash_and_idle": true,
+    "real_product_dom_and_http_match": true
+  },
+  "steps": [
+    {
+      "phase": 1,
+      "values": {
+        "distance-mm": 321
+      },
+      "initial_cursor": 804,
+      "final_cursor": 946,
+      "fresh_serial_sha256": "75b8105aa6d32230dccac47f91d4b8028f02206d5ddd91213e35e19974524435",
+      "reading": true,
+      "state_file": "01/after-units.json",
+      "directory": "steps/01"
+    },
+    {
+      "phase": 2,
+      "values": {
+        "distance-mm": 1456
+      },
+      "initial_cursor": 1012,
+      "final_cursor": 1060,
+      "fresh_serial_sha256": "d672606a16bd54b52b7112233874e57fcb06f3e35e389b13fe36eee1d64aa322",
+      "reading": true,
+      "state_file": "02/after-units.json",
+      "directory": "steps/02"
+    }
+  ],
+  "injections": [
+    {
+      "sequence": 1,
+      "values": {
+        "distance-mm": 321
+      },
+      "guest_observed": true
+    },
+    {
+      "sequence": 2,
+      "values": {
+        "distance-mm": 1456
+      },
+      "guest_observed": true
+    }
+  ],
+  "hardware_validation": "NOT RUN",
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "4a5f6f9cec93e88ea1547a2daa10ea5a70fe73952f034b273a5767f52e4b0166",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_size": 16121856,
+      "flash_size": 16777216,
+      "source_sha256": "4a5f6f9cec93e88ea1547a2daa10ea5a70fe73952f034b273a5767f52e4b0166",
+      "effective_source_sha256": "4a5f6f9cec93e88ea1547a2daa10ea5a70fe73952f034b273a5767f52e4b0166",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_config.py",
+          "size": 74,
+          "sha256": "7f67f041a7d3404b556ed49d03f296f37ebdfeab5c4c97f205e44eaa1f7999c0",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_logging.py",
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/__init__.py",
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/heart.py",
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/mlx90614.py",
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/mlx90640.py",
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/pahub.py",
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/sgp30.py",
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/tcs3472.py",
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/ultrasonic_i2c.py",
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/unit_helper.py",
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_drivers/vl53l0x.py",
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715",
+          "origin": "caller"
+        },
+        {
+          "path": "sensor_probe.py",
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 15,
+      "caller_source_bytes": 110206,
+      "generated_files": [],
+      "firmware_sha256": "d04fc7f508cd942a0730af2f53cf56c3caa264e9f3ddeb6c6587da4d593e02db",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 11141120,
+        "size": 4980736,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+        "derived_sha256": "23c7bda675ef46156b1b4a0f1e5b7d05cdff8a290b8021849679ebc901b5eddc",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "firmware_sha256": "d04fc7f508cd942a0730af2f53cf56c3caa264e9f3ddeb6c6587da4d593e02db",
+  "firmware_id": "d04fc7f508cd942a0730af2f53cf56c3caa264e9f3ddeb6c6587da4d593e02db",
+  "session_id": "9f13683aa8ee4d3cb20f9f2680eed2b6",
+  "runtime_provenance": {
+    "session_id": "9f13683aa8ee4d3cb20f9f2680eed2b6",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 98975,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 11,
+    "firmware_sha256": "d04fc7f508cd942a0730af2f53cf56c3caa264e9f3ddeb6c6587da4d593e02db",
+    "runtime_binary_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+  },
+  "initial_reading": true,
+  "unit_state": {
+    "session_id": "9f13683aa8ee4d3cb20f9f2680eed2b6",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-26T03:54:51.511452+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "tof",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {
+          "distance-mm": 1000
+        },
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "distance-mm": 1456,
+          "transactions": 13367,
+          "read-bytes": 6269,
+          "written-bytes": 7151,
+          "input-events": 2,
+          "output-transitions": 0,
+          "samples-generated": 39,
+          "crc-errors": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "tof",
+        "name": "ToF",
+        "sku": "U010",
+        "visual_asset": {
+          "entry": "src/units/tof/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/tof",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "VL53L0X",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "i2c",
+          "connector": "HY2.0-4P",
+          "address_7bit": [
+            41
+          ],
+          "pins": {
+            "yellow": {
+              "signal": "SDA",
+              "direction": "bidirectional"
+            },
+            "white": {
+              "signal": "SCL",
+              "direction": "bidirectional"
+            },
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "The official driver performs the VL53L0X register initialization, SPAD configuration, reference calibration and ranging sequences at 0x29. Returning only a range number without the initialization/status path does not satisfy this protocol.",
+          "registers": [],
+          "gaps": [
+            "Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.",
+            "Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+          ]
+        },
+        "inputs": {
+          "distance-mm": {
+            "type": "integer",
+            "label": "目标距离",
+            "default": 1000,
+            "default_source": "synthetic-test-fixture",
+            "unit": "mm",
+            "minimum": 30,
+            "maximum": 2000,
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/tof",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tof.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "2e9907956107284934968603a138e7cdfb13ea3cf8162fb9694a7e4bbdaa664b"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/vl53l0x.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/VL53L0X_en.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+          "inputs": {
+            "distance-mm": {
+              "property": "distance-mm"
+            }
+          },
+          "state": {
+            "distance-mm": {
+              "property": "distance-mm"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            },
+            "samples-generated": {
+              "property": "samples-generated",
+              "path": "/chip"
+            },
+            "crc-errors": {
+              "property": "crc-errors",
+              "path": "/chip"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "ed0b8b565d299c00eb4c9fdda56067b116178931831c4774c0b29f0bac0bd221",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/tof/report.json",
+            "report_sha256": "302e30853d3b68c158438dd79f2ce1fe832dc69adacec4510f65415709ccefd0",
+            "evidence_sha256": "30ce4e7bf38c97c5b178722b224e70acaa1159964deff747a7c6c085bfd0abed",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 7,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "PASS",
+              "device_id": "atoms3r",
+              "unit_id": "tof",
+              "runtime": "qemu",
+              "session_id": "488582372a5547cfaec06a8ff0253af0",
+              "firmware_sha256": "94e0f31ddbcbb97cdde17a432b055a23e201e06c010d2c92ac5be71db4cbdb9b",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "095a735618f2e080d22a895f4fdf9f5054c11f739ab042cefa13b905796d7499",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/tof/report.json",
+              "report_sha256": "71f938ca838b948c6bcd886193b7db0f1270cb70872c85d8db48035fb55f954b",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/tof/normalization-receipt.json",
+              "normalization_receipt_sha256": "1a23b4885654e4ecbcf3e2248e48fc1cf1c4b64f9a487ab5d19a7a536e3346d8",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+              "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+            },
+            "sticks3": {
+              "status": "PASS",
+              "device_id": "sticks3",
+              "unit_id": "tof",
+              "runtime": "qemu",
+              "session_id": "d53d503deaf74d6abf8ae55c6796515f",
+              "firmware_sha256": "ff43cae33731e055a44a69609877115c1ffc38f886b3290c2fdbd3c0667e523a",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "289bb32561f906e7f6106978333e16498a83a633f03b9268400e03e2b2aade21",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tof/report.json",
+              "report_sha256": "d164ad35bc201d4b6329a62ff509082c2616cee732bcfaef34848c14ff4cc4da",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tof/normalization-receipt.json",
+              "normalization_receipt_sha256": "90fd51821a7420f305e45f3be7768146bdc9639dd5c467bd6e2eadf5cb56efaa",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+              "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+            },
+            "stopwatch": {
+              "status": "PASS",
+              "device_id": "stopwatch",
+              "unit_id": "tof",
+              "runtime": "qemu",
+              "session_id": "7a08a59e9bb24986ba104d47d3f37bf9",
+              "firmware_sha256": "29f8e3dcf60dcb9078fde839a77ce78a149595c03c3988ca655f0cc9036445bd",
+              "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+              "evidence_sha256": "ce434330e8406e367f5eab65e26f57db2bd6b5f44d5d270ef5740df13a52723e",
+              "validation": "virtual-device validation",
+              "evidence_contract": "device-service-sensor-web-v1",
+              "scope": "controller-and-browser-functionality",
+              "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tof/report.json",
+              "report_sha256": "d7078932f48d9426151e7a0c9e6367cc422f0476c7044c6a46d5655f9dbb57e1",
+              "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tof/normalization-receipt.json",
+              "normalization_receipt_sha256": "a58a8625e8a40864b3e351a21346e5fb0fdb4c62255450ac62a2b1cd78ea06d5",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 9,
+              "guest_controller": "PASS",
+              "live_browser": "PASS",
+              "native_frame": "PASS",
+              "native_readability": "PASS",
+              "browser_framing": "NOT REVIEWED",
+              "hardware": "NOT RUN",
+              "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+              "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+              "native_readability_scope": "captured-final-native-frames-only",
+              "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+              "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+            }
+          }
+        },
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Full driver initialization, data-ready/interrupt status, timeout and invalid-range semantics still require implementation.; Product states usual maximum 120cm; 200cm requires Long Range mode and suitable environment."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+    },
+    "contract_status": "frozen"
+  },
+  "controller_counters": {
+    "transactions": 13367,
+    "read-bytes": 6269,
+    "written-bytes": 7151,
+    "samples-generated": 39,
+    "crc-errors": 0
+  },
+  "evidence_sha256": "1e1b13741b8aedf3df453218b17de0d952327ac0d7a1ae6190ce67095a9baf03",
+  "evidence_summary": {
+    "files": [
+      "firmware/uiflow-source.json",
+      "frames/current.png",
+      "manifest.json",
+      "qemu.stderr",
+      "qemu.stdout",
+      "qom/snapshot.json",
+      "serial.log",
+      "serial1.log",
+      "units/contract.json",
+      "units/runtime.json",
+      "units/state.json"
+    ],
+    "frame": {
+      "width": 320,
+      "height": 240,
+      "png_bytes": 1909,
+      "source": "live",
+      "nonblack_pixels": 76800,
+      "unique_colors": 16
+    },
+    "session_id": "9f13683aa8ee4d3cb20f9f2680eed2b6"
+  },
+  "cleanup": {
+    "owned_pid": 98975,
+    "pid_gone": true,
+    "flash_retained": false,
+    "health_active_sessions": 0
+  },
+  "browser": {
+    "snapshots": 6,
+    "posts": 2,
+    "actions": 2
+  },
+  "finished_at": "2026-10-26T03:54:52.595192+00:00"
+}

@@ -1,0 +1,18 @@
+{
+  "category": "source byte comparison, no new runtime execution",
+  "caller_file_count": 18,
+  "original_byte_exact_files": 17,
+  "unchanged_between_original_and_custom": 16,
+  "changed": {
+    "io_drivers/ir.py": {
+      "original_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "custom_sha256": "01d7fda4a59287c25a9a8dac398637898f08cce75579af296c1b0b1a714c6151",
+      "diff": "--- original/io_drivers/ir.py\n+++ custom/io_drivers/ir.py\n@@ -71,6 +71,8 @@\n                         ctrl = -1 if is_repeat else 0\n                         self._user_callback(cmd_8, addr_8, ctrl)\n \n+            # Keep the nested callback reachable by MicroPython's GC.\n+            self._ir_rx_callback = _ir_rx_callback\n             if self._tx_pin:\n                 self._rmt_ir_instance = rmt_ir.NEC_8(self._rx_pin, self._tx_pin, _ir_rx_callback)\n             else:\n"
+    },
+    "probe_config.py": {
+      "original_sha256": "b871537439e8b0addb317ab258b78568e6273a7a927c65a8d1a02b0a198fefba",
+      "custom_sha256": "de3a24fd4af89ad9e64825d457fb975205f8ca694f34b0c4e268187946b32459",
+      "diff": "--- original/probe_config.py\n+++ custom/probe_config.py\n@@ -1,4 +1,4 @@\n CASE = 'ir'\n WHITE = 1\n YELLOW = 2\n-IR_CALLBACK_ROOT_PATCH = False\n+IR_CALLBACK_ROOT_PATCH = True\n"
+    }
+  }
+}

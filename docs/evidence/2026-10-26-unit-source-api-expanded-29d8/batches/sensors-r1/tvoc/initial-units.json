@@ -1,0 +1,386 @@
+{
+  "session_id": "2dbcaaedfca04db4aae24866935c9dcc",
+  "state": "running",
+  "source": "live",
+  "captured_at": "2026-10-26T03:56:41.940043+00:00",
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "tvoc",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "eco2-ppm": 800,
+        "tvoc-ppb": 40,
+        "raw-h2": 21000,
+        "raw-ethanol": 22000
+      },
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "eco2-ppm": 800,
+        "tvoc-ppb": 40,
+        "raw-h2": 21000,
+        "raw-ethanol": 22000,
+        "transactions": 21,
+        "read-bytes": 36,
+        "written-bytes": 25,
+        "input-events": 4,
+        "output-transitions": 0,
+        "samples-generated": 3,
+        "crc-errors": 1
+      },
+      "errors": {}
+    }
+  ],
+  "definitions": [
+    {
+      "id": "tvoc",
+      "name": "Mini TVOC/eCO2",
+      "sku": "U088",
+      "visual_asset": {
+        "entry": "src/units/tvoc/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/tvoc",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "SGP30",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          88
+        ],
+        "pins": {
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          },
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "16-bit SGP30 commands at 0x58; responses contain big-endian 16-bit words with CRC8. Official driver initializes IAQ and performs eCO2/TVOC measurement, baseline, feature-set and humidity-compensation operations.",
+        "registers": [
+          {
+            "iaq_init": "0x2003",
+            "measure_iaq": "0x2008",
+            "get_baseline": "0x2015",
+            "set_baseline": "0x201E",
+            "humidity": "0x2061",
+            "test": "0x2032",
+            "feature": "0x202F",
+            "raw": "0x2050",
+            "serial": "0x3682",
+            "encoding": "big-endian words + CRC8 per word"
+          }
+        ],
+        "gaps": [
+          "eCO2 is a gas-derived estimate, not direct CO2 measurement; baseline and warm-up/timing semantics need separate coverage."
+        ]
+      },
+      "inputs": {
+        "eco2-ppm": {
+          "type": "integer",
+          "label": "等效CO2",
+          "default": 400,
+          "default_source": "synthetic-test-fixture",
+          "unit": "ppm",
+          "minimum": 400,
+          "maximum": 60000,
+          "readOnly": false
+        },
+        "tvoc-ppb": {
+          "type": "integer",
+          "label": "TVOC",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "ppb",
+          "minimum": 0,
+          "maximum": 60000,
+          "readOnly": false
+        },
+        "raw-h2": {
+          "type": "integer",
+          "label": "原始H2信号",
+          "default": 20000,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        },
+        "raw-ethanol": {
+          "type": "integer",
+          "label": "原始乙醇信号",
+          "default": 20000,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/tvoc",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tvoc.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "ce7f512456a9fceb08e0ccb20e7c53075b84a0a6a760b529339938f959bf6d27"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sgp30.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/Sensirion_Gas_Sensors_SGP30_Datasheet.pdf",
+          "checked_at": "2026-10-26",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+        "inputs": {
+          "eco2-ppm": {
+            "property": "eco2-ppm"
+          },
+          "tvoc-ppb": {
+            "property": "tvoc-ppb"
+          },
+          "raw-h2": {
+            "property": "raw-h2"
+          },
+          "raw-ethanol": {
+            "property": "raw-ethanol"
+          }
+        },
+        "state": {
+          "eco2-ppm": {
+            "property": "eco2-ppm"
+          },
+          "tvoc-ppb": {
+            "property": "tvoc-ppb"
+          },
+          "raw-h2": {
+            "property": "raw-h2"
+          },
+          "raw-ethanol": {
+            "property": "raw-ethanol"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          },
+          "samples-generated": {
+            "property": "samples-generated",
+            "path": "/chip"
+          },
+          "crc-errors": {
+            "property": "crc-errors",
+            "path": "/chip"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/report.json",
+          "report_sha256": "dfb26af771be109f21034ce41d137dc1e85ad398baf912bdd29627cfd5816ee9",
+          "evidence_sha256": "15772b4cfa6fdb5527ce977cea05a26988573d47497ae4815497e82c29cac97d",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 8,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "PASS",
+            "device_id": "atoms3r",
+            "unit_id": "tvoc",
+            "runtime": "qemu",
+            "session_id": "5158b2e7d9f1460bab331822e13f5f91",
+            "firmware_sha256": "249d0fa06125309d8aa62a5385ae904ba0a7b1ae98ece9da38423010011ff7fc",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "d54f110a115316cf3d02fc20f5726082d907ace70dfac4db2b60f9f7cd38deb8",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/tvoc/report.json",
+            "report_sha256": "4a05ad918a643292790073ca2a1dce708331f7bffe3e7ef15d6b77a1197c526d",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/tvoc/normalization-receipt.json",
+            "normalization_receipt_sha256": "36deccc10480195621464e1b1dd5104cd7cf304a9ca45cb831e456b7326aa02e",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+            "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+          },
+          "sticks3": {
+            "status": "PASS",
+            "device_id": "sticks3",
+            "unit_id": "tvoc",
+            "runtime": "qemu",
+            "session_id": "40ee335338964ad1af9abb6efcfeac0f",
+            "firmware_sha256": "ac7662e7540e2e6cc1154d0156f2f3d6a16a3251a735856596edce83b39f933a",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "288a57ba8331d2f2684d6132c4f891babd5dbe594a08ea2d92744047ce590d4c",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/report.json",
+            "report_sha256": "7ae6df59d838c70f3da766dd2ef7cbdf99f4f0b236066f8c13884040a97927ab",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/normalization-receipt.json",
+            "normalization_receipt_sha256": "9bddb5fa5125e87b5ec8048214be863b280e7742c0bf0f9d53afa3641b87dad1",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+            "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+          },
+          "stopwatch": {
+            "status": "PASS",
+            "device_id": "stopwatch",
+            "unit_id": "tvoc",
+            "runtime": "qemu",
+            "session_id": "9a03d0b3567b4699915d6b04b7e1c525",
+            "firmware_sha256": "67d90671c7fe1bb8bb9b16fe19fbca049b1dac298b570dbbcc6a90c74fbb2914",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "e23a6e345495e079fa8a08afe56ef5b424df85246211ca9a357ccdec84103eed",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/report.json",
+            "report_sha256": "cc701bab52bc5f66459074ec26981b7f004d280d8f2a801d41b43901732c8849",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/normalization-receipt.json",
+            "normalization_receipt_sha256": "205ef5ba5dbb28284e6589ef122db846b2e132d875478716f84525dd797ac845",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+            "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+          }
+        }
+      },
+      "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: eCO2 is a gas-derived estimate, not direct CO2 measurement; baseline and warm-up/timing semantics need separate coverage."
+      }
+    }
+  ],
+  "contract_hashes": {
+    "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+  },
+  "contract_status": "frozen"
+}

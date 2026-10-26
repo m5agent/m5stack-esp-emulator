@@ -1,0 +1,150 @@
+{
+  "status": "PASS",
+  "category": "SYNTHETIC_OFFLINE_MUTATION_OF_TERMINAL_SERIAL",
+  "runtime_or_guest_executed": false,
+  "api_or_process_calls": 0,
+  "original_actual_serial_sha256": "682eda5ff496b8f748f3c543bb67617200a80a5338db025541f53c5b95dc10a3",
+  "tests": [
+    {
+      "case": "uid1-missing-marker-1",
+      "removed_marker": "CONTROL_RFID_UID 04010203",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_BAD_CRC 1"
+    },
+    {
+      "case": "uid1-missing-marker-2",
+      "removed_marker": "CONTROL_RFID_BAD_CRC 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_BAD_CRC 1"
+    },
+    {
+      "case": "uid1-missing-marker-3",
+      "removed_marker": "CONTROL_RFID_BAD_KEY 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_BAD_KEY 1"
+    },
+    {
+      "case": "uid1-missing-marker-4",
+      "removed_marker": "CONTROL_RFID_SECTOR_DENIED 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_SECTOR_DENIED 1"
+    },
+    {
+      "case": "uid1-missing-marker-5",
+      "removed_marker": "CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40"
+    },
+    {
+      "case": "uid1-missing-marker-6",
+      "removed_marker": "CONTROL_RFID_HALT_DENIED 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_HALT_DENIED 1"
+    },
+    {
+      "case": "uid1-missing-marker-7",
+      "removed_marker": "CONTROL_RFID_ANTENNA_OFF 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_ANTENNA_OFF 1"
+    },
+    {
+      "case": "uid1-reordered-crc-key",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203 CONTROL_RFID_BAD_KEY 1"
+    },
+    {
+      "case": "uid2-missing-marker-1",
+      "removed_marker": "CONTROL_RFID_UID 04010203040506",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_BAD_CRC 1"
+    },
+    {
+      "case": "uid2-missing-marker-2",
+      "removed_marker": "CONTROL_RFID_BAD_CRC 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_BAD_CRC 1"
+    },
+    {
+      "case": "uid2-missing-marker-3",
+      "removed_marker": "CONTROL_RFID_BAD_KEY 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_BAD_KEY 1"
+    },
+    {
+      "case": "uid2-missing-marker-4",
+      "removed_marker": "CONTROL_RFID_SECTOR_DENIED 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_SECTOR_DENIED 1"
+    },
+    {
+      "case": "uid2-missing-marker-5",
+      "removed_marker": "CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40"
+    },
+    {
+      "case": "uid2-missing-marker-6",
+      "removed_marker": "CONTROL_RFID_HALT_DENIED 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_HALT_DENIED 1"
+    },
+    {
+      "case": "uid2-missing-marker-7",
+      "removed_marker": "CONTROL_RFID_ANTENNA_OFF 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_ANTENNA_OFF 1"
+    },
+    {
+      "case": "uid2-reordered-crc-key",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506 CONTROL_RFID_BAD_KEY 1"
+    },
+    {
+      "case": "uid3-missing-marker-1",
+      "removed_marker": "CONTROL_RFID_UID 04010203040506070809",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506070809 CONTROL_RFID_BAD_CRC 1"
+    },
+    {
+      "case": "uid3-missing-marker-2",
+      "removed_marker": "CONTROL_RFID_BAD_CRC 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506070809 CONTROL_RFID_BAD_CRC 1"
+    },
+    {
+      "case": "uid3-missing-marker-3",
+      "removed_marker": "CONTROL_RFID_BAD_KEY 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506070809 CONTROL_RFID_BAD_KEY 1"
+    },
+    {
+      "case": "uid3-missing-marker-4",
+      "removed_marker": "CONTROL_RFID_SECTOR_DENIED 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506070809 CONTROL_RFID_SECTOR_DENIED 1"
+    },
+    {
+      "case": "uid3-missing-marker-5",
+      "removed_marker": "CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506070809 CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40"
+    },
+    {
+      "case": "uid3-missing-marker-6",
+      "removed_marker": "CONTROL_RFID_HALT_DENIED 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506070809 CONTROL_RFID_HALT_DENIED 1"
+    },
+    {
+      "case": "uid3-missing-marker-7",
+      "removed_marker": "CONTROL_RFID_ANTENNA_OFF 1",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506070809 CONTROL_RFID_ANTENNA_OFF 1"
+    },
+    {
+      "case": "uid3-reordered-crc-key",
+      "rejected": true,
+      "error": "RFID per-UID ordered positive/negative missing: 04010203040506070809 CONTROL_RFID_BAD_KEY 1"
+    }
+  ]
+}

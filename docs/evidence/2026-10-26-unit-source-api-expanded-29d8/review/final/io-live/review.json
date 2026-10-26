@@ -1,0 +1,476 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-26T04:28:51.632275+00:00",
+  "result": "NO_ACTIONABLE_FINDINGS",
+  "findings": [],
+  "scope": "Independent offline review of terminal default-nine evidence; no API/process/runtime invocation or input modification.",
+  "input_directory": ".work/unit-source-io-expanded-20261026/live-default9-r1",
+  "original_bundle_checksum_entries": 3872,
+  "independent_check_count": 8675,
+  "runner_offline_check": "runner-check.json",
+  "original_function_hashes": {
+    "attachments": "6eb3d027b7be8274af055026e7a82201e54033fd80cd70bfdf9cd546bf15a187",
+    "buzzer_timer_window": "238309af4c49611f50eac74b7c9697ac2befe03e20c9638fddf59ec266ca0940",
+    "Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd",
+    "validate_io": "fb252778935d9aad138096709235e159de57ed2d42f9402ee05a1ea62a09e56e",
+    "validate_evidence": "a3026d8b3b5dc7a218b9c522583bed5e3800bcce5a1dd733e2c13537f9ea197b"
+  },
+  "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "worker_generation": 11,
+  "adc_application_binding": {
+    "reference_full_image_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "reference_application_segment_sha256": "c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f",
+    "fixture_sha256": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d",
+    "derived_images_not_in_review_bundle": true
+  },
+  "cases": [
+    {
+      "unit_id": "pir",
+      "status": "PASS",
+      "source_cas_sha256": "132f9b351d72e98ccd27c619f3a3e12481f4e357dc8a1885a6ad21267d014d7e",
+      "firmware_sha256": "52a73ad239c15fa2da64b16f28240153c9f68b728c199fc8420e6ca3a50bd292",
+      "evidence_sha256": "a0ee020715fca349d7ba19a2fe3ab10b4ead744b1dde396ea7298c912ebd4001",
+      "original_inputs": 6,
+      "http_records": 210,
+      "actual_browser_posts": 6,
+      "running_dom_snapshots": 9,
+      "recorded_pid": 211,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "fresh_markers": [
+          "IO_PIR_CALLBACK 1 1",
+          "IO_PIR_CALLBACK 0 1",
+          "IO_PIR 1 1 1 1",
+          "IO_PIR_DISABLED_DONE 1 1",
+          "IO_PIR_CALLBACK 1 2",
+          "IO_PIR_CALLBACK 0 2"
+        ],
+        "disabled_callback_count": 0
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    },
+    {
+      "unit_id": "dual-button",
+      "status": "PASS",
+      "source_cas_sha256": "d261e09105de1bf497cdf1d443537022ff837f95f81f1bcc8938f732d441e62b",
+      "firmware_sha256": "a3816b4303f87bc1fc9494e065777113de21d5b6fcaf72804e8a00d34de5a282",
+      "evidence_sha256": "41277f30f005064d53c5fa7075059bd0f52635f35e648caf4123bf8bcdc198c9",
+      "original_inputs": 4,
+      "http_records": 152,
+      "actual_browser_posts": 4,
+      "running_dom_snapshots": 7,
+      "recorded_pid": 2595,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "raw_vectors": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "click_vectors": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    },
+    {
+      "unit_id": "limit",
+      "status": "PASS",
+      "source_cas_sha256": "2a727697b5465fbf2241068807c8276f852b2bafe2151768c36d5086a7e5b57a",
+      "firmware_sha256": "50834c7b89a6e540806feef3bf757c4e1e1071b5b2065356e9939a8a501d675a",
+      "evidence_sha256": "75dd4b3b8e852e5ecf0732f07aff97ba4df62d8b4ccbbf33061480f9c622b2e4",
+      "original_inputs": 4,
+      "http_records": 154,
+      "actual_browser_posts": 4,
+      "running_dom_snapshots": 7,
+      "recorded_pid": 2870,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "edge_vectors": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "reset": 0
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    },
+    {
+      "unit_id": "key",
+      "status": "PASS",
+      "source_cas_sha256": "876cff2fd316d1e7ed08d6e66bbb348be4f193c92c520a42f0474fc5bd09634f",
+      "firmware_sha256": "45bd7c7a3f5c488e08b4a7e8273b5dadf7aa0e3f486873db16f50697b49f418f",
+      "evidence_sha256": "4808901ff9eafb274b5f0e626a1a12691a07a8cac48ad42c5033239ea8facc6b",
+      "original_inputs": 2,
+      "http_records": 145,
+      "actual_browser_posts": 2,
+      "running_dom_snapshots": 8,
+      "recorded_pid": 3149,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "colors": [
+          "123456",
+          "2468ac"
+        ],
+        "led_frames": 9,
+        "rmt_controller": {
+          "tx-completions": 9,
+          "tx-errors": 0,
+          "tx-first-symbol": 2261008,
+          "tx-last-clock": 84148225,
+          "tx-last-conf": 16843344,
+          "tx-last-tick-hz": 40000000,
+          "tx-symbols": 216,
+          "tx-threshold-events": 9
+        }
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    },
+    {
+      "unit_id": "angle",
+      "status": "PASS",
+      "source_cas_sha256": "9e63b4e10edc1f9fccc2c1c4c81734aafb814b1b1ffbd22244bf0bda00a76902",
+      "firmware_sha256": "cd9f946a2a41f1f8f44ffb7cf340fbf29f25ec4bea08d9163866f82b45c8fdf6",
+      "evidence_sha256": "e4019d00b75ae64eb096e2edf20b2b813f8c723b1b6b9f1ae7c25ddf581e984f",
+      "original_inputs": 3,
+      "http_records": 146,
+      "actual_browser_posts": 3,
+      "running_dom_snapshots": 7,
+      "recorded_pid": 3225,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "vector_scope": "Expected arithmetic; Angle read_u16/read_uv are both checked against fresh guest serial, Light checks guest read_u16/digital only",
+        "guest_read_uv_observed": true,
+        "vectors": [
+          {
+            "injected_mv": 0,
+            "raw_12bit": 0,
+            "read_u16": 0,
+            "read_uv": 0
+          },
+          {
+            "injected_mv": 1250,
+            "raw_12bit": 1651,
+            "read_u16": 26422,
+            "read_uv": 1232000
+          },
+          {
+            "injected_mv": 2500,
+            "raw_12bit": 3302,
+            "read_u16": 52844,
+            "read_uv": 2427000
+          }
+        ],
+        "adc_samples": 4699,
+        "fixture_sha256": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d",
+        "bound_application_sha256": "c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f"
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    },
+    {
+      "unit_id": "light",
+      "status": "PASS",
+      "source_cas_sha256": "4800001be63faba0f74e8b84600e16f9da17c59e065f9489dc78abe0f05edeb1",
+      "firmware_sha256": "4c05bbfa9cc44f0f6fd53c9a9bfd316567042d89fe62ae72d61fa462873bd1c4",
+      "evidence_sha256": "19b8da9d7dddacbee9b1746150af5e27803760a85f25c8788ffed906c13ef0c1",
+      "original_inputs": 3,
+      "http_records": 144,
+      "actual_browser_posts": 5,
+      "running_dom_snapshots": 7,
+      "recorded_pid": 3344,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "vector_scope": "Expected arithmetic; Angle read_u16/read_uv are both checked against fresh guest serial, Light checks guest read_u16/digital only",
+        "guest_read_uv_observed": false,
+        "vectors": [
+          {
+            "injected_mv": 310,
+            "raw_12bit": 410,
+            "read_u16": 6561,
+            "read_uv": 319000
+          },
+          {
+            "injected_mv": 1550,
+            "raw_12bit": 2048,
+            "read_u16": 32776,
+            "read_uv": 1523000
+          },
+          {
+            "injected_mv": 3100,
+            "raw_12bit": 4095,
+            "read_u16": 65535,
+            "read_uv": 2912000
+          }
+        ],
+        "adc_samples": 1857,
+        "fixture_sha256": "c7a86db1294a9eafeb0b937c2ec865e4f0bf2d5d24bd2f9a88a18af61417075d",
+        "bound_application_sha256": "c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f"
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    },
+    {
+      "unit_id": "fan",
+      "status": "PASS",
+      "source_cas_sha256": "7107bd7956d8012379c623a1d6f3c393f0a5e9f966d99c05da7c918e4bb5cb79",
+      "firmware_sha256": "6a16bc834273651176aee51c6056060570f517ba215b5192e8fa70be63f1ef40",
+      "evidence_sha256": "f0a89d1d04df53f480496a650c7f41d26b23f5a247fd4e78fa03228bef99974d",
+      "original_inputs": 0,
+      "http_records": 212,
+      "actual_browser_posts": 0,
+      "running_dom_snapshots": 6,
+      "recorded_pid": 3461,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "stages": [
+          {
+            "stage": 0,
+            "setting": 0,
+            "frequency_hz": 1000,
+            "duty_pct": 0
+          },
+          {
+            "stage": 1,
+            "setting": 25,
+            "frequency_hz": 1000,
+            "duty_pct": 29.39453125
+          },
+          {
+            "stage": 2,
+            "setting": 100,
+            "frequency_hz": 1499.7000599880023,
+            "duty_pct": 100
+          }
+        ],
+        "output_transitions": 6
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    },
+    {
+      "unit_id": "rs485",
+      "status": "PASS",
+      "source_cas_sha256": "57dd24c387e9a727e625783d0e5357e499367819bf9e4e63fefb6f8efb07a342",
+      "firmware_sha256": "56ad1ffd577192d4c4387e68625ef746bf3baa07d07fd46bd679296fe2bfe334",
+      "evidence_sha256": "c9de60f50b57acc51cc0253b3414c3ea1f3eef5e6cb677bf3679edef663b2e04",
+      "original_inputs": 1,
+      "http_records": 152,
+      "actual_browser_posts": 1,
+      "running_dom_snapshots": 7,
+      "recorded_pid": 3595,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "rx_bytes": 16,
+        "tx_bytes": 37,
+        "negative_http_status": 409,
+        "negative_state_unchanged": true,
+        "uart1_stream_sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f"
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    },
+    {
+      "unit_id": "hub",
+      "status": "PASS",
+      "source_cas_sha256": "d291585f1e556d9f51100c2f108952f5a5e22a1734e5e440adad803787082771",
+      "firmware_sha256": "9151cc05a3e67d43329500edcdd17ad238b1b6c660079e79ca5ba68033573064",
+      "evidence_sha256": "e7acdd9477c0615b33bd8060c8489d1b11bb099a47f537583ae8ef63f54691f5",
+      "original_inputs": 3,
+      "http_records": 328,
+      "actual_browser_posts": 7,
+      "running_dom_snapshots": 9,
+      "recorded_pid": 3682,
+      "worker_generation": 11,
+      "semantic_recalculation": {
+        "fresh_vectors": [
+          [
+            31.5,
+            67,
+            98765,
+            25,
+            32,
+            800,
+            40
+          ],
+          [
+            31.5,
+            67,
+            98765,
+            17.3,
+            37.1,
+            800,
+            40
+          ],
+          [
+            31.5,
+            67,
+            98765,
+            17.3,
+            37.1,
+            1250,
+            230
+          ]
+        ],
+        "independent_leaf_counters": {
+          "env": {
+            "temperature-c": 31.5,
+            "humidity-pct": 67,
+            "pressure-pa": 98765,
+            "transactions": 188,
+            "read-bytes": 366,
+            "written-bytes": 127,
+            "input-events": 6,
+            "output-transitions": 0
+          },
+          "ncir": {
+            "ambient-c": 17.3,
+            "object-c": 37.1,
+            "transactions": 72,
+            "read-bytes": 68,
+            "written-bytes": 34,
+            "input-events": 2,
+            "output-transitions": 0,
+            "samples-generated": 18,
+            "crc-errors": 0
+          },
+          "tvoc": {
+            "eco2-ppm": 1250,
+            "tvoc-ppb": 230,
+            "raw-h2": 20000,
+            "raw-ethanol": 20000,
+            "transactions": 43,
+            "read-bytes": 114,
+            "written-bytes": 40,
+            "input-events": 4,
+            "output-transitions": 0,
+            "samples-generated": 17,
+            "crc-errors": 0
+          }
+        },
+        "passive_hub": {
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 0
+        }
+      },
+      "qom_root_truncated": true,
+      "cleanup": "Saved HTTP: stopped/history retained/Flash false/lease inactive/health active=0; live PID-exit sampler receipt retained."
+    }
+  ],
+  "fan_activity_samples": [
+    {
+      "at": "2026-10-26T04:02:09.762Z",
+      "session_state": "booting",
+      "duty_pct": 0,
+      "frequency_hz": 1000,
+      "angle_deg": 0,
+      "component_rpm": 0
+    },
+    {
+      "at": "2026-10-26T04:02:13.306Z",
+      "session_state": "running",
+      "duty_pct": 29.39453125,
+      "frequency_hz": 1000,
+      "angle_deg": 6.011999999999608,
+      "component_rpm": 0
+    },
+    {
+      "at": "2026-10-26T04:02:17.370Z",
+      "session_state": "running",
+      "duty_pct": 100,
+      "frequency_hz": 1499.7000599880023,
+      "angle_deg": 293.9939999999998,
+      "component_rpm": 0
+    },
+    {
+      "at": "2026-10-26T04:02:17.876Z",
+      "session_state": "running",
+      "duty_pct": 100,
+      "frequency_hz": 1499.7000599880023,
+      "angle_deg": 29.988000000000383,
+      "component_rpm": 0
+    },
+    {
+      "at": "2026-10-26T04:02:18.383Z",
+      "session_state": "running",
+      "duty_pct": 100,
+      "frequency_hz": 1499.7000599880023,
+      "angle_deg": 122.99399999999986,
+      "component_rpm": 0
+    },
+    {
+      "at": "2026-10-26T04:02:18.890Z",
+      "session_state": "running",
+      "duty_pct": 100,
+      "frequency_hz": 1499.7000599880023,
+      "angle_deg": 218.97000000000062,
+      "component_rpm": 0
+    },
+    {
+      "at": "2026-10-26T04:02:19.902Z",
+      "session_state": "running",
+      "duty_pct": 100,
+      "frequency_hz": 1499.7000599880023,
+      "angle_deg": 338.95800000000037,
+      "component_rpm": 0
+    }
+  ],
+  "fan_activity_scope": {
+    "proved": "Five running snapshots at observed 100% duty have changing rotor angles over 2.532 seconds; visual activity during that sampled interval.",
+    "not_proved": [
+      "continuous activity throughout every stage",
+      "stopped angle time series at zero duty",
+      "sustained low-duty angle progression",
+      "rpm or electromechanical speed",
+      "physical rotation"
+    ],
+    "other_samples": "Zero duty has one booting sample; 29.39453125% duty has one running sample. All recorded component rpm fields are 0; adapter uses graphical angle activity."
+  },
+  "limitations": [
+    "Historical direct PID executable hashing and PID exit rely on the recorded live sampler receipts plus frozen sampler implementation; ended processes cannot be re-sampled offline.",
+    "ADC reference application bytes were rehashed; the uploaded/derived image bytes are not in this review bundle. Applied ZIP receipts and source-composition outside-VFS preservation bind the running cases to that application.",
+    "Generic depth-two QOM snapshots have a truncated root. Per-Unit states were independently read from actual saved /units HTTP responses and exact observation snapshots, not treated as inferred complete controller dumps.",
+    "Native PNG nonblank/geometry checks do not establish readable text or final visual acceptance. Hardware, optical, motor-speed and shared full-regression results are outside this review.",
+    "Original IR/Buzzer risk controls were excluded and their running directories were not read by this audit script."
+  ]
+}

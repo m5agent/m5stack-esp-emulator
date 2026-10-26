@@ -1,0 +1,81 @@
+{
+  "category": "SYNTHETIC_OFFLINE_CHECKER_FIXTURE",
+  "guest_executed": false,
+  "row": {
+    "unit_id": "rfid2",
+    "flavor": "controls-probe-cores3-native-display-v1",
+    "display_contract": {
+      "device_id": "cores3",
+      "native": [
+        320,
+        240
+      ],
+      "rotation": 1,
+      "font": "Montserrat12",
+      "scale": 1.0,
+      "font_height": 15,
+      "x": 6,
+      "y": 6,
+      "width": 308,
+      "body_y": 24,
+      "line_height": 16,
+      "body_rows": 3,
+      "bottom": 72,
+      "headers": 1,
+      "flavor": "controls-probe-cores3-native-display-v1",
+      "evidence": "guest fontHeight/textWidth and native geometry checks required; preparation is not display PASS"
+    }
+  },
+  "result": {
+    "steps": [
+      {
+        "values": {
+          "uid-hex": "04010203",
+          "card-present": true
+        },
+        "serial_offset": 179,
+        "before_file": "step-0-before.txt",
+        "before_sha256": "797fbcf114f80733d9c3a43088acc07187546efc0616859e9c89fc12bff99e54"
+      },
+      {
+        "values": {
+          "uid-hex": "04010203040506",
+          "card-present": true
+        },
+        "serial_offset": 399,
+        "before_file": "step-1-before.txt",
+        "before_sha256": "27c2f75064a2ccdc5f2f430320fa7b8878b0346146a0575f0d2ca809be9cb413"
+      },
+      {
+        "values": {
+          "uid-hex": "04010203040506070809",
+          "card-present": true
+        },
+        "serial_offset": 597,
+        "before_file": "step-2-before.txt",
+        "before_sha256": "85ef076c0400098608cb01e8190f1c9f02163a8f88d4eff0bef8943a4745ef8e"
+      },
+      {
+        "values": {
+          "card-present": false
+        },
+        "serial_offset": 829,
+        "before_file": "step-3-before.txt",
+        "before_sha256": "eb8d4fb5f63504ab1be75c93830a0e4a5fa641d07c8a5823f9bf1b1763448acb"
+      }
+    ],
+    "unit_state": {
+      "units": [
+        {
+          "properties": {
+            "transactions": 100,
+            "read-bytes": 50,
+            "written-bytes": 50,
+            "input-events": 4,
+            "card-present": false
+          }
+        }
+      ]
+    }
+  }
+}

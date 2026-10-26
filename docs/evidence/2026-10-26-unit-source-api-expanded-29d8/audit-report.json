@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "Offline archive bytes/transport/provenance/CRC/images/privacy/counts only; no API/guest/QEMU/compiler call",
+  "check_count": 116839,
+  "payload_file_count_excluding_root_audit_and_checksum": 14373,
+  "payload_bytes_excluding_root_audit_and_checksum": 172879123,
+  "copy_provenance_files": 14380,
+  "transported_markdown_files": 27,
+  "nested_checksum_entries": 13797,
+  "nested_checksum_verified": 13793,
+  "nested_checksum_explicit_exclusions": [
+    {
+      "manifest": "research/upstream/SHA256SUMS",
+      "member": "mcp-buzzer-exact.json",
+      "status": "EXPLICITLY_EXCLUDED",
+      "sha256": "7857e202274cb43c57de43ac8861e593cf08d419385333b0afb26314e0fa5c4e"
+    },
+    {
+      "manifest": "research/upstream/SHA256SUMS",
+      "member": "mcp-buzzer.json",
+      "status": "EXPLICITLY_EXCLUDED",
+      "sha256": "bcae28c0839aeeab98507e5f4ccd943e448c2e6edd71a422aee83b4e1b3dbb19"
+    },
+    {
+      "manifest": "research/upstream/SHA256SUMS",
+      "member": "mcp-ir-exact.json",
+      "status": "EXPLICITLY_EXCLUDED",
+      "sha256": "1d2a303992594eed2940c4ac0618f0f66c18d08bfb58c4d6dcbab29a4976225f"
+    },
+    {
+      "manifest": "research/upstream/SHA256SUMS",
+      "member": "mcp-ir.json",
+      "status": "EXPLICITLY_EXCLUDED",
+      "sha256": "106342ce67d0de1e348f6858993badbe6025362ce6f492f1cc75357fa823fbaa"
+    }
+  ],
+  "zip_payload_copies": 50,
+  "unique_zip_sha256_count": 25,
+  "zip_member_checks": 554,
+  "decoded_images_including_raw_and_zip_copies": 289,
+  "decoded_utf8_payloads": 14598,
+  "credential_mac_private_url_candidates": [],
+  "public_led_source_count": 32,
+  "current_archive_counts": {
+    "total_sessions": 25,
+    "functional_pass_sessions": 22,
+    "negative_control_pass_sessions": 1,
+    "review_sessions": 1,
+    "failed_sessions": 1
+  },
+  "combined_counts": {
+    "total_sessions": 33,
+    "functional_pass_sessions": 30,
+    "negative_control_pass_sessions": 1,
+    "review_sessions": 1,
+    "failed_sessions": 1
+  },
+  "no_binary_or_private_raw_inputs": true,
+  "markdown_transport_byte_changes": false,
+  "hardware": "NOT RUN"
+}

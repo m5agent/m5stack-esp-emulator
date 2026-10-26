@@ -1,0 +1,126 @@
+{
+  "case": "tvoc",
+  "unit_id": "tvoc",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "validation": "virtual-device validation",
+  "status": "PREPARED_NO_API_OR_RUNTIME",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "expected_worker_generation": 11,
+  "source_cas_sha256": "cdc183820a3baa693d8b4ced598359e1fe8166c46ea38d1931f27e94c6e9fe5b",
+  "source_files": {
+    "boot.py": {
+      "size": 24,
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+    },
+    "main.py": {
+      "size": 246,
+      "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+    },
+    "probe_config.py": {
+      "size": 75,
+      "sha256": "100f8ec592d40bbfbf72dc85136edb0a8f7f326bcf557863896368e3e4cd6804"
+    },
+    "probe_logging.py": {
+      "size": 338,
+      "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+    },
+    "sensor_drivers/__init__.py": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "sensor_drivers/heart.py": {
+      "size": 8964,
+      "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+    },
+    "sensor_drivers/mlx90614.py": {
+      "size": 1707,
+      "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+    },
+    "sensor_drivers/mlx90640.py": {
+      "size": 27980,
+      "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+    },
+    "sensor_drivers/pahub.py": {
+      "size": 3648,
+      "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+    },
+    "sensor_drivers/sgp30.py": {
+      "size": 11799,
+      "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+    },
+    "sensor_drivers/tcs3472.py": {
+      "size": 16886,
+      "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+    },
+    "sensor_drivers/ultrasonic_i2c.py": {
+      "size": 1024,
+      "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+    },
+    "sensor_drivers/unit_helper.py": {
+      "size": 129,
+      "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+    },
+    "sensor_drivers/vl53l0x.py": {
+      "size": 28248,
+      "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+    },
+    "sensor_probe.py": {
+      "size": 9139,
+      "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+    }
+  },
+  "http_json_body_bytes": 115291,
+  "ready_marker": "SENSOR_PROBE_READY tvoc",
+  "negative_checks": [
+    "tvoc_iaq_before_init_nack",
+    "tvoc_initialization_fixed_output",
+    "tvoc_busy_read_nack",
+    "tvoc_response_crc",
+    "tvoc_response_consumed",
+    "tvoc_bad_argument_crc_nack",
+    "tvoc_unknown_command_nack"
+  ],
+  "required_markers": [
+    "SENSOR_PROBE_READY tvoc",
+    "SENSOR_CHECK tvoc_iaq_before_init_nack PASS",
+    "SENSOR_CHECK tvoc_initialization_fixed_output PASS",
+    "SENSOR_CHECK tvoc_busy_read_nack PASS",
+    "SENSOR_CHECK tvoc_response_crc PASS",
+    "SENSOR_CHECK tvoc_response_consumed PASS",
+    "SENSOR_CHECK tvoc_bad_argument_crc_nack PASS",
+    "SENSOR_CHECK tvoc_unknown_command_nack PASS"
+  ],
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "tvoc",
+      "port_id": "port-a",
+      "initial": {
+        "eco2-ppm": 800,
+        "tvoc-ppb": 40,
+        "raw-h2": 21000,
+        "raw-ethanol": 22000
+      }
+    }
+  ],
+  "changes": [
+    {
+      "eco2-ppm": 1250,
+      "tvoc-ppb": 230,
+      "raw-h2": 26000,
+      "raw-ethanol": 31000
+    },
+    {
+      "eco2-ppm": 675,
+      "tvoc-ppb": 18,
+      "raw-h2": 18300,
+      "raw-ethanol": 24500
+    }
+  ],
+  "expected_size": [
+    320,
+    240
+  ]
+}

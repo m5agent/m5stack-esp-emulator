@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-26T03:54:06.150222+00:00",
+  "status": "PREPARED_NOT_EXECUTED",
+  "device_id": "cores3",
+  "unit_ids": [
+    "joystick-v11",
+    "8encoder",
+    "cardkb",
+    "rfid2"
+  ],
+  "harness": "run_source_controls.py",
+  "harness_sha256": "6fb282e9202a0e387b75aa28fc82fd485e1facbc557f3fd03a7273e788dbde19",
+  "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "source_intake": "POST /api/v1/firmware/uiflow",
+  "session_binding": "uiflow_source_sha256 must equal canonical caller-files source artifact SHA256",
+  "flavor": "controls-probe-cores3-native-display-v1",
+  "driver_bytes": "exact vendored official source; manifest file hashes checked, original driver files unchanged",
+  "display_changes": "Three reversible display-only edits to controls_probe/main.py; host_control_layout.py byte-exact; CoreS3 profile explicitly generated with runtime font/width/geometry guards. All original firmware controller paths unchanged.",
+  "source_cas_sha256": {
+    "joystick-v11": "519bacf9837af4da73d41265f3d28c393595d446c8f80790bba505f480feb0ec",
+    "8encoder": "bdd2d1bf59f19543f92910bfa6750829d8b69d9384df4c95f68300f102aa2ffd",
+    "cardkb": "423766c6a9069d3e30f62b5b5cd0f6b2bf6f3285ac6045773faf16a4580a7978",
+    "rfid2": "ac77727fa4f72972944a4e196c37d73603e719df900b279b89f8f960d75d9089"
+  },
+  "original_control_assertions": {
+    "source": "tests/units/run_control_cases.py",
+    "source_sha256": "074255c4e8a5e742887fea727bf6559b0b236b3968f445ce79c6cff7bdd4e581",
+    "original_block_sha256": "4800da227f4a4878ee60ac7777c2f4f5ffd28d6f0483204404d77f0e0e7b5a78",
+    "ast_exact_match": true,
+    "assertion_count": 13
+  },
+  "execution_contract": [
+    "real Client and WebUIBridge; no fake client/runtime state shim",
+    "source JSON API only; no local BIN build or binary artifact upload",
+    "source API optional base-hash negative and path traversal negative",
+    "session missing/wrong source pin negatives before guest start",
+    "actual DOM Unit input controls and captured HTTP readbacks",
+    "direct owned QEMU PID executable SHA plus worker generation proof",
+    "all original run_control_cases.py control assertions preserved by AST equality",
+    "fresh serial windows and input state; all positive/negative guest markers",
+    "same-session controller/QOM counters plus native framebuffer and browser capture",
+    "ZIP before stop; source/firmware/PID/worker/Unit contract binding",
+    "stop purge=0; retained history/frame; mutable Flash released; owned PID exit; health active sessions zero"
+  ],
+  "additional_independent_replay": [
+    "Joystick two complete fresh raw vectors",
+    "8Encoder eight signed int32 extrema/buttons/switch, guest set/reset, address 0x42, nine RGB register triplets and increment path",
+    "CardKB 47 keys over four official tables, all three one-shot modifiers, three real double-click modifier locks with QOM modes 2/4/6 and unlock, exact independently reconstructed 187-byte stream including legacy input",
+    "RFID each 4/7/10-byte UID independently requires ordered CRC/key/sector/block/halt/antenna checks in the fresh input window; removal must reach guest"
+  ],
+  "offline_validation": {
+    "self_test": "offline-self-test-final/self-test.json",
+    "prepare_log": "prepare-final.log",
+    "check_log": "check-prepared-final.log",
+    "api_process_bin_attempts_during_prepare_or_check": 0,
+    "guard_probes_blocked": [
+      "SOCKET",
+      "HTTP",
+      "PROCESS",
+      "BIN_WRITE"
+    ],
+    "guest_source_drift_negative": "REJECTED",
+    "cases_prepared": 4,
+    "guest_firmware_executed": false,
+    "hardware": "NOT RUN"
+  },
+  "archive_excludes": [
+    "__pycache__",
+    "*.pyc",
+    "firmware/ROM/ELF binaries"
+  ],
+  "raw_serial_policy": "read_bytes/write_bytes or original .encode() only; no newline normalization of captured HTTP/serial bytes",
+  "limitations": [
+    "No live API/browser/guest execution was performed by this agent.",
+    "Display profile is pending native guest and screenshot acceptance; no CoreS3 result is inherited from the other three hosts.",
+    "Original full matrix 66/67 regression remains outside this batch."
+  ]
+}

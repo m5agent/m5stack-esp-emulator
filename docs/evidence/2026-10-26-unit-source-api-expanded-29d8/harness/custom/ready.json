@@ -1,0 +1,69 @@
+{
+  "status": "READY_FOR_ROOT_EXECUTION_NOT_RUN",
+  "runtime_execution": "NOT RUN",
+  "web_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "harness_sha256": "6c756f17928399b29781c783d58d8934176297398c6e6b921f53033f056e4ec5",
+  "common_sha256": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1",
+  "default_cases": [
+    "ir",
+    "buzzer"
+  ],
+  "flavor": "EXPLICIT_CUSTOM_ONLY",
+  "expected_worker_generation": 11,
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "offline_self_check": "self-check-r2/self-check.json",
+  "prepared": "prepared-r1/prepared.json",
+  "negative_check_count": 22,
+  "api_calls": 0,
+  "process_calls": 0,
+  "builder_calls": 0,
+  "binary_files_written": 0,
+  "legacy_prepare_calls": 0,
+  "cases": [
+    {
+      "unit_id": "ir",
+      "firmware_flavor": "custom-guest-ir-callback-root-patch",
+      "source_cas_sha256": "4851d70cb840e40dfecb8b2f6b403d4287df6a3e40330975e7568169450cb1bf",
+      "custom_driver_patch": {
+        "path": "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch",
+        "patch_sha256": "c86d272991a7e18a7cbeab966bb63dba8ba0ec261c51392e526cc480d637f9f8",
+        "driver_path": "io_drivers/ir.py",
+        "original_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+        "patched_driver_sha256": "01d7fda4a59287c25a9a8dac398637898f08cce75579af296c1b0b1a714c6151",
+        "original_driver_unchanged": true,
+        "scope": "Explicit generated-copy custom wrapper; frozen firmware, native module and QEMU unchanged.",
+        "native_module_modified": false,
+        "frozen_modules_modified": false,
+        "controller_modified": false,
+        "reverse_patch_sha256": "9201f13e4e8a84baaaf06a8f419acc34e52cafe483722f5d9c2f367929b65fa9",
+        "restored_driver_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+        "reversible_byte_exact": true,
+        "helper": "prepare_host_io.custom_driver + strict_patch (pure, no builder/process)"
+      },
+      "http_json_body_bytes": 27087
+    },
+    {
+      "unit_id": "buzzer",
+      "firmware_flavor": "custom-guest-buzzer-callback-arity-patch",
+      "source_cas_sha256": "4e2395b6c8dc1447964bf1156ecea24e0fe7939cf2a8832a7a77d4c813a4a85c",
+      "custom_driver_patch": {
+        "path": "patches/uiflow2-unit-buzzer/0001-accept-soft-timer-callback.patch",
+        "patch_sha256": "9f22247a2fe74d3c587c2ca4ada7c7519087c0bfbea4a1b6811c2c96450616bd",
+        "driver_path": "io_drivers/buzzer.py",
+        "original_driver_sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+        "patched_driver_sha256": "330f8bad7d3b0176d02efe132a0ace203ce6d742395de274f21e42d623e9fe8c",
+        "original_driver_unchanged": true,
+        "scope": "Explicit generated-copy custom wrapper; frozen firmware, native module and QEMU unchanged.",
+        "native_module_modified": false,
+        "frozen_modules_modified": false,
+        "controller_modified": false,
+        "reverse_patch_sha256": "0eeaaa203ae4e152d1251ce67c532fbe926c993a74098c0348822cc6ae44cd1b",
+        "restored_driver_sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+        "reversible_byte_exact": true,
+        "helper": "prepare_host_io.custom_driver + strict_patch (pure, no builder/process)"
+      },
+      "http_json_body_bytes": 27109
+    }
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "session_id": "c0bf6a05f36740ccbce82d61dc6f6b4d",
+  "state": "running",
+  "source": "live",
+  "captured_at": "2026-10-26T03:57:15.884215+00:00",
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "ultrasonic-i2c",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "distance-mm": 1000
+      },
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "distance-mm": 1234.5,
+        "transactions": 18,
+        "read-bytes": 21,
+        "written-bytes": 9,
+        "input-events": 1,
+        "output-transitions": 0,
+        "samples-generated": 7,
+        "crc-errors": 0
+      },
+      "errors": {}
+    }
+  ],
+  "definitions": [
+    {
+      "id": "ultrasonic-i2c",
+      "name": "Ultrasonic-I2C",
+      "sku": "U098-B1",
+      "visual_asset": {
+        "entry": "src/units/ultrasonic-i2c/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "RCWL-9620",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          87
+        ],
+        "pins": {
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          },
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "Write command byte 0x01 to 0x57, wait 120 ms in the official driver, then read three bytes as a big-endian 24-bit distance value. Driver divides the raw value by 1000 for millimeters and optionally by a further 10 for centimeters.",
+        "registers": [
+          {
+            "command": "0x01",
+            "read_bytes": 3,
+            "encoding": "BE uint24, 1000 raw units per mm",
+            "driver_wait_ms": 120
+          }
+        ],
+        "gaps": []
+      },
+      "inputs": {
+        "distance-mm": {
+          "type": "number",
+          "label": "目标距离",
+          "default": 1000,
+          "default_source": "synthetic-test-fixture",
+          "unit": "mm",
+          "minimum": 20,
+          "maximum": 4500,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/ULTRASONIC%20I2C",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ultrasonic_i2c.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+        "inputs": {
+          "distance-mm": {
+            "property": "distance-mm"
+          }
+        },
+        "state": {
+          "distance-mm": {
+            "property": "distance-mm"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          },
+          "samples-generated": {
+            "property": "samples-generated",
+            "path": "/chip"
+          },
+          "crc-errors": {
+            "property": "crc-errors",
+            "path": "/chip"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "81a87a1ed1db5aaf3092cd3a393d5f1db6b95a734615439e5455d4aae01c8571",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ultrasonic-i2c/report.json",
+          "report_sha256": "f80d5ab03773e837fa7c34306472623f8b2c15c8b1636c9cd5ee719dc29f4ef1",
+          "evidence_sha256": "e66a78e60a1ef75ea5c7caa895b5221af55dc4cf1b955e3deb5540297a0589a2",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 7,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "PASS",
+            "device_id": "atoms3r",
+            "unit_id": "ultrasonic-i2c",
+            "runtime": "qemu",
+            "session_id": "3414d111f6cc4e1b80964b1bd7a7f189",
+            "firmware_sha256": "9045392a7d6996250924f41cceae68daba1816f79513741987abc975d3b38b70",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "67f95eb1b4ab773bcd184e215335335063ff9f6b9311df8ff616509b61ad08bc",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/ultrasonic-i2c/report.json",
+            "report_sha256": "cc65a2dd2d873f3ab33a284b4f3eb169b73b117d2c9b3d921377158fdf564988",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/ultrasonic-i2c/normalization-receipt.json",
+            "normalization_receipt_sha256": "64246190ea96ecb54d8477f1eb424befd4271da36bdcfc07899c1e1bf5e575f3",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+            "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+          },
+          "sticks3": {
+            "status": "PASS",
+            "device_id": "sticks3",
+            "unit_id": "ultrasonic-i2c",
+            "runtime": "qemu",
+            "session_id": "96f2261ab3164363a2df4f2ea9ea62d6",
+            "firmware_sha256": "1ae688df8d12945a418a1434c8d5f0b5da377501b31e964cb995d780283527af",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "6482eb294570ebd422b94c843ace149474c6f833ff267fb6a7579ca490bd43eb",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ultrasonic-i2c/report.json",
+            "report_sha256": "fe88d350a633ea55d5b1ad94cee7f0358b1ef18e680916a7fb9c92b487b8bb6b",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ultrasonic-i2c/normalization-receipt.json",
+            "normalization_receipt_sha256": "b4e34b31c6b4117ddf9880c5db064a47a38a373433718fd2beb6c219a216e5e5",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+            "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+          },
+          "stopwatch": {
+            "status": "PASS",
+            "device_id": "stopwatch",
+            "unit_id": "ultrasonic-i2c",
+            "runtime": "qemu",
+            "session_id": "aaf657f07d6d41e0b8e5c3c4612b7459",
+            "firmware_sha256": "a0c045f77304da47e3e82d588f7542e713563b07254d3132d329d5c6a4195728",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "b7ca8fc7089e8a5d9559648f7ee580b96999f255f8aa816d4473e46552de42cf",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ultrasonic-i2c/report.json",
+            "report_sha256": "741b45aa843eb2766ebf79245fb15b81b5a971d6192fbca7be17c9a88dff80e4",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ultrasonic-i2c/normalization-receipt.json",
+            "normalization_receipt_sha256": "8f2805b6146c7752d3415dcd0949b66f92264adc0221ab4533d8e483ed996540",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+            "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+          }
+        }
+      },
+      "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+      "visual_source_docs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+      "limitations": [
+        "The source visual catalog officialDocs URL returned HTTP 404; the canonical product page above was successfully retrieved.",
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact."
+      }
+    }
+  ],
+  "contract_hashes": {
+    "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+  },
+  "contract_status": "frozen"
+}

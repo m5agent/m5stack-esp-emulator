@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/yuyun2000/m5stack-models",
+  "source_commit": "48ab992f5ff63c1a91296051e1afcb5959877903",
+  "files": [
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/units/rgb/index.js",
+      "sha256": "655e8b57959c01a93b20ea44553d735b7437fbe08f08120b6b9f510cc57a9471",
+      "vendor_manifest_sha256": "655e8b57959c01a93b20ea44553d735b7437fbe08f08120b6b9f510cc57a9471",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/units/rgb/dimensions.js",
+      "sha256": "76ac677124336dfc534088a086ad8a9614dcac767f56ec41bef2938912c7295f",
+      "vendor_manifest_sha256": "76ac677124336dfc534088a086ad8a9614dcac767f56ec41bef2938912c7295f",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/units/rgb/geometry-data.js",
+      "sha256": "b88e3ed25d625f79109a7124cb70ed8ef77442cd244cb9df71b90e6634bf79c2",
+      "vendor_manifest_sha256": "b88e3ed25d625f79109a7124cb70ed8ef77442cd244cb9df71b90e6634bf79c2",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/units/encoder/index.js",
+      "sha256": "1ea2c60b005976d6643903ac4012671ab231b863f03c989e95072ba09e033f95",
+      "vendor_manifest_sha256": "1ea2c60b005976d6643903ac4012671ab231b863f03c989e95072ba09e033f95",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/units/encoder/dimensions.js",
+      "sha256": "9e482d2f6529a892d554b47968107c6f050d7dbf2b60a14df277be95511d0b0b",
+      "vendor_manifest_sha256": "9e482d2f6529a892d554b47968107c6f050d7dbf2b60a14df277be95511d0b0b",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/units/encoder/geometry-data.js",
+      "sha256": "7722c5e5e3fffa66b7c747fd00008fe412d3392fc1d1ba4a46250150bc52023a",
+      "vendor_manifest_sha256": "7722c5e5e3fffa66b7c747fd00008fe412d3392fc1d1ba4a46250150bc52023a",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/units/shared/CADUnit.js",
+      "sha256": "eb337eaff2c267ebae8fe46921cbc289cbb5b49b3bcf548e84f1fc6d89b89c94",
+      "vendor_manifest_sha256": "eb337eaff2c267ebae8fe46921cbc289cbb5b49b3bcf548e84f1fc6d89b89c94",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/modeling/parts.js",
+      "sha256": "387cddaf0ab614a783a024ad4e38918cd47ad8a887041bd22b12908064564fd3",
+      "vendor_manifest_sha256": "387cddaf0ab614a783a024ad4e38918cd47ad8a887041bd22b12908064564fd3",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/modeling/cad.js",
+      "sha256": "83e8e600aa182b5a94bbccfcd26f0ab35d569c5828ee8ce7f11bc54d964a88fd",
+      "vendor_manifest_sha256": "83e8e600aa182b5a94bbccfcd26f0ab35d569c5828ee8ce7f11bc54d964a88fd",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/core/Component.js",
+      "sha256": "61e2d39fcb97890ecdbdf1abfb51ab331ad85770c6b2d165e25ff5f0b9766bcc",
+      "vendor_manifest_sha256": "61e2d39fcb97890ecdbdf1abfb51ab331ad85770c6b2d165e25ff5f0b9766bcc",
+      "unchanged": true
+    },
+    {
+      "repo_path": "platform/web/vendor/m5stack-models/src/modeling/grove-cable.js",
+      "sha256": "854e33e5e00545c0c907df1b166d27fdc1480b4b3c02fbd4cda04caee6f5e649",
+      "vendor_manifest_sha256": "854e33e5e00545c0c907df1b166d27fdc1480b4b3c02fbd4cda04caee6f5e649",
+      "unchanged": true
+    }
+  ],
+  "unit_local_frame": {
+    "view": "from +Z toward origin, +Y upward",
+    "front": "+Z",
+    "back": "-Z",
+    "main_grove": "-Y",
+    "left_to_right": "-X to +X",
+    "scope": "Unit local frame, not arbitrary browser camera or UnitFrame pose"
+  },
+  "sources": [
+    {
+      "file": "src/modeling/parts.js",
+      "lines": [
+        5,
+        30
+      ],
+      "fact": "FACE front/back/top/bottom; Grove convention"
+    },
+    {
+      "file": "src/units/shared/CADUnit.js",
+      "lines": [
+        7,
+        24
+      ],
+      "fact": "main Grove at spec.grove.position, face bottom"
+    },
+    {
+      "file": "src/core/Component.js",
+      "lines": [
+        25,
+        70
+      ],
+      "fact": "component local positions assigned unchanged and mounted in host.body"
+    },
+    {
+      "file": "src/modeling/cad.js",
+      "lines": [
+        6,
+        7
+      ],
+      "fact": "CAD vertices attached unchanged to host.body"
+    }
+  ]
+}

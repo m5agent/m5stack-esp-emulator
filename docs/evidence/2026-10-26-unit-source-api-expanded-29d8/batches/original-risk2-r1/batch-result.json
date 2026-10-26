@@ -1,0 +1,20 @@
+{
+  "status": "FAIL_OR_REVIEW_REQUIRED",
+  "finished_at": "2026-10-26T04:19:29.253886+00:00",
+  "cases": [
+    {
+      "unit_id": "ir",
+      "session_id": "900d5d6cad45477bb585005df7bf00c9",
+      "status": "REVIEW_REQUIRED",
+      "error": null,
+      "cleanup_error": null
+    },
+    {
+      "unit_id": "buzzer",
+      "session_id": "0ea727bb4ba2460b8fed5667a71e8c65",
+      "status": "FAIL",
+      "error": "RuntimeError: natural Buzzer timer zero not observed before TIMER_DONE/manual output",
+      "cleanup_error": null
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+[
+  {
+    "at": "2026-10-26T03:58:49.681259+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "a0e151d6233e620eed0fc04a99ade9c2b1efe51b2e138635d3accaafd0fdbc31",
+    "input_event": null,
+    "phase": "startup"
+  },
+  {
+    "at": "2026-10-26T03:58:49.681427+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "IO_PROBE_READY pir",
+    "offset": 0,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "a0e151d6233e620eed0fc04a99ade9c2b1efe51b2e138635d3accaafd0fdbc31",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T03:58:49.701307+00:00",
+    "event_id": 2,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "bd2fb8014ea649be97912beb6195cfe5",
+      "offset": 0,
+      "next_offset": 365,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (857) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\n",
+      "bytes": 365
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:58:51.123850+00:00",
+    "event_id": 3,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00003-serial.txt",
+    "serial_sha256": "69969d6a2b088eedb04d9c2a36c7a954283f74f2bbaf4e2495ed850447854d07",
+    "input_event": 2,
+    "phase": "IO_PROBE_READY pir"
+  },
+  {
+    "at": "2026-10-26T03:58:51.124022+00:00",
+    "event_id": 4,
+    "kind": "marker",
+    "marker": "IO_PIR_CALLBACK 1 1",
+    "offset": 0,
+    "serial_file": "observations/00004-marker.txt",
+    "serial_sha256": "69969d6a2b088eedb04d9c2a36c7a954283f74f2bbaf4e2495ed850447854d07",
+    "input_event": 2
+  },
+  {
+    "at": "2026-10-26T03:58:51.125901+00:00",
+    "event_id": 5,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "bd2fb8014ea649be97912beb6195cfe5",
+      "offset": 0,
+      "next_offset": 402,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (857) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\n",
+      "bytes": 402
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:58:53.285321+00:00",
+    "event_id": 6,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00006-serial.txt",
+    "serial_sha256": "709da6773b68538b654686787ab202888faa86a4c14226a03d1a81361862926b",
+    "input_event": 5,
+    "phase": "IO_PIR_CALLBACK 1 1"
+  },
+  {
+    "at": "2026-10-26T03:58:53.285938+00:00",
+    "event_id": 7,
+    "kind": "marker",
+    "marker": "IO_PIR_CALLBACK 0 1",
+    "offset": 0,
+    "serial_file": "observations/00007-marker.txt",
+    "serial_sha256": "709da6773b68538b654686787ab202888faa86a4c14226a03d1a81361862926b",
+    "input_event": 5
+  },
+  {
+    "at": "2026-10-26T03:58:53.290923+00:00",
+    "event_id": 8,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00008-serial.txt",
+    "serial_sha256": "709da6773b68538b654686787ab202888faa86a4c14226a03d1a81361862926b",
+    "input_event": 5,
+    "phase": "IO_PIR_CALLBACK 0 1"
+  },
+  {
+    "at": "2026-10-26T03:58:53.291464+00:00",
+    "event_id": 9,
+    "kind": "marker",
+    "marker": "IO_PIR_DISABLED 1 1",
+    "offset": 0,
+    "serial_file": "observations/00009-marker.txt",
+    "serial_sha256": "709da6773b68538b654686787ab202888faa86a4c14226a03d1a81361862926b",
+    "input_event": 5
+  },
+  {
+    "at": "2026-10-26T03:58:53.293539+00:00",
+    "event_id": 10,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "bd2fb8014ea649be97912beb6195cfe5",
+      "offset": 0,
+      "next_offset": 476,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (857) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\nIO_PIR 1 1 0 0\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\n",
+      "bytes": 476
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:58:53.442832+00:00",
+    "event_id": 11,
+    "kind": "wait-success",
+    "offset": 476,
+    "serial_file": "observations/00011-serial.txt",
+    "serial_sha256": "2b8fa0c3254f1167b5824139bad0963fd9533de65f66d23bb44c5f728eda5644",
+    "input_event": 10,
+    "phase": "IO_PIR_DISABLED 1 1"
+  },
+  {
+    "at": "2026-10-26T03:58:53.444982+00:00",
+    "event_id": 12,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "bd2fb8014ea649be97912beb6195cfe5",
+      "offset": 0,
+      "next_offset": 492,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (857) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\nIO_PIR 1 1 0 0\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\nIO_PIR 1 1 1 1\r\n",
+      "bytes": 492
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:58:55.502203+00:00",
+    "event_id": 13,
+    "kind": "wait-success",
+    "offset": 476,
+    "serial_file": "observations/00013-serial.txt",
+    "serial_sha256": "6bb9f06f22fb81c53e71db6518800bd64331793b4b255d5d089ff29835afce9e",
+    "input_event": 12,
+    "phase": "IO_PIR_DISABLED 1 1"
+  },
+  {
+    "at": "2026-10-26T03:58:55.502469+00:00",
+    "event_id": 14,
+    "kind": "marker",
+    "marker": "IO_PIR_DISABLED_DONE 1 1",
+    "offset": 476,
+    "serial_file": "observations/00014-marker.txt",
+    "serial_sha256": "6bb9f06f22fb81c53e71db6518800bd64331793b4b255d5d089ff29835afce9e",
+    "input_event": 12
+  },
+  {
+    "at": "2026-10-26T03:58:55.506718+00:00",
+    "event_id": 15,
+    "kind": "wait-success",
+    "offset": 476,
+    "serial_file": "observations/00015-serial.txt",
+    "serial_sha256": "6bb9f06f22fb81c53e71db6518800bd64331793b4b255d5d089ff29835afce9e",
+    "input_event": 12,
+    "phase": "IO_PIR_DISABLED_DONE 1 1"
+  },
+  {
+    "at": "2026-10-26T03:58:55.507424+00:00",
+    "event_id": 16,
+    "kind": "marker",
+    "marker": "IO_PIR_REENABLED",
+    "offset": 476,
+    "serial_file": "observations/00016-marker.txt",
+    "serial_sha256": "6bb9f06f22fb81c53e71db6518800bd64331793b4b255d5d089ff29835afce9e",
+    "input_event": 12
+  },
+  {
+    "at": "2026-10-26T03:58:55.509644+00:00",
+    "event_id": 17,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "bd2fb8014ea649be97912beb6195cfe5",
+      "offset": 0,
+      "next_offset": 568,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (857) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\nIO_PIR 1 1 0 0\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\nIO_PIR 1 1 1 1\r\nIO_PIR 1 1 1 1\r\nIO_PIR_DISABLED_DONE 1 1\r\nIO_PIR_REENABLED\r\nIO_PIR 0 1 1 2\r\n",
+      "bytes": 568
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:58:55.606519+00:00",
+    "event_id": 18,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00018-serial.txt",
+    "serial_sha256": "8f42c06a13b34f1b6adcf2d9e8d1bc1ba7bbec786923b60dc8e261eaa77ac196",
+    "input_event": 17,
+    "phase": "IO_PIR_REENABLED"
+  },
+  {
+    "at": "2026-10-26T03:58:55.607017+00:00",
+    "event_id": 19,
+    "kind": "marker",
+    "marker": "IO_PIR_CALLBACK 1 2",
+    "offset": 0,
+    "serial_file": "observations/00019-marker.txt",
+    "serial_sha256": "8f42c06a13b34f1b6adcf2d9e8d1bc1ba7bbec786923b60dc8e261eaa77ac196",
+    "input_event": 17
+  },
+  {
+    "at": "2026-10-26T03:58:55.609238+00:00",
+    "event_id": 20,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "bd2fb8014ea649be97912beb6195cfe5",
+      "offset": 0,
+      "next_offset": 605,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (857) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\nIO_PIR 1 1 0 0\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\nIO_PIR 1 1 1 1\r\nIO_PIR 1 1 1 1\r\nIO_PIR_DISABLED_DONE 1 1\r\nIO_PIR_REENABLED\r\nIO_PIR 0 1 1 2\r\nIO_PIR_CALLBACK 1 2\r\nIO_PIR 1 2 1 2\r\n",
+      "bytes": 605
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T03:58:57.598410+00:00",
+    "event_id": 21,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00021-serial.txt",
+    "serial_sha256": "c7e5cb8fc55543d5f11f56182ebe1ae59b5293f2d41a91fb9ae7034ad549d42e",
+    "input_event": 20,
+    "phase": "IO_PIR_CALLBACK 1 2"
+  },
+  {
+    "at": "2026-10-26T03:58:57.598801+00:00",
+    "event_id": 22,
+    "kind": "marker",
+    "marker": "IO_PIR_CALLBACK 0 2",
+    "offset": 0,
+    "serial_file": "observations/00022-marker.txt",
+    "serial_sha256": "c7e5cb8fc55543d5f11f56182ebe1ae59b5293f2d41a91fb9ae7034ad549d42e",
+    "input_event": 20
+  },
+  {
+    "at": "2026-10-26T03:58:57.874086+00:00",
+    "event_id": 23,
+    "kind": "state",
+    "file": "observations/00023-state.json",
+    "phase": "IO_PIR_CALLBACK 0 2",
+    "input_event": 20
+  },
+  {
+    "at": "2026-10-26T03:58:57.883433+00:00",
+    "event_id": 24,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00024-serial.txt",
+    "serial_sha256": "c7e5cb8fc55543d5f11f56182ebe1ae59b5293f2d41a91fb9ae7034ad549d42e",
+    "input_event": 20,
+    "phase": "IO_PIR_CALLBACK 0 2"
+  }
+]

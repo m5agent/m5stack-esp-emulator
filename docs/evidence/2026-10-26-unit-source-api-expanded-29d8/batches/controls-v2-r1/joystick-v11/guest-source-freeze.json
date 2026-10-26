@@ -1,0 +1,87 @@
+{
+  "boot.py": {
+    "repository_path": "tests/units/probe/boot.py",
+    "size": 24,
+    "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "copy": "byte-exact"
+  },
+  "main.py": {
+    "repository_path": "tests/units/controls_probe/main.py",
+    "original_sha256": "3338be4c7aa0a2c3228c139d1d983446d9dc07279b4601dde0f037d17596c531",
+    "sha256": "cc8ff69c8ae5a97cbbf1fb9faad7ddc5dedca2cb2fcb527f8ddb80ea39fa7f39",
+    "size": 6320,
+    "copy": "explicit-display-only-flavor",
+    "flavor": "controls-probe-cores3-native-display-v1",
+    "exact_reverse_verified": true,
+    "changes": [
+      {
+        "before_sha256": "a0d0a767e28bd258db08200d8e71b48e6952d1f97ea7162cb223d866541b0ded",
+        "after_sha256": "9d99a80664f7e0c924bacfc029039dd6872c4c1514787071a9644538dc04c3f7"
+      },
+      {
+        "before_sha256": "3e3f86d69362945dc613d2e1d9dcec4904120b7f27ccc4447261f50bfdb17f11",
+        "after_sha256": "f9d97eca33c781d8ccad70ed51da1fb6fc9c78a93daca141520434300b3c0de8"
+      },
+      {
+        "before_sha256": "552864a5cf9b9c4d038ffa76e6de38f10cde21c795d07a0aa4b219834e55652f",
+        "after_sha256": "e615711eb8a550e6a4592dfb0566a38d82b79c0e1f2cbefe7ca9bbe7215b7513"
+      }
+    ]
+  },
+  "host_control_layout.py": {
+    "repository_path": "tests/units/host_controls_probe/host_control_layout.py",
+    "size": 3397,
+    "sha256": "99ee92efdcd2beeb13b849f70b11cec47f8c0713479ce1d079f3f253d5e61464",
+    "copy": "byte-exact"
+  },
+  "probe_display.py": {
+    "copy": "generated-CoreS3-display-profile-and-observer",
+    "sha256": "10ecfdb3521b654a025a80087925f826e0819dc2d3f14e2458d646a60d81d7ef",
+    "size": 1629,
+    "contract": {
+      "device_id": "cores3",
+      "native": [
+        320,
+        240
+      ],
+      "rotation": 1,
+      "font": "Montserrat12",
+      "scale": 1.0,
+      "font_height": 15,
+      "x": 6,
+      "y": 6,
+      "width": 308,
+      "body_y": 24,
+      "line_height": 16,
+      "body_rows": 3,
+      "bottom": 72,
+      "headers": 1,
+      "flavor": "controls-probe-cores3-native-display-v1",
+      "evidence": "guest fontHeight/textWidth and native geometry checks required; preparation is not display PASS"
+    }
+  },
+  "control_drivers/__init__.py": {
+    "repository_path": "tests/units/controls_probe/control_drivers/__init__.py",
+    "size": 65,
+    "sha256": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+    "copy": "byte-exact"
+  },
+  "control_drivers/joystick.py": {
+    "repository_path": "tests/units/controls_probe/control_drivers/joystick.py",
+    "size": 1311,
+    "sha256": "323da58ebb98d737ed8647567aabb36f0adafd66d1e8dcd5cdf895eeb599caed",
+    "copy": "byte-exact"
+  },
+  "control_drivers/unit_helper.py": {
+    "repository_path": "tests/units/controls_probe/control_drivers/unit_helper.py",
+    "size": 129,
+    "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+    "copy": "byte-exact"
+  },
+  "probe_config.py": {
+    "copy": "generated-explicit-CoreS3-probe-config",
+    "size": 43,
+    "sha256": "454cedb07d6a81780044f453ff254a5fff84a21a715141e21f766449d511cfc3",
+    "host_ports_sha256": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39"
+  }
+}

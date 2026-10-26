@@ -1,0 +1,101 @@
+{
+  "unit_id": "8encoder",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "source_cas_sha256": "bdd2d1bf59f19543f92910bfa6750829d8b69d9384df4c95f68300f102aa2ffd",
+  "files": {
+    "boot.py": {
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "size": 24
+    },
+    "control_drivers/__init__.py": {
+      "sha256": "2eb71e6b9635a5477ddb908632f81ba435ef1bc69af83413034c6f6dacb935a4",
+      "size": 65
+    },
+    "control_drivers/encoder8.py": {
+      "sha256": "38bf8e2d7e5cea08aed605cda075d614f1275a2010898358426c53059d649e72",
+      "size": 10385
+    },
+    "control_drivers/pahub.py": {
+      "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025",
+      "size": 3648
+    },
+    "control_drivers/unit_helper.py": {
+      "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821",
+      "size": 129
+    },
+    "host_control_layout.py": {
+      "sha256": "99ee92efdcd2beeb13b849f70b11cec47f8c0713479ce1d079f3f253d5e61464",
+      "size": 3397
+    },
+    "main.py": {
+      "sha256": "cc8ff69c8ae5a97cbbf1fb9faad7ddc5dedca2cb2fcb527f8ddb80ea39fa7f39",
+      "size": 6320
+    },
+    "probe_config.py": {
+      "sha256": "a962883062b80dffdee821d7b707ffae551740814fd07ad85416f39fc360caeb",
+      "size": 39
+    },
+    "probe_display.py": {
+      "sha256": "10ecfdb3521b654a025a80087925f826e0819dc2d3f14e2458d646a60d81d7ef",
+      "size": 1629
+    }
+  },
+  "port": {
+    "id": "port-a",
+    "label": "PORT.A",
+    "visual_port": "grove",
+    "connector": "HY2.0-4P",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    },
+    "power": {
+      "nominal_v": 5,
+      "control": "unknown"
+    },
+    "wiring_status": "confirmed",
+    "physical_presence": "main-device",
+    "evidence": [
+      {
+        "url": "https://docs.m5stack.com/en/core/CoreS3",
+        "checked_at": "2026-10-26",
+        "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+      }
+    ],
+    "limitations": []
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "8encoder",
+      "port_id": "port-a"
+    }
+  ],
+  "ready_marker": "CONTROL_PROBE_READY 8encoder",
+  "flavor": "controls-probe-cores3-native-display-v1",
+  "display_contract": {
+    "device_id": "cores3",
+    "native": [
+      320,
+      240
+    ],
+    "rotation": 1,
+    "font": "Montserrat12",
+    "scale": 1.0,
+    "font_height": 15,
+    "x": 6,
+    "y": 6,
+    "width": 308,
+    "body_y": 24,
+    "line_height": 16,
+    "body_rows": 10,
+    "bottom": 184,
+    "headers": 1,
+    "flavor": "controls-probe-cores3-native-display-v1",
+    "evidence": "guest fontHeight/textWidth and native geometry checks required; preparation is not display PASS"
+  },
+  "status": "PREPARED_NO_API_OR_RUNTIME"
+}

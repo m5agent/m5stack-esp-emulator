@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-26T04:15:58.767964+00:00",
+  "status": "CURRENT_OFFICIAL_SOURCE_RETAINS_BOTH_KNOWN_DEFECT_PATTERNS",
+  "repo": "https://github.com/m5stack/uiflow-micropython",
+  "head_ref": "refs/heads/master",
+  "resolved_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "head_verified_at_end": true,
+  "official_mcp_queries": [
+    "mcp-buzzer.json",
+    "mcp-buzzer-exact.json",
+    "mcp-ir.json",
+    "mcp-ir-exact.json"
+  ],
+  "official_mcp_result": "Exact queries found BuzzerUnit.once and IRUnit API documentation, not an internal SoftTimer-arity or native callback GC-root fix. Source-specific conclusions below come from exact public commit bytes.",
+  "sources": [
+    {
+      "path": "m5stack/libs/unit/buzzer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "url": "https://github.com/m5stack/uiflow-micropython/blob/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "raw_url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "git_blob_sha1": "c51a27eda383f9d3036a40a254d1e6bdaeb6be08",
+      "size": 227,
+      "vendored_sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "vendored_byte_equal": true,
+      "manifest_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "manifest_sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "manifest_matches": true
+    },
+    {
+      "path": "m5stack/libs/driver/haptic.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "url": "https://github.com/m5stack/uiflow-micropython/blob/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/haptic.py",
+      "raw_url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/haptic.py",
+      "sha256": "a443d3d947c9821208d3eac4835e0ef8e475c5cc54e0619ef159971b78e70148",
+      "git_blob_sha1": "b151185e8aae22c1e2c6a43c9469aa0fcf720680",
+      "size": 1437,
+      "historical_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "historical_sha256": "a443d3d947c9821208d3eac4835e0ef8e475c5cc54e0619ef159971b78e70148",
+      "historical_byte_equal": true
+    },
+    {
+      "path": "m5stack/libs/driver/soft_timer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "url": "https://github.com/m5stack/uiflow-micropython/blob/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/soft_timer.py",
+      "raw_url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/driver/soft_timer.py",
+      "sha256": "5d8e81fae4fd41754f174671e4259572ba90535aa7d0ea28dc7f4afd5e788e83",
+      "git_blob_sha1": "980e93d6cba98a74e696743fadf6d489b63b0b25",
+      "size": 2146,
+      "historical_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "historical_sha256": "5d8e81fae4fd41754f174671e4259572ba90535aa7d0ea28dc7f4afd5e788e83",
+      "historical_byte_equal": true
+    },
+    {
+      "path": "m5stack/libs/unit/ir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "url": "https://github.com/m5stack/uiflow-micropython/blob/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "raw_url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "git_blob_sha1": "1c13edaa0cabdc01aeac9b4d9b56ada4c92e0c1f",
+      "size": 3178,
+      "vendored_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "vendored_byte_equal": true,
+      "manifest_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "manifest_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "manifest_matches": true,
+      "historical_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "historical_sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "historical_byte_equal": true
+    },
+    {
+      "path": "m5stack/cmodules/rmt_ir/py_rmt_ir.c",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "url": "https://github.com/m5stack/uiflow-micropython/blob/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/cmodules/rmt_ir/py_rmt_ir.c",
+      "raw_url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/cmodules/rmt_ir/py_rmt_ir.c",
+      "sha256": "926ea5a80a01bf7d30c1dd1bd703ece3ebe56efc7a63575f0d7c272651d6ae6d",
+      "git_blob_sha1": "ac42fdf067c579da056cb743bd0a8aed1c2af56a",
+      "size": 15425,
+      "historical_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "historical_sha256": "926ea5a80a01bf7d30c1dd1bd703ece3ebe56efc7a63575f0d7c272651d6ae6d",
+      "historical_byte_equal": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "buzzer-softtimer-arity",
+      "status": "UNFIXED_IN_CURRENT_OFFICIAL_SOURCE",
+      "evidence": {
+        "haptic_cb_line": 32,
+        "haptic_cb_args": [
+          "self"
+        ],
+        "softtimer_call_line": 60,
+        "softtimer_call": "tim.callback(tim)",
+        "buzzer_overrides_cb": false
+      },
+      "conclusion": "BuzzerUnit still inherits Haptic._cb(self) without a timer parameter, while SoftTimerScheduler.update still invokes tim.callback(tim). The known extra-argument mismatch is unchanged.",
+      "runtime_validation": "NOT RUN in this source audit; no latest binary/physical-device claim"
+    },
+    {
+      "id": "ir-native-callback-gc-root",
+      "status": "UNFIXED_CALLBACK_RETENTION_PATTERN_IN_CURRENT_OFFICIAL_SOURCE",
+      "evidence": {
+        "wrapper_adapter_line": 60,
+        "wrapper_stores_adapter_on_self": false,
+        "native_static_line": 48,
+        "native_assign_line": 387,
+        "native_schedule_line": 170,
+        "native_gc_root_registration_in_module": false,
+        "native_object_fields": [
+          "mp_obj_base_t base",
+          "int in_pin",
+          "int tx_pin"
+        ]
+      },
+      "conclusion": "The nested receive adapter remains only a local function passed to the native constructor. The native module stores it in static mp_obj_t storage rather than a GC-rooted object field/root pointer, and the wrapper does not retain the adapter on self. Current files are byte-identical to the earlier source basis; no source-level lifetime fix was found.",
+      "runtime_validation": "No forced-GC/current-release execution in this audit; the exact future binary, complete GC port integration and hardware behavior remain separate evidence."
+    }
+  ],
+  "patches": [
+    {
+      "path": "patches/uiflow2-unit-ir/0001-root-native-receive-callback.patch",
+      "sha256": "c86d272991a7e18a7cbeab966bb63dba8ba0ec261c51392e526cc480d637f9f8",
+      "applies_to_current_upstream_with_zero_fuzz": true,
+      "dry_run_only": true,
+      "downloaded_source_unchanged": true,
+      "output": "patch-dry-run-ir.py.log"
+    },
+    {
+      "path": "patches/uiflow2-unit-buzzer/0001-accept-soft-timer-callback.patch",
+      "sha256": "9f22247a2fe74d3c587c2ca4ada7c7519087c0bfbea4a1b6811c2c96450616bd",
+      "applies_to_current_upstream_with_zero_fuzz": true,
+      "dry_run_only": true,
+      "downloaded_source_unchanged": true,
+      "output": "patch-dry-run-buzzer.py.log"
+    }
+  ],
+  "minimal_diff_result": "Vendored/current diffs and historical/current diffs are empty for all applicable files. Existing custom patches still apply to copied current sources with zero fuzz; they remain custom patches and do not make original drivers PASS.",
+  "feedback_status": "NOT_SENT_READ_ONLY_TASK",
+  "feedback_reason": "This task explicitly requested read-only research and no external-person messages. No issue, PR, feedback or message was published.",
+  "mutations": "Only files under .work/unit-driver-upstream-research-20261026 were created; no product, driver, harness, documentation or runtime/session was modified.",
+  "limitations": [
+    "Current source means the exact master HEAD resolved at the recorded check time, not every released firmware image.",
+    "Source-byte inspection does not constitute a new virtual-device or physical-hardware PASS/FAIL.",
+    "The native module itself contains no root registration; this focused audit did not expand into all MicroPython port GC integration or rebuild current firmware."
+  ],
+  "archival_exclude": [
+    "commit.json (full API response is unnecessary for publication; use commit-summary.json)"
+  ]
+}

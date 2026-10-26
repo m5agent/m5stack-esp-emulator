@@ -1,0 +1,182 @@
+[
+  {
+    "at": "2026-10-26T04:03:20.859292+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "b2bab3238f7b9277fc31340eb9d2d7f4cb0f5c89d1f32b38899d4c921b8b58ee",
+    "input_event": null,
+    "phase": "startup"
+  },
+  {
+    "at": "2026-10-26T04:03:20.859894+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "IO_PROBE_READY hub",
+    "offset": 0,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "b2bab3238f7b9277fc31340eb9d2d7f4cb0f5c89d1f32b38899d4c921b8b58ee",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:03:20.886315+00:00",
+    "event_id": 2,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00002-serial.txt",
+    "serial_sha256": "b2bab3238f7b9277fc31340eb9d2d7f4cb0f5c89d1f32b38899d4c921b8b58ee",
+    "input_event": null,
+    "phase": "IO_PROBE_READY hub"
+  },
+  {
+    "at": "2026-10-26T04:03:20.887224+00:00",
+    "event_id": 3,
+    "kind": "marker",
+    "marker": "IO_HUB_SCAN 68 88 90 112",
+    "offset": 0,
+    "serial_file": "observations/00003-marker.txt",
+    "serial_sha256": "b2bab3238f7b9277fc31340eb9d2d7f4cb0f5c89d1f32b38899d4c921b8b58ee",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T04:03:35.938576+00:00",
+    "event_id": 4,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00004-serial.txt",
+    "serial_sha256": "fd7dc12aea180655ab770ea28a4e1a94598c914ea749e8ee71dd78fd7648dbfd",
+    "input_event": null,
+    "phase": "IO_HUB_SCAN 68 88 90 112"
+  },
+  {
+    "at": "2026-10-26T04:03:35.941152+00:00",
+    "event_id": 5,
+    "kind": "input",
+    "id": "env",
+    "values": {
+      "temperature-c": 31.5,
+      "humidity-pct": 67,
+      "pressure-pa": 98765
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "1b719fba3e5f4eae8faf06e625b8b8c1",
+      "offset": 0,
+      "next_offset": 832,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (871) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START hub\r\nE (1684) i2c.master: this port has not been initialized, please initialize it first\r\nIO_HUB_SCAN 68 88 90 112\r\nIO_PROBE_READY hub\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 800 40\r\n",
+      "bytes": 832
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:03:37.296430+00:00",
+    "event_id": 6,
+    "kind": "wait-success",
+    "offset": 832,
+    "serial_file": "observations/00006-serial.txt",
+    "serial_sha256": "1b019e947d5f22fd4d5d2c675ba7174412d16d115c647ee4df883de63eb8361b",
+    "input_event": 5,
+    "phase": "IO_HUB_SCAN 68 88 90 112"
+  },
+  {
+    "at": "2026-10-26T04:03:37.303010+00:00",
+    "event_id": 7,
+    "kind": "input",
+    "id": "ncir",
+    "values": {
+      "ambient-c": 17.3,
+      "object-c": 37.1
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "1b719fba3e5f4eae8faf06e625b8b8c1",
+      "offset": 0,
+      "next_offset": 885,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (871) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START hub\r\nE (1684) i2c.master: this port has not been initialized, please initialize it first\r\nIO_HUB_SCAN 68 88 90 112\r\nIO_PROBE_READY hub\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 800 40\r\nIO_HUB 31.500 67.000 98765.000 24.990 31.990 800 40\r\n",
+      "bytes": 885
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:03:38.543275+00:00",
+    "event_id": 8,
+    "kind": "wait-success",
+    "offset": 885,
+    "serial_file": "observations/00008-serial.txt",
+    "serial_sha256": "3635a07d370deca5b5e1126e81f339e2b87774eb00a99b088ffbd38f09757fba",
+    "input_event": 7,
+    "phase": "IO_HUB_SCAN 68 88 90 112"
+  },
+  {
+    "at": "2026-10-26T04:03:38.545749+00:00",
+    "event_id": 9,
+    "kind": "input",
+    "id": "tvoc",
+    "values": {
+      "eco2-ppm": 1250,
+      "tvoc-ppb": 230
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "1b719fba3e5f4eae8faf06e625b8b8c1",
+      "offset": 0,
+      "next_offset": 938,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (871) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START hub\r\nE (1684) i2c.master: this port has not been initialized, please initialize it first\r\nIO_HUB_SCAN 68 88 90 112\r\nIO_PROBE_READY hub\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 400 0\r\nIO_HUB 25.000 50.000 101325.000 24.990 31.990 800 40\r\nIO_HUB 31.500 67.000 98765.000 24.990 31.990 800 40\r\nIO_HUB 31.500 67.000 98765.000 17.310 37.110 800 40\r\n",
+      "bytes": 938
+    },
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:03:39.755195+00:00",
+    "event_id": 10,
+    "kind": "wait-success",
+    "offset": 938,
+    "serial_file": "observations/00010-serial.txt",
+    "serial_sha256": "b05892954ee571c90067163e666781bc3f2580d17060e1da6a468cf9a97b24ac",
+    "input_event": 9,
+    "phase": "IO_HUB_SCAN 68 88 90 112"
+  },
+  {
+    "at": "2026-10-26T04:03:40.004505+00:00",
+    "event_id": 11,
+    "kind": "state",
+    "file": "observations/00011-state.json",
+    "phase": "IO_HUB_SCAN 68 88 90 112",
+    "input_event": 9
+  },
+  {
+    "at": "2026-10-26T04:03:40.523700+00:00",
+    "event_id": 12,
+    "kind": "state",
+    "file": "observations/00012-state.json",
+    "phase": "IO_HUB_SCAN 68 88 90 112",
+    "input_event": 9
+  },
+  {
+    "at": "2026-10-26T04:03:41.042611+00:00",
+    "event_id": 13,
+    "kind": "state",
+    "file": "observations/00013-state.json",
+    "phase": "IO_HUB_SCAN 68 88 90 112",
+    "input_event": 9
+  },
+  {
+    "at": "2026-10-26T04:03:41.554285+00:00",
+    "event_id": 14,
+    "kind": "state",
+    "file": "observations/00014-state.json",
+    "phase": "IO_HUB_SCAN 68 88 90 112",
+    "input_event": 9
+  },
+  {
+    "at": "2026-10-26T04:03:41.563118+00:00",
+    "event_id": 15,
+    "kind": "wait-success",
+    "offset": 0,
+    "serial_file": "observations/00015-serial.txt",
+    "serial_sha256": "b05892954ee571c90067163e666781bc3f2580d17060e1da6a468cf9a97b24ac",
+    "input_event": 9,
+    "phase": "IO_HUB_SCAN 68 88 90 112"
+  }
+]

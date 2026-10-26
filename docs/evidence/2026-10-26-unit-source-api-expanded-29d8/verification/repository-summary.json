@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "status": "PASS_AFTER_DOCUMENTATION_REPAIR",
+  "category": "repository-local verification of source API evidence/docs expansion",
+  "production_source_changed": false,
+  "runtime_changed": false,
+  "platform_initial": {
+    "tests": 648,
+    "passed": 645,
+    "failed": 3,
+    "failures": [
+      "project-status count-routing contract",
+      "documentation index missing new archive",
+      "archive audit-report pending at test time"
+    ]
+  },
+  "repair": [
+    "current status references ledger for matrix check count",
+    "new historical archive registered in docs/README.md",
+    "owner finished audit-report.json"
+  ],
+  "documentation_retest": {
+    "tests": 47,
+    "status": "PASS"
+  },
+  "unit_offline_tests": {
+    "tests": 194,
+    "status": "PASS",
+    "scope": "offline package preparation; no new guest executions"
+  },
+  "generated_checks": {
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS"
+  },
+  "full_qemu_matrix": "NOT RUN: no runtime/controller/production-source change in this block; prior 66/67 and independent retest remain separate",
+  "external_work_log": "SKIPPED_BY_USER",
+  "hardware": "NOT RUN",
+  "records": [
+    {
+      "name": "platform-initial",
+      "path": ".work/unit-expanded-platform-final.log",
+      "sha256": "504c621a555db9badc5a13337230b570703abab7a3114e92519ba21ee175e9fb",
+      "bytes": 14803,
+      "test_count": 648,
+      "passed_log": false,
+      "failure_count": 3
+    },
+    {
+      "name": "unit-final",
+      "path": ".work/unit-expanded-unit-tests-final.log",
+      "sha256": "26d35bd9a5dd0a5d62b81e1fef778ad3bda2a179788674a34fdf4cdf7e2e56f1",
+      "bytes": 2209,
+      "test_count": 194,
+      "passed_log": true,
+      "failure_count": 0
+    },
+    {
+      "name": "docs-final",
+      "path": ".work/unit-expanded-docs-final.log",
+      "sha256": "af6e20f7a470a47dff92ccdb3c25e07c277c96c5e493681ed6f8e793669b8a42",
+      "bytes": 146,
+      "test_count": 47,
+      "passed_log": true,
+      "failure_count": 0
+    },
+    {
+      "name": "runtime-coverage",
+      "path": ".work/unit-expanded-runtime_coverage-final.log",
+      "sha256": "ae22dc70eea81ac4f6d6918c0d694fc72cbc72cb589a13d93dac5b5c453d9311",
+      "bytes": 20,
+      "test_count": null,
+      "passed_log": true,
+      "failure_count": 0
+    },
+    {
+      "name": "peripheral-catalog",
+      "path": ".work/unit-expanded-peripheral_catalog-final.log",
+      "sha256": "6e3c49ec0c80a56051031a4bf3ba0fe16aa118f2b31f8863c09ef0bc4cc89633",
+      "bytes": 22,
+      "test_count": null,
+      "passed_log": true,
+      "failure_count": 0
+    },
+    {
+      "name": "qemu-profiles",
+      "path": ".work/unit-expanded-qemu_profiles-final.log",
+      "sha256": "04a26a35d775027ee0ce627c0888eeb20272591f8801dbd6e2f0dfb2e499281e",
+      "bytes": 17,
+      "test_count": null,
+      "passed_log": true,
+      "failure_count": 0
+    },
+    {
+      "name": "snapshot-final",
+      "path": ".work/unit-expanded-project_snapshot-repaired.log",
+      "sha256": "05110c70ad2d40d6a4943005ed5d00f2780cb44d5288bcee45128d62b19d6f1d",
+      "bytes": 20,
+      "test_count": null,
+      "passed_log": true,
+      "failure_count": 0
+    }
+  ]
+}

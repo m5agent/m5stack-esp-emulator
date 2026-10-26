@@ -1,0 +1,81 @@
+def expected_cardkb_stream(fixture):
+    keys=fixture['keys'];normal=[row for row in keys if not row['modifier']];by_id={row['id']:row for row in keys}
+    need(len(normal)==47 and len(keys)==50,'CardKB fixture must describe 47 nonmodifier and 3 modifier keys')
+    expected=[row['normal'] for row in normal if row['normal']]
+    for _,field in (('key-shift','shift'),('key-sym','sym'),('key-fn','fn')):
+        expected.extend(v for v in (by_id['key-q'][field],by_id['key-q']['normal']) if v)
+    for field in ('shift','sym','fn'):expected.extend(row[field] for row in normal if row[field])
+    return expected+[65]
+
+def replay_controls(directory,row,result,serial,fixture):
+    case=row['unit_id'];props=result['unit_state']['units'][0]['properties'];contract=row['display_contract']
+    need(row['flavor']==FLAVOR,'unidentified guest display flavor')
+    required=[]
+    def marker(text,offset=0):
+        need(re.search(r'(?m)^'+re.escape(text)+r'\r?$',serial[offset:]) is not None,'guest control marker absent or stale: '+text)
+        if text not in required:required.append(text)
+    marker('CONTROL_PROBE_READY '+case)
+    marker('SOURCE_CONTROL_GEOMETRY 320 240 1')
+    fonts=re.findall(r'(?m)^SOURCE_CONTROL_FONT (\S+) ([\d.]+) (\d+)\r?$',serial)
+    need(len(fonts)==1 and fonts[0][0]=='Montserrat12' and float(fonts[0][1])==1.0 and int(fonts[0][2])==15,'guest CoreS3 font metrics differ')
+    expected_layout='SOURCE_CONTROL_LAYOUT '+' '.join(str(contract[k]) for k in ('x','y','width','body_y','line_height','body_rows','bottom','headers'))
+    marker(expected_layout)
+    need(all(type(props.get(k)) is int and props[k]>0 for k in ('transactions','read-bytes','written-bytes','input-events')),'guest I2C transaction/byte/input counters absent')
+    steps=result['steps'];need(bool(steps),'control protocol has no actual UI injection steps')
+    for step in steps:
+        raw=(directory/step['before_file']).read_bytes();before=raw.decode('utf-8')
+        need(len(before)==step['serial_offset'] and sha(raw)==step['before_sha256'] and serial.startswith(before),'fresh serial baseline was changed or exceeds final observed stream')
+    if case=='joystick-v11':
+        expected=[{'x-raw':31,'y-raw':240,'button-raw':1},{'x-raw':255,'y-raw':0,'button-raw':0}]
+        need([step['values'] for step in steps]==expected,'Joystick test vectors were changed or omitted')
+        for step in steps:
+            values=step['values'];marker('CONTROL_JOYSTICK %d %d %d'%(values['x-raw'],values['y-raw'],values['button-raw']),step['serial_offset'])
+        need(all(props[k]==v for k,v in expected[-1].items()),'Joystick QOM does not retain the second vector')
+    elif case=='8encoder':
+        marker('CONTROL_ENCODER8_REGISTER_WRITE -1234567 0');marker('CONTROL_ENCODER8_ADDRESS 66')
+        counts=[1,-2,123456,-123456,2147483647,-2147483648,7,8];pressed=[True,False,True,False,False,True,False,True]
+        expected={'counters':counts,'pressed':pressed,'switch-on':True}
+        need(len(steps)==1 and steps[0]['values']==expected,'eight signed channels/button/switch vector changed or omitted')
+        prefix='CONTROL_ENCODER8 %s %s 1'%(counts,[int(v) for v in pressed])
+        matches=[line.rstrip('\r') for line in serial[steps[0]['serial_offset']:].splitlines() if line.startswith(prefix+' INC ')]
+        need(matches,'8Encoder full fresh guest vector absent')
+        increments=ast.literal_eval(matches[-1].split(' INC ',1)[1]);need(len(increments)==8 and all(type(v) is int and -2147483648<=v<=2147483647 for v in increments),'8Encoder increment register path not observed')
+        marker(matches[-1],steps[0]['serial_offset'])
+        need(props['counters']==counts and props['pressed']==pressed and props['switch-on'] is True,'8Encoder QOM vector differs')
+        need(props['i2c-address']==0x42 and props['led-rgb']==[i*0x010203 for i in range(1,9)]+[0x192939],'8Encoder address or nine RGB triplets differ')
+    elif case=='cardkb':
+        marker('CONTROL_CARDKB_LEGACY 1')
+        expected=expected_cardkb_stream(fixture);offset=result['cardkb_start_offset']
+        need(type(offset) is int and 0<=offset<=len(serial),'CardKB stream origin is invalid')
+        observed=[int(v) for v in re.findall(r'(?m)^CONTROL_CARDKB_KEY (\d+)\r?$',serial[offset:])]
+        need(observed==expected,'CardKB exact four-table/one-shot/lock/keycode stream differs')
+        need(result['cardkb_expected_stream']==expected,'runtime expected CardKB stream differs from independently rebuilt fixture oracle')
+        need(steps[-1]['values']=={'keycode':65},'CardKB legacy byte input is absent')
+        mode_counts={mode:0 for mode in (0,2,4,6)}
+        # Each lock/unlock was independently read through the real HTTP API.
+        for event in load(directory/'http/index.json'):
+            if event.get('status')==200 and event['path'].endswith('/units'):
+                value=load(directory/'http'/event['response_file'])
+                mode=value.get('units',[{}])[0].get('properties',{}).get('modifier-mode')
+                if mode in mode_counts:mode_counts[mode]+=1
+        need(all(mode_counts[mode]>=1 for mode in (2,4,6)) and mode_counts[0]>=3,'CardKB locked modes or unlock-to-normal QOM evidence absent')
+        report=load(directory.parent/'browser'/result['session_id']/'web-report.json')
+        doubles=[a for a in report['actions'] if a.get('kind')=='real-mouse-double-click']
+        modifiers={row['id']:row['index'] for row in fixture['keys'] if row['modifier']}
+        need(len(doubles)==3 and {a['index'] for a in doubles}==set(modifiers.values()) and all(a['field']=='keys' and a['posts']==4 for a in doubles),'CardKB modifier locks lack three real down/up/down/up browser gestures')
+    else:
+        marker('CONTROL_RFID_CRC_VECTOR 1 05bf')
+        uids=('04010203','04010203040506','04010203040506070809')
+        expected=[{'uid-hex':uid,'card-present':True} for uid in uids]+[{'card-present':False}]
+        need([step['values'] for step in steps]==expected,'RFID four/seven/ten UID and removal injections changed or omitted')
+        for uid,step in zip(uids,steps):
+            phase=serial[step['serial_offset']:];uid_marker='CONTROL_RFID_UID '+uid
+            start=re.search(r'(?m)^'+re.escape(uid_marker)+r'\r?$',phase);need(start is not None,'fresh RFID UID absent: '+uid)
+            phase=phase[start.start():]
+            ordered=[uid_marker,'CONTROL_RFID_BAD_CRC 1','CONTROL_RFID_BAD_KEY 1','CONTROL_RFID_SECTOR_DENIED 1','CONTROL_RFID_BLOCK 1 1 1 3132333435363738393a3b3c3d3e3f40','CONTROL_RFID_HALT_DENIED 1','CONTROL_RFID_ANTENNA_OFF 1']
+            position=0
+            for text in ordered:
+                match=re.search(r'(?m)^'+re.escape(text)+r'\r?$',phase[position:]);need(match is not None,'RFID per-UID ordered positive/negative missing: '+uid+' '+text)
+                position+=match.end();marker(text,step['serial_offset'])
+        marker('CONTROL_RFID_NO_CARD',steps[-1]['serial_offset']);need(props['card-present'] is False,'RFID removal QOM did not update')
+    return {'status':'PASS','unit_id':case,'required_markers':required,'serial_bytes':len(serial.encode()),'fresh_ui_input_steps':len(steps),'display_flavor':FLAVOR,'physical_hardware':'NOT RUN'}

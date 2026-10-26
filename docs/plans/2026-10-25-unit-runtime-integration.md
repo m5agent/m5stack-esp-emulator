@@ -137,3 +137,17 @@ provenance。gen11/29d8 下五例 Button/Relay/ENV III/RGB/Encoder，以及
 预检也通过。该批限 CoreS3，不能继承为其它三主机的源码执行或全部 Unit
 完成；具体固件、输入、源码与证据见
 [源码 API 归档](../evidence/2026-10-26-unit-source-api-29d8/README.md)。
+
+同一 gen11/29d8 后续新增 25 个可见源码会话：sensor 七例、IO 九例、
+controls 四例及显式 custom IR/Buzzer 两例功能通过；独立 Thermal 缺 fixture
+负控通过。原版 IR 本次协议通过但仍为 `REVIEW_REQUIRED`，不关闭历史 GC
+引用风险；原版 Buzzer 自然 timer zero 未通过，输出型用例被旧浏览器检查误
+分类另作 harness 限定，不写成产品故障。原批与本批选定场景合计覆盖 27 种
+Unit，其中 25 种原 driver、两种 custom；只限 CoreS3 的源码运行，不从旧
+镜像路径继承其它主机的源码 PASS。controls 为保留原驱动与断言的 CoreS3
+display-only 适配；Fan 图形活动只覆盖实际观测段。
+原始 HTTP、源码请求、分段串口、QOM、原生帧、浏览器、停止前 ZIP、历史及
+独立审查保存在[扩展源码归档](../evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)。
+本批未改共享 runtime，不补全旧完整矩阵；跨主机、原驱动缺口和视觉/物理
+映射继续在权威 Backlog 中推进。完成该检查点并提交后，再拉取最新主线、
+审查合并影响并继续 Unit；不覆盖其它会话的工作目录。

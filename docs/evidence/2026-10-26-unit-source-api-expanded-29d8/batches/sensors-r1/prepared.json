@@ -1,0 +1,830 @@
+{
+  "status": "PREPARED_NO_API_OR_RUNTIME",
+  "created_at": "2026-10-26T03:53:48.315626+00:00",
+  "cases": [
+    {
+      "case": "color",
+      "unit_id": "color",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "validation": "virtual-device validation",
+      "status": "PREPARED_NO_API_OR_RUNTIME",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "expected_worker_generation": 11,
+      "source_cas_sha256": "46c93c2ced6d6e806047c4ed66663318d35099447ff8a44ff526df1bba0fe80b",
+      "source_files": {
+        "boot.py": {
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+        },
+        "probe_config.py": {
+          "size": 76,
+          "sha256": "e260c7dc4b433d355ae26a437430373fa661f361549b2aaa19d935feaa5ec349"
+        },
+        "probe_logging.py": {
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+        },
+        "sensor_drivers/__init__.py": {
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sensor_drivers/heart.py": {
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+        },
+        "sensor_drivers/mlx90614.py": {
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+        },
+        "sensor_drivers/mlx90640.py": {
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+        },
+        "sensor_drivers/pahub.py": {
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+        },
+        "sensor_drivers/sgp30.py": {
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        "sensor_drivers/tcs3472.py": {
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+        },
+        "sensor_drivers/ultrasonic_i2c.py": {
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+        },
+        "sensor_drivers/unit_helper.py": {
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+        },
+        "sensor_drivers/vl53l0x.py": {
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+        },
+        "sensor_probe.py": {
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+        }
+      },
+      "http_json_body_bytes": 115292,
+      "ready_marker": "SENSOR_PROBE_READY color",
+      "negative_checks": [
+        "color_command_bit_required",
+        "color_identity_read_only",
+        "color_integration_not_ready",
+        "color_adc_saturation"
+      ],
+      "required_markers": [
+        "SENSOR_PROBE_READY color",
+        "SENSOR_CHECK color_command_bit_required PASS",
+        "SENSOR_CHECK color_identity_read_only PASS",
+        "SENSOR_CHECK color_integration_not_ready PASS",
+        "SENSOR_CHECK color_adc_saturation PASS"
+      ],
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "color",
+          "port_id": "port-a",
+          "initial": {
+            "clear-raw": 55000,
+            "red-raw": 12000,
+            "green-raw": 8000,
+            "blue-raw": 4000
+          }
+        }
+      ],
+      "changes": [
+        {
+          "clear-raw": 42000,
+          "red-raw": 9000,
+          "green-raw": 6000,
+          "blue-raw": 3000
+        },
+        {
+          "clear-raw": 53000,
+          "red-raw": 21000,
+          "green-raw": 12000,
+          "blue-raw": 6000
+        }
+      ],
+      "expected_size": [
+        320,
+        240
+      ]
+    },
+    {
+      "case": "tof",
+      "unit_id": "tof",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "validation": "virtual-device validation",
+      "status": "PREPARED_NO_API_OR_RUNTIME",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "expected_worker_generation": 11,
+      "source_cas_sha256": "4a5f6f9cec93e88ea1547a2daa10ea5a70fe73952f034b273a5767f52e4b0166",
+      "source_files": {
+        "boot.py": {
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+        },
+        "probe_config.py": {
+          "size": 74,
+          "sha256": "7f67f041a7d3404b556ed49d03f296f37ebdfeab5c4c97f205e44eaa1f7999c0"
+        },
+        "probe_logging.py": {
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+        },
+        "sensor_drivers/__init__.py": {
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sensor_drivers/heart.py": {
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+        },
+        "sensor_drivers/mlx90614.py": {
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+        },
+        "sensor_drivers/mlx90640.py": {
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+        },
+        "sensor_drivers/pahub.py": {
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+        },
+        "sensor_drivers/sgp30.py": {
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        "sensor_drivers/tcs3472.py": {
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+        },
+        "sensor_drivers/ultrasonic_i2c.py": {
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+        },
+        "sensor_drivers/unit_helper.py": {
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+        },
+        "sensor_drivers/vl53l0x.py": {
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+        },
+        "sensor_probe.py": {
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+        }
+      },
+      "http_json_body_bytes": 115290,
+      "ready_marker": "SENSOR_PROBE_READY tof",
+      "negative_checks": [
+        "tof_reset_identity_absent",
+        "tof_reset_identity_restored",
+        "tof_conversion_not_ready",
+        "tof_conversion_ready",
+        "tof_interrupt_clear",
+        "tof_old_address_nack",
+        "tof_new_address_identity"
+      ],
+      "required_markers": [
+        "SENSOR_PROBE_READY tof",
+        "SENSOR_CHECK tof_reset_identity_absent PASS",
+        "SENSOR_CHECK tof_reset_identity_restored PASS",
+        "SENSOR_CHECK tof_conversion_not_ready PASS",
+        "SENSOR_CHECK tof_conversion_ready PASS",
+        "SENSOR_CHECK tof_interrupt_clear PASS",
+        "SENSOR_CHECK tof_old_address_nack PASS",
+        "SENSOR_CHECK tof_new_address_identity PASS"
+      ],
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "tof",
+          "port_id": "port-a",
+          "initial": {
+            "distance-mm": 1000
+          }
+        }
+      ],
+      "changes": [
+        {
+          "distance-mm": 321
+        },
+        {
+          "distance-mm": 1456
+        }
+      ],
+      "expected_size": [
+        320,
+        240
+      ]
+    },
+    {
+      "case": "ncir",
+      "unit_id": "ncir",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "validation": "virtual-device validation",
+      "status": "PREPARED_NO_API_OR_RUNTIME",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "expected_worker_generation": 11,
+      "source_cas_sha256": "661f828b5a07cd38d7b8d9ae2c018b97108e35e67912ae77bf62f4e0e8f9851c",
+      "source_files": {
+        "boot.py": {
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+        },
+        "probe_config.py": {
+          "size": 75,
+          "sha256": "469bfbaa0ddc6e7735ab81270d718d7c019d22bd27767075966fb42eb56f814d"
+        },
+        "probe_logging.py": {
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+        },
+        "sensor_drivers/__init__.py": {
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sensor_drivers/heart.py": {
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+        },
+        "sensor_drivers/mlx90614.py": {
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+        },
+        "sensor_drivers/mlx90640.py": {
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+        },
+        "sensor_drivers/pahub.py": {
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+        },
+        "sensor_drivers/sgp30.py": {
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        "sensor_drivers/tcs3472.py": {
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+        },
+        "sensor_drivers/ultrasonic_i2c.py": {
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+        },
+        "sensor_drivers/unit_helper.py": {
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+        },
+        "sensor_drivers/vl53l0x.py": {
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+        },
+        "sensor_probe.py": {
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+        }
+      },
+      "http_json_body_bytes": 115291,
+      "ready_marker": "SENSOR_PROBE_READY ncir",
+      "negative_checks": [
+        "ncir_eeprom_write_nack",
+        "ncir_pec_6",
+        "ncir_pec_7"
+      ],
+      "required_markers": [
+        "SENSOR_PROBE_READY ncir",
+        "SENSOR_CHECK ncir_eeprom_write_nack PASS",
+        "SENSOR_CHECK ncir_pec_6 PASS",
+        "SENSOR_CHECK ncir_pec_7 PASS"
+      ],
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "ncir",
+          "port_id": "port-a",
+          "initial": {
+            "ambient-c": 25,
+            "object-c": 32
+          }
+        }
+      ],
+      "changes": [
+        {
+          "ambient-c": 17.3,
+          "object-c": 37.1
+        },
+        {
+          "ambient-c": 31.5,
+          "object-c": 53.2
+        }
+      ],
+      "expected_size": [
+        320,
+        240
+      ]
+    },
+    {
+      "case": "heart",
+      "unit_id": "heart",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "validation": "virtual-device validation",
+      "status": "PREPARED_NO_API_OR_RUNTIME",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "expected_worker_generation": 11,
+      "source_cas_sha256": "362dad5bd3253018a2c9e61e17b4e73c050b1b3a85b8a552f504b47442f1f38c",
+      "source_files": {
+        "boot.py": {
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+        },
+        "probe_config.py": {
+          "size": 76,
+          "sha256": "886aa1ce729f5bf9ef8d6f974c69182aecfe1c51a56fe72262095194e88ba90e"
+        },
+        "probe_logging.py": {
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+        },
+        "sensor_drivers/__init__.py": {
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sensor_drivers/heart.py": {
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+        },
+        "sensor_drivers/mlx90614.py": {
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+        },
+        "sensor_drivers/mlx90640.py": {
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+        },
+        "sensor_drivers/pahub.py": {
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+        },
+        "sensor_drivers/sgp30.py": {
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        "sensor_drivers/tcs3472.py": {
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+        },
+        "sensor_drivers/ultrasonic_i2c.py": {
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+        },
+        "sensor_drivers/unit_helper.py": {
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+        },
+        "sensor_drivers/vl53l0x.py": {
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+        },
+        "sensor_probe.py": {
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+        }
+      },
+      "http_json_body_bytes": 115292,
+      "ready_marker": "SENSOR_PROBE_READY heart",
+      "negative_checks": [
+        "heart_reset_self_clear",
+        "heart_fifo_initially_empty",
+        "heart_fifo_overflow",
+        "heart_fifo_four_byte_advance",
+        "heart_fifo_sample_order",
+        "heart_reset_clears_fifo",
+        "heart_shutdown_stops_sampling"
+      ],
+      "required_markers": [
+        "SENSOR_PROBE_READY heart",
+        "SENSOR_CHECK heart_reset_self_clear PASS",
+        "SENSOR_CHECK heart_fifo_initially_empty PASS",
+        "SENSOR_CHECK heart_fifo_overflow PASS",
+        "SENSOR_CHECK heart_fifo_four_byte_advance PASS",
+        "SENSOR_CHECK heart_fifo_sample_order PASS",
+        "SENSOR_CHECK heart_reset_clears_fifo PASS",
+        "SENSOR_CHECK heart_shutdown_stops_sampling PASS"
+      ],
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "heart",
+          "port_id": "port-a",
+          "initial": {
+            "ir-sample": 40000,
+            "red-sample": 35000
+          }
+        }
+      ],
+      "changes": [
+        {
+          "ir-sample": 41000,
+          "red-sample": 36000
+        },
+        {
+          "ir-sample": 12000,
+          "red-sample": 9000
+        }
+      ],
+      "expected_size": [
+        320,
+        240
+      ]
+    },
+    {
+      "case": "tvoc",
+      "unit_id": "tvoc",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "validation": "virtual-device validation",
+      "status": "PREPARED_NO_API_OR_RUNTIME",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "expected_worker_generation": 11,
+      "source_cas_sha256": "cdc183820a3baa693d8b4ced598359e1fe8166c46ea38d1931f27e94c6e9fe5b",
+      "source_files": {
+        "boot.py": {
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+        },
+        "probe_config.py": {
+          "size": 75,
+          "sha256": "100f8ec592d40bbfbf72dc85136edb0a8f7f326bcf557863896368e3e4cd6804"
+        },
+        "probe_logging.py": {
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+        },
+        "sensor_drivers/__init__.py": {
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sensor_drivers/heart.py": {
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+        },
+        "sensor_drivers/mlx90614.py": {
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+        },
+        "sensor_drivers/mlx90640.py": {
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+        },
+        "sensor_drivers/pahub.py": {
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+        },
+        "sensor_drivers/sgp30.py": {
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        "sensor_drivers/tcs3472.py": {
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+        },
+        "sensor_drivers/ultrasonic_i2c.py": {
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+        },
+        "sensor_drivers/unit_helper.py": {
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+        },
+        "sensor_drivers/vl53l0x.py": {
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+        },
+        "sensor_probe.py": {
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+        }
+      },
+      "http_json_body_bytes": 115291,
+      "ready_marker": "SENSOR_PROBE_READY tvoc",
+      "negative_checks": [
+        "tvoc_iaq_before_init_nack",
+        "tvoc_initialization_fixed_output",
+        "tvoc_busy_read_nack",
+        "tvoc_response_crc",
+        "tvoc_response_consumed",
+        "tvoc_bad_argument_crc_nack",
+        "tvoc_unknown_command_nack"
+      ],
+      "required_markers": [
+        "SENSOR_PROBE_READY tvoc",
+        "SENSOR_CHECK tvoc_iaq_before_init_nack PASS",
+        "SENSOR_CHECK tvoc_initialization_fixed_output PASS",
+        "SENSOR_CHECK tvoc_busy_read_nack PASS",
+        "SENSOR_CHECK tvoc_response_crc PASS",
+        "SENSOR_CHECK tvoc_response_consumed PASS",
+        "SENSOR_CHECK tvoc_bad_argument_crc_nack PASS",
+        "SENSOR_CHECK tvoc_unknown_command_nack PASS"
+      ],
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "tvoc",
+          "port_id": "port-a",
+          "initial": {
+            "eco2-ppm": 800,
+            "tvoc-ppb": 40,
+            "raw-h2": 21000,
+            "raw-ethanol": 22000
+          }
+        }
+      ],
+      "changes": [
+        {
+          "eco2-ppm": 1250,
+          "tvoc-ppb": 230,
+          "raw-h2": 26000,
+          "raw-ethanol": 31000
+        },
+        {
+          "eco2-ppm": 675,
+          "tvoc-ppb": 18,
+          "raw-h2": 18300,
+          "raw-ethanol": 24500
+        }
+      ],
+      "expected_size": [
+        320,
+        240
+      ]
+    },
+    {
+      "case": "ultrasonic-i2c",
+      "unit_id": "ultrasonic-i2c",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "validation": "virtual-device validation",
+      "status": "PREPARED_NO_API_OR_RUNTIME",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "expected_worker_generation": 11,
+      "source_cas_sha256": "7a661e03812074454d6aa7953615b162694c106ebaf152aa09b0ba692dc2f098",
+      "source_files": {
+        "boot.py": {
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+        },
+        "probe_config.py": {
+          "size": 85,
+          "sha256": "9ca2b4b1930d2463ad0293890c2261049df687c1527b7662bbc33dddc1637709"
+        },
+        "probe_logging.py": {
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+        },
+        "sensor_drivers/__init__.py": {
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sensor_drivers/heart.py": {
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+        },
+        "sensor_drivers/mlx90614.py": {
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+        },
+        "sensor_drivers/mlx90640.py": {
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+        },
+        "sensor_drivers/pahub.py": {
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+        },
+        "sensor_drivers/sgp30.py": {
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        "sensor_drivers/tcs3472.py": {
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+        },
+        "sensor_drivers/ultrasonic_i2c.py": {
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+        },
+        "sensor_drivers/unit_helper.py": {
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+        },
+        "sensor_drivers/vl53l0x.py": {
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+        },
+        "sensor_probe.py": {
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+        }
+      },
+      "http_json_body_bytes": 115301,
+      "ready_marker": "SENSOR_PROBE_READY ultrasonic-i2c",
+      "negative_checks": [
+        "ultrasonic_unknown_command_nack",
+        "ultrasonic_conversion_not_ready",
+        "ultrasonic_uint24_units"
+      ],
+      "required_markers": [
+        "SENSOR_PROBE_READY ultrasonic-i2c",
+        "SENSOR_CHECK ultrasonic_unknown_command_nack PASS",
+        "SENSOR_CHECK ultrasonic_conversion_not_ready PASS",
+        "SENSOR_CHECK ultrasonic_uint24_units PASS"
+      ],
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "ultrasonic-i2c",
+          "port_id": "port-a",
+          "initial": {
+            "distance-mm": 1000
+          }
+        }
+      ],
+      "changes": [
+        {
+          "distance-mm": 1234.5
+        },
+        {
+          "distance-mm": 876.2
+        }
+      ],
+      "expected_size": [
+        320,
+        240
+      ]
+    },
+    {
+      "case": "thermal",
+      "unit_id": "thermal",
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "validation": "virtual-device validation",
+      "status": "PREPARED_NO_API_OR_RUNTIME",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "expected_worker_generation": 11,
+      "source_cas_sha256": "9f419c452d878656388f3f0fa729ff1165a86562f5cbfa05867185ab1db0c8f4",
+      "source_files": {
+        "boot.py": {
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9"
+        },
+        "main.py": {
+          "size": 246,
+          "sha256": "930d9cf38cd000f247650f01e13a0110f39f956176326f5130ae5ca50ba69745"
+        },
+        "probe_config.py": {
+          "size": 78,
+          "sha256": "55ea3b5032309bb6c2e888900694d644510ee7b2358e16b80cbf1e9fe5dcf8af"
+        },
+        "probe_logging.py": {
+          "size": 338,
+          "sha256": "4fa5ada6c1ee9d472edd999ba53b61d8f6b9dab793fa0939c95c0d6a0c8d7be7"
+        },
+        "sensor_drivers/__init__.py": {
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sensor_drivers/heart.py": {
+          "size": 8964,
+          "sha256": "15249bf0e931f5d33dae61ac5a7899a2862faa4e86698249f909228e8272dbbe"
+        },
+        "sensor_drivers/mlx90614.py": {
+          "size": 1707,
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+        },
+        "sensor_drivers/mlx90640.py": {
+          "size": 27980,
+          "sha256": "467d252e6dcfa9283b388ac20fe56c68bba79efe72f4d351742710af7b8e1e21"
+        },
+        "sensor_drivers/pahub.py": {
+          "size": 3648,
+          "sha256": "e1814c8f69895ac5e4f1c9a46db46a435e9e65fd2216ef8890ab9d144189b025"
+        },
+        "sensor_drivers/sgp30.py": {
+          "size": 11799,
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        "sensor_drivers/tcs3472.py": {
+          "size": 16886,
+          "sha256": "3cd3159545ec13665654c69745c6c4723b56656266b392f34120d0b120ab3f13"
+        },
+        "sensor_drivers/ultrasonic_i2c.py": {
+          "size": 1024,
+          "sha256": "3c686309a6492d999f1d36cb9ed7ee9446822dfaaa13a6414632c87480616166"
+        },
+        "sensor_drivers/unit_helper.py": {
+          "size": 129,
+          "sha256": "578158e391df2d4ab595c13706d7e64e2e20a88ed26498b35c88d0d9f1878821"
+        },
+        "sensor_drivers/vl53l0x.py": {
+          "size": 28248,
+          "sha256": "a4e64aa62a0976d21845f7793d9b77d5d264a80b2d5d79edd5ed1fc76bd3e715"
+        },
+        "sensor_probe.py": {
+          "size": 9139,
+          "sha256": "4721bbaad61ca6ffd1a24c499af44dc98767bfa21e23e41adb50ebc2c6cde27a"
+        }
+      },
+      "http_json_body_bytes": 115294,
+      "ready_marker": "SENSOR_PROBE_READY thermal",
+      "negative_checks": [
+        "thermal_eeprom_write_nack",
+        "thermal_control_readback",
+        "thermal_conversion_not_ready",
+        "thermal_subpage_progression",
+        "thermal_fixture_control_restored",
+        "thermal_768_finite"
+      ],
+      "required_markers": [
+        "SENSOR_PROBE_READY thermal",
+        "SENSOR_CHECK thermal_eeprom_write_nack PASS",
+        "SENSOR_CHECK thermal_control_readback PASS",
+        "SENSOR_CHECK thermal_conversion_not_ready PASS",
+        "SENSOR_CHECK thermal_subpage_progression PASS",
+        "SENSOR_CHECK thermal_fixture_control_restored PASS",
+        "SENSOR_CHECK thermal_768_finite PASS"
+      ],
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "thermal",
+          "port_id": "port-a",
+          "initial": {
+            "eeprom-hex": "00ae499a000020610005032003e000000000000004990000190100000000b5334210ffc202020202f202f1f2d1e1afc0ff00f002f103e103e1f5d1e4c1d591c2889530d9edcb110f332222330011cceeffed11002222333322330022def09acc15cc2fa425559c78766601c83b3835342452046313bb0623ec00979797972afb00aefbe01b70f3be000ef86e1b7ef3ceffcef41e102eec0effdeec3e139eef9efb9ef77e13e0e7eef7aef7500c30ebeef730f0100b50e430f420f37007c0e4500470fbceff5c0f9007d0fc3eff6c0f9003a0fc0ef40c0bf003a0f41ef78c0b70ff72ff6ef7de07c0ffa20330f42e0bc0ff22fc00f75e041000220350f3a0083204defbf01bcef00efc5efc801bf0f02e0002f81e142eec9e07def09e17cef3aeffc0fbb01080ebfeffe0ff901460e4aefbc0f8400fe0e860f8c0f4000842e4b0089003beff9c0fd000200450ffcc0fe007d003fefbee0c600b80f86efb8e13700782038ef85e0fc207c2037ef84e088003920420f7ce0c42fcb2ffe0f0200490107e03d01f90fbce089e00801820f40e0800fc30141ef06e0400ffa017cef7b007d0ffb01830f3fe0002ffe014d0ecb0fbe2fcb013b0eca0f8def4320832e8d01420ff8eff6e13800840005efbec0fb00bb2fffefbde08200bc00360fb8c0f700794036efbfe0fa00bc40390f89e0c72ffb2fc70fb7e0470fcb0fff0f3f004a0049e03b01f90f7d0042e00701f70fbbe0f0003b0142ef01e07b0ffb01b60f37efbd0ff901410f3c0fc0003701482f030f800fc5013c2f0500070f8120c02ec8000d0fbfefbcc0810fc60fcb0fbce0fe00b40fffef05c084007d0ffd0f79e0fb0f802ffd0f44e0bf0fc3207a0f4be0c60f8220080f01e089200b4f850f04004b2085e07821f70fbee001e04201f80fbb003b0039017f0f04e0770ffe01b40f76effc0ffb017e0ec1e03a003a010c0ec60fbc2fc800c00ec600050f8000802ec900080f7b0f7ae0410fc32fc50f7be07f0ffd2fbc0f02e04600382f410f36e0ba0fbf2fbc0f01c0440ffe2fbe0f0ee08a2f804fcb0ec3e04a20082f830e83004b213f003801f40fbb00f90042017a0f7ae0f40ffe213aef03e0f12ff600f50f3400362ff301760efd0076203601072ec50f7b2f85207b0e480f820f7c203c2e490142203ae036e13c213b20440ffce13d213620002fbde0c4017320390ff8e17600b820750039e10000f820b80fcae10800bd40470fbce0c92083207e0f7fe0ca20010038013d0f7a0ffbe00521380f770ff70ffa00fc0f3be0340ff600fc0f370fb30fb800c10e40efba0fbb00c42e860fb92f4a20b82e850f832fba20002e4700022f7a0effe0bc003d2f860f79e0f920390ffb0f3fe0fc00762ff70effe13800362ffb0f42e081007a207c0f87e0c820b940490fb901062084207b0ec100c82085013e223600420046010b01fb003e00b800bf01430fc000f900bc21ba0ffc007c20b821bf0f44e0bb20fd214c2f8a00792085213e2f85000a000320c22f0d0f452efe0ef7efc32f072f4c0ebce03f0fba2f400e45e0410ffa2f7d0ebbe0bd0fbc2fb80f00e005003d203d0f0e00ca003840440f3ee0c5200a20030ec2004c010220fd21f8003f008300c8217e0ffb0041004320870f48e0bd007b20f90fbb0fff007a21410f41000220bc20ce0f850ffb204900bc0ecc0fc7000120400f0b20402f7d0f37e0bf20022fc90effe0fc2fc12f84ee87e048007e2ffb0f7ae0fc0000207a0f81e100204220fd0f8ce184207a40880fbb00cb00c620bf0fbf010a0f03007d20be0f800eca004820830fbe0f040fc800810f030f410f8300ba0f7a0f3d2fff20840eff0f40003b20872f030efb2004203b2ec40ffe0ffe20012f420f422f7b0e7ce0bd2f0800070ec2e0fe2f8500070f00e0c4200200030f7ae17b203d20400f84e17f00be213a0fc4e182007921020fb9e1c101bc213c0fbe02002f04013a20f80fc30f46e0cc217b20010fc1008721000f8b007be0be213b0ffe0f41004500c70f42003c00f821060ffe0fb7013d20f90f820fc400fa20be2fc60f012fb80eb5e0802f4200090f78e13e2fc020060f40e10900f900bd0fbae1fd200020820f85e18000f821b60fc3e23c20b421ba0ff7e27e010121b70ffc02040fc701ba20fa00ba0000214320fe00010f83e13e0085e07e0005e08420fee03d0fc200fe2140007800b901772141007b0fb1017f20b2003f0fc1e17b207ce0830e050ef80d38e0382ebe0f810dfbe07d0ec10ffc0e01e0bb0f820f810ebbe0ba0fbf007a0f3ee1b5007520f30f7ee1b8002f20fd0f70e13c00be01390f79e1c00",
+            "frame0-hex": "ffb3ffacffb4ffaaffb3ffacffb6ffa9ffb2ffa8ffb4ffa6ffb1ffa5ffb4ffa2ffb4ffa5ffb4ffa4ffb6ffa7ffb5ffa4ffbaffa6ffb8ffa5ffb6ffaaffbdffa4ffa9ffa8ffa6ffa8ffa9ffa6ffa6ffa5ffaaffa2ffa5ffa2ffa9ff9fffa5ffa1ffadffa0ffa6ffa2ffabffa3ffa8ffa4ffb2ffa2ffabffa3ffb0ffa4ffafffa3ffb2ffacffb4ffabffb1ffacffb1ffa8ffb1ffa9ffb3ffa5ffb2ffa5ffb1ffa3ffb5ffa5ffb1ffa3ffb6ffa7ffb5ffa2ffb8ffa7ffb7ffa3ffb6ffa8ffb9ffa2ffa7ffa7ffa4ffa7ffa9ffa5ffa4ffa6ffa8ffa3ffa4ffa2ffacff9fffa2ffa3ffadffa0ffa4ffa2ffacffa2ffa8ffa1ffb1ffa3ffa8ffa3ffadffa1ffacffa1ffb3ffadffb5ffa9ffb2ffabffb2ffa8ffb4ffa9ffb1ffa4ffb1ffa6ffb3ffa2ffb5ffa7ffb2ffa3ffb2ffa5ffb4ffa2ffb6ffa5ffb8ffa5ffb4ffa7ffb9ffa0ffaaffa5ffa4ffa6ffaaffa4ffa2ffa4ffa9ffa1ffa2ffa3ffaaffa1ffa3ffa0ffadff9fffa4ffa3ffabffa0ffa3ffa1ffadff9effa9ffa1ffabffa0ffaaff9dffb0ffadffb2ffaaffb2ffabffb3ffa9ffb8ffaaffb6ffa4ffb2ffa6ffb1ffa4ffb2ffa4ffb2ffa4ffb2ffa7ffb5ffa4ffb2ffa5ffb4ffa2ffb4ffa6ffb9ffa2ffa5ffa4ffa1ffa4ffa6ffa0ffa1ffa3ffa8ffa7ffa1ffaaffa6ffa1ffa1ffa1ffa8ff9dffa2ff9fffa8ff9fffa2ff9fffabff9effa4ffa0ffabff9fffa8ff9bffafffaeffb3ffa9ffafffabffb4ffa8ffbbffaaffc6ffa6ffc0ffa8ffb6ffa2ffb0ffa5ffb1ffa2ffb3ffa6ffb2ffa2ffb4ffa2ffb4ffa2ffb4ffa6ffb7ffa1ffa3ffa2ff9fffa1ffa5ffa2ffa2ffa4ffaaffb2ffa4ffb4ffa8ffadffa1ffa6ffa8ff9dffa2ff9dffabff9dffa3ff9fffadff9cffa3ff9fffabff9dffa6ff9cffb3ffadffb3ffa9ffb4ffacffb5ffa9ffc8ffaeffc8ffabffc9ffaeffc2ffa6ffbdffa9ffb5ffa8ffb2ffacffb0ffa4ffb3ffa4ffb2ffa1ffb2ffa4ffb4ff9cffa4ffa1ff9fffa2ffa7ffa1ffa2ffaaffadffb7ffa7ffb8ffadffb5ffa3ffb1ffafffa8ffaaffa0ffb2ff9bffa5ff9dffacff9affa4ff9dffabff9cffa5ff9affaeffadffadffa8ffb1ffadffbbffaeffcbffb2ffceffaeffcbffb0ffc5ffabffc6ffb2ffbdffb0ffb2ffb1ffb0ffa8ffb3ffaaffb1ffa4ffb1ffa5ffb4ff9dff9fff9eff98ff9fffa3ffa0ffa2ffb3ffacffbbffa7ffbfffaeffb7ffa5ffb3ffb4ffb0ffaeffa6ffb6ff9bffabff99ffb4ff9affa7ff9dffacff9dffa5ff9affacffadffb0ffa8ffb1ffadffc3ffafffcaffb3ffcdffadffcaffb0ffc8ffadffc6ffb8ffb9ffb1ffb2ffb5ffafffadffb3ffafffb0ffa9ffb0ffa6ffb4ff9dff9eff9cff9cff9fffa1ffa4ffa0ffb3ffabffb5ffa4ffb9ffacffb3ffa7ffb2ffb5ffafffb1ff9dffb7ff9bffadff9affb6ff9affa8ff9cffaaff9bffa5ff9affaeffacffb0ffabffb6ffaeffc0ffadffc3ffb0ffc2ffabffc4ffb0ffc2ffb0ffc4ffb8ffb2ffb3ffaeffb4ffaeffafffb0ffafffafffa5ffb2ffa4ffb3ff9dff9eff9aff9aff9fffa1ffa4ff9dffafffa7ffacff9fffadffaaffb0ffa7ffafffb5ffa6ffafff9affb5ff98ffaaff9bffb3ff99ffa5ff9affaaff9fffa5ff9affa7ffacffaaffa8ffaaffadffb0ffabffb9ffadffbfffabffbdffafffc0ffb0ffbaffb4ffaeffafffacffb0ffacffacffb0ffaeffb0ffa6ffbbffa5ffbcffa0ff96ff96ff92ff99ff99ff98ff97ff9effa0ffa0ff9effa7ffa5ffa8ffa3ffa9ffaeff9affa5ff97ffaeff95ffa6ff99ffafff98ffa2ffa0ffabffa9ffa3ffa6ffa4ffaeffa7ffa5ffa7ffa7ffa9ffa6ffacffa6ffb0ffa3ffb7ffadffb7ffa9ffafffabffa8ffa8ffacffadffabffaaffafffaeffb6ffa7ffbcffabffc4ffa4ff93ff95ff90ff94ff94ff93ff92ff96ff99ff93ff96ff97ffa0ff9eff9bff9effa4ff93ff9dff94ffa9ff96ff9fff96ffabff97ffa1ffa5ffa9ffaaffa4ffa6ffa4ffacffa4ffa6ffa6ffa7ffa6ffa1ffa5ffa6ffa4ffa3ffa7ffa4ffa7ff9fffabffa3ffa9ffa3ffaaffa7ffabffa6ffaeffaaffb7ffa6ffbbffaaffbbffa3ff87ff8aff84ff8cff8aff8bff86ff8bff8bff89ff85ff8bff8fff89ff8aff8bff91ff8aff8cff8dff9aff8bff95ff8eff9eff93ff98ff9dff9eff9dff9aff994dfa1a567fff1a567fff1a557fff1a55ffb9ce071584d653fff900090000fffd197603fd02977fff197603fd02977fff0001000100010001000100010001000106957fff1a567fff1a567fff1a557fffffbdf57acef2d8e00009fffdfffc000000ed00462ad6003500ee00462ad6003500010001000100010001000100010001",
+            "frame1-hex": "ffb3ffadffb4ffaaffb3ffadffb6ffa8ffb2ffa9ffb4ffa4ffb1ffa6ffb4ffa1ffb4ffa8ffb4ffa1ffb6ffa8ffb5ffa2ffbaffa7ffb8ffa3ffb6ffaaffbdffa3ffacffa8ffa5ffa8ffacffa6ffa5ffa5ffaaffa2ffa2ffa2ffabff9fffa0ffa1ffabffa0ffa4ffa2ffabffa3ffa6ffa4ffb1ffa2ffa9ffa3ffb0ffa4ffadffa3ffb2ffafffb4ffa8ffb1ffaeffb1ffa5ffb1ffaaffb3ffa3ffb2ffa7ffb1ffa3ffb5ffa6ffb1ffa0ffb6ffa7ffb5ffa0ffb8ffa7ffb7ffa2ffb6ffa8ffb9ff9fffaaffa7ffa4ffa7ffa9ffa5ffa3ffa6ffa9ffa3ffa3ffa2ffaaff9fffa2ffa3ffadffa0ffa2ffa2ffadffa2ffa6ffa1ffb1ffa3ffa7ffa3ffadffa1ffa9ffa1ffb3ffafffb5ffaaffb2ffadffb2ffa6ffb4ffabffb1ffa4ffb1ffa8ffb3ffa0ffb5ffa6ffb2ffa3ffb2ffa8ffb4ffa1ffb6ffa6ffb8ffa2ffb4ffa7ffb9ff9cffabffa5ffa3ffa6ffaaffa4ffa4ffa4ffb0ffa1ffa4ffa3ffa9ffa1ffa0ffa0ffaeff9fffa2ffa3ffadffa0ffa4ffa1ffaeff9effa8ffa1ffacffa0ffa8ff9dffb0ffaeffb2ffa8ffb2ffacffb3ffa9ffb8ffb8ffb6ffabffb2ffaaffb1ffa1ffb2ffa5ffb2ffa0ffb2ffa5ffb5ffa1ffb2ffa6ffb4ffa3ffb4ffa5ffb9ff9bffa6ffa4ffa2ffa4ffa7ffa0ffa2ffa3ffbbffa7ffafffaaffafffa1ffa1ffa1ffa9ff9dffa0ff9fffa8ff9fffa2ff9fffacff9effa4ffa0ffacff9fffa6ff9bffafffafffb3ffa9ffafffafffb4ffb0ffbbffc0ffc6ffb7ffc0ffb7ffb6ffa7ffb0ffa6ffb1ffa0ffb3ffa4ffb2ffa0ffb4ffa4ffb4ffa0ffb4ffa5ffb7ff9affa6ffa2ff9fffa1ffa8ffa2ffaaffa4ffbeffb2ffb6ffb4ffbeffadffacffa6ffacff9dffa0ff9dffa9ff9dffa0ff9fffaaff9cffa1ff9fffacff9dffa2ff9cffb3ffafffb3ffaaffb4ffb1ffb5ffbbffc8ffc4ffc8ffbcffc9ffbfffc2ffb5ffbdffb0ffb5ffa0ffb2ffa6ffb0ff9effb3ffa3ffb2ff9effb2ffa4ffb4ff9bffa8ffa1ff9dffa2ffacffa1ffb1ffaaffc7ffb7ffb9ffb8ffc0ffb5ffb2ffb1ffbbffa8ffa5ffa0ffa7ff9bff9cff9dffa9ff9affa1ff9dffa9ff9cffa5ff9affaeffadffadffa7ffb1ffb8ffbbffc0ffcbffcaffceffc1ffcbffbfffc5ffb6ffc6ffb6ffbdffa0ffb2ffa4ffb0ff9effb3ffa1ffb1ff9fffb1ffa4ffb4ff9cffa3ff9eff9aff9fffaeffa0ffb1ffb3ffc1ffbbffb9ffbfffbfffb7ffb1ffb3ffb8ffb0ffa0ffa6ffa7ff9bff9eff99ffabff9affa0ff9dffaaff9dffa2ff9affacffafffb0ffa9ffb1ffbdffc3ffbaffcaffc2ffcdffbcffcaffbeffc8ffb7ffc6ffb1ffb9ffa0ffb2ffa5ffafff9dffb3ffa4ffb0ffa0ffb0ffa3ffb4ff9bff9eff9cff9cff9fffaeffa4ffaeffb3ffb8ffb5ffafffb9ffbaffb3ffafffb2ffb4ffafff9dff9dffa5ff9bff9dff9affa9ff9affa1ff9cffa8ff9bffa3ff9affaeffafffb0ffa8ffb6ffb5ffc0ffb5ffc3ffbcffc2ffb6ffc4ffbdffc2ffb0ffc4ffa9ffb2ff9effaeffa3ffaeff9effb0ffa3ffafffa1ffb2ffa6ffb3ff9eff9eff9aff98ff9fffa4ffa4ffa2ffafffb0ffacffaaffadffb6ffb0ffaaffafffabffa6ff99ff9affa3ff98ff99ff9bffa7ff99ffa2ff9affaeff9fffa3ff9affa7ffacffaaffa5ffaaffaaffb0ffa8ffb9ffb1ffbfffb2ffbdffb8ffc0ffa7ffbaffa4ffaeff9dffacffa3ffacff9dffb0ffa4ffb0ffaaffbbffb3ffbcffa3ff99ff96ff8fff99ff97ff98ff93ff9eff9effa0ff9effa7ffacffa8ff9fffa9ffa1ff9aff94ff97ffa0ff95ff98ff99ffa6ff98ffa5ffa0ffb8ffa9ffadffa6ffa4ffacffa7ffa3ffa7ffa7ffa9ffa3ffacffa6ffb0ffa4ffb7ffadffb7ffa1ffafff9fffa8ff9cffacffa3ffabff9effafffaaffb6ffaeffbcffbaffc4ffa9ff95ff95ff8eff94ff96ff93ff91ff96ff99ff93ff94ff97ff9eff9eff94ff9eff9dff93ff91ff94ff9fff96ff95ff96ffa8ff97ffa6ffa5ffb6ffaaffabffa6ffa4ffaaffa4ffa2ffa6ffa7ffa6ff9effa5ffa4ffa4ff9fffa7ffa1ffa7ff9bffabffa0ffa9ff9dffaaffa1ffabff9fffaeffaeffb7ffadffbbffb5ffbbffa3ff87ff8aff80ff8cff8bff8bff83ff8bff8bff89ff86ff8bff8eff89ff86ff8bff93ff8aff87ff8dff95ff8bff8dff8effa6ff93ffa0ff9dffa9ff9dff9cff994dfa1a587fff1a587fff1a577fff1a57ffb9ce351584d64efff9000b0000fffe197603fd02977fff197603fd02977fff0001000100010001000100010001000106967fff1a587fff1a587fff1a577fffffbff57acf18d8e0000afffdfffe000000f100462ac3003500f100462ac3003500010001000100010001000100010001",
+            "control-word": 6401
+          }
+        }
+      ],
+      "changes": [
+        {
+          "frame0-hex": "ffc3ffbcffc4ffbaffc3ffbcffc6ffb9ffc2ffb8ffc4ffb6ffc1ffb5ffc4ffb2ffc4ffb5ffc4ffb4ffc6ffb7ffc5ffb4ffcaffb6ffc8ffb5ffc6ffbaffcdffb4ffb9ffb8ffb6ffb8ffb9ffb6ffb6ffb5ffbaffb2ffb5ffb2ffb9ffafffb5ffb1ffbdffb0ffb6ffb2ffbbffb3ffb8ffb4ffc2ffb2ffbbffb3ffc0ffb4ffbfffb3ffc2ffbcffc4ffbbffc1ffbcffc1ffb8ffc1ffb9ffc3ffb5ffc2ffb5ffc1ffb3ffc5ffb5ffc1ffb3ffc6ffb7ffc5ffb2ffc8ffb7ffc7ffb3ffc6ffb8ffc9ffb2ffb7ffb7ffb4ffb7ffb9ffb5ffb4ffb6ffb8ffb3ffb4ffb2ffbcffafffb2ffb3ffbdffb0ffb4ffb2ffbcffb2ffb8ffb1ffc1ffb3ffb8ffb3ffbdffb1ffbcffb1ffc3ffbdffc5ffb9ffc2ffbbffc2ffb8ffc4ffb9ffc1ffb4ffc1ffb6ffc3ffb2ffc5ffb7ffc2ffb3ffc2ffb5ffc4ffb2ffc6ffb5ffc8ffb5ffc4ffb7ffc9ffb0ffbaffb5ffb4ffb6ffbaffb4ffb2ffb4ffb9ffb1ffb2ffb3ffbaffb1ffb3ffb0ffbdffafffb4ffb3ffbbffb0ffb3ffb1ffbdffaeffb9ffb1ffbbffb0ffbaffadffc0ffbdffc2ffbaffc2ffbbffc3ffb9ffc8ffbaffc6ffb4ffc2ffb6ffc1ffb4ffc2ffb4ffc2ffb4ffc2ffb7ffc5ffb4ffc2ffb5ffc4ffb2ffc4ffb6ffc9ffb2ffb5ffb4ffb1ffb4ffb6ffb0ffb1ffb3ffb8ffb7ffb1ffbaffb6ffb1ffb1ffb1ffb8ffadffb2ffafffb8ffafffb2ffafffbbffaeffb4ffb0ffbbffafffb8ffabffbfffbeffc3ffb9ffbfffbbffc4ffb8ffcbffbaffd6ffb6ffd0ffb8ffc6ffb2ffc0ffb5ffc1ffb2ffc3ffb6ffc2ffb2ffc4ffb2ffc4ffb2ffc4ffb6ffc7ffb1ffb3ffb2ffafffb1ffb5ffb2ffb2ffb4ffbaffc2ffb4ffc4ffb8ffbdffb1ffb6ffb8ffadffb2ffadffbbffadffb3ffafffbdffacffb3ffafffbbffadffb6ffacffc3ffbdffc3ffb9ffc4ffbcffc5ffb9ffd8ffbeffd8ffbbffd9ffbeffd2ffb6ffcdffb9ffc5ffb8ffc2ffbcffc0ffb4ffc3ffb4ffc2ffb1ffc2ffb4ffc4ffacffb4ffb1ffafffb2ffb7ffb1ffb2ffbaffbdffc7ffb7ffc8ffbdffc5ffb3ffc1ffbfffb8ffbaffb0ffc2ffabffb5ffadffbcffaaffb4ffadffbbffacffb5ffaaffbeffbdffbdffb8ffc1ffbdffcbffbeffdbffc2ffdeffbeffdbffc0ffd5ffbbffd6ffc2ffcdffc0ffc2ffc1ffc0ffb8ffc3ffbaffc1ffb4ffc1ffb5ffc4ffadffafffaeffa8ffafffb3ffb0ffb2ffc3ffbcffcbffb7ffcfffbeffc7ffb5ffc3ffc4ffc0ffbeffb6ffc6ffabffbbffa9ffc4ffaaffb7ffadffbcffadffb5ffaaffbcffbdffc0ffb8ffc1ffbdffd3ffbfffdaffc3ffddffbdffdaffc0ffd8ffbdffd6ffc8ffc9ffc1ffc2ffc5ffbfffbdffc3ffbfffc0ffb9ffc0ffb6ffc4ffadffaeffacffacffafffb1ffb4ffb0ffc3ffbbffc5ffb4ffc9ffbcffc3ffb7ffc2ffc5ffbfffc1ffadffc7ffabffbdffaaffc6ffaaffb8ffacffbaffabffb5ffaaffbeffbcffc0ffbbffc6ffbeffd0ffbdffd3ffc0ffd2ffbbffd4ffc0ffd2ffc0ffd4ffc8ffc2ffc3ffbeffc4ffbeffbfffc0ffbfffbfffb5ffc2ffb4ffc3ffadffaeffaaffaaffafffb1ffb4ffadffbfffb7ffbcffafffbdffbaffc0ffb7ffbfffc5ffb6ffbfffaaffc5ffa8ffbaffabffc3ffa9ffb5ffaaffbaffafffb5ffaaffb7ffbcffbaffb8ffbaffbdffc0ffbbffc9ffbdffcfffbbffcdffbfffd0ffc0ffcaffc4ffbeffbfffbcffc0ffbcffbcffc0ffbeffc0ffb6ffcbffb5ffccffb0ffa6ffa6ffa2ffa9ffa9ffa8ffa7ffaeffb0ffb0ffaeffb7ffb5ffb8ffb3ffb9ffbeffaaffb5ffa7ffbeffa5ffb6ffa9ffbfffa8ffb2ffb0ffbbffb9ffb3ffb6ffb4ffbeffb7ffb5ffb7ffb7ffb9ffb6ffbcffb6ffc0ffb3ffc7ffbdffc7ffb9ffbfffbbffb8ffb8ffbcffbdffbbffbaffbfffbeffc6ffb7ffccffbbffd4ffb4ffa3ffa5ffa0ffa4ffa4ffa3ffa2ffa6ffa9ffa3ffa6ffa7ffb0ffaeffabffaeffb4ffa3ffadffa4ffb9ffa6ffafffa6ffbbffa7ffb1ffb5ffb9ffbaffb4ffb6ffb4ffbcffb4ffb6ffb6ffb7ffb6ffb1ffb5ffb6ffb4ffb3ffb7ffb4ffb7ffafffbbffb3ffb9ffb3ffbaffb7ffbbffb6ffbeffbaffc7ffb6ffcbffbaffcbffb3ff97ff9aff94ff9cff9aff9bff96ff9bff9bff99ff95ff9bff9fff99ff9aff9bffa1ff9aff9cff9dffaaff9bffa5ff9effaeffa3ffa8ffadffaeffadffaaffa94dfa1a567fff1a567fff1a557fff1a55ffb9ce071584d653fff900090000fffd197603fd02977fff197603fd02977fff0001000100010001000100010001000106957fff1a567fff1a567fff1a557fffffbdf57acef2d8e00009fffdfffc000000ed00462ad6003500ee00462ad6003500010001000100010001000100010001",
+          "frame1-hex": "ffc3ffbdffc4ffbaffc3ffbdffc6ffb8ffc2ffb9ffc4ffb4ffc1ffb6ffc4ffb1ffc4ffb8ffc4ffb1ffc6ffb8ffc5ffb2ffcaffb7ffc8ffb3ffc6ffbaffcdffb3ffbcffb8ffb5ffb8ffbcffb6ffb5ffb5ffbaffb2ffb2ffb2ffbbffafffb0ffb1ffbbffb0ffb4ffb2ffbbffb3ffb6ffb4ffc1ffb2ffb9ffb3ffc0ffb4ffbdffb3ffc2ffbfffc4ffb8ffc1ffbeffc1ffb5ffc1ffbaffc3ffb3ffc2ffb7ffc1ffb3ffc5ffb6ffc1ffb0ffc6ffb7ffc5ffb0ffc8ffb7ffc7ffb2ffc6ffb8ffc9ffafffbaffb7ffb4ffb7ffb9ffb5ffb3ffb6ffb9ffb3ffb3ffb2ffbaffafffb2ffb3ffbdffb0ffb2ffb2ffbdffb2ffb6ffb1ffc1ffb3ffb7ffb3ffbdffb1ffb9ffb1ffc3ffbfffc5ffbaffc2ffbdffc2ffb6ffc4ffbbffc1ffb4ffc1ffb8ffc3ffb0ffc5ffb6ffc2ffb3ffc2ffb8ffc4ffb1ffc6ffb6ffc8ffb2ffc4ffb7ffc9ffacffbbffb5ffb3ffb6ffbaffb4ffb4ffb4ffc0ffb1ffb4ffb3ffb9ffb1ffb0ffb0ffbeffafffb2ffb3ffbdffb0ffb4ffb1ffbeffaeffb8ffb1ffbcffb0ffb8ffadffc0ffbeffc2ffb8ffc2ffbcffc3ffb9ffc8ffc8ffc6ffbbffc2ffbaffc1ffb1ffc2ffb5ffc2ffb0ffc2ffb5ffc5ffb1ffc2ffb6ffc4ffb3ffc4ffb5ffc9ffabffb6ffb4ffb2ffb4ffb7ffb0ffb2ffb3ffcbffb7ffbfffbaffbfffb1ffb1ffb1ffb9ffadffb0ffafffb8ffafffb2ffafffbcffaeffb4ffb0ffbcffafffb6ffabffbfffbfffc3ffb9ffbfffbfffc4ffc0ffcbffd0ffd6ffc7ffd0ffc7ffc6ffb7ffc0ffb6ffc1ffb0ffc3ffb4ffc2ffb0ffc4ffb4ffc4ffb0ffc4ffb5ffc7ffaaffb6ffb2ffafffb1ffb8ffb2ffbaffb4ffceffc2ffc6ffc4ffceffbdffbcffb6ffbcffadffb0ffadffb9ffadffb0ffafffbaffacffb1ffafffbcffadffb2ffacffc3ffbfffc3ffbaffc4ffc1ffc5ffcbffd8ffd4ffd8ffccffd9ffcfffd2ffc5ffcdffc0ffc5ffb0ffc2ffb6ffc0ffaeffc3ffb3ffc2ffaeffc2ffb4ffc4ffabffb8ffb1ffadffb2ffbcffb1ffc1ffbaffd7ffc7ffc9ffc8ffd0ffc5ffc2ffc1ffcbffb8ffb5ffb0ffb7ffabffacffadffb9ffaaffb1ffadffb9ffacffb5ffaaffbeffbdffbdffb7ffc1ffc8ffcbffd0ffdbffdaffdeffd1ffdbffcfffd5ffc6ffd6ffc6ffcdffb0ffc2ffb4ffc0ffaeffc3ffb1ffc1ffafffc1ffb4ffc4ffacffb3ffaeffaaffafffbeffb0ffc1ffc3ffd1ffcbffc9ffcfffcfffc7ffc1ffc3ffc8ffc0ffb0ffb6ffb7ffabffaeffa9ffbbffaaffb0ffadffbaffadffb2ffaaffbcffbfffc0ffb9ffc1ffcdffd3ffcaffdaffd2ffddffccffdaffceffd8ffc7ffd6ffc1ffc9ffb0ffc2ffb5ffbfffadffc3ffb4ffc0ffb0ffc0ffb3ffc4ffabffaeffacffacffafffbeffb4ffbeffc3ffc8ffc5ffbfffc9ffcaffc3ffbfffc2ffc4ffbfffadffadffb5ffabffadffaaffb9ffaaffb1ffacffb8ffabffb3ffaaffbeffbfffc0ffb8ffc6ffc5ffd0ffc5ffd3ffccffd2ffc6ffd4ffcdffd2ffc0ffd4ffb9ffc2ffaeffbeffb3ffbeffaeffc0ffb3ffbfffb1ffc2ffb6ffc3ffaeffaeffaaffa8ffafffb4ffb4ffb2ffbfffc0ffbcffbaffbdffc6ffc0ffbaffbfffbbffb6ffa9ffaaffb3ffa8ffa9ffabffb7ffa9ffb2ffaaffbeffafffb3ffaaffb7ffbcffbaffb5ffbaffbaffc0ffb8ffc9ffc1ffcfffc2ffcdffc8ffd0ffb7ffcaffb4ffbeffadffbcffb3ffbcffadffc0ffb4ffc0ffbaffcbffc3ffccffb3ffa9ffa6ff9fffa9ffa7ffa8ffa3ffaeffaeffb0ffaeffb7ffbcffb8ffafffb9ffb1ffaaffa4ffa7ffb0ffa5ffa8ffa9ffb6ffa8ffb5ffb0ffc8ffb9ffbdffb6ffb4ffbcffb7ffb3ffb7ffb7ffb9ffb3ffbcffb6ffc0ffb4ffc7ffbdffc7ffb1ffbfffafffb8ffacffbcffb3ffbbffaeffbfffbaffc6ffbeffccffcaffd4ffb9ffa5ffa5ff9effa4ffa6ffa3ffa1ffa6ffa9ffa3ffa4ffa7ffaeffaeffa4ffaeffadffa3ffa1ffa4ffafffa6ffa5ffa6ffb8ffa7ffb6ffb5ffc6ffbaffbbffb6ffb4ffbaffb4ffb2ffb6ffb7ffb6ffaeffb5ffb4ffb4ffafffb7ffb1ffb7ffabffbbffb0ffb9ffadffbaffb1ffbbffafffbeffbeffc7ffbdffcbffc5ffcbffb3ff97ff9aff90ff9cff9bff9bff93ff9bff9bff99ff96ff9bff9eff99ff96ff9bffa3ff9aff97ff9dffa5ff9bff9dff9effb6ffa3ffb0ffadffb9ffadffacffa94dfa1a587fff1a587fff1a577fff1a57ffb9ce351584d64efff9000b0000fffe197603fd02977fff197603fd02977fff0001000100010001000100010001000106967fff1a587fff1a587fff1a577fffffbff57acf18d8e0000afffdfffe000000f100462ac3003500f100462ac3003500010001000100010001000100010001"
+        }
+      ],
+      "expected_size": [
+        320,
+        240
+      ]
+    }
+  ],
+  "source_intake": "POST /api/v1/firmware/uiflow",
+  "binary_build_or_upload": false,
+  "host_execution_of_guest_python": false,
+  "source_snapshot_count": 39
+}
