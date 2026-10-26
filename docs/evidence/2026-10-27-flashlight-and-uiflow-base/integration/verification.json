@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "docs_tests": 20,
+  "docs_test_log_sha256": "1c63d004176b3a31668b6cf81ba136cb06faa196495bcc0e5b3e091428aa3989",
+  "snapshot_check_command": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "platform/tools/project_snapshot.py",
+    "--check"
+  ],
+  "snapshot_check_exit_code": 0,
+  "source_code_changed_after_block_commit": false,
+  "additional_guest_execution": "NOT RUN",
+  "hardware": "NOT RUN"
+}

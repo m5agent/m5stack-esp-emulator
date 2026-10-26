@@ -39,3 +39,9 @@ IMU偶发失败不拼接补PASS。全部会话先ZIP再stop/close，保留历史
 
 后续执行仍以 project-backlog.md 的 UNIT-01 为准：公共main.mpy入口、AIFlow
 调用侧、SSE/实时分发与剩余Unit不由本块诊断或数字子集结果自动关闭。
+
+
+集成：本块提交`50d990ba`后拉取并检查合并`origin/main@f2061759`，已经包含
+最新主线。owned服务闲置重载至gen43，原源码/包字节保留，API1.45、30 Unit、
+FlashLight partial/creation-only及公共MPY false读回一致，active/lease均0。
+[同步收据](../evidence/2026-10-27-flashlight-and-uiflow-base/integration/index.json)。

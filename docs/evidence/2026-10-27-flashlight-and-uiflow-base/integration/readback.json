@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "http_methods": [
+    "GET"
+  ],
+  "active_sessions": 0,
+  "active_lease_count": 0,
+  "generation": 43,
+  "worker_pid": 83816,
+  "unit_count": 30,
+  "flashlight_model_completeness": "partial",
+  "flash_mode_creation_only": true,
+  "public_mpy_entrypoint_enabled": false,
+  "openapi_version": "1.45.0",
+  "served_openapi_matches_checkout_sha256": "fcf262c19087ad79962aa4970f03b7887e8e833a36b10af8d6acaf128be50643",
+  "source_limits": {
+    "configured_max_count": 1024,
+    "evidence": "owned reload command and preserved internal source-record hashes; public /program-revisions reads the separate package store"
+  },
+  "package_limits": {
+    "max_revisions": 1024,
+    "max_files": 64,
+    "max_file_bytes": 262144,
+    "max_total_file_bytes": 1048576,
+    "max_http_body_bytes": 2097152,
+    "gc_enabled": false
+  },
+  "stored_sources_and_packages_preserved": true,
+  "source_stable_across_start": true,
+  "runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+  "guest_functional_retest": "NOT RUN; no runtime/code changes since validated block, main already contained"
+}
